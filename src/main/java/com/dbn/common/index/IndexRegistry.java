@@ -12,7 +12,7 @@ public class IndexRegistry<T extends Indexable> {
         INDEX.put(element.index(), element);
     }
 
-    public T get(short index) {
+    public T get(int index) {
         return INDEX.get(index);
     }
 

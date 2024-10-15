@@ -1,21 +1,21 @@
 package com.dbn.language.common.element.cache;
 
-import com.dbn.language.common.SharedTokenTypeBundle;
-import com.dbn.language.common.TokenTypeBundle;
-import com.dbn.language.common.element.impl.LeafElementType;
-import com.dbn.language.common.element.impl.WrappingDefinition;
 import com.dbn.common.index.IndexContainer;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.util.Compactables;
 import com.dbn.language.common.DBLanguage;
+import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenType;
+import com.dbn.language.common.TokenTypeBundle;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
+import com.dbn.language.common.element.impl.LeafElementType;
+import com.dbn.language.common.element.impl.WrappingDefinition;
 import com.dbn.language.common.element.util.NextTokenResolver;
-import gnu.trove.set.hash.THashSet;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 public abstract class ElementTypeLookupCache<T extends ElementType>/* implements ElementTypeLookupCache<T>*/ {
@@ -110,7 +110,7 @@ public abstract class ElementTypeLookupCache<T extends ElementType>/* implements
     }
 
     <E> Set<E> initBucket(Set<E> bucket) {
-        if (bucket == null) bucket = new THashSet<>();
+        if (bucket == null) bucket = new HashSet<>();
         return bucket;
     }
 
