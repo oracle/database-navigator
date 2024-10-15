@@ -30,11 +30,14 @@ public final class Write {
         } else if (application.isDispatchThread()) {
             application.runWriteAction(() -> run(project, runnable));
 
-        } else {
+        } else if (application.isReadAccessAllowed()){
+            // write action invoked from within read action
             Background.run(project, () -> {
                 ModalityState modalityState = ModalityState.defaultModalityState();
                 application.invokeAndWait(() -> run(project, runnable), modalityState);
             });
+        } else {
+            Dispatch.run(() -> run(project, runnable));
         }
     }
 

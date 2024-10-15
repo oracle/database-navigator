@@ -1,21 +1,20 @@
 package com.dbn.common.index;
 
 import com.dbn.common.util.Compactable;
-import gnu.trove.iterator.TShortIterator;
-import gnu.trove.set.hash.TShortHashSet;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.coverage.gnu.trove.TIntHashSet;
+import org.jetbrains.coverage.gnu.trove.TIntIterator;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Function;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
 public class IndexContainer<T extends Indexable> implements Compactable {
-    private final TShortHashSet INDEX = new TShortHashSet();
+    private final TIntHashSet INDEX = new TIntHashSet();
 
     public void add(T element) {
         INDEX.add(element.index());
@@ -35,15 +34,15 @@ public class IndexContainer<T extends Indexable> implements Compactable {
         }
     }
 
-    public Set<T> elements(Function<Short, T> resolver) {
+    public Set<T> elements(IndexResolver<T> resolver) {
         if (INDEX.isEmpty()) {
             return Collections.emptySet();
         } else {
             Set<T> elements = new HashSet<>(INDEX.size());
             try {
-                TShortIterator iterator = INDEX.iterator();
+                TIntIterator iterator = INDEX.iterator();
                 while (iterator.hasNext()) {
-                    short next = iterator.next();
+                    int next = iterator.next();
                     T element = resolver.apply(next);
                     if (element != null) {
                         elements.add(element);
@@ -66,5 +65,11 @@ public class IndexContainer<T extends Indexable> implements Compactable {
         for (T element : elements) {
             INDEX.add(element.index());
         }
+    }
+
+
+    @FunctionalInterface
+    public interface IndexResolver<R> {
+        R apply(int index);
     }
 }

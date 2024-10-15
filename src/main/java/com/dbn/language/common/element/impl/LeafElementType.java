@@ -1,8 +1,5 @@
 package com.dbn.language.common.element.impl;
 
-import com.dbn.language.common.element.parser.ParserContext;
-import com.dbn.language.common.element.path.LanguageNode;
-import com.dbn.language.common.element.path.ParserNode;
 import com.dbn.common.index.Indexable;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.ChameleonElementType;
@@ -10,6 +7,9 @@ import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.ElementLookupContext;
 import com.dbn.language.common.element.cache.ElementTypeLookupCache;
+import com.dbn.language.common.element.parser.ParserContext;
+import com.dbn.language.common.element.path.LanguageNode;
+import com.dbn.language.common.element.path.ParserNode;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,7 +28,7 @@ import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMEN
 public abstract class LeafElementType extends ElementTypeBase implements Indexable {
     private TokenType tokenType;
     private boolean optional;
-    private short idx;
+    private int idx;
 
     LeafElementType(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
@@ -43,7 +43,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
     }
 
     @Override
-    public short index() {
+    public int index() {
         return idx;
     }
 
