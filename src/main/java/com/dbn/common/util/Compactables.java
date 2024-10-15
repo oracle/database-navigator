@@ -1,9 +1,9 @@
 package com.dbn.common.util;
 
 import com.dbn.common.list.FilteredList;
-import gnu.trove.impl.hash.THash;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.coverage.gnu.trove.THash;
 
 import java.util.*;
 
