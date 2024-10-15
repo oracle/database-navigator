@@ -42,7 +42,7 @@ import static com.dbn.vfs.DatabaseFileSystem.FilePathType.*;
 
 @Slf4j
 public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysicalFileSystem,*/ NamedComponent {
-    // TODO attempts to make this non-physical backfired with the
+    // TODO Review NonPhysical marker: attempts to make this file system non-physical backfired with the PsiFileManager, specifically with rhe psifile/document linkage
 
     public static final char PS = '/';
     public static final String PSS = "" + '/';
