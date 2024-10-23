@@ -15,15 +15,16 @@
 <driver-packages>
     <driver-package id="oracle-23.3-standard" name="Oracle 23.3" database-type="ORACLE">
         <library group-id="javax.resource" artifact-id="connector-api" version="1.5"/>
-        <library group-id="oracle.jdbc" artifact-id="ojdbc8" version="23.3.0.23.09"/>
-        <library group-id="oracle.i18n" artifact-id="orai18n" version="23.3.0.23.09"/>
+        <library group-id="javax.json" artifact-id="javax.json-api" version="1.1.4"/>
+        <library group-id="com.oracle.database.jdbc" artifact-id="ojdbc8" version="23.3.0.23.09"/>
+        <library group-id="com.oracle.database.nls" artifact-id="orai18n" version="23.3.0.23.09"/>
         <library group-id="javax.servlet" artifact-id="servlet-api" version="2.5"/>
-        <library group-id="oracle.xdb" artifact-id="xdb" version="23.3.0.23.09"/>
-        <library group-id="oracle.xmlparser" artifact-id="xmlparserv2" version="23.3.0.23.09"/>
+        <library group-id="com.oracle.database.xml" artifact-id="xdb" version="23.3.0.23.09"/>
+        <library group-id="com.oracle.database.xml" artifact-id="xmlparserv2" version="23.3.0.23.09"/>
     </driver-package>
 
     <driver-package id="mysql-8.0-standard" name="MySQL 8.0.33" database-type="MYSQL">
-        <library group-id="mysql" artifact-id="mysql-connector-j" version="8.0.33"/>
+        <library group-id="com.mysql" artifact-id="mysql-connector-j" version="8.0.33"/>
     </driver-package>
 
     <driver-package id="postgresql-42.6-standard" name="PostgreSQL 42.6.0" database-type="POSTGRES">
@@ -31,11 +32,11 @@
         <library group-id="org.osgi" artifact-id="org.osgi.framework" version="1.10.0"/>
         <library group-id="org.osgi" artifact-id="org.osgi.resource" version="1.0.1"/>
         <library group-id="org.osgi" artifact-id="org.osgi.service.jdbc" version="1.1.0"/>
-        <library group-id="postgresql" artifact-id="postgresql" version="42.6.0"/>
+        <library group-id="org.postgresql" artifact-id="postgresql" version="42.6.0"/>
     </driver-package>
 
     <driver-package id="sqllite-3.45-standard" name="SQLite 3.45.3" database-type="SQLITE">
-        <library group-id="sqlite" artifact-id="sqlite-jdbc" version="3.45.3.0"/>
+        <library group-id="org.xerial" artifact-id="sqlite-jdbc" version="3.45.3.0"/>
     </driver-package>
 
 <!--    <driver-package name="Oracle 23.5 pki" database-type="ORACLE">-->
