@@ -1,6 +1,5 @@
 package com.dbn.debugger.common.settings;
 
-import com.dbn.common.compatibility.Compatibility;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.xdebugger.settings.DebuggerSettingsCategory;
 import com.intellij.xdebugger.settings.XDebuggerSettings;
@@ -14,13 +13,6 @@ public class DBProgramDebuggerSettings extends XDebuggerSettings<DBProgramDebugg
 
     protected DBProgramDebuggerSettings() {
         super("db-program");
-    }
-
-    @NotNull
-    @Override
-    @Compatibility
-    public Configurable createConfigurable() {
-        return new DBProgramDebuggerConfigurable();
     }
 
     @Override

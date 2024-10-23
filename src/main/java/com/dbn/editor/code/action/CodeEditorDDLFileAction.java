@@ -1,5 +1,6 @@
 package com.dbn.editor.code.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectPopupAction;
 import com.dbn.common.icon.Icons;
@@ -17,6 +18,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+@BackgroundUpdate
 public class CodeEditorDDLFileAction extends ProjectPopupAction {
     @Override
     public void update(@NotNull AnActionEvent e, Project project) {

@@ -7,7 +7,7 @@ import com.intellij.ui.RowIcon;
 import com.intellij.util.IconUtil;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 import static com.dbn.common.icon.IconLoader.init;
 import static com.dbn.common.icon.IconLoader.load;
@@ -314,6 +314,7 @@ public class Icons {
 //    public static final Icon DBO_ARGUMENT_OUT        = createRowIcon(DBO_ARGUMENT, COMMON_DIRECTION_OUT);
 //    public static final Icon DBO_ARGUMENT_IN_OUT     = createRowIcon(DBO_ARGUMENT, COMMON_DIRECTION_IN_OUT);
 
+
     public static final Icon DBO_ATTRIBUTE                       = load("/img/object/Attribute.png");
     public static final Icon DBO_ATTRIBUTES                      = load("/img/object/Attributes.png");
     public static final Icon DBO_ARGUMENT                        = load("/img/object/Argument.png");
@@ -346,6 +347,8 @@ public class Icons {
     public static final Icon DBO_INDEX                           = load("/img/object/index/Index.svg");
     public static final Icon DBO_INDEX_DISABLED                  = load("/img/object/index/IndexDisabled.svg");
     public static final Icon DBO_INDEXES                         = load("/img/object/index/Indexes.svg");
+    public static final Icon DBO_JAVA_CLASS                      = AllIcons.FileTypes.JavaClass;
+    public static final Icon DBO_JAVA_CLASSES                    = AllIcons.FileTypes.JavaClass;
     public static final Icon DBO_MATERIALIZED_VIEW               = load("/img/object/view/MaterializedView.svg");
     public static final Icon DBO_MATERIALIZED_VIEWS              = load("/img/object/view/MaterializedViews.svg");
     public static final Icon DBO_METHOD                          = load("/img/object/Method.png");

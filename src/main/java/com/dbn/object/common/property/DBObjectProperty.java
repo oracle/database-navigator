@@ -48,6 +48,12 @@ public enum DBObjectProperty implements Property.LongBase {
     // trigger
     FOR_EACH_ROW,
 
+    // java
+    ABSTRACT,
+    FINAL,
+    STATIC,
+    INNER,
+
     // other
 
     // these belong to DBObjectStatus (here for optimization reasons)

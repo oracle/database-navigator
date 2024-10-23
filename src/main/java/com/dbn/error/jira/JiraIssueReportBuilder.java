@@ -24,11 +24,15 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+
+import static com.dbn.DatabaseNavigator.DBN_PLUGIN_ID;
 
 public class JiraIssueReportBuilder implements IssueReportBuilder {
     private static final String LINE_DELIMITER = "\n__________________________________________________________________\n";
 
+    @Nullable
     @Override
     public IssueReport buildReport(
             Project project,
@@ -36,6 +40,8 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
             IdeaLoggingEvent[] events,
             String message,
             Consumer<SubmittedReportInfo> consumer){
+        if (!verifyPlugin(plugin)) return null;
+
         IssueReport report = new IssueReport(project, plugin, events, message, consumer);
 
         initEnvironmentInfo(report);
@@ -44,6 +50,10 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
         buildDetails(report);
 
         return report;
+    }
+
+    private static boolean verifyPlugin(IdeaPluginDescriptor plugin) {
+        return Objects.equals(plugin.getPluginId(), DBN_PLUGIN_ID);
     }
 
     private static void initEnvironmentInfo(IssueReport report) {

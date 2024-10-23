@@ -1,6 +1,6 @@
 package com.dbn.editor.data.action;
 
-import com.dbn.common.action.ProjectActionGroup;
+import com.dbn.common.action.BasicActionGroup;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Actions;
 import com.dbn.options.ConfigId;
@@ -10,8 +10,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
-public class DatasetEditorOptionsAction extends ProjectActionGroup {
+public class DatasetEditorOptionsAction extends BasicActionGroup {
 
+    @NotNull
     @Override
     public AnAction[] loadChildren(AnActionEvent e) {
         return new AnAction[]{

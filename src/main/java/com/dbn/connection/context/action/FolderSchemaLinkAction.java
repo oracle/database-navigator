@@ -1,5 +1,6 @@
 package com.dbn.connection.context.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.mapping.FileConnectionContext;
@@ -13,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 
+@BackgroundUpdate
 public class FolderSchemaLinkAction extends AbstractFolderContextAction {
 
     @Override

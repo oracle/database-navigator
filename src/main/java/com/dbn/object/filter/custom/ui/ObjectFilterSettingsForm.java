@@ -18,10 +18,15 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.*;
+import java.util.Set;
 
 import static com.dbn.common.ui.util.ComponentAligner.alignFormComponents;
 import static com.dbn.common.util.Conditional.when;
@@ -117,6 +122,7 @@ public class ObjectFilterSettingsForm extends ConfigurationEditorForm<ObjectFilt
                     DBObjectType.PACKAGE,
                     DBObjectType.TYPE,
                     DBObjectType.SYNONYM,
+                    DBObjectType.JAVA_OBJECT,
                     DBObjectType.DBLINK));
 
             List<DBObjectType> configuredObjectTypes = convert(filterForms, f -> f.getFilter().getObjectType());

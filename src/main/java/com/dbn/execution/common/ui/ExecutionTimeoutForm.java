@@ -1,7 +1,6 @@
 package com.dbn.execution.common.ui;
 
 import com.dbn.common.action.BasicAction;
-import com.dbn.common.action.ProjectActionGroup;
 import com.dbn.common.action.ProjectPopupAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNForm;

@@ -1,5 +1,6 @@
 package com.dbn.editor.code.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.util.Editors;
@@ -13,6 +14,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@BackgroundUpdate
 public abstract class AbstractCodeEditorAction extends ProjectAction {
 
     @Nullable

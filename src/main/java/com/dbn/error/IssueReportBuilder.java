@@ -5,8 +5,11 @@ import com.intellij.openapi.diagnostic.IdeaLoggingEvent;
 import com.intellij.openapi.diagnostic.SubmittedReportInfo;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.Consumer;
+import org.jetbrains.annotations.Nullable;
 
 public interface IssueReportBuilder {
+
+    @Nullable
     IssueReport buildReport(
             Project project,
             IdeaPluginDescriptor plugin,

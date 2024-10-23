@@ -1,7 +1,7 @@
 package com.dbn.data.editor.text.actions;
 
+import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.Lookups;
-import com.dbn.common.ui.misc.DBNComboBoxAction;
 import com.dbn.data.editor.text.TextContentType;
 import com.dbn.data.editor.text.ui.TextEditorForm;
 import com.dbn.editor.data.options.DataEditorQualifiedEditorSettings;
@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class TextContentTypeComboBoxAction extends DBNComboBoxAction {
+public class TextContentTypeComboBoxAction extends ComboBoxAction {
     private TextEditorForm editorForm;
 
     public TextContentTypeComboBoxAction(TextEditorForm editorForm) {

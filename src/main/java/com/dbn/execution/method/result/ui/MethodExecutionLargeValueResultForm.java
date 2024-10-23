@@ -1,10 +1,9 @@
 package com.dbn.execution.method.result.ui;
 
+import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectAction;
-import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.misc.DBNComboBoxAction;
 import com.dbn.common.util.*;
 import com.dbn.data.editor.text.TextContentType;
 import com.dbn.data.value.LargeObjectValue;
@@ -103,7 +102,7 @@ public class MethodExecutionLargeValueResultForm extends DBNFormBase {
         return mainPanel;
     }
 
-    public class ContentTypeComboBoxAction extends DBNComboBoxAction {
+    public class ContentTypeComboBoxAction extends ComboBoxAction {
 
         ContentTypeComboBoxAction() {
             Presentation presentation = getTemplatePresentation();

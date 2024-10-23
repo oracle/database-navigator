@@ -1,9 +1,10 @@
 package com.dbn.connection.context.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
+import com.dbn.connection.ConnectionSelectorOptions;
 import com.dbn.connection.mapping.FileConnectionContext;
 import com.dbn.connection.mapping.FileConnectionContextManager;
-import com.dbn.connection.ConnectionSelectorOptions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -13,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.connection.ConnectionSelectorOptions.Option.SHOW_VIRTUAL_CONNECTIONS;
 
+@BackgroundUpdate
 public class FolderConnectionLinkAction extends AbstractFolderContextAction {
 
     @Override

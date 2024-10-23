@@ -61,7 +61,9 @@ public abstract class IssueReportSubmitter extends ErrorReportSubmitter implemen
         return true;
     }
 
-    private void submitReport(IssueReport report) {
+    private void submitReport(@Nullable IssueReport report) {
+        if (report == null) return;
+
         Project project = report.getProject();
 
         Progress.prompt(project, null, true, txt("prc.reporting.title.SubmittingIssueReport"), null, progress -> {

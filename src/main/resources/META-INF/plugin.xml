@@ -26,9 +26,6 @@
                 <li>PostgreSQL
                 <li>Any JDBC compliant database (EXPERIMENTAL)
             </ul><br>
-            <br><br>
-            This tool is free for personal and commercial use.<br>
-            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3QAPZFCCARA4J">Donations</a> are very welcome though.<br>
     ]]></description>
     <change-notes><![CDATA[
         <ul>

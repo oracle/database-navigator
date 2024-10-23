@@ -1,5 +1,6 @@
 package com.dbn.execution.statement.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
@@ -21,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 
+@BackgroundUpdate
 public class ExecuteStatementEditorAction extends ProjectAction {
 
     @Override

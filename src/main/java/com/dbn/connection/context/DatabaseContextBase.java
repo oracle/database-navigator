@@ -13,7 +13,7 @@ import java.util.Objects;
 
 import static com.dbn.common.util.Commons.nvl;
 
-public interface DatabaseContextBase extends DatabaseContext{
+public interface DatabaseContextBase extends DatabaseContext {
 
     @Nullable
     default ConnectionId getConnectionId() {

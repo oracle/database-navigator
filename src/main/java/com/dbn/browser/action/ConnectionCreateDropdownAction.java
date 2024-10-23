@@ -1,6 +1,6 @@
 package com.dbn.browser.action;
 
-import com.dbn.common.action.ProjectActionGroup;
+import com.dbn.common.action.BasicActionGroup;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Actions;
 import com.dbn.connection.DatabaseType;
@@ -9,7 +9,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
-public class ConnectionCreateDropdownAction extends ProjectActionGroup {
+public class ConnectionCreateDropdownAction extends BasicActionGroup {
     private final AnAction[] actions = new AnAction[] {
             new ConnectionCreateAction(DatabaseType.ORACLE),
             new ConnectionCreateAction(DatabaseType.MYSQL),

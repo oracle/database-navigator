@@ -1,5 +1,6 @@
 package com.dbn.execution.explain.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
@@ -23,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Checks.isValid;
 
+@BackgroundUpdate
 public class ExplainPlanEditorAction extends ProjectAction {
 
     @Override

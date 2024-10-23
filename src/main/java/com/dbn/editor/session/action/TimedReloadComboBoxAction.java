@@ -1,10 +1,10 @@
 package com.dbn.editor.session.action;
 
 import com.dbn.common.action.BasicAction;
+import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.misc.DBNComboBoxAction;
 import com.dbn.common.util.Context;
 import com.dbn.editor.session.SessionBrowser;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-public class TimedReloadComboBoxAction extends DBNComboBoxAction implements DumbAware {
+public class TimedReloadComboBoxAction extends ComboBoxAction implements DumbAware {
 
     public TimedReloadComboBoxAction() {
     }

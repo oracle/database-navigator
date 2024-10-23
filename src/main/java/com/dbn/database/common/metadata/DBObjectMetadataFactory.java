@@ -14,6 +14,7 @@ import com.dbn.database.common.metadata.impl.DBGrantedPrivilegeMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBGrantedRoleMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBIndexColumnMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBIndexMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBJavaObjectMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBMaterializedViewMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBNestedTableMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBObjectDependencyMetadataImpl;
@@ -89,6 +90,7 @@ public class DBObjectMetadataFactory {
             case ARGUMENT:            return new DBArgumentMetadataImpl(resultSet);
             case DATABASE_TRIGGER:    return new DBTriggerMetadataImpl(resultSet);
             case DATASET_TRIGGER:     return new DBTriggerMetadataImpl(resultSet);
+            case JAVA_OBJECT:         return new DBJavaObjectMetadataImpl(resultSet);
             case INCOMING_DEPENDENCY: return new DBObjectDependencyMetadataImpl(resultSet);
             case OUTGOING_DEPENDENCY: return new DBObjectDependencyMetadataImpl(resultSet);
         }

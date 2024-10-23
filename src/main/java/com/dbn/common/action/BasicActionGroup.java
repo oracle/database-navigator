@@ -1,5 +1,6 @@
 package com.dbn.common.action;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -8,9 +9,9 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 
-public abstract class ProjectActionGroup extends DefaultActionGroup implements BackgroundUpdatedAction, DumbAware {
+public abstract class BasicActionGroup extends DefaultActionGroup implements BackgroundUpdateAware, DumbAware {
 
-    public ProjectActionGroup() {
+    public BasicActionGroup() {
         setPopup(true);
     }
 
@@ -28,4 +29,11 @@ public abstract class ProjectActionGroup extends DefaultActionGroup implements B
     public void update(@NotNull AnActionEvent e) {
         super.update(e);
     }
+
+    @NotNull
+    @Override
+    public ActionUpdateThread getActionUpdateThread() {
+        return resolveActionUpdateThread();
+    }
+
 }

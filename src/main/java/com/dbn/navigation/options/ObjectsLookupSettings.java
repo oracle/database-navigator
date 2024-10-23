@@ -12,11 +12,13 @@ import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 
 @Getter
@@ -46,6 +48,7 @@ public class ObjectsLookupSettings extends BasicProjectConfiguration<NavigationS
         new ObjectTypeEntry(DBObjectType.TYPE, true),
         //new ObjectTypeEntry(DBObjectType.TYPE_ATTRIBUTE, false),
         //new ObjectTypeEntry(DBObjectType.ARGUMENT, false),
+        new ObjectTypeEntry(DBObjectType.JAVA_OBJECT, true),
         new ObjectTypeEntry(DBObjectType.DIMENSION, false),
         new ObjectTypeEntry(DBObjectType.CLUSTER, false),
         new ObjectTypeEntry(DBObjectType.DBLINK, true)

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public interface DBDataset extends DBSchemaObject {
+public interface DBDataset extends DBSchemaObject, com.dbn.api.object.DBDataset {
     @NotNull List<DBColumn> getColumns();
     @Nullable DBColumn getColumn(String name);
 

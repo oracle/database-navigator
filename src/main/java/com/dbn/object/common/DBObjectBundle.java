@@ -1,5 +1,6 @@
 package com.dbn.object.common;
 
+import com.dbn.api.database.DatabaseMetadata;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.routine.Consumer;
@@ -17,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public interface DBObjectBundle extends BrowserTreeNode, StatefulDisposable {
+public interface DBObjectBundle extends BrowserTreeNode, StatefulDisposable, DatabaseMetadata {
     List<DBConsole> getConsoles();
 
     List<DBSchema> getSchemas();

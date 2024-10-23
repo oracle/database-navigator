@@ -1,5 +1,6 @@
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.mapping.FileConnectionContextManager;
@@ -17,6 +18,7 @@ import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@BackgroundUpdate
 public class SchemaSelectAction extends AnObjectAction<DBSchema> {
     SchemaSelectAction(DBSchema schema) {
         super(schema);

@@ -98,6 +98,11 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
+    public ResultSet loadJavaObjects(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "java-objects", ownerName);
+    }
+
+    @Override
     public ResultSet loadMaterializedViews(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "materialized-views", ownerName);
     }

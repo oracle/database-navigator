@@ -2,7 +2,19 @@ package com.dbn.database.generic;
 
 import com.dbn.common.latent.Latent;
 import com.dbn.common.util.Strings;
-import com.dbn.database.common.metadata.impl.*;
+import com.dbn.database.common.metadata.impl.DBArgumentMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBColumnMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBConstraintColumnMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBConstraintMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBDataTypeMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBFunctionMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBIndexColumnMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBIndexMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBMethodMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBProcedureMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBSchemaMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBTableMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBViewMetadataImpl;
 import com.dbn.database.common.util.CachedResultSet;
 import com.dbn.database.common.util.CachedResultSetRow;
 import com.dbn.database.common.util.WrappedCachedResultSet;
@@ -21,7 +33,18 @@ import java.util.Objects;
 
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
-import static java.sql.DatabaseMetaData.*;
+import static java.sql.DatabaseMetaData.functionColumnIn;
+import static java.sql.DatabaseMetaData.functionColumnInOut;
+import static java.sql.DatabaseMetaData.functionColumnOut;
+import static java.sql.DatabaseMetaData.functionColumnResult;
+import static java.sql.DatabaseMetaData.functionColumnUnknown;
+import static java.sql.DatabaseMetaData.functionNoTable;
+import static java.sql.DatabaseMetaData.functionResultUnknown;
+import static java.sql.DatabaseMetaData.functionReturn;
+import static java.sql.DatabaseMetaData.functionReturnsTable;
+import static java.sql.DatabaseMetaData.procedureNoResult;
+import static java.sql.DatabaseMetaData.procedureResultUnknown;
+import static java.sql.DatabaseMetaData.procedureReturnsResult;
 
 
 public class GenericMetadataTranslators {
