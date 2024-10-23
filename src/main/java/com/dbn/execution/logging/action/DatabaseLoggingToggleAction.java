@@ -1,5 +1,6 @@
 package com.dbn.execution.logging.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ToggleAction;
 import com.dbn.common.icon.Icons;
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 
+@BackgroundUpdate
 public class DatabaseLoggingToggleAction extends ToggleAction implements DumbAware {
 
     @Override

@@ -1,7 +1,8 @@
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.BackgroundUpdate;
+import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.Lookups;
-import com.dbn.common.ui.misc.DBNComboBoxAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.ddl.DDLFileAttachmentManager;
@@ -19,7 +20,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class ConnectionSelectDropdownAction extends DBNComboBoxAction implements DumbAware {
+@BackgroundUpdate
+public class ConnectionSelectDropdownAction extends ComboBoxAction implements DumbAware {
     private static final String NAME = "DB Connections";
 
     @Override

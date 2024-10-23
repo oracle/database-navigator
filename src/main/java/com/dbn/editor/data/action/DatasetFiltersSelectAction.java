@@ -1,7 +1,7 @@
 package com.dbn.editor.data.action;
 
+import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.misc.DBNComboBoxAction;
 import com.dbn.editor.data.DatasetEditor;
 import com.dbn.editor.data.filter.DatasetFilter;
 import com.dbn.editor.data.filter.DatasetFilterGroup;
@@ -17,7 +17,7 @@ import javax.swing.*;
 
 import static com.dbn.common.dispose.Checks.isValid;
 
-public class DatasetFiltersSelectAction extends DBNComboBoxAction {
+public class DatasetFiltersSelectAction extends ComboBoxAction {
     public DatasetFiltersSelectAction() {
         Presentation presentation = getTemplatePresentation();
         presentation.setText("No Filter");

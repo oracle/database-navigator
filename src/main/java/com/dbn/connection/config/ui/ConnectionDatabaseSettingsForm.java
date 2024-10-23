@@ -13,8 +13,17 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Commons;
-import com.dbn.connection.*;
-import com.dbn.connection.config.*;
+import com.dbn.connection.AuthenticationType;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectivityStatus;
+import com.dbn.connection.DatabaseType;
+import com.dbn.connection.DatabaseUrlPattern;
+import com.dbn.connection.DatabaseUrlType;
+import com.dbn.connection.config.ConnectionBundleSettings;
+import com.dbn.connection.config.ConnectionConfigListener;
+import com.dbn.connection.config.ConnectionConfigType;
+import com.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.file.DatabaseFileBundle;
 import com.dbn.driver.DriverSource;
 import com.intellij.openapi.options.ConfigurationException;
@@ -22,15 +31,23 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.DocumentAdapter;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.util.Objects;
 
-import static com.dbn.common.ui.util.ComboBoxes.*;
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
+import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static java.awt.event.KeyEvent.VK_UNDEFINED;
 
 @SuppressWarnings("unused")
@@ -240,6 +257,8 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         AuthenticationInfo authenticationInfo = configuration.getAuthenticationInfo();
         String oldUserName = authenticationInfo.getUser();
         String oldPassword = authenticationInfo.getPassword();
+        String oldConfigFile = authenticationInfo.getTokenConfigFile();
+        String oldProfile = authenticationInfo.getTokenProfile();
         authSettingsForm.applyFormChanges(authenticationInfo);
         if (!ConfigurationHandle.isTransitory()) {
             authenticationInfo.updateKeyChain(oldUserName, oldPassword);
@@ -271,8 +290,9 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
                 //!connectionConfig.getProperties().equals(propertiesEditorForm.getProperties()) ||
                 !Commons.match(configuration.getDatabaseType(), selectedDatabaseType) ||
                 !Commons.match(configuration.getDriverLibrary(), driverSettingsForm.getDriverLibrary()) ||
-                !Commons.match(configuration.getAuthenticationInfo().getUser(), authSettingsForm.getUser());
-
+                !Commons.match(configuration.getAuthenticationInfo().getUser(), authSettingsForm.getUser()) ||
+                !Commons.match(configuration.getAuthenticationInfo().getTokenConfigFile(), authSettingsForm.getTokenConfigFile()) ||
+                !Commons.match(configuration.getAuthenticationInfo().getTokenProfile(), authSettingsForm.getTokenProfile());
 
         applyFormChanges(configuration);
 

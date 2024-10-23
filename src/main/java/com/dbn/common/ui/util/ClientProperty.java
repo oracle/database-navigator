@@ -2,14 +2,19 @@ package com.dbn.common.ui.util;
 
 import com.dbn.common.util.Unsafe;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import java.awt.Component;
 
 public enum ClientProperty {
     REGULAR_SPLITTER,
     BORDER,
     BORDERLESS,
-    REGISTERED;
+    REGISTERED,
+    CACHED_VALUE,
+    CLASSIFICATION,
+    VISIBILITY_CONDITION,
+    ACCESSIBILITY_CONDITION,
+    FIELD_ERROR;
 
 
     public boolean is(Component component) {

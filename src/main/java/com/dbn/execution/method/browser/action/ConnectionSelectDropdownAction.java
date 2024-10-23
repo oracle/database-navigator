@@ -1,7 +1,7 @@
 package com.dbn.execution.method.browser.action;
 
+import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.Lookups;
-import com.dbn.common.ui.misc.DBNComboBoxAction;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class ConnectionSelectDropdownAction extends DBNComboBoxAction {
+public class ConnectionSelectDropdownAction extends ComboBoxAction {
     private final MethodExecutionBrowserForm browserComponent;
     private final boolean debug;
 

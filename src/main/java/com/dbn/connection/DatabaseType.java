@@ -9,11 +9,15 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.Arrays;
 
 import static com.dbn.common.constant.Constant.array;
 import static com.dbn.common.util.Strings.toUpperCase;
+import static com.dbn.connection.AuthenticationType.NONE;
+import static com.dbn.connection.AuthenticationType.OS_CREDENTIALS;
+import static com.dbn.connection.AuthenticationType.USER;
+import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 
 @Getter
 public enum DatabaseType implements Constant<DatabaseType>, Presentable{
@@ -30,7 +34,7 @@ public enum DatabaseType implements Constant<DatabaseType>, Presentable{
             Icons.DB_MYSQL,
             Icons.DB_MYSQL_LARGE,
             "com.mysql.cj.jdbc.Driver",
-            AuthenticationType.values(),
+            array(NONE, USER, USER_PASSWORD, OS_CREDENTIALS),
             array(DatabaseUrlPattern.MYSQL_DB, DatabaseUrlPattern.GENERIC),
             array("MARIADB", "PERCONA", "OURDELTA", "DRIZZLE", "MAXDB")),
 
@@ -39,7 +43,7 @@ public enum DatabaseType implements Constant<DatabaseType>, Presentable{
             Icons.DB_POSTGRESQL,
             Icons.DB_POSTGRESQL_LARGE,
             "org.postgresql.Driver",
-            AuthenticationType.values(),
+            array(NONE, USER, USER_PASSWORD, OS_CREDENTIALS),
             array(DatabaseUrlPattern.POSTGRES_DB, DatabaseUrlPattern.GENERIC),
             array("REDSHIFT", "BITNINE", "NCLUSTER", "GREENPLUM", "HADOOPDB", "NETEZZA", "PARACCEL", "PGPOOL", "REDHAT", "TORODB", "TERADATA", "YUGABYTE")),
 
@@ -48,7 +52,7 @@ public enum DatabaseType implements Constant<DatabaseType>, Presentable{
             Icons.DB_SQLITE,
             Icons.DB_SQLITE_LARGE,
             "org.sqlite.JDBC",
-            array(AuthenticationType.NONE),
+            array(NONE),
             array(DatabaseUrlPattern.SQLITE_FILE, DatabaseUrlPattern.GENERIC)),
 
     GENERIC(
@@ -56,7 +60,7 @@ public enum DatabaseType implements Constant<DatabaseType>, Presentable{
             Icons.DB_GENERIC,
             Icons.DB_GENERIC_LARGE,
             "java.sql.Driver",
-            AuthenticationType.values(),
+            array(NONE, USER, USER_PASSWORD, OS_CREDENTIALS),
             array(DatabaseUrlPattern.GENERIC)),
 
     @Deprecated // used for fallback on existing configs TODO decommission after a few releases
@@ -214,6 +218,6 @@ public enum DatabaseType implements Constant<DatabaseType>, Presentable{
     }
 
     public boolean supportsAuthentication() {
-        return authTypes.length > 1 || authTypes[0] != AuthenticationType.NONE;
+        return authTypes.length > 1 || authTypes[0] != NONE;
     }
 }

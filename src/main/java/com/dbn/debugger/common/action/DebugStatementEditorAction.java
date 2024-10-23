@@ -1,5 +1,6 @@
 package com.dbn.debugger.common.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
@@ -26,6 +27,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 
+@BackgroundUpdate
 public class DebugStatementEditorAction extends ProjectAction {
 
     @Override

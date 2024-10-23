@@ -11,7 +11,7 @@
       <component id="fe56" class="javax.swing.JLabel" binding="urlTypeLabel">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-            <preferred-size width="90" height="-1"/>
+            <preferred-size width="120" height="-1"/>
           </grid>
         </constraints>
         <properties>
@@ -31,16 +31,14 @@
       <component id="a0a77" class="com.intellij.openapi.ui.ComboBox" binding="urlTypeComboBox">
         <constraints>
           <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="180" height="-1"/>
+            <preferred-size width="220" height="-1"/>
           </grid>
         </constraints>
         <properties/>
       </component>
       <component id="a6408" class="javax.swing.JLabel" binding="hostLabelField">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-            <preferred-size width="90" height="-1"/>
-          </grid>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <background color="-14597858"/>
@@ -74,9 +72,7 @@
       </component>
       <component id="af3df" class="javax.swing.JLabel" binding="tnsFolderLabel">
         <constraints>
-          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-            <preferred-size width="90" height="-1"/>
-          </grid>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text resource-bundle="messages/DBNResources" key="cfg.connection.label.TnsFolder"/>
@@ -90,9 +86,7 @@
       </component>
       <component id="9cf03" class="javax.swing.JLabel" binding="urlLabel">
         <constraints>
-          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-            <preferred-size width="90" height="-1"/>
-          </grid>
+          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <labelFor value=""/>
@@ -107,9 +101,7 @@
       </component>
       <component id="aa52c" class="javax.swing.JLabel" binding="databaseFilesLabel">
         <constraints>
-          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-            <preferred-size width="90" height="-1"/>
-          </grid>
+          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <labelFor value=""/>
@@ -128,9 +120,7 @@
       </grid>
       <component id="f5f46" class="javax.swing.JLabel" binding="tnsProfileLabel">
         <constraints>
-          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-            <preferred-size width="90" height="-1"/>
-          </grid>
+          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <labelFor value="cf336"/>
@@ -157,7 +147,7 @@
       <component id="cf336" class="com.dbn.common.ui.misc.DBNComboBox" binding="tnsProfileComboBox">
         <constraints>
           <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="180" height="-1"/>
+            <preferred-size width="220" height="-1"/>
           </grid>
         </constraints>
         <properties/>

@@ -54,10 +54,5 @@ public abstract class ProjectAction extends BasicAction {
     }
 
     protected abstract void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project);
-
-
-
-
-
 }
 

@@ -3,10 +3,12 @@ package com.dbn.database;
 import com.dbn.common.property.Property;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.context.DatabaseContext;
+import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isValid;
 
+@Getter
 public enum JdbcProperty implements Property.IntBase {
     MD_CATALOGS("Catalogs", true),
     MD_SCHEMAS("Schemas", true),
@@ -40,14 +42,6 @@ public enum JdbcProperty implements Property.IntBase {
     @Override
     public IntMasks masks() {
         return masks;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public boolean isFeature() {
-        return feature;
     }
 
     public boolean isSupported(@Nullable ConnectionHandler connection) {

@@ -1,6 +1,6 @@
 package com.dbn.navigation.action;
 
-import com.dbn.common.action.PerformableActionGroup;
+import com.dbn.common.action.BasicActionGroup;
 import com.dbn.common.clipboard.Clipboard;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.util.TextFields;
@@ -131,7 +131,7 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
     }
 
 
-    private class SelectConnectionAction extends PerformableActionGroup {
+    private class SelectConnectionAction extends BasicActionGroup {
         private final ConnectionRef connection;
 
         private SelectConnectionAction(ConnectionHandler connection) {
@@ -139,6 +139,7 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
             Presentation presentation = getTemplatePresentation();
             presentation.setText(connection.getName(), false);
             presentation.setIcon(connection.getIcon());
+            presentation.setPerformGroup(true);
             setPopup(true);
         }
 
@@ -156,7 +157,7 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
 
         @NotNull
         @Override
-        public AnAction[] getChildren(AnActionEvent e) {
+        public AnAction[] loadChildren(AnActionEvent e) {
             List<SelectSchemaAction> schemaActions = new ArrayList<>();
             ConnectionHandler connection = getConnection();
             for (DBSchema schema : connection.getObjectBundle().getSchemas()) {

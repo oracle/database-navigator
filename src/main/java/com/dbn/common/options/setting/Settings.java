@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -48,7 +47,7 @@ public final class Settings {
             return stringValue == null ? defaultValue : Double.parseDouble(stringValue);
         } catch (Exception e){
             conditionallyLog(e);
-            log.warn("Failed to read DOUBLE config (" + childName + "): " + e.getMessage());
+            log.warn("Failed to read DOUBLE config ({}): {}", childName, e.getMessage());
             return defaultValue;
         }
     }
@@ -66,8 +65,20 @@ public final class Settings {
             return stringValue == null ? defaultValue : (T) T.valueOf(defaultValue.getClass(), stringValue);
         } catch (IllegalArgumentException e) {
             conditionallyLog(e);
-            log.warn("Failed to read ENUM config (" + childName + "): " + e.getMessage());
+            log.warn("Failed to read ENUM config ({}): {}", childName, e.getMessage());
             return defaultValue;
+        }
+    }
+
+    public static <T extends Enum<T>> T getEnum(Element parent, String childName, @NotNull Class<T> enumType) {
+        try {
+            Element element = parent.getChild(childName);
+            String stringValue = getStringValue(element);
+            return stringValue == null ? null : T.valueOf(enumType, stringValue);
+        } catch (IllegalArgumentException e) {
+            conditionallyLog(e);
+            log.warn("Failed to read ENUM config ({}): {}", childName, e.getMessage());
+            return null;
         }
     }
 
@@ -100,7 +111,7 @@ public final class Settings {
             return Short.parseShort(attributeValue);
         } catch (Exception e) {
             conditionallyLog(e);
-            log.warn("Failed to read SHORT config (" + attributeName + "): " + e.getMessage());
+            log.warn("Failed to read SHORT config ({}): {}", attributeName, e.getMessage());
             return defaultValue;
         }
     }
@@ -114,7 +125,7 @@ public final class Settings {
             return Integer.parseInt(attributeValue);
         } catch (NumberFormatException e) {
             conditionallyLog(e);
-            log.warn("Failed to read INTEGER config (" + attributeName + "): " + e.getMessage());
+            log.warn("Failed to read INTEGER config ({}): {}", attributeName, e.getMessage());
             return defaultValue;
         }
     }
@@ -128,7 +139,7 @@ public final class Settings {
             return Long.parseLong(attributeValue);
         } catch (NumberFormatException e) {
             conditionallyLog(e);
-            log.warn("Failed to read LONG config (" + attributeName + "): " + e.getMessage());
+            log.warn("Failed to read LONG config ({}): {}", attributeName, e.getMessage());
             return defaultValue;
         }
     }
@@ -147,7 +158,7 @@ public final class Settings {
             return Strings.isEmpty(attributeValue) ? null : T.valueOf(enumClass, attributeValue);
         } catch (Exception e) {
             conditionallyLog(e);
-            log.warn("Failed to read ENUM config (" + attributeName + "): " + e.getMessage());
+            log.warn("Failed to read ENUM attribute ({}): {}", attributeName, e.getMessage());
             return null;
         }
     }
@@ -158,7 +169,7 @@ public final class Settings {
             return Strings.isEmpty(attributeValue) ? defaultValue : T.valueOf((Class<T>) defaultValue.getClass(), attributeValue);
         } catch (Exception e) {
             conditionallyLog(e);
-            log.warn("Failed to read ENUM config (" + attributeName + "): " + e.getMessage());
+            log.warn("Failed to read ENUM attribute ({}): {}", attributeName, e.getMessage());
             return defaultValue;
         }
     }

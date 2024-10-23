@@ -1,6 +1,6 @@
 package com.dbn.execution.method.browser.action;
 
-import com.dbn.common.ui.misc.DBNComboBoxAction;
+import com.dbn.common.action.ComboBoxAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.execution.method.browser.ui.MethodExecutionBrowserForm;
 import com.dbn.object.DBSchema;
@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class SchemaSelectDropdownAction extends DBNComboBoxAction {
+public class SchemaSelectDropdownAction extends ComboBoxAction {
     MethodExecutionBrowserForm browserComponent;
 
     public SchemaSelectDropdownAction(MethodExecutionBrowserForm browserComponent) {

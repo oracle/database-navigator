@@ -1,5 +1,6 @@
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.environment.EnvironmentManager;
@@ -18,10 +19,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 
+@BackgroundUpdate
 public abstract class TransactionEditorAction extends ProjectAction {
 
     @Override

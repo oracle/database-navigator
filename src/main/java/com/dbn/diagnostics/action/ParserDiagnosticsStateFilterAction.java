@@ -1,7 +1,7 @@
 package com.dbn.diagnostics.action;
 
 import com.dbn.common.action.BasicAction;
-import com.dbn.common.ui.misc.DBNComboBoxAction;
+import com.dbn.common.action.ComboBoxAction;
 import com.dbn.diagnostics.data.ParserDiagnosticsFilter;
 import com.dbn.diagnostics.data.StateTransition;
 import com.dbn.diagnostics.ui.ParserDiagnosticsForm;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class ParserDiagnosticsStateFilterAction extends DBNComboBoxAction implements DumbAware {
+public class ParserDiagnosticsStateFilterAction extends ComboBoxAction implements DumbAware {
     private final ParserDiagnosticsForm form;
 
     public ParserDiagnosticsStateFilterAction(ParserDiagnosticsForm form) {

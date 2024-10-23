@@ -1,8 +1,9 @@
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.BackgroundUpdate;
+import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.misc.DBNComboBoxAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.mapping.FileConnectionContextManager;
@@ -23,7 +24,8 @@ import javax.swing.*;
 
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 
-public class SchemaSelectDropdownAction extends DBNComboBoxAction implements DumbAware {
+@BackgroundUpdate
+public class SchemaSelectDropdownAction extends ComboBoxAction implements DumbAware {
     private static final String NAME = "Schema";
 
     @NotNull

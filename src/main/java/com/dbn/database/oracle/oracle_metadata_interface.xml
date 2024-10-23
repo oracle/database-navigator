@@ -206,6 +206,23 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="java-objects" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL">
+            select
+                NAME as OBJECT_NAME,
+                KIND as OBJECT_KIND,
+                ACCESSIBILITY as OBJECT_ACCESSIBILITY,
+                decode(IS_FINAL,'YES','Y','N') as IS_FINAL,
+                decode(IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
+                decode(IS_INNER,'YES','Y','N') as IS_INNER,
+                decode(IS_STATIC,'YES','Y','N') as IS_STATIC
+            from [PREFIX]_JAVA_CLASSES
+            where OWNER = {0}
+                and IS_INNER = 'NO'
+                and NAME not like '%$%'
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="materialized-views" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select
