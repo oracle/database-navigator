@@ -14,15 +14,18 @@
 
 package com.dbn.driver.packages;
 
+import com.intellij.openapi.project.Project;
+
 import java.util.List;
 
 public class DriverPackageDownloader {
-  public static void downloadDriverPackage(DriverPackage driverPackage) {
+  public static void downloadDriverPackage(Project project, DriverPackage driverPackage) {
     List<Library> libraryList = driverPackage.getLibraries();
 
     for(Library library : libraryList){
       try {
         MavenArtifactDownloader.downloadArtifact(
+            project,
             library.getGroupId(),
             library.getArtifactId(),
             library.getVersion(),
