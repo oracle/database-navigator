@@ -22,11 +22,6 @@ public abstract class DataSearchHeaderToggleAction extends ToggleAction implemen
         templatePresentation.setSelectedIcon(selectedIcon);
     }
 
-    @Override
-    public boolean isUpdateInBackground() {
-        return false;
-    }
-
     protected FindModel getFindModel() {
         return getSearchComponent().getFindModel();
     }

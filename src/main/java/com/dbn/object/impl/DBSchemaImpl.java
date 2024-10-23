@@ -11,7 +11,28 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.common.metadata.def.DBSchemaMetadata;
-import com.dbn.object.*;
+import com.dbn.object.DBCluster;
+import com.dbn.object.DBColumn;
+import com.dbn.object.DBConstraint;
+import com.dbn.object.DBDatabaseLink;
+import com.dbn.object.DBDatabaseTrigger;
+import com.dbn.object.DBDataset;
+import com.dbn.object.DBDatasetTrigger;
+import com.dbn.object.DBDimension;
+import com.dbn.object.DBFunction;
+import com.dbn.object.DBIndex;
+import com.dbn.object.DBMaterializedView;
+import com.dbn.object.DBMethod;
+import com.dbn.object.DBPackage;
+import com.dbn.object.DBProcedure;
+import com.dbn.object.DBProgram;
+import com.dbn.object.DBSchema;
+import com.dbn.object.DBSequence;
+import com.dbn.object.DBSynonym;
+import com.dbn.object.DBTable;
+import com.dbn.object.DBType;
+import com.dbn.object.DBUser;
+import com.dbn.object.DBView;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBRootObjectImpl;
 import com.dbn.object.common.DBSchemaObject;
@@ -28,17 +49,56 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
+import static com.dbn.common.content.DynamicContentProperty.GROUPED;
 import static com.dbn.common.content.DynamicContentProperty.HIDDEN;
-import static com.dbn.common.content.DynamicContentProperty.*;
+import static com.dbn.common.content.DynamicContentProperty.INTERNAL;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
-import static com.dbn.object.common.property.DBObjectProperty.*;
+import static com.dbn.object.common.property.DBObjectProperty.DEBUGABLE;
+import static com.dbn.object.common.property.DBObjectProperty.EMPTY_SCHEMA;
+import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
+import static com.dbn.object.common.property.DBObjectProperty.PUBLIC_SCHEMA;
+import static com.dbn.object.common.property.DBObjectProperty.ROOT_OBJECT;
+import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
+import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_SCHEMA;
+import static com.dbn.object.common.property.DBObjectProperty.USER_SCHEMA;
 import static com.dbn.object.type.DBObjectRelationType.CONSTRAINT_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.INDEX_COLUMN;
-import static com.dbn.object.type.DBObjectType.*;
+import static com.dbn.object.type.DBObjectType.ARGUMENT;
+import static com.dbn.object.type.DBObjectType.CLUSTER;
+import static com.dbn.object.type.DBObjectType.COLUMN;
+import static com.dbn.object.type.DBObjectType.CONSTRAINT;
+import static com.dbn.object.type.DBObjectType.DATABASE_TRIGGER;
+import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
+import static com.dbn.object.type.DBObjectType.DBLINK;
+import static com.dbn.object.type.DBObjectType.DIMENSION;
+import static com.dbn.object.type.DBObjectType.FUNCTION;
+import static com.dbn.object.type.DBObjectType.INDEX;
+import static com.dbn.object.type.DBObjectType.JAVA_OBJECT;
+import static com.dbn.object.type.DBObjectType.MATERIALIZED_VIEW;
+import static com.dbn.object.type.DBObjectType.NESTED_TABLE;
+import static com.dbn.object.type.DBObjectType.PACKAGE;
+import static com.dbn.object.type.DBObjectType.PACKAGE_FUNCTION;
+import static com.dbn.object.type.DBObjectType.PACKAGE_PROCEDURE;
+import static com.dbn.object.type.DBObjectType.PACKAGE_TYPE;
+import static com.dbn.object.type.DBObjectType.PROCEDURE;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
+import static com.dbn.object.type.DBObjectType.SEQUENCE;
+import static com.dbn.object.type.DBObjectType.SYNONYM;
+import static com.dbn.object.type.DBObjectType.TABLE;
+import static com.dbn.object.type.DBObjectType.TYPE;
+import static com.dbn.object.type.DBObjectType.TYPE_ATTRIBUTE;
+import static com.dbn.object.type.DBObjectType.TYPE_FUNCTION;
+import static com.dbn.object.type.DBObjectType.TYPE_PROCEDURE;
+import static com.dbn.object.type.DBObjectType.VIEW;
 
 class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchema {
     private Latent<List<DBColumn>> primaryKeyColumns;
@@ -72,6 +132,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(PACKAGE,           this);
         childObjects.createObjectList(TYPE,              this);
         childObjects.createObjectList(DATABASE_TRIGGER,  this);
+        childObjects.createObjectList(JAVA_OBJECT,       this);
         childObjects.createObjectList(DIMENSION,         this);
         childObjects.createObjectList(CLUSTER,           this);
         childObjects.createObjectList(DBLINK,            this);
@@ -462,6 +523,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
                 getChildObjectList(PACKAGE),
                 getChildObjectList(TYPE),
                 getChildObjectList(DATABASE_TRIGGER),
+                getChildObjectList(JAVA_OBJECT),
                 getChildObjectList(DIMENSION),
                 getChildObjectList(CLUSTER),
                 getChildObjectList(DBLINK));
@@ -473,6 +535,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         return
             settings.isVisible(TABLE) ||
             settings.isVisible(VIEW) ||
+            settings.isVisible(JAVA_OBJECT) ||
             settings.isVisible(MATERIALIZED_VIEW) ||
             settings.isVisible(SYNONYM) ||
             settings.isVisible(SEQUENCE) ||

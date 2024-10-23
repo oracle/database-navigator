@@ -1,8 +1,8 @@
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.BackgroundUpdate;
+import com.dbn.common.action.BasicActionGroup;
 import com.dbn.common.action.Lookups;
-import com.dbn.common.action.ProjectActionGroup;
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.DatabaseFeature;
@@ -20,7 +20,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EditorOptionsAction extends ProjectActionGroup {
+@BackgroundUpdate
+public class EditorOptionsAction extends BasicActionGroup {
     @NotNull
     @Override
     protected AnAction[] loadChildren(AnActionEvent e) {

@@ -9,7 +9,7 @@ import com.dbn.object.type.DBObjectType;
 import java.util.List;
 import java.util.Set;
 
-public interface DBSchema extends DBRootObject {
+public interface DBSchema extends DBRootObject, com.dbn.api.object.DBSchema {
     boolean isPublicSchema();
     boolean isUserSchema();
     boolean isSystemSchema();

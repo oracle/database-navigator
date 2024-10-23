@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public interface DBColumn extends DBOrderedObject {
+public interface DBColumn extends DBOrderedObject, com.dbn.api.object.DBColumn {
     DBDataType getDataType();
     boolean isPrimaryKey();
     boolean isSinglePrimaryKey();

@@ -15,7 +15,11 @@ import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.util.*;
+import com.dbn.common.util.Dialogs;
+import com.dbn.common.util.Editors;
+import com.dbn.common.util.Lists;
+import com.dbn.common.util.Strings;
+import com.dbn.common.util.TimeUtil;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
@@ -56,7 +60,10 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.util.Conditional.when;
-import static com.dbn.common.util.Messages.*;
+import static com.dbn.common.util.Messages.options;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Messages.showInfoDialog;
+import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.connection.transaction.TransactionAction.actions;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -208,7 +215,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
         String connectionName = databaseSettings.getName();
 
-        Progress.modal(project, null, false,
+        Progress.modal(project, null, true,
                 txt("msg.connection.title.ConnectingToDatabase"),
                 txt("msg.connection.info.AttemptingConnectionToDatabase", connectionName),
                 progress -> {
@@ -374,9 +381,13 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                             String oldUser = storedAuthenticationInfo.getUser();
                             String oldPassword = storedAuthenticationInfo.getPassword();
 
+                            storedAuthenticationInfo.setType(newAuthenticationInfo.getType());
                             storedAuthenticationInfo.setUser(newAuthenticationInfo.getUser());
                             storedAuthenticationInfo.setPassword(newAuthenticationInfo.getPassword());
-                            storedAuthenticationInfo.setType(newAuthenticationInfo.getType());
+
+                            storedAuthenticationInfo.setTokenConfigFile(newAuthenticationInfo.getTokenConfigFile());
+                            storedAuthenticationInfo.setTokenProfile(newAuthenticationInfo.getTokenProfile());
+                            storedAuthenticationInfo.setTokenType(newAuthenticationInfo.getTokenType());
 
                             storedAuthenticationInfo.updateKeyChain(oldUser, oldPassword);
                         } else {

@@ -4,7 +4,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public interface DBTable extends DBDataset {
+public interface DBTable extends DBDataset, com.dbn.api.object.DBTable {
     boolean isTemporary();
     @Override
     @Nullable

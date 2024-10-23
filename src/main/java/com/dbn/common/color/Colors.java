@@ -1,9 +1,7 @@
 package com.dbn.common.color;
 
-import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.ui.util.LookAndFeel;
-import com.dbn.common.util.Commons;
 import com.dbn.data.grid.color.DataGridTextAttributesKeys;
 import com.intellij.codeInsight.hint.HintUtil;
 import com.intellij.ide.ui.laf.darcula.DarculaUIUtil;
@@ -22,9 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.dbn.common.Reflection.invokeMethod;
 import static com.dbn.common.color.ColorCache.cached;
 import static com.dbn.common.color.ColorSchemes.background;
 import static com.dbn.common.color.ColorSchemes.foreground;
@@ -183,11 +179,8 @@ public final class Colors {
     }
 
 
-    @Compatibility
     public static Color getWarningHintColor() {
-        return cached(34, () -> Commons.coalesce(
-                () -> invokeMethod(HintUtil.class, "getWarningColor"),
-                () -> new JBColor(0xfff8dc, 0x665014)));
+        return cached(34, () -> HintUtil.getWarningColor());
     }
 
     public static Color getErrorHintColor() {

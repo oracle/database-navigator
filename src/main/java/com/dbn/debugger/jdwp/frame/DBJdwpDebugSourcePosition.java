@@ -1,6 +1,5 @@
 package com.dbn.debugger.jdwp.frame;
 
-import com.dbn.common.compatibility.Compatibility;
 import com.dbn.object.common.DBObjectPsiCache;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
@@ -49,19 +48,15 @@ public class DBJdwpDebugSourcePosition extends SourcePosition {
     }
 
     @Override
-    @Compatibility
     public void navigate(boolean requestFocus) {
-
     }
 
     @Override
-    @Compatibility
     public boolean canNavigate() {
         return false;
     }
 
     @Override
-    @Compatibility
     public boolean canNavigateToSource() {
         return false;
     }

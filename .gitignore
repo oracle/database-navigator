@@ -1,10 +1,13 @@
 /.idea/
 /.gradle/
 /classes/
-/gradle/
 /build/
 /tools/
 /dist/
 /out/
 /lib/
 /src/main/resources/lib/
+/modules/dbn-api/build/
+/modules/dbn-spi/build/
+/modules/dbn-api/.gradle/
+/modules/dbn-spi/.gradle/

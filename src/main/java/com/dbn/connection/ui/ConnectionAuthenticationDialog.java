@@ -6,21 +6,23 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.intellij.openapi.project.Project;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Action;
 
+@Getter
 public class ConnectionAuthenticationDialog extends DBNDialog<ConnectionAuthenticationForm> {
     private boolean rememberCredentials;
     private final WeakRef<AuthenticationInfo> authenticationInfo; // TODO dialog result - Disposable.nullify(...)
     private final ConnectionRef connection;
 
     public ConnectionAuthenticationDialog(Project project, @Nullable ConnectionHandler connection, @NotNull AuthenticationInfo authenticationInfo) {
-        super(project, "Enter password", true);
+        super(project, "Enter credentials", true);
         this.authenticationInfo = WeakRef.of(authenticationInfo);
         setModal(true);
-        setResizable(false);
+        setResizable(true);
         this.connection = ConnectionRef.of(connection);
         Action okAction = getOKAction();
         renameAction(okAction, "Connect");
@@ -62,12 +64,13 @@ public class ConnectionAuthenticationDialog extends DBNDialog<ConnectionAuthenti
     @NotNull
     @Override
     protected ConnectionAuthenticationForm createForm() {
-        ConnectionHandler connection = ConnectionRef.get(this.connection);
+        ConnectionHandler connection = getConnection();
         return new ConnectionAuthenticationForm(this, connection);
     }
 
-    public boolean isRememberCredentials() {
-        return rememberCredentials;
+    @Nullable
+    private ConnectionHandler getConnection() {
+        return ConnectionRef.get(this.connection);
     }
 
     public AuthenticationInfo getAuthenticationInfo() {

@@ -13,6 +13,8 @@ repositories {
   mavenCentral()
 }
 dependencies {
+  testImplementation("junit:junit:4.13.2")
+
   annotationProcessor("org.projectlombok:lombok:1.18.34")
   testAnnotationProcessor("org.projectlombok:lombok:1.18.34")
 
@@ -32,6 +34,9 @@ dependencies {
   implementation("org.apache.commons:commons-lang3:3.17.0")
   implementation("org.apache.logging.log4j:log4j-api:2.24.1")
   implementation("org.apache.xmlbeans:xmlbeans:5.2.1")
+
+  implementation(project(":modules:dbn-api"))
+  implementation(project(":modules:dbn-spi"))
 }
 
 sourceSets{

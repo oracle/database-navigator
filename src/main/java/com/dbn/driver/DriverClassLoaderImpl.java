@@ -62,7 +62,8 @@ class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader 
         jars.add(jar);
 
         try {
-
+// TODO: I'm confused by this.  Can't we just do a lookup for the classnames
+     //  that DriverBundleMetadata  knows about rather than going class-by-class?
             DriverBundleMetadata previousMetadata = getPreviousMetadata();
 
             for (String className : library.getClassNames()) {

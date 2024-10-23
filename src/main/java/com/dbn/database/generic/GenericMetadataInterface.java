@@ -25,10 +25,39 @@ import java.util.Objects;
 
 import static com.dbn.common.cache.CacheKey.key;
 import static com.dbn.database.common.util.CachedResultSet.Condition;
-import static com.dbn.database.generic.GenericMetadataLoaders.*;
-import static com.dbn.database.generic.GenericMetadataTranslators.*;
+import static com.dbn.database.generic.GenericMetadataLoaders.loadAllColumnsRaw;
+import static com.dbn.database.generic.GenericMetadataLoaders.loadAllFunctionArgumentsRaw;
+import static com.dbn.database.generic.GenericMetadataLoaders.loadAllProcedureArgumentsRaw;
+import static com.dbn.database.generic.GenericMetadataLoaders.loadAllPseudoColumnsRaw;
+import static com.dbn.database.generic.GenericMetadataLoaders.loadCatalogsRaw;
+import static com.dbn.database.generic.GenericMetadataLoaders.loadColumnsRaw;
+import static com.dbn.database.generic.GenericMetadataLoaders.loadForeignKeysRaw;
+import static com.dbn.database.generic.GenericMetadataLoaders.loadFunctionArgumentsRaw;
+import static com.dbn.database.generic.GenericMetadataLoaders.loadFunctionsRaw;
+import static com.dbn.database.generic.GenericMetadataLoaders.loadIndexesRaw;
+import static com.dbn.database.generic.GenericMetadataLoaders.loadPrimaryKeysRaw;
+import static com.dbn.database.generic.GenericMetadataLoaders.loadProcedureArgumentsRaw;
+import static com.dbn.database.generic.GenericMetadataLoaders.loadProceduresRaw;
+import static com.dbn.database.generic.GenericMetadataLoaders.loadPseudoColumnsRaw;
+import static com.dbn.database.generic.GenericMetadataLoaders.loadSchemasRaw;
+import static com.dbn.database.generic.GenericMetadataLoaders.loadTablesRaw;
+import static com.dbn.database.generic.GenericMetadataLoaders.loadViewsRaw;
+import static com.dbn.database.generic.GenericMetadataTranslators.ColumnsResultSet;
+import static com.dbn.database.generic.GenericMetadataTranslators.ForeignKeyRelationsResultSet;
+import static com.dbn.database.generic.GenericMetadataTranslators.ForeignKeysResultSet;
+import static com.dbn.database.generic.GenericMetadataTranslators.IndexColumnResultSet;
+import static com.dbn.database.generic.GenericMetadataTranslators.IndexesResultSet;
 import static com.dbn.database.generic.GenericMetadataTranslators.MetadataSource.FUNCTIONS;
 import static com.dbn.database.generic.GenericMetadataTranslators.MetadataSource.PROCEDURES;
+import static com.dbn.database.generic.GenericMetadataTranslators.MethodArgumentsResultSet;
+import static com.dbn.database.generic.GenericMetadataTranslators.MethodsResultSet;
+import static com.dbn.database.generic.GenericMetadataTranslators.PrimaryKeyRelationsResultSet;
+import static com.dbn.database.generic.GenericMetadataTranslators.PrimaryKeysResultSet;
+import static com.dbn.database.generic.GenericMetadataTranslators.SchemasResultSet;
+import static com.dbn.database.generic.GenericMetadataTranslators.TablesResultSet;
+import static com.dbn.database.generic.GenericMetadataTranslators.ViewsResultSet;
+import static com.dbn.database.generic.GenericMetadataTranslators.resolveMethodType;
+import static com.dbn.database.generic.GenericMetadataTranslators.resolveOwner;
 
 
 public class GenericMetadataInterface extends DatabaseMetadataInterfaceImpl {

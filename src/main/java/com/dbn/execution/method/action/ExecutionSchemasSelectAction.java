@@ -1,6 +1,6 @@
 package com.dbn.execution.method.action;
 
-import com.dbn.common.ui.misc.DBNComboBoxAction;
+import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class ExecutionSchemasSelectAction extends DBNComboBoxAction {
+public class ExecutionSchemasSelectAction extends ComboBoxAction {
     private MethodExecutionInput executionInput;
 
     public ExecutionSchemasSelectAction(MethodExecutionInput executionInput) {

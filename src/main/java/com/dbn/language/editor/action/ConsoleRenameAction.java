@@ -1,5 +1,6 @@
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
@@ -11,6 +12,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+@BackgroundUpdate
 public class ConsoleRenameAction extends ProjectAction {
 
     @Override

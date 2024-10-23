@@ -3,7 +3,6 @@ package com.dbn.language.common.parameter;
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
-import com.dbn.common.compatibility.Compatibility;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.impl.IterationElementType;
 import com.dbn.language.common.element.impl.TokenElementType;
@@ -11,12 +10,12 @@ import com.dbn.language.common.element.impl.WrapperElementType;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
-import com.dbn.language.common.psi.lookup.ObjectReferenceLookupAdapter;
 import com.dbn.object.DBColumn;
 import com.dbn.object.common.DBObject;
-import com.dbn.object.type.DBObjectType;
-import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.lang.parameterInfo.*;
+import com.intellij.lang.parameterInfo.CreateParameterInfoContext;
+import com.intellij.lang.parameterInfo.ParameterInfoHandler;
+import com.intellij.lang.parameterInfo.ParameterInfoUIContext;
+import com.intellij.lang.parameterInfo.UpdateParameterInfoContext;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -24,25 +23,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ColumnParameterInfoHandler implements ParameterInfoHandler<BasePsiElement, BasePsiElement> {
-    public static final ObjectReferenceLookupAdapter METHOD_LOOKUP_ADAPTER = new ObjectReferenceLookupAdapter(null, DBObjectType.METHOD, null);
-    public static final ObjectReferenceLookupAdapter ARGUMENT_LOOKUP_ADAPTER = new ObjectReferenceLookupAdapter(null, DBObjectType.ARGUMENT, null);
-
-    @Override
-    @Compatibility
-    public boolean couldShowInLookup() {
-        return true;
-    }
 
     @Nullable
     @Override
-    @Compatibility
-    public Object[] getParametersForLookup(LookupElement item, ParameterInfoContext context) {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    @Compatibility
     public BasePsiElement findElementForParameterInfo(@NotNull CreateParameterInfoContext context) {
         BasePsiElement handlerPsiElement = lookupHandlerElement(context.getFile(), context.getOffset());
         BasePsiElement providerPsiElement = lookupProviderElement(handlerPsiElement);

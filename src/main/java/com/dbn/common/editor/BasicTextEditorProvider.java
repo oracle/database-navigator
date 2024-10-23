@@ -1,6 +1,5 @@
 package com.dbn.common.editor;
 
-import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Editors;
 import com.dbn.editor.EditorProviderId;
@@ -17,14 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 
 public abstract class BasicTextEditorProvider implements FileEditorProvider, NamedComponent, DumbAware {
-
-    //@Override
-    @Compatibility
-    public boolean acceptRequiresReadAction() {
-        // DBNE-8836 avoid read-action locks when provider "accept" is invoked
-        // (none of the provider associations are dependent on the content so far)
-        return false;
-    }
 
     @Override
     @NotNull

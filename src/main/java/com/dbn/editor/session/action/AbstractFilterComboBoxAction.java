@@ -1,9 +1,9 @@
 package com.dbn.editor.session.action;
 
 import com.dbn.common.action.BasicAction;
+import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.Lookups;
-import com.dbn.common.ui.misc.DBNComboBoxAction;
 import com.dbn.common.util.Context;
 import com.dbn.common.util.Strings;
 import com.dbn.editor.session.SessionBrowser;
@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.util.List;
 
-public abstract class AbstractFilterComboBoxAction extends DBNComboBoxAction implements DumbAware {
+public abstract class AbstractFilterComboBoxAction extends ComboBoxAction implements DumbAware {
     private final SessionBrowserFilterType filterType;
 
     public AbstractFilterComboBoxAction(SessionBrowserFilterType filterType) {
