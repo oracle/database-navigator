@@ -1,21 +1,6 @@
-/*
- * Copyright (c) 2024, Oracle and/or its affiliates.
- *
- * This software is dual-licensed to you under the Universal Permissive License
- * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
- * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
- * either license.
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and limitations under the License.
- */
-
 package com.dbn.driver.packages;
 
 import com.dbn.common.util.Files;
-import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -30,12 +15,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.util.Scanner;
+import java.util.concurrent.CountDownLatch;
 
 public class MavenArtifactDownloader {
 
-  private static final int MAX_RETRIES = 3; // Maximum number of attempts
-
-  public static void downloadArtifact(Project project, String groupId, String artifactId, String version, String pathLabel) {
+  public static void downloadArtifact(Project project, String packageId, String groupId, String artifactId, String version, String pathLabel, CountDownLatch latch) {
     String repoUrl = "https://repo.maven.apache.org/maven2";
     String artifactPath = groupId.replace(".", "/") + "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + ".jar";
     String artifactUrl = repoUrl + "/" + artifactPath;
@@ -44,40 +28,27 @@ public class MavenArtifactDownloader {
     ProgressManager.getInstance().run(new Task.Backgroundable(project, "Downloading Maven Artifact " + artifactId + "-" + version + ".jar", true) {
       @Override
       public void run(ProgressIndicator indicator) {
-        int attempt = 0;
         boolean success = false;
-
-        while (attempt < MAX_RETRIES && !success) {
-          attempt++;
-          System.out.println("Download attempt " + attempt + " for " + artifactId + "-" + version + ".jar");
-
-          try {
-            // Perform the download and checksum verification
-            success = downloadAndVerify(indicator, artifactUrl, checksumUrl, artifactId, version, pathLabel);
-            if (success) {
-              System.out.println("Download and checksum verification succeeded on attempt " + attempt);
-            } else {
-              System.out.println("Checksum verification failed on attempt " + attempt);
-            }
-          } catch (IOException e) {
-            System.out.println("Download failed on attempt " + attempt + ": " + e.getMessage());
+        try {
+          success = downloadAndVerify(indicator, packageId, artifactUrl, checksumUrl, artifactId, version, pathLabel);
+          if (success) {
+            System.out.println("Download and checksum verification succeeded for " + artifactId + "-" + version);
+          } else {
+            System.out.println("Checksum verification failed for " + artifactId + "-" + version + ". Deleting downloaded artifact...");
           }
-
-          if (!success && attempt < MAX_RETRIES) {
-            System.out.println("Retrying download...");
-          }
-        }
-
-        if (!success) {
-          System.out.println("Download failed after " + MAX_RETRIES + " attempts.");
+        } catch (IOException e) {
+          System.out.println("Download failed for " + artifactId + "-" + version + ": " + e.getMessage());
+        } finally {
+          DownloadManager.getInstance().registerJarDownload(packageId, artifactId + "-" + version, success);
+          latch.countDown();
         }
       }
     });
   }
 
   // Perform the download and verify the SHA-1 checksum
-  private static boolean downloadAndVerify(ProgressIndicator indicator, String artifactUrl, String checksumUrl, String artifactId, String version, String pathLabel) throws IOException {
-    File pluginDir = new File(Files.getPluginDeploymentRoot(), pathLabel);
+  private static boolean downloadAndVerify(ProgressIndicator indicator, String packageId, String artifactUrl, String checksumUrl, String artifactId, String version, String pathLabel) throws IOException {
+    File pluginDir = new File(Files.getPluginDeploymentRoot(), pathLabel+"/"+packageId);
     if (!pluginDir.exists() && !pluginDir.mkdirs()) {
       System.out.println("Failed to create output directory: " + pluginDir.getAbsolutePath());
       return false;
@@ -85,24 +56,28 @@ public class MavenArtifactDownloader {
 
     File outputFile = new File(pluginDir, artifactId + "-" + version + ".jar");
 
-    // Download the artifact file
-    DownloadUtil.downloadAtomically(indicator, artifactUrl, outputFile);
-    System.out.println("Artifact downloaded to: " + outputFile.getAbsolutePath());
+    try {
+      DownloadUtil.downloadAtomically(indicator, artifactUrl, outputFile);
+      System.out.println("Artifact downloaded to: " + outputFile.getAbsolutePath());
 
-    // Download the SHA-1 checksum file
-    String expectedChecksum = downloadChecksum(checksumUrl);
-    if (expectedChecksum != null) {
-      // Calculate the actual checksum of the downloaded file
-      String actualChecksum = calculateSHA1Checksum(outputFile);
-      if (expectedChecksum.equalsIgnoreCase(actualChecksum)) {
-        return true; // Checksum verification succeeded
+      String expectedChecksum = downloadChecksum(checksumUrl);
+      if (expectedChecksum != null) {
+        String actualChecksum = calculateSHA1Checksum(outputFile);
+        if (expectedChecksum.equalsIgnoreCase(actualChecksum)) {
+          return true;
+        } else {
+          System.out.println("Checksum verification failed! Expected: " + expectedChecksum + ", Actual: " + actualChecksum);
+          deleteFile(outputFile);
+          return false;
+        }
       } else {
-        System.out.println("Checksum verification failed! Expected: " + expectedChecksum + ", Actual: " + actualChecksum);
-        return false; // Checksum verification failed
+        System.out.println("Failed to download the checksum file.");
+        deleteFile(outputFile);
+        return false;
       }
-    } else {
-      System.out.println("Failed to download the checksum file.");
-      return false;
+    } catch (IOException e) {
+      deleteFile(outputFile);
+      throw e;
     }
   }
 
@@ -140,6 +115,16 @@ public class MavenArtifactDownloader {
       return sb.toString();
     } catch (Exception e) {
       throw new IOException("Failed to calculate checksum: " + e.getMessage(), e);
+    }
+  }
+
+  private static void deleteFile(File file) {
+    if (file.exists()) {
+      if (file.delete()) {
+        System.out.println("Deleted file: " + file.getAbsolutePath());
+      } else {
+        System.out.println("Failed to delete file: " + file.getAbsolutePath());
+      }
     }
   }
 }

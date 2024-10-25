@@ -356,6 +356,7 @@
         <applicationService serviceImplementation="com.dbn.plugin.PluginConflictManager"/>
         <applicationService serviceImplementation="com.dbn.common.file.FileTypeService"/>
         <applicationService serviceImplementation="com.dbn.driver.DatabaseDriverManager"/>
+        <applicationService serviceImplementation="com.dbn.driver.packages.DownloadManager"/>
         <applicationService serviceImplementation="com.dbn.connection.config.tns.TnsImportService"/>
         <applicationService serviceImplementation="com.dbn.connection.ssh.SshTunnelManager"/>
         <applicationService serviceImplementation="com.dbn.connection.ssl.SslConnectionManager"/>
