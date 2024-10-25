@@ -39,9 +39,36 @@
         <library group-id="org.xerial" artifact-id="sqlite-jdbc" version="3.45.3.0"/>
     </driver-package>
 
-<!--    <driver-package name="Oracle 23.5 pki" database-type="ORACLE">-->
-<!--        <library group-id="javax.resource" artifact-id="connector-api" version="1.5"/>-->
-<!--        <library group-id="javax.resource" artifact-id="connector-api" version="1.5"/>-->
-<!--    </driver-package>-->
+    <driver-package id="oracle-23.3-token" name="Oracle 23.3" database-type="ORACLE">
+        <library group-id="javax.resource" artifact-id="connector-api" version="1.5"/>
+        <library group-id="org.glassfish.hk2" artifact-id="hk2-api" version="2.6.1"/>
+        <library group-id="org.glassfish.hk2" artifact-id="hk2-locator" version="2.6.1"/>
+        <library group-id="org.glassfish.hk2" artifact-id="hk2-utils" version="2.6.1"/>
+        <library group-id="org.glassfish.hk2.external" artifact-id="jakarta.inject" version="2.6.1"/>
+        <library group-id="jakarta.ws.rs" artifact-id="jakarta.ws.rs-api" version="2.1.6"/>
+        <library group-id="com.fasterxml.jackson.datatype" artifact-id="jackson-datatype-jsr310" version="2.17.1"/>
+        <library group-id="jakarta.xml.bind" artifact-id="jakarta.xml.bind-api" version="2.3.3"/>
+        <library group-id="javax.json" artifact-id="javax.json-api" version="1.1.4"/>
+        <library group-id="org.glassfish.jersey.core" artifact-id="jersey-client" version="2.35"/>
+        <library group-id="org.glassfish.jersey.core" artifact-id="jersey-common" version="2.35"/>
+        <library group-id="org.glassfish.jersey.inject" artifact-id="jersey-hk2" version="2.35"/>
+        <library group-id="org.glassfish.jersey.media" artifact-id="jersey-media-json-jackson" version="2.35"/>
+        <library group-id="com.oracle.oci.sdk" artifact-id="oci-java-sdk-examples" version="3.37.0"/>
+        <library group-id="com.oracle.oci.sdk" artifact-id="oci-java-sdk-common" version="3.37.0"/>
+        <library group-id="com.oracle.oci.sdk" artifact-id="oci-java-sdk-common-httpclient" version="3.37.0"/>
+        <library group-id="com.oracle.oci.sdk" artifact-id="oci-java-sdk-common-httpclient-jersey" version="3.37.0"/>
+        <library group-id="com.oracle.oci.sdk" artifact-id="oci-java-sdk-identitydataplane" version="3.37.0"/>
+        <library group-id="com.oracle.database.jdbc" artifact-id="ojdbc-provider-common" version="1.0.1"/>
+        <library group-id="com.oracle.database.jdbc" artifact-id="ojdbc-provider-oci" version="1.0.1"/>
+        <library group-id="com.oracle.database.jdbc" artifact-id="ojdbc8" version="23.4.0.24.05"/>
+        <library group-id="com.oracle.database.nls" artifact-id="orai18n" version="23.4.0.24.05"/>
+        <library group-id="com.oracle.database.security" artifact-id="oraclepki" version="23.4.0.24.05"/>
+        <library group-id="io.github.resilience4j" artifact-id="resilience4j-circuitbreaker" version="1.7.1"/>
+        <library group-id="io.github.resilience4j" artifact-id="resilience4j-core" version="1.7.1"/>
+        <library group-id="javax.servlet" artifact-id="servlet-api" version="2.5"/>
+        <library group-id="io.vavr" artifact-id="vavr" version="0.10.2"/>
+        <library group-id="com.oracle.database.xml" artifact-id="xdb" version="23.3.0.23.09"/>
+        <library group-id="com.oracle.database.xml" artifact-id="xmlparserv2" version="23.4.0.24.05"/>
+    </driver-package>
 
 </driver-packages>
