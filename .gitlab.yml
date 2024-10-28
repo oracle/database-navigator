@@ -1,0 +1,24 @@
+image: z5y1f1y8/gradle:7.4.2-jdk11
+
+before_script:
+  # caching rely on this to be defined, otherwise it goes to user home
+  - GRADLE_USER_HOME="$(pwd)/.gradle"
+  - export GRADLE_USER_HOME
+
+stages:          # List of stages for jobs, and their order of execution
+  - build
+  - deploy
+
+variables:
+  # speed up checkout of the wls
+  GIT_STRATEGY: fetch
+  GIT_DEPTH: 10
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+
+build-job:       # This job runs in the build stage, which runs first.
+  stage: build
+  #before_script:
+  #  - USING_PROXY=true source ./.build_env
+  script:
+    - ./gradlew --build-cache clean build
