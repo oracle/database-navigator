@@ -29,7 +29,7 @@ public abstract class DBLanguageAnnotator implements Annotator {
      * This will adjust text attributes accordingly
      */
     protected static void annotateFlavoredToken(@NotNull TokenPsiElement tokenPsiElement, AnnotationHolder holder) {
-        TokenTypeCategory flavor = tokenPsiElement.getElementType().getFlavor();
+        TokenTypeCategory flavor = tokenPsiElement.elementType.getFlavor();
         if (flavor == null) return;
 
         TextAttributesKey textAttributes = SQLTextAttributesKeys.IDENTIFIER;

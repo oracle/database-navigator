@@ -1,11 +1,10 @@
 package com.dbn.language.common.element.impl;
 
-import com.dbn.language.common.psi.QualifiedIdentifierPsiElement;
-import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.QualifiedIdentifierElementTypeLookupCache;
 import com.dbn.language.common.element.parser.impl.QualifiedIdentifierElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
+import com.dbn.language.common.psi.QualifiedIdentifierPsiElement;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
@@ -25,7 +24,7 @@ public final class QualifiedIdentifierElementType extends ElementTypeBase {
     private final Set<DBObjectType> objectTypeCache = EnumSet.noneOf(DBObjectType.class);
     private int maxLength;
 
-    public QualifiedIdentifierElementType(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
+    public QualifiedIdentifierElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
         List<Element> children = def.getChildren();
         for (Element child : children) {
@@ -68,9 +67,9 @@ public final class QualifiedIdentifierElementType extends ElementTypeBase {
         for (int i = 0; i < children.size(); i++) {
             Element child = children.get(i);
             String type = child.getName();
-            leafElementTypes[i] = (LeafElementType) getElementBundle().resolveElementDefinition(child, type, this);
+            leafElementTypes[i] = (LeafElementType) bundle.resolveElementDefinition(child, type, this);
             optional[i] = getBooleanAttribute(child, "optional");
-            leafElementTypes[i].setOptional(optional[i]);
+            leafElementTypes[i].optional = optional[i];
         }
         variants.add(leafElementTypes);
         if (maxLength < leafElementTypes.length) maxLength = leafElementTypes.length;

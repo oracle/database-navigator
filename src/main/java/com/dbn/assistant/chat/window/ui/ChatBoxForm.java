@@ -31,7 +31,6 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -44,11 +43,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import java.awt.BorderLayout;
 import java.util.List;
 
-import static com.dbn.assistant.state.AssistantStatus.*;
+import static com.dbn.assistant.state.AssistantStatus.INITIALIZING;
+import static com.dbn.assistant.state.AssistantStatus.QUERYING;
+import static com.dbn.assistant.state.AssistantStatus.UNAVAILABLE;
 import static com.dbn.common.feature.FeatureAcknowledgement.ENGAGED;
 import static com.dbn.common.util.Commons.nvl;
 
@@ -292,7 +296,7 @@ public class ChatBoxForm extends DBNFormBase {
     }
 
     inputField.requestFocus();
-    UserInterface.visitRecursively(chatBoxPanel,  c -> UserInterface.repaint(c));
+    updateActionToolbars();
   }
 
   private void showErrorHeader(Throwable cause) {
@@ -309,6 +313,7 @@ public class ChatBoxForm extends DBNFormBase {
     getAssistantState().addMessages(messages);
     Dispatch.run(() -> messageContainer.addAll(messages, this));
     Dispatch.run(() -> scrollConversationDown());
+    updateActionToolbars();
   }
 
   private void scrollConversationDown() {

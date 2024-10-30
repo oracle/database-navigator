@@ -53,7 +53,7 @@ public abstract class DBLanguageParserDefinition implements ParserDefinition {
     @NotNull
     @Override
     public IFileElementType getFileNodeType() {
-        return getParser().getLanguageDialect().getBaseLanguage().getFileElementType();
+        return getParser().languageDialect.getBaseLanguage().getFileElementType();
         /*DBLanguageDialect languageDialect = parser.getLanguageDialect();
         return languageDialect.getFileElementType();*/
     }

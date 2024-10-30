@@ -1,22 +1,21 @@
 package com.dbn.language.common.element.parser;
 
-import com.dbn.language.common.element.path.ParserNode;
 import com.dbn.code.common.completion.CodeCompletionContributor;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.TokenPairTemplate;
+import com.dbn.language.common.element.path.ParserNode;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilder.Marker;
 import com.intellij.psi.tree.IElementType;
-import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 public final class ParserBuilder {
     private final PsiBuilder builder;
-    private final TokenPairMonitor tokenPairMonitor;
+    public final TokenPairMonitor tokenPairMonitor;
     private final ParseErrorMonitor errorMonitor;
     private final Cache cache = new Cache();
 
@@ -30,10 +29,6 @@ public final class ParserBuilder {
     public ASTNode getTreeBuilt() {
         tokenPairMonitor.cleanup();
         return builder.getTreeBuilt();
-    }
-
-    public TokenPairMonitor getTokenPairMonitor() {
-        return tokenPairMonitor;
     }
 
     public Marker markAndAdvance() {
@@ -53,12 +48,6 @@ public final class ParserBuilder {
     }
 
     @Nullable
-    public TokenType getToken() {
-        IElementType tokenType = builder.getTokenType();
-        return tokenType instanceof TokenType ? (TokenType) tokenType : null;
-    }
-
-    @Nullable
     public TokenPairTemplate getTokenPairTemplate() {
         TokenType token = getToken();
         return token == null ? null : token.getTokenPairTemplate();
@@ -67,6 +56,12 @@ public final class ParserBuilder {
     /****************************************************
      *                 Cached  lookups                  *
      ****************************************************/
+
+    @Nullable
+    public TokenType getToken() {
+        return cache.getCurrentToken();
+    }
+
     public TokenType getPreviousToken() {
         return cache.getPreviousToken();
     }
@@ -168,14 +163,15 @@ public final class ParserBuilder {
         }
     }
 
-    @Getter
     private class Cache {
         private String tokenText;
         private Boolean dummyToken;
+        private TokenType currentToken;
         private TokenType previousToken;
         private TokenType nextToken;
 
         public void reset() {
+            currentToken = null;
             tokenText = null;
             dummyToken = null;
             previousToken = null;
@@ -187,6 +183,14 @@ public final class ParserBuilder {
                 previousToken = lookBack(1);
             }
             return previousToken;
+        }
+
+        public TokenType getCurrentToken() {
+            if (currentToken == null) {
+                IElementType tokenType = builder.getTokenType();
+                currentToken = tokenType instanceof TokenType ? (TokenType) tokenType : null;
+            }
+            return currentToken;
         }
 
         public TokenType getNextToken() {
@@ -203,15 +207,12 @@ public final class ParserBuilder {
             return tokenText;
         }
 
-        public Boolean isDummyToken() {
+        public boolean isDummyToken() {
             if (dummyToken == null) {
                 String tokenText = getTokenText();
-                dummyToken = tokenText != null && tokenText.contains(CodeCompletionContributor.DUMMY_TOKEN);
-
+                dummyToken = tokenText != null && tokenText.contains(CodeCompletionContributor.DUMMY_TOKEN) ? Boolean.TRUE : Boolean.FALSE;
             }
-            return dummyToken;
+            return dummyToken == Boolean.TRUE;
         }
-
-
     }
 }

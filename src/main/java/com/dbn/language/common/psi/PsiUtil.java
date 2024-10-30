@@ -19,7 +19,12 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiComment;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.PsiWhiteSpace;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -161,7 +166,7 @@ public class PsiUtil {
         while (element != null && !(element instanceof PsiFile)) {
             if (element instanceof BasePsiElement) {
                 BasePsiElement basePsiElement = (BasePsiElement) element;
-                if (basePsiElement.getElementType().is(typeAttribute)) {
+                if (basePsiElement.elementType.is(typeAttribute)) {
                     return basePsiElement;
                 }
             }
@@ -338,7 +343,7 @@ public class PsiUtil {
     public static ElementType getElementType(PsiElement psiElement) {
         if (psiElement instanceof BasePsiElement) {
             BasePsiElement<?> basePsiElement = (BasePsiElement<?>) psiElement;
-            return basePsiElement.getElementType();
+            return basePsiElement.elementType;
         }
         return null;
     }

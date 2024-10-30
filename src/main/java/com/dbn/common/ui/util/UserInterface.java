@@ -7,6 +7,7 @@ import com.dbn.common.util.Environment;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.Unsafe;
 import com.intellij.ide.ui.UISettings;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.ActionToolbarPosition;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.registry.Registry;
@@ -20,14 +21,27 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import javax.swing.table.TableCellEditor;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.IllegalComponentStateException;
+import java.awt.LayoutManager;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.PointerInfo;
 import java.awt.event.InputEvent;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
@@ -184,6 +198,14 @@ public class UserInterface {
             component.revalidate();
             component.repaint();
             component.requestFocus();
+        });
+    }
+
+    @Compatibility
+    public static void updateActionToolbars(JComponent component) {
+        visitRecursively(component, c -> {
+            ActionToolbar toolbar = ClientProperty.ACTION_TOOLBAR.get(c);
+            if (toolbar != null) toolbar.updateActionsImmediately();
         });
     }
 

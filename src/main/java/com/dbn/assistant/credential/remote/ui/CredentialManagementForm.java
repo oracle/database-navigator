@@ -47,15 +47,24 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.ListCellRenderer;
+import java.awt.BorderLayout;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
-import static com.intellij.ui.SimpleTextAttributes.*;
+import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
 
 /**
  * A panel for managing AI credentials within the application, offering functionalities
@@ -332,6 +341,7 @@ public class CredentialManagementForm extends DBNFormBase {
     initializingIconPanel.setVisible(false);
     credentialList.setBackground(Colors.getTextFieldBackground());
     credentialList.revalidate();
+    updateActionToolbars();
   }
 
   /**

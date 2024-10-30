@@ -18,8 +18,8 @@ public class IterationChopDownIfLongPreset extends IterationAbstractPreset {
     public Wrap getWrap(BasePsiElement psiElement, CodeStyleSettings settings) {
         BasePsiElement parentPsiElement = getParentPsiElement(psiElement);
         if (parentPsiElement != null) {
-            IterationElementType iterationElementType = (IterationElementType) parentPsiElement.getElementType();
-            ElementType elementType = psiElement.getElementType();
+            IterationElementType iterationElementType = (IterationElementType) parentPsiElement.elementType;
+            ElementType elementType = psiElement.elementType;
 
             boolean shouldWrap = parentPsiElement.approximateLength() > settings.getRightMargin(psiElement.getLanguage());
             return getWrap(elementType, iterationElementType, shouldWrap);
@@ -32,8 +32,8 @@ public class IterationChopDownIfLongPreset extends IterationAbstractPreset {
     public Spacing getSpacing(BasePsiElement psiElement, CodeStyleSettings settings) {
         BasePsiElement parentPsiElement = getParentPsiElement(psiElement);
         if (parentPsiElement != null) {
-            IterationElementType iterationElementType = (IterationElementType) parentPsiElement.getElementType();
-            ElementType elementType = psiElement.getElementType();
+            IterationElementType iterationElementType = (IterationElementType) parentPsiElement.elementType;
+            ElementType elementType = psiElement.elementType;
 
             boolean shouldWrap = parentPsiElement.approximateLength() > settings.getRightMargin(psiElement.getLanguage());
             return getSpacing(iterationElementType, elementType, shouldWrap);

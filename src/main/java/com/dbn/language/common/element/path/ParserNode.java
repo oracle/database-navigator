@@ -1,19 +1,15 @@
 package com.dbn.language.common.element.path;
 
-import com.dbn.language.common.element.ElementType;
+import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.intellij.lang.PsiBuilder;
-import lombok.Getter;
-import lombok.Setter;
 
-@Setter
-@Getter
 public class ParserNode extends LanguageNodeBase {
-    private final int startOffset;
-    private int currentOffset;
-    private int cursorPosition;
-    private PsiBuilder.Marker elementMarker;
+    public final int startOffset;
+    public int currentOffset;
+    public int cursorPosition;
+    public PsiBuilder.Marker elementMarker;
 
-    public ParserNode(ElementType elementType, ParserNode parent, int startOffset, int cursorPosition) {
+    public ParserNode(ElementTypeBase elementType, ParserNode parent, int startOffset, int cursorPosition) {
         super(elementType, parent);
         this.startOffset = startOffset;
         this.currentOffset = startOffset;
@@ -22,30 +18,30 @@ public class ParserNode extends LanguageNodeBase {
 
     @Override
     public ParserNode getParent() {
-        return (ParserNode) super.getParent();
+        return (ParserNode) super.parent;
     }
 
     @Override
     public boolean isRecursive() {
-        ParserNode parseNode = this.getParent();
+        ParserNode parseNode = (ParserNode) this.parent;
         while (parseNode != null) {
-            if (parseNode.getElement() == this.getElement() &&
+            if (parseNode.element == this.element &&
                 parseNode.startOffset == startOffset) {
                 return true;
             }
-            parseNode = parseNode.getParent();
+            parseNode = (ParserNode) parseNode.parent;
         }
         return false;
     }
 
     public boolean isRecursive(int currentOffset) {
-        ParserNode parseNode = this.getParent();
+        ParserNode parseNode = (ParserNode) this.parent;
         while (parseNode != null) {
-            if (parseNode.getElement() == this.getElement() &&
-                        parseNode.currentOffset == currentOffset) {
+            if (parseNode.element == this.element &&
+                parseNode.currentOffset == currentOffset) {
                     return true;
                 }
-            parseNode = parseNode.getParent();
+            parseNode = (ParserNode) parseNode.parent;
         }
         return false;
     }

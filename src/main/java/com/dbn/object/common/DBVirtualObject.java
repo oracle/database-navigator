@@ -21,7 +21,11 @@ import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.dbn.language.common.psi.LeafPsiElement;
 import com.dbn.language.common.psi.QualifiedIdentifierPsiElement;
-import com.dbn.language.common.psi.lookup.*;
+import com.dbn.language.common.psi.lookup.LookupAdapters;
+import com.dbn.language.common.psi.lookup.ObjectLookupAdapter;
+import com.dbn.language.common.psi.lookup.ObjectReferenceLookupAdapter;
+import com.dbn.language.common.psi.lookup.PsiLookupAdapter;
+import com.dbn.language.common.psi.lookup.TokenTypeLookupAdapter;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.lookup.DBObjectRef;
@@ -43,10 +47,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.dbn.common.content.DynamicContentProperty.*;
+import static com.dbn.common.content.DynamicContentProperty.LOADED;
+import static com.dbn.common.content.DynamicContentProperty.MASTER;
+import static com.dbn.common.content.DynamicContentProperty.MUTABLE;
+import static com.dbn.common.content.DynamicContentProperty.VIRTUAL;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.util.Commons.nvl;
@@ -54,7 +67,9 @@ import static com.dbn.common.util.Documents.getDocument;
 import static com.dbn.common.util.Documents.getEditors;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.common.util.Strings.toUpperCase;
-import static com.dbn.language.common.psi.lookup.LookupAdapters.*;
+import static com.dbn.language.common.psi.lookup.LookupAdapters.aliasDefinition;
+import static com.dbn.language.common.psi.lookup.LookupAdapters.aliasReference;
+import static com.dbn.language.common.psi.lookup.LookupAdapters.identifierReference;
 import static com.dbn.object.common.sorting.DBObjectComparator.compareName;
 import static com.dbn.object.common.sorting.DBObjectComparator.compareType;
 import static com.dbn.object.type.DBObjectType.COLUMN;
@@ -77,7 +92,7 @@ public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
     public DBVirtualObject(@NotNull BasePsiElement psiElement) {
         super(
             psiElement.getConnection(),
-            psiElement.getElementType().getVirtualObjectType(),
+            psiElement.elementType.virtualObjectType,
             psiElement.getText());
 
         underlyingPsiElements.set(this, psiElement);

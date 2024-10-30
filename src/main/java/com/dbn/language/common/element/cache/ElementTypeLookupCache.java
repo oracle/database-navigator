@@ -7,8 +7,8 @@ import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeBundle;
-import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
+import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.WrappingDefinition;
 import com.dbn.language.common.element.util.NextTokenResolver;
@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class ElementTypeLookupCache<T extends ElementType>/* implements ElementTypeLookupCache<T>*/ {
+public abstract class ElementTypeLookupCache<T extends ElementTypeBase>/* implements ElementTypeLookupCache<T>*/ {
     private final Latent<IndexContainer<TokenType>> nextPossibleTokens = Latent.basic(() -> computeNextPossibleTokens());
     protected final T elementType;
 
@@ -61,7 +61,7 @@ public abstract class ElementTypeLookupCache<T extends ElementType>/* implements
     }
 
     protected ElementTypeBundle getElementTypeBundle() {
-        return elementType.getElementBundle();
+        return elementType.bundle;
     }
 
     protected SharedTokenTypeBundle getSharedTokenTypes() {
@@ -85,27 +85,27 @@ public abstract class ElementTypeLookupCache<T extends ElementType>/* implements
     }
 
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, @Nullable Set<LeafElementType> bucket) {
-        WrappingDefinition wrapping = elementType.getWrapping();
+        WrappingDefinition wrapping = elementType.wrapping;
         if (wrapping != null) {
             bucket = initBucket(bucket);
-            bucket.add(wrapping.getBeginElementType());
+            bucket.add(wrapping.beginElementType);
         }
         return bucket;
     }
 
     public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context, @Nullable Set<TokenType> bucket) {
-        WrappingDefinition wrapping = elementType.getWrapping();
+        WrappingDefinition wrapping = elementType.wrapping;
         if (wrapping != null) {
             bucket = initBucket(bucket);
-            bucket.add(wrapping.getBeginElementType().getTokenType());
+            bucket.add(wrapping.beginElementType.tokenType);
         }
         return bucket;
     }
 
-    public void registerLeaf(LeafElementType leaf, ElementType source) {
-        ElementType parent = elementType.getParent();
+    public void registerLeaf(LeafElementType leaf, ElementTypeBase source) {
+        ElementTypeBase parent = elementType.parent;
         if (parent != null) {
-            parent.getLookupCache().registerLeaf(leaf, elementType);
+            parent.cache.registerLeaf(leaf, elementType);
         }
     }
 

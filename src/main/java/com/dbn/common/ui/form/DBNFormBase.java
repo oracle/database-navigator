@@ -3,8 +3,8 @@ package com.dbn.common.ui.form;
 import com.dbn.common.action.DataProviders;
 import com.dbn.common.dispose.ComponentDisposer;
 import com.dbn.common.environment.options.EnvironmentSettings;
-import com.dbn.common.latent.Latent;
 import com.dbn.common.event.ApplicationEvents;
+import com.dbn.common.latent.Latent;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponentBase;
@@ -85,6 +85,10 @@ public abstract class DBNFormBase
 
     protected void lookAndFeelChanged() {
 
+    }
+
+    protected void updateActionToolbars() {
+        dispatch(() -> UserInterface.updateActionToolbars(getMainComponent()));
     }
 
     protected abstract JComponent getMainComponent();

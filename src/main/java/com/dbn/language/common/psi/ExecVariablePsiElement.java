@@ -1,9 +1,9 @@
 package com.dbn.language.common.psi;
 
-import com.dbn.language.common.psi.lookup.PsiLookupAdapter;
 import com.dbn.common.util.Strings;
 import com.dbn.language.common.element.impl.ExecVariableElementType;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
+import com.dbn.language.common.psi.lookup.PsiLookupAdapter;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
@@ -58,7 +58,7 @@ public class ExecVariablePsiElement extends LeafPsiElement<ExecVariableElementTy
      *********************************************************/
     @Override
     public String getPresentableText() {
-        return getElementType().getTokenType().getValue();
+        return elementType.tokenType.getValue();
     }
 
     @Override

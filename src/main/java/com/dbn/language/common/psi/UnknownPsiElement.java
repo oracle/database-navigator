@@ -1,9 +1,10 @@
 package com.dbn.language.common.psi;
 
-import com.dbn.language.common.psi.lookup.PsiLookupAdapter;
 import com.dbn.code.common.style.formatting.FormattingAttributes;
 import com.dbn.language.common.element.ElementType;
+import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
+import com.dbn.language.common.psi.lookup.PsiLookupAdapter;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.lang.ASTNode;
 import org.jetbrains.annotations.NotNull;
@@ -12,8 +13,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-public class UnknownPsiElement extends BasePsiElement<ElementType> {
-    public UnknownPsiElement(ASTNode astNode, ElementType elementType) {
+public class UnknownPsiElement extends BasePsiElement<ElementTypeBase> {
+    public UnknownPsiElement(ASTNode astNode, ElementTypeBase elementType) {
         super(astNode, elementType);
     }
 
@@ -57,7 +58,7 @@ public class UnknownPsiElement extends BasePsiElement<ElementType> {
 
     @Override
     public String toString() {
-        return getElementType().getId();
+        return elementType.getId();
 
     }
 }

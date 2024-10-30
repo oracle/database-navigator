@@ -1,5 +1,6 @@
 package com.dbn.common.ui.util;
 
+import com.dbn.common.ref.WeakRef;
 import com.dbn.common.util.Unsafe;
 
 import javax.swing.JComponent;
@@ -14,7 +15,8 @@ public enum ClientProperty {
     CLASSIFICATION,
     VISIBILITY_CONDITION,
     ACCESSIBILITY_CONDITION,
-    FIELD_ERROR;
+    FIELD_ERROR,
+    ACTION_TOOLBAR;
 
 
     public boolean is(Component component) {
@@ -29,17 +31,27 @@ public enum ClientProperty {
     public <T> T get(Component component) {
         if (component instanceof JComponent) {
             JComponent comp = (JComponent) component;
-            return Unsafe.cast(comp.getClientProperty(this));
+            Object prop = comp.getClientProperty(this);
+            if (prop instanceof WeakRef) {
+                WeakRef ref = (WeakRef) prop;
+                prop = ref.get();
+            }
+            return Unsafe.cast(prop);
         }
         return null;
     }
 
     public <T> void set(Component component, T value) {
+        set(component, value, false);
+    }
+
+    public <T> void set(Component component, T value, boolean weak) {
         if (component instanceof JComponent) {
             JComponent comp = (JComponent) component;
-            comp.putClientProperty(this, value);
+            comp.putClientProperty(this, weak ? WeakRef.of(value) : value);
         }
     }
+
 
     public boolean isSet(Component component) {
         return get(component) != null;

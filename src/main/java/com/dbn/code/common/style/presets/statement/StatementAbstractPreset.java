@@ -16,7 +16,7 @@ public abstract class StatementAbstractPreset extends CodeStylePresetImpl {
 
     @Override
     public boolean accepts(BasePsiElement psiElement) {
-        return psiElement.getElementType().is(ElementTypeAttribute.STATEMENT);
+        return psiElement.elementType.is(ElementTypeAttribute.STATEMENT);
     }
 
     protected Spacing getSpacing(BasePsiElement psiElement, boolean shouldWrap) {

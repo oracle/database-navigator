@@ -5,7 +5,11 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionHandlerStatus;
 import com.dbn.language.common.DBLanguageAnnotator;
 import com.dbn.language.common.DBLanguageDialect;
-import com.dbn.language.common.psi.*;
+import com.dbn.language.common.psi.ChameleonPsiElement;
+import com.dbn.language.common.psi.ExecutablePsiElement;
+import com.dbn.language.common.psi.IdentifierPsiElement;
+import com.dbn.language.common.psi.NamedPsiElement;
+import com.dbn.language.common.psi.TokenPsiElement;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +38,7 @@ public class SQLLanguageAnnotator extends DBLanguageAnnotator {
         if (psiElement instanceof NamedPsiElement) {
             NamedPsiElement namedPsiElement = (NamedPsiElement) psiElement;
             if (namedPsiElement.hasErrors()) {
-                String message = "Invalid " + namedPsiElement.getElementType().getDescription();
+                String message = "Invalid " + namedPsiElement.elementType.getDescription();
                 createAnnotation(holder, namedPsiElement, ERROR, null, message);
             }
         }

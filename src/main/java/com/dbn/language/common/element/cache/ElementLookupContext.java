@@ -1,10 +1,10 @@
 package com.dbn.language.common.element.cache;
 
+import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.impl.ElementTypeRef;
 import com.dbn.language.common.element.impl.NamedElementType;
-import com.dbn.language.common.element.path.ParserNode;
-import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.parser.Branch;
+import com.dbn.language.common.element.path.ParserNode;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.tree.IElementType;
@@ -75,19 +75,19 @@ public class ElementLookupContext {
 
     @Nullable
     private static NamedElementType getNamedElement(ParserNode pathNode) {
-        pathNode = pathNode.getParent();
+        pathNode = (ParserNode) pathNode.parent;
         while (pathNode != null) {
-            ElementType elementType = pathNode.getElement();
+            ElementType elementType = pathNode.element;
             if (elementType instanceof NamedElementType) {
                 return (NamedElementType) elementType;
             }
-            pathNode = pathNode.getParent();
+            pathNode = (ParserNode) pathNode.parent;
         }
         return null;
     }
 
     public void removeBranchMarkers(ParserNode pathNode) {
-        ElementType elementType = pathNode.getElement();
+        ElementType elementType = pathNode.element;
         if (elementType instanceof NamedElementType) {
             removeBranchMarkers((NamedElementType) elementType);
         }

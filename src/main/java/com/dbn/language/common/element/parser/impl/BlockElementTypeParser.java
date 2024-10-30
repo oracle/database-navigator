@@ -16,7 +16,7 @@ public class BlockElementTypeParser extends SequenceElementTypeParser<BlockEleme
 
     @Override
     public ParseResult parse(ParserNode parentNode, ParserContext context) throws ParseException {
-        ParserBuilder builder = context.getBuilder();
+        ParserBuilder builder = context.builder;
         Marker marker = builder.mark();
         ParseResult result = super.parse(parentNode, context);
 

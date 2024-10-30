@@ -1,13 +1,16 @@
 package com.dbn.language.common.element.parser.impl;
 
+import com.dbn.common.util.Strings;
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.SimpleTokenType;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.impl.TokenElementType;
-import com.dbn.language.common.element.parser.*;
+import com.dbn.language.common.element.parser.ElementTypeParser;
+import com.dbn.language.common.element.parser.ParseResult;
+import com.dbn.language.common.element.parser.ParseResultType;
+import com.dbn.language.common.element.parser.ParserBuilder;
+import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.path.ParserNode;
-import com.dbn.common.util.Strings;
-import com.dbn.language.common.element.parser.*;
 import com.intellij.lang.PsiBuilder.Marker;
 
 public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> {
@@ -17,11 +20,11 @@ public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> 
 
     @Override
     public ParseResult parse(ParserNode parentNode, ParserContext context) {
-        ParserBuilder builder = context.getBuilder();
+        ParserBuilder builder = context.builder;
         Marker marker = null;
 
         TokenType token = builder.getToken();
-        if (token == elementType.getTokenType() || builder.isDummyToken()) {
+        if (token == elementType.tokenType || builder.isDummyToken()) {
 
             String text = elementType.getText();
             if (Strings.isNotEmpty(text) && Strings.equalsIgnoreCase(builder.getTokenText(), text)) {
