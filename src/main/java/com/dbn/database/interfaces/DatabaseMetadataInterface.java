@@ -348,7 +348,15 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      */
     ResultSet loadSynonyms(String ownerName, DBNConnection connection) throws SQLException;
 
-
+    /**
+     * Loads the credentials of the given owner
+     * Column names of the returned ResultSet
+     *  <li> CREDENTIAL_NAME (char)
+     *  <li> USER_NAME (char)
+     *  <li> COMMENTS (char)
+     *  <li> ENABLED (Y/N)
+     */
+    ResultSet loadCredentials(String ownerName, DBNConnection connection) throws SQLException;
 
     /**
      * Loads the functions of the given owner<br>

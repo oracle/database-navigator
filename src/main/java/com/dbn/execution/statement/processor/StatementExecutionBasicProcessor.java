@@ -4,6 +4,7 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.editor.BasicTextEditor;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.interceptor.InterceptorBundle;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.message.MessageType;
@@ -62,6 +63,7 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.navigation.NavigationInstruction.*;
 import static com.dbn.common.util.Strings.toUpperCase;
+import static com.dbn.connection.interceptor.DatabaseInterceptorType.STATEMENT_EXECUTION;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.execution.ExecutionStatus.*;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
@@ -247,13 +249,6 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         return executionResult;
     }
 
-    public void setExecutionResult(StatementExecutionResult executionResult) {
-        if (executionResult == this.executionResult) return;
-        this.executionResult = executionResult;
-        // do not dispose existing result as it may still be hosted as orphan in the execution console
-        //this.executionResult = Disposer.replace(this.executionResult, executionResult);
-    }
-
     @Override
     public void initExecutionInput(boolean bulkExecution) {
         // overwrite the input if it was leniently bound
@@ -266,7 +261,6 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
             executionInput.setTargetSession(getTargetSession());
             executionInput.setBulkExecution(bulkExecution);
         }
-
     }
 
     @Override
@@ -294,8 +288,9 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
                     initTimeout(context, debug);
                     initLogging(context, debug);
 
-                    StatementExecutionResult result = executeStatement(statementText);
-                    setExecutionResult(result);
+                    beforeExecution(context);
+                    executionResult = executeStatement(statementText);
+                    afterExecution(context);
 
                     // post execution activities
                     if (executionResult != null) {
@@ -313,8 +308,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
                     if (context.isNot(CANCEL_REQUESTED)) {
                         executionException = e;
                         DatabaseMessage databaseMessage = getMessageParserInterface().parseExceptionMessage(e);
-                        StatementExecutionResult result = createErrorExecutionResult(databaseMessage);
-                        setExecutionResult(result);
+                        executionResult = createErrorExecutionResult(databaseMessage);
                         executionResult.calculateExecDuration();
                         consumeLoggerOutput(context);
                     }
@@ -341,6 +335,19 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         } finally {
             postExecute();
         }
+    }
+
+    private void beforeExecution(StatementExecutionContext context) {
+        getInterceptors(context).before(STATEMENT_EXECUTION, context);
+    }
+
+    private void afterExecution(StatementExecutionContext context) {
+        getInterceptors(context).after(STATEMENT_EXECUTION, context);
+    }
+
+    private InterceptorBundle getInterceptors(StatementExecutionContext context) {
+        ConnectionHandler connection = context.getInput().getConnection();
+        return connection == null ? InterceptorBundle.VOID : connection.getInterceptorBundle();
     }
 
     private void assertNotCancelled() {
@@ -375,8 +382,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         executionInput.setExecutableStatementText(statementText);
 
         if (executionVariables.hasErrors()) {
-            StatementExecutionResult result = createErrorExecutionResult(new DatabaseMessage("Could not bind all variables.", null));
-            setExecutionResult(result);
+            executionResult = createErrorExecutionResult(new DatabaseMessage("Could not bind all variables.", null));
             return null; // cancel execution
         }
         return statementText;
@@ -396,6 +402,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
             conn = connection.getMainConnection(schema);
         }
         context.setConnection(conn);
+
     }
 
     private void initLogging(StatementExecutionContext context, boolean debug) {
@@ -463,7 +470,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         StatementExecutionQueue queue = Failsafe.nn(executionManager.getExecutionQueue(connectionId, sessionId));
         queue.cancelExecution(this);
 
-        setExecutionResult(null);
+        executionResult = null;
 
         Progress.background(
                 getProject(),

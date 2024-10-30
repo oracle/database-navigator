@@ -6,10 +6,11 @@ import com.dbn.common.message.MessageBundle;
 import com.dbn.common.message.MessageCallback;
 import com.dbn.common.option.DoNotAskOption;
 import com.dbn.common.thread.Dispatch;
-import com.dbn.nls.NlsResources;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -26,6 +27,7 @@ public class Messages {
     public static final String[] OPTIONS_OK = options("OK");
     public static final String[] OPTIONS_YES_NO = options(txt("app.shared.button.Yes"), txt("app.shared.button.No"));
     public static final String[] OPTIONS_YES_CANCEL = options(txt("app.shared.button.Yes"), txt("app.shared.button.No"), txt("app.shared.button.Cancel"));
+    public static final String[] OPTIONS_CONTINUE_CANCEL = options(txt("app.shared.button.Continue"), txt("app.shared.button.Cancel"));
 
     public static void showErrorDialog(@Nullable Project project, String title, MessageBundle messages) {
         StringBuilder buffer = new StringBuilder();
@@ -110,7 +112,7 @@ public class Messages {
             @Nullable MessageCallback callback,
             @Nullable DoNotAskOption doNotAskOption) {
 
-        Dispatch.run(() -> {
+        Dispatch.run(getModalityState(), () -> {
             if (project != null) nd(project);
             closeProgressDialogs();
             int option = com.intellij.openapi.ui.Messages.showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, icon, doNotAskOption);
@@ -122,6 +124,16 @@ public class Messages {
 
     public static String[] options(String ... options) {
         return Commons.list(options);
+    }
+
+    /**
+     * Use ANY modality state for message dialogs
+     *
+     * Messages dialogs issued from within another modal dialog could be displayed after the
+     * closing of the dialog if modality state is not properly evaluated
+     */
+    private static @NotNull ModalityState getModalityState() {
+        return ModalityState.any();
     }
 
 }

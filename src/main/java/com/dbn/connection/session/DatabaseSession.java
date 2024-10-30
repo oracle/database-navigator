@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.connection.SessionId.*;
 
 @Getter
 @Setter
@@ -26,7 +27,7 @@ public class DatabaseSession implements Comparable<DatabaseSession>, Presentable
     private String name;
 
     public DatabaseSession(SessionId id, String name, ConnectionType connectionType, ConnectionHandler connection) {
-        this.id = id == null ? SessionId.create() : id;
+        this.id = id == null ? create() : id;
         this.name = name;
         this.connectionType = connectionType;
         this.connection = connection.ref();
@@ -58,19 +59,19 @@ public class DatabaseSession implements Comparable<DatabaseSession>, Presentable
     }
 
     public boolean isMain() {
-        return id == SessionId.MAIN;
+        return id == MAIN;
     }
 
     public boolean isDebug() {
-        return id == SessionId.DEBUG || id == SessionId.DEBUGGER;
+        return id == DEBUG || id == DEBUGGER;
     }
 
     public boolean isPool() {
-        return id == SessionId.POOL;
+        return id == POOL;
     }
 
     public boolean isCustom() {
-        return !isMain() && !isPool() && !isDebug();
+        return !id.isOneOf(MAIN, TEST, POOL, DEBUG, DEBUGGER, ASSISTANT);
     }
 
     @NotNull
@@ -80,9 +81,9 @@ public class DatabaseSession implements Comparable<DatabaseSession>, Presentable
 
     @Override
     public int compareTo(@NotNull DatabaseSession o) {
-        if (id == SessionId.MAIN) return -1;
-        if (id == SessionId.POOL) {
-            return o.id == SessionId.MAIN ? 1 : -1;
+        if (id == MAIN) return -1;
+        if (id == POOL) {
+            return o.id == MAIN ? 1 : -1;
         }
         return name.compareTo(o.name);
     }

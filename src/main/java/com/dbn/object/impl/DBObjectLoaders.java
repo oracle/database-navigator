@@ -11,6 +11,7 @@ import com.dbn.database.common.metadata.def.DBClusterMetadata;
 import com.dbn.database.common.metadata.def.DBColumnMetadata;
 import com.dbn.database.common.metadata.def.DBConstraintColumnMetadata;
 import com.dbn.database.common.metadata.def.DBConstraintMetadata;
+import com.dbn.database.common.metadata.def.DBCredentialMetadata;
 import com.dbn.database.common.metadata.def.DBDatabaseLinkMetadata;
 import com.dbn.database.common.metadata.def.DBDimensionMetadata;
 import com.dbn.database.common.metadata.def.DBFunctionMetadata;
@@ -41,6 +42,7 @@ import com.dbn.object.DBCluster;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBConstraint;
+import com.dbn.object.DBCredential;
 import com.dbn.object.DBDatabaseLink;
 import com.dbn.object.DBDatabaseTrigger;
 import com.dbn.object.DBDataset;
@@ -269,6 +271,11 @@ public class DBObjectLoaders {
                 "CLUSTERS", DBObjectType.SCHEMA, DBObjectType.CLUSTER, true, true,
                 (content, conn, mdi) -> mdi.loadClusters(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBClusterImpl(content.getParentEntity(), md));
+
+        DynamicContentResultSetLoader.<DBCredential, DBCredentialMetadata>create(
+                "CREDENTIALS", DBObjectType.SCHEMA, DBObjectType.CREDENTIAL, true, true,
+                (content, conn, mdi) -> mdi.loadCredentials(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> new DBCredentialImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBDatabaseLink, DBDatabaseLinkMetadata>create(
                 "DBLINKS", DBObjectType.SCHEMA, DBObjectType.DBLINK, true, true,

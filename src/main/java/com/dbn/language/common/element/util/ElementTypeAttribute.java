@@ -38,6 +38,8 @@ public enum ElementTypeAttribute implements Property.LongBase {
     COLUMN_PARAMETER_HANDLER("COLUMN_PARAMETER_HANDLER", "Column parameter handler"),
     COLUMN_PARAMETER_PROVIDER("COLUMN_PARAMETER_PROVIDER", "Column parameter provider"),
     SCHEMA_CHANGE("SCHEMA_CHANGE", "Schema change clause"),
+    DB_ASSISTANT("DB_ASSISTANT", "Database assistant statement"),
+    DB_ASSISTANT_PROMPT("DB_ASSISTANT_PROMPT", "Database assistant prompt"),
     ;
 
     public static final ElementTypeAttribute[] VALUES = values();

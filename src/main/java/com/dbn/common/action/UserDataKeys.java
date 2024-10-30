@@ -1,5 +1,8 @@
 package com.dbn.common.action;
 
+import com.dbn.common.notification.NotificationGroup;
+import com.dbn.common.outcome.MessageOutcomeHandler;
+import com.dbn.common.outcome.NotificationOutcomeHandler;
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.connection.mapping.FileConnectionContext;
@@ -11,6 +14,7 @@ import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserDataKeys {
     Key<Boolean> INVALID_ENTITY = Key.create("DBNavigator.InvalidEntity");
@@ -29,4 +33,8 @@ public interface UserDataKeys {
     Key<LineBreakpoint> LINE_BREAKPOINT = Key.create("DBNavigator.LineBreakpoint");
     Key<Boolean> SKIP_BROWSER_AUTOSCROLL = Key.create("DBNavigator.SkipEditorScroll");
     Key<Long> LAST_ANNOTATION_REFRESH = Key.create("DBNavigator.LastAnnotationRefresh");
+
+
+    Key<MessageOutcomeHandler> MESSAGE_OUTCOME_HANDLER = Key.create("DBNavigator.MessageOutcomeHandler");
+    Key<Map<NotificationGroup, NotificationOutcomeHandler>> NOTIFICATION_OUTCOME_HANDLERS = Key.create("DBNavigator.NotificationOutcomeHandlers");
 }

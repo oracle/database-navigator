@@ -1,5 +1,6 @@
 package com.dbn.options.ui;
 
+import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.browser.options.DatabaseBrowserSettings;
 import com.dbn.code.common.completion.options.CodeCompletionSettings;
 import com.dbn.common.options.BasicConfiguration;
@@ -30,7 +31,7 @@ import java.awt.*;
 public class ProjectSettingsForm extends CompositeConfigurationEditorForm<ProjectSettings> {
     private JPanel mainPanel;
     private JPanel tabsPanel;
-    private final DBNTabbedPane<ConfigurationEditorForm> configurationTabs;
+    private final DBNTabbedPane<ConfigurationEditorForm<?>> configurationTabs;
 
     public ProjectSettingsForm(ProjectSettings globalSettings) {
         super(globalSettings);
@@ -50,6 +51,7 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
         ExecutionEngineSettings executionEngineSettings = globalSettings.getExecutionEngineSettings();
         OperationSettings operationSettings = globalSettings.getOperationSettings();
         DDLFileSettings ddlFileSettings = globalSettings.getDdlFileSettings();
+        AssistantSettings assistantSettings = globalSettings.getAssistantSettings();
         GeneralProjectSettings generalSettings = globalSettings.getGeneralSettings();
 
         addSettingsPanel(connectionSettings);
@@ -62,13 +64,14 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
         addSettingsPanel(executionEngineSettings);
         addSettingsPanel(operationSettings);
         addSettingsPanel(ddlFileSettings);
+        addSettingsPanel(assistantSettings);
         addSettingsPanel(generalSettings);
         globalSettings.reset();
 
         tabsPanel.setFocusable(true);
    }
 
-    private void addSettingsPanel(BasicConfiguration configuration) {
+    private void addSettingsPanel(BasicConfiguration<?, ?> configuration) {
         JComponent component = configuration.createComponent();
         JBScrollPane scrollPane = new JBScrollPane(component);
         configurationTabs.addTab(configuration.getDisplayName(), scrollPane, configuration.getSettingsEditor());
@@ -90,10 +93,10 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
     }
 
     void selectSettingsEditor(ConfigId configId) {
-        Configuration configuration = getConfiguration().getConfiguration(configId);
+        Configuration<?, ?> configuration = getConfiguration().getConfiguration(configId);
         if (configuration == null) return;
 
-        ConfigurationEditorForm settingsEditor = configuration.getSettingsEditor();
+        ConfigurationEditorForm<?> settingsEditor = configuration.getSettingsEditor();
         if (settingsEditor == null) return;
 
         configurationTabs.selectTab(settingsEditor);
@@ -101,8 +104,8 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
 
 
     @NotNull
-    public Configuration getActiveConfiguration() {
-        ConfigurationEditorForm settingsEditor = configurationTabs.getSelectedContent();
+    public Configuration<?, ?> getActiveConfiguration() {
+        ConfigurationEditorForm<?> settingsEditor = configurationTabs.getSelectedContent();
         return settingsEditor.getConfiguration();
     }
 }

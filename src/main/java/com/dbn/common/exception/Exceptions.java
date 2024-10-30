@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.SQLException;
 import java.sql.SQLNonTransientConnectionException;
 import java.sql.SQLTimeoutException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -54,7 +53,18 @@ public class Exceptions {
         return new TimeoutException("Operation timed out after " + time + " " + cachedLowerCase(timeUnit.name()));
     }
 
-    public static Throwable causeOf(ExecutionException e) {
+    public static Throwable causeOf(Throwable e) {
         return Commons.nvl(e.getCause(), e);
+    }
+
+    public static Throwable rootCauseOf(Throwable e) {
+        while (e != null && e.getCause() != null && e.getCause() != e) {
+            e = e.getCause();
+        }
+        return e;
+    }
+
+    public static String causeMessage(Throwable e) {
+        return causeOf(e).getMessage();
     }
 }

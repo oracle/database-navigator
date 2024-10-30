@@ -154,6 +154,22 @@ public class Documents {
         });
     }
 
+
+
+    @Nullable
+    public static PsiFile getPsiFile(Editor editor) {
+        if (isNotValid(editor)) return null;
+
+        Project project = editor.getProject();
+        if (isNotValid(project)) return null;
+
+        VirtualFile file = getVirtualFile(editor);
+        if (isNotValid(file)) return null;
+
+        return getPsiFile(project, file);
+    }
+
+
     @Nullable
     public static PsiFile getPsiFile(Project project, VirtualFile virtualFile) {
         Document document = getDocument(virtualFile);

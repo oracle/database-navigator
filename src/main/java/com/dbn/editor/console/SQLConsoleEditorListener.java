@@ -12,16 +12,21 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Files.isDbConsoleFile;
 
 public class SQLConsoleEditorListener extends DBNFileEditorManagerListener {
-    @Override
-    public void whenFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-        if (isNotValid(file)) return;
-        if (!isDbConsoleFile(file)) return;
+  @Override
+  public void whenFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
+    if (isNotValid(file)) return;
+    if (!isDbConsoleFile(file)) return;
 
-        SQLConsoleEditor fileEditor = (SQLConsoleEditor) source.getSelectedEditor(file);
-        if (isNotValid(fileEditor)) return;
+    SQLConsoleEditor fileEditor = (SQLConsoleEditor) source.getSelectedEditor(file);
+    if (isNotValid(fileEditor)) return;
 
-        Project project = source.getProject();
-        SQLConsoleEditorToolbarForm toolbarForm = new SQLConsoleEditorToolbarForm(project, fileEditor);
-        Editors.addEditorToolbar(fileEditor, toolbarForm);
-    }
+    Project project = source.getProject();
+    SQLConsoleEditorToolbarForm toolbarForm = new SQLConsoleEditorToolbarForm(project, fileEditor);
+    Editors.addEditorToolbar(fileEditor, toolbarForm);
+//
+//    Document document = FileDocumentManager.getInstance().getDocument(file);
+//    if (document != null) {
+//      document.addDocumentListener(new EditorAIQueryListener(source.getProject()));
+//    }
+  }
 }

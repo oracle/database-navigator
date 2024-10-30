@@ -323,10 +323,10 @@ public class PsiUtil {
 
 
     @Nullable
-    public static BasePsiElement getBasePsiElement(@Nullable PsiElement element) {
+    public static BasePsiElement<?> getBasePsiElement(@Nullable PsiElement element) {
         while (element != null && !(element instanceof PsiFile)) {
             if (element instanceof BasePsiElement) {
-                return (BasePsiElement) element;
+                return (BasePsiElement<?>) element;
             }
             element = element.getParent();
         }
@@ -337,7 +337,7 @@ public class PsiUtil {
     @Nullable
     public static ElementType getElementType(PsiElement psiElement) {
         if (psiElement instanceof BasePsiElement) {
-            BasePsiElement basePsiElement = (BasePsiElement) psiElement;
+            BasePsiElement<?> basePsiElement = (BasePsiElement<?>) psiElement;
             return basePsiElement.getElementType();
         }
         return null;

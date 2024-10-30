@@ -15,6 +15,7 @@ public class OracleDatabaseInterfaces extends DatabaseInterfacesBase {
     private final @Getter(lazy = true) DatabaseEnvironmentInterface environmentInterface = new OracleEnvironmentInterface();
     private final @Getter(lazy = true) DatabaseMetadataInterface metadataInterface = new OracleMetadataInterface(this);
     private final @Getter(lazy = true) DatabaseDebuggerInterface debuggerInterface = new OracleDebuggerInterface(this);
+    private final @Getter(lazy = true) DatabaseAssistantInterface assistantInterface = new OracleAssistantInterface(this);
     private final @Getter(lazy = true) DatabaseDataDefinitionInterface dataDefinitionInterface = new OracleDataDefinitionInterface(this);
     private final @Getter(lazy = true) DatabaseExecutionInterface executionInterface = new OracleExecutionInterface();
     private final @Getter(lazy = true) DatabaseNativeDataTypes nativeDataTypes = new OracleNativeDataTypes();

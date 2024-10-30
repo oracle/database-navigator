@@ -25,10 +25,12 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
 import static com.dbn.common.Reflection.invokeMethod;
@@ -70,13 +72,35 @@ public class UserInterface {
         });
     }
 
+    /**
+     * TODO rename to whenFirstShown
+     * @param component
+     * @param runnable
+     */
     public static void whenShown(JComponent component, Runnable runnable) {
-        component.addAncestorListener(new AncestorListenerAdapter() {
+        whenShown(component, runnable, true);
+    }
+
+    public static void whenShown(JComponent component, Runnable runnable, boolean first) {
+        // one time invocation of the runnable when component is shown
+        AtomicReference<AncestorListener> listenerRef = new AtomicReference<>();
+        AncestorListener listener = new AncestorListenerAdapter() {
             @Override
             public void ancestorAdded(AncestorEvent event) {
-                runnable.run();
+                try {
+                    runnable.run();
+                } finally {
+                    if (first) {
+                        // remove the listener if only first shown time is to be considered
+                        AncestorListener listener = listenerRef.get();
+                        component.removeAncestorListener(listener);
+                    }
+                }
+
             }
-        });
+        };
+        listenerRef.set(listener);
+        component.addAncestorListener(listener);
     }
 
 
@@ -243,6 +267,15 @@ public class UserInterface {
     @NotNull
     public static ToolbarDecorator createToolbarDecorator(JTable table) {
         ToolbarDecorator decorator = ToolbarDecorator.createDecorator(table);
+        decorator.setToolbarPosition(ActionToolbarPosition.TOP);
+        decorator.setToolbarBorder(Borders.TOOLBAR_DECORATOR_BORDER);
+        decorator.setPanelBorder(Borders.EMPTY_BORDER);
+        return decorator;
+    }
+
+    @NotNull
+    public static ToolbarDecorator createToolbarDecorator(JList<?> list) {
+        ToolbarDecorator decorator = ToolbarDecorator.createDecorator(list);
         decorator.setToolbarPosition(ActionToolbarPosition.TOP);
         decorator.setToolbarBorder(Borders.TOOLBAR_DECORATOR_BORDER);
         decorator.setPanelBorder(Borders.EMPTY_BORDER);

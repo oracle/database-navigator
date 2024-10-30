@@ -21,6 +21,8 @@ import java.util.List;
 public interface DBObjectBundle extends BrowserTreeNode, StatefulDisposable, DatabaseMetadata {
     List<DBConsole> getConsoles();
 
+    List<DBSchema> getSchemas(boolean filtered);
+
     List<DBSchema> getSchemas();
 
     List<DBSchema> getPublicSchemas();

@@ -54,7 +54,8 @@ public class ObjectTypeFilterSettings extends BasicProjectConfiguration<ProjectC
             new ObjectTypeFilterSetting(this, DBObjectType.JAVA_OBJECT),
             new ObjectTypeFilterSetting(this, DBObjectType.DIMENSION),
             new ObjectTypeFilterSetting(this, DBObjectType.CLUSTER),
-            new ObjectTypeFilterSetting(this, DBObjectType.DBLINK));
+            new ObjectTypeFilterSetting(this, DBObjectType.DBLINK),
+            new ObjectTypeFilterSetting(this, DBObjectType.CREDENTIAL));
 
     private final BooleanSetting useMasterSettings = new BooleanSetting("use-master-settings", true);
 

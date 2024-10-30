@@ -1,0 +1,7 @@
+
+-- list of departments with their respective number of employees
+<spot>SELECT "HR"."DEPARTMENTS"."DEPARTMENT_NAME" AS "Department Name",
+       COUNT("HR"."EMPLOYEES"."EMPLOYEE_ID") AS "Number of Employees"
+FROM "HR"."DEPARTMENTS"
+LEFT JOIN "HR"."EMPLOYEES" ON "HR"."DEPARTMENTS"."DEPARTMENT_ID" = "HR"."EMPLOYEES"."DEPARTMENT_ID"
+GROUP BY "HR"."DEPARTMENTS"."DEPARTMENT_NAME"</spot>

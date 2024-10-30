@@ -14,12 +14,12 @@ import com.intellij.openapi.project.Project;
 import static com.dbn.common.util.Conditional.when;
 
 public class SourceCodeReadonlyNotificationPanel extends SourceCodeEditorNotificationPanel{
-    public SourceCodeReadonlyNotificationPanel(DBSchemaObject schemaObject, SourceCodeEditor sourceCodeEditor) {
-        super(isReadonly(sourceCodeEditor) ? MessageType.NEUTRAL : MessageType.WARNING);
+    public SourceCodeReadonlyNotificationPanel(DBSchemaObject object, SourceCodeEditor sourceCodeEditor) {
+        super(object, isReadonly(sourceCodeEditor) ? MessageType.NEUTRAL : MessageType.WARNING);
         DBSourceCodeVirtualFile sourceCodeFile = sourceCodeEditor.getVirtualFile();
         String environmentName = sourceCodeFile.getEnvironmentType().getName();
 
-        Project project = schemaObject.getProject();
+        Project project = object.getProject();
         DBContentType contentType = sourceCodeEditor.getContentType();
 
         if (isReadonly(sourceCodeEditor)) {
@@ -27,17 +27,17 @@ public class SourceCodeReadonlyNotificationPanel extends SourceCodeEditorNotific
             createActionLabel("Edit Mode", () ->
                     Messages.showQuestionDialog(project,
                             "Enable edit-mode",
-                            "Are you sure you want to enable editing for " + schemaObject.getQualifiedNameWithType(),
+                            "Are you sure you want to enable editing for " + object.getQualifiedNameWithType(),
                             new String[]{"Yes", "Cancel"}, 0,
                             option -> when(option == 0, () -> {
                                 EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
-                                environmentManager.enableEditing(schemaObject, contentType);
+                                environmentManager.enableEditing(object, contentType);
                             })));
         } else {
             setText("EDITABLE CODE! - Edit-mode enabled (the environment \"" + environmentName + "\" is configured as \"Readonly Code\")");
             createActionLabel("Cancel Editing", () -> {
                 EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
-                environmentManager.disableEditing(schemaObject, contentType);
+                environmentManager.disableEditing(object, contentType);
             });
         }
 

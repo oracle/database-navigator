@@ -20,7 +20,7 @@ public class Icons {
     public static final Latent<Icon> WINDOW_DATABASE_BROWSER     = Latent.basic(()-> init("/img/window/DatabaseBrowser.svg"));
     public static final Latent<Icon> WINDOW_EXECUTION_CONSOLE    = Latent.basic(()-> init("/img/window/ExecutionConsole.svg"));
     public static final Latent<Icon> WINDOW_DATABASE_DIAGNOSTICS = Latent.basic(()-> init("/img/window/DatabaseDiagnostics.svg"));
-    public static final Latent<Icon> WINDOW_DATABASE_COMPANION   = Latent.basic(()-> init("/img/window/DatabaseCompanion.svg"));
+    public static final Latent<Icon> WINDOW_DATABASE_ASSISTANT = Latent.basic(()-> init("/img/window/DatabaseAssistant.svg"));
 
 
     public static final Icon DBN_SPLASH = load("/img/DBN.png");
@@ -45,6 +45,7 @@ public class Icons {
 
     public static final Icon ACTION_ADD                       = AllIcons.General.Add;
     public static final Icon ACTION_COPY                      = AllIcons.Actions.Copy;
+    public static final Icon ACTION_CHECK                     = AllIcons.Actions.Checked;
     public static final Icon ACTION_REMOVE                    = AllIcons.General.Remove;
     public static final Icon ACTION_SORT_ALPHA                = AllIcons.ObjectBrowser.Sorted;
     public static final Icon ACTION_SORT_NUMERIC              = load("/img/action/SortNumerically.png");
@@ -59,12 +60,14 @@ public class Icons {
     public static final Icon ACTION_EXPAND_ALL                = AllIcons.Actions.Expandall;
     public static final Icon ACTION_GROUP                     = load("/img/action/Group.svg");
     public static final Icon ACTION_DELETE                    = AllIcons.Actions.GC;
+    public static final Icon ACTION_HELP                      = AllIcons.Actions.Help;
     public static final Icon ACTION_EXECUTE                   = AllIcons.Actions.Execute;
     public static final Icon ACTION_DEBUG                     = AllIcons.Actions.StartDebugger;
     public static final Icon ACTION_CLOSE                     = AllIcons.Actions.Cancel;
     public static final Icon ACTION_CLOSE_SMALL               = load("/img/action/Close.svg");
     public static final Icon ACTION_UP_DOWN                   = load("/img/action/UpDown.svg");
     public static final Icon ACTION_REFRESH                   = AllIcons.Actions.Refresh;
+    public static final Icon ACTION_RETRY                     = load("/img/action/Retry.svg");
     public static final Icon ACTION_TIMED_REFRESH             = load("/img/action/TimedSynchronize.png");
     public static final Icon ACTION_TIMED_REFRESH_INTERRUPTED = load("/img/action/TimedSynchronizeInterrupted.png");
     public static final Icon ACTION_TIMED_REFRESH_OFF         = load("/img/action/TimedSynchronizeOff.png");

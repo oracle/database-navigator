@@ -2,7 +2,6 @@ package com.dbn.common.ui;
 
 import com.dbn.common.text.TextContent;
 import com.dbn.common.util.Named;
-import com.dbn.nls.NlsResources;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,6 +51,36 @@ public interface Presentable extends Named {
             @Override
             public String getName() {
                 return name;
+            }
+
+            @Override
+            public String toString() {
+                return name;
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (obj instanceof Presentable) {
+                    Presentable presentable = (Presentable) obj;
+                    return Objects.equals(name, presentable.getName());
+                }
+                return false;
+            }
+        };
+    }
+
+
+    static Presentable basic(String name, Icon icon) {
+        return new Presentable() {
+            @NotNull
+            @Override
+            public String getName() {
+                return name;
+            }
+
+            @Override
+            public @Nullable Icon getIcon() {
+                return icon;
             }
 
             @Override

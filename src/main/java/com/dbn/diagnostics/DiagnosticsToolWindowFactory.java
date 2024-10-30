@@ -13,7 +13,6 @@ public class DiagnosticsToolWindowFactory extends DBNToolWindowFactory {
         toolWindow.setTitle("DB Diagnostics");
         toolWindow.setStripeTitle("DB Diagnostics");
         toolWindow.setIcon(WINDOW_DATABASE_DIAGNOSTICS.get());
-
     }
 
     @Override

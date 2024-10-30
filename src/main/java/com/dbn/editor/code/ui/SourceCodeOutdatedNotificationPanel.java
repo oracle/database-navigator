@@ -18,7 +18,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class SourceCodeOutdatedNotificationPanel extends SourceCodeEditorNotificationPanel{
     public SourceCodeOutdatedNotificationPanel(DBSourceCodeVirtualFile sourceCodeFile, SourceCodeEditor sourceCodeEditor) {
-        super(MessageType.WARNING);
+        super(sourceCodeFile.getObject(), MessageType.WARNING);
         DBSchemaObject editableObject = sourceCodeFile.getObject();
         Project project = editableObject.getProject();
         String presentableChangeTime =

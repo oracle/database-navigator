@@ -32,7 +32,7 @@ public class ChameleonElementType extends ILazyParseableElementType implements E
     }
 
     @Override
-    public short index() {
+    public int index() {
         return -1;
     }
 

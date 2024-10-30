@@ -101,8 +101,8 @@ public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
         String connectionName = getConnectionName();
 
         return connectionName + File.separatorChar +
-                getObjectRef().getObjectType().getListName() + File.separatorChar +
-                getObjectRef().getQualifiedName();
+            getObjectRef().getObjectType().getListName() + File.separatorChar +
+            getObjectRef().getQualifiedName();
     }
 
     private String getConnectionName() {

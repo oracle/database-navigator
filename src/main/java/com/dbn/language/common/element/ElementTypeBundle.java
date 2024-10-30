@@ -13,7 +13,6 @@ import com.dbn.language.common.element.util.ElementTypeDefinition;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.ide.CopyPasteManager;
-import gnu.trove.set.hash.THashSet;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Document;
@@ -23,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.datatransfer.StringSelection;
 import java.io.StringWriter;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,8 +49,8 @@ public class ElementTypeBundle {
 
 
     private static class Builder {
-        private final Set<LeafElementType> leafElementTypes = new THashSet<>();
-        private final Set<ElementType> allElementTypes = new THashSet<>();
+        private final Set<LeafElementType> leafElementTypes = new HashSet<>();
+        private final Set<ElementType> allElementTypes = new HashSet<>();
         private boolean rewriteIds;
     }
 
@@ -58,7 +58,7 @@ public class ElementTypeBundle {
         leafRegistry.add(tokenType);
     }
 
-    public LeafElementType getElement(short index) {
+    public LeafElementType getElement(int index) {
         return leafRegistry.get(index);
     }
 
