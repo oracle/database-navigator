@@ -19,7 +19,7 @@ import lombok.Getter;
 /**
  * Library holds the metadata for a Maven dependency required by a driver package.
  * The information includes groupId, artifactId, and version.
- *
+ * <p>
  * Example:
  * <pre>
  * {@code
@@ -31,18 +31,18 @@ import lombok.Getter;
  */
 @Getter
 public class Library {
-  private final String groupId;
-  private final String artifactId;
-  private final String version;
+    private final String groupId;
+    private final String artifactId;
+    private final String version;
 
-  public Library(String groupId, String artifactId, String version) {
-    this.groupId = groupId;
-    this.artifactId = artifactId;
-    this.version = version;
-  }
+    public Library(String groupId, String artifactId, String version) {
+        this.groupId = groupId;
+        this.artifactId = artifactId;
+        this.version = version;
+    }
 
-  @Override
-  public String toString() {
-    return String.format("Library [groupId=%s, artifactId=%s, version=%s]", groupId, artifactId, version);
-  }
+    @Override
+    public String toString() {
+        return String.format("Library [groupId=%s, artifactId=%s, version=%s]", groupId, artifactId, version);
+    }
 }

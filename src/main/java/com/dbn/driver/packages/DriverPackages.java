@@ -47,36 +47,36 @@ import static java.util.Collections.unmodifiableList;
  * @author Ayoub Aarrasse
  */
 public class DriverPackages {
-  private static final DriverPackages INSTANCE = new DriverPackages();
-  private final List<DriverPackage> driverPackages;
+    private static final DriverPackages INSTANCE = new DriverPackages();
+    private final List<DriverPackage> driverPackages;
 
-  @SneakyThrows
-  private DriverPackages() {
-    Element element = XmlContents.fileToElement(getClass(), "driver-packages.xml");
-    List<Element> packageElements = element.getChildren("driver-package");
+    @SneakyThrows
+    private DriverPackages() {
+        Element element = XmlContents.fileToElement(getClass(), "driver-packages.xml");
+        List<Element> packageElements = element.getChildren("driver-package");
 
-    driverPackages = unmodifiableList(convert(packageElements, DriverPackages::createDriverPackage));
-  }
+        driverPackages = unmodifiableList(convert(packageElements, DriverPackages::createDriverPackage));
+    }
 
-  private static DriverPackage createDriverPackage(Element element) {
-    String id = stringAttribute(element, "id");
-    String name = stringAttribute(element, "name");
-    String databaseType = stringAttribute(element, "database-type");
+    private static DriverPackage createDriverPackage(Element element) {
+        String id = stringAttribute(element, "id");
+        String name = stringAttribute(element, "name");
+        String databaseType = stringAttribute(element, "database-type");
 
-    List<Library> libraries = convert(element.getChildren("library"), DriverPackages::createLibrary);
+        List<Library> libraries = convert(element.getChildren("library"), DriverPackages::createLibrary);
 
-    return new DriverPackage(id, name, databaseType, libraries);
-  }
+        return new DriverPackage(id, name, databaseType, libraries);
+    }
 
-  private static Library createLibrary(Element element) {
-    String groupId = stringAttribute(element, "group-id");
-    String artifactId = stringAttribute(element, "artifact-id");
-    String version = stringAttribute(element, "version");
+    private static Library createLibrary(Element element) {
+        String groupId = stringAttribute(element, "group-id");
+        String artifactId = stringAttribute(element, "artifact-id");
+        String version = stringAttribute(element, "version");
 
-    return new Library(groupId, artifactId, version);
-  }
+        return new Library(groupId, artifactId, version);
+    }
 
-  public static List<DriverPackage> driverPackages() {
-    return INSTANCE.driverPackages;
-  }
+    public static List<DriverPackage> driverPackages() {
+        return INSTANCE.driverPackages;
+    }
 }

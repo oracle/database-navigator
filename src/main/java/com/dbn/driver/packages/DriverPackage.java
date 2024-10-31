@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * DriverPackage represents a set of Maven libraries required for a specific database driver.
  * Each driver package includes an id, a name, a database type, and a list of libraries.
- *
+ * <p>
  * Example:
  * <pre>
  * {@code
@@ -36,20 +36,20 @@ import java.util.List;
  */
 @Getter
 public class DriverPackage {
-  private final String id;
-  private final String name;
-  private final String databaseType;
-  private final List<Library> libraries;
+    private final String id;
+    private final String name;
+    private final String databaseType;
+    private final List<Library> libraries;
 
-  public DriverPackage(String id, String name, String databaseType, List<Library> libraries) {
-    this.id = id;
-    this.name = name;
-    this.databaseType = databaseType;
-    this.libraries = libraries;
-  }
+    public DriverPackage(String id, String name, String databaseType, List<Library> libraries) {
+        this.id = id;
+        this.name = name;
+        this.databaseType = databaseType;
+        this.libraries = libraries;
+    }
 
-  @Override
-  public String toString() {
-    return String.format("DriverPackage [id=%s, name=%s, databaseType=%s, libraries=%s]", id, name, databaseType, libraries);
-  }
+    @Override
+    public String toString() {
+        return String.format("DriverPackage [id=%s, name=%s, databaseType=%s, libraries=%s]", id, name, databaseType, libraries);
+    }
 }

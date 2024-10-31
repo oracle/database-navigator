@@ -1,9 +1,22 @@
+/*
+ * Copyright (c) 2024, Oracle and/or its affiliates.
+ *
+ * This software is dual-licensed to you under the Universal Permissive License
+ *  (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
+ *   2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
+ *   either license.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
 package com.dbn.driver.packages;
 
 import com.dbn.common.util.Files;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.platform.templates.github.DownloadUtil;
 import com.intellij.openapi.progress.ProgressIndicator;
 
@@ -11,120 +24,103 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.util.Scanner;
-import java.util.concurrent.CountDownLatch;
+import java.util.UUID;
 
 public class MavenArtifactDownloader {
 
-  public static void downloadArtifact(Project project, String packageId, String groupId, String artifactId, String version, String pathLabel, CountDownLatch latch) {
-    String repoUrl = "https://repo.maven.apache.org/maven2";
-    String artifactPath = groupId.replace(".", "/") + "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + ".jar";
-    String artifactUrl = repoUrl + "/" + artifactPath;
-    String checksumUrl = artifactUrl + ".sha1"; // URL for the .sha1 file
+    private static final String MAVEN_REPO_URL = "https://repo.maven.apache.org/maven2";
 
-    ProgressManager.getInstance().run(new Task.Backgroundable(project, "Downloading Maven Artifact " + artifactId + "-" + version + ".jar", true) {
-      @Override
-      public void run(ProgressIndicator indicator) {
-        boolean success = false;
+    public static boolean downloadArtifact(Project project, String packageId, String groupId, String artifactId, String version, String pathLabel, ProgressIndicator indicator) {
+        String artifactPath = groupId.replace(".", "/") + "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + ".jar";
+        String artifactUrl = MAVEN_REPO_URL + "/" + artifactPath;
+        String checksumUrl = artifactUrl + ".sha1";
+
         try {
-          success = downloadAndVerify(indicator, packageId, artifactUrl, checksumUrl, artifactId, version, pathLabel);
-          if (success) {
-            System.out.println("Download and checksum verification succeeded for " + artifactId + "-" + version);
-          } else {
-            System.out.println("Checksum verification failed for " + artifactId + "-" + version + ". Deleting downloaded artifact...");
-          }
+            return downloadAndVerify(indicator, packageId, artifactUrl, checksumUrl, artifactId, version, pathLabel);
         } catch (IOException e) {
-          System.out.println("Download failed for " + artifactId + "-" + version + ": " + e.getMessage());
-        } finally {
-          DownloadManager.getInstance().registerJarDownload(packageId, artifactId + "-" + version, success);
-          latch.countDown();
+            System.err.println("Download failed for " + artifactId + "-" + version + ": " + e.getMessage());
+            return false;
         }
-      }
-    });
-  }
-
-  // Perform the download and verify the SHA-1 checksum
-  private static boolean downloadAndVerify(ProgressIndicator indicator, String packageId, String artifactUrl, String checksumUrl, String artifactId, String version, String pathLabel) throws IOException {
-    File pluginDir = new File(Files.getPluginDeploymentRoot(), pathLabel+"/"+packageId);
-    if (!pluginDir.exists() && !pluginDir.mkdirs()) {
-      System.out.println("Failed to create output directory: " + pluginDir.getAbsolutePath());
-      return false;
     }
 
-    File outputFile = new File(pluginDir, artifactId + "-" + version + ".jar");
+    private static boolean downloadAndVerify(ProgressIndicator indicator, String packageId, String artifactUrl, String checksumUrl, String artifactId, String version, String pathLabel) throws IOException {
+        File pluginDir = createPluginDirectory(packageId, pathLabel);
+        if (pluginDir == null) return false;
 
-    try {
-      DownloadUtil.downloadAtomically(indicator, artifactUrl, outputFile);
-      System.out.println("Artifact downloaded to: " + outputFile.getAbsolutePath());
+        File outputFile = new File(pluginDir, artifactId + "-" + version + ".jar");
 
-      String expectedChecksum = downloadChecksum(checksumUrl);
-      if (expectedChecksum != null) {
+        try {
+            DownloadUtil.downloadAtomically(null, artifactUrl, outputFile);
+            System.out.println("Artifact downloaded to: " + outputFile.getAbsolutePath());
+
+            String expectedChecksum = getLibraryChecksum(checksumUrl);
+            return verifyChecksum(expectedChecksum, outputFile, packageId, artifactId, version);
+        } catch (IOException e) {
+            deleteFile(outputFile);
+            throw e;
+        }
+    }
+
+    private static File createPluginDirectory(String packageId, String pathLabel) {
+        File pluginDir = new File(Files.getPluginDeploymentRoot(), pathLabel + "/" + packageId);
+        synchronized (MavenArtifactDownloader.class) {
+            if (!pluginDir.exists() && !pluginDir.mkdirs()) {
+                System.err.println("Failed to create output directory: " + pluginDir.getAbsolutePath());
+                return null;
+            }
+            System.out.println("Created directory: " + pluginDir.getAbsolutePath());
+        }
+        return pluginDir;
+    }
+
+    private static String getLibraryChecksum(String checksumUrl) throws IOException {
+        File tempFile = FileUtil.createTempFile(UUID.randomUUID().toString(), ".tmp", true);
+        try {
+            DownloadUtil.downloadAtomically(null, checksumUrl, tempFile);
+            try (Scanner scanner = new Scanner(tempFile)) {
+                return scanner.nextLine().trim();
+            }
+        } finally {
+            deleteFile(tempFile);
+        }
+    }
+
+    private static boolean verifyChecksum(String expectedChecksum, File outputFile, String packageId, String artifactId, String version) throws IOException {
         String actualChecksum = calculateSHA1Checksum(outputFile);
         if (expectedChecksum.equalsIgnoreCase(actualChecksum)) {
-          return true;
+            DownloadManager.getInstance().registerJarDownload(packageId, version + "-" + artifactId, true);
+            return true;
         } else {
-          System.out.println("Checksum verification failed! Expected: " + expectedChecksum + ", Actual: " + actualChecksum);
-          deleteFile(outputFile);
-          return false;
+            System.err.println("Checksum verification failed! Expected: " + expectedChecksum + ", Actual: " + actualChecksum);
+            DownloadManager.getInstance().registerJarDownload(packageId, version + "-" + artifactId, false);
+            deleteFile(outputFile);
+            return false;
         }
-      } else {
-        System.out.println("Failed to download the checksum file.");
-        deleteFile(outputFile);
-        return false;
-      }
-    } catch (IOException e) {
-      deleteFile(outputFile);
-      throw e;
     }
-  }
 
-  // Method to download the SHA-1 checksum file
-  private static String downloadChecksum(String checksumUrl) throws IOException {
-    URL url = new URL(checksumUrl);
-    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-    connection.setRequestMethod("GET");
-
-    if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-      try (Scanner scanner = new Scanner(connection.getInputStream())) {
-        return scanner.nextLine().trim(); // Return the first line of the checksum file
-      }
-    } else {
-      throw new IOException("Failed to download checksum file from: " + checksumUrl);
+    private static String calculateSHA1Checksum(File file) throws IOException {
+        try (InputStream fis = new FileInputStream(file)) {
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                digest.update(buffer, 0, bytesRead);
+            }
+            StringBuilder sb = new StringBuilder();
+            for (byte b : digest.digest()) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            throw new IOException("Failed to calculate checksum: " + e.getMessage(), e);
+        }
     }
-  }
 
-  // Method to calculate the SHA-1 checksum of the downloaded file
-  private static String calculateSHA1Checksum(File file) throws IOException {
-    try (InputStream fis = new FileInputStream(file)) {
-      MessageDigest digest = MessageDigest.getInstance("SHA-1");
-      byte[] buffer = new byte[4096];
-      int bytesRead;
-      while ((bytesRead = fis.read(buffer)) != -1) {
-        digest.update(buffer, 0, bytesRead);
-      }
-      byte[] hashBytes = digest.digest();
-
-      // Convert the byte array into a hex string
-      StringBuilder sb = new StringBuilder();
-      for (byte b : hashBytes) {
-        sb.append(String.format("%02x", b));
-      }
-      return sb.toString();
-    } catch (Exception e) {
-      throw new IOException("Failed to calculate checksum: " + e.getMessage(), e);
+    private static void deleteFile(File file) {
+        if (file.exists() && !file.delete()) {
+            System.err.println("Failed to delete file: " + file.getAbsolutePath());
+        }
     }
-  }
-
-  private static void deleteFile(File file) {
-    if (file.exists()) {
-      if (file.delete()) {
-        System.out.println("Deleted file: " + file.getAbsolutePath());
-      } else {
-        System.out.println("Failed to delete file: " + file.getAbsolutePath());
-      }
-    }
-  }
 }
