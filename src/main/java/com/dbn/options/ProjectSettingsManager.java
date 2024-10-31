@@ -119,7 +119,7 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
     public void createConnection(@NotNull DatabaseType databaseType, @NotNull ConnectionConfigType configType) {
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), databaseType, configType));
     }
-
+        // this is the one that we are going to open
     public void createConnections(TnsImportData importData) {
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), importData));
     }

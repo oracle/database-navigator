@@ -81,7 +81,7 @@ public class TnsNamesImportForm extends DBNFormBase {
         try {
             String fileName = tnsNamesFileTextField.getTextField().getText();
             if (Strings.isNotEmpty(fileName)) {
-                tnsNames = TnsNamesParser.get(new File(fileName));
+                tnsNames = TnsNamesParser.get(new File(fileName)); // this is the parser that pasrses the tnsnames
                 tnsNamesTable.setModel(new TnsNamesTableModel(tnsNames));
                 tnsNamesTable.accommodateColumnsSize();
                 filterTextField.setText(tnsNames.getFilter().getText());

@@ -39,6 +39,8 @@ dependencies {
 
   implementation(project(":modules:dbn-api"))
   implementation(project(":modules:dbn-spi"))
+
+    compileOnly(files("ociToolkit.jar"))
 }
 
 sourceSets{
@@ -64,8 +66,8 @@ sourceSets{
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-  version.set("242.23339.11")
-  type.set("IC") // Target IDE Platform
+    version.set("241.18034.62")
+   type.set("IC") // Target IDE Platform
 
   plugins.set(listOf("java", "copyright"))
 

@@ -8,6 +8,8 @@
     <depends optional="true" config-file="dbn-java-support.xml">com.intellij.modules.java</depends>
     <depends optional="true" config-file="dbn-debugger-support.xml">com.intellij.modules.xdebugger</depends>
     <depends optional="true" config-file="dbn-copyright-support.xml">com.intellij.copyright</depends>
+    <depends optional="true">com.oracle.ocidbtest</depends>
+
     <vendor email="dancioca@bluewin.ch">Dan Cioca</vendor>
     <idea-version since-build="201.6668.113" until-build="243.*"/>
     <resource-bundle>messages.DBNResources</resource-bundle>
@@ -982,6 +984,10 @@
         </intentionAction>
 
         <fileDocumentManagerListener implementation="com.dbn.connection.console.DatabaseConsoleFileInitializer"/>
+
+    </extensions>
+    <extensions defaultExtensionNs="com.oracle.ocidbtest">
+        <contributeADBAction implementation="com.dbn.oci.ext.ContributeADBActionsImpl" />
 
     </extensions>
     <helpset file="help.jar" path="/Help.hs"/>
