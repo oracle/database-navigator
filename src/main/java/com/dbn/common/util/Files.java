@@ -1,14 +1,13 @@
 package com.dbn.common.util;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.common.lookup.Visitor;
 import com.dbn.language.common.DBLanguageFileType;
 import com.dbn.language.common.DBLanguagePsiFile;
-import com.dbn.vfs.DatabaseFileSystem;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.LightVirtualFile;
@@ -132,5 +131,17 @@ public final class Files {
         int index = name.lastIndexOf(".");
         if (index == -1) return name;
         return name.substring(0, index);
+    }
+
+    public static void visitRecursively(File file, Visitor<File> visitor) {
+        visitor.visit(file);
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            if (files == null) return;
+
+            for (File f : files) {
+                visitRecursively(f, visitor);
+            }
+        }
     }
 }

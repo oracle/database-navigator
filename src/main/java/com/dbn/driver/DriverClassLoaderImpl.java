@@ -13,8 +13,15 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Driver;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -62,13 +69,11 @@ class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader 
         jars.add(jar);
 
         try {
-// TODO: I'm confused by this.  Can't we just do a lookup for the classnames
-     //  that DriverBundleMetadata  knows about rather than going class-by-class?
-            DriverBundleMetadata previousMetadata = getPreviousMetadata();
+            Set<String> classNames = nvl(
+                    getKnownDriverClassNames(),
+                    library.getClassNames());
 
-            for (String className : library.getClassNames()) {
-                if (previousMetadata != null && !previousMetadata.isDriverClass(className)) continue;
-
+            for (String className : classNames) {
                 try {
                     Class<?> clazz = loadClass(className);
                     if (Driver.class.isAssignableFrom(clazz)) {
@@ -78,13 +83,24 @@ class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader 
                     }
                 } catch (Throwable e) {
                     conditionallyLog(e);
-                    log.debug("Failed to load driver " + className + " from library " + jar, e);
+                    log.warn("Failed to load driver {} from library {}", className, jar, e);
                 }
             }
         } catch (Throwable e) {
             conditionallyLog(e);
-            log.debug("Failed to load drivers from library {}", jar, e);
+            log.warn("Failed to load drivers from library {}", jar, e);
         }
+    }
+
+    @Nullable
+    private Set<String> getKnownDriverClassNames() {
+        DriverBundleMetadata previousMetadata = getPreviousMetadata();
+        if (previousMetadata == null) return null;
+
+        Set<String> driverClassNames = previousMetadata.getDriverClassNames();
+        if (driverClassNames.isEmpty()) return null;
+
+        return driverClassNames;
     }
 
     @Nullable
@@ -103,29 +119,24 @@ class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader 
         return this.metadata.getLibrary();
     }
 
-
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException{
-        // TODO check if class level synchronization is needed - the access of the entire class-loader is synchronized while loading
-        //synchronized (getClassLoadingLock(name)) {
-
-        Class<?> clazz = loadedClasses.get(name);
-        if (clazz != null) return clazz;
-        if (classNames.contains(name)) {
-            try {
-                clazz = findClass(name);
-                if (clazz != null && resolve) resolveClass(clazz);
-            } catch (Throwable e) {
-                conditionallyLog(e);
+        synchronized(this.getClassLoadingLock(name)) {
+            Class<?> clazz = loadedClasses.get(name);
+            if (clazz != null) return clazz;
+            if (classNames.contains(name)) {
+                try {
+                    clazz = findClass(name);
+                    if (clazz != null && resolve) resolveClass(clazz);
+                } catch (Throwable e) {
+                    conditionallyLog(e);
+                }
             }
+            if (clazz == null) return super.loadClass(name, resolve);
+
+            loadedClasses.put(clazz.getName(), clazz);
+            return clazz;
         }
-        if (clazz == null) return super.loadClass(name, resolve);
-
-        loadedClasses.put(clazz.getName(), clazz);
-        return clazz;
-
-
-        //}
     }
 
 
