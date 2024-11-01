@@ -14,6 +14,8 @@
 
 package com.dbn.common.util;
 
+import com.dbn.common.checksum.Checksum;
+import com.dbn.common.checksum.ChecksumType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,19 +24,29 @@ import java.net.URL;
 
 public class ChecksumTest {
     @Test
-    public void softTest() {
+    public void fromFileContentTest() throws Exception {
+        URL resource = getClass().getResource("checksum/T0001.txt");
+        File file = new File(resource.getPath());
+        String checksum = Checksum.fromFileContent(file, ChecksumType.SHA_256);
+
+        Assert.assertEquals("5eaaa3637c055ff9b4a33bb25ad868d0486cf206f8077f5e30bf29a5f81bf103", checksum);
+    }
+
+
+    @Test
+    public void fromFileAttributesTest() throws Exception {
         URL resource = getClass().getResource("checksum");
         File file = new File(resource.getPath());
-        String checksum = Checksum.soft(file);
+        String checksum = Checksum.fromFileAttributes(file, ChecksumType.SHA_256);
 
         Assert.assertEquals("7f196cd5d143cadab0e61d98017e088f4088bf91e2da98c2b06d1fe3e9144106", checksum);
     }
 
     @Test
-    public void strongTest() {
+    public void fromFileContentsTest() throws Exception {
         URL resource = getClass().getResource("checksum");
         File file = new File(resource.getPath());
-        String checksum = Checksum.strong(file);
+        String checksum = Checksum.fromFileContents(file, ChecksumType.SHA_256);
 
         Assert.assertEquals("d3d6a0e6bc321f42fca0ab97fd1c1ddde74c91026610653f4e6d2518ced18355", checksum);
     }

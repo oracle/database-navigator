@@ -12,14 +12,16 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.common.util;
+package com.dbn.common.checksum;
 
+import com.dbn.common.util.Files;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.security.MessageDigest;
+import java.util.Formatter;
 
 /**
  * File or folder checksum utilities
@@ -32,15 +34,29 @@ import java.security.MessageDigest;
 public class Checksum {
 
     /**
+     * Single file content checksum producer
+     * @param file the file to produce checksum for
+     * @param type the {@link ChecksumType} to use
+     * @return the calculated checksum
+     */
+    public static String fromFileContent(File file, ChecksumType type) {
+        MessageDigest digest = type.getMessageDigest();
+        updateDigest(digest, file);
+        return concludeDigest(digest);
+    }
+
+    /**
      * Soft recursive file checksum producer
      * Visits all the files within the given path and produces a unique checksum for the entire package
      * The checksum computation is based on the file names and sizes
      * <br>
+     *
      * @param path the path to be scanned (can be one single file or a directory)
+     * @param type the {@link ChecksumType} to use
      * @return the calculated checksum
      */
-    public static String soft(File path) {
-        ChecksumVisitor visitor = new Soft();
+    public static String fromFileAttributes(File path, ChecksumType type) {
+        ChecksumVisitor visitor = new AttributeBasedVisitor(type);
         Files.visitRecursively(path, visitor);
         return visitor.produce();
     }
@@ -50,17 +66,23 @@ public class Checksum {
      * Visits all the files within the given path and produces a unique checksum for the entire package
      * The checksum computation is based on the file contents
      * <br>
+     *
      * @param path the path to be scanned (can be one single file or a directory)
+     * @param type the {@link ChecksumType} to use
      * @return the calculated checksum
      */
-    public static String strong(File path) {
-        ChecksumVisitor visitor = new Strong();
+    public static String fromFileContents(File path, ChecksumType type) {
+        ChecksumVisitor visitor = new ContentBasedVisitor(type);
         Files.visitRecursively(path, visitor);
         return visitor.produce();
     }
 
 
-    private static class Soft extends ChecksumVisitor {
+    private static class AttributeBasedVisitor extends ChecksumVisitor {
+        AttributeBasedVisitor(ChecksumType checksumType) {
+            super(checksumType);
+        }
+
         @Override
         void visit(File file, MessageDigest digest) {
             String signature = file.isDirectory() ?
@@ -71,22 +93,40 @@ public class Checksum {
         }
     }
 
-    private static class Strong extends Soft {
+    private static class ContentBasedVisitor extends AttributeBasedVisitor {
+        ContentBasedVisitor(ChecksumType checksumType) {
+            super(checksumType);
+        }
+
         @Override
-        @SneakyThrows
         void visit(File file, MessageDigest digest) {
             // digest soft attributes
             super.visit(file, digest);
             if (file.isDirectory()) return;
 
             // digest content
-            try (FileInputStream inputStream = new FileInputStream(file)) {
-                byte[] bytes = new byte[1024];
-                int length;
-                while ((length = inputStream.read(bytes)) != -1) {
-                    digest.update(bytes, 0, length);
-                }
+            updateDigest(digest, file);
+        }
+    }
+
+    @SneakyThrows
+    static void updateDigest(MessageDigest digest, File file) {
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            byte[] bytes = new byte[1024];
+            int length;
+            while ((length = inputStream.read(bytes)) != -1) {
+                digest.update(bytes, 0, length);
             }
+        }
+    }
+
+    static String concludeDigest(MessageDigest digest) {
+        byte[] bytes = digest.digest();
+        try (Formatter formatter = new Formatter()) {
+            for (byte b : bytes) {
+                formatter.format("%02x", b);
+            }
+            return formatter.toString();
         }
     }
 }

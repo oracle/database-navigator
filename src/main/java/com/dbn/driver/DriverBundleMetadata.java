@@ -1,7 +1,8 @@
 package com.dbn.driver;
 
+import com.dbn.common.checksum.Checksum;
+import com.dbn.common.checksum.ChecksumType;
 import com.dbn.common.state.PersistentStateElement;
-import com.dbn.common.util.Checksum;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,7 +30,7 @@ public class DriverBundleMetadata implements PersistentStateElement {
 
     public DriverBundleMetadata(File library) {
         this.library = library;
-        this.checksum = Checksum.soft(library);
+        this.checksum = Checksum.fromFileAttributes(library, ChecksumType.SHA_256);
     }
 
     public boolean matchesSignature(DriverBundleMetadata metadata) {

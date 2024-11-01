@@ -12,17 +12,15 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.common.util;
+package com.dbn.common.checksum;
 
 import com.dbn.common.lookup.Visitor;
-import com.intellij.util.io.DigestUtil;
 
 import java.io.File;
 import java.security.MessageDigest;
-import java.util.Formatter;
 
 /**
- * Abstract implementation of a file visitor ({@link Visitor<File>}) holding an SHA-256 {@link MessageDigest}
+ * Abstract implementation of a file visitor ({@link Visitor<File>}) holding an {@link MessageDigest}
  * It can be used to visit files recursively, each contributing to the update of the MessageDigest
  * The digest logic is delegated to the implementers to allow different checksum algorithms
  * (e.g. based on file content / based on file name and size)
@@ -32,8 +30,8 @@ import java.util.Formatter;
 abstract class ChecksumVisitor implements Visitor<File> {
     protected final MessageDigest digest;
 
-    ChecksumVisitor() {
-        digest = DigestUtil.sha256();
+    ChecksumVisitor(ChecksumType checksumType) {
+        digest = checksumType.getMessageDigest();
     }
 
     @Override
@@ -44,12 +42,6 @@ abstract class ChecksumVisitor implements Visitor<File> {
     abstract void visit(File file, MessageDigest digest);
 
     String produce() {
-        byte[] bytes = digest.digest();
-        try (Formatter formatter = new Formatter()) {
-            for (byte b : bytes) {
-                formatter.format("%02x", b);
-            }
-            return formatter.toString();
-        }
+        return Checksum.concludeDigest(digest);
     }
 }
