@@ -14,17 +14,14 @@
 
 package com.dbn.driver.packages;
 
+import com.dbn.common.checksum.Checksum;
+import com.dbn.common.checksum.ChecksumType;
 import com.dbn.common.util.Files;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.platform.templates.github.DownloadUtil;
-import com.intellij.openapi.progress.ProgressIndicator;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.security.MessageDigest;
 import java.util.Scanner;
 import java.util.UUID;
 
@@ -92,7 +89,7 @@ public class MavenArtifactDownloader {
     }
 
     private static boolean verifyChecksum(String expectedChecksum, File outputFile, String packageId, String artifactId, String version) throws IOException {
-        String actualChecksum = calculateSHA1Checksum(outputFile);
+        String actualChecksum = Checksum.fromFileContent(outputFile, ChecksumType.SHA_1);
         if (expectedChecksum.equalsIgnoreCase(actualChecksum)) {
             DriverDownloadManager.getInstance().updateJarDownloadStatus(packageId, artifactId + "-" + version, DownloadStatus.DONE);
             return true;
@@ -101,24 +98,6 @@ public class MavenArtifactDownloader {
             DriverDownloadManager.getInstance().updateJarDownloadStatus(packageId, artifactId + "-" + version, DownloadStatus.FAILED);
             deleteFile(outputFile);
             return false;
-        }
-    }
-
-    private static String calculateSHA1Checksum(File file) throws IOException {
-        try (InputStream fis = new FileInputStream(file)) {
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = fis.read(buffer)) != -1) {
-                digest.update(buffer, 0, bytesRead);
-            }
-            StringBuilder sb = new StringBuilder();
-            for (byte b : digest.digest()) {
-                sb.append(String.format("%02x", b));
-            }
-            return sb.toString();
-        } catch (Exception e) {
-            throw new IOException("Failed to calculate checksum: " + e.getMessage(), e);
         }
     }
 
