@@ -32,20 +32,24 @@ public class MavenArtifactDownloader {
 
     private static final String MAVEN_REPO_URL = "https://repo.maven.apache.org/maven2";
 
-    public static boolean downloadArtifact(Project project, String packageId, String groupId, String artifactId, String version, String pathLabel, ProgressIndicator indicator) {
+    public static boolean downloadArtifact(String packageId, Library library, String pathLabel) {
+        String groupId = library.getGroupId();
+        String artifactId = library.getArtifactId();
+        String version = library.getVersion();
         String artifactPath = groupId.replace(".", "/") + "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + ".jar";
         String artifactUrl = MAVEN_REPO_URL + "/" + artifactPath;
         String checksumUrl = artifactUrl + ".sha1";
 
         try {
-            return downloadAndVerify(indicator, packageId, artifactUrl, checksumUrl, artifactId, version, pathLabel);
+            DriverDownloadManager.getInstance().updateJarDownloadStatus(packageId, artifactId + "-" + version, DownloadStatus.PENDING);
+            return downloadAndVerify(packageId, artifactUrl, checksumUrl, artifactId, version, pathLabel);
         } catch (IOException e) {
             System.err.println("Download failed for " + artifactId + "-" + version + ": " + e.getMessage());
             return false;
         }
     }
 
-    private static boolean downloadAndVerify(ProgressIndicator indicator, String packageId, String artifactUrl, String checksumUrl, String artifactId, String version, String pathLabel) throws IOException {
+    private static boolean downloadAndVerify(String packageId, String artifactUrl, String checksumUrl, String artifactId, String version, String pathLabel) throws IOException {
         File pluginDir = createPluginDirectory(packageId, pathLabel);
         if (pluginDir == null) return false;
 
@@ -90,11 +94,11 @@ public class MavenArtifactDownloader {
     private static boolean verifyChecksum(String expectedChecksum, File outputFile, String packageId, String artifactId, String version) throws IOException {
         String actualChecksum = calculateSHA1Checksum(outputFile);
         if (expectedChecksum.equalsIgnoreCase(actualChecksum)) {
-            DownloadManager.getInstance().registerJarDownload(packageId, version + "-" + artifactId, true);
+            DriverDownloadManager.getInstance().updateJarDownloadStatus(packageId, artifactId + "-" + version, DownloadStatus.DONE);
             return true;
         } else {
             System.err.println("Checksum verification failed! Expected: " + expectedChecksum + ", Actual: " + actualChecksum);
-            DownloadManager.getInstance().registerJarDownload(packageId, version + "-" + artifactId, false);
+            DriverDownloadManager.getInstance().updateJarDownloadStatus(packageId, artifactId + "-" + version, DownloadStatus.FAILED);
             deleteFile(outputFile);
             return false;
         }

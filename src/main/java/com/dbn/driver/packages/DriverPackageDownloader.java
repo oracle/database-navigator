@@ -14,6 +14,7 @@
 
 package com.dbn.driver.packages;
 
+import com.dbn.common.thread.Background;
 import com.dbn.common.util.Files;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -27,73 +28,94 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DriverPackageDownloader {
 
-    private static final int MAX_CONCURRENT_DOWNLOADS = 5;
-
     public static void downloadDriverPackage(Project project, DriverPackage driverPackage) {
-        List<Library> libraryList = driverPackage.getLibraries();
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Downloading Driver Package: " + driverPackage.getId(), true) {
+            @Override
+            public void run(ProgressIndicator indicator) {
+                runProgress(project, indicator, driverPackage);
+            }
+        });
+//        Progress.prompt(project, null, true,
+//                "Downloading Driver Package: " + driverPackage.getId(),
+//                "text",
+//                indicator -> runProgress(project, indicator, driverPackage));
+    }
+
+    private static void runProgress(Project project, ProgressIndicator indicator, DriverPackage driverPackage) {
         String packageId = driverPackage.getId();
+        List<Library> libraryList = driverPackage.getLibraries();
         CountDownLatch latch = new CountDownLatch(libraryList.size());
         AtomicBoolean downloadFailed = new AtomicBoolean(false);
 
-        DownloadManager.getInstance().cleanupPackage(packageId);
-        ExecutorService executorService = Executors.newFixedThreadPool(Math.min(libraryList.size(), MAX_CONCURRENT_DOWNLOADS));
+        setupIndicator(indicator, libraryList.size());
 
-        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Downloading Driver Package: " + packageId, true) {
-            @Override
-            public void run(ProgressIndicator indicator) {
-                indicator.setIndeterminate(false);
-                indicator.setFraction(0.01);
-                double totalFiles = libraryList.size();
+        for (Library library : libraryList) {
+            downloadLibraryAsync(project, indicator, packageId, library, downloadFailed, latch);
+        }
 
-                for (Library library : libraryList) {
-                    executorService.submit(() -> {
-                        if (downloadFailed.get()) {
-                            latch.countDown();
-                            return;
-                        }
+        awaitLatchCompletion(latch, packageId);
 
-                        String currentFile = library.getArtifactId() + "-" + library.getVersion() + ".jar";
-                        indicator.setText("Downloading " + currentFile);
+        handleCompletion(packageId, libraryList, downloadFailed.get());
+    }
 
-                        boolean success = MavenArtifactDownloader.downloadArtifact(
-                                project,
-                                packageId,
-                                library.getGroupId(),
-                                library.getArtifactId(),
-                                library.getVersion(),
-                                "drivers",
-                                indicator
-                        );
+    private static void setupIndicator(ProgressIndicator indicator, double totalFiles) {
+        indicator.setIndeterminate(false);
+        indicator.setFraction(0.01);
+    }
 
-                        if (!success) {
-                            downloadFailed.set(true);
-                            System.err.println("Error downloading " + currentFile);
-                        }
-
-                        latch.countDown();
-                        indicator.setFraction((totalFiles - latch.getCount()) / totalFiles);
-                    });
-                }
-
-                try {
-                    latch.await();
-                    executorService.shutdown();
-                } catch (InterruptedException e) {
-                    System.err.println("Download process interrupted for package: " + packageId);
-                    Thread.currentThread().interrupt();
-                }
-
-                handleCompletion(packageId, libraryList, downloadFailed.get());
+    private static void downloadLibraryAsync(Project project, ProgressIndicator indicator, String packageId,
+                                             Library library, AtomicBoolean downloadFailed, CountDownLatch latch) {
+        Background.run(project, () -> {
+            if (downloadFailed.get()) {
+                latch.countDown();
+                return;
             }
+
+            String currentFile = library.getArtifactId() + "-" + library.getVersion() + ".jar";
+            if (isAlreadyDownloaded(packageId, library)) {
+                System.out.println("Jar " + currentFile + " already downloaded.");
+            } else {
+                attemptDownload(packageId, library, currentFile, downloadFailed);
+            }
+
+            updateProgress(indicator, currentFile, latch);
         });
     }
 
+    private static boolean isAlreadyDownloaded(String packageId, Library library) {
+        DriverPackageStatus.LibraryStatus status = DriverDownloadManager.getInstance()
+                .getJarDownloadStatus(packageId, library.getArtifactId() + "-" + library.getVersion());
+        return status.getDownloadStatus().equals(DownloadStatus.DONE);
+    }
+
+    private static void attemptDownload(String packageId, Library library, String currentFile, AtomicBoolean downloadFailed) {
+        boolean success = MavenArtifactDownloader.downloadArtifact(packageId, library, "drivers");
+        if (!success) {
+            downloadFailed.set(true);
+            System.err.println("Error downloading " + currentFile);
+        }
+    }
+
+    private static void updateProgress(ProgressIndicator indicator, String currentFile, CountDownLatch latch) {
+        latch.countDown();
+        indicator.setText("Downloading " + currentFile);
+        indicator.setFraction((double) (latch.getCount() - 1) / latch.getCount());
+    }
+
+    private static void awaitLatchCompletion(CountDownLatch latch, String packageId) {
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            System.err.println("Download process interrupted for package: " + packageId);
+            Thread.currentThread().interrupt();
+        }
+    }
     private static void handleCompletion(String packageId, List<Library> libraries, boolean downloadFailed) {
         if (downloadFailed) {
             System.out.println("One or more downloads failed. Cleaning up...");
             cleanupDownloadedJars(packageId, libraries);
-            DownloadManager.getInstance().cleanupPackage(packageId);
-        } else if (DownloadManager.getInstance().isPackageDownloaded(packageId, libraries.size())) {
+            DriverDownloadManager.getInstance().cleanupPackage(packageId);
+        } else if (DriverDownloadManager.getInstance().isPackageDownloaded(packageId)) {
             System.out.println("All JARs for package " + packageId + " were successfully downloaded and verified.");
         }
     }

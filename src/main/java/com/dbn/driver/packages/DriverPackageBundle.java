@@ -17,8 +17,10 @@ package com.dbn.driver.packages;
 import com.dbn.common.util.XmlContents;
 import lombok.SneakyThrows;
 import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.dbn.common.options.setting.Settings.*;
 import static com.dbn.common.util.Lists.convert;
@@ -46,16 +48,16 @@ import static java.util.Collections.unmodifiableList;
  *
  * @author Ayoub Aarrasse
  */
-public class DriverPackages {
-    private static final DriverPackages INSTANCE = new DriverPackages();
+public class DriverPackageBundle {
+    private static final DriverPackageBundle INSTANCE = new DriverPackageBundle();
     private final List<DriverPackage> driverPackages;
 
     @SneakyThrows
-    private DriverPackages() {
+    private DriverPackageBundle() {
         Element element = XmlContents.fileToElement(getClass(), "driver-packages.xml");
         List<Element> packageElements = element.getChildren("driver-package");
 
-        driverPackages = unmodifiableList(convert(packageElements, DriverPackages::createDriverPackage));
+        driverPackages = unmodifiableList(convert(packageElements, DriverPackageBundle::createDriverPackage));
     }
 
     private static DriverPackage createDriverPackage(Element element) {
@@ -63,7 +65,7 @@ public class DriverPackages {
         String name = stringAttribute(element, "name");
         String databaseType = stringAttribute(element, "database-type");
 
-        List<Library> libraries = convert(element.getChildren("library"), DriverPackages::createLibrary);
+        List<Library> libraries = convert(element.getChildren("library"), DriverPackageBundle::createLibrary);
 
         return new DriverPackage(id, name, databaseType, libraries);
     }
@@ -78,5 +80,11 @@ public class DriverPackages {
 
     public static List<DriverPackage> driverPackages() {
         return INSTANCE.driverPackages;
+    }
+
+    @NotNull
+    public static DriverPackage getDriverPackage(String packageId){
+        Optional<DriverPackage> driverPackage = driverPackages().stream().filter(p -> p.getId().equals(packageId)).findFirst();
+        return driverPackage.get();
     }
 }

@@ -52,4 +52,8 @@ public class DriverPackage {
     public String toString() {
         return String.format("DriverPackage [id=%s, name=%s, databaseType=%s, libraries=%s]", id, name, databaseType, libraries);
     }
+
+    public int size() {
+        return libraries.size();
+    }
 }

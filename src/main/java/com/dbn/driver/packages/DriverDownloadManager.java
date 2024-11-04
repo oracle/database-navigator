@@ -18,7 +18,6 @@ import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.component.PersistentState;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.driver.packages.DownloadManager.COMPONENT_NAME;
+import static com.dbn.driver.packages.DriverDownloadManager.COMPONENT_NAME;
 
 /**
  * Download Manager for tracking the state of driver package downloads.
@@ -45,16 +44,16 @@ import static com.dbn.driver.packages.DownloadManager.COMPONENT_NAME;
         name = COMPONENT_NAME,
         storages = @Storage(DatabaseNavigator.STORAGE_FILE)
 )
-public class DownloadManager extends ApplicationComponentBase implements PersistentState {
+public class DriverDownloadManager extends ApplicationComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Application.DownloadManager";
 
-    private final Map<String, Map<String, JarStatus>> packageDownloadStatuses = new ConcurrentHashMap<>();
+    private final Map<String, DriverPackageStatus> packageDownloadStatuses = new ConcurrentHashMap<>();
 
-    public static DownloadManager getInstance() {
-        return applicationService(DownloadManager.class);
+    public static DriverDownloadManager getInstance() {
+        return applicationService(DriverDownloadManager.class);
     }
 
-    public DownloadManager() {
+    public DriverDownloadManager() {
         super(COMPONENT_NAME);
     }
 
@@ -63,14 +62,29 @@ public class DownloadManager extends ApplicationComponentBase implements Persist
      *
      * @param packageId Unique ID of the driver package
      * @param jarId     Unique ID of the JAR (e.g., "artifactId-version")
-     * @param verified  True if the download and verification for this JAR succeeded, false otherwise
      */
-    public void registerJarDownload(String packageId, String jarId, boolean verified) {
-        long downloadTimestamp = System.currentTimeMillis();
-        packageDownloadStatuses
-                .computeIfAbsent(packageId, k -> new ConcurrentHashMap<>())
-                .put(jarId, new JarStatus(verified, downloadTimestamp));
-        log.info("Download status for package {} JAR {}: {} at {}", packageId, jarId, verified ? "verified" : "failed", downloadTimestamp);
+    public DriverPackageStatus.LibraryStatus getJarDownloadStatus(String packageId, String jarId) {
+        return getPackageStatus(packageId)
+                .getLibraryStatus(jarId);
+    }
+
+    public void updateJarDownloadStatus(String packageId, String jarId, DownloadStatus status) {
+        log.info("Download status for package {} JAR {}: {}", packageId, jarId, status);
+
+        getPackageStatus(packageId)
+                .getLibraryStatus(jarId)
+                .setDownloadStatus(status);
+    }
+
+    private DriverPackageStatus getPackageStatus(String packageId) {
+        return packageDownloadStatuses
+                .computeIfAbsent(packageId, k -> createPackageStatus(packageId));
+    }
+
+    private DriverPackageStatus createPackageStatus(String packageId) {
+        DriverPackage driverPackage = DriverPackageBundle.getDriverPackage(packageId);
+        int packageCount = driverPackage.size();
+        return new DriverPackageStatus(packageId, packageCount);
     }
 
     /**
@@ -79,12 +93,12 @@ public class DownloadManager extends ApplicationComponentBase implements Persist
      * @param packageId Unique ID of the driver package
      * @return True if all JARs in the package are verified, false otherwise
      */
-    public boolean isPackageDownloaded(String packageId, int jarCount) {
-        Map<String, JarStatus> jarStatuses = packageDownloadStatuses.get(packageId);
+    public boolean isPackageDownloaded(String packageId) {
+        DriverPackageStatus jarStatuses = packageDownloadStatuses.get(packageId);
         if (jarStatuses == null) {
             return false;
         }
-        return jarStatuses.keySet().size()==jarCount && jarStatuses.values().stream().allMatch(JarStatus::isVerified);
+        return jarStatuses.isComplete();
     }
 
     public void cleanupPackage(String packageId) {
@@ -100,20 +114,9 @@ public class DownloadManager extends ApplicationComponentBase implements Persist
         Element element = new Element("state");
         Element downloadsElement = newElement(element, "package-download-statuses");
 
-        for (Map.Entry<String, Map<String, JarStatus>> packageEntry : packageDownloadStatuses.entrySet()) {
-            String packageId = packageEntry.getKey();
+        for (Map.Entry<String, DriverPackageStatus> packageEntry : packageDownloadStatuses.entrySet()) {
             Element packageElement = newElement(downloadsElement, "package");
-            packageElement.setAttribute("id", packageId);
-
-            for (Map.Entry<String, JarStatus> jarEntry : packageEntry.getValue().entrySet()) {
-                String jarId = jarEntry.getKey();
-                JarStatus status = jarEntry.getValue();
-
-                Element jarElement = newElement(packageElement, "jar");
-                jarElement.setAttribute("id", jarId);
-                jarElement.setAttribute("verified", String.valueOf(status.isVerified()));
-                jarElement.setAttribute("downloadTimestamp", String.valueOf(status.getDownloadTimestamp()));
-            }
+            packageEntry.getValue().writeState(packageElement);
         }
         return element;
     }
@@ -124,31 +127,12 @@ public class DownloadManager extends ApplicationComponentBase implements Persist
         if (downloadsElement != null) {
             for (Element packageElement : downloadsElement.getChildren("package")) {
                 String packageId = packageElement.getAttributeValue("id");
-                Map<String, JarStatus> jarStatuses = new ConcurrentHashMap<>();
-
-                for (Element jarElement : packageElement.getChildren("jar")) {
-                    String jarId = jarElement.getAttributeValue("id");
-                    boolean verified = Boolean.parseBoolean(jarElement.getAttributeValue("verified"));
-                    long downloadTimestamp = Long.parseLong(jarElement.getAttributeValue("downloadTimestamp"));
-                    jarStatuses.put(jarId, new JarStatus(verified, downloadTimestamp));
-                }
+                DriverPackageStatus jarStatuses = getPackageStatus(packageId);
+                jarStatuses.readState(packageElement);
                 packageDownloadStatuses.put(packageId, jarStatuses);
             }
         }
     }
 
-    /**
-     * Inner class to hold the status and timestamp of each JAR download.
-     */
-    @Getter
-    private static class JarStatus {
-        private final boolean verified;
-        private final long downloadTimestamp;
 
-        public JarStatus(boolean verified, long downloadTimestamp) {
-            this.verified = verified;
-            this.downloadTimestamp = downloadTimestamp;
-        }
-
-    }
 }
