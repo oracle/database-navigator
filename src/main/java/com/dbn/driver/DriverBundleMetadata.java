@@ -1,5 +1,7 @@
 package com.dbn.driver;
 
+import com.dbn.common.checksum.Checksum;
+import com.dbn.common.checksum.ChecksumType;
 import com.dbn.common.state.PersistentStateElement;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,11 +12,11 @@ import org.jdom.Element;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 
 @Slf4j
@@ -23,31 +25,16 @@ import static com.dbn.common.options.setting.Settings.*;
 @NoArgsConstructor
 public class DriverBundleMetadata implements PersistentStateElement {
     private File library;
-    private long checksum;
+    private String checksum;
     private Set<String> driverClassNames = new HashSet<>();
 
     public DriverBundleMetadata(File library) {
         this.library = library;
-        this.checksum = calculateChecksum();
+        this.checksum = Checksum.fromFileAttributes(library, ChecksumType.SHA_256);
     }
-
-    private long calculateChecksum() {
-        try {
-            // rudimentary checksum logic to detect changes in library bundles
-            if (library.isDirectory()) {
-                List<String> fileNames = Arrays.stream(library.listFiles()).map(f -> f.getPath()).collect(Collectors.toList());
-                return String.join(";", fileNames).hashCode();
-            }
-        } catch (Throwable e) {
-            log.error("Failed to evaluate driver library checksum", e);
-        }
-
-        return library.getPath().hashCode();
-    }
-
 
     public boolean matchesSignature(DriverBundleMetadata metadata) {
-        return this.checksum == metadata.checksum;
+        return Objects.equals(this.checksum, metadata.checksum);
     }
 
     public boolean isValid() {
@@ -65,14 +52,14 @@ public class DriverBundleMetadata implements PersistentStateElement {
     @Override
     public void readState(Element element) {
         this.library = new File(stringAttribute(element, "path"));
-        this.checksum = longAttribute(element, "checksum", 0);
+        this.checksum = stringAttribute(element, "checksum");
         String[] classNames = stringAttribute(element, "driver-classes").split(",");
         this.driverClassNames.addAll(Arrays.asList(classNames));
     }
 
     @Override
     public void writeState(Element element) {
-        setLongAttribute(element, "checksum", checksum);
+        setStringAttribute(element, "checksum", checksum);
         setStringAttribute(element, "path", library.getAbsolutePath());
         setStringAttribute(element, "driver-classes", String.join(",", driverClassNames));
 
