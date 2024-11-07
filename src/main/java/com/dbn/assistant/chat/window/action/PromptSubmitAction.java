@@ -15,7 +15,6 @@
 package com.dbn.assistant.chat.window.action;
 
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -38,8 +37,8 @@ public class PromptSubmitAction extends AbstractChatBoxAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        AssistantState state = getAssistantState(e);
-        boolean enabled = state != null && state.isPromptingAvailable();
+        ChatBoxForm chatBox = getChatBox(e);
+        boolean enabled = chatBox != null && chatBox.isPromptingAvailable();
 
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.ACTION_EXECUTE);

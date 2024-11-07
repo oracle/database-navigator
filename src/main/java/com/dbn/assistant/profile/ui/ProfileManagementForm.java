@@ -15,15 +15,13 @@
 package com.dbn.assistant.profile.ui;
 
 import com.dbn.assistant.DatabaseAssistantManager;
-import com.dbn.assistant.entity.AIProfileItem;
-import com.dbn.assistant.entity.Profile;
 import com.dbn.assistant.profile.wizard.ProfileEditionWizard;
-import com.dbn.assistant.service.AIProfileService;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.exception.Exceptions;
+import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.CardLayouts;
 import com.dbn.common.ui.form.DBNForm;
@@ -35,21 +33,21 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.object.DBAIProfile;
+import com.dbn.object.common.ui.DBObjectListModel;
 import com.dbn.object.event.ObjectChangeListener;
-import com.dbn.object.type.DBObjectType;
+import com.dbn.object.management.ObjectManagementService;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.util.ui.AsyncProcessIcon;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,7 +55,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.object.common.DBObjectUtil.refreshUserObjects;
+import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 
 /**
  * Profile management bindings
@@ -68,8 +69,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 public class ProfileManagementForm extends DBNFormBase {
 
   private JPanel mainPanel;
-  private JButton goToAssociatedObjects;
-  private JList<Profile> profilesList;
+  private JList<DBAIProfile> profilesList;
   private JPanel detailPanel;
   private JPanel actionsPanel;
   private JPanel initializingIconPanel;
@@ -77,9 +77,7 @@ public class ProfileManagementForm extends DBNFormBase {
 
   private final ConnectionRef connection;
   private final DatabaseAssistantManager manager;
-  private final AIProfileService profileSvc;
 
-  private List<Profile> profiles = new ArrayList<>();
   private Map<String, ProfileDetailsForm> profileDetailForms = new ConcurrentHashMap<>();
 
   @Getter
@@ -89,9 +87,7 @@ public class ProfileManagementForm extends DBNFormBase {
   public ProfileManagementForm(DBNForm parent, @NotNull ConnectionHandler connection) {
     super(parent);
     this.connection = ConnectionRef.of(connection);
-
     this.manager = DatabaseAssistantManager.getInstance(connection.getProject());
-    this.profileSvc = AIProfileService.getInstance(connection);
 
     initActionsPanel();
     initProfilesList();
@@ -104,7 +100,7 @@ public class ProfileManagementForm extends DBNFormBase {
   private void initChangeListener() {
     ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
       if (connectionId != getConnection().getConnectionId()) return;
-      if (objectType != DBObjectType.PROFILE) return;
+      if (objectType != AI_PROFILE) return;
       reloadProfiles();
     });
   }
@@ -114,29 +110,15 @@ public class ProfileManagementForm extends DBNFormBase {
     return mainPanel;
   }
 
-  /**
-   * initialize bindings
-   */
-  private void initComponent() {
-
-
-/*    goToAssociatedObjects.addActionListener(event -> {
-      ProfileEditionWizard.showWizard(getConnection(), getSelectedProfile(), getProfileNames(), isCommit -> {
-        if (isCommit) loadProfiles();
-      }, ProfileEditionObjectListStep.class);
-    });*/
-
-  }
-
   private void initProfilesList() {
+    profilesList.setModel(DBObjectListModel.create(this));
     profilesList.setBackground(Colors.getTextFieldBackground());
     profilesList.setBorder(Borders.EMPTY_BORDER);
 
     profilesList.addListSelectionListener((e) -> {
       if (e.getValueIsAdjusting()) return;
 
-      Profile selectedProfile = profilesList.getSelectedValue();
-      showDetailForm(selectedProfile);
+      showDetailForm(getSelectedProfile());
     });
 
     profilesList.setCellRenderer(new ProfileListCellRenderer(getConnection()));
@@ -152,20 +134,20 @@ public class ProfileManagementForm extends DBNFormBase {
     CardLayouts.addBlankCard(detailPanel);
   }
 
-  public void showDetailForm(Profile profile) {
+  public void showDetailForm(DBAIProfile profile) {
     if (profile == null) {
       CardLayouts.showBlankCard(detailPanel);
     } else {
-      String profileName = profile.getProfileName();
+      String profileName = profile.getName();
       profileDetailForms.computeIfAbsent(profileName, c -> createDetailForm(profile));
       CardLayouts.showCard(detailPanel, profileName);
     }
   }
 
   @NotNull
-  private ProfileDetailsForm createDetailForm(Profile profile) {
+  private ProfileDetailsForm createDetailForm(DBAIProfile profile) {
     ProfileDetailsForm detailsForm = new ProfileDetailsForm(this, profile);
-    CardLayouts.addCard(detailPanel, detailsForm.getComponent(), profile.getProfileName());
+    CardLayouts.addCard(detailPanel, detailsForm.getComponent(), profile.getName());
     return detailsForm;
   }
 
@@ -173,85 +155,92 @@ public class ProfileManagementForm extends DBNFormBase {
     ProfileEditionWizard.showWizard(getConnection(), null, getProfileNames(), null);
   }
 
-  public void promptProfileEdition(@NotNull Profile profile) {
+  public void promptProfileEdition(@NotNull DBAIProfile profile) {
     ProfileEditionWizard.showWizard(getConnection(), profile, getProfileNames(), null);
   }
 
-  public void promptProfileDeletion(@NotNull Profile profile) {
+  public void promptProfileDeletion(@NotNull DBAIProfile profile) {
     Messages.showQuestionDialog(getProject(), txt(
-                    "ai.settings.profile.deletion.title"), txt("ai.settings.profile.deletion.message.prefix", profile.getProfileName()),
+                    "ai.settings.profile.deletion.title"), txt("ai.settings.profile.deletion.message.prefix", profile.getName()),
             Messages.OPTIONS_YES_NO, 1,
             option -> when(option == 0, () -> removeProfile(profile)));
   }
 
-  public void markProfileAsDefault(@NotNull Profile profile) {
-    manager.setDefaultProfile(getConnectionId(), new AIProfileItem(profile, false));
+  public void markProfileAsDefault(@NotNull DBAIProfile profile) {
+    manager.setDefaultProfile(getConnectionId(), profile);
   }
 
   @Nullable
-  public Profile getSelectedProfile() {
-    return profilesList.getSelectedValue();
-  }
-
-  @Nullable
-  public Profile getDefaultProfile() {
+  public DBAIProfile getSelectedProfile() {
     return profilesList.getSelectedValue();
   }
 
   public Set<String> getProfileNames() {
-    return profiles.stream().map(p -> p.getProfileName()).collect(Collectors.toSet());
-  }
-
-  public void reloadProfiles() {
-    profileSvc.reset();
-    loadProfiles();
+    DBObjectListModel<DBAIProfile> model = cast(profilesList.getModel());
+    return model.getElements().stream().map(p -> p.getName()).collect(Collectors.toSet());
   }
 
   public void loadProfiles() {
-    beforeLoad();
-    profileSvc.list().thenAccept(profiles -> {
-      try {
-        applyProfiles(profiles);
-        afterLoad();
-      } catch (Exception e) {
-        handleLoadError(e);
-      }
-    }).exceptionally(e -> {
+    Background.run(getProject(), () -> doLoadProfiles(false));
+  }
+
+  public void reloadProfiles() {
+    Background.run(getProject(), () -> doLoadProfiles(true));
+  }
+
+  private void doLoadProfiles(boolean force) {
+    try {
+      if (force) refreshUserObjects(getConnectionId(), AI_PROFILE);
+      beforeProfilesLoad();
+      List<DBAIProfile> profiles = manager.getProfiles(getConnectionId());
+      applyProfiles(profiles);
+    } catch (Exception e) {
       handleLoadError(e);
-      return null;
-    });
+    } finally {
+      afterProfilesLoad();
+    }
   }
 
   private void handleLoadError(Throwable e) {
     conditionallyLog(e);
     Dispatch.run(mainPanel, () -> Messages.showErrorDialog(getProject(), "Failed to load profiles.\nCause: " + Exceptions.causeMessage(e)));
-    afterLoad();
+    afterProfilesLoad();
   }
 
-  private void applyProfiles(List<Profile> profiles) {
+  private void applyProfiles(List<DBAIProfile> profiles) {
     // capture selection
-    Profile selectedProfile = getSelectedProfile();
-    String selectedProfileName = selectedProfile == null ? null : selectedProfile.getProfileName();
+    DBAIProfile selectedProfile = profilesList.getSelectedValue();
+    String selectedProfileName = selectedProfile == null ? null : selectedProfile.getName();
 
     // apply new profiles
-    this.profiles = profiles;
-    this.profileDetailForms = Disposer.replace(this.profileDetailForms, new ConcurrentHashMap<>());
-    this.profilesList.setListData(profiles.toArray(new Profile[0]));
+    this.profileDetailForms = Disposer.replace(
+            this.profileDetailForms,
+            new ConcurrentHashMap<>());
+    this.profilesList.setModel(Disposer.replace(
+            profilesList.getModel(),
+            DBObjectListModel.create(this, profiles)));
+
+
 
     // restore selection
-    int selectionIndex = Lists.indexOf(profiles, c -> c.getProfileName().equalsIgnoreCase(selectedProfileName));
+    int selectionIndex = Lists.indexOf(profiles, c -> c.getName().equalsIgnoreCase(selectedProfileName));
     if (selectionIndex == -1 && !profiles.isEmpty()) selectionIndex = 0;
     if (selectionIndex != -1) this.profilesList.setSelectedIndex(selectionIndex);
   }
 
-  private void beforeLoad() {
+  private void beforeProfilesLoad() {
     loading = true;
+    freezeForm();
+
     initializingIconPanel.setVisible(true);
     profilesList.setBackground(Colors.getPanelBackground());
+
   }
 
-  private void afterLoad() {
+  private void afterProfilesLoad() {
     loading = false;
+    unfreezeForm();
+
     initializingIconPanel.setVisible(false);
     profilesList.setBackground(Colors.getTextFieldBackground());
     profilesList.requestFocus();
@@ -263,14 +252,9 @@ public class ProfileManagementForm extends DBNFormBase {
    *
    * @param profile the profile ot be deleted
    */
-  private void removeProfile(Profile profile) {
-    profileSvc.delete(profile.getProfileName()).thenRun(() -> loadProfiles()).exceptionally(throwable -> {
-      Messages.showErrorDialog(getProject(),
-          txt("profiles.mgnt.attr.deletion.failed.title"),
-          txt("profiles.mgnt.attr.deletion.failed.msg"));
-
-      return null;
-    });
+  private void removeProfile(DBAIProfile profile) {
+    ObjectManagementService managementService = ObjectManagementService.getInstance(ensureProject());
+    managementService.deleteObject(profile, null);
   }
 
 

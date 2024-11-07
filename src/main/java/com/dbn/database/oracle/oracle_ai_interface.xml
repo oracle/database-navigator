@@ -48,22 +48,6 @@
             end;
         </statement>
     </statement-execution-processor>
-
-
-    <statement-execution-processor id="create-credential" timeout="120">
-        <statement>
-            BEGIN
-            DBMS_CLOUD.CREATE_CREDENTIAL( {1} );
-            END;
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="create-profile" timeout="120">
-        <statement>
-            BEGIN
-            DBMS_CLOUD_AI.CREATE_PROFILE( {1} );
-            END;
-        </statement>
-    </statement-execution-processor>
     <statement-execution-processor id="create-ai-profile" timeout="120">
         <statement>
             begin
@@ -84,146 +68,18 @@
             end;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="pick-profile" timeout="120">
-        <statement>
-            BEGIN
-            DBMS_CLOUD_AI.SET_PROFILE(
-            profile_name => '{0}'
-            );
-            END;
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="list-credentials" timeout="120">
-        <statement>
-            declare
-            credential_names VARCHAR2(4000);
-            BEGIN
-            SELECT LISTAGG(CREDENTIAL_NAME, ' ') WITHIN GROUP (ORDER BY CREDENTIAL_NAME)
-            INTO credential_names
-            FROM ALL_CREDENTIALS;
-            ? := credential_names;
-            END;
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="list-profiles" timeout="120">
-        <statement>
-            declare
-            profile_names VARCHAR2(4000);
-            begin
-            SELECT LISTAGG(PROFILE_NAME, ' ') WITHIN GROUP ( ORDER BY PROFILE_NAME )
-            INTO profile_names
-            FROM USER_CLOUD_AI_PROFILES;
-            ? := profile_names;
-            end;
-        </statement>
-    </statement-execution-processor>
-
-    <statement-execution-processor id="list-credentials-detailed" timeout="120">
-        <statement>
-            SELECT * FROM ALL_CREDENTIALS
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="list-profiles-detailed" timeout="120">
-        <statement>
-            SELECT
-            p.profile_name,
-            p.status,
-            p.description,
-            a.attribute_name,
-            a.attribute_value
-            FROM USER_CLOUD_AI_PROFILES p
-            JOIN USER_CLOUD_AI_PROFILE_ATTRIBUTES a
-            ON p.profile_name = a.profile_name
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="ai-query" timeout="60">
-        <statement>
-            declare
-            query_output VARCHAR2(4000);
-            begin
-            SELECT DBMS_CLOUD_AI.GENERATE(
-            prompt => '{2}',
-            profile_name => '{0}',
-            action => '{1}',
-            attributes => '{3}')
-            INTO query_output
-            FROM dual;
-            ? := query_output;
-            end;
-        </statement>
-    </statement-execution-processor>
     <statement-execution-processor id="ai-generate" timeout="60">
         <statement>
             declare
                 v_response CLOB;
             begin
                 v_response := DBMS_CLOUD_AI.GENERATE(
-                                    prompt       => '{2}',
+                                    prompt       => '{3}',
                                     profile_name => '{0}',
                                     action       => '{1}',
-                                    attributes   => '{3}');
+                                    attributes   => '{2}');
                 ? := v_response;
             end;
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="list-tables" timeout="120">
-        <statement>
-            SELECT TABLE_NAME
-            FROM all_tables WHERE OWNER = '{0}'
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="list-views" timeout="120">
-        <statement>
-            SELECT VIEW_NAME
-            FROM all_views WHERE OWNER = '{0}'
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="list-materialized-views" timeout="120">
-        <statement>
-            SELECT owner, mview_name
-            FROM sys.all_mviews
-            WHERE owner = '{0}'
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="list-schemas" timeout="120">
-        <statement>
-            SELECT DISTINCT OWNER
-            FROM ALL_TABLES
-            UNION
-            SELECT DISTINCT OWNER
-            FROM ALL_VIEWS
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="drop-profile" timeout="120">
-        <statement>
-            BEGIN
-            DBMS_CLOUD_AI.DROP_PROFILE(profile_name => '{0}');
-            END;
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="drop-credential" timeout="120">
-        <statement>
-            BEGIN
-            DBMS_CLOUD.DROP_CREDENTIAL(credential_name => '{0}');
-            END;
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="update-profile" timeout="120">
-        <statement>
-            BEGIN
-            DBMS_CLOUD_AI.SET_ATTRIBUTES(
-            {0}
-            );
-            END;
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="update-credential" timeout="120">
-        <statement>
-            begin
-            DBMS_CLOUD.UPDATE_CREDENTIAL(
-            {0}
-            );
-            END;
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="update-credential-attribute" timeout="120">
@@ -239,33 +95,54 @@
     <statement-execution-processor id="disable-credential" timeout="20">
         <statement>
             begin
-                DBMS_CLOUD.DISABLE_CREDENTIAL(
-                        credential_name => '{0}');
+                DBMS_CLOUD.DISABLE_CREDENTIAL(credential_name => '{0}');
             end;
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="enable-credential" timeout="20">
         <statement>
             begin
-                DBMS_CLOUD.ENABLE_CREDENTIAL(
-                        credential_name => '{0}');
+                DBMS_CLOUD.ENABLE_CREDENTIAL(credential_name => '{0}');
             end;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="set-current-profile" timeout="20">
+    <statement-execution-processor id="drop-credential" timeout="120">
         <statement>
             begin
-                DBMS_CLOUD_AI.SET_PROFILE(
-                        profile_name => '{0}');
+                DBMS_CLOUD.DROP_CREDENTIAL(credential_name => '{0}');
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="disable-profile" timeout="20">
+        <statement>
+            begin
+                DBMS_CLOUD_AI.DISABLE_PROFILE(profile_name => '{0}');
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="enable-profile" timeout="20">
+        <statement>
+            begin
+                DBMS_CLOUD_AI.ENABLE_PROFILE(profile_name => '{0}');
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="drop-profile" timeout="120">
+        <statement>
+            begin
+                DBMS_CLOUD_AI.DROP_PROFILE(profile_name => '{0}');
             end;
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="check-admin" timeout="20">
+    <statement-execution-processor id="set-current-profile" timeout="20">
         <statement>
-            SELECT username FROM dba_users
+            begin
+                DBMS_CLOUD_AI.SET_PROFILE(profile_name => '{0}');
+            end;
         </statement>
     </statement-execution-processor>
+
     <statement-execution-processor id="acl-rights" timeout="20">
         <statement>
             {0}
@@ -274,8 +151,8 @@
     <statement-execution-processor id="grant-privilege" timeout="20">
         <statement>
             BEGIN
-            EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_CLOUD TO {0}';
-            EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_CLOUD_AI TO {0}';
+                EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_CLOUD TO {0}';
+                EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_CLOUD_AI TO {0}';
             END;
         </statement>
     </statement-execution-processor>

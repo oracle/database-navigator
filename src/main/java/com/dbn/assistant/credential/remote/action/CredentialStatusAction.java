@@ -14,9 +14,9 @@
 
 package com.dbn.assistant.credential.remote.action;
 
-import com.dbn.assistant.credential.remote.CredentialManagementService;
 import com.dbn.assistant.credential.remote.ui.CredentialManagementForm;
 import com.dbn.object.DBCredential;
+import com.dbn.object.management.ObjectManagementService;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -36,10 +36,10 @@ public class CredentialStatusAction extends CredentialManagementAction {
         DBCredential credential = getSelectedCredential(e);
         if (credential == null) return;
 
-        CredentialManagementService managementService = CredentialManagementService.getInstance(project);
+        ObjectManagementService managementService = ObjectManagementService.getInstance(project);
         if (credential.isEnabled())
-            managementService.disableCredential(credential, null); else
-            managementService.enableCredential(credential, null);
+            managementService.disableObject(credential, null); else
+            managementService.enableObject(credential, null);
     }
 
     @Override

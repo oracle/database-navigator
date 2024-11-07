@@ -17,7 +17,7 @@ package com.dbn.common.outcome;
 import com.dbn.common.Priority;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.Dispatch;
-import com.dbn.common.ui.dialog.DBNDialog;
+import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -27,19 +27,19 @@ import org.jetbrains.annotations.Nullable;
  * @author Dan Cioca (Oracle)
  */
 public class DialogCloseOutcomeHandler implements OutcomeHandler {
-    private final WeakRef<DBNDialog<?>> dialog;
+    private final WeakRef<DialogWrapper> dialog;
 
-    private DialogCloseOutcomeHandler(DBNDialog<?> dialog) {
+    private DialogCloseOutcomeHandler(DialogWrapper dialog) {
         this.dialog = WeakRef.of(dialog);
     }
 
-    public static OutcomeHandler create(DBNDialog<?> dialog) {
+    public static OutcomeHandler create(DialogWrapper dialog) {
         return new DialogCloseOutcomeHandler(dialog);
     }
 
     @Override
     public void handle(Outcome outcome) {
-        DBNDialog<?> dialog = getDialog();
+        DialogWrapper dialog = getDialog();
         if (dialog == null) return;
 
         Dispatch.run(true, () -> dialog.close(0));
@@ -51,7 +51,7 @@ public class DialogCloseOutcomeHandler implements OutcomeHandler {
     }
 
     @Nullable
-    private DBNDialog<?> getDialog() {
+    private DialogWrapper getDialog() {
         return WeakRef.get(dialog);
     }
 }

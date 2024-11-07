@@ -15,33 +15,35 @@
 package com.dbn.assistant.editor.action;
 
 import com.dbn.assistant.DatabaseAssistantManager;
-import com.dbn.assistant.entity.AIProfileItem;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.action.Selectable;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionId;
+import com.dbn.object.DBAIProfile;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 public class ProfileSelectAction extends ProjectAction implements Selectable {
     private final ConnectionId connectionId;
-    private final AIProfileItem profile;
+    private final DBObjectRef<DBAIProfile> profile;
     private final boolean selected;
 
-    public ProfileSelectAction(ConnectionId connectionId, AIProfileItem profile, AIProfileItem defaultProfile) {
+    public ProfileSelectAction(ConnectionId connectionId, @NotNull DBAIProfile profile, @Nullable DBAIProfile defaultProfile) {
         this.connectionId = connectionId;
-        this.profile = profile;
+        this.profile = DBObjectRef.of(profile);
         this.selected = defaultProfile != null && Strings.equalsIgnoreCase(profile.getName(), defaultProfile.getName());
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
-        manager.setDefaultProfile(connectionId, profile);
+        manager.setDefaultProfile(connectionId, DBObjectRef.get(profile));
     }
 
     @Override
@@ -51,6 +53,6 @@ public class ProfileSelectAction extends ProjectAction implements Selectable {
     }
 
     public String getProfileName() {
-        return profile.getName();
+        return profile.getObjectName();
     }
 }

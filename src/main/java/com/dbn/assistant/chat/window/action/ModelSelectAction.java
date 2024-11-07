@@ -15,7 +15,7 @@
 package com.dbn.assistant.chat.window.action;
 
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.provider.ProviderModel;
+import com.dbn.assistant.provider.AIModel;
 import com.dbn.common.util.Actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -28,9 +28,9 @@ import org.jetbrains.annotations.NotNull;
  * @author Dan Cioca (Oracle)
  */
 public class ModelSelectAction extends AbstractChatBoxAction {
-    private final ProviderModel model;
+    private final AIModel model;
 
-    ModelSelectAction(ProviderModel model) {
+    ModelSelectAction(AIModel model) {
         this.model = model;
     }
 

@@ -33,10 +33,11 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Getter
 public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentable {
-    
+    AI_PROFILE(DatabaseObjectTypeId.AI_PROFILE, "AI profile", "AI profiles", Icons.DBO_AI_PROFILE, Icons.DBO_AI_PROFILE_DISABLED, Icons.DBO_AI_PROFILES, false),
     ATTRIBUTE(DatabaseObjectTypeId.ATTRIBUTE, "attribute", "attribute", Icons.DBO_ATTRIBUTE, null, Icons.DBO_ATTRIBUTES, false),
     ARGUMENT(DatabaseObjectTypeId.ARGUMENT, "argument", "arguments", Icons.DBO_ARGUMENT, null, Icons.DBO_ARGUMENTS, false),
     CATEGORY(DatabaseObjectTypeId.CATEGORY, "category", "categories", null, null, null, false),
+    CERTIFICATE(DatabaseObjectTypeId.CERTIFICATE, "certificate", "certificates", Icons.DBO_CERTIFICATE, Icons.DBO_CERTIFICATE_DISABLED, Icons.DBO_CERTIFICATES, false),
     CHARSET(DatabaseObjectTypeId.CHARSET, "charset", "charsets", null, null, null, false),
     CLUSTER(DatabaseObjectTypeId.CLUSTER, "cluster", "clusters", Icons.DBO_CLUSTER, null, Icons.DBO_CLUSTERS, false),
     COLLATION(DatabaseObjectTypeId.COLLATION, "collation", "collations", null, null, Icons.DBO_CLUSTERS, false),
@@ -44,7 +45,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     CONTEXT(DatabaseObjectTypeId.CONTEXT, "context", "contexts", null, null, null, false),
     COLUMN(DatabaseObjectTypeId.COLUMN, "column", "columns", Icons.DBO_COLUMN, null, Icons.DBO_COLUMNS, false),
     CONSTRAINT(DatabaseObjectTypeId.CONSTRAINT, "constraint", "constraints", Icons.DBO_CONSTRAINT, Icons.DBO_CONSTRAINT_DISABLED, Icons.DBO_CONSTRAINTS, false),
-    CREDENTIAL(DatabaseObjectTypeId.CREDENTIAL, "credential", "credentials", null, null, null, false),
+    CREDENTIAL(DatabaseObjectTypeId.CREDENTIAL, "credential", "credentials", Icons.DBO_CREDENTIAL, Icons.DBO_CREDENTIAL_DISABLED, Icons.DBO_CREDENTIALS, false),
     DATABASE(DatabaseObjectTypeId.DATABASE, "database", "databases", null, null, null, false),
     DATASET(DatabaseObjectTypeId.DATASET, "dataset", "datasets", null, null, null, true),
     DIRECTORY(DatabaseObjectTypeId.DIRECTORY, "directory", "directories", null, null, null, true),

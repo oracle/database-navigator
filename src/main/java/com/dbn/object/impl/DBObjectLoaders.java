@@ -26,6 +26,7 @@ import com.dbn.database.common.metadata.def.DBObjectDependencyMetadata;
 import com.dbn.database.common.metadata.def.DBPackageMetadata;
 import com.dbn.database.common.metadata.def.DBPrivilegeMetadata;
 import com.dbn.database.common.metadata.def.DBProcedureMetadata;
+import com.dbn.database.common.metadata.def.DBProfileMetadata;
 import com.dbn.database.common.metadata.def.DBRoleMetadata;
 import com.dbn.database.common.metadata.def.DBSchemaMetadata;
 import com.dbn.database.common.metadata.def.DBSequenceMetadata;
@@ -276,6 +277,11 @@ public class DBObjectLoaders {
                 "CREDENTIALS", DBObjectType.SCHEMA, DBObjectType.CREDENTIAL, true, true,
                 (content, conn, mdi) -> mdi.loadCredentials(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBCredentialImpl(content.getParentEntity(), md));
+
+        DynamicContentResultSetLoader.<DBAIProfileImpl, DBProfileMetadata>create(
+                "AI_PROFILES", DBObjectType.SCHEMA, DBObjectType.AI_PROFILE, true, true,
+                (content, conn, mdi) -> mdi.loadAiProfiles(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> new DBAIProfileImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBDatabaseLink, DBDatabaseLinkMetadata>create(
                 "DBLINKS", DBObjectType.SCHEMA, DBObjectType.DBLINK, true, true,

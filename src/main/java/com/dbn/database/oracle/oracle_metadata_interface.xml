@@ -189,6 +189,86 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="ai-profiles" is-query="true" is-prepared-statement="true">
+        <statement>
+            select
+                p.PROFILE_NAME,
+                DECODE(STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                TO_CHAR(p.DESCRIPTION) AS DESCRIPTION,
+                pa.PROVIDER,
+                pa.MODEL,
+                pa.TEMPERATURE,
+                pa.CREDENTIAL_NAME,
+                pa.OBJECT_LIST
+            from (
+                select
+                PROFILE_ID,
+                PROFILE_NAME,
+                ATTRIBUTE_NAME,
+                ATTRIBUTE_VALUE
+                from DBA_CLOUD_AI_PROFILE_ATTRIBUTES
+            )
+            pivot (
+                MAX(TO_CHAR(ATTRIBUTE_VALUE))
+                for ATTRIBUTE_NAME in (
+                    'provider' AS PROVIDER,
+                    'model' AS MODEL,
+                    'temperature' AS TEMPERATURE,
+                    'credential_name' AS CREDENTIAL_NAME,
+                    'object_list' AS OBJECT_LIST
+                )
+            ) pa
+            join DBA_CLOUD_AI_PROFILES p on p.PROFILE_ID = pa.PROFILE_ID
+            where p.OWNER = {0}
+            order by pa.PROFILE_NAME asc
+        </statement>
+        <statement>
+            select
+                p.PROFILE_NAME,
+                DECODE(STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                TO_CHAR(p.DESCRIPTION) AS DESCRIPTION,
+                pa.PROVIDER,
+                pa.MODEL,
+                pa.TEMPERATURE,
+                pa.CREDENTIAL_NAME,
+                pa.OBJECT_LIST
+            from (
+                select
+                PROFILE_ID,
+                PROFILE_NAME,
+                ATTRIBUTE_NAME,
+                ATTRIBUTE_VALUE
+                from USER_CLOUD_AI_PROFILE_ATTRIBUTES
+            )
+            pivot (
+                MAX(TO_CHAR(ATTRIBUTE_VALUE))
+                for ATTRIBUTE_NAME in (
+                    'provider' AS PROVIDER,
+                    'model' AS MODEL,
+                    'temperature' AS TEMPERATURE,
+                    'credential_name' AS CREDENTIAL_NAME,
+                    'object_list' AS OBJECT_LIST
+                )
+            ) pa
+            join USER_CLOUD_AI_PROFILES p on p.PROFILE_ID = pa.PROFILE_ID
+            join USER_USERS uu ON uu.USERNAME = {0}
+            order by pa.PROFILE_NAME asc
+        </statement>
+        <statement>
+            <!--empty fallback for non-cloud databases-->
+            select
+                null as PROFILE_NAME,
+                null as IS_ENABLED,
+                null as DESCRIPTION,
+                null as PROVIDER,
+                null as MODEL,
+                null as TEMPERATURE,
+                null as CREDENTIAL_NAME,
+                null as OBJECT_LIST
+            from DUAL where 1 = 2
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="tables" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             with DBN_MVIEWS as (

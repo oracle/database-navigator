@@ -14,9 +14,8 @@
 
 package com.dbn.assistant.profile.wizard;
 
-import com.dbn.assistant.entity.Profile;
-import com.dbn.assistant.provider.ProviderModel;
-import com.dbn.assistant.provider.ProviderType;
+import com.dbn.assistant.provider.AIModel;
+import com.dbn.assistant.provider.AIProvider;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
@@ -26,7 +25,11 @@ import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
@@ -42,19 +45,19 @@ import static com.dbn.nls.NlsResources.txt;
 public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardModel>  implements Disposable {
 
   private JPanel profileEditionProviderMainPane;
-  private JComboBox<ProviderType> providerNameCombo;
+  private JComboBox<AIProvider> providerNameCombo;
   private JLabel providerNameLabel;
   private JLabel providerModelLabel;
-  private JComboBox<ProviderModel> providerModelCombo;
+  private JComboBox<AIModel> providerModelCombo;
   private JSlider temperatureSlider;
-  private final Profile profile;
+  private final ProfileData profile;
 
   private static final int MIN_TEMPERATURE = 0;
   private static final int MAX_TEMPERATURE = 10;
   private static final int DEFAULT_TEMPERATURE = 5;
 
 
-  public ProfileEditionProviderStep(ConnectionHandler connection, Profile profile, boolean isUpdate) {
+  public ProfileEditionProviderStep(ConnectionHandler connection, ProfileData profile, boolean isUpdate) {
     super(txt("profile.mgmt.provider_step.title"),
             txt("profile.mgmt.provider_step.explaination"));
     this.profile = profile;
@@ -66,35 +69,35 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
       temperatureSlider.setValue((int) (profile.getTemperature() * 10));
     } else {
       UserInterface.whenShown(profileEditionProviderMainPane, () -> {
-        ProviderType providerType = guessProviderType(profile);
-        providerNameCombo.setSelectedItem(providerType);
-        providerModelCombo.setSelectedItem(providerType.getDefaultModel());
+        AIProvider provider = guessProviderType(profile);
+        providerNameCombo.setSelectedItem(provider);
+        providerModelCombo.setSelectedItem(provider.getDefaultModel());
         temperatureSlider.setValue(5);
       }, false);
 
     }
   }
 
-  private ProviderType guessProviderType(Profile profile) {
+  private AIProvider guessProviderType(ProfileData profile) {
     Set<String> captions = new HashSet<>();
-    captions.add(nvl(profile.getProfileName(), ""));
+    captions.add(nvl(profile.getName(), ""));
     captions.add(nvl(profile.getCredentialName(), ""));
     captions.add(nvl(profile.getDescription(), ""));
 
-    for (ProviderType value : ProviderType.values()) {
+    for (AIProvider value : AIProvider.values()) {
         if (captions.stream().anyMatch(c -> Strings.containsIgnoreCase(c, value.getId()))) return value;
     }
-    return Lists.firstElement(ProviderType.values());
+    return Lists.firstElement(AIProvider.values());
   }
 
   private void populateCombos() {
-    for (ProviderType type : ProviderType.values()) {
+    for (AIProvider type : AIProvider.values()) {
       providerNameCombo.addItem(type);
     }
-    ((ProviderType) providerNameCombo.getSelectedItem()).getModels().forEach(m -> providerModelCombo.addItem(m));
+    ((AIProvider) providerNameCombo.getSelectedItem()).getModels().forEach(m -> providerModelCombo.addItem(m));
     providerNameCombo.addActionListener((e) -> {
       providerModelCombo.removeAllItems();
-      ((ProviderType) providerNameCombo.getSelectedItem()).getModels().forEach(m -> providerModelCombo.addItem(m));
+      ((AIProvider) providerNameCombo.getSelectedItem()).getModels().forEach(m -> providerModelCombo.addItem(m));
     });
   }
 
@@ -141,13 +144,13 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
   }
 
   @Override
-  public WizardStep<ProfileEditionWizardModel> onNext(ProfileEditionWizardModel model) {
-    ProviderType providerType = (ProviderType) providerNameCombo.getSelectedItem();
-    ProviderModel providerModel = (ProviderModel) providerModelCombo.getSelectedItem();
-    profile.setProvider(providerType);
-    profile.setModel(providerModel);
+  public WizardStep<ProfileEditionWizardModel> onNext(ProfileEditionWizardModel wizardModel) {
+    AIProvider provider = (AIProvider) providerNameCombo.getSelectedItem();
+    AIModel model = (AIModel) providerModelCombo.getSelectedItem();
+    profile.setProvider(provider);
+    profile.setModel(model);
     profile.setTemperature((float) temperatureSlider.getValue() / 10);
-    return super.onNext(model);
+    return super.onNext(wizardModel);
   }
 
   @Override

@@ -18,7 +18,6 @@ import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.ChatMessageContext;
 import com.dbn.assistant.chat.window.PromptAction;
-import com.dbn.assistant.entity.AIProfileItem;
 import com.dbn.common.thread.Command;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Documents;
@@ -27,8 +26,7 @@ import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.sql.SQLLanguage;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.command.WriteCommandAction;
+import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
@@ -48,7 +46,7 @@ public class AssistantEditorAdapter {
 
   public static void submitQuery(Project project, Editor editor, ConnectionId connectionId, String prompt, PromptAction action) {
     DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
-    AIProfileItem profile = manager.getDefaultProfile(connectionId);
+    DBAIProfile profile = manager.getDefaultProfile(connectionId);
 
     if (profile == null) {
       manager.initializeAssistant(connectionId);
@@ -58,8 +56,6 @@ public class AssistantEditorAdapter {
     ChatMessageContext context = new ChatMessageContext(profile.getName(), profile.getModel(), action);
     manager.generate(connectionId, prompt, context, message -> Dispatch.run(editor.getComponent(), () -> appendMessage(project, editor, message)));
   }
-
-
 
   private static void appendMessage(Project project, Editor editor, ChatMessage message) {
     Dispatch.run(editor.getComponent(), () ->
@@ -85,61 +81,4 @@ public class AssistantEditorAdapter {
               document.insertString(offset, prefix + content + "\n");
             }));
   }
-
-
-  private static void appendLine(Project project, Document document, String lineToAppend, String afterComment) {
-    ApplicationManager.getApplication().invokeLater(() -> {
-      WriteCommandAction.runWriteCommandAction(project, () -> {
-        String content = document.getText();
-        int pos = content.indexOf(afterComment);
-
-        if (pos >= 0) {
-          pos = content.indexOf("\n", pos);
-          if (pos >= 0) {
-            document.insertString(pos + 1, lineToAppend + "\n");
-          } else {
-            document.insertString(content.length(), "\n" + lineToAppend + "\n");
-          }
-        } else {
-          document.insertString(document.getTextLength(), "\n" + lineToAppend);
-        }
-      });
-    });
-  }
-
-  private static String processText(String input, boolean withExplanation) {
-    StringBuilder result = new StringBuilder();
-    boolean inCodeBlock = false;
-    boolean inExplanationBlock = false;
-    String[] lines = input.split("\n");
-    result.append("\n");
-
-    for (String line : lines) {
-      if (line.trim().startsWith("```")) {
-        if (!inCodeBlock && inExplanationBlock) {
-          result.append("*/\n\n");
-          inExplanationBlock = false;
-        }
-        inCodeBlock = !inCodeBlock;
-        continue;
-      }
-
-      if (inCodeBlock) {
-        result.append(line).append("\n");
-      } else {
-        if (!inExplanationBlock && withExplanation) {
-          result.append("\n/*\n");
-          inExplanationBlock = true;
-        }
-        result.append(line).append("\n");
-      }
-    }
-
-    if (inExplanationBlock) {
-      result.append("*/\n\n");
-    }
-
-    return result.toString();
-  }
-
 }

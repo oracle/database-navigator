@@ -49,6 +49,11 @@ public class Exceptions {
         throw new UnsupportedOperationException();
     }
 
+    public static <T, E extends Enum> T unsupported(E enumeration) {
+        throw new UnsupportedOperationException("Unsupported " + enumeration.getClass().getSimpleName() + " " + enumeration);
+    }
+
+
     public static TimeoutException timeoutException(long time, TimeUnit timeUnit) {
         return new TimeoutException("Operation timed out after " + time + " " + cachedLowerCase(timeUnit.name()));
     }

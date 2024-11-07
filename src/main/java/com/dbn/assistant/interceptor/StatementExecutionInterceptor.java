@@ -15,8 +15,6 @@
 package com.dbn.assistant.interceptor;
 
 import com.dbn.assistant.DatabaseAssistantManager;
-import com.dbn.assistant.entity.AIProfileItem;
-import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.exception.ProcessDeferredException;
 import com.dbn.common.interceptor.Interceptor;
 import com.dbn.common.interceptor.InterceptorType;
@@ -29,6 +27,7 @@ import com.dbn.execution.statement.StatementExecutionInput;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.ExecutablePsiElement;
+import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.project.Project;
 import lombok.SneakyThrows;
 
@@ -72,8 +71,7 @@ public class StatementExecutionInterceptor implements Interceptor<StatementExecu
         DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
 
         ConnectionId connectionId = connection.getConnectionId();
-        AssistantState assistantState = assistantManager.getAssistantState(connectionId);
-        AIProfileItem profile = assistantState.getDefaultProfile();
+        DBAIProfile profile = assistantManager.getDefaultProfile(connectionId);
 
         if (profile == null) {
             assistantManager.initializeAssistant(connectionId);

@@ -17,6 +17,7 @@ package com.dbn.assistant.profile.action;
 import com.dbn.assistant.profile.ui.ProfileManagementForm;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.ProjectAction;
+import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +29,14 @@ import org.jetbrains.annotations.Nullable;
  * @author Dan Cioca (Oracle)
  */
 public abstract class ProfileManagementAction extends ProjectAction {
-    protected static @Nullable ProfileManagementForm getManagementForm(@NotNull AnActionEvent e) {
+    @Nullable
+    protected static ProfileManagementForm getManagementForm(@NotNull AnActionEvent e) {
         return e.getData(DataKeys.PROFILE_MANAGEMENT_FORM);
+    }
+
+    @Nullable
+    protected DBAIProfile getSelectedProfile(@NotNull AnActionEvent e) {
+        ProfileManagementForm managementForm = getManagementForm(e);
+        return managementForm == null ? null : managementForm.getSelectedProfile();
     }
 }

@@ -16,7 +16,6 @@ package com.dbn.assistant.state;
 
 import com.dbn.assistant.DatabaseAssistantType;
 import com.dbn.assistant.chat.window.PromptAction;
-import com.dbn.assistant.entity.AIProfileItem;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.feature.FeatureAcknowledgement;
 import com.dbn.common.feature.FeatureAvailability;
@@ -24,7 +23,6 @@ import com.dbn.common.project.ProjectRef;
 import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.project.Project;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -63,24 +61,33 @@ public class AssistantStateDelegate extends AssistantState {
     }
 
     @Override
-    public void setProfiles(List<AIProfileItem> profiles) {
-        if (Objects.equals(getProfiles(), profiles)) return;
-
-        super.setProfiles(profiles);
-        notifyStateListeners();
-    }
-
-    @Override
     public void setSelectedAction(PromptAction selectedAction) {
         if (getSelectedAction() == selectedAction) return;
         super.setSelectedAction(selectedAction);
         notifyStateListeners();
     }
 
-    public void setDefaultProfile(AIProfileItem profile) {
-        if (Objects.equals(getDefaultProfile(), profile)) return;
+    @Override
+    public void setDefaultProfileName(String profileName) {
+        if (Objects.equals(getDefaultProfileName(), profileName)) return;
 
-        super.setDefaultProfile(profile);
+        super.setDefaultProfileName(profileName);
+        notifyStateListeners();
+    }
+
+    @Override
+    public void setSelectedProfileName(String profileName) {
+        if (Objects.equals(getSelectedProfileName(), profileName)) return;
+
+        super.setSelectedProfileName(profileName);
+        notifyStateListeners();
+    }
+
+    @Override
+    public void setSelectedModelName(String modelName) {
+        if (Objects.equals(getSelectedModelName(), modelName)) return;
+
+        super.setSelectedModelName(modelName);
         notifyStateListeners();
     }
 

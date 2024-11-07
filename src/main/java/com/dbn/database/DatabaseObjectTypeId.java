@@ -4,9 +4,11 @@ package com.dbn.database;
 import com.dbn.common.util.Enumerations;
 
 public enum DatabaseObjectTypeId {
+    AI_PROFILE,
     ATTRIBUTE,
     ARGUMENT,
     CATEGORY,
+    CERTIFICATE,
     CHARSET,
     CLUSTER,
     COLLATION,

@@ -14,12 +14,12 @@
 
 package com.dbn.assistant.profile.wizard;
 
-import com.dbn.assistant.entity.Profile;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.wizard.WizardModel;
 import com.intellij.ui.wizard.WizardStep;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,11 +28,14 @@ import java.util.Set;
 /**
  * This is where we add the step we want in our wizard
  */
+@Getter
 public class ProfileEditionWizardModel extends WizardModel implements Disposable {
   // need to keep our own list as WizardModel do not expose it.
   List<WizardStep> mysteps = null;
-  public ProfileEditionWizardModel(ConnectionHandler connection, String title, Profile profile, Set<String> profileNames, boolean isUpdate, Class<ProfileEditionObjectListStep> firstStep) {
+  private final ProfileData profile;
+  public ProfileEditionWizardModel(ConnectionHandler connection, String title, ProfileData profile, Set<String> profileNames, boolean isUpdate, Class<ProfileEditionObjectListStep> firstStep) {
     super(title);
+    this.profile = profile;
     mysteps = List.of(
             new ProfileEditionGeneralStep(connection, profile, profileNames, isUpdate),
             new ProfileEditionProviderStep(connection, profile, isUpdate),

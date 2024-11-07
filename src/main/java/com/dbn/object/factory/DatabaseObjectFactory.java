@@ -19,6 +19,7 @@ import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputDialog;
+import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.DatabaseFileManager;
 import com.intellij.openapi.project.Project;
@@ -131,6 +132,13 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                             DatabaseFileManager databaseFileManager = DatabaseFileManager.getInstance(project);
                             databaseFileManager.closeFile(object);
 
+                            ObjectManagementService objectManagementService = ObjectManagementService.getInstance(project);
+                            if (objectManagementService.supports(object)) {
+                                objectManagementService.deleteObject(object, null);
+                                return;
+                            }
+
+                            // TODO old implementation (implement appropriate ObjectManagementServices and cleanup)
                             Progress.prompt(project, object, false,
                                     "Dropping object",
                                     "Dropping " + object.getQualifiedNameWithType(),
@@ -139,6 +147,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
     }
 
+    @Deprecated // TODO old implementation (implement appropriate ObjectManagementServices and cleanup)
     private void doDropObject(DBSchemaObject object) {
         try {
             DatabaseInterfaceInvoker.execute(HIGHEST,

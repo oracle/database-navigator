@@ -14,9 +14,9 @@
 
 package com.dbn.assistant.profile.action;
 
-import com.dbn.assistant.entity.Profile;
 import com.dbn.assistant.profile.ui.ProfileManagementForm;
 import com.dbn.common.icon.Icons;
+import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -34,7 +34,7 @@ public class ProfileDeleteAction extends ProfileManagementAction {
         ProfileManagementForm managementForm = getManagementForm(e);
         if (managementForm == null) return;
 
-        Profile profile = managementForm.getSelectedProfile();
+        DBAIProfile profile = managementForm.getSelectedProfile();
         if (profile == null) return;
 
         managementForm.promptProfileDeletion(profile);

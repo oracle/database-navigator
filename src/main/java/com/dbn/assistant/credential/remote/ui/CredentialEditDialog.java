@@ -26,7 +26,7 @@ import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Action;
 import java.util.Set;
 
 public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
@@ -42,7 +42,7 @@ public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
     this.connection = ConnectionRef.of(connection);
     this.credential = DBObjectRef.of(credential);
     this.usedCredentialNames = usedCredentialNames;
-
+    setDefaultSize(600, 420);
     init();
   }
 

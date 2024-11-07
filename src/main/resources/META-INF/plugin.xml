@@ -388,7 +388,6 @@
         <projectService serviceImplementation="com.dbn.assistant.DatabaseAssistantManager"/>
         <projectService serviceImplementation="com.dbn.assistant.AssistantPrerequisiteManager"/>
         <projectService serviceImplementation="com.dbn.assistant.AssistantInitializationManager"/>
-        <projectService serviceImplementation="com.dbn.assistant.credential.remote.CredentialManagementService"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileAttachmentManager"/>
@@ -413,6 +412,8 @@
         <projectService serviceImplementation="com.dbn.vfs.DatabaseFileManager"/>
         <projectService serviceImplementation="com.dbn.connection.session.DatabaseSessionManager"/>
         <projectService serviceImplementation="com.dbn.connection.console.DatabaseConsoleManager"/>
+        <projectService serviceInterface="com.dbn.object.management.ObjectManagementService" serviceImplementation="com.dbn.object.management.ObjectManagementServiceImpl"/>
+
         <fileIconPatcher implementation="com.dbn.vfs.DBFileIconPatcher"/>
     </extensions>
 
@@ -478,10 +479,10 @@
             <action class="com.dbn.assistant.chat.window.action.ProfileSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectProfile"/>
             <action class="com.dbn.assistant.chat.window.action.ModelSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectModel"/>
             <action class="com.dbn.assistant.chat.window.action.ProfilesRefreshAction" text="Reload Profiles" id="DBNavigator.Actions.Assistant.RefreshProfiles" icon="AllIcons.Actions.Refresh"/>
-            <action class="com.dbn.assistant.chat.window.action.ConfigurationHelpAction" text="Profile Settings" id="DBNavigator.Actions.Assistant.ConfigurationHelp" icon="AllIcons.Actions.Help"/>
+            <action class="com.dbn.assistant.chat.window.action.ConfigurationHelpAction" text="Help" id="DBNavigator.Actions.Assistant.ConfigurationHelp" icon="AllIcons.Actions.Help"/>
             <group id="DBNavigator.Actions.Assistant.OpenSettings" text="Options" icon="AllIcons.General.GearPlain" popup="true">
                 <action class="com.dbn.assistant.chat.window.action.AssistantSettingsAction" text="Settings..." id="DBNavigator.Actions.Assistant.AssistantSettings"/>
-                <action class="com.dbn.assistant.chat.window.action.ProfilesSetupAction" text="Profiles Setup..." id="DBNavigator.Actions.Assistant.ProfileSetup"/>
+                <action class="com.dbn.assistant.chat.window.action.ProfilesSetupAction" text="Profile Setup..." id="DBNavigator.Actions.Assistant.ProfileSetup"/>
             </group>
 
             <separator/>
@@ -514,8 +515,9 @@
         <group id="DBNavigator.ActionGroup.AssistantProfileManagement" text="Profile Management">
             <action class="com.dbn.assistant.profile.action.ProfileCreateAction" id="DBNavigator.Actions.Assistant.CreateProfile"/>
             <action class="com.dbn.assistant.profile.action.ProfileDeleteAction" id="DBNavigator.Actions.Assistant.DeleteProfile"/>
-            <action class="com.dbn.assistant.profile.action.ProfileDefaultAction" id="DBNavigator.Actions.Assistant.MarkProfileDefault"/>
             <action class="com.dbn.assistant.profile.action.ProfileEditAction" id="DBNavigator.Actions.Assistant.EditProfile"/>
+            <action class="com.dbn.assistant.profile.action.ProfileStatusAction" id="DBNavigator.Actions.Assistant.EnableDisableProfile"/>
+            <action class="com.dbn.assistant.profile.action.ProfileDefaultAction" id="DBNavigator.Actions.Assistant.MarkProfileDefault"/>
             <separator/>
             <action class="com.dbn.assistant.profile.action.ProfilesReloadAction" id="DBNavigator.Actions.Assistant.ReloadProfiles"/>
         </group>

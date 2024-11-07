@@ -15,11 +15,10 @@
 package com.dbn.assistant.profile.action;
 
 import com.dbn.assistant.DatabaseAssistantManager;
-import com.dbn.assistant.entity.AIProfileItem;
-import com.dbn.assistant.entity.Profile;
 import com.dbn.assistant.profile.ui.ProfileManagementForm;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionId;
+import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -37,7 +36,7 @@ public class ProfileDefaultAction extends ProfileManagementAction {
         ProfileManagementForm managementForm = getManagementForm(e);
         if (managementForm == null) return;
 
-        Profile profile = managementForm.getSelectedProfile();
+        DBAIProfile profile = managementForm.getSelectedProfile();
         if (profile == null) return;
 
         managementForm.markProfileAsDefault(profile);
@@ -56,7 +55,7 @@ public class ProfileDefaultAction extends ProfileManagementAction {
         if (managementForm == null) return false;
         if (managementForm.isLoading()) return false;
 
-        Profile profile = managementForm.getSelectedProfile();
+        DBAIProfile profile = managementForm.getSelectedProfile();
         if (profile == null) return false;
         if (!profile.isEnabled()) return false;
 
@@ -64,12 +63,11 @@ public class ProfileDefaultAction extends ProfileManagementAction {
         return !isDefault(e, connectionId, profile);
     }
 
-    private static boolean isDefault(@NotNull AnActionEvent e, ConnectionId connectionId, Profile profile) {
+    private static boolean isDefault(@NotNull AnActionEvent e, ConnectionId connectionId, DBAIProfile profile) {
         Project project = getEventProject(e);
         if (project == null) return false;
 
-        DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
-        AIProfileItem defaultProfile = assistantManager.getDefaultProfile(connectionId);
-        return defaultProfile != null && defaultProfile.getName().equalsIgnoreCase(profile.getProfileName());
+        DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
+        return manager.isDefaultProfile(connectionId, profile);
     }
 }

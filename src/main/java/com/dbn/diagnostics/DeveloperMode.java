@@ -12,7 +12,11 @@ import java.util.concurrent.TimeUnit;
 
 import static com.dbn.common.notification.NotificationGroup.DIAGNOSTICS;
 import static com.dbn.common.notification.NotificationSupport.sendInfoNotification;
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.options.setting.Settings.getBoolean;
+import static com.dbn.common.options.setting.Settings.getInteger;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setBoolean;
+import static com.dbn.common.options.setting.Settings.setInteger;
 
 @Getter
 @Setter
@@ -55,9 +59,11 @@ public class DeveloperMode implements PersistentStateElement, NlsSupport {
 
         if (enabled) {
             start();
+            // just became active - notify activated
             sendInfoNotification(null, DIAGNOSTICS, txt("ntf.diagnostics.warning.DeveloperModeActivatedFor", timeout));
         } else if (changed) {
-            sendInfoNotification(null, DIAGNOSTICS, txt("ntf.diagnostics.warning.DeveloperModeActivated"));
+            // not active and changed just now -> notify deactivated
+            sendInfoNotification(null, DIAGNOSTICS, txt("ntf.diagnostics.warning.DeveloperModeDeactivated"));
         }
     }
 

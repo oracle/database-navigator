@@ -26,6 +26,7 @@ public class DriverLibrary {
                     .filter(n -> n.endsWith(".class"))
                     .map(n -> n.replaceAll("/", "."))
                     .map(n -> n.substring(0, n.length() - 6))
+                    .map(n -> n.intern())
                     .collect(Collectors.toList());
 
             this.classNames.addAll(classNames);

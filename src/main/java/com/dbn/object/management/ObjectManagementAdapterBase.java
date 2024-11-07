@@ -15,7 +15,13 @@
 package com.dbn.object.management;
 
 import com.dbn.common.notification.NotificationGroup;
-import com.dbn.common.outcome.*;
+import com.dbn.common.outcome.Outcome;
+import com.dbn.common.outcome.OutcomeHandler;
+import com.dbn.common.outcome.OutcomeHandlers;
+import com.dbn.common.outcome.OutcomeHandlersImpl;
+import com.dbn.common.outcome.OutcomeType;
+import com.dbn.common.outcome.Outcomes;
+import com.dbn.common.thread.InvocationType;
 import com.dbn.common.thread.Progress;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -34,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.SQLException;
 
 import static com.dbn.common.Priority.HIGHEST;
+import static com.dbn.common.exception.Exceptions.unsupported;
 
 /**
  * Abstract base implementation of an {@link ObjectManagementAdapter}
@@ -91,6 +98,15 @@ public abstract class ObjectManagementAdapterBase<T extends DBObject> extends DB
                 getProcessTitle(),
                 getProcessDescription(object),
                 progress -> invoke());
+    }
+    
+    public final void invoke(InvocationType invocationType) {
+        switch (invocationType) {
+            case MODAL: invokeModal(); break;
+            case PROMPTED: invokePrompted(); break;
+            case BACKGROUND: invokeInBackground(); break;
+            default: unsupported(invocationType);
+        }
     }
 
     public final void invoke() {

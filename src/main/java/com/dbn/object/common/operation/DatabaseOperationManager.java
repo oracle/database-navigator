@@ -15,6 +15,9 @@ import java.sql.SQLException;
 
 import static com.dbn.common.Priority.HIGHEST;
 
+/**
+ * @deprecated replace with {@link com.dbn.object.management.ObjectManagementService} implementations
+ */
 public class DatabaseOperationManager extends ProjectComponentBase {
 
     public static final String COMPONENT_NAME = "DBNavigator.Project.OperationManager";

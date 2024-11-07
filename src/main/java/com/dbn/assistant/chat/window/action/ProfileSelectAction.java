@@ -15,8 +15,9 @@
 package com.dbn.assistant.chat.window.action;
 
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.entity.AIProfileItem;
 import com.dbn.common.util.Actions;
+import com.dbn.object.DBAIProfile;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -28,9 +29,9 @@ import org.jetbrains.annotations.NotNull;
  * @author Dan Cioca (Oracle)
  */
 public class ProfileSelectAction extends AbstractChatBoxAction {
-    private final AIProfileItem profile;
-    ProfileSelectAction(AIProfileItem profile) {
-        this.profile = profile;
+    private final DBObjectRef<DBAIProfile> profile;
+    ProfileSelectAction(DBAIProfile profile) {
+        this.profile = DBObjectRef.of(profile);
     }
 
     @Override
@@ -38,13 +39,20 @@ public class ProfileSelectAction extends AbstractChatBoxAction {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
-        chatBox.selectProfile(profile);
+        chatBox.selectProfile(getProfile());
+    }
+
+    private DBAIProfile getProfile() {
+        return DBObjectRef.ensure(profile);
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        DBAIProfile profile = getProfile();
+
         Presentation presentation = e.getPresentation();
         presentation.setText(Actions.adjustActionName(profile.getName()));
+        presentation.setIcon(profile.getIcon());
         presentation.setEnabled(profile.isEnabled());
     }
 }

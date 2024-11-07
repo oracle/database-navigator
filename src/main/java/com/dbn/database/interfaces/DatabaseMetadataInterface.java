@@ -354,15 +354,29 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      *  <li> CREDENTIAL_NAME (char)
      *  <li> USER_NAME (char)
      *  <li> COMMENTS (char)
-     *  <li> ENABLED (Y/N)
+     *  <li> IS_ENABLED (Y/N)
      */
     ResultSet loadCredentials(String ownerName, DBNConnection connection) throws SQLException;
+
+    /**
+     * Loads the credentials of the given owner
+     * Column names of the returned ResultSet
+     *  <li> PROFILE_NAME (char)
+     *  <li> DESCRIPTION (char)
+     *  <li> PROVIDER (char)
+     *  <li> MODEL (char)
+     *  <li> TEMPERATURE (number)
+     *  <li> CREDENTIAL_NAME (char)
+     *  <li> OBJECT_LIST (char)
+     *  <li> IS_ENABLED (Y/N)
+     */
+    ResultSet loadAiProfiles(String ownerName, DBNConnection connection) throws SQLException;
 
     /**
      * Loads the functions of the given owner<br>
      * Column names of the returned ResultSet
      *  <li> FUNCTION_NAME (char)
-     *  <li> VALID (Y/N)
+     *  <li> IS_VALID (Y/N)
      */
     ResultSet loadFunctions(String ownerName, DBNConnection connection) throws SQLException;
 
@@ -370,7 +384,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      * Loads the procedures of the given owner<br>
      * Column names of the returned ResultSet
      *  <li> PROCEDURE_NAME (char)
-     *  <li> VALID (Y/N)
+     *  <li> IS_VALID (Y/N)
      */
     ResultSet loadProcedures(String ownerName, DBNConnection connection) throws SQLException;
 

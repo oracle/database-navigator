@@ -14,19 +14,23 @@
 
 package com.dbn.assistant.profile.wizard;
 
-import com.dbn.assistant.entity.ProfileDBObjectItem;
 import com.dbn.object.DBDataset;
+import com.dbn.object.common.DBObject;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.designer.clipboard.SimpleTransferable;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JTable;
+import javax.swing.TransferHandler;
 import javax.swing.table.TableModel;
-import java.awt.*;
+import java.awt.Component;
 import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.dbn.common.util.Unsafe.cast;
 
 /**
  * Transfer handler for Database object and profile database object.
@@ -59,11 +63,11 @@ public class ProfileObjectsTransferHandler extends TransferHandler {
     private static boolean selectData(TransferSupport info) {
         try {
             Transferable transferable = info.getTransferable();
-            List<DBDataset> l = (List<DBDataset>) transferable.getTransferData(ProfileObjectsTransferable.ADD_FLAVOR);
+            List<DBObject> objects = cast(transferable.getTransferData(ProfileObjectsTransferable.ADD_FLAVOR));
 
             JTable table = (JTable) info.getComponent();
-            ProfileObjectsTableModel model = (ProfileObjectsTableModel) table.getModel();
-            model.addItems(l.stream().map(i->new ProfileDBObjectItem(i.getSchemaName(),i.getName())).collect(Collectors.toList()));
+            ObjectsTableModel model = (ObjectsTableModel) table.getModel();
+            model.addItems(objects);
             return true;
         } catch (Exception e) {
             log.warn("Failed to transfer data", e);
@@ -76,9 +80,9 @@ public class ProfileObjectsTransferHandler extends TransferHandler {
         if (action != TransferHandler.MOVE) return;
         JTable table = (JTable) source;
         TableModel model = table.getModel();
-        if (model instanceof ProfileObjectsTableModel) {
-            ProfileObjectsTableModel objectModel = (ProfileObjectsTableModel) model;
-            List<ProfileDBObjectItem> objects = getSelectedItems(table);
+        if (model instanceof ObjectsTableModel) {
+            ObjectsTableModel objectModel = (ObjectsTableModel) model;
+            List<DBObjectRef<DBObject>> objects = getSelectedItems(table);
             objects.forEach(o -> objectModel.removeItem(o));
         }
 
@@ -99,7 +103,7 @@ public class ProfileObjectsTransferHandler extends TransferHandler {
         if (model instanceof AvailableDatasetsTableModel) {
             List<DBDataset> datasets = getSelectedItems(table);
             return new ProfileObjectsTransferable(datasets);
-        } else if (model instanceof ProfileObjectsTableModel) {
+        } else if (model instanceof ObjectsTableModel) {
             return new SimpleTransferable("NULL", ProfileObjectsTransferable.REMOVE_FLAVOR);
         }
 
@@ -109,7 +113,7 @@ public class ProfileObjectsTransferHandler extends TransferHandler {
 
     private static boolean isSelectAction(TransferSupport info) {
         return info.isDataFlavorSupported(ProfileObjectsTransferable.ADD_FLAVOR) &&
-                getTableModel(info) instanceof ProfileObjectsTableModel;
+                getTableModel(info) instanceof ObjectsTableModel;
     }
 
     private static boolean isDeselectAction(TransferSupport info) {

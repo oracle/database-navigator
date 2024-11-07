@@ -16,11 +16,6 @@ package com.dbn.assistant.credential.remote.ui;
 
 import com.dbn.assistant.credential.local.LocalCredential;
 import com.dbn.assistant.credential.local.LocalCredentialSettings;
-import com.dbn.assistant.credential.remote.CredentialManagementService;
-import com.dbn.assistant.entity.OciCredential;
-import com.dbn.assistant.entity.PasswordCredential;
-import com.dbn.assistant.service.AICredentialService;
-import com.dbn.assistant.service.AICredentialServiceImpl;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.outcome.OutcomeHandler;
@@ -32,9 +27,9 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBCredential;
-import com.dbn.object.DBCredential.Attribute;
 import com.dbn.object.DBSchema;
 import com.dbn.object.impl.DBCredentialImpl;
+import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.type.DBCredentialType;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -42,21 +37,32 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import java.util.Objects;
 import java.util.Set;
 
 import static com.dbn.common.ui.CardLayouts.showCard;
+import static com.dbn.object.type.DBAttributeType.FINGERPRINT;
+import static com.dbn.object.type.DBAttributeType.PASSWORD;
+import static com.dbn.object.type.DBAttributeType.PRIVATE_KEY;
+import static com.dbn.object.type.DBAttributeType.USER_NAME;
+import static com.dbn.object.type.DBAttributeType.USER_OCID;
+import static com.dbn.object.type.DBAttributeType.USER_TENANCY_OCID;
 
 /**
  * A dialog window for creating new AI credentials.
  * This window allows users to input credential information, supporting different types of credentials.
- * It interacts with {@link AICredentialServiceImpl} to create credentials in the system.
+ * It interacts with {@link CredentialManagementService} to create credentials in the system.
  */
 @Getter
 public class CredentialEditForm extends DBNFormBase {
 
-  private final AICredentialService credentialSvc;
   private JPanel mainPanel;
   private JTextField credentialNameField;
   private JComboBox<DBCredentialType> credentialTypeComboBox;
@@ -90,7 +96,6 @@ public class CredentialEditForm extends DBNFormBase {
   public CredentialEditForm(CredentialEditDialog dialog, @Nullable DBCredential credential, Set<String> usedCredentialNames) {
     super(dialog);
     this.connection = dialog.getConnection().ref();
-    this.credentialSvc = AICredentialService.getInstance(getConnection());
     this.credential = credential;
     this.usedCredentialNames = usedCredentialNames;
 
@@ -139,20 +144,17 @@ public class CredentialEditForm extends DBNFormBase {
     credentialNameField.setText(credential.getName());
     credentialNameField.setEnabled(false);
     statusCheckBox.setSelected(credential.isEnabled());
-    if (credential instanceof PasswordCredential) {
+    DBCredentialType credentialType = credential.getType();
+    if (credentialType == DBCredentialType.PASSWORD) {
       initPasswordCredentialFields();
-    } else if (credential instanceof OciCredential) {
+    } else if (credentialType == DBCredentialType.OCI) {
       initOciCredentialFields();
     }
   }
 
   private void initOciCredentialFields() {
     credentialTypeComboBox.setSelectedItem(DBCredentialType.OCI);
-    OciCredential ociCredentialProvider = (OciCredential) credential;
-    ociCredentialUserOcidField.setText(ociCredentialProvider.getUserName());
-    ociCredentialUserTenancyOcidField.setText(ociCredentialProvider.getUserTenancyOCID());
-    ociCredentialPrivateKeyField.setText(ociCredentialProvider.getPrivateKey());
-    ociCredentialFingerprintField.setText(ociCredentialProvider.getFingerprint());
+    ociCredentialUserOcidField.setText(credential.getUserName());
   }
 
   private void initPasswordCredentialFields() {
@@ -183,13 +185,7 @@ public class CredentialEditForm extends DBNFormBase {
   protected void doCreateAction(OutcomeHandler successHandler) {
     credential = inputsToCredential();
     if (credential == null) return;
-    getManagementService().createCredential(credential, successHandler);
-
-/*
-    credentialSvc.create(credential)
-            .thenAccept(e -> credentialSvc.updateStatus(credential.getName(), statusCheckBox.isSelected()))
-            .exceptionally(this::handleException);
-*/
+    getManagementService().createObject(credential, successHandler);
   }
 
   /**
@@ -198,20 +194,12 @@ public class CredentialEditForm extends DBNFormBase {
   protected void doUpdateAction(OutcomeHandler successHandler) {
     credential = inputsToCredential();
     if (credential == null) return;
-    getManagementService().updateCredential(credential, successHandler);
-
-/*
-    boolean enabled = statusCheckBox.isSelected();
-    boolean statusChanged = credential.isEnabled() != enabled;
-    credentialSvc.update(editedCredential)
-        .thenAccept(e -> when(statusChanged, () -> credentialSvc.updateStatus(credential.getCredentialName(), enabled)))
-        .exceptionally(this::handleException);
-*/
+    getManagementService().updateObject(credential, successHandler);
   }
 
   @NotNull
-  private CredentialManagementService getManagementService() {
-    return CredentialManagementService.getInstance(ensureProject());
+  private ObjectManagementService getManagementService() {
+    return ObjectManagementService.getInstance(ensureProject());
   }
 
   private Void handleException(Throwable e) {
@@ -229,16 +217,16 @@ public class CredentialEditForm extends DBNFormBase {
     String credentialName = credentialNameField.getText();
     boolean selected = statusCheckBox.isSelected();
 
-    DBCredential credential = new DBCredentialImpl(schema, credentialName, DBCredentialType.PASSWORD, selected);
+    DBCredential credential = new DBCredentialImpl(schema, credentialName, credentialType, selected);
     if (credentialType == DBCredentialType.PASSWORD) {
-      credential.setAttribute(Attribute.USER_NAME, passwordCredentialUsernameField.getText());
-      credential.setAttribute(Attribute.PASSWORD , passwordCredentialPasswordField.getText());
+      credential.setAttribute(USER_NAME, passwordCredentialUsernameField.getText());
+      credential.setAttribute(PASSWORD, passwordCredentialPasswordField.getText());
 
     } else if (credentialType == DBCredentialType.OCI) {
-      credential.setAttribute(Attribute.USER_OCID,         ociCredentialUserOcidField.getText());
-      credential.setAttribute(Attribute.USER_TENANCY_OCID, ociCredentialUserTenancyOcidField.getText());
-      credential.setAttribute(Attribute.PRIVATE_KEY,       ociCredentialPrivateKeyField.getText());
-      credential.setAttribute(Attribute.FINGERPRINT,       ociCredentialFingerprintField.getText());
+      credential.setAttribute(USER_OCID,         ociCredentialUserOcidField.getText());
+      credential.setAttribute(USER_TENANCY_OCID, ociCredentialUserTenancyOcidField.getText());
+      credential.setAttribute(PRIVATE_KEY,       ociCredentialPrivateKeyField.getText());
+      credential.setAttribute(FINGERPRINT,       ociCredentialFingerprintField.getText());
 
     }
     return credential;

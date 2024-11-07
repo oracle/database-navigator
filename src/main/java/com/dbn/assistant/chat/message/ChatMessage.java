@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
 @Setter
 @NoArgsConstructor
 public class ChatMessage {
-    private static final Pattern SECTIONS_REGEX_PATTERN = Pattern.compile("(```(?<LANG>[\\w ]+)?\\n(?<CODE>((\"[^\"]*\")|('[^']')|[^`])+)(```)?)|(?<TEXT>.+)");
+    private static final Pattern SECTIONS_REGEX_PATTERN = Pattern.compile("(\\s*```(?<LANG>[\\w ]+)?\\n(?<CODE>((\"[^\"]*\")|('[^']')|[^`])+)(```)?)|(?<TEXT>.+)");
 
     /**
      * Unique identifier of the chat message to establish causality relations and chaining of messages

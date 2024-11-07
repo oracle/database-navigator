@@ -15,10 +15,8 @@
 package com.dbn.assistant.profile.wizard;
 
 import com.dbn.assistant.credential.remote.ui.CredentialEditDialog;
-import com.dbn.assistant.entity.Profile;
 import com.dbn.assistant.profile.wizard.validation.ProfileCredentialVerifier;
 import com.dbn.assistant.profile.wizard.validation.ProfileNameVerifier;
-import com.dbn.assistant.service.AICredentialService;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Background;
@@ -37,7 +35,12 @@ import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.InputVerifier;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.event.ItemEvent;
@@ -59,22 +62,20 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   private JComboBox<String> credentialComboBox;
   private JTextField descriptionTextField;
   private JButton addCredentialButton;
-  private final AICredentialService credentialSvc;
 
-  private ConnectionRef connection;
-  private final Profile profile;
+  private final ConnectionRef connection;
+  private final ProfileData profile;
   private final Set<String> existingProfileNames;
 
   private final boolean isUpdate;
 
-  public ProfileEditionGeneralStep(ConnectionHandler connection, Profile profile, Set<String> existingProfileNames, boolean isUpdate) {
+  public ProfileEditionGeneralStep(ConnectionHandler connection, ProfileData profile, Set<String> existingProfileNames, boolean isUpdate) {
     super(txt("profile.mgmt.general_step.title"),
             txt("profile.mgmt.general_step.explaination"));
     this.connection = ConnectionRef.of(connection);
     this.profile = profile;
     this.existingProfileNames = existingProfileNames;
     this.isUpdate = isUpdate;
-    this.credentialSvc = AICredentialService.getInstance(connection);
 
     initCredentialAddButton();
     initializeUI();
@@ -104,7 +105,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
 
   private void initializeUI() {
     if (isUpdate) {
-      nameTextField.setText(profile.getProfileName());
+      nameTextField.setText(profile.getName());
       descriptionTextField.setText(profile.getDescription());
       nameTextField.setEnabled(false);
       credentialComboBox.setEnabled(true);
@@ -189,7 +190,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   public WizardStep<ProfileEditionWizardModel> onNext(ProfileEditionWizardModel model) {
     boolean nameValid = isUpdate || nameTextField.getInputVerifier().verify(nameTextField);
     boolean credentialValid = credentialComboBox.getInputVerifier().verify(credentialComboBox);
-    profile.setProfileName(nameTextField.getText());
+    profile.setName(nameTextField.getText());
     profile.setCredentialName((String) credentialComboBox.getSelectedItem());
     // special case for description: null and empty string is the same
     //    do not confuse Profile.equals() because of that

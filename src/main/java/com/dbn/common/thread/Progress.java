@@ -5,6 +5,7 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ui.progress.ProgressDialogHandler;
 import com.dbn.common.util.Titles;
 import com.dbn.connection.context.DatabaseContext;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -76,10 +77,7 @@ public final class Progress {
         if (!Checks.allValid(task, task.getProject())) return;
 
         ProgressManager progressManager = ProgressManager.getInstance();
-        progressManager.run(task);
-
-        // TODO cleanup (check why this was initially invoked in the dispatch thread..)
-        // Dispatch.run(() -> progressManager.run(task));
+        Dispatch.run(ModalityState.any(), () -> progressManager.run(task));
     }
 
     public static double progressOf(int is, int should) {

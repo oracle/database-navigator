@@ -14,8 +14,6 @@
 
 package com.dbn.assistant.chat.window.ui;
 
-import com.dbn.assistant.DatabaseAssistantManager;
-import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateListener;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
@@ -44,8 +42,11 @@ import com.intellij.psi.impl.file.impl.FileManager;
 import com.intellij.testFramework.LightVirtualFile;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.util.Objects;
 
 /**
@@ -76,10 +77,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         return (project, connectionId) -> {
             if (!Objects.equals(getConnectionId(), connectionId)) return;
 
-            DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
-            AssistantState assistantState = manager.getAssistantState(connectionId);
-
-            setReadonly(!assistantState.isPromptingAvailable());
+            setReadonly(!getChatBox().isPromptingAvailable());
         };
     }
 
@@ -173,7 +171,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
             }
 
             ChatBoxForm chatBox = getChatBox();
-            if (chatBox.getAssistantState().isPromptingAvailable()) {
+            if (chatBox.isPromptingAvailable()) {
                 chatBox.submitPrompt();
             } else {
                 Documents.setText(document, text.toString().trim());

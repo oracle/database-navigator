@@ -15,7 +15,7 @@
 package com.dbn.assistant;
 
 import com.dbn.DatabaseNavigator;
-import com.dbn.assistant.provider.ProviderType;
+import com.dbn.assistant.provider.AIProvider;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.thread.Progress;
@@ -49,10 +49,10 @@ public class AssistantPrerequisiteManager extends ProjectComponentBase implement
         return projectService(project, AssistantPrerequisiteManager.class);
     }
 
-    public void grantNetworkAccess(ConnectionHandler connection, ProviderType providerType, String command) {
+    public void grantNetworkAccess(ConnectionHandler connection, AIProvider provider, String command) {
         Project project = connection.getProject();
 
-        String host = providerType.getHost();
+        String host = provider.getHost();
         String user = connection.getUserName();
         String title = txt("prc.assistant.title.GrantingAccess");
         String message = txt("prc.assistant.message.GrantingNetworkAccess", host, user);

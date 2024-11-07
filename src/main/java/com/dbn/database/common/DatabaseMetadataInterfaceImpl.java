@@ -332,6 +332,14 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     /*********************************************************
+     *                     AI PROFILES                       *
+     *********************************************************/
+    @Override
+    public ResultSet loadAiProfiles(final String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "ai-profiles", ownerName);
+    }
+
+    /*********************************************************
      *                      REFERENCES                       *
      *********************************************************/
     @Override

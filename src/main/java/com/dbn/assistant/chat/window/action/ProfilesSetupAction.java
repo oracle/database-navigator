@@ -39,6 +39,6 @@ public class ProfilesSetupAction extends AbstractChatBoxAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Profiles Settings...");
+        presentation.setText("Profile Setup...");
     }
 }

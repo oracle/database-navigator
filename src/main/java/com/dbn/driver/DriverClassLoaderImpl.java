@@ -134,7 +134,7 @@ class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader 
             }
             if (clazz == null) return super.loadClass(name, resolve);
 
-            loadedClasses.put(clazz.getName(), clazz);
+            loadedClasses.put(clazz.getName().intern(), clazz);
             return clazz;
         }
     }

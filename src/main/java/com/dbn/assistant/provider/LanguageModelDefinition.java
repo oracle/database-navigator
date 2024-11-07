@@ -22,7 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Lists.convert;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
@@ -57,7 +59,7 @@ import static java.util.Collections.unmodifiableMap;
  */
 public class LanguageModelDefinition {
     private static final LanguageModelDefinition INSTANCE = new LanguageModelDefinition();
-    private final List<ProviderType> providers;
+    private final List<AIProvider> providers;
 
     @SneakyThrows
     private LanguageModelDefinition() {
@@ -67,19 +69,19 @@ public class LanguageModelDefinition {
         providers = unmodifiableList(convert(providerElements, e -> createProvider(e)));
     }
 
-    private static ProviderModel createModel(ProviderType provider, Element element) {
+    private static AIModel createModel(AIProvider provider, Element element) {
         String modelId = stringAttribute(element, "id");
         String modelApiName = stringAttribute(element, "api-name");
-        return new ProviderModel(provider, modelId, modelApiName);
+        return new AIModel(provider, modelId, modelApiName);
     }
 
-    private static ProviderType createProvider(Element element) {
+    private static AIProvider createProvider(Element element) {
         String id = stringAttribute(element, "id");
         String name = stringAttribute(element, "name");
         String host = stringAttribute(element, "host");
         boolean main = booleanAttribute(element, "default", false);
         boolean experimental = booleanAttribute(element, "experimental", false);
-        ProviderType provider = new ProviderType(id, name, host, main, experimental);
+        AIProvider provider = new AIProvider(id, name, host, main, experimental);
 
         createModels(element, provider);
         createUrls(element, provider);
@@ -87,13 +89,13 @@ public class LanguageModelDefinition {
         return provider;
     }
 
-    private static void createModels(Element element, ProviderType provider) {
+    private static void createModels(Element element, AIProvider provider) {
         List<Element> modelElements = element.getChild("models").getChildren();
-        List<ProviderModel> models = convert(modelElements, e -> createModel(provider, e));
+        List<AIModel> models = convert(modelElements, e -> createModel(provider, e));
         provider.setModels(unmodifiableList(models));
     }
 
-    private static void createUrls(Element element, ProviderType provider) {
+    private static void createUrls(Element element, AIProvider provider) {
         List<Element> urlElements = element.getChild("urls").getChildren();
         Map<ProviderUrlType, String> urls = new HashMap<>();
         for (Element urlElement : urlElements) {
@@ -103,7 +105,7 @@ public class LanguageModelDefinition {
         provider.setUrls(unmodifiableMap(urls));
     }
 
-    public static List<ProviderType> providers() {
+    public static List<AIProvider> providers() {
         return INSTANCE.providers;
     }
 }

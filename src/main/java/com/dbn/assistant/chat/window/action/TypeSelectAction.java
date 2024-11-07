@@ -77,7 +77,7 @@ public class TypeSelectAction extends ToggleAction {
         ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
         if (chatBox == null) return false;
 
-        return chatBox.getAssistantState().isPromptingAvailable();
+        return chatBox.isPromptingAvailable();
     }
 
     @Override

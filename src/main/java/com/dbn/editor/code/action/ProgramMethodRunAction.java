@@ -1,5 +1,6 @@
 package com.dbn.editor.code.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectPopupAction;
 import com.dbn.common.icon.Icons;
@@ -26,6 +27,7 @@ import java.util.List;
 
 import static com.dbn.common.util.Actions.SEPARATOR;
 
+@BackgroundUpdate
 public class ProgramMethodRunAction extends ProjectPopupAction {
 
     @Override

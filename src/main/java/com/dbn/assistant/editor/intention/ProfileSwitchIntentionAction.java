@@ -16,12 +16,11 @@ package com.dbn.assistant.editor.intention;
 
 import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.editor.AssistantEditorUtil;
-import com.dbn.assistant.entity.AIProfileItem;
-import com.dbn.assistant.state.AssistantState;
 import com.dbn.code.common.intention.EditorIntentionAction;
 import com.dbn.code.common.intention.EditorIntentionType;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
@@ -67,15 +66,14 @@ public class ProfileSwitchIntentionAction extends EditorIntentionAction {
     manager.promptProfileSelector(editor, connectionId);
   }
 
-  private static List<AIProfileItem> getProfiles(Editor editor) {
+  private static List<DBAIProfile> getProfiles(Editor editor) {
     ConnectionHandler connection = AssistantEditorUtil.getConnection(editor);
     if (isNotValid(connection)) return Collections.emptyList();
 
     Project project = connection.getProject();
 
     DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
-    AssistantState assistantState = manager.getAssistantState(connection.getConnectionId());
-    return assistantState.getProfiles();
+    return manager.getProfiles(connection.getConnectionId());
   }
 
 }

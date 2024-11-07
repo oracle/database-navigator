@@ -1,6 +1,7 @@
 package com.dbn.object;
 
 import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.type.DBAttributeType;
 import com.dbn.object.type.DBCredentialType;
 
 import java.util.Map;
@@ -12,18 +13,9 @@ public interface DBCredential extends DBSchemaObject {
 
     String getComments();
 
-    Map<String, String> getAttributes();
+    Map<DBAttributeType, String> getAttributes();
 
-    void setAttribute(String key, String value);
+    void setAttribute(DBAttributeType attr, String value);
 
-    String getAttribute(String key);
-
-    interface Attribute {
-        String USER_NAME = "username";
-        String PASSWORD = "password";
-        String USER_OCID = "user_ocid";
-        String USER_TENANCY_OCID = "user_tenancy_ocid";
-        String PRIVATE_KEY = "private_key";
-        String FINGERPRINT = "fingerprint";
-    }
+    String getAttribute(DBAttributeType attr);
 }

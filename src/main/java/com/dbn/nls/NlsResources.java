@@ -9,6 +9,8 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.PropertyKey;
 
 import java.io.File;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.util.Commons.nvl;
 
@@ -16,6 +18,7 @@ public class NlsResources extends DynamicBundle{
     public static final @NonNls String BUNDLE = "messages.DBNResources";
     private static final NlsResources INSTANCE = new NlsResources();
     private static final Object[] EMPTY_PARAMS = new Object[0];
+    private static final Map<String, Boolean> KEY_VALIDITY_CACHE = new ConcurrentHashMap<>();
 
     static { Localization.initDefaultLocale(); }
 
@@ -24,12 +27,38 @@ public class NlsResources extends DynamicBundle{
     }
 
     public static @Nls String txt(@PropertyKey(resourceBundle = BUNDLE) String key) {
-        return INSTANCE.getMessage(key, EMPTY_PARAMS);
+        return txt(key, EMPTY_PARAMS);
     }
 
     public static @Nls String txt(@PropertyKey(resourceBundle = BUNDLE) String key, Object... params) {
-        adjustParams(params);
-        return INSTANCE.getMessage(key, params);
+        if (isValidKey(key)) {
+            key = key.intern();
+            adjustParams(params);
+            return INSTANCE.getMessage(key, params);
+        }
+        return key;
+    }
+
+    /**
+     * NLS Key validator
+     * Workaround for partial implementation of nls resources
+     * The resource bundle is returning the key surrounded with exclamation marks if the key is not available.
+     * This usually happens when the nls engine is invoked with the text itself (again because not all texts are captured yet in NLS).
+     * <p>
+     * @param key the key to be verified
+     * @return true if the key is valid, false otherwise
+     */
+    private static boolean isValidKey(String key) {
+        if (key == null) return false;
+
+        key = key.intern();
+        Boolean valid = KEY_VALIDITY_CACHE.computeIfAbsent(key, k -> checkKeyValidity(k));
+        return valid == Boolean.TRUE;
+    }
+
+    private static Boolean checkKeyValidity(String k) {
+        // avoid boxing and unboxing
+        return k.matches("^[a-zA-Z0-9._-]+$") ? Boolean.TRUE : Boolean.FALSE;
     }
 
     private static void adjustParams(Object ... params) {

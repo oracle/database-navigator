@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -43,6 +43,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.object.type.DBObjectType.ANY;
 import static com.dbn.object.type.DBObjectType.SYNONYM;
 import static com.dbn.vfs.DatabaseFileSystem.PS;
 import static com.dbn.vfs.DatabaseFileSystem.PSS;
@@ -144,7 +145,7 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
     public <P extends DBObject> DBObjectRef<P> getParentRef(DBObjectType objectType) {
         DBObjectRef<?> element = this;
         while (element != null) {
-            if (element.objectType.matches(objectType)) {
+            if (element.objectType != ANY && element.objectType.matches(objectType)) {
                 return cast(element);
             }
 

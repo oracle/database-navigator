@@ -17,13 +17,12 @@ package com.dbn.assistant.state;
 import com.dbn.assistant.DatabaseAssistantType;
 import com.dbn.assistant.chat.message.PersistentChatMessage;
 import com.dbn.assistant.chat.window.PromptAction;
-import com.dbn.assistant.entity.AIProfileItem;
-import com.dbn.assistant.entity.Profile;
 import com.dbn.common.feature.FeatureAcknowledgement;
 import com.dbn.common.feature.FeatureAvailability;
 import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.connection.ConnectionId;
+import com.dbn.object.DBAIProfile;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,13 +31,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import static com.dbn.common.options.setting.Settings.*;
-import static com.dbn.common.util.Commons.coalesce;
-import static com.dbn.common.util.Lists.*;
+import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
+import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 /**
  * Assistant state holder
@@ -60,11 +59,12 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
 
   private ConnectionId connectionId;
   private DatabaseAssistantType assistantType = DatabaseAssistantType.GENERIC;
-  private List<AIProfileItem> profiles = new ArrayList<>();
   private List<PersistentChatMessage> messages = new ArrayList<>();
 
   private PromptAction selectedAction = PromptAction.SHOW_SQL;
   private String defaultProfileName;
+  private String selectedProfileName;
+  private String selectedModelName;
 
   public static final short MAX_CHAR_MESSAGE_COUNT = 100;
 
@@ -100,75 +100,16 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
             isNot(AssistantStatus.QUERYING);
   }
 
-  /**
-   * State utility indicating the prompting is available.
-   * It internally checks if the feature is ready to use by calling {@link #isAvailable()} but also checks if a valid profile is selected
-   * @return true if prompting is allowed
-   */
-  public boolean isPromptingAvailable() {
-    if (!isAvailable()) return false;
-
-    AIProfileItem profile = getSelectedProfile();
-    if (profile == null) return false;
-    if (!profile.isEnabled()) return false;
-
-    return true;
+  public void setSelectedProfile(@Nullable DBAIProfile profile) {
+    selectedProfileName = profile == null ? null : profile.getName();
   }
-
-  @Nullable
-  public String getSelectedProfileName() {
-    AIProfileItem selectedProfile = getSelectedProfile();
-    return selectedProfile == null ? null : selectedProfile.getName();
-  }
-
-  @Nullable
-  public AIProfileItem getSelectedProfile() {
-    return first(profiles, p -> p.isSelected());
-  }
-
-  public void setSelectedProfile(@Nullable AIProfileItem profile) {
-    String profileName = profile == null ? null : profile.getName();
-    forEach(profiles, p -> p.setSelected(Objects.equals(p.getName(), profileName)));
-  }
-
-  public void importProfiles(List<Profile> profiles) {
-    String selectedProfile = getSelectedProfileName();
-    setProfiles(convert(profiles, p -> new AIProfileItem(p, p.getProfileName().equalsIgnoreCase(selectedProfile))));
-  }
-
-  /**
-   *
-   * Replaces the list of profiles by preserving the profile and model selection (as far as possible)
-   * @param profiles
-   */
-  public void setProfiles(List<AIProfileItem> profiles) {
-    this.profiles = profiles;
-
-    AIProfileItem selectedProfile = getSelectedProfile();
-    if (selectedProfile == null) setSelectedProfile(firstElement(profiles));
-  }
-
-  public Set<String> getProfileNames() {
-    return profiles.stream().map(p -> p.getName()).collect(Collectors.toSet());
-  }
-
-  @Nullable
-  public AIProfileItem getDefaultProfile() {
-    // resolve default profile by doing ever less qualified lookup inside the list of profiles
-    return coalesce(
-            () -> first(profiles, p -> p.isEnabled() && p.getName().equalsIgnoreCase(defaultProfileName)),
-            () -> first(profiles, p -> p.isEnabled() && p.isSelected()),
-            () -> first(profiles, p -> p.isEnabled()));
-  }
-
-  public void setDefaultProfile(@Nullable AIProfileItem profile) {
+  public void setDefaultProfile(@Nullable DBAIProfile profile) {
     defaultProfileName = profile == null ? null : profile.getName();
   }
 
   public void addMessages(List<PersistentChatMessage> messages) {
     this.messages.addAll(messages);
   }
-
 
   public void clearMessages() {
     messages.clear();
@@ -178,20 +119,12 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   public void readState(Element element) {
     connectionId = connectionIdAttribute(element, "connection-id");
     defaultProfileName = stringAttribute(element, "default-profile-name");
+    selectedProfileName = stringAttribute(element, "selected-profile-name");
+    selectedModelName = stringAttribute(element, "selected-model-name");
     assistantType = enumAttribute(element, "assistant-type", assistantType);
     selectedAction = enumAttribute(element, "selected-action", selectedAction);
     availability = enumAttribute(element, "availability", availability);
     acknowledgement = enumAttribute(element, "acknowledgement", acknowledgement);
-
-    List<AIProfileItem> profiles = new ArrayList<>();
-    Element profilesElement = element.getChild("profiles");
-    List<Element> profileElements = profilesElement.getChildren();
-    for (Element profileElement : profileElements) {
-      AIProfileItem profile = new AIProfileItem();
-      profile.readState(profileElement);
-      profiles.add(profile);
-    }
-    setProfiles(profiles);
 
     Element messagesElement = element.getChild("messages");
     List<Element> messageElements = messagesElement.getChildren();
@@ -206,16 +139,12 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   public void writeState(Element element) {
     setStringAttribute(element, "connection-id", connectionId.id());
     setStringAttribute(element, "default-profile-name", defaultProfileName);
+    setStringAttribute(element, "selected-profile-name", selectedProfileName);
+    setStringAttribute(element, "selected-model-name", selectedModelName);
     setEnumAttribute(element, "assistant-type", assistantType);
     setEnumAttribute(element, "selected-action", selectedAction);
     setEnumAttribute(element, "availability", availability);
     setEnumAttribute(element, "acknowledgement", acknowledgement);
-
-    Element profilesElement = newElement(element, "profiles");
-    for (AIProfileItem profile : profiles) {
-      Element profileElement = newElement(profilesElement, "profile");
-      profile.writeState(profileElement);
-    }
 
     Element messagesElement = newElement(element, "messages");
     for (PersistentChatMessage message : messages) {

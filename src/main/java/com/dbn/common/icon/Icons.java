@@ -318,6 +318,9 @@ public class Icons {
 //    public static final Icon DBO_ARGUMENT_IN_OUT     = createRowIcon(DBO_ARGUMENT, COMMON_DIRECTION_IN_OUT);
 
 
+    public static final Icon DBO_AI_PROFILE                      = load("/img/object/profile/AIProfile.png");
+    public static final Icon DBO_AI_PROFILE_DISABLED             = load("/img/object/profile/AIProfileDisabled.png");
+    public static final Icon DBO_AI_PROFILES                     = load("/img/object/profile/AIProfiles.png");
     public static final Icon DBO_ATTRIBUTE                       = load("/img/object/Attribute.png");
     public static final Icon DBO_ATTRIBUTES                      = load("/img/object/Attributes.png");
     public static final Icon DBO_ARGUMENT                        = load("/img/object/Argument.png");
@@ -339,6 +342,12 @@ public class Icons {
     public static final Icon DBO_CONSTRAINT                      = load("/img/object/constraint/Constraint.svg");
     public static final Icon DBO_CONSTRAINT_DISABLED             = load("/img/object/constraint/ConstraintDisabled.svg");
     public static final Icon DBO_CONSTRAINTS                     = load("/img/object/constraint/Constraints.svg");
+    public static final Icon DBO_CERTIFICATE                     = load("/img/object/certificate/Certificate.svg");
+    public static final Icon DBO_CERTIFICATE_DISABLED            = load("/img/object/certificate/CertificateDisabled.svg");
+    public static final Icon DBO_CERTIFICATES                    = load("/img/object/certificate/Certificates.svg");
+    public static final Icon DBO_CREDENTIAL                      = load("/img/object/credential/Credential.svg");
+    public static final Icon DBO_CREDENTIAL_DISABLED             = load("/img/object/credential/CredentialDisabled.svg");
+    public static final Icon DBO_CREDENTIALS                     = load("/img/object/credential/Credentials.svg");
     public static final Icon DBO_DATABASE_LINK                   = load("/img/object/DatabaseLink.png");
     public static final Icon DBO_DATABASE_LINKS                  = load("/img/object/DatabaseLinks.png");
     public static final Icon DBO_DIMENSION                       = load("/img/object/Dimension.png");
