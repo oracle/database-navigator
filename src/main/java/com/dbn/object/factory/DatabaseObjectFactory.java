@@ -158,22 +158,27 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                     conn -> {
                         DBContentType contentType = object.getContentType();
 
-                        String objectName = object.getQualifiedName();
+                        String schemaName = object.getSchemaName();
+                        String objectName = object.getName();
+
+                        // TODO use schemaName, objectName instead of qualified name
+                        String objectQualifiedName = object.getQualifiedName();
                         String objectTypeName = object.getTypeName();
                         DatabaseDataDefinitionInterface dataDefinition = object.getDataDefinitionInterface();
                         DBObjectList<?> objectList = (DBObjectList<?>) object.getParent();
                         if (contentType == DBContentType.CODE_SPEC_AND_BODY) {
                             DBObjectStatusHolder objectStatus = object.getStatus();
                             if (objectStatus.is(DBContentType.CODE_BODY, DBObjectStatus.PRESENT)) {
-                                dataDefinition.dropObjectBody(objectTypeName, objectName, conn);
+                                dataDefinition.dropObjectBody(objectTypeName, objectQualifiedName, conn);
                             }
 
                             if (objectStatus.is(DBContentType.CODE_SPEC, DBObjectStatus.PRESENT)) {
-                                dataDefinition.dropObject(objectTypeName, objectName, conn);
+                                dataDefinition.dropObject(objectTypeName, objectQualifiedName, conn);
                             }
-
+                        } else if(object.getObjectType() == DBObjectType.JAVA_OBJECT) {
+                            dataDefinition.dropJavaObject(schemaName, objectName, conn);
                         } else {
-                            dataDefinition.dropObject(objectTypeName, objectName, conn);
+                            dataDefinition.dropObject(objectTypeName, objectQualifiedName, conn);
                         }
 
                         objectList.reload();

@@ -14,10 +14,10 @@
 
 package com.dbn.assistant.profile.wizard;
 
+import com.dbn.common.clipboard.GenericContent;
 import com.dbn.object.DBDataset;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
-import com.intellij.designer.clipboard.SimpleTransferable;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
@@ -82,10 +82,10 @@ public class ProfileObjectsTransferHandler extends TransferHandler {
         TableModel model = table.getModel();
         if (model instanceof ObjectsTableModel) {
             ObjectsTableModel objectModel = (ObjectsTableModel) model;
-            List<DBObjectRef<DBObject>> objects = getSelectedItems(table);
-            objects.forEach(o -> objectModel.removeItem(o));
+            List<DBObject> objects = getSelectedItems(table);
+            objects.forEach(o -> objectModel.removeItem(DBObjectRef.of(o)));
+            objectModel.fireTableDataChanged();
         }
-
     }
 
     @Override
@@ -104,7 +104,7 @@ public class ProfileObjectsTransferHandler extends TransferHandler {
             List<DBDataset> datasets = getSelectedItems(table);
             return new ProfileObjectsTransferable(datasets);
         } else if (model instanceof ObjectsTableModel) {
-            return new SimpleTransferable("NULL", ProfileObjectsTransferable.REMOVE_FLAVOR);
+            return new GenericContent("NULL", ProfileObjectsTransferable.REMOVE_FLAVOR);
         }
 
         return null;

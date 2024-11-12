@@ -20,10 +20,11 @@ import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Standard implementation of an {@link OutcomeHandlers} bundle
@@ -38,7 +39,7 @@ public final class OutcomeHandlersImpl implements OutcomeHandlers {
 
     @Override
     public void addHandler(OutcomeType type, OutcomeHandler handler) {
-        handlers.computeIfAbsent(type, t -> new TreeSet<>()).add(handler);
+        handlers.computeIfAbsent(type, t -> new HashSet<>()).add(handler);
     }
 
     @Override
@@ -56,7 +57,7 @@ public final class OutcomeHandlersImpl implements OutcomeHandlers {
         Set<OutcomeHandler> handlers = getHandlers(outcome);
         if (handlers == null) return;
 
-        handlers.forEach(handler -> handleSafe(outcome, handler));
+        handlers.stream().sorted(Comparator.comparing(h -> h.getPriority())).forEach(handler -> handleSafe(outcome, handler));
     }
 
     private static void handleSafe(Outcome outcome, OutcomeHandler handler) {

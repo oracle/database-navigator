@@ -222,6 +222,12 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
     }
 
     @Override
+    public void reloadInBackground() {
+        markDirty();
+        loadInBackground();
+    }
+
+    @Override
     public void refresh() {
         if (shouldRefresh()) {
             markDirty();

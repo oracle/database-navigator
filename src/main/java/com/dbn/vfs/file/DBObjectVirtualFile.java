@@ -1,7 +1,6 @@
 package com.dbn.vfs.file;
 
 import com.dbn.browser.model.BrowserTreeNode;
-import com.dbn.common.DevNullStreams;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.dispose.Failsafe;
@@ -24,10 +23,8 @@ import com.intellij.psi.PsiDirectory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.dispose.Failsafe.nd;
@@ -105,6 +102,15 @@ public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
             getObjectRef().getQualifiedName();
     }
 
+    @Override
+    public @NotNull String getPresentableName() {
+        String presentableName = super.getPresentableName();
+        if (getObjectType() == DBObjectType.JAVA_OBJECT) {
+            presentableName = presentableName.replace("/", ".");
+        }
+        return presentableName;
+    }
+
     private String getConnectionName() {
         return Failsafe.guarded("DISPOSED", this, o -> o.getConnection().getName());
     }
@@ -159,7 +165,8 @@ public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
 
     @Override
     public Icon getIcon() {
-        return object.getObjectType().getIcon();
+        T object = guarded(null, () -> getObject());
+        return object == null ? getObjectType().getIcon() : object.getIcon();
     }
 
     @Override

@@ -80,8 +80,9 @@ public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
     return DialogCloseOutcomeHandler.create(this);
   }
 
+  @NotNull
   @Override
-  protected Action @NotNull [] createActions() {
+  protected Action[] createActions() {
     super.setOKButtonText(txt(credential != null ? "ai.messages.button.update" : "ai.messages.button.create"));
     return super.createActions();
   }

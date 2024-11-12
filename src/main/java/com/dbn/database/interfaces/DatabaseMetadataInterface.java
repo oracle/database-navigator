@@ -1,6 +1,7 @@
 package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.common.statement.ByteArray;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
@@ -635,7 +636,10 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      * View source-code may be split on more than one line.
      */
     ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException;
+
     ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, short overload, DBNConnection connection) throws SQLException;
+
+    ByteArray loadJavaBinaryCode(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
     /**
      * Loads a actions of invalid object names for the given owner.
@@ -665,6 +669,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
     void compileObject(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException;
 
     void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException;
+
+    void compileJavaObject(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
     ResultSet loadObjectChangeTimestamp(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException;
 

@@ -24,7 +24,8 @@ import com.dbn.connection.ConnectionRef;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
 /**
@@ -53,8 +54,9 @@ public class AssistantDatabaseConfigDialog extends DBNDialog<AssistantDatabaseCo
     return assistantState.getAssistantName();
   }
 
+  @NotNull
   @Override
-  protected Action @NotNull [] createActions() {
+  protected Action[] createActions() {
     return new Action[]{getCancelAction(), new HelpAction()};
   }
 

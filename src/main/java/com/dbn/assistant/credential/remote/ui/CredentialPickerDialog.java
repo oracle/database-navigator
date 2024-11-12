@@ -21,7 +21,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Action;
 
 public class CredentialPickerDialog extends DBNDialog<CredentialPickerForm> {
   private final Consumer<LocalCredential> callback;
@@ -46,9 +46,12 @@ public class CredentialPickerDialog extends DBNDialog<CredentialPickerForm> {
     super.doOKAction();
   }
 
+  @NotNull
   @Override
-  protected Action @NotNull [] createActions() {
-    return new Action[]{getOKAction(), getCancelAction()};
+  protected Action[] createActions() {
+    return new Action[]{
+            getOKAction(),
+            getCancelAction()};
   }
 
   @Override

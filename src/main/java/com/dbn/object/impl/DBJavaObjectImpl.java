@@ -14,17 +14,22 @@
 
 package com.dbn.object.impl;
 
-import com.dbn.common.icon.CompositeIcon;
+import com.dbn.common.icon.Icons;
+import com.dbn.common.ref.WeakRefCache;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaObjectMetadata;
+import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
+import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.editor.DBContentType;
 import com.dbn.object.DBJavaObject;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
+import com.dbn.object.common.status.DBObjectStatus;
+import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.type.DBJavaObjectAccessibility;
 import com.dbn.object.type.DBJavaObjectKind;
 import com.dbn.object.type.DBObjectType;
-import com.intellij.icons.AllIcons;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,11 +37,14 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import java.sql.SQLException;
 
+import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
+import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
+import static com.dbn.object.common.property.DBObjectProperty.DEBUGABLE;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.INNER;
+import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
-import static com.dbn.object.type.DBJavaObjectAccessibility.PRIVATE;
 import static com.dbn.object.type.DBJavaObjectKind.ENUM;
 import static com.dbn.object.type.DBJavaObjectKind.INTERFACE;
 
@@ -45,6 +53,7 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 
 	private DBJavaObjectKind kind;
 	private DBJavaObjectAccessibility accessibility;
+	private static final WeakRefCache<DBJavaObject, String> presentableNameCache = WeakRefCache.weakKey();
 
 	DBJavaObjectImpl(DBSchema schema, DBJavaObjectMetadata metadata) throws SQLException {
 		super(schema, metadata);
@@ -65,7 +74,7 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 		set(STATIC, metadata.isStatic());
 		set(INNER, metadata.isInner());
 
-		return metadata.getObjectName().replace("/",".");
+		return metadata.getObjectName();
 	}
 
 
@@ -81,28 +90,45 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 */
 	}
 
+	public void initProperties() {
+		super.initProperties();
+		properties.set(COMPILABLE, true);
+		properties.set(INVALIDABLE, true);
+		properties.set(DEBUGABLE, true);
+	}
+
+	public void initStatus(DBJavaObjectMetadata metadata) throws SQLException {
+		boolean isValid = metadata.isValid();
+		boolean isDebug = metadata.isDebug();
+		DBObjectStatusHolder objectStatus = getStatus();
+		objectStatus.set(DBObjectStatus.VALID, isValid);
+		objectStatus.set(DBObjectStatus.DEBUG, isDebug);
+	}
+
+	@Override
+	public String getPresentableText() {
+		return presentableNameCache.computeIfAbsent(this, o -> o.getName().replace("/", "."));
+	}
+
 	@Override
 	@Nullable
 	public Icon getIcon() {
-		// TODO cache all these icon variants in Icons (creating composites on every access is resource intensive)
-		Icon baseIcon;
+		if (kind == ENUM) return withErrorMarker(Icons.DBO_JAVA_ENUMERATION);
+		if (kind == INTERFACE) return withErrorMarker(Icons.DBO_JAVA_INTERFACE);
+		if (isAbstract()) return withErrorMarker(Icons.DBO_JAVA_CLASS_ABSTRACT);
+		return withErrorMarker(withFinalMarker(Icons.DBO_JAVA_CLASS));
+	}
 
-		if (kind == ENUM)
-			baseIcon = AllIcons.Nodes.Enum;
-		else if (kind == INTERFACE)
-			baseIcon = AllIcons.Nodes.Interface;
-		else if (isAbstract())
-			baseIcon = AllIcons.Nodes.AbstractClass;
-		else
-			baseIcon = AllIcons.Nodes.Class;
+	private Icon withErrorMarker(Icon base) {
+		return isInvalid() ? Icons.withErrorMarker(base) : base;
+	}
 
-		if (isFinal() && kind != ENUM)
-			baseIcon = new CompositeIcon(baseIcon, AllIcons.Nodes.FinalMark, -17);
+	private Icon withFinalMarker(Icon base) {
+		return isFinal() ? Icons.withPinMarker(base): base;
+	}
 
-		if (this.accessibility == PRIVATE)
-			baseIcon = new CompositeIcon(baseIcon, AllIcons.Nodes.Private, -10);
-
-		return baseIcon;
+	private boolean isInvalid() {
+		return getObjectStatus().isNot(DBObjectStatus.VALID);
 	}
 
 	@Override
@@ -123,5 +149,25 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 	@Override
 	public boolean isInner() {
 		return is(INNER);
+	}
+
+	/*********************************************************
+	 *                  DBEditableCodeObject                 *
+	 ********************************************************/
+
+	@Override
+	public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
+
+		DatabaseInterfaceInvoker.execute(HIGHEST,
+				"Updating source code",
+				"Updating sources of " + getQualifiedNameWithType(),
+				getProject(),
+				getConnectionId(),
+				getSchemaId(),
+				conn -> {
+					ConnectionHandler connection = getConnection();
+					DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
+					dataDefinition.updateJavaObject(getName(), newCode, conn);
+				});
 	}
 }

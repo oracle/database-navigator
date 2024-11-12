@@ -19,7 +19,11 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Read;
 import com.dbn.common.ui.tree.TreeEventType;
 import com.dbn.common.util.Lists;
-import com.dbn.connection.*;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionPool;
+import com.dbn.connection.ConnectionRef;
+import com.dbn.connection.SchemaId;
 import com.dbn.data.type.DBDataTypeBundle;
 import com.dbn.data.type.DBNativeDataType;
 import com.dbn.database.DatabaseObjectIdentifier;
@@ -28,7 +32,15 @@ import com.dbn.editor.code.SourceCodeManagerListener;
 import com.dbn.execution.compiler.CompileManagerListener;
 import com.dbn.execution.statement.DataDefinitionChangeListener;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.object.*;
+import com.dbn.object.DBCharset;
+import com.dbn.object.DBConsole;
+import com.dbn.object.DBObjectPrivilege;
+import com.dbn.object.DBPrivilege;
+import com.dbn.object.DBRole;
+import com.dbn.object.DBSchema;
+import com.dbn.object.DBSynonym;
+import com.dbn.object.DBSystemPrivilege;
+import com.dbn.object.DBUser;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectListImpl;
@@ -45,16 +57,30 @@ import com.intellij.psi.PsiFileFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.util.*;
+import javax.swing.Icon;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 import static com.dbn.browser.DatabaseBrowserUtils.treeVisibilityChanged;
 import static com.dbn.common.content.DynamicContentProperty.GROUPED;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.util.Commons.nvl;
-import static com.dbn.object.type.DBObjectRelationType.*;
-import static com.dbn.object.type.DBObjectType.*;
+import static com.dbn.object.type.DBObjectRelationType.ROLE_PRIVILEGE;
+import static com.dbn.object.type.DBObjectRelationType.ROLE_ROLE;
+import static com.dbn.object.type.DBObjectRelationType.USER_PRIVILEGE;
+import static com.dbn.object.type.DBObjectRelationType.USER_ROLE;
+import static com.dbn.object.type.DBObjectType.CHARSET;
+import static com.dbn.object.type.DBObjectType.CONNECTION;
+import static com.dbn.object.type.DBObjectType.CONSOLE;
+import static com.dbn.object.type.DBObjectType.ROLE;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
+import static com.dbn.object.type.DBObjectType.SYNONYM;
+import static com.dbn.object.type.DBObjectType.SYSTEM_PRIVILEGE;
+import static com.dbn.object.type.DBObjectType.USER;
 
 public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObjectBundle, NotificationSupport {
     static { DBObjectLoaders.initLoaders();}
@@ -167,12 +193,16 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         return (connectionId, ownerId, objectType) -> {
             if (ownerId == null) {
                 DBObjectList<DBObject> objectList = getObjectLists().getObjectList(objectType);
-                if (objectList != null) objectList.markDirty();
+                if (objectList != null && objectList.isLoaded()) {
+                    objectList.reloadInBackground();
+                }
             } else {
                 DBSchema schema = getSchema(ownerId.id());
                 if (schema != null) {
                     DBObjectList<DBObject> objectList = schema.getChildObjectList(objectType);
-                    if (objectList != null) objectList.markDirty();
+                    if (objectList != null && objectList.isLoaded()) {
+                        objectList.reloadInBackground();
+                    }
                 }
             }
         };

@@ -1,5 +1,6 @@
 package com.dbn.execution.common.message.ui;
 
+import com.dbn.common.action.DataKeys;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.navigation.NavigationInstructions;
@@ -9,18 +10,17 @@ import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Safe;
 import com.dbn.connection.config.ConnectionConfigListener;
-import com.dbn.execution.common.message.action.*;
 import com.dbn.execution.common.message.ui.tree.MessagesTree;
 import com.dbn.execution.common.ui.ExecutionConsoleForm;
 import com.dbn.execution.compiler.CompilerMessage;
-import com.dbn.execution.common.message.action.*;
 import com.dbn.execution.explain.result.ExplainPlanMessage;
 import com.dbn.execution.statement.StatementExecutionMessage;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JPanel;
 import javax.swing.tree.TreePath;
 
 import static com.dbn.common.ui.util.Borderless.markBorderless;
@@ -41,15 +41,7 @@ public class ExecutionMessagesForm extends DBNFormBase {
         markBorderless(messagesTree);
 
         messagesScrollPane.setViewportView(messagesTree);
-        ActionToolbar actionToolbar = Actions.createActionToolbar(
-                actionsPanel,
-                "DBNavigator.ExecutionMessages.Controls", false,
-                new MessagesWindowCloseAction(messagesTree),
-                new ExecutedStatementViewAction(messagesTree),
-                new MessagesTreeExpandAction(messagesTree),
-                new MessagesTreeCollapseAction(messagesTree),
-                Actions.SEPARATOR,
-                new ExecutionEngineSettingsAction(messagesTree));
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.ExecutionConsoleMessages", "", false);
         actionsPanel.add(actionToolbar.getComponent());
 
         ProjectEvents.subscribe(
@@ -98,5 +90,11 @@ public class ExecutionMessagesForm extends DBNFormBase {
     @NotNull
     public MessagesTree getMessagesTree() {
         return Failsafe.nn(messagesTree);
+    }
+
+    @Override
+    public @Nullable Object getData(@NotNull String dataId) {
+        if (DataKeys.MESSAGES_TREE.is(dataId)) return messagesTree;
+        return null;
     }
 }

@@ -304,17 +304,28 @@
     <statement-execution-processor id="java-objects" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select
-                NAME as OBJECT_NAME,
-                KIND as OBJECT_KIND,
-                ACCESSIBILITY as OBJECT_ACCESSIBILITY,
-                decode(IS_FINAL,'YES','Y','N') as IS_FINAL,
-                decode(IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
-                decode(IS_INNER,'YES','Y','N') as IS_INNER,
-                decode(IS_STATIC,'YES','Y','N') as IS_STATIC
-            from [PREFIX]_JAVA_CLASSES
-            where OWNER = {0}
-                and IS_INNER = 'NO'
-                and NAME not like '%$%'
+                j.NAME as OBJECT_NAME,
+                j.KIND as OBJECT_KIND,
+                j.ACCESSIBILITY as OBJECT_ACCESSIBILITY,
+                decode(j.IS_FINAL,'YES','Y','N') as IS_FINAL,
+                decode(j.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
+                decode(j.IS_INNER,'YES','Y','N') as IS_INNER,
+                decode(j.IS_STATIC,'YES','Y','N') as IS_STATIC,
+                decode(ob.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
+                decode(nvl(apo.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG
+            from [PREFIX]_JAVA_CLASSES j
+            left join [PREFIX]_OBJECTS ob
+                   on ob.OWNER = j.OWNER
+                  and ob.OBJECT_NAME = j.NAME
+                  and ob.OBJECT_TYPE = 'JAVA CLASS'
+            left join SYS.ALL_PROBE_OBJECTS apo
+                  on apo.OWNER = j.OWNER
+                 and apo.OBJECT_NAME = j.NAME
+                 and apo.OBJECT_TYPE = 'JAVA CLASS'
+            where j.OWNER = {0}
+              and j.IS_INNER = 'NO'
+              and j.NAME not like '%$%'
+            order by j.NAME
         </statement>
     </statement-execution-processor>
 
@@ -2062,6 +2073,18 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="java-binary-code" timeout="20">
+        <statement>
+            declare
+                V_BLOB BLOB;
+            begin
+                DBMS_LOB.CREATETEMPORARY(v_blob, TRUE);
+                DBMS_JAVA.export_class('{1}', '{0}', v_blob);
+                ? := V_BLOB;
+            end;
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="object-change-timestamp" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select to_date(TIMESTAMP, 'YYYY-MM-DD:HH24:MI:SS')
@@ -2171,6 +2194,13 @@
             alter {2} {0}.{1} compile {3} body
         </statement>
     </statement-execution-processor>
+
+    <statement-execution-processor id="compile-java-object">
+        <statement>
+            alter JAVA SOURCE {0}."{1}" compile
+        </statement>
+    </statement-execution-processor>
+
 
     <statement-execution-processor id="load-distinct-values" is-query="true">
         <statement>

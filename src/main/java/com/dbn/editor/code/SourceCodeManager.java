@@ -9,6 +9,7 @@ import com.dbn.common.editor.BasicTextEditor;
 import com.dbn.common.editor.document.OverrideReadonlyFragmentModificationHandler;
 import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.exception.Exceptions;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.navigation.NavigationInstructions;
@@ -19,10 +20,12 @@ import com.dbn.common.util.ChangeTimestamp;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Strings;
+import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.common.statement.ByteArray;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
@@ -47,6 +50,7 @@ import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
+import com.intellij.ide.highlighter.JavaClassFileType;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.editor.Document;
@@ -55,14 +59,23 @@ import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
+import com.intellij.openapi.fileTypes.BinaryFileDecompiler;
+import com.intellij.openapi.fileTypes.BinaryFileTypeDecompilers;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.util.text.DateFormatUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -74,11 +87,16 @@ import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.component.ApplicationMonitor.checkAppExitRequested;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
-import static com.dbn.common.navigation.NavigationInstruction.*;
+import static com.dbn.common.navigation.NavigationInstruction.FOCUS;
+import static com.dbn.common.navigation.NavigationInstruction.OPEN;
+import static com.dbn.common.navigation.NavigationInstruction.SCROLL;
 import static com.dbn.common.notification.NotificationGroup.SOURCE_CODE;
 import static com.dbn.common.util.Commons.list;
 import static com.dbn.common.util.Conditional.when;
-import static com.dbn.common.util.Messages.*;
+import static com.dbn.common.util.Messages.options;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.common.util.Naming.unquote;
 import static com.dbn.common.util.Strings.toLowerCase;
 import static com.dbn.database.DatabaseFeature.OBJECT_CHANGE_MONITORING;
@@ -306,7 +324,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     private boolean isValidObjectHeader(@NotNull DBSourceCodeVirtualFile sourceCodeFile) {
         DBSchemaObject object = sourceCodeFile.getObject();
         DBContentType contentType = sourceCodeFile.getContentType();
-        DBLanguagePsiFile psiFile = sourceCodeFile.getPsiFile();
+        PsiFile psiFile = sourceCodeFile.getPsiFile();
 
         if (psiFile != null && psiFile.getFirstChild() != null && !isValidObjectTypeAndName(psiFile, object, contentType)) {
             String message = "You are not allowed to change the name or the type of the object";
@@ -318,14 +336,12 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     }
 
     public SourceCodeContent loadSourceFromDatabase(@NotNull DBSchemaObject object, DBContentType contentType) throws SQLException {
-        String sourceCode = DatabaseInterfaceInvoker.load(HIGH,
+        SourceCodeContent sourceCodeContent = DatabaseInterfaceInvoker.load(HIGH,
                 "Loading source code",
                 "Loading source code of " + object.getQualifiedNameWithType(),
                 object.getProject(),
                 object.getConnectionId(),
                 conn -> loadSourceFromDatabase(object, contentType, conn));
-
-        SourceCodeContent sourceCodeContent = new SourceCodeContent(sourceCode);
 
         String objectName = object.getName();
         DBObjectType objectType = object.getObjectType();
@@ -336,9 +352,10 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     }
 
     @NotNull
-    private static String loadSourceFromDatabase(@NotNull DBSchemaObject object, DBContentType contentType, DBNConnection conn) throws SQLException {
+    private static SourceCodeContent loadSourceFromDatabase(@NotNull DBSchemaObject object, DBContentType contentType, DBNConnection conn) throws SQLException {
         boolean optionalContent = contentType == DBContentType.CODE_BODY;
         ResultSet resultSet = null;
+        boolean writable = true;
         try {
             DatabaseMetadataInterface metadata = object.getMetadataInterface();
             resultSet = loadSourceFromDatabase(
@@ -350,16 +367,60 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
             StringBuilder buffer = new StringBuilder();
             while (resultSet != null && resultSet.next()) {
                 String codeLine = resultSet.getString("SOURCE_CODE");
-                if (codeLine != null) buffer.append(codeLine);
+                codeLine = normalizeLine(codeLine);
+                buffer.append(codeLine);
             }
 
-            if (buffer.length() == 0 && !optionalContent)
-                throw new SQLException("Source lookup returned empty");
+            if (buffer.length() == 0 && object.getObjectType() == DBObjectType.JAVA_OBJECT) {
+                CharSequence code = loadJavaDecompiledCode(object, conn, metadata);
+                buffer.append(code);
+                writable = false;
+            }
 
-            return Strings.removeCharacter(buffer.toString(), '\r');
+            if (buffer.length() == 0 && !optionalContent) {
+                throw new SQLException("Source lookup returned empty");
+            }
+            return new SourceCodeContent(buffer.toString(), writable);
         } finally {
             Resources.close(resultSet);
         }
+    }
+
+    private static CharSequence loadJavaDecompiledCode(@NotNull DBSchemaObject object, DBNConnection conn, DatabaseMetadataInterface metadata) throws SQLException {
+        File tempFile = null;
+        try {
+            String schemaName = object.getSchemaName();
+            String objectName = object.getName();
+            ByteArray byteArray = metadata.loadJavaBinaryCode(schemaName, objectName, conn);
+            byte[] bytes = byteArray.getValue();
+
+            tempFile = FileUtil.createTempFile(objectName, ".class");
+            Files.write(tempFile.toPath(), bytes);
+
+            BinaryFileDecompiler decompiler = BinaryFileTypeDecompilers.getInstance().forFileType(JavaClassFileType.INSTANCE);
+            VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(tempFile);
+            if (virtualFile == null) return "";
+
+            return decompiler.decompile(virtualFile);
+
+        } catch (Exception e) {
+            throw Exceptions.toSqlException(e);
+        } finally {
+            if (tempFile != null) {
+                Path tempFilePath = tempFile.toPath();
+                Unsafe.warned(() -> Files.delete(tempFilePath));
+            }
+        }
+    }
+
+    @NotNull
+    private static String normalizeLine(String codeLine) {
+        if (codeLine == null) return "";
+
+        // normalize line breaks
+        // (background: not all entries in ALL_SOURCE have line breaks)
+        codeLine = StringUtils.stripEnd(codeLine, "[ \n\r\t]") + "\n";
+        return codeLine;
     }
 
     @Nullable
@@ -442,6 +503,12 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                         packageContent,
                         connection);
 
+            case JAVA_OBJECT:
+                return metadata.loadObjectSourceCode(
+                    schemaName,
+                    objectName,
+                    "JAVA SOURCE",
+                    connection);
             default:
                 return null;
         }
@@ -484,6 +551,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
     private static String getContentQualifier(DBObjectType objectType, DBContentType contentType) {
         switch (objectType) {
+            case JAVA_OBJECT:      return "JAVA SOURCE";
             case FUNCTION:         return "FUNCTION";
             case PROCEDURE:        return "PROCEDURE";
             case VIEW:             return "VIEW";
@@ -497,11 +565,14 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                 return
                     contentType == DBContentType.CODE_SPEC ? "TYPE" :
                     contentType == DBContentType.CODE_BODY ? "TYPE BODY" : null;
+
         }
         return null;
     }
 
-    private boolean isValidObjectTypeAndName(@NotNull DBLanguagePsiFile psiFile, @NotNull DBSchemaObject object, DBContentType contentType) {
+    private boolean isValidObjectTypeAndName(@NotNull PsiFile psiFile, @NotNull DBSchemaObject object, DBContentType contentType) {
+        if(object.getObjectType()==DBObjectType.JAVA_OBJECT) return true;
+
         ConnectionHandler connection = object.getConnection();
         DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
         if (dataDefinition.includesTypeAndNameInSourceContent(object.getObjectType().getTypeId())) {

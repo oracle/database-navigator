@@ -25,15 +25,19 @@ import java.sql.SQLException;
 public interface DBJavaObjectMetadata extends DBObjectMetadata {
 	String getObjectName() throws SQLException;
 
-	String getObjectKind()throws SQLException;;
+	String getObjectKind()throws SQLException;
 
-	String getObjectAccessibility()throws SQLException;;
+    String getObjectAccessibility()throws SQLException;
 
-	boolean isFinal() throws SQLException;;
+    boolean isFinal() throws SQLException;
 
-	boolean isAbstract()throws SQLException;;
+    boolean isAbstract()throws SQLException;
 
-	boolean isStatic()throws SQLException;;
+    boolean isStatic()throws SQLException;
 
-	boolean isInner()throws SQLException;;
+    boolean isInner()throws SQLException;
+
+    boolean isValid() throws SQLException;
+
+    boolean isDebug() throws SQLException;
 }

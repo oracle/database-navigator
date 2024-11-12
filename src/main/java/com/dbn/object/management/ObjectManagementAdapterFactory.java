@@ -26,4 +26,5 @@ import com.dbn.object.event.ObjectChangeAction;
  */
 public interface ObjectManagementAdapterFactory<T extends DBObject> {
     ObjectManagementAdapter<T> createAdapter(T object, ObjectChangeAction action);
+
 }

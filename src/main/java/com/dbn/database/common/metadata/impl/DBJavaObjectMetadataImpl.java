@@ -60,4 +60,14 @@ public class DBJavaObjectMetadataImpl extends DBObjectMetadataBase implements DB
 	public boolean isInner() throws SQLException {
 		return isYesFlag("IS_INNER");
 	}
+
+	@Override
+	public boolean isValid() throws SQLException {
+		return isYesFlag("IS_VALID");
+	}
+
+	@Override
+	public boolean isDebug() throws SQLException {
+		return isYesFlag("IS_DEBUG");
+	}
 }

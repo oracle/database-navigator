@@ -20,7 +20,6 @@ import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectListVisitor;
 import com.dbn.object.common.list.DBObjectNavigationList;
-import com.dbn.object.common.operation.DBOperationExecutor;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.properties.PresentableProperty;
@@ -29,7 +28,7 @@ import com.dbn.vfs.file.DBObjectVirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.List;
 
 public interface DBObject extends
@@ -114,8 +113,6 @@ public interface DBObject extends
     DBObjectListContainer getChildObjects();
 
     void visitChildObjects(DBObjectListVisitor visitor, boolean visitInternal);
-
-    DBOperationExecutor getOperationExecutor();
 
     @NotNull
     DBObjectVirtualFile getVirtualFile();

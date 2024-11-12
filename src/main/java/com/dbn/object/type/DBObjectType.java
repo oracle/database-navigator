@@ -395,6 +395,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TYPE_PROCEDURE.addParent(TYPE);
         TYPE_TYPE.addParent(TYPE);
         VIEW.addParent(SCHEMA);
+        JAVA_OBJECT.addParent(SCHEMA);
 
         PACKAGE.addIcon(DBContentType.CODE_SPEC, Icons.DBO_PACKAGE_SPEC);
         PACKAGE.addIcon(DBContentType.CODE_BODY, Icons.DBO_PACKAGE_BODY);
@@ -415,6 +416,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TRIGGER.contentType = DBContentType.CODE;
         DATASET_TRIGGER.contentType = DBContentType.CODE;
         DATABASE_TRIGGER.contentType = DBContentType.CODE;
+        JAVA_OBJECT.contentType = DBContentType.CODE;
 
 
         // DDL file types
