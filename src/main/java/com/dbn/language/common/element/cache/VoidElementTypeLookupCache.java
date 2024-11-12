@@ -1,12 +1,12 @@
 package com.dbn.language.common.element.cache;
 
-import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.TokenType;
-import com.dbn.language.common.element.ElementType;
+import com.dbn.language.common.element.impl.ElementTypeBase;
+import com.dbn.language.common.element.impl.LeafElementType;
 
 import java.util.Set;
 
-public class VoidElementTypeLookupCache<T extends ElementType> extends ElementTypeLookupCache<T>{
+public class VoidElementTypeLookupCache<T extends ElementTypeBase> extends ElementTypeLookupCache<T>{
     public VoidElementTypeLookupCache(T elementType) {
         super(elementType);
     }

@@ -4,6 +4,7 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.editor.BasicTextEditor;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.interceptor.InterceptorBundle;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.message.MessageType;
@@ -15,7 +16,11 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Safe;
 import com.dbn.common.util.Strings;
-import com.dbn.connection.*;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.Resources;
+import com.dbn.connection.SchemaId;
+import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.connection.mapping.FileConnectionContextManager;
@@ -26,9 +31,18 @@ import com.dbn.editor.DBContentType;
 import com.dbn.editor.EditorProviderId;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.ExecutionOption;
-import com.dbn.execution.compiler.*;
+import com.dbn.execution.compiler.CompileManagerListener;
+import com.dbn.execution.compiler.CompileType;
+import com.dbn.execution.compiler.CompilerAction;
+import com.dbn.execution.compiler.CompilerActionSource;
+import com.dbn.execution.compiler.CompilerResult;
+import com.dbn.execution.compiler.DatabaseCompilerManager;
 import com.dbn.execution.logging.DatabaseLoggingManager;
-import com.dbn.execution.statement.*;
+import com.dbn.execution.statement.DataDefinitionChangeListener;
+import com.dbn.execution.statement.StatementExecutionContext;
+import com.dbn.execution.statement.StatementExecutionInput;
+import com.dbn.execution.statement.StatementExecutionManager;
+import com.dbn.execution.statement.StatementExecutionQueue;
 import com.dbn.execution.statement.result.StatementExecutionBasicResult;
 import com.dbn.execution.statement.result.StatementExecutionResult;
 import com.dbn.execution.statement.result.StatementExecutionStatus;
@@ -37,7 +51,11 @@ import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.PsiElementRef;
 import com.dbn.language.common.PsiFileRef;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
-import com.dbn.language.common.psi.*;
+import com.dbn.language.common.psi.BasePsiElement;
+import com.dbn.language.common.psi.ChameleonPsiElement;
+import com.dbn.language.common.psi.ExecutablePsiElement;
+import com.dbn.language.common.psi.IdentifierPsiElement;
+import com.dbn.language.common.psi.QualifiedIdentifierPsiElement;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
@@ -54,16 +72,22 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
-import static com.dbn.common.navigation.NavigationInstruction.*;
+import static com.dbn.common.navigation.NavigationInstruction.FOCUS;
+import static com.dbn.common.navigation.NavigationInstruction.SCROLL;
+import static com.dbn.common.navigation.NavigationInstruction.SELECT;
 import static com.dbn.common.util.Strings.toUpperCase;
+import static com.dbn.connection.interceptor.DatabaseInterceptorType.STATEMENT_EXECUTION;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
-import static com.dbn.execution.ExecutionStatus.*;
+import static com.dbn.execution.ExecutionStatus.CANCELLED;
+import static com.dbn.execution.ExecutionStatus.CANCEL_REQUESTED;
+import static com.dbn.execution.ExecutionStatus.EXECUTING;
+import static com.dbn.execution.ExecutionStatus.PROMPTED;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 
 @Getter
@@ -247,13 +271,6 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         return executionResult;
     }
 
-    public void setExecutionResult(StatementExecutionResult executionResult) {
-        if (executionResult == this.executionResult) return;
-        this.executionResult = executionResult;
-        // do not dispose existing result as it may still be hosted as orphan in the execution console
-        //this.executionResult = Disposer.replace(this.executionResult, executionResult);
-    }
-
     @Override
     public void initExecutionInput(boolean bulkExecution) {
         // overwrite the input if it was leniently bound
@@ -266,7 +283,6 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
             executionInput.setTargetSession(getTargetSession());
             executionInput.setBulkExecution(bulkExecution);
         }
-
     }
 
     @Override
@@ -294,8 +310,9 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
                     initTimeout(context, debug);
                     initLogging(context, debug);
 
-                    StatementExecutionResult result = executeStatement(statementText);
-                    setExecutionResult(result);
+                    beforeExecution(context);
+                    executionResult = executeStatement(statementText);
+                    afterExecution(context);
 
                     // post execution activities
                     if (executionResult != null) {
@@ -313,8 +330,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
                     if (context.isNot(CANCEL_REQUESTED)) {
                         executionException = e;
                         DatabaseMessage databaseMessage = getMessageParserInterface().parseExceptionMessage(e);
-                        StatementExecutionResult result = createErrorExecutionResult(databaseMessage);
-                        setExecutionResult(result);
+                        executionResult = createErrorExecutionResult(databaseMessage);
                         executionResult.calculateExecDuration();
                         consumeLoggerOutput(context);
                     }
@@ -341,6 +357,19 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         } finally {
             postExecute();
         }
+    }
+
+    private void beforeExecution(StatementExecutionContext context) {
+        getInterceptors(context).before(STATEMENT_EXECUTION, context);
+    }
+
+    private void afterExecution(StatementExecutionContext context) {
+        getInterceptors(context).after(STATEMENT_EXECUTION, context);
+    }
+
+    private InterceptorBundle getInterceptors(StatementExecutionContext context) {
+        ConnectionHandler connection = context.getInput().getConnection();
+        return connection == null ? InterceptorBundle.VOID : connection.getInterceptorBundle();
     }
 
     private void assertNotCancelled() {
@@ -375,8 +404,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         executionInput.setExecutableStatementText(statementText);
 
         if (executionVariables.hasErrors()) {
-            StatementExecutionResult result = createErrorExecutionResult(new DatabaseMessage("Could not bind all variables.", null));
-            setExecutionResult(result);
+            executionResult = createErrorExecutionResult(new DatabaseMessage("Could not bind all variables.", null));
             return null; // cancel execution
         }
         return statementText;
@@ -396,6 +424,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
             conn = connection.getMainConnection(schema);
         }
         context.setConnection(conn);
+
     }
 
     private void initLogging(StatementExecutionContext context, boolean debug) {
@@ -463,7 +492,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         StatementExecutionQueue queue = Failsafe.nn(executionManager.getExecutionQueue(connectionId, sessionId));
         queue.cancelExecution(this);
 
-        setExecutionResult(null);
+        executionResult = null;
 
         Progress.background(
                 getProject(),
@@ -807,7 +836,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
                 PsiElement parent = subjectPsiElement.getParent();
                 if (parent instanceof QualifiedIdentifierPsiElement) {
                     QualifiedIdentifierPsiElement qualifiedIdentifierPsiElement = (QualifiedIdentifierPsiElement) parent;
-                    DBObject parentObject = qualifiedIdentifierPsiElement.lookupParentObjectFor(subjectPsiElement.getElementType());
+                    DBObject parentObject = qualifiedIdentifierPsiElement.lookupParentObjectFor(subjectPsiElement.elementType);
                     if (parentObject instanceof DBSchema) {
                         return (DBSchema) parentObject;
                     }

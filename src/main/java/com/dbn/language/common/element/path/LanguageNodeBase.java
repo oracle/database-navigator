@@ -1,25 +1,25 @@
 package com.dbn.language.common.element.path;
 
 import com.dbn.common.path.NodeBase;
-import com.dbn.language.common.element.ElementType;
+import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import lombok.Getter;
 
 @Getter
-public class LanguageNodeBase extends NodeBase<ElementType> implements LanguageNode {
-    public LanguageNodeBase(ElementType elementType, LanguageNodeBase parent) {
+public class LanguageNodeBase extends NodeBase<ElementTypeBase> implements LanguageNode {
+    public LanguageNodeBase(ElementTypeBase elementType, LanguageNodeBase parent) {
         super(elementType, parent);
     }
 
     @Override
     public LanguageNodeBase getParent() {
-        return (LanguageNodeBase) super.getParent();
+        return (LanguageNodeBase) super.parent;
     }
 
     public LanguageNode getParent(ElementTypeAttribute attribute) {
-        LanguageNode pathNode = this;
+        LanguageNodeBase pathNode = this;
         while (pathNode != null) {
-            if (pathNode.getElement().is(attribute)) {
+            if (pathNode.element.is(attribute)) {
                 return pathNode;
             }
             pathNode = pathNode.getParent();
@@ -29,15 +29,15 @@ public class LanguageNodeBase extends NodeBase<ElementType> implements LanguageN
     }
 
     public int getIndexInParent() {
-        return this.getElement().getIndexInParent(this);
+        return this.element.getIndexInParent(this);
     }
 
     public String toString() {
         StringBuilder buffer = new StringBuilder();
-        LanguageNode parent = this;
+        LanguageNodeBase parent = this;
         while (parent != null) {
             buffer.insert(0, '/');
-            buffer.insert(0, parent.getElement().getId());
+            buffer.insert(0, parent.element.getId());
             parent = parent.getParent();
         }
         return buffer.toString();

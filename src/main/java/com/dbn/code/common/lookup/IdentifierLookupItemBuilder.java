@@ -15,8 +15,8 @@ public class IdentifierLookupItemBuilder extends LookupItemBuilder {
 
     @Override
     public String getTextHint() {
-        IdentifierType identifierType = identifierPsiElement.getElementType().getIdentifierType();
-        DBObjectType objectType = identifierPsiElement.getElementType().getObjectType();
+        IdentifierType identifierType = identifierPsiElement.elementType.identifierType;
+        DBObjectType objectType = identifierPsiElement.elementType.getObjectType();
         String objectTypeName = objectType == DBObjectType.ANY ? "object" : objectType.getName();
         String identifierTypeName =
                 identifierType == IdentifierType.ALIAS  ? " alias" :

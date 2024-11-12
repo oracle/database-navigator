@@ -34,7 +34,7 @@ public class ObjectLookupAdapter extends IdentifierLookupAdapter {
     public boolean matches(BasePsiElement basePsiElement) {
         if (super.matches(basePsiElement)) return true;
 
-        DBObjectType virtualObjectType = basePsiElement.getElementType().getVirtualObjectType();
+        DBObjectType virtualObjectType = basePsiElement.elementType.virtualObjectType;
         return virtualObjectType != null && virtualObjectType.matches(getObjectType());
     }
 }

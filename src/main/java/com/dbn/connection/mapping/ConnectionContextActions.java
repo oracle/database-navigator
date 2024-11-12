@@ -2,6 +2,7 @@ package com.dbn.connection.mapping;
 
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ProjectAction;
+import com.dbn.common.action.Selectable;
 import com.dbn.common.file.VirtualFileRef;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.project.ProjectRef;
@@ -26,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 public class ConnectionContextActions {
-    static class ConnectionSelectAction extends AbstractConnectionAction {
+    static class ConnectionSelectAction extends AbstractConnectionAction implements Selectable {
         private final VirtualFileRef file;
         private final Runnable callback;
         private final boolean promptSchemaSelection;
@@ -98,7 +99,7 @@ public class ConnectionContextActions {
         }
     }
 
-    static class SchemaSelectAction extends AnObjectAction<DBSchema> {
+    static class SchemaSelectAction extends AnObjectAction<DBSchema> implements Selectable{
         private final WeakRef<VirtualFile> file;
         private final Runnable callback;
 
@@ -140,7 +141,7 @@ public class ConnectionContextActions {
         }
     }
 
-    static class SessionSelectAction extends BasicAction {
+    static class SessionSelectAction extends BasicAction implements Selectable {
         private final VirtualFileRef file;
         private final DatabaseSession session;
         private final Runnable callback;

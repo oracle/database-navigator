@@ -11,9 +11,11 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.common.metadata.def.DBSchemaMetadata;
+import com.dbn.object.DBAIProfile;
 import com.dbn.object.DBCluster;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBConstraint;
+import com.dbn.object.DBCredential;
 import com.dbn.object.DBDatabaseLink;
 import com.dbn.object.DBDatabaseTrigger;
 import com.dbn.object.DBDataset;
@@ -72,10 +74,13 @@ import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_SCHEMA;
 import static com.dbn.object.common.property.DBObjectProperty.USER_SCHEMA;
 import static com.dbn.object.type.DBObjectRelationType.CONSTRAINT_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.INDEX_COLUMN;
+import static com.dbn.object.type.DBObjectType.AI_PROFILE;
+import static com.dbn.object.type.DBObjectType.ANY;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
 import static com.dbn.object.type.DBObjectType.CLUSTER;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.CONSTRAINT;
+import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 import static com.dbn.object.type.DBObjectType.DATABASE_TRIGGER;
 import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
 import static com.dbn.object.type.DBObjectType.DBLINK;
@@ -136,6 +141,8 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(DIMENSION,         this);
         childObjects.createObjectList(CLUSTER,           this);
         childObjects.createObjectList(DBLINK,            this);
+        childObjects.createObjectList(CREDENTIAL,        this);
+        childObjects.createObjectList(AI_PROFILE,        this);
 
         DBObjectList<DBConstraint> constraints = childObjects.createObjectList(CONSTRAINT, this, INTERNAL, GROUPED);
         DBObjectList<DBIndex> indexes          = childObjects.createObjectList(INDEX,      this, INTERNAL, GROUPED);
@@ -210,7 +217,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
 
     @Override
     public <T extends DBObject> T  getChildObject(DBObjectType type, String name, short overload, boolean lookupHidden) {
-        if (!type.isSchemaObject()) return null;
+        if (type != ANY && !type.isSchemaObject()) return null;
 
         DBObject object = super.getChildObject(type, name, overload, lookupHidden);
         if (object == null && type != SYNONYM) {
@@ -316,6 +323,16 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
+    public List<DBCredential> getCredentials() {
+        return getChildObjects(CREDENTIAL);
+    }
+
+    @Override
+    public List<DBAIProfile> getAIProfiles() {
+        return getChildObjects(AI_PROFILE);
+    }
+
+    @Override
     public List<DBDatabaseLink> getDatabaseLinks() {
         return getChildObjects(DBLINK);
     }
@@ -344,6 +361,16 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     @Override
     public DBCluster getCluster(String name) {
         return getChildObject(CLUSTER, name);
+    }
+
+    @Override
+    public DBCredential getCredential(String name) {
+        return getChildObject(CREDENTIAL, name);
+    }
+
+    @Override
+    public DBCredential getAIProfile(String name) {
+        return getChildObject(AI_PROFILE, name);
     }
 
     @Override
@@ -526,7 +553,9 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
                 getChildObjectList(JAVA_OBJECT),
                 getChildObjectList(DIMENSION),
                 getChildObjectList(CLUSTER),
-                getChildObjectList(DBLINK));
+                getChildObjectList(DBLINK),
+                getChildObjectList(CREDENTIAL),
+                getChildObjectList(AI_PROFILE));
     }
 
     @Override
@@ -546,6 +575,9 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
             settings.isVisible(DATABASE_TRIGGER) ||
             settings.isVisible(DIMENSION) ||
             settings.isVisible(CLUSTER) ||
-            settings.isVisible(DBLINK);
+            settings.isVisible(DBLINK) ||
+            settings.isVisible(CREDENTIAL) ||
+            settings.isVisible(AI_PROFILE)
+                ;
     }
 }

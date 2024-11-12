@@ -11,8 +11,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class MessagesTreeExpandAction extends AbstractExecutionMessagesAction {
 
-    public MessagesTreeExpandAction(MessagesTree messagesTree) {
-        super(messagesTree);
+    public MessagesTreeExpandAction() {
+        super("Expand All", null, Icons.ACTION_EXPAND_ALL);
     }
 
     @Override

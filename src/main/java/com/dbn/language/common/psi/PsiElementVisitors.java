@@ -17,7 +17,12 @@ public class PsiElementVisitors {
     }
 
     public boolean isSupported(@NotNull PsiElementVisitor visitor) {
-        return supported.computeIfAbsent(visitor.getClass(), c -> supportedNames.stream().anyMatch(n -> c.getName().contains(n)));
+        Boolean supported = this.supported.computeIfAbsent(visitor.getClass(), c -> evaluateSupported(c));
+        return supported == Boolean.TRUE;
+    }
+
+    private Boolean evaluateSupported(Class c) {
+        return supportedNames.stream().anyMatch(n -> c.getName().contains(n)) ? Boolean.TRUE : Boolean.FALSE;
     }
 
     public static PsiElementVisitors create(String ... supportedNames) {

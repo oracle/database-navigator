@@ -12,26 +12,26 @@ import com.intellij.openapi.project.Project;
 import static com.dbn.common.util.Conditional.when;
 
 public class DatasetEditorReadonlyNotificationPanel extends DatasetEditorNotificationPanel{
-    public DatasetEditorReadonlyNotificationPanel(final DBSchemaObject schemaObject) {
-        super(isReadonly(schemaObject) ? MessageType.NEUTRAL : MessageType.WARNING);
-        String environmentName = schemaObject.getEnvironmentType().getName();
-        final Project project = schemaObject.getProject();
+    public DatasetEditorReadonlyNotificationPanel(DBSchemaObject object) {
+        super(object, isReadonly(object) ? MessageType.NEUTRAL : MessageType.WARNING);
+        String environmentName = object.getEnvironmentType().getName();
+        final Project project = object.getProject();
 
-        if (isReadonly(schemaObject)) {
+        if (isReadonly(object)) {
             setText("READONLY DATA - This is meant to prevent accidental data changes in \"" + environmentName + "\" environments (check environment settings)");
             createActionLabel("Edit Mode", () -> Messages.showQuestionDialog(project,
                     "Enable edit-mode",
-                    "Are you sure you want to enable editing for " + schemaObject.getQualifiedNameWithType(),
+                    "Are you sure you want to enable editing for " + object.getQualifiedNameWithType(),
                     new String[]{"Yes", "Cancel"}, 0,
                     option -> when(option == 0, () -> {
                         EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
-                        environmentManager.enableEditing(schemaObject, DBContentType.DATA);
+                        environmentManager.enableEditing(object, DBContentType.DATA);
                     })));
         } else {
             setText("EDITABLE DATA! - Edit-mode enabled (the environment \"" + environmentName + "\" is configured as \"Readonly Data\")");
             createActionLabel("Cancel Editing", () -> {
                 EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
-                environmentManager.disableEditing(schemaObject, DBContentType.DATA);
+                environmentManager.disableEditing(object, DBContentType.DATA);
             });
         }
 

@@ -1,5 +1,6 @@
 package com.dbn.project;
 
+import com.dbn.assistant.AssistantInitializationManager;
 import com.dbn.common.component.EagerService;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
@@ -78,6 +79,7 @@ public class ProjectComponentsInitializer extends ProjectComponentBase implement
         DatabaseLoaderManager.getInstance(project);
         DatabaseSessionManager.getInstance(project);
         DatabaseFileEditorManager.getInstance(project);
+        AssistantInitializationManager.getInstance(project);
         initialized = true;
     }
 }

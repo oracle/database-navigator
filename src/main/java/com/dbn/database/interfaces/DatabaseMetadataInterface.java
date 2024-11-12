@@ -1,6 +1,7 @@
 package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.common.statement.ByteArray;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
@@ -348,13 +349,35 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      */
     ResultSet loadSynonyms(String ownerName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the credentials of the given owner
+     * Column names of the returned ResultSet
+     *  <li> CREDENTIAL_NAME (char)
+     *  <li> USER_NAME (char)
+     *  <li> COMMENTS (char)
+     *  <li> IS_ENABLED (Y/N)
+     */
+    ResultSet loadCredentials(String ownerName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the credentials of the given owner
+     * Column names of the returned ResultSet
+     *  <li> PROFILE_NAME (char)
+     *  <li> DESCRIPTION (char)
+     *  <li> PROVIDER (char)
+     *  <li> MODEL (char)
+     *  <li> TEMPERATURE (number)
+     *  <li> CREDENTIAL_NAME (char)
+     *  <li> OBJECT_LIST (char)
+     *  <li> IS_ENABLED (Y/N)
+     */
+    ResultSet loadAiProfiles(String ownerName, DBNConnection connection) throws SQLException;
 
     /**
      * Loads the functions of the given owner<br>
      * Column names of the returned ResultSet
      *  <li> FUNCTION_NAME (char)
-     *  <li> VALID (Y/N)
+     *  <li> IS_VALID (Y/N)
      */
     ResultSet loadFunctions(String ownerName, DBNConnection connection) throws SQLException;
 
@@ -362,7 +385,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      * Loads the procedures of the given owner<br>
      * Column names of the returned ResultSet
      *  <li> PROCEDURE_NAME (char)
-     *  <li> VALID (Y/N)
+     *  <li> IS_VALID (Y/N)
      */
     ResultSet loadProcedures(String ownerName, DBNConnection connection) throws SQLException;
 
@@ -613,7 +636,10 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      * View source-code may be split on more than one line.
      */
     ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException;
+
     ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, short overload, DBNConnection connection) throws SQLException;
+
+    ByteArray loadJavaBinaryCode(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
     /**
      * Loads a actions of invalid object names for the given owner.
@@ -643,6 +669,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
     void compileObject(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException;
 
     void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException;
+
+    void compileJavaObject(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
     ResultSet loadObjectChangeTimestamp(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException;
 

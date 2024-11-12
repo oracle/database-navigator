@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class AnObjectAction<T extends DBObject> extends ContextAction<T> {
+public abstract class AnObjectAction<T extends DBObject> extends ContextAction<T>  {
     private final DBObjectRef<T> object;
 
     public AnObjectAction(@NotNull T object) {

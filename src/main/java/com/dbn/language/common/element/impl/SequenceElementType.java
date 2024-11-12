@@ -1,7 +1,5 @@
 package com.dbn.language.common.element.impl;
 
-import com.dbn.language.common.element.parser.BranchCheck;
-import com.dbn.language.common.psi.SequencePsiElement;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.language.common.TokenType;
@@ -10,8 +8,10 @@ import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.ElementLookupContext;
 import com.dbn.language.common.element.cache.ElementTypeLookupCache;
 import com.dbn.language.common.element.cache.SequenceElementTypeLookupCache;
+import com.dbn.language.common.element.parser.BranchCheck;
 import com.dbn.language.common.element.parser.impl.SequenceElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
+import com.dbn.language.common.psi.SequencePsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import org.jdom.Element;
@@ -25,13 +25,9 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Unsafe.cast;
 
 public class SequenceElementType extends ElementTypeBase {
-    protected ElementTypeRef[] children;
+    public ElementTypeRef[] children;
     private int exitIndex;
     private boolean basic;
-
-    public ElementTypeRef[] getChildren() {
-        return children;
-    }
 
     public ElementTypeRef getFirstChild() {
         // TODO check parser definitions (empty sequence blocks)
@@ -42,11 +38,11 @@ public class SequenceElementType extends ElementTypeBase {
         return children[index];
     }
 
-    public SequenceElementType(ElementTypeBundle bundle, ElementType parent, String id) {
+    public SequenceElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id) {
         super(bundle, parent, id, (String) null);
     }
 
-    public SequenceElementType(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
+    public SequenceElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
     }
 
@@ -74,7 +70,7 @@ public class SequenceElementType extends ElementTypeBase {
                 String tokenTypeId = tokens[i].trim();
                 ElementTypeRef previous = i == 0 ? null : children[i-1];
 
-                TokenElementType tokenElementType = new TokenElementType(getBundle(), this, tokenTypeId, id);
+                TokenElementType tokenElementType = new TokenElementType(bundle, this, tokenTypeId, id);
                 children[i] = new ElementTypeRef(previous, this, tokenElementType, false, 0, null);
             }
         } else {
@@ -85,7 +81,7 @@ public class SequenceElementType extends ElementTypeBase {
             for (int i = 0; i < children.size(); i++) {
                 Element child = children.get(i);
                 String type = child.getName();
-                ElementType elementType = getElementBundle().resolveElementDefinition(child, type, this);
+                ElementTypeBase elementType = bundle.resolveElementDefinition(child, type, this);
                 boolean optional = getBooleanAttribute(child, "optional");
                 double version = Double.parseDouble(Commons.nvl(stringAttribute(child, "version"), "0"));
 
@@ -133,7 +129,7 @@ public class SequenceElementType extends ElementTypeBase {
         if (index < children.length) {
             ElementTypeRef child = children[index];
             while (child != null) {
-                if (child.getLookupCache().couldStartWithToken(tokenType)) return true;
+                if (child.elementType.cache.couldStartWithToken(tokenType)) return true;
                 child = child.getNext();
             }
         }
@@ -141,16 +137,16 @@ public class SequenceElementType extends ElementTypeBase {
     }
 
     public Set<TokenType> getFirstPossibleTokensFromIndex(ElementLookupContext context, int index) {
-        if (children[index].isOptional()) {
+        if (children[index].optional) {
             Set<TokenType> tokenTypes = new HashSet<>();
             for (int i=index; i< children.length; i++) {
-                ElementTypeLookupCache lookupCache = children[i].getLookupCache();
+                ElementTypeLookupCache lookupCache = children[i].elementType.cache;
                 lookupCache.captureFirstPossibleTokens(context.reset(), tokenTypes);
-                if (!children[i].isOptional()) break;
+                if (!children[i].optional) break;
             }
             return tokenTypes;
         } else {
-            ElementTypeLookupCache lookupCache = children[index].getLookupCache();
+            ElementTypeLookupCache lookupCache = children[index].elementType.cache;
             return lookupCache.captureFirstPossibleTokens(context.reset());
         }
     }
@@ -158,10 +154,10 @@ public class SequenceElementType extends ElementTypeBase {
     public boolean isPossibleTokenFromIndex(TokenType tokenType, int index) {
         if (index < children.length) {
             for (int i= index; i< children.length; i++) {
-                if (children[i].getLookupCache().couldStartWithToken(tokenType)){
+                if (children[i].elementType.cache.couldStartWithToken(tokenType)){
                     return true;
                 }
-                if (!children[i].isOptional()) {
+                if (!children[i].optional) {
                     return false;
                 }
             }
@@ -170,16 +166,15 @@ public class SequenceElementType extends ElementTypeBase {
     }
 
     public int indexOf(LeafElementType leafElementType) {
-        WrappingDefinition wrapping = getWrapping();
         if (wrapping != null && leafElementType instanceof TokenElementType) {
             TokenElementType tokenElementType = (TokenElementType) leafElementType;
-            if (wrapping.getEndElementType().getTokenType() == tokenElementType.getTokenType()) {
+            if (wrapping.endElementType.tokenType == tokenElementType.tokenType) {
                 return children.length-1;
             }
         }
         ElementTypeRef child = children[0];
         while (child != null) {
-            if (child.getElementType() == leafElementType || child.getLookupCache().containsLeaf(leafElementType)) {
+            if (child.elementType == leafElementType || child.elementType.cache.containsLeaf(leafElementType)) {
                 return child.getIndex();
             }
             child = child.getNext();
@@ -189,10 +184,9 @@ public class SequenceElementType extends ElementTypeBase {
     }
 
     public int indexOf(ElementType elementType, int fromIndex) {
-        WrappingDefinition wrapping = getWrapping();
         if (wrapping != null && elementType instanceof TokenElementType) {
             TokenElementType tokenElementType = (TokenElementType) elementType;
-            if (wrapping.getEndElementType().getTokenType() == tokenElementType.getTokenType()) {
+            if (wrapping.endElementType.tokenType == tokenElementType.tokenType) {
                 return children.length-1;
             }
         }
@@ -200,7 +194,7 @@ public class SequenceElementType extends ElementTypeBase {
         if (fromIndex < children.length) {
             ElementTypeRef child = children[fromIndex];
             while (child != null) {
-                if (child.getElementType() == elementType) {
+                if (child.elementType == elementType) {
                     return child.getIndex();
                 }
                 child = child.getNext();
@@ -218,7 +212,7 @@ public class SequenceElementType extends ElementTypeBase {
         super.collectLeafElements(bucket);
         if (basic) {
             for (ElementTypeRef child : children) {
-                bucket.add(cast(child.getElementType()));
+                bucket.add(cast(child.elementType));
             }
         }
     }

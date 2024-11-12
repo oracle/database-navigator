@@ -14,6 +14,9 @@ public interface DatabaseInterfacesProvider {
         return getInterfaces().getDebuggerInterface();
     }
 
+    default DatabaseAssistantInterface getAssistantInterface() {
+        return getInterfaces().getAssistantInterface();
+    }
     default DatabaseMessageParserInterface getMessageParserInterface() {
         return getInterfaces().getMessageParserInterface();
     }

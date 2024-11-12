@@ -2,11 +2,14 @@ package com.dbn.language.common.element.impl;
 
 import com.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dbn.code.common.style.formatting.SpacingDefinition;
-import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.IdentifierElementTypeLookupCache;
 import com.dbn.language.common.element.parser.impl.IdentifierElementTypeParser;
-import com.dbn.language.common.element.util.*;
+import com.dbn.language.common.element.util.ElementTypeAttribute;
+import com.dbn.language.common.element.util.ElementTypeDefinition;
+import com.dbn.language.common.element.util.ElementTypeDefinitionException;
+import com.dbn.language.common.element.util.IdentifierCategory;
+import com.dbn.language.common.element.util.IdentifierType;
 import com.dbn.language.common.psi.IdentifierDefPsiElement;
 import com.dbn.language.common.psi.IdentifierRefPsiElement;
 import com.dbn.language.common.resolve.UnderlyingObjectResolver;
@@ -23,7 +26,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 public final class IdentifierElementType extends LeafElementType {
     public static final FormattingDefinition FORMATTING = new FormattingDefinition(null, null, SpacingDefinition.ONE_SPACE, null);
 
-    private IdentifierType identifierType;
+    public IdentifierType identifierType;
     private IdentifierCategory identifierCategory;
     private DBObjectType objectType;
     private String underlyingObjectResolverId;
@@ -31,9 +34,9 @@ public final class IdentifierElementType extends LeafElementType {
     private boolean localReference; // is local reference
 
 
-    public IdentifierElementType(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
+    public IdentifierElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
-        setTokenType(bundle.getTokenTypeBundle().getIdentifier());
+        tokenType = bundle.getTokenTypeBundle().getIdentifier();
     }
 
     @Override

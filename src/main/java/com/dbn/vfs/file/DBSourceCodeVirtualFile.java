@@ -44,7 +44,11 @@ import java.sql.Timestamp;
 import static com.dbn.common.util.GuardedBlocks.createGuardedBlocks;
 import static com.dbn.common.util.GuardedBlocks.removeGuardedBlocks;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
-import static com.dbn.vfs.file.status.DBFileStatus.*;
+import static com.dbn.vfs.file.status.DBFileStatus.LATEST;
+import static com.dbn.vfs.file.status.DBFileStatus.MERGED;
+import static com.dbn.vfs.file.status.DBFileStatus.MODIFIED;
+import static com.dbn.vfs.file.status.DBFileStatus.OUTDATED;
+import static com.dbn.vfs.file.status.DBFileStatus.REFRESHING;
 
 @Slf4j
 @Getter
@@ -99,7 +103,7 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
     }
 
     @Nullable
-    public DBLanguagePsiFile getPsiFile() {
+    public PsiFile getPsiFile() {
         Project project = getProject();
         return PsiUtil.getPsiFile(project, this);
     }
@@ -188,6 +192,11 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
         return localContent.getText();
     }
 
+    @Override
+    public boolean isWritable() {
+        return originalContent.isWritable();
+    }
+
     public void loadSourceFromDatabase() throws SQLException {
         DBSchemaObject object = getObject();
         Project project = object.getProject();
@@ -197,13 +206,15 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
 
         updateFileContent(newContent, null);
         originalContent.setText(newContent.getText());
+        originalContent.setWritable(newContent.isWritable());
         object.getStatus().set(contentType, DBObjectStatus.PRESENT, newContent.length() > 0);
 
         databaseContent = null;
         sourceLoadError = null;
         set(LATEST, true);
         setModified(false);
-    }
+	}
+
 
     public void saveSourceToDatabase() throws SQLException {
         DBSchemaObject object = getObject();

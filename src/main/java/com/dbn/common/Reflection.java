@@ -104,4 +104,12 @@ public class Reflection {
         return checkHasAnnotation(clazz.getSuperclass(), annotation);
     }
 
+    /**
+     * Creates a new instance of the given class under the assumption it has an accessible no-args constructor
+     */
+    @SneakyThrows
+    public static <T> T newInstance(Class<T> clazz) {
+        return clazz.getConstructor().newInstance();
+    }
+
 }

@@ -2,13 +2,13 @@ package com.dbn.language.common.element;
 
 import com.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dbn.common.thread.Read;
-import com.dbn.language.common.*;
-import com.dbn.language.common.element.cache.ElementTypeLookupCache;
+import com.dbn.language.common.DBLanguage;
+import com.dbn.language.common.DBLanguageDialect;
+import com.dbn.language.common.TokenType;
+import com.dbn.language.common.TokenTypeBundleBase;
+import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.impl.LeafElementType;
-import com.dbn.language.common.element.impl.WrappingDefinition;
-import com.dbn.language.common.element.parser.Branch;
-import com.dbn.language.common.element.parser.ElementTypeParser;
-import com.dbn.language.common.element.path.LanguageNode;
+import com.dbn.language.common.element.path.LanguageNodeBase;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.ChameleonPsiElement;
 import com.dbn.object.type.DBObjectType;
@@ -22,7 +22,7 @@ import com.intellij.psi.tree.ILazyParseableElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public class ChameleonElementType extends ILazyParseableElementType implements ElementType, TokenType {
     private final DBLanguageDialect parentLanguage;
@@ -32,7 +32,7 @@ public class ChameleonElementType extends ILazyParseableElementType implements E
     }
 
     @Override
-    public short index() {
+    public int index() {
         return -1;
     }
 
@@ -90,21 +90,6 @@ public class ChameleonElementType extends ILazyParseableElementType implements E
     }
 
     @Override
-    public ElementType getParent() {
-        return null;
-    }
-
-    @Override
-    public ElementTypeLookupCache getLookupCache() {
-        return null;
-    }
-
-    @Override
-    public ElementTypeParser getParser() {
-        return null;
-    }
-
-    @Override
     public FormattingDefinition getFormatting() {
         return null;
     }
@@ -116,11 +101,6 @@ public class ChameleonElementType extends ILazyParseableElementType implements E
 
     @Override
     public void setDefaultFormatting(FormattingDefinition defaults) {
-    }
-
-    @Override
-    public WrappingDefinition getWrapping() {
-        return null;
     }
 
     @Override
@@ -140,28 +120,12 @@ public class ChameleonElementType extends ILazyParseableElementType implements E
     public boolean isWrappingEnd(TokenType tokenType) {return false;}
 
     @Override
-    @Nullable
-    public Branch getBranch() {
-        return null;
-    }
-
-    @Override
-    public boolean isScopeDemarcation() {
-        return true;
-    }
-
-    @Override
-    public boolean isScopeIsolation() {
-        return true;
-    }
-
-    @Override
     public TokenType getTokenType() {
         return null;
     }
 
     @Override
-    public int getIndexInParent(LanguageNode node) {
+    public int getIndexInParent(LanguageNodeBase node) {
         return 0;
     }
 
@@ -186,18 +150,8 @@ public class ChameleonElementType extends ILazyParseableElementType implements E
     }
 
     @Override
-    public DBObjectType getVirtualObjectType() {
-        return null;
-    }
-
-    @Override
     public PsiElement createPsiElement(ASTNode astNode) {
         return new ChameleonPsiElement(astNode, this);
-    }
-
-    @Override
-    public ElementTypeBundle getElementBundle() {
-        return getLanguageDialect().getParserDefinition().getParser().getElementTypes();
     }
 
     public DBLanguageDialect getParentLanguage() {

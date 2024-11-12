@@ -70,7 +70,9 @@ public enum DBContentType {
             case PROCEDURE:
             case TRIGGER:
             case DATASET_TRIGGER:
-            case DATABASE_TRIGGER: return CODE;
+            case DATABASE_TRIGGER:
+            case JAVA_OBJECT:
+            case JAVA_CLASS: return CODE;
             case PACKAGE:
             case TYPE: return CODE_SPEC_AND_BODY;
             case VIEW:

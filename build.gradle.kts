@@ -1,3 +1,6 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+
 // import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -20,7 +23,6 @@ dependencies {
 
   implementation("org.projectlombok:lombok:1.18.34")
   implementation("com.github.mwiede:jsch:0.2.20")
-  implementation("net.sf.trove4j:trove4j:3.0.3")
 
   // poi libraries (xls export)
   implementation("org.apache.poi:poi:5.3.0")
@@ -62,7 +64,7 @@ sourceSets{
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-  version.set("LATEST-EAP-SNAPSHOT")
+  version.set("242.23339.11")
   type.set("IC") // Target IDE Platform
 
   plugins.set(listOf("java", "copyright"))
@@ -115,6 +117,14 @@ withType<KotlinCompile> {
   }
   runIde {
         systemProperties["idea.auto.reload.plugins"] = true
+        systemProperties["fake.services"] = Files.exists(Paths.get("/tmp/fake_services"))
+        // systemProperties["fake.services.credentials.dump"] = "/var/tmp/credentials.json"
+        // systemProperties["fake.services.profiles.dump"] = "/var/tmp/profiles.json"
+        // systemProperties["fake.services.schemas.dump"] = "/var/tmp/schemas.json"
+        //systemProperties["fake.services.dbitems.dump"] = "/var/tmp/dbitems.json"
+        systemProperties["idea.log.debug.categories"] = "com.dbn.assistant, com.dbn.database.oracle"
+        systemProperties["idea.log.trace.categories"] = "com.dbn.assistant, com.dbn.database.oracle"
+
         jvmArgs = listOf(
             "-Xms512m",
             "-Xmx2048m",

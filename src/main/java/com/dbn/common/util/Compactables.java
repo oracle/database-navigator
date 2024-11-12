@@ -1,11 +1,15 @@
 package com.dbn.common.util;
 
 import com.dbn.common.list.FilteredList;
-import gnu.trove.impl.hash.THash;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @UtilityClass
 public class Compactables {
@@ -40,10 +44,6 @@ public class Compactables {
                     return Unsafe.cast(Collections.emptySet());
                 } else if (single) {
                     return Unsafe.cast(Collections.singleton(elements.stream().findFirst().orElse(null)));
-                } else if (elements instanceof THash){
-                    THash hash = (THash) elements;
-                    hash.compact();
-                    return Unsafe.cast(hash);
                 }
             }
         }
@@ -62,9 +62,6 @@ public class Compactables {
                 K key = elements.keySet().stream().findFirst().orElse(null);
                 V value = elements.get(key);
                 return Unsafe.cast(Collections.singletonMap(key, value));
-            } else if (elements instanceof THash) {
-                THash hash = (THash) elements;
-                hash.compact();
             }
         }
         return elements;

@@ -7,6 +7,7 @@ import com.dbn.execution.method.MethodExecutionManager;
 import com.dbn.object.DBMethod;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
@@ -14,6 +15,11 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 
 public class RunMethodIntentionAction extends AbstractMethodExecutionIntentionAction{
+
+    @Override
+    public EditorIntentionType getType() {
+        return EditorIntentionType.EXECUTE_METHOD;
+    }
 
     @Override
     protected String getActionName() {
@@ -26,7 +32,8 @@ public class RunMethodIntentionAction extends AbstractMethodExecutionIntentionAc
     }
 
     @Override
-    public boolean isAvailable(@NotNull Project project, Editor editor, PsiFile psiFile) {
+    public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
+        PsiFile psiFile = psiElement.getContainingFile();
         if (psiFile != null) {
             DBMethod method = resolveMethod(editor, psiFile);
             return DatabaseFeature.DEBUGGING.isSupported(method);
@@ -35,21 +42,12 @@ public class RunMethodIntentionAction extends AbstractMethodExecutionIntentionAc
     }
 
     @Override
-    public void invoke(@NotNull Project project, Editor editor, PsiFile psiFile) throws IncorrectOperationException {
+    public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException {
+        PsiFile psiFile = psiElement.getContainingFile();
         DBMethod method = resolveMethod(editor, psiFile);
         if (method != null) {
             MethodExecutionManager executionManager = MethodExecutionManager.getInstance(project);
             executionManager.startMethodExecution(method, DBDebuggerType.NONE);
         }
-    }
-
-    @Override
-    public boolean startInWriteAction() {
-        return false;
-    }
-
-    @Override
-    protected Integer getGroupPriority() {
-        return 0;
     }
 }

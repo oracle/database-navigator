@@ -1,0 +1,22 @@
+
+-- list of departments with their respective number of employees
+<spot>/*
+  To list the departments with their respective number of employees, you can use the following SQL query:
+*/
+SELECT "DEPARTMENTS"."DEPARTMENT_ID", "DEPARTMENTS"."DEPARTMENT_NAME", COUNT("EMPLOYEES"."EMPLOYEE_ID") AS "NUMBER_OF_EMPLOYEES"
+FROM "HR"."DEPARTMENTS" DEPARTMENTS
+LEFT JOIN "HR"."EMPLOYEES" EMPLOYEES
+ON "DEPARTMENTS"."DEPARTMENT_ID" = "EMPLOYEES"."DEPARTMENT_ID"
+GROUP BY "DEPARTMENTS"."DEPARTMENT_ID", "DEPARTMENTS"."DEPARTMENT_NAME"
+ORDER BY "NUMBER_OF_EMPLOYEES" DESC;
+/*
+  Explanation:
+    - This query selects the "DEPARTMENT_ID" and "DEPARTMENT_NAME" from the "DEPARTMENTS" table.
+    - It also calculates the number of employees in each department by counting the "EMPLOYEE_ID" in the "EMPLOYEES" table. This
+       count is given an alias of "NUMBER_OF_EMPLOYEES".
+    - The "FROM" clause specifies the "DEPARTMENTS" table as the main table for the query.
+    - The "LEFT JOIN" clause joins the "EMPLOYEES" table to the "DEPARTMENTS" table based on the condition that the "DEPARTMENT_ID"
+       in both tables are equal.
+    - The "GROUP BY" clause groups the results by "DEPARTMENT_ID" and "DEPARTMENT_NAME".
+    - The "ORDER BY" clause sorts the results in descending order based on the number of employees in each department.
+*/</spot>

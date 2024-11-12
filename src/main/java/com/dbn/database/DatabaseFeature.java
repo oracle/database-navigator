@@ -30,6 +30,7 @@ public enum DatabaseFeature {
     USER_SCHEMA("User dedicated schema"),
     CONSTRAINT_MANIPULATION("Constraint manipulation"),
     READONLY_CONNECTIVITY("Readonly connectivity"),
+    AI_ASSISTANT("AI assistant"),
     ;
 
     private final String description;

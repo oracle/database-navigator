@@ -7,13 +7,25 @@ import com.dbn.common.util.Unsafe;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.TokenTypeBundle;
-import com.dbn.language.common.element.impl.*;
+import com.dbn.language.common.element.impl.BasicElementType;
+import com.dbn.language.common.element.impl.BlockElementType;
+import com.dbn.language.common.element.impl.ElementTypeBase;
+import com.dbn.language.common.element.impl.ExecVariableElementType;
+import com.dbn.language.common.element.impl.IdentifierElementType;
+import com.dbn.language.common.element.impl.IterationElementType;
+import com.dbn.language.common.element.impl.LeafElementType;
+import com.dbn.language.common.element.impl.NamedElementType;
+import com.dbn.language.common.element.impl.OneOfElementType;
+import com.dbn.language.common.element.impl.QualifiedIdentifierElementType;
+import com.dbn.language.common.element.impl.SequenceElementType;
+import com.dbn.language.common.element.impl.TokenElementType;
+import com.dbn.language.common.element.impl.UnknownElementType;
+import com.dbn.language.common.element.impl.WrapperElementType;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.element.util.ElementTypeDefinition;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.ide.CopyPasteManager;
-import gnu.trove.set.hash.THashSet;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Document;
@@ -23,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.datatransfer.StringSelection;
 import java.io.StringWriter;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,8 +62,8 @@ public class ElementTypeBundle {
 
 
     private static class Builder {
-        private final Set<LeafElementType> leafElementTypes = new THashSet<>();
-        private final Set<ElementType> allElementTypes = new THashSet<>();
+        private final Set<LeafElementType> leafElementTypes = new HashSet<>();
+        private final Set<ElementTypeBase> allElementTypes = new HashSet<>();
         private boolean rewriteIds;
     }
 
@@ -58,7 +71,7 @@ public class ElementTypeBundle {
         leafRegistry.add(tokenType);
     }
 
-    public LeafElementType getElement(short index) {
+    public LeafElementType getElement(int index) {
         return leafRegistry.get(index);
     }
 
@@ -113,13 +126,13 @@ public class ElementTypeBundle {
                 });
             }
 
-            Set<ElementType> allElementTypes = builder.allElementTypes;
+            Set<ElementTypeBase> allElementTypes = builder.allElementTypes;
             builder = null;
             Background.run(null, () -> Measured.run(
                     "initializing element-type lookup cache for " + this.languageDialect.getID(),
                     () -> {
-                        for (ElementType elementType : allElementTypes) {
-                            elementType.getLookupCache().initialize();
+                        for (ElementTypeBase elementType : allElementTypes) {
+                            elementType.cache.initialize();
                         }
                     }));
 
@@ -166,8 +179,8 @@ public class ElementTypeBundle {
         return value;
     }
 
-    public ElementType resolveElementDefinition(Element def, String type, ElementType parent) throws ElementTypeDefinitionException {
-        ElementType result;
+    public ElementTypeBase resolveElementDefinition(Element def, String type, ElementTypeBase parent) throws ElementTypeDefinitionException {
+        ElementTypeBase result;
         if (ElementTypeDefinition.SEQUENCE.is(type)){
             result = new SequenceElementType(this, parent, createId(), def);
 
@@ -234,7 +247,7 @@ public class ElementTypeBundle {
         return elementType;
     }*/
 
-    private NamedElementType getNamedElementType(String id, ElementType parent) {
+    private NamedElementType getNamedElementType(String id, ElementTypeBase parent) {
         NamedElementType elementType = namedElementTypes.computeIfAbsent(id, i -> {
             NamedElementType namedElementType = new NamedElementType(this, i);
             builder.allElementTypes.add(namedElementType);

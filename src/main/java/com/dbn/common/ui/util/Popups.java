@@ -1,8 +1,15 @@
 package com.dbn.common.ui.util;
 
+import com.dbn.common.thread.Dispatch;
+import com.dbn.common.util.Context;
+import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.ui.popup.IPopupChooserBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.popup.list.ListPopupImpl;
@@ -12,6 +19,7 @@ import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class Popups {
     public static void showUnderneathOf(@NotNull JBPopup popup, @NotNull Component sourceComponent, int verticalShift, int maxHeight) {
@@ -67,5 +75,25 @@ public class Popups {
         else {
             popup.showUnderneathOf(textField);
         }
+    }
+
+    public static void showActionsPopup(String title, Object context, List<? extends AnAction> actions, Predicate<AnAction> selected) {
+        Dispatch.run(() -> { //AWT events are not allowed inside write action
+            ActionGroup actionGroup = new DefaultActionGroup(actions);
+
+            DataContext dataContext = Context.getDataContext(context);
+            ListPopup popupBuilder = JBPopupFactory.getInstance().createActionGroupPopup(
+                    title,
+                    actionGroup,
+                    dataContext,
+                    JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
+                    true,
+                    null,
+                    1000,
+                    action -> selected.test(action),
+                    null);
+
+            popupBuilder.showInBestPositionFor(dataContext);
+        });
     }
 }

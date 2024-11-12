@@ -11,6 +11,7 @@ import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.ElementLookupContext;
 import com.dbn.language.common.element.cache.ElementTypeLookupCache;
+import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.IdentifierElementType;
 import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.QualifiedIdentifierVariant;
@@ -18,11 +19,20 @@ import com.dbn.language.common.element.impl.TokenElementType;
 import com.dbn.language.common.element.parser.Branch;
 import com.dbn.language.common.element.path.AstNode;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
-import com.dbn.language.common.psi.*;
+import com.dbn.language.common.psi.BasePsiElement;
+import com.dbn.language.common.psi.IdentifierPsiElement;
+import com.dbn.language.common.psi.LeafPsiElement;
+import com.dbn.language.common.psi.PsiUtil;
+import com.dbn.language.common.psi.QualifiedIdentifierPsiElement;
+import com.dbn.language.common.psi.TokenPsiElement;
 import com.dbn.language.common.psi.lookup.LookupAdapters;
 import com.dbn.language.common.psi.lookup.PsiLookupAdapter;
 import com.dbn.object.DBSchema;
-import com.dbn.object.common.*;
+import com.dbn.object.common.DBObject;
+import com.dbn.object.common.DBObjectBundle;
+import com.dbn.object.common.DBObjectPsiElement;
+import com.dbn.object.common.DBVirtualObject;
+import com.dbn.object.common.ObjectTypeFilter;
 import com.dbn.object.filter.custom.ObjectFilterAttribute;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBObjectFilterExpressionFile;
@@ -124,7 +134,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
         DBLanguagePsiFile file = context.getFile();
 
         ElementTypeBundle elementTypeBundle = file.getElementTypeBundle();
-        ElementTypeLookupCache<?> lookupCache = elementTypeBundle.getRootElementType().getLookupCache();
+        ElementTypeLookupCache<?> lookupCache = elementTypeBundle.getRootElementType().cache;
         ElementLookupContext lookupContext = new ElementLookupContext(context.getDatabaseVersion());
         Set<LeafElementType> firstPossibleLeafs = lookupCache.captureFirstPossibleLeafs(lookupContext);
 
@@ -145,9 +155,9 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
         PsiElement parent = element.getParent();
         if (parent instanceof QualifiedIdentifierPsiElement) {
             QualifiedIdentifierPsiElement qualifiedIdentifier = (QualifiedIdentifierPsiElement) parent;
-            ElementType separator = qualifiedIdentifier.getElementType().getSeparatorToken();
+            ElementType separator = qualifiedIdentifier.elementType.getSeparatorToken();
 
-            if (element.getElementType() == separator){
+            if (element.elementType == separator){
                 BasePsiElement parentPsiElement = element.getPrevElement();
                 if (parentPsiElement instanceof IdentifierPsiElement) {
                     parentIdentifierPsiElement = (IdentifierPsiElement) parentPsiElement;
@@ -165,7 +175,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
                     }
                 }
             }
-        } else if (element.getElementType().getTokenType() == element.getLanguage().getSharedTokenTypes().getChrDot()) {
+        } else if (element.elementType.getTokenType() == element.getLanguage().getSharedTokenTypes().getChrDot()) {
             LeafPsiElement parentPsiElement = element.getPrevLeaf();
             if (parentPsiElement != null) {
                 if (parentPsiElement instanceof IdentifierPsiElement || parentPsiElement.isVirtualObject()) {
@@ -174,9 +184,9 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
             }
         } else if (parent instanceof BasePsiElement) {
             BasePsiElement basePsiElement = (BasePsiElement) parent;
-            ElementType elementType = basePsiElement.getElementType();
-            if (elementType.isWrappingBegin((LeafElementType) element.getElementType())) {
-                Set<LeafElementType> candidates = elementType.getLookupCache().getFirstPossibleLeafs();
+            ElementTypeBase elementType = basePsiElement.elementType;
+            if (elementType.isWrappingBegin((LeafElementType) element.elementType)) {
+                Set<LeafElementType> candidates = elementType.cache.getFirstPossibleLeafs();
                 for (LeafElementType candidate : candidates) {
                     context.addCompletionCandidate(candidate);
                 }
@@ -184,7 +194,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
         }
 
         if (!context.hasCompletionCandidates()) {
-            LeafElementType elementType = (LeafElementType) element.getElementType();
+            LeafElementType elementType = (LeafElementType) element.elementType;
             AstNode node = new AstNode(element.getNode());
             ElementLookupContext lookupContext = computeParseBranches(element.getNode(), context.getDatabaseVersion());
             if (!context.isNewLine()) {
@@ -291,9 +301,9 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
         ElementLookupContext lookupContext = new ElementLookupContext(databaseVersion);
         while (astNode != null && !(astNode instanceof FileElement)) {
             IElementType elementType = astNode.getElementType();
-            if (elementType instanceof ElementType) {
-                ElementType basicElementType = (ElementType) elementType;
-                Branch branch = basicElementType.getBranch();
+            if (elementType instanceof ElementTypeBase) {
+                ElementTypeBase basicElementType = (ElementTypeBase) elementType;
+                Branch branch = basicElementType.branch;
                 if (branch != null) {
                     lookupContext.addBranchMarker(astNode, branch);
                 }

@@ -1,5 +1,6 @@
 package com.dbn.connection;
 
+import com.dbn.assistant.interceptor.StatementExecutionInterceptor;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.cache.Cache;
 import com.dbn.common.database.AuthenticationInfo;
@@ -21,6 +22,7 @@ import com.dbn.connection.config.ConnectionDetailSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.console.DatabaseConsoleBundle;
 import com.dbn.connection.info.ConnectionInfo;
+import com.dbn.connection.interceptor.DatabaseInterceptorBundle;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.session.DatabaseSession;
 import com.dbn.connection.session.DatabaseSessionBundle;
@@ -80,6 +82,7 @@ public class ConnectionHandlerImpl extends StatefulDisposableBase implements Con
     private final @Getter(lazy = true) ConnectionHandlerStatusHolder connectionStatus = new ConnectionHandlerStatusHolder(this);
     private final @Getter(lazy = true) DatabaseConsoleBundle consoleBundle = new DatabaseConsoleBundle(this);
     private final @Getter(lazy = true) DatabaseSessionBundle sessionBundle = new DatabaseSessionBundle(this);
+    private final @Getter(lazy = true) DatabaseInterceptorBundle interceptorBundle = new DatabaseInterceptorBundle(this);
 
     private final Latent<DatabaseInterfaces> interfaces = Latent.mutable(
             () -> getDatabaseType(),
@@ -123,6 +126,15 @@ public class ConnectionHandlerImpl extends StatefulDisposableBase implements Con
         this.connectionSettings = connectionSettings;
         this.enabled = connectionSettings.isActive();
         ref = ConnectionRef.of(this);
+
+        initInterceptors();
+    }
+
+    private void initInterceptors() {
+        // TODO define interceptors as application services and self inject on "connection created" event
+        if (DatabaseFeature.AI_ASSISTANT.isSupported(this)) {
+            getInterceptorBundle().register(StatementExecutionInterceptor.INSTANCE);
+        }
     }
 
     @NotNull
@@ -460,6 +472,12 @@ public class ConnectionHandlerImpl extends StatefulDisposableBase implements Con
         return getConnectionPool().ensureDebuggerConnection();
     }
 
+    @NotNull
+    public DBNConnection getAssistantConnection() throws SQLException {
+        assertCanConnect();
+        return getConnectionPool().ensureAssistantConnection();
+    }
+
     @Override
     @NotNull
     public DBNConnection getPoolConnection(boolean readonly) throws SQLException {
@@ -495,6 +513,7 @@ public class ConnectionHandlerImpl extends StatefulDisposableBase implements Con
     @NotNull
     public DBNConnection getConnection(@NotNull SessionId sessionId) throws SQLException {
         if (sessionId == SessionId.MAIN) return getMainConnection();
+        if (sessionId == SessionId.ASSISTANT) return getAssistantConnection();
         if (sessionId == SessionId.POOL) return getPoolConnection(false);
         return getConnectionPool().ensureSessionConnection(sessionId);
     }

@@ -19,6 +19,7 @@ import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputDialog;
+import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.DatabaseFileManager;
 import com.intellij.openapi.project.Project;
@@ -131,6 +132,13 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                             DatabaseFileManager databaseFileManager = DatabaseFileManager.getInstance(project);
                             databaseFileManager.closeFile(object);
 
+                            ObjectManagementService objectManagementService = ObjectManagementService.getInstance(project);
+                            if (objectManagementService.supports(object)) {
+                                objectManagementService.deleteObject(object, null);
+                                return;
+                            }
+
+                            // TODO old implementation (implement appropriate ObjectManagementServices and cleanup)
                             Progress.prompt(project, object, false,
                                     "Dropping object",
                                     "Dropping " + object.getQualifiedNameWithType(),
@@ -139,6 +147,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
     }
 
+    @Deprecated // TODO old implementation (implement appropriate ObjectManagementServices and cleanup)
     private void doDropObject(DBSchemaObject object) {
         try {
             DatabaseInterfaceInvoker.execute(HIGHEST,
@@ -149,22 +158,27 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                     conn -> {
                         DBContentType contentType = object.getContentType();
 
-                        String objectName = object.getQualifiedName();
+                        String schemaName = object.getSchemaName();
+                        String objectName = object.getName();
+
+                        // TODO use schemaName, objectName instead of qualified name
+                        String objectQualifiedName = object.getQualifiedName();
                         String objectTypeName = object.getTypeName();
                         DatabaseDataDefinitionInterface dataDefinition = object.getDataDefinitionInterface();
                         DBObjectList<?> objectList = (DBObjectList<?>) object.getParent();
                         if (contentType == DBContentType.CODE_SPEC_AND_BODY) {
                             DBObjectStatusHolder objectStatus = object.getStatus();
                             if (objectStatus.is(DBContentType.CODE_BODY, DBObjectStatus.PRESENT)) {
-                                dataDefinition.dropObjectBody(objectTypeName, objectName, conn);
+                                dataDefinition.dropObjectBody(objectTypeName, objectQualifiedName, conn);
                             }
 
                             if (objectStatus.is(DBContentType.CODE_SPEC, DBObjectStatus.PRESENT)) {
-                                dataDefinition.dropObject(objectTypeName, objectName, conn);
+                                dataDefinition.dropObject(objectTypeName, objectQualifiedName, conn);
                             }
-
+                        } else if(object.getObjectType() == DBObjectType.JAVA_OBJECT) {
+                            dataDefinition.dropJavaObject(schemaName, objectName, conn);
                         } else {
-                            dataDefinition.dropObject(objectTypeName, objectName, conn);
+                            dataDefinition.dropObject(objectTypeName, objectQualifiedName, conn);
                         }
 
                         objectList.reload();

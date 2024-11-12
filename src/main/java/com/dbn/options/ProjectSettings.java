@@ -1,5 +1,6 @@
 package com.dbn.options;
 
+import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.browser.options.DatabaseBrowserSettings;
 import com.dbn.code.common.completion.options.CodeCompletionSettings;
 import com.dbn.code.common.style.options.ProjectCodeStyleSettings;
@@ -32,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
+@Getter
 @EqualsAndHashCode(callSuper = false)
 public class ProjectSettings
         extends CompositeProjectConfiguration<ProjectConfiguration, ProjectSettingsForm>
@@ -48,6 +50,7 @@ public class ProjectSettings
     private final @Getter(lazy = true) ExecutionEngineSettings executionEngineSettings  = new ExecutionEngineSettings(this);
     private final @Getter(lazy = true) OperationSettings operationSettings              = new OperationSettings(this);
     private final @Getter(lazy = true) DDLFileSettings ddlFileSettings                  = new DDLFileSettings(this);
+    private final @Getter(lazy = true) AssistantSettings assistantSettings              = new AssistantSettings(this);
     private final @Getter(lazy = true) ConnectionBundleSettings connectionSettings      = new ConnectionBundleSettings(this);
 
     public ProjectSettings(Project project) {
@@ -144,6 +147,7 @@ public class ProjectSettings
                 getExecutionEngineSettings(),
                 getOperationSettings(),
                 getDdlFileSettings(),
+                getAssistantSettings(),
                 getGeneralSettings()};
     }
 

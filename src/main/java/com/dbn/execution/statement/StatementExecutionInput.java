@@ -19,7 +19,6 @@ import com.dbn.language.common.psi.ExecutableBundlePsiElement;
 import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.dbn.language.sql.SQLLanguage;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
@@ -167,7 +166,7 @@ public class StatementExecutionInput extends LocalExecutionInput {
     @Override
     public boolean isDatabaseLogProducer() {
         ExecutablePsiElement executablePsiElement = getExecutablePsiElement();
-        return executablePsiElement != null && executablePsiElement.getElementType().is(ElementTypeAttribute.DATABASE_LOG_PRODUCER);
+        return executablePsiElement != null && executablePsiElement.elementType.is(ElementTypeAttribute.DATABASE_LOG_PRODUCER);
     }
 
 

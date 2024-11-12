@@ -21,8 +21,8 @@ public class IterationChopDownIfLongStatementPreset extends IterationAbstractPre
         BasePsiElement<?> parentPsiElement = getParentPsiElement(psiElement);
         if (parentPsiElement == null) return null;
 
-        IterationElementType iterationElementType = (IterationElementType) parentPsiElement.getElementType();
-        ElementType elementType = psiElement.getElementType();
+        IterationElementType iterationElementType = (IterationElementType) parentPsiElement.elementType;
+        ElementType elementType = psiElement.elementType;
 
         NamedPsiElement namedPsiElement = parentPsiElement.findEnclosingElement(ElementTypeAttribute.EXECUTABLE);
         if (namedPsiElement == null) return null;
@@ -37,8 +37,8 @@ public class IterationChopDownIfLongStatementPreset extends IterationAbstractPre
         BasePsiElement<?> parentPsiElement = getParentPsiElement(psiElement);
         if (parentPsiElement == null) return null;
 
-        IterationElementType iterationElementType = (IterationElementType) parentPsiElement.getElementType();
-        ElementType elementType = psiElement.getElementType();
+        IterationElementType iterationElementType = (IterationElementType) parentPsiElement.elementType;
+        ElementType elementType = psiElement.elementType;
 
         NamedPsiElement namedPsiElement = parentPsiElement.findEnclosingElement(ElementTypeAttribute.EXECUTABLE);
         if (namedPsiElement == null) return null;

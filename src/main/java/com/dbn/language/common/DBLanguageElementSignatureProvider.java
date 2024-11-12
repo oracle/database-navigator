@@ -1,7 +1,7 @@
 package com.dbn.language.common;
 
-import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.common.util.Strings;
+import com.dbn.language.common.psi.BasePsiElement;
 import com.intellij.codeInsight.folding.impl.ElementSignatureProvider;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiComment;
@@ -21,7 +21,7 @@ public class DBLanguageElementSignatureProvider implements ElementSignatureProvi
             String offsets = textRange.getStartOffset() + "#" + textRange.getEndOffset();
             if (psiElement instanceof BasePsiElement) {
                 BasePsiElement basePsiElement = (BasePsiElement) psiElement;
-                return basePsiElement.getElementType().getId() + "#" + offsets;
+                return basePsiElement.elementType.getId() + "#" + offsets;
             }
 
             if (psiElement instanceof PsiComment) {
@@ -64,7 +64,7 @@ public class DBLanguageElementSignatureProvider implements ElementSignatureProvi
                     }
                     if (psiElement instanceof BasePsiElement) {
                         BasePsiElement basePsiElement = (BasePsiElement) psiElement;
-                        if (Objects.equals(basePsiElement.getElementType().getId(), id) &&
+                        if (Objects.equals(basePsiElement.elementType.getId(), id) &&
                                 elementStartOffset == startOffset &&
                                 elementEndOffset == endOffset) {
                             return basePsiElement;

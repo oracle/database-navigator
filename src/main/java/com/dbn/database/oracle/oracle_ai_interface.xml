@@ -1,0 +1,168 @@
+<!--
+  ~ Copyright (c) 2024, Oracle and/or its affiliates.
+  ~
+  ~ This software is dual-licensed to you under the Universal Permissive License
+  ~ (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
+  ~ 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
+  ~ either license.
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and limitations under the License.
+  -->
+
+<!DOCTYPE data-dictionary [
+        <!ELEMENT data-dictionary (statement-execution-processor)*>
+        <!ELEMENT statement-execution-processor (statement)*>
+        <!ATTLIST statement-execution-processor
+                id CDATA #REQUIRED
+                is-query CDATA #IMPLIED
+                is-prepared-statement CDATA #IMPLIED
+                timeout CDATA #IMPLIED>
+        <!ELEMENT statement (#PCDATA)>
+        <!ATTLIST statement
+                comment CDATA #IMPLIED
+                prefixes CDATA #IMPLIED>
+        ]>
+<data-dictionary>
+    <statement-execution-processor id="create-password-credential" timeout="120">
+        <statement>
+            begin
+                DBMS_CLOUD.CREATE_CREDENTIAL(
+                                credential_name => '{0}',
+                                username        => '{1}',
+                                password        => '{2}');
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="create-oci-credential" timeout="120">
+        <statement>
+            begin
+                DBMS_CLOUD.CREATE_CREDENTIAL(
+                                credential_name => '{0}',
+                                user_ocid       => '{1}',
+                                tenancy_ocid    => '{2}',
+                                private_key     => '{3}',
+                                fingerprint     => '{4}');
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="create-ai-profile" timeout="120">
+        <statement>
+            begin
+                DBMS_CLOUD_AI.CREATE_PROFILE(
+                    PROFILE_NAME => '{0}',
+                    ATTRIBUTES   => '{1}',
+                    STATUS       => '{2}',
+                    DESCRIPTION  => '{3}');
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="update-ai-profile" timeout="120">
+        <statement>
+            begin
+                DBMS_CLOUD_AI.SET_ATTRIBUTES(
+                    PROFILE_NAME => '{0}',
+                    ATTRIBUTES   => '{1}');
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="ai-generate" timeout="60">
+        <statement>
+            declare
+                v_response CLOB;
+            begin
+                v_response := DBMS_CLOUD_AI.GENERATE(
+                                    prompt       => '{3}',
+                                    profile_name => '{0}',
+                                    action       => '{1}',
+                                    attributes   => '{2}');
+                ? := v_response;
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="update-credential-attribute" timeout="120">
+        <statement>
+            begin
+                DBMS_CLOUD.UPDATE_CREDENTIAL(
+                        credential_name => '{0}',
+                        attribute       => '{1}',
+                        value           => '{2}');
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="disable-credential" timeout="20">
+        <statement>
+            begin
+                DBMS_CLOUD.DISABLE_CREDENTIAL(credential_name => '{0}');
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="enable-credential" timeout="20">
+        <statement>
+            begin
+                DBMS_CLOUD.ENABLE_CREDENTIAL(credential_name => '{0}');
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="drop-credential" timeout="120">
+        <statement>
+            begin
+                DBMS_CLOUD.DROP_CREDENTIAL(credential_name => '{0}');
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="disable-profile" timeout="20">
+        <statement>
+            begin
+                DBMS_CLOUD_AI.DISABLE_PROFILE(profile_name => '{0}');
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="enable-profile" timeout="20">
+        <statement>
+            begin
+                DBMS_CLOUD_AI.ENABLE_PROFILE(profile_name => '{0}');
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="drop-profile" timeout="120">
+        <statement>
+            begin
+                DBMS_CLOUD_AI.DROP_PROFILE(profile_name => '{0}');
+            end;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="set-current-profile" timeout="20">
+        <statement>
+            begin
+                DBMS_CLOUD_AI.SET_PROFILE(profile_name => '{0}');
+            end;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="acl-rights" timeout="20">
+        <statement>
+            {0}
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="grant-privilege" timeout="20">
+        <statement>
+            BEGIN
+                EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_CLOUD TO {0}';
+                EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_CLOUD_AI TO {0}';
+            END;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="is-feature-supported" timeout="20" is-query="true">
+        <statement prefixes="DBA, ALL">
+            select 'Y' from DUAL
+            where exists (select 1
+                          from [PREFIX]_OBJECTS
+                          where OBJECT_NAME like '%DBMS_CLOUD_AI%')
+        </statement>
+    </statement-execution-processor>
+
+</data-dictionary>

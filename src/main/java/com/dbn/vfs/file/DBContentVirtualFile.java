@@ -6,14 +6,12 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.ddl.DDLFileManager;
-import com.dbn.ddl.DDLFileType;
 import com.dbn.editor.DBContentType;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.psql.PSQLLanguage;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.DBSchema;
-import com.dbn.object.DBView;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
@@ -27,7 +25,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.io.File;
 
 import static com.dbn.vfs.file.status.DBFileStatus.MODIFIED;
@@ -47,11 +45,11 @@ public abstract class DBContentVirtualFile extends DBVirtualFileBase implements 
         this.contentType = contentType;
 
         DBObjectRef<DBSchemaObject> objectRef = mainDatabaseFile.getObjectRef();
+        DBObjectType objectType = objectRef.getObjectType();
 
         Project project = getProject();
         DDLFileManager ddlFileManager = DDLFileManager.getInstance(project);
-        DDLFileType ddlFileType = ddlFileManager.getDDLFileType(objectRef.getObjectType(), contentType);
-        this.fileType = ddlFileType == null ? null : ddlFileType.getLanguageFileType();
+        this.fileType = ddlFileManager.resolveFileType(objectType, contentType);
     }
 
     @Override

@@ -11,13 +11,13 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
+import java.awt.Component;
 
 import static com.dbn.common.dispose.Checks.isValid;
 
 public class ExecutedStatementViewAction extends AbstractExecutionMessagesAction {
-    public ExecutedStatementViewAction(MessagesTree messagesTree) {
-        super(messagesTree);
+    public ExecutedStatementViewAction() {
+        super("View SQL Statement", null, Icons.EXEC_RESULT_VIEW_STATEMENT);
     }
 
     @Override

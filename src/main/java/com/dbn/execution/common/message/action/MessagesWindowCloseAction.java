@@ -10,8 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MessagesWindowCloseAction extends AbstractExecutionMessagesAction {
-    public MessagesWindowCloseAction(MessagesTree messagesTree) {
-        super(messagesTree);
+    public MessagesWindowCloseAction() {
+        super("Close", null, Icons.EXEC_RESULT_CLOSE);
     }
 
     @Override

@@ -11,7 +11,7 @@ import java.util.Objects;
 @UtilityClass
 public class CardLayouts {
 
-    private static final String BLANK_PANEL_ID = "BLANK_PANEL";
+    private static final String BLANK_CARD_ID = "DBN_BLANK_CARD";
 
     public static void addBlankCard(JPanel container) {
         addBlankCard(container, -1, -1);
@@ -20,11 +20,13 @@ public class CardLayouts {
     public static void addBlankCard(JPanel container, int width, int height) {
         JPanel blankPanel = new JPanel();
         blankPanel.setPreferredSize(new Dimension(width, height));
-        container.add(blankPanel, BLANK_PANEL_ID);
+        addCard(container, blankPanel, BLANK_CARD_ID);
     }
 
     public static void addCard(JPanel container, JComponent component, Object identifier) {
-        container.add(component, Objects.toString(identifier));
+        String name = Objects.toString(identifier);
+        component.setName(name);
+        container.add(component, name);
     }
 
     public static void addCard(JPanel container, DBNForm component, Object identifier) {
@@ -37,6 +39,27 @@ public class CardLayouts {
     }
 
     public static void showBlankCard(JPanel container) {
-        showCard(container, BLANK_PANEL_ID);
+        showCard(container, BLANK_CARD_ID);
+    }
+
+    public static JPanel createCardPanel() {
+        return createCardPanel(false);
+    }
+
+    public static JPanel createCardPanel(boolean withBlankCard) {
+        JPanel panel = new JPanel(new CardLayout());
+        if (withBlankCard) addBlankCard(panel);
+        return panel;
+    }
+
+    public static String visibleCardId(JPanel container) {
+        for (Component component : container.getComponents()) {
+            if (component.isVisible()) return component.getName();
+        }
+        return null;
+    }
+
+    public static boolean isBlankCard(String identifier) {
+        return BLANK_CARD_ID.equals(identifier);
     }
 }

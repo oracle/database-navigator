@@ -1,7 +1,7 @@
 package com.dbn.language.common.element.cache;
 
-import com.dbn.language.common.element.impl.TokenElementType;
 import com.dbn.language.common.TokenType;
+import com.dbn.language.common.element.impl.TokenElementType;
 
 import java.util.Collections;
 import java.util.Set;
@@ -17,7 +17,7 @@ public class TokenElementTypeLookupCache extends LeafElementTypeLookupCache<Toke
     }
 
     protected TokenType getTokenType() {
-        return elementType.getTokenType();
+        return elementType.tokenType;
     }
 
     @Override

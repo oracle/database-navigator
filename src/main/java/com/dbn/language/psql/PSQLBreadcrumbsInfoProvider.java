@@ -11,7 +11,7 @@ import com.intellij.ui.breadcrumbs.BreadcrumbsProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.Collections;
 import java.util.List;
 
@@ -53,7 +53,7 @@ public class PSQLBreadcrumbsInfoProvider implements BreadcrumbsProvider {
     public String getElementTooltip(@NotNull PsiElement element) {
         if (element instanceof BasePsiElement) {
             BasePsiElement basePsiElement = (BasePsiElement) element;
-            return basePsiElement.getElementType().getDescription();
+            return basePsiElement.elementType.getDescription();
         }
         return null;
     }

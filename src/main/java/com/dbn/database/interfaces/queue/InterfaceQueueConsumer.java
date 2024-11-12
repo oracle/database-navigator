@@ -9,9 +9,6 @@ import com.dbn.common.thread.ThreadProperty;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 
-import java.awt.*;
-import java.util.Arrays;
-
 public class InterfaceQueueConsumer implements Consumer<InterfaceTask<?>>{
     private final WeakRef<InterfaceQueue> queue;
 
@@ -52,18 +49,10 @@ public class InterfaceQueueConsumer implements Consumer<InterfaceTask<?>>{
 
     private static boolean canUseProgress(InterfaceTask<?> task) {
         if (!task.isProgress()) return false;
-        if (isModalDialogOpen()) return false;
         if (isProgressModalOrExhausted()) return false;
-
         return true;
     }
 
-    private static boolean isModalDialogOpen() {
-        // BACKGROUND:
-        // progress tasks do not start when application is blocked by a modal dialog (preventing database interaction from modal dialogs)
-        // TODO check if there is a way to circumvent this (currently routing to Background thread pool)
-        return Arrays.stream(Window.getWindows()).filter(w -> w  instanceof Dialog).map(w -> (Dialog) w).anyMatch(d -> d.isModal() && d.isShowing());
-    }
 
     private static boolean isProgressModalOrExhausted() {
         ProgressManager progressManager = ProgressManager.getInstance();

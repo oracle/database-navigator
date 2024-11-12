@@ -31,5 +31,8 @@ public interface DatabaseInterfaces {
         return null;
     }
 
+    default DatabaseAssistantInterface getAssistantInterface() {
+        return null;
+    }
     void reset();
 }

@@ -10,6 +10,7 @@ import com.dbn.common.util.Commons;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Titles;
 import com.dbn.diagnostics.Diagnostics;
+import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -25,7 +26,7 @@ import java.awt.event.WindowEvent;
 
 import static com.dbn.common.util.Unsafe.cast;
 
-public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper implements DBNComponent {
+public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper implements DBNComponent, NlsSupport {
     private F form;
     private final ProjectRef project;
     private final Listeners<DBNDialogListener> listeners = Listeners.create(getDisposable());

@@ -35,6 +35,8 @@ public interface DynamicContent<T extends DynamicContentElement> extends
      */
     void refresh();
 
+    void reloadInBackground();
+
     void loadInBackground();
 
     /**
