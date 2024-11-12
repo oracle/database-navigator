@@ -3,7 +3,7 @@ package com.dbn.common.ui.shortcut;
 import com.dbn.common.util.Actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.AnActionResult;
+import com.intellij.openapi.actionSystem.DataContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -21,7 +21,7 @@ public abstract class ComplementaryShortcutInterceptor extends ShortcutIntercept
     }
 
     @Override
-    public void afterActionPerformed(@NotNull AnAction action, @NotNull AnActionEvent event, @NotNull AnActionResult result) {
+    public void afterActionPerformed(@NotNull AnAction action, @NotNull DataContext dataContext, @NotNull AnActionEvent event) {
         attemptDelegation(action, event);
     }
 

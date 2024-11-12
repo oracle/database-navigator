@@ -5,12 +5,13 @@ import com.dbn.common.latent.Latent;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.util.containers.IntObjectMap;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.UIManager;
+import java.awt.Color;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import static com.intellij.concurrency.ConcurrentCollectionFactory.createConcurrentIntObjectMap;
+import static com.intellij.util.containers.ContainerUtil.createConcurrentIntObjectMap;
+
 
 public class ColorCache {
     private static final Latent<ColorCache> cache = Latent.basic(() -> new ColorCache());

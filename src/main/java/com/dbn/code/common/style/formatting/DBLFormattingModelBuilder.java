@@ -7,7 +7,10 @@ import com.dbn.common.util.Documents;
 import com.dbn.common.util.Traces;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.psi.PsiUtil;
-import com.intellij.formatting.*;
+import com.intellij.formatting.Block;
+import com.intellij.formatting.FormattingModel;
+import com.intellij.formatting.FormattingModelBuilder;
+import com.intellij.formatting.FormattingModelProvider;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
@@ -22,10 +25,7 @@ public class DBLFormattingModelBuilder implements FormattingModelBuilder {
 
     @NotNull
     @Override
-    public FormattingModel createModel(@NotNull FormattingContext formattingContext) {
-        PsiElement element = formattingContext.getPsiElement();
-
-        CodeStyleSettings codeStyleSettings = formattingContext.getCodeStyleSettings();
+    public FormattingModel createModel(final PsiElement element, final CodeStyleSettings codeStyleSettings) {
         DBLanguage language = (DBLanguage) PsiUtil.getLanguage(element);
 
         PsiFile psiFile = element.getContainingFile();

@@ -3,7 +3,7 @@ package com.dbn.common.index;
 
 import com.intellij.util.containers.IntObjectMap;
 
-import static com.intellij.concurrency.ConcurrentCollectionFactory.createConcurrentIntObjectMap;
+import static com.intellij.util.containers.ContainerUtil.createConcurrentIntObjectMap;
 
 public class IndexRegistry<T extends Indexable> {
     private final IntObjectMap<T> INDEX = createConcurrentIntObjectMap();

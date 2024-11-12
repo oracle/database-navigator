@@ -1,5 +1,6 @@
 package com.dbn.common.util;
 
+import com.dbn.common.Reflection;
 import com.dbn.common.color.Colors;
 import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.dispose.Failsafe;
@@ -7,7 +8,11 @@ import com.dbn.common.editor.BasicTextEditor;
 import com.dbn.common.file.util.VirtualFiles;
 import com.dbn.common.navigation.NavigationInstructions;
 import com.dbn.common.routine.Consumer;
-import com.dbn.common.thread.*;
+import com.dbn.common.thread.Dispatch;
+import com.dbn.common.thread.Read;
+import com.dbn.common.thread.ThreadInfo;
+import com.dbn.common.thread.ThreadMonitor;
+import com.dbn.common.thread.ThreadProperty;
 import com.dbn.common.ui.form.DBNToolbarForm;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.editor.text.TextContentType;
@@ -21,7 +26,11 @@ import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
-import com.dbn.vfs.file.*;
+import com.dbn.vfs.file.DBConsoleVirtualFile;
+import com.dbn.vfs.file.DBContentVirtualFile;
+import com.dbn.vfs.file.DBDatasetVirtualFile;
+import com.dbn.vfs.file.DBEditableObjectVirtualFile;
+import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.ide.highlighter.HighlighterFactory;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -53,10 +62,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
-import java.util.*;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -580,7 +598,8 @@ public class Editors {
 
         FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
         for (VirtualFile file : files) {
-            fileEditorManager.updateFilePresentation(file);
+            //fileEditorManager.updateFilePresentation(virtualFile);
+            Reflection.invokeMethod(fileEditorManager, "updateFilePresentation", file);
         }
 
     }

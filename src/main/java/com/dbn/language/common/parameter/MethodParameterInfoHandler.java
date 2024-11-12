@@ -19,7 +19,9 @@ import com.dbn.object.DBProgram;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.type.DBObjectType;
+import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.lang.parameterInfo.CreateParameterInfoContext;
+import com.intellij.lang.parameterInfo.ParameterInfoContext;
 import com.intellij.lang.parameterInfo.ParameterInfoHandler;
 import com.intellij.lang.parameterInfo.ParameterInfoUIContext;
 import com.intellij.lang.parameterInfo.UpdateParameterInfoContext;
@@ -34,6 +36,17 @@ import java.util.List;
 public class MethodParameterInfoHandler implements ParameterInfoHandler<BasePsiElement, DBMethod> {
     public static final ObjectReferenceLookupAdapter METHOD_LOOKUP_ADAPTER = new ObjectReferenceLookupAdapter(null, DBObjectType.METHOD, null);
     public static final ObjectReferenceLookupAdapter ARGUMENT_LOOKUP_ADAPTER = new ObjectReferenceLookupAdapter(null, DBObjectType.ARGUMENT, null);
+
+    @Override
+    public boolean couldShowInLookup() {
+        return true;
+    }
+
+    @Nullable
+    @Override
+    public Object[] getParametersForLookup(LookupElement item, ParameterInfoContext context) {
+        return null;
+    }
 
     @Nullable
     @Override

@@ -1,6 +1,5 @@
 package com.dbn.common.action;
 
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -29,11 +28,4 @@ public abstract class BasicActionGroup extends DefaultActionGroup implements Bac
     public void update(@NotNull AnActionEvent e) {
         super.update(e);
     }
-
-    @NotNull
-    @Override
-    public ActionUpdateThread getActionUpdateThread() {
-        return resolveActionUpdateThread();
-    }
-
 }

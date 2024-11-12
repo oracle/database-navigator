@@ -3,6 +3,7 @@ package com.dbn.common.ui.shortcut;
 import com.dbn.common.exception.ProcessDeferredException;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -19,7 +20,7 @@ public abstract class OverridingShortcutInterceptor extends ShortcutInterceptor 
     }
 
     @Override
-    public void beforeActionPerformed(@NotNull AnAction action, @NotNull AnActionEvent event) {
+    public void beforeActionPerformed(@NotNull AnAction action, @NotNull DataContext dataContext, @NotNull AnActionEvent event) {
         attemptDelegation(action, event);
     }
 

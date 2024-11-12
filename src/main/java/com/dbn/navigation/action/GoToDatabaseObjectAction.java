@@ -6,7 +6,11 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Strings;
-import com.dbn.connection.*;
+import com.dbn.connection.ConnectionBundle;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionManager;
+import com.dbn.connection.ConnectionRef;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.navigation.object.DBObjectLookupModel;
 import com.dbn.navigation.options.ObjectsLookupSettings;
@@ -18,7 +22,11 @@ import com.dbn.options.ProjectSettings;
 import com.intellij.ide.actions.GotoActionBase;
 import com.intellij.ide.util.gotoByName.ChooseByNamePopup;
 import com.intellij.ide.util.gotoByName.ChooseByNamePopupComponent;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -29,7 +37,7 @@ import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JTextField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -139,7 +147,7 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
             Presentation presentation = getTemplatePresentation();
             presentation.setText(connection.getName(), false);
             presentation.setIcon(connection.getIcon());
-            presentation.setPerformGroup(true);
+            //presentation.setPerformGroup(true);
             setPopup(true);
         }
 

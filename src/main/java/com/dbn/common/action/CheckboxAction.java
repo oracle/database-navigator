@@ -14,11 +14,9 @@
 
 package com.dbn.common.action;
 
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.project.DumbAware;
-import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public abstract class CheckboxAction extends com.intellij.openapi.actionSystem.ex.CheckboxAction implements BackgroundUpdateAware, DumbAware {
     protected CheckboxAction() {
@@ -31,11 +29,4 @@ public abstract class CheckboxAction extends com.intellij.openapi.actionSystem.e
     protected CheckboxAction(String text, String description, Icon icon) {
         super(text, description, icon);
     }
-
-    @NotNull
-    @Override
-    public ActionUpdateThread getActionUpdateThread() {
-        return resolveActionUpdateThread();
-    }
-
 }

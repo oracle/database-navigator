@@ -15,10 +15,9 @@
 package com.dbn.common.action;
 
 import com.dbn.common.Reflection;
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
-import com.intellij.openapi.actionSystem.ActionUpdateThreadAware;
+import com.dbn.common.compatibility.Compatibility;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.actionSystem.UpdateInBackground;
 
 /**
  * ActionUpdateThread decision stub, resolving teh {@link ActionUpdateThread} based on the {@link BackgroundUpdate} annotation
@@ -27,15 +26,11 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Dan Cioca (Oracle)
  */
-public interface BackgroundUpdateAware extends ActionUpdateThreadAware {
+public interface BackgroundUpdateAware extends UpdateInBackground {
 
-    /**
-     * Use this to implement getActionUpdateThread() overrides in all Action abstract stubs
-     * @return an {@link ActionUpdateThread} identifier
-     */
-    @NotNull
-    default ActionUpdateThread resolveActionUpdateThread() {
-        boolean updateInBackground = Reflection.hasAnnotation(getClass(), BackgroundUpdate.class);
-        return updateInBackground ? ActionUpdateThread.BGT : ActionUpdateThread.EDT;
+    //@Override
+    @Compatibility
+    default boolean isUpdateInBackground() {
+        return Reflection.hasAnnotation(getClass(), BackgroundUpdate.class);
     }
 }

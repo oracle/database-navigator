@@ -1,17 +1,29 @@
 package com.dbn.common.action;
 
 import com.dbn.nls.NlsSupport;
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
+import com.intellij.ide.DataManager;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
 public abstract class ComboBoxAction
         extends com.intellij.openapi.actionSystem.ex.ComboBoxAction
         implements BackgroundUpdateAware, NlsSupport {
+
+    @NotNull
+    @Override
+    protected DefaultActionGroup createPopupActionGroup(JComponent button) {
+        DataManager dataManager = DataManager.getInstance();
+        DataContext dataContext = dataManager.getDataContext(button);
+        return createPopupActionGroup(button, dataContext);
+    }
 
     @NotNull
     @Override
@@ -26,11 +38,4 @@ public abstract class ComboBoxAction
         panel.setFocusable(false);
         return panel;
     }
-
-    @NotNull
-    @Override
-    public ActionUpdateThread getActionUpdateThread() {
-        return resolveActionUpdateThread();
-    }
-
 }
