@@ -14,7 +14,6 @@ import com.dbn.common.ui.table.TableSelectionRestorer;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.UserInterface;
-import com.dbn.common.util.Conditional;
 import com.dbn.common.util.MathResult;
 import com.dbn.common.util.Safe;
 import com.dbn.data.grid.color.DataGridTextAttributes;
@@ -35,6 +34,8 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopup;
+import com.intellij.openapi.ui.popup.JBPopupListener;
+import com.intellij.openapi.ui.popup.LightweightWindowEvent;
 import com.intellij.ui.components.JBViewport;
 import com.intellij.util.Alarm;
 import com.intellij.util.ui.UIUtil;
@@ -340,27 +341,42 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
             valuePopup.cancel();
             valuePopup = null;
         }
-        if (isLargeValuePopupActive() && !isRestoringSelection()) {
-            T model = getModel();
-            DataModelState modelState = model.getState();
-            boolean isReadonly = model.isReadonly() || model.isEnvironmentReadonly() || modelState.isReadonly() ;
-            if (isReadonly && getSelectedColumnCount() == 1 && getSelectedRowCount() == 1 && this.isShowing()) {
-                int rowIndex = getSelectedRow();
-                int columnIndex = getSelectedColumn();
-                if (!canDisplayCompleteValue(rowIndex, columnIndex)) {
-                    Rectangle cellRect = getCellRect(rowIndex, columnIndex, true);
-                    DataModelCell<?, ?> cell = (DataModelCell<?, ?>) getValueAt(rowIndex, columnIndex);
-                    TableColumn column = getColumnModel().getColumn(columnIndex);
+        if (!isLargeValuePopupActive()) return;
+        if (isRestoringSelection()) return;
+        if (!isShowing()) return;
+        if (getSelectedRowCount() != 1) return;
+        if (getSelectedColumnCount() != 1) return;
 
-                    int preferredWidth = column.getWidth();
-                    LargeValuePreviewPopup viewer = new LargeValuePreviewPopup(getProject(), this, cell, preferredWidth);
-                    initLargeValuePopup(viewer);
-                    Point location = cellRect.getLocation();
-                    location.setLocation(location.getX() + 4, location.getY() + 20);
-                    valuePopup = viewer.show(this, location);
+        T model = getModel();
+        DataModelState modelState = model.getState();
+        boolean isReadonly = model.isReadonly() || model.isEnvironmentReadonly() || modelState.isReadonly() ;
+        if (!isReadonly) return;
+
+        int rowIndex = getSelectedRow();
+        int columnIndex = getSelectedColumn();
+        if (canDisplayCompleteValue(rowIndex, columnIndex)) return;
+
+        Rectangle cellRect = getCellRect(rowIndex, columnIndex, true);
+        DataModelCell<?, ?> cell = (DataModelCell<?, ?>) getValueAt(rowIndex, columnIndex);
+        TableColumn column = getColumnModel().getColumn(columnIndex);
+
+        int preferredWidth = column.getWidth();
+        LargeValuePreviewPopup viewer = new LargeValuePreviewPopup(getProject(), this, cell, preferredWidth);
+        initLargeValuePopup(viewer);
+        Point location = cellRect.getLocation();
+        location.setLocation(location.getX() + 4, location.getY() + 20);
+
+        valuePopup = viewer.show(this, location);
+        valuePopup.addListener(
+                new JBPopupListener() {
+                    @Override
+                    public void onClosed(@NotNull LightweightWindowEvent event) {
+                        valuePopup.cancel();
+                        valuePopup = null;
+                    }
                 }
-            }
-        }
+        );
+
     }
 
     protected void initLargeValuePopup(LargeValuePreviewPopup viewer) {

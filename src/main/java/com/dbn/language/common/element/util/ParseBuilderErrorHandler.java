@@ -16,7 +16,7 @@ import static com.dbn.common.util.Strings.toUpperCase;
 public class ParseBuilderErrorHandler {
     public static void updateBuilderError(Set<TokenType> expectedTokens, ParserContext context) {
         if (expectedTokens != null) {
-            ParserBuilder builder = context.getBuilder();
+            ParserBuilder builder = context.builder;
             if (!builder.isErrorAtOffset()) {
                 //expectedTokenError(1, context.builder, TokenTypeCategory.CHARACTER, expectedTokens);
                 //expectedTokenError(2, context.builder, TokenTypeCategory.OPERATOR, expectedTokens);

@@ -39,7 +39,7 @@ public class EnvironmentType implements Cloneable<EnvironmentType>, PersistentCo
         JBColor NONE = new JBColor(new Color(0xffffff), Color.DARK_GRAY);
     }
 
-    public static final EnvironmentType DEFAULT     = new EnvironmentType(EnvironmentTypeId.DEFAULT, "", "", null, null, false, false);
+    public static final EnvironmentType DEFAULT     = new EnvironmentType(EnvironmentTypeId.DEFAULT, "", "", new Color(214,214,214), new Color(72,74,74), false, false);
     public static final EnvironmentType DEVELOPMENT = new EnvironmentType(EnvironmentTypeId.DEVELOPMENT, "Development", "Development environment", new Color(-2430209), new Color(0x445F80), false, false);
     public static final EnvironmentType INTEGRATION = new EnvironmentType(EnvironmentTypeId.INTEGRATION, "Integration", "Integration environment", new Color(-2621494), new Color(0x466646), true, false);
     public static final EnvironmentType PRODUCTION  = new EnvironmentType(EnvironmentTypeId.PRODUCTION, "Production", "Productive environment", new Color(-11574), new Color(0x634544), true, true);

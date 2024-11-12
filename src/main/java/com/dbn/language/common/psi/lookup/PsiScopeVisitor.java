@@ -22,7 +22,7 @@ public abstract class PsiScopeVisitor implements Visitor<BasePsiElement> {
         BasePsiElement scope = element.getEnclosingScopeElement();
         while (scope != null) {
             boolean breakTreeWalk = visitScope(scope);
-            if (breakTreeWalk || scope.getElementType().isScopeIsolation()) break;
+            if (breakTreeWalk || scope.elementType.scopeIsolation) break;
 
             // LOOKUP
             PsiElement parent = scope.getParent();

@@ -52,7 +52,7 @@ public class RootPsiElement extends NamedPsiElement implements ExecutableBundleP
      *********************************************************/
     @Override
     public String getPresentableText() {
-        return getElementType().getDescription();
+        return elementType.getDescription();
     }
 
     @Override

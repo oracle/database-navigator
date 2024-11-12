@@ -1,6 +1,7 @@
 package com.dbn.common.notification;
 
 public enum NotificationGroup {
+    ASSISTANT,
     REPORTING,
     SOFTWARE,
     TRANSACTION,

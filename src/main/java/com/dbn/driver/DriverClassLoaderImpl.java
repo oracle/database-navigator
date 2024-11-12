@@ -13,7 +13,13 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Driver;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -121,7 +127,7 @@ class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader 
         }
         if (clazz == null) return super.loadClass(name, resolve);
 
-        loadedClasses.put(clazz.getName(), clazz);
+        loadedClasses.put(clazz.getName().intern(), clazz);
         return clazz;
 
 

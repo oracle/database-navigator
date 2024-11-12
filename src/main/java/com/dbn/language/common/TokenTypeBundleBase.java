@@ -8,7 +8,6 @@ import com.dbn.common.util.Strings;
 import com.intellij.lang.Language;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
-import gnu.trove.map.hash.THashMap;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.jdom.Document;
@@ -45,8 +44,8 @@ public abstract class TokenTypeBundleBase {
     private Map<String, SimpleTokenType> charactersMap;
     private Map<String, SimpleTokenType> operatorsMap;
 
-    private final Map<String, SimpleTokenType> tokenTypes = new THashMap<>();
-    private final Map<String, TokenSet> tokenSets = new THashMap<>();
+    private final Map<String, SimpleTokenType> tokenTypes = new HashMap<>();
+    private final Map<String, TokenSet> tokenSets = new HashMap<>();
 
     public Map<String, SimpleTokenType> getTokenTypes() {
         return tokenTypes;
@@ -78,7 +77,7 @@ public abstract class TokenTypeBundleBase {
         tokenRegistry.add(tokenType);
     }
 
-    public TokenType getTokenType(short index) {
+    public TokenType getTokenType(int index) {
         return tokenRegistry.get(index);
     }
 
@@ -155,7 +154,7 @@ public abstract class TokenTypeBundleBase {
 
     @NotNull
     private static Map<String, SimpleTokenType> createTokenMap(List<SimpleTokenType> tokenList) {
-        Map<String, SimpleTokenType> map = new THashMap<>(tokenList.size());
+        Map<String, SimpleTokenType> map = new HashMap<>(tokenList.size());
         for (SimpleTokenType token : tokenList) {
             map.put(token.getValue(), token);
         }
@@ -220,7 +219,7 @@ public abstract class TokenTypeBundleBase {
     }
 
     private Map<String, Set<String>> parseTokenSets(Element tokenSetDefs) {
-        Map<String, Set<String>> tokenSetDef = new THashMap<>();
+        Map<String, Set<String>> tokenSetDef = new HashMap<>();
         for (Element o : tokenSetDefs.getChildren()) {
             String tokenSetId = stringAttribute(o, "id");
             Set<String> tokenIds = new HashSet<>();

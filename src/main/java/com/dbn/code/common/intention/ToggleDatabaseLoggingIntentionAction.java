@@ -7,17 +7,19 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.language.common.PsiFileRef;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
-import com.intellij.codeInsight.intention.LowPriorityAction;
 import com.intellij.injected.editor.VirtualFileWindow;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
+import static com.dbn.assistant.editor.AssistantPrompt.Flavor.COMMENT;
+import static com.dbn.assistant.editor.AssistantPrompt.Flavor.SELECTION;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Editors.isMainEditor;
 import static com.dbn.common.util.Files.isDbLanguagePsiFile;
@@ -25,8 +27,14 @@ import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.database.DatabaseFeature.DATABASE_LOGGING;
 import static com.dbn.debugger.DatabaseDebuggerManager.isDebugConsole;
 
-public class ToggleDatabaseLoggingIntentionAction extends GenericIntentionAction implements LowPriorityAction {
+public class ToggleDatabaseLoggingIntentionAction extends EditorIntentionAction {
     private PsiFileRef<?> lastChecked;
+
+    @Override
+    public EditorIntentionType getType() {
+        return EditorIntentionType.TOGGLE_LOGGING;
+    }
+
 
     @Override
     @NotNull
@@ -67,7 +75,10 @@ public class ToggleDatabaseLoggingIntentionAction extends GenericIntentionAction
     }
 
     @Override
-    public boolean isAvailable(@NotNull Project project, Editor editor, PsiFile psiFile) {
+    public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
+        if (isDatabaseAssistantPrompt(editor, psiElement, COMMENT, SELECTION)) return false;
+
+        PsiFile psiFile = psiElement.getContainingFile();
         if (!isDbLanguagePsiFile(psiFile)) return false;
 
         VirtualFile file = psiFile.getVirtualFile();
@@ -86,21 +97,11 @@ public class ToggleDatabaseLoggingIntentionAction extends GenericIntentionAction
     }
 
     @Override
-    public void invoke(@NotNull final Project project, Editor editor, PsiFile psiFile) throws IncorrectOperationException {
+    public void invoke(@NotNull final Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException {
+        PsiFile psiFile = psiElement.getContainingFile();
         ConnectionHandler connection = getConnection(psiFile);
         if (DATABASE_LOGGING.isSupported(connection)) {
             connection.setLoggingEnabled(!connection.isLoggingEnabled());
         }
-    }
-
-
-    @Override
-    public boolean startInWriteAction() {
-        return false;
-    }
-
-    @Override
-    protected Integer getGroupPriority() {
-        return 0;
     }
 }

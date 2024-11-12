@@ -57,6 +57,10 @@ public final class ConnectionPool extends StatefulDisposableBase implements Noti
         return ensureConnection(SessionId.DEBUGGER);
     }
 
+    @NotNull
+    DBNConnection ensureAssistantConnection() throws SQLException {
+        return ensureConnection(SessionId.ASSISTANT);
+    }
     @Nullable
     public DBNConnection getMainConnection() {
         return getConnectionCache().get(SessionId.MAIN);

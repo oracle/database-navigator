@@ -1,6 +1,5 @@
 package com.dbn.language.common.element.impl;
 
-import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.NamedElementTypeLookupCache;
 import com.dbn.language.common.element.parser.impl.NamedElementTypeParser;
@@ -22,7 +21,7 @@ import static com.dbn.common.util.Strings.cachedUpperCase;
 
 @Getter
 public final class NamedElementType extends SequenceElementType {
-    private final Set<ElementType> parents;
+    public final Set<ElementTypeBase> parents;
     private boolean definitionLoaded;
     private boolean truncateOnExecution;
 
@@ -61,7 +60,7 @@ public final class NamedElementType extends SequenceElementType {
 
     public void update(NamedElementType elementType) {
         setDescription(elementType.getDescription());
-        children = elementType.getChildren();
+        children = elementType.children;
         definitionLoaded = true;
     }
 
@@ -71,7 +70,7 @@ public final class NamedElementType extends SequenceElementType {
         return cachedUpperCase(getId());
     }
 
-    public void addParent(ElementType parent) {
+    public void addParent(ElementTypeBase parent) {
         parents.add(parent);
     }
 }

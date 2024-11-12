@@ -1,11 +1,11 @@
 package com.dbn.language.common;
 
-import com.dbn.language.common.psi.ExecutablePsiElement;
-import com.dbn.language.common.psi.TokenPsiElement;
 import com.dbn.code.sql.color.SQLTextAttributesKeys;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.thread.ThreadMonitor;
 import com.dbn.common.thread.ThreadProperty;
+import com.dbn.language.common.psi.ExecutablePsiElement;
+import com.dbn.language.common.psi.TokenPsiElement;
 import com.intellij.lang.annotation.AnnotationBuilder;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
@@ -29,7 +29,7 @@ public abstract class DBLanguageAnnotator implements Annotator {
      * This will adjust text attributes accordingly
      */
     protected static void annotateFlavoredToken(@NotNull TokenPsiElement tokenPsiElement, AnnotationHolder holder) {
-        TokenTypeCategory flavor = tokenPsiElement.getElementType().getFlavor();
+        TokenTypeCategory flavor = tokenPsiElement.elementType.getFlavor();
         if (flavor == null) return;
 
         TextAttributesKey textAttributes = SQLTextAttributesKeys.IDENTIFIER;
@@ -37,7 +37,8 @@ public abstract class DBLanguageAnnotator implements Annotator {
             case DATATYPE: textAttributes = SQLTextAttributesKeys.DATA_TYPE; break;
             case FUNCTION: textAttributes = SQLTextAttributesKeys.FUNCTION; break;
             case KEYWORD: textAttributes = SQLTextAttributesKeys.KEYWORD; break;
-        };
+            case LITERAL: textAttributes = SQLTextAttributesKeys.STRING; break;
+        }
         createSilentAnnotation(holder, tokenPsiElement, textAttributes);
     }
 

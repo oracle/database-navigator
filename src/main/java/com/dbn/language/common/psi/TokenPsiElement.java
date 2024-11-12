@@ -1,9 +1,9 @@
 package com.dbn.language.common.psi;
 
-import com.dbn.language.common.psi.lookup.PsiLookupAdapter;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.impl.TokenElementType;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
+import com.dbn.language.common.psi.lookup.PsiLookupAdapter;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
@@ -11,7 +11,7 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -100,7 +100,7 @@ public class TokenPsiElement extends LeafPsiElement<TokenElementType> {
     }
 
     public TokenType getTokenType() {
-        return getElementType().getTokenType();
+        return elementType.tokenType;
     }
 
     @Override

@@ -10,28 +10,31 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.dispose.Checks.isNotValid;
-
 public class DDLMappedNotificationPanel extends EditorNotificationPanel {
+    private final DBObjectRef<DBSchemaObject> object;
 
-    public DDLMappedNotificationPanel(@NotNull final VirtualFile virtualFile, final DBSchemaObject editableObject) {
-        super(MessageType.NEUTRAL);
-        Project project = editableObject.getProject();
-        DBObjectRef<DBSchemaObject> editableObjectRef = DBObjectRef.of(editableObject);
-        String objectName = editableObject.getQualifiedNameWithType();
-        String objectTypeName = editableObject.getObjectType().getName();
+    public DDLMappedNotificationPanel(@NotNull Project project, @NotNull VirtualFile file, DBSchemaObject object) {
+        super(project, file, MessageType.NEUTRAL);
+        this.object = DBObjectRef.of(object);
+
+        String objectName = object.getQualifiedNameWithType();
+        String objectTypeName = object.getObjectType().getName();
         setText("This DDL file is attached to the database " + objectName + ". " +
                 "Changes done to the " + objectTypeName + " are mirrored to this DDL file, overwriting any changes you may do to it.");
-        createActionLabel("Detach", () -> {
-            if (isNotValid(project)) return;
 
-            DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
-            attachmentManager.detachDDLFile(virtualFile);
-            DBSchemaObject object = DBObjectRef.get(editableObjectRef);
-            if (object == null) return;
+        createActionLabel("Detach", () -> detach());
+    }
 
-            DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);
-            editorManager.reopenEditor(object);
-        });
+    private void detach() {
+        Project project = getProject();
+        VirtualFile file = getFile();
+
+        DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
+        attachmentManager.detachDDLFile(file);
+        DBSchemaObject object = DBObjectRef.get(this.object);
+        if (object == null) return;
+
+        DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);
+        editorManager.reopenEditor(object);
     }
 }

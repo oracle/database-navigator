@@ -7,6 +7,7 @@ import com.dbn.database.common.metadata.impl.DBClusterMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBColumnMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBConstraintColumnMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBConstraintMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBCredentialMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBDatabaseLinkMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBDimensionMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBFunctionMetadataImpl;
@@ -21,6 +22,7 @@ import com.dbn.database.common.metadata.impl.DBObjectDependencyMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBPackageMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBPrivilegeMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBProcedureMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBProfileMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBRoleMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBSchemaMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBSequenceMetadataImpl;
@@ -65,6 +67,8 @@ public class DBObjectMetadataFactory {
             case DBLINK:              return new DBDatabaseLinkMetadataImpl(resultSet);
             case CHARSET:             return new DBCharsetMetadataImpl(resultSet);
             case CLUSTER:             return new DBClusterMetadataImpl(resultSet);
+            case CREDENTIAL:          return new DBCredentialMetadataImpl(resultSet);
+            case AI_PROFILE:          return new DBProfileMetadataImpl(resultSet);
             case OBJECT_PRIVILEGE:    return new DBPrivilegeMetadataImpl(resultSet);
             case SYSTEM_PRIVILEGE:    return new DBPrivilegeMetadataImpl(resultSet);
             case PROCEDURE:           return new DBProcedureMetadataImpl(resultSet);
@@ -94,7 +98,7 @@ public class DBObjectMetadataFactory {
             case INCOMING_DEPENDENCY: return new DBObjectDependencyMetadataImpl(resultSet);
             case OUTGOING_DEPENDENCY: return new DBObjectDependencyMetadataImpl(resultSet);
         }
-        throw new UnsupportedOperationException("No provider defined for " + objectType);
+        throw new UnsupportedOperationException("No metadata provider defined for " + objectType);
     }
 
     private DBObjectMetadata createMetadata(DBObjectRelationType relationType, ResultSet resultSet) {
@@ -106,7 +110,7 @@ public class DBObjectMetadataFactory {
             case ROLE_ROLE:         return new DBGrantedRoleMetadataImpl(resultSet);
             case ROLE_PRIVILEGE:    return new DBGrantedPrivilegeMetadataImpl(resultSet);
         }
-        throw new UnsupportedOperationException("No provider defined for " + relationType);
+        throw new UnsupportedOperationException("No metadata provider defined for " + relationType);
     }
 
 

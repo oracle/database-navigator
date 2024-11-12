@@ -2,9 +2,12 @@ package com.dbn.language.common.element.parser.impl;
 
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.impl.IdentifierElementType;
-import com.dbn.language.common.element.parser.*;
+import com.dbn.language.common.element.parser.ElementTypeParser;
+import com.dbn.language.common.element.parser.ParseResult;
+import com.dbn.language.common.element.parser.ParseResultType;
+import com.dbn.language.common.element.parser.ParserBuilder;
+import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.path.ParserNode;
-import com.dbn.language.common.element.parser.*;
 import com.intellij.lang.PsiBuilder.Marker;
 
 public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierElementType> {
@@ -14,7 +17,7 @@ public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierEle
 
     @Override
     public ParseResult parse(ParserNode parentNode, ParserContext context) {
-        ParserBuilder builder = context.getBuilder();
+        ParserBuilder builder = context.builder;
         TokenType token = builder.getToken();
         Marker marker = null;
 

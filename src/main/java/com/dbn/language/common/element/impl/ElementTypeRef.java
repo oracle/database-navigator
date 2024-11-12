@@ -1,24 +1,19 @@
 package com.dbn.language.common.element.impl;
 
-import com.dbn.language.common.element.parser.BranchCheck;
-import com.dbn.language.common.element.parser.ElementTypeParser;
 import com.dbn.common.Linked;
-import com.dbn.language.common.element.ElementType;
-import com.dbn.language.common.element.cache.ElementTypeLookupCache;
 import com.dbn.language.common.element.parser.Branch;
-import lombok.Getter;
+import com.dbn.language.common.element.parser.BranchCheck;
 
 import java.util.Set;
 
-@Getter
 public class ElementTypeRef extends Linked<ElementTypeRef> {
-    private final ElementType parentElementType;
-    private final ElementType elementType;
-    private final boolean optional;
-    private final double version;
-    private final Set<BranchCheck> branchChecks;
+    public final ElementTypeBase parentElementType;
+    public final ElementTypeBase elementType;
+    public final boolean optional;
+    public final double version;
+    public final Set<BranchCheck> branchChecks;
 
-    public ElementTypeRef(ElementTypeRef previous, ElementType parentElementType, ElementType elementType, boolean optional, double version, Set<BranchCheck> branchChecks) {
+    public ElementTypeRef(ElementTypeRef previous, ElementTypeBase parentElementType, ElementTypeBase elementType, boolean optional, double version, Set<BranchCheck> branchChecks) {
         super(previous);
         this.parentElementType = parentElementType;
         this.elementType = elementType;
@@ -95,14 +90,6 @@ public class ElementTypeRef extends Linked<ElementTypeRef> {
             next = next.getNext();
         }
         return true;
-    }
-
-    public ElementTypeLookupCache<?> getLookupCache() {
-        return elementType.getLookupCache();
-    }
-
-    public ElementTypeParser<?> getParser() {
-        return elementType.getParser();
     }
 
     @Override

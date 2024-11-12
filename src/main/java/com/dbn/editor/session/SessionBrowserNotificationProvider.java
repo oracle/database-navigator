@@ -51,10 +51,6 @@ public class SessionBrowserNotificationProvider extends EditorNotificationProvid
         String error = sessionBrowser.getModelError();
         if (Strings.isEmpty(error)) return null;
 
-        return createPanel(connection, error);
-    }
-
-    private static SessionBrowserErrorNotificationPanel createPanel(ConnectionHandler connection, String sourceLoadError) {
-        return new SessionBrowserErrorNotificationPanel(connection, sourceLoadError);
+        return new SessionBrowserErrorNotificationPanel(project, virtualFile, error);
     }
 }

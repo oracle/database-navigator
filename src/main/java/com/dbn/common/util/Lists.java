@@ -116,6 +116,15 @@ public class Lists {
         }
     }
 
+    public static <T> int indexOf(@Nullable List<T> where, Predicate<T> what) {
+        if (where == null) return -1;
+        for (int i = 0; i < where.size(); i++) {
+            T t = where.get(i);
+            if (what.test(t)) return i;
+        }
+        return -1;
+    }
+
     public static int indexOf(@NotNull List<String> where, @NotNull String what, boolean ignoreCase) {
         int index = where.indexOf(what);
         if (index == -1) {
@@ -136,7 +145,7 @@ public class Lists {
     }
 
     @Nullable
-    public static <T> T firstElement(List<T> list) {
+    public static <T> T firstElement(@Nullable List<T> list) {
         return list == null || list.isEmpty() ? null : list.get(0);
     }
 

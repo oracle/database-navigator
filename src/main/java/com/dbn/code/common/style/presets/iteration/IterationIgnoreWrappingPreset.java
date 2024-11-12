@@ -25,8 +25,8 @@ public class IterationIgnoreWrappingPreset extends IterationAbstractPreset {
     public Spacing getSpacing(BasePsiElement psiElement, CodeStyleSettings settings) {
         BasePsiElement parentPsiElement = getParentPsiElement(psiElement);
         if (parentPsiElement != null) {
-            IterationElementType iterationElementType = (IterationElementType) parentPsiElement.getElementType();
-            ElementType elementType = psiElement.getElementType();
+            IterationElementType iterationElementType = (IterationElementType) parentPsiElement.elementType;
+            ElementType elementType = psiElement.elementType;
 
             if (elementType instanceof TokenElementType) {
                 TokenElementType tokenElementType = (TokenElementType) elementType;

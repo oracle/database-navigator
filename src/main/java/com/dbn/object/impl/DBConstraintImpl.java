@@ -13,8 +13,6 @@ import com.dbn.object.common.DBSchemaObjectImpl;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.list.DBObjectRelationList;
-import com.dbn.object.common.operation.DBOperationExecutor;
-import com.dbn.object.common.operation.DatabaseOperationManager;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.properties.DBObjectPresentableProperty;
@@ -26,7 +24,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
@@ -264,16 +262,5 @@ class DBConstraintImpl extends DBSchemaObjectImpl<DBConstraintMetadata> implemen
     @Override
     public boolean isLeaf() {
         return true;
-    }
-
-    @Override
-    public DBOperationExecutor getOperationExecutor() {
-        return operationType -> {
-            DatabaseOperationManager operationManager = DatabaseOperationManager.getInstance(getProject());
-            switch (operationType) {
-                case ENABLE:  operationManager.enableConstraint(this); break;
-                case DISABLE: operationManager.disableConstraint(this); break;
-            }
-        };
     }
 }

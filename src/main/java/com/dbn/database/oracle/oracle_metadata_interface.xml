@@ -174,6 +174,101 @@
         </statement>
     </statement-execution-processor>
 
+
+    <statement-execution-processor id="credentials" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL">
+            select
+                CREDENTIAL_NAME,
+                case when USERNAME like 'ocid1.user.oc1.%' THEN 'OCI' ELSE 'PASSWORD' end as CREDENTIAL_TYPE,
+                USERNAME as USER_NAME,
+                JSON_VALUE(comments, '$.comments') as COMMENTS,
+                DECODE(ENABLED, 'TRUE', 'Y', 'N') as IS_ENABLED
+            from [PREFIX]_CREDENTIALS d
+            where OWNER = {0}
+            order by CREDENTIAL_NAME asc
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="ai-profiles" is-query="true" is-prepared-statement="true">
+        <statement>
+            select
+                p.PROFILE_NAME,
+                DECODE(STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                TO_CHAR(p.DESCRIPTION) AS DESCRIPTION,
+                pa.PROVIDER,
+                pa.MODEL,
+                pa.TEMPERATURE,
+                pa.CREDENTIAL_NAME,
+                pa.OBJECT_LIST
+            from (
+                select
+                PROFILE_ID,
+                PROFILE_NAME,
+                ATTRIBUTE_NAME,
+                ATTRIBUTE_VALUE
+                from DBA_CLOUD_AI_PROFILE_ATTRIBUTES
+            )
+            pivot (
+                MAX(TO_CHAR(ATTRIBUTE_VALUE))
+                for ATTRIBUTE_NAME in (
+                    'provider' AS PROVIDER,
+                    'model' AS MODEL,
+                    'temperature' AS TEMPERATURE,
+                    'credential_name' AS CREDENTIAL_NAME,
+                    'object_list' AS OBJECT_LIST
+                )
+            ) pa
+            join DBA_CLOUD_AI_PROFILES p on p.PROFILE_ID = pa.PROFILE_ID
+            where p.OWNER = {0}
+            order by pa.PROFILE_NAME asc
+        </statement>
+        <statement>
+            select
+                p.PROFILE_NAME,
+                DECODE(STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                TO_CHAR(p.DESCRIPTION) AS DESCRIPTION,
+                pa.PROVIDER,
+                pa.MODEL,
+                pa.TEMPERATURE,
+                pa.CREDENTIAL_NAME,
+                pa.OBJECT_LIST
+            from (
+                select
+                PROFILE_ID,
+                PROFILE_NAME,
+                ATTRIBUTE_NAME,
+                ATTRIBUTE_VALUE
+                from USER_CLOUD_AI_PROFILE_ATTRIBUTES
+            )
+            pivot (
+                MAX(TO_CHAR(ATTRIBUTE_VALUE))
+                for ATTRIBUTE_NAME in (
+                    'provider' AS PROVIDER,
+                    'model' AS MODEL,
+                    'temperature' AS TEMPERATURE,
+                    'credential_name' AS CREDENTIAL_NAME,
+                    'object_list' AS OBJECT_LIST
+                )
+            ) pa
+            join USER_CLOUD_AI_PROFILES p on p.PROFILE_ID = pa.PROFILE_ID
+            join USER_USERS uu ON uu.USERNAME = {0}
+            order by pa.PROFILE_NAME asc
+        </statement>
+        <statement>
+            <!--empty fallback for non-cloud databases-->
+            select
+                null as PROFILE_NAME,
+                null as IS_ENABLED,
+                null as DESCRIPTION,
+                null as PROVIDER,
+                null as MODEL,
+                null as TEMPERATURE,
+                null as CREDENTIAL_NAME,
+                null as OBJECT_LIST
+            from DUAL where 1 = 2
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="tables" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             with DBN_MVIEWS as (
@@ -209,17 +304,28 @@
     <statement-execution-processor id="java-objects" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select
-                NAME as OBJECT_NAME,
-                KIND as OBJECT_KIND,
-                ACCESSIBILITY as OBJECT_ACCESSIBILITY,
-                decode(IS_FINAL,'YES','Y','N') as IS_FINAL,
-                decode(IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
-                decode(IS_INNER,'YES','Y','N') as IS_INNER,
-                decode(IS_STATIC,'YES','Y','N') as IS_STATIC
-            from [PREFIX]_JAVA_CLASSES
-            where OWNER = {0}
-                and IS_INNER = 'NO'
-                and NAME not like '%$%'
+                j.NAME as OBJECT_NAME,
+                j.KIND as OBJECT_KIND,
+                j.ACCESSIBILITY as OBJECT_ACCESSIBILITY,
+                decode(j.IS_FINAL,'YES','Y','N') as IS_FINAL,
+                decode(j.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
+                decode(j.IS_INNER,'YES','Y','N') as IS_INNER,
+                decode(j.IS_STATIC,'YES','Y','N') as IS_STATIC,
+                decode(ob.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
+                decode(nvl(apo.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG
+            from [PREFIX]_JAVA_CLASSES j
+            left join [PREFIX]_OBJECTS ob
+                   on ob.OWNER = j.OWNER
+                  and ob.OBJECT_NAME = j.NAME
+                  and ob.OBJECT_TYPE = 'JAVA CLASS'
+            left join SYS.ALL_PROBE_OBJECTS apo
+                  on apo.OWNER = j.OWNER
+                 and apo.OBJECT_NAME = j.NAME
+                 and apo.OBJECT_TYPE = 'JAVA CLASS'
+            where j.OWNER = {0}
+              and j.IS_INNER = 'NO'
+              and j.NAME not like '%$%'
+            order by j.NAME
         </statement>
     </statement-execution-processor>
 
@@ -1967,6 +2073,18 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="java-binary-code" timeout="20">
+        <statement>
+            declare
+                V_BLOB BLOB;
+            begin
+                DBMS_LOB.CREATETEMPORARY(v_blob, TRUE);
+                DBMS_JAVA.export_class('{1}', '{0}', v_blob);
+                ? := V_BLOB;
+            end;
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="object-change-timestamp" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select to_date(TIMESTAMP, 'YYYY-MM-DD:HH24:MI:SS')
@@ -2076,6 +2194,13 @@
             alter {2} {0}.{1} compile {3} body
         </statement>
     </statement-execution-processor>
+
+    <statement-execution-processor id="compile-java-object">
+        <statement>
+            alter JAVA SOURCE {0}."{1}" compile
+        </statement>
+    </statement-execution-processor>
+
 
     <statement-execution-processor id="load-distinct-values" is-query="true">
         <statement>

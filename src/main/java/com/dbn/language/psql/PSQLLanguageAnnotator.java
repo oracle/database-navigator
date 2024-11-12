@@ -1,7 +1,5 @@
 package com.dbn.language.psql;
 
-import com.dbn.language.common.navigation.*;
-import com.dbn.language.common.psi.*;
 import com.dbn.code.psql.color.PSQLTextAttributesKeys;
 import com.dbn.code.sql.color.SQLTextAttributesKeys;
 import com.dbn.connection.ConnectionHandler;
@@ -11,6 +9,17 @@ import com.dbn.editor.code.options.CodeEditorGeneralSettings;
 import com.dbn.language.common.DBLanguageAnnotator;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
+import com.dbn.language.common.navigation.NavigateToDefinitionAction;
+import com.dbn.language.common.navigation.NavigateToObjectAction;
+import com.dbn.language.common.navigation.NavigateToSpecificationAction;
+import com.dbn.language.common.navigation.NavigationAction;
+import com.dbn.language.common.navigation.NavigationGutterRenderer;
+import com.dbn.language.common.psi.BasePsiElement;
+import com.dbn.language.common.psi.ChameleonPsiElement;
+import com.dbn.language.common.psi.ExecutablePsiElement;
+import com.dbn.language.common.psi.IdentifierPsiElement;
+import com.dbn.language.common.psi.NamedPsiElement;
+import com.dbn.language.common.psi.TokenPsiElement;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.options.ProjectSettings;
@@ -21,7 +30,10 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Unsafe.cast;
-import static com.dbn.language.common.element.util.ElementTypeAttribute.*;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.OBJECT_DECLARATION;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.OBJECT_SPECIFICATION;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.ROOT;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SUBJECT;
 import static com.intellij.lang.annotation.HighlightSeverity.ERROR;
 
 public class PSQLLanguageAnnotator extends DBLanguageAnnotator {
@@ -38,7 +50,7 @@ public class PSQLLanguageAnnotator extends DBLanguageAnnotator {
         if (psiElement instanceof BasePsiElement) {
             BasePsiElement basePsiElement = (BasePsiElement) psiElement;
 
-            ElementType elementType = basePsiElement.getElementType();
+            ElementType elementType = basePsiElement.elementType;
             if (elementType.is(OBJECT_SPECIFICATION) || elementType.is(OBJECT_DECLARATION)) {
                 annotateSpecDeclarationNavigable(basePsiElement, holder);
             }
@@ -52,7 +64,7 @@ public class PSQLLanguageAnnotator extends DBLanguageAnnotator {
             } else if (basePsiElement instanceof NamedPsiElement) {
                 NamedPsiElement namedPsiElement = (NamedPsiElement) basePsiElement;
                 if (namedPsiElement.hasErrors()) {
-                    String message = "Invalid " + namedPsiElement.getElementType().getDescription();
+                    String message = "Invalid " + namedPsiElement.elementType.getDescription();
                     createAnnotation(holder, namedPsiElement, ERROR, null, message);
                 }
             }
@@ -129,7 +141,7 @@ public class PSQLLanguageAnnotator extends DBLanguageAnnotator {
         if (subjectPsiElement instanceof IdentifierPsiElement) {
             IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) subjectPsiElement;
             DBObjectType objectType = identifierPsiElement.getObjectType();
-            ElementType elementType = basePsiElement.getElementType();
+            ElementType elementType = basePsiElement.elementType;
 
             if (identifierPsiElement.isObject() && objectType.getGenericType() == DBObjectType.METHOD) {
 

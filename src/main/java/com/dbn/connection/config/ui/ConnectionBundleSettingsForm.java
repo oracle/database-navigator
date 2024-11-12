@@ -8,6 +8,7 @@ import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.CardLayouts;
+import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Messages;
@@ -80,6 +81,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         connectionsList.setCellRenderer(new ConnectionConfigListCellRenderer());
         connectionsList.setFont(Fonts.getLabelFont());
         connectionsList.setBackground(Colors.getTextFieldBackground());
+        connectionsList.setBorder(Borders.EMPTY_BORDER);
         makeRegular(contentSplitPane);
 
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.ConnectionSettings", "", true);

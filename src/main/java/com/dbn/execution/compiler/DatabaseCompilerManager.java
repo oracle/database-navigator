@@ -23,6 +23,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -196,13 +197,20 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
         String objectName = object.getName();
         String objectTypeName = cachedUpperCase(object.getTypeName());
 
-        if (contentType == DBContentType.CODE_SPEC || contentType == DBContentType.CODE) {
+        if (object.getObjectType() == DBObjectType.JAVA_OBJECT) {
+            metadata.compileJavaObject(
+                    schemaName,
+                    objectName,
+                    conn);
+
+        } else if (contentType == DBContentType.CODE_SPEC || contentType == DBContentType.CODE) {
             metadata.compileObject(
                     schemaName,
                     objectName,
                     objectTypeName,
                     debug,
                     conn);
+
         } else if (contentType == DBContentType.CODE_BODY) {
             metadata.compileObjectBody(
                     schemaName,

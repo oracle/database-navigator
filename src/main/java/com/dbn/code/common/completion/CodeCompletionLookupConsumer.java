@@ -1,7 +1,11 @@
 package com.dbn.code.common.completion;
 
 import com.dbn.code.common.completion.options.filter.CodeCompletionFilterSettings;
-import com.dbn.code.common.lookup.*;
+import com.dbn.code.common.lookup.AliasLookupItemBuilder;
+import com.dbn.code.common.lookup.BasicLookupItemBuilder;
+import com.dbn.code.common.lookup.IdentifierLookupItemBuilder;
+import com.dbn.code.common.lookup.LookupItemBuilder;
+import com.dbn.code.common.lookup.VariableLookupItemBuilder;
 import com.dbn.common.consumer.CancellableConsumer;
 import com.dbn.common.util.Strings;
 import com.dbn.language.common.DBLanguage;
@@ -53,7 +57,7 @@ public class CodeCompletionLookupConsumer implements CancellableConsumer<Object>
                     CodeCompletionFilterSettings filterSettings = context.getCodeCompletionFilterSettings();
                     TokenTypeCategory tokenTypeCategory = tokenElementType.getTokenTypeCategory();
                     if (tokenTypeCategory == TokenTypeCategory.OBJECT) {
-                        TokenType tokenType = tokenElementType.getTokenType();
+                        TokenType tokenType = tokenElementType.tokenType;
                         DBObjectType objectType = tokenType.getObjectType();
                         if (objectType != null && filterSettings.acceptsRootObject(objectType)) {
                             lookupItemBuilder = new BasicLookupItemBuilder(

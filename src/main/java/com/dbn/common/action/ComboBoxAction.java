@@ -1,5 +1,6 @@
 package com.dbn.common.action;
 
+import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.util.ui.JBUI;
@@ -10,7 +11,7 @@ import java.awt.*;
 
 public abstract class ComboBoxAction
         extends com.intellij.openapi.actionSystem.ex.ComboBoxAction
-        implements BackgroundUpdateAware {
+        implements BackgroundUpdateAware, NlsSupport {
 
     @NotNull
     @Override

@@ -222,6 +222,12 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
     }
 
     @Override
+    public void reloadInBackground() {
+        markDirty();
+        loadInBackground();
+    }
+
+    @Override
     public void refresh() {
         if (shouldRefresh()) {
             markDirty();
@@ -266,11 +272,9 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
         checkDisposed();
 
         try {
-            // mark first the dirty status since dirty dependencies may
-            // become valid due to parallel background load
-            set(DynamicContentProperty.DIRTY, false);
             DynamicContentLoader<T, ?> loader = getLoader();
             loader.loadContent(this);
+            set(DynamicContentProperty.DIRTY, false);
             set(DynamicContentProperty.LOADED, true);
 
             // refresh inner elements

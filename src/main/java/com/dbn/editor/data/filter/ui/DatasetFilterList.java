@@ -1,5 +1,6 @@
 package com.dbn.editor.data.filter.ui;
 
+import com.dbn.common.ui.util.Borders;
 import com.dbn.editor.data.filter.DatasetFilter;
 import com.dbn.editor.data.filter.DatasetFilterGroup;
 import com.intellij.ui.ColoredListCellRenderer;
@@ -13,6 +14,7 @@ public class DatasetFilterList extends JList {
     public DatasetFilterList() {
         super();
         setCellRenderer(LIST_CELL_RENDERER);
+        setBorder(Borders.EMPTY_BORDER);
     }
 
     public DatasetFilterGroup getFilterGroup() {

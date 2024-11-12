@@ -54,7 +54,8 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 CURRENT_SCHEMA,
                 USER_SCHEMA,
                 CONSTRAINT_MANIPULATION,
-                READONLY_CONNECTIVITY);
+                READONLY_CONNECTIVITY,
+                AI_ASSISTANT);
     }
 
     @Override

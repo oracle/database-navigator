@@ -156,12 +156,12 @@ public abstract class LeafPsiElement<T extends LeafElementType> extends BasePsiE
 
     @Override
     public BasePsiElement findPsiElementByAttribute(ElementTypeAttribute attribute) {
-        return getElementType().is(attribute) ? this : null;
+        return elementType.is(attribute) ? this : null;
     }
 
     @Override
     public BasePsiElement findFirstPsiElement(ElementTypeAttribute attribute) {
-        if (getElementType().is(attribute)) {
+        if (elementType.is(attribute)) {
             return this;
         }
         return null;
@@ -169,7 +169,7 @@ public abstract class LeafPsiElement<T extends LeafElementType> extends BasePsiE
 
     @Override
     public BasePsiElement findFirstPsiElement(Class<? extends ElementType> clazz) {
-        if (getElementType().getClass().isAssignableFrom(clazz)) {
+        if (elementType.getClass().isAssignableFrom(clazz)) {
             return this;
         }
         return null;

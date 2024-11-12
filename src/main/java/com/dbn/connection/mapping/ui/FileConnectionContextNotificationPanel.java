@@ -16,7 +16,7 @@ public class FileConnectionContextNotificationPanel extends EditorNotificationPa
             @NotNull Project project,
             @NotNull VirtualFile file,
             @NotNull FileConnectionContext mapping) {
-        super(MessageType.SYSTEM);
+        super(project, file ,MessageType.SYSTEM);
 
         ConnectionId connectionId = mapping.getConnectionId();
         ConnectionHandler connection = ConnectionHandler.get(connectionId);
@@ -28,10 +28,7 @@ public class FileConnectionContextNotificationPanel extends EditorNotificationPa
             setIcon(null);
         }
 
-        createActionLabel("Unlink", () -> {
-                FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
-                contextManager.removeMapping(file);
-            });
+        createActionLabel("Unlink", () -> delink());
 
 
 /*
@@ -52,5 +49,12 @@ public class FileConnectionContextNotificationPanel extends EditorNotificationPa
             }
         });
 */
+    }
+
+    private void delink() {
+        Project project = getProject();
+        VirtualFile file = getFile();
+        FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
+        contextManager.removeMapping(file);
     }
 }

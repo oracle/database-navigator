@@ -1,6 +1,7 @@
 package com.dbn.language.common.element.path;
 
 import com.dbn.language.common.element.ElementType;
+import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.SequenceElementType;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiWhiteSpace;
@@ -52,10 +53,10 @@ public class AstNode implements LanguageNode {
 
     @Override
     @Nullable
-    public ElementType getElement() {
+    public ElementTypeBase getElement() {
         IElementType elementType = astNode.getElementType();
 
-        return elementType instanceof ElementType ? (ElementType) elementType : null;
+        return elementType instanceof ElementTypeBase ? (ElementTypeBase) elementType : null;
     }
 
     @Override
@@ -64,7 +65,7 @@ public class AstNode implements LanguageNode {
     }
 
     @Override
-    public boolean isAncestor(ElementType elementType) {
+    public boolean isAncestor(ElementTypeBase elementType) {
         return false;
     }
 

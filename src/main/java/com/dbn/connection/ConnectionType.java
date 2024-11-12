@@ -10,7 +10,8 @@ public enum ConnectionType{
     SESSION("Session", 2),
     DEBUG("Debug", 3),
     DEBUGGER("Debugger", 4),
-    TEST("Test", 5)
+    ASSISTANT("Assistant", 6),
+    TEST("Test", 5),
     ;
 
     private final String name;

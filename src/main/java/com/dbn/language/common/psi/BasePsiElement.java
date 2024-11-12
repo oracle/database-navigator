@@ -24,6 +24,7 @@ import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.QuoteDefinition;
 import com.dbn.language.common.element.ElementType;
+import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.element.util.IdentifierCategory;
 import com.dbn.language.common.psi.lookup.ObjectLookupAdapter;
@@ -52,16 +53,19 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiComment;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementVisitor;
+import com.intellij.psi.PsiErrorElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.impl.source.tree.FileElement;
 import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.SearchScope;
-import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -69,9 +73,7 @@ import java.util.function.Predicate;
 
 import static com.dbn.common.util.Unsafe.cast;
 
-@Getter
-@Setter
-public abstract class BasePsiElement<T extends ElementType> extends ASTWrapperPsiElement implements DatabaseContextBase, ItemPresentation, FormattingProviderPsiElement {
+public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapperPsiElement implements DatabaseContextBase, ItemPresentation, FormattingProviderPsiElement {
     private static final WeakRefCache<BasePsiElement, DBVirtualObject> underlyingObjectCache = WeakRefCache.weakKey();
     private static final WeakRefCache<BasePsiElement, FormattingAttributes> formattingAttributesCache = WeakRefCache.weakKey();
     private static final WeakRefCache<BasePsiElement, BasePsiElement> enclosingScopePsiElements = WeakRefCache.weakKeyValue();
@@ -82,7 +84,7 @@ public abstract class BasePsiElement<T extends ElementType> extends ASTWrapperPs
             "ParserDiagnosticsUtil",
             "UpdateCopyrightAction");
 
-    private T elementType;
+    public T elementType;
 
     public enum MatchType {
         STRONG,
@@ -116,7 +118,7 @@ public abstract class BasePsiElement<T extends ElementType> extends ASTWrapperPs
         if (formatting == null) return null;
 
         return formattingAttributesCache.get(this, e -> {
-            FormattingAttributes attributes = e.getElementType().getFormatting().getAttributes();
+            FormattingAttributes attributes = e.elementType.getFormatting().getAttributes();
             return FormattingAttributes.copy(attributes);
         });
     }
@@ -201,7 +203,7 @@ public abstract class BasePsiElement<T extends ElementType> extends ASTWrapperPs
     }
 
     public String getReferenceQualifiedName() {
-        return isVirtualObject() ? "virtual " + elementType.getVirtualObjectType().getName() : "[unknown element]";
+        return isVirtualObject() ? "virtual " + elementType.virtualObjectType.getName() : "[unknown element]";
     }
 
     public abstract int approximateLength();
@@ -240,8 +242,8 @@ public abstract class BasePsiElement<T extends ElementType> extends ASTWrapperPs
         return hasErrors() ?
                 "[INVALID] " + elementType.getName() :
                 elementType.getName() +
-                        (elementType.isScopeDemarcation() ? " SCOPE_DEMARCATION" : "") +
-                        (elementType.isScopeIsolation() ? " SCOPE_ISOLATION" : "");
+                        (elementType.scopeDemarcation ? " SCOPE_DEMARCATION" : "") +
+                        (elementType.scopeIsolation ? " SCOPE_ISOLATION" : "");
     }
 
     @Override
@@ -477,7 +479,7 @@ public abstract class BasePsiElement<T extends ElementType> extends ASTWrapperPs
 
     public void collectVirtualObjectPsiElements(DBObjectType objectType, Consumer<BasePsiElement> consumer) {
         if (elementType.isVirtualObject()) {
-            DBObjectType virtualObjectType = elementType.getVirtualObjectType();
+            DBObjectType virtualObjectType = elementType.virtualObjectType;
             if (objectType == virtualObjectType) {
                 consumer.accept(this);
             }
@@ -502,7 +504,7 @@ public abstract class BasePsiElement<T extends ElementType> extends ASTWrapperPs
 
     @Nullable
     public <E extends BasePsiElement> E findEnclosingElement(ElementTypeAttribute attribute) {
-        return findEnclosingElement(true, e -> e.getElementType().is(attribute));
+        return findEnclosingElement(true, e -> e.elementType.is(attribute));
     }
 
     @Nullable
@@ -569,12 +571,12 @@ public abstract class BasePsiElement<T extends ElementType> extends ASTWrapperPs
     }
 
     public boolean isScopeBoundary() {
-        return elementType.isScopeDemarcation() || elementType.isScopeIsolation() || getNode().getTreeParent() instanceof FileElement;
+        return elementType.scopeDemarcation || elementType.scopeIsolation || getNode().getTreeParent() instanceof FileElement;
     }
 
     @Nullable
     public DBObjectType getVirtualObjectType() {
-        return getElementType().getVirtualObjectType();
+        return elementType.virtualObjectType;
     }
 
     /*********************************************************

@@ -6,21 +6,21 @@ import com.dbn.language.common.element.path.ParserNode;
 
 public class ElementTypeUtil {
     public static ElementType getEnclosingElementType(ParserNode pathNode, ElementTypeAttribute elementTypeAttribute) {
-        ParserNode parentNode = pathNode.getParent();
+        ParserNode parentNode = (ParserNode) pathNode.parent;
         while (parentNode != null) {
-            ElementType elementType = parentNode.getElement();
+            ElementType elementType = parentNode.element;
             if (elementType.is(elementTypeAttribute)) return elementType;
-            parentNode = parentNode.getParent();
+            parentNode = (ParserNode) parentNode.parent;
         }
         return null;
     }
 
     public static NamedElementType getEnclosingNamedElementType(ParserNode pathNode) {
-        ParserNode parentNode = pathNode.getParent();
+        ParserNode parentNode = (ParserNode) pathNode.parent;
         while (parentNode != null) {
-            ElementType elementType = parentNode.getElement();
+            ElementType elementType = parentNode.element;
             if (elementType instanceof NamedElementType) return (NamedElementType) elementType;
-            parentNode = parentNode.getParent();
+            parentNode = (ParserNode) parentNode.parent;
         }
         return null;
     }

@@ -17,9 +17,8 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
-@Getter
 public abstract class DBLanguageParser implements PsiParser {
-    private final DBLanguageDialect languageDialect;
+    public final DBLanguageDialect languageDialect;
     private final String defaultParseRootId;
     private final String tokenTypesFile;
     private final String elementTypesFile;
@@ -40,13 +39,13 @@ public abstract class DBLanguageParser implements PsiParser {
     }
 
     private TokenTypeBundle loadTokenTypes() {
-        Document document = loadDefinition(getTokenTypesFile());
-        return new TokenTypeBundle(getLanguageDialect(), document);
+        Document document = loadDefinition(tokenTypesFile);
+        return new TokenTypeBundle(languageDialect, document);
     }
 
     private ElementTypeBundle loadElementTypes() {
-        Document document = loadDefinition(getElementTypesFile());
-        return new ElementTypeBundle(getLanguageDialect(), getTokenTypes(), document);
+        Document document = loadDefinition(elementTypesFile);
+        return new ElementTypeBundle(languageDialect, getTokenTypes(), document);
     }
 
 
@@ -63,7 +62,7 @@ public abstract class DBLanguageParser implements PsiParser {
     @NotNull
     public ASTNode parse(IElementType rootElementType, PsiBuilder psiBuilder, String parseRootId, double databaseVersion) {
         ParserContext context = new ParserContext(psiBuilder, languageDialect, databaseVersion);
-        ParserBuilder builder = context.getBuilder();
+        ParserBuilder builder = context.builder;
         if (parseRootId == null ) parseRootId = defaultParseRootId;
         PsiBuilder.Marker marker = builder.mark();
 
@@ -79,7 +78,7 @@ public abstract class DBLanguageParser implements PsiParser {
         try {
             while (!builder.eof()) {
                 int currentOffset =  builder.getOffset();
-                root.getParser().parse(rootParseNode, context);
+                root.parser.parse(rootParseNode, context);
                 if (currentOffset == builder.getOffset()) {
                     TokenType token = builder.getToken();
                     /*if (tokenType.isChameleon()) {

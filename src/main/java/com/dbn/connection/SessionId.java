@@ -14,6 +14,7 @@ public final class SessionId extends PseudoConstant<SessionId> {
     public static final SessionId TEST = get("TEST");
     public static final SessionId DEBUG = get("DEBUG");
     public static final SessionId DEBUGGER = get("DEBUGGER");
+    public static final SessionId ASSISTANT = get("ASSISTANT");
     public static final SessionId NULL = get("NULL");
 
     public SessionId(String id) {
@@ -40,6 +41,7 @@ public final class SessionId extends PseudoConstant<SessionId> {
         if (this == TEST) return ConnectionType.TEST;
         if (this == DEBUG) return ConnectionType.DEBUG;
         if (this == DEBUGGER) return ConnectionType.DEBUGGER;
+        if (this == ASSISTANT) return ConnectionType.ASSISTANT;
         return ConnectionType.SESSION;
     }
 

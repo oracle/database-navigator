@@ -17,9 +17,12 @@ import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.lookup.LookupItem;
 import com.intellij.openapi.project.Project;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
-import static com.dbn.common.util.Strings.*;
+import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.common.util.Strings.toLowerCase;
+import static com.dbn.common.util.Strings.toUpperCase;
 
 public class TokenLookupItemBuilder extends LookupItemBuilder {
 
@@ -36,13 +39,13 @@ public class TokenLookupItemBuilder extends LookupItemBuilder {
 
     @Override
     public boolean isBold() {
-        return tokenElementType.getTokenType().isKeyword();
+        return tokenElementType.tokenType.isKeyword();
     }
 
     @Override
     public CharSequence getText(CodeCompletionContext completionContext) {
         String text = tokenElementType.getText();
-        TokenType tokenType = tokenElementType.getTokenType();
+        TokenType tokenType = tokenElementType.tokenType;
         if (isEmpty(text)) {
             text = tokenType.getValue();
         }
@@ -93,7 +96,7 @@ public class TokenLookupItemBuilder extends LookupItemBuilder {
     }
 
     public TokenType getTokenType() {
-        return tokenElementType.getTokenType();
+        return tokenElementType.tokenType;
     }
     public TokenTypeCategory getTokenTypeCategory() {
         return tokenElementType.getTokenTypeCategory();

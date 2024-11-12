@@ -9,7 +9,11 @@ import com.dbn.execution.method.action.MethodRunAction;
 import com.dbn.execution.method.action.ProgramMethodDebugAction;
 import com.dbn.execution.method.action.ProgramMethodRunAction;
 import com.dbn.generator.action.GenerateStatementActionGroup;
-import com.dbn.object.*;
+import com.dbn.object.DBColumn;
+import com.dbn.object.DBConsole;
+import com.dbn.object.DBMethod;
+import com.dbn.object.DBProgram;
+import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectNavigationList;
@@ -24,7 +28,11 @@ import com.intellij.openapi.project.DumbAware;
 
 import java.util.List;
 
-import static com.dbn.object.common.property.DBObjectProperty.*;
+import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
+import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
+import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
+import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
+import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 
 public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
 
@@ -53,7 +61,9 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
                 add(new ObjectEnableDisableAction(schemaObject));
             }
 
-            if (object.is(SCHEMA_OBJECT)) {
+            if (object.is(SCHEMA_OBJECT) &&
+                    !object.getSchema().isSystemSchema() &&
+                    !object.getSchema().isPublicSchema()) {
                 if (object.getObjectType() != DBObjectType.CONSTRAINT || DatabaseFeature.CONSTRAINT_MANIPULATION.isSupported(object)) {
                     add(new ObjectDropAction((DBSchemaObject) object));
                 }

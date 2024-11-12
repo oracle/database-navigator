@@ -14,6 +14,7 @@ import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.console.DatabaseConsoleBundle;
 import com.dbn.connection.info.ConnectionInfo;
+import com.dbn.connection.interceptor.DatabaseInterceptorBundle;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.session.DatabaseSessionBundle;
 import com.dbn.database.DatabaseCompatibility;
@@ -22,7 +23,6 @@ import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.execution.statement.StatementExecutionQueue;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
-import com.dbn.nls.NlsResources;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.DBVirtualObjectBundle;
@@ -392,6 +392,11 @@ public class VirtualConnectionHandler extends StatefulDisposableBase implements 
     @NotNull
     @Override
     public DatabaseSessionBundle getSessionBundle() {
+        return unsupported();
+    }
+
+    @Override
+    public DatabaseInterceptorBundle getInterceptorBundle() {
         return unsupported();
     }
 

@@ -25,6 +25,7 @@ import com.intellij.psi.tree.IElementType;
 
 PLSQL_BLOCK_START = "create"({ws}"or"{ws}"replace")? {ws} ("function"|"procedure"|"type"|"trigger"|"package") | "declare" | "begin"
 PLSQL_BLOCK_END = ";"{wso}"/"[^*]
+SELECT_AI_START = "select"{ws}"ai"
 
 %include ../../../common/lexer/shared_elements.flext
 %include ../../../common/lexer/shared_elements_oracle.flext
@@ -37,6 +38,7 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
 
 %state PSQL_BLOCK
 %state NON_PSQL_BLOCK
+%state SELECT_AI
 %%
 
 <YYINITIAL, NON_PSQL_BLOCK> {
@@ -48,6 +50,7 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
     {SQLP_VARIABLE}       { return stt.getVariable(); }
 
     {PLSQL_BLOCK_START}   { yybegin(PSQL_BLOCK); return tt.getKeyword();}
+    {SELECT_AI_START}     { yybegin(SELECT_AI); yypushback(yylength());}
 
     {INTEGER}             { return tt.getInteger(); }
     {NUMBER}              { return tt.getNumber(); }
@@ -101,3 +104,21 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
     {WHITE_SPACE}         { return stt.getWhiteSpace(); }
     .                     { return stt.getIdentifier(); }
 }
+
+<SELECT_AI> {
+    "select"           { return tt.getKeyword(); }
+    "ai"               { return tt.getKeyword(); }
+    "showprompt"       { return tt.getKeyword(); }
+    "showsql"          { return tt.getKeyword(); }
+    "explainsql"       { return tt.getKeyword(); }
+    "executesql"       { return tt.getKeyword(); }
+    "narrate"          { return tt.getKeyword(); }
+    "chat"             { return tt.getKeyword(); }
+    {STRING}           { yybegin(YYINITIAL); return stt.getString(); }    // string is allowed to have eols
+    {eol}              { yybegin(YYINITIAL); return stt.getWhiteSpace();} // end of line -> exit the SELECT_AI block
+    ";"                { yybegin(YYINITIAL); return stt.getChrSemicolon();}
+    "/"                { yybegin(YYINITIAL); return stt.getChrSlash();}
+    [^\r\n\t\f ;/]+    { return stt.getString();}
+    {wsc}+             { return stt.getWhiteSpace(); }
+}
+

@@ -1,0 +1,100 @@
+<!--
+  ~ Copyright (c) 2024, Oracle and/or its affiliates.
+  ~
+  ~ This software is dual-licensed to you under the Universal Permissive License
+  ~ (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
+  ~ 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
+  ~ either license.
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and limitations under the License.
+  -->
+
+<!-- https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-3721296F-14A1-428A-B464-7FA25E9EC8F3 -->
+<language-model-provider version="1.0">
+    <provider id="OPENAI" name="OpenAI" host="api.openai.com">
+        <urls>
+            <url type="OFFICIAL">https://openai.com</url>
+            <url type="API">https://beta.openai.com/account/api-keys</url>
+            <url type="GUIDE">https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-D9EFE56B-402D-4A8B-90E0-96C99FCF81AD</url>
+        </urls>
+        <models>
+            <model id="GPT_4_O"                api-name="gpt-4o"/>
+            <model id="GPT_4_O_MINI"           api-name="gpt-4o-mini"/>
+            <model id="GPT_4"                  api-name="gpt-4"/>
+            <model id="GPT_4_0613"             api-name="gpt-4-0613"/>
+            <model id="GPT_4_32K"              api-name="gpt-4-32k"/>
+            <model id="GPT_4_32K_0613"         api-name="gpt-4-32k-0613"/>
+            <model id="GPT_3_5_TURBO"          api-name="gpt-3.5-turbo"/>
+            <model id="GPT_3_5_TURBO_0613"     api-name="gpt-3.5-turbo-0613"/>
+            <model id="GPT_3_5_TURBO_16K"      api-name="gpt-3.5-turbo-16k"/>
+            <model id="GPT_3_5_TURBO_16K_0613" api-name="gpt-3.5-turbo-16k-0613"/>
+        </models>
+    </provider>
+
+    <provider id="COHERE" name="Cohere" host="api.cohere.ai">
+        <urls>
+            <url type="OFFICIAL">https://cohere.com</url>
+            <url type="API">https://dashboard.cohere.com/welcome/login?redirect_uri=%2Fapi-keys</url>
+            <url type="GUIDE">https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-3AA3B2FB-1EEC-481E-940F-832B97187564</url>
+        </urls>
+        <models>
+            <model id="COMMAND"                 api-name="command"                  default="true"/>
+            <model id="COMMAND_NIGHTLY"         api-name="command-nightly"          experimental="true"/>
+            <model id="COMMAND_LIGHT"           api-name="command-light"            experimental="true"/>
+            <model id="COMMAND_LIGHT_NIGHTLY"   api-name="command-light-nightly"/>
+            <model id="COMMAND_R"               api-name="command-r"/>
+            <model id="COMMAND_R_08_2024"       api-name="command-r-08-2024"/>
+            <model id="COMMAND_R_PLUS"          api-name="command-r-plus"/>
+            <model id="COMMAND_R_PLUS_08_2024"  api-name="command-r-plus-08-2024"/>
+        </models>
+    </provider>
+
+    <provider id="OCI" name="OCI Generative AI" host="api.oci.com">
+        <urls>
+            <url type="OFFICIAL">https://www.oracle.com/artificial-intelligence/generative-ai/generative-ai-service</url>
+            <url type="API">https://docs.oracle.com/en-us/iaas/Content/API/Concepts/apisigningkey.htm#How</url>
+            <url type="GUIDE">https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-9CD3FF6F-E380-4E17-8AB0-8153D80B73FB</url>
+        </urls>
+        <models>
+            <model id="COHERE_COMMAND"                       api-name="cohere.command"/>
+            <model id="COHERE_COMMAND_LIGHT"                 api-name="cohere.command-light"/>
+            <model id="META_LLAMA_2_70B_CHAT"                api-name="meta.llama-2-70b-chat"/>
+            <model id="COHERE_EMBED_ENGLISH_V3_0"            api-name="cohere.embed-english-v3.0"/>
+            <model id="COHERE_EMBED_MULTILINGUAL_V3_0"       api-name="cohere.embed-multilingual-v3.0"/>
+            <model id="COHERE_EMBED_ENGLISH_LIGHT_V3_0"      api-name="cohere.embed-english-light-v3.0"/>
+            <model id="COHERE_EMBED_MULTILINGUAL_LIGHT_V3_0" api-name="cohere.embed-multilingual-light-v3.0"/>
+            <model id="COHERE_EMBED_ENGLISH_LIGHT_V2_0"      api-name="cohere.embed-english-light-v2.0"/>
+        </models>
+    </provider>
+
+    <provider id="GOOGLE" name="Google" host="generativelanguage.googleapis.com">
+        <urls>
+            <url type="OFFICIAL">https://ai.google.dev</url>
+            <url type="API">https://ai.google.dev/aistudio</url>
+            <url type="GUIDE">https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-4FDC2F94-36CD-41C3-AC1A-84F67B161DB2</url>
+        </urls>
+        <models>
+            <model id="GEMINI_1_5_FLASH" api-name="gemini-1.5-flash" default="true"/>
+            <model id="GEMINI_1_5_PRO"   api-name="gemini-1.5-pro"/>
+            <model id="GEMINI_1_0_PRO"   api-name="gemini-1.0-pro"/>
+        </models>
+    </provider>
+
+    <provider id="ANTHROPIC" name="Anthropic" host="api.anthropic.com">
+        <urls>
+            <url type="OFFICIAL">https://www.anthropic.com</url>
+            <url type="API">https://console.anthropic.com/login?selectAccount=true&amp;returnTo=%2Fdashboard%3F</url>
+            <url type="GUIDE">https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-CD371DA8-6C1B-447F-9420-64F1F01205A0</url>
+        </urls>
+        <models>
+            <model id="CLAUDE_3_5_SONNET_20240620" api-name="claude-3-5-sonnet-20240620" default="true"/>
+            <model id="CLAUDE_3_OPUS_20240229"     api-name="claude-3-opus-20240229"/>
+            <model id="CLAUDE_3_SONNET_20240229"   api-name="claude-3-sonnet-20240229"/>
+            <model id="CLAUDE_3_HAIKU_20240307"    api-name="claude-3-haiku-20240307"/>
+        </models>
+    </provider>
+
+</language-model-provider>

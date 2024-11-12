@@ -43,4 +43,8 @@ public interface DBSchemaObject extends DBObject {
     List<DBSchema> getReferencingSchemas() throws SQLException;
 
     boolean isDisabled();
+
+    default boolean isEnabled() {
+        return !isDisabled();
+    }
 }

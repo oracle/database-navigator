@@ -1,11 +1,10 @@
 package com.dbn.language.common.element.impl;
 
-import com.dbn.language.common.psi.ExecVariablePsiElement;
-import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.ExecVariableElementTypeLookupCache;
 import com.dbn.language.common.element.parser.impl.ExecVariableElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
+import com.dbn.language.common.psi.ExecVariablePsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import org.jdom.Element;
@@ -14,9 +13,9 @@ import org.jetbrains.annotations.NotNull;
 
 public class ExecVariableElementType extends LeafElementType {
 
-    public ExecVariableElementType(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
+    public ExecVariableElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
-        setTokenType(bundle.getTokenTypeBundle().getVariable());
+        tokenType = bundle.getTokenTypeBundle().getVariable();
     }
 
     @Override

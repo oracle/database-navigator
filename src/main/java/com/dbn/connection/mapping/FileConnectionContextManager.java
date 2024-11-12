@@ -1,6 +1,7 @@
 package com.dbn.connection.mapping;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.common.action.Selectable;
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
@@ -9,6 +10,7 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.file.FileMappings;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.ui.util.Popups;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Documents;
 import com.dbn.connection.*;
@@ -22,8 +24,9 @@ import com.dbn.connection.session.DatabaseSession;
 import com.dbn.connection.session.SessionManagerListener;
 import com.dbn.object.DBSchema;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.Separator;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.editor.Document;
@@ -31,8 +34,6 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.IncorrectOperationException;
@@ -43,6 +44,7 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
@@ -57,6 +59,7 @@ import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.connection.ConnectionSelectorOptions.Option.*;
+import static com.dbn.connection.ConnectionType.*;
 import static com.dbn.connection.mapping.ConnectionContextActions.ConnectionSelectAction;
 
 @State(
@@ -110,6 +113,13 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
     /*******************************************************************
      *                    Connection mappings                          *
      *******************************************************************/
+
+    @Nullable
+    public ConnectionId getConnectionId(@NotNull VirtualFile virtualFile) {
+        ConnectionHandler connection = getConnection(virtualFile);
+        return connection == null ? null : connection.getConnectionId();
+    }
+
     @Nullable
     public ConnectionHandler getConnection(@NotNull VirtualFile virtualFile) {
         return registry.getDatabaseConnection(virtualFile);
@@ -291,7 +301,7 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
         ConnectionBundle connectionBundle = connectionManager.getConnectionBundle();
         List<ConnectionHandler> connections = connectionBundle.getConnections();
 
-        DefaultActionGroup actionGroup = new DefaultActionGroup();
+        List<AnAction> actions = new ArrayList<>();
         if (!connections.isEmpty()) {
             for (ConnectionHandler connection : connections) {
                 ConnectionSelectAction connectionAction = new ConnectionSelectAction(
@@ -299,47 +309,28 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
                         file,
                         options.is(PROMPT_SCHEMA_SELECTION),
                         callback);
-                actionGroup.add(connectionAction);
+                actions.add(connectionAction);
             }
         }
 
         if (options.is(SHOW_VIRTUAL_CONNECTIONS)) {
-            actionGroup.addSeparator();
+            actions.add(Separator.create());
             for (ConnectionHandler virtualConnectionHandler : connectionBundle.listVirtualConnections()) {
                 ConnectionSelectAction connectionAction = new ConnectionSelectAction(
                         virtualConnectionHandler,
                         file,
                         options.is(PROMPT_SCHEMA_SELECTION),
                         callback);
-                actionGroup.add(connectionAction);
+                actions.add(connectionAction);
             }
         }
 
         if (options.is(SHOW_CREATE_CONNECTION)) {
-            actionGroup.addSeparator();
-            actionGroup.add(new ConnectionSetupAction(project));
+            actions.add(Separator.create());
+            actions.add(new ConnectionSetupAction(project));
         }
 
-        Dispatch.run(() -> {
-            ListPopup popupBuilder = JBPopupFactory.getInstance().createActionGroupPopup(
-                    "Select Connection",
-                    actionGroup,
-                    dataContext,
-                    JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-                    true,
-                    null,
-                    1000,
-                    action -> {
-                        if (action instanceof ConnectionSelectAction) {
-                            ConnectionSelectAction connectionSelectAction = (ConnectionSelectAction) action;
-                            return connectionSelectAction.isSelected();
-                        }
-                        return false;
-                    },
-                    null);
-
-            popupBuilder.showCenteredInCurrentWindow(project);
-        });
+        Popups.showActionsPopup("Select Connection", dataContext, actions, Selectable.selector());
     }
 
     /***************************************************
@@ -355,36 +346,16 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
                         "Loading schemas",
                         "Loading schemas for connection " + connection.getName(),
                         progress -> {
-                            DefaultActionGroup actionGroup = new DefaultActionGroup();
-
+                            List<AnAction> actions = new ArrayList<>();
                             if (isLiveConnection(connection)) {
                                 List<DBSchema> schemas = connection.getObjectBundle().getSchemas();
                                 for (DBSchema schema : schemas) {
                                     SchemaSelectAction schemaAction = new SchemaSelectAction(file, schema, callback);
-                                    actionGroup.add(schemaAction);
+                                    actions.add(schemaAction);
                                 }
                             }
 
-                            Dispatch.run(() -> {
-                                ListPopup popupBuilder = JBPopupFactory.getInstance().createActionGroupPopup(
-                                        "Select Schema",
-                                        actionGroup,
-                                        dataContext,
-                                        JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-                                        true,
-                                        null,
-                                        1000,
-                                        anAction -> {
-                                            if (anAction instanceof SchemaSelectAction) {
-                                                SchemaSelectAction schemaSelectAction = (SchemaSelectAction) anAction;
-                                                return schemaSelectAction.isSelected();
-                                            }
-                                            return false;
-                                        },
-                                        null);
-
-                                popupBuilder.showCenteredInCurrentWindow(project);
-                            });
+                            Popups.showActionsPopup("Select Schema", dataContext, actions, Selectable.selector());
                         }));
     }
 
@@ -398,36 +369,19 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
                 "selecting the current session", true,
                 getConnection(file),
                 (action) -> {
-                    DefaultActionGroup actionGroup = new DefaultActionGroup();
+                    List<AnAction> actions = new ArrayList<>();
                     ConnectionHandler connection = action.getConnection();
                     if (isLiveConnection(connection)) {
-                        List<DatabaseSession> sessions = connection.getSessionBundle().getSessions();
+                        List<DatabaseSession> sessions = connection.getSessionBundle().getSessions(MAIN, POOL, SESSION);
                         for (DatabaseSession session : sessions) {
                             SessionSelectAction sessionAction = new SessionSelectAction(file, session, callback);
-                            actionGroup.add(sessionAction);
+                            actions.add(sessionAction);
                         }
-                        actionGroup.addSeparator();
-                        actionGroup.add(new SessionCreateAction(file, connection));
+                        actions.add(Separator.create());
+                        actions.add(new SessionCreateAction(file, connection));
                     }
 
-                    ListPopup popupBuilder = JBPopupFactory.getInstance().createActionGroupPopup(
-                            "Select Session",
-                            actionGroup,
-                            dataContext,
-                            JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-                            true,
-                            null,
-                            1000,
-                            conditionAction -> {
-                                if (conditionAction instanceof SessionSelectAction) {
-                                    SessionSelectAction sessionSelectAction = (SessionSelectAction) conditionAction;
-                                    return sessionSelectAction.isSelected();
-                                }
-                                return false;
-                            },
-                            null);
-
-                    popupBuilder.showCenteredInCurrentWindow(project);
+                    Popups.showActionsPopup("Select Session", dataContext, actions, Selectable.selector());
                 });
     }
 

@@ -22,13 +22,19 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 public class SourceCodeContent{
     private static final String EMPTY_CONTENT = "";
     private final Latent<SourceCodeOffsets> offsets = Latent.basic(() -> new SourceCodeOffsets());
-    protected CharSequence text = EMPTY_CONTENT;
+    private CharSequence text = EMPTY_CONTENT;
+    private boolean writable = true;
 
     public SourceCodeContent() {
     }
 
     public SourceCodeContent(CharSequence text) {
+        this(text, true);
+    }
+
+    public SourceCodeContent(CharSequence text, boolean writable) {
         setText(text);
+        this.writable = writable;
     }
 
     public boolean isLoaded() {

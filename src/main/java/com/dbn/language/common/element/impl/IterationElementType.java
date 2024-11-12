@@ -1,18 +1,15 @@
 package com.dbn.language.common.element.impl;
 
-import com.dbn.language.common.element.cache.IterationElementTypeLookupCache;
-import com.dbn.language.common.psi.SequencePsiElement;
 import com.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dbn.common.latent.Latent;
 import com.dbn.language.common.TokenType;
-import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
-import com.dbn.language.common.element.cache.ElementTypeLookupCache;
+import com.dbn.language.common.element.cache.IterationElementTypeLookupCache;
 import com.dbn.language.common.element.parser.impl.IterationElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
+import com.dbn.language.common.psi.SequencePsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
-import lombok.Getter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,27 +19,25 @@ import java.util.StringTokenizer;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
-@Getter
 public final class IterationElementType extends ElementTypeBase {
 
-    private ElementType iteratedElementType;
-    private TokenElementType[] separatorTokens;
-    private int[] elementsCountVariants;
-    private int minIterations;
+    public ElementTypeBase iteratedElementType;
+    public TokenElementType[] separatorTokens;
+    public int[] elementsCountVariants;
+    public int minIterations;
 
     private final Latent<Boolean> followedBySeparator = Latent.basic(() -> {
         if (separatorTokens != null) {
-            ElementTypeLookupCache<?> lookupCache = getLookupCache();
             for (TokenElementType separatorToken : separatorTokens) {
-                if (lookupCache.isNextPossibleToken(separatorToken.getTokenType())) {
-                    return true;
+                if (cache.isNextPossibleToken(separatorToken.tokenType)) {
+                    return Boolean.TRUE;
                 }
             }
         }
-        return false;
+        return Boolean.FALSE;
     });
 
-    public IterationElementType(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
+    public IterationElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
     }
 
@@ -60,7 +55,6 @@ public final class IterationElementType extends ElementTypeBase {
     @Override
     protected void loadDefinition(Element def) throws ElementTypeDefinitionException {
         super.loadDefinition(def);
-        ElementTypeBundle bundle = getElementBundle();
         String separatorTokenIds = stringAttribute(def, "separator");
         if (separatorTokenIds != null) {
             StringTokenizer tokenizer = new StringTokenizer(separatorTokenIds, ",");
@@ -143,13 +137,13 @@ public final class IterationElementType extends ElementTypeBase {
     public boolean isSeparator(TokenType tokenType) {
         if (separatorTokens != null) {
             for (TokenElementType separatorToken: separatorTokens) {
-                if (separatorToken.getTokenType() == tokenType) return true;
+                if (separatorToken.tokenType == tokenType) return true;
             }
         }
         return false;
     }
 
     public boolean isFollowedBySeparator() {
-        return followedBySeparator.get();
+        return followedBySeparator.get() == Boolean.TRUE;
     }
 }

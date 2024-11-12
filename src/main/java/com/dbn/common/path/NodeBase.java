@@ -4,10 +4,10 @@ import lombok.Getter;
 
 @Getter
 public class NodeBase<T> implements Node<T> {
-    private Node<T> parent;
-    private final T element;
+    public NodeBase<T> parent;
+    public final T element;
 
-    public NodeBase(T element, Node<T> parent) {
+    public NodeBase(T element, NodeBase<T> parent) {
         this.element = element;
         this.parent = parent;
     }

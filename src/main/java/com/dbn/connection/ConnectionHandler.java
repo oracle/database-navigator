@@ -18,6 +18,7 @@ import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.console.DatabaseConsoleBundle;
 import com.dbn.connection.context.DatabaseContextBase;
 import com.dbn.connection.info.ConnectionInfo;
+import com.dbn.connection.interceptor.DatabaseInterceptorBundle;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.session.DatabaseSessionBundle;
 import com.dbn.database.DatabaseCompatibility;
@@ -97,6 +98,8 @@ public interface ConnectionHandler extends StatefulDisposable, EnvironmentTypePr
 
     @NotNull
     DatabaseSessionBundle getSessionBundle();
+
+    DatabaseInterceptorBundle getInterceptorBundle();
 
     @NotNull
     DBSessionBrowserVirtualFile getSessionBrowserFile();

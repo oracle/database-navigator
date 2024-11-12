@@ -1,13 +1,10 @@
 package com.dbn.language.common.element.impl;
 
-import lombok.Getter;
-
 import java.util.Objects;
 
-@Getter
 public class WrappingDefinition {
-    private final TokenElementType beginElementType;
-    private final TokenElementType endElementType;
+    public final TokenElementType beginElementType;
+    public final TokenElementType endElementType;
 
     public WrappingDefinition(TokenElementType beginElementType, TokenElementType endElementType) {
         this.beginElementType = beginElementType;
@@ -20,8 +17,8 @@ public class WrappingDefinition {
         if (obj instanceof WrappingDefinition) {
             WrappingDefinition definition = (WrappingDefinition) obj;
             return
-                Objects.equals(this.beginElementType.getTokenType(), definition.beginElementType.getTokenType()) &&
-                Objects.equals(this.endElementType.getTokenType(), definition.endElementType.getTokenType());
+                Objects.equals(this.beginElementType.tokenType, definition.beginElementType.tokenType) &&
+                Objects.equals(this.endElementType.tokenType, definition.endElementType.tokenType);
         }
         return false;
     }

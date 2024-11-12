@@ -18,10 +18,19 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 import static com.dbn.common.util.Strings.cachedUpperCase;
-import static com.dbn.language.common.element.util.ElementTypeAttribute.*;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.ACTION;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.COMPILABLE_BLOCK;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.DATA_DEFINITION;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.OBJECT_DECLARATION;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.QUERY;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SCHEMA_CHANGE;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SUBJECT;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.TRANSACTIONAL;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.TRANSACTIONAL_CANDIDATE;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.TRANSACTION_CONTROL;
 
 public class ExecutablePsiElement extends NamedPsiElement implements Cloneable<ExecutablePsiElement> {
     private WeakRef<StatementExecutionProcessor> executionProcessor;
@@ -37,8 +46,8 @@ public class ExecutablePsiElement extends NamedPsiElement implements Cloneable<E
         }
         BasePsiElement basePsiElement = (BasePsiElement) lastChild;
         String text = getText();
-        if (basePsiElement != null && basePsiElement.getElementType() instanceof NamedElementType) {
-            NamedElementType namedElementType = (NamedElementType) basePsiElement.getElementType();
+        if (basePsiElement != null && basePsiElement.elementType instanceof NamedElementType) {
+            NamedElementType namedElementType = (NamedElementType) basePsiElement.elementType;
             if (namedElementType.isTruncateOnExecution()) {
                 return text.substring(0, text.length() - basePsiElement.getTextLength());
             }

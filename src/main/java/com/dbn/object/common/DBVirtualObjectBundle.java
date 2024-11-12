@@ -48,6 +48,11 @@ public class DBVirtualObjectBundle extends StatefulDisposableBase implements DBO
     }
 
     @Override
+    public List<DBSchema> getSchemas(boolean filtered) {
+        return Collections.emptyList();
+    }
+
+    @Override
     public List<DBSchema> getPublicSchemas() {
         return Collections.emptyList();
     }

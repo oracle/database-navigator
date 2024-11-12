@@ -3,7 +3,6 @@ package com.dbn.code.common.completion;
 import com.dbn.code.common.lookup.CodeCompletionLookupItem;
 import com.dbn.language.common.SimpleTokenType;
 import com.dbn.language.common.TokenType;
-import com.dbn.language.common.element.cache.ElementTypeLookupCache;
 import com.dbn.language.common.element.impl.TokenElementType;
 import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.dbn.language.common.psi.LeafPsiElement;
@@ -29,7 +28,7 @@ public class BasicInsertHandler implements InsertHandler<CodeCompletionLookupIte
         Object lookupElementObject = lookupElement.getObject();
         if (lookupElementObject instanceof TokenElementType) {
             TokenElementType tokenElementType = (TokenElementType) lookupElementObject;
-            TokenType tokenType = tokenElementType.getTokenType();
+            TokenType tokenType = tokenElementType.tokenType;
             if (tokenType.isReservedWord()) {
                 /* TODO any considerations on completion char??
                     char completionChar = insertionContext.getCompletionChar();
@@ -37,8 +36,7 @@ public class BasicInsertHandler implements InsertHandler<CodeCompletionLookupIte
 
                 if (tokenType.isFunction()) {
                     SimpleTokenType leftParenthesis = tokenElementType.getLanguage().getSharedTokenTypes().getChrLeftParenthesis();
-                    ElementTypeLookupCache lookupCache = tokenElementType.getLookupCache();
-                    if (lookupCache.isNextPossibleToken(leftParenthesis)) {
+                    if (tokenElementType.cache.isNextPossibleToken(leftParenthesis)) {
                         addParenthesis(insertionContext);
                         shiftCaret(insertionContext, 1);
                     } else {
