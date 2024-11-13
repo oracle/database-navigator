@@ -14,32 +14,21 @@
 
 package com.dbn.driver.packages.ui;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.util.Borders;
-import com.dbn.common.ui.util.Cursors;
-import com.dbn.common.util.Strings;
 import com.dbn.driver.packages.Developer;
 import com.dbn.driver.packages.Library;
 import com.dbn.driver.packages.License;
 import com.intellij.ide.BrowserUtil;
+import com.intellij.ui.HyperlinkLabel;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
+import java.awt.Cursor;
 import java.awt.Insets;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.font.TextAttribute;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class LibraryInfoForm extends DBNFormBase implements DBNCollapsibleForm {
     private Library library;
@@ -56,18 +45,18 @@ public class LibraryInfoForm extends DBNFormBase implements DBNCollapsibleForm {
         libraryInfoPanel.setLayout(new GridLayoutManager(rowCount, 2, new Insets(0, 0, 0, 0), -1, -1));
 //        libraryInfoPanel.setBorder(BorderFactory.createTitledBorder(new EmptyBorder(10, 10, 10, 10), library.getArtifactId()+"-"+library.getVersion()));
         addLabel("Name:", 0, 0);
-        addTextField(0, 1, "-", null);
+        addField(0, 1, "-", null);
         if(!devs.isEmpty()) {
             addLabel("Developers:", 1, 0);
             for (int i = 0; i < devs.size(); i++) {
-                addTextField(i + 1, 1, devs.get(i).getName(), devs.get(i).getUrl());
+                addField(i + 1, 1, devs.get(i).getName(), devs.get(i).getUrl());
             }
         }
 
         if(!licenses.isEmpty()) {
             addLabel("Licenses:", devs.size() + 1, 0);
             for (int i = 0; i < licenses.size(); i++) {
-                addTextField(i + 1 + devs.size(), 1, licenses.get(i).getName(), licenses.get(i).getUrl());
+                addField(i + 1 + devs.size(), 1, licenses.get(i).getName(), licenses.get(i).getUrl());
             }
         }
         return libraryInfoPanel;
@@ -82,51 +71,27 @@ public class LibraryInfoForm extends DBNFormBase implements DBNCollapsibleForm {
                 null, null, null, 0, false));
     }
 
-    private void addTextField(int row, int col, String text, String url) {
-        JTextField textField = new JTextField(15); // Adjust preferred size as needed
-        textField.setText(text);
-        textField.setBorder(Borders.EMPTY_BORDER);
-        textField.setBackground(Colors.getPanelBackground());
-        textField.setEditable(false);
-
-        if (url == null) {
-            textField.setCursor(Cursors.textCursor());
+    private void addField(int row, int col, String text, String url) {
+        if (url == null || url.isEmpty()) {
+            JLabel label = new JLabel(text);
+            libraryInfoPanel.add(label, new GridConstraints(
+                    row, col, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL,
+                    GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
+                    GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         } else {
-            textField.setFont(textField.getFont().deriveFont(Font.PLAIN));
-            textField.setCursor(Cursors.handCursor());
+            HyperlinkLabel hyperlink = new HyperlinkLabel(text);
+            hyperlink.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            hyperlink.addHyperlinkListener(e -> BrowserUtil.browse(url));
 
-            // Apply underline to the font for text fields with URLs
-            Font originalFont = textField.getFont();
-            Map<TextAttribute, Object> attributes = new HashMap<>(originalFont.getAttributes());
-            attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
-            textField.setFont(originalFont.deriveFont(attributes));
-
-            // Add mouse listener for hover effect
-            textField.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    BrowserUtil.browse(url);
-                }
-            });
+            libraryInfoPanel.add(hyperlink, new GridConstraints(
+                    row, col, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL,
+                    GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
+                    GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         }
 
-        if (Strings.isNotEmpty(text)) {
-            FontMetrics fontMetrics = textField.getFontMetrics(textField.getFont());
-            int width = fontMetrics.charsWidth(text.toCharArray(), 0, text.length()) + 40;
-            textField.setMinimumSize(new Dimension(Math.min(width, 600), -1));
-        }
-
-        // Add JTextField in the specified row and column
-        libraryInfoPanel.add(textField, new GridConstraints(
-                row, col, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL,
-                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
-                GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-
-        // Refresh the panel to display the new text field
         libraryInfoPanel.revalidate();
         libraryInfoPanel.repaint();
-    }
-    @Override
+    }    @Override
     protected JPanel getMainComponent() {
         return setupDynamicFields();
     }
