@@ -47,8 +47,6 @@ public class DriverPackageInfoForm extends DBNFormBase {
             Dimension preferredSize = mainComponent.getPreferredSize();
             mainComponent.setMaximumSize(new Dimension(Integer.MAX_VALUE, preferredSize.height));
 
-            collapsiblePanel.addToggleListener(collapsiblePanel::setExpanded);
-
             infoPanel.add(mainComponent);
         }
         infoPanel.add(Box.createVerticalGlue());
