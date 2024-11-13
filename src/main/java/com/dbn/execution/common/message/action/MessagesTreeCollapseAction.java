@@ -11,8 +11,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class MessagesTreeCollapseAction extends AbstractExecutionMessagesAction {
 
-    public MessagesTreeCollapseAction(MessagesTree messagesTree) {
-        super(messagesTree);
+    public MessagesTreeCollapseAction() {
+        super("Collapse All", null, Icons.ACTION_COLLAPSE_ALL);
     }
 
     @Override

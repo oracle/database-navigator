@@ -28,6 +28,8 @@ public class VoidDynamicContent extends StatefulDisposableBase implements Dynami
     @Override
     public void loadInBackground() {}
 
+    @Override
+    public void reloadInBackground() {}
 
     @Override
     public void reload() {}

@@ -3,6 +3,7 @@ package com.dbn.common.icon;
 import com.dbn.common.latent.Latent;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.util.ScalableIcon;
+import com.intellij.ui.LayeredIcon;
 import com.intellij.ui.RowIcon;
 import com.intellij.util.IconUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -301,6 +302,15 @@ public class Icons {
     public static final Icon SESSION_DEBUG_TRANSACTIONAL  = load("/img/connection/SessionDebugTransactional.png");
 
 
+    public static final class Marker {
+        public static final Icon PIN = load("/img/marker/PinMark.svg");
+        public static final Icon NEW = load("/img/marker/NewMark.svg");
+        public static final Icon ERROR = load("/img/marker/ErrorMark.svg");
+        public static final Icon WARNING = load("/img/marker/WarningMark.svg");
+        public static final Icon RUNNABLE  = load("/img/marker/RunnableMark.svg");
+    }
+
+
     public static final Icon DB_ORACLE            = AllIcons.Providers.Oracle;
     public static final Icon DB_POSTGRESQL        = AllIcons.Providers.Postgresql;
     public static final Icon DB_MYSQL             = AllIcons.Providers.Mysql;
@@ -359,8 +369,12 @@ public class Icons {
     public static final Icon DBO_INDEX                           = load("/img/object/index/Index.svg");
     public static final Icon DBO_INDEX_DISABLED                  = load("/img/object/index/IndexDisabled.svg");
     public static final Icon DBO_INDEXES                         = load("/img/object/index/Indexes.svg");
-    public static final Icon DBO_JAVA_CLASS                      = AllIcons.FileTypes.JavaClass;
-    public static final Icon DBO_JAVA_CLASSES                    = AllIcons.FileTypes.JavaClass;
+    public static final Icon DBO_JAVA_CLASS                      = load("/img/object/java/JavaClass.svg");
+    public static final Icon DBO_JAVA_CLASS_ABSTRACT             = load("/img/object/java/JavaClassAbstract.svg");
+    public static final Icon DBO_JAVA_CLASSES                    = load("/img/object/java/JavaClasses.svg");
+    public static final Icon DBO_JAVA_INTERFACE                  = load("/img/object/java/JavaInterface.svg");
+    public static final Icon DBO_JAVA_ENUMERATION                = load("/img/object/java/JavaEnumeration.svg");
+    public static final Icon DBO_JAVA_EXCEPTION                  = load("/img/object/java/JavaException.svg");
     public static final Icon DBO_MATERIALIZED_VIEW               = load("/img/object/view/MaterializedView.svg");
     public static final Icon DBO_MATERIALIZED_VIEWS              = load("/img/object/view/MaterializedViews.svg");
     public static final Icon DBO_METHOD                          = load("/img/object/Method.png");
@@ -458,6 +472,18 @@ public class Icons {
             }
         }
         return icon;
+    }
+
+    public static Icon withWarningMarker(Icon base) {
+        return LayeredIcon.create(base, Icons.Marker.WARNING);
+    }
+
+    public static Icon withErrorMarker(Icon base) {
+        return LayeredIcon.create(base, Icons.Marker.ERROR);
+    }
+
+    public static Icon withPinMarker(Icon base) {
+        return LayeredIcon.create(base, Marker.PIN);
     }
 
     private static Icon createRowIcon(Icon left, Icon right) {

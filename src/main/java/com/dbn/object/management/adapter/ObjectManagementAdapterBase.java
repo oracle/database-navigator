@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.object.management;
+package com.dbn.object.management.adapter;
 
 import com.dbn.common.notification.NotificationGroup;
 import com.dbn.common.outcome.Outcome;
@@ -31,11 +31,11 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectWrapper;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.event.ObjectChangeNotifier;
+import com.dbn.object.management.ObjectManagementAdapter;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nls;
-import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
@@ -52,18 +52,20 @@ import static com.dbn.common.exception.Exceptions.unsupported;
  */
 @Getter
 @Setter
-public abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectWrapper<T> implements ObjectManagementAdapter<T> {
+abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectWrapper<T> implements ObjectManagementAdapter<T> {
     private final ObjectChangeAction action;
     private final DBObjectType objectType;
     private final OutcomeHandlers outcomeHandlers = new OutcomeHandlersImpl();
+    private final InterfaceInvoker<T> invoker;
 
-    public ObjectManagementAdapterBase(@NotNull T object, ObjectChangeAction action) {
+    ObjectManagementAdapterBase(T object, ObjectChangeAction action, InterfaceInvoker<T> invoker) {
         super(object);
         this.objectType = object.getObjectType();
         this.action = action;
+        this.invoker = invoker;
 
         outcomeHandlers.addHandler(OutcomeType.SUCCESS, ObjectChangeNotifier.create(getConnection(), getOwnerId(), objectType, action));
-        outcomeHandlers.addNotificationHandler(OutcomeType.SUCCESS, getProject(), NotificationGroup.ASSISTANT);
+        outcomeHandlers.addNotificationHandler(OutcomeType.SUCCESS, getProject(), NotificationGroup.DDL);
         outcomeHandlers.addMessageHandler(OutcomeType.FAILURE, getProject());
     }
 
@@ -78,7 +80,7 @@ public abstract class ObjectManagementAdapterBase<T extends DBObject> extends DB
         T object = getObject();
         Progress.modal(getProject(), getConnection(), true,
                 getProcessTitle(),
-                getProcessDescription(object),
+                getProcessDescription(),
                 progress -> invoke());
     }
 
@@ -87,7 +89,7 @@ public abstract class ObjectManagementAdapterBase<T extends DBObject> extends DB
         T object = getObject();
         Progress.prompt(getProject(), getConnection(), true,
                 getProcessTitle(),
-                getProcessDescription(object),
+                getProcessDescription(),
                 progress -> invoke());
     }
 
@@ -96,7 +98,7 @@ public abstract class ObjectManagementAdapterBase<T extends DBObject> extends DB
         T object = getObject();
         Progress.background(getProject(), getConnection(), true,
                 getProcessTitle(),
-                getProcessDescription(object),
+                getProcessDescription(),
                 progress -> invoke());
     }
     
@@ -114,11 +116,11 @@ public abstract class ObjectManagementAdapterBase<T extends DBObject> extends DB
         try {
             DatabaseInterfaceInvoker.execute(HIGHEST,
                     getProcessTitle(),
-                    getProcessDescription(object),
+                    getProcessDescription(),
                     getProject(),
                     getConnectionId(),
                     getOwnerId(),
-                    conn -> invokeDatabaseInterface(getConnection(), conn, object));
+                    conn -> invoker.invokeDatabaseInterface(getConnection(), conn, object));
 
             handleSuccess(object);
         } catch (Exception e) {
@@ -128,53 +130,44 @@ public abstract class ObjectManagementAdapterBase<T extends DBObject> extends DB
     }
 
     protected void handleSuccess(T object) {
-        Outcome outcome = Outcomes.success(getSuccessTitle(), getSuccessMessage(object));
+        Outcome outcome = Outcomes.success(getSuccessTitle(), getSuccessMessage());
         outcomeHandlers.handle(outcome);
     }
 
     protected void handleFailure(T object, Exception e) {
-        Outcome outcome = Outcomes.failure(getFailureTitle(), getFailureMessage(object), e);
+        Outcome outcome = Outcomes.failure(getFailureTitle(), getFailureMessage(), e);
         outcomeHandlers.handle(outcome);
     }
 
-    protected abstract void invokeDatabaseInterface(ConnectionHandler connection, DBNConnection conn, T object) throws SQLException;
+    protected String getObjectTypeName() {
+        return getObjectType().getName();
+    }
+
+    protected String getObjectName() {
+        return getObject().getQualifiedName();
+    }
 
     @Nls
-    protected abstract String getProcessDescription(T object);
+    protected abstract String getProcessDescription();
 
     @Nls
-    protected abstract String getSuccessMessage(T object);
+    protected abstract String getSuccessMessage();
 
     @Nls
-    protected abstract String getFailureMessage(T object);
+    protected abstract String getFailureMessage();
 
     @Nls
     protected abstract String getProcessTitle();
 
     @Nls
-    protected String getSuccessTitle() {
-        // refrain from using key composition (would make key refactoring cumbersome)
-        switch (action) {
-            case CREATE: return txt("msg.objects.title.ActionSuccess_CREATE");
-            case UPDATE: return txt("msg.objects.title.ActionSuccess_UPDATE");
-            case DELETE: return txt("msg.objects.title.ActionSuccess_DELETE");
-            case ENABLE: return txt("msg.objects.title.ActionSuccess_ENABLE");
-            case DISABLE: return txt("msg.objects.title.ActionSuccess_DISABLE");
-            default: return txt("msg.objects.title.ActionSuccess");
-        }
-    }
+    protected abstract String getSuccessTitle();
 
     @Nls
-    protected  String getFailureTitle() {
-        // refrain from using key composition (would make key refactoring cumbersome)
-        switch (action) {
-            case CREATE: return txt("msg.objects.title.ActionFailure_CREATE");
-            case UPDATE: return txt("msg.objects.title.ActionFailure_UPDATE");
-            case DELETE: return txt("msg.objects.title.ActionFailure_DELETE");
-            case ENABLE: return txt("msg.objects.title.ActionFailure_ENABLE");
-            case DISABLE: return txt("msg.objects.title.ActionFailure_DISABLE");
-            default: return txt("msg.objects.title.ActionFailure");
-        }
+    protected abstract String getFailureTitle();
+
+    @FunctionalInterface
+    public interface InterfaceInvoker<T extends DBObject> {
+        void invokeDatabaseInterface(ConnectionHandler connection, DBNConnection conn, T object) throws SQLException;
     }
 
 }

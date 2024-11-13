@@ -4,6 +4,7 @@ import com.dbn.common.latent.Latent;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.logging.ExecutionLogOutput;
+import com.dbn.database.common.statement.ByteArray;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import org.jetbrains.annotations.NotNull;
@@ -390,7 +391,12 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
         return executeQuery(connection, "object-source-code", ownerName, objectName, objectType, overload);
     }
 
-   /*********************************************************
+    @Override
+    public ByteArray loadJavaBinaryCode(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return executeCall(connection, new ByteArray(), "java-binary-code", ownerName, objectName);
+    }
+
+    /*********************************************************
     *                   MISCELLANEOUS                       *
     *********************************************************/
 
@@ -423,6 +429,11 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     @Override
     public void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException {
         executeStatement(connection, "compile-object-body", ownerName, objectName, objectType, debug ? "DEBUG" : "");
+    }
+
+    @Override
+    public void compileJavaObject(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "compile-java-object", ownerName, objectName);
     }
 
     @Override

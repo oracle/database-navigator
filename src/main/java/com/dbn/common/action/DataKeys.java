@@ -10,6 +10,7 @@ import com.dbn.data.editor.ui.text.TextEditorPopupProviderForm;
 import com.dbn.diagnostics.ui.ParserDiagnosticsForm;
 import com.dbn.editor.data.DatasetEditor;
 import com.dbn.editor.session.SessionBrowser;
+import com.dbn.execution.common.message.ui.tree.MessagesTree;
 import com.dbn.execution.explain.result.ExplainPlanResult;
 import com.dbn.execution.logging.DatabaseLoggingResult;
 import com.dbn.execution.method.result.MethodExecutionResult;
@@ -20,6 +21,7 @@ import com.intellij.openapi.actionSystem.DataKey;
 
 public interface DataKeys {
     DataKey<DatasetEditor> DATASET_EDITOR = DataKey.create("DBNavigator.DatasetEditor");
+    DataKey<MessagesTree> MESSAGES_TREE = DataKey.create("DBNavigator.MessagesTree");
     DataKey<ConnectionBundleSettingsForm> CONNECTION_BUNDLE_SETTINGS = DataKey.create("DBNavigator.ConnectionSettingsEditor");
     DataKey<SessionBrowser> SESSION_BROWSER = DataKey.create("DBNavigator.SessionBrowser");
     DataKey<StatementExecutionCursorResult> STATEMENT_EXECUTION_CURSOR_RESULT = DataKey.create("DBNavigator.StatementExecutionCursorResult");

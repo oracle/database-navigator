@@ -11,8 +11,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ExecutionEngineSettingsAction extends AbstractExecutionMessagesAction {
-    public ExecutionEngineSettingsAction(MessagesTree messagesTree) {
-        super(messagesTree);
+    public ExecutionEngineSettingsAction() {
+        super("Settings", null, Icons.EXEC_RESULT_OPTIONS);
     }
 
     @Override

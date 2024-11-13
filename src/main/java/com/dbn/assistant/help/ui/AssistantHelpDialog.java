@@ -19,7 +19,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Action;
 
 public class AssistantHelpDialog extends DBNDialog<AssistantHelpForm> {
 
@@ -34,8 +34,9 @@ public class AssistantHelpDialog extends DBNDialog<AssistantHelpForm> {
     init();
   }
 
+  @NotNull
   @Override
-  protected Action @NotNull [] createActions() {
+  protected Action[] createActions() {
     return new Action[]{getCancelAction()};
   }
 

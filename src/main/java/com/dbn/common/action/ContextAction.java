@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 import static com.dbn.common.dispose.Checks.isValid;
 
@@ -14,7 +14,6 @@ public abstract class ContextAction<T> extends ProjectAction {
 
     public ContextAction() {}
 
-    @Deprecated // TODO move presentation in "update"
     public ContextAction(@Nullable String text, @Nullable String description, @Nullable Icon icon) {
         super(text, description, icon);
     }

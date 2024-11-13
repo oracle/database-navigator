@@ -9,7 +9,6 @@ import com.dbn.connection.mapping.FileConnectionContext;
 import com.dbn.diagnostics.data.DiagnosticCategory;
 import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.language.common.DBLanguageDialect;
-import com.intellij.debugger.ui.breakpoints.LineBreakpoint;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 
@@ -30,7 +29,6 @@ public interface UserDataKeys {
     Key<DBNForm> DIAGNOSTIC_CONTENT_FORM = Key.create("DBNavigator.DiagnosticContentForm");
     Key<Integer> BREAKPOINT_ID = Key.create("DBNavigator.BreakpointId");
     Key<VirtualFile> BREAKPOINT_FILE = Key.create("DBNavigator.BreakpointFile");
-    Key<LineBreakpoint> LINE_BREAKPOINT = Key.create("DBNavigator.LineBreakpoint");
     Key<Boolean> SKIP_BROWSER_AUTOSCROLL = Key.create("DBNavigator.SkipEditorScroll");
     Key<Long> LAST_ANNOTATION_REFRESH = Key.create("DBNavigator.LastAnnotationRefresh");
 

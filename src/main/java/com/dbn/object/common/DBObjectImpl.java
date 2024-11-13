@@ -36,8 +36,6 @@ import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectListVisitor;
 import com.dbn.object.common.list.DBObjectNavigationList;
-import com.dbn.object.common.operation.DBOperationExecutor;
-import com.dbn.object.common.operation.DBOperationNotSupportedException;
 import com.dbn.object.common.property.DBObjectProperties;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
@@ -76,10 +74,6 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     protected DBObjectProperties properties = new DBObjectProperties();
 
     private static final WeakRefCache<DBObjectImpl, DBObjectListContainer> childObjects = WeakRefCache.weakKey();
-
-    private static final DBOperationExecutor NULL_OPERATION_EXECUTOR = operationType -> {
-        throw new DBOperationNotSupportedException(operationType);
-    };
 
     protected DBObjectImpl(@NotNull DBObject parentObject, M metadata) throws SQLException {
         init(parentObject.getConnection(), parentObject, metadata);
@@ -134,11 +128,6 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     @Override
     public boolean isParentOf(DBObject object) {
         return this.equals(object.getParentObject());
-    }
-
-    @Override
-    public DBOperationExecutor getOperationExecutor() {
-        return NULL_OPERATION_EXECUTOR;
     }
 
     @Override
