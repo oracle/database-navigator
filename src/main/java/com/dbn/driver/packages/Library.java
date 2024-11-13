@@ -15,6 +15,7 @@
 package com.dbn.driver.packages;
 
 import lombok.Getter;
+import java.util.List;
 
 /**
  * Library holds the metadata for a Maven dependency required by a driver package.
@@ -34,11 +35,15 @@ public class Library {
     private final String groupId;
     private final String artifactId;
     private final String version;
+    private final List<Developer> developers;
+    private final List<License> licenses;
 
-    public Library(String groupId, String artifactId, String version) {
+    public Library(String groupId, String artifactId, String version, List<Developer> developers, List<License> licenses) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
+        this.developers = developers;
+        this.licenses = licenses;
     }
 
     @Override

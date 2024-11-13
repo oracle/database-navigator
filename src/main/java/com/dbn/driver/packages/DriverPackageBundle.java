@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.options.setting.Settings.*;
 import static com.dbn.common.util.Lists.convert;
@@ -74,16 +75,33 @@ public class DriverPackageBundle {
         String groupId = stringAttribute(element, "group-id");
         String artifactId = stringAttribute(element, "artifact-id");
         String version = stringAttribute(element, "version");
+        List<Developer> developers = convert(element.getChildren("developer"), DriverPackageBundle::createDeveloper);
+        List<License> licenses = convert(element.getChildren("license"), DriverPackageBundle::createLicense);
+        return new Library(groupId, artifactId, version, developers, licenses);
+    }
 
-        return new Library(groupId, artifactId, version);
+    private static Developer createDeveloper(Element element) {
+        String name = stringAttribute(element, "name");
+        String url = stringAttribute(element, "url");
+        return new Developer(name, url);
+    }
+
+    private static License createLicense(Element element) {
+        String name = stringAttribute(element, "name");
+        String url = stringAttribute(element, "url");
+        return new License(name, url);
     }
 
     public static List<DriverPackage> driverPackages() {
         return INSTANCE.driverPackages;
     }
 
+    public static List<String> driverPackagesIds() {
+        return INSTANCE.driverPackages.stream().map(DriverPackage::getId).collect(Collectors.toList());
+    }
+
     @NotNull
-    public static DriverPackage getDriverPackage(String packageId){
+    public static DriverPackage getDriverPackage(String packageId) {
         Optional<DriverPackage> driverPackage = driverPackages().stream().filter(p -> p.getId().equals(packageId)).findFirst();
         return driverPackage.get();
     }

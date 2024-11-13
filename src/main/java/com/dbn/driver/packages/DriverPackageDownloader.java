@@ -15,10 +15,9 @@
 package com.dbn.driver.packages;
 
 import com.dbn.common.thread.Background;
+import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Files;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 
 import java.io.File;
@@ -29,16 +28,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class DriverPackageDownloader {
 
     public static void downloadDriverPackage(Project project, DriverPackage driverPackage) {
-        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Downloading Driver Package: " + driverPackage.getId(), true) {
-            @Override
-            public void run(ProgressIndicator indicator) {
-                runProgress(project, indicator, driverPackage);
-            }
-        });
-//        Progress.prompt(project, null, true,
-//                "Downloading Driver Package: " + driverPackage.getId(),
-//                "text",
-//                indicator -> runProgress(project, indicator, driverPackage));
+        Progress.modal(project, null, true,
+                "Downloading Driver Package: " + driverPackage.getId(),
+                "",
+                indicator -> runProgress(project, indicator, driverPackage));
     }
 
     private static void runProgress(Project project, ProgressIndicator indicator, DriverPackage driverPackage) {
@@ -47,10 +40,10 @@ public class DriverPackageDownloader {
         CountDownLatch latch = new CountDownLatch(libraryList.size());
         AtomicBoolean downloadFailed = new AtomicBoolean(false);
 
-        setupIndicator(indicator, libraryList.size());
+        setupIndicator(indicator);
 
         for (Library library : libraryList) {
-            downloadLibraryAsync(project, indicator, packageId, library, downloadFailed, latch);
+            downloadLibraryAsync(project, indicator, packageId, library, downloadFailed, latch, driverPackage.size());
         }
 
         awaitLatchCompletion(latch, packageId);
@@ -58,13 +51,13 @@ public class DriverPackageDownloader {
         handleCompletion(packageId, libraryList, downloadFailed.get());
     }
 
-    private static void setupIndicator(ProgressIndicator indicator, double totalFiles) {
+    private static void setupIndicator(ProgressIndicator indicator) {
         indicator.setIndeterminate(false);
         indicator.setFraction(0.01);
     }
 
     private static void downloadLibraryAsync(Project project, ProgressIndicator indicator, String packageId,
-                                             Library library, AtomicBoolean downloadFailed, CountDownLatch latch) {
+                                             Library library, AtomicBoolean downloadFailed, CountDownLatch latch, int fileCount) {
         Background.run(project, () -> {
             if (downloadFailed.get()) {
                 latch.countDown();
@@ -78,7 +71,7 @@ public class DriverPackageDownloader {
                 attemptDownload(packageId, library, currentFile, downloadFailed);
             }
 
-            updateProgress(indicator, currentFile, latch);
+            updateProgress(indicator, currentFile, latch, fileCount);
         });
     }
 
@@ -96,10 +89,10 @@ public class DriverPackageDownloader {
         }
     }
 
-    private static void updateProgress(ProgressIndicator indicator, String currentFile, CountDownLatch latch) {
+    private static void updateProgress(ProgressIndicator indicator, String currentFile, CountDownLatch latch, int fileCount) {
         latch.countDown();
         indicator.setText("Downloading " + currentFile);
-        indicator.setFraction((double) (latch.getCount() - 1) / latch.getCount());
+        indicator.setFraction((double) (fileCount-latch.getCount()) / fileCount);
     }
 
     private static void awaitLatchCompletion(CountDownLatch latch, String packageId) {

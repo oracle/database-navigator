@@ -3,6 +3,7 @@ package com.dbn.connection.config.ui;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.Timers;
@@ -11,7 +12,13 @@ import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.driver.DatabaseDriverManager;
 import com.dbn.driver.DriverBundle;
 import com.dbn.driver.DriverSource;
+import com.dbn.driver.packages.DriverDownloadManager;
+import com.dbn.driver.packages.DriverPackage;
+import com.dbn.driver.packages.DriverPackageBundle;
+import com.dbn.driver.packages.DriverPackageDownloader;
+import com.dbn.driver.packages.ui.DriverPackageInfoDialog;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.JBColor;
@@ -40,23 +47,38 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     private JLabel driverSourceLabel;
     private HyperlinkLabel reloadDriversLink;
     private JLabel reloadDriversCheckLabel;
+    private JLabel driverLibraryDownloadLabel;
+    private ComboBox driverLibraryComboBox;
+    private JButton infoButton;
+    private JButton downloadButton;
 
-    /** allow select a single jar file or a directory */
     private static final FileChooserDescriptor LIBRARY_FILE_DESCRIPTOR = new FileChooserDescriptor(false, true, true, true, false, false);
 
     ConnectionDriverSettingsForm(@NotNull ConnectionDatabaseSettingsForm parent) {
         super(parent);
 
-        initComboBox(driverSourceComboBox, DriverSource.BUNDLED, DriverSource.EXTERNAL);
+        initComboBox(driverSourceComboBox, DriverSource.BUNDLED, DriverSource.EXTERNAL, DriverSource.DOWNLOAD);
         driverSourceComboBox.addActionListener(e -> {
             DriverSource selection = getSelection(driverSourceComboBox);
 
-            boolean isExternalLibrary = selection == DriverSource.EXTERNAL;
-            driverLibraryTextField.setEnabled(isExternalLibrary);
-            driverComboBox.setEnabled(isExternalLibrary);
+            driverLibraryTextField.setEnabled(selection == DriverSource.EXTERNAL);
+            driverComboBox.setEnabled(selection == DriverSource.EXTERNAL);
+
+            driverLibraryComboBox.setEnabled(selection == DriverSource.DOWNLOAD);
+            driverComboBox.setEnabled(selection == DriverSource.DOWNLOAD);
+            downloadButton.setEnabled(selection == DriverSource.DOWNLOAD);
+            infoButton.setEnabled(selection == DriverSource.DOWNLOAD);
+
+            if (selection == DriverSource.DOWNLOAD) {
+                populateDriverLibraryComboBox();
+            }
+
             updateDriverFields();
             //driverSetupPanel.setVisible(isExternalLibrary);
         });
+
+        downloadButton.addActionListener(e -> handleDownloadButtonClick());
+        infoButton.addActionListener(e -> handleInfoButtonClick());
 
         // TODO NLS
         driverLibraryTextField.addBrowseFolderListener(
@@ -110,14 +132,20 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         }
 
         String error = null;
-        boolean externalDriver = getDriverSource() == DriverSource.EXTERNAL;
-        driverLibraryLabel.setVisible(externalDriver);
-        driverLibraryTextField.setVisible(externalDriver);
-        driverLabel.setVisible(externalDriver);
-        driverComboBox.setVisible(externalDriver);
+        DriverSource selectedDriver = getDriverSource();
+
+        driverLibraryLabel.setVisible(selectedDriver == DriverSource.EXTERNAL);
+        driverLibraryTextField.setVisible(selectedDriver == DriverSource.EXTERNAL);
+        driverLabel.setVisible(selectedDriver == DriverSource.EXTERNAL);
+        driverComboBox.setVisible(selectedDriver == DriverSource.EXTERNAL);
+
+        driverLibraryDownloadLabel.setVisible(selectedDriver == DriverSource.DOWNLOAD);
+        driverLibraryComboBox.setVisible(selectedDriver == DriverSource.DOWNLOAD);
+        downloadButton.setVisible(selectedDriver == DriverSource.DOWNLOAD);
+        infoButton.setVisible(selectedDriver == DriverSource.DOWNLOAD);
         updateDriverReloadLink();
 
-        if (externalDriver) {
+        if (selectedDriver == DriverSource.EXTERNAL) {
             String driverLibrary = getDriverLibrary();
 
             boolean fileExists = Strings.isNotEmpty(driverLibrary) && fileExists(driverLibrary);
@@ -242,6 +270,43 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
 
         List<DriverOption> driverOptions = getElements(driverComboBox);
         setSelection(driverComboBox, DriverOption.get(driverOptions, configuration.getDriver()));
+    }
+
+    private void populateDriverLibraryComboBox() {
+        List<String> driverPackagesIds = DriverPackageBundle.driverPackagesIds();
+        driverLibraryComboBox.removeAllItems();
+        for (String driverPackageId : driverPackagesIds) {
+            driverLibraryComboBox.addItem(driverPackageId);
+        }
+
+        driverLibraryComboBox.addActionListener(e -> updateDownloadButtonState());
+        updateDownloadButtonState();
+    }
+
+    private void updateDownloadButtonState() {
+        String selectedPackageId = (String) driverLibraryComboBox.getSelectedItem();
+        if (selectedPackageId != null) {
+            boolean isDownloaded = DriverDownloadManager.getInstance().isPackageDownloaded(selectedPackageId);
+            downloadButton.setEnabled(!isDownloaded);
+            downloadButton.setToolTipText(isDownloaded ? "Already downloaded" : "Download required");
+
+            if (!isDownloaded) {
+                driverErrorLabel.setForeground(JBColor.RED);
+                driverErrorLabel.setText("Download required to use this driver.");
+            } else {
+                driverErrorLabel.setText("");
+            }
+            driverErrorLabel.setVisible(!isDownloaded);
+        }
+    }
+
+    private void handleDownloadButtonClick() {
+        DriverPackage driverPackage = DriverPackageBundle.getDriverPackage((String) driverLibraryComboBox.getSelectedItem());
+        DriverPackageDownloader.downloadDriverPackage(getProject(), driverPackage);
+    }
+
+    private void handleInfoButtonClick() {
+        Dialogs.show(() -> new DriverPackageInfoDialog(getProject(), "Driver Package Info", true, DriverPackageBundle.getDriverPackage((String) driverLibraryComboBox.getSelectedItem())));
     }
 }
 
