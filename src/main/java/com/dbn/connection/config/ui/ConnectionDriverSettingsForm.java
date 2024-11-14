@@ -123,6 +123,12 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
 
     void updateDriverFields() {
         DatabaseType databaseType = getDatabaseType();
+        boolean allowBuiltInLibrary = isBuiltInLibrarySupported(databaseType);
+
+        driverSourceComboBox.setEnabled(allowBuiltInLibrary);
+        if (!allowBuiltInLibrary) {
+            setSelection(driverSourceComboBox, DriverSource.EXTERNAL);
+        }
 
         String error = null;
         DriverSource selectedDriver = getDriverSource();
