@@ -48,7 +48,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     private HyperlinkLabel reloadDriversLink;
     private JLabel reloadDriversCheckLabel;
     private JLabel driverLibraryDownloadLabel;
-    private ComboBox driverLibraryComboBox;
+    private ComboBox<String> driverLibraryComboBox;
     private JButton infoButton;
     private JButton downloadButton;
 
@@ -76,7 +76,6 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             updateDriverFields();
             //driverSetupPanel.setVisible(isExternalLibrary);
         });
-
         downloadButton.addActionListener(e -> handleDownloadButtonClick());
         infoButton.addActionListener(e -> handleInfoButtonClick());
 
@@ -124,12 +123,6 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
 
     void updateDriverFields() {
         DatabaseType databaseType = getDatabaseType();
-        boolean allowBuiltInLibrary = isBuiltInLibrarySupported(databaseType);
-
-        driverSourceComboBox.setEnabled(allowBuiltInLibrary);
-        if (!allowBuiltInLibrary) {
-            setSelection(driverSourceComboBox, DriverSource.EXTERNAL);
-        }
 
         String error = null;
         DriverSource selectedDriver = getDriverSource();
@@ -143,6 +136,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         driverLibraryComboBox.setVisible(selectedDriver == DriverSource.DOWNLOAD);
         downloadButton.setVisible(selectedDriver == DriverSource.DOWNLOAD);
         infoButton.setVisible(selectedDriver == DriverSource.DOWNLOAD);
+        populateDriverLibraryComboBox();
         updateDriverReloadLink();
 
         if (selectedDriver == DriverSource.EXTERNAL) {
@@ -218,9 +212,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     }
 
     public DriverSource getDriverSource() {
-        DatabaseType databaseType = getDatabaseType();
-        boolean allowBuiltInLibrary = isBuiltInLibrarySupported(databaseType);
-        return allowBuiltInLibrary ? getSelection(driverSourceComboBox) : DriverSource.EXTERNAL;
+        return getSelection(driverSourceComboBox);
     }
 
     private boolean isBuiltInLibrarySupported(DatabaseType databaseType) {
@@ -287,7 +279,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     }
 
     private void updateDownloadButtonState() {
-        String selectedPackageId = (String) driverLibraryComboBox.getSelectedItem();
+        String selectedPackageId = (String) getSelection(driverLibraryComboBox);
         if (selectedPackageId != null) {
             boolean isDownloaded = DriverDownloadManager.getInstance().isPackageDownloaded(selectedPackageId);
             downloadButton.setEnabled(!isDownloaded);
@@ -304,7 +296,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     }
 
     private void handleDownloadButtonClick() {
-        DriverPackage driverPackage = DriverPackageBundle.getDriverPackage((String) driverLibraryComboBox.getSelectedItem());
+        DriverPackage driverPackage = DriverPackageBundle.getDriverPackage((String) getSelection(driverLibraryComboBox));
         DriverPackageDownloader.downloadDriverPackage(getProject(), driverPackage);
     }
 
