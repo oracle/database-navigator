@@ -13,7 +13,7 @@
   -->
 <driver-packages>
 
-    <driver-package database-type="ORACLE" id="oracle-23.3-standard" name="Oracle 23.3">
+    <driver-package database-type="Oracle" id="oracle-23.3-standard" name="Oracle 23.3">
 
         <library artifact-id="connector-api" group-id="javax.resource" version="1.5">
             <license name="CDDL + GPLv2 with classpath exception" url="https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html"/>
@@ -49,7 +49,7 @@
 
     </driver-package>
 
-    <driver-package database-type="MYSQL" id="mysql-8.0-standard" name="MySQL 8.0.33">
+    <driver-package database-type="MySQL" id="mysql-8.0-standard" name="MySQL 8.0.33">
 
         <library artifact-id="mysql-connector-j" group-id="com.mysql" version="8.0.33">
             <license name="The GNU General Public License, v2 with Universal FOSS Exception, v1.0" url="Unknown"/>
@@ -58,7 +58,7 @@
 
     </driver-package>
 
-    <driver-package database-type="POSTGRES" id="postgresql-42.6-standard" name="PostgreSQL 42.6.0">
+    <driver-package database-type="PostgreSQL" id="postgresql-42.6-standard" name="PostgreSQL 42.6.0">
 
         <library artifact-id="org.osgi.dto" group-id="org.osgi" version="1.1.1">
             <license name="Apache-2.0" url="https://www.apache.org/licenses/LICENSE-2.0"/>
@@ -92,7 +92,7 @@
 
     </driver-package>
 
-    <driver-package database-type="SQLITE" id="sqllite-3.45-standard" name="SQLite 3.45.3">
+    <driver-package database-type="SQLite" id="sqllite-3.45-standard" name="SQLite 3.45.3">
 
         <library artifact-id="sqlite-jdbc" group-id="org.xerial" version="3.45.3.0">
             <license name="The Apache Software License, Version 2.0" url="https://www.apache.org/licenses/LICENSE-2.0.txt"/>
@@ -101,7 +101,7 @@
 
     </driver-package>
 
-    <driver-package database-type="ORACLE" id="oracle-23.3-token" name="Oracle 23.3">
+    <driver-package database-type="Oracle" id="oracle-23.3-token" name="Oracle 23.3">
 
         <library artifact-id="connector-api" group-id="javax.resource" version="1.5">
             <license name="CDDL + GPLv2 with classpath exception" url="https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html"/>

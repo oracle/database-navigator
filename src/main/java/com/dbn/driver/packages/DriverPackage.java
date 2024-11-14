@@ -14,6 +14,7 @@
 
 package com.dbn.driver.packages;
 
+import com.dbn.connection.DatabaseType;
 import lombok.Getter;
 
 import java.util.List;
@@ -38,10 +39,10 @@ import java.util.List;
 public class DriverPackage {
     private final String id;
     private final String name;
-    private final String databaseType;
+    private final DatabaseType databaseType;
     private final List<Library> libraries;
 
-    public DriverPackage(String id, String name, String databaseType, List<Library> libraries) {
+    public DriverPackage(String id, String name, DatabaseType databaseType, List<Library> libraries) {
         this.id = id;
         this.name = name;
         this.databaseType = databaseType;

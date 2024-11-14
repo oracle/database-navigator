@@ -273,10 +273,13 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     }
 
     private void populateDriverLibraryComboBox() {
-        List<String> driverPackagesIds = DriverPackageBundle.driverPackagesIds();
+        DatabaseType databaseType = getDatabaseType();
+        List<DriverPackage> driverPackages = DriverPackageBundle.driverPackages();
         driverLibraryComboBox.removeAllItems();
-        for (String driverPackageId : driverPackagesIds) {
-            driverLibraryComboBox.addItem(driverPackageId);
+        for (DriverPackage driverPackage : driverPackages) {
+            if(driverPackage.getDatabaseType()==databaseType || databaseType==DatabaseType.GENERIC) {
+                driverLibraryComboBox.addItem(driverPackage.getId());
+            }
         }
 
         driverLibraryComboBox.addActionListener(e -> updateDownloadButtonState());

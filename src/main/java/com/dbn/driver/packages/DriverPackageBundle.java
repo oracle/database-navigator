@@ -15,6 +15,7 @@
 package com.dbn.driver.packages;
 
 import com.dbn.common.util.XmlContents;
+import com.dbn.connection.DatabaseType;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -68,7 +69,7 @@ public class DriverPackageBundle {
 
         List<Library> libraries = convert(element.getChildren("library"), DriverPackageBundle::createLibrary);
 
-        return new DriverPackage(id, name, databaseType, libraries);
+        return new DriverPackage(id, name, DatabaseType.resolve(databaseType), libraries);
     }
 
     private static Library createLibrary(Element element) {
