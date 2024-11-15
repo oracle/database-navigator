@@ -134,6 +134,15 @@ class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader 
         //}
     }
 
+    @Override
+    public void close() throws IOException {
+        try {
+            super.close();
+        } finally {
+            DatabaseDriverManager driverManager = DatabaseDriverManager.getInstance();
+            driverManager.resetDriverMetadata(getLibrary());
+        }
+    }
 
     @SneakyThrows
     private static URL[] getUrls(File library) {

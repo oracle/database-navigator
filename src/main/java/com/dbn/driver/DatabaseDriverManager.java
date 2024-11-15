@@ -83,6 +83,10 @@ public class DatabaseDriverManager extends ApplicationComponentBase implements P
         driverMetadata.put(library, metadata);
     }
 
+    public void resetDriverMetadata(File library) {
+        driverMetadata.remove(library);
+    }
+
     @Nullable
     @SneakyThrows
     private DriverBundle loadBundledDrivers(DatabaseType databaseType) {
