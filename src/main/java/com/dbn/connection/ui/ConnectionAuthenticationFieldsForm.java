@@ -55,6 +55,7 @@ import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.connection.AuthenticationTokenType.OCI_API_KEY;
+import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
 import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.connection.ui.ConnectionAuthenticationFieldsForm.FieldCategory.CACHEABLE_FIELDS;
@@ -88,7 +89,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         onTextChange(tokenConfigFileTextField, e -> refreshTokenProfileOptions());
         
         initComboBox(authTypeComboBox, AuthenticationType.values());
-        initComboBox(tokenTypeComboBox, OCI_API_KEY/*, OCI_INTERACTIVE*/); // currently supported token types
+        initComboBox(tokenTypeComboBox, OCI_API_KEY, OCI_INTERACTIVE); // currently supported token types
 
         ActionListener actionListener = e -> updateAuthenticationFields();
         authTypeComboBox.addActionListener(actionListener);

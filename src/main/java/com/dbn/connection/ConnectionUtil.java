@@ -85,7 +85,13 @@ public class ConnectionUtil {
         AuthenticationError authenticationError = statusHolder.getAuthenticationError();
         AuthenticationInfo authenticationInfo = initAuthenticationInfo(connection);
 
-        if (authenticationError != null && authenticationError.getAuthenticationInfo().isSame(authenticationInfo) && !authenticationError.isExpired()) {
+        if (authenticationError != null &&
+                !authenticationError.isExpired() &&
+                !authenticationError.isObsolete(authenticationInfo) &&
+                authenticationInfo.hasUserInformation()) {
+
+            // prevent user account locking due to successive failed authentication attempts
+            // (throw last auth exception)
             throw authenticationError.getException();
         }
         return authenticationInfo;
