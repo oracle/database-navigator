@@ -1,3 +1,7 @@
+import com.github.jk1.license.filter.DependencyFilter
+import com.github.jk1.license.filter.LicenseBundleNormalizer
+import com.github.jk1.license.render.ReportRenderer
+import com.github.jk1.license.render.TextReportRenderer
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -7,6 +11,7 @@ plugins {
   id("java")
   id("org.jetbrains.kotlin.jvm") version "1.9.20"
   id("org.jetbrains.intellij") version "1.16.0"
+  id("com.github.jk1.dependency-license-report") version "2.9"
 }
 
 group = "com.dbn"
@@ -41,6 +46,11 @@ dependencies {
   implementation(project(":modules:dbn-spi"))
 }
 
+licenseReport {
+    renderers = arrayOf<ReportRenderer>(TextReportRenderer("THIRD_PARTY_LICENSES.txt"))
+    filters = arrayOf<DependencyFilter>(LicenseBundleNormalizer())
+}
+
 sourceSets{
   main {
     resources {
@@ -51,6 +61,7 @@ sourceSets{
       include(
               "**/*.png",
               "**/*.jpg",
+              "**/*.txt",
               "**/*.xml",
               "**/*.svg",
               "**/*.css",
