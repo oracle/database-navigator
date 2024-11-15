@@ -5,8 +5,14 @@ import com.dbn.common.exception.Exceptions;
 import com.dbn.common.notification.NotificationGroup;
 import com.dbn.common.pool.ObjectCacheBase;
 import com.dbn.common.thread.Background;
-import com.dbn.connection.*;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionRef;
+import com.dbn.connection.ConnectionStatusListener;
+import com.dbn.connection.ConnectionUtil;
+import com.dbn.connection.Resources;
+import com.dbn.connection.SessionId;
 import com.dbn.nls.NlsSupport;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
@@ -71,6 +77,7 @@ public class DBNConnectionCache extends ObjectCacheBase<SessionId, DBNConnection
 
     @Override
     protected DBNConnection whenErrored(Throwable e) throws SQLException {
+        if (e instanceof ProcessCanceledException) throw (ProcessCanceledException) e;
         throw Exceptions.toSqlException(e);
     }
 
