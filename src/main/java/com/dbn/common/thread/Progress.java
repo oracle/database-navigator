@@ -2,6 +2,8 @@ package com.dbn.common.thread;
 
 import com.dbn.common.dispose.Checks;
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.load.ProgressMonitor;
+import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.progress.ProgressDialogHandler;
 import com.dbn.common.util.Titles;
 import com.dbn.connection.context.DatabaseContext;
@@ -13,6 +15,9 @@ import com.intellij.openapi.progress.Task.Backgroundable;
 import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND;
 
@@ -83,4 +88,31 @@ public final class Progress {
     public static double progressOf(int is, int should) {
         return ((double) is) / should;
     }
+
+    /**
+     * Creates a cancel callback to the current progress indicator (of the current thread is a background cancellable thread)
+     * @param onCancel a {@link Runnable} to be invoked when progress is cancelled
+     */
+    public static void cancelCallback(Runnable onCancel) {
+        ProgressIndicator progressIndicator = ProgressMonitor.getProgressIndicator();
+        if (progressIndicator == null) return;
+        if (progressIndicator.isCanceled()) return;
+        if (!progressIndicator.isRunning()) return;
+        WeakRef<ProgressIndicator> indicator = WeakRef.of(progressIndicator);
+
+        // self-closing timer, monitoring the thread-local progress indicator and closing when progress is no longer running
+        Timer timer = new Timer("DBN - Progress Cancel Monitor", true);
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                ProgressIndicator progressIndicator = indicator.get();
+                if (progressIndicator == null || !progressIndicator.isRunning()) {
+                    timer.cancel();
+                    return;
+                }
+                if (progressIndicator.isCanceled()) onCancel.run();
+            }
+        }, 500, 500);
+    }
+
 }

@@ -41,6 +41,7 @@ import com.dbn.vfs.DatabaseFileManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -163,6 +164,8 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                         if (showSuccessMessage) {
                             showSuccessfulConnectionMessage(project, connectionName);
                         }
+                    } catch (ProcessCanceledException e) {
+                        conditionallyLog(e);
                     } catch (ConfigurationException e) {
                         conditionallyLog(e);
                         if (showErrorMessage) {
@@ -226,6 +229,9 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                 if (showMessageDialog) {
                     showSuccessfulConnectionMessage(project, connectionName);
                 }
+            } catch (ProcessCanceledException e) {
+                conditionallyLog(e);
+                databaseSettings.setConnectivityStatus(ConnectivityStatus.UNKNOWN);
             } catch (Exception e) {
                 conditionallyLog(e);
                 databaseSettings.setConnectivityStatus(ConnectivityStatus.INVALID);
