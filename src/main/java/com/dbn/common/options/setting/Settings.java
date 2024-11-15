@@ -200,7 +200,7 @@ public final class Settings {
         return builder.toString();
     }
 
-    public void writeCdata(Element element, String content) {
+    public static void writeCdata(Element element, String content) {
         element.setContent(new CDATA(content));
     }
 
