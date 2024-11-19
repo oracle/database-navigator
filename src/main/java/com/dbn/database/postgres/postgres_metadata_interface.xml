@@ -800,6 +800,11 @@
             select 1
         </statement>
     </statement-execution-processor>
+    <statement-execution-processor id="session-user" is-prepared-statement="true" is-query="true" timeout="20">
+        <statement>
+            select CURRENT_USER
+        </statement>
+    </statement-execution-processor>
 
     <statement-execution-processor id="sessions" is-prepared-statement="true">
         <statement>

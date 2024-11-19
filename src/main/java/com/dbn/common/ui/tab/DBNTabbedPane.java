@@ -1,23 +1,33 @@
 package com.dbn.common.ui.tab;
 
-import com.dbn.common.ui.util.Listeners;
 import com.intellij.openapi.Disposable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import java.awt.Color;
+import java.awt.Component;
 import java.util.Objects;
 import java.util.function.Function;
 
-public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
-    private final Listeners<TabsListener> listeners = new Listeners<>();
+import static com.dbn.common.ui.util.ClientProperty.TAB_COLOR;
+import static com.dbn.common.ui.util.ClientProperty.TAB_CONTENT;
 
+public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
     public DBNTabbedPane(Disposable parent) {
-        super(parent);
+        this(parent, false);
+    }
+
+    public DBNTabbedPane(Disposable parent, boolean mutable) {
+        this(TOP, parent, mutable);
+    }
+
+    public DBNTabbedPane(int tabPlacement, Disposable parent, boolean mutable) {
+        super(tabPlacement, parent, mutable);
 
         addChangeListener(e -> {
             DBNTabbedPane source = (DBNTabbedPane) e.getSource();
             int selectedIndex = source.getSelectedIndex();
-            listeners.notify(l -> l.selectionChanged(selectedIndex));
+            selectionListeners.notify(l -> l.selectionChanged(selectedIndex));
         });
     }
 
@@ -26,19 +36,41 @@ public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
     }
 
     public T getContentAt(int index) {
-        return getTabInfo(index).getContent();
+        Component component = getComponentAt(index);
+        return TAB_CONTENT.get(component);
     }
 
-    public Color getTabColor(int index) {
-        return getTabInfo(index).getColor();
+    public Color getTabColorAt(int index) {
+        Component component = getComponentAt(index);
+        return TAB_COLOR.get(component);
     }
 
-    public void setTabColor(int index, Color color) {
-        getTabInfo(index).setColor(color);
+    public void setTabIcon(Component component, Icon icon) {
+        int index = getTabIndex(component);
+        setIconAt(index, icon);
     }
 
-    public void addTabsListener(TabsListener listener) {
-        listeners.add(listener);
+    public void setTabTitle(Component component, String title) {
+        int index = getTabIndex(component);
+        setTitleAt(index, title);
+    }
+
+    public void setTabColor(Component component, Color color) {
+        int index = getTabIndex(component);
+        setTabColorAt(index, color);
+    }
+
+    public void setTabColorAt(int index, Color color) {
+        Component component = getComponentAt(index);
+        TAB_COLOR.set(component, color);
+    }
+
+    public void addTabSelectionListener(DBNTabsSelectionListener listener) {
+        selectionListeners.add(listener);
+    }
+
+    public void addTabUpdateListener(DBNTabsUpdateListener listener) {
+        updateListeners.add(listener);
     }
 
     public String getSelectedTabTitle() {
@@ -58,8 +90,17 @@ public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
         selectTab(content, i -> getContentAt(i));
     }
 
-    public void setTabBackground(int index, Color background) {
+    public void selectTab(Component component, boolean requestFocus) {
+        int index = getTabIndex(component);
+        selectTab(index, requestFocus);
+    }
 
+    public void selectTab(int index, boolean requestFocus) {
+        setSelectedIndex(index);
+        if (requestFocus) {
+            Component component = getComponentAt(index);
+            component.requestFocus();
+        }
     }
 
     private <E> void selectTab(E element, Function<Integer, E> predicate) {
@@ -71,5 +112,4 @@ public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
             }
         }
     }
-
 }

@@ -238,6 +238,7 @@ public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
 
     @Override
     public DBObject getChildObject(DBObjectType type, String name, short overload, boolean lookupHidden) {
+        if (isDisposed()) return null;
         DBObjectList<DBObject> childObjectList = getChildObjectList(type);
         if (childObjectList != null) {
             DBObject object = childObjectList.getObject(name, overload);

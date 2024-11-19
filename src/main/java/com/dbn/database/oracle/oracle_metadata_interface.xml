@@ -2220,6 +2220,12 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="session-user" is-prepared-statement="true" is-query="true" timeout="20">
+        <statement>
+            select USER from DUAL
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="enable-trigger">
         <statement>
             alter trigger {0}.{1} enable
