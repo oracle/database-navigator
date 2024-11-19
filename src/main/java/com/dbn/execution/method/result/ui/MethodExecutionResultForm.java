@@ -6,6 +6,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.tab.DBNTabbedPane;
+import com.dbn.common.ui.tab.DBNTabs;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
@@ -28,8 +29,11 @@ import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTree;
+import java.awt.BorderLayout;
 import java.util.List;
 
 import static com.dbn.common.util.Commons.nvl;
@@ -144,8 +148,11 @@ public class MethodExecutionResultForm extends ExecutionResultFormBase<MethodExe
 
     private void addOutputTab(DBArgument argument, DBNForm form) {
         boolean select = outputTabs.getTabCount() == 0;
-        outputTabs.addTab(argument.getName(), argument.getIcon(), form.getComponent(), form);
+        String title = argument.getName();
+        JComponent component = form.getComponent();
+        DBNTabs.initTabComponent(component, argument.getIcon(), null, form);
 
+        outputTabs.addTab(title, component);
         if (select) outputTabs.setSelectedIndex(0);
     }
 

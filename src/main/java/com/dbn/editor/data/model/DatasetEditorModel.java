@@ -37,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.sql.ResultSet;
@@ -51,7 +51,11 @@ import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.connection.ConnectionProperty.RS_TYPE_FORWARD_ONLY;
 import static com.dbn.connection.ConnectionProperty.RS_TYPE_SCROLL_INSENSITIVE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
-import static com.dbn.editor.data.model.RecordStatus.*;
+import static com.dbn.editor.data.model.RecordStatus.DELETED;
+import static com.dbn.editor.data.model.RecordStatus.DIRTY;
+import static com.dbn.editor.data.model.RecordStatus.INSERTED;
+import static com.dbn.editor.data.model.RecordStatus.INSERTING;
+import static com.dbn.editor.data.model.RecordStatus.UPDATING;
 
 @Slf4j
 public class DatasetEditorModel
@@ -444,8 +448,9 @@ public class DatasetEditorModel
         DatasetEditorTable editorTable = getEditorTable();
         DatasetEditorModelRow row = getInsertRow();
         if (row == null) return;
-        if (row.isEmptyData()) throw AlreadyDisposedException.INSTANCE;
 
+        // do not cancel insert-row when focusing away e.g. for copying data from another cell
+        if (row.isEmptyData() && !reset) throw AlreadyDisposedException.INSTANCE;
 
         try {
             editorTable.stopCellEditing();

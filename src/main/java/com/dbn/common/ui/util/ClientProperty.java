@@ -16,7 +16,11 @@ public enum ClientProperty {
     VISIBILITY_CONDITION,
     ACCESSIBILITY_CONDITION,
     FIELD_ERROR,
-    ACTION_TOOLBAR;
+    ACTION_TOOLBAR,
+    TAB_ICON,
+    TAB_COLOR,
+    TAB_TOOLTIP,
+    TAB_CONTENT;
 
 
     public boolean is(Component component) {

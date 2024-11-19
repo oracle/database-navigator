@@ -523,6 +523,18 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
+    public String loadSessionUser(DBNConnection connection) throws SQLException {
+        ResultSet resultSet = null;
+        try {
+            resultSet = executeQuery(connection, true, "session-user");
+            resultSet.next();
+            return resultSet.getString(1);
+        } finally {
+            Resources.close(resultSet);
+        }
+    }
+
+    @Override
     public boolean hasPendingTransactions(@NotNull DBNConnection connection) {
         ResultSet resultSet = null;
         try {

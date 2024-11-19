@@ -5,9 +5,12 @@ import com.intellij.openapi.ui.Splitter;
 import com.intellij.ui.JBSplitter;
 import com.intellij.ui.OnePixelSplitter;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JSplitPane;
+import java.awt.BorderLayout;
+import java.awt.Container;
 
+import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static javax.swing.JSplitPane.VERTICAL_SPLIT;
 
 public class Splitters {
@@ -53,7 +56,7 @@ public class Splitters {
 
 
         if (dividerLocation > 0) {
-            UserInterface.whenShown(splitter, () -> {
+            whenFirstShown(splitter, () -> {
                 Dispatch.run(() -> {
                     double proportion;
 

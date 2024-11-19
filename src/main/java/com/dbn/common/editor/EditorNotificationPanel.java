@@ -1,6 +1,7 @@
 package com.dbn.common.editor;
 
 import com.dbn.common.color.Colors;
+import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.file.VirtualFileRef;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.message.MessageType;
@@ -9,114 +10,88 @@ import com.dbn.common.ui.form.DBNForm;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.mapping.FileConnectionContextManager;
+import com.intellij.openapi.editor.colors.ColorKey;
+import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.HyperlinkAdapter;
-import com.intellij.ui.HyperlinkLabel;
+import com.intellij.ui.JBColor;
 import com.intellij.util.ui.JBUI;
-import com.intellij.util.ui.PlatformColors;
+import lombok.experimental.UtilityClass;
 
-import javax.swing.*;
-import javax.swing.event.HyperlinkEvent;
-import java.awt.*;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.Color;
 
-public class EditorNotificationPanel extends JPanel{
-    private JLabel label;
-    private final JPanel actionsPanel;
+import static javax.swing.SwingConstants.RIGHT;
+
+public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationPanel{
     private final VirtualFileRef file;
     private final ProjectRef project;
+    private final JPanel contentPanel;
 
     public EditorNotificationPanel(Project project, VirtualFile file, MessageType messageType) {
-        super(new BorderLayout());
+        super((FileEditor) null, getBackground(messageType), getBackgroundKey(messageType));
         this.file = VirtualFileRef.of(file);
         this.project = ProjectRef.of(project);
 
-        setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 4));
+        int hgap = JBUI.scale(8);
 
-        Dimension dimension = getPreferredSize();
-        setPreferredSize(new Dimension((int) dimension.getWidth(), 28));
+        remove(this.myLabel);
+        this.contentPanel = new JPanel(new BorderLayout(hgap, 0));
+        this.contentPanel.setOpaque(false);
+        this.contentPanel.add(this.myLabel, BorderLayout.WEST);
+        add(this.contentPanel, BorderLayout.WEST);
 
-        //setPreferredSize(new Dimension(-1, 32));
-
-        Icon icon = null;
-        Color background;
-
-        switch (messageType) {
-            case INFO: {
-                icon = Icons.COMMON_INFO;
-                background = Colors.getInfoHintColor();
-                break;
-            }
-            case WARNING:{
-                icon = Icons.COMMON_WARNING;
-                background = Colors.getWarningHintColor();
-                break;
-            }
-            case ERROR:{
-                //icon = AllIcons.General.Error;
-                background = Colors.getErrorHintColor();
-                break;
-            }
-            default:{
-                //icon = AllIcons.General.Information;
-                background = Colors.getLightPanelBackground();
-                break;
-            }
-        }
-
-        setIcon(icon);
-        setBackground(background);
-
-        actionsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 2));
-        actionsPanel.setOpaque(false);
-        add(actionsPanel, BorderLayout.EAST);
+        this.myLabel.setForeground(Banner.FOREGROUND);
+        this.myLabel.setIcon(getIcon(messageType));
+        this.myLabel.setHorizontalAlignment(RIGHT);
+        this.myLabel.setIconTextGap(hgap);
+        this.myLabel.setBorder(null);
     }
+
+    protected Icon getIcon(MessageType messageType) {
+        switch (messageType) {
+            case INFO: return Icons.COMMON_INFO;
+            case SUCCESS: return null;
+            case WARNING: return Icons.COMMON_WARNING;
+            case ERROR: return Icons.COMMON_ERROR;
+            default: return null;
+        }    }
+
+    private static Color getBackground(MessageType messageType) {
+        switch (messageType) {
+            case INFO: return Banner.INFO_BACKGROUND;
+            case SUCCESS: return Banner.SUCCESS_BACKGROUND;
+            case WARNING: return Banner.WARNING_BACKGROUND;
+            case ERROR: return Banner.ERROR_BACKGROUND;
+            default: return Colors.getLightPanelBackground();
+        }
+    }
+
+    private static ColorKey getBackgroundKey(MessageType messageType) {
+        switch (messageType) {
+            case INFO: return ColorKey.createColorKey("Banner.infoBackground");
+            case SUCCESS: return ColorKey.createColorKey("Banner.successBackground");
+            case WARNING: return ColorKey.createColorKey("Banner.warningBackground");
+            case ERROR: return ColorKey.createColorKey("Banner.errorBackground");
+            default: return null;
+        }
+    }
+
 
     public void setContent(DBNForm form) {
         setContent(form.getComponent());
     }
 
     public void setContent(JComponent content) {
-        add(content, BorderLayout.CENTER);
+        contentPanel.add(content, BorderLayout.CENTER);
         content.setOpaque(false);
     }
 
-    public void setText(String text) {
-        if (label == null && text == null) return;
-
-        initLabel();
-        label.setText(text);
-    }
-
     public void setIcon(Icon icon) {
-        if (label == null && icon == null) return;
-
-        initLabel();
-        label.setIcon(icon);
-    }
-
-    private void initLabel() {
-        if (label == null) {
-            label = new JLabel();
-            label.setBorder(JBUI.Borders.emptyRight(8));
-            add(label, BorderLayout.WEST);
-        }
-    }
-
-    protected void createActionLabel(String text, final Runnable action) {
-        HyperlinkLabel label = new HyperlinkLabel(text, PlatformColors.BLUE, getBackground(), PlatformColors.BLUE);
-        label.addHyperlinkListener(new HyperlinkAdapter() {
-            @Override
-            protected void hyperlinkActivated(HyperlinkEvent e) {
-                action.run();
-            }
-        });
-        actionsPanel.add(label);
-    }
-
-    @Override
-    public Dimension getMinimumSize() {
-        return new Dimension(0, 0);
+        this.myLabel.setIcon(icon);
     }
 
     protected VirtualFile getFile() {
@@ -138,5 +113,19 @@ public class EditorNotificationPanel extends JPanel{
     protected ConnectionId getConnectionId() {
         ConnectionHandler connection = getConnection();
         return connection.getConnectionId();
+    }
+
+
+    /**
+     * Copy of JBUI.CurrentTheme.Banner
+     */
+    @Compatibility
+    @UtilityClass
+    public static final class Banner {
+        public static final Color INFO_BACKGROUND = JBColor.namedColor("Banner.infoBackground", 0xF5F8FE, 0x25324D);
+        public static final Color SUCCESS_BACKGROUND = JBColor.namedColor("Banner.successBackground", 0xF2FCF3, 0x253627);
+        public static final Color WARNING_BACKGROUND = JBColor.namedColor("Banner.warningBackground", 0xFFFAEB, 0x3d3223);
+        public static final Color ERROR_BACKGROUND = JBColor.namedColor("Banner.errorBackground", 0xFFF7F7, 0x402929);
+        public static final Color FOREGROUND = JBColor.namedColor("Banner.foreground", 0x0, 0xDFE1E5);
     }
 }

@@ -14,7 +14,7 @@ public class DDLMappedNotificationPanel extends EditorNotificationPanel {
     private final DBObjectRef<DBSchemaObject> object;
 
     public DDLMappedNotificationPanel(@NotNull Project project, @NotNull VirtualFile file, DBSchemaObject object) {
-        super(project, file, MessageType.NEUTRAL);
+        super(project, file, MessageType.WARNING);
         this.object = DBObjectRef.of(object);
 
         String objectName = object.getQualifiedNameWithType();

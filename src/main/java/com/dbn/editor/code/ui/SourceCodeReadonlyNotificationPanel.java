@@ -15,7 +15,7 @@ import static com.dbn.common.util.Conditional.when;
 
 public class SourceCodeReadonlyNotificationPanel extends SourceCodeEditorNotificationPanel{
     public SourceCodeReadonlyNotificationPanel(DBSchemaObject object, SourceCodeEditor sourceCodeEditor) {
-        super(object, isReadonly(sourceCodeEditor) ? MessageType.NEUTRAL : MessageType.WARNING);
+        super(object, isReadonly(sourceCodeEditor) ? MessageType.INFO : MessageType.WARNING);
         DBSourceCodeVirtualFile sourceCodeFile = sourceCodeEditor.getVirtualFile();
         String environmentName = sourceCodeFile.getEnvironmentType().getName();
 

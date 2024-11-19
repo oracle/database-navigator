@@ -57,6 +57,7 @@ public class ConnectionUtil {
                 connection.setConnectionInfo(connectionInfo);
                 connectionStatus.setAuthenticationError(null);
                 connection.getCompatibility().read(conn.getMetaData());
+                initSessionUser(connection, conn);
                 diagnostics.log(sessionId, false, false, millisSince(start));
                 return conn;
             } catch (SQLTimeoutException e) {
@@ -74,6 +75,22 @@ public class ConnectionUtil {
                 throw e;
             }
         });
+    }
+
+    /**
+     * Initializes the session-user for the given connection handler.
+     * Verifies if the session user has already been confirmed and skips the initialization if this is true
+     * @param connection the database to be verified
+     * @param conn the jdbc connection to be used for loading the session user
+     * @throws SQLException if the load of session-user fails
+     */
+    private static void initSessionUser(ConnectionHandler connection, DBNConnection conn) throws SQLException {
+        ConnectionDatabaseSettings databaseSettings = connection.getSettings().getDatabaseSettings();
+        if (databaseSettings.getSessionUser() == null || !databaseSettings.isSessionUserConfirmed()) {
+            String sessionUser = connection.getMetadataInterface().loadSessionUser(conn);
+            databaseSettings.setSessionUser(sessionUser);
+            databaseSettings.setSessionUserConfirmed(true);
+        }
     }
 
     @NotNull
