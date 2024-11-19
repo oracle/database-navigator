@@ -1,12 +1,19 @@
 package com.dbn.database.sqlite;
 
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.common.DatabaseMetadataInterfaceImpl;
 import com.dbn.database.common.metadata.impl.DBSchemaMetadataImpl;
 import com.dbn.database.common.util.WrappedResultSet;
-import com.dbn.database.sqlite.adapter.rs.*;
-import com.dbn.database.common.DatabaseMetadataInterfaceImpl;
 import com.dbn.database.interfaces.DatabaseInterfaces;
-import com.dbn.database.sqlite.adapter.rs.*;
+import com.dbn.database.sqlite.adapter.rs.SqliteColumnConstraintsResultSet;
+import com.dbn.database.sqlite.adapter.rs.SqliteColumnIndexesResultSet;
+import com.dbn.database.sqlite.adapter.rs.SqliteColumnsResultSet;
+import com.dbn.database.sqlite.adapter.rs.SqliteConstraintsResultSet;
+import com.dbn.database.sqlite.adapter.rs.SqliteDatasetNamesResultSet;
+import com.dbn.database.sqlite.adapter.rs.SqliteIndexesResultSet;
+import com.dbn.database.sqlite.adapter.rs.SqliteTriggerSourceResultSet;
+import com.dbn.database.sqlite.adapter.rs.SqliteTriggersResultSet;
+import com.dbn.database.sqlite.adapter.rs.SqliteViewSourceResultSet;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
@@ -268,5 +275,11 @@ class SqliteMetadataInterface extends DatabaseMetadataInterfaceImpl {
     @Override
     public void terminateSession(Object sessionId, Object serialNumber, boolean immediate, DBNConnection connection) throws SQLException {
         executeStatement(connection, "kill-session", sessionId);
+    }
+
+    @Override
+    public String loadSessionUser(DBNConnection connection) {
+        // no session user concept in sqlite
+        return null;
     }
 }

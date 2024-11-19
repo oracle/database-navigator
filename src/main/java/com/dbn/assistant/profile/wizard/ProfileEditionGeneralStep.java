@@ -22,7 +22,6 @@ import com.dbn.assistant.profile.wizard.validation.ProfileNameVerifier;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Background;
-import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
@@ -49,6 +48,7 @@ import java.awt.event.ItemEvent;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.nls.NlsResources.txt;
@@ -83,7 +83,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
     initializeUI();
     addValidationListener();
 
-    UserInterface.whenShown(mainPanel, () -> populateCredentials());
+    whenFirstShown(mainPanel, () -> populateCredentials());
   }
 
   private void initCredentialAddButton() {

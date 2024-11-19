@@ -25,8 +25,11 @@ import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+
+import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 
 public class ProjectSettingsForm extends CompositeConfigurationEditorForm<ProjectSettings> {
     private JPanel mainPanel;
@@ -99,7 +102,7 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
         ConfigurationEditorForm<?> settingsEditor = configuration.getSettingsEditor();
         if (settingsEditor == null) return;
 
-        configurationTabs.selectTab(settingsEditor);
+        whenFirstShown(configurationTabs, () -> configurationTabs.selectTab(settingsEditor));
     }
 
 

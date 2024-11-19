@@ -9,9 +9,12 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.navigation.NavigationInstructions;
+import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.tab.DBNColoredTabs;
-import com.dbn.common.ui.util.Mouse;
+import com.dbn.common.ui.tab.DBNTabbedPane;
+import com.dbn.common.ui.tab.DBNTabsSelectionListener;
+import com.dbn.common.ui.tab.DBNTabsUpdateListener;
+import com.dbn.common.ui.util.ClientProperty;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Strings;
@@ -43,30 +46,39 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.PsiDocumentTransactionListener;
-import com.intellij.ui.tabs.JBTabsPosition;
-import com.intellij.ui.tabs.TabInfo;
-import com.intellij.ui.tabs.TabsListener;
-import com.intellij.ui.tabs.impl.TabLabel;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.tree.TreePath;
-import java.awt.*;
-import java.awt.event.MouseListener;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.dispose.Failsafe.guarded;
-import static com.dbn.common.navigation.NavigationInstruction.*;
+import static com.dbn.common.navigation.NavigationInstruction.FOCUS;
+import static com.dbn.common.navigation.NavigationInstruction.OPEN;
+import static com.dbn.common.navigation.NavigationInstruction.RESET;
+import static com.dbn.common.navigation.NavigationInstruction.SCROLL;
+import static com.dbn.common.navigation.NavigationInstruction.SELECT;
+import static com.dbn.common.ui.tab.DBNTabs.initTabComponent;
+import static com.dbn.common.ui.tab.DBNTabs.updateTabColor;
 import static com.dbn.common.util.Unsafe.cast;
 
 public class ExecutionConsoleForm extends DBNFormBase {
     private JPanel mainPanel;
-    private DBNColoredTabs resultTabs;
+    private DBNTabbedPane<DBNForm> resultTabs;
     private ExecutionMessagesForm executionMessagesForm;
     private final Map<ExecutionResult, ExecutionResultForm> executionResultForms = ContainerUtil.createConcurrentWeakKeySoftValueMap();
 
@@ -84,22 +96,21 @@ public class ExecutionConsoleForm extends DBNFormBase {
             @Override
             public void configurationChanged(Project project) {
                 EnvironmentVisibilitySettings visibilitySettings = getEnvironmentSettings(getProject()).getVisibilitySettings();
-                DBNColoredTabs resultTabs = getResultTabs();
-                for (TabInfo tabInfo : resultTabs.getTabs()) {
-                    updateTab(visibilitySettings, tabInfo);
+                for (Component component : getTabbedComponents()) {
+                    updateTab(visibilitySettings, component);
                 }
             }
 
-            private void updateTab(EnvironmentVisibilitySettings visibilitySettings, TabInfo tabInfo) {
-                ExecutionResult<?> executionResult = getExecutionResult(tabInfo);
-                if (executionResult != null) {
-                    ConnectionHandler connection = executionResult.getConnection();
-                    EnvironmentType environmentType = connection.getEnvironmentType();
-                    if (visibilitySettings.getExecutionResultTabs().value()) {
-                        tabInfo.setTabColor(environmentType.getColor());
-                    } else {
-                        tabInfo.setTabColor(null);
-                    }
+            private void updateTab(EnvironmentVisibilitySettings visibilitySettings, Component component) {
+                ExecutionResult<?> executionResult = getExecutionResult(component);
+                if (executionResult == null) return;
+
+                ConnectionHandler connection = executionResult.getConnection();
+                EnvironmentType environmentType = connection.getEnvironmentType();
+                if (visibilitySettings.getExecutionResultTabs().value()) {
+                    updateTabColor(component, environmentType.getColor());
+                } else {
+                    updateTabColor(component, null);
                 }
             }
         };
@@ -122,20 +133,25 @@ public class ExecutionConsoleForm extends DBNFormBase {
     }
 
     private void refreshResultTabs(@NotNull PsiFile file) {
-        DBNColoredTabs resultTabs = getResultTabs();
-        for (TabInfo tabInfo : resultTabs.getTabs()) {
-            ExecutionResult<?> executionResult = getExecutionResult(tabInfo);
+        List<Component> components = getTabbedComponents();
+        DBNTabbedPane<DBNForm> tabs = getResultTabs();
+
+        for (Component component : components) {
+            var executionResult = getExecutionResult(component);
             if (executionResult instanceof StatementExecutionResult) {
                 StatementExecutionResult statementExecutionResult = (StatementExecutionResult) executionResult;
                 StatementExecutionProcessor executionProcessor = statementExecutionResult.getExecutionProcessor();
-                if (isValid(executionProcessor) && Objects.equals(file, executionProcessor.getPsiFile())) {
-                    Icon icon = executionProcessor.isDirty() ?
-                            Icons.STMT_EXEC_RESULTSET_ORPHAN :
-                            Icons.STMT_EXEC_RESULTSET;
-                    tabInfo.setIcon(icon);
-                }
+                if (!isValid(executionProcessor)) continue;
+                if (!Objects.equals(file, executionProcessor.getPsiFile())) continue;
+
+                Icon icon = executionProcessor.isDirty() ?
+                        Icons.STMT_EXEC_RESULTSET_ORPHAN :
+                        Icons.STMT_EXEC_RESULTSET;
+
+                tabs.setTabIcon(component, icon);
             }
         }
+
         ExecutionMessagesForm messagesPanel = executionMessagesForm;
         if (messagesPanel != null) {
             JComponent messagePanelComponent = messagesPanel.getComponent();
@@ -144,17 +160,16 @@ public class ExecutionConsoleForm extends DBNFormBase {
     }
 
 
-    private DBNColoredTabs getResultTabs() {
+    public DBNTabbedPane<DBNForm> getResultTabs() {
         if (!isValid(resultTabs) && !isDisposed()) {
-            resultTabs = new DBNColoredTabs(this);
+            resultTabs = new DBNTabbedPane<>(SwingConstants.BOTTOM, this, true);
             mainPanel.removeAll();
             mainPanel.add(resultTabs, BorderLayout.CENTER);
             resultTabs.setFocusable(false);
             //resultTabs.setAdjustBorders(false);
-            resultTabs.addTabMouseListener(mouseListener);
-            resultTabs.addListener(tabsListener);
-            resultTabs.setPopupGroup(new ExecutionConsolePopupActionGroup(this), "place", false);
-            resultTabs.setTabsPosition(JBTabsPosition.bottom);
+            resultTabs.addTabSelectionListener(tabsSelectionListener);
+            resultTabs.addTabUpdateListener(tabsUpdateListener);
+            resultTabs.setPopupActions(new ExecutionConsolePopupActionGroup(this));
             resultTabs.setBorder(null);
             Disposer.register(this, resultTabs);
             return resultTabs;
@@ -166,45 +181,37 @@ public class ExecutionConsoleForm extends DBNFormBase {
         return getResultTabs().getTabCount();
     }
 
-    private final MouseListener mouseListener = Mouse.listener().onClick(e -> {
-        if (e.isShiftDown() && (16 & e.getModifiers()) > 0 || ((8 & e.getModifiers()) > 0)) {
-            if (e.getSource() instanceof TabLabel) {
-                TabLabel tabLabel = (TabLabel) e.getSource();
-                removeTab(tabLabel.getInfo());
-            }
-        }
-    });
+    private final DBNTabsSelectionListener tabsSelectionListener = i -> {
+            if (!canScrollToSource) return;
+            if (i <= -1) return;
 
-    private final TabsListener tabsListener = new TabsListener() {
+            Component component = getResultTabs().getComponentAt(i);
+            ExecutionResult<?> executionResult = getExecutionResult(component);
+            if (isNotValid(executionResult)) return;
+
+            if (executionResult instanceof StatementExecutionResult) {
+                StatementExecutionResult statementExecutionResult = (StatementExecutionResult) executionResult;
+                statementExecutionResult.navigateToEditor(NavigationInstructions.create(FOCUS, SCROLL));
+            }
+        };
+
+    private final DBNTabsUpdateListener tabsUpdateListener = new DBNTabsUpdateListener() {
         @Override
-        public void selectionChanged(TabInfo oldSelection, TabInfo newSelection) {
-            if (canScrollToSource) {
-                if (newSelection != null) {
-                    ExecutionResult<?> executionResult = getExecutionResult(newSelection);
-                    if (isNotValid(executionResult)) return;
-                    if (executionResult instanceof StatementExecutionResult) {
-                        StatementExecutionResult statementExecutionResult = (StatementExecutionResult) executionResult;
-                        statementExecutionResult.navigateToEditor(NavigationInstructions.create(FOCUS, SCROLL));
-                    }
-                }
+        public void tabRemoved(int index) {
+            if (getTabCount() == 0) {
+                getExecutionManager().hideExecutionConsole();
             }
-            if (oldSelection != null && newSelection != null && getExecutionResult(newSelection) instanceof DatabaseLoggingResult) {
-                newSelection.setIcon(Icons.EXEC_LOG_OUTPUT_CONSOLE);
-            }
-
         }
     };
 
-    public void removeAllExceptTab(TabInfo exceptionTabInfo) {
-        for (TabInfo tabInfo : getResultTabs().getTabs()) {
-            if (tabInfo != exceptionTabInfo) {
-                removeTab(tabInfo);
-            }
+    public void removeAllExceptTab(Component excluded) {
+        for (Component component : getTabbedComponents()) {
+            if (component != excluded) removeTab(component);
         }
     }
 
-    public synchronized void removeTab(TabInfo tabInfo) {
-        ExecutionResult<?> executionResult = getExecutionResult(tabInfo);
+    public synchronized void removeTab(Component component) {
+        ExecutionResult<?> executionResult = getExecutionResult(component);
         if (executionResult == null) {
             removeMessagesTab();
         } else {
@@ -213,8 +220,8 @@ public class ExecutionConsoleForm extends DBNFormBase {
     }
 
     public void removeAllTabs() {
-        for (TabInfo tabInfo : getResultTabs().getTabs()) {
-            removeTab(tabInfo);
+        for (Component component : getTabbedComponents()) {
+            removeTab(component);
         }
     }
 
@@ -309,43 +316,44 @@ public class ExecutionConsoleForm extends DBNFormBase {
     }
 
     public ExecutionResult<?> getSelectedExecutionResult() {
-        TabInfo selectedInfo = getResultTabs().getSelectedInfo();
-        return selectedInfo == null ? null : getExecutionResult(selectedInfo);
+        var tabs = getResultTabs();
+        var component = tabs.getSelectedTabComponent();
+        return component == null ? null : getExecutionResult(component);
     }
 
     @Nullable
-    private static ExecutionResult<?> getExecutionResult(TabInfo tabInfo) {
-        ExecutionResultForm<?> executionResultForm = (ExecutionResultForm<?>) tabInfo.getObject();
-        return isValid(executionResultForm) ? executionResultForm.getExecutionResult() : null;
+    private static ExecutionResult<?> getExecutionResult(Component component) {
+        Object content = ClientProperty.TAB_CONTENT.get(component);
+        if (content instanceof ExecutionResultForm) {
+            ExecutionResultForm<?> executionResultForm = (ExecutionResultForm<?>) content;
+            return isValid(executionResultForm) ? executionResultForm.getExecutionResult() : null;
+        }
+        return null;
     }
 
     /*********************************************************
      *                       Messages                        *
      *********************************************************/
     private ExecutionMessagesForm ensureExecutionMessagesPanel() {
-        if (executionMessagesForm == null) {
+        if (isNotValid(executionMessagesForm)) {
             executionMessagesForm = new ExecutionMessagesForm(this);
         }
         return executionMessagesForm;
     }
 
     private void prepareMessagesTab(NavigationInstructions instructions) {
-        DBNColoredTabs resultTabs = getResultTabs();
+        var tabs = getResultTabs();
         ExecutionMessagesForm messagesPanel = ensureExecutionMessagesPanel();
         if (instructions.isReset()) {
             messagesPanel.resetMessagesStatus();
         }
         JComponent component = messagesPanel.getComponent();
-        if (resultTabs.getTabCount() == 0 || resultTabs.getTabAt(0).getComponent() != component) {
-            TabInfo tabInfo = new TabInfo(component);
-
-            tabInfo.setText("Messages");
-            tabInfo.setIcon(Icons.EXEC_RESULT_MESSAGES);
-            resultTabs.addTab(tabInfo, 0);
+        if (tabs.getTabCount() == 0 || tabs.getComponentAt(0) != component) {
+            initTabComponent(component, Icons.EXEC_RESULT_MESSAGES, null, messagesPanel);
+            tabs.insertTab("Messages", component, 0);
         }
 
-        TabInfo tabInfo = resultTabs.getTabAt(0);
-        resultTabs.select(tabInfo, instructions.isFocus());
+        tabs.selectTab(component, instructions.isFocus());
     }
 
 
@@ -353,19 +361,14 @@ public class ExecutionConsoleForm extends DBNFormBase {
         ExecutionMessagesForm messagesPanel = this.executionMessagesForm;
         if (messagesPanel == null) return;
 
-        DBNColoredTabs resultTabs = getResultTabs();
+        var tabs = getResultTabs();
         JComponent component = messagesPanel.getComponent();
-        if (resultTabs.getTabCount() > 0 || resultTabs.getTabAt(0).getComponent() == component) {
-            TabInfo tabInfo = resultTabs.getTabAt(0);
-            resultTabs.removeTab(tabInfo);
+        if (tabs.getTabCount() > 0 && tabs.getComponentAt(0) == component) {
+            tabs.removeTab(component, true);
         }
 
-        messagesPanel.reset();
         Disposer.dispose(messagesPanel);
         this.executionMessagesForm = null;
-        if (getTabCount() == 0) {
-            getExecutionManager().hideExecutionConsole();
-        }
     }
 
     @NotNull
@@ -375,11 +378,11 @@ public class ExecutionConsoleForm extends DBNFormBase {
     }
 
     private boolean isMessagesTabVisible() {
-        DBNColoredTabs resultTabs = getResultTabs();
-        if (resultTabs.getTabCount() > 0) {
+        var tabs = getResultTabs();
+        if (tabs.getTabCount() > 0) {
             JComponent messagesPanelComponent = ensureExecutionMessagesPanel().getComponent();
-            TabInfo tabInfo = resultTabs.getTabAt(0);
-            return tabInfo.getComponent() == messagesPanelComponent;
+            Component component = tabs.getComponentAt(0);
+            return component == messagesPanelComponent;
         }
         return false;
     }
@@ -388,25 +391,26 @@ public class ExecutionConsoleForm extends DBNFormBase {
      *                       Logging                         *
      *********************************************************/
     public void displayLogOutput(LogOutputContext context, LogOutput output) {
-        DBNColoredTabs resultTabs = getResultTabs();
         boolean emptyOutput = Strings.isEmptyOrSpaces(output.getText());
         VirtualFile sourceFile = context.getSourceFile();
         ConnectionHandler connection = context.getConnection();
         boolean selectTab = sourceFile != null;
-        for (TabInfo tabInfo : resultTabs.getTabs()) {
-            ExecutionResult<?> executionResult = getExecutionResult(tabInfo);
+        var tabs = getResultTabs();
+
+        for (Component component : getTabbedComponents()) {
+            ExecutionResult<?> executionResult = getExecutionResult(component);
             if (executionResult instanceof DatabaseLoggingResult) {
                 DatabaseLoggingResult logOutput = (DatabaseLoggingResult) executionResult;
-                if (logOutput.matches(context)) {
-                    logOutput.write(context, output);
-                    if (!emptyOutput && !selectTab) {
-                        tabInfo.setIcon(Icons.EXEC_LOG_OUTPUT_CONSOLE_UNREAD);
-                    }
-                    if (selectTab) {
-                        resultTabs.select(tabInfo, true);
-                    }
-                    return;
+                if (!logOutput.matches(context)) continue;
+
+                logOutput.write(context, output);
+                if (!emptyOutput && !selectTab) {
+                    tabs.setTabIcon(component, Icons.EXEC_LOG_OUTPUT_CONSOLE_UNREAD);
                 }
+                if (selectTab) {
+                    tabs.selectTab(component, true);
+                }
+                return;
             }
         }
         boolean messagesTabVisible = isMessagesTabVisible();
@@ -414,24 +418,26 @@ public class ExecutionConsoleForm extends DBNFormBase {
         DatabaseLoggingResult logOutput = new DatabaseLoggingResult(context);
         ExecutionResultForm<?> resultForm = ensureResultForm(logOutput);
         if (isValid(resultForm)) {
-            JComponent component = resultForm.getComponent();
-            TabInfo tabInfo = new TabInfo(component);
-            tabInfo.setObject(resultForm);
-            tabInfo.setText(logOutput.getName());
-            tabInfo.setIcon(emptyOutput || selectTab ?
+            String title = logOutput.getName();
+            Icon icon = emptyOutput || selectTab ?
                     Icons.EXEC_LOG_OUTPUT_CONSOLE :
-                    Icons.EXEC_LOG_OUTPUT_CONSOLE_UNREAD);
+                    Icons.EXEC_LOG_OUTPUT_CONSOLE_UNREAD;
+            Color color = null;
             EnvironmentVisibilitySettings visibilitySettings = getEnvironmentSettings(getProject()).getVisibilitySettings();
-            if (visibilitySettings.getExecutionResultTabs().value()){
-                tabInfo.setTabColor(connection.getEnvironmentType().getColor());
-            } else {
-                tabInfo.setTabColor(null);
+            if (visibilitySettings.getExecutionResultTabs().value()) {
+                color = connection.getEnvironmentType().getColor();
             }
 
-            resultTabs.addTab(tabInfo, messagesTabVisible ? 1 : 0);
+            JComponent component = resultForm.getComponent();
+            initTabComponent(component, icon, color, resultForm);
+
+            int index = messagesTabVisible ? 1 : 0;
+            tabs.insertTab(title, component, index);
+
             if (selectTab) {
-                resultTabs.select(tabInfo, true);
+                tabs.selectTab(component, true);
             }
+
             logOutput.write(context, output);
         }
     }
@@ -471,46 +477,42 @@ public class ExecutionConsoleForm extends DBNFormBase {
         ExecutionResultForm<?> resultForm = ensureResultForm(executionResult);
         if (isNotValid(resultForm)) return;
 
-        JComponent component = resultForm.getComponent();
-        TabInfo tabInfo = new TabInfo(component);
-        tabInfo.setObject(resultForm);
+        String title = executionResult.getName();
+        Icon icon = executionResult.getIcon();
+        Color color = null;
         EnvironmentVisibilitySettings visibilitySettings = getEnvironmentSettings(getProject()).getVisibilitySettings();
         if (visibilitySettings.getExecutionResultTabs().value()){
-            tabInfo.setTabColor(executionResult.getConnection().getEnvironmentType().getColor());
-        } else {
-            tabInfo.setTabColor(null);
+            color = executionResult.getConnection().getEnvironmentType().getColor();
         }
-        tabInfo.setText(executionResult.getName());
-        tabInfo.setIcon(executionResult.getIcon());
-        getResultTabs().addTab(tabInfo);
-        selectResultTab(tabInfo);
+
+        JComponent component = resultForm.getComponent();
+        initTabComponent(component, icon, color, resultForm);
+
+        var tabs = getResultTabs();
+        tabs.addTab(title, component);
+        tabs.selectTab(component);
     }
 
     public void removeResultTab(ExecutionResult<?> executionResult) {
         try {
             canScrollToSource = false;
-            DBNColoredTabs resultTabs = getResultTabs();
+            var tabs = getResultTabs();
             ExecutionResultForm<?> resultForm = executionResultForms.remove(executionResult);
             if (resultForm == null) return;
 
-            try {
-                TabInfo tabInfo = resultTabs.findInfo(resultForm.getComponent());
-                if (resultTabs.getTabs().contains(tabInfo)) {
-                    DBLanguagePsiFile file = null;
-                    if (executionResult instanceof StatementExecutionResult) {
-                        StatementExecutionResult statementExecutionResult = (StatementExecutionResult) executionResult;
-                        StatementExecutionInput executionInput = statementExecutionResult.getExecutionInput();
-                        file = executionInput.getExecutionProcessor().getPsiFile();
-                    }
+            JComponent component = resultForm.getComponent();
+            int index = tabs.getTabIndex(component);
+            if (index == -1) return;
 
-                    resultTabs.removeTab(tabInfo);
-                    Documents.refreshEditorAnnotations(file);
-                }
-            } finally {
-                if (getTabCount() == 0) {
-                    getExecutionManager().hideExecutionConsole();
-                }
+            DBLanguagePsiFile file = null;
+            if (executionResult instanceof StatementExecutionResult) {
+                StatementExecutionResult statementExecutionResult = (StatementExecutionResult) executionResult;
+                StatementExecutionInput executionInput = statementExecutionResult.getExecutionInput();
+                file = executionInput.getExecutionProcessor().getPsiFile();
             }
+
+            tabs.removeTab(component, true);
+            Documents.refreshEditorAnnotations(file);
         } finally {
             canScrollToSource = true;
         }
@@ -520,60 +522,34 @@ public class ExecutionConsoleForm extends DBNFormBase {
         ExecutionResultForm<?> resultForm = getExecutionResultForm(executionResult);
         if (isNotValid(resultForm)) return;
 
-
         JComponent component = resultForm.getComponent();
-        TabInfo tabInfo = getResultTabs().findInfo(component);
-        if (tabInfo == null) return;
 
+        DBNTabbedPane<DBNForm> tabs = getResultTabs();
+        int index = tabs.getTabIndex(component);
+        if (index == -1) return;
 
-        tabInfo.setText(executionResult.getName());
-        tabInfo.setIcon(executionResult.getIcon());
-        selectResultTab(tabInfo);
+        tabs.setSelectedIndex(index);
+        tabs.setIconAt(index, executionResult.getIcon());
+        tabs.setTitleAt(index, executionResult.getName());
     }
 
     public void closeExecutionResults(List<ConnectionId> connectionIds) {
-        List<TabInfo> tabs = getExecutionResultTabs();
-        for (TabInfo tabInfo : tabs) {
-            ExecutionResult<?> executionResult = getExecutionResult(tabInfo);
-            if (executionResult != null && connectionIds.contains(executionResult.getConnectionId())) {
-                removeTab(tabInfo);
-            }
+        for (Component component : getTabbedComponents()) {
+            ExecutionResult<?> executionResult = getExecutionResult(component);
+            if (executionResult == null) continue;
+
+            ConnectionId connectionId = executionResult.getConnectionId();
+            if (connectionIds.contains(connectionId)) removeTab(component);
         }
     }
 
-    @NotNull
-    private List<TabInfo> getExecutionResultTabs() {
-        return isValid(resultTabs) ? new ArrayList<>(resultTabs.getTabs()) : Collections.emptyList();
+    private List<Component> getTabbedComponents() {
+        return isValid(resultTabs) ? new ArrayList<>(resultTabs.getTabbedComponents()) : Collections.emptyList();
     }
 
     @Nullable
     private ExecutionResultForm<?> ensureResultForm(ExecutionResult<?> executionResult) {
         return executionResultForms.computeIfAbsent(executionResult, k -> executionResult.createForm());
-    }
-
-
-    /*********************************************************
-     *                      Miscellaneous                    *
-     *********************************************************/
-
-    private boolean containsResultTab(Component component) {
-        DBNColoredTabs resultTabs = getResultTabs();
-        for (TabInfo tabInfo : resultTabs.getTabs()) {
-            if (tabInfo.getComponent() == component) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void selectResultTab(TabInfo tabInfo) {
-        DBNColoredTabs resultTabs = getResultTabs();
-        try {
-            canScrollToSource = false;
-            resultTabs.select(tabInfo, true);
-        } finally {
-            canScrollToSource = true;
-        }
     }
 
     @Nullable

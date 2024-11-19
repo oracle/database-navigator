@@ -12,8 +12,10 @@ import com.dbn.diagnostics.ui.model.ConnectivityDiagnosticsTableModel;
 import com.dbn.diagnostics.ui.model.MetadataDiagnosticsTableModel2;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import java.awt.BorderLayout;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 
@@ -47,7 +49,7 @@ public class ConnectionDiagnosticsDetailsForm extends DBNFormBase {
         addTab(connectivityTable, "Database Connectivity");
 
 
-        diagnosticsTabs.addTabsListener(i -> {
+        diagnosticsTabs.addTabSelectionListener(i -> {
             ConnectionDiagnosticsForm parentForm = nd(getParentComponent());
             parentForm.setTabSelectionIndex(i);
 

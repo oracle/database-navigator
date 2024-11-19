@@ -28,6 +28,8 @@ import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
+
 public abstract class DBNFormBase
         extends DBNComponentBase
         implements DBNForm, NotificationSupport {
@@ -71,7 +73,7 @@ public abstract class DBNFormBase
      * @param runnable the task to execute when the form is shown
      */
     protected void whenShown(Runnable runnable) {
-        UserInterface.whenShown(getMainComponent(), runnable);
+        whenFirstShown(getMainComponent(), runnable);
     }
 
     private void initialize() {

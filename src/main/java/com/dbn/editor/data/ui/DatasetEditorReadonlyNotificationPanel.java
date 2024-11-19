@@ -13,7 +13,7 @@ import static com.dbn.common.util.Conditional.when;
 
 public class DatasetEditorReadonlyNotificationPanel extends DatasetEditorNotificationPanel{
     public DatasetEditorReadonlyNotificationPanel(DBSchemaObject object) {
-        super(object, isReadonly(object) ? MessageType.NEUTRAL : MessageType.WARNING);
+        super(object, isReadonly(object) ? MessageType.INFO : MessageType.WARNING);
         String environmentName = object.getEnvironmentType().getName();
         final Project project = object.getProject();
 

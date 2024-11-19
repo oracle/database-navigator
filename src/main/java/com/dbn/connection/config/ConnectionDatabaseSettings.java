@@ -6,7 +6,12 @@ import com.dbn.common.options.BasicConfiguration;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Files;
 import com.dbn.common.util.Strings;
-import com.dbn.connection.*;
+import com.dbn.connection.AuthenticationType;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectivityStatus;
+import com.dbn.connection.DatabaseType;
+import com.dbn.connection.DatabaseUrlPattern;
+import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.file.DatabaseFileBundle;
 import com.dbn.connection.config.ui.ConnectionDatabaseSettingsForm;
 import com.dbn.driver.DatabaseDriverManager;
@@ -27,7 +32,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.options.setting.Settings.getDouble;
+import static com.dbn.common.options.setting.Settings.getEnum;
+import static com.dbn.common.options.setting.Settings.getString;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setDouble;
+import static com.dbn.common.options.setting.Settings.setEnum;
+import static com.dbn.common.options.setting.Settings.setString;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 @Slf4j
 @Getter
@@ -42,6 +54,10 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
     private DatabaseType confirmedDatabaseType = DatabaseType.GENERIC;
     private DatabaseUrlPattern urlPattern;
     private double databaseVersion = 9999;
+
+    // transient session user as identified when connected the first time
+    private String sessionUser;
+    private boolean sessionUserConfirmed = false;
 
     private final DatabaseInfo databaseInfo;
     private DriverSource driverSource;
@@ -296,6 +312,8 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
         driver = getString(element, "driver", driver);
 
         authenticationInfo.readConfiguration(element);
+        sessionUser = getString(element, "session-user", sessionUser);
+
 
         // TODO backward compatibility (to remove)
         Element propertiesElement = element.getChild("properties");
@@ -347,10 +365,9 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                 Element filesElement = newElement(element, "files");
                 fileBundle.writeConfiguration(filesElement);
             }
-
         }
-
         authenticationInfo.writeConfiguration(element);
+        setString(element, "session-user", sessionUser);
     }
 
     public Project getProject() {
