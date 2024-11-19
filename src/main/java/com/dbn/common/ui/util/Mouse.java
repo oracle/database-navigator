@@ -3,10 +3,11 @@ package com.dbn.common.ui.util;
 import com.dbn.common.routine.Consumer;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.Arrays;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 
@@ -143,5 +144,17 @@ public class Mouse {
             if (consumer == null) return;
             guarded(consumer, c -> c.accept(e));
         }
+    }
+
+    /**
+     * Add the given mouse listener as first in the sequence for the component
+     * @param component the {@link JComponent} to add the listener to
+     * @param listener the {@link MouseListener} to be added
+     */
+    public static void insertMouseListener(JComponent component, MouseListener listener) {
+        MouseListener[] mouseListeners = component.getMouseListeners();
+        Arrays.stream(mouseListeners).forEach(l -> component.removeMouseListener(l));
+        component.addMouseListener(listener);
+        Arrays.stream(mouseListeners).forEach(l -> component.addMouseListener(l));
     }
 }
