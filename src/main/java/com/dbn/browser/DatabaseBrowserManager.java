@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.browser;
 
 import com.dbn.DatabaseNavigator;
@@ -19,7 +35,11 @@ import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.options.setting.BooleanSetting;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
-import com.dbn.connection.*;
+import com.dbn.connection.ConnectionBundle;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionManager;
+import com.dbn.connection.SchemaId;
 import com.dbn.connection.config.ConnectionDetailSettings;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
@@ -51,7 +71,9 @@ import java.util.Objects;
 import static com.dbn.browser.DatabaseBrowserUtils.isSkipBrowserAutoscroll;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Failsafe.nn;
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 @Getter
 @State(

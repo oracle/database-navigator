@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.object.type;
 
 import com.dbn.common.content.DynamicContentType;
@@ -12,6 +28,7 @@ import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.ddl.DDLFileTypeId;
 import com.dbn.editor.DBContentType;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,6 +48,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
+@Slf4j
 @Getter
 public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentable {
     AI_PROFILE(DatabaseObjectTypeId.AI_PROFILE, "AI profile", "AI profiles", Icons.DBO_AI_PROFILE, Icons.DBO_AI_PROFILE_DISABLED, Icons.DBO_AI_PROFILES, false),
@@ -62,8 +80,9 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     GRANTED_PRIVILEGE(DatabaseObjectTypeId.GRANTED_PRIVILEGE, "granted privilege", "granted privileges", Icons.DBO_PRIVILEGE, null, Icons.DBO_PRIVILEGES, false),
     INDEX(DatabaseObjectTypeId.INDEX, "index", "indexes", Icons.DBO_INDEX, Icons.DBO_INDEX_DISABLED, Icons.DBO_INDEXES, false),
     INDEXTYPE(DatabaseObjectTypeId.INDEXTYPE, "indextype", "indextypes", null, null, null, false),
-    JAVA_OBJECT(DatabaseObjectTypeId.JAVA_OBJECT, "java object", "java objects", Icons.DBO_JAVA_CLASS, null, Icons.DBO_JAVA_CLASSES, false),
-    JAVA_CLASS(DatabaseObjectTypeId.JAVA_CLASS, "java class", "java classes", null, null, null, false),
+    JAVA_CLASS(DatabaseObjectTypeId.JAVA_CLASS, "java class", "java classes", Icons.DBO_JAVA_CLASS, null, Icons.DBO_JAVA_CLASSES, false),
+    JAVA_METHOD(DatabaseObjectTypeId.JAVA_METHOD, "method", "methods", Icons.DBO_JAVA_METHOD, null, Icons.DBO_JAVA_METHODS, false),
+    JAVA_PARAMETER(DatabaseObjectTypeId.JAVA_PARAMETER, "parameter", "parameters", null, null, null, false),
     LIBRARY(DatabaseObjectTypeId.LIBRARY, "library", "libraries", null, null, null, false),
     LOB(DatabaseObjectTypeId.LOB, "lob", "lobs", null, null, null, false),
     MATERIALIZED_VIEW(DatabaseObjectTypeId.MATERIALIZED_VIEW, "materialized view", "materialized views", Icons.DBO_MATERIALIZED_VIEW, null, Icons.DBO_MATERIALIZED_VIEWS, false),
@@ -328,6 +347,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         DATASET_TRIGGER.setInheritedType(TRIGGER);
         DATABASE_TRIGGER.setInheritedType(TRIGGER);
         XMLTYPE.setInheritedType(TYPE);
+        JAVA_METHOD.setInheritedType(METHOD);
 
         SYSTEM_PRIVILEGE.setInheritedType(PRIVILEGE);
         OBJECT_PRIVILEGE.setInheritedType(PRIVILEGE);
@@ -395,7 +415,10 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TYPE_PROCEDURE.addParent(TYPE);
         TYPE_TYPE.addParent(TYPE);
         VIEW.addParent(SCHEMA);
-        JAVA_OBJECT.addParent(SCHEMA);
+        JAVA_CLASS.addParent(SCHEMA);
+        JAVA_METHOD.addParent(JAVA_CLASS);
+        JAVA_PARAMETER.addParent(JAVA_METHOD);
+
 
         PACKAGE.addIcon(DBContentType.CODE_SPEC, Icons.DBO_PACKAGE_SPEC);
         PACKAGE.addIcon(DBContentType.CODE_BODY, Icons.DBO_PACKAGE_BODY);
@@ -416,7 +439,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TRIGGER.contentType = DBContentType.CODE;
         DATASET_TRIGGER.contentType = DBContentType.CODE;
         DATABASE_TRIGGER.contentType = DBContentType.CODE;
-        JAVA_OBJECT.contentType = DBContentType.CODE;
+        JAVA_CLASS.contentType = DBContentType.CODE;
 
 
         // DDL file types
@@ -520,7 +543,8 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
             return forListName(name, null);
         }
 
-        throw new IllegalArgumentException("No ObjectType found for name '" + name + "'");
+        log.warn("No ObjectType found for name '{}'", name, new IllegalArgumentException("Invalid object type"));
+        return DBObjectType.UNKNOWN;
     }
 
     public boolean isSupported(@Nullable DatabaseContext connectionProvider) {

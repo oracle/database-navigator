@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.common.color;
 
 import com.dbn.common.event.ApplicationEvents;
@@ -18,8 +34,8 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.UIManager;
+import java.awt.Color;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -35,6 +51,8 @@ public final class Colors {
 
     public static Color FAILURE_COLOR = new JBColor(new Color(0xFF0000), new Color(0xBC3F3C));
     public static Color SUCCESS_COLOR = new JBColor(new Color(0x009600), new Color(0x629755));
+
+    public static Color SEPARATOR_COLOR = JBColor.namedColor("Separator.separatorColor", new JBColor(0xcdcdcd, 0x515151));
 
     public static Color getPanelBackground() {
         return cached(0, () -> UIUtil.getPanelBackground());

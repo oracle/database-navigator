@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.vfs;
 
 import com.dbn.common.dispose.Disposer;
@@ -15,7 +31,17 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.project.ProjectComponentsInitializer;
-import com.dbn.vfs.file.*;
+import com.dbn.vfs.file.DBConnectionVirtualFile;
+import com.dbn.vfs.file.DBConsoleVirtualFile;
+import com.dbn.vfs.file.DBContentVirtualFile;
+import com.dbn.vfs.file.DBDatasetFilterVirtualFile;
+import com.dbn.vfs.file.DBEditableObjectVirtualFile;
+import com.dbn.vfs.file.DBLooseContentVirtualFile;
+import com.dbn.vfs.file.DBObjectFilterExpressionFile;
+import com.dbn.vfs.file.DBObjectListVirtualFile;
+import com.dbn.vfs.file.DBObjectVirtualFile;
+import com.dbn.vfs.file.DBSessionBrowserVirtualFile;
+import com.dbn.vfs.file.DBSessionStatementVirtualFile;
 import com.intellij.openapi.components.NamedComponent;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
@@ -38,7 +64,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.thread.ThreadMonitor.isTimeSensitiveThread;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
-import static com.dbn.vfs.DatabaseFileSystem.FilePathType.*;
+import static com.dbn.vfs.DatabaseFileSystem.FilePathType.CONSOLES;
+import static com.dbn.vfs.DatabaseFileSystem.FilePathType.DATASET_FILTERS;
+import static com.dbn.vfs.DatabaseFileSystem.FilePathType.FILTER_EXPRESSIONS;
+import static com.dbn.vfs.DatabaseFileSystem.FilePathType.LOOSE_CONTENTS;
+import static com.dbn.vfs.DatabaseFileSystem.FilePathType.OBJECTS;
+import static com.dbn.vfs.DatabaseFileSystem.FilePathType.OBJECT_CONTENTS;
+import static com.dbn.vfs.DatabaseFileSystem.FilePathType.SESSION_BROWSERS;
+import static com.dbn.vfs.DatabaseFileSystem.FilePathType.SESSION_STATEMENTS;
 
 @Slf4j
 public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysicalFileSystem,*/ NamedComponent {
