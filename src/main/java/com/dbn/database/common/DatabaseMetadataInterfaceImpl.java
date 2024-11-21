@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.database.common;
 
 import com.dbn.common.latent.Latent;
@@ -99,7 +115,7 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
-    public ResultSet loadJavaObjects(String ownerName, DBNConnection connection) throws SQLException {
+    public ResultSet loadJavaClasses(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "java-objects", ownerName);
     }
 
@@ -235,6 +251,26 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     @Override
     public ResultSet loadAllPackageTypes(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "all-package-types", ownerName);
+    }
+
+    @Override
+    public ResultSet loadJavaMethods(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "java-methods", ownerName, objectName);
+    }
+
+    @Override
+    public ResultSet loadAllJavaMethods(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "all-java-methods", ownerName);
+    }
+
+    @Override
+    public ResultSet loadJavaParameters(String ownerName, String objectName, String methodName, int methodIndex, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "java-parameters", ownerName, objectName, methodName, methodIndex);
+    }
+
+    @Override
+    public ResultSet loadAllJavaParameters(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "all-java-parameters", ownerName);
     }
 
     /*********************************************************
@@ -432,7 +468,7 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
-    public void compileJavaObject(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+    public void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "compile-java-object", ownerName, objectName);
     }
 

@@ -20,19 +20,8 @@ import com.dbn.common.Wrapper;
 import com.dbn.common.color.Colors;
 import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.ui.util.LookAndFeel;
-import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.UserInterface;
-import com.dbn.common.util.Actions;
-import com.dbn.common.util.Context;
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.SystemInfo;
-import com.intellij.ui.JBColor;
 import com.intellij.ui.paint.LinePainter2D;
 import com.intellij.ui.paint.RectanglePainter2D;
 import com.intellij.util.ReflectionUtil;
@@ -42,11 +31,12 @@ import com.intellij.util.ui.JBValue;
 import com.intellij.util.ui.UIUtilities;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeListener;
@@ -79,6 +69,7 @@ import java.awt.event.MouseMotionAdapter;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -104,8 +95,6 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
     private enum TabStyle {underline, fill}
 
     private TabStyle tabStyle;
-    private JLabel hiddenTabsButton;
-    private ListPopup hiddenTabsPopup;
     private List<Component> hiddenArrowButtons;
 
     private int hoverTab = -1;
@@ -134,17 +123,27 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
         UserInterface.visitRecursively(tabPane, c -> when(c instanceof BasicArrowButton, () -> hiddenArrowButtons.add(c)));
 
         tabPane.setLayout(new WrappingLayout((TabbedPaneLayout) tabPane.getLayout()));
-        tabPane.add(hiddenTabsButton = new HiddenTabsButton());
 
         Object hoverColor = tabPane.getClientProperty("TabbedPane.hoverColor");
         if (hoverColor instanceof Color) tabHoverColor = (Color) hoverColor;
     }
 
     @Override
-    protected void uninstallComponents() {
-        super.uninstallComponents();
-        if (hiddenTabsButton != null) {
-            tabPane.remove(hiddenTabsButton);
+    @Workaround
+    protected JButton createScrollButton(int direction) {
+        return new ScrollableTabButton(direction);
+    }
+
+    private static class ScrollableTabButton extends BasicArrowButton implements UIResource, SwingConstants {
+        public ScrollableTabButton(int direction) {
+            super(direction);
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            // layout is driven by the size of the scroll buttons which is
+            // hard-coded in the basic implementation
+            return new Dimension(20, 20);
         }
     }
 
@@ -152,7 +151,6 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
     public void uninstallUI(JComponent c) {
         super.uninstallUI(c);
         hiddenArrowButtons = null;
-        hiddenTabsButton = null;
     }
 
 
@@ -207,7 +205,7 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
             @Override
             public void componentResized(ComponentEvent e) {
                 ensureSelectedTabIsVisible();
-                adjustHiddenTabsButton();
+                adjustHiddenTabsAction();
             }
         };
 
@@ -270,18 +268,20 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
         }
     }
 
-    private void adjustHiddenTabsButton() {
+    private void adjustHiddenTabsAction() {
         JViewport viewport = getScrollableViewport();
         if (viewport == null) return;
 
+        DBNTabbedPane tabPane = getTabPane();
+        JPanel hiddenTabsActionPanel = tabPane.getHiddenTabsActionPanel();
         for (int i = 0; i < tabPane.getTabCount(); i++) {
             Rectangle rectangle = rects[i];
             if (!viewport.getViewRect().contains(rectangle)) {
-                hiddenTabsButton.setVisible(true);
+                hiddenTabsActionPanel.setVisible(true);
                 return;
             }
         }
-        hiddenTabsButton.setVisible(false);
+        hiddenTabsActionPanel.setVisible(false);
     }
 
     private JViewport getScrollableViewport() {
@@ -310,7 +310,7 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
         if (viewRect.contains(tabRect)) {
             // adjust scrolling if right side gap is not justified
             if (isTopBottom()) {
-                Rectangle bounds = hiddenTabsButton.getBounds();
+                Rectangle bounds = getTabPane().getHiddenTabsActionPanel().getBounds();
                 Point viewPosition = viewport.getViewPosition();
                 int shift = tabPane.getWidth() - (viewport.getViewSize().width - viewPosition.x) - bounds.width;
                 if (shift > 0) {
@@ -360,14 +360,18 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
     @Override
     protected void paintTabArea(Graphics g, int tabPlacement, int selectedIndex) {
         Rectangle bounds = g.getClipBounds();
-        g.setColor(JBColor.namedColor("TabbedPane.contentAreaColor", 0xbfbfbf));
+        g.setColor(Colors.SEPARATOR_COLOR);
 
         int offset = getOffset();
         if (tabPlacement == LEFT || tabPlacement == RIGHT) {
-            g.fillRect(bounds.x + bounds.width - offset, bounds.y, offset, bounds.y + bounds.height);
-        } else {
+            throw new UnsupportedOperationException("");
+            // TODO g.fillRect(bounds.x + bounds.width - offset, bounds.y, offset, bounds.y + bounds.height);
+        } else if (tabPlacement == TOP){
             g.fillRect(bounds.x, bounds.y + bounds.height - offset, bounds.x + bounds.width, offset);
+        } else if (tabPlacement == BOTTOM){
+            g.fillRect(bounds.x, bounds.y, bounds.x + bounds.width, offset);
         }
+
         super.paintTabArea(g, tabPlacement, selectedIndex);
     }
 
@@ -528,9 +532,7 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
         if (tabsOverlapBorder) {
             paintContentBorder(g, tabPlacement, selectedIndex);
         }
-        if (hiddenTabsButton == null) { // WRAP_TAB_LAYOUT
-            paintTabArea(g, tabPlacement, selectedIndex);
-        }
+
         if (!tabsOverlapBorder) {
             paintContentBorder(g, tabPlacement, selectedIndex);
         }
@@ -542,7 +544,7 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
         dest.height = rects[tabIndex].height;
 
         JViewport viewport = getScrollableViewport();
-        if (hiddenTabsButton != null && viewport != null) {
+        if (viewport != null) {
             Point vpp = viewport.getLocation();
             Point viewp = viewport.getViewPosition();
             dest.x = rects[tabIndex].x + vpp.x - viewp.x;
@@ -554,56 +556,18 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
         return dest;
     }
 
-    private final class HiddenTabsButton extends JLabel implements UIResource {
-        private HiddenTabsButton() {
-            super(AllIcons.Actions.FindAndShowNextMatches);
-            setToolTipText("Show hidden tabs");
-            setBorder(null);
-            setOpaque(true);
+    protected List<Integer> getHiddenTabIndexes() {
+        JViewport viewport = getScrollableViewport();
+        if (viewport == null) return Collections.emptyList();
 
-            MouseListener mouseListener = Mouse.listener().onClick(e -> when(
-                    SwingUtilities.isLeftMouseButton(e),
-                    () -> showHiddenTabsPopup()));
-            addMouseListener(mouseListener);
-        }
-
-
-        private void showHiddenTabsPopup() {
-            JViewport viewport = getScrollableViewport();
-            if (viewport == null) return;
-
-            DefaultActionGroup actionGroup = new DefaultActionGroup();
-            for (int i = 0; i < tabPane.getTabCount(); i++) {
-                Rectangle viewRect = viewport.getViewRect();
-                if (!viewRect.contains(rects[i])) {
-                    int index = i;
-                    String title = tabPane.getTitleAt(index);
-                    title = Actions.adjustActionName(title);
-                    Icon icon = tabPane.getIconAt(index);
-                    actionGroup.add(new AnAction(title, null, icon) {
-                        @Override
-                        public void actionPerformed(@NotNull AnActionEvent e) {
-                            tabPane.setSelectedIndex(index);
-                        }
-                    });
-                }
+        List<Integer> indexes = new ArrayList<>();
+        for (int i = 0; i < tabPane.getTabCount(); i++) {
+            Rectangle viewRect = viewport.getViewRect();
+            if (!viewRect.contains(rects[i])) {
+                indexes.add(i);
             }
-
-            DataContext dataContext = Context.getDataContext(this);
-            hiddenTabsPopup = JBPopupFactory.getInstance().createActionGroupPopup(
-                    null,
-                    actionGroup,
-                    dataContext,
-                    false,
-                    false,
-                    false,
-                    () -> hiddenTabsPopup = null,
-                    10,
-                    a -> false);
-
-            hiddenTabsPopup.showInBestPositionFor(dataContext);
         }
-
+        return indexes;
     }
 
     private final class WrappingLayout extends TabbedPaneLayout implements Wrapper<TabbedPaneLayout> {
@@ -653,12 +617,14 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
 
         @Override
         public void layoutContainer(Container parent) {
-            hiddenTabsButton.setBounds(new Rectangle());
+            DBNTabbedPane tabPane = getTabPane();
+            JPanel hiddenTabsActionPanel = tabPane.getHiddenTabsActionPanel();
+            hiddenTabsActionPanel.setBounds(new Rectangle());
             delegate.layoutContainer(parent);
 
             removeCurlyTabEdge();
 
-            if (hiddenTabsButton != null && !hiddenArrowButtons.isEmpty()) {
+            if (!hiddenArrowButtons.isEmpty() && hiddenTabsActionPanel.isVisible()) {
                 Rectangle bounds = null;
                 for (Component button : hiddenArrowButtons) {
                     bounds = bounds == null ? button.getBounds() : bounds.union(button.getBounds());
@@ -681,16 +647,16 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
                         ensureSelectedTabIsVisible();
                         bounds = new Rectangle(viewport.getX(), viewport.getY() + viewport.getHeight(), viewport.getWidth(), buttonHeight);
                     }
-                    hiddenTabsButton.setBounds(bounds);
+                    hiddenTabsActionPanel.setBounds(bounds);
                     return;
                 }
 
                 int placement = tabPane.getTabPlacement();
                 int size;
                 if (placement == TOP || placement == BOTTOM) {
-                    size = preferredTabAreaHeight(tabPane.getTabPlacement(), tabPane.getWidth());
+                    size = preferredTabAreaHeight(placement, tabPane.getWidth());
                 } else {
-                    size = preferredTabAreaWidth(tabPane.getTabPlacement(), tabPane.getWidth());
+                    size = preferredTabAreaWidth(placement, tabPane.getWidth());
                 }
                 switch (placement) {
                     case TOP:     bounds.y -= size - bounds.height;
@@ -698,7 +664,8 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
                     case LEFT:    bounds.x -= size - bounds.width;
                     case RIGHT:   bounds.width = size; break;
                 }
-                hiddenTabsButton.setBounds(bounds);
+
+                hiddenTabsActionPanel.setBounds(bounds);
             }
         }
 

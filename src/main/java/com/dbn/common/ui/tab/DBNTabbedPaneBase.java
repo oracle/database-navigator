@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.common.ui.tab;
 
 import com.dbn.common.Wrapper;
@@ -9,9 +25,16 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.Mouse;
+import com.dbn.common.util.Actions;
 import com.dbn.common.util.Context;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.ui.components.JBTabbedPane;
@@ -19,10 +42,16 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import javax.swing.plaf.UIResource;
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.LayoutManager;
 import java.awt.Point;
@@ -42,18 +71,83 @@ import static com.dbn.common.util.Unsafe.cast;
 class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements StatefulDisposable, DataProviderDelegate {
     private boolean disposed;
     private int popupTabIndex = -1;
+    private ListPopup hiddenTabsPopup;
+    private JPanel hiddenTabsActionPanel;
     protected final Listeners<DBNTabsSelectionListener> selectionListeners = new Listeners<>();
     protected final Listeners<DBNTabsUpdateListener> updateListeners = new Listeners<>();
 
     public DBNTabbedPaneBase(int tabPlacement, Disposable parent, boolean mutable) {
         super(tabPlacement, JTabbedPane.SCROLL_TAB_LAYOUT);
         setUI(new DBNTabbedPaneUI());
+        setTabComponentInsets(null);
+
+        installHiddenTabButton();
+        installTabCloser(mutable);
 
         DataProviders.register(this, this);
         Disposer.register(parent, this);
+    }
 
-        installTabCloser(mutable);
+    private void installHiddenTabButton() {
+        add(hiddenTabsActionPanel = new HiddenTabsPanel());
+        AnAction hiddenTabsAction = new AnAction("Show Hidden Tabs", null, AllIcons.Actions.FindAndShowNextMatches) {
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent e) {
+                showHiddenTabsPopup(e);
+            }
+        };
+        ActionToolbar actionToolbar = Actions.createActionToolbar(hiddenTabsActionPanel, "", true, hiddenTabsAction);
+        hiddenTabsActionPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
+    }
 
+    private final class HiddenTabsPanel extends JPanel implements UIResource {
+        public HiddenTabsPanel() {
+            super(new BorderLayout());
+            setBorder(null);
+
+            AnAction hiddenTabsAction = new AnAction("Show Hidden Tabs", null, AllIcons.Actions.FindAndShowNextMatches) {
+                @Override
+                public void actionPerformed(@NotNull AnActionEvent e) {
+                    showHiddenTabsPopup(e);
+                }
+            };
+            ActionToolbar actionToolbar = Actions.createActionToolbar(this, "", true, hiddenTabsAction);
+            JComponent toolbarComponent = actionToolbar.getComponent();
+            setPreferredSize(toolbarComponent.getPreferredSize());
+            add(toolbarComponent, BorderLayout.CENTER);
+        }
+    }
+
+    private void showHiddenTabsPopup(AnActionEvent e) {
+        DBNTabbedPaneUI ui = (DBNTabbedPaneUI) getUI();
+        List<Integer> indexes = ui.getHiddenTabIndexes();
+
+        DefaultActionGroup actionGroup = new DefaultActionGroup();
+        for (int index : indexes) {
+            String title = getTitleAt(index);
+            title = Actions.adjustActionName(title);
+            Icon icon = getIconAt(index);
+            actionGroup.add(new AnAction(title, null, icon) {
+                @Override
+                public void actionPerformed(@NotNull AnActionEvent e) {
+                    setSelectedIndex(index);
+                }
+            });
+        }
+
+        DataContext dataContext = e.getDataContext();
+        hiddenTabsPopup = JBPopupFactory.getInstance().createActionGroupPopup(
+                null,
+                actionGroup,
+                dataContext,
+                false,
+                false,
+                false,
+                () -> hiddenTabsPopup = null,
+                10,
+                a -> false);
+
+        hiddenTabsPopup.showInBestPositionFor(dataContext);
     }
 
     private void installTabCloser(boolean mutable) {
@@ -135,9 +229,12 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
         addTab(title, icon, component, tooltip);
     }
 
+    @Nullable
     public final Component getSelectedTabComponent() {
-        int selectedIndex = getSelectedIndex();
-        return getComponentAt(selectedIndex);
+        int index = getSelectedIndex();
+        if (index == -1) return null;
+
+        return getComponentAt(index);
     }
 
     public void removeTab(Component component, boolean disposeContent) {

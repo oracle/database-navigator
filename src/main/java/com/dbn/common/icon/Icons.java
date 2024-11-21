@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.common.icon;
 
 import com.dbn.common.latent.Latent;
@@ -308,6 +324,7 @@ public class Icons {
         public static final Icon ERROR = load("/img/marker/ErrorMark.svg");
         public static final Icon WARNING = load("/img/marker/WarningMark.svg");
         public static final Icon RUNNABLE  = load("/img/marker/RunnableMark.svg");
+        public static final Icon STATIC  = load("/img/marker/StaticMark.svg");
     }
 
 
@@ -375,6 +392,9 @@ public class Icons {
     public static final Icon DBO_JAVA_INTERFACE                  = load("/img/object/java/JavaInterface.svg");
     public static final Icon DBO_JAVA_ENUMERATION                = load("/img/object/java/JavaEnumeration.svg");
     public static final Icon DBO_JAVA_EXCEPTION                  = load("/img/object/java/JavaException.svg");
+    public static final Icon DBO_JAVA_METHOD                     = load("/img/object/java/JavaMethod.svg");
+    public static final Icon DBO_JAVA_METHODS                    = load("/img/object/java/JavaMethods.svg");
+    public static final Icon DBO_JAVA_METHOD_ABSTRACT            = load("/img/object/java/JavaMethodAbstract.svg");
     public static final Icon DBO_MATERIALIZED_VIEW               = load("/img/object/view/MaterializedView.svg");
     public static final Icon DBO_MATERIALIZED_VIEWS              = load("/img/object/view/MaterializedViews.svg");
     public static final Icon DBO_METHOD                          = load("/img/object/Method.png");
@@ -480,6 +500,10 @@ public class Icons {
 
     public static Icon withErrorMarker(Icon base) {
         return LayeredIcon.create(base, Icons.Marker.ERROR);
+    }
+
+    public static Icon withStaticMarker(Icon base) {
+        return LayeredIcon.create(base, Marker.STATIC);
     }
 
     public static Icon withPinMarker(Icon base) {

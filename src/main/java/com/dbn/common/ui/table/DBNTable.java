@@ -1,18 +1,34 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.common.ui.table;
 
 import com.dbn.common.color.Colors;
-import com.dbn.common.latent.Latent;
-import com.dbn.common.ref.WeakRef;
-import com.dbn.common.ui.component.DBNComponent;
-import com.dbn.common.ui.util.Cursors;
-import com.dbn.common.util.Strings;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.dispose.StatefulDisposable;
+import com.dbn.common.latent.Latent;
+import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.FontMetrics;
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
+import com.dbn.common.util.Strings;
 import com.dbn.data.grid.ui.table.basic.BasicTableHeaderRenderer;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
@@ -24,10 +40,26 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.DefaultListSelectionModel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JViewport;
 import javax.swing.event.EventListenerList;
-import javax.swing.table.*;
-import java.awt.*;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.PointerInfo;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;

@@ -1,12 +1,37 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.data.find;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.compatibility.CompatibilityUtil;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.util.*;
+import com.dbn.common.ui.util.Fonts;
+import com.dbn.common.ui.util.Keyboard;
+import com.dbn.common.ui.util.Mouse;
+import com.dbn.common.ui.util.Popups;
+import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Strings;
-import com.dbn.data.find.action.*;
+import com.dbn.data.find.action.CloseOnESCAction;
+import com.dbn.data.find.action.MatchCaseToggleAction;
+import com.dbn.data.find.action.NextOccurrenceAction;
+import com.dbn.data.find.action.PrevOccurrenceAction;
+import com.dbn.data.find.action.RegexToggleAction;
+import com.dbn.data.find.action.WholeWordsToggleAction;
 import com.dbn.data.grid.ui.table.basic.BasicTable;
 import com.dbn.data.model.DataModel;
 import com.dbn.data.model.DataModelListener;
@@ -30,9 +55,16 @@ import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
 import javax.swing.text.JTextComponent;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
