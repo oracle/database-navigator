@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.object.impl;
 
 import com.dbn.browser.ui.HtmlToolTipBuilder;
@@ -7,12 +23,20 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.grid.options.DataGridSettings;
 import com.dbn.data.type.DBDataType;
 import com.dbn.database.common.metadata.def.DBColumnMetadata;
-import com.dbn.object.*;
-import com.dbn.object.common.list.*;
-import com.dbn.object.*;
+import com.dbn.object.DBColumn;
+import com.dbn.object.DBConstraint;
+import com.dbn.object.DBDataset;
+import com.dbn.object.DBIndex;
+import com.dbn.object.DBSchema;
+import com.dbn.object.DBTable;
+import com.dbn.object.DBType;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
-import com.dbn.object.common.list.*;
+import com.dbn.object.common.list.DBObjectList;
+import com.dbn.object.common.list.DBObjectListContainer;
+import com.dbn.object.common.list.DBObjectNavigationList;
+import com.dbn.object.common.list.DBObjectRelationList;
+import com.dbn.object.common.list.ObjectListProvider;
 import com.dbn.object.properties.DBDataTypePresentableProperty;
 import com.dbn.object.properties.DBObjectPresentableProperty;
 import com.dbn.object.properties.PresentableProperty;
@@ -21,17 +45,25 @@ import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.dbn.object.common.property.DBObjectProperty.*;
+import static com.dbn.object.common.property.DBObjectProperty.FOREIGN_KEY;
+import static com.dbn.object.common.property.DBObjectProperty.HIDDEN;
+import static com.dbn.object.common.property.DBObjectProperty.IDENTITY;
+import static com.dbn.object.common.property.DBObjectProperty.NULLABLE;
+import static com.dbn.object.common.property.DBObjectProperty.PRIMARY_KEY;
+import static com.dbn.object.common.property.DBObjectProperty.UNIQUE_KEY;
 import static com.dbn.object.type.DBObjectRelationType.CONSTRAINT_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.INDEX_COLUMN;
-import static com.dbn.object.type.DBObjectType.*;
+import static com.dbn.object.type.DBObjectType.COLUMN;
+import static com.dbn.object.type.DBObjectType.CONSTRAINT;
+import static com.dbn.object.type.DBObjectType.INDEX;
+import static com.dbn.object.type.DBObjectType.TYPE_ATTRIBUTE;
 
 class DBColumnImpl extends DBObjectImpl<DBColumnMetadata> implements DBColumn {
     private DBDataType dataType;

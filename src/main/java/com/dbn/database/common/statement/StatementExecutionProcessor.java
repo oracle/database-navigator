@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.database.common.statement;
 
 import com.dbn.common.util.Commons;
@@ -5,7 +21,11 @@ import com.dbn.common.util.Compactables;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
-import com.dbn.connection.jdbc.*;
+import com.dbn.connection.jdbc.DBNCallableStatement;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.connection.jdbc.DBNPreparedStatement;
+import com.dbn.connection.jdbc.DBNResultSet;
+import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.database.DatabaseActivityTrace;
 import com.dbn.database.DatabaseCompatibility;
 import com.dbn.database.interfaces.DatabaseInterfaces;

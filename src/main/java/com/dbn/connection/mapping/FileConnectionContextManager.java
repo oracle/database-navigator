@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.connection.mapping;
 
 import com.dbn.DatabaseNavigator;
@@ -13,7 +29,14 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.util.Popups;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Documents;
-import com.dbn.connection.*;
+import com.dbn.connection.ConnectionAction;
+import com.dbn.connection.ConnectionBundle;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionManager;
+import com.dbn.connection.ConnectionSelectorOptions;
+import com.dbn.connection.SchemaId;
+import com.dbn.connection.SessionId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.mapping.ConnectionContextActions.ConnectionSetupAction;
 import com.dbn.connection.mapping.ConnectionContextActions.SchemaSelectAction;
@@ -58,8 +81,12 @@ import static com.dbn.common.util.Files.isDbLanguageFile;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
-import static com.dbn.connection.ConnectionSelectorOptions.Option.*;
-import static com.dbn.connection.ConnectionType.*;
+import static com.dbn.connection.ConnectionSelectorOptions.Option.PROMPT_SCHEMA_SELECTION;
+import static com.dbn.connection.ConnectionSelectorOptions.Option.SHOW_CREATE_CONNECTION;
+import static com.dbn.connection.ConnectionSelectorOptions.Option.SHOW_VIRTUAL_CONNECTIONS;
+import static com.dbn.connection.ConnectionType.MAIN;
+import static com.dbn.connection.ConnectionType.POOL;
+import static com.dbn.connection.ConnectionType.SESSION;
 import static com.dbn.connection.mapping.ConnectionContextActions.ConnectionSelectAction;
 
 @State(

@@ -1,11 +1,30 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.common.ui.tab;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.util.ui.JBInsets;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Insets;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -13,6 +32,8 @@ import static com.dbn.common.ui.util.ClientProperty.TAB_COLOR;
 import static com.dbn.common.ui.util.ClientProperty.TAB_CONTENT;
 
 public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
+    public static final Insets REGULAR_INSETS = new JBInsets(6, 6, 6, 6);
+
     public DBNTabbedPane(Disposable parent) {
         this(parent, false);
     }
@@ -26,13 +47,19 @@ public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
 
         addChangeListener(e -> {
             DBNTabbedPane source = (DBNTabbedPane) e.getSource();
-            int selectedIndex = source.getSelectedIndex();
-            selectionListeners.notify(l -> l.selectionChanged(selectedIndex));
+            int index = source.getSelectedIndex();
+            if (index == -1) return;
+
+            selectionListeners.notify(l -> l.selectionChanged(index));
         });
     }
 
+    @Nullable
     public T getSelectedContent() {
-        return getContentAt(getSelectedIndex());
+        int index = getSelectedIndex();
+        if (index == -1) return null;
+
+        return getContentAt(index);
     }
 
     public T getContentAt(int index) {
@@ -75,6 +102,7 @@ public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
 
     public String getSelectedTabTitle() {
         int index = getSelectedIndex();
+        if (index == -1) return "";
         return getTitleAt(index);
     }
 
