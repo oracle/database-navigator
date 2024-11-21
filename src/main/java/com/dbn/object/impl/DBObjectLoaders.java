@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.object.impl;
 
 import com.dbn.common.content.loader.DynamicContentLoaderImpl;
@@ -19,7 +35,9 @@ import com.dbn.database.common.metadata.def.DBGrantedPrivilegeMetadata;
 import com.dbn.database.common.metadata.def.DBGrantedRoleMetadata;
 import com.dbn.database.common.metadata.def.DBIndexColumnMetadata;
 import com.dbn.database.common.metadata.def.DBIndexMetadata;
-import com.dbn.database.common.metadata.def.DBJavaObjectMetadata;
+import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
+import com.dbn.database.common.metadata.def.DBJavaMethodMetadata;
+import com.dbn.database.common.metadata.def.DBJavaParameterMetadata;
 import com.dbn.database.common.metadata.def.DBMaterializedViewMetadata;
 import com.dbn.database.common.metadata.def.DBNestedTableMetadata;
 import com.dbn.database.common.metadata.def.DBObjectDependencyMetadata;
@@ -53,7 +71,9 @@ import com.dbn.object.DBFunction;
 import com.dbn.object.DBGrantedPrivilege;
 import com.dbn.object.DBGrantedRole;
 import com.dbn.object.DBIndex;
-import com.dbn.object.DBJavaObject;
+import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBJavaParameter;
 import com.dbn.object.DBMaterializedView;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBNestedTable;
@@ -258,10 +278,10 @@ public class DBObjectLoaders {
                 (content, conn, mdi) -> mdi.loadDatabaseTriggers(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBDatabaseTriggerImpl(content.getParentEntity(), md));
 
-        DynamicContentResultSetLoader.<DBJavaObject, DBJavaObjectMetadata>create(
-                "JAVA_OBJECTS", DBObjectType.SCHEMA, DBObjectType.JAVA_OBJECT, true, true,
-                (content, conn, mdi) -> mdi.loadJavaObjects(content.ensureParentEntity().getName(), conn),
-                (content, cache, md) -> new DBJavaObjectImpl(content.getParentEntity(), md));
+        DynamicContentResultSetLoader.<DBJavaClass, DBJavaClassMetadata>create(
+                "JAVA_CLASSES", DBObjectType.SCHEMA, DBObjectType.JAVA_CLASS, true, true,
+                (content, conn, mdi) -> mdi.loadJavaClasses(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> new DBJavaClassImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBDimension, DBDimensionMetadata>create(
                 "DIMENSIONS", DBObjectType.SCHEMA, DBObjectType.DIMENSION, true, true,
@@ -331,6 +351,34 @@ public class DBObjectLoaders {
                     String tableName = md.getTableName();
                     DBTable table = valid(cache.get(tableName, () -> ((DBSchema) content.ensureParentEntity()).getTable(tableName)));
                     return new DBNestedTableImpl(table, md);
+                });
+
+        DynamicContentResultSetLoader.<DBJavaMethod, DBJavaMethodMetadata>create(
+                "ALL_JAVA_METHODS", DBObjectType.SCHEMA, DBObjectType.JAVA_METHOD, true, true,
+                (content, conn, mdi) -> mdi.loadAllJavaMethods(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> {
+                    String className = md.getClassName();
+                    DBJavaClass javaClass = valid(cache.get(className, () -> ((DBSchema) content.ensureParentEntity()).getJavaClass(className)));
+                    return new DBJavaMethodImpl(javaClass, md);
+                });
+
+        DynamicContentResultSetLoader.<DBJavaParameter, DBJavaParameterMetadata>create(
+                "ALL_JAVA_METHOD_PARAMETERS", DBObjectType.SCHEMA, DBObjectType.JAVA_PARAMETER, true, true,
+                (content, conn, mdi) -> mdi.loadAllJavaParameters(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> {
+                    String className = md.getClassName();
+                    String methodName = md.getMethodName();
+
+                    String key = className + methodName;
+                    DBJavaMethod javaMethod = cache.get(key);
+                    if (javaMethod == null) {
+                        DBSchema schema = content.ensureParentEntity();
+                        DBJavaClass javaClass = valid(schema.getJavaClass(className));
+                        javaMethod = valid(javaClass.getMethod(methodName));
+                        cache.set(key, javaMethod);
+                    }
+
+                    return new DBJavaParameterImpl(javaMethod, md);
                 });
 
         DynamicContentResultSetLoader.<DBPackageFunction, DBFunctionMetadata>create(
@@ -510,6 +558,11 @@ public class DBObjectLoaders {
                         (content, conn, mdi) -> mdi.loadPackageTypes(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBPackageTypeImpl(valid(content.getParentEntity()), md)));
 
+        DynamicSubcontentLoader.create("ALL_JAVA_METHODS", DBObjectType.JAVA_CLASS, DBObjectType.JAVA_METHOD,
+                DynamicContentResultSetLoader.<DBJavaMethod, DBJavaMethodMetadata>create(
+                        "JAVA_METHODS", DBObjectType.JAVA_CLASS, DBObjectType.JAVA_METHOD, false, true,
+                        (content, conn, mdi) -> mdi.loadJavaMethods(content.getParentSchemaName(), content.getParentObjectName(), conn),
+                        (content, cache, md) -> new DBJavaMethodImpl(valid(content.getParentEntity()), md)));
 
         DynamicContentResultSetLoader.<DBTypeAttribute, DBTypeAttributeMetadata>create(
                 "PACKAGE_TYPE_ATTRIBUTES", DBObjectType.PACKAGE_TYPE, DBObjectType.TYPE_ATTRIBUTE, true, true,
@@ -556,6 +609,19 @@ public class DBObjectLoaders {
                                     mdi.loadProgramMethodArguments(ownerName, program.getName(), method.getName(), overload, conn);
                         },
                         (content, cache, md) -> new DBArgumentImpl(valid(content.getParentEntity()), md)));
+
+        DynamicSubcontentLoader.create("JAVA_METHOD_PARAMETERS", DBObjectType.JAVA_METHOD, DBObjectType.JAVA_PARAMETER,
+                DynamicContentResultSetLoader.<DBJavaParameter, DBJavaParameterMetadata>create(
+                        "JAVA_METHOD_PARAMETERS", DBObjectType.JAVA_METHOD, DBObjectType.JAVA_PARAMETER, false, true,
+                        (content, conn, mdi) -> {
+                            DBJavaMethod method = content.ensureParentEntity();
+                            String className = method.getOwnerClass().getName();
+                            String methodName = method.getName();
+                            String ownerName = method.getSchemaName();
+                            short index = method.getIndex();
+                            return mdi.loadJavaParameters(ownerName, className, methodName, index, conn);
+                        },
+                        (content, cache, md) -> new DBJavaParameterImpl(valid(content.getParentEntity()), md)));
     }
 
     /* Loaders for object dependencies */

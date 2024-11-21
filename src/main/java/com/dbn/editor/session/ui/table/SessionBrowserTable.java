@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.editor.session.ui.table;
 
 import com.dbn.common.ref.WeakRef;
@@ -11,22 +27,22 @@ import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.grid.ui.table.sortable.SortableTableHeaderRenderer;
 import com.dbn.data.preview.LargeValuePreviewPopup;
 import com.dbn.data.record.RecordViewInfo;
+import com.dbn.editor.session.SessionBrowser;
 import com.dbn.editor.session.action.SessionBrowserTableActionGroup;
 import com.dbn.editor.session.model.SessionBrowserColumnInfo;
 import com.dbn.editor.session.model.SessionBrowserModel;
 import com.dbn.editor.session.model.SessionBrowserModelCell;
 import com.dbn.editor.session.model.SessionBrowserModelRow;
-import com.dbn.editor.session.SessionBrowser;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionPopupMenu;
 import com.intellij.ui.PopupMenuListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JPopupMenu;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.table.TableCellRenderer;
-import java.awt.*;
+import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
 

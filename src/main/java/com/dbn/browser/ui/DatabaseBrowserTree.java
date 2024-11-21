@@ -1,11 +1,29 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.browser.ui;
 
 import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.browser.DatabaseBrowserUtils;
 import com.dbn.browser.TreeNavigationHistory;
-import com.dbn.browser.model.*;
-import com.dbn.browser.options.BrowserDisplayMode;
-import com.dbn.browser.options.DatabaseBrowserSettings;
+import com.dbn.browser.model.BrowserTreeEventListener;
+import com.dbn.browser.model.BrowserTreeModel;
+import com.dbn.browser.model.BrowserTreeNode;
+import com.dbn.browser.model.ConnectionBrowserTreeModel;
+import com.dbn.browser.model.ConnectionBundleBrowserTreeModel;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.event.ProjectEvents;
@@ -44,14 +62,18 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.JPopupMenu;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
-import java.awt.event.*;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
-import static com.dbn.browser.options.BrowserDisplayMode.SIMPLE;
-import static com.dbn.browser.options.BrowserDisplayMode.TABBED;
 import static com.dbn.common.dispose.Checks.isNotValid;
 
 @Getter

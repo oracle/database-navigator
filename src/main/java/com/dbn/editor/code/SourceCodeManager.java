@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.editor.code;
 
 import com.dbn.DatabaseNavigator;
@@ -371,7 +387,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                 buffer.append(codeLine);
             }
 
-            if (buffer.length() == 0 && object.getObjectType() == DBObjectType.JAVA_OBJECT) {
+            if (buffer.length() == 0 && object.getObjectType() == DBObjectType.JAVA_CLASS) {
                 CharSequence code = loadJavaDecompiledCode(object, conn, metadata);
                 buffer.append(code);
                 writable = false;
@@ -503,7 +519,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                         packageContent,
                         connection);
 
-            case JAVA_OBJECT:
+            case JAVA_CLASS:
                 return metadata.loadObjectSourceCode(
                     schemaName,
                     objectName,
@@ -551,7 +567,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
     private static String getContentQualifier(DBObjectType objectType, DBContentType contentType) {
         switch (objectType) {
-            case JAVA_OBJECT:      return "JAVA SOURCE";
+            case JAVA_CLASS:       return "JAVA SOURCE";
             case FUNCTION:         return "FUNCTION";
             case PROCEDURE:        return "PROCEDURE";
             case VIEW:             return "VIEW";
@@ -571,7 +587,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     }
 
     private boolean isValidObjectTypeAndName(@NotNull PsiFile psiFile, @NotNull DBSchemaObject object, DBContentType contentType) {
-        if(object.getObjectType()==DBObjectType.JAVA_OBJECT) return true;
+        if (object.getObjectType() == DBObjectType.JAVA_CLASS) return true;
 
         ConnectionHandler connection = object.getConnection();
         DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();

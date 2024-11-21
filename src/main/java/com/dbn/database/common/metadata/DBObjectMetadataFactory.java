@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.database.common.metadata;
 
 import com.dbn.common.content.DynamicContentType;
@@ -15,7 +31,9 @@ import com.dbn.database.common.metadata.impl.DBGrantedPrivilegeMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBGrantedRoleMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBIndexColumnMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBIndexMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBJavaObjectMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBJavaClassMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBJavaMethodMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBJavaParameterMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBMaterializedViewMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBNestedTableMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBObjectDependencyMetadataImpl;
@@ -94,7 +112,9 @@ public class DBObjectMetadataFactory {
             case ARGUMENT:            return new DBArgumentMetadataImpl(resultSet);
             case DATABASE_TRIGGER:    return new DBTriggerMetadataImpl(resultSet);
             case DATASET_TRIGGER:     return new DBTriggerMetadataImpl(resultSet);
-            case JAVA_OBJECT:         return new DBJavaObjectMetadataImpl(resultSet);
+            case JAVA_CLASS:          return new DBJavaClassMetadataImpl(resultSet);
+            case JAVA_METHOD:         return new DBJavaMethodMetadataImpl(resultSet);
+            case JAVA_PARAMETER:      return new DBJavaParameterMetadataImpl(resultSet);
             case INCOMING_DEPENDENCY: return new DBObjectDependencyMetadataImpl(resultSet);
             case OUTGOING_DEPENDENCY: return new DBObjectDependencyMetadataImpl(resultSet);
         }

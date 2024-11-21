@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.connection.jdbc;
 
 import com.dbn.common.event.ProjectEvents;
@@ -5,7 +21,15 @@ import com.dbn.common.project.ProjectRef;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.util.TimeUtil;
 import com.dbn.common.util.Unsafe;
-import com.dbn.connection.*;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionHandlerStatusHolder;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionProperties;
+import com.dbn.connection.ConnectionStatusListener;
+import com.dbn.connection.ConnectionType;
+import com.dbn.connection.Resources;
+import com.dbn.connection.SchemaId;
+import com.dbn.connection.SessionId;
 import com.dbn.connection.transaction.PendingTransactionBundle;
 import com.dbn.database.interfaces.DatabaseInterface.Callable;
 import com.dbn.database.interfaces.DatabaseInterface.Runnable;
@@ -17,7 +41,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Savepoint;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +55,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Unsafe.cast;
-import static com.dbn.connection.jdbc.ResourceStatus.*;
+import static com.dbn.connection.jdbc.ResourceStatus.ACTIVE;
+import static com.dbn.connection.jdbc.ResourceStatus.CLOSED;
+import static com.dbn.connection.jdbc.ResourceStatus.RESERVED;
+import static com.dbn.connection.jdbc.ResourceStatus.VALID;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
