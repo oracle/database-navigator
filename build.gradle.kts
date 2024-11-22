@@ -41,7 +41,6 @@ dependencies {
   testAnnotationProcessor("org.projectlombok:lombok:1.18.34")
 
   implementation("org.projectlombok:lombok:1.18.34")
-  implementation("com.github.mwiede:jsch:0.2.20")
 
   // poi libraries (xls export)
   implementation("org.apache.poi:poi:5.3.0")
