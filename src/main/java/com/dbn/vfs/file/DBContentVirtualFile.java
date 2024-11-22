@@ -84,6 +84,12 @@ public abstract class DBContentVirtualFile extends DBVirtualFileBase implements 
         return SchemaId.from(schema);
     }
 
+    @Override
+    public DBObjectType getObjectType() {
+        DBEditableObjectVirtualFile mainDatabaseFile = this.mainDatabaseFile.get();
+        return mainDatabaseFile != null ? mainDatabaseFile.getObjectType() : DBObjectType.UNKNOWN;
+    }
+
     @NotNull
     public DBEditableObjectVirtualFile getMainDatabaseFile() {
         return mainDatabaseFile.ensure();

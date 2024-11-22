@@ -17,73 +17,129 @@
 package com.dbn.connection.ssh;
 
 import com.dbn.common.util.Commons;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.sshd.client.SshClient;
+import org.apache.sshd.client.future.ConnectFuture;
+import org.apache.sshd.client.session.ClientSession;
+import org.apache.sshd.client.session.forward.ExplicitPortForwardingTracker;
+import org.apache.sshd.client.session.forward.PortForwardingTracker;
+import org.apache.sshd.common.NamedResource;
+import org.apache.sshd.common.config.keys.FilePasswordProvider;
+import org.apache.sshd.common.util.net.SshdSocketAddress;
+import org.apache.sshd.common.util.security.SecurityUtils;
+import org.apache.sshd.core.CoreModuleProperties;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import static com.dbn.connection.ssh.SshAuthType.KEY_PAIR;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
+@Slf4j
 @Getter
 public class SshTunnelConnector {
     private final SshTunnelConfig config;
 
     private final String localHost = "localhost";
     private int localPort;
-    private Session session;
+    private ClientSession session;
+    private SshClient client;
+    private PortForwardingTracker tracker;
 
     public SshTunnelConnector(SshTunnelConfig config) {
         this.config = config;
     }
 
-    public Session connect() throws Exception {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            localPort = serverSocket.getLocalPort();
-        }
-        catch (IOException e) {
-            conditionallyLog(e);
-            throw new JSchException("Can't find a free port", e);
-        }
-
-        JSch jsch = new JSch();
-/*
-        TODO open ssl config file
-        ConfigRepository configRepository = OpenSSHConfig.parse("");
-        jsch.setConfigRepository(configRepository);
-*/
-
-        JSch.setConfig("kex", "diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group-exchange-sha256");
-        session = jsch.getSession(
-                config.getProxyUser(),
-                config.getProxyHost(),
-                config.getProxyPort());
-
-        if(config.getAuthType() == SshAuthType.KEY_PAIR) {
-            String keyFile = config.getKeyFile();
-            String keyPassphrase = Commons.nvl(config.getKeyPassphrase(), "");
-            jsch.addIdentity(keyFile, keyPassphrase);;
-        } else {
-            session.setPassword(config.getProxyPassword());
-        }
-
-        Properties properties = new Properties();
-        properties.put("StrictHostKeyChecking", "no");
-        properties.put("TCPKeepAlive", "yes");
-        session.setConfig(properties);
-        session.setServerAliveInterval((int) TimeUnit.MINUTES.toMillis(2L));
-        session.setServerAliveCountMax(1000);
-        session.connect();
-
-        session.setPortForwardingL(localPort, config.getRemoteHost(), config.getRemotePort());
+    public ClientSession connect() throws Exception {
+        initPort();
+        initClient();
+        initSession();
+        initAuth();
+        initTracker();
         return session;
     }
 
+    private void initPort() throws IOException {
+        try (ServerSocket serverSocket = new ServerSocket(0)) {
+            localPort = serverSocket.getLocalPort();
+        }
+        log.info("SSH Tunnel Connection - Local port initialised as {}", localPort);
+    }
+
+    private void initClient() {
+        client = SshClient.setUpDefaultClient();
+        client.setServerKeyVerifier((clientSession, remoteAddress, serverKey) -> true); // Disable host key checking (for development/testing)
+        CoreModuleProperties.SOCKET_KEEPALIVE.set(client, true);
+        client.start();
+        log.info("SSH Tunnel Connection - client initialized");
+    }
+
+    private void initSession() throws Exception {
+        ConnectFuture future = client.connect(config.getProxyUser(), config.getProxyHost(), config.getProxyPort());
+        session = future.verify(10, TimeUnit.SECONDS).getSession();
+        log.info("SSH Tunnel Connection - session initialized");
+    }
+
+    private void initAuth() throws Exception {
+        if (config.getAuthType() == KEY_PAIR) {
+            initKeyPairAuth();
+        } else {
+            session.addPasswordIdentity(config.getProxyPassword());
+        }
+
+        session.auth().verify(10, TimeUnit.SECONDS);
+        log.info("SSH Tunnel Connection - authentication succeeded");
+    }
+
+    private void initKeyPairAuth() throws Exception{
+        String keyFile = config.getKeyFile();
+        String keyPassphrase = Commons.nvl(config.getKeyPassphrase(), "");
+
+        File privateKeyFile = new File(keyFile);
+        try (InputStream keyFileStream = new FileInputStream(privateKeyFile)) {
+            NamedResource namedResource = NamedResource.ofName(privateKeyFile.getName());
+            FilePasswordProvider passwordProvider = (sessionContext, resourceKey, retryIndex) -> keyPassphrase;
+
+            var keyPairs = SecurityUtils.loadKeyPairIdentities(session, namedResource, keyFileStream, passwordProvider);
+            keyPairs.forEach(kp -> session.addPublicKeyIdentity(kp));
+        }
+    }
+
+    private void initTracker() throws IOException {
+        SshdSocketAddress localAddress = new SshdSocketAddress(localHost, localPort);
+        SshdSocketAddress remoteAddress = new SshdSocketAddress(config.getRemoteHost(), config.getRemotePort());
+        SshdSocketAddress boundAddress = session.startLocalPortForwarding(localPort, remoteAddress);
+
+        tracker = new ExplicitPortForwardingTracker(session, true, localAddress, remoteAddress, boundAddress);
+        log.info("SSH Tunnel Connection - tracker initialized");
+    }
+
     public boolean isConnected() {
-        return session != null && session.isConnected();
+        return session != null && session.isAuthenticated() && session.isOpen() && !session.isClosing();
+    }
+
+    public void disconnect() {
+        try {
+            if (tracker != null) {
+                tracker.close();
+                log.info("SSH Tunnel Connection - port forwarding stopped");
+            }
+            if (session != null && session.isOpen()) {
+                session.close();
+                log.info("SSH Tunnel Connection - session closed");
+            }
+            if (client != null && client.isOpen()) {
+                client.stop();
+                log.info("SSH Tunnel Connection - client stopped");
+            }
+        } catch (Exception e) {
+            log.warn("Failed to close SSH tunnel connection", e);
+            conditionallyLog(e);
+        }
     }
 }
