@@ -26,9 +26,9 @@ import com.dbn.common.util.Actions;
 import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.code.SourceCodeManagerListener;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
+import com.dbn.vfs.file.status.DBFileStatus;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.editor.Editor;
 import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,12 +49,13 @@ public class SourceCodeEditorToolbarForm extends DBNToolbarForm {
         super(sourceCodeEditor, sourceCodeEditor.getProject());
         this.mainPanel.setBorder(Borders.insetBorder(2));
         this.sourceCodeEditor = WeakRef.of(sourceCodeEditor);
-        Editor editor = sourceCodeEditor.getEditor();
+
+        DBSourceCodeVirtualFile sourceCodeFile = sourceCodeEditor.getVirtualFile();
 
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.SourceEditor", "", true);
         this.actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
         this.loadingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
-        this.loadingDataPanel.setVisible(false);
+        this.loadingDataPanel.setVisible(sourceCodeFile.is(DBFileStatus.LOADING));
 
         ProjectEvents.subscribe(ensureProject(), this, SourceCodeManagerListener.TOPIC, sourceCodeManagerListener());
         Disposer.register(sourceCodeEditor, this);

@@ -17,6 +17,7 @@
 package com.dbn.vfs;
 
 import com.dbn.common.project.ProjectRef;
+import com.dbn.common.thread.Write;
 import com.dbn.common.util.Documents;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
@@ -117,6 +118,10 @@ public class DatabaseFileViewProvider extends SingleRootFileViewProvider {
             }
         }
         return file;
+    }
+
+    private void forceCachedPsi(DBLanguagePsiFile file) {
+        Write.run(() -> super.forceCachedPsi(file));
     }
 
     private static DBParseableVirtualFile getParseableFile(VirtualFile virtualFile) {

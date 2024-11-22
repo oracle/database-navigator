@@ -40,8 +40,10 @@ public class ProgressDialogForm extends DBNFormBase {
     public ProgressDialogForm(@NotNull ProgressDialogHandler handler) {
         super(null, handler.getProject());
 
+        headerPanel.setVisible(false); // TODO support environment colored headers
         progressBar.setIndeterminate(true);
         progressBar.setVisible(true);
+        progressBar.setBorder(null);
         progressTitleLabel.setText(handler.getText());
 
         KeyAdapter keyListener = createKeyListener(handler);

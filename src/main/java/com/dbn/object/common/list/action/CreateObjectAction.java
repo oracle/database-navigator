@@ -22,6 +22,7 @@ import com.dbn.common.ref.WeakRef;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.factory.DatabaseObjectFactory;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -42,6 +43,12 @@ public class CreateObjectAction extends BasicAction {
         Project project = schema.getProject();
         DatabaseObjectFactory factory = DatabaseObjectFactory.getInstance(project);
         factory.openFactoryInputDialog(schema, objectList.getObjectType());
+    }
+
+    @Override
+    public void update(@NotNull AnActionEvent e) {
+        DBObjectType objectType = getObjectList().getObjectType();
+        e.getPresentation().setVisible(objectType.isOneOf(DBObjectType.FUNCTION, DBObjectType.PROCEDURE));
     }
 
     @NotNull

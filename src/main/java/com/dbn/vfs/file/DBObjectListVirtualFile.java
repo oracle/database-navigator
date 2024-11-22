@@ -28,6 +28,7 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.DBObjectPsiCache;
 import com.dbn.object.common.list.DBObjectList;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.DBVirtualFileBase;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.UnknownFileType;
@@ -46,6 +47,12 @@ public class DBObjectListVirtualFile<T extends DBObjectList> extends DBVirtualFi
     public DBObjectListVirtualFile(T objectList) {
         super(objectList.getProject(), Naming.capitalize(objectList.getName()));
         this.objectList = WeakRef.of(objectList);
+    }
+
+    @Override
+    public DBObjectType getObjectType() {
+        T objectList = this.objectList.get();
+        return objectList == null ? DBObjectType.UNKNOWN : objectList.getObjectType();
     }
 
     @NotNull
