@@ -25,6 +25,7 @@ import com.dbn.ddl.action.DDLFileCreateAction;
 import com.dbn.ddl.action.DDLFileDetachAction;
 import com.dbn.ddl.action.DDLFileSettingsAction;
 import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -39,10 +40,13 @@ public class CodeEditorDDLFileAction extends ProjectPopupAction {
     @Override
     public void update(@NotNull AnActionEvent e, Project project) {
         DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);
+        DBObjectType objectType = sourceCodeFile == null ? null : sourceCodeFile.getObjectType();
+
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.CODE_EDITOR_DDL_FILE);
         presentation.setText("DDL Files");
-        presentation.setEnabled(sourceCodeFile != null);
+        presentation.setEnabled(objectType != null);
+        presentation.setVisible(objectType != DBObjectType.JAVA_CLASS); // TODO amend this when DDLs are supported in OJVM
     }
 
     @Override
@@ -58,7 +62,7 @@ public class CodeEditorDDLFileAction extends ProjectPopupAction {
                     new DDLFileSettingsAction()
             };
         }
-        return new AnAction[0];
+        return AnAction.EMPTY_ARRAY;
     }
 
     protected static DBSourceCodeVirtualFile getSourcecodeFile(AnActionEvent e) {
