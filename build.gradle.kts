@@ -59,6 +59,8 @@ dependencies {
 
   implementation(project(":modules:dbn-api"))
   implementation(project(":modules:dbn-spi"))
+
+  implementation("org.apache.maven:maven-model:3.9.9")
 }
 
 licenseReport {
@@ -90,7 +92,7 @@ sourceSets{
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-  version.set("242.23339.11")
+  version.set("241.19416.15")
   type.set("IC") // Target IDE Platform
 
   plugins.set(listOf("java", "copyright"))
