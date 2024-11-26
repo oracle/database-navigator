@@ -273,7 +273,7 @@ public class ChatBoxForm extends DBNFormBase {
     } catch (Exception e) {
       state.set(QUERYING, false);
       log.warn("Error processing query", e);
-      String message = manager.getPresentableMessage(connectionId, e);
+      String message = manager.getPresentableMessage(connectionId, profile.getProvider(), e);
       PersistentChatMessage errorMessage = new PersistentChatMessage(MessageType.ERROR, message, AuthorType.SYSTEM, context);
       appendMessageToChat(errorMessage);
     }

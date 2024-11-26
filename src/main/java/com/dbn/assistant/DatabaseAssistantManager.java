@@ -270,23 +270,24 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         throw e;
       } catch (Exception e) {
         conditionallyLog(e);
-        handleGenerateException(project, connectionId, e);
+        AIProvider provider = context.getModel().getProvider();
+        handleGenerateException(project, connectionId, provider, e);
       }
     });
   }
 
-  private void handleGenerateException(Project project, ConnectionId connectionId, Exception e) {
+  private void handleGenerateException(Project project, ConnectionId connectionId, AIProvider provider, Exception e) {
     String assistantName = getAssistantName(connectionId);
     String title = assistantName + " Error";
 
-    String message = getPresentableMessage(connectionId, e);
+    String message = getPresentableMessage(connectionId, provider, e);
 
     Messages.showErrorDialog(project, title,
             message, options("Help", "Cancel"), 0,
             option -> when(option == 0, () -> showPrerequisitesDialog(connectionId)));
   }
 
-  public String getPresentableMessage(ConnectionId connectionId, Throwable e) {
+  public String getPresentableMessage(ConnectionId connectionId, AIProvider provider, Throwable e) {
     // todo move logic to OracleMessageParserInterface
 
     e = Exceptions.rootCauseOf(e);
@@ -295,13 +296,9 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     boolean networkAccessDenied = errorMessage != null && errorMessage.contains("ORA-24247");
 
     if (networkAccessDenied) {
-      DBAIProfile profile = getDefaultProfile(connectionId);
-      if (profile != null) {
-        AIProvider selectedProvider = profile.getProvider();
-        String accessPoint = selectedProvider.getHost();
+      String accessPoint = provider.getHost();
 
-        return txt("msg.assistant.error.NetworkAccessDenied", accessPoint, errorMessage);
-      }
+      return txt("msg.assistant.error.NetworkAccessDenied", accessPoint, errorMessage);
     }
 
     return txt("msg.assistant.error.AssistantInvocationFailure", assistantName, errorMessage);
