@@ -42,9 +42,9 @@ public class AboutComponent extends DBNFormBase {
     private JLabel downloadPageLinkLabel;
     private JLabel supportPageLinkLabel;
     private JLabel requestTrackerPageLinkLabel;
-    private JLabel buildLabel;
     private JPanel linksPanel;
     private JLabel versionLabel;
+    private JLabel supportPageLabel;
 
     public AboutComponent(Project project) {
         super(null, project);
@@ -64,6 +64,10 @@ public class AboutComponent extends DBNFormBase {
         supportPageLinkLabel.addMouseListener(Mouse.listener().onClick(e ->
                 BrowserUtil.browse("http://confluence.jetbrains.com/display/CONTEST/Database+Navigator")));
 
+        // TODO support page no longer available
+        supportPageLabel.setVisible(false);
+        supportPageLinkLabel.setVisible(false);
+
         requestTrackerPageLinkLabel.setForeground(CodeInsightColors.HYPERLINK_ATTRIBUTES.getDefaultAttributes().getForegroundColor());
         requestTrackerPageLinkLabel.setCursor(handCursor);
         requestTrackerPageLinkLabel.addMouseListener(Mouse.listener().onClick(e ->
@@ -71,8 +75,9 @@ public class AboutComponent extends DBNFormBase {
 
         IdeaPluginDescriptor ideaPluginDescriptor = DatabaseNavigator.getPluginDescriptor();
         String version = ideaPluginDescriptor.getVersion();
-        versionLabel.setText("Version: " + version.substring(0, 3));
-        buildLabel.setText("Build: " + version.substring(4, 8));
+        version = version.substring(0, version.lastIndexOf(".")); // remove the compatibility qualifier
+
+        versionLabel.setText("Version: " + version);
     }
 
     @NotNull

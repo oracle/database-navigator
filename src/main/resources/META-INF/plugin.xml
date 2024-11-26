@@ -32,7 +32,6 @@
             This software solution enhances the capabilities of the IntelliJ IDEA development environment and its associated products by providing comprehensive features for database development and maintenance.
             It includes a robust SQL and PL/SQL editor that adheres to the IDE standards, along with advanced functionality for managing database connections, executing scripts, browsing database objects, editing data and code, supporting database compiler operations, executing and debugging methods, and facilitating the creation of database objects.
             Additionally, it offers diverse navigation capabilities that seamlessly integrate across all its components, providing a powerful toolset for efficient and effective database development and management.<br>
-            <!--See features overview on the <a href="https://plugins.jetbrains.com/plugin/1800-database-navigator" target="new">support page</a>.<br>--><br>
 
             <b>Supported Databases:</b>
             <ul>
@@ -45,6 +44,14 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>3.5.0</b>
+            <ul>
+                <li>Oracle "Select-AI" integration (Database Assistant)
+                <li>Oracle token authentication ("OCI API Key" and "OCI Interactive")
+                <li>Oracle OJVM support (early preview)
+                <li>Support for latest IDE versions (2024.3.x)
+                <li>Bug fixes
+            </ul>
             <li><b>3.4.4425</b>
             <ul>
                 <li>Script execution engine - support for Oracle TNS_ADMIN / cloud connections
@@ -96,259 +103,6 @@
                 <li>Oracle SQL - support for LIBRARY ddl statements
                 <li>Oracle PLSQL - basic support for conditional code blocks
                 <li>IDE freezing issues - background operations
-                <li>Bug fixes
-            </ul>
-            <li><b>3.4.2299</b>
-            <ul>
-                <li>Fixed SQLite connectivity issues with certain system locales
-                <li>Data editor improvements
-                <li>NCLOB data native support
-                <li>Identifier resolver and navigation improvements
-                <li>Memory optimisations
-                <li>Bug fixes and stability improvements
-            </ul>
-            <li><b>3.4.1710</b>
-            <ul>
-                <li>Addressed IDE freezing issues
-                <li>Bug fixes and performance improvements
-            </ul>
-            <li><b>3.4.1220</b>
-            <ul>
-                <li>Discontinued support for IntelliJ 17 and earlier versions
-                <li>Plugin conflict resolution management
-                <li>Support for Ctrl-S / Ctrl-Enter actions (save / execute)
-                <li>Simplified debugger profile management
-                <li>Fixed occasional editor double gutter actions
-                <li>Improved overall plugin startup responsiveness
-                <li>Bug fixes
-            </ul>
-            <li><b>3.3.9995</b>
-            <ul>
-                <li>New icons and UI improvements - WIP
-                <li>Fixed SSH connectivity problems
-                <li>Data Export - custom quoting on csv outputs
-                <li>Fixed parametric statement execution
-                <li>Bug fixes
-            </ul>
-            <li><b>3.3.9310</b>
-            <ul>
-                <li>Fixed H2 connectivity issues with latest IDEs
-                <li>Diagnostics - DeveloperMode timeouts
-                <li>Diagnostics - Additional failsafe exception logging
-                <li>Record viewers - column quick filters
-                <li>Bug fixes
-            </ul>
-            <li><b>3.3.9100</b>
-            <ul>
-                <li>SQL file associations restore on plugin uninstall
-                <li>Fixed missing editor toolbars / top notifications
-                <li>Reworked connection configuration
-                <li>Oracle TNS import filter / options
-                <li>Support for latest IDE EAP versions
-                <li>Bug fixes
-            </ul>
-            <li><b>3.3.7711</b>
-            <ul>
-                <li>Bug fixes
-                <li>Memory optimisation
-                <li>Stability improvements
-            </ul>
-            <li><b>3.3.4510</b>
-            <ul>
-                <li>Architectural changes (background services rework)
-                <li>Bug fixes and performance improvements
-                <li>Probably a whole set of brand new bugs...
-            </ul>
-            <li><b>3.3.3100 - UNSTABLE</b>
-            <ul>
-                <li>Architectural changes (components - move to services)
-                <li>Resources allocation redesign (background operations optimisation)
-                <li>Bug fixes and performance improvements
-            </ul>
-            <li><b>3.3.2160</b>
-            <ul>
-                <li>Oracle JDBC debugger fix
-                <li>Bug fixes and performance improvements
-            </ul>
-            <li><b>3.3.2100</b>
-            <ul>
-                <li>Built-in driver upgrades
-                <li>Database families - language support MySQL and PostgreSQL offsprings
-                <li>Bug fixes
-            </ul>
-            <li><b>3.3.1923</b>
-            <ul>
-                <li>Data Editor improvements
-                <li>Fixed issues with code completion and identifier resolvers
-                <li>Bug fixes and performance improvements
-            </ul>
-            <li><b>3.3.1555</b>
-            <ul>
-                <li>Folder connection context (work in progress)
-                <li>Oracle SQL "create synonym" syntax support
-                <li>SQLite configuration validations (multiple db files)
-                <li>Support for latest IDE EAP versions
-                <li>Bug fixes and performance improvements
-            </ul>
-            <li><b>3.2.7709</b>
-            <ul>
-                <li>Oracle SQL and PLSQL language syntax updates
-                <li>Bug fixes
-            </ul>
-            <li><b>3.2.6411</b>
-            <ul>
-                <li>Parser and connection diagnostics / hidden developer actions
-                <li>Oracle SQL and PLSQL language syntax updates
-                <li>Bug fixes
-            </ul>
-            <li><b>3.2.5802</b>
-            <ul>
-                <li>Support for latest IDE EAP versions
-                <li>Oracle SQL and PLSQL language syntax updates
-                <li>Bug fixes and performance improvements
-            </ul>
-            <li><b>3.2.4501</b>
-            <ul>
-                <li>Oracle JSON syntax support
-                <li>Support for latest IDE EAP versions
-                <li>Bug fixes, performance and memory optimisations
-            </ul>
-            <li><b>3.2.3024</b>
-            <ul>
-                <li>New Jira-Markup data-export format
-                <li>Code completion - overall performance improvements
-                <li>Database-object lookup (Ctrl+Shift+D) - performance improvements
-                <li>Support for latest IDE EAP versions
-                <li>Bug fixes
-            </ul>
-            <li><b>3.2.1395</b>
-            <ul>
-                <li>Resource monitor enhancements
-                <li>Connectivity timeout configuration
-                <li>"Rename" feature for execution results
-                <li>Support for latest IDE versions
-                <li>Editor intention action descriptions
-                <li>Bug fixes and performance improvements
-            </ul>
-            <li><b>3.2.0589</b>
-            <ul>
-                <li>Data export enhancements (CLOB, XMLTYPE)
-                <li>Oracle tnsnames.ora connection import
-                <li>SQL Console list in object browser
-                <li>Resolved broken JIRA issue reporting framework
-                <li>New data-grid numeric functions on selection (Sum / Count / Average)
-                <li>Bug fixes
-            </ul>
-            <li><b>3.2.0163</b>
-            <ul>
-                <li>Fixed MS-SQL Server meta-data load issues
-                <li>Fixed Oracle JDWP debugger issues under MacOS (<a href="https://database-navigator.atlassian.net/browse/DBN-436">DBN-436</a>)
-                <li>Fixed Oracle code completion issues
-                <li>Small bug fixes and cosmetics
-            </ul>
-            <li><b>3.2.0127</b>
-            <ul>
-                <li>Generic database support (Experimental)
-                <li>Support for latest IDE EAP versions
-                <li>Bug fixes and performance improvements
-            </ul>
-            <li><b>3.1.1432</b>
-            <ul>
-                <li>Fixed issue with built-in driver libraries
-                <li>Memory cleanup strategy redesign
-                <li>Bug fixes and performance improvements
-            </ul>
-            <li><b>3.1.1245</b>
-            <ul>
-                <li>Fixed PosgreSQL language issues
-                <li>Optimized Oracle meta-data interface for large databases
-                <li>SQLite data editor issues
-                <li>Optimized database connectivity and background operations
-                <li>Support for latest IDE EAP versions
-                <li>Discontinued support for IntelliJ 14.x and related products
-                <li>Bug fixes and performance improvements
-            </ul>
-            <li><b>3.1.0231</b>
-            <ul>
-                <li>Support for latest IDE versions
-                <li>Discontinued support for IntelliJ 13.x and related products
-                <li>Small bug fixes and performance improvements
-                <li><span style='color:red; font-weight: bold'>JRE 8.x or higher required</span>
-            </ul>
-            <li><b>3.0.8222</b>
-            <ul>
-                <li>Resolved JDWP debugger initialization issues
-                <li>Memory footprint optimization
-                <li>Resource manager dialog (alpha)
-                <li>Bug fixes
-            </ul>
-            <li><b>3.0.8142 (beta)</b>
-            <ul>
-                <li>Connectivity status indicator
-                <li>Session management (dedicated connectivity)
-                <li>Redesigned resource management
-                <li>Resource monitor dialog (work in progress - not released)
-                <li>Spellchecker enhancements (configurable levels)
-                <li>Important stability and performance improvements
-            </ul>
-            <li><b>3.0.7621</b>
-            <ul>
-                <li>Parallel / asynchronous statement execution (using pool connections)
-                <li>Data grid column info tooltips
-                <li>Stability and cosmetic improvements
-            </ul>
-            <li><b>3.0.7248</b>
-            <ul>
-                <li>Support for latest IDE EAP versions
-                <li>Source editor breadcrumbs
-                <li>Data editor - qualified CLOB / TEXT editor
-                <li>Bug fixes and performance improvements
-            </ul>
-            <li><b>3.0.6893</b>
-            <ul>
-                <li>Support for latest IDE releases
-                <li>Workspace restore option
-                <li>Spellchecking support for database file editors
-                <li>Bug fixes and cosmetics
-            </ul>
-            <li><b>3.0.6112</b>
-            <ul>
-                <li>More accurate transaction status handling
-                <li>Readonly pool connections for metadata load
-                <li>Fixed SQLite meta-data issues
-                <li>Support for latest IDE releases
-                <li>Optimizations: more responsive code editors
-                <li>Bug fixes
-            </ul>
-            <li><b>3.0.5866</b>
-            <ul>
-                <li>Fixed SQLite connection issues with Mac OSX
-                <li>Amazon Redshift connectivity support
-                <li>Support for latest IDE releases
-                <li>Memory optimizations
-                <li>Bug fixes
-            </ul>
-            <li><b>3.0.5723</b>
-            <ul>
-                <li>SQLite support
-                <li>Multiple attached databases (sqlite)
-                <li>General bug fixes
-            </ul>
-            <li><b>3.0.5111</b>
-            <ul>
-                <li>Support for latest IDE EAP versions
-                <li>Request tracker move to JIRA
-                <li>Bug fixes and performance improvements
-            </ul>
-            <li><b>3.0.5023</b>
-            <ul>
-                <li>Environment types - editing control for code and data
-                <li>"Cancel" action for unresponsive loads in data editors
-                <li>Outdated sources notification
-                <li>Configurable default editors
-                <li>Recover connections after statement execution errors (MySQL, PostgreSQL)
-                <li>Recover dataset editor after edit errors (MySQL, PostgreSQL)
-                <li>JDWP debugger stability improvements
                 <li>Bug fixes
             </ul>
         </ul>
