@@ -11,6 +11,7 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.project.Projects;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
+import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionBundleSettings;
@@ -28,6 +29,8 @@ import com.dbn.options.ui.ProjectSettingsDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
+import com.oracle.oci.intellij.api.ext.UIModelContext;
+import com.oracle.oci.intellij.api.oci.OCIDatabase;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
@@ -119,9 +122,18 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
     public void createConnection(@NotNull DatabaseType databaseType, @NotNull ConnectionConfigType configType) {
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), databaseType, configType));
     }
-        // this is the one that we are going to open
+
+    public void createConnection(DatabaseType databaseType, ConnectionConfigType connectionConfigType, UIModelContext uiModelContext) {
+        Dialogs.show(() -> new ProjectSettingsDialog(getProject(), databaseType, connectionConfigType, uiModelContext));
+
+    }
+
     public void createConnections(TnsImportData importData) {
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), importData));
+    }
+    // opened from oci-toolkit
+    public void createConnections(TnsImportData importData, UIModelContext database, AuthenticationType authenticationType) {
+        Dialogs.show(() -> new ProjectSettingsDialog(getProject(), importData,database,authenticationType));
     }
 
     /****************************************
@@ -197,4 +209,6 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
                     }));
         }
     }
+
+
 }

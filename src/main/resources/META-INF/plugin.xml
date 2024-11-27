@@ -987,7 +987,7 @@
 
     </extensions>
     <extensions defaultExtensionNs="com.oracle.ocidbtest">
-        <contributeADBAction implementation="com.dbn.oci.ext.ContributeADBActionsImpl" />
+        <contributeADBAction implementation="com.dbn.oci.ContributeADBActionsImpl" />
 
     </extensions>
     <helpset file="help.jar" path="/Help.hs"/>
