@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.connection.transaction;
 
 import com.dbn.common.component.ApplicationMonitor;
@@ -11,7 +27,11 @@ import com.dbn.common.thread.ProgressRunnable;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Messages;
-import com.dbn.connection.*;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionHandlerStatusListener;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionManager;
+import com.dbn.connection.ConnectionType;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.resource.ui.ResourceMonitorDialog;
 import com.dbn.connection.session.DatabaseSession;
@@ -36,7 +56,12 @@ import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.util.Commons.list;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Lists.isLast;
-import static com.dbn.connection.transaction.TransactionAction.*;
+import static com.dbn.connection.transaction.TransactionAction.COMMIT;
+import static com.dbn.connection.transaction.TransactionAction.DISCONNECT;
+import static com.dbn.connection.transaction.TransactionAction.ROLLBACK;
+import static com.dbn.connection.transaction.TransactionAction.TURN_AUTO_COMMIT_OFF;
+import static com.dbn.connection.transaction.TransactionAction.TURN_AUTO_COMMIT_ON;
+import static com.dbn.connection.transaction.TransactionAction.actions;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class DatabaseTransactionManager extends ProjectComponentBase implements ProjectManagerListener {

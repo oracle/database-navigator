@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.language.common.psi;
 
 import com.dbn.common.consumer.SetCollector;
@@ -19,7 +35,12 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiComment;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.PsiWhiteSpace;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -161,7 +182,7 @@ public class PsiUtil {
         while (element != null && !(element instanceof PsiFile)) {
             if (element instanceof BasePsiElement) {
                 BasePsiElement basePsiElement = (BasePsiElement) element;
-                if (basePsiElement.getElementType().is(typeAttribute)) {
+                if (basePsiElement.elementType.is(typeAttribute)) {
                     return basePsiElement;
                 }
             }
@@ -338,7 +359,7 @@ public class PsiUtil {
     public static ElementType getElementType(PsiElement psiElement) {
         if (psiElement instanceof BasePsiElement) {
             BasePsiElement<?> basePsiElement = (BasePsiElement<?>) psiElement;
-            return basePsiElement.getElementType();
+            return basePsiElement.elementType;
         }
         return null;
     }

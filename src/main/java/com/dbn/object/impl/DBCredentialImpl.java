@@ -1,6 +1,21 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.object.impl;
 
-import com.dbn.assistant.credential.remote.CredentialManagementService;
 import com.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBCredentialMetadata;
@@ -8,8 +23,8 @@ import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
-import com.dbn.object.common.operation.DBOperationExecutor;
 import com.dbn.object.common.status.DBObjectStatus;
+import com.dbn.object.type.DBAttributeType;
 import com.dbn.object.type.DBCredentialType;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
@@ -27,14 +42,14 @@ public class DBCredentialImpl extends DBSchemaObjectImpl<DBCredentialMetadata> i
     private DBCredentialType type;
     private String userName;
     private String comments;
-    private final Map<String, String> attributes = new HashMap<>();
+    private final Map<DBAttributeType, String> attributes = new HashMap<>();
 
     public DBCredentialImpl(DBSchema parent, String name, DBCredentialType type, boolean enabled) throws SQLException {
-        super(parent, newCredentialMetadata(name, type, enabled));
+        super(parent, new DBCredentialMetadata.Record(name, type.name(), "", "", enabled));
     }
 
-    DBCredentialImpl(DBSchema parent, DBCredentialMetadata resultSet) throws SQLException {
-        super(parent, resultSet);
+    DBCredentialImpl(DBSchema parent, DBCredentialMetadata metadata) throws SQLException {
+        super(parent, metadata);
     }
 
     @Override
@@ -67,12 +82,12 @@ public class DBCredentialImpl extends DBSchemaObjectImpl<DBCredentialMetadata> i
     }
 
     @Override
-    public void setAttribute(String key, String value) {
-        attributes.put(key, value);
+    public void setAttribute(DBAttributeType attr, String value) {
+        attributes.put(attr, value);
     }
 
-    public String getAttribute(String key) {
-        return attributes.get(key);
+    public String getAttribute(DBAttributeType attr) {
+        return attributes.get(attr);
     }
 
     @Override
@@ -80,48 +95,6 @@ public class DBCredentialImpl extends DBSchemaObjectImpl<DBCredentialMetadata> i
         ttb.append(true, getObjectType().getName(), true);
         ttb.createEmptyRow();
         super.buildToolTip(ttb);
-    }
-
-    @Override
-    public DBOperationExecutor getOperationExecutor() {
-        return operationType -> {
-            CredentialManagementService managementService = CredentialManagementService.getInstance(getProject());
-            ConnectionHandler connection = getConnection();
-            switch (operationType) {
-                case ENABLE:  managementService.enableCredential(this, null); break;
-                case DISABLE: managementService.disableCredential(this, null); break;
-            }
-        };
-    }
-
-
-    private static @NotNull DBCredentialMetadata newCredentialMetadata(String name, DBCredentialType type, boolean enabled) {
-        return new DBCredentialMetadata() {
-            @Override
-            public String getCredentialName() throws SQLException {
-                return name;
-            }
-
-            @Override
-            public String getCredentialType() throws SQLException {
-                return type.name();
-            }
-
-            @Override
-            public String getUserName() throws SQLException {
-                return "";
-            }
-
-            @Override
-            public String getComments() throws SQLException {
-                return "";
-            }
-
-            @Override
-            public boolean isEnabled() throws SQLException {
-                return enabled;
-            }
-        };
     }
 
     /*********************************************************

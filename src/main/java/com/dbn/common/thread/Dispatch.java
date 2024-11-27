@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.common.thread;
 
 import com.dbn.common.dispose.Failsafe;
@@ -11,11 +27,11 @@ import com.intellij.util.Alarm;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-import static com.dbn.common.ui.util.UserInterface.whenShown;
+import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Commons.nvl;
 import static com.intellij.openapi.application.ApplicationManager.getApplication;
 
@@ -40,8 +56,9 @@ public final class Dispatch {
     }
 
     public static void run(ModalityState modalityState, Runnable runnable) {
+        ThreadInfo invoker = ThreadInfo.copy();
         modalityState = nvl(modalityState, () -> ModalityState.defaultModalityState());
-        getApplication().invokeLater(() -> Failsafe.guarded(() -> runnable.run()), modalityState);
+        getApplication().invokeLater(() -> ThreadMonitor.surround(invoker, null, () -> Failsafe.guarded(() -> runnable.run())), modalityState);
     }
 
     public static <T, E extends Throwable> T call(boolean conditional, ThrowableCallable<T, E> callable) throws E{
@@ -58,7 +75,7 @@ public final class Dispatch {
             return;
         }
         // invoke when component is shown and the modality state is known
-        whenShown(component, () -> background(project, component, supplier, consumer));
+        whenFirstShown(component, () -> background(project, component, supplier, consumer));
     }
 
     private static <T> void background(Project project, JComponent component, Supplier<T> supplier, Consumer<T> consumer) {
@@ -70,11 +87,12 @@ public final class Dispatch {
     }
 
     public static <T, E extends Throwable> T call(ThrowableCallable<T, E> callable) throws E{
+        ThreadInfo invoker = ThreadInfo.copy();
         ModalityState modalityState = ModalityState.defaultModalityState();
         AtomicReference<T> resultRef = new AtomicReference<>();
         AtomicReference<E> exceptionRef = new AtomicReference<>();
         getApplication().invokeAndWait(() -> {
-            T result = null;
+            T result;
             try {
                 result = callable.call();
                 resultRef.set(result);
@@ -82,7 +100,6 @@ public final class Dispatch {
                 Diagnostics.conditionallyLog(e);
                 exceptionRef.set((E) e);
             }
-
         }, modalityState);
         if (exceptionRef.get() != null) {
             throw exceptionRef.get();

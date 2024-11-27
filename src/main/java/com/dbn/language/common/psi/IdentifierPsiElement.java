@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.language.common.psi;
 
 import com.dbn.code.common.style.formatting.FormattingAttributes;
@@ -12,12 +28,20 @@ import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.QualifiedIdentifierVariant;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.element.util.IdentifierType;
-import com.dbn.language.common.psi.lookup.*;
+import com.dbn.language.common.psi.lookup.IdentifierLookupAdapter;
+import com.dbn.language.common.psi.lookup.LookupAdapters;
+import com.dbn.language.common.psi.lookup.ObjectDefinitionLookupAdapter;
+import com.dbn.language.common.psi.lookup.ObjectReferenceLookupAdapter;
+import com.dbn.language.common.psi.lookup.PsiLookupAdapter;
 import com.dbn.language.common.resolve.AliasObjectResolver;
 import com.dbn.language.common.resolve.SurroundingVirtualObjectResolver;
 import com.dbn.language.common.resolve.UnderlyingObjectResolver;
 import com.dbn.object.DBSchema;
-import com.dbn.object.common.*;
+import com.dbn.object.common.DBObject;
+import com.dbn.object.common.DBObjectBundle;
+import com.dbn.object.common.DBObjectPsiCache;
+import com.dbn.object.common.DBObjectPsiElement;
+import com.dbn.object.common.DBVirtualObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.lang.ASTNode;
@@ -28,7 +52,7 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -136,7 +160,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
 
     @Override
     public void collectSubjectPsiElements(@NotNull Consumer<IdentifierPsiElement> consumer) {
-        if (getElementType().is(ElementTypeAttribute.SUBJECT)) {
+        if (elementType.is(ElementTypeAttribute.SUBJECT)) {
             consumer.accept(this);
         }
     }
@@ -150,39 +174,39 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
      *********************************************************/
 
     public boolean isObject() {
-        return getElementType().isObject();
+        return elementType.isObject();
     }
 
     public boolean isAlias() {
-        return getElementType().isAlias();
+        return elementType.isAlias();
     }
 
     public boolean isVariable() {
-        return getElementType().isVariable();
+        return elementType.isVariable();
     }
 
     public boolean isDefinition() {
-        return getElementType().isDefinition();
+        return elementType.isDefinition();
     }
 
     public boolean isSubject() {
-        return getElementType().isSubject();
+        return elementType.isSubject();
     }
 
     public boolean isReference() {
-        return getElementType().isReference();
+        return elementType.isReference();
     }
     
     public boolean isReferenceable() {
-        return getElementType().isReferenceable();
+        return elementType.isReferenceable();
     }
 
     public boolean isObjectOfType(DBObjectType objectType) {
-        return getElementType().isObjectOfType(objectType);
+        return elementType.isObjectOfType(objectType);
     }
 
     public boolean isLocalReference() {
-        return getElementType().isLocalReference();
+        return elementType.isLocalReference();
     }
 
     public boolean isQualifiedIdentifierMember() {
@@ -197,11 +221,11 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
                 return objectType;
             }
         }
-        return getElementType().getObjectType();
+        return elementType.getObjectType();
     }
 
     public String getObjectTypeName() {
-        return getElementType().getObjectTypeName();
+        return elementType.getObjectTypeName();
     }
 
     /**
@@ -228,7 +252,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
 
 
     private DBObject loadUnderlyingObject() {
-        UnderlyingObjectResolver underlyingObjectResolver = getElementType().getUnderlyingObjectResolver();
+        UnderlyingObjectResolver underlyingObjectResolver = elementType.getUnderlyingObjectResolver();
         if (underlyingObjectResolver != null) {
             return underlyingObjectResolver.resolve(this);
         }
@@ -264,7 +288,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
 
     @Override
     public BasePsiElement findPsiElementBySubject(ElementTypeAttribute attribute, CharSequence subjectName, DBObjectType subjectType) {
-        if (getElementType().is(attribute) && getElementType().is(ElementTypeAttribute.SUBJECT)) {
+        if (elementType.is(attribute) && elementType.is(ElementTypeAttribute.SUBJECT)) {
             if (subjectType == getObjectType() && Strings.equalsIgnoreCase(subjectName, this.getChars())) {
                 return this;
             }
@@ -436,7 +460,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
 
         ref.setParent(parent);
         ref.setReference(DBObjectPsiCache.asPsiElement(referenceObject));
-        this.setElementType(elementType);
+        this.elementType = elementType;
         return true;
     }
 
@@ -445,7 +469,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
 
         ref.setParent(parent);
         ref.setReference(referencedElement);
-        this.setElementType(elementType);
+        this.elementType = elementType;
         return true;
     }
 
@@ -510,7 +534,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
                     QualifiedIdentifierPsiElement qualifiedIdentifier = (QualifiedIdentifierPsiElement) getParent();
                     resolveWithinQualifiedIdentifierElement(qualifiedIdentifier);
                 } else {
-                    resolveWithScopeParentLookup(getObjectType(), getElementType());
+                    resolveWithScopeParentLookup(getObjectType(), elementType);
                 }
             }
         } catch (ProcessCanceledException e){
@@ -590,7 +614,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
     }
 
     public IdentifierType getIdentifierType() {
-        return getElementType().getIdentifierType();
+        return elementType.identifierType;
     }
 
     public void findQualifiedUsages(Consumer<BasePsiElement> consumer) {

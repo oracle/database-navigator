@@ -1,16 +1,46 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.code.common.style.formatting;
 
 import com.dbn.code.common.style.options.CodeStyleFormattingSettings;
 import com.dbn.code.common.style.options.DBLCodeStyleSettings;
 import com.dbn.code.common.style.presets.CodeStyleDefaultPresets;
 import com.dbn.code.common.style.presets.CodeStylePreset;
-import com.dbn.language.common.*;
-import com.dbn.language.common.psi.*;
-import com.dbn.language.common.*;
+import com.dbn.language.common.DBLanguage;
+import com.dbn.language.common.DBLanguagePsiFile;
+import com.dbn.language.common.PsiElementRef;
+import com.dbn.language.common.SharedTokenTypeBundle;
+import com.dbn.language.common.SimpleTokenType;
+import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.impl.WrapperElementType;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
-import com.intellij.formatting.*;
+import com.dbn.language.common.psi.BasePsiElement;
+import com.dbn.language.common.psi.ChameleonPsiElement;
+import com.dbn.language.common.psi.IdentifierPsiElement;
+import com.dbn.language.common.psi.NamedPsiElement;
+import com.dbn.language.common.psi.PsiUtil;
+import com.dbn.language.common.psi.TokenPsiElement;
+import com.intellij.formatting.Alignment;
+import com.intellij.formatting.Block;
+import com.intellij.formatting.ChildAttributes;
+import com.intellij.formatting.Indent;
+import com.intellij.formatting.Spacing;
+import com.intellij.formatting.Wrap;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
@@ -115,10 +145,10 @@ public class FormattingBlock implements Block {
             if (psiElement instanceof BasePsiElement) {
                 BasePsiElement basePsiElement = (BasePsiElement) psiElement;
                 BasePsiElement parentPsiElement = getParentPsiElement(basePsiElement);
-                if (parentPsiElement != null && parentPsiElement.getElementType() instanceof WrapperElementType) {
-                    WrapperElementType wrapperElementType = (WrapperElementType) parentPsiElement.getElementType();
+                if (parentPsiElement != null && parentPsiElement.elementType instanceof WrapperElementType) {
+                    WrapperElementType wrapperElementType = (WrapperElementType) parentPsiElement.elementType;
                     SharedTokenTypeBundle sharedTokenTypes = parentPsiElement.getLanguage().getSharedTokenTypes();
-                    if (wrapperElementType.getBeginTokenElement().getTokenType() == sharedTokenTypes.getChrLeftParenthesis()) {
+                    if (wrapperElementType.getBeginTokenElement().tokenType == sharedTokenTypes.getChrLeftParenthesis()) {
                         //FormattingBlock parentStatementBlock = getParentBlock(this, ElementTypeAttribute.STATEMENT);
                         //Indent parentStatementIndent = parentStatementBlock.getIndent();
                         //return Indent.getIndent(Indent.Type.SPACES, -1, false, false);
@@ -285,7 +315,7 @@ public class FormattingBlock implements Block {
             PsiElement psiElement = block.parentBlock.getPsiElement();
             if (psiElement instanceof BasePsiElement) {
                 BasePsiElement basePsiElement = (BasePsiElement) psiElement;
-                if (basePsiElement.getElementType().is(typeAttribute)) {
+                if (basePsiElement.elementType.is(typeAttribute)) {
                     return block.parentBlock;
                 }
                 return getParentBlock(block.parentBlock, typeAttribute);
@@ -298,7 +328,7 @@ public class FormattingBlock implements Block {
     private static ElementType getParentElementType(PsiElement psiElement) {
         BasePsiElement parentPsiElement = getParentPsiElement(psiElement);
         if (parentPsiElement != null) {
-            return parentPsiElement.getElementType();
+            return parentPsiElement.elementType;
         }
         return null;
     }

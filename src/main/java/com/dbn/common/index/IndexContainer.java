@@ -1,20 +1,32 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.common.index;
 
 import com.dbn.common.util.Compactable;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.coverage.gnu.trove.TIntHashSet;
-import org.jetbrains.coverage.gnu.trove.TIntIterator;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
-
 @Slf4j
 public class IndexContainer<T extends Indexable> implements Compactable {
-    private final TIntHashSet INDEX = new TIntHashSet();
+    private final IndexCollection INDEX = new IndexCollection();
 
     public void add(T element) {
         INDEX.add(element.index());
@@ -25,13 +37,7 @@ public class IndexContainer<T extends Indexable> implements Compactable {
     }
 
     public boolean contains(T indexable) {
-        try {
-            return INDEX.contains(indexable.index());
-        } catch (Throwable e) {
-            // TODO workaround - IOOBE, NPE happens in parser lookup caches (probably due to latent background initialization)
-            conditionallyLog(e);
-            return false;
-        }
+        return INDEX.contains(indexable.index());
     }
 
     public Set<T> elements(IndexResolver<T> resolver) {
@@ -39,18 +45,12 @@ public class IndexContainer<T extends Indexable> implements Compactable {
             return Collections.emptySet();
         } else {
             Set<T> elements = new HashSet<>(INDEX.size());
-            try {
-                TIntIterator iterator = INDEX.iterator();
-                while (iterator.hasNext()) {
-                    int next = iterator.next();
-                    T element = resolver.apply(next);
-                    if (element != null) {
-                        elements.add(element);
-                    }
+            int[] values = INDEX.values();
+            for (int value : values) {
+                T element = resolver.apply(value);
+                if (element != null) {
+                    elements.add(element);
                 }
-            } catch (Throwable e) {
-                // TODO workaround - IOOBE, NPE happens in parser lookup caches (probably due to latent background initialization)
-                conditionallyLog(e);
             }
             return elements;
         }
@@ -58,7 +58,7 @@ public class IndexContainer<T extends Indexable> implements Compactable {
 
     @Override
     public void compact() {
-        INDEX.trimToSize();
+        //INDEX.trimToSize();
     }
 
     public void addAll(Collection<T> elements) {

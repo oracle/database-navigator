@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.language.common.parameter;
 
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
@@ -35,20 +51,20 @@ public class ColumnParameterInfoHandler implements ParameterInfoHandler<BasePsiE
             int offset = context.getOffset();
             BasePsiElement iterationPsiElement = handlerPsiElement.findFirstPsiElement(IterationElementType.class);
             if (iterationPsiElement != null) {
-                IterationElementType iterationElementType = (IterationElementType) iterationPsiElement.getElementType();
+                IterationElementType iterationElementType = (IterationElementType) iterationPsiElement.elementType;
                 PsiElement paramPsiElement = iterationPsiElement.getFirstChild();
                 BasePsiElement iteratedPsiElement = null;
                 while (paramPsiElement != null) {
                     ElementType elementType = PsiUtil.getElementType(paramPsiElement);
                     if (elementType instanceof TokenElementType) {
                         TokenElementType tokenElementType = (TokenElementType) elementType;
-                        if (iterationElementType.isSeparator(tokenElementType.getTokenType())){
+                        if (iterationElementType.isSeparator(tokenElementType.tokenType)){
                             if (paramPsiElement.getTextOffset() >= offset) {
                                 break;
                             }
                         }
                     }
-                    if (elementType == iterationElementType.getIteratedElementType()) {
+                    if (elementType == iterationElementType.iteratedElementType) {
                         iteratedPsiElement = (BasePsiElement) paramPsiElement;
                     }
 
@@ -109,7 +125,7 @@ public class ColumnParameterInfoHandler implements ParameterInfoHandler<BasePsiE
         if (handlerPsiElement != null) {
             BasePsiElement iterationPsiElement = handlerPsiElement.findFirstPsiElement(IterationElementType.class);
             if (iterationPsiElement != null) {
-                IterationElementType iterationElementType = (IterationElementType) iterationPsiElement.getElementType();
+                IterationElementType iterationElementType = (IterationElementType) iterationPsiElement.elementType;
                 PsiElement paramPsiElement = iterationPsiElement.getFirstChild();
                 int paramIndex = -1;
                 BasePsiElement iteratedPsiElement = null;
@@ -117,7 +133,7 @@ public class ColumnParameterInfoHandler implements ParameterInfoHandler<BasePsiE
                     ElementType elementType = PsiUtil.getElementType(paramPsiElement);
                     if (elementType instanceof TokenElementType) {
                         TokenElementType tokenElementType = (TokenElementType) elementType;
-                        if (iterationElementType.isSeparator(tokenElementType.getTokenType())){
+                        if (iterationElementType.isSeparator(tokenElementType.tokenType)){
                             if (paramPsiElement.getTextOffset() >= offset) {
                                 break;
                             }
@@ -144,12 +160,12 @@ public class ColumnParameterInfoHandler implements ParameterInfoHandler<BasePsiE
     public void updateParameterInfo(@NotNull BasePsiElement parameter, @NotNull UpdateParameterInfoContext context) {
         BasePsiElement wrappedPsiElement = getWrappedPsiElement(context);
         if (wrappedPsiElement != null) {
-            IterationElementType iterationElementType = (IterationElementType) wrappedPsiElement.getElementType();
+            IterationElementType iterationElementType = (IterationElementType) wrappedPsiElement.elementType;
             int index = 0;
             PsiElement paramPsiElement = wrappedPsiElement.getFirstChild();
             while (paramPsiElement != null) {
                 ElementType elementType = PsiUtil.getElementType(paramPsiElement);
-                if (elementType == iterationElementType.getIteratedElementType()) {
+                if (elementType == iterationElementType.iteratedElementType) {
                     if (paramPsiElement == parameter) {
                         context.setCurrentParameter(index);
                         return;
@@ -187,12 +203,12 @@ public class ColumnParameterInfoHandler implements ParameterInfoHandler<BasePsiE
             int currentIndex = context.getCurrentParameterIndex();
             BasePsiElement iterationPsiElement = handlerPsiElement.findFirstPsiElement(IterationElementType.class);
             if (iterationPsiElement != null && iterationPsiElement.isValid()) {
-                IterationElementType iterationElementType = (IterationElementType) iterationPsiElement.getElementType();
+                IterationElementType iterationElementType = (IterationElementType) iterationPsiElement.elementType;
                 PsiElement child = iterationPsiElement.getFirstChild();
                 while (child != null) {
                     if (child instanceof BasePsiElement) {
                         BasePsiElement basePsiElement = (BasePsiElement) child;
-                        if (basePsiElement.getElementType() == iterationElementType.getIteratedElementType()) {
+                        if (basePsiElement.elementType == iterationElementType.iteratedElementType) {
                             boolean highlight = index == currentIndex || (index == 0 && currentIndex == -1);
                             if (highlight) {
                                 highlightStartOffset = text.length();

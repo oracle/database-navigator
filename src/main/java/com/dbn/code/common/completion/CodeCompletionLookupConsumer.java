@@ -1,7 +1,27 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.code.common.completion;
 
 import com.dbn.code.common.completion.options.filter.CodeCompletionFilterSettings;
-import com.dbn.code.common.lookup.*;
+import com.dbn.code.common.lookup.AliasLookupItemBuilder;
+import com.dbn.code.common.lookup.BasicLookupItemBuilder;
+import com.dbn.code.common.lookup.IdentifierLookupItemBuilder;
+import com.dbn.code.common.lookup.LookupItemBuilder;
+import com.dbn.code.common.lookup.VariableLookupItemBuilder;
 import com.dbn.common.consumer.CancellableConsumer;
 import com.dbn.common.util.Strings;
 import com.dbn.language.common.DBLanguage;
@@ -53,7 +73,7 @@ public class CodeCompletionLookupConsumer implements CancellableConsumer<Object>
                     CodeCompletionFilterSettings filterSettings = context.getCodeCompletionFilterSettings();
                     TokenTypeCategory tokenTypeCategory = tokenElementType.getTokenTypeCategory();
                     if (tokenTypeCategory == TokenTypeCategory.OBJECT) {
-                        TokenType tokenType = tokenElementType.getTokenType();
+                        TokenType tokenType = tokenElementType.tokenType;
                         DBObjectType objectType = tokenType.getObjectType();
                         if (objectType != null && filterSettings.acceptsRootObject(objectType)) {
                             lookupItemBuilder = new BasicLookupItemBuilder(

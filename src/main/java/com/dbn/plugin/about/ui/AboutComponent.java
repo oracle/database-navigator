@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.plugin.about.ui;
 
 import com.dbn.DatabaseNavigator;
@@ -15,8 +31,9 @@ import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.Cursor;
 
 public class AboutComponent extends DBNFormBase {
     public static final String PAYPAL_URL = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3QAPZFCCARA4J";
@@ -25,9 +42,9 @@ public class AboutComponent extends DBNFormBase {
     private JLabel downloadPageLinkLabel;
     private JLabel supportPageLinkLabel;
     private JLabel requestTrackerPageLinkLabel;
-    private JLabel buildLabel;
     private JPanel linksPanel;
     private JLabel versionLabel;
+    private JLabel supportPageLabel;
 
     public AboutComponent(Project project) {
         super(null, project);
@@ -47,6 +64,10 @@ public class AboutComponent extends DBNFormBase {
         supportPageLinkLabel.addMouseListener(Mouse.listener().onClick(e ->
                 BrowserUtil.browse("http://confluence.jetbrains.com/display/CONTEST/Database+Navigator")));
 
+        // TODO support page no longer available
+        supportPageLabel.setVisible(false);
+        supportPageLinkLabel.setVisible(false);
+
         requestTrackerPageLinkLabel.setForeground(CodeInsightColors.HYPERLINK_ATTRIBUTES.getDefaultAttributes().getForegroundColor());
         requestTrackerPageLinkLabel.setCursor(handCursor);
         requestTrackerPageLinkLabel.addMouseListener(Mouse.listener().onClick(e ->
@@ -54,8 +75,9 @@ public class AboutComponent extends DBNFormBase {
 
         IdeaPluginDescriptor ideaPluginDescriptor = DatabaseNavigator.getPluginDescriptor();
         String version = ideaPluginDescriptor.getVersion();
-        versionLabel.setText("Version: " + version.substring(0, 3));
-        buildLabel.setText("Build: " + version.substring(4, 8));
+        version = version.substring(0, version.lastIndexOf(".")); // remove the compatibility qualifier
+
+        versionLabel.setText("Version: " + version);
     }
 
     @NotNull

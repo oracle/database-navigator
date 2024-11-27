@@ -1,11 +1,26 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.language.common.element.cache;
 
+import com.dbn.language.common.TokenType;
+import com.dbn.language.common.element.impl.IterationElementType;
 import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.TokenElementType;
 import com.dbn.language.common.element.impl.WrappingDefinition;
-import com.dbn.language.common.TokenType;
-import com.dbn.language.common.element.ElementType;
-import com.dbn.language.common.element.impl.IterationElementType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
@@ -70,9 +85,9 @@ public class IterationElementTypeLookupCache extends ElementTypeLookupCache<Iter
     public Set<LeafElementType> getFirstPossibleLeafs() {
         Set<LeafElementType> firstPossibleLeafs = initBucket(null);
         firstPossibleLeafs.addAll(getIteratedElementLookupCache().getFirstPossibleLeafs());
-        WrappingDefinition wrapping = elementType.getWrapping();
+        WrappingDefinition wrapping = elementType.wrapping;
         if (wrapping != null) {
-            firstPossibleLeafs.add(wrapping.getBeginElementType());
+            firstPossibleLeafs.add(wrapping.beginElementType);
         }
         return firstPossibleLeafs;
     }
@@ -84,9 +99,9 @@ public class IterationElementTypeLookupCache extends ElementTypeLookupCache<Iter
 
     @Override
     public boolean isFirstPossibleLeaf(LeafElementType elementType) {
-        WrappingDefinition wrapping = this.elementType.getWrapping();
+        WrappingDefinition wrapping = this.elementType.wrapping;
         if (wrapping != null) {
-            if (wrapping.getBeginElementType() == elementType) {
+            if (wrapping.beginElementType == elementType) {
                 return true;
             }
         }
@@ -126,10 +141,6 @@ public class IterationElementTypeLookupCache extends ElementTypeLookupCache<Iter
     }
 
     private ElementTypeLookupCache<?> getIteratedElementLookupCache() {
-        return getIteratedElementType().getLookupCache();
-    }
-
-    private ElementType getIteratedElementType() {
-        return elementType.getIteratedElementType();
+        return elementType.iteratedElementType.cache;
     }
 }

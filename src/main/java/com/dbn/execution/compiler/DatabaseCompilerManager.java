@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.execution.compiler;
 
 import com.dbn.common.component.ProjectComponentBase;
@@ -23,6 +39,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -196,13 +213,20 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
         String objectName = object.getName();
         String objectTypeName = cachedUpperCase(object.getTypeName());
 
-        if (contentType == DBContentType.CODE_SPEC || contentType == DBContentType.CODE) {
+        if (object.getObjectType() == DBObjectType.JAVA_CLASS) {
+            metadata.compileJavaClass(
+                    schemaName,
+                    objectName,
+                    conn);
+
+        } else if (contentType == DBContentType.CODE_SPEC || contentType == DBContentType.CODE) {
             metadata.compileObject(
                     schemaName,
                     objectName,
                     objectTypeName,
                     debug,
                     conn);
+
         } else if (contentType == DBContentType.CODE_BODY) {
             metadata.compileObjectBody(
                     schemaName,

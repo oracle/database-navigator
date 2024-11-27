@@ -1,15 +1,17 @@
 /*
- * Copyright (c) 2024, Oracle and/or its affiliates.
+ * Copyright 2024 Oracle and/or its affiliates
  *
- * This software is dual-licensed to you under the Universal Permissive License
- * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
- * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
- * either license.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and limitations under the License.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.dbn.common.outcome;
@@ -20,10 +22,11 @@ import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Standard implementation of an {@link OutcomeHandlers} bundle
@@ -38,7 +41,7 @@ public final class OutcomeHandlersImpl implements OutcomeHandlers {
 
     @Override
     public void addHandler(OutcomeType type, OutcomeHandler handler) {
-        handlers.computeIfAbsent(type, t -> new TreeSet<>()).add(handler);
+        handlers.computeIfAbsent(type, t -> new HashSet<>()).add(handler);
     }
 
     @Override
@@ -56,7 +59,7 @@ public final class OutcomeHandlersImpl implements OutcomeHandlers {
         Set<OutcomeHandler> handlers = getHandlers(outcome);
         if (handlers == null) return;
 
-        handlers.forEach(handler -> handleSafe(outcome, handler));
+        handlers.stream().sorted(Comparator.comparing(h -> h.getPriority())).forEach(handler -> handleSafe(outcome, handler));
     }
 
     private static void handleSafe(Outcome outcome, OutcomeHandler handler) {

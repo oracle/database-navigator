@@ -1,20 +1,36 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.language.common.element.cache;
 
+import com.dbn.common.index.IndexContainer;
+import com.dbn.common.latent.Latent;
 import com.dbn.language.common.SharedTokenTypeBundle;
+import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeBundle;
+import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.IdentifierElementType;
 import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.WrappingDefinition;
-import com.dbn.common.index.IndexContainer;
-import com.dbn.common.latent.Latent;
-import com.dbn.language.common.TokenType;
-import com.dbn.language.common.element.ElementType;
 
 import java.util.Set;
 
 import static com.dbn.common.util.Compactables.compact;
 
-public abstract class ElementTypeLookupCacheIndexed<T extends ElementType> extends ElementTypeLookupCache<T> {
+public abstract class ElementTypeLookupCacheIndexed<T extends ElementTypeBase> extends ElementTypeLookupCache<T> {
 
     private final IndexContainer<LeafElementType> allPossibleLeafs = new IndexContainer<>();
     protected final IndexContainer<LeafElementType> firstPossibleLeafs = new IndexContainer<>();
@@ -23,7 +39,7 @@ public abstract class ElementTypeLookupCacheIndexed<T extends ElementType> exten
     private final IndexContainer<TokenType> allPossibleTokens = new IndexContainer<>();
     private final IndexContainer<TokenType> firstPossibleTokens = new IndexContainer<>();
     private final IndexContainer<TokenType> firstRequiredTokens = new IndexContainer<>();
-    private final Latent<Boolean> startsWithIdentifier = Latent.basic(() -> checkStartsWithIdentifier());
+    private final Latent<Boolean> startsWithIdentifier = Latent.basic(() -> checkStartsWithIdentifier() ? Boolean.TRUE : Boolean.FALSE);
 
     ElementTypeLookupCacheIndexed(T elementType) {
         super(elementType);
@@ -110,22 +126,21 @@ public abstract class ElementTypeLookupCacheIndexed<T extends ElementType> exten
     }
 
     @Override
-    public void registerLeaf(LeafElementType leaf, ElementType source) {
+    public void registerLeaf(LeafElementType leaf, ElementTypeBase source) {
         boolean initAllElements = initAllElements(leaf);
         boolean initAsFirstPossibleLeaf = initAsFirstPossibleLeaf(leaf, source);
         boolean initAsFirstRequiredLeaf = initAsFirstRequiredLeaf(leaf, source);
 
         // register first possible leafs
-        ElementTypeLookupCache<?> lookupCache = leaf.getLookupCache();
         if (initAsFirstPossibleLeaf) {
             firstPossibleLeafs.add(leaf);
-            lookupCache.captureFirstPossibleTokens(firstPossibleTokens);
+            leaf.cache.captureFirstPossibleTokens(firstPossibleTokens);
         }
 
         // register first required leafs
         if (initAsFirstRequiredLeaf) {
             firstRequiredLeafs.add(leaf);
-            lookupCache.captureFirstPossibleTokens(firstRequiredTokens);
+            leaf.cache.captureFirstPossibleTokens(firstRequiredTokens);
         }
 
         if (initAllElements) {
@@ -138,7 +153,7 @@ public abstract class ElementTypeLookupCacheIndexed<T extends ElementType> exten
                 allPossibleTokens.add(sharedTokenTypes.getIdentifier());
                 allPossibleTokens.add(sharedTokenTypes.getQuotedIdentifier());
             } else {
-                allPossibleTokens.add(leaf.getTokenType());
+                allPossibleTokens.add(leaf.tokenType);
             }
         }
 
@@ -148,8 +163,8 @@ public abstract class ElementTypeLookupCacheIndexed<T extends ElementType> exten
         }
     }
 
-    abstract boolean initAsFirstPossibleLeaf(LeafElementType leaf, ElementType source);
-    abstract boolean initAsFirstRequiredLeaf(LeafElementType leaf, ElementType source);
+    abstract boolean initAsFirstPossibleLeaf(LeafElementType leaf, ElementTypeBase source);
+    abstract boolean initAsFirstRequiredLeaf(LeafElementType leaf, ElementTypeBase source);
     private boolean initAllElements(LeafElementType leafElementType) {
         return leafElementType != elementType && !allPossibleLeafs.contains(leafElementType);
     }
@@ -160,13 +175,13 @@ public abstract class ElementTypeLookupCacheIndexed<T extends ElementType> exten
 
     @Override
     public boolean startsWithIdentifier() {
-        return startsWithIdentifier.get();
+        return startsWithIdentifier.get() == Boolean.TRUE;
     }
 
     protected abstract boolean checkStartsWithIdentifier();
 
     boolean isWrapperBeginLeaf(LeafElementType leaf) {
-        WrappingDefinition wrapping = elementType.getWrapping();
-        return wrapping != null && wrapping.getBeginElementType() == leaf;
+        WrappingDefinition wrapping = elementType.wrapping;
+        return wrapping != null && wrapping.beginElementType == leaf;
     }
 }

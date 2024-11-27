@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.common.thread;
 
 import com.dbn.common.load.ProgressMonitor;
@@ -20,58 +36,50 @@ public class ThreadMonitor {
 
     @Nullable
     public static Project getProject() {
-        return ThreadInfo.current().getProject();
+        return null; //ThreadInfo.current().getProject();
     }
 
     public static <E extends Throwable> void surround(
-            @Nullable Project project,
             @Nullable ThreadProperty property,
             ThrowableRunnable<E> runnable) throws E {
 
-        surround(project, property, () -> {
+        surround(property, () -> {
             runnable.run();
             return null;
         });
     }
 
     public static <T, E extends Throwable> T surround(
-            @Nullable Project project,
             @Nullable ThreadProperty property,
             ThrowableCallable<T, E> callable) throws E {
         ThreadInfo threadInfo = ThreadInfo.current();
-        Project originalProject = threadInfo.getProject();
 
         try {
             if (property != null) threadInfo.set(property, true);
-            threadInfo.setProject(project);
             return callable.call();
         } finally {
             if (property != null) threadInfo.set(property, false);
-            threadInfo.setProject(originalProject);
         }
     }
 
 
     public static <E extends Throwable> void surround(
-            @Nullable Project project,
             @Nullable ThreadInfo invoker,
             @Nullable ThreadProperty property,
             ThrowableRunnable<E> runnable) throws E {
 
-        surround(project, invoker, property, () -> {
+        surround(invoker, property, () -> {
             runnable.run();
             return null;
         });
     }
 
     public static <T, E extends Throwable> T surround(
-            @Nullable Project project,
             @Nullable ThreadInfo invoker,
             @Nullable ThreadProperty property,
             ThrowableCallable<T, E> callable) throws E {
 
         ThreadInfo threadInfo = ThreadInfo.current();
-        Project originalProject = threadInfo.getProject();
 
         boolean originalProperty = false;
         AtomicInteger processCounter = null;
@@ -88,8 +96,6 @@ public class ThreadMonitor {
                 threadInfo.set(property, true);
             }
 
-            threadInfo.setProject(project);
-            threadInfo.setInvoker(invoker);
             return callable.call();
 
         } finally {
@@ -98,9 +104,6 @@ public class ThreadMonitor {
                 threadInfo.set(property, originalProperty);
             }
             threadInfo.unmerge(invoker);
-
-            threadInfo.setProject(originalProject);
-            threadInfo.setInvoker(null);
         }
     }
 

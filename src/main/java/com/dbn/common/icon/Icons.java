@@ -1,8 +1,25 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.common.icon;
 
 import com.dbn.common.latent.Latent;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.util.ScalableIcon;
+import com.intellij.ui.LayeredIcon;
 import com.intellij.ui.RowIcon;
 import com.intellij.util.IconUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -301,6 +318,16 @@ public class Icons {
     public static final Icon SESSION_DEBUG_TRANSACTIONAL  = load("/img/connection/SessionDebugTransactional.png");
 
 
+    public static final class Marker {
+        public static final Icon PIN = load("/img/marker/PinMark.svg");
+        public static final Icon NEW = load("/img/marker/NewMark.svg");
+        public static final Icon ERROR = load("/img/marker/ErrorMark.svg");
+        public static final Icon WARNING = load("/img/marker/WarningMark.svg");
+        public static final Icon RUNNABLE  = load("/img/marker/RunnableMark.svg");
+        public static final Icon STATIC  = load("/img/marker/StaticMark.svg");
+    }
+
+
     public static final Icon DB_ORACLE            = AllIcons.Providers.Oracle;
     public static final Icon DB_POSTGRESQL        = AllIcons.Providers.Postgresql;
     public static final Icon DB_MYSQL             = AllIcons.Providers.Mysql;
@@ -318,6 +345,9 @@ public class Icons {
 //    public static final Icon DBO_ARGUMENT_IN_OUT     = createRowIcon(DBO_ARGUMENT, COMMON_DIRECTION_IN_OUT);
 
 
+    public static final Icon DBO_AI_PROFILE                      = load("/img/object/profile/AIProfile.png");
+    public static final Icon DBO_AI_PROFILE_DISABLED             = load("/img/object/profile/AIProfileDisabled.png");
+    public static final Icon DBO_AI_PROFILES                     = load("/img/object/profile/AIProfiles.png");
     public static final Icon DBO_ATTRIBUTE                       = load("/img/object/Attribute.png");
     public static final Icon DBO_ATTRIBUTES                      = load("/img/object/Attributes.png");
     public static final Icon DBO_ARGUMENT                        = load("/img/object/Argument.png");
@@ -339,6 +369,12 @@ public class Icons {
     public static final Icon DBO_CONSTRAINT                      = load("/img/object/constraint/Constraint.svg");
     public static final Icon DBO_CONSTRAINT_DISABLED             = load("/img/object/constraint/ConstraintDisabled.svg");
     public static final Icon DBO_CONSTRAINTS                     = load("/img/object/constraint/Constraints.svg");
+    public static final Icon DBO_CERTIFICATE                     = load("/img/object/certificate/Certificate.svg");
+    public static final Icon DBO_CERTIFICATE_DISABLED            = load("/img/object/certificate/CertificateDisabled.svg");
+    public static final Icon DBO_CERTIFICATES                    = load("/img/object/certificate/Certificates.svg");
+    public static final Icon DBO_CREDENTIAL                      = load("/img/object/credential/Credential.svg");
+    public static final Icon DBO_CREDENTIAL_DISABLED             = load("/img/object/credential/CredentialDisabled.svg");
+    public static final Icon DBO_CREDENTIALS                     = load("/img/object/credential/Credentials.svg");
     public static final Icon DBO_DATABASE_LINK                   = load("/img/object/DatabaseLink.png");
     public static final Icon DBO_DATABASE_LINKS                  = load("/img/object/DatabaseLinks.png");
     public static final Icon DBO_DIMENSION                       = load("/img/object/Dimension.png");
@@ -350,8 +386,15 @@ public class Icons {
     public static final Icon DBO_INDEX                           = load("/img/object/index/Index.svg");
     public static final Icon DBO_INDEX_DISABLED                  = load("/img/object/index/IndexDisabled.svg");
     public static final Icon DBO_INDEXES                         = load("/img/object/index/Indexes.svg");
-    public static final Icon DBO_JAVA_CLASS                      = AllIcons.FileTypes.JavaClass;
-    public static final Icon DBO_JAVA_CLASSES                    = AllIcons.FileTypes.JavaClass;
+    public static final Icon DBO_JAVA_CLASS                      = load("/img/object/java/JavaClass.svg");
+    public static final Icon DBO_JAVA_CLASS_ABSTRACT             = load("/img/object/java/JavaClassAbstract.svg");
+    public static final Icon DBO_JAVA_CLASSES                    = load("/img/object/java/JavaClasses.svg");
+    public static final Icon DBO_JAVA_INTERFACE                  = load("/img/object/java/JavaInterface.svg");
+    public static final Icon DBO_JAVA_ENUMERATION                = load("/img/object/java/JavaEnumeration.svg");
+    public static final Icon DBO_JAVA_EXCEPTION                  = load("/img/object/java/JavaException.svg");
+    public static final Icon DBO_JAVA_METHOD                     = load("/img/object/java/JavaMethod.svg");
+    public static final Icon DBO_JAVA_METHODS                    = load("/img/object/java/JavaMethods.svg");
+    public static final Icon DBO_JAVA_METHOD_ABSTRACT            = load("/img/object/java/JavaMethodAbstract.svg");
     public static final Icon DBO_MATERIALIZED_VIEW               = load("/img/object/view/MaterializedView.svg");
     public static final Icon DBO_MATERIALIZED_VIEWS              = load("/img/object/view/MaterializedViews.svg");
     public static final Icon DBO_METHOD                          = load("/img/object/Method.png");
@@ -449,6 +492,22 @@ public class Icons {
             }
         }
         return icon;
+    }
+
+    public static Icon withWarningMarker(Icon base) {
+        return LayeredIcon.create(base, Icons.Marker.WARNING);
+    }
+
+    public static Icon withErrorMarker(Icon base) {
+        return LayeredIcon.create(base, Icons.Marker.ERROR);
+    }
+
+    public static Icon withStaticMarker(Icon base) {
+        return LayeredIcon.create(base, Marker.STATIC);
+    }
+
+    public static Icon withPinMarker(Icon base) {
+        return LayeredIcon.create(base, Marker.PIN);
     }
 
     private static Icon createRowIcon(Icon left, Icon right) {

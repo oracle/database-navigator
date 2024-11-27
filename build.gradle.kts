@@ -1,5 +1,23 @@
-import java.nio.file.Files
-import java.nio.file.Paths
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import com.github.jk1.license.filter.DependencyFilter
+import com.github.jk1.license.filter.LicenseBundleNormalizer
+import com.github.jk1.license.render.ReportRenderer
+import com.github.jk1.license.render.TextReportRenderer
 
 // import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -7,10 +25,11 @@ plugins {
   id("java")
   id("org.jetbrains.kotlin.jvm") version "1.9.20"
   id("org.jetbrains.intellij") version "1.16.0"
+  id("com.github.jk1.dependency-license-report") version "2.9"
 }
 
 group = "com.dbn"
-version = "3.4.4425.0"
+version = "3.5.0.0"
 
 repositories {
   mavenCentral()
@@ -22,7 +41,6 @@ dependencies {
   testAnnotationProcessor("org.projectlombok:lombok:1.18.34")
 
   implementation("org.projectlombok:lombok:1.18.34")
-  implementation("com.github.mwiede:jsch:0.2.20")
 
   // poi libraries (xls export)
   implementation("org.apache.poi:poi:5.3.0")
@@ -35,12 +53,19 @@ dependencies {
   implementation("org.apache.commons:commons-collections4:4.4")
   implementation("org.apache.commons:commons-lang3:3.17.0")
   implementation("org.apache.logging.log4j:log4j-api:2.24.1")
+  implementation("org.apache.sshd:sshd-common:2.13.2")
+  implementation("org.apache.sshd:sshd-core:2.13.2")
   implementation("org.apache.xmlbeans:xmlbeans:5.2.1")
 
   implementation(project(":modules:dbn-api"))
   implementation(project(":modules:dbn-spi"))
 
     compileOnly(files("ociToolkit.jar"))
+}
+
+licenseReport {
+    renderers = arrayOf<ReportRenderer>(TextReportRenderer("THIRD_PARTY_LICENSES.txt"))
+    filters = arrayOf<DependencyFilter>(LicenseBundleNormalizer())
 }
 
 sourceSets{
@@ -53,6 +78,7 @@ sourceSets{
       include(
               "**/*.png",
               "**/*.jpg",
+              "**/*.txt",
               "**/*.xml",
               "**/*.svg",
               "**/*.css",
@@ -119,14 +145,6 @@ withType<KotlinCompile> {
   }
   runIde {
         systemProperties["idea.auto.reload.plugins"] = true
-        systemProperties["fake.services"] = Files.exists(Paths.get("/tmp/fake_services"))
-        // systemProperties["fake.services.credentials.dump"] = "/var/tmp/credentials.json"
-        // systemProperties["fake.services.profiles.dump"] = "/var/tmp/profiles.json"
-        // systemProperties["fake.services.schemas.dump"] = "/var/tmp/schemas.json"
-        //systemProperties["fake.services.dbitems.dump"] = "/var/tmp/dbitems.json"
-        systemProperties["idea.log.debug.categories"] = "com.dbn.assistant, com.dbn.database.oracle"
-        systemProperties["idea.log.trace.categories"] = "com.dbn.assistant, com.dbn.database.oracle"
-
         jvmArgs = listOf(
             "-Xms512m",
             "-Xmx2048m",

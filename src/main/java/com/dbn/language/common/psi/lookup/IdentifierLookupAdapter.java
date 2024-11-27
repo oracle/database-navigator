@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.language.common.psi.lookup;
 
 import com.dbn.language.common.element.ElementType;
@@ -70,7 +86,7 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
     }
 
     private boolean matchesType(IdentifierPsiElement identifierPsiElement) {
-        return identifierType == null ||identifierType == identifierPsiElement.getElementType().getIdentifierType();
+        return identifierType == null ||identifierType == identifierPsiElement.elementType.identifierType;
     }
 
     public boolean matchesObjectType(IdentifierPsiElement identifierPsiElement) {
@@ -84,7 +100,7 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
 
     private boolean matchesCategory(IdentifierPsiElement identifierPsiElement) {
         if (identifierCategory == null) return true;
-        IdentifierElementType elementType = identifierPsiElement.getElementType();
+        IdentifierElementType elementType = identifierPsiElement.elementType;
         IdentifierCategory category = elementType.getIdentifierCategory();
         switch (identifierCategory) {
             case ALL: return true;
@@ -95,12 +111,12 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
     }
 
     private boolean matchesAttribute(IdentifierPsiElement identifierPsiElement) {
-        return attribute == null || identifierPsiElement.getElementType().is(attribute);
+        return attribute == null || identifierPsiElement.elementType.is(attribute);
     }
 
     @Override
     public boolean accepts(BasePsiElement element) {
-        ElementType elementType = element.getElementType();
+        ElementType elementType = element.elementType;
         if (elementType instanceof TokenElementType) {
             TokenElementType tokenElementType = (TokenElementType) elementType;
             return tokenElementType.isIdentifier();

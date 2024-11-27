@@ -1,22 +1,22 @@
 /*
- * Copyright (c) 2024, Oracle and/or its affiliates.
+ * Copyright 2024 Oracle and/or its affiliates
  *
- * This software is dual-licensed to you under the Universal Permissive License
- * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
- * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
- * either license.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and limitations under the License.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.dbn.assistant.interceptor;
 
 import com.dbn.assistant.DatabaseAssistantManager;
-import com.dbn.assistant.entity.AIProfileItem;
-import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.exception.ProcessDeferredException;
 import com.dbn.common.interceptor.Interceptor;
 import com.dbn.common.interceptor.InterceptorType;
@@ -29,6 +29,7 @@ import com.dbn.execution.statement.StatementExecutionInput;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.ExecutablePsiElement;
+import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.project.Project;
 import lombok.SneakyThrows;
 
@@ -72,8 +73,7 @@ public class StatementExecutionInterceptor implements Interceptor<StatementExecu
         DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
 
         ConnectionId connectionId = connection.getConnectionId();
-        AssistantState assistantState = assistantManager.getAssistantState(connectionId);
-        AIProfileItem profile = assistantState.getDefaultProfile();
+        DBAIProfile profile = assistantManager.getDefaultProfile(connectionId);
 
         if (profile == null) {
             assistantManager.initializeAssistant(connectionId);

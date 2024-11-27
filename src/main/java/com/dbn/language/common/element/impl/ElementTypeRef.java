@@ -1,24 +1,35 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.language.common.element.impl;
 
-import com.dbn.language.common.element.parser.BranchCheck;
-import com.dbn.language.common.element.parser.ElementTypeParser;
 import com.dbn.common.Linked;
-import com.dbn.language.common.element.ElementType;
-import com.dbn.language.common.element.cache.ElementTypeLookupCache;
 import com.dbn.language.common.element.parser.Branch;
-import lombok.Getter;
+import com.dbn.language.common.element.parser.BranchCheck;
 
 import java.util.Set;
 
-@Getter
 public class ElementTypeRef extends Linked<ElementTypeRef> {
-    private final ElementType parentElementType;
-    private final ElementType elementType;
-    private final boolean optional;
-    private final double version;
-    private final Set<BranchCheck> branchChecks;
+    public final ElementTypeBase parentElementType;
+    public final ElementTypeBase elementType;
+    public final boolean optional;
+    public final double version;
+    public final Set<BranchCheck> branchChecks;
 
-    public ElementTypeRef(ElementTypeRef previous, ElementType parentElementType, ElementType elementType, boolean optional, double version, Set<BranchCheck> branchChecks) {
+    public ElementTypeRef(ElementTypeRef previous, ElementTypeBase parentElementType, ElementTypeBase elementType, boolean optional, double version, Set<BranchCheck> branchChecks) {
         super(previous);
         this.parentElementType = parentElementType;
         this.elementType = elementType;
@@ -95,14 +106,6 @@ public class ElementTypeRef extends Linked<ElementTypeRef> {
             next = next.getNext();
         }
         return true;
-    }
-
-    public ElementTypeLookupCache<?> getLookupCache() {
-        return elementType.getLookupCache();
-    }
-
-    public ElementTypeParser<?> getParser() {
-        return elementType.getParser();
     }
 
     @Override

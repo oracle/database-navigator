@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.object.impl;
 
 import com.dbn.browser.DatabaseBrowserUtils;
@@ -11,6 +27,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.common.metadata.def.DBSchemaMetadata;
+import com.dbn.object.DBAIProfile;
 import com.dbn.object.DBCluster;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBConstraint;
@@ -22,6 +39,8 @@ import com.dbn.object.DBDatasetTrigger;
 import com.dbn.object.DBDimension;
 import com.dbn.object.DBFunction;
 import com.dbn.object.DBIndex;
+import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMaterializedView;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBPackage;
@@ -73,6 +92,8 @@ import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_SCHEMA;
 import static com.dbn.object.common.property.DBObjectProperty.USER_SCHEMA;
 import static com.dbn.object.type.DBObjectRelationType.CONSTRAINT_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.INDEX_COLUMN;
+import static com.dbn.object.type.DBObjectType.AI_PROFILE;
+import static com.dbn.object.type.DBObjectType.ANY;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
 import static com.dbn.object.type.DBObjectType.CLUSTER;
 import static com.dbn.object.type.DBObjectType.COLUMN;
@@ -84,7 +105,9 @@ import static com.dbn.object.type.DBObjectType.DBLINK;
 import static com.dbn.object.type.DBObjectType.DIMENSION;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
 import static com.dbn.object.type.DBObjectType.INDEX;
-import static com.dbn.object.type.DBObjectType.JAVA_OBJECT;
+import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
+import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
+import static com.dbn.object.type.DBObjectType.JAVA_PARAMETER;
 import static com.dbn.object.type.DBObjectType.MATERIALIZED_VIEW;
 import static com.dbn.object.type.DBObjectType.NESTED_TABLE;
 import static com.dbn.object.type.DBObjectType.PACKAGE;
@@ -134,11 +157,12 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(PACKAGE,           this);
         childObjects.createObjectList(TYPE,              this);
         childObjects.createObjectList(DATABASE_TRIGGER,  this);
-        childObjects.createObjectList(JAVA_OBJECT,       this);
+        childObjects.createObjectList(JAVA_CLASS,        this);
         childObjects.createObjectList(DIMENSION,         this);
         childObjects.createObjectList(CLUSTER,           this);
         childObjects.createObjectList(DBLINK,            this);
         childObjects.createObjectList(CREDENTIAL,        this);
+        childObjects.createObjectList(AI_PROFILE,        this);
 
         DBObjectList<DBConstraint> constraints = childObjects.createObjectList(CONSTRAINT, this, INTERNAL, GROUPED);
         DBObjectList<DBIndex> indexes          = childObjects.createObjectList(INDEX,      this, INTERNAL, GROUPED);
@@ -152,6 +176,8 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(TYPE_ATTRIBUTE,    this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(TYPE_FUNCTION,     this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(TYPE_PROCEDURE,    this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(JAVA_METHOD,       this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(JAVA_PARAMETER,    this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(ARGUMENT,          this, INTERNAL, GROUPED, HIDDEN);
 
         //ol.createHiddenObjectList(DBObjectType.TYPE_METHOD, this, TYPE_METHODS_LOADER);
@@ -213,7 +239,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
 
     @Override
     public <T extends DBObject> T  getChildObject(DBObjectType type, String name, short overload, boolean lookupHidden) {
-        if (!type.isSchemaObject()) return null;
+        if (type != ANY && !type.isSchemaObject()) return null;
 
         DBObject object = super.getChildObject(type, name, overload, lookupHidden);
         if (object == null && type != SYNONYM) {
@@ -324,10 +350,24 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
+    public List<DBAIProfile> getAIProfiles() {
+        return getChildObjects(AI_PROFILE);
+    }
+
+    @Override
     public List<DBDatabaseLink> getDatabaseLinks() {
         return getChildObjects(DBLINK);
     }
 
+    @Override
+    public List<DBJavaClass> getJavaClasses() {
+        return getChildObjects(JAVA_CLASS);
+    }
+
+    @Override
+    public List<DBJavaMethod> getJavaMethods() {
+        return getChildObjects(JAVA_METHOD);
+    }
 
     @Override
     public DBTable getTable(String name) {
@@ -360,8 +400,29 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
+    public DBCredential getAIProfile(String name) {
+        return getChildObject(AI_PROFILE, name);
+    }
+
+    @Override
     public DBDatabaseLink getDatabaseLink(String name) {
         return getChildObject(DBLINK, name);
+    }
+
+    @Override
+    public DBJavaClass getJavaClass(String name) {
+        return getChildObject(JAVA_CLASS, name);
+    }
+
+    @Override
+    public DBJavaMethod getJavaMethod(String javaClass, String name, int methodIndex) {
+        List<DBJavaMethod> methods = getJavaMethods();
+        for(DBJavaMethod method:methods){
+            if(method.getClassName().equals(javaClass) && method.getName().equals(name) && method.getPosition() == methodIndex){
+                return method;
+            }
+        }
+        return getChildObject(JAVA_METHOD, name);
     }
 
     @Override
@@ -536,11 +597,12 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
                 getChildObjectList(PACKAGE),
                 getChildObjectList(TYPE),
                 getChildObjectList(DATABASE_TRIGGER),
-                getChildObjectList(JAVA_OBJECT),
+                getChildObjectList(JAVA_CLASS),
                 getChildObjectList(DIMENSION),
                 getChildObjectList(CLUSTER),
                 getChildObjectList(DBLINK),
-                getChildObjectList(CREDENTIAL));
+                getChildObjectList(CREDENTIAL),
+                getChildObjectList(AI_PROFILE));
     }
 
     @Override
@@ -549,7 +611,6 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         return
             settings.isVisible(TABLE) ||
             settings.isVisible(VIEW) ||
-            settings.isVisible(JAVA_OBJECT) ||
             settings.isVisible(MATERIALIZED_VIEW) ||
             settings.isVisible(SYNONYM) ||
             settings.isVisible(SEQUENCE) ||
@@ -558,9 +619,12 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
             settings.isVisible(PACKAGE) ||
             settings.isVisible(TYPE) ||
             settings.isVisible(DATABASE_TRIGGER) ||
+            settings.isVisible(JAVA_CLASS) ||
             settings.isVisible(DIMENSION) ||
             settings.isVisible(CLUSTER) ||
             settings.isVisible(DBLINK) ||
-            settings.isVisible(CREDENTIAL);
+            settings.isVisible(CREDENTIAL) ||
+            settings.isVisible(AI_PROFILE)
+                ;
     }
 }

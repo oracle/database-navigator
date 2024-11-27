@@ -1,9 +1,26 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.database.common;
 
 import com.dbn.common.latent.Latent;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.logging.ExecutionLogOutput;
+import com.dbn.database.common.statement.ByteArray;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import org.jetbrains.annotations.NotNull;
@@ -98,7 +115,7 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
-    public ResultSet loadJavaObjects(String ownerName, DBNConnection connection) throws SQLException {
+    public ResultSet loadJavaClasses(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "java-objects", ownerName);
     }
 
@@ -236,6 +253,26 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
         return executeQuery(connection, "all-package-types", ownerName);
     }
 
+    @Override
+    public ResultSet loadJavaMethods(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "java-methods", ownerName, objectName);
+    }
+
+    @Override
+    public ResultSet loadAllJavaMethods(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "all-java-methods", ownerName);
+    }
+
+    @Override
+    public ResultSet loadJavaParameters(String ownerName, String objectName, String methodName, int methodIndex, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "java-parameters", ownerName, objectName, methodName, methodIndex);
+    }
+
+    @Override
+    public ResultSet loadAllJavaParameters(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "all-java-parameters", ownerName);
+    }
+
     /*********************************************************
      *                        TYPES                          *
      *********************************************************/
@@ -332,6 +369,14 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     /*********************************************************
+     *                     AI PROFILES                       *
+     *********************************************************/
+    @Override
+    public ResultSet loadAiProfiles(final String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "ai-profiles", ownerName);
+    }
+
+    /*********************************************************
      *                      REFERENCES                       *
      *********************************************************/
     @Override
@@ -382,7 +427,12 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
         return executeQuery(connection, "object-source-code", ownerName, objectName, objectType, overload);
     }
 
-   /*********************************************************
+    @Override
+    public ByteArray loadJavaBinaryCode(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return executeCall(connection, new ByteArray(), "java-binary-code", ownerName, objectName);
+    }
+
+    /*********************************************************
     *                   MISCELLANEOUS                       *
     *********************************************************/
 
@@ -415,6 +465,11 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     @Override
     public void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException {
         executeStatement(connection, "compile-object-body", ownerName, objectName, objectType, debug ? "DEBUG" : "");
+    }
+
+    @Override
+    public void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "compile-java-object", ownerName, objectName);
     }
 
     @Override
@@ -501,6 +556,18 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
             Resources.close(resultSet);
         }
         return true;
+    }
+
+    @Override
+    public String loadSessionUser(DBNConnection connection) throws SQLException {
+        ResultSet resultSet = null;
+        try {
+            resultSet = executeQuery(connection, true, "session-user");
+            resultSet.next();
+            return resultSet.getString(1);
+        } finally {
+            Resources.close(resultSet);
+        }
     }
 
     @Override

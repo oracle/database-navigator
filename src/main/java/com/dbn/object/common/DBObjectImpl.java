@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.object.common;
 
 import com.dbn.browser.DatabaseBrowserManager;
@@ -16,8 +32,11 @@ import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.ref.WeakRefCache;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.util.Strings;
-import com.dbn.connection.*;
-import com.dbn.connection.*;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.DatabaseEntity;
+import com.dbn.connection.DatabaseType;
+import com.dbn.connection.SchemaId;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.common.metadata.DBObjectMetadata;
@@ -33,8 +52,6 @@ import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectListVisitor;
 import com.dbn.object.common.list.DBObjectNavigationList;
-import com.dbn.object.common.operation.DBOperationExecutor;
-import com.dbn.object.common.operation.DBOperationNotSupportedException;
 import com.dbn.object.common.property.DBObjectProperties;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
@@ -48,13 +65,12 @@ import com.dbn.vfs.file.DBObjectVirtualFile;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.FileStatus;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiInvalidElementAccessException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,10 +90,6 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     protected DBObjectProperties properties = new DBObjectProperties();
 
     private static final WeakRefCache<DBObjectImpl, DBObjectListContainer> childObjects = WeakRefCache.weakKey();
-
-    private static final DBOperationExecutor NULL_OPERATION_EXECUTOR = operationType -> {
-        throw new DBOperationNotSupportedException(operationType);
-    };
 
     protected DBObjectImpl(@NotNull DBObject parentObject, M metadata) throws SQLException {
         init(parentObject.getConnection(), parentObject, metadata);
@@ -132,11 +144,6 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     @Override
     public boolean isParentOf(DBObject object) {
         return this.equals(object.getParentObject());
-    }
-
-    @Override
-    public DBOperationExecutor getOperationExecutor() {
-        return NULL_OPERATION_EXECUTOR;
     }
 
     @Override

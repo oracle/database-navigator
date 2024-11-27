@@ -1,9 +1,25 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.common.locale.options;
 
-import com.dbn.common.locale.options.ui.RegionalSettingsEditorForm;
 import com.dbn.common.locale.DBDateFormat;
 import com.dbn.common.locale.DBNumberFormat;
 import com.dbn.common.locale.Formatter;
+import com.dbn.common.locale.options.ui.RegionalSettingsEditorForm;
 import com.dbn.common.options.BasicProjectConfiguration;
 import com.dbn.common.options.setting.BooleanSetting;
 import com.dbn.common.options.setting.StringSetting;
@@ -20,7 +36,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Locale;
 import java.util.Objects;
 
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.options.setting.Settings.getEnum;
+import static com.dbn.common.options.setting.Settings.getString;
+import static com.dbn.common.options.setting.Settings.setEnum;
+import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Getter

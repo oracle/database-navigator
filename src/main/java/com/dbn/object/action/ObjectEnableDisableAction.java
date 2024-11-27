@@ -1,21 +1,32 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.object.action;
 
-import com.dbn.common.thread.Progress;
-import com.dbn.common.util.Messages;
 import com.dbn.object.common.DBSchemaObject;
-import com.dbn.object.common.operation.DBOperationNotSupportedException;
-import com.dbn.object.common.operation.DBOperationType;
 import com.dbn.object.common.status.DBObjectStatus;
+import com.dbn.object.event.ObjectChangeAction;
+import com.dbn.object.management.ObjectManagementService;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.sql.SQLException;
-
 import static com.dbn.common.dispose.Checks.isValid;
-import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class ObjectEnableDisableAction extends AnObjectAction<DBSchemaObject> {
     ObjectEnableDisableAction(DBSchemaObject object) {
@@ -28,35 +39,17 @@ public class ObjectEnableDisableAction extends AnObjectAction<DBSchemaObject> {
             @NotNull Project project,
             @NotNull DBSchemaObject object) {
 
-        boolean enabled = object.getStatus().is(DBObjectStatus.ENABLED);
-        String title = enabled ?
-                txt("msg.objects.title.DisablingObject") :
-                txt("msg.objects.title.EnablingObject");
+        ObjectManagementService objectManagementService = ObjectManagementService.getInstance(project);
 
-        String qualifiedObjectName = object.getQualifiedNameWithType();
-        String text = enabled ?
-                txt("msg.objects.info.DisablingObject", qualifiedObjectName) :
-                txt("msg.objects.info.EnablingObject", qualifiedObjectName);
-
-        Progress.prompt(project, object, false,
-                title,
-                text,
-                progress -> {
-                    try {
-                        DBOperationType operationType = enabled ? DBOperationType.DISABLE : DBOperationType.ENABLE;
-                        object.getOperationExecutor().executeOperation(operationType);
-                    } catch (SQLException e1) {
-                        conditionallyLog(e1);
-                        String message = enabled ?
-                                txt("msg.objects.error.DisablingObject", qualifiedObjectName) :
-                                txt("msg.objects.error.EnablingObject", qualifiedObjectName);
-                        Messages.showErrorDialog(project, message, e1);
-                    } catch (DBOperationNotSupportedException e1) {
-                        conditionallyLog(e1);
-                        Messages.showErrorDialog(project, e1.getMessage());
-                    }
-                });
+        if (objectManagementService.supports(object)) {
+            boolean enabled = object.getStatus().is(DBObjectStatus.ENABLED);
+            ObjectChangeAction action = enabled ? ObjectChangeAction.DISABLE : ObjectChangeAction.ENABLE;
+            objectManagementService.changeObject(object, action,null);
+        } else {
+            throw new UnsupportedOperationException();
+        }
     }
+
 
     @Override
     protected void update(

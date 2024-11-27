@@ -1,6 +1,21 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.language.common.element.impl;
 
-import com.dbn.language.common.psi.SequencePsiElement;
 import com.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dbn.common.util.Strings;
 import com.dbn.language.common.element.ElementType;
@@ -9,6 +24,7 @@ import com.dbn.language.common.element.TokenPairTemplate;
 import com.dbn.language.common.element.cache.WrapperElementTypeLookupCache;
 import com.dbn.language.common.element.parser.impl.WrapperElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
+import com.dbn.language.common.psi.SequencePsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import org.jdom.Element;
@@ -21,17 +37,16 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 public final class WrapperElementType extends ElementTypeBase {
     private WrappingDefinition wrappingDefinition;
-    private ElementType wrappedElement;
+    public ElementTypeBase wrappedElement;
     public boolean wrappedElementOptional;
 
-    public WrapperElementType(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
+    public WrapperElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
     }
 
     @Override
     protected void loadDefinition(Element def) throws ElementTypeDefinitionException {
         super.loadDefinition(def);
-        ElementTypeBundle bundle = getElementBundle();
         String templateId = stringAttribute(def, "template");
 
         TokenElementType beginTokenElement;
@@ -88,23 +103,23 @@ public final class WrapperElementType extends ElementTypeBase {
     }
 
     public TokenElementType getBeginTokenElement() {
-        return wrappingDefinition.getBeginElementType();
+        return wrappingDefinition.beginElementType;
     }
 
     public TokenElementType getEndTokenElement() {
-        return wrappingDefinition.getEndElementType();
+        return wrappingDefinition.endElementType;
     }
 
     public boolean isStrong() {
-        if (getBeginTokenElement().getTokenType().isReservedWord()) {
+        if (getBeginTokenElement().tokenType.isReservedWord()) {
             return true;
         }
-        if (getParent() instanceof SequenceElementType) {
-            SequenceElementType sequenceElementType = (SequenceElementType) getParent();
+        if (parent instanceof SequenceElementType) {
+            SequenceElementType sequenceElementType = (SequenceElementType) parent;
             int index = sequenceElementType.indexOf(this);
 
             ElementTypeRef child = sequenceElementType.getChild(index);
-            if (child.isOptional()) {
+            if (child.optional) {
                 return false;
             }
 

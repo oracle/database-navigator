@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.common.thread;
 
 import com.dbn.common.exception.Exceptions;
@@ -6,11 +22,18 @@ import com.dbn.common.routine.ThrowableRunnable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.TimeUtil;
 import com.dbn.diagnostics.Diagnostics;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.concurrent.*;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -36,7 +59,6 @@ public final class Timeout {
                 String taskId = PooledThread.enter(future.get());
                 try {
                     return ThreadMonitor.surround(
-                            invoker.getProject(),
                             invoker,
                             ThreadProperty.TIMEOUT,
                             callable);
@@ -49,12 +71,14 @@ public final class Timeout {
                 }
             }));
 
-
             T result = waitFor(future.get(), seconds, TimeUnit.SECONDS);
             if (exception.get() != null) {
                 throw exception.get();
             }
             return result;
+        } catch (CancellationException e) {
+            conditionallyLog(e);
+            throw new ProcessCanceledException();
         } catch (TimeoutException | InterruptedException | RejectedExecutionException e) {
             conditionallyLog(e);
             String message = Commons.nvl(e.getMessage(), e.getClass().getSimpleName());
@@ -85,7 +109,6 @@ public final class Timeout {
                 String taskId = PooledThread.enter(future.get());
                 try {
                     ThreadMonitor.surround(
-                            invoker.getProject(),
                             invoker,
                             ThreadProperty.TIMEOUT,
                             runnable);
@@ -100,7 +123,9 @@ public final class Timeout {
             if (exception.get() != null) {
                 throw exception.get();
             }
-
+        } catch (CancellationException e) {
+            conditionallyLog(e);
+            throw new ProcessCanceledException();
         } catch (TimeoutException | InterruptedException | RejectedExecutionException e) {
             conditionallyLog(e);
             String message = Commons.nvl(e.getMessage(), e.getClass().getSimpleName());
@@ -117,6 +142,7 @@ public final class Timeout {
 
     public static <T> T waitFor(Future<T> future, long time, TimeUnit timeUnit) throws InterruptedException, TimeoutException, ExecutionException {
         try {
+            Progress.cancelCallback(() -> future.cancel(true));
             return future.get(time, timeUnit);
         } catch (TimeoutException | InterruptedException e) {
             conditionallyLog(e);

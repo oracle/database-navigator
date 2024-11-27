@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.language.common.element.parser.impl;
 
 import com.dbn.language.common.ParseException;
@@ -14,7 +30,7 @@ public class NamedElementTypeParser extends SequenceElementTypeParser<NamedEleme
 
     @Override
     public ParseResult parse(ParserNode parentNode, ParserContext context) throws ParseException {
-        ParserBuilder builder = context.getBuilder();
+        ParserBuilder builder = context.builder;
         if (isRecursive(parentNode, builder.getOffset())) {
             return ParseResult.noMatch();
         }
@@ -25,15 +41,15 @@ public class NamedElementTypeParser extends SequenceElementTypeParser<NamedEleme
         // allow 2 levels of recursivity
         boolean recursive = false;
         while (parseNode != null) {
-            if (parseNode.getElement() == elementType &&
-                    parseNode.getStartOffset() == builderOffset) {
+            if (parseNode.element == elementType &&
+                    parseNode.startOffset == builderOffset) {
                 if (recursive) {
                     return true;
                 } else {
                     recursive = true;
                 }
             }
-            parseNode = parseNode.getParent();
+            parseNode = (ParserNode) parseNode.parent;
         }
         return false;
     }

@@ -1,15 +1,30 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.common.ui.form;
 
 import com.dbn.common.action.DataProviders;
 import com.dbn.common.dispose.ComponentDisposer;
 import com.dbn.common.environment.options.EnvironmentSettings;
-import com.dbn.common.latent.Latent;
 import com.dbn.common.event.ApplicationEvents;
+import com.dbn.common.latent.Latent;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponentBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
-import com.dbn.common.ui.misc.DBNButton;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.options.general.GeneralProjectSettings;
 import com.intellij.ide.DataManager;
@@ -17,21 +32,26 @@ import com.intellij.ide.ui.LafManagerListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
-import java.util.HashSet;
 import java.util.Set;
+
+import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 
 public abstract class DBNFormBase
         extends DBNComponentBase
         implements DBNForm, NotificationSupport {
 
     private boolean initialized;
-    private final Set<JComponent> enabled = new HashSet<>();
+    private final Set<JComponent> enabled = ContainerUtil.createWeakSet();
     private final Latent<DBNFormFieldAdapter> fieldAdapter = Latent.basic(() -> DBNFormFieldAdapter.create(this));
 
     public DBNFormBase(@Nullable Disposable parent) {
@@ -69,7 +89,7 @@ public abstract class DBNFormBase
      * @param runnable the task to execute when the form is shown
      */
     protected void whenShown(Runnable runnable) {
-        UserInterface.whenShown(getMainComponent(), runnable);
+        whenFirstShown(getMainComponent(), runnable);
     }
 
     private void initialize() {
@@ -85,6 +105,10 @@ public abstract class DBNFormBase
 
     protected void lookAndFeelChanged() {
 
+    }
+
+    protected void updateActionToolbars() {
+        dispatch(() -> UserInterface.updateActionToolbars(getMainComponent()));
     }
 
     protected abstract JComponent getMainComponent();
@@ -107,11 +131,11 @@ public abstract class DBNFormBase
         nullify();
     }
 
-    public void freeze() {
+    public void freezeForm() {
         UserInterface.visitRecursively(getComponent(), c -> disable(c));
     }
 
-    public void unfreeze() {
+    public void unfreezeForm() {
         UserInterface.visitRecursively(getComponent(), c -> enable(c));
     }
 
@@ -119,7 +143,9 @@ public abstract class DBNFormBase
         if (c instanceof AbstractButton ||
                 c instanceof JTextComponent ||
                 c instanceof ActionToolbar ||
-                c instanceof DBNButton) {
+                c instanceof JList ||
+                c instanceof JTable ||
+                c instanceof JLabel) {
 
             if (c.isEnabled()) {
                 enabled.add(c);

@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024, Oracle and/or its affiliates.
+ * Copyright 2024 Oracle and/or its affiliates
  *
- * This software is dual-licensed to you under the Universal Permissive License
- * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
- * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
- * either license.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and limitations under the License.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.dbn.assistant.chat.window.ui;
 
-import com.dbn.assistant.DatabaseAssistantManager;
-import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateListener;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
@@ -44,8 +44,11 @@ import com.intellij.psi.impl.file.impl.FileManager;
 import com.intellij.testFramework.LightVirtualFile;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.util.Objects;
 
 /**
@@ -76,10 +79,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         return (project, connectionId) -> {
             if (!Objects.equals(getConnectionId(), connectionId)) return;
 
-            DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
-            AssistantState assistantState = manager.getAssistantState(connectionId);
-
-            setReadonly(!assistantState.isPromptingAvailable());
+            setReadonly(!getChatBox().isPromptingAvailable());
         };
     }
 
@@ -173,7 +173,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
             }
 
             ChatBoxForm chatBox = getChatBox();
-            if (chatBox.getAssistantState().isPromptingAvailable()) {
+            if (chatBox.isPromptingAvailable()) {
                 chatBox.submitPrompt();
             } else {
                 Documents.setText(document, text.toString().trim());

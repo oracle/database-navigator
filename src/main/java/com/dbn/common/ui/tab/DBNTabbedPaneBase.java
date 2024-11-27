@@ -1,83 +1,262 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.common.ui.tab;
 
+import com.dbn.common.Wrapper;
+import com.dbn.common.action.DataKeys;
+import com.dbn.common.action.DataProviderDelegate;
+import com.dbn.common.action.DataProviders;
+import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.StatefulDisposable;
+import com.dbn.common.ui.util.Listeners;
+import com.dbn.common.ui.util.Mouse;
+import com.dbn.common.util.Actions;
+import com.dbn.common.util.Context;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.ui.components.JBTabbedPane;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
+import javax.swing.plaf.UIResource;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.LayoutManager;
+import java.awt.Point;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.ui.util.ClientProperty.TAB_CONTENT;
+import static com.dbn.common.ui.util.ClientProperty.TAB_ICON;
+import static com.dbn.common.ui.util.ClientProperty.TAB_TOOLTIP;
+import static com.dbn.common.util.Unsafe.cast;
+
 @Getter
 @Setter
-public class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements StatefulDisposable {
+@Slf4j
+class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements StatefulDisposable, DataProviderDelegate {
     private boolean disposed;
-    private final List<DBNTabInfo<T>> tabInfos = new ArrayList<>();
+    private int popupTabIndex = -1;
+    private ListPopup hiddenTabsPopup;
+    private JPanel hiddenTabsActionPanel;
+    protected final Listeners<DBNTabsSelectionListener> selectionListeners = new Listeners<>();
+    protected final Listeners<DBNTabsUpdateListener> updateListeners = new Listeners<>();
 
-    public DBNTabbedPaneBase(Disposable parent) {
-        //super(TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
+    public DBNTabbedPaneBase(int tabPlacement, Disposable parent, boolean mutable) {
+        super(tabPlacement, JTabbedPane.SCROLL_TAB_LAYOUT);
         setUI(new DBNTabbedPaneUI());
+        setTabComponentInsets(null);
 
-        //setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+        installHiddenTabButton();
+        installTabCloser(mutable);
+
+        DataProviders.register(this, this);
         Disposer.register(parent, this);
     }
 
-    @Override
-    public void insertTab(@Nls(capitalization = Nls.Capitalization.Title) String title, Icon icon, Component component, @Nls(capitalization = Nls.Capitalization.Sentence) String tip, int index) {
-        super.insertTab(title, icon, component, tip, index);
+    private void installHiddenTabButton() {
+        add(hiddenTabsActionPanel = new HiddenTabsPanel());
+        AnAction hiddenTabsAction = new AnAction("Show Hidden Tabs", null, AllIcons.Actions.FindAndShowNextMatches) {
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent e) {
+                showHiddenTabsPopup(e);
+            }
+        };
+        ActionToolbar actionToolbar = Actions.createActionToolbar(hiddenTabsActionPanel, "", true, hiddenTabsAction);
+        hiddenTabsActionPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
+    }
+
+    private final class HiddenTabsPanel extends JPanel implements UIResource {
+        public HiddenTabsPanel() {
+            super(new BorderLayout());
+            setBorder(null);
+
+            AnAction hiddenTabsAction = new AnAction("Show Hidden Tabs", null, AllIcons.Actions.FindAndShowNextMatches) {
+                @Override
+                public void actionPerformed(@NotNull AnActionEvent e) {
+                    showHiddenTabsPopup(e);
+                }
+            };
+            ActionToolbar actionToolbar = Actions.createActionToolbar(this, "", true, hiddenTabsAction);
+            JComponent toolbarComponent = actionToolbar.getComponent();
+            setPreferredSize(toolbarComponent.getPreferredSize());
+            add(toolbarComponent, BorderLayout.CENTER);
+        }
+    }
+
+    private void showHiddenTabsPopup(AnActionEvent e) {
+        DBNTabbedPaneUI ui = (DBNTabbedPaneUI) getUI();
+        List<Integer> indexes = ui.getHiddenTabIndexes();
+
+        DefaultActionGroup actionGroup = new DefaultActionGroup();
+        for (int index : indexes) {
+            String title = getTitleAt(index);
+            title = Actions.adjustActionName(title);
+            Icon icon = getIconAt(index);
+            actionGroup.add(new AnAction(title, null, icon) {
+                @Override
+                public void actionPerformed(@NotNull AnActionEvent e) {
+                    setSelectedIndex(index);
+                }
+            });
+        }
+
+        DataContext dataContext = e.getDataContext();
+        hiddenTabsPopup = JBPopupFactory.getInstance().createActionGroupPopup(
+                null,
+                actionGroup,
+                dataContext,
+                false,
+                false,
+                false,
+                () -> hiddenTabsPopup = null,
+                10,
+                a -> false);
+
+        hiddenTabsPopup.showInBestPositionFor(dataContext);
+    }
+
+    private void installTabCloser(boolean mutable) {
+        if (!mutable) return;
+
+        addMouseListener(Mouse.listener().onClick(e -> {
+            int index = indexAtLocation(e.getX(), e.getY());
+            if (index == -1) return;
+
+            if (isCloseTabEvent(e)) {
+                removeTabAt(index);
+                e.consume();
+            }
+        }));
+    }
+
+    private static boolean isCloseTabEvent(MouseEvent e) {
+        if (SwingUtilities.isMiddleMouseButton(e)) return true;
+        if (e.isShiftDown() && SwingUtilities.isLeftMouseButton(e)) return true;
+
+        return false;
     }
 
     @Override
-    public void addTab(String title, Icon icon, Component component, String tip) {
-        super.addTab(title, icon, component, tip);
-        addTabInfo(title, icon, tip, null);
+    public void updateUI() {
+        setUI(new DBNTabbedPaneUI());
+    }
+
+    @Workaround // see assumption in BasicTabbedPaneUI.scrollableTabLayoutEnabled()
+    public LayoutManager getLayout() {
+        LayoutManager layout = super.getLayout();
+        if (layout instanceof Wrapper) {
+            Wrapper wrapped = (Wrapper) layout;
+            return cast(wrapped.unwrap());
+        }
+        return layout;
+    }
+
+
+    public void insertTab(String title, Component component, int index) {
+        Icon icon = TAB_ICON.get(component);
+        String tooltip = TAB_TOOLTIP.get(component);
+        insertTab(title, icon, component, tooltip, index);
+    }
+
+    @Workaround // remove tab label from JBTabbedPane
+    public void insertTab(@Nls(capitalization = Nls.Capitalization.Title) String title, Icon icon, Component component, @Nls(capitalization = Nls.Capitalization.Sentence) String tip, int index) {
+        super.insertTab(title, icon, component, tip, index);
+        setTabComponentAt(index, null);
+        updateListeners.notify(l -> l.tabAdded(index));
+    }
+
+    @Override
+    public void addTab(String title, Icon icon, Component component, String tooltip) {
+        TAB_ICON.set(component, icon);
+        TAB_TOOLTIP.set(component, tooltip);
+        super.addTab(title, icon, component, tooltip);
+
     }
 
     @Override
     public void addTab(String title, Icon icon, Component component) {
+        TAB_ICON.set(component, icon);
         super.addTab(title, icon, component);
-        addTabInfo(title, icon, null, null);
     }
 
     @Override
     public void addTab(String title, Component component) {
-        super.addTab(title, component);
-        addTabInfo(title, null, null, null);
-    }
-
-    public void addTab(String title, Icon icon, Component component, String tip, T content) {
-        addTab(title, icon, component, tip);
-        addTabInfo(title, icon, tip, content);
-    }
-
-    public void addTab(String title, Icon icon, Component component, T content) {
-        super.addTab(title, icon, component);
-        addTabInfo(title, icon, null, content);
+        Icon icon = TAB_ICON.get(component);
+        String tooltip = TAB_TOOLTIP.get(component);
+        super.addTab(title, icon, component, tooltip);
     }
 
     public void addTab(String title, Component component, T content) {
-        super.addTab(title, component);
-        addTabInfo(title, null, null, content);
+        Icon icon = TAB_ICON.get(component);
+        String tooltip = TAB_TOOLTIP.get(component);
+        TAB_CONTENT.set(component, content);
+
+        addTab(title, icon, component, tooltip);
     }
 
-    private boolean addTabInfo(String title, Icon icon, String tip, T content) {
-        return tabInfos.add(new DBNTabInfo<>(title, tip, icon, content));
+    @Nullable
+    public final Component getSelectedTabComponent() {
+        int index = getSelectedIndex();
+        if (index == -1) return null;
+
+        return getComponentAt(index);
     }
 
-    public final DBNTabInfo<T> getTabInfo(int index) {
-        return tabInfos.get(index);
+    public void removeTab(Component component, boolean disposeContent) {
+        int index = getTabIndex(component);
+        removeTabAt(index);
+
+        if (disposeContent) {
+            T content = TAB_CONTENT.get(component);
+            Disposer.dispose(content);
+        }
     }
+
+
 
     @Override
     public void removeTabAt(int index) {
+        Component component = getComponentAt(index);
+        T content = TAB_CONTENT.get(component);
+
         super.removeTabAt(index);
-        DBNTabInfo<T> tabInfo = tabInfos.remove(index);
-        Disposer.dispose(tabInfo);
+        updateListeners.notify(l -> l.tabRemoved(index));
+        Disposer.dispose(content);
     }
 
     public void removeAllTabs() {
@@ -88,6 +267,74 @@ public class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implem
     }
 
     public void disposeInner() {
-        Disposer.dispose(tabInfos);
+        for (Component component : getTabbedComponents()) {
+            Object content = TAB_CONTENT.get(component);
+            Disposer.dispose(content);
+        }
+    }
+
+    public void addTabMouseListener(MouseListener mouseListener) {
+        addMouseListener(mouseListener);
+        // TODO
+    }
+
+    public int getTabIndex(Component component) {
+        for (int i=0; i<getTabCount(); i++) {
+            Component tabComponent = getComponentAt(i);
+            if (tabComponent == component) return i;
+        }
+        return -1;
+    }
+
+    public List<Component> getTabbedComponents() {
+        List<Component> components = new ArrayList<>();
+        int count = getTabCount();
+        for (int i=0; i<count; i++) {
+            Component component = getComponentAt(i);
+            components.add(component);
+        }
+        return components;
+    }
+
+    public void setPopupActions(ActionGroup actionGroup) {
+        Mouse.insertMouseListener(this, Mouse.listener().onPress(e -> {
+            if (!SwingUtilities.isRightMouseButton(e)) return;
+
+            int tabIndex = indexAtLocation(e.getX(), e.getY());
+            if (tabIndex == -1) return;
+
+            popupTabIndex = tabIndex;
+            //setSelectedIndex(tabIndex);
+            e.consume();
+            showPopup(actionGroup, e.getX(), e.getY());
+        }));
+    }
+
+    private void showPopup(ActionGroup actionGroup, int x, int y) {
+        Point location = getLocationOnScreen();
+        location.setLocation(location.getX() + x, location.getY() + y);
+        ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
+                null,
+                actionGroup,
+                Context.getDataContext(this),
+                false,
+                false,
+                false,
+                () -> popupTabIndex = -1,
+                10,
+                a -> false);
+
+        popup.showInScreenCoordinates(this, location);
+    }
+
+    @Override
+    public Object getData(String dataId) {
+        if (DataKeys.TABBED_PANE.is(dataId)) return this;
+
+        return null;
+    }
+
+    public boolean isShowingPopup() {
+        return popupTabIndex > -1;
     }
 }

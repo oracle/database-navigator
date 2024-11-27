@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <project name="dbnavigator" default="all">
     <echo level="info" message="java.home = ${java.home}"/>
     <property file="build.properties"/>
@@ -41,10 +57,8 @@
     <dirname property="root.dir" file="${ant.file}/.."/>
     <property name="source.dir" value="${root.dir}/src"/>
     <property name="resource.dir" value="${root.dir}/src/main/resources"/>
-    <property name="help.dir" value="${resource.dir}/help"/>
     <property name="compiler.output.dir" value="${root.dir}/classes"/>
     <property name="distribution.dir" value="${root.dir}/dist"/>
-    <property name="help.jar" value="${distribution.dir}/Help.jar"/>
 <!--
     <property name="deployment.dir" value="${idea.plugins.sandbox}/DBNavigator"/>
 -->
@@ -75,17 +89,29 @@
 
     <target name="compile" description="Compile">
         <mkdir dir="${compiler.output.dir}"/>
-        <javac2 srcdir="${source.dir}/main/java"
+        <javac2 srcdir="${source.dir}/../modules/dbn-api/src/main/java"
                 destdir="${compiler.output.dir}"
-                source="11"
-                target="11"
-                debug="true"
-                fork="true"
-                >
+                source="11" target="11" debug="true">
             <patternset refid="compiler.ignored.files"/>
             <classpath refid="classpath.ide"/>
             <classpath refid="classpath.project"/>
-            <!--<exclude name="com/**/*" />-->
+        </javac2>
+
+        <javac2 srcdir="${source.dir}/../modules/dbn-spi/src/main/java"
+                destdir="${compiler.output.dir}"
+                source="11" target="11" debug="true">
+            <patternset refid="compiler.ignored.files"/>
+            <classpath refid="classpath.ide"/>
+            <classpath refid="classpath.project"/>
+        </javac2>
+
+
+        <javac2 srcdir="${source.dir}/main/java"
+                destdir="${compiler.output.dir}"
+                source="11" target="11" debug="true">
+            <patternset refid="compiler.ignored.files"/>
+            <classpath refid="classpath.ide"/>
+            <classpath refid="classpath.project"/>
         </javac2>
 
         <copy todir="${compiler.output.dir}">
@@ -118,20 +144,10 @@
         <antcall target="build.dist"/>
     </target>
 
-<!--
-    <target name="deploy" depends="build" description="Deploy to sandbox">
-        <copy todir="${deployment.dir}/classes">
-            <fileset dir="${compiler.output.dir}"/>
-        </copy>
-        <copy file="${source.dir}/META-INF/plugin.xml" tofile="${deployment.dir}/META-INF/plugin.xml"/>
-        <copy file="${distribution.dir}/help.jar" todir="${deployment.dir}/help"/>
-    </target>
--->
 
     <target name="build.dist" description="Build distribution archives">
         <mkdir dir="${distribution.dir}" />
         <antcall target="build.jar"/>
-        <antcall target="build.help"/>
         <antcall target="build.zip"/>
         <antcall target="build.src"/>
     </target>
@@ -146,11 +162,6 @@
             </manifest>
         </jar>
     </target>
-    <target name="build.help" description="Build help jar">
-        <jar destfile="${help.jar}" duplicate="preserve">
-            <zipfileset dir="${help.dir}" prefix=""/>
-        </jar>
-    </target>
     <target name="build.zip" description="Build distribution zip file">
         <zip file="${distribution.dir}/${package.name}">
             <zipfileset dir="${distribution.dir}" prefix="DBNavigator/lib">
@@ -162,17 +173,12 @@
             <zipfileset dir="${resource.dir}/lib" prefix="DBNavigator/lib">
                 <include name="**/*.jar"/>
             </zipfileset>
-
-            <zipfileset dir="${distribution.dir}" prefix="DBNavigator/help">
-                <include name="Help.jar"/>
-            </zipfileset>
         </zip>
     </target>
     <target name="build.src" description="Build distribution src file">
         <zip file="${distribution.dir}/src.zip">
             <zipfileset dir=".." prefix="DBNavigator">
                 <include name="src/**/*"/>
-                <include name="help/**/*"/>
                 <include name="build/**/*"/>
                 <include name="lib/**/*"/>
 

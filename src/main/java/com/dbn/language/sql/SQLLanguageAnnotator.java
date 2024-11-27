@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.language.sql;
 
 import com.dbn.code.sql.color.SQLTextAttributesKeys;
@@ -5,7 +21,11 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionHandlerStatus;
 import com.dbn.language.common.DBLanguageAnnotator;
 import com.dbn.language.common.DBLanguageDialect;
-import com.dbn.language.common.psi.*;
+import com.dbn.language.common.psi.ChameleonPsiElement;
+import com.dbn.language.common.psi.ExecutablePsiElement;
+import com.dbn.language.common.psi.IdentifierPsiElement;
+import com.dbn.language.common.psi.NamedPsiElement;
+import com.dbn.language.common.psi.TokenPsiElement;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +54,7 @@ public class SQLLanguageAnnotator extends DBLanguageAnnotator {
         if (psiElement instanceof NamedPsiElement) {
             NamedPsiElement namedPsiElement = (NamedPsiElement) psiElement;
             if (namedPsiElement.hasErrors()) {
-                String message = "Invalid " + namedPsiElement.getElementType().getDescription();
+                String message = "Invalid " + namedPsiElement.elementType.getDescription();
                 createAnnotation(holder, namedPsiElement, ERROR, null, message);
             }
         }

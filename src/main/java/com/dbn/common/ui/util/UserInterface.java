@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.common.ui.util;
 
 import com.dbn.common.compatibility.Compatibility;
@@ -5,8 +21,8 @@ import com.dbn.common.lookup.Visitor;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Environment;
 import com.dbn.common.util.Strings;
-import com.dbn.common.util.Unsafe;
 import com.intellij.ide.ui.UISettings;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.ActionToolbarPosition;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.registry.Registry;
@@ -20,14 +36,27 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import javax.swing.table.TableCellEditor;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.IllegalComponentStateException;
+import java.awt.LayoutManager;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.PointerInfo;
 import java.awt.event.InputEvent;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
@@ -36,6 +65,7 @@ import java.util.function.Predicate;
 import static com.dbn.common.Reflection.invokeMethod;
 import static com.dbn.common.ui.util.Borderless.isBorderless;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.common.util.Unsafe.silent;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -73,13 +103,14 @@ public class UserInterface {
     }
 
     /**
-     * TODO rename to whenFirstShown
-     * @param component
-     * @param runnable
+     * Invokes a runnable once when the given component is shown
+     * @param component the @{@link Component} to consider visibility event for
+     * @param runnable the @{@link Runnable} to be invoked when the component is shown
      */
-    public static void whenShown(JComponent component, Runnable runnable) {
+    public static void whenFirstShown(JComponent component, Runnable runnable) {
         whenShown(component, runnable, true);
     }
+
 
     public static void whenShown(JComponent component, Runnable runnable, boolean first) {
         // one time invocation of the runnable when component is shown
@@ -187,6 +218,14 @@ public class UserInterface {
         });
     }
 
+    @Compatibility
+    public static void updateActionToolbars(JComponent component) {
+        visitRecursively(component, c -> {
+            ActionToolbar toolbar = ClientProperty.ACTION_TOOLBAR.get(c);
+            if (toolbar != null) toolbar.updateActionsImmediately();
+        });
+    }
+
     public static void changePanelBackground(JPanel panel, Color background) {
         panel.setBackground(background);
         for (Component component : panel.getComponents()) {
@@ -213,7 +252,7 @@ public class UserInterface {
     }
 
     public static <T extends JComponent> void visitRecursively(JComponent component, Class<T> type, Visitor<T> visitor) {
-        if (type.isAssignableFrom(component.getClass())) visitor.visit(Unsafe.cast(component));
+        if (type.isAssignableFrom(component.getClass())) visitor.visit(cast(component));
 
         Component[] childComponents = component.getComponents();
         for (Component childComponent : childComponents) {
@@ -245,7 +284,7 @@ public class UserInterface {
     public static <T extends JComponent> T getParentOfType(JComponent component, Class<T> type) {
         Component parent = component.getParent();
         while (parent != null) {
-            if (type.isAssignableFrom(parent.getClass())) return Unsafe.cast(parent);
+            if (type.isAssignableFrom(parent.getClass())) return cast(parent);
             parent = parent.getParent();
         }
         return null;
@@ -254,7 +293,7 @@ public class UserInterface {
     public static <T extends JComponent> T getParent(JComponent component, Predicate<Component> check) {
         Component parent = component.getParent();
         while (parent != null) {
-            if (check.test(parent)) return Unsafe.cast(parent);
+            if (check.test(parent)) return cast(parent);
             parent = parent.getParent();
         }
         return null;
@@ -324,5 +363,34 @@ public class UserInterface {
             }
         }
         return -1;
+    }
+
+    /**
+     * Finds a child component matching the criteria provided by the "check" {@link Predicate}
+     * (the lookup is done recursively and returns the first component matching the criteria)
+     *
+     * @param <T> the type of the component expected in return
+     * @param rootComponent the component where to start the lookup
+     * @param componentType the type of component expected in result
+     * @param check the {@link Predicate} defining the conditions the components must meet
+     * @return the first component matching the given criteria
+     */
+    @Nullable
+    public static <T extends JComponent> T findChildComponent(JComponent rootComponent, Class<T> componentType, Predicate<JComponent> check) {
+        Component[] components = rootComponent.getComponents();
+        for (Component child : components) {
+            if (!(child instanceof JComponent)) continue;
+
+            JComponent childComponent = (JComponent) child;
+            if (componentType.isAssignableFrom(childComponent.getClass()) && check.test(childComponent)) {
+                return cast(child);
+            }
+
+            childComponent = findChildComponent(childComponent, componentType, check);
+            if (childComponent != null) {
+                return cast(child);
+            }
+        }
+        return null;
     }
 }

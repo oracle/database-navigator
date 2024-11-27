@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.debugger.jdbc;
 
 import com.dbn.common.dispose.AlreadyDisposedException;
@@ -5,8 +21,7 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.thread.ThreadMonitor;
-import com.dbn.common.thread.ThreadProperty;
+import com.dbn.common.thread.ThreadPropertyGate;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -18,7 +33,11 @@ import com.dbn.database.common.debug.DebuggerRuntimeInfo;
 import com.dbn.database.common.debug.DebuggerSessionInfo;
 import com.dbn.database.common.debug.ExecutionBacktraceInfo;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
-import com.dbn.debugger.*;
+import com.dbn.debugger.DBDebugConsoleLogger;
+import com.dbn.debugger.DBDebugOperation;
+import com.dbn.debugger.DBDebugTabLayouter;
+import com.dbn.debugger.DBDebugUtil;
+import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.debugger.common.breakpoint.DBBreakpointHandler;
 import com.dbn.debugger.common.breakpoint.DBBreakpointUtil;
 import com.dbn.debugger.common.config.DBRunConfig;
@@ -59,8 +78,16 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.notification.NotificationGroup.DEBUGGER;
+import static com.dbn.common.thread.ThreadProperty.DEBUGGER_NAVIGATION;
 import static com.dbn.common.util.Strings.cachedUpperCase;
-import static com.dbn.debugger.common.process.DBDebugProcessStatus.*;
+import static com.dbn.debugger.common.process.DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED;
+import static com.dbn.debugger.common.process.DBDebugProcessStatus.PROCESS_STOPPED;
+import static com.dbn.debugger.common.process.DBDebugProcessStatus.PROCESS_TERMINATED;
+import static com.dbn.debugger.common.process.DBDebugProcessStatus.PROCESS_TERMINATING;
+import static com.dbn.debugger.common.process.DBDebugProcessStatus.SESSION_INITIALIZATION_THREW_EXCEPTION;
+import static com.dbn.debugger.common.process.DBDebugProcessStatus.TARGET_EXECUTION_STARTED;
+import static com.dbn.debugger.common.process.DBDebugProcessStatus.TARGET_EXECUTION_TERMINATED;
+import static com.dbn.debugger.common.process.DBDebugProcessStatus.TARGET_EXECUTION_THREW_EXCEPTION;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.execution.ExecutionStatus.CANCELLED;
 
@@ -430,6 +457,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
         Messages.showErrorDialog(getProject(), "Could not perform operation.", e);
     }
 
+    @ThreadPropertyGate(DEBUGGER_NAVIGATION)
     private void suspendSession() {
         if (is(PROCESS_TERMINATING) || is(PROCESS_TERMINATED)) return;
 
@@ -444,7 +472,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
             session.stop();
         } else {
             VirtualFile virtualFile = getRuntimeInfoFile(runtimeInfo);
-            ThreadMonitor.surround(getProject(), ThreadProperty.DEBUGGER_NAVIGATION, () -> DBDebugUtil.openEditor(virtualFile));
+            DBDebugUtil.openEditor(virtualFile);
             try {
                 backtraceInfo = debuggerInterface.getExecutionBacktraceInfo(debuggerConnection);
                 List<DebuggerRuntimeInfo> frames = backtraceInfo.getFrames();

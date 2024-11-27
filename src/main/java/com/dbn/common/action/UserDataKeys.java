@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.common.action;
 
 import com.dbn.common.notification.NotificationGroup;
@@ -9,7 +25,6 @@ import com.dbn.connection.mapping.FileConnectionContext;
 import com.dbn.diagnostics.data.DiagnosticCategory;
 import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.language.common.DBLanguageDialect;
-import com.intellij.debugger.ui.breakpoints.LineBreakpoint;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 
@@ -30,7 +45,6 @@ public interface UserDataKeys {
     Key<DBNForm> DIAGNOSTIC_CONTENT_FORM = Key.create("DBNavigator.DiagnosticContentForm");
     Key<Integer> BREAKPOINT_ID = Key.create("DBNavigator.BreakpointId");
     Key<VirtualFile> BREAKPOINT_FILE = Key.create("DBNavigator.BreakpointFile");
-    Key<LineBreakpoint> LINE_BREAKPOINT = Key.create("DBNavigator.LineBreakpoint");
     Key<Boolean> SKIP_BROWSER_AUTOSCROLL = Key.create("DBNavigator.SkipEditorScroll");
     Key<Long> LAST_ANNOTATION_REFRESH = Key.create("DBNavigator.LastAnnotationRefresh");
 

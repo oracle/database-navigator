@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.common.database;
 
 import com.dbn.common.constant.Constants;
@@ -22,13 +38,15 @@ import static com.dbn.common.database.AuthenticationInfo.Attributes.TEMP_PWD_ATT
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_CONFIG_FILE;
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_PROFILE;
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_TYPE;
-import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.util.Commons.match;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.connection.AuthenticationType.OS_CREDENTIALS;
+import static com.dbn.connection.AuthenticationType.USER;
+import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 
 @Getter
 @Setter
@@ -48,7 +66,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
 
     private final long timestamp = System.currentTimeMillis();
 
-    private AuthenticationType type = AuthenticationType.USER_PASSWORD;
+    private AuthenticationType type = USER_PASSWORD;
     private String user;
     private String password;
     private boolean temporary;
@@ -81,6 +99,19 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
                     (isNotEmpty(tokenConfigFile) && isNotEmpty(tokenProfile));
         }
         return true;
+    }
+
+    /**
+     * Utility returning the availability of "user" information in the authentication data
+     * (user availability may be relevant when attempting to re-connect after receiving authentication errors
+     *    e.g. for preventing user from being locked out after too many failed authentication attempts)
+     * @return true if the AuthenticationInfo has user information, false otherwise
+     */
+    public boolean hasUserInformation() {
+        if (type == OS_CREDENTIALS) return true;
+        if (type.isOneOf(USER, USER_PASSWORD)) return Strings.isNotEmpty(user);
+
+        return false;
     }
 
     public boolean isSame(AuthenticationInfo authenticationInfo) {
@@ -133,13 +164,6 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         if (!Constants.isOneOf(type, supportedAuthTypes)) {
             type = supportedAuthTypes[0];
         }
-
-        // TODO backward compatibility
-        if (getBoolean(element, "os-authentication", false)) {
-            type = AuthenticationType.OS_CREDENTIALS;
-        } else if (getBoolean(element, "empty-authentication", false)) {
-            type = AuthenticationType.USER;
-        }
     }
 
     @Override
@@ -173,7 +197,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     }
 
     public void updateKeyChain(String oldUserName, String oldPassword) {
-        if (type == AuthenticationType.USER_PASSWORD && !temporary && DatabaseCredentialManager.USE) {
+        if (type == USER_PASSWORD && !temporary && DatabaseCredentialManager.USE) {
             oldUserName = nvl(oldUserName);
             oldPassword = nvl(oldPassword);
 

@@ -1,7 +1,22 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.vfs.file;
 
 import com.dbn.browser.model.BrowserTreeNode;
-import com.dbn.common.DevNullStreams;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.dispose.Failsafe;
@@ -24,10 +39,8 @@ import com.intellij.psi.PsiDirectory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.dispose.Failsafe.nd;
@@ -105,6 +118,15 @@ public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
             getObjectRef().getQualifiedName();
     }
 
+    @Override
+    public @NotNull String getPresentableName() {
+        String presentableName = super.getPresentableName();
+        if (getObjectType() == DBObjectType.JAVA_CLASS) {
+            presentableName = presentableName.replace("/", ".");
+        }
+        return presentableName;
+    }
+
     private String getConnectionName() {
         return Failsafe.guarded("DISPOSED", this, o -> o.getConnection().getName());
     }
@@ -159,7 +181,8 @@ public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
 
     @Override
     public Icon getIcon() {
-        return object.getObjectType().getIcon();
+        T object = guarded(null, () -> getObject());
+        return object == null ? getObjectType().getIcon() : object.getIcon();
     }
 
     @Override

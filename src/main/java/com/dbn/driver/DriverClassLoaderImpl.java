@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.driver;
 
 import com.dbn.common.load.ProgressMonitor;
@@ -13,7 +29,13 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Driver;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -121,13 +143,22 @@ class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader 
         }
         if (clazz == null) return super.loadClass(name, resolve);
 
-        loadedClasses.put(clazz.getName(), clazz);
+        loadedClasses.put(clazz.getName().intern(), clazz);
         return clazz;
 
 
         //}
     }
 
+    @Override
+    public void close() throws IOException {
+        try {
+            super.close();
+        } finally {
+            DatabaseDriverManager driverManager = DatabaseDriverManager.getInstance();
+            driverManager.resetDriverMetadata(getLibrary());
+        }
+    }
 
     @SneakyThrows
     private static URL[] getUrls(File library) {

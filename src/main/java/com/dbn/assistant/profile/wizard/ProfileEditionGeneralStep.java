@@ -1,28 +1,27 @@
 /*
- * Copyright (c) 2024, Oracle and/or its affiliates.
+ * Copyright 2024 Oracle and/or its affiliates
  *
- * This software is dual-licensed to you under the Universal Permissive License
- * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
- * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
- * either license.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and limitations under the License.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.dbn.assistant.profile.wizard;
 
 import com.dbn.assistant.credential.remote.ui.CredentialEditDialog;
-import com.dbn.assistant.entity.Profile;
 import com.dbn.assistant.profile.wizard.validation.ProfileCredentialVerifier;
 import com.dbn.assistant.profile.wizard.validation.ProfileNameVerifier;
-import com.dbn.assistant.service.AICredentialService;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Background;
-import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
@@ -37,13 +36,19 @@ import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.InputVerifier;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.event.ItemEvent;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.nls.NlsResources.txt;
@@ -59,28 +64,26 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   private JComboBox<String> credentialComboBox;
   private JTextField descriptionTextField;
   private JButton addCredentialButton;
-  private final AICredentialService credentialSvc;
 
-  private ConnectionRef connection;
-  private final Profile profile;
+  private final ConnectionRef connection;
+  private final ProfileData profile;
   private final Set<String> existingProfileNames;
 
   private final boolean isUpdate;
 
-  public ProfileEditionGeneralStep(ConnectionHandler connection, Profile profile, Set<String> existingProfileNames, boolean isUpdate) {
+  public ProfileEditionGeneralStep(ConnectionHandler connection, ProfileData profile, Set<String> existingProfileNames, boolean isUpdate) {
     super(txt("profile.mgmt.general_step.title"),
             txt("profile.mgmt.general_step.explaination"));
     this.connection = ConnectionRef.of(connection);
     this.profile = profile;
     this.existingProfileNames = existingProfileNames;
     this.isUpdate = isUpdate;
-    this.credentialSvc = AICredentialService.getInstance(connection);
 
     initCredentialAddButton();
     initializeUI();
     addValidationListener();
 
-    UserInterface.whenShown(mainPanel, () -> populateCredentials());
+    whenFirstShown(mainPanel, () -> populateCredentials());
   }
 
   private void initCredentialAddButton() {
@@ -104,7 +107,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
 
   private void initializeUI() {
     if (isUpdate) {
-      nameTextField.setText(profile.getProfileName());
+      nameTextField.setText(profile.getName());
       descriptionTextField.setText(profile.getDescription());
       nameTextField.setEnabled(false);
       credentialComboBox.setEnabled(true);
@@ -189,7 +192,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   public WizardStep<ProfileEditionWizardModel> onNext(ProfileEditionWizardModel model) {
     boolean nameValid = isUpdate || nameTextField.getInputVerifier().verify(nameTextField);
     boolean credentialValid = credentialComboBox.getInputVerifier().verify(credentialComboBox);
-    profile.setProfileName(nameTextField.getText());
+    profile.setName(nameTextField.getText());
     profile.setCredentialName((String) credentialComboBox.getSelectedItem());
     // special case for description: null and empty string is the same
     //    do not confuse Profile.equals() because of that

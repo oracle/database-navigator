@@ -1,11 +1,27 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.debugger.jdwp;
 
 import com.dbn.common.util.Documents;
+import com.dbn.debugger.DBDebugConsoleLogger;
+import com.dbn.debugger.DBDebugUtil;
 import com.dbn.debugger.common.breakpoint.DBBreakpointHandler;
 import com.dbn.debugger.common.breakpoint.DBBreakpointProperties;
 import com.dbn.debugger.common.breakpoint.DBBreakpointUtil;
-import com.dbn.debugger.DBDebugConsoleLogger;
-import com.dbn.debugger.DBDebugUtil;
 import com.dbn.debugger.jdwp.process.DBJdwpDebugProcess;
 import com.dbn.editor.DBContentType;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
@@ -25,6 +41,7 @@ import com.intellij.debugger.requests.ClassPrepareRequestor;
 import com.intellij.debugger.ui.breakpoints.LineBreakpoint;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Key;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebuggerUtil;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
@@ -41,13 +58,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Set;
 
-import static com.dbn.common.action.UserDataKeys.LINE_BREAKPOINT;
 import static com.dbn.common.util.Commons.nvl;
-import static com.dbn.debugger.common.breakpoint.DBBreakpointUtil.getProgramIdentifier;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProcess> {
     private static final ClassPrepareRequestor GENERIC_CLASS_PREPARE_REQUESTER = (p, r) -> System.out.println();
+    private static final Key<LineBreakpoint> LINE_BREAKPOINT = Key.create("DBNavigator.LineBreakpoint");
 
     public DBJdwpBreakpointHandler(XDebugSession session, DBJdwpDebugProcess debugProcess) {
         super(session, debugProcess);

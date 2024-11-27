@@ -1,13 +1,33 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.language.common.element.util;
 
+import com.dbn.common.index.IndexContainer;
+import com.dbn.common.util.Commons;
 import com.dbn.common.util.Compactables;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.cache.ElementTypeLookupCache;
-import com.dbn.language.common.element.impl.*;
-import com.dbn.common.index.IndexContainer;
-import com.dbn.common.util.Commons;
-import com.dbn.language.common.element.impl.*;
+import com.dbn.language.common.element.impl.ElementTypeBase;
+import com.dbn.language.common.element.impl.ElementTypeRef;
+import com.dbn.language.common.element.impl.IterationElementType;
+import com.dbn.language.common.element.impl.NamedElementType;
+import com.dbn.language.common.element.impl.SequenceElementType;
+import com.dbn.language.common.element.impl.TokenElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,15 +35,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 public final class NextTokenResolver {
-    private final ElementType source;
+    private final ElementTypeBase source;
     private final Set<NamedElementType> visited = new HashSet<>();
     private IndexContainer<TokenType> bucket;
 
-    private NextTokenResolver(ElementType source) {
+    private NextTokenResolver(ElementTypeBase source) {
         this.source = source;
     }
 
-    public static NextTokenResolver from(ElementType source) {
+    public static NextTokenResolver from(ElementTypeBase source) {
         return new NextTokenResolver(source);
     }
 
@@ -31,7 +51,7 @@ public final class NextTokenResolver {
         if (source instanceof NamedElementType) {
             visit((NamedElementType) source);
         } else {
-            visitElement(source.getParent(), source);
+            visitElement(source.parent, source);
         }
         Compactables.compact(bucket);
         return bucket;
@@ -40,14 +60,13 @@ public final class NextTokenResolver {
     private void visit(@NotNull NamedElementType element) {
         if (!visited.contains(element)) {
             visited.add(element);
-            Set<ElementType> parents = element.getParents();
-            for (ElementType parent : parents) {
+            for (ElementTypeBase parent : element.parents) {
                 visitElement(parent, element);
             }
         }
     }
 
-    private void visitElement(ElementType parent, ElementType child) {
+    private void visitElement(ElementTypeBase parent, ElementTypeBase child) {
         while (parent != null) {
             if (parent instanceof SequenceElementType) {
                 parent = visitSequence((SequenceElementType) parent, child);
@@ -58,7 +77,7 @@ public final class NextTokenResolver {
 
             if (parent != null) {
                 child = parent;
-                parent = child.getParent();
+                parent = child.parent;
                 if (child instanceof NamedElementType) {
                     visit((NamedElementType) child);
                 }
@@ -67,17 +86,17 @@ public final class NextTokenResolver {
     }
 
     private void visitIteration(IterationElementType parent) {
-        TokenElementType[] separatorTokens = parent.getSeparatorTokens();
+        TokenElementType[] separatorTokens = parent.separatorTokens;
         if (separatorTokens != null) {
             ensureBucket();
             for (TokenElementType separatorToken : separatorTokens) {
-                bucket.add(separatorToken.getTokenType());
+                bucket.add(separatorToken.tokenType);
             }
         }
     }
 
     @Nullable
-    private ElementType visitSequence(SequenceElementType parent, ElementType element) {
+    private ElementTypeBase visitSequence(SequenceElementType parent, ElementType element) {
         int elementsCount = parent.getChildCount();
         int index = parent.indexOf(element, 0) + 1;
 
@@ -85,9 +104,9 @@ public final class NextTokenResolver {
             ElementTypeRef child = parent.getChild(index);
             while (child != null) {
                 ensureBucket();
-                ElementTypeLookupCache lookupCache = child.getLookupCache();
+                ElementTypeLookupCache lookupCache = child.elementType.cache;
                 lookupCache.captureFirstPossibleTokens(bucket);
-                if (!child.isOptional()) {
+                if (!child.optional) {
                     parent = null;
                     break;
                 }

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.language.common.element.impl;
 
 import com.dbn.code.common.style.formatting.FormattingDefinition;
@@ -16,7 +32,7 @@ import com.dbn.language.common.element.cache.ElementTypeLookupCache;
 import com.dbn.language.common.element.parser.Branch;
 import com.dbn.language.common.element.parser.BranchCheck;
 import com.dbn.language.common.element.parser.ElementTypeParser;
-import com.dbn.language.common.element.path.LanguageNode;
+import com.dbn.language.common.element.path.LanguageNodeBase;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.element.util.ElementTypeAttributeHolder;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
@@ -31,7 +47,7 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -49,27 +65,27 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
     private final int hashCode;
     private String description;
     private Icon icon;
-    private Branch branch;
-    private FormattingDefinition formatting;
+    public Branch branch;
+    public FormattingDefinition formatting;
 
-    private final ElementTypeLookupCache<?> lookupCache = createLookupCache();
-    private final ElementTypeParser parser = createParser();
-    private final ElementTypeBundle bundle;
-    private final ElementType parent;
-    private DBObjectType virtualObjectType;
+    public final ElementTypeLookupCache<?> cache = createLookupCache();
+    public final ElementTypeParser parser = createParser();
+    public final ElementTypeBundle bundle;
+    public final ElementTypeBase parent;
+    public DBObjectType virtualObjectType;
+    public WrappingDefinition wrapping;
     private ElementTypeAttributeHolder attributes;
 
-    protected WrappingDefinition wrapping;
+    public boolean scopeDemarcation;
+    public boolean scopeIsolation;
 
-    private boolean scopeDemarcation;
-    private boolean scopeIsolation;
 
     @Override
     public @NotNull ASTNode createCompositeNode() {
         return new BasicCompositeElement(this);
     }
 
-    ElementTypeBase(@NotNull ElementTypeBundle bundle, ElementType parent, String id, @Nullable String description) {
+    ElementTypeBase(@NotNull ElementTypeBundle bundle, ElementTypeBase parent, String id, @Nullable String description) {
         super(id, bundle.getLanguageDialect(), false);
         this.id = id.intern();
         this.hashCode = System.identityHashCode(this);
@@ -78,7 +94,7 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
         this.parent = parent;
     }
 
-    ElementTypeBase(@NotNull ElementTypeBundle bundle, ElementType parent, String id, @NotNull Element def) throws ElementTypeDefinitionException {
+    ElementTypeBase(@NotNull ElementTypeBundle bundle, ElementTypeBase parent, String id, @NotNull Element def) throws ElementTypeDefinitionException {
         super(id, bundle.getLanguageDialect(), false);
         String defId = stringAttribute(def, "id");
         this.hashCode = System.identityHashCode(this);
@@ -110,21 +126,21 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
     }
 
     public boolean isWrappingBegin(LeafElementType elementType) {
-        return wrapping != null && wrapping.getBeginElementType() == elementType;
+        return wrapping != null && wrapping.beginElementType == elementType;
     }
 
     @Override
     public boolean isWrappingBegin(TokenType tokenType) {
-        return wrapping != null && wrapping.getBeginElementType().getTokenType() == tokenType;
+        return wrapping != null && wrapping.beginElementType.tokenType == tokenType;
     }
 
     public boolean isWrappingEnd(LeafElementType elementType) {
-        return wrapping != null && wrapping.getEndElementType() == elementType;
+        return wrapping != null && wrapping.endElementType == elementType;
     }
 
     @Override
     public boolean isWrappingEnd(TokenType tokenType) {
-        return wrapping != null && wrapping.getEndElementType().getTokenType() == tokenType;
+        return wrapping != null && wrapping.endElementType.tokenType == tokenType;
     }
 
     protected abstract ElementTypeLookupCache<?> createLookupCache();
@@ -218,11 +234,6 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
         return (DBLanguageDialect) super.getLanguage();
     }
 
-    @Override
-    public ElementTypeBundle getElementBundle() {
-        return bundle;
-    }
-
     public String toString() {
         return id;
     }
@@ -238,14 +249,15 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
     }
 
     @Override
-    public int getIndexInParent(LanguageNode node) {
-        LanguageNode parentNode = node.getParent();
-        if (parentNode != null && parentNode.getElement() instanceof SequenceElementType) {
-            SequenceElementType sequenceElementType = (SequenceElementType) parentNode.getElement();
+    public int getIndexInParent(LanguageNodeBase node) {
+        LanguageNodeBase parentNode = (LanguageNodeBase) node.parent;
+        if (parentNode != null && parentNode.element instanceof SequenceElementType) {
+            SequenceElementType sequenceElementType = (SequenceElementType) parentNode.element;
             return sequenceElementType.indexOf(this);
         }
         return 0;
     }
+
 
     /*********************************************************
      *                  Virtual Object                       *
@@ -253,11 +265,6 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
     @Override
     public boolean isVirtualObject() {
         return virtualObjectType != null;
-    }
-
-    @Override
-    public DBObjectType getVirtualObjectType() {
-        return virtualObjectType;
     }
 
     protected boolean getBooleanAttribute(Element element, String attributeName) {
@@ -277,8 +284,8 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
 
     public void collectLeafElements(Set<LeafElementType> bucket) {
         if (wrapping != null) {
-            bucket.add(wrapping.getBeginElementType());
-            bucket.add(wrapping.getEndElementType());
+            bucket.add(wrapping.beginElementType);
+            bucket.add(wrapping.beginElementType);
         }
     }
 }

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.language.common.parameter;
 
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
@@ -99,7 +115,7 @@ public class MethodParameterInfoHandler implements ParameterInfoHandler<BasePsiE
 
         BasePsiElement iterationPsiElement = handlerPsiElement.findFirstPsiElement(IterationElementType.class);
         if (iterationPsiElement != null) {
-            IterationElementType iterationElementType = (IterationElementType) iterationPsiElement.getElementType();
+            IterationElementType iterationElementType = (IterationElementType) iterationPsiElement.elementType;
             PsiElement paramPsiElement = iterationPsiElement.getFirstChild();
             int paramIndex = -1;
             BasePsiElement iteratedPsiElement = null;
@@ -107,13 +123,13 @@ public class MethodParameterInfoHandler implements ParameterInfoHandler<BasePsiE
                 ElementType elementType = PsiUtil.getElementType(paramPsiElement);
                 if (elementType instanceof TokenElementType) {
                     TokenElementType tokenElementType = (TokenElementType) elementType;
-                    if (iterationElementType.isSeparator(tokenElementType.getTokenType())){
+                    if (iterationElementType.isSeparator(tokenElementType.tokenType)){
                         if (paramPsiElement.getTextOffset() >= offset) {
                             break;
                         }
                     }
                 }
-                if (elementType == iterationElementType.getIteratedElementType()) {
+                if (elementType == iterationElementType.iteratedElementType) {
                     iteratedPsiElement = (BasePsiElement) paramPsiElement;
                     paramIndex++;
                 }
@@ -149,12 +165,12 @@ public class MethodParameterInfoHandler implements ParameterInfoHandler<BasePsiE
             }
         }
 
-        IterationElementType iterationElementType = (IterationElementType) iterationPsiElement.getElementType();
+        IterationElementType iterationElementType = (IterationElementType) iterationPsiElement.elementType;
         int index = 0;
         PsiElement paramPsiElement = iterationPsiElement.getFirstChild();
         while (paramPsiElement != null) {
             ElementType elementType = PsiUtil.getElementType(paramPsiElement);
-            if (elementType == iterationElementType.getIteratedElementType()) {
+            if (elementType == iterationElementType.iteratedElementType) {
                 if (paramPsiElement == parameter) {
                     context.setCurrentParameter(index);
                     return;

@@ -1,15 +1,17 @@
 /*
- * Copyright (c) 2024, Oracle and/or its affiliates.
+ * Copyright 2024 Oracle and/or its affiliates
  *
- * This software is dual-licensed to you under the Universal Permissive License
- * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
- * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
- * either license.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and limitations under the License.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.dbn.assistant.provider;
@@ -22,7 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Lists.convert;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
@@ -57,7 +61,7 @@ import static java.util.Collections.unmodifiableMap;
  */
 public class LanguageModelDefinition {
     private static final LanguageModelDefinition INSTANCE = new LanguageModelDefinition();
-    private final List<ProviderType> providers;
+    private final List<AIProvider> providers;
 
     @SneakyThrows
     private LanguageModelDefinition() {
@@ -67,19 +71,19 @@ public class LanguageModelDefinition {
         providers = unmodifiableList(convert(providerElements, e -> createProvider(e)));
     }
 
-    private static ProviderModel createModel(ProviderType provider, Element element) {
+    private static AIModel createModel(AIProvider provider, Element element) {
         String modelId = stringAttribute(element, "id");
         String modelApiName = stringAttribute(element, "api-name");
-        return new ProviderModel(provider, modelId, modelApiName);
+        return new AIModel(provider, modelId, modelApiName);
     }
 
-    private static ProviderType createProvider(Element element) {
+    private static AIProvider createProvider(Element element) {
         String id = stringAttribute(element, "id");
         String name = stringAttribute(element, "name");
         String host = stringAttribute(element, "host");
         boolean main = booleanAttribute(element, "default", false);
         boolean experimental = booleanAttribute(element, "experimental", false);
-        ProviderType provider = new ProviderType(id, name, host, main, experimental);
+        AIProvider provider = new AIProvider(id, name, host, main, experimental);
 
         createModels(element, provider);
         createUrls(element, provider);
@@ -87,13 +91,13 @@ public class LanguageModelDefinition {
         return provider;
     }
 
-    private static void createModels(Element element, ProviderType provider) {
+    private static void createModels(Element element, AIProvider provider) {
         List<Element> modelElements = element.getChild("models").getChildren();
-        List<ProviderModel> models = convert(modelElements, e -> createModel(provider, e));
+        List<AIModel> models = convert(modelElements, e -> createModel(provider, e));
         provider.setModels(unmodifiableList(models));
     }
 
-    private static void createUrls(Element element, ProviderType provider) {
+    private static void createUrls(Element element, AIProvider provider) {
         List<Element> urlElements = element.getChild("urls").getChildren();
         Map<ProviderUrlType, String> urls = new HashMap<>();
         for (Element urlElement : urlElements) {
@@ -103,7 +107,7 @@ public class LanguageModelDefinition {
         provider.setUrls(unmodifiableMap(urls));
     }
 
-    public static List<ProviderType> providers() {
+    public static List<AIProvider> providers() {
         return INSTANCE.providers;
     }
 }

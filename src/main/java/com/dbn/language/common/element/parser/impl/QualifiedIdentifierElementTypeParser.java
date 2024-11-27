@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.language.common.element.parser.impl;
 
 import com.dbn.language.common.ParseException;
@@ -7,13 +23,13 @@ import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.QualifiedIdentifierElementType;
 import com.dbn.language.common.element.impl.QualifiedIdentifierVariant;
 import com.dbn.language.common.element.impl.TokenElementType;
-import com.dbn.language.common.element.path.ParserNode;
-import com.dbn.language.common.element.util.ParseBuilderErrorHandler;
 import com.dbn.language.common.element.parser.ElementTypeParser;
 import com.dbn.language.common.element.parser.ParseResult;
 import com.dbn.language.common.element.parser.ParseResultType;
 import com.dbn.language.common.element.parser.ParserBuilder;
 import com.dbn.language.common.element.parser.ParserContext;
+import com.dbn.language.common.element.path.ParserNode;
+import com.dbn.language.common.element.util.ParseBuilderErrorHandler;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +43,7 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
 
     @Override
     public ParseResult parse(ParserNode parentNode, ParserContext context) throws ParseException {
-        ParserBuilder builder = context.getBuilder();
+        ParserBuilder builder = context.builder;
         ParserNode node = stepIn(parentNode, context);
 
         TokenElementType separatorToken = elementType.getSeparatorToken();
@@ -38,11 +54,11 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
             LeafElementType[] elementTypes = variant.getLeafs();
 
             for (LeafElementType elementType : elementTypes) {
-                ParseResult result = elementType.getParser().parse(node, context);
+                ParseResult result = elementType.parser.parse(node, context);
                 if (result.isNoMatch()) break;  else matchedTokens = matchedTokens + result.getMatchedTokens();
 
                 if (elementType != elementTypes[elementTypes.length -1])  {
-                    result = separatorToken.getParser().parse(node, context);
+                    result = separatorToken.parser.parse(node, context);
                     if (result.isNoMatch()) break; else matchedTokens = matchedTokens + result.getMatchedTokens();
                 }
                 node.incrementIndex(builder.getOffset());
@@ -50,7 +66,7 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
 
             if (matchedTokens > 0) {
                 if (variant.isIncomplete()) {
-                    Set<TokenType> expected = Collections.singleton(separatorToken.getTokenType());
+                    Set<TokenType> expected = Collections.singleton(separatorToken.tokenType);
                     ParseBuilderErrorHandler.updateBuilderError(expected, context);
                     return stepOut(node, context, ParseResultType.PARTIAL_MATCH, matchedTokens);
                 } else {
@@ -63,7 +79,7 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
     }
 
     private QualifiedIdentifierVariant getMostProbableParseVariant(ParserBuilder builder) {
-        TokenType separatorToken = elementType.getSeparatorToken().getTokenType();
+        TokenType separatorToken = elementType.getSeparatorToken().tokenType;
         SharedTokenTypeBundle sharedTokenTypes = getSharedTokenTypes();
         TokenType identifier = sharedTokenTypes.getIdentifier();
 
@@ -78,7 +94,7 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
                 wasSeparator = true;
             } else {
                 if (wasSeparator) {
-                    if (tokenType.isIdentifier() ||  elementType.getLookupCache().containsToken(tokenType))
+                    if (tokenType.isIdentifier() ||  elementType.cache.containsToken(tokenType))
                         chan.add(tokenType); else
                         chan.add(identifier);
                 } else {
@@ -97,7 +113,7 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
             if (elementTypes.length <= chan.size()) {
                 int matchedTokens = 0;
                 for (int i=0; i<elementTypes.length; i++) {
-                    if (elementTypes[i].getTokenType().matches(chan.get(i))) {
+                    if (elementTypes[i].tokenType.matches(chan.get(i))) {
                         matchedTokens++;
                     }
                 }

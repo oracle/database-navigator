@@ -1,8 +1,23 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.language.common.element.impl;
 
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
-import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.OneOfElementTypeLookupCache;
 import com.dbn.language.common.element.parser.BranchCheck;
@@ -11,7 +26,6 @@ import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.language.common.psi.SequencePsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
-import lombok.Getter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,21 +37,19 @@ import java.util.Set;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Unsafe.cast;
 
-@Getter
 public final class OneOfElementType extends ElementTypeBase {
-    private ElementTypeRef[] children;
+    public ElementTypeRef[] children;
     private boolean sortable;
     private boolean sorted;
     private boolean basic;
 
-    public OneOfElementType(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
+    public OneOfElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
     }
 
     @Override
     protected void loadDefinition(Element def) throws ElementTypeDefinitionException {
         super.loadDefinition(def);
-        ElementTypeBundle bundle = getBundle();
         String tokenIds = stringAttribute(def, "tokens");
         if (Strings.isNotEmptyOrSpaces(tokenIds)) {
             basic = true;
@@ -63,7 +75,7 @@ public final class OneOfElementType extends ElementTypeBase {
             for (int i=0; i<children.size(); i++) {
                 Element child = children.get(i);
                 String type = child.getName();
-                ElementType elementType = bundle.resolveElementDefinition(child, type, this);
+                ElementTypeBase elementType = bundle.resolveElementDefinition(child, type, this);
                 double version = Double.parseDouble(Commons.nvl(stringAttribute(child, "version"), "0"));
                 Set<BranchCheck> branchChecks = parseBranchChecks(stringAttribute(child, "branch-check"));
 
@@ -128,8 +140,8 @@ public final class OneOfElementType extends ElementTypeBase {
     }
 
     private static final Comparator<ElementTypeRef> ONE_OF_COMPARATOR = (o1, o2) -> {
-        int i1 = o1.getLookupCache().startsWithIdentifier() ? 1 : 2;
-        int i2 = o2.getLookupCache().startsWithIdentifier() ? 1 : 2;
+        int i1 = o1.elementType.cache.startsWithIdentifier() ? 1 : 2;
+        int i2 = o2.elementType.cache.startsWithIdentifier() ? 1 : 2;
         return i2-i1;
     };
 
@@ -142,7 +154,7 @@ public final class OneOfElementType extends ElementTypeBase {
         super.collectLeafElements(bucket);
         if (basic) {
             for (ElementTypeRef child : children) {
-                bucket.add(cast(child.getElementType()));
+                bucket.add(cast(child.elementType));
             }
         }
     }

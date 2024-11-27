@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.object.impl;
 
 import com.dbn.browser.ui.HtmlToolTipBuilder;
@@ -13,8 +29,6 @@ import com.dbn.object.common.DBSchemaObjectImpl;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.list.DBObjectRelationList;
-import com.dbn.object.common.operation.DBOperationExecutor;
-import com.dbn.object.common.operation.DatabaseOperationManager;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.properties.DBObjectPresentableProperty;
@@ -26,7 +40,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
@@ -264,16 +278,5 @@ class DBConstraintImpl extends DBSchemaObjectImpl<DBConstraintMetadata> implemen
     @Override
     public boolean isLeaf() {
         return true;
-    }
-
-    @Override
-    public DBOperationExecutor getOperationExecutor() {
-        return operationType -> {
-            DatabaseOperationManager operationManager = DatabaseOperationManager.getInstance(getProject());
-            switch (operationType) {
-                case ENABLE:  operationManager.enableConstraint(this); break;
-                case DISABLE: operationManager.disableConstraint(this); break;
-            }
-        };
     }
 }

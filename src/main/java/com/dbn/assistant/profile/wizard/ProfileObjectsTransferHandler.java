@@ -1,32 +1,38 @@
 /*
- * Copyright (c) 2024, Oracle and/or its affiliates.
+ * Copyright 2024 Oracle and/or its affiliates
  *
- * This software is dual-licensed to you under the Universal Permissive License
- * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
- * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
- * either license.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and limitations under the License.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.dbn.assistant.profile.wizard;
 
-import com.dbn.assistant.entity.ProfileDBObjectItem;
+import com.dbn.common.clipboard.GenericContent;
 import com.dbn.object.DBDataset;
-import com.intellij.designer.clipboard.SimpleTransferable;
+import com.dbn.object.common.DBObject;
+import com.dbn.object.lookup.DBObjectRef;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JTable;
+import javax.swing.TransferHandler;
 import javax.swing.table.TableModel;
-import java.awt.*;
+import java.awt.Component;
 import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.dbn.common.util.Unsafe.cast;
 
 /**
  * Transfer handler for Database object and profile database object.
@@ -59,11 +65,11 @@ public class ProfileObjectsTransferHandler extends TransferHandler {
     private static boolean selectData(TransferSupport info) {
         try {
             Transferable transferable = info.getTransferable();
-            List<DBDataset> l = (List<DBDataset>) transferable.getTransferData(ProfileObjectsTransferable.ADD_FLAVOR);
+            List<DBObject> objects = cast(transferable.getTransferData(ProfileObjectsTransferable.ADD_FLAVOR));
 
             JTable table = (JTable) info.getComponent();
-            ProfileObjectsTableModel model = (ProfileObjectsTableModel) table.getModel();
-            model.addItems(l.stream().map(i->new ProfileDBObjectItem(i.getSchemaName(),i.getName())).collect(Collectors.toList()));
+            ObjectsTableModel model = (ObjectsTableModel) table.getModel();
+            model.addItems(objects);
             return true;
         } catch (Exception e) {
             log.warn("Failed to transfer data", e);
@@ -76,12 +82,12 @@ public class ProfileObjectsTransferHandler extends TransferHandler {
         if (action != TransferHandler.MOVE) return;
         JTable table = (JTable) source;
         TableModel model = table.getModel();
-        if (model instanceof ProfileObjectsTableModel) {
-            ProfileObjectsTableModel objectModel = (ProfileObjectsTableModel) model;
-            List<ProfileDBObjectItem> objects = getSelectedItems(table);
-            objects.forEach(o -> objectModel.removeItem(o));
+        if (model instanceof ObjectsTableModel) {
+            ObjectsTableModel objectModel = (ObjectsTableModel) model;
+            List<DBObject> objects = getSelectedItems(table);
+            objects.forEach(o -> objectModel.removeItem(DBObjectRef.of(o)));
+            objectModel.fireTableDataChanged();
         }
-
     }
 
     @Override
@@ -99,8 +105,8 @@ public class ProfileObjectsTransferHandler extends TransferHandler {
         if (model instanceof AvailableDatasetsTableModel) {
             List<DBDataset> datasets = getSelectedItems(table);
             return new ProfileObjectsTransferable(datasets);
-        } else if (model instanceof ProfileObjectsTableModel) {
-            return new SimpleTransferable("NULL", ProfileObjectsTransferable.REMOVE_FLAVOR);
+        } else if (model instanceof ObjectsTableModel) {
+            return new GenericContent("NULL", ProfileObjectsTransferable.REMOVE_FLAVOR);
         }
 
         return null;
@@ -109,7 +115,7 @@ public class ProfileObjectsTransferHandler extends TransferHandler {
 
     private static boolean isSelectAction(TransferSupport info) {
         return info.isDataFlavorSupported(ProfileObjectsTransferable.ADD_FLAVOR) &&
-                getTableModel(info) instanceof ProfileObjectsTableModel;
+                getTableModel(info) instanceof ObjectsTableModel;
     }
 
     private static boolean isDeselectAction(TransferSupport info) {

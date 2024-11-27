@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.editor;
 
 import com.dbn.DatabaseNavigator;
@@ -7,7 +23,11 @@ import com.dbn.common.file.VirtualFileInfo;
 import com.dbn.common.icon.OverlaidIcons;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.navigation.NavigationInstructions;
-import com.dbn.common.thread.*;
+import com.dbn.common.thread.Background;
+import com.dbn.common.thread.Dispatch;
+import com.dbn.common.thread.Progress;
+import com.dbn.common.thread.ThreadInfo;
+import com.dbn.common.thread.ThreadPropertyGate;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
@@ -45,7 +65,7 @@ import com.intellij.ui.tabs.TabInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.Collection;
 import java.util.List;
 
@@ -54,8 +74,12 @@ import static com.dbn.browser.DatabaseBrowserUtils.unmarkSkipBrowserAutoscroll;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.allValid;
 import static com.dbn.common.dispose.Checks.isNotValid;
-import static com.dbn.common.navigation.NavigationInstruction.*;
-import static com.dbn.common.thread.ThreadProperty.*;
+import static com.dbn.common.navigation.NavigationInstruction.FOCUS;
+import static com.dbn.common.navigation.NavigationInstruction.OPEN;
+import static com.dbn.common.navigation.NavigationInstruction.SCROLL;
+import static com.dbn.common.thread.ThreadProperty.DEBUGGER_NAVIGATION;
+import static com.dbn.common.thread.ThreadProperty.EDITOR_LOAD;
+import static com.dbn.common.thread.ThreadProperty.WORKSPACE_RESTORE;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Editors.getEditorTabInfos;
 import static com.dbn.editor.DatabaseFileEditorManager.COMPONENT_NAME;
@@ -108,18 +132,19 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
         return editorManager.isFileOpen(databaseFile);
     }
 
+    @ThreadPropertyGate(EDITOR_LOAD)
     public void connectAndOpenEditor(@NotNull DBObject object, @Nullable EditorProviderId editorProviderId, boolean scrollBrowser, boolean focusEditor) {
         if (!isEditable(object)) return;
 
         ConnectionAction.invoke("opening the object editor", false, object, action -> {
+            Project project = getProject();
             if (focusEditor) {
-                Project project = object.getProject();
                 Progress.prompt(project, object, true,
                         "Opening " + object.getTypeName() + " editor",
                         "Opening editor for " + object.getQualifiedNameWithType(),
                         progress -> openEditor(object, editorProviderId, scrollBrowser, true));
             } else {
-                Background.run(getProject(), () -> openEditor(object, editorProviderId, scrollBrowser, false));
+                Background.run(project, () -> openEditor(object, editorProviderId, scrollBrowser, false));
             }
         });
     }

@@ -1,12 +1,31 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.language.common.element.impl;
 
 import com.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dbn.code.common.style.formatting.SpacingDefinition;
-import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.IdentifierElementTypeLookupCache;
 import com.dbn.language.common.element.parser.impl.IdentifierElementTypeParser;
-import com.dbn.language.common.element.util.*;
+import com.dbn.language.common.element.util.ElementTypeAttribute;
+import com.dbn.language.common.element.util.ElementTypeDefinition;
+import com.dbn.language.common.element.util.ElementTypeDefinitionException;
+import com.dbn.language.common.element.util.IdentifierCategory;
+import com.dbn.language.common.element.util.IdentifierType;
 import com.dbn.language.common.psi.IdentifierDefPsiElement;
 import com.dbn.language.common.psi.IdentifierRefPsiElement;
 import com.dbn.language.common.resolve.UnderlyingObjectResolver;
@@ -23,7 +42,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 public final class IdentifierElementType extends LeafElementType {
     public static final FormattingDefinition FORMATTING = new FormattingDefinition(null, null, SpacingDefinition.ONE_SPACE, null);
 
-    private IdentifierType identifierType;
+    public IdentifierType identifierType;
     private IdentifierCategory identifierCategory;
     private DBObjectType objectType;
     private String underlyingObjectResolverId;
@@ -31,9 +50,9 @@ public final class IdentifierElementType extends LeafElementType {
     private boolean localReference; // is local reference
 
 
-    public IdentifierElementType(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
+    public IdentifierElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
-        setTokenType(bundle.getTokenTypeBundle().getIdentifier());
+        tokenType = bundle.getTokenTypeBundle().getIdentifier();
     }
 
     @Override

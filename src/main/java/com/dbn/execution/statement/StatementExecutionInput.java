@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.execution.statement;
 
 import com.dbn.common.latent.Latent;
@@ -19,7 +35,6 @@ import com.dbn.language.common.psi.ExecutableBundlePsiElement;
 import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.dbn.language.sql.SQLLanguage;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
@@ -167,7 +182,7 @@ public class StatementExecutionInput extends LocalExecutionInput {
     @Override
     public boolean isDatabaseLogProducer() {
         ExecutablePsiElement executablePsiElement = getExecutablePsiElement();
-        return executablePsiElement != null && executablePsiElement.getElementType().is(ElementTypeAttribute.DATABASE_LOG_PRODUCER);
+        return executablePsiElement != null && executablePsiElement.elementType.is(ElementTypeAttribute.DATABASE_LOG_PRODUCER);
     }
 
 

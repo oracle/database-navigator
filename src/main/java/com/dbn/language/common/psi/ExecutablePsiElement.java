@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.language.common.psi;
 
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
@@ -18,10 +34,19 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 import static com.dbn.common.util.Strings.cachedUpperCase;
-import static com.dbn.language.common.element.util.ElementTypeAttribute.*;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.ACTION;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.COMPILABLE_BLOCK;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.DATA_DEFINITION;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.OBJECT_DECLARATION;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.QUERY;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SCHEMA_CHANGE;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SUBJECT;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.TRANSACTIONAL;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.TRANSACTIONAL_CANDIDATE;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.TRANSACTION_CONTROL;
 
 public class ExecutablePsiElement extends NamedPsiElement implements Cloneable<ExecutablePsiElement> {
     private WeakRef<StatementExecutionProcessor> executionProcessor;
@@ -37,8 +62,8 @@ public class ExecutablePsiElement extends NamedPsiElement implements Cloneable<E
         }
         BasePsiElement basePsiElement = (BasePsiElement) lastChild;
         String text = getText();
-        if (basePsiElement != null && basePsiElement.getElementType() instanceof NamedElementType) {
-            NamedElementType namedElementType = (NamedElementType) basePsiElement.getElementType();
+        if (basePsiElement != null && basePsiElement.elementType instanceof NamedElementType) {
+            NamedElementType namedElementType = (NamedElementType) basePsiElement.elementType;
             if (namedElementType.isTruncateOnExecution()) {
                 return text.substring(0, text.length() - basePsiElement.getTextLength());
             }

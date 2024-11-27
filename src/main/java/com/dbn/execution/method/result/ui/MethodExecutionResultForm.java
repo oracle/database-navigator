@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.execution.method.result.ui;
 
 import com.dbn.common.action.DataKeys;
@@ -6,6 +22,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.tab.DBNTabbedPane;
+import com.dbn.common.ui.tab.DBNTabs;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
@@ -28,8 +45,11 @@ import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTree;
+import java.awt.BorderLayout;
 import java.util.List;
 
 import static com.dbn.common.util.Commons.nvl;
@@ -144,8 +164,11 @@ public class MethodExecutionResultForm extends ExecutionResultFormBase<MethodExe
 
     private void addOutputTab(DBArgument argument, DBNForm form) {
         boolean select = outputTabs.getTabCount() == 0;
-        outputTabs.addTab(argument.getName(), argument.getIcon(), form.getComponent(), form);
+        String title = argument.getName();
+        JComponent component = form.getComponent();
+        DBNTabs.initTabComponent(component, argument.getIcon(), null, form);
 
+        outputTabs.addTab(title, component);
         if (select) outputTabs.setSelectedIndex(0);
     }
 

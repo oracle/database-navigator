@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.connection;
 
 import com.dbn.common.database.AuthenticationInfo;
@@ -57,6 +73,7 @@ public class ConnectionUtil {
                 connection.setConnectionInfo(connectionInfo);
                 connectionStatus.setAuthenticationError(null);
                 connection.getCompatibility().read(conn.getMetaData());
+                initSessionUser(connection, conn);
                 diagnostics.log(sessionId, false, false, millisSince(start));
                 return conn;
             } catch (SQLTimeoutException e) {
@@ -76,6 +93,22 @@ public class ConnectionUtil {
         });
     }
 
+    /**
+     * Initializes the session-user for the given connection handler.
+     * Verifies if the session user has already been confirmed and skips the initialization if this is true
+     * @param connection the database to be verified
+     * @param conn the jdbc connection to be used for loading the session user
+     * @throws SQLException if the load of session-user fails
+     */
+    private static void initSessionUser(ConnectionHandler connection, DBNConnection conn) throws SQLException {
+        ConnectionDatabaseSettings databaseSettings = connection.getSettings().getDatabaseSettings();
+        if (databaseSettings.getSessionUser() == null || !databaseSettings.isSessionUserConfirmed()) {
+            String sessionUser = connection.getMetadataInterface().loadSessionUser(conn);
+            databaseSettings.setSessionUser(sessionUser);
+            databaseSettings.setSessionUserConfirmed(true);
+        }
+    }
+
     @NotNull
     private static AuthenticationInfo ensureAuthenticationInfo(ConnectionHandler connection) throws SQLException {
         // do not retry connection on authentication error unless
@@ -85,7 +118,13 @@ public class ConnectionUtil {
         AuthenticationError authenticationError = statusHolder.getAuthenticationError();
         AuthenticationInfo authenticationInfo = initAuthenticationInfo(connection);
 
-        if (authenticationError != null && authenticationError.getAuthenticationInfo().isSame(authenticationInfo) && !authenticationError.isExpired()) {
+        if (authenticationError != null &&
+                !authenticationError.isExpired() &&
+                !authenticationError.isObsolete(authenticationInfo) &&
+                authenticationInfo.hasUserInformation()) {
+
+            // prevent user account locking due to successive failed authentication attempts
+            // (throw last auth exception)
             throw authenticationError.getException();
         }
         return authenticationInfo;

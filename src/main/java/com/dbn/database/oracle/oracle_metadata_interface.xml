@@ -1,3 +1,19 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <!DOCTYPE data-dictionary [
         <!ELEMENT data-dictionary (statement-execution-processor)*>
         <!ELEMENT statement-execution-processor (statement)*>
@@ -189,6 +205,86 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="ai-profiles" is-query="true" is-prepared-statement="true">
+        <statement>
+            select
+                p.PROFILE_NAME,
+                DECODE(STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                TO_CHAR(p.DESCRIPTION) AS DESCRIPTION,
+                pa.PROVIDER,
+                pa.MODEL,
+                pa.TEMPERATURE,
+                pa.CREDENTIAL_NAME,
+                pa.OBJECT_LIST
+            from (
+                select
+                PROFILE_ID,
+                PROFILE_NAME,
+                ATTRIBUTE_NAME,
+                ATTRIBUTE_VALUE
+                from DBA_CLOUD_AI_PROFILE_ATTRIBUTES
+            )
+            pivot (
+                MAX(TO_CHAR(ATTRIBUTE_VALUE))
+                for ATTRIBUTE_NAME in (
+                    'provider' AS PROVIDER,
+                    'model' AS MODEL,
+                    'temperature' AS TEMPERATURE,
+                    'credential_name' AS CREDENTIAL_NAME,
+                    'object_list' AS OBJECT_LIST
+                )
+            ) pa
+            join DBA_CLOUD_AI_PROFILES p on p.PROFILE_ID = pa.PROFILE_ID
+            where p.OWNER = {0}
+            order by pa.PROFILE_NAME asc
+        </statement>
+        <statement>
+            select
+                p.PROFILE_NAME,
+                DECODE(STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                TO_CHAR(p.DESCRIPTION) AS DESCRIPTION,
+                pa.PROVIDER,
+                pa.MODEL,
+                pa.TEMPERATURE,
+                pa.CREDENTIAL_NAME,
+                pa.OBJECT_LIST
+            from (
+                select
+                PROFILE_ID,
+                PROFILE_NAME,
+                ATTRIBUTE_NAME,
+                ATTRIBUTE_VALUE
+                from USER_CLOUD_AI_PROFILE_ATTRIBUTES
+            )
+            pivot (
+                MAX(TO_CHAR(ATTRIBUTE_VALUE))
+                for ATTRIBUTE_NAME in (
+                    'provider' AS PROVIDER,
+                    'model' AS MODEL,
+                    'temperature' AS TEMPERATURE,
+                    'credential_name' AS CREDENTIAL_NAME,
+                    'object_list' AS OBJECT_LIST
+                )
+            ) pa
+            join USER_CLOUD_AI_PROFILES p on p.PROFILE_ID = pa.PROFILE_ID
+            join USER_USERS uu ON uu.USERNAME = {0}
+            order by pa.PROFILE_NAME asc
+        </statement>
+        <statement>
+            <!--empty fallback for non-cloud databases-->
+            select
+                null as PROFILE_NAME,
+                null as IS_ENABLED,
+                null as DESCRIPTION,
+                null as PROVIDER,
+                null as MODEL,
+                null as TEMPERATURE,
+                null as CREDENTIAL_NAME,
+                null as OBJECT_LIST
+            from DUAL where 1 = 2
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="tables" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             with DBN_MVIEWS as (
@@ -224,17 +320,152 @@
     <statement-execution-processor id="java-objects" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select
-                NAME as OBJECT_NAME,
-                KIND as OBJECT_KIND,
-                ACCESSIBILITY as OBJECT_ACCESSIBILITY,
-                decode(IS_FINAL,'YES','Y','N') as IS_FINAL,
-                decode(IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
-                decode(IS_INNER,'YES','Y','N') as IS_INNER,
-                decode(IS_STATIC,'YES','Y','N') as IS_STATIC
-            from [PREFIX]_JAVA_CLASSES
+                j.NAME as OBJECT_NAME,
+                j.KIND as OBJECT_KIND,
+                j.ACCESSIBILITY as ACCESSIBILITY,
+                decode(j.IS_FINAL,'YES','Y','N') as IS_FINAL,
+                decode(j.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
+                decode(j.IS_INNER,'YES','Y','N') as IS_INNER,
+                decode(j.IS_STATIC,'YES','Y','N') as IS_STATIC,
+                decode(ob.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
+                decode(nvl(apo.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG
+            from [PREFIX]_JAVA_CLASSES j
+            left join [PREFIX]_OBJECTS ob
+                   on ob.OWNER = j.OWNER
+                  and ob.OBJECT_NAME = j.NAME
+                  and ob.OBJECT_TYPE = 'JAVA CLASS'
+            left join SYS.ALL_PROBE_OBJECTS apo
+                  on apo.OWNER = j.OWNER
+                 and apo.OBJECT_NAME = j.NAME
+                 and apo.OBJECT_TYPE = 'JAVA CLASS'
+            where j.OWNER = {0}
+              and j.IS_INNER = 'NO'
+              and j.NAME not like '%$%'
+            order by j.NAME
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="java-methods" is-query="true" is-prepared-statement="true" timeout="90">
+        <statement prefixes="DBA, ALL">
+            select
+                m.NAME as CLASS_NAME,
+                m.METHOD_NAME||'#'||m.METHOD_INDEX as METHOD_NAME,
+                m.METHOD_INDEX,
+                m.BASE_TYPE as RETURN_TYPE,
+                m.ACCESSIBILITY,
+                decode(m.RETURN_CLASS, '-', null, m.RETURN_CLASS) as RETURN_CLASS_NAME,
+                decode(m.IS_STATIC,'YES','Y','N') as IS_STATIC,
+                decode(m.IS_FINAL,'YES','Y','N') as IS_FINAL,
+                decode(m.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
+                case when m.METHOD_NAME in (chr(60)||'init'||chr(62), chr(60)||'clinit'||chr(62)) then regexp_substr(m.NAME, '[^/]+$', 1, 1) else m.METHOD_NAME end || '('
+                    || listagg(decode(a.ARGUMENT_CLASS, '-', a.BASE_TYPE, regexp_substr(a.ARGUMENT_CLASS, '[^/]+$', 1, 1))|| lpad('[]', a.ARRAY_DEPTH * 2, '[]'), ', ') within group (order by a.ARGUMENT_POSITION) || '): '
+                    || decode(m.RETURN_CLASS, '-', m.BASE_TYPE, regexp_substr(m.RETURN_CLASS, '[^/]+$', 1, 1))
+                    || lpad('[]', m.ARRAY_DEPTH * 2, '[]') as METHOD_SIGNATURE
+            from [PREFIX]_JAVA_METHODS m left join
+                 [PREFIX]_JAVA_ARGUMENTS a on
+                    m.OWNER = a.OWNER and
+                    m.NAME = a.NAME and
+                    m.METHOD_INDEX = a.METHOD_INDEX
+            where
+                m.OWNER = {0} and
+                m.NAME = {1} and
+                m.METHOD_NAME != '-'
+            group by
+                m.NAME,
+                m.METHOD_NAME,
+                m.METHOD_INDEX,
+                m.BASE_TYPE,
+                m.ACCESSIBILITY,
+                m.RETURN_CLASS,
+                m.ARRAY_DEPTH,
+                m.IS_STATIC,
+                m.IS_FINAL,
+                m.IS_ABSTRACT
+            order by
+                m.METHOD_NAME,
+                m.METHOD_INDEX
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="all-java-methods" is-query="true" is-prepared-statement="true" timeout="90">
+        <statement prefixes="DBA, ALL">
+            select
+                m.NAME as CLASS_NAME,
+                m.METHOD_NAME||'#'||m.METHOD_INDEX as METHOD_NAME,
+                m.METHOD_INDEX,
+                m.BASE_TYPE as RETURN_TYPE,
+                m.ACCESSIBILITY,
+                decode(m.RETURN_CLASS, '-', null, m.RETURN_CLASS) as RETURN_CLASS_NAME,
+                decode(m.IS_STATIC,'YES','Y','N') as IS_STATIC,
+                decode(m.IS_FINAL,'YES','Y','N') as IS_FINAL,
+                decode(m.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
+                case when m.METHOD_NAME in (chr(60)||'init'||chr(62), chr(60)||'clinit'||chr(62)) then regexp_substr(m.NAME, '[^/]+$', 1, 1) else m.METHOD_NAME end || '('
+                    || listagg(decode(a.ARGUMENT_CLASS, '-', a.BASE_TYPE, regexp_substr(a.ARGUMENT_CLASS, '[^/]+$', 1, 1))|| lpad('[]', a.ARRAY_DEPTH * 2, '[]'), ', ') within group (order by a.ARGUMENT_POSITION) || '): '
+                    || decode(m.RETURN_CLASS, '-', m.BASE_TYPE, regexp_substr(m.RETURN_CLASS, '[^/]+$', 1, 1))
+                    || lpad('[]', m.ARRAY_DEPTH * 2, '[]') as METHOD_SIGNATURE
+            from [PREFIX]_JAVA_METHODS m left join
+                 [PREFIX]_JAVA_ARGUMENTS a on
+                    m.OWNER = a.OWNER and
+                    m.NAME = a.NAME and
+                    m.METHOD_INDEX = a.METHOD_INDEX
+            where
+                m.OWNER = {0} and
+                m.METHOD_NAME != '-'
+            group by
+                m.NAME,
+                m.METHOD_NAME,
+                m.METHOD_INDEX,
+                m.BASE_TYPE,
+                m.ACCESSIBILITY,
+                m.RETURN_CLASS,
+                m.ARRAY_DEPTH,
+                m.IS_STATIC,
+                m.IS_FINAL,
+                m.IS_ABSTRACT
+            order by
+                m.NAME,
+                m.METHOD_NAME,
+                m.METHOD_INDEX
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="java-parameters" is-query="true" is-prepared-statement="true" timeout="90">
+        <statement prefixes="DBA, ALL">
+            select
+                NAME as CLASS_NAME,
+                METHOD_NAME||'#'||METHOD_INDEX as METHOD_NAME,
+                METHOD_INDEX,
+                ARGUMENT_POSITION,
+                ARRAY_DEPTH,
+                BASE_TYPE,
+                ARGUMENT_CLASS
+            from [PREFIX]_JAVA_ARGUMENTS
             where OWNER = {0}
-                and IS_INNER = 'NO'
-                and NAME not like '%$%'
+              and NAME = {1}
+              and METHOD_NAME = SUBSTR({2}, 1, INSTR({2}, '#') - 1)
+              and METHOD_INDEX = SUBSTR({3}, INSTR({3}, '#') + 1)
+            order by
+                ARGUMENT_POSITION
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="all-java-parameters" is-query="true" is-prepared-statement="true" timeout="90">
+        <statement prefixes="DBA, ALL">
+            select
+                NAME as CLASS_NAME,
+                METHOD_NAME||'#'||METHOD_INDEX as METHOD_NAME,
+                METHOD_INDEX,
+                ARGUMENT_POSITION,
+                ARRAY_DEPTH,
+                BASE_TYPE,
+                ARGUMENT_CLASS
+            from [PREFIX]_JAVA_ARGUMENTS
+            where OWNER = {0}
+            order by
+                NAME,
+                METHOD_NAME,
+                METHOD_INDEX,
+                ARGUMENT_POSITION
         </statement>
     </statement-execution-processor>
 
@@ -1982,6 +2213,18 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="java-binary-code" timeout="20">
+        <statement>
+            declare
+                V_BLOB BLOB;
+            begin
+                DBMS_LOB.CREATETEMPORARY(v_blob, TRUE);
+                DBMS_JAVA.export_class('{1}', '{0}', v_blob);
+                ? := V_BLOB;
+            end;
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="object-change-timestamp" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select to_date(TIMESTAMP, 'YYYY-MM-DD:HH24:MI:SS')
@@ -2092,6 +2335,13 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="compile-java-object">
+        <statement>
+            alter JAVA SOURCE {0}."{1}" compile
+        </statement>
+    </statement-execution-processor>
+
+
     <statement-execution-processor id="load-distinct-values" is-query="true">
         <statement>
             select distinct {2} from {0}.{1} where {2} is not null order by {2}
@@ -2107,6 +2357,12 @@
     <statement-execution-processor id="validate-connection" timeout="5" is-prepared-statement="true">
         <statement>
             select 1 from dual
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="session-user" is-prepared-statement="true" is-query="true" timeout="20">
+        <statement>
+            select USER from DUAL
         </statement>
     </statement-execution-processor>
 

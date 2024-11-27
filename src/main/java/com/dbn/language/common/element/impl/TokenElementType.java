@@ -1,21 +1,35 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.language.common.element.impl;
 
-import com.dbn.language.common.element.parser.ParserContext;
-import com.dbn.language.common.element.path.LanguageNode;
-import com.dbn.language.common.psi.TokenPsiElement;
 import com.dbn.code.common.lookup.LookupItemBuilderProvider;
 import com.dbn.code.common.lookup.TokenLookupItemBuilder;
 import com.dbn.common.util.Strings;
 import com.dbn.language.common.DBLanguage;
-import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeCategory;
-import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.ElementLookupContext;
 import com.dbn.language.common.element.cache.ElementTypeLookupCache;
 import com.dbn.language.common.element.cache.TokenElementTypeLookupCache;
+import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.parser.impl.TokenElementTypeParser;
+import com.dbn.language.common.element.path.LanguageNode;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
+import com.dbn.language.common.psi.TokenPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import org.jdom.Element;
@@ -34,12 +48,11 @@ public final class TokenElementType extends LeafElementType implements LookupIte
     private TokenTypeCategory flavor;
     private String text;
 
-    public TokenElementType(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
+    public TokenElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
         String typeId = stringAttribute(def, "type-id");
         text = stringAttribute(def, "text");
-        TokenType tokenType = bundle.getTokenTypeBundle().getTokenType(typeId);
-        setTokenType(tokenType);
+        this.tokenType = bundle.getTokenTypeBundle().getTokenType(typeId);
         setDefaultFormatting(tokenType.getFormatting());
 
         String flavorName = stringAttribute(def, "flavor");
@@ -50,10 +63,9 @@ public final class TokenElementType extends LeafElementType implements LookupIte
         setDescription(tokenType.getValue() + " " + getTokenTypeCategory());
     }
 
-    public TokenElementType(ElementTypeBundle bundle, ElementType parent, String typeId, String id) {
+    public TokenElementType(ElementTypeBundle bundle, ElementTypeBase parent, String typeId, String id) {
         super(bundle, parent, id, (String)null);
-        TokenType tokenType = bundle.getTokenTypeBundle().getTokenType(typeId);
-        setTokenType(tokenType);
+        tokenType = bundle.getTokenTypeBundle().getTokenType(typeId);
         setDescription(tokenType.getValue() + " " + getTokenTypeCategory());
 
         setDefaultFormatting(tokenType.getFormatting());
@@ -78,16 +90,15 @@ public final class TokenElementType extends LeafElementType implements LookupIte
     @NotNull
     @Override
     public String getName() {
-        return "token (" + getId() + " - " + getTokenType().getId() + ")";
+        return "token (" + getId() + " - " + tokenType.getId() + ")";
     }
 
     @Override
     public Set<LeafElementType> getNextPossibleLeafs(LanguageNode pathNode, @NotNull ElementLookupContext context) {
-        ElementType parent = getParent();
         if (isIterationSeparator()) {
             if (parent instanceof IterationElementType) {
                 IterationElementType iterationElementType = (IterationElementType) parent;
-                ElementTypeLookupCache<?> lookupCache = iterationElementType.getIteratedElementType().getLookupCache();
+                ElementTypeLookupCache<?> lookupCache = iterationElementType.iteratedElementType.cache;
                 return lookupCache.captureFirstPossibleLeafs(context.reset());
             } else if (parent instanceof QualifiedIdentifierElementType){
                 return super.getNextPossibleLeafs(pathNode, context);
@@ -96,7 +107,7 @@ public final class TokenElementType extends LeafElementType implements LookupIte
         if (parent instanceof WrapperElementType) {
             WrapperElementType wrapperElementType = (WrapperElementType) parent;
             if (this.equals(wrapperElementType.getBeginTokenElement())) {
-                ElementTypeLookupCache<?> lookupCache = wrapperElementType.getWrappedElement().getLookupCache();
+                ElementTypeLookupCache<?> lookupCache = wrapperElementType.wrappedElement.cache;
                 return lookupCache.captureFirstPossibleLeafs(context.reset());
             }
         }
@@ -107,10 +118,10 @@ public final class TokenElementType extends LeafElementType implements LookupIte
     @Override
     public Set<LeafElementType> getNextRequiredLeafs(LanguageNode pathNode, ParserContext context) {
         if (isIterationSeparator()) {
-            if (getParent() instanceof IterationElementType) {
-                IterationElementType iterationElementType = (IterationElementType) getParent();
-                return iterationElementType.getIteratedElementType().getLookupCache().getFirstRequiredLeafs();
-            } else if (getParent() instanceof QualifiedIdentifierElementType){
+            if (parent instanceof IterationElementType) {
+                IterationElementType iterationElementType = (IterationElementType) parent;
+                return iterationElementType.iteratedElementType.cache.getFirstRequiredLeafs();
+            } else if (parent instanceof QualifiedIdentifierElementType){
                 return super.getNextRequiredLeafs(pathNode, context);
             }
         }
@@ -135,7 +146,7 @@ public final class TokenElementType extends LeafElementType implements LookupIte
     public boolean isSameAs(LeafElementType elementType) {
         if (elementType instanceof TokenElementType) {
             TokenElementType token = (TokenElementType) elementType;
-            return token.getTokenType() == getTokenType();
+            return token.tokenType == tokenType;
         }
         return false;
     }
@@ -147,11 +158,11 @@ public final class TokenElementType extends LeafElementType implements LookupIte
     }
 
     public String toString() {
-        return getTokenType().getId() + " (" + getId() + ")";
+        return tokenType.getId() + " (" + getId() + ")";
     }
 
     public boolean isCharacter() {
-        return getTokenType().isCharacter();
+        return tokenType.isCharacter();
     }
 
     @Override
@@ -164,6 +175,6 @@ public final class TokenElementType extends LeafElementType implements LookupIte
     }
 
     public TokenTypeCategory getTokenTypeCategory() {
-        return flavor == null ? getTokenType().getCategory() : flavor;
+        return flavor == null ? tokenType.getCategory() : flavor;
     }
 }

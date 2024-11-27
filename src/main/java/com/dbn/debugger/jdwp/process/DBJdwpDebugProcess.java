@@ -1,11 +1,26 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.debugger.jdwp.process;
 
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.exception.ProcessDeferredException;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.thread.ThreadMonitor;
-import com.dbn.common.thread.ThreadProperty;
+import com.dbn.common.thread.ThreadPropertyGate;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -20,6 +35,7 @@ import com.dbn.debugger.DBDebugUtil;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.debugger.common.breakpoint.DBBreakpointHandler;
 import com.dbn.debugger.common.breakpoint.DBBreakpointUtil;
+import com.dbn.debugger.common.config.DBRunConfig;
 import com.dbn.debugger.common.process.DBDebugProcess;
 import com.dbn.debugger.common.process.DBDebugProcessStatus;
 import com.dbn.debugger.common.process.DBDebugProcessStatusHolder;
@@ -28,7 +44,6 @@ import com.dbn.debugger.jdwp.DBJdwpSourcePath;
 import com.dbn.debugger.jdwp.ManagedThreadCommand;
 import com.dbn.debugger.jdwp.frame.DBJdwpDebugStackFrame;
 import com.dbn.debugger.jdwp.frame.DBJdwpDebugSuspendContext;
-import com.dbn.debugger.common.config.DBRunConfig;
 import com.dbn.editor.DBContentType;
 import com.dbn.execution.ExecutionContext;
 import com.dbn.execution.ExecutionInput;
@@ -37,7 +52,12 @@ import com.dbn.object.DBProgram;
 import com.dbn.object.DBSchema;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.debugger.DebuggerManager;
-import com.intellij.debugger.engine.*;
+import com.intellij.debugger.engine.DebugProcessImpl;
+import com.intellij.debugger.engine.DebugProcessListener;
+import com.intellij.debugger.engine.JavaDebugProcess;
+import com.intellij.debugger.engine.JavaStackFrame;
+import com.intellij.debugger.engine.SuspendContext;
+import com.intellij.debugger.engine.SuspendContextImpl;
 import com.intellij.debugger.impl.DebuggerSession;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.openapi.project.Project;
@@ -60,6 +80,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 
+import static com.dbn.common.thread.ThreadProperty.DEBUGGER_NAVIGATION;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.intellij.debugger.impl.PrioritizedTask.Priority.LOW;
 
@@ -213,6 +234,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
 
         session.addSessionListener(new XDebugSessionListener() {
             @Override
+            @ThreadPropertyGate(DEBUGGER_NAVIGATION)
             public void sessionPaused() {
                 XSuspendContext suspendContext = session.getSuspendContext();
                 if (!shouldSuspend(suspendContext)) {
@@ -224,7 +246,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                         if (topFrame instanceof JavaStackFrame) {
                             Location location = getLocation(topFrame);
                             VirtualFile virtualFile = getVirtualFile(location);
-                            ThreadMonitor.surround(project, ThreadProperty.DEBUGGER_NAVIGATION, () -> DBDebugUtil.openEditor(virtualFile));
+                            DBDebugUtil.openEditor(virtualFile);
                         }
                     }
                 }

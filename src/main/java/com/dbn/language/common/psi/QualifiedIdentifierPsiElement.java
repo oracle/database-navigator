@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.language.common.psi;
 
 import com.dbn.common.Pair;
@@ -52,7 +68,7 @@ public class QualifiedIdentifierPsiElement extends SequencePsiElement<QualifiedI
         while (child != null) {
             if (child instanceof IdentifierPsiElement) {
                 IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) child;
-                if (identifierPsiElement.getElementType() == identifierElementType) {
+                if (identifierPsiElement.elementType == identifierElementType) {
                     return index;
                 } else {
                     index++;
@@ -83,7 +99,7 @@ public class QualifiedIdentifierPsiElement extends SequencePsiElement<QualifiedI
 
     private List<QualifiedIdentifierVariant> buildParseVariants() {
         List<QualifiedIdentifierVariant> parseVariants = new ArrayList<>();
-        for (LeafElementType[] elementTypes : getElementType().getVariants()) {
+        for (LeafElementType[] elementTypes : elementType.getVariants()) {
 
             ParseResultType resultType = ParseResultType.FULL_MATCH;
             for (int i=0; i< elementTypes.length; i++) {
@@ -95,7 +111,7 @@ public class QualifiedIdentifierPsiElement extends SequencePsiElement<QualifiedI
                     break;
                 }
 
-                LeafElementType leafElementType = (LeafElementType) leaf.getElementType();
+                LeafElementType leafElementType = (LeafElementType) leaf.elementType;
                 if (!(leafElementType.isIdentifier() && elementTypes[i].isIdentifier() || leafElementType.isSameAs(elementTypes[i]))) {
                     resultType = i==0 ? ParseResultType.NO_MATCH : ParseResultType.PARTIAL_MATCH;
                     break;
@@ -159,7 +175,7 @@ public class QualifiedIdentifierPsiElement extends SequencePsiElement<QualifiedI
         while (child != null) {
             if (child instanceof LeafPsiElement) {
                 LeafPsiElement leafPsiElement = (LeafPsiElement) child;
-                if (leafPsiElement.getElementType() != getElementType().getSeparatorToken() ) {
+                if (leafPsiElement.elementType != elementType.getSeparatorToken() ) {
                     count++;
                 }
             }
