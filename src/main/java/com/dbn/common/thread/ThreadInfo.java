@@ -16,27 +16,26 @@
 
 package com.dbn.common.thread;
 
-import com.dbn.common.project.ProjectRef;
 import com.dbn.common.property.PropertyHolder;
 import com.dbn.common.property.PropertyHolderBase;
-import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.StackWalker.StackFrame;
+import java.lang.reflect.Method;
+import java.util.function.Consumer;
+
 @Getter
 @Setter
-public class ThreadInfo extends PropertyHolderBase.IntStore<ThreadProperty> {
+public class ThreadInfo extends PropertyHolderBase.IntStore<ThreadProperty> implements Consumer<ThreadProperty> {
     private static final ThreadLocal<ThreadInfo> THREAD_INFO = new ThreadLocal<>();
-    private ProjectRef project;
-    private ThreadInfo invoker;
 
     public static ThreadInfo copy() {
         ThreadInfo current = current();
         ThreadInfo copy = new ThreadInfo();
         copy.inherit(current);
-        copy.setProject(current.getProject());
-        copy.setInvoker(current.getInvoker());
+        collectThreadProperties(copy);
         return copy;
     }
 
@@ -47,15 +46,6 @@ public class ThreadInfo extends PropertyHolderBase.IntStore<ThreadProperty> {
             THREAD_INFO.set(threadInfo);
         }
         return threadInfo;
-    }
-
-    @Nullable
-    public Project getProject() {
-        return ProjectRef.get(project);
-    }
-
-    public void setProject(@Nullable Project project) {
-        this.project = ProjectRef.of(project);
     }
 
     @Override
@@ -83,5 +73,38 @@ public class ThreadInfo extends PropertyHolderBase.IntStore<ThreadProperty> {
                 set(property, false);
             }
         }
+    }
+
+    /**
+     * Walk the call stack and collect all {@link ThreadProperty} from methods annotated with {@link ThreadPropertyGate}
+     * @param consumer the consumer for the collected thread properties
+     */
+    private static void collectThreadProperties(Consumer<ThreadProperty> consumer) {
+        StackWalker stackWalker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
+        stackWalker.walk(frames -> {
+            frames.takeWhile(frame -> !frame.getClassName().startsWith("com.dci"))
+                    .map(f -> collectThreadProperty(f))
+                    .filter(p -> p != null)
+                    .forEach(consumer);
+            return null;
+        });
+    }
+
+    private static ThreadProperty collectThreadProperty(StackFrame frame) {
+        Class<?> declaringClass = frame.getDeclaringClass();
+        String methodName = frame.getMethodName();
+
+        for (Method method : declaringClass.getDeclaredMethods()) {
+            if (method.getName().equals(methodName)) {
+                ThreadPropertyGate propertyGate = method.getAnnotation(ThreadPropertyGate.class);
+                return propertyGate == null ? null : propertyGate.value();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void accept(ThreadProperty property) {
+        set(property, true);
     }
 }

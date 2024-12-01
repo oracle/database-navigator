@@ -25,9 +25,8 @@ import com.dbn.common.navigation.NavigationInstructions;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Read;
-import com.dbn.common.thread.ThreadInfo;
-import com.dbn.common.thread.ThreadMonitor;
 import com.dbn.common.thread.ThreadProperty;
+import com.dbn.common.thread.ThreadPropertyGate;
 import com.dbn.common.ui.form.DBNToolbarForm;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.editor.text.TextContentType;
@@ -556,12 +555,12 @@ public class Editors {
         return fileEditors.get();
     }
 
+    @ThreadPropertyGate(ThreadProperty.EDITOR_LOAD)
     public static void openFileEditor(Project project, VirtualFile file, boolean focus, @Nullable Consumer<FileEditor[]> callback) {
         DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
         attachmentManager.warmUpAttachedDDLFiles(file);
 
-        ThreadInfo threadInfo = ThreadInfo.copy();
-        Dispatch.run(() -> ThreadMonitor.surround(project, threadInfo, ThreadProperty.EDITOR_LOAD, () -> {
+        Dispatch.run(() -> {
             try {
                 markSkipBrowserAutoscroll(file);
                 FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
@@ -574,7 +573,7 @@ public class Editors {
             } finally {
                 unmarkSkipBrowserAutoscroll(file);
             }
-        }));
+        });
 
     }
 
