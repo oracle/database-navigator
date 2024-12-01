@@ -49,7 +49,6 @@ public final class Background {
                 String taskId = PooledThread.enter(future.get());
                 try {
                     ThreadMonitor.surround(
-                            project,
                             threadInfo,
                             BACKGROUND,
                             runnable);
@@ -86,7 +85,6 @@ public final class Background {
                     try {
                         handle.set(PooledThread.current());
                         ThreadMonitor.surround(
-                                project,
                                 threadInfo,
                                 BACKGROUND,
                                 runnable);

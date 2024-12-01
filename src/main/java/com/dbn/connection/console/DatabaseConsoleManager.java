@@ -121,7 +121,6 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
                     DBConsole console = connection.getConsoleBundle().createConsole(name, type);
                     DBConsoleVirtualFile consoleFile = console.getVirtualFile();
                     consoleFile.setText("");
-                    consoleFile.setDatabaseSchema(connection.getDefaultSchema());
 
                     reloadConsoles(connection);
                     Editors.openFileEditor(project, consoleFile, true);

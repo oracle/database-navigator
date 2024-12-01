@@ -27,6 +27,7 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.ThreadInfo;
+import com.dbn.common.thread.ThreadPropertyGate;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
@@ -77,6 +78,7 @@ import static com.dbn.common.navigation.NavigationInstruction.FOCUS;
 import static com.dbn.common.navigation.NavigationInstruction.OPEN;
 import static com.dbn.common.navigation.NavigationInstruction.SCROLL;
 import static com.dbn.common.thread.ThreadProperty.DEBUGGER_NAVIGATION;
+import static com.dbn.common.thread.ThreadProperty.EDITOR_LOAD;
 import static com.dbn.common.thread.ThreadProperty.WORKSPACE_RESTORE;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Editors.getEditorTabInfos;
@@ -130,18 +132,19 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
         return editorManager.isFileOpen(databaseFile);
     }
 
+    @ThreadPropertyGate(EDITOR_LOAD)
     public void connectAndOpenEditor(@NotNull DBObject object, @Nullable EditorProviderId editorProviderId, boolean scrollBrowser, boolean focusEditor) {
         if (!isEditable(object)) return;
 
         ConnectionAction.invoke("opening the object editor", false, object, action -> {
+            Project project = getProject();
             if (focusEditor) {
-                Project project = object.getProject();
                 Progress.prompt(project, object, true,
                         "Opening " + object.getTypeName() + " editor",
                         "Opening editor for " + object.getQualifiedNameWithType(),
                         progress -> openEditor(object, editorProviderId, scrollBrowser, true));
             } else {
-                Background.run(getProject(), () -> openEditor(object, editorProviderId, scrollBrowser, false));
+                Background.run(project, () -> openEditor(object, editorProviderId, scrollBrowser, false));
             }
         });
     }

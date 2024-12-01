@@ -36,58 +36,50 @@ public class ThreadMonitor {
 
     @Nullable
     public static Project getProject() {
-        return ThreadInfo.current().getProject();
+        return null; //ThreadInfo.current().getProject();
     }
 
     public static <E extends Throwable> void surround(
-            @Nullable Project project,
             @Nullable ThreadProperty property,
             ThrowableRunnable<E> runnable) throws E {
 
-        surround(project, property, () -> {
+        surround(property, () -> {
             runnable.run();
             return null;
         });
     }
 
     public static <T, E extends Throwable> T surround(
-            @Nullable Project project,
             @Nullable ThreadProperty property,
             ThrowableCallable<T, E> callable) throws E {
         ThreadInfo threadInfo = ThreadInfo.current();
-        Project originalProject = threadInfo.getProject();
 
         try {
             if (property != null) threadInfo.set(property, true);
-            threadInfo.setProject(project);
             return callable.call();
         } finally {
             if (property != null) threadInfo.set(property, false);
-            threadInfo.setProject(originalProject);
         }
     }
 
 
     public static <E extends Throwable> void surround(
-            @Nullable Project project,
             @Nullable ThreadInfo invoker,
             @Nullable ThreadProperty property,
             ThrowableRunnable<E> runnable) throws E {
 
-        surround(project, invoker, property, () -> {
+        surround(invoker, property, () -> {
             runnable.run();
             return null;
         });
     }
 
     public static <T, E extends Throwable> T surround(
-            @Nullable Project project,
             @Nullable ThreadInfo invoker,
             @Nullable ThreadProperty property,
             ThrowableCallable<T, E> callable) throws E {
 
         ThreadInfo threadInfo = ThreadInfo.current();
-        Project originalProject = threadInfo.getProject();
 
         boolean originalProperty = false;
         AtomicInteger processCounter = null;
@@ -104,8 +96,6 @@ public class ThreadMonitor {
                 threadInfo.set(property, true);
             }
 
-            threadInfo.setProject(project);
-            threadInfo.setInvoker(invoker);
             return callable.call();
 
         } finally {
@@ -114,9 +104,6 @@ public class ThreadMonitor {
                 threadInfo.set(property, originalProperty);
             }
             threadInfo.unmerge(invoker);
-
-            threadInfo.setProject(originalProject);
-            threadInfo.setInvoker(null);
         }
     }
 

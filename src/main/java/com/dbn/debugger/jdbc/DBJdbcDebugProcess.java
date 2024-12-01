@@ -21,8 +21,7 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.thread.ThreadMonitor;
-import com.dbn.common.thread.ThreadProperty;
+import com.dbn.common.thread.ThreadPropertyGate;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -79,6 +78,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.notification.NotificationGroup.DEBUGGER;
+import static com.dbn.common.thread.ThreadProperty.DEBUGGER_NAVIGATION;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.debugger.common.process.DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED;
 import static com.dbn.debugger.common.process.DBDebugProcessStatus.PROCESS_STOPPED;
@@ -457,6 +457,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
         Messages.showErrorDialog(getProject(), "Could not perform operation.", e);
     }
 
+    @ThreadPropertyGate(DEBUGGER_NAVIGATION)
     private void suspendSession() {
         if (is(PROCESS_TERMINATING) || is(PROCESS_TERMINATED)) return;
 
@@ -471,7 +472,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
             session.stop();
         } else {
             VirtualFile virtualFile = getRuntimeInfoFile(runtimeInfo);
-            ThreadMonitor.surround(getProject(), ThreadProperty.DEBUGGER_NAVIGATION, () -> DBDebugUtil.openEditor(virtualFile));
+            DBDebugUtil.openEditor(virtualFile);
             try {
                 backtraceInfo = debuggerInterface.getExecutionBacktraceInfo(debuggerConnection);
                 List<DebuggerRuntimeInfo> frames = backtraceInfo.getFrames();
