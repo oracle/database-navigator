@@ -27,7 +27,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.intellij.openapi.editor.colors.ColorKey;
-import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBColor;
@@ -48,7 +47,7 @@ public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationP
     private final JPanel contentPanel;
 
     public EditorNotificationPanel(Project project, VirtualFile file, MessageType messageType) {
-        super((FileEditor) null, getBackground(messageType), getBackgroundKey(messageType));
+        super(getBackground(messageType));
         this.file = VirtualFileRef.of(file);
         this.project = ProjectRef.of(project);
 
