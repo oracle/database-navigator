@@ -59,7 +59,6 @@ public final class Timeout {
                 String taskId = PooledThread.enter(future.get());
                 try {
                     return ThreadMonitor.surround(
-                            invoker.getProject(),
                             invoker,
                             ThreadProperty.TIMEOUT,
                             callable);
@@ -110,7 +109,6 @@ public final class Timeout {
                 String taskId = PooledThread.enter(future.get());
                 try {
                     ThreadMonitor.surround(
-                            invoker.getProject(),
                             invoker,
                             ThreadProperty.TIMEOUT,
                             runnable);

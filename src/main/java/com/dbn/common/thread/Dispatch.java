@@ -56,8 +56,9 @@ public final class Dispatch {
     }
 
     public static void run(ModalityState modalityState, Runnable runnable) {
+        ThreadInfo invoker = ThreadInfo.copy();
         modalityState = nvl(modalityState, () -> ModalityState.defaultModalityState());
-        getApplication().invokeLater(() -> Failsafe.guarded(() -> runnable.run()), modalityState);
+        getApplication().invokeLater(() -> ThreadMonitor.surround(invoker, null, () -> Failsafe.guarded(() -> runnable.run())), modalityState);
     }
 
     public static <T, E extends Throwable> T call(boolean conditional, ThrowableCallable<T, E> callable) throws E{
@@ -86,11 +87,12 @@ public final class Dispatch {
     }
 
     public static <T, E extends Throwable> T call(ThrowableCallable<T, E> callable) throws E{
+        ThreadInfo invoker = ThreadInfo.copy();
         ModalityState modalityState = ModalityState.defaultModalityState();
         AtomicReference<T> resultRef = new AtomicReference<>();
         AtomicReference<E> exceptionRef = new AtomicReference<>();
         getApplication().invokeAndWait(() -> {
-            T result = null;
+            T result;
             try {
                 result = callable.call();
                 resultRef.set(result);
@@ -98,7 +100,6 @@ public final class Dispatch {
                 Diagnostics.conditionallyLog(e);
                 exceptionRef.set((E) e);
             }
-
         }, modalityState);
         if (exceptionRef.get() != null) {
             throw exceptionRef.get();

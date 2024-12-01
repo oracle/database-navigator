@@ -82,7 +82,7 @@ public final class DatabaseInterfaceInvoker {
         ThreadInfo threadInfo = ThreadInfo.copy();
         interfaceQueue.scheduleAndWait(request,
                 () -> ConnectionContext.surround(request,
-                    () -> ThreadMonitor.surround(project, threadInfo, null,
+                    () -> ThreadMonitor.surround(threadInfo, null,
                         () -> PooledConnection.run(request, runnable))));  }
 
 
@@ -109,7 +109,7 @@ public final class DatabaseInterfaceInvoker {
         ThreadInfo threadInfo = ThreadInfo.copy();
         return interfaceQueue.scheduleAndReturn(request,
                 () -> ConnectionContext.surround(request,
-                    () -> ThreadMonitor.surround(project, threadInfo, null,
+                    () -> ThreadMonitor.surround(threadInfo, null,
                             () -> PooledConnection.call(request, callable))));
     }
 

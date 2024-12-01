@@ -88,17 +88,21 @@ public final class Progress {
     }
 
     private static void execute(ProgressIndicator indicator, ThreadProperty threadProperty, Project project, ThreadInfo invoker, String text, ProgressRunnable runnable) {
-        ThreadMonitor.surround(project, invoker, threadProperty, () -> Failsafe.guarded(() -> {
+        ThreadMonitor.surround(invoker, threadProperty, () -> Failsafe.guarded(() -> {
             indicator.setText(text);
             runnable.run(indicator);
         }));
     }
 
     private static void schedule(Task task) {
-        if (!Checks.allValid(task, task.getProject())) return;
+        Project project = task.getProject();
+        if (!Checks.allValid(task, project)) return;
 
+        ThreadInfo info = ThreadInfo.copy();
         ProgressManager progressManager = ProgressManager.getInstance();
-        Dispatch.run(ModalityState.any(), () -> progressManager.run(task));
+        Dispatch.run(ModalityState.any(),
+                () -> ThreadMonitor.surround(info, null,
+                        () -> progressManager.run(task)));
     }
 
     public static double progressOf(int is, int should) {

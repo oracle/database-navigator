@@ -23,6 +23,8 @@ import com.dbn.common.content.DynamicContentType;
 import com.dbn.common.content.GroupedDynamicContent;
 import com.dbn.common.content.dependency.ContentDependencyAdapter;
 import com.dbn.common.content.dependency.SubcontentDependencyAdapter;
+import com.dbn.common.thread.ThreadInfo;
+import com.dbn.common.thread.ThreadProperty;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.database.common.metadata.DBObjectMetadata;
@@ -103,8 +105,12 @@ public class DynamicSubcontentLoader<T extends DynamicContentElement, M extends 
         int maxActiveTasks = interfaceQueue.maxActiveTasks();
         int count = interfaceQueue.size() + interfaceQueue.counters().active();
 
-        //ThreadInfo thread = ThreadMonitor.current();
-        if (count > maxActiveTasks /* || thread.is(ThreadProperty.CODE_ANNOTATING) || ThreadMonitor.getProcessCount(ThreadProperty.PROGRESS) > 20*/ ) {
+        ThreadInfo info = ThreadInfo.current();
+        if (info.isOneOf(ThreadProperty.EDITOR_LOAD, ThreadProperty.DEBUGGER_NAVIGATION)) {
+            return true; // quick load when invoked from an opening editor
+        }
+
+        if (count > maxActiveTasks) {
             return false;
         } else {
             return true;

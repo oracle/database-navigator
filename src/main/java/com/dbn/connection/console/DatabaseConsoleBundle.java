@@ -24,6 +24,7 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBConsole;
 import com.dbn.object.impl.DBConsoleImpl;
 import com.dbn.vfs.DBConsoleType;
+import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -114,6 +115,10 @@ public class DatabaseConsoleBundle extends StatefulDisposableBase {
         DBConsole console = new DBConsoleImpl(connection, name, type);
         consoles.add(console);
         Collections.sort(consoles);
+
+        DBConsoleVirtualFile virtualFile = console.getVirtualFile();
+        virtualFile.setDatabaseSchema(connection.getDefaultSchema());
+
         return console;
     }
 
