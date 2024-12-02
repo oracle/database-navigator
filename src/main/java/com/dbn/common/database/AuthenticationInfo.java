@@ -26,7 +26,6 @@ import com.dbn.common.util.TimeAware;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionId;
-import com.dbn.connection.config.Base64Decoder;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.credentials.Secret;
@@ -50,6 +49,8 @@ import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setChars;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setString;
+import static com.dbn.common.util.Base64.decode;
+import static com.dbn.common.util.Base64.encode;
 import static com.dbn.common.util.Commons.match;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.connection.AuthenticationType.OS_CREDENTIALS;
@@ -144,7 +145,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         if (isTransientContext()) {
             // only propagate password when config context is transient
             // (avoid storing it in config xml)
-            password = getChars(element, "transient-password", password);
+            password = decode(getChars(element, "transient-password", encode(password)));
         }
 
 
@@ -175,7 +176,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         if (isTransientContext()) {
             // only propagate password when config context is transient
             // (avoid storing it in config xml)
-            setChars(element, "transient-password", password);
+            setChars(element, "transient-password", encode(password));
         }
 
         setEnum(element, TOKEN_TYPE, tokenType);
@@ -190,7 +191,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         if (type != USER_PASSWORD) return;
         if (Chars.isNotEmpty(password)) return;
 
-        password = Base64Decoder.decodeString(getString(element, DEPRECATED_PWD_ATTRIBUTE, "")).toCharArray();
+        password = decode(getChars(element, DEPRECATED_PWD_ATTRIBUTE, Chars.EMPTY_ARRAY));
         // password still in old config store
         if (isNotEmpty(user) && Chars.isNotEmpty(password)) {
             DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();

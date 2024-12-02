@@ -37,6 +37,8 @@ import static com.dbn.common.options.setting.Settings.charsAttribute;
 import static com.dbn.common.options.setting.Settings.setCharsAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Base64.decode;
+import static com.dbn.common.util.Base64.encode;
 import static com.dbn.common.util.Chars.isNotEmpty;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.credentials.SecretType.GENERIC_CREDENTIAL;
@@ -80,7 +82,7 @@ public class LocalCredential implements Cloneable<LocalCredential>, PersistentCo
         if (isTransientContext()) {
             // only propagate credential key when config context is transient
             // (avoid storing it in config xml)
-            key = charsAttribute(element, "transient-key");
+            key = decode(charsAttribute(element, "transient-key"));
         }
         restorePassword(element);
     }
@@ -94,7 +96,7 @@ public class LocalCredential implements Cloneable<LocalCredential>, PersistentCo
         if (isTransientContext()) {
             // only propagate credential key when config context is transient
             // (avoid storing it in config xml)
-            setCharsAttribute(element, "transient-key", key);
+            setCharsAttribute(element, "transient-key", encode(key));
         }
     }
 

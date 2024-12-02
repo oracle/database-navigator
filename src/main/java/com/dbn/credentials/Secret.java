@@ -20,6 +20,7 @@ import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.util.Chars.isEmpty;
 import static com.dbn.common.util.Commons.nvl;
 
 /**
@@ -48,7 +49,7 @@ public class Secret {
 
     @Nullable
     public String getStringToken() {
-        return token.length == 0 ? null : new String(token);
+        return isEmpty(token) ? null : new String(token);
     }
 
     private static char @NotNull [] toChars(String token) {
@@ -57,6 +58,6 @@ public class Secret {
 
     public String toString() {
         // secret representation with length of token only
-        return type + ":" + user + ":" + token.length;
+        return type + ":" + user + ":" + (isEmpty(token) ? '0' : token.length);
     }
 }
