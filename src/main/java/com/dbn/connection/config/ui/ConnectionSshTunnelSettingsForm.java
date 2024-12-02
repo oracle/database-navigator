@@ -19,6 +19,7 @@ package com.dbn.connection.config.ui;
 import com.dbn.common.color.Colors;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.options.ui.ConfigurationEditors;
+import com.dbn.common.util.Chars;
 import com.dbn.connection.config.ConnectionSshTunnelSettings;
 import com.dbn.connection.ssh.SshAuthType;
 import com.dbn.credentials.Secret;
@@ -139,9 +140,9 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
         //ConfigurationEditorUtil.validateStringInputValue(keyPassphraseField, "Key passphrase", enabled && isKeyPair);
 
         configuration.setAuthType(authType);
-        configuration.setPassword(String.valueOf(passwordField.getPassword()));
+        configuration.setPassword(passwordField.getPassword());
         configuration.setKeyFile(keyFileField.getText());
-        configuration.setKeyPassphrase(String.valueOf(keyPassphraseField.getPassword()));
+        configuration.setKeyPassphrase(keyPassphraseField.getPassword());
 
         // replace secrets in password store
         configuration.updateSecrets(oldSecrets);
@@ -155,9 +156,9 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
         hostTextField.setText(configuration.getHost());
         portTextField.setText(configuration.getPort());
         userTextField.setText(configuration.getUser());
-        passwordField.setText(configuration.getPassword());
+        passwordField.setText(Chars.toString(configuration.getPassword()));
         setSelection(authTypeComboBox, configuration.getAuthType());
         keyFileField.setText(configuration.getKeyFile());
-        keyPassphraseField.setText(configuration.getKeyPassphrase());
+        keyPassphraseField.setText(Chars.toString(configuration.getKeyPassphrase()));
     }
 }

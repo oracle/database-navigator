@@ -19,6 +19,7 @@ package com.dbn.connection;
 import com.dbn.common.constant.Constants;
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.thread.Timeout;
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Classes;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
@@ -142,9 +143,9 @@ class Connector {
                 }
 
                 if (authenticationType == AuthenticationType.USER_PASSWORD) {
-                    String password = authenticationInfo.getPassword();
-                    if (Strings.isNotEmpty(password)) {
-                        properties.put(Property.PASSWORD, password);
+                    char[] password = authenticationInfo.getPassword();
+                    if (Chars.isNotEmpty(password)) {
+                        properties.put(Property.PASSWORD, Chars.toString(password));
                     }
                 }
             }

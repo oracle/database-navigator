@@ -20,13 +20,13 @@ import com.dbn.common.constant.Constants;
 import com.dbn.common.options.BasicConfiguration;
 import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.TimeAware;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
-import com.dbn.connection.config.Passwords;
 import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretsOwner;
@@ -35,6 +35,7 @@ import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 import static com.dbn.common.database.AuthenticationInfo.Attributes.DEPRECATED_PWD_ATTRIBUTE;
@@ -42,10 +43,14 @@ import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_CONFIG
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_PROFILE;
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_TYPE;
 import static com.dbn.common.options.ConfigActivity.INITIALIZING;
+import static com.dbn.common.options.setting.Settings.getChars;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
+import static com.dbn.common.options.setting.Settings.setChars;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setString;
+import static com.dbn.common.util.Base64.decode;
+import static com.dbn.common.util.Base64.encode;
 import static com.dbn.common.util.Commons.match;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.connection.AuthenticationType.OS_CREDENTIALS;
@@ -71,7 +76,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
 
     private AuthenticationType type = USER_PASSWORD;
     private String user;
-    private String password;
+    private char[] password;
     private boolean temporary;
     
     // token auth
@@ -92,7 +97,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         switch (type) {
             case NONE: return true;
             case USER: return isNotEmpty(user);
-            case USER_PASSWORD: return isNotEmpty(user) && isNotEmpty(password);
+            case USER_PASSWORD: return isNotEmpty(user) && Chars.isNotEmpty(password);
             case OS_CREDENTIALS: return true;
             case TOKEN: return tokenType == AuthenticationTokenType.OCI_INTERACTIVE ||
                     (isNotEmpty(tokenConfigFile) && isNotEmpty(tokenProfile));
@@ -140,7 +145,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         if (isTransientContext()) {
             // only propagate password when config context is transient
             // (avoid storing it in config xml)
-            password = getString(element, "transient-password", password);
+            password = decode(getChars(element, "transient-password", encode(password)));
         }
 
 
@@ -171,7 +176,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         if (isTransientContext()) {
             // only propagate password when config context is transient
             // (avoid storing it in config xml)
-            setString(element, "transient-password", password);
+            setChars(element, "transient-password", encode(password));
         }
 
         setEnum(element, TOKEN_TYPE, tokenType);
@@ -184,11 +189,11 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         if (!ConfigMonitor.is(INITIALIZING)) return; // only during config initialization
 
         if (type != USER_PASSWORD) return;
-        if (isNotEmpty(password)) return;
+        if (Chars.isNotEmpty(password)) return;
 
-        password = Passwords.decodePassword(getString(element, DEPRECATED_PWD_ATTRIBUTE, password));
+        password = decode(getChars(element, DEPRECATED_PWD_ATTRIBUTE, Chars.EMPTY_ARRAY));
         // password still in old config store
-        if (isNotEmpty(user) && isNotEmpty(password)) {
+        if (isNotEmpty(user) && Chars.isNotEmpty(password)) {
             DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
             credentialManager.queueSecretsInsert(getConnectionId(), getPasswordSecret());
         }
@@ -219,7 +224,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         return type == that.type &&
                 tokenType == that.tokenType &&
                 Objects.equals(user, that.user) &&
-                Objects.equals(password, that.password) &&
+                Objects.deepEquals(password, that.password) &&
                 Objects.equals(tokenConfigFile, that.tokenConfigFile) &&
                 Objects.equals(tokenProfile, that.tokenProfile);
     }
@@ -227,7 +232,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     @Override
     public int hashCode() {
         // lombok override (avoid using accessors / exclude irrelevant timestamp and temporary flag)
-        return Objects.hash(type, user, password, tokenType, tokenConfigFile, tokenProfile);
+        return Objects.hash(type, user, Arrays.hashCode(password), tokenType, tokenConfigFile, tokenProfile);
     }
 
     /*********************************************************
@@ -254,7 +259,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         if (type == AuthenticationType.USER_PASSWORD) {
             DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
             Secret secret = credentialManager.loadSecret(CONNECTION_PASSWORD, getConnectionId(), user);
-            password = secret.getStringToken();
+            password = secret.getToken();
         }
     }
 }
