@@ -144,7 +144,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
                         "Opening editor for " + object.getQualifiedNameWithType(),
                         progress -> openEditor(object, editorProviderId, scrollBrowser, true));
             } else {
-                Background.run(project, () -> openEditor(object, editorProviderId, scrollBrowser, false));
+                Background.run(() -> openEditor(object, editorProviderId, scrollBrowser, false));
             }
         });
     }

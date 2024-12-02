@@ -53,7 +53,7 @@ public class DatabaseLoaderManager extends ProjectComponentBase {
     private ConnectionLoadListener connectionLoadListener(Project project) {
         return connection -> {
             List<Editor> editors = Dispatch.call(() -> getLinkedEditors(connection));
-            Background.run(project, () -> Documents.refreshEditorAnnotations(editors));
+            Background.run(() -> Documents.refreshEditorAnnotations(editors));
         };
     }
 

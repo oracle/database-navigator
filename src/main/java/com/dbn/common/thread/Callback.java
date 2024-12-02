@@ -19,7 +19,6 @@ package com.dbn.common.thread;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.routine.ThrowableRunnable;
-import com.intellij.openapi.project.Project;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -49,8 +48,8 @@ public class Callback{
         this.after = after;
     }
 
-    public void background(Project project, ThrowableRunnable<Exception> action) {
-        Background.run(project, () -> surround(action));
+    public void background(ThrowableRunnable<Exception> action) {
+        Background.run(() -> surround(action));
     }
 
     public void surround(ThrowableRunnable<Exception> action) {

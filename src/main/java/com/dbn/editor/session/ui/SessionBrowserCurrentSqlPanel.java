@@ -126,7 +126,7 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
                 String schemaName = selectedRow.getSchema();
                 Project project = sessionBrowser.getProject();
 
-                Background.run(project, refreshHandle, () -> {
+                Background.run(refreshHandle, () -> {
                     ConnectionHandler connection = getConnection();
                     DBSchema schema = null;
                     if (Strings.isNotEmpty(schemaName)) {

@@ -80,7 +80,7 @@ public class DBNConnectionCache extends ObjectCacheBase<SessionId, DBNConnection
 
     @Override
     protected DBNConnection whenDropped(DBNConnection conn) {
-        Background.run(null, () -> Resources.close(conn));
+        Background.run(() -> Resources.close(conn));
         return conn;
     }
 

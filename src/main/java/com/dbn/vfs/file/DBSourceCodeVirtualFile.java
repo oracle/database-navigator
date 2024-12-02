@@ -176,7 +176,7 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
 
         if (reload || databaseTimestamp.isDirty()) {
             if (ThreadMonitor.isTimeSensitiveThread()) {
-                Background.run(getProject(), () -> refreshContentState());
+                Background.run(() -> refreshContentState());
             } else {
                 refreshContentState();
             }

@@ -101,7 +101,7 @@ public class ObjectDependencyTreeNode extends StatefulDisposableBase implements 
             if (loaderCount < 10) {
                 shouldLoad = false;
                 loaderCount++;
-                Background.run(getProject(), () -> {
+                Background.run(() -> {
                     try {
                         DBObject object = getObject();
                         if (object instanceof DBSchemaObject) {

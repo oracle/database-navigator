@@ -146,7 +146,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
     ConnectionHandler connection = getConnection();
     Project project = connection.getProject();
 
-    Background.run(project, () -> {
+    Background.run(() -> {
       String currentCredential = profile.getCredentialName();
       DBSchema schema = connection.getObjectBundle().getUserSchema();
       if (schema == null) return;

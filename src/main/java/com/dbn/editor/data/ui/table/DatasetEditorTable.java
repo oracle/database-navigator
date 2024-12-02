@@ -215,7 +215,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
         PropertyHolder<RecordStatus> scope = getUpdateScope(rowIndex, columnIndex);
         if (scope != null) {
             scope.set(UPDATING, true);
-            Background.run(getProject(), () -> {
+            Background.run(() -> {
                 try {
                     runnable.run();
                 } finally {

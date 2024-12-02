@@ -54,8 +54,6 @@ public class DBObjectInitializer {
     }
 
     private void initRootObject(DBObjectRef<?> ref) {
-        Project project = getProject();
-
         String identifier = identifier(ref, null);
         if (current.contains(identifier)) return;
 
@@ -63,7 +61,7 @@ public class DBObjectInitializer {
             if (current.contains(identifier)) return;
 
             current.add(identifier);
-            Background.run(project, () -> {
+            Background.run(() -> {
                 try {
                     ref.get();
                 } finally {
@@ -75,8 +73,6 @@ public class DBObjectInitializer {
     }
 
     private void initChildObject(DBObjectRef<?> ref, DBObjectRef<?> parentRef) {
-        Project project = getProject();
-
         DBObjectType objectType = ref.getObjectType();
         String identifier = identifier(parentRef, objectType);
         if (current.contains(identifier)) return;
@@ -85,7 +81,7 @@ public class DBObjectInitializer {
             if (current.contains(identifier)) return;
 
             current.add(identifier);
-            Background.run(project, () -> {
+            Background.run(() -> {
                 try {
                     DBObject parent = parentRef.get();
                     if (parent == null) return;

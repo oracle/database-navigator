@@ -108,7 +108,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
     }
 
     private void createMethod(MethodFactoryInput factoryInput, Callback callback) {
-        callback.background(getProject(), () -> {
+        callback.background(() -> {
             DBObjectType objectType = factoryInput.isFunction() ? DBObjectType.FUNCTION : DBObjectType.PROCEDURE;
             String objectTypeName = objectType.getName();
             String objectName = factoryInput.getObjectName();

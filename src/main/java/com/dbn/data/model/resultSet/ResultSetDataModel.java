@@ -166,7 +166,7 @@ public class ResultSetDataModel<
     }
 
     public void closeResultSet() {
-        Background.run(getProject(), () -> Resources.close(resultSet));
+        Background.run(() -> Resources.close(resultSet));
     }
 
     @NotNull

@@ -85,7 +85,7 @@ public final class AsyncTaskExecutor {
     }
 
     private static void cancel(Collection<Future> tasks) {
-        Background.run(null, () -> tasks
+        Background.run(() -> tasks
                 .stream()
                 .filter(ACTIVE)
                 .forEach(CANCEL));

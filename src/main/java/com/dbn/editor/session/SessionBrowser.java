@@ -113,7 +113,7 @@ public class SessionBrowser extends DisposableUserDataHolderBase implements File
 
         Project project = getProject();
         ConnectionAction.invoke("loading the sessions", false, this,
-                action -> Background.run(project, () -> {
+                action -> Background.run(() -> {
                     if (!canLoad(force)) return;
 
                     DBSessionBrowserVirtualFile databaseFile = getDatabaseFile();

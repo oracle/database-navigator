@@ -137,7 +137,7 @@ public class ObjectPropertiesForm extends DBNFormBase {
         if (Objects.equals(object, localObject)) return;
 
         this.object = object == null ? null : DBObjectRef.of(object);
-        Background.run(getProject(), refreshHandle, () -> {
+        Background.run(refreshHandle, () -> {
             ObjectPropertiesTableModel tableModel = object == null ?
                     new ObjectPropertiesTableModel() :
                     new ObjectPropertiesTableModel(object.getPresentableProperties());

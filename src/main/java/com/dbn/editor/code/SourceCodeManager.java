@@ -213,7 +213,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         if (!databaseFile.isContentLoaded()) return;
 
         if (startInBackground) {
-            Background.run(getProject(), () -> reloadAndUpdateEditors(databaseFile));
+            Background.run(() -> reloadAndUpdateEditors(databaseFile));
         } else {
             DBSchemaObject object = databaseFile.getObject();
             Progress.prompt(getProject(), object, false,
@@ -739,7 +739,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
     public void loadSourceCode(@NotNull DBSourceCodeVirtualFile sourceCodeFile, boolean force) {
         ConnectionAction.invoke("loading the source code", false, sourceCodeFile,
-                action -> Background.run(getProject(), () -> loadSourceFromDatabase(sourceCodeFile, force, false)));
+                action -> Background.run(() -> loadSourceFromDatabase(sourceCodeFile, force, false)));
     }
 
     public void saveSourceCode(@NotNull DBSourceCodeVirtualFile sourceCodeFile, @Nullable SourceCodeEditor fileEditor, Runnable successCallback) {
