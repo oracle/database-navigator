@@ -59,7 +59,7 @@ public abstract class LatentResourceStatus<T extends Property.IntBase> {
 
     private void checkControlled() {
         if (ThreadMonitor.isTimeSensitiveThread()) {
-            Background.run(null, () -> checkControlled());
+            Background.run(() -> checkControlled());
         } else {
             boolean oldValue = get();
             try {

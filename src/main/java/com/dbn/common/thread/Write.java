@@ -48,7 +48,7 @@ public final class Write {
 
         } else if (application.isReadAccessAllowed()){
             // write action invoked from within read action
-            Background.run(project, () -> {
+            Background.run(() -> {
                 ModalityState modalityState = ModalityState.defaultModalityState();
                 application.invokeAndWait(() -> run(project, runnable), modalityState);
             });

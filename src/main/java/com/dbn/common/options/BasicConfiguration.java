@@ -22,6 +22,7 @@ import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.options.TopLevelConfig;
 import com.intellij.openapi.options.ConfigurationException;
+import lombok.Getter;
 import org.jdom.Element;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
@@ -32,13 +33,14 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.options.ConfigActivity.RESETTING;
 
+@Getter
 public abstract class BasicConfiguration<P extends Configuration, E extends ConfigurationEditorForm>
         extends AbstractConfiguration<P, E> {
 
-    private final transient boolean transitory = ConfigurationHandle.isTransitory();
     private final transient WeakRef<P> parent;
-    private transient WeakRef<E> editorForm;
+    private transient WeakRef<E> settingsEditor;
     private transient boolean modified = false;
 
     public BasicConfiguration(P parent) {
@@ -77,7 +79,7 @@ public abstract class BasicConfiguration<P extends Configuration, E extends Conf
 
     @Nullable
     public final E getSettingsEditor() {
-        return WeakRef.get(editorForm);
+        return WeakRef.get(settingsEditor);
     }
 
     @NotNull
@@ -90,27 +92,14 @@ public abstract class BasicConfiguration<P extends Configuration, E extends Conf
     @NotNull
     public JComponent createComponent() {
         E editorForm = createConfigurationEditor();
-        this.editorForm = WeakRef.of(editorForm);
+        this.settingsEditor = WeakRef.of(editorForm);
         return editorForm.getComponent();
     }
 
     public void setModified(boolean modified) {
-        if (!isResetting()) {
-            this.modified = modified;
-        }
-    }
+        if (ConfigMonitor.is(RESETTING)) return;
 
-    private static Boolean isResetting() {
-        return ConfigurationHandle.isResetting();
-    }
-
-    @Override
-    public boolean isModified() {
-        return modified;
-    }
-
-    public final boolean isTransitory() {
-        return transitory;
+        this.modified = modified;
     }
 
     @Override
@@ -131,27 +120,27 @@ public abstract class BasicConfiguration<P extends Configuration, E extends Conf
             }
 
             // Notify only when all changes are set
-            ConfigurationHandle.notifyChanges();
+            ConfigMonitor.notifyChanges();
         }
     }
 
     @Override
     public void reset() {
         try {
-            ConfigurationHandle.setResetting(true);
+            ConfigMonitor.set(RESETTING, true);
             E editorForm = getSettingsEditor();
             if (editorForm != null) {
                 editorForm.resetFormChanges();
             }
         } finally {
             modified = false;
-            ConfigurationHandle.setResetting(false);
+            ConfigMonitor.set(RESETTING, false);
         }
     }
 
     @Override
     public void disposeUIResources() {
-        editorForm = Disposer.replace(editorForm, null);
+        settingsEditor = Disposer.replace(settingsEditor, null);
     }
 
     @NonNls

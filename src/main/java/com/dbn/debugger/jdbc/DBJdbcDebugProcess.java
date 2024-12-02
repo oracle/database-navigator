@@ -317,19 +317,14 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     }
 
     @Override
-    public void stop() {
+    public synchronized void stop() {
         if (canStopDebugger()) {
-            synchronized (this) {
-                if (canStopDebugger()) {
-
-                    set(PROCESS_TERMINATING, true);
-                    console.system("Stopping debugger...");
-                    T input = getExecutionInput();
-                    ExecutionContext<?> context = input.getExecutionContext();
-                    context.set(CANCELLED, isNot(PROCESS_STOPPED));
-                    stopDebugger();
-                }
-            }
+            set(PROCESS_TERMINATING, true);
+            console.system("Stopping debugger...");
+            T input = getExecutionInput();
+            ExecutionContext<?> context = input.getExecutionContext();
+            context.set(CANCELLED, isNot(PROCESS_STOPPED));
+            stopDebugger();
         }
     }
 

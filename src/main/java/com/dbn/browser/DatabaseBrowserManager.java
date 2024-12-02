@@ -284,7 +284,7 @@ public class DatabaseBrowserManager extends ProjectComponentBase implements Pers
                         SchemaId schemaId = virtualFile.getSchemaId();
                         boolean scroll = oldEditor != null && oldEditor.isValid();
 
-                        Background.run(getProject(), () -> {
+                        Background.run(() -> {
                             BrowserTreeNode treeNode = schemaId == null ?
                                     connection.getObjectBundle() :
                                     connection.getSchema(schemaId);
@@ -388,7 +388,6 @@ public class DatabaseBrowserManager extends ProjectComponentBase implements Pers
         Element nodesElement = element.getChild("loaded-nodes");
         if (nodesElement == null) return;
 
-        Project project = getProject();
         List<Element> connectionElements = nodesElement.getChildren();
 
         for (Element connectionElement : connectionElements) {
@@ -408,7 +407,7 @@ public class DatabaseBrowserManager extends ProjectComponentBase implements Pers
                 DBSchema schema = objectBundle.getSchema(schemaName);
                 if (schema == null) continue;
 
-                Background.run(project, () -> {
+                Background.run(() -> {
                     String objectTypesAttr = stringAttribute(schemaElement, "object-types");
                     List<DBObjectType> objectTypes = DBObjectType.fromCsv(objectTypesAttr);
 

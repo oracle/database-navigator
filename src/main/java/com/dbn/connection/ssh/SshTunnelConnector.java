@@ -16,6 +16,7 @@
 
 package com.dbn.connection.ssh;
 
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Commons;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
+import java.rmi.ConnectException;
 import java.util.concurrent.TimeUnit;
 
 import static com.dbn.connection.ssh.SshAuthType.KEY_PAIR;
@@ -56,12 +58,16 @@ public class SshTunnelConnector {
     }
 
     public ClientSession connect() throws Exception {
-        initPort();
-        initClient();
-        initSession();
-        initAuth();
-        initTracker();
-        return session;
+        try {
+            initPort();
+            initClient();
+            initSession();
+            initAuth();
+            initTracker();
+            return session;
+        } catch (Exception e) {
+            throw new ConnectException("Failed to create SSL Tunnel", e);
+        }
     }
 
     private void initPort() throws IOException {
@@ -89,7 +95,8 @@ public class SshTunnelConnector {
         if (config.getAuthType() == KEY_PAIR) {
             initKeyPairAuth();
         } else {
-            session.addPasswordIdentity(config.getProxyPassword());
+            String proxyPassword = Chars.toString(config.getProxyPassword());
+            session.addPasswordIdentity(proxyPassword);
         }
 
         session.auth().verify(10, TimeUnit.SECONDS);
@@ -98,7 +105,7 @@ public class SshTunnelConnector {
 
     private void initKeyPairAuth() throws Exception{
         String keyFile = config.getKeyFile();
-        String keyPassphrase = Commons.nvl(config.getKeyPassphrase(), "");
+        String keyPassphrase = Chars.toString(Commons.nvl(config.getKeyPassphrase(), Chars.EMPTY_ARRAY));
 
         File privateKeyFile = new File(keyFile);
         try (InputStream keyFileStream = new FileInputStream(privateKeyFile)) {

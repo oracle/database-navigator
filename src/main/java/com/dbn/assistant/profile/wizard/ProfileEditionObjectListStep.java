@@ -303,7 +303,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   }
 
   private void loadSchemas() {
-    Background.run(getProject(), () -> {
+    Background.run(() -> {
       try {
         startActivityNotifier();
         DBObjectBundle objectBundle = getConnection().getObjectBundle();
@@ -321,7 +321,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
 
   private void populateDatabaseObjectTable(DBSchema schema) {
     if (schema == null) return;
-    Background.run(getProject(), () -> {
+    Background.run(() -> {
       try {
         startActivityNotifier();
         AvailableDatasetsTableModel model = getDatasetsModel();

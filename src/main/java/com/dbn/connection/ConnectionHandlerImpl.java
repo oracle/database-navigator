@@ -200,7 +200,7 @@ public class ConnectionHandlerImpl extends StatefulDisposableBase implements Con
     public AuthenticationInfo getTemporaryAuthenticationInfo() {
         AuthenticationInfo authenticationInfo = temporaryAuthenticationInfo.get();
         if (authenticationInfo.isProvided()) {
-            int expiryMinutes = getSettings().getDetailSettings().getCredentialExpiryMinutes() * 60000;
+            int expiryMinutes = getSettings().getDetailSettings().getCredentialExpiryMinutes();
             long lastAccess = getConnectionPool().getLastAccess();
             if (lastAccess > 0 &&
                     authenticationInfo.isOlderThan(expiryMinutes, MINUTES) &&
@@ -390,8 +390,15 @@ public class ConnectionHandlerImpl extends StatefulDisposableBase implements Con
         // explicit disconnect (reset auto-connect data)
         temporaryAuthenticationInfo.reset();
         instructions.setAllowAutoConnect(false);
-        getConnectionStatus().setConnected(false);
-        getConnectionPool().closeConnections();
+        evaluateConnectionStatus();
+
+        // No actual disconnect (this is now controlled over DatabaseDebuggerManager)
+        // TODO cleanup
+        //getConnectionPool().closeConnections();
+    }
+
+    private void evaluateConnectionStatus() {
+        getConnectionStatus().setConnected(!getConnections().isEmpty());
     }
 
     @Override
@@ -565,6 +572,7 @@ public class ConnectionHandlerImpl extends StatefulDisposableBase implements Con
     @Override
     public void closeConnection(DBNConnection connection) {
         getConnectionPool().closeConnection(connection);
+        evaluateConnectionStatus();
     }
 
     @Override

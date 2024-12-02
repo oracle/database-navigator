@@ -123,7 +123,7 @@ public abstract class ResourceStatusAdapterImpl<T extends Resource> implements R
         set(evaluating, true);
 
         if (ThreadMonitor.isTimeSensitiveThread()) {
-            Background.run(null, () -> evaluate());
+            Background.run(() -> evaluate());
             return;
         }
 
@@ -161,7 +161,7 @@ public abstract class ResourceStatusAdapterImpl<T extends Resource> implements R
         set(changing, true);
 
         if (ThreadMonitor.isTimeSensitiveThread()) {
-            Background.run(null, () -> change(value));
+            Background.run(() -> change(value));
             return;
         }
 

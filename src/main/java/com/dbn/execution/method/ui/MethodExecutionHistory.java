@@ -127,19 +127,13 @@ public class MethodExecutionHistory implements PersistentStateElement, Connectio
     }
 
     @NotNull
-    private MethodExecutionInput createExecutionInput(@NotNull DBObjectRef<DBMethod> method) {
+    private synchronized MethodExecutionInput createExecutionInput(@NotNull DBObjectRef<DBMethod> method) {
         MethodExecutionInput executionInput = getExecutionInput(method, false);
         if (executionInput == null) {
-            synchronized (this) {
-                executionInput = getExecutionInput(method, false);
-                if (executionInput == null) {
-                    executionInput = new MethodExecutionInput(getProject(), method);
-                    executionInputs.add(executionInput);
-                    Collections.sort(executionInputs);
-                    selection = method;
-                    return executionInput;
-                }
-            }
+            executionInput = new MethodExecutionInput(getProject(), method);
+            executionInputs.add(executionInput);
+            Collections.sort(executionInputs);
+            selection = method;
         }
         return executionInput;
     }

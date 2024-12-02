@@ -69,7 +69,7 @@ public abstract class DBDebugValue<T extends DBDebugStackFrame> extends XNamedVa
     public void computePresentation(@NotNull final XValueNode node, @NotNull final XValuePlace place) {
         // enabling this will show always variables as changed
         //node.setPresentation(icon, null, "", childVariableNames != null);
-        Background.run(null, () -> {
+        Background.run(() -> {
             XDebuggerEvaluator evaluator1 = getStackFrame().getEvaluator();
             DBDebuggerEvaluator<? extends DBDebugStackFrame, DBDebugValue> evaluator = (DBDebuggerEvaluator<? extends DBDebugStackFrame, DBDebugValue>) evaluator1;
             evaluator.computePresentation(DBDebugValue.this, node, place);

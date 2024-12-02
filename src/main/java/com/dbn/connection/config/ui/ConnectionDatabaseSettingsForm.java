@@ -21,7 +21,6 @@ import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.options.ConfigurationHandle;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.options.ui.ConfigurationEditors;
@@ -41,6 +40,7 @@ import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.file.DatabaseFileBundle;
+import com.dbn.credentials.Secret;
 import com.dbn.driver.DriverSource;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -270,14 +270,17 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
             databaseInfo.setDatabase(urlSettingsForm.getDatabase());
         }
 
+        // create snapshot of earlier authentication
         AuthenticationInfo authenticationInfo = configuration.getAuthenticationInfo();
-        String oldUserName = authenticationInfo.getUser();
-        String oldPassword = authenticationInfo.getPassword();
-        String oldConfigFile = authenticationInfo.getTokenConfigFile();
-        String oldProfile = authenticationInfo.getTokenProfile();
+        Secret[] oldSecrets = authenticationInfo.getSecrets();
+
+        // apply changes and create snapshot of new authentication
         authSettingsForm.applyFormChanges(authenticationInfo);
-        if (!ConfigurationHandle.isTransitory()) {
-            authenticationInfo.updateKeyChain(oldUserName, oldPassword);
+        Secret[] newSecrets = authenticationInfo.getSecrets();
+
+        if (!authenticationInfo.isTemporary()) {
+            // update password store if authentication info is not marked as temporary
+            authenticationInfo.updateSecrets(oldSecrets);
         }
 
         configuration.setDriverSource(driverSettingsForm.getDriverSource());

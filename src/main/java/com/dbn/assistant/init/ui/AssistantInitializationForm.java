@@ -89,7 +89,7 @@ public class AssistantInitializationForm extends DBNFormBase {
         reinitializePanel.setVisible(false);
         initializingPanel.setVisible(true);
 
-        Dispatch.async(getProject(), mainPanel,
+        Dispatch.async(mainPanel,
                 () -> checkAssistantAvailability(),
                 a -> updateComponents(a));
     }

@@ -18,7 +18,6 @@ package com.dbn.common.ui.table;
 
 import com.dbn.common.Reflection;
 import com.dbn.common.util.Cloneable;
-import com.dbn.common.util.CollectionUtil;
 import com.dbn.common.util.Commons;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -27,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.util.CollectionUtil.cloneElements;
 import static com.dbn.common.util.Unsafe.cast;
 
 /**
@@ -47,11 +47,12 @@ public abstract class DBNTypedEditableTableModel<T extends Cloneable<T>> extends
     protected DBNTypedEditableTableModel(Class<T> entityType, List<T> elements) {
         this.entityType = entityType;
         this.elements = new ArrayList<>(elements);
+        cloneElements(elements, this.elements);
     }
 
     public void setElements(List<T> elements) {
         this.elements.clear();
-        CollectionUtil.cloneElements(elements, this.elements);
+        cloneElements(elements, this.elements);
         notifyListeners(0, getRowCount(), -1);
     }
 

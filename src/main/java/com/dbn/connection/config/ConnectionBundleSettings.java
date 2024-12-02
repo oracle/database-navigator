@@ -17,6 +17,8 @@
 package com.dbn.connection.config;
 
 import com.dbn.common.options.BasicProjectConfiguration;
+import com.dbn.common.options.ConfigActivity;
+import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.thread.ThreadLocalFlag;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionId;
@@ -138,7 +140,7 @@ public class ConnectionBundleSettings extends BasicProjectConfiguration<ProjectS
             connections.add(connection);
         }
 
-        if (!project.isDefault() && !isTransitory()) {
+        if (!project.isDefault() && !ConfigMonitor.is(ConfigActivity.CLONING)) {
             ConnectionManager connectionManager = ConnectionManager.getInstance(project);
             ConnectionBundle connectionBundle = connectionManager.getConnectionBundle();
             connectionBundle.applySettings(this);

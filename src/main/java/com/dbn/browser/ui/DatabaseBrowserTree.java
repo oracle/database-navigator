@@ -142,7 +142,7 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
         Project project = ensureProject();
         if (!project.isOpen() || targetSelection == null) return;
 
-        Background.run(project, () -> {
+        Background.run(() -> {
             BrowserTreeNode targetSelection = this.targetSelection;
             if (targetSelection == null) return;
 
