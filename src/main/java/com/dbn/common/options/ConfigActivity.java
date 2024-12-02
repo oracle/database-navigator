@@ -16,19 +16,29 @@
 
 package com.dbn.common.options;
 
-public abstract class SettingsChangeNotifier {
-    private SettingsChangeNotifier() {
-        ConfigMonitor.registerChangeNotifier(this);
+import com.dbn.common.property.Property;
+
+/**
+ * Type of activity the configuration tree is performing.
+ * It is stored in a thread local context using {@link ConfigMonitor} utility
+ *
+ * @author Dan Cioca (Oracle)
+ */
+public enum ConfigActivity implements Property.IntBase {
+    INITIALIZING,
+    CLONING,
+    APPLYING,
+    RESETTING;
+
+    public static final ConfigActivity[] VALUES = values();
+
+    private final IntMasks masks = new IntMasks(this);
+
+    @Override
+    public IntMasks masks() {
+        return masks;
     }
 
-    public abstract void notifyChanges();
 
-    public static void register(Runnable runnable) {
-        new SettingsChangeNotifier() {
-            @Override
-            public void notifyChanges() {
-                runnable.run();
-            }
-        };
-    }
+
 }

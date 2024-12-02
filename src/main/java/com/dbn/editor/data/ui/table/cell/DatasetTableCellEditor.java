@@ -249,7 +249,7 @@ package com.dbn.editor.data.ui.table.cell;
                 if (cell != null) {
                     if (e.isControlDown() && cell.isNavigable()) {
 
-                        Background.run(getProject(), () -> {
+                        Background.run(() -> {
                             DBColumn column = cell.getColumn();
                             DBColumn foreignKeyColumn = column.getForeignKeyColumn();
                             if (foreignKeyColumn != null && !e.isConsumed()) {

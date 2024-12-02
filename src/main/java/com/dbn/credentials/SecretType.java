@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package com.dbn.common.options;
+package com.dbn.credentials;
 
-public abstract class SettingsChangeNotifier {
-    private SettingsChangeNotifier() {
-        ConfigMonitor.registerChangeNotifier(this);
-    }
-
-    public abstract void notifyChanges();
-
-    public static void register(Runnable runnable) {
-        new SettingsChangeNotifier() {
-            @Override
-            public void notifyChanges() {
-                runnable.run();
-            }
-        };
-    }
+/**
+ * Secret type classification used to uniquely identify secret tokens stored in {@link com.intellij.ide.passwordSafe.PasswordSafe}
+ */
+public enum SecretType {
+    CONNECTION_PASSWORD,   // connection passwords
+    SSH_TUNNEL_PASSWORD,   // passwords for SSH tunnels
+    SSH_TUNNEL_PASSPHRASE, // passwords for SSH tunnels
+    GENERIC_CREDENTIAL     // e.g. database assistant credential tokens
 }

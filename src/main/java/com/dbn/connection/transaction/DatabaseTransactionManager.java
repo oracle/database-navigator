@@ -333,6 +333,7 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
     }
 
     public void disconnect(ConnectionHandler connection) {
+        connection.disconnect();
         List<DBNConnection> connections = connection.getConnections();
         for (DBNConnection conn : connections) {
             if (conn.hasDataChanges()) {

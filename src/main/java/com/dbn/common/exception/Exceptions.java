@@ -41,13 +41,23 @@ public class Exceptions {
     @NotNull
     public static SQLException toSqlException(@NotNull Throwable e, String s) {
         if (e instanceof SQLException) return (SQLException) e;
-        return new SQLException(s + ": [" + e.getClass().getSimpleName() + "] " + e.getMessage(), e);
+        String reason = normalizeMessage(e, s);
+
+        return new SQLException(reason, e);
     }
 
     @NotNull
     public static SQLTimeoutException toSqlTimeoutException(@NotNull Throwable e, String s) {
         if (e instanceof SQLTimeoutException) return (SQLTimeoutException) e;
-        return new SQLTimeoutException(s + ": [" + e.getClass().getSimpleName() + "] " + e.getMessage(), e);
+        String reason = normalizeMessage(e, s);
+        return new SQLTimeoutException(reason, e);
+    }
+
+    private static @NotNull String normalizeMessage(@NotNull Throwable e, String s) {
+        // remove duplicate message content for nested exceptions propagating own message
+        String message = e.getMessage();
+        s = s.replace(message, "");
+        return s + "[" + e.getClass().getSimpleName() + "] " + message;
     }
 
     @NotNull

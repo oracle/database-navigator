@@ -319,7 +319,7 @@ public class DatasetEditor extends DisposableUserDataHolderBase implements
                                 DatasetLoadListener.TOPIC,
                                 (listener) -> listener.datasetLoading(getDatabaseFile()));
 
-                        Background.run(project, () -> {
+                        Background.run(() -> {
                             DatasetEditorForm editorForm = getEditorForm();
                             try {
                                 editorForm.showLoadingHint();

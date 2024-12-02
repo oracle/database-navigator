@@ -222,11 +222,11 @@ public class CredentialManagementForm extends DBNFormBase {
    * and the display information panel based on the available credentials for the connected project.
    */
   public void loadCredentials() {
-    Background.run(getProject(), () -> doLoadCredentials(false));
+    Background.run(() -> doLoadCredentials(false));
   }
 
   public void reloadCredentials() {
-    Background.run(getProject(), () -> doLoadCredentials(true));
+    Background.run(() -> doLoadCredentials(true));
   }
 
   private void doLoadCredentials(boolean force) {

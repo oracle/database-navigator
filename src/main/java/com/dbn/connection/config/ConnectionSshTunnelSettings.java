@@ -17,31 +17,37 @@
 package com.dbn.connection.config;
 
 import com.dbn.common.options.BasicProjectConfiguration;
-import com.dbn.common.util.Strings;
+import com.dbn.common.options.ConfigMonitor;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ui.ConnectionSshTunnelSettingsForm;
 import com.dbn.connection.ssh.SshAuthType;
+import com.dbn.credentials.DatabaseCredentialManager;
+import com.dbn.credentials.Secret;
+import com.dbn.credentials.SecretsOwner;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.options.ConfigActivity.INITIALIZING;
 import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setBoolean;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setString;
+import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.credentials.SecretType.SSH_TUNNEL_PASSPHRASE;
+import static com.dbn.credentials.SecretType.SSH_TUNNEL_PASSWORD;
 
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<ConnectionSettings, ConnectionSshTunnelSettingsForm> {
-    @Deprecated // TODO move to keychain
-    private static final String OLD_PWD_ATTRIBUTE = "proxy-password";
-    @Deprecated // TODO move to keychain
-    private static final String TEMP_PWD_ATTRIBUTE = "deprecated-proxy-pwd";
+public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<ConnectionSettings, ConnectionSshTunnelSettingsForm> implements SecretsOwner {
+     // TODO passwords moved to IDE keychain (cleanup after followup release)
+    @Deprecated private static final String DEPRECATED_PWD_ATTRIBUTE = "deprecated-proxy-pwd";
+    @Deprecated private static final String DEPRECATED_PASSPHRASE_ATTRIBUTE = "key-passphrase";
 
     private boolean active = false;
     private String host;
@@ -87,15 +93,17 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
         port = getString(element, "proxy-port", port);
         user = getString(element, "proxy-user", user);
 
-
-        password = Passwords.decodePassword(getString(element, TEMP_PWD_ATTRIBUTE, password));
-        if (Strings.isEmpty(password)) {
-            password = Passwords.decodePassword(getString(element, OLD_PWD_ATTRIBUTE, password));
-        }
-
         authType = getEnum(element, "auth-type", authType);
         keyFile = getString(element, "key-file", keyFile);
-        keyPassphrase = Passwords.decodePassword(getString(element, "key-passphrase", keyPassphrase));
+
+        if (isTransientContext()) {
+            // only propagate password when config context is transient
+            // (avoid storing it in config xml)
+            password = getString(element, "transient-password", password);
+            keyPassphrase = getString(element, "transient-key-passphrase", keyPassphrase);
+        }
+
+        restorePasswords(element);
     }
 
     @Override
@@ -104,13 +112,88 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
         setString(element, "proxy-host", host);
         setString(element, "proxy-port", port);
         setString(element, "proxy-user", user);
-        setString(element, TEMP_PWD_ATTRIBUTE, Passwords.encodePassword(password));
         setEnum(element, "auth-type", authType);
         setString(element, "key-file", keyFile);
-        setString(element, "key-passphrase", Passwords.encodePassword(keyPassphrase));
+
+        if (isTransientContext()) {
+            // only propagate password when config context is transient
+            // (avoid storing it in config xml)
+            setString(element, "transient-password", password);
+            setString(element, "transient-key-passphrase", keyPassphrase);
+        }
     }
 
     public ConnectionId getConnectionId() {
-        return getParent().getConnectionId();
+        return ensureParent().getConnectionId();
+    }
+
+    @Deprecated // TODO cleanup in subsequent release (temporarily support old storage)
+    private void restorePasswords(Element element) {
+        if (!ConfigMonitor.is(INITIALIZING)) return; // only during config initialization
+        if (!active) return;
+
+        DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
+        if (authType == SshAuthType.PASSWORD) {
+            if (isNotEmpty(password)) return; // do not overwrite
+
+            password = Passwords.decodePassword(getString(element, DEPRECATED_PWD_ATTRIBUTE, password));
+            if (isNotEmpty(user) && isNotEmpty(password)) {
+                // password still in old config store
+                credentialManager.queueSecretsInsert(getConnectionId(), getPasswordSecret());
+            }
+        }
+
+        if (authType == SshAuthType.KEY_PAIR) {
+            if (isNotEmpty(keyPassphrase)) return; // do not overwrite
+
+            keyPassphrase = Passwords.decodePassword(getString(element, DEPRECATED_PASSPHRASE_ATTRIBUTE, keyPassphrase));
+            if (isNotEmpty(keyFile) && isNotEmpty(keyPassphrase)) {
+                // passphrase still in old config store
+                credentialManager.queueSecretsInsert(getConnectionId(), getKeyPassphraseSecret());
+            }
+        }
+    }
+
+
+    /*********************************************************
+     *                     SecretHolder                      *
+     *********************************************************/
+
+    @Override
+    public @NotNull Object getSecretOwnerId() {
+        return getConnectionId();
+    }
+
+    @Override
+    public Secret[] getSecrets() {
+        return new Secret[] {
+                getPasswordSecret(),
+                getKeyPassphraseSecret()};
+    }
+
+    private Secret getPasswordSecret() {
+        return new Secret(SSH_TUNNEL_PASSWORD, user, password);
+    }
+
+    private Secret getKeyPassphraseSecret() {
+        return new Secret(SSH_TUNNEL_PASSPHRASE, keyFile, keyPassphrase );
+    }
+
+    /**
+     * Load password or passphrase from Password Safe
+     */
+    @Override
+    public void initSecrets() {
+        if (!active) return;
+
+        ConnectionId connectionId = getConnectionId();
+        DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
+        if (authType == SshAuthType.PASSWORD) {
+            Secret secret = credentialManager.loadSecret(SSH_TUNNEL_PASSWORD, connectionId, user);
+            password = secret.getStringToken();
+        } else if (authType == SshAuthType.KEY_PAIR) {
+            Secret secret = credentialManager.loadSecret(SSH_TUNNEL_PASSPHRASE, connectionId, keyFile);
+            keyPassphrase = secret.getStringToken();
+        }
     }
 }

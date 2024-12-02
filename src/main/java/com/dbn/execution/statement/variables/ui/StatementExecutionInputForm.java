@@ -98,7 +98,6 @@ public class StatementExecutionInputForm extends DBNFormBase implements Componen
             debuggerVersionLabel.setText("...");
 
             Dispatch.async(
-                    getProject(),
                     debuggerVersionLabel,
                     () -> executionInput.getDebuggerVersion(),
                     v -> debuggerVersionLabel.setText(v));
