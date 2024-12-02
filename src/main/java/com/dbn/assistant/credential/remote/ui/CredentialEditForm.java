@@ -24,6 +24,7 @@ import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.TextFields;
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
@@ -133,7 +134,7 @@ public class CredentialEditForm extends DBNFormBase {
   private void pickLocalCredential(LocalCredential credential) {
     localCredential = credential;
     passwordCredentialUsernameField.setText(credential.getUser());
-    passwordCredentialPasswordField.setText(credential.getKey());
+    passwordCredentialPasswordField.setText(Chars.toString(credential.getKey()));
     saveLocalCheckBox.setEnabled(false);
   }
 
@@ -240,7 +241,7 @@ public class CredentialEditForm extends DBNFormBase {
     LocalCredential credential = new LocalCredential();
     credential.setName(credentialNameField.getText());
     credential.setUser(passwordCredentialUsernameField.getText());
-    credential.setKey(passwordCredentialPasswordField.getText());
+    credential.setKey(passwordCredentialPasswordField.getPassword());
     settings.getCredentials().add(credential);
   }
 }

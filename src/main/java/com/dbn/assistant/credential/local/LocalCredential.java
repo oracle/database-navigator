@@ -33,10 +33,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 import static com.dbn.common.options.ConfigActivity.INITIALIZING;
+import static com.dbn.common.options.setting.Settings.charsAttribute;
+import static com.dbn.common.options.setting.Settings.setCharsAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Base64.decode;
+import static com.dbn.common.util.Base64.encode;
+import static com.dbn.common.util.Chars.isNotEmpty;
 import static com.dbn.common.util.Commons.nvl;
-import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.credentials.SecretType.GENERIC_CREDENTIAL;
 
 @Getter
@@ -46,7 +50,7 @@ public class LocalCredential implements Cloneable<LocalCredential>, PersistentCo
     private String id = UUID.randomUUID().toString();
     private String name;
     private String user;
-    private String key;
+    private char[] key;
 
     @Override
     @NotNull
@@ -78,7 +82,7 @@ public class LocalCredential implements Cloneable<LocalCredential>, PersistentCo
         if (isTransientContext()) {
             // only propagate credential key when config context is transient
             // (avoid storing it in config xml)
-            key = stringAttribute(element, "transient-key");
+            key = decode(charsAttribute(element, "transient-key"));
         }
         restorePassword(element);
     }
@@ -92,7 +96,7 @@ public class LocalCredential implements Cloneable<LocalCredential>, PersistentCo
         if (isTransientContext()) {
             // only propagate credential key when config context is transient
             // (avoid storing it in config xml)
-            setStringAttribute(element, "transient-key", nvl(key, ""));
+            setCharsAttribute(element, "transient-key", encode(key));
         }
     }
 
@@ -101,7 +105,7 @@ public class LocalCredential implements Cloneable<LocalCredential>, PersistentCo
         if (!ConfigMonitor.is(INITIALIZING)) return; // only during config initialization
         if (isNotEmpty(key)) return;
 
-        key = stringAttribute(element, "transient-key");
+        key = charsAttribute(element, "key");
         DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
         credentialManager.queueSecretsInsert(getName(), getKeySecret());
     }
@@ -131,6 +135,6 @@ public class LocalCredential implements Cloneable<LocalCredential>, PersistentCo
     public void initSecrets() {
         DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
         Secret secret = credentialManager.loadSecret(GENERIC_CREDENTIAL, getSecretOwnerId(), user);
-        key = secret.getStringToken();
+        key = secret.getToken();
     }
 }
