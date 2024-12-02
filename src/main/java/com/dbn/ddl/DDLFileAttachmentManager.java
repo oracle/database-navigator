@@ -559,7 +559,7 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
             }
         }
 
-        Background.run(getProject(), () -> mappings.cleanup());
+        Background.run(() -> mappings.cleanup());
     }
 
     public void warmUpAttachedDDLFiles(VirtualFile file) {

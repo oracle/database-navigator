@@ -20,6 +20,9 @@ import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jdom.Element;
 
+import static com.dbn.common.options.ConfigActivity.APPLYING;
+import static com.dbn.common.options.ConfigActivity.CLONING;
+
 public interface PersistentConfiguration extends NlsSupport {
     void readConfiguration(Element element);
     void writeConfiguration(Element element);
@@ -30,5 +33,9 @@ public interface PersistentConfiguration extends NlsSupport {
         Element element = new Element("configuration");
         writeConfiguration(element);
         configuration.readConfiguration(element);
+    }
+
+    default boolean isTransientContext() {
+        return ConfigMonitor.is(CLONING) || ConfigMonitor.is(APPLYING);
     }
 }

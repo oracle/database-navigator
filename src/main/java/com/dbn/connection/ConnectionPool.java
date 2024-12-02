@@ -182,7 +182,7 @@ public final class ConnectionPool extends StatefulDisposableBase implements Noti
 
     @Override
     public void disposeInner() {
-        Background.run(null, () -> closeConnections());
+        Background.run(() -> closeConnections());
     }
 
     public boolean isConnected(SessionId sessionId) {

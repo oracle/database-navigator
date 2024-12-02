@@ -49,7 +49,7 @@ public class InterfaceQueueConsumer implements Consumer<InterfaceTask<?>>{
                     indicator -> executeTask(task, queue));
         } else {
             InterfaceThreadMonitor.start(false);
-            Background.run(project, () -> executeTask(task, queue));
+            Background.run(() -> executeTask(task, queue));
         }
     }
 

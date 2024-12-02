@@ -21,6 +21,7 @@ import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.options.ui.ConfigurationEditors;
 import com.dbn.connection.config.ConnectionSshTunnelSettings;
 import com.dbn.connection.ssh.SshAuthType;
+import com.dbn.credentials.Secret;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -122,6 +123,9 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
 
     @Override
     public void applyFormChanges(ConnectionSshTunnelSettings configuration) throws ConfigurationException {
+        // snapshot old secret before form changes are applied
+        Secret[] oldSecrets = configuration.getSecrets();
+
         boolean enabled = activeCheckBox.isSelected();
         configuration.setActive(enabled);
         configuration.setHost(ConfigurationEditors.validateStringValue(hostTextField, txt("cfg.connection.field.Host"), enabled));
@@ -138,6 +142,10 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
         configuration.setPassword(String.valueOf(passwordField.getPassword()));
         configuration.setKeyFile(keyFileField.getText());
         configuration.setKeyPassphrase(String.valueOf(keyPassphraseField.getPassword()));
+
+        // replace secrets in password store
+        configuration.updateSecrets(oldSecrets);
+
     }
 
     @Override

@@ -218,7 +218,7 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
     public final void loadInBackground() {
         if (shouldLoadInBackground()) {
             set(DynamicContentProperty.LOADING_IN_BACKGROUND, true);
-            Background.run(getProject(), () -> {
+            Background.run(() -> {
                 try {
                     ensureLoaded(false);
                 } finally {

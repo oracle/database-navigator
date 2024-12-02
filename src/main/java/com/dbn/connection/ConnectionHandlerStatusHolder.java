@@ -127,7 +127,7 @@ public class ConnectionHandlerStatusHolder extends PropertyHolderBase.IntStore<C
                     Project project = connection.getProject();
                     ProjectEvents.notify(project,
                             ConnectionLoadListener.TOPIC,
-                            (listener) -> Background.run(project, () -> listener.contentsLoaded(connection)));
+                            (listener) -> Background.run(() -> listener.contentsLoaded(connection)));
                 }
             };
 

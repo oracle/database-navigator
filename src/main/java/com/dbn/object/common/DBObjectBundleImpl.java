@@ -189,7 +189,7 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
             @Override
             public void sourceCodeSaved(@NotNull DBSourceCodeVirtualFile sourceCodeFile, @Nullable SourceCodeEditor fileEditor) {
                 if (sourceCodeFile.getConnectionId() == getConnectionId()) {
-                    Background.run(getProject(), () -> sourceCodeFile.getObject().refresh());
+                    Background.run(() -> sourceCodeFile.getObject().refresh());
                 }
             }
         };
@@ -401,7 +401,7 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
                     visibleTreeChildren = new ArrayList<>();
                     visibleTreeChildren.add(new LoadInProgressTreeNode(this));
 
-                    Background.run(getProject(), () -> buildTreeChildren());
+                    Background.run(() -> buildTreeChildren());
                 }
             }
         }
@@ -416,9 +416,8 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         List<BrowserTreeNode> treeChildren = Lists.filter(allPossibleTreeChildren, objectTypeFilter);
         treeChildren = nvl(treeChildren, Collections.emptyList());
 
-        Project project = getProject();
         for (BrowserTreeNode objectList : treeChildren) {
-            Background.run(project, () -> objectList.initTreeElement());
+            Background.run(() -> objectList.initTreeElement());
             checkDisposed();
         }
 
@@ -429,7 +428,7 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         visibleTreeChildren = treeChildren;
         treeChildrenLoaded = true;
 
-        ProjectEvents.notify(project,
+        ProjectEvents.notify(getProject(),
                 BrowserTreeEventListener.TOPIC,
                 (listener) -> listener.nodeChanged(this, TreeEventType.STRUCTURE_CHANGED));
 
