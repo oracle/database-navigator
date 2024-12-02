@@ -30,53 +30,59 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class LocalCredentialBundle implements Iterable<LocalCredential>, Cloneable {
-  private final List<LocalCredential> elements = new ArrayList<>();
+    private final List<LocalCredential> elements = new ArrayList<>();
 
-  public LocalCredentialBundle(LocalCredentialBundle source) {
-    this(source.getElements());
-  }
+    public LocalCredentialBundle(LocalCredentialBundle source) {
+        this(source.getElements());
+    }
 
-  public LocalCredentialBundle(List<LocalCredential> elements) {
-    setElements(elements);
-  }
+    public LocalCredentialBundle(List<LocalCredential> elements) {
+        setElements(elements);
+    }
 
-  public void setElements(List<LocalCredential> credentials) {
-    this.elements.clear();
-    CollectionUtil.cloneElements(credentials, this.elements);
-  }
+    public void setElements(List<LocalCredential> credentials) {
+        this.elements.clear();
+        CollectionUtil.cloneElements(credentials, this.elements);
+    }
 
-  @Override
-  public Iterator<LocalCredential> iterator() {
-    return elements.iterator();
-  }
+    @Override
+    public Iterator<LocalCredential> iterator() {
+        return elements.iterator();
+    }
 
-  public void clear() {
-    elements.clear();
-  }
+    public void clear() {
+        elements.clear();
+    }
 
-  public void add(LocalCredential credential) {
-    elements.add(credential);
-  }
+    public void add(LocalCredential credential) {
+        elements.add(credential);
+    }
 
-  public void add(int index, LocalCredential credential) {
-    elements.add(index, credential);
-  }
+    public void add(int index, LocalCredential credential) {
+        elements.add(index, credential);
+    }
 
 
-  public int size() {
-    return elements.size();
-  }
+    public int size() {
+        return elements.size();
+    }
 
-  public LocalCredential get(int index) {
-    return elements.get(index);
-  }
+    public LocalCredential get(int index) {
+        return elements.get(index);
+    }
 
-  public LocalCredential remove(int index) {
-    return elements.remove(index);
-  }
+    public LocalCredential remove(int index) {
+        return elements.remove(index);
+    }
 
-  @Override
-  public LocalCredentialBundle clone() {
-    return new LocalCredentialBundle(this);
-  }
+    @Override
+    public LocalCredentialBundle clone() {
+        return new LocalCredentialBundle(this);
+    }
+
+    public void initSecrets() {
+        for (LocalCredential element : elements) {
+            element.initSecrets();
+        }
+    }
 }

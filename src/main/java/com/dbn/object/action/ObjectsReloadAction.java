@@ -42,7 +42,7 @@ public class ObjectsReloadAction extends BasicAction {
     }
 
     private void reloadObjectList() {
-        Background.run(objectList.getProject(), () -> {
+        Background.run(() -> {
             objectList.getConnection().getMetaDataCache().reset();
             objectList.reload();
         });

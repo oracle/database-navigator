@@ -17,13 +17,17 @@
 package com.dbn.options;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.assistant.credential.local.LocalCredentialSettings;
+import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.browser.options.DatabaseBrowserSettings;
 import com.dbn.code.common.completion.options.CodeCompletionSettings;
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.project.Projects;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
@@ -32,6 +36,8 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.config.ConnectionConfigType;
+import com.dbn.connection.config.ConnectionSettings;
+import com.dbn.connection.config.ConnectionSshTunnelSettings;
 import com.dbn.connection.config.tns.TnsImportData;
 import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.data.grid.options.DataGridSettings;
@@ -51,6 +57,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.options.ConfigActivity.INITIALIZING;
 import static com.dbn.common.util.Conditional.when;
 
 @State(
@@ -120,6 +127,10 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
         return getProjectSettings().getDdlFileSettings();
     }
 
+    private AssistantSettings getAssistantSettings() {
+        return getProjectSettings().getAssistantSettings();
+    }
+
     public void openDefaultProjectSettings() {
         Dialogs.show(() -> new ProjectSettingsDialog(Projects.getDefaultProject()));
     }
@@ -140,6 +151,33 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), importData));
     }
 
+    @Override
+    public void initializeComponent() {
+        restoreKeychainSecrets();
+    }
+
+    /**
+     * Restores authentication passwords from the IDE keychain
+     * (to be used once on component initialization)
+     */
+    private void restoreKeychainSecrets() {
+        ConnectionBundleSettings connectionSettings = getConnectionSettings();
+        for (ConnectionSettings connection : connectionSettings.getConnections()) {
+            // CONNECTION PASSWORDS
+            AuthenticationInfo authenticationInfo = connection.getDatabaseSettings().getAuthenticationInfo();
+            authenticationInfo.initSecrets();
+
+            // SSH TUNNEL PASSWORDS
+            ConnectionSshTunnelSettings sshTunnelSettings = connection.getSshTunnelSettings();
+            sshTunnelSettings.initSecrets();
+        }
+
+        // LOCAL CREDENTIALS
+        AssistantSettings assistantSettings = getAssistantSettings();
+        LocalCredentialSettings credentialSettings = assistantSettings.getCredentialSettings();
+        credentialSettings.getCredentials().initSecrets();
+    }
+
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
@@ -153,8 +191,13 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
 
     @Override
     public void loadComponentState(@NotNull Element element) {
-        projectSettings.readConfiguration(element);
-        getProject().putUserData(UserDataKeys.PROJECT_SETTINGS_LOADED, true);
+        try {
+            ConfigMonitor.set(INITIALIZING, true);
+            projectSettings.readConfiguration(element);
+            getProject().putUserData(UserDataKeys.PROJECT_SETTINGS_LOADED, true);
+        } finally {
+            ConfigMonitor.set(INITIALIZING, false);
+        }
     }
 
     public void exportToDefaultSettings() {

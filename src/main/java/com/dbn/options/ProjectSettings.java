@@ -22,8 +22,8 @@ import com.dbn.code.common.completion.options.CodeCompletionSettings;
 import com.dbn.code.common.style.options.ProjectCodeStyleSettings;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.options.CompositeProjectConfiguration;
+import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.Configuration;
-import com.dbn.common.options.ConfigurationHandle;
 import com.dbn.common.options.ProjectConfiguration;
 import com.dbn.common.util.Cloneable;
 import com.dbn.connection.config.ConnectionBundleSettings;
@@ -50,6 +50,9 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+
+import static com.dbn.common.options.ConfigActivity.APPLYING;
+import static com.dbn.common.options.ConfigActivity.CLONING;
 
 @Getter
 @EqualsAndHashCode(callSuper = false)
@@ -98,7 +101,12 @@ public class ProjectSettings
 
     @Override
     public void apply() throws ConfigurationException {
-        super.apply();
+        try {
+            ConfigMonitor.set(APPLYING, true);
+            super.apply();
+        } finally {
+            ConfigMonitor.set(APPLYING, false);
+        }
     }
 
     @NotNull
@@ -191,14 +199,14 @@ public class ProjectSettings
     @Override
     public ProjectSettings clone() {
         try {
-            ConfigurationHandle.setTransitory(true);
+            ConfigMonitor.set(CLONING, true);
             Element element = new Element("project-settings");
             writeConfiguration(element);
             ProjectSettings projectSettings = new ProjectSettings(getProject());
             projectSettings.readConfiguration(element);
             return projectSettings;
         } finally {
-            ConfigurationHandle.setTransitory(false);
+            ConfigMonitor.set(CLONING, false);
         }
     }
 }

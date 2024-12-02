@@ -83,7 +83,7 @@ public class ObjectStatusManager extends ProjectComponentBase implements Persist
     public void refreshObjectsStatus(ConnectionHandler connection, @Nullable DBSchemaObject requester) {
         if (!OBJECT_INVALIDATION.isSupported(connection)) return;
 
-        Background.run(getProject(), () -> {
+        Background.run(() -> {
             try {
                 List<DBSchema> schemas = requester == null ?
                         connection.getObjectBundle().getSchemas() :
@@ -122,7 +122,7 @@ public class ObjectStatusManager extends ProjectComponentBase implements Persist
 
     private void refreshBrowserNodes(Set<DatabaseEntity> entities) {
         Project project = getProject();
-        Background.run(project, () ->
+        Background.run(() ->
                 entities.forEach(n -> {
                     if (n instanceof BrowserTreeNode) {
                         BrowserTreeNode node = (BrowserTreeNode) n;

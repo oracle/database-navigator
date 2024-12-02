@@ -197,6 +197,6 @@ public class DDLFileManager extends ProjectComponentBase implements PersistentSt
 
     @Override
     public void initializeComponent() {
-        Background.run(getProject(), () -> registerExtensions(getExtensionSettings()));
+        Background.run(() -> registerExtensions(getExtensionSettings()));
     }
 }

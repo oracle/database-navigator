@@ -35,6 +35,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
+import java.rmi.ConnectException;
 import java.util.concurrent.TimeUnit;
 
 import static com.dbn.connection.ssh.SshAuthType.KEY_PAIR;
@@ -56,12 +57,16 @@ public class SshTunnelConnector {
     }
 
     public ClientSession connect() throws Exception {
-        initPort();
-        initClient();
-        initSession();
-        initAuth();
-        initTracker();
-        return session;
+        try {
+            initPort();
+            initClient();
+            initSession();
+            initAuth();
+            initTracker();
+            return session;
+        } catch (Exception e) {
+            throw new ConnectException("Failed to create SSL Tunnel", e);
+        }
     }
 
     private void initPort() throws IOException {

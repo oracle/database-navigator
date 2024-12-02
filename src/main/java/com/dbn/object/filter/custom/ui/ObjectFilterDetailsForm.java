@@ -195,7 +195,6 @@ public class ObjectFilterDetailsForm extends DBNFormBase {
 
     private void verifyExpression() {
         Dispatch.async(
-                getProject(),
                 mainPanel,
                 () -> verifyExpression(filter),
                 c -> applyVerificationResult(c));

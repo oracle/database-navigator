@@ -20,7 +20,7 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.options.ConfigurationHandle;
+import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.CompositeConfigurationEditorForm;
 import com.dbn.common.thread.Dispatch;
@@ -60,6 +60,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.options.ConfigActivity.CLONING;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<ConnectionSettings> {
@@ -129,7 +130,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
 
     public ConnectionSettings getTemporaryConfig() throws ConfigurationException {
         try {
-            ConfigurationHandle.setTransitory(true);
+            ConfigMonitor.set(CLONING, true);
 
             UserInterface.stopTableCellEditing(mainPanel);
             ConnectionSettings configuration = getConfiguration();
@@ -159,7 +160,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
 
             return clone;
         } finally {
-            ConfigurationHandle.setTransitory(false);
+            ConfigMonitor.set(CLONING, false);
         }
     }
 

@@ -16,62 +16,121 @@
 
 package com.dbn.assistant.credential.local;
 
+import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
-import com.dbn.common.util.Commons;
+import com.dbn.credentials.DatabaseCredentialManager;
+import com.dbn.credentials.Secret;
+import com.dbn.credentials.SecretType;
+import com.dbn.credentials.SecretsOwner;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.UUID;
+
+import static com.dbn.common.options.ConfigActivity.INITIALIZING;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.credentials.SecretType.GENERIC_CREDENTIAL;
 
 @Getter
 @Setter
 @EqualsAndHashCode
-@NoArgsConstructor
-public class LocalCredential implements Cloneable<LocalCredential>, PersistentConfiguration, Presentable {
-  private String name;
-  private String user;
-  private String key;
+public class LocalCredential implements Cloneable<LocalCredential>, PersistentConfiguration, Presentable, SecretsOwner {
+    private String id = UUID.randomUUID().toString();
+    private String name;
+    private String user;
+    private String key;
 
-  public LocalCredential(String credentialName, String user, String key) {
-    this.name = credentialName;
-    this.user = user;
-    this.key = key;
-  }
+    @Override
+    @NotNull
+    public String getName() {
+        return nvl(name, "");
+    }
 
-  @Override
-  @NotNull
-  public String getName() {
-    return Commons.nvl(name, "");
-  }
+    @Override
+    public LocalCredential clone() {
+        LocalCredential clone = new LocalCredential();
+        clone.id = id;
+        clone.name = name;
+        clone.user = user;
+        clone.key = key;
+        return clone;
+    }
 
-  @Override
-  public LocalCredential clone() {
-    return new LocalCredential(name, user, key);
-  }
-
-  @Override
-  public String toString() {
-    return name;
-  }
+    @Override
+    public String toString() {
+        return name;
+    }
 
 
-  @Override
-  public void readConfiguration(Element element) {
-    name = stringAttribute(element, "name");
-    user = stringAttribute(element, "user");
-    key = stringAttribute(element, "key");
-  }
+    @Override
+    public void readConfiguration(Element element) {
+        id = nvl(stringAttribute(element, "id"), id);
+        name = stringAttribute(element, "name");
+        user = stringAttribute(element, "user");
+        if (isTransientContext()) {
+            // only propagate credential key when config context is transient
+            // (avoid storing it in config xml)
+            key = stringAttribute(element, "transient-key");
+        }
+        restorePassword(element);
+    }
 
-  @Override
-  public void writeConfiguration(Element element) {
-    element.setAttribute("name", Commons.nvl(name, ""));
-    element.setAttribute("user", Commons.nvl(user, ""));
-    element.setAttribute("key", Commons.nvl(key, ""));
-  }
+    @Override
+    public void writeConfiguration(Element element) {
+        setStringAttribute(element, "id", id);
+        setStringAttribute(element, "name", name);
+        setStringAttribute(element, "user", user);
+
+        if (isTransientContext()) {
+            // only propagate credential key when config context is transient
+            // (avoid storing it in config xml)
+            setStringAttribute(element, "transient-key", nvl(key, ""));
+        }
+    }
+
+    @Deprecated // TODO cleanup in subsequent release (temporarily support old storage)
+    private void restorePassword(Element element) {
+        if (!ConfigMonitor.is(INITIALIZING)) return; // only during config initialization
+        if (isNotEmpty(key)) return;
+
+        key = stringAttribute(element, "transient-key");
+        DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
+        credentialManager.queueSecretsInsert(getName(), getKeySecret());
+    }
+
+
+
+    /*********************************************************
+     *                     SecretHolder                      *
+     *********************************************************/
+
+    @NotNull
+    @Override
+    public Object getSecretOwnerId() {
+        return id;
+    }
+
+    @Override
+    public @NotNull Secret[] getSecrets() {
+        return new Secret[]{getKeySecret()};
+    }
+
+    private Secret getKeySecret() {
+        return new Secret(SecretType.GENERIC_CREDENTIAL, user, key);
+    }
+
+    @Override
+    public void initSecrets() {
+        DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
+        Secret secret = credentialManager.loadSecret(GENERIC_CREDENTIAL, getSecretOwnerId(), user);
+        key = secret.getStringToken();
+    }
 }
