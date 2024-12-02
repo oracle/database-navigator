@@ -25,8 +25,8 @@ import com.dbn.common.util.TimeAware;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.config.Base64Decoder;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
-import com.dbn.connection.config.Passwords;
 import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretsOwner;
@@ -186,7 +186,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         if (type != USER_PASSWORD) return;
         if (isNotEmpty(password)) return;
 
-        password = Passwords.decodePassword(getString(element, DEPRECATED_PWD_ATTRIBUTE, password));
+        password = Base64Decoder.decodeString(getString(element, DEPRECATED_PWD_ATTRIBUTE, password));
         // password still in old config store
         if (isNotEmpty(user) && isNotEmpty(password)) {
             DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();

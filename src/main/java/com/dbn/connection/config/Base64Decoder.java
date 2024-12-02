@@ -27,17 +27,17 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 @Slf4j
 @UtilityClass
 @Deprecated // TODO remove after subsequent release (passwords moved to IDE keychain, no longer stored to xml configuration)
-public final class Passwords {
+public final class Base64Decoder {
 
-    public static String decodePassword(String password) {
+    public static String decodeString(String string) {
         try {
-            password = Strings.isEmpty(password) ? "" : new String(Base64.getDecoder().decode(nvl(password).getBytes()));
+            string = Strings.isEmpty(string) ? "" : new String(Base64.getDecoder().decode(nvl(string).getBytes()));
         } catch (Exception e) {
             conditionallyLog(e);
-            // password may not be encoded yet
+            // string may not be properly encoded
         }
 
-        return password;
+        return string;
     }
 
     private static String nvl(String value) {

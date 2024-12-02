@@ -136,7 +136,7 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
         if (authType == SshAuthType.PASSWORD) {
             if (isNotEmpty(password)) return; // do not overwrite
 
-            password = Passwords.decodePassword(getString(element, DEPRECATED_PWD_ATTRIBUTE, password));
+            password = Base64Decoder.decodeString(getString(element, DEPRECATED_PWD_ATTRIBUTE, password));
             if (isNotEmpty(user) && isNotEmpty(password)) {
                 // password still in old config store
                 credentialManager.queueSecretsInsert(getConnectionId(), getPasswordSecret());
@@ -146,7 +146,7 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
         if (authType == SshAuthType.KEY_PAIR) {
             if (isNotEmpty(keyPassphrase)) return; // do not overwrite
 
-            keyPassphrase = Passwords.decodePassword(getString(element, DEPRECATED_PASSPHRASE_ATTRIBUTE, keyPassphrase));
+            keyPassphrase = Base64Decoder.decodeString(getString(element, DEPRECATED_PASSPHRASE_ATTRIBUTE, keyPassphrase));
             if (isNotEmpty(keyFile) && isNotEmpty(keyPassphrase)) {
                 // passphrase still in old config store
                 credentialManager.queueSecretsInsert(getConnectionId(), getKeyPassphraseSecret());
