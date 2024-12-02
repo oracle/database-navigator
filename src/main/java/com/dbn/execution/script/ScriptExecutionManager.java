@@ -23,6 +23,7 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.CancellableDatabaseCall;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.Unsafe;
@@ -214,10 +215,10 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     ProcessBuilder processBuilder = new ProcessBuilder(executionInput.getCommand());
                     processBuilder.environment().putAll(executionInput.getEnvironmentVars());
                     processBuilder.redirectErrorStream(true);
-                    String password = connection.getAuthenticationInfo().getPassword();
+                    char[] password = connection.getAuthenticationInfo().getPassword();
                     String lineCommand = executionInput.getLineCommand();
-                    if (Strings.isNotEmpty(password)) {
-                        lineCommand = lineCommand.replace(password, "*********");
+                    if (Chars.isNotEmpty(password)) {
+                        lineCommand = lineCommand.replace(Chars.toString(password), "*********");
                     }
                     executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput("Executing command: " + lineCommand));
                     executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput(""));

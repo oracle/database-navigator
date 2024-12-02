@@ -341,13 +341,9 @@ public class FormattingBlock implements Block {
 
     @Override
     @NotNull
-    public List<Block> getSubBlocks() {
+    public synchronized List<Block> getSubBlocks() {
         if (childBlocks == null) {
-            synchronized (this) {
-                if (childBlocks == null) {
-                    initChildBlocks();
-                }
-            }
+            initChildBlocks();
         }
         return childBlocks;
     }

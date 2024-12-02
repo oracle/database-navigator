@@ -18,6 +18,7 @@ package com.dbn.database.oracle;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.SchemaId;
@@ -73,7 +74,7 @@ public class OracleExecutionInterface implements DatabaseExecutionInterface {
 
         String connectArg = connectPattern.
                 replace("[USER]",        nvl(authenticationInfo.getUser(),     "")).
-                replace("[PASSWORD]",    nvl(authenticationInfo.getPassword(), "")).
+                replace("[PASSWORD]",    nvl(Chars.toString(authenticationInfo.getPassword()), "")).
                 replace("[HOST]",        nvl(databaseInfo.getHost(),           "")).
                 replace("[PORT]",        nvl(databaseInfo.getPort(),           "")).
                 replace("[DATABASE]",    nvl(databaseInfo.getDatabase(),       "")).

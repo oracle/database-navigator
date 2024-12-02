@@ -29,27 +29,22 @@ public class DBObjectStatusHolder {
         this.mainContentType = mainContentType;
     }
 
-    private Entry ensure(DBContentType contentType) {
+    private synchronized Entry ensure(DBContentType contentType) {
         Entry statusEntry = get(contentType);
         if (statusEntry == null) {
-            synchronized (this) {
+            if (statusEntries == null) {
+                statusEntries = new Entry[1];
+                statusEntry = new Entry(contentType);
+                statusEntries[0] = statusEntry;
+            } else {
                 statusEntry = get(contentType);
                 if (statusEntry == null) {
-                    if (statusEntries == null) {
-                        statusEntries = new Entry[1];
-                        statusEntry = new Entry(contentType);
-                        statusEntries[0] = statusEntry;
-                    } else {
-                        statusEntry = get(contentType);
-                        if (statusEntry == null) {
-                            int currentSize = this.statusEntries.length;
-                            Entry[] statusEntries = new Entry[currentSize + 1];
-                            System.arraycopy(this.statusEntries, 0, statusEntries, 0, currentSize);
-                            statusEntry = new Entry(contentType);
-                            statusEntries[currentSize] = statusEntry;
-                            this.statusEntries = statusEntries;
-                        }
-                    }
+                    int currentSize = this.statusEntries.length;
+                    Entry[] statusEntries = new Entry[currentSize + 1];
+                    System.arraycopy(this.statusEntries, 0, statusEntries, 0, currentSize);
+                    statusEntry = new Entry(contentType);
+                    statusEntries[currentSize] = statusEntry;
+                    this.statusEntries = statusEntries;
                 }
             }
         }
