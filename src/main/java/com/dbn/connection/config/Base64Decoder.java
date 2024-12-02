@@ -29,6 +29,17 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 @Deprecated // TODO remove after subsequent release (passwords moved to IDE keychain, no longer stored to xml configuration)
 public final class Base64Decoder {
 
+    public static String encodePassword(String password) {
+        try {
+            password = Strings.isEmpty(password) ? "" : new String(Base64.getEncoder().encode(nvl(password).getBytes()));
+        } catch (Exception e) {
+            conditionallyLog(e);
+            // any exception would break the logic storing the connection settings
+            log.error("Error encoding password", e);
+        }
+        return password;
+    }
+
     public static String decodeString(String string) {
         try {
             string = Strings.isEmpty(string) ? "" : new String(Base64.getDecoder().decode(nvl(string).getBytes()));

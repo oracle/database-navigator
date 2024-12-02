@@ -37,6 +37,10 @@ public class CmdLineExecutionInput {
 
     }
 
+    public void addEnvironmentVariable(String key, char[] value) {
+        environmentVars.put(key, new String(value));
+    }
+
     public void addEnvironmentVariable(String key, String value) {
         environmentVars.put(key, value);
     }

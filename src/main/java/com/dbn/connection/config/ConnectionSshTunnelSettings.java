@@ -18,6 +18,7 @@ package com.dbn.connection.config;
 
 import com.dbn.common.options.BasicProjectConfiguration;
 import com.dbn.common.options.ConfigMonitor;
+import com.dbn.common.util.Chars;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ui.ConnectionSshTunnelSettingsForm;
 import com.dbn.connection.ssh.SshAuthType;
@@ -32,9 +33,11 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.options.ConfigActivity.INITIALIZING;
 import static com.dbn.common.options.setting.Settings.getBoolean;
+import static com.dbn.common.options.setting.Settings.getChars;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setBoolean;
+import static com.dbn.common.options.setting.Settings.setChars;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.util.Strings.isNotEmpty;
@@ -52,11 +55,11 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
     private boolean active = false;
     private String host;
     private String user;
-    private String password;
+    private char[] password;
     private String port = "22";
     private SshAuthType authType = SshAuthType.PASSWORD;
     private String keyFile;
-    private String keyPassphrase;
+    private char[] keyPassphrase;
 
     ConnectionSshTunnelSettings(ConnectionSettings parent) {
         super(parent);
@@ -99,8 +102,8 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
         if (isTransientContext()) {
             // only propagate password when config context is transient
             // (avoid storing it in config xml)
-            password = getString(element, "transient-password", password);
-            keyPassphrase = getString(element, "transient-key-passphrase", keyPassphrase);
+            password = getChars(element, "transient-password", password);
+            keyPassphrase = getChars(element, "transient-key-passphrase", keyPassphrase);
         }
 
         restorePasswords(element);
@@ -118,8 +121,8 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
         if (isTransientContext()) {
             // only propagate password when config context is transient
             // (avoid storing it in config xml)
-            setString(element, "transient-password", password);
-            setString(element, "transient-key-passphrase", keyPassphrase);
+            setChars(element, "transient-password", password);
+            setChars(element, "transient-key-passphrase", keyPassphrase);
         }
     }
 
@@ -134,20 +137,20 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
 
         DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
         if (authType == SshAuthType.PASSWORD) {
-            if (isNotEmpty(password)) return; // do not overwrite
+            if (Chars.isNotEmpty(password)) return; // do not overwrite
 
-            password = Base64Decoder.decodeString(getString(element, DEPRECATED_PWD_ATTRIBUTE, password));
-            if (isNotEmpty(user) && isNotEmpty(password)) {
+            password = Base64Decoder.decodeString(getString(element, DEPRECATED_PWD_ATTRIBUTE, "")).toCharArray();
+            if (isNotEmpty(user) && Chars.isNotEmpty(password)) {
                 // password still in old config store
                 credentialManager.queueSecretsInsert(getConnectionId(), getPasswordSecret());
             }
         }
 
         if (authType == SshAuthType.KEY_PAIR) {
-            if (isNotEmpty(keyPassphrase)) return; // do not overwrite
+            if (Chars.isNotEmpty(keyPassphrase)) return; // do not overwrite
 
-            keyPassphrase = Base64Decoder.decodeString(getString(element, DEPRECATED_PASSPHRASE_ATTRIBUTE, keyPassphrase));
-            if (isNotEmpty(keyFile) && isNotEmpty(keyPassphrase)) {
+            keyPassphrase = Base64Decoder.decodeString(getString(element, DEPRECATED_PASSPHRASE_ATTRIBUTE, "")).toCharArray();
+            if (isNotEmpty(keyFile) && Chars.isNotEmpty(keyPassphrase)) {
                 // passphrase still in old config store
                 credentialManager.queueSecretsInsert(getConnectionId(), getKeyPassphraseSecret());
             }
@@ -190,10 +193,10 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
         DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
         if (authType == SshAuthType.PASSWORD) {
             Secret secret = credentialManager.loadSecret(SSH_TUNNEL_PASSWORD, connectionId, user);
-            password = secret.getStringToken();
+            password = secret.getToken();
         } else if (authType == SshAuthType.KEY_PAIR) {
             Secret secret = credentialManager.loadSecret(SSH_TUNNEL_PASSPHRASE, connectionId, keyFile);
-            keyPassphrase = secret.getStringToken();
+            keyPassphrase = secret.getToken();
         }
     }
 }

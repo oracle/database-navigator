@@ -38,6 +38,12 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 @UtilityClass
 public final class Settings {
 
+    public static char[] getChars(Element parent, String childName, char[] defaultValue) {
+        Element element = parent.getChild(childName);
+        String stringValue = getStringValue(element);
+        return stringValue == null ? defaultValue : stringValue.toCharArray();
+    }
+
     public static String getString(Element parent, String childName, String defaultValue) {
         Element element = parent.getChild(childName);
         String stringValue = getStringValue(element);
@@ -111,6 +117,12 @@ public final class Settings {
     public static String stringAttribute(Element element, String name) {
         String attributeValue = element == null ? null : element.getAttributeValue(name);
         return Strings.isEmptyOrSpaces(attributeValue) ? attributeValue : attributeValue.intern();
+    }
+
+    public static char[] charsAttribute(Element element, String name) {
+        String attributeValue = element == null ? null : element.getAttributeValue(name);
+        attributeValue = Strings.isEmptyOrSpaces(attributeValue) ? attributeValue : attributeValue.intern();
+        return attributeValue == null ? null : attributeValue.toCharArray();
     }
 
     public static boolean booleanAttribute(Element element, String attributeName, boolean defaultValue) {
@@ -226,6 +238,11 @@ public final class Settings {
         element.setAttribute("value", Integer.toString(value));
     }
 
+    public static void setChars(Element parent, String childName, char[] value) {
+        Element element = newElement(parent, childName);
+        element.setAttribute("value", value == null ? "" : new String(value));
+    }
+
     public static void setString(Element parent, String childName, String value) {
         Element element = newElement(parent, childName);
         element.setAttribute("value", value == null ? "" : value);
@@ -260,6 +277,10 @@ public final class Settings {
 
     public static void setStringAttribute(Element element, String attributeName, String value) {
         element.setAttribute(attributeName, value == null ? "" : value);
+    }
+
+    public static void setCharsAttribute(Element element, String attributeName, char[] value) {
+        element.setAttribute(attributeName, value == null ? "" : new String(value));
     }
 
     public static  <T extends Enum<T>> void setEnumAttribute(Element element, String attributeName, T value) {
