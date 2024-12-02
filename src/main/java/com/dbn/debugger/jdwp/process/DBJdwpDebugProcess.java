@@ -349,18 +349,14 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     protected abstract void executeTarget() throws SQLException;
 
     @Override
-    public void stop() {
+    public synchronized void stop() {
         if (canStopDebugger()) {
-            synchronized (this) {
-                if (canStopDebugger()) {
-                    set(DBDebugProcessStatus.DEBUGGER_STOPPING, true);
-                    set(DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED, false);
-                    console.system("Stopping debugger...");
-                    getSession().stop();
-                    stopDebugger();
-                    super.stop();
-                }
-            }
+            set(DBDebugProcessStatus.DEBUGGER_STOPPING, true);
+            set(DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED, false);
+            console.system("Stopping debugger...");
+            getSession().stop();
+            stopDebugger();
+            super.stop();
         }
     }
 

@@ -16,6 +16,7 @@
 
 package com.dbn.connection.ssh;
 
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Commons;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -94,7 +95,8 @@ public class SshTunnelConnector {
         if (config.getAuthType() == KEY_PAIR) {
             initKeyPairAuth();
         } else {
-            session.addPasswordIdentity(config.getProxyPassword());
+            String proxyPassword = Chars.toString(config.getProxyPassword());
+            session.addPasswordIdentity(proxyPassword);
         }
 
         session.auth().verify(10, TimeUnit.SECONDS);
@@ -103,7 +105,7 @@ public class SshTunnelConnector {
 
     private void initKeyPairAuth() throws Exception{
         String keyFile = config.getKeyFile();
-        String keyPassphrase = Commons.nvl(config.getKeyPassphrase(), "");
+        String keyPassphrase = Chars.toString(Commons.nvl(config.getKeyPassphrase(), Chars.EMPTY_ARRAY));
 
         File privateKeyFile = new File(keyFile);
         try (InputStream keyFileStream = new FileInputStream(privateKeyFile)) {

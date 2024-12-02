@@ -32,7 +32,7 @@ public class DynamicContentTypeIndex<O extends DynamicContentType, T extends Dyn
         this.ownerType = ownerType;
     }
 
-    public int index(DatabaseType databaseType, O ownerType, T type) {
+    public synchronized int index(DatabaseType databaseType, O ownerType, T type) {
         Entry<T> entry = entry(databaseType, ownerType, (Class<T>) type.getClass());
         return entry.index(type);
     }
@@ -41,11 +41,7 @@ public class DynamicContentTypeIndex<O extends DynamicContentType, T extends Dyn
         int position = position(ownerType);
         Entry<T>[] entries = entries(databaseType);
         if (entries[position] == null) {
-            synchronized (this) {
-                if (entries[position] == null) {
-                    entries[position] = new Entry<>(type);
-                }
-            }
+            entries[position] = new Entry<>(type);
         }
         return entries[position];
     }
@@ -53,13 +49,8 @@ public class DynamicContentTypeIndex<O extends DynamicContentType, T extends Dyn
     private Entry<T>[] entries(DatabaseType databaseType) {
         Entry<T>[] entries = this.entries.get(databaseType);
         if (entries == null) {
-            synchronized (this) {
-                entries = this.entries.get(databaseType);
-                if (entries == null) {
-                    entries = new Entry[ownerType.getEnumConstants().length];
-                    this.entries.put(databaseType, entries);
-                }
-            }
+            entries = new Entry[ownerType.getEnumConstants().length];
+            this.entries.put(databaseType, entries);
         }
         return entries;
     }
@@ -69,23 +60,18 @@ public class DynamicContentTypeIndex<O extends DynamicContentType, T extends Dyn
         private final int[] indexes;
         private int size = 0;
 
-        public Entry(Class<T> type) {
+        Entry(Class<T> type) {
             this.type = type;
             this.indexes = new int[type.getEnumConstants().length];
             Arrays.fill(indexes, -1);
         }
 
-        public int index(T type) {
+        int index(T type) {
             int position = position(type);
             if (indexes[position] == -1) {
-                synchronized (this) {
-                    if (indexes[position] == -1) {
-                        indexes[position] = size;
-                        size++;
-                    }
-                }
+                indexes[position] = size;
+                size++;
             }
-
             return indexes[position];
         }
 

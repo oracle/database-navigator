@@ -19,6 +19,7 @@ package com.dbn.credentials;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.thread.Background;
+import com.dbn.common.util.Chars;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.credentialStore.OneTimeString;
@@ -97,7 +98,7 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
             char[] token = secret.getToken();
 
             CredentialAttributes credentialAttributes = createAttributes(type, ownerId, user);
-            Credentials credentials = token.length == 0 ? null : new Credentials(user, token);
+            Credentials credentials = Chars.isEmpty(token) ? null : new Credentials(user, token);
 
             PasswordSafe passwordSafe = PasswordSafe.getInstance();
             passwordSafe.set(credentialAttributes, credentials, false);
