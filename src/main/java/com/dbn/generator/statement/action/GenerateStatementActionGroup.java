@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.generator.action;
+package com.dbn.generator.statement.action;
 
 import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.database.DatabaseFeature;

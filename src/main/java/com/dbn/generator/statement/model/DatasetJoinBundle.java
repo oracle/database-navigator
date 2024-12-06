@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.generator;
+package com.dbn.generator.statement.model;
 
 import com.dbn.object.DBDataset;
 
@@ -44,7 +44,7 @@ public class DatasetJoinBundle {
         }
     }
 
-    protected boolean contains(DBDataset... datasets) {
+    public boolean contains(DBDataset... datasets) {
         for (DatasetJoin datasetJoin : joins) {
             if (datasetJoin.contains(datasets)) return true;
         }

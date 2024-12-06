@@ -21,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 
+import static com.dbn.common.util.Classes.simpleClassName;
+
 @Slf4j
 public abstract class ClipboardContent implements Transferable {
     private final DataFlavor[] dataFlavors;
@@ -35,7 +37,7 @@ public abstract class ClipboardContent implements Transferable {
         try {
             return createDataFlavors();
         } catch (Throwable e) {
-            log.warn("Failed to initialise data flavors for {}. Returning string flavor", getClass().getSimpleName(), e);
+            log.warn("Failed to initialise data flavors for {}. Returning string flavor", simpleClassName(this), e);
             DataFlavor[] dataFlavors = {DataFlavor.stringFlavor};
             return dataFlavors;
         }

@@ -34,11 +34,11 @@ public abstract class ContextAction<T> extends ProjectAction {
         super(text, description, icon);
     }
 
-    protected abstract T getTarget(@NotNull AnActionEvent e);
+    protected abstract T getContext(@NotNull AnActionEvent e);
 
     @Override
     protected final void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        T context = getTarget(e);
+        T context = getContext(e);
         if (isValid(context)) {
             actionPerformed(e, project, context);
         }
@@ -46,7 +46,7 @@ public abstract class ContextAction<T> extends ProjectAction {
 
     @Override
     protected final void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        T target = getTarget(e);
+        T target = getContext(e);
         boolean enabled = isValid(target);
 
         Presentation presentation = e.getPresentation();

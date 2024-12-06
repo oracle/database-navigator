@@ -136,7 +136,7 @@ public class StatementExecutionProcessor {
                             activityTrace.init();
                             if (isDatabaseAccessDebug()) {
                                 statementText = definition.prepareStatementText(arguments);
-                                log.info("[DBN] Executing statement: " + statementText);
+                                log.info("[DBN] Executing statement: {}", statementText);
                             }
 
                             DBNConnection connection = context.getConnection();
@@ -176,7 +176,8 @@ public class StatementExecutionProcessor {
                             conditionallyLog(e);
                             Resources.close(statement);
                             String message = e.getMessage();
-                            if (isDatabaseAccessDebug()) log.warn("[DBN] Error executing statement: " + statementText + "\nCause: " + message);
+                            if (isDatabaseAccessDebug())
+                                log.warn("[DBN] Error executing statement: {}\nCause: {}", statementText, message);
 
                             boolean unsupported = interfaces.getMessageParserInterface().isModelException(e);
                             String traceMessage = unsupported ?
@@ -239,7 +240,7 @@ public class StatementExecutionProcessor {
         return StatementExecutor.execute(context,
                 () -> {
                     String statementText = definition.prepareStatementText(arguments);
-                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: " + statementText);
+                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
 
                     DBNConnection connection = context.getConnection();
                     DBNCallableStatement statement = connection.prepareCall(statementText);
@@ -253,7 +254,7 @@ public class StatementExecutionProcessor {
                     } catch (SQLException e) {
                         conditionallyLog(e);
                         if (isDatabaseAccessDebug())
-                            log.warn("[DBN] Error executing statement: " + statementText + "\nCause: " + e.getMessage());
+                            log.warn("[DBN] Error executing statement: {}\nCause: {}", statementText, e.getMessage());
 
                         throw e;
                     } finally {
@@ -288,7 +289,7 @@ public class StatementExecutionProcessor {
         StatementExecutor.execute(context,
                 () -> {
                     String statementText = definition.prepareStatementText(arguments);
-                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: " + statementText);
+                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
 
                     DBNConnection connection = context.getConnection();
                     DBNStatement statement = connection.createStatement();
@@ -299,7 +300,7 @@ public class StatementExecutionProcessor {
                     } catch (SQLException e) {
                         conditionallyLog(e);
                         if (isDatabaseAccessDebug())
-                            log.warn("[DBN] Error executing statement: " + statementText + "\nCause: " + e.getMessage());
+                            log.warn("[DBN] Error executing statement: {}\nCause: {}", statementText, e.getMessage());
 
                         throw e;
                     } finally {
@@ -334,7 +335,7 @@ public class StatementExecutionProcessor {
         return StatementExecutor.execute(context,
                 () -> {
                     String statementText = definition.prepareStatementText(arguments);
-                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: " + statementText);
+                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
 
                     DBNConnection connection = context.getConnection();
                     DBNStatement statement = connection.createStatement();
@@ -345,7 +346,7 @@ public class StatementExecutionProcessor {
                     } catch (SQLException e) {
                         conditionallyLog(e);
                         if (isDatabaseAccessDebug())
-                            log.warn("[DBN] Error executing statement: " + statementText + "\nCause: " + e.getMessage());
+                            log.warn("[DBN] Error executing statement: {}\nCause: {}", statementText, e.getMessage());
 
                         throw e;
                     } finally {

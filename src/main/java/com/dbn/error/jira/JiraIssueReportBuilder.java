@@ -44,6 +44,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.dbn.DatabaseNavigator.DBN_PLUGIN_ID;
+import static com.dbn.common.util.Classes.className;
 
 public class JiraIssueReportBuilder implements IssueReportBuilder {
     private static final String LINE_DELIMITER = "\n__________________________________________________________________\n";
@@ -155,7 +156,7 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
             description.append(exceptionMessage);
             description.append("\n\n");
         }
-        description.append(getMarkupElement(MarkupElement.CODE, event.getThrowable().getClass().getName()));
+        description.append(getMarkupElement(MarkupElement.CODE, className(event.getThrowable())));
         String eventDetails = event.getThrowableText();
         if (eventDetails.length() > 30000) {
             eventDetails = eventDetails.substring(0, 30000);

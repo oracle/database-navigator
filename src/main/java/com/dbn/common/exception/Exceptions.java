@@ -25,6 +25,7 @@ import java.sql.SQLTimeoutException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 
 public class Exceptions {
@@ -57,7 +58,7 @@ public class Exceptions {
         // remove duplicate message content for nested exceptions propagating own message
         String message = e.getMessage();
         s = s.replace(message, "");
-        return s + "[" + e.getClass().getSimpleName() + "] " + message;
+        return s + "[" + simpleClassName(e) + "] " + message;
     }
 
     @NotNull
@@ -68,7 +69,7 @@ public class Exceptions {
 
     @NotNull
     private static String throwableMessage(@NotNull Throwable e) {
-        return Commons.nvl(e.getMessage(), e.getClass().getSimpleName());
+        return Commons.nvl(e.getMessage(), simpleClassName(e));
     }
 
     public static <T> T unsupported() {
@@ -76,7 +77,7 @@ public class Exceptions {
     }
 
     public static <T, E extends Enum> T unsupported(E enumeration) {
-        throw new UnsupportedOperationException("Unsupported " + enumeration.getClass().getSimpleName() + " " + enumeration);
+        throw new UnsupportedOperationException("Unsupported " + simpleClassName(enumeration) + " " + enumeration);
     }
 
 

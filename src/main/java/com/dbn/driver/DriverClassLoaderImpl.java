@@ -99,12 +99,12 @@ class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader 
                     }
                 } catch (Throwable e) {
                     conditionallyLog(e);
-                    log.warn("Failed to load driver {} from library {}", className, jar, e);
+                    log.warn("Failed to load driver class {}", className, e);
                 }
             }
         } catch (Throwable e) {
             conditionallyLog(e);
-            log.warn("Failed to load drivers from library {}", jar, e);
+            log.warn("Failed to load drivers", e);
         }
     }
 

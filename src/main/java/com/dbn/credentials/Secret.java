@@ -30,7 +30,7 @@ import static com.dbn.common.util.Commons.nvl;
  * @author Dan Cioca (Oracle)
  */
 @Data
-public class Secret {
+public final class Secret {
     public static final char[] EMPTY = new char[0];
 
     private final SecretType type;
@@ -56,8 +56,15 @@ public class Secret {
         return token == null || token.isEmpty() ? EMPTY : token.toCharArray();
     }
 
-    public String toString() {
+    public String safePresentation() {
         // secret representation with length of token only
-        return type + ":" + user + ":" + (isEmpty(token) ? '0' : token.length);
+        return type + ":" + (isEmpty(token) ? '0' : token.length);
+    }
+
+    @Override
+    public String toString() {
+        // IMPORTANT: do not remove or alter this
+        // (prevent sensitive data from ever being exposed in the logs)
+        return safePresentation();
     }
 }

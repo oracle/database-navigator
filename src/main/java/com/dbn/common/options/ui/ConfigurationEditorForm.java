@@ -39,6 +39,8 @@ import java.awt.Component;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 
+import static com.dbn.common.util.Classes.simpleClassName;
+
 @Slf4j
 public abstract class ConfigurationEditorForm<E extends BasicConfiguration> extends DBNFormBase {
     private ItemListener itemListener;
@@ -60,7 +62,7 @@ public abstract class ConfigurationEditorForm<E extends BasicConfiguration> exte
 
     public void applyFormChanges(E configuration) throws ConfigurationException {
         log.error("Cannot apply form changes for {}",
-                configuration.getClass().getSimpleName(),
+                simpleClassName(configuration),
                 new UnsupportedOperationException("Not implemented"));
     }
     public abstract void resetFormChanges();

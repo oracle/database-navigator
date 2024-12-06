@@ -16,13 +16,11 @@
 
 package com.dbn.language.common.resolve;
 
-import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectPsiElement;
-import com.intellij.openapi.diagnostic.Attachment;
 import com.intellij.psi.PsiElement;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -43,11 +41,7 @@ public class AliasObjectResolver extends UnderlyingObjectResolver{
     @Override
     @Nullable
     protected DBObject resolve(IdentifierPsiElement identifierPsiElement, int recursionCheck) {
-        if (recursionCheck > 10) {
-            DBLanguagePsiFile psiFile = identifierPsiElement.getFile();
-            log.error("Recursive alias lookup {}", new Attachment(psiFile.getVirtualFile().getPath(), psiFile.getText()));
-            return null;
-        }
+        if (recursionCheck > 10) return null;
 
         BasePsiElement aliasedObject = PsiUtil.resolveAliasedEntityElement(identifierPsiElement);
         if (aliasedObject == null) return null;

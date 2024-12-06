@@ -170,7 +170,8 @@
         <projectService serviceImplementation="com.dbn.editor.data.state.DatasetEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.editor.data.statusbar.DatasetEditorStatusBarWidget"/>
         <projectService serviceImplementation="com.dbn.editor.session.SessionBrowserManager"/>
-        <projectService serviceImplementation="com.dbn.generator.StatementGenerationManager"/>
+        <projectService serviceImplementation="com.dbn.generator.statement.StatementGenerationManager"/>
+        <projectService serviceImplementation="com.dbn.generator.code.CodeGeneratorManager"/>
         <projectService serviceImplementation="com.dbn.object.common.loader.DatabaseLoaderManager"/>
         <projectService serviceImplementation="com.dbn.object.factory.DatabaseObjectFactory"/>
         <projectService serviceImplementation="com.dbn.object.factory.VirtualObjectFactory"/>

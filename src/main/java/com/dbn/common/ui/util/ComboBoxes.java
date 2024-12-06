@@ -25,10 +25,15 @@ import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JList;
+import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import static com.dbn.common.util.Unsafe.cast;
 
 public class ComboBoxes {
     public static void addItems(JComboBox comboBox, Iterable items) {
@@ -62,12 +67,58 @@ public class ComboBoxes {
         });
     }
 
+    public static <T extends Presentable> void initSelectionListener(JComboBox<T> comboBox, Consumer<T> selectionConsumer) {
+        comboBox.addItemListener(e -> {
+            if (e.getStateChange() != ItemEvent.SELECTED) return;
+
+            T item = cast(e.getItem());
+            selectionConsumer.accept(item);
+        });
+    }
+
+
+    /**
+     * Initializes the persistence of the combo box selection
+     * @param comboBox the {@link JComboBox} to initialize persistence for
+     * @param selectionSupplier the supplier of initial selection (will be invoked when model of the combo box changes)
+     * @param selectionConsumer the consumer of the selection (will be invoked when selection changes)
+     * @param <T> the type of entries in the combo box
+     */
+    public static <T extends Presentable> void initPersistence(JComboBox<T> comboBox, Supplier<String> selectionSupplier, Consumer<String> selectionConsumer) {
+        initSelectionListener(comboBox, s -> selectionConsumer.accept(s == null ? null : s.getName()));
+
+        comboBox.addPropertyChangeListener(e -> {
+            if ("model".equals(e.getPropertyName())) {
+                selectElement(comboBox, selectionSupplier.get());
+                if (comboBox.getSelectedItem() == null && comboBox.getItemCount() > 0) {
+                    comboBox.setSelectedIndex(0);
+                }
+            }
+        });
+    }
+
     public static <T> T getSelection(JComboBox<T> comboBox) {
         return (T) comboBox.getSelectedItem();
     }
 
     public static <T> void setSelection(JComboBox<T> comboBox, T value) {
         comboBox.setSelectedItem(value);
+    }
+
+    public static <T extends Presentable> void selectElement(JComboBox<T> comboBox, String name) {
+        List<T> elements = getElements(comboBox);
+        for (T element : elements) {
+            if (element.getName().equals(name)) {
+                setSelection(comboBox, element);
+                return;
+            }
+        }
+
+    }
+
+    public static void selectFirstElement(JComboBox comboBox) {
+        if (comboBox.getItemCount() == 0) return;
+        comboBox.setSelectedIndex(0);
     }
 
     public static <T> List<T> getElements(JComboBox<T> comboBox) {

@@ -25,19 +25,21 @@ import com.dbn.connection.transaction.action.TransactionCommitAction;
 import com.dbn.connection.transaction.action.TransactionRollbackAction;
 import com.dbn.diagnostics.action.BulkLoadAllObjectsAction;
 import com.dbn.diagnostics.action.MiscellaneousConnectionAction;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 
-public class ConnectionActionGroup extends DefaultActionGroup {
+public class ConnectionActionGroup extends AbstractConnectionActionGroup {
 
     public ConnectionActionGroup(ConnectionHandler connection) {
+        super(connection);
+
         //add(new ConnectAction(connection));
         add(new TransactionCommitAction(connection));
         add(new TransactionRollbackAction(connection));
         add(new AutoCommitToggleAction(connection));
+        add(new PendingTransactionsOpenAction(connection));
         add(new DatabaseLoggingToggleAction(connection));
         addSeparator();
         add(new SQLConsoleOpenAction(connection));
-        add(new PendingTransactionsOpenAction(connection));
+        add(new GenerateCodeActionGroup(connection));
         addSeparator();
         add(new AutoConnectToggleAction(connection));
         add(new DatabaseConnectAction(connection));

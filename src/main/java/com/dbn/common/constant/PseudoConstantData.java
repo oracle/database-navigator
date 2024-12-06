@@ -27,6 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static com.dbn.common.util.Classes.simpleClassName;
+
 class PseudoConstantData<T extends PseudoConstant<T>> {
     static final ThreadLocal<PseudoConstantData> LOCAL = new ThreadLocal<>();
 
@@ -73,7 +75,7 @@ class PseudoConstantData<T extends PseudoConstant<T>> {
         try {
             lock.lock();
             String id = constant.id();
-            String name = constant.getClass().getSimpleName();
+            String name = simpleClassName(constant);
 
             if (mappings.containsKey(id)) {
                 throw new IllegalStateException("Constant " + name + ":" + id + " is already registered");

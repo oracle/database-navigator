@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.generator.action;
+package com.dbn.generator.statement.action;
 
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.thread.Command;
@@ -24,7 +24,7 @@ import com.dbn.common.util.Editors;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.context.DatabaseContextBase;
-import com.dbn.generator.StatementGeneratorResult;
+import com.dbn.generator.statement.StatementGeneratorResult;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.sql.SQLFileType;
 import com.intellij.openapi.actionSystem.AnActionEvent;

@@ -1,0 +1,23 @@
+#set($urlPattern = "${JDBC_URL_PATTERN}")
+#set($urlPatternHtml = $urlPattern.replace("<", "&lt;").replace(">", "&gt;"))
+/**
+ * SQLite JDBC Connector<br>
+ * This is generated code. The {@link ${CLASS_NAME}#connect()} method is implemented to connect to the
+ * SQLite Database using the appropriate JDBC Driver.
+ *
+ * <p><u>DRIVER LIBRARIES</u></p>
+ * To run this class you will need to integrate the SQLite JDBC Driver libraries in your project<br>
+ * e.g. by using Maven Project Object Model (POM) <a href="https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.47.1.0/sqlite-jdbc-3.47.1.0.pom">sqlite-jdbc-3.47.1.0.pom</a><br>
+ *
+ * <p><u>JDBC URL</u></p>
+ * The connection is using a "${JDBC_URL_TYPE_NAME}" jdbc URL type<br>
+ * URL pattern: "$urlPatternHtml"<br>
+#if (${JDBC_URL_TYPE} == 'FILE')
+ * <ul>
+ *   <li>FILE: the absolute path to the sqlite database file (e.g. /var/dbs/sqlite.db)</li>
+ * </ul>
+#elseif (${JDBC_URL_TYPE} == 'CUSTOM')
+
+#end
+ *
+ */

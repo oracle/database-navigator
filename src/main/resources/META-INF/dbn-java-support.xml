@@ -22,4 +22,9 @@
         <programRunner implementation="com.dbn.debugger.jdwp.process.DBMethodJdwpRunner"/>
         <programRunner implementation="com.dbn.debugger.jdwp.process.DBStatementJdwpRunner"/>
     </extensions>
+    <actions>
+        <group id="DBNavigator.ActionGroup.ExtractJavaCode">
+            <!--empty placeholder group to verify the availability of java module-->
+        </group>
+    </actions>
 </idea-plugin>
