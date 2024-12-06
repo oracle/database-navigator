@@ -24,6 +24,7 @@ import com.intellij.openapi.progress.ProcessCanceledException;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -80,7 +81,7 @@ public final class Unsafe {
         } catch (Throwable e) {
             conditionallyLog(e);
             String message = e.getMessage();
-            log.warn(message == null ? e.getClass().getSimpleName() : message);
+            log.warn(message == null ? simpleClassName(e) : message);
         }
     }
 
@@ -92,7 +93,7 @@ public final class Unsafe {
         } catch (Throwable e) {
             conditionallyLog(e);
             String message = e.getMessage();
-            log.warn(message == null ? e.getClass().getSimpleName() : message);
+            log.warn(message == null ? simpleClassName(e) : message);
         }
         return defaultValue;
     }

@@ -20,6 +20,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.message.Message;
 import com.dbn.common.message.MessageBundle;
 import com.dbn.common.message.MessageCallback;
+import com.dbn.common.message.TitledMessage;
 import com.dbn.common.option.DoNotAskOption;
 import com.dbn.common.thread.Dispatch;
 import com.intellij.openapi.application.ModalityState;
@@ -33,6 +34,7 @@ import javax.swing.Icon;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.progress.ProgressDialogHandler.closeProgressDialogs;
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -52,6 +54,21 @@ public class Messages {
             buffer.append("\n");
         }
         showErrorDialog(project, title, buffer.toString());
+    }
+
+    public static void showMessageDialog(@Nullable Project project, Message message) {
+        String title = null;
+        if (message instanceof TitledMessage) {
+            TitledMessage titledMessage = (TitledMessage) message;
+            title = titledMessage.getTitle();
+        }
+
+        switch (message.getType()) {
+            case INFO: showInfoDialog(project, nvl(title, "Info"), message.getText());
+            case ERROR: showErrorDialog(project, nvl(title, "Error"), message.getText()); break;
+            case WARNING: showWarningDialog(project, nvl(title, "Warning"), message.getText()); break;
+            default:
+        }
     }
 
     public static void showErrorDialog(@Nullable Project project, String message, Exception exception) {
@@ -81,7 +98,7 @@ public class Messages {
             //message = message + "\nCause: [" + className + "] " + exception.getMessage();
             String exceptionMessage = exception.getLocalizedMessage();
             if (exceptionMessage == null) {
-                exceptionMessage = exception.getClass().getName();
+                exceptionMessage = Classes.className(exception);
             }
             message = message + "\n" + exceptionMessage.trim();
         }

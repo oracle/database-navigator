@@ -17,6 +17,9 @@
 package com.dbn.common.outcome;
 
 import lombok.Getter;
+import lombok.Setter;
+
+import static com.dbn.common.util.Unsafe.cast;
 
 /**
  * Common purpose process outcome information-holder
@@ -26,11 +29,13 @@ import lombok.Getter;
  * @author Dan Cioca (Oracle)
  */
 @Getter
+@Setter
 public class Outcome {
     private final OutcomeType type;
     private final String title;
     private final String message;
     private final Exception exception;
+    private Object data;
 
     public Outcome(OutcomeType type, String title, String message) {
         this(type, title, message, null);
@@ -41,5 +46,9 @@ public class Outcome {
         this.title = title;
         this.message = message;
         this.exception = exception;
+    }
+
+    public <T> T getData() {
+        return cast(data);
     }
 }

@@ -127,7 +127,7 @@ public class ExcelDataExportProcessor extends DataExportProcessor{
         } catch (Throwable e) {
             conditionallyLog(e);
             log.warn("Failed to export data", e);
-            throw new DataExportException("Could not write file " + file.getPath() + ".\nCause: " + e.getMessage());
+            throw new DataExportException("Failed to create export file.\nCause: " + e.getMessage());
         }
     }
 

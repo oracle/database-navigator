@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static com.dbn.common.util.Classes.simpleClassName;
+
 @UtilityClass
 public class Constants {
     public static List<String> getIdList(Class<? extends Constant> constantClass) {
@@ -76,7 +78,7 @@ public class Constants {
     public static <T extends Constant> T get(T[] constants, String id, boolean throwException) {
         T constant = get(constants, id);
         if (!Strings.isEmpty(id) && constant == null && throwException) {
-            String className = constants[0].getClass().getSimpleName();
+            String className = simpleClassName(constants[0]);
             throw new IllegalArgumentException("Invalid " + className + ": '" + id + "'.");
         }
         return constant;

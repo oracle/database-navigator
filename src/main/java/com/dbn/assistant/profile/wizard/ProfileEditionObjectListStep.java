@@ -204,8 +204,6 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   }
 
   private void initObjectTables() {
-    log.debug("initializing tables");
-
     ProfileObjectsTransferHandler th = new ProfileObjectsTransferHandler();
 
     initializeDatabaseObjectTable(th);
@@ -213,7 +211,6 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   }
 
   private void initializeDatabaseObjectTable(ProfileObjectsTransferHandler th) {
-    log.debug("initializing databaseObjectsTable");
     // keep this !
     // if set to true a RowSorter is created each the model changes
     // and that breaks our logic
@@ -247,11 +244,9 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
               }
             }
     );
-    log.debug("initialization databaseObjectsTable complete");
   }
 
   private void initializeProfileObjectTable(ProfileObjectsTransferHandler th) {
-    log.debug("initializing profileObjectListTable");
     this.profileObjectListTable.setTransferHandler(th);
 
     this.profileObjectListTable.setModel(objectsTableModel);
@@ -288,7 +283,6 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
         profileObjectListTable.getInputVerifier().verify(profileObjectListTable);
       }
     });
-    log.debug("initialization profileObjectListTable complete");
   }
 
   private void startActivityNotifier() {

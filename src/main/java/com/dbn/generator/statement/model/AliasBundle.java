@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.generator;
+package com.dbn.generator.statement.model;
 
 import com.dbn.common.util.Naming;
 import com.dbn.object.common.DBObject;

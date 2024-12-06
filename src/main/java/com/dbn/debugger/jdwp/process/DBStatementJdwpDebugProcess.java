@@ -34,6 +34,7 @@ import javax.swing.Icon;
 import java.sql.SQLException;
 import java.util.Objects;
 
+import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class DBStatementJdwpDebugProcess extends DBJdwpDebugProcess<StatementExecutionInput> {
@@ -68,7 +69,7 @@ public class DBStatementJdwpDebugProcess extends DBJdwpDebugProcess<StatementExe
                 }
             } catch (Exception e) {
                 conditionallyLog(e);
-                getConsole().warning("Error evaluating suspend position '" + sourceUrl + "': " + Commons.nvl(e.getMessage(), e.getClass().getSimpleName()));
+                getConsole().warning("Error evaluating suspend position '" + sourceUrl + "': " + Commons.nvl(e.getMessage(), simpleClassName(e)));
             }
         }
 

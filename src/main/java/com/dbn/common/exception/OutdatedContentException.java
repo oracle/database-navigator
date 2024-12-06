@@ -18,8 +18,10 @@ package com.dbn.common.exception;
 
 import com.intellij.openapi.progress.ProcessCanceledException;
 
+import static com.dbn.common.util.Classes.simpleClassName;
+
 public class OutdatedContentException extends ProcessCanceledException {
     public OutdatedContentException(Object o) {
-        super(new IllegalStateException(o.getClass().getSimpleName() + " is outdated"));
+        super(new IllegalStateException(simpleClassName(o) + " is outdated"));
     }
 }

@@ -16,6 +16,7 @@
 
 package com.dbn.common.outcome;
 
+import com.dbn.common.Priority;
 import com.dbn.common.util.Prioritized;
 
 /**
@@ -31,5 +32,19 @@ public interface OutcomeHandler extends Prioritized {
      * @param outcome the {@link Outcome} to be handled
      */
     void handle(Outcome outcome);
+
+    interface LowPriority extends OutcomeHandler {
+        @Override
+        default Priority getPriority() {
+            return Priority.LOW;
+        }
+    }
+
+    interface HighPriority extends OutcomeHandler {
+        @Override
+        default Priority getPriority() {
+            return Priority.HIGH;
+        }
+    }
 
 }

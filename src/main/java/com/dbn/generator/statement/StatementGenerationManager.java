@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.generator;
+package com.dbn.generator.statement;
 
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.object.DBTable;

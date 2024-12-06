@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -81,7 +82,7 @@ public final class Timeout {
             throw new ProcessCanceledException();
         } catch (TimeoutException | InterruptedException | RejectedExecutionException e) {
             conditionallyLog(e);
-            String message = Commons.nvl(e.getMessage(), e.getClass().getSimpleName());
+            String message = Commons.nvl(e.getMessage(), simpleClassName(e));
             log.warn("{} - Operation timed out after {}s (timeout = {}s). Defaulting to {}. Cause: {}", identifier, TimeUtil.secondsSince(start), seconds, defaultValue, message);
         } catch (ExecutionException e) {
             conditionallyLog(e);
@@ -128,7 +129,7 @@ public final class Timeout {
             throw new ProcessCanceledException();
         } catch (TimeoutException | InterruptedException | RejectedExecutionException e) {
             conditionallyLog(e);
-            String message = Commons.nvl(e.getMessage(), e.getClass().getSimpleName());
+            String message = Commons.nvl(e.getMessage(), simpleClassName(e));
             log.warn("Operation timed out after {}s (timeout = {}s). Cause: {}", TimeUtil.secondsSince(start), seconds, message);
         } catch (ExecutionException e) {
             conditionallyLog(e);

@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 abstract class AbstractDatabaseLoggingAction extends ContextAction<DatabaseLoggingResult> {
 
     @Nullable
-    protected DatabaseLoggingResult getTarget(@NotNull AnActionEvent e) {
+    protected DatabaseLoggingResult getContext(@NotNull AnActionEvent e) {
         return e.getData(DataKeys.DATABASE_LOG_OUTPUT);
     }
 }

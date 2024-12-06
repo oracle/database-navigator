@@ -28,6 +28,7 @@ import com.dbn.data.value.ValueAdapter;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.datatransfer.StringSelection;
@@ -46,6 +47,7 @@ import java.util.GregorianCalendar;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
+@Slf4j
 public abstract class DataExportProcessor {
     public abstract boolean supports(DataExportFeature feature);
 
@@ -97,8 +99,8 @@ public abstract class DataExportProcessor {
                 writer.write(content);
                 writer.flush();
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new DataExportException("Could not write file " + file.getPath() + ".\nCause: " + e.getMessage());
+            log.warn("Failed to create export file", e);
+            throw new DataExportException("Failed to create export file.\nCause: " + e.getMessage());
         }
     }
 

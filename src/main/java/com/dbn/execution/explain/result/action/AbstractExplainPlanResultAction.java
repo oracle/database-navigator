@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.common.dispose.Checks.isNotValid;
 
 public abstract class AbstractExplainPlanResultAction extends ContextAction<ExplainPlanResult> {
-    protected ExplainPlanResult getTarget(@NotNull AnActionEvent e) {
+    protected ExplainPlanResult getContext(@NotNull AnActionEvent e) {
         ExplainPlanResult result = e.getData(DataKeys.EXPLAIN_PLAN_RESULT);
         if (result != null) return result;
 

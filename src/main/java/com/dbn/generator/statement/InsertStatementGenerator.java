@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.generator;
+package com.dbn.generator.statement;
 
 import com.dbn.code.common.style.DBLCodeStyleManager;
 import com.dbn.code.common.style.options.CodeStyleCaseOption;

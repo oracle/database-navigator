@@ -73,7 +73,7 @@ public final class VirtualFiles {
             if (isNotValid(file)) return null;
             return file;
         } catch (Exception e) {
-            log.warn("Failed to resolve file {}", fileUrl, e);
+            log.warn("Failed to resolve file by url", e);
         }
 
         return null;

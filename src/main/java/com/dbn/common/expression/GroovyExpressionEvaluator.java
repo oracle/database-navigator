@@ -53,7 +53,7 @@ public class GroovyExpressionEvaluator implements ExpressionEvaluator{
         try {
             return evaluate(expression, context, null, false);
         } catch (Throwable e) {
-            log.error("Failed to evaluate expression: {}", expression, e);
+            log.error("Failed to evaluate expression", e);
             return null;
         }
     }
