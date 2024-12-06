@@ -1,0 +1,14 @@
+#if (${AUTH_TYPE} == 'USER_PASSWORD')
+    private static final String PROP_USER = "user";
+    private static final String PROP_PASSWORD = "password";
+#elseif (${AUTH_TYPE} == 'USER')
+    private static final String PROP_USER = "user";
+#elseif (${AUTH_TYPE} == 'TOKEN')
+    #if (${AUTH_TOKEN_TYPE} == 'OCI_API_KEY')
+        private static final String PROP_TOKEN_AUTH= "oracle.jdbc.tokenAuthentication";
+        private static final String PROP_OCI_CONFIG_FILE= "oracle.jdbc.ociConfigFile";
+        private static final String PROP_OCI_PROFILE= "oracle.jdbc.ociProfile";
+    #elseif (${AUTH_TOKEN_TYPE} == 'OCI_INTERACTIVE')
+        private static final String PROP_TOKEN_AUTH= "oracle.jdbc.tokenAuthentication";
+    #end
+#end

@@ -93,8 +93,6 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
                 throw new IOException("Could not load tunneling object. Does the current driver support Cloud NS?");
             }
 
-            log.info("Connected " + debugConnection.tunnelAddress());
-
             jdwpHostPort = debugConnection.tunnelAddress();
             ConnectionPropertiesSettings connectionSettings = getConnection().getSettings().getPropertiesSettings();
             connectionSettings.getProperties().put("jdwpHostPort", jdwpHostPort);

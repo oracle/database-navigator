@@ -32,7 +32,7 @@ abstract class AbstractExecutionMessagesAction extends ContextAction<MessagesTre
     }
 
     @Nullable
-    protected MessagesTree getTarget(@NotNull AnActionEvent e) {
+    protected MessagesTree getContext(@NotNull AnActionEvent e) {
         return DataKeys.MESSAGES_TREE.getData(e.getDataContext());
     }
 }

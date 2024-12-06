@@ -103,9 +103,9 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
             PasswordSafe passwordSafe = PasswordSafe.getInstance();
             passwordSafe.set(credentialAttributes, credentials, false);
 
-            log.info("Saved secret {}", secret);
+            log.info("Saved secret {}", secret.safePresentation());
         } catch (Throwable e) {
-            log.error("Failed to save secret {}", secret, e);
+            log.error("Failed to save secret {}", secret.safePresentation(), e);
         }
     }
 
@@ -127,11 +127,11 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
             char[] token = password == null ? EMPTY : password.toCharArray();
 
             secret = new Secret(type, user, token);
-            log.info("Loaded secret {}", secret);
+            log.info("Loaded secret {}", secret.safePresentation());
 
         } catch (Exception e) {
             secret = new Secret(type, user, EMPTY);
-            log.error("Failed to load secret {}", secret, e);
+            log.error("Failed to load secret {}", secret.safePresentation(), e);
         }
         return secret;
     }

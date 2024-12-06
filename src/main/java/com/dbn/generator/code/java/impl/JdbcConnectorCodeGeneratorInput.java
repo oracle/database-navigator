@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package com.dbn.generator;
+package com.dbn.generator.code.java.impl;
 
-import com.intellij.openapi.project.Project;
+import com.dbn.connection.context.DatabaseContext;
+import com.dbn.generator.code.java.JavaCodeGeneratorInput;
 
-public abstract class StatementGenerator {
-
-    public abstract StatementGeneratorResult generateStatement(Project project);
+public class JdbcConnectorCodeGeneratorInput extends JavaCodeGeneratorInput {
+    protected JdbcConnectorCodeGeneratorInput(DatabaseContext databaseContext) {
+        super(databaseContext);
+    }
 }

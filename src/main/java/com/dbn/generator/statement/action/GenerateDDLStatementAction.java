@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.dbn.generator.action;
+package com.dbn.generator.statement.action;
 
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.ddl.DDLManager;
-import com.dbn.generator.StatementGeneratorResult;
+import com.dbn.generator.statement.StatementGeneratorResult;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;

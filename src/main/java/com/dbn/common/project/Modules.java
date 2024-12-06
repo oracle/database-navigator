@@ -17,6 +17,8 @@
 package com.dbn.common.project;
 
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.experimental.UtilityClass;
@@ -41,5 +43,11 @@ public class Modules {
             }
         }
         return null;
+    }
+
+
+    @Nullable
+    public Module getModule(Project project, String moduleName) {
+        return ModuleManager.getInstance(project).findModuleByName(moduleName);
     }
 }

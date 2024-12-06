@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class AbstractParserDiagnosticsAction extends ContextAction<ParserDiagnosticsForm> {
 
     @Override
-    protected final ParserDiagnosticsForm getTarget(@NotNull AnActionEvent e) {
+    protected final ParserDiagnosticsForm getContext(@NotNull AnActionEvent e) {
         return e.getData(DataKeys.PARSER_DIAGNOSTICS_FORM);
     }
 
