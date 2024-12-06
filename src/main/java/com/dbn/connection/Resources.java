@@ -45,6 +45,7 @@ import java.util.function.Supplier;
 
 import static com.dbn.common.notification.NotificationGroup.CONNECTION;
 import static com.dbn.common.notification.NotificationGroup.TRANSACTION;
+import static com.dbn.common.util.Classes.className;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.connection.jdbc.ResourceStatus.ACTIVE;
 import static com.dbn.connection.jdbc.ResourceStatus.CLOSED;
@@ -291,7 +292,7 @@ public final class Resources implements NlsSupport {
     }
 
     private static void sentWarningNotification(NotificationGroup title, String messageKey, DBNConnection connection, Exception e) {
-        String error = nvl(e.getMessage(), e.getClass().getName());
+        String error = nvl(e.getMessage(), className(e));
         if (connection.shouldNotify(error)) {
 
             Project project = connection.getProject();

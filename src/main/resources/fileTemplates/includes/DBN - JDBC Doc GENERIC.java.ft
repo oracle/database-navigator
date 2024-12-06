@@ -1,0 +1,31 @@
+#set($urlPattern = "${JDBC_URL_PATTERN}")
+#set($urlPatternHtml = $urlPattern.replace("<", "&lt;").replace(">", "&gt;"))
+/**
+ * Generic JDBC Connector<br>
+ * This is generated code. The {@link ${CLASS_NAME}#connect()} method is implemented to connect to
+ * a Database using the appropriate JDBC Driver.
+ *
+ * <p><u>DRIVER LIBRARIES</u></p>
+ * To run this class you will need to integrate the JDBC Driver libraries in your project<br>
+ *
+ * <p><u>JDBC URL</u></p>
+ * The connection is using a "${JDBC_URL_TYPE_NAME}" jdbc URL type<br>
+ *
+ * <p><u>AUTHENTICATION</u></p>
+#if (${AUTH_TYPE} == 'NONE')
+ * The connection uses no authentication
+#elseif (${AUTH_TYPE} == 'USER')
+ * The connection uses "${AUTH_TYPE_NAME}" authentication
+ * User is passed as property to the driver
+ * <ul>
+ *   <li>Parameter "user": the name of the user</li>
+ * </ul>
+#elseif (${AUTH_TYPE} == 'USER_PASSWORD')
+ * The connection uses "${AUTH_TYPE_NAME}" authentication
+ * User and Password are passed as properties to the driver
+ * <ul>
+ *   <li>Property "user": the name of the user </li>
+ *   <li>Property "password": the password for the account</li>
+ * </ul>
+#end
+ */

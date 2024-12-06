@@ -26,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.Component;
 
+import static com.dbn.common.util.Classes.className;
 import static com.dbn.common.util.Unsafe.cast;
 
 @UtilityClass
@@ -38,7 +39,7 @@ public class Context {
         if (source instanceof FileEditor) return getDataContext((FileEditor) source);
         if (source instanceof Component) return getDataContext((Component) source);
 
-        throw new UnsupportedOperationException("Unsupported source for data context lookup: " + source);
+        throw new UnsupportedOperationException("Unsupported source for data context lookup: " + className(source));
     }
 
     public static DataContext getDataContext(DBNForm form) {

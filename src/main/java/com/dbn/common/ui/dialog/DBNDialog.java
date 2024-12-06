@@ -43,6 +43,7 @@ import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Unsafe.cast;
 
 public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper implements DBNComponent, NlsSupport {
@@ -128,7 +129,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
 
     @Override
     protected String getDimensionServiceKey() {
-        return Diagnostics.isDialogSizingReset() ? null : "DBNavigator." + getClass().getSimpleName();
+        return Diagnostics.isDialogSizingReset() ? null : "DBNavigator." + simpleClassName(this);
     }
 
     protected static void renameAction(@NotNull Action action, String name) {

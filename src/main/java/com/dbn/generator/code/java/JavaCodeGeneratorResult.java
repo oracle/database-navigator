@@ -14,25 +14,13 @@
  * limitations under the License.
  */
 
-package com.dbn.generator;
+package com.dbn.generator.code.java;
 
+import com.dbn.generator.code.shared.base.CodeGeneratorResultBase;
 
-import com.dbn.common.message.MessageBundle;
+public abstract class JavaCodeGeneratorResult<I extends JavaCodeGeneratorInput> extends CodeGeneratorResultBase<I> {
 
-public class StatementGeneratorResult {
-    private String statement;
-    private MessageBundle messages = new MessageBundle();
-
-
-    public String getStatement() {
-        return statement;
-    }
-
-    public void setStatement(String statement) {
-        this.statement = statement;
-    }
-
-    public MessageBundle getMessages() {
-        return messages;
+    public JavaCodeGeneratorResult(I input) {
+        super(input);
     }
 }

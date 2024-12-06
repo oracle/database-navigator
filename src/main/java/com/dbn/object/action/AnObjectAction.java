@@ -33,7 +33,7 @@ public abstract class AnObjectAction<T extends DBObject> extends ContextAction<T
     }
 
     @Override
-    protected T getTarget(@NotNull AnActionEvent e) {
+    protected T getContext(@NotNull AnActionEvent e) {
         return getTarget();
     }
 

@@ -30,6 +30,7 @@ import static com.dbn.common.options.setting.Settings.integerAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setIntegerAttribute;
+import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Commons.nvl;
 
 @Slf4j
@@ -203,7 +204,7 @@ public final class Diagnostics {
         if (!debugLogging.failsafeErrors) return;
         if (!isDeveloperMode()) return;
 
-        String message = nvl(exception.getMessage(), exception.getClass().getSimpleName());
+        String message = nvl(exception.getMessage(), simpleClassName(exception));
         log.warn("[DIAGNOSTICS] " + message, exception);
     }
 

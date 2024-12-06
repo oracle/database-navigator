@@ -214,7 +214,7 @@ public enum DatabaseUrlPattern {
             return matcher.group(name).trim();
         } catch (Exception e) {
             conditionallyLog(e);
-            log.warn("Failed to get group {} from url \"{}\"", name, url);
+            log.warn("Failed to get group {} from database url", name);
             return "";
         }
     }

@@ -1,0 +1,44 @@
+#set($urlPattern = "${JDBC_URL_PATTERN}")
+#set($urlPatternHtml = $urlPattern.replace("<", "&lt;").replace(">", "&gt;"))
+/**
+ * MySQL JDBC Connector<br>
+ * This is generated code. The {@link ${CLASS_NAME}#connect()} method is implemented to connect to the
+ * MySQL Database using the appropriate JDBC Driver.
+ *
+ * <p><u>DRIVER LIBRARIES</u></p>
+ * To run this class you will need to integrate the MySQL JDBC Driver libraries in your project<br>
+ * e.g. by using Maven Project Object Model (POM) <a href="https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.33/mysql-connector-java-8.0.33.pom">mysql-connector-java-8.0.33.pom</a><br>
+ * Additional features may require other libraries to be added to the runtime. Please read the MySQL JDBC documentation for additional details.
+ *
+ * <p><u>JDBC URL</u></p>
+ * The connection is using a "${JDBC_URL_TYPE_NAME}" jdbc URL type<br>
+ * URL pattern: "$urlPatternHtml"<br>
+#if (${JDBC_URL_TYPE} == 'DATABASE')
+ * <ul>
+ *   <li>HOST: the hostname or IP address of the machine where the database is running</li>
+ *   <li>PORT: the TCP port number on which the MySQL database listener is listening for incoming connections</li>
+ *   <li>DATABASE: the name of the database to connect to</li>
+ * </ul>
+#elseif (${JDBC_URL_TYPE} == 'CUSTOM')
+
+#end
+ *
+ * <p><u>AUTHENTICATION</u></p>
+#if (${AUTH_TYPE} == 'NONE')
+ * The connection uses no authentication
+#elseif (${AUTH_TYPE} == 'USER')
+ * The connection uses "${AUTH_TYPE_NAME}" authentication
+ * User is passed as property to the driver
+ * <ul>
+ *   <li>Parameter "user": the name of the user</li>
+ * </ul>
+#elseif (${AUTH_TYPE} == 'USER_PASSWORD')
+ * The connection uses "${AUTH_TYPE_NAME}" authentication
+ * User and Password are passed as properties to the driver
+ * <ul>
+ *   <li>Property "user": the name of the user </li>
+ *   <li>Property "password": the password for the account</li>
+ * </ul>
+ * The connection uses "${AUTH_TYPE_NAME}" authentication
+#end
+ */

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.generator;
+package com.dbn.generator.statement.model;
 
 import com.dbn.common.util.Strings;
 import com.dbn.object.DBColumn;
@@ -26,7 +26,7 @@ import java.util.Map;
 
 import static com.dbn.common.util.Strings.toUpperCase;
 
-class DatasetJoin {
+public class DatasetJoin {
     private final DBObjectRef<DBDataset> dataset1;
     private final DBObjectRef<DBDataset> dataset2;
     private Map<DBColumn, DBColumn> mappings;

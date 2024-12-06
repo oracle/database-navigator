@@ -1,0 +1,71 @@
+#set($urlPattern = "${JDBC_URL_PATTERN}")
+#set($urlPatternHtml = $urlPattern.replace("<", "&lt;").replace(">", "&gt;"))
+/**
+ * Oracle JDBC Connector<br>
+ * This is generated code. The {@link ${CLASS_NAME}#connect()} method is implemented to connect to the
+ * Oracle Database using the appropriate JDBC Driver.
+ *
+ * <p><u>DRIVER LIBRARIES</u></p>
+ * To run this class you will need to integrate the Oracle JDBC Driver libraries in your project<br>
+ * e.g. by using Maven Project Object Model (POM) <a href="https://repo1.maven.org/maven2/com/oracle/database/jdbc/ojdbc11/23.6.0.24.10/ojdbc11-23.6.0.24.10.pom">ojdbc11-23.6.0.24.10.pom</a><br>
+ * Additional features may require other libraries to be added to the runtime. Please read the Oracle JDBC documentation for additional details.
+ *
+ * <p><u>JDBC URL</u></p>
+ * The connection is using a "${JDBC_URL_TYPE_NAME}" JDBC URL type<br>
+ * URL pattern: "$urlPatternHtml"<br>
+#if (${JDBC_URL_TYPE} == 'TNS')
+ * <ul>
+ *   <li>TNS_FOLDER: the location of the tnsnames.ora</li>
+ *   <li>TNS_PROFILE: the name of the profile definition in tnsnames.ora</li>
+ * </ul>
+#elseif (${JDBC_URL_TYPE} == 'SID')
+ * <ul>
+ *   <li>HOST: the hostname or IP address of the machine where the database is running</li>
+ *   <li>PORT: the TCP port number on which the Oracle database listener is listening for incoming connections</li>
+ *   <li>DATABASE: the System Identifier (SID) uniquely identifying the database instance on the server</li>
+ * </ul>
+#elseif (${JDBC_URL_TYPE} == 'SERVICE')
+ * <ul>
+ *   <li>HOST: the hostname or IP address of the machine where the database is running</li>
+ *   <li>PORT: the TCP port number on which the Oracle database listener is listening for incoming connections</li>
+ *   <li>DATABASE: the Service Name representing an alias to the database instance on the server</li>
+ * </ul>
+#elseif (${JDBC_URL_TYPE} == 'CUSTOM')
+
+#end
+ *
+ * <p><u>AUTHENTICATION</u></p>
+#if (${AUTH_TYPE} == 'NONE')
+ * The connection uses no authentication
+#elseif (${AUTH_TYPE} == 'USER')
+ * The connection uses "${AUTH_TYPE_NAME}" authentication
+ * User is passed as property to the driver
+ * <ul>
+ *   <li>Parameter "user": the name of the user</li>
+ * </ul>
+#elseif (${AUTH_TYPE} == 'USER_PASSWORD')
+ * The connection uses "${AUTH_TYPE_NAME}" authentication
+ * User and Password are passed as properties to the driver
+ * <ul>
+ *   <li>Property "user": the name of the user </li>
+ *   <li>Property "password": the password for the account</li>
+ * </ul>
+#elseif (${AUTH_TYPE} == 'TOKEN')
+ * The connection uses "${AUTH_TOKEN_TYPE_NAME} ${AUTH_TYPE_NAME}" authentication (${AUTH_TOKEN_TYPE})
+    #if (${AUTH_TOKEN_TYPE} == 'OCI_API_KEY')
+     * Authentication type, OCI Config File and OCI Profile are passed as properties to the driver
+     * <ul>
+     *   <li>Property "oracle.jdbc.tokenAuthentication=OCI_API_KEY": the type of token authentication</li>
+     *   <li>Property "oracle.jdbc.ociConfigFile": the path to the OCI configuration file</li>
+     *   <li>Property "oracle.jdbc.ociProfile": the profile from the OCI configuration file to be used</li>
+     * </ul>
+    #elseif (${AUTH_TOKEN_TYPE} == 'OCI_INTERACTIVE')
+     * Authentication type (OCI_INTERACTIVE) is passed as property to the driver
+     * <ul>
+     *   <li>Property "oracle.jdbc.tokenAuthentication=OCI_INTERACTIVE": the type of token authentication</li>
+     * </ul>
+    #end
+#else
+ * The connection uses "${AUTH_TYPE_NAME}" authentication
+#end
+ */

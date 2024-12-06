@@ -48,6 +48,7 @@ import java.util.Properties;
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.notification.NotificationGroup.CONNECTION;
 import static com.dbn.common.notification.NotificationSupport.sendErrorNotification;
+import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.connection.AuthenticationTokenType.OCI_API_KEY;
 import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
@@ -230,7 +231,7 @@ class Connector {
 
             Connection connection = connect(driver, connectionUrl, properties);
             if (connection == null) {
-                throw new SQLException("Driver failed to create connection " + connectionUrl + ". No failure information provided by jdbc vendor.");
+                throw new SQLException("Driver failed to create connection. No failure information provided by jdbc vendor.");
             }
 
             if (connectionStatus != null) {
@@ -271,7 +272,7 @@ class Connector {
 
         } catch (Throwable e) {
             conditionallyLog(e);
-            String message = nvl(e.getMessage(), e.getClass().getSimpleName());
+            String message = nvl(e.getMessage(), simpleClassName(e));
             if (connectionSettings.isSigned()) {
                 // DBN-524 strongly asserted property names
                 if (message.contains(Property.APPLICATION_NAME)) {

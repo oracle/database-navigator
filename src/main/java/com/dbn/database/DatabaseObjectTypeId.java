@@ -52,6 +52,7 @@ public enum DatabaseObjectTypeId {
     JAVA_METHOD,
     JAVA_PARAMETER,
     JAVA_CLASS,
+    JAVA_OBJECT,
     LIBRARY,
     LOB,
     MATERIALIZED_VIEW,

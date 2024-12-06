@@ -16,13 +16,15 @@
 
 package com.dbn.debugger.jdwp;
 
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+@Getter
 public class DBJdwpSourcePath {
-    private String signature;
-    private String programType;
-    private String programOwner;
-    private String programName;
+    private final String signature;
+    private final String programType;
+    private final String programOwner;
+    private final String programName;
 
     private DBJdwpSourcePath(String sourceUrl) {
         String[] tokens;
@@ -45,21 +47,5 @@ public class DBJdwpSourcePath {
 
     public static DBJdwpSourcePath from(@NotNull String sourceUrl) throws Exception {
         return new DBJdwpSourcePath(sourceUrl);
-    }
-
-    public String getSignature() {
-        return signature;
-    }
-
-    public String getProgramType() {
-        return programType;
-    }
-
-    public String getProgramOwner() {
-        return programOwner;
-    }
-
-    public String getProgramName() {
-        return programName;
     }
 }

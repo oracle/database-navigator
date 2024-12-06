@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 public abstract class AbstractExecutionResultAction extends ContextAction<StatementExecutionCursorResult> {
 
     @Nullable
-    protected StatementExecutionCursorResult getTarget(@NotNull AnActionEvent e) {
+    protected StatementExecutionCursorResult getContext(@NotNull AnActionEvent e) {
         StatementExecutionCursorResult result = e.getData(DataKeys.STATEMENT_EXECUTION_CURSOR_RESULT);
         if (result == null) {
             Project project = e.getProject();

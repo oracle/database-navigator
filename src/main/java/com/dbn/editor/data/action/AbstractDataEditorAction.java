@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class AbstractDataEditorAction extends ContextAction<DatasetEditor> {
 
     @Override
-    protected DatasetEditor getTarget(@NotNull AnActionEvent e) {
+    protected DatasetEditor getContext(@NotNull AnActionEvent e) {
         return DatasetEditor.get(e);
     }
 }
