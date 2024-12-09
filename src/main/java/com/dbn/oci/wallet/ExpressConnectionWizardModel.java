@@ -8,7 +8,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.wizard.WizardModel;
 import com.intellij.ui.wizard.WizardStep;
-import com.oracle.oci.intellij.api.oci.OCIDatabase;
 
 import java.util.List;
 

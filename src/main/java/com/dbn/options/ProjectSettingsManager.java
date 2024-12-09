@@ -46,14 +46,11 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.data.options.DataEditorSettings;
 import com.dbn.execution.common.options.ExecutionEngineSettings;
 import com.dbn.navigation.options.NavigationSettings;
-import com.dbn.oci.ConnectionSettings;
 import com.dbn.options.general.GeneralProjectSettings;
 import com.dbn.options.ui.ProjectSettingsDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
-import com.oracle.oci.intellij.api.ext.UIModelContext;
-import com.oracle.oci.intellij.api.oci.OCIDatabase;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
@@ -151,7 +148,7 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), databaseType, configType));
     }
 
-    public void createConnection(DatabaseType databaseType, ConnectionConfigType connectionConfigType, ConnectionSettings connectionSettings) {
+    public void createConnection(DatabaseType databaseType, ConnectionConfigType connectionConfigType, com.dbn.oci.ConnectionSettings connectionSettings) {
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), databaseType, connectionConfigType, connectionSettings));
 
     }
@@ -160,7 +157,7 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), importData));
     }
     // opened from oci-toolkit
-    public void createConnections(TnsImportData importData, ConnectionSettings connectionSettings) {
+    public void createConnections(TnsImportData importData, com.dbn.oci.ConnectionSettings connectionSettings) {
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), importData,connectionSettings));
     }
 

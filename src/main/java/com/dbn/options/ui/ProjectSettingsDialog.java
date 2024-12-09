@@ -33,8 +33,7 @@ import com.intellij.openapi.help.HelpManager;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.Alarm;
-import com.oracle.oci.intellij.api.ext.UIModelContext;
-import com.oracle.oci.intellij.api.oci.OCIDatabase;
+
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
