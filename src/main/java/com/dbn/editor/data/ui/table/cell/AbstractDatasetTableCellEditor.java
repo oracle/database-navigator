@@ -199,7 +199,7 @@ public abstract class AbstractDatasetTableCellEditor extends AbstractCellEditor 
                 }
             } catch (ParseException e) {
                 conditionallyLog(e);
-                throw new IllegalArgumentException("Can not convert " + getEditorComponent().getText() + " to " + dataType.getName());
+                throw new IllegalArgumentException("Can not convert given input to " + dataType.getName());
             }
         }
         return null;

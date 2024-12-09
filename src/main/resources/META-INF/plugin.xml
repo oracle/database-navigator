@@ -27,7 +27,7 @@
     <depends optional="true">com.oracle.ocidbtest</depends>
 
     <vendor email="dancioca@bluewin.ch">Dan Cioca</vendor>
-    <idea-version since-build="201.6668.113" until-build="243.*"/>
+    <idea-version since-build="231.4840.387" until-build="243.*"/>
     <resource-bundle>messages.DBNResources</resource-bundle>
     <description><![CDATA[
             <b>Database development, scripting and navigation tool</b><br>
@@ -171,7 +171,8 @@
         <projectService serviceImplementation="com.dbn.editor.data.state.DatasetEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.editor.data.statusbar.DatasetEditorStatusBarWidget"/>
         <projectService serviceImplementation="com.dbn.editor.session.SessionBrowserManager"/>
-        <projectService serviceImplementation="com.dbn.generator.StatementGenerationManager"/>
+        <projectService serviceImplementation="com.dbn.generator.statement.StatementGenerationManager"/>
+        <projectService serviceImplementation="com.dbn.generator.code.CodeGeneratorManager"/>
         <projectService serviceImplementation="com.dbn.object.common.loader.DatabaseLoaderManager"/>
         <projectService serviceImplementation="com.dbn.object.factory.DatabaseObjectFactory"/>
         <projectService serviceImplementation="com.dbn.object.factory.VirtualObjectFactory"/>

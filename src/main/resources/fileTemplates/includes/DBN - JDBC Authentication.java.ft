@@ -1,0 +1,27 @@
+#if (${AUTH_TYPE} == 'NONE')
+    // no authentication
+#elseif (${AUTH_TYPE} == 'USER_PASSWORD')
+    // user-name and password authentication
+    String userName = #if (${USER_NAME})"${USER_NAME}";#else null; // TODO please specify User Name#end
+    String password = #if (${PASSWORD})"${PASSWORD}";#else null;  // TODO please specify Password#end
+    properties.put(PROP_USER, userName);
+    properties.put(PROP_PASSWORD, password);
+#elseif (${AUTH_TYPE} == 'USER')
+    // user-name authentication
+    String userName = #if (${USER_NAME})"${USER_NAME}";#else null; // TODO please specify User Name#end;
+    properties.put(PROP_USER, userName);
+#elseif (${AUTH_TYPE} == 'OS_CREDENTIALS')
+    // os-credentials authentication
+#elseif (${AUTH_TYPE} == 'TOKEN')
+    #if (${AUTH_TOKEN_TYPE} == 'OCI_API_KEY')
+        // OCI API Key token authentication
+        String tokenConfigFile = #if (${TOKEN_CONFIG_FILE})"${TOKEN_CONFIG_FILE}";#else null; // TODO please specify the OCI Token Config File#end
+        String tokenProfile = #if (${TOKEN_PROFILE})"${TOKEN_PROFILE}";#else null; // TODO please specify OCI Token Profile#end
+        properties.put(PROP_TOKEN_AUTH, "OCI_API_KEY");
+        properties.put(PROP_OCI_CONFIG_FILE, tokenConfigFile);
+        properties.put(PROP_OCI_PROFILE, tokenProfile);
+    #elseif (${AUTH_TOKEN_TYPE} == 'OCI_INTERACTIVE')
+        // OCI Interactive token authentication
+        properties.put(PROP_TOKEN_AUTH, "OCI_INTERACTIVE");
+    #end
+#end

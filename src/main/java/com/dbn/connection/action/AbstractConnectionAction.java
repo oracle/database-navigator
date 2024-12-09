@@ -49,7 +49,7 @@ public abstract class AbstractConnectionAction extends ContextAction<ConnectionH
     }
 
     @Override
-    protected ConnectionHandler getTarget(@NotNull AnActionEvent e) {
+    protected ConnectionHandler getContext(@NotNull AnActionEvent e) {
         return connection.get();
     }
 

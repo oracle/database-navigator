@@ -19,6 +19,7 @@ package com.dbn.connection;
 import com.dbn.common.constant.Constants;
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.thread.Timeout;
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Classes;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
@@ -47,6 +48,7 @@ import java.util.Properties;
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.notification.NotificationGroup.CONNECTION;
 import static com.dbn.common.notification.NotificationSupport.sendErrorNotification;
+import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.connection.AuthenticationTokenType.OCI_API_KEY;
 import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
@@ -142,9 +144,9 @@ class Connector {
                 }
 
                 if (authenticationType == AuthenticationType.USER_PASSWORD) {
-                    String password = authenticationInfo.getPassword();
-                    if (Strings.isNotEmpty(password)) {
-                        properties.put(Property.PASSWORD, password);
+                    char[] password = authenticationInfo.getPassword();
+                    if (Chars.isNotEmpty(password)) {
+                        properties.put(Property.PASSWORD, Chars.toString(password));
                     }
                 }
             }
@@ -229,7 +231,7 @@ class Connector {
 
             Connection connection = connect(driver, connectionUrl, properties);
             if (connection == null) {
-                throw new SQLException("Driver failed to create connection " + connectionUrl + ". No failure information provided by jdbc vendor.");
+                throw new SQLException("Driver failed to create connection. No failure information provided by jdbc vendor.");
             }
 
             if (connectionStatus != null) {
@@ -270,7 +272,7 @@ class Connector {
 
         } catch (Throwable e) {
             conditionallyLog(e);
-            String message = nvl(e.getMessage(), e.getClass().getSimpleName());
+            String message = nvl(e.getMessage(), simpleClassName(e));
             if (connectionSettings.isSigned()) {
                 // DBN-524 strongly asserted property names
                 if (message.contains(Property.APPLICATION_NAME)) {

@@ -1,0 +1,33 @@
+#if (${DATABASE_TYPE} == 'ORACLE')
+    #if (${JDBC_URL_TYPE} == 'TNS')
+        String tnsFolder = "${TNS_FOLDER}";
+        String tnsProfile = "${TNS_PROFILE}";
+    #elseif(${JDBC_URL_TYPE} != 'CUSTOM')
+        String host = "${HOST}";
+        String port = "${PORT}";
+        String database = "${DATABASE}";
+    #end
+        String jdbcUrl = #if (${JDBC_URL_TYPE} == 'SID')"jdbc:oracle:thin:@" + host + ":" + port + ":" + database;
+    #elseif (${JDBC_URL_TYPE} == 'SERVICE')"jdbc:oracle:thin:@//" + host + ":" + port + "/" + database;
+    #elseif (${JDBC_URL_TYPE} == 'TNS')"jdbc:oracle:thin:@" + tnsProfile + "?TNS_ADMIN=" + tnsFolder;
+    #elseif (${JDBC_URL_TYPE} == 'CUSTOM')"${JDBC_URL}";
+    #end
+#elseif(${DATABASE_TYPE} == 'MYSQL')
+    #if(${JDBC_URL_TYPE} != 'CUSTOM')
+        String host = "${HOST}";
+        String port = "${PORT}";
+        String database = "${DATABASE}";
+    #end
+        String jdbcUrl = #if (${JDBC_URL_TYPE} == 'DATABASE')"jdbc:mysql://" + host + ":" + port + "/" + database;#elseif (${JDBC_URL_TYPE} == 'CUSTOM')"${JDBC_URL}";#end
+#elseif(${DATABASE_TYPE} == 'POSTGRES')
+    #if(${JDBC_URL_TYPE} != 'CUSTOM')
+        String host = "${HOST}";
+        String port = "${PORT}";
+        String database = "${DATABASE}";
+    #end
+        String jdbcUrl = #if (${JDBC_URL_TYPE} == 'DATABASE')"jdbc:postgresql://" + host + ":" + port + "/" + database;#elseif (${JDBC_URL_TYPE} == 'CUSTOM')"${JDBC_URL}";#end
+#elseif(${DATABASE_TYPE} == 'SQLITE')
+    String jdbcUrl = "${JDBC_URL}";
+#elseif(${DATABASE_TYPE} == 'GENERIC')
+    String jdbcUrl = "${JDBC_URL}";
+#end

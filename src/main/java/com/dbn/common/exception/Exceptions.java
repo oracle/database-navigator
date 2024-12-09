@@ -25,6 +25,7 @@ import java.sql.SQLTimeoutException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 
 public class Exceptions {
@@ -41,13 +42,23 @@ public class Exceptions {
     @NotNull
     public static SQLException toSqlException(@NotNull Throwable e, String s) {
         if (e instanceof SQLException) return (SQLException) e;
-        return new SQLException(s + ": [" + e.getClass().getSimpleName() + "] " + e.getMessage(), e);
+        String reason = normalizeMessage(e, s);
+
+        return new SQLException(reason, e);
     }
 
     @NotNull
     public static SQLTimeoutException toSqlTimeoutException(@NotNull Throwable e, String s) {
         if (e instanceof SQLTimeoutException) return (SQLTimeoutException) e;
-        return new SQLTimeoutException(s + ": [" + e.getClass().getSimpleName() + "] " + e.getMessage(), e);
+        String reason = normalizeMessage(e, s);
+        return new SQLTimeoutException(reason, e);
+    }
+
+    private static @NotNull String normalizeMessage(@NotNull Throwable e, String s) {
+        // remove duplicate message content for nested exceptions propagating own message
+        String message = e.getMessage();
+        s = s.replace(message, "");
+        return s + "[" + simpleClassName(e) + "] " + message;
     }
 
     @NotNull
@@ -58,7 +69,7 @@ public class Exceptions {
 
     @NotNull
     private static String throwableMessage(@NotNull Throwable e) {
-        return Commons.nvl(e.getMessage(), e.getClass().getSimpleName());
+        return Commons.nvl(e.getMessage(), simpleClassName(e));
     }
 
     public static <T> T unsupported() {
@@ -66,7 +77,7 @@ public class Exceptions {
     }
 
     public static <T, E extends Enum> T unsupported(E enumeration) {
-        throw new UnsupportedOperationException("Unsupported " + enumeration.getClass().getSimpleName() + " " + enumeration);
+        throw new UnsupportedOperationException("Unsupported " + simpleClassName(enumeration) + " " + enumeration);
     }
 
 

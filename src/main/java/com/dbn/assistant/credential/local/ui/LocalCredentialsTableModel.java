@@ -19,6 +19,7 @@ package com.dbn.assistant.credential.local.ui;
 import com.dbn.assistant.credential.local.LocalCredential;
 import com.dbn.assistant.credential.local.LocalCredentialBundle;
 import com.dbn.common.ui.table.DBNTypedEditableTableModel;
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.options.ConfigurationException;
 import lombok.Getter;
@@ -31,7 +32,7 @@ public class LocalCredentialsTableModel extends DBNTypedEditableTableModel<Local
 
     addColumn("Credential Name", String.class, c -> c.getName(), (c, v) -> c.setName(v));
     addColumn("User Name",       String.class, c -> c.getUser(), (c, v) -> c.setUser(v));
-    addColumn("Secret",          String.class, c -> c.getKey(),  (c, v) -> c.setKey(v));
+    addColumn("Secret",          String.class, c -> Chars.toString(c.getKey()),  (c, v) -> c.setKey(Chars.fromString(v)));
   }
 
   public void validate() throws ConfigurationException {

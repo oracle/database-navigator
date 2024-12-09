@@ -18,7 +18,7 @@ package com.dbn.common.options;
 
 public abstract class SettingsChangeNotifier {
     private SettingsChangeNotifier() {
-        ConfigurationHandle.registerChangeNotifier(this);
+        ConfigMonitor.registerChangeNotifier(this);
     }
 
     public abstract void notifyChanges();

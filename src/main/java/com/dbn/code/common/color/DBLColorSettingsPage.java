@@ -50,7 +50,7 @@ public abstract class DBLColorSettingsPage implements ColorSettingsPage {
                 demoText = Commons.readInputStream(inputStream);
             } catch (IOException e) {
                 conditionallyLog(e);
-                log.error("Failed to load file " + demoTextFileName, e);
+                log.error("Failed to load file {}", demoTextFileName, e);
             }
         }
         return demoText.replace("\r\n", "\n");

@@ -182,7 +182,7 @@ public interface ConnectionHandler extends StatefulDisposable, EnvironmentTypePr
 
     void setLoggingEnabled(boolean loggingEnabled);
 
-    void disconnect() throws SQLException;
+    void disconnect();
 
     String getUserName();
 

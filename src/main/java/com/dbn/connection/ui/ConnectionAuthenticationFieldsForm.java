@@ -22,6 +22,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.form.field.JComponentCategory;
 import com.dbn.common.ui.util.TextFields;
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
@@ -159,7 +160,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         // no auth type check needed here
         authenticationInfo.setType(getSelection(authTypeComboBox));
         authenticationInfo.setUser(userTextField.getText());
-        authenticationInfo.setPassword(new String(passwordField.getPassword()));
+        authenticationInfo.setPassword(passwordField.getPassword());
 
         authenticationInfo.setTokenType(getSelection(tokenTypeComboBox));
         authenticationInfo.setTokenProfile(getSelection(tokenProfileComboBox));
@@ -168,7 +169,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
     public void resetFormChanges(AuthenticationInfo authenticationInfo) {
         userTextField.setText(authenticationInfo.getUser());
-        passwordField.setText(authenticationInfo.getPassword());
+        passwordField.setText(Chars.toString(authenticationInfo.getPassword()));
         setSelection(authTypeComboBox, authenticationInfo.getType());
 
         tokenConfigFileTextField.setText(authenticationInfo.getTokenConfigFile());

@@ -16,6 +16,7 @@
 
 package com.dbn.common.util;
 
+import com.intellij.lang.Language;
 import com.intellij.openapi.application.ApplicationInfo;
 import lombok.experimental.UtilityClass;
 
@@ -25,12 +26,16 @@ import java.util.concurrent.ConcurrentHashMap;
 @UtilityClass
 public class Environment {
     private static final Map<String, String> variables = new ConcurrentHashMap<>();
+    private static final boolean HAS_JAVA_SUPPORT = Language.findLanguageByID("JAVA") != null;
 
     public static boolean isIdeNewerThan(String targetVersion) {
         String currentVersion = ApplicationInfo.getInstance().getFullVersion();
         return isVersionGreaterThan(currentVersion, targetVersion);
     }
 
+    public static boolean hasJavaSupport() {
+        return HAS_JAVA_SUPPORT;
+    }
 
     private static boolean isVersionGreaterThan(String currentVersion, String targetVersion) {
         String[] currentParts = currentVersion.split("\\.");

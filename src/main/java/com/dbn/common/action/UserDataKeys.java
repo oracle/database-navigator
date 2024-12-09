@@ -19,6 +19,7 @@ package com.dbn.common.action;
 import com.dbn.common.notification.NotificationGroup;
 import com.dbn.common.outcome.MessageOutcomeHandler;
 import com.dbn.common.outcome.NotificationOutcomeHandler;
+import com.dbn.common.project.ModuleRef;
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.connection.mapping.FileConnectionContext;
@@ -36,6 +37,7 @@ public interface UserDataKeys {
     Key<String> ACTION_PLACE = Key.create("DBNavigator.ActionPlace");
     Key<Boolean> PROJECT_SETTINGS_LOADED = Key.create("DBNavigator.ProjectSettingsLoaded");
     Key<ProjectRef> PROJECT_REF = Key.create("DBNavigator.ProjectRef");
+    Key<ModuleRef> MODULE_REF = Key.create("DBNavigator.ModuleRef");
     Key<List<StatementExecutionProcessor>> STATEMENT_EXECUTION_PROCESSORS = Key.create("DBNavigator.StatementExecutionProcessors");
     Key<FileConnectionContext> FILE_CONNECTION_MAPPING = Key.create("DBNavigator.FileConnectionMapping");
     Key<Boolean> HAS_CONNECTIVITY_CONTEXT = Key.create("DBNavigator.HasConnectivityContext");

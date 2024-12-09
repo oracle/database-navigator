@@ -85,7 +85,7 @@ public class DatabaseDriverManager extends ApplicationComponentBase implements P
 
         } catch (Exception e) {
             conditionallyLog(e);
-            log.warn("failed to load drivers from library " + libraryFile, e);
+            log.warn("failed to load drivers from library", e);
             throw e;
         }
     }
@@ -107,7 +107,7 @@ public class DatabaseDriverManager extends ApplicationComponentBase implements P
     @SneakyThrows
     private DriverBundle loadBundledDrivers(DatabaseType databaseType) {
         String libraryRoot = "bundled-jdbc-" + cachedLowerCase(databaseType.name());
-        log.info("Loading driver library " + libraryRoot);
+        log.info("Loading driver library {}", libraryRoot);
 
         File deploymentRoot = Files.getPluginDeploymentRoot();
         File library = Files.findFileRecursively(deploymentRoot, libraryRoot);
@@ -146,7 +146,7 @@ public class DatabaseDriverManager extends ApplicationComponentBase implements P
         if (libraryFile.exists()) {
             return loadDrivers(libraryFile, false);
         } else {
-            throw new Exception("Could not find library \"" + libraryFile.getAbsolutePath() +"\".");
+            throw new Exception("Could not find driver library");
         }
     }
 

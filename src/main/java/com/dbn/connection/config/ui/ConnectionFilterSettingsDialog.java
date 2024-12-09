@@ -16,7 +16,7 @@
 
 package com.dbn.connection.config.ui;
 
-import com.dbn.common.options.ConfigurationHandle;
+import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.DBNContentWithHeaderForm;
 import com.dbn.common.ui.form.DBNForm;
@@ -88,7 +88,7 @@ public class ConnectionFilterSettingsDialog extends DBNDialog<DBNContentWithHead
             ConnectionSettings connectionSettings = settingsManager.getConnectionSettings().getConnectionSettings(connection.getConnectionId());
             filterSettings.applyTo(connectionSettings.getFilterSettings());
 
-            ConfigurationHandle.notifyChanges();
+            ConfigMonitor.notifyChanges();
             super.doOKAction();
         } catch (ConfigurationException e) {
             conditionallyLog(e);

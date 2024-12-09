@@ -94,7 +94,6 @@ public class ValueListPopupProvider implements TextFieldPopupProvider{
 
         preparing = true;
         Dispatch.async(
-                null,
                 getEditorComponent(),
                 () -> ensureValuesLoaded(),
                 v -> invokeShowPopup());

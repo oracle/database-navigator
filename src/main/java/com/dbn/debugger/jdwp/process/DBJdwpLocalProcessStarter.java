@@ -90,7 +90,7 @@ public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
         try {
             inetAddress = InetAddress.getByName(host);
         } catch (UnknownHostException e) {
-            throw new ExecutionException("Failed to resolve host '" + host + "'", e);
+            throw new ExecutionException("Failed to resolve host", e);
         }
 
         for (int portNumber = minPortNumber; portNumber < maxPortNumber; portNumber++) {
@@ -100,7 +100,7 @@ public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
                 conditionallyLog(e);
             }
         }
-        throw new ExecutionException("Could not find any free port on host '" + host + "' in the range " + minPortNumber + " - " + maxPortNumber);
+        throw new ExecutionException("Could not find any free port on the host for the given range");
     }
 
     private static String resolveTcpHost(String tcpHost) {
@@ -112,7 +112,7 @@ public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
         } catch (UnknownHostException e) {
             conditionallyLog(e);
             // TODO log to the debugger console instead
-            log.warn("Failed to resolve TCP host address '{}'. Using 'localhost'", tcpHost, e);
+            log.warn("Failed to resolve provided TCP host address Using 'localhost'", e);
             tcpHost =  "localhost";
 
         }

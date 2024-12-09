@@ -66,7 +66,7 @@ public abstract class DBObjectTreeNodeBase implements DBObject, ToolTipProvider 
     @Override
     public List<? extends BrowserTreeNode> getChildren() {
         return visibleTreeChildren.get(this, o -> {
-            Background.run(o.getProject(), () -> o.buildTreeChildren());
+            Background.run(() -> o.buildTreeChildren());
             return Collections.singletonList(new LoadInProgressTreeNode(o));
         });
     }
@@ -80,7 +80,7 @@ public abstract class DBObjectTreeNodeBase implements DBObject, ToolTipProvider 
         treeNodes = Commons.nvl(treeNodes, Collections.emptyList());
 
         for (BrowserTreeNode objectList : treeNodes) {
-            Background.run(getProject(), () -> objectList.initTreeElement());
+            Background.run(() -> objectList.initTreeElement());
             checkDisposed();
         }
 

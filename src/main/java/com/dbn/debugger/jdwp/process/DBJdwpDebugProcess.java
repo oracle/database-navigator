@@ -81,6 +81,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.dbn.common.thread.ThreadProperty.DEBUGGER_NAVIGATION;
+import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.intellij.debugger.impl.PrioritizedTask.Priority.LOW;
 
@@ -349,18 +350,14 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     protected abstract void executeTarget() throws SQLException;
 
     @Override
-    public void stop() {
+    public synchronized void stop() {
         if (canStopDebugger()) {
-            synchronized (this) {
-                if (canStopDebugger()) {
-                    set(DBDebugProcessStatus.DEBUGGER_STOPPING, true);
-                    set(DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED, false);
-                    console.system("Stopping debugger...");
-                    getSession().stop();
-                    stopDebugger();
-                    super.stop();
-                }
-            }
+            set(DBDebugProcessStatus.DEBUGGER_STOPPING, true);
+            set(DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED, false);
+            console.system("Stopping debugger...");
+            getSession().stop();
+            stopDebugger();
+            super.stop();
         }
     }
 
@@ -439,7 +436,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
             }
         } catch (Exception e) {
             conditionallyLog(e);
-            getConsole().warning("Error evaluating suspend position '" + sourceUrl + "': " + Commons.nvl(e.getMessage(), e.getClass().getSimpleName()));
+            getConsole().warning("Error evaluating suspend position '" + sourceUrl + "': " + Commons.nvl(e.getMessage(), simpleClassName(e)));
         }
         return null;
     }

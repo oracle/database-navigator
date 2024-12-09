@@ -95,7 +95,7 @@ public class DataSearchResultController {
     }
 
     void updateResult(DataFindModel findModel) {
-        Background.run(null, searchHandle, () -> {
+        Background.run(searchHandle, () -> {
             BasicTable table = getSearchableComponent().getTable();
             DataModel dataModel = table.getModel();
             DataSearchResult searchResult = dataModel.getSearchResult();

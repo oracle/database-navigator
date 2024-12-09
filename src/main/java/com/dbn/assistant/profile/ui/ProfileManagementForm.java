@@ -183,11 +183,11 @@ public class ProfileManagementForm extends DBNFormBase {
   }
 
   public void loadProfiles() {
-    Background.run(getProject(), () -> doLoadProfiles(false));
+    Background.run(() -> doLoadProfiles(false));
   }
 
   public void reloadProfiles() {
-    Background.run(getProject(), () -> doLoadProfiles(true));
+    Background.run(() -> doLoadProfiles(true));
   }
 
   private void doLoadProfiles(boolean force) {

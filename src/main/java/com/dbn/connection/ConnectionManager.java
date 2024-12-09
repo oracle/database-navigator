@@ -49,6 +49,7 @@ import com.dbn.connection.transaction.DatabaseTransactionManager;
 import com.dbn.connection.transaction.TransactionAction;
 import com.dbn.connection.transaction.ui.IdleConnectionDialog;
 import com.dbn.connection.ui.ConnectionAuthenticationDialog;
+import com.dbn.credentials.Secret;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.method.MethodExecutionManager;
 import com.dbn.options.ConfigId;
@@ -146,12 +147,11 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
         ConnectionHandler connection = getConnection(connectionId);
         if (connection == null) return;
 
-        Project project = getProject();
-        Background.run(project, () -> {
+        Background.run(() -> {
             connection.resetCompatibilityMonitor();
             List<TransactionAction> actions = actions(TransactionAction.DISCONNECT);
 
-            DatabaseTransactionManager transactionManager = DatabaseTransactionManager.getInstance(project);
+            DatabaseTransactionManager transactionManager = DatabaseTransactionManager.getInstance(getProject());
             List<DBNConnection> connections = connection.getConnections();
             for (DBNConnection conn : connections) {
                 transactionManager.execute(connection, conn, actions, false, null);
@@ -400,18 +400,11 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                         AuthenticationInfo storedAuthenticationInfo = connection.getAuthenticationInfo();
 
                         if (dialog.isRememberCredentials()) {
-                            String oldUser = storedAuthenticationInfo.getUser();
-                            String oldPassword = storedAuthenticationInfo.getPassword();
+                            // create snapshot of previous authentication secrets
+                            Secret[] oldSecrets = storedAuthenticationInfo.getSecrets();
 
-                            storedAuthenticationInfo.setType(newAuthenticationInfo.getType());
-                            storedAuthenticationInfo.setUser(newAuthenticationInfo.getUser());
-                            storedAuthenticationInfo.setPassword(newAuthenticationInfo.getPassword());
-
-                            storedAuthenticationInfo.setTokenConfigFile(newAuthenticationInfo.getTokenConfigFile());
-                            storedAuthenticationInfo.setTokenProfile(newAuthenticationInfo.getTokenProfile());
-                            storedAuthenticationInfo.setTokenType(newAuthenticationInfo.getTokenType());
-
-                            storedAuthenticationInfo.updateKeyChain(oldUser, oldPassword);
+                            storedAuthenticationInfo.updateWith(newAuthenticationInfo);
+                            storedAuthenticationInfo.updateSecrets(oldSecrets);
                         } else {
                             AuthenticationInfo temporaryAuthenticationInfo = newAuthenticationInfo.clone();
                             temporaryAuthenticationInfo.setTemporary(true);
@@ -525,7 +518,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
             MethodExecutionManager methodExecutionManager = MethodExecutionManager.getInstance(project);
             methodExecutionManager.cleanupExecutionHistory(connectionIds);
 
-            Background.run(project, () -> {
+            Background.run(() -> {
                 for (ConnectionHandler connection : connections) {
                     connection.getConnectionPool().closeConnections();
                     Disposer.dispose(connection);

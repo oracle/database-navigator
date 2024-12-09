@@ -89,7 +89,6 @@ public class MethodExecutionInputForm extends DBNFormBase {
             debuggerTypeLabel.setText(debuggerType.name());
             debuggerVersionLabel.setText("...");
             Dispatch.async(
-                    getProject(),
                     debuggerVersionLabel,
                     () -> executionInput.getDebuggerVersion(),
                     v -> debuggerVersionLabel.setText(v));
@@ -133,7 +132,6 @@ public class MethodExecutionInputForm extends DBNFormBase {
 
         //lazy load
         Dispatch.async(
-                getProject(),
                 mainPanel,
                 () -> getMethodArguments(),
                 a -> initArgumentsPanel(a));

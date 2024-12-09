@@ -70,7 +70,7 @@ public final class BackgroundDisposer {
     }
 
     private void start() {
-        Background.run(null, () -> {
+        Background.run(() -> {
             try {
                 ThreadMonitor.wrap(ThreadProperty.DISPOSER, () -> dispose());
             } finally {
