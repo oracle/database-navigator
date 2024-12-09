@@ -1,10 +1,10 @@
 package com.dbn.oci.wallet.steps;
 
+import com.dbn.oci.ConnectionSettings;
 import com.dbn.oci.wallet.ExpressConnectionWizardModel;
 import com.intellij.openapi.Disposable;
 import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
-import com.oracle.oci.intellij.api.oci.OCIDatabase;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -25,10 +25,10 @@ public class ConnectionDownloadWalletProgressStep extends WizardStep<ExpressConn
 
   }
 
-  public void startDownload(OCIDatabase database, String password, @NotNull String walletLocation) {
+  public void startDownload(ConnectionSettings connectionSettings, String password, @NotNull String walletLocation) {
     new Thread(() -> {
       try {
-        database.downloadWallet(database,new File(walletLocation+database.getId()),"",password);
+        connectionSettings.downloadWallet(new File(walletLocation+connectionSettings.getId()),"",password);
 
         SwingUtilities.invokeLater(() -> {
           downloadProgress.setIndeterminate(false);

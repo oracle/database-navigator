@@ -1,5 +1,6 @@
 package com.dbn.oci.wallet;
 
+import com.dbn.oci.ConnectionSettings;
 import com.dbn.oci.wallet.steps.ConnectionDownloadWalletProgressStep;
 import com.dbn.oci.wallet.steps.DownloadWalletStep;
 import com.intellij.openapi.Disposable;
@@ -13,10 +14,10 @@ import java.util.List;
 
 public class ExpressConnectionWizardModel extends WizardModel implements Disposable {
   List<WizardStep<ExpressConnectionWizardModel>> mySteps;
-  OCIDatabase database;
-  public ExpressConnectionWizardModel(String title, Project project,OCIDatabase database) {
+  ConnectionSettings connectionSettings;
+  public ExpressConnectionWizardModel(String title, Project project, ConnectionSettings connectionSettings) {
     super(title);
-    this.database = database;
+    this.connectionSettings = connectionSettings;
     mySteps = List.of(
             new DownloadWalletStep(project),
             new ConnectionDownloadWalletProgressStep()
@@ -31,8 +32,8 @@ public class ExpressConnectionWizardModel extends WizardModel implements Disposa
     // TODO dispose UI resources
   }
 
-  public OCIDatabase getDatabase() {
-    return database;
+  public ConnectionSettings getConnectionSettings() {
+    return connectionSettings;
   }
 
   public List<WizardStep<ExpressConnectionWizardModel>> getMySteps() {

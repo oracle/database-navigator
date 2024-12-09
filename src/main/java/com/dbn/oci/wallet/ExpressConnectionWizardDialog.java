@@ -1,9 +1,9 @@
 package com.dbn.oci.wallet;
 
+import com.dbn.oci.ConnectionSettings;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.wizard.WizardDialog;
-import com.oracle.oci.intellij.api.oci.OCIDatabase;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -13,10 +13,10 @@ public class ExpressConnectionWizardDialog extends WizardDialog<ExpressConnectio
     super(project, canBeParent, model);
 
   }
-  public static boolean showWizard(Project project, OCIDatabase db) {
+  public static boolean showWizard(Project project, ConnectionSettings connectionSettings) {
     AtomicBoolean isOk = new AtomicBoolean(false);
     ApplicationManager.getApplication().invokeAndWait(()->{
-      ExpressConnectionWizardDialog dialog = new ExpressConnectionWizardDialog(project, true, new ExpressConnectionWizardModel("Download Wallet",project,db));
+      ExpressConnectionWizardDialog dialog = new ExpressConnectionWizardDialog(project, true, new ExpressConnectionWizardModel("Download Wallet",project,connectionSettings));
        isOk.set(dialog.showAndGet());
     });
     return isOk.get();

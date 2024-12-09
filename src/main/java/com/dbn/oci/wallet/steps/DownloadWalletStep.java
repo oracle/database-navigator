@@ -135,7 +135,7 @@ public class DownloadWalletStep extends WizardStep<ExpressConnectionWizardModel>
             .findFirst();
 
     nextStep.ifPresent(step -> step.startDownload(
-            model.getDatabase(),
+            model.getConnectionSettings(),
             new String(passwordField.getPassword()),
             fileLocationTextField.getText()
     ));

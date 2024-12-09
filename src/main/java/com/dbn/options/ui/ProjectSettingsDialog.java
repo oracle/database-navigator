@@ -25,6 +25,7 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.tns.TnsImportData;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
+import com.dbn.oci.ConnectionSettings;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.intellij.openapi.application.ModalityState;
@@ -67,9 +68,9 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
         selectConnectionSettings(connectionId);
     }
 
-    public ProjectSettingsDialog(Project project, @NotNull DatabaseType databaseType, @NotNull ConnectionConfigType configType, UIModelContext context) {
+    public ProjectSettingsDialog(Project project, @NotNull DatabaseType databaseType, @NotNull ConnectionConfigType configType, ConnectionSettings connectionSettings) {
         this(project);
-        ConnectionId connectionId = getConnectionSettingsEditor().createNewConnection(databaseType, configType,context);
+        ConnectionId connectionId = getConnectionSettingsEditor().createNewConnection(databaseType, configType,connectionSettings);
         selectConnectionSettings(connectionId);
     }
 
@@ -78,9 +79,9 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
         getConnectionSettingsEditor().importTnsNames(importData);
         selectConnectionSettings(null);
     }
-    public ProjectSettingsDialog(Project project, @NotNull TnsImportData importData, UIModelContext database, AuthenticationType authenticationType) {
+    public ProjectSettingsDialog(Project project, @NotNull TnsImportData importData, ConnectionSettings connectionSettings) {
         this(project);
-        getConnectionSettingsEditor().importTnsNames(importData, database,authenticationType);
+        getConnectionSettingsEditor().importTnsNames(importData, connectionSettings);
         selectConnectionSettings(null);
     }
 

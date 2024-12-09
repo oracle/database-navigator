@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.dbn.nls.NlsResources.txt;
 
 public class ContributeADBActionsImpl implements ContributeADBActions {
 
@@ -25,11 +24,12 @@ public class ContributeADBActionsImpl implements ContributeADBActions {
 
   public List<ExtensionContextAction> getModelContextActions(final UIModelContext context) {
     List<ExtensionContextAction>  actions = new ArrayList<>();
-    addActions(context,actions);
+    ConnectionSettings connectionSettings = ConnectionSettings.toConnectionSettings(context);
+    addActions(connectionSettings,actions);
     return actions;
   }
 
-  private void addActions(UIModelContext context, List<ExtensionContextAction> actions) {
+  private void addActions(ConnectionSettings context, List<ExtensionContextAction> actions) {
     actions.add(new CreateConnectionDBNAction(context,"Create Connection in DBN"));
     //todo add quick connection to db
   }

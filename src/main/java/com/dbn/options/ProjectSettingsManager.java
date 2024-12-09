@@ -40,6 +40,7 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.data.options.DataEditorSettings;
 import com.dbn.execution.common.options.ExecutionEngineSettings;
 import com.dbn.navigation.options.NavigationSettings;
+import com.dbn.oci.ConnectionSettings;
 import com.dbn.options.general.GeneralProjectSettings;
 import com.dbn.options.ui.ProjectSettingsDialog;
 import com.intellij.openapi.components.State;
@@ -139,8 +140,8 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), databaseType, configType));
     }
 
-    public void createConnection(DatabaseType databaseType, ConnectionConfigType connectionConfigType, UIModelContext uiModelContext) {
-        Dialogs.show(() -> new ProjectSettingsDialog(getProject(), databaseType, connectionConfigType, uiModelContext));
+    public void createConnection(DatabaseType databaseType, ConnectionConfigType connectionConfigType, ConnectionSettings connectionSettings) {
+        Dialogs.show(() -> new ProjectSettingsDialog(getProject(), databaseType, connectionConfigType, connectionSettings));
 
     }
 
@@ -148,8 +149,8 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), importData));
     }
     // opened from oci-toolkit
-    public void createConnections(TnsImportData importData, UIModelContext database, AuthenticationType authenticationType) {
-        Dialogs.show(() -> new ProjectSettingsDialog(getProject(), importData,database,authenticationType));
+    public void createConnections(TnsImportData importData, ConnectionSettings connectionSettings) {
+        Dialogs.show(() -> new ProjectSettingsDialog(getProject(), importData,connectionSettings));
     }
 
     /****************************************
