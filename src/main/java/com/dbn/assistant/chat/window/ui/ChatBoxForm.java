@@ -269,10 +269,10 @@ public class ChatBoxForm extends DBNFormBase {
       state.set(QUERYING, false);
       PersistentChatMessage outPutChatMessage = new PersistentChatMessage(MessageType.NEUTRAL, response, AuthorType.AGENT, context);
       appendMessageToChat(outPutChatMessage);
-      log.debug("Query processed successfully.");
+      log.info("AI Query processed successfully.");
     } catch (Exception e) {
       state.set(QUERYING, false);
-      log.warn("Error processing query", e);
+      log.warn("Error processing AI query", e);
       String message = manager.getPresentableMessage(connectionId, profile.getProvider(), e);
       PersistentChatMessage errorMessage = new PersistentChatMessage(MessageType.ERROR, message, AuthorType.SYSTEM, context);
       appendMessageToChat(errorMessage);

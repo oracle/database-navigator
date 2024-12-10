@@ -47,7 +47,7 @@ public final class Progress {
         schedule(new Backgroundable(project, title, cancellable, ALWAYS_BACKGROUND) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                execute(indicator, ThreadProperty.PROGRESS, project, invoker, text, runnable);
+                execute(indicator, ThreadProperty.PROGRESS, invoker, text, runnable);
             }
         });
     }
@@ -64,7 +64,7 @@ public final class Progress {
             public void run(@NotNull ProgressIndicator indicator) {
                 try {
                     handler.init(indicator);
-                    execute(indicator, ThreadProperty.PROGRESS, project, invoker, text, runnable);
+                    execute(indicator, ThreadProperty.PROGRESS, invoker, text, runnable);
                 } finally {
                     handler.release();
                 }
@@ -82,12 +82,12 @@ public final class Progress {
         schedule(new Task.Modal(project, title, cancellable) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                execute(indicator, ThreadProperty.MODAL, project, invoker, text, runnable);
+                execute(indicator, ThreadProperty.MODAL, invoker, text, runnable);
             }
         });
     }
 
-    private static void execute(ProgressIndicator indicator, ThreadProperty threadProperty, Project project, ThreadInfo invoker, String text, ProgressRunnable runnable) {
+    private static void execute(ProgressIndicator indicator, ThreadProperty threadProperty, ThreadInfo invoker, String text, ProgressRunnable runnable) {
         ThreadMonitor.surround(invoker, threadProperty, () -> Failsafe.guarded(() -> {
             indicator.setText(text);
             runnable.run(indicator);
@@ -110,7 +110,7 @@ public final class Progress {
     }
 
     /**
-     * Creates a cancel callback to the current progress indicator (of the current thread is a background cancellable thread)
+     * Creates a cancel callback to the current progress indicator (if the current thread is a background cancellable thread)
      * @param onCancel a {@link Runnable} to be invoked when progress is cancelled
      */
     public static void cancelCallback(Runnable onCancel) {

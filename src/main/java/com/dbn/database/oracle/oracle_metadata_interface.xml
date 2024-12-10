@@ -2227,7 +2227,7 @@
 
     <statement-execution-processor id="object-change-timestamp" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
-            select to_date(TIMESTAMP, 'YYYY-MM-DD:HH24:MI:SS')
+            select (to_date(TIMESTAMP, 'YYYY-MM-DD:HH24:MI:SS') - TO_DATE('1970-01-01', 'YYYY-MM-DD')) * 86400 * 1000 AS MODIFIED
             from [PREFIX]_OBJECTS
             where
                  OWNER = {0} and
@@ -2235,7 +2235,7 @@
                  OBJECT_TYPE = {2}
         </statement>
         <statement prefixes="DBA, ALL">
-            select LAST_DDL_TIME
+            select (LAST_DDL_TIME - TO_DATE('1970-01-01', 'YYYY-MM-DD')) * 86400 * 1000 AS MODIFIED
             from [PREFIX]_OBJECTS
             where
                  OWNER = {0} and

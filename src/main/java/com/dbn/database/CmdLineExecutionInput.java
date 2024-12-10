@@ -27,14 +27,12 @@ import java.util.Map;
 @Getter
 public class CmdLineExecutionInput {
     private final StringBuilder content;
-    private final List<String> command;
-    private final Map<String, String> environmentVars;
+    private final List<String> command = new ArrayList<>();
+    private final List<String> statements = new ArrayList<>();
+    private final Map<String, String> environmentVars = new HashMap<>();
 
     public CmdLineExecutionInput(@NotNull String content) {
         this.content = new StringBuilder(content);
-        this.command = new ArrayList<>();
-        this.environmentVars = new HashMap<>();
-
     }
 
     public void addEnvironmentVariable(String key, char[] value) {
@@ -47,6 +45,23 @@ public class CmdLineExecutionInput {
 
     public String getTextContent() {
         return content.toString();
+    }
+
+    public void addStatement(String statement) {
+        statements.add(statement);
+    }
+
+    public void initCommand(String executable) {
+        command.add(executable);
+    }
+
+    public void addCommandArgument(String argument) {
+        command.add(argument);
+    }
+
+    public void addCommandArgument(String argument, String value) {
+        command.add(argument);
+        command.add(value);
     }
 
     @NotNull
