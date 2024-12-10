@@ -20,11 +20,9 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.file.VirtualFileInfo;
-import com.dbn.common.icon.OverlaidIcons;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.navigation.NavigationInstructions;
 import com.dbn.common.thread.Background;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.ThreadInfo;
 import com.dbn.common.thread.ThreadPropertyGate;
@@ -61,12 +59,9 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.tabs.TabInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Icon;
-import java.util.Collection;
 import java.util.List;
 
 import static com.dbn.browser.DatabaseBrowserUtils.markSkipBrowserAutoscroll;
@@ -81,7 +76,6 @@ import static com.dbn.common.thread.ThreadProperty.DEBUGGER_NAVIGATION;
 import static com.dbn.common.thread.ThreadProperty.EDITOR_LOAD;
 import static com.dbn.common.thread.ThreadProperty.WORKSPACE_RESTORE;
 import static com.dbn.common.util.Conditional.when;
-import static com.dbn.common.util.Editors.getEditorTabInfos;
 import static com.dbn.editor.DatabaseFileEditorManager.COMPONENT_NAME;
 import static com.dbn.vfs.DatabaseFileSystem.isFileOpened;
 
@@ -108,18 +102,11 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
     private DBFileStatusListener createFileStatusListener() {
         return (file, status, value) -> {
             if (status != DBFileStatus.MODIFIED) return;
-            markEditorsModified(getProject(), file.getMainDatabaseFile(), value);
-        };
-    }
 
-    private static void markEditorsModified(@NotNull Project project, @NotNull DBObjectVirtualFile file, boolean modified) {
-        Dispatch.run(() -> {
-            Collection<TabInfo> tabInfos = getEditorTabInfos(project, file);
-            Icon icon = modified ? OverlaidIcons.addModifiedOverlay(file.getIcon()) : file.getIcon();
-            for (TabInfo tabInfo : tabInfos) {
-                tabInfo.setIcon(icon);
-            }
-        });
+            // see com.dbn.vfs.DBFileIconPatcher
+            DBEditableObjectVirtualFile databaseFile = file.getMainDatabaseFile();
+            Editors.updateEditorPresentations(getProject(), databaseFile);
+        };
     }
 
     public boolean isFileOpen(DBSchemaObject object) {

@@ -41,7 +41,6 @@ public class TestAction extends BasicAction {
                 DBTable target = table.getSchema().getChildObject(DBObjectType.TABLE, "ALLOCATIONS", (short) 0, false);
                 DataDependencyPath[] shortestPath = new DataDependencyPath[1];
                 DataDependencyPathBuilder.buildDependencyPath(null, table.getColumns().get(0), target.getColumns().get(0), shortestPath);
-                System.out.println();
             }
         }).start();
     }

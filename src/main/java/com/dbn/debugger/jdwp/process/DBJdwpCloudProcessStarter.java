@@ -65,6 +65,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 @Slf4j
 public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
 
+    public static final byte[] HANDSHAKE_SIGNATURE = "JDWP-Handshake".getBytes(StandardCharsets.UTF_8);
     private String jdwpHostPort = null;
     private NSTunnelConnectionProxy debugConnection = null;
     private final ByteBuffer readBuffer = ByteBuffer.allocate(320000);
@@ -253,20 +254,21 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
     }
 
     void doHandCheck() throws IOException {
-        System.out.println("handshake starts ...........");
-        byte[] hello = "JDWP-Handshake".getBytes(StandardCharsets.UTF_8);
+        log.info("Started attaching transport service...");
+
+        byte[] signature = HANDSHAKE_SIGNATURE;
         readBuffer.clear();
         writeBuffer.clear();
         debugConnection.read(readBuffer);
-        byte[] hello_read = new byte[hello.length];
-        readBuffer.get(hello_read);
-        if (Arrays.compare(hello, hello_read) == 0) { // TODO java 8 compatibility issue
-            System.out.println("handshake not done");
+        byte[] response = new byte[signature.length];
+        readBuffer.get(response);
+        if (Arrays.compare(signature, response) == 0) {
+            log.warn("Transport service handshake unsuccessful");
         }
-        writePackets(hello);
+        writePackets(signature);
         readBuffer.clear();
 
-        System.out.println("handshake finishes ...........");
+        log.info("Finished attaching transport service");
     }
 
     // read just one packet at each time called

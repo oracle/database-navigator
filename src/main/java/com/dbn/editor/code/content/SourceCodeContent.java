@@ -18,10 +18,10 @@ package com.dbn.editor.code.content;
 
 import com.dbn.common.latent.Latent;
 import com.dbn.common.load.ProgressMonitor;
-import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.intellij.diff.comparison.ByWord;
 import com.intellij.diff.comparison.ComparisonPolicy;
+import com.intellij.diff.fragments.DiffFragment;
 import com.intellij.openapi.progress.ProgressIndicator;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Getter
@@ -73,8 +74,9 @@ public class SourceCodeContent{
     public boolean matches(SourceCodeContent content, boolean soft) {
         if (soft) {
             try {
-                ProgressIndicator progress = ProgressMonitor.getProgressIndicator();
-                return ByWord.compare(text, content.text, ComparisonPolicy.IGNORE_WHITESPACES, progress).isEmpty();
+                ProgressIndicator progress = ProgressMonitor.ensureProgressIndicator();
+                List<DiffFragment> diffs = ByWord.compare(text, content.text, ComparisonPolicy.IGNORE_WHITESPACES, progress);
+                return diffs.isEmpty();
             } catch (Exception e) {
                 conditionallyLog(e);
             }
@@ -99,7 +101,7 @@ public class SourceCodeContent{
         SourceCodeOffsets offsets = getOffsets();
         offsets.getGuardedBlocks().reset();
 
-        StringBuilder builder = new StringBuilder(Commons.nvl(content, ""));
+        StringBuilder builder = new StringBuilder(nvl(content, ""));
         int startIndex = builder.indexOf(GuardedBlockMarker.START_OFFSET_IDENTIFIER);
 
 

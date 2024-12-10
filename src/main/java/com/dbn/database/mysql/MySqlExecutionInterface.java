@@ -28,8 +28,6 @@ import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 public class MySqlExecutionInterface extends DatabaseExecutionInterfaceImpl {
 
     @Override
@@ -51,38 +49,31 @@ public class MySqlExecutionInterface extends DatabaseExecutionInterfaceImpl {
             @NotNull DatabaseInfo databaseInfo,
             @NotNull AuthenticationInfo authenticationInfo) {
 
-        CmdLineExecutionInput executionInput = new CmdLineExecutionInput(content);
+        CmdLineExecutionInput input = new CmdLineExecutionInput(content);
 
-        List<String> command = executionInput.getCommand();
-        command.add(cmdLineInterface.getExecutablePath());
-        command.add("--force");
-        command.add("--verbose");
-        command.add("--host=" + databaseInfo.getHost());
+        String executable = cmdLineInterface.getExecutablePath();
+        input.initCommand(executable);
+
+        input.addCommandArgument("-u", authenticationInfo.getUser());
+        input.addCommandArgument("-p"); // request password
+        input.addCommandArgument("--verbose");
+        input.addCommandArgument("-h", databaseInfo.getHost());
 
         String port = databaseInfo.getPort();
         if (Strings.isNotEmpty(port)) {
-            command.add("--port=" + port);
+            input.addCommandArgument("-P", databaseInfo.getPort());
         }
 
         String database = databaseInfo.getDatabase();
         if (Strings.isNotEmpty(database)) {
-            command.add("--database=" + database);
+            input.addCommandArgument(database);
         }
 
-
-        command.add("--user=" + authenticationInfo.getUser());
-        command.add("--password=" + authenticationInfo.getPassword());
-
-        command.add("-e");
-        command.add("\"source " + filePath + "\"");
-
-        //command.add("< " + filePath);
-
-        StringBuilder contentBuilder = executionInput.getContent();
         if (schemaId != null) {
-            contentBuilder.insert(0, "use " + schemaId + ";\n");
+            input.addStatement("use " + schemaId + ";");
         }
-        //contentBuilder.append("\nexit;\n");
-        return executionInput;
+        input.addStatement("source " + filePath + ";");
+        input.addStatement("exit");
+        return input;
     }
 }
