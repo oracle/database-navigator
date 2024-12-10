@@ -16,7 +16,6 @@
 
 package com.dbn.common.action;
 
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import org.jetbrains.annotations.NotNull;
@@ -31,9 +30,4 @@ public abstract class ContextActionGroup<T> extends DefaultActionGroup implement
 
     protected abstract T getContext(@NotNull AnActionEvent e);
 
-    @NotNull
-    @Override
-    public ActionUpdateThread getActionUpdateThread() {
-        return resolveActionUpdateThread();
-    }
 }
