@@ -133,7 +133,6 @@ public abstract class TokenTypeBundleBase {
             String tokenTypeId = stringAttribute(o, "id");
             boolean registered = isRegisteredToken(tokenSetIds, tokenTypeId);
             SimpleTokenType tokenType = new SimpleTokenType(o, language, this, registered);
-            log.debug("Creating token type '{}'", tokenType.getId());
             tokenTypes.put(tokenType.getId(), tokenType);
             switch(tokenType.getCategory()) {
                 case KEYWORD: keywordList.add(tokenType); break;
@@ -265,7 +264,7 @@ public abstract class TokenTypeBundleBase {
             for (String tokenId : tokenIds) {
                 SimpleTokenType tokenType = tokenTypes.get(tokenId);
                 if (tokenType == null) {
-                    System.out.println("DEBUG - [" + language.getID() + "] undefined token type: " + tokenId);
+                    log.warn("DBN - [{}] undefined token type: {}", language.getID(), tokenId);
                 } else {
                     tokenSetList.add(tokenType);
                 }

@@ -16,6 +16,7 @@
 
 package com.dbn.connection.jdbc;
 
+import com.dbn.common.compatibility.Exploitable;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.routine.Consumer;
@@ -181,6 +182,7 @@ public class DBNConnection extends DBNConnectionBase {
     }
 
 
+    @Exploitable
     public DBNPreparedStatement prepareStatementCached(String sql) {
         return cachedStatements.computeIfAbsent(sql, s -> {
             DBNPreparedStatement preparedStatement = prepareStatement(s);

@@ -21,7 +21,10 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.common.util.Commons.nvl;
 
 @UtilityClass
 public final class ProgressMonitor {
@@ -32,6 +35,11 @@ public final class ProgressMonitor {
         if (application == null) return null;
 
         return ProgressManager.getInstance().getProgressIndicator();
+    }
+
+    @NotNull
+    public static ProgressIndicator ensureProgressIndicator() {
+        return nvl(getProgressIndicator(), DevNullProgressIndicator.INSTANCE);
     }
 
     private static ProgressIndicator progress() {

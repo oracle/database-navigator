@@ -62,7 +62,7 @@ import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProcess> {
-    private static final ClassPrepareRequestor GENERIC_CLASS_PREPARE_REQUESTER = (p, r) -> System.out.println();
+    private static final ClassPrepareRequestor GENERIC_CLASS_PREPARE_REQUESTER = (p, r) -> {};
     private static final Key<LineBreakpoint> LINE_BREAKPOINT = Key.create("DBNavigator.LineBreakpoint");
 
     public DBJdwpBreakpointHandler(XDebugSession session, DBJdwpDebugProcess debugProcess) {

@@ -20,13 +20,12 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.process.ProcessController;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.CancellableDatabaseCall;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.util.Chars;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
-import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.SchemaId;
@@ -52,7 +51,6 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.text.LineReader;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.val;
@@ -63,7 +61,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFileAttributeView;
@@ -76,7 +73,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.dbn.common.component.Components.projectService;
@@ -88,6 +84,7 @@ import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Getter
 @Setter
@@ -154,7 +151,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                 }
                 clearOutputOption = executionInput.isClearOutput();
 
-                Progress.prompt(project, connection, true,
+                Progress.background(project, connection, true,
                         "Executing script",
                         "Executing database script \"" + virtualFile.getName() + "\"",
                         progress -> {
@@ -184,7 +181,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput(outputContext, " - Initializing script execution", input.isClearOutput()));
 
         try {
-            new CancellableDatabaseCall<>(connection, null, timeout, TimeUnit.SECONDS) {
+            new CancellableDatabaseCall<>(connection, null, timeout, SECONDS) {
                 @Override
                 public Object execute() throws Exception {
                     SchemaId schemaId = input.getSchemaId();
@@ -215,15 +212,13 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     ProcessBuilder processBuilder = new ProcessBuilder(executionInput.getCommand());
                     processBuilder.environment().putAll(executionInput.getEnvironmentVars());
                     processBuilder.redirectErrorStream(true);
-                    char[] password = connection.getAuthenticationInfo().getPassword();
+
                     String lineCommand = executionInput.getLineCommand();
-                    if (Chars.isNotEmpty(password)) {
-                        lineCommand = lineCommand.replace(Chars.toString(password), "*********");
-                    }
                     executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput("Executing command: " + lineCommand));
                     executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput(""));
-                    Process process = processBuilder.start();
 
+                    // start the process
+                    Process process = processBuilder.start();
                     outputContext.setProcess(process);
                     activeProcesses.put(sourceFile, process);
 
@@ -231,17 +226,16 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     outputContext.start();
                     executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput(outputContext, " - Script execution started", false));
 
-                    try (InputStream inputStream = process.getInputStream()) {
-                        LineReader lineReader = new LineReader(inputStream);
-                        while (outputContext.isProcessAlive()) {
-                            while (outputContext.isActive()) {
-                                consumeProcessOutput(lineReader, outputContext, false);
-                            }
-                            Unsafe.silent(() -> Thread.sleep(1000));
-                        }
 
-                        consumeProcessOutput(lineReader, outputContext, true);
-                    }
+                    ProcessController controller = new ProcessController(process, timeout, SECONDS);
+                    controller.init(l -> consumeProcessOutput(l, outputContext));
+
+                    // send password and commands
+                    char[] password = connection.getAuthenticationInfo().getPassword();
+                    controller.sendPassword(password);
+                    controller.sendCommands(executionInput.getStatements());
+
+                    controller.waitFor();
 
                     LogOutput logOutput = LogOutput.createSysOutput(outputContext,
                             outputContext.isStopped() ?
@@ -298,14 +292,9 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         }
     }
 
-    private void consumeProcessOutput(LineReader lineReader, LogOutputContext outputContext, boolean eager) throws IOException {
-        byte[] bytes = lineReader.readLine();
-        while (bytes != null) {
-            String line = new String(bytes);
-            LogOutput stdOutput = LogOutput.createStdOutput(line);
-            executionManager.writeLogOutput(outputContext, stdOutput);
-            bytes = eager ? lineReader.readLine() : null;
-        }
+    private void consumeProcessOutput(String line, LogOutputContext outputContext) {
+        LogOutput stdOutput = LogOutput.createStdOutput(line);
+        executionManager.writeLogOutput(outputContext, stdOutput);
     }
 
     public void createCmdLineInterface(

@@ -29,7 +29,6 @@ import com.dbn.language.common.QuotePair;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.MessageFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,16 +55,6 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
                 objectTypeId == DatabaseObjectTypeId.TRIGGER ||
                 objectTypeId == DatabaseObjectTypeId.TYPE;
 
-    }
-
-    protected final void execute(String statementText, DBNConnection connection) throws SQLException {
-        Statement statement = connection.createStatement();
-        try {
-            statement.setQueryTimeout(20);
-            statement.execute(statementText);
-        } finally {
-            Resources.close(statement);
-        }
     }
 
     protected final String getSingleValue(DBNConnection connection, String loaderId, Object... arguments) throws SQLException {
@@ -118,7 +107,7 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
         CodeStyleCaseOption kco = caseSettings.getKeywordCaseOption();
         CodeStyleCaseOption oco = caseSettings.getObjectCaseOption();
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         QuotePair quotes = getInterfaces().getCompatibilityInterface().getDefaultIdentifierQuotes();
         String bq = "\\" + quotes.beginChar() + "?";
         String eq = "\\" + quotes.endChar() + "?";

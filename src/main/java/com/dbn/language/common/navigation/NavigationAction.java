@@ -50,6 +50,8 @@ public abstract class NavigationAction extends BasicAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         BasePsiElement navigationElement = getNavigationElement();
+        if (navigationElement == null) return;
+
         DBObject parentObject = getParentObject();
         if (parentObject != null) {
             SourceCodeManager codeEditorManager = SourceCodeManager.getInstance(parentObject.getProject());

@@ -100,7 +100,10 @@ public abstract class DBNResource<T> extends ResourceStatusHolder implements Res
     }
 
     @Override
-    public String toString() {
+    public final String toString() {
+        // IMPORTANT:
+        // Used for logging of the Resource lifecycle.
+        // Changes here have to ensure obscurity of the contents of this resource.
         String string = resourceType + " (" + resourceId + ")";
         String suffix = super.toString();
         return Strings.isEmpty(suffix) ? string : string + " - " + suffix + "";
