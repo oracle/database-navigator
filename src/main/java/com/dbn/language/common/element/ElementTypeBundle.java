@@ -109,13 +109,7 @@ public class ElementTypeBundle {
             for(NamedElementType namedElementType : namedElementTypes.values()){
                 if (!namedElementType.isDefinitionLoaded()) {
                     namedElementType.update(unknown);
-                    //log.info("ERROR: element '" + namedElementType.getId() + "' not defined.");
-                    System.out.println("DEBUG - [" + this.languageDialect.getID() + "] undefined element type: " + namedElementType.getId());
-/*
-                    if (DatabaseNavigator.getInstance().isDebugModeEnabled()) {
-                        System.out.println("WARNING - [" + getLanguageDialect().getID() + "] undefined element type: " + namedElementType.getId());
-                    }
-*/
+                    log.warn("DBN - [{}] undefined element type: {}", this.languageDialect.getID(), namedElementType.getId());
                 }
             }
 
@@ -135,7 +129,9 @@ public class ElementTypeBundle {
                     new XMLOutputter().output(document, stringWriter);
 
                     String data = stringWriter.getBuffer().toString();
-                    System.out.println(data);
+                    log.info("LANGUAGE_DEFINITION\n" +
+                            "====================================={}\n" +
+                            "=====================================", data);
 
                     CopyPasteManager copyPasteManager = CopyPasteManager.getInstance();
                     copyPasteManager.setContents(new StringSelection(data));
@@ -171,7 +167,6 @@ public class ElementTypeBundle {
     private void createNamedElementType(Element def) throws ElementTypeDefinitionException {
         String id = determineMandatoryAttribute(def, "id", "Invalid definition of named element type.");
         String languageId = stringAttribute(def, "language");
-        log.debug("Updating complex element definition '{}'", id);
         NamedElementType elementType = getNamedElementType(id, null);
         elementType.loadDefinition(def);
         if (elementType.is(ElementTypeAttribute.ROOT)) {
@@ -267,7 +262,6 @@ public class ElementTypeBundle {
         NamedElementType elementType = namedElementTypes.computeIfAbsent(id, i -> {
             NamedElementType namedElementType = new NamedElementType(this, i);
             builder.allElementTypes.add(namedElementType);
-            log.debug("Created named element type '{}'", i);
             return namedElementType;
         });
 

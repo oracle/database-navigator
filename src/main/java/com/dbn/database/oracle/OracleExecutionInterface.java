@@ -18,8 +18,6 @@ package com.dbn.database.oracle;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
-import com.dbn.common.util.Chars;
-import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.CmdLineExecutionInput;
@@ -33,17 +31,14 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 import static com.dbn.common.util.Commons.nvl;
-import static java.lang.Character.isWhitespace;
 
 @NonNls
 public class OracleExecutionInterface implements DatabaseExecutionInterface {
-    private static final String SQLPLUS_CONNECT_PATTERN_TNS= "[USER]/[PASSWORD]@[TNS_PROFILE]";
-    private static final String SQLPLUS_CONNECT_PATTERN_SID = "[USER]/[PASSWORD]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SID=[DATABASE])))\"";
-    private static final String SQLPLUS_CONNECT_PATTERN_SERVICE = "[USER]/[PASSWORD]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SERVICE_NAME=[DATABASE])))\"";
-    private static final String SQLPLUS_CONNECT_PATTERN_BASIC = "[USER]/[PASSWORD]@[HOST]:[PORT]/[DATABASE]";
+    private static final String SQLPLUS_CONNECT_PATTERN_TNS= "[USER]@[TNS_PROFILE]";
+    private static final String SQLPLUS_CONNECT_PATTERN_SID = "[USER]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SID=[DATABASE])))\"";
+    private static final String SQLPLUS_CONNECT_PATTERN_SERVICE = "[USER]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SERVICE_NAME=[DATABASE])))\"";
+    private static final String SQLPLUS_CONNECT_PATTERN_BASIC = "[USER]@[HOST]:[PORT]/[DATABASE]";
 
     @Override
     public MethodExecutionProcessor createExecutionProcessor(DBMethod method) {
@@ -64,7 +59,7 @@ public class OracleExecutionInterface implements DatabaseExecutionInterface {
             @NotNull DatabaseInfo databaseInfo,
             @NotNull AuthenticationInfo authenticationInfo) {
 
-        CmdLineExecutionInput executionInput = new CmdLineExecutionInput(content);
+        CmdLineExecutionInput input = new CmdLineExecutionInput(content);
         DatabaseUrlType urlType = databaseInfo.getUrlType();
         String connectPattern =
                 urlType == DatabaseUrlType.TNS ? SQLPLUS_CONNECT_PATTERN_TNS :
@@ -74,40 +69,32 @@ public class OracleExecutionInterface implements DatabaseExecutionInterface {
 
         String connectArg = connectPattern.
                 replace("[USER]",        nvl(authenticationInfo.getUser(),     "")).
-                replace("[PASSWORD]",    nvl(Chars.toString(authenticationInfo.getPassword()), "")).
                 replace("[HOST]",        nvl(databaseInfo.getHost(),           "")).
                 replace("[PORT]",        nvl(databaseInfo.getPort(),           "")).
                 replace("[DATABASE]",    nvl(databaseInfo.getDatabase(),       "")).
                 replace("[TNS_PROFILE]", nvl(databaseInfo.getTnsProfile(),     ""));
 
-        executionInput.addEnvironmentVariable("TNS_ADMIN", nvl(databaseInfo.getTnsFolder(),      ""));
-
-        String fileArg = "\"@" + filePath + "\"";
-
-
-
-        @NonNls List<String> command = executionInput.getCommand();
-        command.add(cmdLineInterface.getExecutablePath());
-        command.add(connectArg);
-        command.add(fileArg);
-
-        @NonNls
-        StringBuilder builder = executionInput.getContent();
-        if (schemaId != null) builder.insert(0, "alter session set current_schema = " + schemaId + ";\n");
-
-        builder.insert(0, "set echo on;\n");
-        builder.insert(0, "set linesize 32000;\n");
-        builder.insert(0, "set pagesize 40000;\n");
-        builder.insert(0, "set long 50000;\n");
-
-        Strings.trim(builder);
-        char lastChr = Strings.lastChar(builder, chr -> !isWhitespace(chr));
-        if (lastChr != ';' && lastChr != '/' && lastChr != ' ') {
-            // make sure exit is not impacted by script errors
-            builder.append(";\n");
+        boolean tnsConnection = databaseInfo.getUrlType() == DatabaseUrlType.TNS;
+        if (tnsConnection) {
+            input.addEnvironmentVariable("TNS_ADMIN", nvl(databaseInfo.getTnsFolder(), ""));
         }
-        builder.append("\nexit;\n");
-        return executionInput;
+
+        String executable = cmdLineInterface.getExecutablePath();
+        input.initCommand(executable);
+        input.addCommandArgument(connectArg);
+
+        if (schemaId != null) {
+            input.addStatement("alter session set current_schema = " + schemaId + ";");
+        }
+
+        input.addStatement("set echo on;");
+        input.addStatement("set linesize 32000;");
+        input.addStatement("set pagesize 40000;");
+        input.addStatement("set long 50000;");
+
+        input.addStatement("@" + filePath);
+        input.addStatement("exit");
+        return input;
     }
 
 

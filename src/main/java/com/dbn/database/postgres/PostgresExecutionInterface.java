@@ -19,7 +19,6 @@ package com.dbn.database.postgres;
 import com.dbn.common.constant.Constants;
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
-import com.dbn.common.util.Strings;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.CmdLineExecutionInput;
@@ -31,7 +30,9 @@ import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.connection.AuthenticationType.USER;
+import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 
 public class PostgresExecutionInterface extends DatabaseExecutionInterfaceImpl {
     @Override
@@ -46,47 +47,43 @@ public class PostgresExecutionInterface extends DatabaseExecutionInterfaceImpl {
 
     @Override
     public CmdLineExecutionInput createScriptExecutionInput(@NotNull CmdLineInterface cmdLineInterface, @NotNull String filePath, String content, @Nullable SchemaId schemaId, @NotNull DatabaseInfo databaseInfo, @NotNull AuthenticationInfo authenticationInfo) {
-        CmdLineExecutionInput executionInput = new CmdLineExecutionInput(content);
+        CmdLineExecutionInput input = new CmdLineExecutionInput(content);
 
-        List<String> command = executionInput.getCommand();
-        command.add(cmdLineInterface.getExecutablePath());
-        command.add("--echo-all");
-        command.add("--host=" + databaseInfo.getHost());
+        input.initCommand(cmdLineInterface.getExecutablePath());
+        input.addCommandArgument("--echo-all");
+        input.addCommandArgument("--host=" + databaseInfo.getHost());
 
         String port = databaseInfo.getPort();
-        if (Strings.isNotEmpty(port)) {
-            command.add("--port=" + port);
+        if (isNotEmpty(port)) {
+            input.addCommandArgument("--port=" + port);
         }
 
         String database = databaseInfo.getDatabase();
-        if (Strings.isNotEmpty(database)) {
-            command.add("--dbname=" + database);
+        if (isNotEmpty(database)) {
+            input.addCommandArgument("--dbname=" + database);
         }
 
         AuthenticationType authenticationType = authenticationInfo.getType();
-        if (Constants.isOneOf(authenticationType, AuthenticationType.USER, AuthenticationType.USER_PASSWORD)) {
-            command.add("--username=" + authenticationInfo.getUser());
+        if (Constants.isOneOf(authenticationType, USER, USER_PASSWORD)) {
+            input.addCommandArgument("--username=" + authenticationInfo.getUser());
         }
 
 
-        if (authenticationType != AuthenticationType.USER_PASSWORD) {
-            command.add("--no-password");
-        } else {
-            executionInput.addEnvironmentVariable("PGPASSWORD", authenticationInfo.getPassword());
+        if (authenticationType != USER_PASSWORD) {
+            input.addCommandArgument("--no-password");
         }
+        /*else {
+            // TODO (verify and cleanup) does no longer seem to be needed since passwords are now sent over STDIN
+            input.addEnvironmentVariable("PGPASSWORD", authenticationInfo.getPassword());
+        }*/
 
-
-        command.add("-f");
-        command.add("\"" + filePath + "\"");
-
-
-        //command.add("< " + filePath);
-
-        StringBuilder contentBuilder = executionInput.getContent();
         if (schemaId != null) {
-            contentBuilder.insert(0, "set search_path to " + schemaId + ";\n");
+            input.addStatement("set search_path to " + schemaId + ";");
         }
-        //contentBuilder.append("\nexit;\n");
-        return executionInput;
+
+        input.addStatement("\\i " + filePath);
+        input.addStatement("\\q"); // exit
+
+        return input;
     }
 }

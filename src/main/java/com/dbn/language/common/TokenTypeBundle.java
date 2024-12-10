@@ -20,12 +20,14 @@ import com.dbn.language.common.element.ChameleonElementType;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.jdom.Document;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+@Slf4j
 @Getter
 public class TokenTypeBundle extends TokenTypeBundleBase {
     private final DBLanguage baseLanguage;
@@ -95,7 +97,9 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
         if (tokenType != null) return tokenType;
 
 
-        if (!GENERIC_TOKENS.contains(id)) System.out.println("DEBUG - [" + getLanguage().getID() + "] undefined token type: " + id);
+        if (!GENERIC_TOKENS.contains(id)) {
+            log.warn("DBN - [{}] undefined token type: {}", getLanguage().getID(), id);
+        }
         //log.info("[DBN-WARNING] Undefined token type: " + id);
         return getSharedTokenTypes().getIdentifier();
     }
@@ -109,8 +113,8 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
         if (tokenSet != null) return tokenSet;
 
 
-        System.out.println("DEBUG - [" + getLanguage().getID() + "] undefined token set: " + id);
-        //log.info("[DBN-WARNING] Undefined token set '" + id + "'");
+        log.warn("DBN - [{}] undefined token set: {}", getLanguage().getID(), id);
+
         tokenSet = super.getTokenSet("UNDEFINED");
         return tokenSet;
     }
