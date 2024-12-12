@@ -257,7 +257,10 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         databaseInfo.setUrlType(urlType);
         databaseInfo.setUrl(urlSettingsForm.getUrl());
 
-        if (urlType == DatabaseUrlType.TNS) {
+        if (urlType == DatabaseUrlType.EZCONNECT) {
+            // TODO: EZCONNECT
+        }
+        else if (urlType == DatabaseUrlType.TNS) {
         	databaseInfo.setTnsFolder(urlSettingsForm.getTnsFolder());
         	databaseInfo.setTnsProfile(urlSettingsForm.getTnsProfile());
         } else if (urlType == DatabaseUrlType.FILE){

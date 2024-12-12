@@ -62,6 +62,7 @@ public class OracleExecutionInterface implements DatabaseExecutionInterface {
         CmdLineExecutionInput input = new CmdLineExecutionInput(content);
         DatabaseUrlType urlType = databaseInfo.getUrlType();
         String connectPattern =
+                urlType == DatabaseUrlType.EZCONNECT ? SQLPLUS_CONNECT_PATTERN_BASIC :
                 urlType == DatabaseUrlType.TNS ? SQLPLUS_CONNECT_PATTERN_TNS :
                 urlType == DatabaseUrlType.SID ? SQLPLUS_CONNECT_PATTERN_SID :
                 urlType == DatabaseUrlType.SERVICE ? SQLPLUS_CONNECT_PATTERN_SERVICE :
