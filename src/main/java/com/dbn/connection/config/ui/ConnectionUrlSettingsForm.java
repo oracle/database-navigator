@@ -218,14 +218,16 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     public void updateFieldVisibility() {
         DatabaseUrlType urlType = nvl(getUrlType(), DatabaseUrlType.CUSTOM);
 
+        boolean ezConnectVisible = urlType == DatabaseUrlType.EZCONNECT;
         boolean tnsVisible = urlType == DatabaseUrlType.TNS;
         boolean flsVisible = urlType == DatabaseUrlType.FILE;
+        boolean customVisible = urlType == DatabaseUrlType.CUSTOM;
         boolean hpdVisible = Constants.isOneOf(urlType,
                 DatabaseUrlType.SID,
                 DatabaseUrlType.SERVICE,
                 DatabaseUrlType.DATABASE);
 
-        urlTextField.setEnabled(urlType == DatabaseUrlType.CUSTOM);
+        urlTextField.setEnabled(customVisible || ezConnectVisible);
 
         // tns folder
         tnsFolderTextField.setVisible(tnsVisible);

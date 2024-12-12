@@ -51,6 +51,12 @@ import static java.util.regex.Pattern.compile;
 @Getter
 public enum DatabaseUrlPattern {
 
+    ORACLE_EZCONNECT(
+            // temporary; pattern is much more complicated.
+            "tcps://<HOST>:<PORT>.*",
+            compile("^tcps://"+host+":"+port),
+            Default.ORACLE, DatabaseUrlType.EZCONNECT),
+
     ORACLE_TNS(
             "jdbc:oracle:thin:@<TNS_PROFILE>?TNS_ADMIN=<TNS_FOLDER>",
             compile("^jdbc:oracle:(thin|oci):@" + profile + "\\?TNS_ADMIN=" + folder + "$", CASE_INSENSITIVE),
