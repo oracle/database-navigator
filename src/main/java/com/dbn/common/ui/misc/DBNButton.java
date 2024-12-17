@@ -40,7 +40,7 @@ public class DBNButton extends JLabel {
     }
 
     @Override
-    public void addMouseListener(MouseListener l) {
+    public synchronized void addMouseListener(MouseListener l) {
         super.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -70,7 +70,7 @@ public class DBNButton extends JLabel {
     }
 
     @Override
-    public void addKeyListener(KeyListener l) {
+    public synchronized void addKeyListener(KeyListener l) {
         super.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {

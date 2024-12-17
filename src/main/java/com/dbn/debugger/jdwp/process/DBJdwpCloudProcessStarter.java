@@ -89,6 +89,9 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
                 throw new IOException("Could not find driver for Cloud NSTunnelConnection class loading");
             }
             ClassLoader classLoader = driver.getClass().getClassLoader();
+            if (classLoader == null) {
+                throw new IOException("Could not resolve class loader for Cloud NSTunnelConnection");
+            }
             debugConnection = NSTunnelConnectionInitializer.newInstance(classLoader, URL, props);
             if (debugConnection == null) {
                 throw new IOException("Could not load tunneling object. Does the current driver support Cloud NS?");

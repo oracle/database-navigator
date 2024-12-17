@@ -24,10 +24,11 @@ import com.dbn.database.common.DatabaseExecutionInterfaceImpl;
 import com.dbn.database.common.execution.MethodExecutionProcessor;
 import com.dbn.execution.script.CmdLineInterface;
 import com.dbn.object.DBMethod;
+import com.intellij.execution.configurations.GeneralCommandLine;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import static com.dbn.common.util.Naming.doubleQuoted;
 
 class SqliteExecutionInterface extends DatabaseExecutionInterfaceImpl {
 
@@ -52,8 +53,16 @@ class SqliteExecutionInterface extends DatabaseExecutionInterfaceImpl {
 
         CmdLineExecutionInput executionInput = new CmdLineExecutionInput(content);
 
-        List<String> command = executionInput.getCommand();
-        command.add(cmdLineInterface.getExecutablePath() + " \"" + databaseInfo.getMainFilePath() + "\" <  \"" + filePath + "\"");
+        GeneralCommandLine command = executionInput.getCommand();
+
+        String executable = cmdLineInterface.getExecutablePath();
+        command.setWorkDirectory(executable);
+
+        String mainFilePath = databaseInfo.getMainFilePath();
+
+        command.addParameter(doubleQuoted(mainFilePath));
+        command.addParameter("< " + doubleQuoted(filePath));
+
         return executionInput;
     }
 }
