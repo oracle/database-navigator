@@ -319,14 +319,10 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
 
     @Nullable
     @Override
-    public DBObjectListContainer getChildObjects() {
+    public synchronized DBObjectListContainer getChildObjects() {
         if (isNot(LISTS_LOADED)) {
-            synchronized (this) {
-                if (isNot(LISTS_LOADED)) {
-                    initLists(getConnection());
-                    set(LISTS_LOADED, true);
-                }
-            }
+            initLists(getConnection());
+            set(LISTS_LOADED, true);
         }
         return childObjects.get(this);
     }

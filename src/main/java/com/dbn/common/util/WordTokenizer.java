@@ -57,10 +57,4 @@ public class WordTokenizer {
         }
         return false;
     }
-
-    public static void main(String[] args) {
-        WordTokenizer wordTokenizer = new WordTokenizer("return decimal(5,2), p_customer_id INT, p_effective_date DATETIME");
-
-        
-    }
 }

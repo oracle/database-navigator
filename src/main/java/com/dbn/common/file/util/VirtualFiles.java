@@ -37,7 +37,6 @@ import com.intellij.openapi.vfs.newvfs.events.VFileDeleteEvent;
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import com.intellij.openapi.vfs.newvfs.events.VFilePropertyChangeEvent;
 import com.intellij.testFramework.LightVirtualFile;
-import com.intellij.util.io.ReadOnlyAttributeUtil;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Contract;
@@ -46,7 +45,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -98,22 +96,6 @@ public final class VirtualFiles {
 
     public static VirtualFile ioFileToVirtualFile(File file) {
         return LocalFileSystem.getInstance().findFileByIoFile(file);
-    }
-
-    public static void setReadOnlyAttribute(VirtualFile file, boolean readonly) {
-        try {
-            ReadOnlyAttributeUtil.setReadOnlyAttribute(file, readonly);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void setReadOnlyAttribute(String path, boolean readonly) {
-        try {
-            ReadOnlyAttributeUtil.setReadOnlyAttribute(path, readonly);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public static VirtualFile[] findFiles(Project project, FileSearchRequest request) {

@@ -23,6 +23,7 @@ import lombok.SneakyThrows;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +54,8 @@ public class TnsNamesParser {
     @SneakyThrows
     public static TnsNames parse(File file) {
         List<TnsProfile> tnsProfiles = new ArrayList<>();
-        String tnsContent = new String(Files.readAllBytes(Paths.get(file.getPath())));
+        Path filePath = Paths.get(file.getPath());
+        String tnsContent = Files.readString(filePath);
 
         Pattern pattern = TnsProfilePattern.INSTANCE.get();
         Matcher matcher = pattern.matcher(tnsContent);

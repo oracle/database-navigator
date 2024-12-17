@@ -16,10 +16,8 @@
 
 package com.dbn.database.postgres;
 
-import com.dbn.common.constant.Constants;
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
-import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.CmdLineExecutionInput;
 import com.dbn.database.common.DatabaseExecutionInterfaceImpl;
@@ -29,10 +27,6 @@ import com.dbn.execution.script.CmdLineInterface;
 import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import static com.dbn.common.util.Strings.isNotEmpty;
-import static com.dbn.connection.AuthenticationType.USER;
-import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 
 public class PostgresExecutionInterface extends DatabaseExecutionInterfaceImpl {
     @Override
@@ -46,44 +40,19 @@ public class PostgresExecutionInterface extends DatabaseExecutionInterfaceImpl {
     }
 
     @Override
-    public CmdLineExecutionInput createScriptExecutionInput(@NotNull CmdLineInterface cmdLineInterface, @NotNull String filePath, String content, @Nullable SchemaId schemaId, @NotNull DatabaseInfo databaseInfo, @NotNull AuthenticationInfo authenticationInfo) {
-        CmdLineExecutionInput input = new CmdLineExecutionInput(content);
-
-        input.initCommand(cmdLineInterface.getExecutablePath());
-        input.addCommandArgument("--echo-all");
-        input.addCommandArgument("--host=" + databaseInfo.getHost());
-
-        String port = databaseInfo.getPort();
-        if (isNotEmpty(port)) {
-            input.addCommandArgument("--port=" + port);
-        }
-
-        String database = databaseInfo.getDatabase();
-        if (isNotEmpty(database)) {
-            input.addCommandArgument("--dbname=" + database);
-        }
-
-        AuthenticationType authenticationType = authenticationInfo.getType();
-        if (Constants.isOneOf(authenticationType, USER, USER_PASSWORD)) {
-            input.addCommandArgument("--username=" + authenticationInfo.getUser());
-        }
-
-
-        if (authenticationType != USER_PASSWORD) {
-            input.addCommandArgument("--no-password");
-        }
-        /*else {
-            // TODO (verify and cleanup) does no longer seem to be needed since passwords are now sent over STDIN
-            input.addEnvironmentVariable("PGPASSWORD", authenticationInfo.getPassword());
-        }*/
-
-        if (schemaId != null) {
-            input.addStatement("set search_path to " + schemaId + ";");
-        }
-
-        input.addStatement("\\i " + filePath);
-        input.addStatement("\\q"); // exit
-
-        return input;
+    public CmdLineExecutionInput createScriptExecutionInput(
+            @NotNull CmdLineInterface cmdLineInterface,
+            @NotNull String filePath,
+            @NotNull String content,
+            @Nullable SchemaId schemaId,
+            @NotNull DatabaseInfo databaseInfo,
+            @NotNull AuthenticationInfo authenticationInfo) {
+        return new PostgresScriptExecutionInput(
+                cmdLineInterface,
+                filePath,
+                content,
+                schemaId,
+                databaseInfo,
+                authenticationInfo);
     }
 }
