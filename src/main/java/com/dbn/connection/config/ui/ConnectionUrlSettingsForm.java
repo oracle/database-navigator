@@ -245,12 +245,12 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
         // classic service name or sid
         databaseLabel.setText(urlType.databaseIdentifier());
-        databaseLabel.setVisible(hpdVisible);
-        databaseTextField.setVisible(hpdVisible);
-        hostLabelField.setVisible(hpdVisible);
-        hostTextField.setVisible(hpdVisible);
-        portLabelField.setVisible(hpdVisible);
-        portTextField.setVisible(hpdVisible);
+        databaseLabel.setVisible(hpdVisible||ezConnectVisible);
+        databaseTextField.setVisible(hpdVisible||ezConnectVisible);
+        hostLabelField.setVisible(hpdVisible||ezConnectVisible);
+        hostTextField.setVisible(hpdVisible||ezConnectVisible);
+        portLabelField.setVisible(hpdVisible||ezConnectVisible);
+        portTextField.setVisible(hpdVisible||ezConnectVisible);
 
         poolTypeLabel.setVisible(ezConnectVisible);
         poolTypeComboBox.setVisible(ezConnectVisible);
