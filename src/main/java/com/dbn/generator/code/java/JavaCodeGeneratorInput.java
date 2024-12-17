@@ -99,10 +99,10 @@ public abstract class JavaCodeGeneratorInput extends CodeGeneratorInputBase {
     }
 
     private PsiDirectory findPackageDirectory(PsiDirectory directory) throws ConfigurationException {
-        if (packageName == null) return directory;
+        if (isEmpty(packageName)) return directory;
         if (!isValidPackageName(packageName)) fail("Package name is invalid");
 
-        String[] packageTokens = packageName.split("\\.");
+        String[] packageTokens = packageName.trim().split("\\.");
         for (String packageToken : packageTokens) {
             PsiDirectory dir = directory;
             directory = Read.call(() -> dir.findSubdirectory(packageToken));
@@ -115,9 +115,9 @@ public abstract class JavaCodeGeneratorInput extends CodeGeneratorInputBase {
         Module module = findModule();
         VirtualFile file = findContentRoot(module);
         PsiDirectory directory = getContentRootDirectory(file);
-        if (packageName == null) return;
+        if (isEmpty(packageName)) return;
 
-        String[] packageTokens = packageName.split("\\.");
+        String[] packageTokens = packageName.trim().split("\\.");
         for (String packageToken : packageTokens) {
             PsiDirectory subdirectory = directory.findSubdirectory(packageToken);
             if (subdirectory == null)  {

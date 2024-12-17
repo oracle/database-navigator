@@ -20,7 +20,6 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.process.ProcessController;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.CancellableDatabaseCall;
 import com.dbn.common.thread.Progress;
@@ -84,6 +83,7 @@ import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.execution.script.ScriptExecutionProcessHandler.startProcess;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Getter
@@ -199,9 +199,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                             content,
                             schemaId,
                             connection.getDatabaseInfo(),
-                            connection.getAuthenticationInfo()
-                    );
-
+                            connection.getAuthenticationInfo());
 
                     FileUtil.writeToFile(temporaryScriptFile, executionInput.getTextContent());
                     if (!temporaryScriptFile.isFile() || !temporaryScriptFile.exists()) {
@@ -209,16 +207,17 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                         throw new IllegalStateException("Failed to create temporary script file " + temporaryScriptFile + ". Check access rights at location.");
                     }
 
-                    ProcessBuilder processBuilder = new ProcessBuilder(executionInput.getCommand());
-                    processBuilder.environment().putAll(executionInput.getEnvironmentVars());
-                    processBuilder.redirectErrorStream(true);
-
-                    String lineCommand = executionInput.getLineCommand();
-                    executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput("Executing command: " + lineCommand));
+                    String commandLine = executionInput.getCommandLine();
+                    executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput("Executing command: " + commandLine));
                     executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput(""));
 
+                    ScriptExecutionProcessHandler processHandler = startProcess(executionInput);
+                    processHandler.whenOutputted(e -> consumeProcessOutput(e.getText(), outputContext));
+                    processHandler.whenNotified(e -> processHandler.sendCommands(executionInput.getStatements()));
+
                     // start the process
-                    Process process = processBuilder.start();
+                    Process process = processHandler.getProcess();
+
                     outputContext.setProcess(process);
                     activeProcesses.put(sourceFile, process);
 
@@ -226,16 +225,9 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     outputContext.start();
                     executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput(outputContext, " - Script execution started", false));
 
-
-                    ProcessController controller = new ProcessController(process, timeout, SECONDS);
-                    controller.init(l -> consumeProcessOutput(l, outputContext));
-
-                    // send password and commands
-                    char[] password = connection.getAuthenticationInfo().getPassword();
-                    controller.sendPassword(password);
-                    controller.sendCommands(executionInput.getStatements());
-
-                    controller.waitFor();
+                    // start monitoring the process and wait for completion
+                    processHandler.startNotify();
+                    processHandler.waitFor();
 
                     LogOutput logOutput = LogOutput.createSysOutput(outputContext,
                             outputContext.isStopped() ?
@@ -293,6 +285,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
     }
 
     private void consumeProcessOutput(String line, LogOutputContext outputContext) {
+        line = line.replace("\n", "").replace("\r", "");
         LogOutput stdOutput = LogOutput.createStdOutput(line);
         executionManager.writeLogOutput(outputContext, stdOutput);
     }

@@ -40,7 +40,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeListener;
-import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicArrowButton;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
@@ -108,11 +107,6 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
     private MouseMotionAdapter mouseMotionListener;
 
     private static final JBValue OFFSET = new JBValue.Float(1);
-
-    @SuppressWarnings({"MethodOverridesStaticMethodOfSuperclass", "UnusedDeclaration"})
-    public static ComponentUI createUI(JComponent c) {
-        return new DBNTabbedPaneUI();
-    }
 
     @Override
     protected void installComponents() {
@@ -513,10 +507,6 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
 
     @Override
     public void paint(Graphics g, JComponent c) {
-        if (Boolean.getBoolean("use.basic.tabs.scrolling")) {
-            super.paint(g, c);
-            return;
-        }
         int selectedIndex = tabPane.getSelectedIndex();
         int tabPlacement = tabPane.getTabPlacement();
 

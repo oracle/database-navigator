@@ -14,46 +14,36 @@
  * limitations under the License.
  */
 
-package com.dbn.database.mysql;
+package com.dbn.database;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.connection.SchemaId;
-import com.dbn.database.CmdLineExecutionInput;
-import com.dbn.database.common.DatabaseExecutionInterfaceImpl;
-import com.dbn.database.common.execution.MethodExecutionProcessor;
 import com.dbn.execution.script.CmdLineInterface;
-import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class MySqlExecutionInterface extends DatabaseExecutionInterfaceImpl {
-
-    @Override
-    public MethodExecutionProcessor createExecutionProcessor(DBMethod method) {
-        return createSimpleMethodExecutionProcessor(method);
-    }
-
-    @Override
-    public MethodExecutionProcessor createDebugExecutionProcessor(DBMethod method) {
-        return null;
-    }
-
-    @Override
-    public CmdLineExecutionInput createScriptExecutionInput(
+public abstract class DatabaseScriptExecutionInput extends CmdLineExecutionInput{
+    public DatabaseScriptExecutionInput(
             @NotNull CmdLineInterface cmdLineInterface,
             @NotNull String filePath,
             @NotNull String content,
             @Nullable SchemaId schemaId,
             @NotNull DatabaseInfo databaseInfo,
             @NotNull AuthenticationInfo authenticationInfo) {
+        super(content);
 
-        return new MySqlScriptExecutionInput(
-                cmdLineInterface,
-                filePath,
-                content,
-                schemaId,
-                databaseInfo,
-                authenticationInfo);
+        initExecutable(cmdLineInterface, databaseInfo, authenticationInfo);
+        initAuthentication(authenticationInfo);
+        initConsoleCommands(filePath, schemaId);
     }
+
+    protected abstract void initExecutable(
+            CmdLineInterface cmdLineInterface,
+            DatabaseInfo databaseInfo,
+            AuthenticationInfo authenticationInfo);
+
+    protected abstract void initAuthentication(AuthenticationInfo authenticationInfo);
+
+    protected abstract void initConsoleCommands(String filePath, SchemaId schemaId);
 }
