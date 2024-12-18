@@ -35,16 +35,14 @@ import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsNamesParser;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.ui.components.ActionLink;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 import java.awt.BorderLayout;
 import java.io.File;
 import java.util.Collections;
@@ -246,6 +244,12 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         // classic service name or sid
         databaseLabel.setText(urlType.databaseIdentifier());
         databaseLabel.setVisible(hpdVisible||ezConnectVisible);
+        if (ezConnectVisible) {
+            databaseLabel.setText("Service Name");
+        }
+        else if (hpdVisible) {
+            databaseLabel.setText("Database");
+        }
         databaseTextField.setVisible(hpdVisible||ezConnectVisible);
         hostLabelField.setVisible(hpdVisible||ezConnectVisible);
         hostTextField.setVisible(hpdVisible||ezConnectVisible);
@@ -353,5 +357,9 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
             !Commons.match(databaseInfo.getUrlType(), urlType) ||
             !Commons.match(databaseInfo.getFileBundle(), urlType == DatabaseUrlType.FILE ? getFileBundle() : null);
 
+    }
+
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
     }
 }
