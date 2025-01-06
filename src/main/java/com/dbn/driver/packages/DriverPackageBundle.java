@@ -18,14 +18,27 @@ package com.dbn.driver.packages;
 
 import com.dbn.common.util.XmlContents;
 import com.dbn.connection.DatabaseType;
+import com.dbn.driver.packages.parser.DependencyParser;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.intellij.platform.templates.github.DownloadUtil;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Lists.convert;
 import static java.util.Collections.unmodifiableList;
@@ -69,18 +82,35 @@ public class DriverPackageBundle {
         String name = stringAttribute(element, "name");
         String databaseType = stringAttribute(element, "database-type");
 
-        List<Library> libraries = convert(element.getChildren("library"), DriverPackageBundle::createLibrary);
+        // Collect libraries from each child "library" element
+        List<Library> libraries = element.getChildren("library").stream()
+                .flatMap(libElement -> createLibrary(libElement).stream()) // Flatten lists of libraries
+                .collect(Collectors.toList());
 
         return new DriverPackage(id, name, DatabaseType.resolve(databaseType), libraries);
     }
 
-    private static Library createLibrary(Element element) {
+    private static List<Library> createLibrary(Element element) {
         String groupId = stringAttribute(element, "group-id");
         String artifactId = stringAttribute(element, "artifact-id");
         String version = stringAttribute(element, "version");
-        List<Developer> developers = convert(element.getChildren("developer"), DriverPackageBundle::createDeveloper);
-        List<License> licenses = convert(element.getChildren("license"), DriverPackageBundle::createLicense);
-        return new Library(groupId, artifactId, version, developers, licenses);
+        boolean toResolve = booleanAttribute(element, "toResolve", false);
+        String type = stringAttribute(element, "type");
+        if (type == null) type = "jar";
+        // Resolve the version if not explicitly provided
+        version = ensureVersion(groupId, artifactId, version);
+
+        if (toResolve) {
+            // Resolve dependencies for non-jar types
+            List<Library> dependencies = DependencyParser.resolveDependencies(
+                    new Library(groupId, artifactId, version, null, null),
+                    type
+            );
+            return dependencies; // Return all resolved dependencies
+        } else {
+            // For type "jar", return a single Library
+            return Collections.singletonList(new Library(groupId, artifactId, version));
+        }
     }
 
     private static Developer createDeveloper(Element element) {
@@ -107,5 +137,84 @@ public class DriverPackageBundle {
     public static DriverPackage getDriverPackage(String packageId) {
         Optional<DriverPackage> driverPackage = driverPackages().stream().filter(p -> p.getId().equals(packageId)).findFirst();
         return driverPackage.get();
+    }
+
+    private static String ensureVersion(String groupId, String artifactId, String currentVersion) {
+        try {
+            if (currentVersion != null && isValidVersion(currentVersion)) {
+                return currentVersion;
+            }
+
+            // Fetch all available versions
+            List<String> availableVersions = fetchAvailableVersions(groupId, artifactId);
+
+            if (currentVersion != null && currentVersion.contains("*")) {
+                return resolveWildcardVersion(currentVersion, availableVersions);
+            } else {
+                return fetchLatestVersion(availableVersions);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
+
+    private static String fetchLatestVersion(List<String> availableVersions) throws Exception {
+        return availableVersions.stream()
+                .max(Comparator.naturalOrder())
+                .orElseThrow(() -> new Exception("No versions found."));
+    }
+
+    private static String resolveWildcardVersion(String wildcardVersion, List<String> availableVersions) throws Exception {
+        // Convert wildcard version to regex
+        String regex = wildcardVersion.replace("*", ".*");
+        return availableVersions.stream()
+                .filter(v -> v.matches(regex))
+                .max(Comparator.naturalOrder()) // Get the latest matching version
+                .orElseThrow(() -> new Exception("No matching version found for pattern: " + wildcardVersion));
+    }
+
+    private static List<String> fetchAvailableVersions(String groupId, String artifactId) throws Exception {
+        // URL encode the groupId and artifactId
+        String encodedGroupId = URLEncoder.encode(groupId, StandardCharsets.UTF_8.toString());
+        String encodedArtifactId = URLEncoder.encode(artifactId, StandardCharsets.UTF_8.toString());
+        String url = String.format(
+                "https://search.maven.org/solrsearch/select?q=g:%%22%s%%22+AND+a:%%22%s%%22&core=gav&wt=json",
+                encodedGroupId, encodedArtifactId);
+
+        // Temporary file to store the downloaded content
+        File tempFile = File.createTempFile("maven-response", ".json");
+        tempFile.deleteOnExit();
+
+        // Download content to the temporary file
+        DownloadUtil.downloadContentToFile(null, url, tempFile);
+
+        // Parse the JSON content from the file
+        JsonObject jsonObject = JsonParser.parseReader(new java.io.FileReader(tempFile)).getAsJsonObject();
+        JsonObject responseObject = jsonObject.getAsJsonObject("response");
+        JsonArray docsArray = responseObject.getAsJsonArray("docs");
+
+        if (docsArray.size() > 0) {
+            List<String> versions = new ArrayList<>();
+            for (JsonElement docElement : docsArray) {
+                JsonObject doc = docElement.getAsJsonObject();
+                String version = doc.get("v").getAsString();
+                if (isStableVersion(version)) {
+                    versions.add(version);
+                }
+            }
+            return versions;
+        } else {
+            throw new Exception("No documents found for the specified artifact.");
+        }
+    }
+    private static boolean isStableVersion(String version) {
+        String unstableKeywords = "SNAPSHOT|RC|M\\d+|BETA|ALPHA";
+        return !version.toUpperCase().matches(".*(" + unstableKeywords + ").*");
+    }
+    // Method to validate the provided version
+    private static boolean isValidVersion(String version) {
+        // Simple regex to validate semantic versioning (e.g., 1.0.0)
+        return version.matches("\\d+(\\.\\d+)*(-[a-zA-Z0-9]+)?");
     }
 }

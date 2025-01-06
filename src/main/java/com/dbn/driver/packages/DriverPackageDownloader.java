@@ -28,8 +28,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DriverPackageDownloader {
+    private static Runnable updateUI;
 
-    public static void downloadDriverPackage(Project project, DriverPackage driverPackage) {
+    public static void downloadDriverPackage(Project project, DriverPackage driverPackage, Runnable updateUI) {
+        DriverPackageDownloader.updateUI = updateUI;
         Progress.modal(project, null, true,
                 "Downloading Driver Package: " + driverPackage.getId(),
                 "",
@@ -112,6 +114,7 @@ public class DriverPackageDownloader {
             DriverDownloadManager.getInstance().cleanupPackage(packageId);
         } else if (DriverDownloadManager.getInstance().isPackageDownloaded(packageId)) {
             System.out.println("All JARs for package " + packageId + " were successfully downloaded and verified.");
+            updateUI.run();
         }
     }
 

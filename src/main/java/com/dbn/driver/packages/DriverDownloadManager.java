@@ -96,7 +96,7 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
      * @return True if all JARs in the package are verified, false otherwise
      */
     public boolean isPackageDownloaded(String packageId) {
-        DriverPackageStatus jarStatuses = packageDownloadStatuses.get(packageId);
+        DriverPackageStatus jarStatuses = getPackageStatus(packageId);
         if (jarStatuses == null) {
             return false;
         }

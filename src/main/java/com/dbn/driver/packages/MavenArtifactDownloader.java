@@ -83,7 +83,10 @@ public class MavenArtifactDownloader {
         try {
             DownloadUtil.downloadAtomically(null, checksumUrl, tempFile);
             try (Scanner scanner = new Scanner(tempFile)) {
-                return scanner.nextLine().trim();
+                // Read the first line and extract the checksum
+                String line = scanner.nextLine().trim();
+                // Extract only the hexadecimal checksum (e.g., MD5, SHA256, etc.)
+                return line.split("\\s+")[0];
             }
         } finally {
             deleteFile(tempFile);

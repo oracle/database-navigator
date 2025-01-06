@@ -16,7 +16,10 @@
 
 package com.dbn.driver.packages;
 
+import com.intellij.platform.templates.github.DownloadUtil;
 import lombok.Getter;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.graph.DependencyNode;
 
 import java.util.List;
 
@@ -33,6 +36,14 @@ import java.util.List;
  *
  * @author Ayoub Aarrasse
  */
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+
+import java.io.File;
+import java.io.FileReader;
+import java.util.Collections;
+import java.util.stream.Collectors;
+
 @Getter
 public class Library {
     private final String groupId;
@@ -49,8 +60,94 @@ public class Library {
         this.licenses = licenses;
     }
 
+
+    // Constructor using DependencyNode
+    public Library(DependencyNode node) {
+        this(node.getArtifact().getGroupId(),
+                node.getArtifact().getArtifactId(),
+                node.getArtifact().getVersion());
+    }
+
+    // New Constructor using groupId, artifactId, and version
+    public Library(String groupId, String artifactId, String version) {
+        this.groupId = groupId;
+        this.artifactId = artifactId;
+        this.version = version;
+
+        File pomFile = downloadPomFile(groupId, artifactId, version);
+        if (pomFile != null) {
+            Model model = parsePom(pomFile);
+            if (model != null) {
+                this.developers = convertDevelopers(model.getDevelopers());
+                this.licenses = convertLicenses(model.getLicenses());
+            } else {
+                this.developers = Collections.emptyList();
+                this.licenses = Collections.emptyList();
+            }
+        } else {
+            this.developers = Collections.emptyList();
+            this.licenses = Collections.emptyList();
+        }
+    }
+
+    private File downloadPomFile(String groupId, String artifactId, String version) {
+        try {
+            String pomUrl = constructPomUrl(groupId, artifactId, version);
+            File tempFile = File.createTempFile("artifact-pom", ".xml");
+            DownloadUtil.downloadAtomically(null, pomUrl, tempFile);
+            return tempFile;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private Model parsePom(File pomFile) {
+        try (FileReader fileReader = new FileReader(pomFile)) {
+            MavenXpp3Reader reader = new MavenXpp3Reader();
+            return reader.read(fileReader);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private String constructPomUrl(String groupId, String artifactId, String version) {
+        String groupPath = groupId.replace(".", "/");
+        return String.format("https://repo.maven.apache.org/maven2/%s/%s/%s/%s-%s.pom",
+                groupPath, artifactId, version, artifactId, version);
+    }
+
+    private List<Developer> convertDevelopers(List<org.apache.maven.model.Developer> mavenDevelopers) {
+        if (mavenDevelopers == null) {
+            return Collections.emptyList();
+        }
+        return mavenDevelopers.stream()
+                .map(dev -> new Developer(dev.getName(), dev.getUrl()))
+                .collect(Collectors.toList());
+    }
+
+    private List<License> convertLicenses(List<org.apache.maven.model.License> mavenLicenses) {
+        if (mavenLicenses == null) {
+            return Collections.emptyList();
+        }
+        return mavenLicenses.stream()
+                .map(lic -> new License(lic.getName(), lic.getUrl()))
+                .collect(Collectors.toList());
+    }
+
+    public boolean is(Artifact artifact) {
+        if (artifact == null) return false;
+        return artifact.getArtifactId().equals(this.artifactId)
+                && artifact.getGroupId().equals(this.groupId)
+                && artifact.getVersion().equals(this.version);
+    }
+
     @Override
     public String toString() {
-        return String.format("Library [groupId=%s, artifactId=%s, version=%s]", groupId, artifactId, version);
+        return String.format("Library [groupId=%s, artifactId=%s, version=%s, developers=%s, licenses=%s]",
+                groupId, artifactId, version,
+                developers.stream().map(Developer::getName).collect(Collectors.joining(", ")),
+                licenses.stream().map(License::getName).collect(Collectors.joining(", ")));
     }
 }
