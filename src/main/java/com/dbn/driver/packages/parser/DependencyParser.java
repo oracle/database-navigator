@@ -135,7 +135,7 @@ public class DependencyParser {
         }
 
         @Override
-        public void peek(PeekTask peekTask) throws Exception {
+        public void peek(PeekTask peekTask) {
 
         }
 

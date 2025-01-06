@@ -20,8 +20,13 @@ import com.intellij.platform.templates.github.DownloadUtil;
 import lombok.Getter;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.graph.DependencyNode;
-
 import java.util.List;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 /**
  * Library holds the metadata for a Maven dependency required by a driver package.
@@ -36,14 +41,6 @@ import java.util.List;
  *
  * @author Ayoub Aarrasse
  */
-import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-
-import java.io.File;
-import java.io.FileReader;
-import java.util.Collections;
-import java.util.stream.Collectors;
-
 @Getter
 public class Library {
     private final String groupId;

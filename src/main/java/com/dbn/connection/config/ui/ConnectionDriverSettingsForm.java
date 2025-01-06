@@ -100,9 +100,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             updateDriverFields();
             //driverSetupPanel.setVisible(isExternalLibrary);
         });
-        driverLibraryComboBox.addActionListener(e -> {
-            updateDriverFields();
-        });
+        driverLibraryComboBox.addActionListener(e -> updateDriverFields());
         downloadButton.addActionListener(e -> handleDownloadButtonClick());
         infoButton.addActionListener(e -> handleInfoButtonClick());
 
@@ -326,7 +324,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     }
 
     private void updateDownloadButtonState() {
-        String selectedPackageId = (String) getSelection(driverLibraryComboBox);
+        String selectedPackageId = getSelection(driverLibraryComboBox);
         if (selectedPackageId != null) {
             boolean isDownloaded = DriverDownloadManager.getInstance().isPackageDownloaded(selectedPackageId);
             downloadButton.setEnabled(!isDownloaded);
@@ -345,7 +343,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     }
 
     private void handleDownloadButtonClick() {
-        DriverPackage driverPackage = DriverPackageBundle.getDriverPackage((String) getSelection(driverLibraryComboBox));
+        DriverPackage driverPackage = DriverPackageBundle.getDriverPackage(getSelection(driverLibraryComboBox));
         DriverPackageDownloader.downloadDriverPackage(getProject(), driverPackage, this::updateDownloadButtonState);
     }
 

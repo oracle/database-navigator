@@ -102,35 +102,18 @@ public class DriverPackageBundle {
 
         if (toResolve) {
             // Resolve dependencies for non-jar types
-            List<Library> dependencies = DependencyParser.resolveDependencies(
+            return DependencyParser.resolveDependencies(
                     new Library(groupId, artifactId, version, null, null),
                     type
-            );
-            return dependencies; // Return all resolved dependencies
+            ); // Return all resolved dependencies
         } else {
             // For type "jar", return a single Library
             return Collections.singletonList(new Library(groupId, artifactId, version));
         }
     }
 
-    private static Developer createDeveloper(Element element) {
-        String name = stringAttribute(element, "name");
-        String url = stringAttribute(element, "url");
-        return new Developer(name, url);
-    }
-
-    private static License createLicense(Element element) {
-        String name = stringAttribute(element, "name");
-        String url = stringAttribute(element, "url");
-        return new License(name, url);
-    }
-
     public static List<DriverPackage> driverPackages() {
         return INSTANCE.driverPackages;
-    }
-
-    public static List<String> driverPackagesIds() {
-        return INSTANCE.driverPackages.stream().map(DriverPackage::getId).collect(Collectors.toList());
     }
 
     @NotNull
@@ -176,8 +159,8 @@ public class DriverPackageBundle {
 
     private static List<String> fetchAvailableVersions(String groupId, String artifactId) throws Exception {
         // URL encode the groupId and artifactId
-        String encodedGroupId = URLEncoder.encode(groupId, StandardCharsets.UTF_8.toString());
-        String encodedArtifactId = URLEncoder.encode(artifactId, StandardCharsets.UTF_8.toString());
+        String encodedGroupId = URLEncoder.encode(groupId, StandardCharsets.UTF_8);
+        String encodedArtifactId = URLEncoder.encode(artifactId, StandardCharsets.UTF_8);
         String url = String.format(
                 "https://search.maven.org/solrsearch/select?q=g:%%22%s%%22+AND+a:%%22%s%%22&core=gav&wt=json",
                 encodedGroupId, encodedArtifactId);
@@ -194,7 +177,7 @@ public class DriverPackageBundle {
         JsonObject responseObject = jsonObject.getAsJsonObject("response");
         JsonArray docsArray = responseObject.getAsJsonArray("docs");
 
-        if (docsArray.size() > 0) {
+        if (!docsArray.isEmpty()) {
             List<String> versions = new ArrayList<>();
             for (JsonElement docElement : docsArray) {
                 JsonObject doc = docElement.getAsJsonObject();
