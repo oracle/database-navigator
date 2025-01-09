@@ -35,12 +35,16 @@ import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsNamesParser;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.ui.components.ActionLink;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.io.File;
 import java.util.Collections;
@@ -77,9 +81,9 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private TextFieldWithBrowseButton tnsFolderTextField;
     private ExpandableTextField urlTextField;
     private JPanel mainPanel;
-    private JComboBox cboPoolType;
-    private JLabel lblPoolType;
-    private JButton btnParameters;
+    private JComboBox poolTypeComboBox;
+    private JLabel poolTypeLabel;
+    private JButton parametersButton;
     private final DatabaseFileSettingsForm databaseFileSettingsForm;
     private final Map<DatabaseType, DatabaseInfo> history = new HashMap<>();
 
@@ -90,6 +94,10 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         databaseFileSettingsForm = new DatabaseFileSettingsForm(this, configuration.getDatabaseInfo().getFileBundle());
         databaseFilesPanel.add(databaseFileSettingsForm.getComponent(), BorderLayout.CENTER);
         urlTypeComboBox.addActionListener(e -> updateFieldVisibility());
+
+        // TODO pending parameters implementation
+        // maybe we should not complicate this with parameters (??), user can still provide a custom url with parameters if really needed
+        parametersButton.setVisible(false);
 
         updateTnsAdminField();
 
@@ -220,13 +228,13 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         boolean ezConnectVisible = urlType == DatabaseUrlType.EZCONNECT;
         boolean tnsVisible = urlType == DatabaseUrlType.TNS;
         boolean flsVisible = urlType == DatabaseUrlType.FILE;
-        boolean customVisible = urlType == DatabaseUrlType.CUSTOM;
         boolean hpdVisible = Constants.isOneOf(urlType,
                 DatabaseUrlType.SID,
                 DatabaseUrlType.SERVICE,
-                DatabaseUrlType.DATABASE);
+                DatabaseUrlType.DATABASE,
+                DatabaseUrlType.EZCONNECT);
 
-        urlTextField.setEnabled(customVisible || ezConnectVisible);
+        urlTextField.setEnabled(urlType == DatabaseUrlType.CUSTOM);
 
         // tns folder
         tnsFolderTextField.setVisible(tnsVisible);
@@ -235,18 +243,16 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         tnsProfileLabel.setVisible(tnsVisible);
 
         // classic service name or sid
-        databaseLabel.setVisible(hpdVisible||ezConnectVisible);
-        if (ezConnectVisible) {
-            databaseLabel.setText("Service Name");
-        }
-        else if (hpdVisible) {
-            databaseLabel.setText("Database");
-        }
-        databaseTextField.setVisible(hpdVisible||ezConnectVisible);
-        hostLabelField.setVisible(hpdVisible||ezConnectVisible);
-        hostTextField.setVisible(hpdVisible||ezConnectVisible);
-        portLabelField.setVisible(hpdVisible||ezConnectVisible);
-        portTextField.setVisible(hpdVisible||ezConnectVisible);
+        databaseLabel.setText(urlType.databaseIdentifier());
+        databaseLabel.setVisible(hpdVisible);
+        databaseTextField.setVisible(hpdVisible);
+        hostLabelField.setVisible(hpdVisible);
+        hostTextField.setVisible(hpdVisible);
+        portLabelField.setVisible(hpdVisible);
+        portTextField.setVisible(hpdVisible);
+
+        poolTypeLabel.setVisible(ezConnectVisible);
+        poolTypeComboBox.setVisible(ezConnectVisible);
 
         // file based url
         databaseFilesLabel.setVisible(flsVisible);
@@ -346,9 +352,5 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
             !Commons.match(databaseInfo.getUrlType(), urlType) ||
             !Commons.match(databaseInfo.getFileBundle(), urlType == DatabaseUrlType.FILE ? getFileBundle() : null);
 
-    }
-
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
     }
 }

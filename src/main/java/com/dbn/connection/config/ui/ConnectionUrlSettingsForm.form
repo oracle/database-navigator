@@ -154,7 +154,7 @@
         </constraints>
         <properties/>
       </component>
-      <component id="c9c7d" class="javax.swing.JComboBox" binding="cboPoolType">
+      <component id="c9c7d" class="javax.swing.JComboBox" binding="poolTypeComboBox">
         <constraints>
           <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -167,15 +167,16 @@
           </model>
         </properties>
       </component>
-      <component id="76b3" class="javax.swing.JLabel" binding="lblPoolType">
+      <component id="76b3" class="javax.swing.JLabel" binding="poolTypeLabel">
         <constraints>
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
+          <labelFor value="c9c7d"/>
           <text value="Pool Type"/>
         </properties>
       </component>
-      <component id="45661" class="com.intellij.ui.components.ActionLink" binding="btnParameters">
+      <component id="45661" class="com.intellij.ui.components.ActionLink" binding="parametersButton">
         <constraints>
           <grid row="3" column="5" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
