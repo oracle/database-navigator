@@ -81,7 +81,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private TextFieldWithBrowseButton tnsFolderTextField;
     private ExpandableTextField urlTextField;
     private JPanel mainPanel;
-    private JComboBox poolTypeComboBox;
+    private JComboBox<String> poolTypeComboBox;
     private JLabel poolTypeLabel;
     private JButton parametersButton;
     private final DatabaseFileSettingsForm databaseFileSettingsForm;
@@ -97,7 +97,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
         // TODO pending parameters implementation
         // maybe we should not complicate this with parameters (??), user can still provide a custom url with parameters if really needed
-        parametersButton.setVisible(false);
+        parametersButton.setVisible(true);
 
         updateTnsAdminField();
 
@@ -112,6 +112,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         onTextChange(tnsFolderTextField, e -> updateTnsProfilesField());
         onTextChange(tnsFolderTextField, e -> updateUrlField());
         tnsProfileComboBox.addActionListener(e -> updateUrlField());
+        poolTypeComboBox.addActionListener(e -> updateUrlField());
 
         updateTnsProfilesField();
     }
@@ -158,6 +159,10 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         return Safe.call(tnsProfileComboBox.getSelectedValue(), v -> v.getName());
     }
 
+    public String getServerType() {
+        return getSelection(poolTypeComboBox);
+    }
+
     public String getUrl() {
         return urlTextField.getText();
     }
@@ -183,7 +188,8 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
                 getDatabase(),
                 getMainFilePath() ,
                 getTnsAdmin(),
-                getTnsProfile());
+                getTnsProfile(),
+                getServerType());
         urlTextField.setText(url);
     }
 

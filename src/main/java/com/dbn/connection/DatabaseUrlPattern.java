@@ -55,7 +55,7 @@ public enum DatabaseUrlPattern {
 
     ORACLE_EZCONNECT(
             // temporary; pattern is much more complicated.
-            "jdbc:oracle:thin@tcps://<HOST>:<PORT>/<DATABASE>",
+            "jdbc:oracle:thin@tcps://<HOST>:<PORT>/<DATABASE><SERVICE_TYPE>",
             compile("^jdbc:oracle:thin:@tcps://"+host+":"+port+"/"+database ),
             Default.ORACLE, DatabaseUrlType.EZCONNECT),
 
@@ -145,10 +145,11 @@ public enum DatabaseUrlPattern {
                 databaseInfo.getDatabase(),
                 databaseInfo.getMainFilePath(),
                 databaseInfo.ensureTnsFolder(),
-                databaseInfo.getTnsProfile());
+                databaseInfo.getTnsProfile(),
+                databaseInfo.getServerType());
     }
 
-    public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile) {
+    public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile, String serverType) {
         return urlTemplate.
                 replace("<VENDOR>", nvl(vendor, "")).
                 replace("<HOST>", nvl(host, "")).
@@ -156,7 +157,9 @@ public enum DatabaseUrlPattern {
                 replace("<DATABASE>", nvl(database, "")).
                 replace("<FILE>", nvl(file, "")).
                 replace("<TNS_FOLDER>", nvl(tnsFolder, "")).replaceAll("\\\\", "/").
-                replace("<TNS_PROFILE>", nvl(tnsProfile, ""));
+                replace("<TNS_PROFILE>", nvl(tnsProfile, "")).
+                replace("<SERVICE_TYPE>", isEmpty(serverType) || "Default".equalsIgnoreCase(serverType) ? "" 
+                        : ":" + nvl(serverType.toUpperCase(), ""));
     }
 
     public String getDefaultUrl() {
