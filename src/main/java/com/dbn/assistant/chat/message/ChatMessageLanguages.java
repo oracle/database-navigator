@@ -44,6 +44,12 @@ public class ChatMessageLanguages {
         LANGUAGE_MAPPINGS.put("jql", "JQL");
         LANGUAGE_MAPPINGS.put("js", "JavaScript");
         LANGUAGE_MAPPINGS.put("javascript", "JavaScript");
+        LANGUAGE_MAPPINGS.put("ts", "TypeScript");
+        LANGUAGE_MAPPINGS.put("typescript", "TypeScript");
+        LANGUAGE_MAPPINGS.put("css", "CSS");
+        LANGUAGE_MAPPINGS.put("scss", "SCSS");
+        LANGUAGE_MAPPINGS.put("sass", "SASS");
+        LANGUAGE_MAPPINGS.put("less", "LESS");
         LANGUAGE_MAPPINGS.put("java", "JAVA");
         LANGUAGE_MAPPINGS.put("xml", "XML");
         LANGUAGE_MAPPINGS.put("html", "HTML");

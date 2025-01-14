@@ -113,6 +113,13 @@ public class ChatMessageCodeViewer extends JPanel implements Disposable {
         FileManager fileManager = psiManager.getFileManager();
         FileViewProvider viewProvider = fileManager.createFileViewProvider(file, true);
         PsiFile psiFile = viewProvider.getPsi(language);
+        if (psiFile == null) {
+            Language baseLanguage = viewProvider.getBaseLanguage();
+            if (baseLanguage != language) {
+                psiFile = viewProvider.getPsi(baseLanguage);
+            }
+        }
+
         if (psiFile == null) return null;
 
         Document document = Documents.getDocument(psiFile);
