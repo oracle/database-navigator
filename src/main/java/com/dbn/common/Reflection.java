@@ -16,13 +16,12 @@
 
 package com.dbn.common;
 
-import com.dbn.common.util.Unsafe;
+import com.dbn.common.util.Primitives;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
@@ -32,6 +31,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 
+/**
+ * Utility class providing reflection-based utilities for interacting with classes, methods, and annotations.
+ * Offers methods for invoking methods dynamically, checking annotations, retrieving class metadata, and
+ * creating objects.
+ *
+ * @author Dan Cioca (Oracle)
+ */
 @UtilityClass
 public class Reflection {
     private static final Map<Class, Class> enclosingClasses = new ConcurrentHashMap<>();
@@ -66,34 +72,50 @@ public class Reflection {
         return invokeMethod(object, method, args);
     }
 
-    @Nullable
-    public static Method findMethod(Class<?> objectClass, String methodName, Class... parameterTypes) {
-        try {
-            return objectClass.getMethod(methodName, parameterTypes);
-        } catch (NoSuchMethodException e) {
-            // WARNING: baldly assuming all parameters are primitives
-            boolean adjusted = replaceWithPrimitives(parameterTypes);
-            if (adjusted) return findMethod(objectClass, methodName, parameterTypes);
+    @SneakyThrows
+    public static <T> T invokeMethod(String className, String methodName, Object... args) {
+        Class[] parameterTypes = Arrays.stream(args).map(Object::getClass).toArray(Class[]::new);
+        Class<?> objectClass = findClass(className);
+        if (objectClass == null) return null;
 
-            return null;
-        }
+        Method method = findMethod(objectClass, methodName, parameterTypes);
+        if (method == null) return null;
+
+        return invokeMethod(null, method, args); // can only be static invocation
     }
 
-    private static boolean replaceWithPrimitives(Class[] types) {
-        if (types == null) return false;
-        if (types.length == 0) return false;
-
-        boolean adjusted = false;
-        for (int i = 0; i < types.length; i++) {
-            Class parameterType = types[i];
-            Field type = Unsafe.silent(null, () -> parameterType.getField("TYPE"));
-            if (type == null) continue;
-
-            Class fieldValue = (Class) Unsafe.silent(types[i], () -> type.get(parameterType));
-            adjusted = !Objects.equals(types[i], fieldValue);
-            types[i] = fieldValue;
+    @Nullable
+    public static Method findMethod(Class<?> objectClass, String methodName, Class... parameterTypes) {
+        for (Method method : objectClass.getMethods()) {
+            if (!method.getName().equals(methodName)) continue;
+            if (matchesParameterTypes(method, parameterTypes)) return method;
         }
-        return adjusted;
+
+        return null;
+    }
+
+    private static boolean matchesParameterTypes(Method method, Class[] parameterTypes) {
+        Class<?>[] expectedTypes = method.getParameterTypes();
+        if (expectedTypes.length != parameterTypes.length) return false;
+
+        for (int i = 0; i < expectedTypes.length; i++) {
+            Class<?> expectedType = expectedTypes[i];
+            Class<?> parameterType = parameterTypes[i];
+
+            if (!expectedType.isAssignableFrom(parameterType) &&
+                !Primitives.areEquivalent(expectedType, parameterType)) return false;
+        }
+
+        return true;
+    }
+
+    @Nullable
+    public static Class findClass(String className) {
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
     }
 
     /**

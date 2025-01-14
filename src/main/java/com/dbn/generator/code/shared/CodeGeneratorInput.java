@@ -25,6 +25,4 @@ import com.dbn.connection.context.DatabaseContext;
  */
 public interface CodeGeneratorInput {
     DatabaseContext getDatabaseContext();
-
-    void prepareDestination();
 }

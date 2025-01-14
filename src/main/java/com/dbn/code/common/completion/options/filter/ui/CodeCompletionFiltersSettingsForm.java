@@ -19,12 +19,14 @@ package com.dbn.code.common.completion.options.filter.ui;
 import com.dbn.code.common.completion.options.filter.CodeCompletionFilterSettings;
 import com.dbn.code.common.completion.options.filter.CodeCompletionFiltersSettings;
 import com.dbn.common.options.ui.CompositeConfigurationEditorForm;
+import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Keyboard;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.actionSystem.Shortcut;
 import com.intellij.openapi.keymap.KeymapUtil;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
@@ -42,14 +44,27 @@ public class CodeCompletionFiltersSettingsForm extends CompositeConfigurationEdi
         CodeCompletionFilterSettings basicFilterSettings = filtersSettings.getBasicFilterSettings();
         CodeCompletionFilterSettings extendedFilterSettings = filtersSettings.getExtendedFilterSettings();
 
-        basicFilterPanel.add(basicFilterSettings.createComponent(), BorderLayout.CENTER);
-        extendedFilterPanel.add(extendedFilterSettings.createComponent(), BorderLayout.CENTER);
+        JComponent basicFilterComponent = basicFilterSettings.createComponent();
+        JComponent extendedFilterComponent = extendedFilterSettings.createComponent();
+
+        basicFilterPanel.add(basicFilterComponent, BorderLayout.CENTER);
+        extendedFilterPanel.add(extendedFilterComponent, BorderLayout.CENTER);
 
         Shortcut[] basicShortcuts = Keyboard.getShortcuts(IdeActions.ACTION_CODE_COMPLETION);
         Shortcut[] extendedShortcuts = Keyboard.getShortcuts(IdeActions.ACTION_SMART_TYPE_COMPLETION);
 
-        basicCompletionLabel.setText("Basic (" + KeymapUtil.getShortcutsText(basicShortcuts) + ')');
-        extendedCompletionLabel.setText("Extended (" + KeymapUtil.getShortcutsText(extendedShortcuts) + ')');
+        String basicCompletionShortcut = " (" + KeymapUtil.getShortcutsText(basicShortcuts) + ")";
+        String extendedCompletionShortcut = " (" + KeymapUtil.getShortcutsText(extendedShortcuts) + ")";
+
+        basicCompletionLabel.setText("Basic" + basicCompletionShortcut);
+        extendedCompletionLabel.setText("Extended" + extendedCompletionShortcut);
+
+        Accessibility.setAccessibleName(basicCompletionLabel, "Basic Code Completion" + basicCompletionShortcut);
+        Accessibility.setAccessibleName(extendedCompletionLabel, "Extended Code Completion" + extendedCompletionShortcut);
+
+        basicCompletionLabel.setLabelFor(basicFilterSettings.getPreferredFocusedComponent());
+        extendedCompletionLabel.setLabelFor(extendedFilterSettings.getPreferredFocusedComponent());
+
     }
 
     @NotNull

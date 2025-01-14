@@ -64,7 +64,6 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import lombok.val;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -212,8 +211,9 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
     }
 
     private void startDebugger(@NotNull ConnectionHandler connection, @NotNull Consumer<DBDebuggerType> debuggerStarter) {
-        val debuggerTypeOption = connection.getSettings().getDebuggerSettings().getDebuggerType();
-        debuggerTypeOption.resolve(list(), option -> {
+        var debuggerTypeOption = connection.getSettings().getDebuggerSettings().getDebuggerType();
+        Project project = getProject();
+        debuggerTypeOption.resolve(project, list(), option -> {
             DBDebuggerType debuggerType = option.getDebuggerType();
             if (debuggerType == null) return;
 
@@ -222,7 +222,7 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
             } else {
                 ApplicationInfo applicationInfo = ApplicationInfo.getInstance();
                 Messages.showErrorDialog(
-                        getProject(), "Unsupported debugger",
+                        project, "Unsupported debugger",
                         debuggerType.name() + " debugging is not supported in \"" +
                                 applicationInfo.getVersionName() + " " +
                                 applicationInfo.getFullVersion() + "\".\n" +

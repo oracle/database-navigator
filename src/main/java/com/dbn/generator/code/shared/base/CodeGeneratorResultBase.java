@@ -32,13 +32,15 @@ public class CodeGeneratorResultBase<I extends CodeGeneratorInput> implements Co
     private final I input;
     private TitledMessage message;
     private final List<VirtualFile> generatedFiles = new ArrayList<>();
+    private boolean success;
+    private Throwable failureThrowable;
 
-    public CodeGeneratorResultBase(I input) {
+    public CodeGeneratorResultBase(I input, VirtualFile ... files) {
         this.input = input;
+        this.generatedFiles.addAll(List.of(files));
     }
 
     public void addGeneratedFile(VirtualFile virtualFile) {
         generatedFiles.add(virtualFile);
     }
-
 }

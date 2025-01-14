@@ -157,6 +157,7 @@ public class StatementExecutionInputForm extends DBNFormBase implements Componen
     }
 
     @NotNull
+    @Override
     public StatementExecutionInputsDialog getParentDialog() {
         return ensureParentComponent();
     }

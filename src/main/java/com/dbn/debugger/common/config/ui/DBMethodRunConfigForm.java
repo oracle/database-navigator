@@ -71,7 +71,7 @@ public class DBMethodRunConfigForm extends DBProgramRunConfigForm<DBMethodRunCon
             DBNHintForm hintForm = new DBNHintForm(this, ExecutionConfigManager.GENERIC_METHOD_RUNNER_HINT, null, true);
             hintPanel.add(hintForm.getComponent());
         } else {
-            ActionToolbar actionToolbar = Actions.createActionToolbar(selectMethodActionPanel,"", true, new SelectMethodAction());
+            ActionToolbar actionToolbar = Actions.createActionToolbar(selectMethodActionPanel, true, new SelectMethodAction());
             selectMethodActionPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
             hintPanel.setVisible(false);
         }

@@ -34,13 +34,11 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.SimpleTextAttributes;
-import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JTree;
 import javax.swing.tree.TreeCellRenderer;
 import java.awt.Component;
-import java.awt.Font;
 
 public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
     private final DefaultTreeCellRenderer cellRenderer = new DefaultTreeCellRenderer();
@@ -56,12 +54,6 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
     }
 
     private class DefaultTreeCellRenderer extends DBNColoredTreeCellRenderer {
-        @Override
-        public Font getFont() {
-            Font font = super.getFont();
-            return font == null ? UIUtil.getTreeFont() : font;
-        }
-
         @Override
         public void customizeCellRenderer(DBNTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
             if (value instanceof LoadInProgressTreeNode) {

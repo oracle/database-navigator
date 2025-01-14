@@ -67,10 +67,7 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
 
         onTextChange(executionTimeoutTextField, e -> updateErrorMessage());
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(
-                actionsPanel,
-                "DBNavigator.Place.ExecutionTimeoutForm.Settings", true,
-                new SettingsAction());
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, new SettingsAction());
 
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
     }

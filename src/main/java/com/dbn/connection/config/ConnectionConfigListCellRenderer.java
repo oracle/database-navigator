@@ -20,6 +20,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectivityStatus;
 import com.dbn.connection.config.ui.ConnectionDatabaseSettingsForm;
 import com.dbn.connection.config.ui.ConnectionSettingsForm;
+import com.intellij.util.ui.UIUtil;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
@@ -58,11 +59,11 @@ public class ConnectionConfigListCellRenderer extends DefaultListCellRenderer{
 
         label.setIcon(icon);
         label.setText(name);
-/*        if (!cellHasFocus && isSelected) {
-            label.setForeground(actions.getForeground());
-            label.setBackground(actions.hasFocus() ? actions.getBackground() : UIUtil.getFocusedFillColor());
-            label.setBorder(new DottedBorder(Color.BLACK));
-        }*/
+
+        if (isSelected) {
+            setBackground(UIUtil.getListSelectionBackground(cellHasFocus));
+            setForeground(UIUtil.getListSelectionForeground(cellHasFocus));
+        }
         return label;
     }
 }

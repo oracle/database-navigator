@@ -18,7 +18,6 @@ package com.dbn.generator.code.java.impl;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
@@ -32,13 +31,13 @@ import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.codeStyle.CodeStyleManager;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Properties;
@@ -65,36 +64,45 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         return new JdbcConnectorCodeGeneratorInput(databaseContext);
     }
 
+    @Nullable
     @Override
-    public JdbcConnectorCodeGeneratorResult generateCode(JdbcConnectorCodeGeneratorInput input, DatabaseContext context) throws Exception {
-        String templateName = getType().getTemplate();
+    public JdbcConnectorCodeGeneratorResult generateCode(JdbcConnectorCodeGeneratorInput input) throws Exception {
+        // prepare template and properties
+        FileTemplate template = initTemplate(input);
+        Properties properties = initProperties(input);
 
-        Project project = Failsafe.nd(context.getProject());
-        FileTemplateManager templateManager = FileTemplateManager.getInstance(project);
-        FileTemplate template = templateManager.getTemplate(templateName);
-
-
-        PsiDirectory directory = input.getTargetDirectory();
-        Properties properties = new Properties();
-
-        addInputProperties(input, properties);
-        addConnectionProperties(context, properties);
-
-        PsiElement javaClass = FileTemplateUtil.createFromTemplate(template, input.getClassName(), properties, directory);
-        reformatClass(project, javaClass);
-
-        VirtualFile javaFile = javaClass.getContainingFile().getVirtualFile();
-
-        JdbcConnectorCodeGeneratorResult result = new JdbcConnectorCodeGeneratorResult(input);
-        result.addGeneratedFile(javaFile);
-        return result;
+        // generate and format class
+        VirtualFile javaFile = generateClass(input, template, properties);
+        return new JdbcConnectorCodeGeneratorResult(input, javaFile);
     }
 
-    private static void reformatClass(Project project, PsiElement javaClass) {
-        WriteCommandAction.runWriteCommandAction(project, () -> {
-            CodeStyleManager codeStyleManager = CodeStyleManager.getInstance(project);
-            codeStyleManager.reformat(javaClass);
-        });
+    @NotNull
+    private FileTemplate initTemplate(JdbcConnectorCodeGeneratorInput input) {
+        String templateName = getType().getTemplate();
+
+        Project project = input.getProject();
+        FileTemplateManager templateManager = FileTemplateManager.getInstance(project);
+        return templateManager.getTemplate(templateName);
+    }
+
+    @NotNull
+    private Properties initProperties(JdbcConnectorCodeGeneratorInput input) throws ConfigurationException {
+        DatabaseContext context = input.getDatabaseContext();
+
+        Properties properties = new Properties();
+        addInputProperties(input, properties);
+        addConnectionProperties(context, properties);
+        return properties;
+    }
+
+    private static VirtualFile generateClass(JdbcConnectorCodeGeneratorInput input, FileTemplate template, Properties properties) throws Exception {
+        String className = input.getClassName();
+        PsiDirectory directory = input.getTargetDirectory();
+
+        PsiElement javaClass = FileTemplateUtil.createFromTemplate(template, className, properties, directory);
+        reformatClass(javaClass);
+
+        return javaClass.getContainingFile().getVirtualFile();
     }
 
     private static void addInputProperties(JdbcConnectorCodeGeneratorInput input, Properties properties) throws ConfigurationException {

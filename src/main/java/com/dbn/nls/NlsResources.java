@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.PropertyKey;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -47,10 +48,12 @@ public class NlsResources extends DynamicBundle{
     }
 
     public static @Nls String txt(@PropertyKey(resourceBundle = BUNDLE) String key, Object... params) {
+        adjustParams(params);
         if (isValidKey(key)) {
             key = key.intern();
-            adjustParams(params);
             return INSTANCE.getMessage(key, params);
+        } else if (params != null && params.length > 0) {
+            return MessageFormat.format(key, params);
         }
         return key;
     }

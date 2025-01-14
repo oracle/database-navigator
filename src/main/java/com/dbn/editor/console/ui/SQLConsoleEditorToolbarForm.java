@@ -34,6 +34,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class SQLConsoleEditorToolbarForm extends DBNToolbarForm {
     private JPanel mainPanel;
     private JPanel actionsPanel;
@@ -43,7 +45,8 @@ public class SQLConsoleEditorToolbarForm extends DBNToolbarForm {
         super(fileEditor, project);
         this.mainPanel.setBorder(Borders.insetBorder(2));
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.FileEditor", "", true);
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.FileEditor");
+        setAccessibleName(actionToolbar, txt("app.codeEditor.aria.SqlConsoleEditorActions"));
         this.actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
 
         DBConsoleVirtualFile file = fileEditor.getVirtualFile();

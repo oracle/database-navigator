@@ -25,7 +25,6 @@ import com.intellij.ui.TableUtil;
 
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -36,8 +35,6 @@ import java.awt.Component;
 import static com.dbn.common.dispose.Failsafe.guarded;
 
 public class DBNEditableTable<T extends DBNEditableTableModel> extends DBNTableWithGutter<T> {
-    public static final LineBorder SELECTION_BORDER = new LineBorder(Colors.getTableBackground());
-
     public DBNEditableTable(DBNComponent parent, T model, boolean showHeader) {
         super(parent, model, showHeader);
         setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -106,7 +103,7 @@ public class DBNEditableTable<T extends DBNEditableTableModel> extends DBNTableW
         Component component = super.prepareEditor(editor, rowIndex, columnIndex);
         if (component instanceof JTextField) {
             JTextField textField = (JTextField) component;
-            textField.setBorder(Borders.EMPTY_BORDER);
+            textField.setBorder(Borders.TEXT_FIELD_INSETS);
 
             //selectCell(rowIndex, columnIndex);
 

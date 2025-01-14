@@ -28,6 +28,7 @@ import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.environment.EnvironmentTypeProvider;
 import com.dbn.common.filter.Filter;
 import com.dbn.common.project.ProjectContext;
+import com.dbn.common.project.Projects;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.config.ConnectionSettings;
@@ -46,7 +47,6 @@ import com.dbn.object.DBSchema;
 import com.dbn.vfs.file.DBSessionBrowserVirtualFile;
 import com.intellij.lang.Language;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.psi.PsiDirectory;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -244,7 +244,7 @@ public interface ConnectionHandler extends StatefulDisposable, EnvironmentTypePr
             return connectionManager.getConnection(connectionId);
         }
 
-        Project[] projects = ProjectManager.getInstance().getOpenProjects();
+        Project[] projects = Projects.getOpenProjects();
         for (Project openProject : projects) {
             ConnectionManager connectionManager = ConnectionManager.getInstance(openProject);
             connection = connectionManager.getConnection(connectionId);

@@ -26,6 +26,7 @@ import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.PresentableFactory;
 import com.dbn.common.ui.ValueSelectorListener;
 import com.dbn.common.ui.ValueSelectorOption;
+import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.Popups;
@@ -39,7 +40,6 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
-import com.intellij.ui.ColoredListCellRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -93,7 +93,7 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
 
         setRenderer(new ColoredListCellRenderer<>() {
             @Override
-            protected void customizeCellRenderer(@NotNull JList<? extends T> list, T value, int index, boolean selected, boolean hasFocus) {
+            protected void customize(@NotNull JList<? extends T> list, T value, int index, boolean selected, boolean hasFocus) {
                 if (value != null) {
                     append(DBNComboBox.this.getName(value));
                     setIcon(value.getIcon());

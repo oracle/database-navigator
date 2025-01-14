@@ -98,30 +98,42 @@ public abstract class BrowserTreeModel extends StatefulDisposableBase implements
 
     @Override
     public Object getChild(Object parent, int index) {
-        BrowserTreeNode treeChild = ((BrowserTreeNode) parent).getChildAt(index);
-        if (treeChild instanceof LoadInProgressTreeNode) {
-            loadInProgressRegistry.register((LoadInProgressTreeNode) treeChild);
+        if (parent instanceof BrowserTreeNode) {
+            BrowserTreeNode treeChild = ((BrowserTreeNode) parent).getChildAt(index);
+            if (treeChild instanceof LoadInProgressTreeNode) {
+                loadInProgressRegistry.register((LoadInProgressTreeNode) treeChild);
+            }
+            return treeChild;
         }
-        return treeChild;
+        return null;
     }
 
     @Override
     public int getChildCount(Object parent) {
-        BrowserTreeNode parentNode = (BrowserTreeNode) parent;
-        return guarded(0, parentNode, p -> p.getChildCount());
+        if (parent instanceof BrowserTreeNode) {
+            BrowserTreeNode parentNode = (BrowserTreeNode) parent;
+            return guarded(0, parentNode, p -> p.getChildCount());
+        }
+        return 0;
     }
 
     @Override
     public boolean isLeaf(Object node) {
-        BrowserTreeNode treeNode = (BrowserTreeNode) node;
-        return guarded(true, treeNode, n -> n.isLeaf());
+        if (node instanceof BrowserTreeNode) {
+            BrowserTreeNode treeNode = (BrowserTreeNode) node;
+            return guarded(true, treeNode, n -> n.isLeaf());
+        }
+        return true;
     }
 
     @Override
     public int getIndexOfChild(Object parent, Object child) {
-        BrowserTreeNode parentNode = (BrowserTreeNode) parent;
-        BrowserTreeNode childNode = (BrowserTreeNode) child;
-        return guarded(-1, Pair.of(parentNode, childNode), p -> p.first().getIndex(p.second()));
+        if (parent instanceof BrowserTreeNode &&  child instanceof BrowserTreeNode) {
+            BrowserTreeNode parentNode = (BrowserTreeNode) parent;
+            BrowserTreeNode childNode = (BrowserTreeNode) child;
+            return guarded(-1, Pair.of(parentNode, childNode), p -> p.first().getIndex(p.second()));
+        }
+        return -1;
     }
 
     @Override

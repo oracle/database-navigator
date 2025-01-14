@@ -33,6 +33,7 @@ public class DiagnosticSettingsDialog extends DBNDialog<DiagnosticSettingsForm> 
         setModal(false);
         setResizable(true);
         setCancelButtonText("Cancel");
+        setDefaultSize(600, 800);
         init();
     }
 

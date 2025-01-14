@@ -62,9 +62,7 @@ public class DatasetSortingColumnForm extends DBNFormBase {
         dataTypeLabel.setText(column.getDataType().getQualifiedName());
         dataTypeLabel.setForeground(UIUtil.getInactiveTextColor());
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(
-                actionsPanel,
-                "DBNavigator.DataEditor.Sorting.Instruction", true,
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
                 new ChangeSortingDirectionAction(this),
                 new DeleteSortingCriteriaAction(this));
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);

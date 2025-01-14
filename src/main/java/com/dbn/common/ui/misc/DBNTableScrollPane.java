@@ -68,13 +68,12 @@ public class DBNTableScrollPane extends DBNScrollPane{
         float size = font.getSize() - e.getWheelRotation();
         if (size > 7 && size < 20) {
             font = Fonts.deriveFont(font, size);
-            float defaultSize = Fonts.getLabelFont().getSize();
+            float defaultSize = Fonts.regular().getSize();
             int percentage = (int) (size / defaultSize * 100);
 
             Dispatch.alarmRequest(resizeAlarm, 10, true, () -> {
                 resultTable.setFont(font);
                 IdeTooltip tooltip = new IdeTooltip(this, e.getPoint(), new JLabel(percentage + "%"));
-                tooltip.setFont(Fonts.deriveFont(Fonts.REGULAR, (float) 16));
                 IdeTooltipManager.getInstance().show(tooltip, true);
             });
             return true;

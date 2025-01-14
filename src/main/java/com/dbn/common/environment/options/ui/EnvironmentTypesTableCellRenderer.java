@@ -24,12 +24,9 @@ import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Strings;
 import com.intellij.ui.SimpleTextAttributes;
 
-import javax.swing.border.Border;
 import java.awt.Color;
 
 public class EnvironmentTypesTableCellRenderer extends DBNColoredTableCellRenderer {
-
-    public static final Border BORDER = Borders.insetBorder(2, 1, 1, 1);
 
     @Override
     protected void customizeCellRenderer(DBNTable table, Object value, boolean selected, boolean hasFocus, int row, int column) {
@@ -51,8 +48,6 @@ public class EnvironmentTypesTableCellRenderer extends DBNColoredTableCellRender
             if (Strings.isNotEmpty(stringValue)) {
                 append(stringValue, SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
-
-            setBorder(BORDER);
         }
 
 

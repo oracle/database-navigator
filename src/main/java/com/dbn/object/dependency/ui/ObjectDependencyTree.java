@@ -94,7 +94,7 @@ public class ObjectDependencyTree extends DBNTree{
                         if (schObject.is(DBObjectProperty.EDITABLE)) {
                             actionGroup.add(new EditObjectAction((DBSchemaObject) object));
                         }
-                        ActionPopupMenu actionPopupMenu = Actions.createActionPopupMenu(this, "", actionGroup);
+                        ActionPopupMenu actionPopupMenu = Actions.createActionPopupMenu(this, actionGroup);
                         JPopupMenu popupMenu = actionPopupMenu.getComponent();
                         Dispatch.run(() -> {
                             if (!isShowing()) return;

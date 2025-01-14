@@ -23,8 +23,10 @@ import com.intellij.openapi.options.ConfigurationException;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
@@ -36,6 +38,8 @@ public class TransactionManagerSettingsForm extends ConfigurationEditorForm<Tran
     private JComboBox<TransactionOption> uncommittedChangesOnDisconnectComboBox;
     private JComboBox<TransactionOption> multipleChangesOnCommitComboBox;
     private JComboBox<TransactionOption> multipleChangesOnRollbackComboBox;
+    private JLabel uncommitedChangesLabel;
+    private JLabel transactionHandlingLabel;
 
     public TransactionManagerSettingsForm(TransactionManagerSettings settings) {
         super(settings);
@@ -71,6 +75,13 @@ public class TransactionManagerSettingsForm extends ConfigurationEditorForm<Tran
 
         resetFormChanges();
         registerComponent(mainPanel);
+    }
+
+    @Override
+    protected void initAccessibility() {
+        // mark group header labels as component group qualifiers
+        COMPONENT_GROUP_QUALIFIER.set(uncommitedChangesLabel, true);
+        COMPONENT_GROUP_QUALIFIER.set(transactionHandlingLabel, true);
     }
 
     @NotNull

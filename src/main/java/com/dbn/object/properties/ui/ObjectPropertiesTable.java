@@ -16,28 +16,26 @@
 
 package com.dbn.object.properties.ui;
 
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ui.form.DBNForm;
+import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.table.DBNTableModel;
 import com.dbn.common.ui.util.Borderless;
-import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Keyboard.Key;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.object.properties.PresentableProperty;
 import com.intellij.pom.Navigatable;
+import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
 public class ObjectPropertiesTable extends DBNTable<DBNTableModel> implements Borderless{
     ObjectPropertiesTable(DBNForm parent, DBNTableModel tableModel) {
@@ -45,34 +43,38 @@ public class ObjectPropertiesTable extends DBNTable<DBNTableModel> implements Bo
         setDefaultRenderer(String.class, cellRenderer);
         setDefaultRenderer(PresentableProperty.class, cellRenderer);
         setCellSelectionEnabled(true);
-        adjustRowHeight(3);
 
-        addMouseListener(mouseListener);
-        addKeyListener(keyListener);
+        addMouseListener(createMouseListener());
+        addKeyListener(createKeyListener());
+
+        setAccessibleName(this, "Object Properties");
     }
 
-    private final MouseListener mouseListener = Mouse.listener().onClick(e -> {
-        if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() > 1) {
-            navigateInBrowser();
-            e.consume();
-        }
-
-
-        if (Mouse.isNavigationEvent(e)) {
-            navigateInBrowser();
-            e.consume();
-        }
-    });
-
-
-    private final KeyListener keyListener = new KeyAdapter() {
-        @Override
-        public void keyTyped(KeyEvent e) {
-            if (e.getKeyChar() == Key.ENTER) {
+    private MouseListener createMouseListener() {
+        return Mouse.listener().onClick(e -> {
+            if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() > 1) {
                 navigateInBrowser();
+                e.consume();
             }
-        }
-    };
+
+
+            if (Mouse.isNavigationEvent(e)) {
+                navigateInBrowser();
+                e.consume();
+            }
+        });
+    }
+
+    private KeyListener createKeyListener() {
+        return new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if (e.getKeyChar() == Key.ENTER) {
+                    navigateInBrowser();
+                }
+            }
+        };
+    }
 
 
     private void navigateInBrowser() {
@@ -105,33 +107,19 @@ public class ObjectPropertiesTable extends DBNTable<DBNTableModel> implements Bo
         return false;
     }
 
-    private final TableCellRenderer cellRenderer = new DefaultTableCellRenderer() {
+    private final TableCellRenderer cellRenderer = new DBNColoredTableCellRenderer() {
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            return Failsafe.guarded(component, () -> {
-                PresentableProperty property = (PresentableProperty) value;
-                if (property != null) {
-                    if (column == 0) {
-                        setIcon(null);
-                        setText(property.getName());
-                        //setFont(GUIUtil.BOLD_FONT);
-                    } else if (column == 1) {
-                        setText(property.getValue());
-                        setIcon(property.getIcon());
-                        //setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                        //setFont(property.getIcon() == null ? GUIUtil.BOLD_FONT : GUIUtil.REGULAR_FONT);
-                    }
-                }
+        protected void customizeCellRenderer(DBNTable table, @Nullable Object value, boolean selected, boolean hasFocus, int row, int column) {
+            PresentableProperty property = (PresentableProperty) value;
+            if (property == null) return;
 
-                Dimension dimension = getSize();
-                dimension.setSize(dimension.getWidth(), 30);
-                setSize(dimension);
-                setBorder(Borders.TEXT_FIELD_INSETS);
-
-                return component;
-            });
+            if (column == 0) {
+                setIcon(null);
+                append(property.getName());
+            } else if (column == 1) {
+                append(property.getValue());
+                setIcon(property.getIcon());
+            }
         }
-
     };
 }

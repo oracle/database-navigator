@@ -18,6 +18,7 @@ package com.dbn.diagnostics.ui;
 
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.ClientProperty;
@@ -32,7 +33,6 @@ import com.dbn.diagnostics.data.StateTransition;
 import com.dbn.diagnostics.ui.model.ParserDiagnosticsTableModel;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.components.JBScrollPane;
 import lombok.Getter;
@@ -44,8 +44,9 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
-import java.awt.Font;
 import java.util.List;
+
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
 public class ParserDiagnosticsForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -67,16 +68,17 @@ public class ParserDiagnosticsForm extends DBNFormBase {
         manager = ParserDiagnosticsManager.get(ensureProject());
 
         diagnosticsTable = new ParserDiagnosticsTable(this, new ParserDiagnosticsTableModel(null, null));
-        diagnosticsTable.accommodateColumnsSize();
+        diagnosticsTable.adjustColumnWidths();
         diagnosticsTableScrollPane.setViewportView(diagnosticsTable);
 
         detailsLabel.setText("No result selected");
         stateTransitionLabel.setText("");
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.ParserDiagnostics", "", false);
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.ParserDiagnostics");
+        setAccessibleName(actionToolbar, txt("app.diagnostics.aria.ParserDiagnosticActions"));
         actionsPanel.add(actionToolbar.getComponent());
 
-        ActionToolbar filterActionToolbar = Actions.createActionToolbar(filtersPanel,"", true,
+        ActionToolbar filterActionToolbar = Actions.createActionToolbar(filtersPanel, true,
                 new ParserDiagnosticsStateFilterAction(this),
                 new ParserDiagnosticsFileTypeFilterAction(this));
         filtersPanel.add(filterActionToolbar.getComponent(), BorderLayout.WEST);
@@ -97,7 +99,7 @@ public class ParserDiagnosticsForm extends DBNFormBase {
         ParserDiagnosticsDeltaResult deltaResult = current == null ? null : current.delta(previous);
         ParserDiagnosticsTableModel tableModel = new ParserDiagnosticsTableModel(deltaResult, manager.getResultFilter());
         diagnosticsTable.setModel(tableModel);
-        diagnosticsTable.accommodateColumnsSize();
+        diagnosticsTable.adjustColumnWidths();
 
         detailsLabel.setText(deltaResult == null ? "No result selected" : deltaResult.getName());
 
@@ -106,8 +108,8 @@ public class ParserDiagnosticsForm extends DBNFormBase {
         stateTransitionLabel.setText(previous == null ? current == null ? "" : "INITIAL" : stateTransition.name());
         stateTransitionLabel.setForeground(category.getColor());
         stateTransitionLabel.setFont(category.isBold() ?
-                Fonts.deriveFont(Fonts.getLabelFont(), Font.BOLD) :
-                Fonts.getLabelFont());
+                Fonts.regularBold() :
+                Fonts.regular());
     }
 
     public void refreshResult() {
@@ -147,7 +149,7 @@ public class ParserDiagnosticsForm extends DBNFormBase {
 
     private class ResultListCellRenderer extends ColoredListCellRenderer<ParserDiagnosticsResult> {
         @Override
-        protected void customizeCellRenderer(@NotNull JList list, ParserDiagnosticsResult value, int index, boolean selected, boolean hasFocus) {
+        protected void customize(@NotNull JList<? extends ParserDiagnosticsResult> list, ParserDiagnosticsResult value, int index, boolean selected, boolean hasFocus) {
             append(value.getName() + " - ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
             ParserDiagnosticsResult previous = manager.getPreviousResult(value);
             if (previous == null) {

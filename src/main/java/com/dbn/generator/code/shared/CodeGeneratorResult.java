@@ -33,4 +33,8 @@ public interface CodeGeneratorResult<I extends CodeGeneratorInput> {
     I getInput();
 
     List<VirtualFile> getGeneratedFiles();
+    
+    boolean isSuccess();
+    
+    Throwable getFailureThrowable();
 }

@@ -100,12 +100,12 @@ public class LargeValuePreviewPopup extends DBNFormBase {
         if (largeTextLayout) {
             boolean isBasicPreview = !(table instanceof BasicTable);
             if (isBasicPreview) {
-                ActionToolbar actionToolbar = Actions.createActionToolbar(leftActionsPanel,"", false, new WrapUnwrapContentAction());
+                ActionToolbar actionToolbar = Actions.createActionToolbar(leftActionsPanel, false, new WrapUnwrapContentAction());
                 JComponent toolbarComponent = actionToolbar.getComponent();
                 leftActionsPanel.add(toolbarComponent, BorderLayout.NORTH);
                 topActionsPanel.setVisible(false);
             } else {
-                ActionToolbar actionToolbar = Actions.createActionToolbar(topActionsPanel,"", true,
+                ActionToolbar actionToolbar = Actions.createActionToolbar(topActionsPanel, true,
                     /*new PinUnpinPopupAction(),
                     new CloseAction(),
                     ActionUtil.SEPARATOR,*/

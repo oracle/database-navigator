@@ -206,7 +206,7 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
 
             if (disconnect != null) {
                 String subject = sessionIds.size() > 1 ? "selected sessions" : "session with id \"" + sessionIds.iterator().next().toString() + "\"";
-                disconnect.resolve(
+                disconnect.resolve(getProject(),
                         list(subject, connection.getName()),
                         option -> {
                             if (option != SessionInterruptionOption.CANCEL && option != SessionInterruptionOption.ASK) {

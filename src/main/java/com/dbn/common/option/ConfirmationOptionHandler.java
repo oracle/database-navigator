@@ -20,15 +20,13 @@ package com.dbn.common.option;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.options.setting.Settings;
-import com.dbn.common.util.Titles;
-import com.intellij.openapi.ui.Messages;
+import com.dbn.common.util.Messages;
+import com.intellij.openapi.project.Project;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-
-import java.text.MessageFormat;
 
 @Getter
 @Setter
@@ -72,13 +70,15 @@ public class ConfirmationOptionHandler implements DoNotAskOption, PersistentConf
         return "Do not ask again";
     }
 
-    public boolean resolve(Object ... messageArgs) {
+    public boolean resolve(Project project, Object ... messageArgs) {
         if (!confirm) return true;
 
         int optionIndex = Messages.showDialog(
-                MessageFormat.format(message, messageArgs),
-                Titles.signed(title),
-                new String[]{"Yes", "No"}, 0, Icons.DIALOG_QUESTION, this);
+                project,
+                txt(message, messageArgs),
+                txt(title),
+                Messages.OPTIONS_YES_NO, 0,
+                Icons.DIALOG_QUESTION, this);
         return optionIndex == 0;
     }
 

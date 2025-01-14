@@ -68,7 +68,7 @@ public class DatabaseLoggingResultForm extends ExecutionResultFormBase<DatabaseL
             toolbarActions.add(actionManager.getAction("DBNavigator.Actions.DatabaseLogOutput.RerunProcess"), Constraints.FIRST);
             toolbarActions.add(actionManager.getAction("DBNavigator.Actions.DatabaseLogOutput.Close"), Constraints.FIRST);
             toolbarActions.add(actionManager.getAction("DBNavigator.Actions.DatabaseLogOutput.Settings"), Constraints.LAST);
-            ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "", false, toolbarActions);
+            ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, toolbarActions);
             actionsPanel.add(actionToolbar.getComponent());
             actionToolbar.setTargetComponent(console.getToolbarContextComponent());
         }

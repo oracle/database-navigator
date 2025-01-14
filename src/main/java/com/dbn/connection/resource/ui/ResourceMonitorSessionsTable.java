@@ -19,7 +19,6 @@ package com.dbn.connection.resource.ui;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
-import com.dbn.common.ui.util.Borders;
 import com.dbn.connection.ConnectionPool;
 import com.dbn.connection.ConnectionType;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -31,6 +30,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.ListSelectionModel;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 class ResourceMonitorSessionsTable extends DBNTable<ResourceMonitorSessionsTableModel> {
     ResourceMonitorSessionsTable(@NotNull DBNComponent parent, ResourceMonitorSessionsTableModel tableModel) {
         super(parent, tableModel, true);
@@ -38,8 +39,9 @@ class ResourceMonitorSessionsTable extends DBNTable<ResourceMonitorSessionsTable
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         setCellSelectionEnabled(false);
         setRowSelectionAllowed(true);
-        adjustRowHeight(2);
-        accommodateColumnsSize();
+        adjustColumnWidths();
+
+        setAccessibleName(this, "Resource Monitor Sessions");
     }
 
 
@@ -92,8 +94,6 @@ class ResourceMonitorSessionsTable extends DBNTable<ResourceMonitorSessionsTable
 
                 }
             }
-            setBorder(Borders.TEXT_FIELD_INSETS);
-
         }
     }
 }

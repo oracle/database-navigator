@@ -60,6 +60,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.object.common.DBObjectUtil.refreshUserObjects;
@@ -133,8 +134,9 @@ public class CredentialManagementForm extends DBNFormBase {
   }
 
   private void initActionsPanel() {
-    ActionToolbar typeActions = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.AssistantCredentialManagement", "", true);
-    this.actionsPanel.add(typeActions.getComponent(), BorderLayout.CENTER);
+    ActionToolbar managementActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.AssistantCredentialManagement");
+    setAccessibleName(managementActions, txt("cfg.assistant.aria.CredentialManagementActions"));
+    this.actionsPanel.add(managementActions.getComponent(), BorderLayout.CENTER);
     initializingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
   }
 

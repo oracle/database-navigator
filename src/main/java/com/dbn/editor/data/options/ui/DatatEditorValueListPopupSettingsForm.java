@@ -26,6 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import static com.dbn.common.options.ui.ConfigurationEditors.validateIntegerValue;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 
 public class DatatEditorValueListPopupSettingsForm extends ConfigurationEditorForm<DataEditorValueListPopupSettings> {
     private JTextField elementCountThresholdTextBox;
@@ -37,6 +38,11 @@ public class DatatEditorValueListPopupSettingsForm extends ConfigurationEditorFo
         super(settings);
         resetFormChanges();
         registerComponent(mainPanel);
+    }
+
+    @Override
+    protected void initAccessibility() {
+        setAccessibleUnit(elementCountThresholdTextBox, txt("app.shared.unit.Elements"));
     }
 
     @NotNull

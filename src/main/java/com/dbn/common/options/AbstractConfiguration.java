@@ -17,6 +17,7 @@
 package com.dbn.common.options;
 
 import com.dbn.common.action.Lookups;
+import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.options.setting.Settings;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.project.ProjectSupplier;
@@ -24,7 +25,11 @@ import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JComponent;
+
+import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
 
 @Slf4j
@@ -59,6 +64,15 @@ public abstract class AbstractConfiguration<P extends Configuration, E extends C
         throw new UnsupportedOperationException();
     };
 
+    @Nullable
+    @Compatibility
+    //@Override
+    public JComponent getPreferredFocusedComponent() {
+        E settingsEditor = getSettingsEditor();
+        if (isNotValid(settingsEditor)) return null;
+
+        return settingsEditor.getPreferredFocusedComponent();
+    }
 
     @Override
     public final Project resolveProject() {

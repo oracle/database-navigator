@@ -3,7 +3,7 @@
 #elseif (${AUTH_TYPE} == 'USER_PASSWORD')
     // user-name and password authentication
     String userName = #if (${USER_NAME})"${USER_NAME}";#else null; // TODO please specify User Name#end
-    String password = #if (${PASSWORD})"${PASSWORD}";#else null;  // TODO please specify Password#end
+    String password = System.getProperty(JDBC_DB_PASSWORD);
     properties.put(PROP_USER, userName);
     properties.put(PROP_PASSWORD, password);
 #elseif (${AUTH_TYPE} == 'USER')

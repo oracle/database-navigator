@@ -22,10 +22,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class PropertiesEditorTable extends DBNEditableTable<PropertiesTableModel> {
 
     public PropertiesEditorTable(@NotNull DBNForm parent, Map<String, String> properties) {
         super(parent, new PropertiesTableModel(properties), true);
+        setAccessibleName(this, "Properties");
     }
 
     public void setProperties(Map<String, String> properties) {

@@ -166,7 +166,7 @@ public class SessionBrowser extends DisposableUserDataHolderBase implements File
     public void refreshTable() {
         SessionBrowserTable editorTable = getBrowserTable();
         UserInterface.repaint(editorTable);
-        editorTable.accommodateColumnsSize();
+        editorTable.adjustColumnWidths();
         //editorTable.restoreSelection();
     }
 

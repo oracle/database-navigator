@@ -23,6 +23,7 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.connection.console.DatabaseConsoleManager;
 import com.dbn.connection.session.DatabaseSessionManager;
+import com.dbn.connection.transaction.DatabaseTransactionManager;
 import com.dbn.ddl.DDLFileAttachmentManager;
 import com.dbn.editor.DatabaseEditorStateManager;
 import com.dbn.editor.DatabaseFileEditorManager;
@@ -96,6 +97,7 @@ public class ProjectComponentsInitializer extends ProjectComponentBase implement
         DatabaseSessionManager.getInstance(project);
         DatabaseFileEditorManager.getInstance(project);
         AssistantInitializationManager.getInstance(project);
+        DatabaseTransactionManager.getInstance(project);
         initialized = true;
     }
 }

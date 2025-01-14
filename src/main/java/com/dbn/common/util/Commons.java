@@ -111,6 +111,17 @@ public final class Commons {
         return false;
     }
 
+    /**
+     * Checks whether the provided array of objects is null or empty.
+     *
+     * @param objects an array of objects to check, can be null
+     * @return true if the array is null or has no elements, otherwise false
+     */
+    @SafeVarargs
+    public static <T> boolean isEmpty(T... objects) {
+        return objects == null || objects.length == 0;
+    }
+
     public static <T> int indexOf(T[] objects, T object) {
         for (int i = 0; i < objects.length; i++) {
             if (objects[i] == object) return i;

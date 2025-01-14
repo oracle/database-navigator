@@ -28,8 +28,10 @@ import java.awt.Insets;
 import java.util.Objects;
 import java.util.function.Function;
 
+import static com.dbn.common.ui.util.ClientProperty.FOCUS_INHERITANCE;
 import static com.dbn.common.ui.util.ClientProperty.TAB_COLOR;
 import static com.dbn.common.ui.util.ClientProperty.TAB_CONTENT;
+import static com.dbn.common.ui.util.UserInterface.hasChildComponent;
 
 public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
     public static final Insets REGULAR_INSETS = new JBInsets(6, 6, 6, 6);
@@ -52,6 +54,27 @@ public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
 
             selectionListeners.notify(l -> l.selectionChanged(index));
         });
+    }
+
+    public void enableFocusInheritance() {
+        FOCUS_INHERITANCE.set(this, true);
+    }
+
+    public boolean hasFocusInheritance() {
+        return FOCUS_INHERITANCE.is(this);
+    }
+
+    public boolean hasInheritedFocus() {
+        if (!hasFocusInheritance()) return false;
+
+        Component selectedComponent = getSelectedComponent();
+        if (selectedComponent == null) return false;
+
+        if (selectedComponent instanceof JComponent) {
+            JComponent component = (JComponent) selectedComponent;
+            return hasChildComponent(component, JComponent.class, c -> c.hasFocus());
+        }
+        return false;
     }
 
     @Nullable

@@ -34,7 +34,6 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.ListModel;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
@@ -44,9 +43,8 @@ import java.util.List;
 public class DatasetColumnSetupForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel actionPanel;
-    private JScrollPane columnListScrollPane;
     private JPanel headerPanel;
-    private final CheckBoxList<ColumnStateSelectable> columnList;
+    private CheckBoxList<ColumnStateSelectable> columnList;
     private final DatasetColumnSetup columnSetup;
 
     public DatasetColumnSetupForm(@NotNull Disposable parent, @NotNull DatasetEditor datasetEditor) {
@@ -59,10 +57,10 @@ public class DatasetColumnSetupForm extends DBNFormBase {
             columnStateSel.add(new ColumnStateSelectable(dataset, columnState));
         }
 
-        columnList = new CheckBoxList<>(columnStateSel, true);
-        columnListScrollPane.setViewportView(columnList);
+        columnList.setElements(columnStateSel);
+        columnList.setMutable(true);
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionPanel,"", false,
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionPanel, false,
                 new SelectAllColumnsAction(columnList),
                 Actions.SEPARATOR,
                 new MoveUpAction(columnList),

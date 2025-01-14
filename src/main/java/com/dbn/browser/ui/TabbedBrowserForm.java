@@ -57,6 +57,7 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
         super(parent);
         connectionTabs = new DBNTabbedPane<>(this);
         connectionTabs.setAutoscrolls(true);
+        connectionTabs.enableFocusInheritance();
         //mainPanel.add(connectionTabs, BorderLayout.CENTER);
         initBrowserForms();
         ProjectEvents.subscribe(ensureProject(), this, EnvironmentManagerListener.TOPIC, environmentManagerListener());

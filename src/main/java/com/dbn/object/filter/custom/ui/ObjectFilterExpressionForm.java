@@ -80,8 +80,7 @@ public class ObjectFilterExpressionForm extends DBNFormBase implements Component
     }
 
     private JComponent createActionToolbar() {
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel,
-                "DBNavigator.ObjectFilter.Expression", true,
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
                 new ToggleObjectFilterStatusAction(this),
                 new ViewObjectFilterAction(this),
                 new EditObjectFilterAction(this),

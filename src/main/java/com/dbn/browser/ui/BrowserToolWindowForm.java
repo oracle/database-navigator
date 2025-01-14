@@ -41,6 +41,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
 public class BrowserToolWindowForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -58,11 +59,8 @@ public class BrowserToolWindowForm extends DBNFormBase {
         DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
         rebuild();
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(
-                actionsPanel,
-                "DBNavigator.ActionGroup.Browser.Controls", "",
-                true);
-
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.Browser.Controls");
+        setAccessibleName(actionToolbar, txt("app.databaseBrowser.aria.DatabaseBrowserActions"));
         actionsPanel.add(actionToolbar.getComponent());
 
         objectPropertiesPanel.setVisible(browserManager.getShowObjectProperties().value());

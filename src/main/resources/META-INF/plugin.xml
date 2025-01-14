@@ -24,14 +24,18 @@
     <depends optional="true" config-file="dbn-java-support.xml">com.intellij.modules.java</depends>
     <depends optional="true" config-file="dbn-debugger-support.xml">com.intellij.modules.xdebugger</depends>
     <depends optional="true" config-file="dbn-copyright-support.xml">com.intellij.copyright</depends>
-    <vendor email="dancioca@bluewin.ch">Dan Cioca</vendor>
+    <vendor email="dan.cioca@oracle.com" url="https://www.oracle.com">Dan Cioca (Oracle)</vendor>
     <idea-version since-build="201.6668.113" until-build="243.*"/>
     <resource-bundle>messages.DBNResources</resource-bundle>
     <description><![CDATA[
-            <b>Database development, scripting and navigation tool</b><br>
-            This software solution enhances the capabilities of the IntelliJ IDEA development environment and its associated products by providing comprehensive features for database development and maintenance.
-            It includes a robust SQL and PL/SQL editor that adheres to the IDE standards, along with advanced functionality for managing database connections, executing scripts, browsing database objects, editing data and code, supporting database compiler operations, executing and debugging methods, and facilitating the creation of database objects.
-            Additionally, it offers diverse navigation capabilities that seamlessly integrate across all its components, providing a powerful toolset for efficient and effective database development and management.<br>
+            <b>Database development, maintenance and navigation tool</b><br>
+            This software solution enhances the functionality of the IntelliJ IDEA development environment and
+            its related products by offering a comprehensive suite of tools for database development and management.
+            It features a highly capable SQL and PL/SQL editor that aligns with the standards of the IDE,
+            as well as advanced capabilities for managing database connections, executing scripts, browsing and editing database objects, and modifying data and code.
+            The solution further supports database compiler operations, method execution and debugging, and the creation of database objects.
+            Moreover, it includes extensive navigation features that are seamlessly integrated across all components,
+            delivering a robust and efficient toolset for database development and administration.<br>
 
             <b>Supported Databases:</b>
             <ul>
@@ -49,6 +53,8 @@
                 <li>Oracle "Select-AI" integration (Database Assistant)
                 <li>Oracle token authentication ("OCI API Key" and "OCI Interactive")
                 <li>Oracle OJVM support (early preview)
+                <li>Password storage in native keychain
+                <li>Tool accessibility enhancements
                 <li>Support for latest IDE versions (2024.3.x)
                 <li>Bug fixes
             </ul>
@@ -106,7 +112,6 @@
                 <li>Bug fixes
             </ul>
         </ul>
-        <a href="http://confluence.jetbrains.net/display/CONTEST/DBN+-+Change+Notes">See full release notes</a>
      ]]></change-notes>
 
     <application-components>

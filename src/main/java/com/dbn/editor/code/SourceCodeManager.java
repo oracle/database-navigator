@@ -715,7 +715,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                 String objectDescription = object.getQualifiedNameWithType();
                 boolean exitApp = checkAppExitRequested();
                 confirmationSettings.getExitOnChanges().resolve(
-                        list(objectDescription),
+                        project, list(objectDescription),
                         option -> {
                             switch (option) {
                                 case SAVE: saveSourceCodeChanges(databaseFile, () -> closeProject(exitApp)); break;

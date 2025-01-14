@@ -34,17 +34,20 @@ import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.awt.RelativePoint;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.UserInterface.createToolbarDecorator;
 
 public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptExecutionSettings> {
     private JPanel mainPanel;
     private JPanel cmdLineInterfacesTablePanel;
     private JTextField executionTimeoutTextField;
+    private JLabel cmdLineInterfaceLabel;
     private final CmdLineInterfacesTable cmdLineInterfacesTable;
 
     public ScriptExecutionSettingsForm(ScriptExecutionSettings settings) {
@@ -64,7 +67,13 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
         cmdLineInterfacesTablePanel.add(panel, BorderLayout.CENTER);
         cmdLineInterfacesTable.getParent().setBackground(cmdLineInterfacesTable.getBackground());
         executionTimeoutTextField.setText(String.valueOf(settings.getExecutionTimeout()));
+        cmdLineInterfaceLabel.setLabelFor(cmdLineInterfacesTable);
         registerComponents(mainPanel);
+    }
+
+    @Override
+    protected void initAccessibility() {
+        setAccessibleUnit(executionTimeoutTextField, txt("app.shared.unit.Seconds"), txt("app.shared.hint.ZeroForNoTimeout"));
     }
 
     private void showNewInterfacePopup(DataContext dataContext, RelativePoint point) {

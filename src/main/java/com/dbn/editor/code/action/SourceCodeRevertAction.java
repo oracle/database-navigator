@@ -39,7 +39,7 @@ public class SourceCodeRevertAction extends AbstractCodeEditorAction {
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {
         CodeEditorConfirmationSettings confirmationSettings = CodeEditorSettings.getInstance(project).getConfirmationSettings();
         ConfirmationOptionHandler optionHandler = confirmationSettings.getRevertChanges();
-        boolean canContinue = optionHandler.resolve(fileEditor.getObject().getQualifiedNameWithType());
+        boolean canContinue = optionHandler.resolve(project, fileEditor.getObject().getQualifiedNameWithType());
 
         if (canContinue) {
             SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);

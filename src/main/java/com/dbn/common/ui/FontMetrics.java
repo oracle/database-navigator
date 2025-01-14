@@ -17,6 +17,7 @@
 package com.dbn.common.ui;
 
 import com.dbn.common.latent.Latent;
+import com.dbn.common.ref.WeakRef;
 
 import javax.swing.JComponent;
 import java.awt.Font;
@@ -26,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FontMetrics {
-    private final JComponent component;
+    private final WeakRef<JComponent> component;
     private final Map<String, Map<Font, int[]>> cache = new HashMap<>();
 
     private final Latent<FontRenderContext> fontRenderContext = Latent.mutable(
@@ -34,11 +35,11 @@ public class FontMetrics {
             () -> getComponent().getFontMetrics(getComponent().getFont()).getFontRenderContext());
 
     public FontMetrics(JComponent component) {
-        this.component = component;
+        this.component = WeakRef.of(component);
     }
 
     public JComponent getComponent() {
-        return component;
+        return WeakRef.ensure(component);
     }
 
     public int getTextWidth(String group, String text) {
@@ -48,7 +49,7 @@ public class FontMetrics {
             return 0;
         }
 
-        Font font = component.getFont();
+        Font font = getComponent().getFont();
         int len = Math.min(100, length);
 
         int[] widths = cache.compute(font, (f, v) -> v == null ? new int[len] : v.length < len ? Arrays.copyOf(v, len) : v);

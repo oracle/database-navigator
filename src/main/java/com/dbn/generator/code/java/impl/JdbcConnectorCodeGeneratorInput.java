@@ -18,6 +18,7 @@ package com.dbn.generator.code.java.impl;
 
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.java.JavaCodeGeneratorInput;
+import com.intellij.openapi.ui.ValidationInfo;
 
 public class JdbcConnectorCodeGeneratorInput extends JavaCodeGeneratorInput {
     protected JdbcConnectorCodeGeneratorInput(DatabaseContext databaseContext) {
