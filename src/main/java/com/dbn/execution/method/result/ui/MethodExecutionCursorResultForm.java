@@ -43,6 +43,8 @@ import javax.swing.text.JTextComponent;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class MethodExecutionCursorResultForm extends DBNFormBase implements SearchableDataComponent {
     private JPanel actionsPanel;
     private JPanel mainPanel;
@@ -75,7 +77,8 @@ public class MethodExecutionCursorResultForm extends DBNFormBase implements Sear
         resultScrollPane.setViewportView(resultTable);
         resultTable.initTableGutter();
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.MethodExecutionCursorResult", "", true);
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.MethodExecutionCursorResult");
+        setAccessibleName(actionToolbar, txt("app.execution.aria.MethodExecutionCursorResultActions"));
         actionsPanel.add(actionToolbar.getComponent());
         DataProviders.register(actionToolbar.getComponent(), this);
     }

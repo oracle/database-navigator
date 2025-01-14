@@ -29,7 +29,6 @@ import com.dbn.generator.code.shared.CodeGeneratorInput;
 import com.dbn.generator.code.shared.CodeGeneratorResult;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputDialog;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputForm;
-import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -96,7 +95,7 @@ public class CodeGeneratorManager extends ProjectComponentBase implements Persis
 
     public void generateCode(CodeGeneratorContext context) {
         CodeGenerator generator = context.getGenerator();
-        WriteAction.run(() -> generator.generateCode(context));
+        generator.generateCode(context);
     }
 
     @NotNull

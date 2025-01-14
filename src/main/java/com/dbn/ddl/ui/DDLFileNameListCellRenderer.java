@@ -16,8 +16,8 @@
 
 package com.dbn.ddl.ui;
 
+import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.ddl.DDLFileNameProvider;
-import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,8 +25,7 @@ import javax.swing.JList;
 
 public class DDLFileNameListCellRenderer extends ColoredListCellRenderer<DDLFileNameProvider> {
     @Override
-    protected void customizeCellRenderer(@NotNull JList list, DDLFileNameProvider value, int index, boolean selected, boolean hasFocus) {
-
+    protected void customize(@NotNull JList<? extends DDLFileNameProvider> list, DDLFileNameProvider value, int index, boolean selected, boolean hasFocus) {
         append(value.getFilePattern(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
         append(" (" + value.getDdlFileType().getDescription() + ") ", SimpleTextAttributes.GRAY_ATTRIBUTES);
 

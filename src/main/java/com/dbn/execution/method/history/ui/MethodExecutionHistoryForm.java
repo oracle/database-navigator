@@ -70,7 +70,7 @@ public class MethodExecutionHistoryForm extends DBNFormBase {
     MethodExecutionHistoryForm(MethodExecutionHistoryDialog parent, MethodExecutionInput selectedExecutionInput, boolean debug) {
         super(parent);
         this.debug = debug;
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel,"", true,
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
                 new ShowGroupedTreeAction(),
                 new DeleteHistoryEntryAction(),
                 Actions.SEPARATOR,
@@ -96,7 +96,8 @@ public class MethodExecutionHistoryForm extends DBNFormBase {
     }
 
     @NotNull
-    MethodExecutionHistoryDialog getParentDialog() {
+    @Override
+    public MethodExecutionHistoryDialog getParentDialog() {
         return ensureParentComponent();
     }
 

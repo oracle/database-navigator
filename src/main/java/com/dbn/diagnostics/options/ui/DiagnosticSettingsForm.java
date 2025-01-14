@@ -153,4 +153,9 @@ public class DiagnosticSettingsForm extends DBNFormBase {
     protected JComponent getMainComponent() {
         return mainPanel;
     }
+
+    @Override
+    public @Nullable JComponent getPreferredFocusedComponent() {
+        return developerModeCheckBox;
+    }
 }

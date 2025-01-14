@@ -187,6 +187,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
             resultTabs.addTabUpdateListener(tabsUpdateListener);
             resultTabs.setPopupActions(new ExecutionConsolePopupActionGroup(this));
             resultTabs.setBorder(null);
+            resultTabs.enableFocusInheritance();
             Disposer.register(this, resultTabs);
             return resultTabs;
         }

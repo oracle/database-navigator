@@ -43,8 +43,8 @@ public class ProfileListCellRenderer extends DBObjectListCellRenderer<DBAIProfil
     }
 
     @Override
-    protected void customizeCellRenderer(@NotNull JList<? extends DBAIProfile> list, DBAIProfile profile, int index, boolean selected, boolean hasFocus) {
-        super.customizeCellRenderer(list, profile, index, selected, hasFocus);
+    protected void customize(@NotNull JList<? extends DBAIProfile> list, DBAIProfile profile, int index, boolean selected, boolean hasFocus) {
+        super.customize(list, profile, index, selected, hasFocus);
 
         boolean enabled = list.isEnabled() && profile.isEnabled();
         SimpleTextAttributes attributes = enabled ? REGULAR_ATTRIBUTES : GRAY_ATTRIBUTES;

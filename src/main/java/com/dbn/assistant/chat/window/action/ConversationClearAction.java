@@ -54,7 +54,7 @@ public class ConversationClearAction extends AbstractChatBoxAction {
     }
 
     public void promptConversationClearing(ChatBoxForm chatBox) {
-        Messages.showQuestionDialog(getProject(), "Conversation Clearing", "Are you sure you want to clear this conversation?",
+        Messages.showQuestionDialog(chatBox.getProject(), "Conversation Clearing", "Are you sure you want to clear this conversation?",
             Messages.OPTIONS_YES_NO, 1,
             option -> when(option == 0, chatBox::clearConversation));
     }

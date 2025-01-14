@@ -27,6 +27,7 @@ import javax.swing.JTextField;
 import java.awt.event.ActionListener;
 
 import static com.dbn.common.options.ui.ConfigurationEditors.validateIntegerValue;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 
 public class DataEditorPopupSettingsForm extends ConfigurationEditorForm<DataEditorPopupSettings> {
     private JTextField lengthThresholdTextField;
@@ -41,6 +42,12 @@ public class DataEditorPopupSettingsForm extends ConfigurationEditorForm<DataEdi
         enableDisableFields();
 
         registerComponent(mainPanel);
+    }
+
+    @Override
+    protected void initAccessibility() {
+        setAccessibleUnit(lengthThresholdTextField, txt("app.shared.unit.Characters"));
+        setAccessibleUnit(delayTextField, txt("app.shared.unit.Milliseconds"));
     }
 
     @Override

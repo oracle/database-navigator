@@ -50,6 +50,8 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.text.JTextComponent;
 import java.awt.BorderLayout;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class SessionBrowserForm extends DBNFormBase implements SearchableDataComponent {
     private JPanel actionsPanel;
     private JPanel mainPanel;
@@ -85,7 +87,8 @@ public class SessionBrowserForm extends DBNFormBase implements SearchableDataCom
         loadTimestampLabel.setForeground(Colors.HINT_COLOR);
         refreshLoadTimestamp();
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.SessionBrowser", "", true);
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.SessionBrowser");
+        setAccessibleName(actionToolbar, txt("app.sessionBrowser.aria.SessionBrowserActions"));
 
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
         loadingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);

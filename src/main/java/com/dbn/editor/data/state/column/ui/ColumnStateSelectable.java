@@ -72,24 +72,8 @@ public class ColumnStateSelectable implements Selectable {
     }
 
     @Override
-    public boolean isSecondary() {
-        DBColumn column = getColumn();
-        return column != null && column.isAudit();
-    }
-
-    @Override
-    public String getError() {
-        return null;
-    }
-
-    @Override
     public boolean isSelected() {
         return state.isVisible();
-    }
-
-    @Override
-    public boolean isMasterSelected() {
-        return true;
     }
 
     @Override

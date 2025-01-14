@@ -20,6 +20,7 @@ import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
@@ -31,11 +32,12 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.transaction.PendingTransactionBundle;
 import com.dbn.connection.transaction.TransactionAction;
 import com.dbn.connection.transaction.TransactionListener;
-import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
@@ -102,6 +104,11 @@ public class ResourceMonitorForm extends DBNFormBase {
         return mainPanel;
     }
 
+    @Override
+    public @Nullable JComponent getPreferredFocusedComponent() {
+        return connectionsList;
+    }
+
     private void showChangesForm(ConnectionHandler connection) {
         detailsPanel.removeAll();
         if (connection != null) {
@@ -120,7 +127,7 @@ public class ResourceMonitorForm extends DBNFormBase {
     private static class ConnectionListCellRenderer extends ColoredListCellRenderer<ConnectionHandler> {
 
         @Override
-        protected void customizeCellRenderer(@NotNull JList list, ConnectionHandler value, int index, boolean selected, boolean hasFocus) {
+        protected void customize(@NotNull JList<? extends ConnectionHandler> list, ConnectionHandler value, int index, boolean selected, boolean hasFocus) {
             setIcon(value.getIcon());
             append(value.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
             List<DBNConnection> connections = value.getConnections(ConnectionType.MAIN, ConnectionType.SESSION);

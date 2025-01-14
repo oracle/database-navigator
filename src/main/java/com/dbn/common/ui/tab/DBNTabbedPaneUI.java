@@ -687,7 +687,7 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
     }
 
     private void paintUnderline(Graphics g, int x, int y, int w, int h) {
-        g.setColor(tabPane.isEnabled() ? ENABLED_SELECTED_COLOR : DISABLED_SELECTED_COLOR);
+        g.setColor(isTabFocused() ? ENABLED_SELECTED_COLOR : DISABLED_SELECTED_COLOR);
         double arc = SELECTION_ARC.get();
 
         if (arc == 0) {
@@ -696,5 +696,12 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
             RectanglePainter2D.FILL.paint((Graphics2D) g, x, y, w, h, arc, LinePainter2D.StrokeType.INSIDE, 1.0,
                     RenderingHints.VALUE_ANTIALIAS_ON);
         }
+    }
+
+    private boolean isTabFocused() {
+        DBNTabbedPane tabPane = getTabPane();
+        return
+            tabPane.hasFocus() ||
+            tabPane.hasInheritedFocus();
     }
 }

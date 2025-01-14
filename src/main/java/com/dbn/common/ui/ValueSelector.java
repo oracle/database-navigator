@@ -21,6 +21,7 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.property.PropertyHolder;
 import com.dbn.common.property.PropertyHolderBase;
+import com.dbn.common.ui.listener.ToggleBorderOnFocusListener;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.Mouse;
@@ -30,34 +31,47 @@ import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Context;
 import com.dbn.common.util.Strings;
+import com.intellij.ide.ui.laf.darcula.ui.DarculaTextBorder;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
-import com.intellij.ui.Gray;
-import com.intellij.ui.JBColor;
-import com.intellij.ui.RoundedLineBorder;
 import com.intellij.util.IconUtil;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.accessibility.AccessibleContext;
+import javax.accessibility.AccessibleRole;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
+@Getter
+@Setter
 public abstract class ValueSelector<T extends Presentable> extends JPanel{
+    public static final Border DEFAULT_BORDER = JBUI.Borders.empty(3);
+    public static final Border FOCUS_BORDER = new DarculaTextBorder();
+
     private final Listeners<ValueSelectorListener<T>> listeners = Listeners.create();
     private final PropertyHolder<ValueSelectorOption> options = new PropertyHolderBase.IntStore<>() {
         @Override
@@ -68,11 +82,7 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
 
     private final JLabel label;
     private final JPanel innerPanel;
-    private boolean isEnabled = true;
-    private ListPopup popup;
-
-    private static final Border focusBorder = new CompoundBorder(new RoundedLineBorder(new JBColor(Gray._190, Gray._55), 3, 1), JBUI.Borders.empty(2, 4));
-    private static final Border defaultBorder = JBUI.Borders.empty(3, 5);
+    private transient ListPopup popup;
 
     private List<T> values;
     private PresentableFactory<T> valueFactory;
@@ -91,19 +101,46 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
         setOptions(options);
         this.values = values;
 
-        label = new JLabel(Commons.nvl(text, ""), cropIcon(icon), SwingConstants.LEFT);
-        label.setCursor(Cursors.handCursor());
-        label.addMouseListener(mouseListener);
+        text = Commons.nvl(text, "");
 
-        setBorder(defaultBorder);
+        addKeyListener(createKeyListener());
+        addMouseListener(createMouseListener());
+        setFocusable(true);
+        setAccessibleName(this, text);
+        setAccessibleDescription(this, text);
+
+
+        label = new JLabel(text, cropIcon(icon), SwingConstants.LEFT);
+        label.setCursor(Cursors.handCursor());
+        label.setBorder(JBUI.Borders.empty(4, 6));
+
+        setBorder(DEFAULT_BORDER);
 
         innerPanel = new JPanel(new BorderLayout());
         innerPanel.add(label, BorderLayout.WEST);
-        innerPanel.addMouseListener(mouseListener);
         innerPanel.setCursor(Cursors.handCursor());
         add(innerPanel, BorderLayout.CENTER);
 
         setMinimumSize(new Dimension(0, 30));
+        addFocusListener(createFocusListener());
+    }
+
+    @Override
+    public AccessibleContext getAccessibleContext() {
+        if (accessibleContext == null) {
+            accessibleContext = new AccessibleJPanel() {
+                @Override
+                public AccessibleRole getAccessibleRole() {
+                    return AccessibleRole.PUSH_BUTTON;
+                }
+            };
+        }
+        return accessibleContext;
+    }
+
+
+    private static FocusListener createFocusListener() {
+        return new ToggleBorderOnFocusListener(DEFAULT_BORDER, FOCUS_BORDER);
     }
 
     @Override
@@ -115,7 +152,6 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
         for (ValueSelectorOption option : options) {
             this.options.set(option, true);
         }
-
     }
 
     public void addListener(ValueSelectorListener<T> listener) {
@@ -131,56 +167,58 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
     }
 
     @Override
-    public boolean isEnabled() {
-        return isEnabled;
-    }
-
-    @Override
-    public void setEnabled(boolean isEnabled) {
-        this.isEnabled = isEnabled;
-        label.setCursor(isEnabled ? Cursors.handCursor(): Cursors.defaultCursor());
-        innerPanel.setCursor(isEnabled ? Cursors.handCursor() : Cursors.defaultCursor());
+    public void setEnabled(boolean enabled) {
+        label.setCursor(enabled ? Cursors.handCursor(): Cursors.defaultCursor());
+        innerPanel.setCursor(enabled ? Cursors.handCursor() : Cursors.defaultCursor());
 
         innerPanel.setBackground(Colors.getPanelBackground());
-        innerPanel.setFocusable(isEnabled);
-        label.setForeground(isEnabled ? Colors.getTextFieldForeground() : UIUtil.getLabelDisabledForeground());
-    }
-
-    public JPanel getInnerPanel() {
-        return innerPanel;
+        innerPanel.setFocusable(enabled);
+        label.setForeground(enabled ? Colors.getTextFieldForeground() : UIUtil.getLabelDisabledForeground());
+        super.setEnabled(enabled);
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
     }
-    private final MouseListener mouseListener = Mouse.listener().
-            onEnter(e -> {
-                if (popup == null) {
-                    JPanel innerPanel = getInnerPanel();
-                    innerPanel.setBorder(focusBorder);
-                    innerPanel.setBackground(new JBColor(Gray._210, Gray._75));
 
-                    UserInterface.repaint(ValueSelector.this);
-                }}).
-            onExit(e -> {
-                if (popup == null) {
+    private MouseListener createMouseListener() {
+        return Mouse.listener().
+                onEnter(e -> {
+                    if (popup != null) return;
+
                     JPanel innerPanel = getInnerPanel();
-                    innerPanel.setBorder(defaultBorder);
+                    innerPanel.setBackground(Colors.lafDarker(Colors.getPanelBackground(), 4));
+                    UserInterface.repaint(ValueSelector.this);
+                }).
+                onExit(e -> {
+                    if (popup != null) return;
+
+                    JPanel innerPanel = getInnerPanel();
                     innerPanel.setBackground(Colors.getPanelBackground());
-
                     UserInterface.repaint(ValueSelector.this);
-                }}).
-            onPress(e -> {
-                if (getValues().size() == 0) {
-                    selectValue(null);
-                } else {
-                    if (isEnabled && popup == null) {
-                        getInnerPanel().requestFocus();
-                        showPopup();
+                }).
+                onPress(e -> {
+                    if (getValues().isEmpty()) {
+                        selectValue(null);
+                    } else {
+                        if (isEnabled() && popup == null) {
+                            showPopup();
+                        }
                     }
+                });
+    }
+
+    private KeyListener createKeyListener() {
+        return new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    showPopup();
                 }
-            });
+            }
+        };
+    }
 
     private void showPopup() {
         innerPanel.setCursor(Cursors.defaultCursor());
@@ -203,12 +241,10 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
                 () -> {
                     popup = null;
 
-                    innerPanel.setBorder(defaultBorder);
                     innerPanel.setBackground(Colors.getPanelBackground());
                     innerPanel.setCursor(Cursors.handCursor());
                     label.setCursor(Cursors.handCursor());
 
-                    innerPanel.requestFocus();
                     UserInterface.repaint(ValueSelector.this);
                 },
                 10,
@@ -244,7 +280,6 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             selectValue(value);
-            innerPanel.requestFocus();
         }
 
         @Override

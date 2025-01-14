@@ -25,9 +25,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JPasswordField;
 import javax.swing.ListSelectionModel;
-import javax.swing.table.TableColumn;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Borders.TEXT_FIELD_INSETS;
 
 /**
  * Table model for provider credentials information
@@ -43,16 +43,13 @@ public class LocalCredentialsEditorTable extends DBNEditableTable<LocalCredentia
     setCellSelectionEnabled(true);
     setDefaultRenderer(String.class, new LocalCredentialsTableCellRenderer());
 
-    JPasswordField pwf = new JPasswordField();
-    DefaultCellEditor editor = new DefaultCellEditor(pwf);
+    JPasswordField passwordField = new JPasswordField();
+    passwordField.setBorder(TEXT_FIELD_INSETS);
+    DefaultCellEditor editor = new DefaultCellEditor(passwordField);
     getColumnModel().getColumn(LocalCredentialsTableCellRenderer.SECRET_COLUMN).setCellEditor(editor);
 
-    addComponentListener(new ComponentAdapter() {
-      @Override
-      public void componentResized(ComponentEvent e) {
-        adjustColumnSizes();
-      }
-    });
+    setAccessibleName(this, "Credentials");
+    setProportionalColumnWidths(20, 30, 50);
   }
 
   @NotNull
@@ -60,28 +57,8 @@ public class LocalCredentialsEditorTable extends DBNEditableTable<LocalCredentia
     return new LocalCredentialsTableModel(credentials);
   }
 
-  private void adjustColumnSizes() {
-    int tableWidth = getWidth();
-
-    // Ensure that the table has columns before adjusting sizes
-    if (getColumnModel().getColumnCount() > 2) {
-      TableColumn column1 = getColumnModel().getColumn(0);
-      TableColumn column2 = getColumnModel().getColumn(1);
-      TableColumn column3 = getColumnModel().getColumn(2);
-
-      // Set first two columns to 1/5 of the table each, and third column to 2/5 of the table
-      int column1and2Width = tableWidth / 5;
-      int column3Width = 2 * column1and2Width;
-
-      column1.setPreferredWidth(column1and2Width);
-      column2.setPreferredWidth(column1and2Width);
-      column3.setPreferredWidth(column3Width);
-    }
-  }
-
   void setCredentials(LocalCredentialBundle credentials) {
     super.setModel(createModel(credentials));
-    adjustColumnSizes();
   }
 
   @Override

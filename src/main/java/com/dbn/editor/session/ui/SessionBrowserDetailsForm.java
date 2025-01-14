@@ -55,6 +55,7 @@ public class SessionBrowserDetailsForm extends DBNFormBase {
         sessionDetailsTablePane.setViewportView(sessionDetailsTable);
 
         detailsTabbedPane = new DBNTabbedPane<>(this);
+        detailsTabbedPane.enableFocusInheritance();
         sessionDetailsTabsPanel.add(detailsTabbedPane, BorderLayout.CENTER);
 
         currentSqlPanel = new SessionBrowserCurrentSqlPanel(this, sessionBrowser);
@@ -93,7 +94,7 @@ public class SessionBrowserDetailsForm extends DBNFormBase {
     public void update(@Nullable final SessionBrowserModelRow selectedRow) {
         SessionDetailsTableModel model = new SessionDetailsTableModel(selectedRow);
         sessionDetailsTable.setModel(model);
-        sessionDetailsTable.accommodateColumnsSize();
+        sessionDetailsTable.adjustColumnWidths();
         currentSqlPanel.loadCurrentStatement();
     }
 

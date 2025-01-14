@@ -49,6 +49,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import java.awt.BorderLayout;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class StatementExecutionResultForm extends ExecutionResultFormBase<StatementExecutionCursorResult> implements SearchableDataComponent {
     private JPanel mainPanel;
     private JPanel actionsPanel;
@@ -69,7 +71,8 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
 
     public StatementExecutionResultForm(@NotNull StatementExecutionCursorResult executionResult) {
         super(executionResult);
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.StatementExecutionResult", "", false);
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.StatementExecutionResult");
+        setAccessibleName(actionToolbar, txt("app.execution.aria.StatementExecutionResultActions"));
 
         actionsPanel.add(actionToolbar.getComponent());
 

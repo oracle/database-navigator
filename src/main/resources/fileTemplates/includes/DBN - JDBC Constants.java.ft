@@ -1,6 +1,7 @@
 #if (${AUTH_TYPE} == 'USER_PASSWORD')
     private static final String PROP_USER = "user";
     private static final String PROP_PASSWORD = "password";
+    private static final String JDBC_DB_PASSWORD = "JDBC_DB_PASSWORD";
 #elseif (${AUTH_TYPE} == 'USER')
     private static final String PROP_USER = "user";
 #elseif (${AUTH_TYPE} == 'TOKEN')

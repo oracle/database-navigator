@@ -96,9 +96,7 @@ public class MethodExecutionLargeValueResultForm extends DBNFormBase {
 
         largeValuePanel.setBorder(IdeBorderFactory.createBorder());
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel,
-                "DBNavigator.Place.MethodExecutionResult.LobContentTypeEditor", true,
-                new ContentTypeComboBoxAction());
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, new ContentTypeComboBoxAction());
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
 
 

@@ -89,7 +89,7 @@ public class ObjectDependencyTreeForm extends DBNFormBase {
         headerForm = new DBNHeaderForm(this, schemaObject);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel,"", true,
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
                 new PreviousSelectionAction(),
                 new NextSelectionAction(),
                 Actions.SEPARATOR,

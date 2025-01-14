@@ -313,7 +313,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
             Messages.showQuestionDialog(
                     project, "No DDL file found",
                     "Could not find any DDL file for " + object.getQualifiedNameWithType() + ". Do you want to create one? \n" +
-                            "(You can disable this check in \"DDL File\" options)", Messages.OPTIONS_YES_CANCEL, 0,
+                            "(You can disable this check in \"DDL File\" options)", Messages.OPTIONS_YES_NO_CANCEL, 0,
                     option -> {
                         when(option == 0, () -> fileAttachmentManager.createDDLFile(objectRef));
                         when(option == 1, callback);

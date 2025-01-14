@@ -55,7 +55,7 @@ public class MethodExecutionBrowserForm extends DBNFormBase {
 
     MethodExecutionBrowserForm(MethodExecutionBrowserDialog parent, ObjectTreeModel model, boolean debug) {
         super(parent);
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel,"", true,
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
                 new ConnectionSelectDropdownAction(this, debug),
                 new SchemaSelectDropdownAction(this),
                 Actions.SEPARATOR,

@@ -28,7 +28,8 @@ import javax.swing.JTextField;
  * Validator for Credential editors
  * (code isolated from {@link CredentialEditForm})
  *
- * @author @author Ayoub Aarrasse (Oracle)
+ * @author Ayoub Aarrasse (Oracle)
+ * @deprecated replace with {@link com.dbn.common.ui.form.DBNFormValidator}
  */
 public class CredentialEditFormValidator implements NlsSupport {
 

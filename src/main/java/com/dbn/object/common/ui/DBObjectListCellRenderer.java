@@ -16,8 +16,8 @@
 
 package com.dbn.object.common.ui;
 
+import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.object.common.DBSchemaObject;
-import com.intellij.ui.ColoredListCellRenderer;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JList;
@@ -26,13 +26,13 @@ import javax.swing.ListCellRenderer;
 import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
 
-public class DBObjectListCellRenderer<T extends DBSchemaObject> extends ColoredListCellRenderer<T>{
+public class DBObjectListCellRenderer<T extends DBSchemaObject> extends ColoredListCellRenderer<T> {
     public static <T extends DBSchemaObject> ListCellRenderer<T> create() {
         return new DBObjectListCellRenderer<>();
     }
 
     @Override
-    protected void customizeCellRenderer(@NotNull JList<? extends T> list, T object, int index, boolean selected, boolean hasFocus) {
+    protected void customize(@NotNull JList<? extends T> list, T object, int index, boolean selected, boolean hasFocus) {
         String objectName = object.getName();
         boolean enabled = list.isEnabled() && object.isEnabled();
         append(objectName, enabled  ? REGULAR_ATTRIBUTES : GRAY_ATTRIBUTES);

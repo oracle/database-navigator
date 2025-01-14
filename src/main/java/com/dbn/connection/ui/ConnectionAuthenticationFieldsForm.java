@@ -135,7 +135,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         // cache values of fields classified as CACHEABLE
         fieldAdapter.captureFieldValues(classifiedAs(CACHEABLE_FIELDS));
         fieldAdapter.updateFieldsVisibility();
-        fieldAdapter.updateFieldsAccessibility();
+        fieldAdapter.updateFieldsAvailability();
         fieldAdapter.resetFieldValues(inaccessible());
 
         // restore values of fields classified as CACHEABLE which are visible and enabled

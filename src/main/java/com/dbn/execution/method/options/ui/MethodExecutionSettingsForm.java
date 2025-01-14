@@ -25,6 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+
 public class MethodExecutionSettingsForm extends ConfigurationEditorForm<MethodExecutionSettings> {
     private JPanel mainPanel;
     private JTextField executionTimeoutTextField;
@@ -35,6 +37,12 @@ public class MethodExecutionSettingsForm extends ConfigurationEditorForm<MethodE
         super(settings);
         resetFormChanges();
         registerComponent(mainPanel);
+    }
+
+    @Override
+    protected void initAccessibility() {
+        setAccessibleUnit(executionTimeoutTextField, txt("app.shared.unit.Seconds"), txt("app.shared.hint.ZeroForNoTimeout"));
+        setAccessibleUnit(debugExecutionTimeoutTextField, txt("app.shared.unit.Seconds"), txt("app.shared.hint.ZeroForNoTimeout"));
     }
 
     @NotNull

@@ -17,27 +17,33 @@
 package com.dbn.code.common.completion.options.filter.ui;
 
 import com.dbn.code.common.completion.options.filter.CodeCompletionFilterSettings;
-import com.dbn.common.color.Colors;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 public class CodeCompletionFilterSettingsForm extends ConfigurationEditorForm<CodeCompletionFilterSettings> {
-    private JPanel mainPanel;
-    private CodeCompletionFilterTreeModel treeModel;
+    private final JPanel mainPanel;
+    private final CodeCompletionFilterTree tree;
+    private final CodeCompletionFilterTreeModel treeModel;
 
     public CodeCompletionFilterSettingsForm(CodeCompletionFilterSettings codeCompletionFilterSettings) {
         super(codeCompletionFilterSettings);
         treeModel = new CodeCompletionFilterTreeModel(codeCompletionFilterSettings);
-        CodeCompletionFilterTree tree = new CodeCompletionFilterTree(treeModel);
+        tree = new CodeCompletionFilterTree(treeModel);
         mainPanel = new JPanel(new BorderLayout());
         JBScrollPane scrollPane = new JBScrollPane(tree);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
-        mainPanel.setBackground(Colors.getListBackground());
+        mainPanel.setOpaque(false);
+    }
+
+    @Override
+    public JComponent getPreferredFocusedComponent() {
+        return tree;
     }
 
     @NotNull

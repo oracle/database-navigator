@@ -17,8 +17,8 @@
 package com.dbn.common.ui.util;
 
 import com.dbn.common.ui.Presentable;
+import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.misc.DBNComboBoxModel;
-import com.intellij.ui.ColoredListCellRenderer;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.ComboBoxModel;
@@ -56,9 +56,9 @@ public class ComboBoxes {
         DBNComboBoxModel<T> model = new DBNComboBoxModel<>();
         model.getItems().addAll(options);
         comboBox.setModel(model);
-        comboBox.setRenderer(new ColoredListCellRenderer<>() {
+        comboBox.setRenderer(new ColoredListCellRenderer<T>() {
             @Override
-            protected void customizeCellRenderer(@NotNull JList<? extends T> list, T value, int index, boolean selected, boolean hasFocus) {
+            protected void customize(@NotNull JList<? extends T> list, T value, int index, boolean selected, boolean hasFocus) {
                 if (value != null) {
                     append(value.getName());
                     setIcon(value.getIcon());

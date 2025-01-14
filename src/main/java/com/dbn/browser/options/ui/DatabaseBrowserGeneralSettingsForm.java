@@ -33,6 +33,7 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
@@ -55,6 +56,11 @@ public class DatabaseBrowserGeneralSettingsForm extends ConfigurationEditorForm<
 
         resetFormChanges();
         registerComponent(mainPanel);
+    }
+
+    @Override
+    protected void initAccessibility() {
+        setAccessibleUnit(navigationHistorySizeTextField, txt("app.shared.unit.Items"));
     }
 
     @NotNull

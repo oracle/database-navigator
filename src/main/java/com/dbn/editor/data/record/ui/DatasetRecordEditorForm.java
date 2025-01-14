@@ -72,9 +72,7 @@ public class DatasetRecordEditorForm extends DBNFormBase implements ComponentAli
         DBNHeaderForm headerForm = new DBNHeaderForm(this, dataset);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(
-                actionsPanel,
-                "DBNavigator.Place.DataEditor.TextAreaPopup", true,
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
                 new SortAlphabeticallyAction(),
                 Actions.SEPARATOR,
                 new FirstRecordAction(),

@@ -16,12 +16,17 @@
 
 package com.dbn.common.util;
 
+import com.dbn.common.Reflection;
+import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.intellij.ui.PopupBorder;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JRootPane;
+import javax.swing.border.Border;
 import java.util.function.Supplier;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
@@ -46,6 +51,28 @@ public class Dialogs {
     public static <T extends DBNDialog> void close(@Nullable T dialog, int exitCode) {
         if (isNotValid(dialog)) return;
         Dispatch.run(true, () -> dialog.close(exitCode));
+    }
+
+    /**
+     * Removes decorations from a given {@link DBNDialog} by disabling its default window decorations
+     * and applying a custom border. Optionally enables rounded corners for the dialog.
+     *
+     * @param dialog the {@link DBNDialog} instance to be undecorated
+     * @param rounded a boolean indicating whether to apply rounded corners to the dialog
+     */
+    @Compatibility
+    public static void undecorate(DBNDialog<?> dialog, boolean rounded) {
+        dialog.setUndecorated(true);
+        Border border = PopupBorder.Factory.create(true, true);
+
+        JRootPane rootPane = dialog.getRootPane();
+        rootPane.setWindowDecorationStyle(JRootPane.NONE);
+        rootPane.setBorder(border);
+
+        if (rounded) {
+            //WindowRoundedCornersManager.configure(this);
+            Reflection.invokeMethod("com.intellij.ui.WindowRoundedCornersManager", "configure", dialog);
+        }
     }
 
     @FunctionalInterface

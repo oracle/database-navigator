@@ -16,20 +16,21 @@
 
 package com.dbn.assistant.credential.local.ui;
 
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
-import java.awt.Component;
+import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
+import com.dbn.common.ui.table.DBNTable;
+import org.jetbrains.annotations.Nullable;
 
-public class LocalCredentialsTableCellRenderer extends DefaultTableCellRenderer {
+public class LocalCredentialsTableCellRenderer extends DBNColoredTableCellRenderer {
     public static final int SECRET_COLUMN = 2;
-    public static final int VISIBLE_CHARS = 4;
 
     @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        if (column == SECRET_COLUMN && value != null) {
+    protected void customizeCellRenderer(DBNTable table, @Nullable Object value, boolean selected, boolean hasFocus, int row, int column) {
+        if (value == null) return;
+
+        if (column == SECRET_COLUMN) {
             String text = value.toString();
             value = "*".repeat(text.length());
         }
-        return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        append(value.toString());
     }
 }

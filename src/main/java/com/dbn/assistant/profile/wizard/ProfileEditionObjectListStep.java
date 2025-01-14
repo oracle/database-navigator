@@ -159,7 +159,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     Supplier<Set<DBObjectType>> selectedDatasetTypes = () -> getDatasetFilter().getObjectTypes();
     Runnable toggleCallback = () -> updateDatasetsFilter();
 
-    ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "", true,
+    ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
             DatasetTypeToggleAction.create(DBObjectType.TABLE, selectedDatasetTypes, toggleCallback),
             DatasetTypeToggleAction.create(DBObjectType.VIEW, selectedDatasetTypes, toggleCallback),
             DatasetTypeToggleAction.create(DBObjectType.MATERIALIZED_VIEW, selectedDatasetTypes, toggleCallback));

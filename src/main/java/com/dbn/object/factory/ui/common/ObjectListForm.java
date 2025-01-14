@@ -31,8 +31,10 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,9 +52,7 @@ public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFo
         this.connection = connection.ref();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel,
-                "DBNavigator.ObjectFactory.AddElement", true,
-                new CreateObjectAction());
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, new CreateObjectAction());
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
 
         newLabel.setText("Add " + getObjectType().getName());

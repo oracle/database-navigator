@@ -17,9 +17,9 @@
 package com.dbn.navigation.object;
 
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.common.DBObject;
-import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,7 +31,7 @@ public class DBObjectListCellRenderer extends ColoredListCellRenderer {
     private DBObjectListCellRenderer() {}
 
     @Override
-    protected void customizeCellRenderer(@NotNull JList list, Object value, int index, boolean selected, boolean hasFocus) {
+    protected void customize(@NotNull JList list, Object value, int index, boolean selected, boolean hasFocus) {
         if (value instanceof DBObject) {
             DBObject object = (DBObject) value;
             setIcon(object.getIcon());

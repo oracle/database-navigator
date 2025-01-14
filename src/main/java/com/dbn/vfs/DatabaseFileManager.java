@@ -152,7 +152,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
                 Project project = getProject();
 
                 CodeEditorConfirmationSettings confirmationSettings = CodeEditorSettings.getInstance(project).getConfirmationSettings();
-                confirmationSettings.getExitOnChanges().resolve(
+                confirmationSettings.getExitOnChanges().resolve(project,
                         list(objectDescription),
                         option -> processCodeChangeOption(databaseFile, option));
                 // TODO fix - this prevents the other files from being closed in a "close all.." bulk action

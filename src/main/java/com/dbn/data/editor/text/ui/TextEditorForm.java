@@ -90,9 +90,7 @@ public class TextEditorForm extends DBNFormBase {
             userValueHolder.setContentType(TextContentType.getPlainText(project));
         }
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel,
-                "DBNavigator.Place.DataEditor.LobContentTypeEditor", true,
-                new TextContentTypeComboBoxAction(this));
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, new TextContentTypeComboBoxAction(this));
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
 
         text = Strings.removeCharacter(nvl(readUserValue(), ""), '\r');

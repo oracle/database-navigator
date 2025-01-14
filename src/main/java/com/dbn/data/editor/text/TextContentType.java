@@ -61,18 +61,8 @@ public class TextContentType implements Selectable<TextContentType> {
     }
 
     @Override
-    public String getError() {
-        return null;
-    }
-
-    @Override
     public Icon getIcon() {
         return fileType.getIcon();
-    }
-
-    @Override
-    public boolean isMasterSelected() {
-        return true;
     }
 
     @Override

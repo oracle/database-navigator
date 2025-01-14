@@ -21,7 +21,6 @@ import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.DBNTooltip;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.util.Strings;
 import com.dbn.editor.data.DatasetEditorError;
 import com.dbn.editor.data.model.DatasetEditorModelCell;
@@ -58,8 +57,6 @@ public class DatasetEditorErrorForm extends DBNFormBase implements ChangeListene
         errorMessageTextArea.setText(Strings.textWrap(error.getMessage(), 60, ": ,."));
         Color backgroundColor = Colors.getErrorHintColor();
         errorMessageTextArea.setBackground(backgroundColor);
-        errorMessageTextArea.setFont(mainPanel.getFont());
-        errorMessageTextArea.setFont(Fonts.deriveFont(Fonts.REGULAR, (float) 14));
         mainPanel.setBackground(backgroundColor);
     }
 

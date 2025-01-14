@@ -103,6 +103,11 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
         return mainPanel;
     }
 
+    @Override
+    public @Nullable JComponent getPreferredFocusedComponent() {
+        return configurationTabs;
+    }
+
     void selectConnectionSettings(@Nullable ConnectionId connectionId) {
         ConnectionBundleSettings connectionSettings = getConfiguration().getConnectionSettings();
         ConnectionBundleSettingsForm settingsEditor = connectionSettings.getSettingsEditor();

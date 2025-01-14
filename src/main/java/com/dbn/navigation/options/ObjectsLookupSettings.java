@@ -155,7 +155,7 @@ public class ObjectsLookupSettings extends BasicProjectConfiguration<NavigationS
     @Getter
     @Setter
     @EqualsAndHashCode
-    private static class ObjectTypeEntry implements Selectable<ObjectTypeEntry> {
+    public static class ObjectTypeEntry implements Selectable<ObjectTypeEntry> {
         private final DBObjectType objectType;
         private boolean selected;
 
@@ -173,16 +173,6 @@ public class ObjectsLookupSettings extends BasicProjectConfiguration<NavigationS
         @NotNull
         public String getName() {
             return cachedUpperCase(objectType.getName());
-        }
-
-        @Override
-        public String getError() {
-            return null;
-        }
-
-        @Override
-        public boolean isMasterSelected() {
-            return true;
         }
 
         @Override
