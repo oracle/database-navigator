@@ -255,9 +255,6 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         poolTypeLabel.setVisible(ezConnectVisible);
         poolTypeComboBox.setVisible(ezConnectVisible);
 
-        poolTypeLabel.setVisible(ezConnectVisible);
-        poolTypeComboBox.setVisible(ezConnectVisible);
-
         // file based url
         databaseFilesLabel.setVisible(flsVisible);
         databaseFilesPanel.setVisible(flsVisible);
