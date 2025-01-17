@@ -121,6 +121,9 @@ public abstract class DBNFormBase
         UserInterface.updateSplitPanes(mainComponent);
         ApplicationEvents.subscribe(this, LafManagerListener.TOPIC, source -> lookAndFeelChanged());
         //GuiUtils.replaceJSplitPaneWithIDEASplitter(mainComponent);
+
+        mainComponent.doLayout();
+        mainComponent.validate();
     }
 
     private void initFormAccessibility() {

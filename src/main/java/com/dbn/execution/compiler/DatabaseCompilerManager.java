@@ -269,6 +269,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                                     doCompileInvalidObjects(schema.getProcedures(), "procedures", progress, type);
                                     doCompileInvalidObjects(schema.getDatasetTriggers(), "dataset triggers", progress, type);
                                     doCompileInvalidObjects(schema.getDatabaseTriggers(), "database triggers", progress, type);
+                                    doCompileInvalidObjects(schema.getJavaClasses(), "java classes", progress, type);
                                     ConnectionHandler connection = schema.getConnection();
                                     ProjectEvents.notify(project,
                                             CompileManagerListener.TOPIC,

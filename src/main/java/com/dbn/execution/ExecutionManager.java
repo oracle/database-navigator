@@ -30,6 +30,7 @@ import com.dbn.execution.common.result.ui.ExecutionResultForm;
 import com.dbn.execution.common.ui.ExecutionConsoleForm;
 import com.dbn.execution.compiler.CompilerResult;
 import com.dbn.execution.explain.result.ExplainPlanResult;
+import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.logging.LogOutput;
 import com.dbn.execution.logging.LogOutputContext;
 import com.dbn.execution.method.result.MethodExecutionResult;
@@ -186,6 +187,14 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
 
 
     public void addExecutionResult(MethodExecutionResult executionResult) {
+        Dispatch.run(() -> {
+            showExecutionConsole();
+            ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
+            executionConsoleForm.addResult(executionResult);
+        });
+    }
+
+    public void addExecutionResult(JavaExecutionResult executionResult) {
         Dispatch.run(() -> {
             showExecutionConsole();
             ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();

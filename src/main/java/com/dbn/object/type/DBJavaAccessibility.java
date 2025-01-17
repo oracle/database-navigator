@@ -28,6 +28,7 @@ public enum DBJavaAccessibility implements Constant<DBJavaAccessibility> {
     PUBLIC("public"),
     PRIVATE("private"),
     PROTECTED("protected"),
+    PACKAGE_PRIVATE("")
     ;
 
     private final String name;

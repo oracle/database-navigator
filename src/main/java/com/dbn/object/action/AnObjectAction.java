@@ -50,7 +50,7 @@ public abstract class AnObjectAction<T extends DBObject> extends ContextAction<T
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable T target) {
         if (target == null) return;
-        presentation.setText(target.getName(), false);
+        presentation.setText(target.getPresentableText(), false);
         presentation.setIcon(target.getIcon());
     }
 }

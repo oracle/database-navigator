@@ -20,8 +20,10 @@ import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.CmdLineExecutionInput;
+import com.dbn.database.common.execution.JavaExecutionProcessor;
 import com.dbn.database.common.execution.MethodExecutionProcessor;
 import com.dbn.execution.script.CmdLineInterface;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,6 +31,8 @@ import org.jetbrains.annotations.Nullable;
 public interface DatabaseExecutionInterface {
     MethodExecutionProcessor createExecutionProcessor(DBMethod method);
     MethodExecutionProcessor createDebugExecutionProcessor(DBMethod method);
+
+    JavaExecutionProcessor createExecutionProcessor(DBJavaMethod method);
 
     CmdLineExecutionInput createScriptExecutionInput(
             @NotNull CmdLineInterface cmdLineInterface,

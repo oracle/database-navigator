@@ -1,0 +1,12 @@
+EXECUTE IMMEDIATE
+'
+CREATE OR REPLACE TYPE ${TYPENAME} FORCE AS
+ #if($IS_ARRAY == "true")
+    VARRAY(10) OF ${ARRAY_TYPE} ;
+ #else
+     OBJECT (
+        ${FIELDS}
+    );
+ #end
+ '
+ ;

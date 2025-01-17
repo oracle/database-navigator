@@ -106,6 +106,7 @@ import static com.dbn.object.type.DBObjectType.DIMENSION;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
 import static com.dbn.object.type.DBObjectType.INDEX;
 import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
+import static com.dbn.object.type.DBObjectType.JAVA_FIELD;
 import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
 import static com.dbn.object.type.DBObjectType.JAVA_PARAMETER;
 import static com.dbn.object.type.DBObjectType.MATERIALIZED_VIEW;
@@ -176,6 +177,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(TYPE_ATTRIBUTE,    this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(TYPE_FUNCTION,     this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(TYPE_PROCEDURE,    this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(JAVA_FIELD,        this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(JAVA_METHOD,       this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(JAVA_PARAMETER,    this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(ARGUMENT,          this, INTERNAL, GROUPED, HIDDEN);

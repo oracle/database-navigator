@@ -33,6 +33,7 @@ import com.dbn.database.common.metadata.impl.DBGrantedRoleMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBIndexColumnMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBIndexMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJavaClassMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBJavaFieldMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJavaMethodMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJavaParameterMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBMaterializedViewMetadataImpl;
@@ -119,6 +120,7 @@ public class DBObjectMetadataFactory {
             case DATABASE_TRIGGER:    return new DBTriggerMetadataImpl(resultSet);
             case DATASET_TRIGGER:     return new DBTriggerMetadataImpl(resultSet);
             case JAVA_CLASS:          return new DBJavaClassMetadataImpl(resultSet);
+            case JAVA_FIELD:          return new DBJavaFieldMetadataImpl(resultSet);
             case JAVA_METHOD:         return new DBJavaMethodMetadataImpl(resultSet);
             case JAVA_PARAMETER:      return new DBJavaParameterMetadataImpl(resultSet);
             case INCOMING_DEPENDENCY: return new DBObjectDependencyMetadataImpl(resultSet);

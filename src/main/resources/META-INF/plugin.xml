@@ -152,6 +152,7 @@
         <projectService serviceImplementation="com.dbn.execution.script.ScriptExecutionManager"/>
         <projectService serviceImplementation="com.dbn.execution.compiler.DatabaseCompilerManager"/>
         <projectService serviceImplementation="com.dbn.execution.method.MethodExecutionManager"/>
+        <projectService serviceImplementation="com.dbn.execution.java.JavaExecutionManager"/>
         <projectService serviceImplementation="com.dbn.execution.explain.ExplainPlanManager"/>
         <projectService serviceImplementation="com.dbn.execution.logging.DatabaseLoggingManager"/>
         <projectService serviceImplementation="com.dbn.code.common.completion.CodeCompletionManager"/>
@@ -308,6 +309,9 @@
             <action class="com.dbn.menu.action.MethodExecutionHistoryAction" text="Method Execution History" id="DBNavigator.Actions.MainMenu.MethodExecutionHistory">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift M"/>
             </action>
+            <action class="com.dbn.menu.action.JavaExecutionHistoryAction" text="Java Execution History" id="DBNavigator.Actions.MainMenu.JavaExecutionHistory">
+                <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift J"/>
+            </action>
             <action class="com.dbn.menu.action.FileConnectionMappingsOpenAction" text="File Connection Mappings" id="DBNavigator.Actions.MainMenu.FileConnectionMappings"/>
             <action class="com.dbn.menu.action.ResourceMonitorOpenAction" text="Resource Monitor" id="DBNavigator.Actions.MainMenu.ResourceMonitor"/>
             <!--<action class="com.dbn.action.menu.PendingTransactionsOpenAction" text="Open Transactions" id="DBNavigator.Actions.MainMenu.PendingTransactions"/>-->
@@ -439,6 +443,25 @@
             <action id="DBNavigator.Actions.MethodExecutionCursorResult.ViewRecord" class="com.dbn.execution.method.result.action.CursorResultViewRecordAction" text="Method Execution Cursor Result - View Record" icon="com.dbn.common.icon.Icons.EXEC_RESULT_VIEW_RECORD"/>
             <separator/>
             <action id="DBNavigator.Actions.MethodExecutionCursorResult.Export" class="com.dbn.execution.method.result.action.CursorResultExportAction" text="Method Execution Cursor Result - Export" icon="com.dbn.common.icon.Icons.DATA_EXPORT"/>
+        </group>
+
+        <group id="DBNavigator.ActionGroup.JavaExecutionResult">
+            <action id="DBNavigator.Actions.JavaExecutionResult.Close" class="com.dbn.execution.java.result.action.ExecutionResultCloseAction" text="Java Method Execution Result - Close" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
+            <action id="DBNavigator.Actions.JavaExecutionResult.EditMethod" class="com.dbn.execution.java.result.action.JavaEditAction" text="Java Method Execution Result - Edit Method" icon="com.dbn.common.icon.Icons.OBJECT_EDIT_SOURCE"/>
+            <action id="DBNavigator.Actions.JavaExecutionResult.OpenExecutionDialog" class="com.dbn.execution.java.result.action.JavaExecutionPromptAction" text="Java Method Execution Result - Open Execution Dialog" icon="com.dbn.common.icon.Icons.METHOD_EXECUTION_DIALOG"/>
+            <action id="DBNavigator.Actions.JavaExecutionResult.ExecuteAgain" class="com.dbn.execution.java.result.action.JavaExecutionStartAction" text="Java Method Execution Result - Execute Again" icon="AllIcons.Actions.Rerun"/>
+            <action id="DBNavigator.Actions.JavaExecutionResult.StopExecution" class="com.dbn.execution.java.result.action.JavaExecutionStopAction" text="Java Method Execution Result - Stop Execution" icon="AllIcons.Actions.Suspend"/>
+            <separator/>
+            <action id="DBNavigator.Actions.JavaExecutionResult.Settings" class="com.dbn.execution.java.result.action.ExecutionEngineSettingsAction" text="Java Method Execution Result - Open Execution Dialog" icon="AllIcons.General.GearPlain"/>
+        </group>
+        <group id="DBNavigator.ActionGroup.JavaExecutionCursorResult">
+            <action id="DBNavigator.Actions.JavaExecutionCursorResult.Find" class="com.dbn.execution.java.result.action.CursorResultFindAction" text="Java Method Execution Cursor Result - Find Data" icon="AllIcons.Actions.Find">
+                <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>
+            </action>
+            <action id="DBNavigator.Actions.JavaExecutionCursorResult.FetchNextRecords" class="com.dbn.execution.java.result.action.CursorResultFetchNextRecordsAction" text="Java Method Execution Cursor Result - Fetch Next Records" icon="AllIcons.Actions.Resume"/>
+            <action id="DBNavigator.Actions.JavaExecutionCursorResult.ViewRecord" class="com.dbn.execution.java.result.action.CursorResultViewRecordAction" text="Java Method Execution Cursor Result - View Record" icon="com.dbn.common.icon.Icons.EXEC_RESULT_VIEW_RECORD"/>
+            <separator/>
+            <action id="DBNavigator.Actions.JavaExecutionCursorResult.Export" class="com.dbn.execution.java.result.action.CursorResultExportAction" text="Java Method Execution Cursor Result - Export" icon="com.dbn.common.icon.Icons.DATA_EXPORT"/>
         </group>
 
 

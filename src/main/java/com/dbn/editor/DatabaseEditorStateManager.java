@@ -32,6 +32,7 @@ import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.code.SourceCodeManagerListener;
 import com.dbn.editor.data.DatasetEditor;
+import com.dbn.execution.compiler.CompileManagerListener;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.editor.DefaultEditorOption;
 import com.dbn.object.type.DBObjectType;
@@ -78,6 +79,7 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
         ProjectEvents.subscribe(project, this, SourceCodeManagerListener.TOPIC, sourceCodeManagerListener());
         ProjectEvents.subscribe(project, this, FileEditorManagerListener.FILE_EDITOR_MANAGER, fileEditorManagerListener());
         ProjectEvents.subscribe(project, this, EnvironmentManagerListener.TOPIC, environmentManagerListener());
+        ProjectEvents.subscribe(project, this, CompileManagerListener.TOPIC, compileManagerListener());
     }
 
     public static DatabaseEditorStateManager getInstance(@NotNull Project project) {
@@ -93,6 +95,7 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
                 EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
                 boolean readonly = environmentManager.isReadonly(sourceCodeFile);
                 Editors.setEditorsReadonly(sourceCodeFile, readonly);
+                Editors.updateEditorPresentations(project, sourceCodeFile.getMainDatabaseFile());
             }
         };
     }
@@ -165,6 +168,13 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
                     }
                 }
             }
+        };
+    }
+
+    private CompileManagerListener compileManagerListener() {
+        return (connection, object) -> {
+            if (object == null) return;
+            Editors.updateEditorPresentations(getProject(), object.getVirtualFile());
         };
     }
 

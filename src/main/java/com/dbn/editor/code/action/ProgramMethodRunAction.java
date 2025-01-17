@@ -21,13 +21,18 @@ import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectPopupAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.debugger.DBDebuggerType;
+import com.dbn.execution.java.JavaExecutionManager;
+import com.dbn.execution.java.ui.JavaExecutionHistory;
 import com.dbn.execution.method.MethodExecutionManager;
 import com.dbn.execution.method.ui.MethodExecutionHistory;
+import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBProgram;
 import com.dbn.object.action.AnObjectAction;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -74,6 +79,30 @@ public class ProgramMethodRunAction extends ProjectPopupAction {
                         actions.add(action);
                     }
                 }
+            } else if (schemaObject.getObjectType().matches(DBObjectType.JAVA_CLASS)) {
+
+                JavaExecutionManager javaExecutionManager = JavaExecutionManager.getInstance(project);
+                JavaExecutionHistory executionHistory = javaExecutionManager.getExecutionHistory();
+                List<DBJavaMethod> recentMethods = executionHistory.getRecentlyExecutedMethods((DBJavaClass) schemaObject);
+
+                if (recentMethods != null) {
+                    for (DBJavaMethod method : recentMethods) {
+                        RunJavaMethodAction action = new RunJavaMethodAction(method);
+                        actions.add(action);
+                    }
+                    actions.add(SEPARATOR);
+                }
+
+                List<? extends DBObject> objects = schemaObject.collectChildObjects(DBObjectType.JAVA_METHOD);
+                for (DBObject object : objects) {
+                    DBJavaMethod method = (DBJavaMethod) object;
+                    if(method.isStatic() && method.getAccessibility() == DBJavaAccessibility.PUBLIC) {
+                        if (recentMethods == null || !recentMethods.contains(method)) {
+                            RunJavaMethodAction action = new RunJavaMethodAction(method);
+                            actions.add(action);
+                        }
+                    }
+                }
             }
         }
 
@@ -94,7 +123,8 @@ public class ProgramMethodRunAction extends ProjectPopupAction {
         boolean visible = false;
         if (sourceCodeFile != null) {
             DBSchemaObject schemaObject = sourceCodeFile.getObject();
-            if (schemaObject.getObjectType().matches(DBObjectType.PROGRAM)) {
+            if (schemaObject.getObjectType().matches(DBObjectType.PROGRAM)
+                    || schemaObject.getObjectType().matches(DBObjectType.JAVA_CLASS)) {
                 visible = true;
             }
         }
@@ -116,6 +146,22 @@ public class ProgramMethodRunAction extends ProjectPopupAction {
                 @NotNull DBMethod object) {
 
             MethodExecutionManager executionManager = MethodExecutionManager.getInstance(project);
+            executionManager.startMethodExecution(object, DBDebuggerType.NONE);
+        }
+    }
+
+    public class RunJavaMethodAction extends AnObjectAction<DBJavaMethod> {
+        RunJavaMethodAction(DBJavaMethod method) {
+            super(method);
+        }
+
+        @Override
+        protected void actionPerformed(
+                @NotNull AnActionEvent e,
+                @NotNull Project project,
+                @NotNull DBJavaMethod object) {
+
+            JavaExecutionManager executionManager = JavaExecutionManager.getInstance(project);
             executionManager.startMethodExecution(object, DBDebuggerType.NONE);
         }
     }

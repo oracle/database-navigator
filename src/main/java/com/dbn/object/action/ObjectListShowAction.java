@@ -91,7 +91,7 @@ public abstract class ObjectListShowAction extends BasicAction {
             Dispatch.run(() -> {
                 if (objects.isEmpty()) {
                     JLabel label = new JLabel(getEmptyListMessage(), Icons.EXEC_MESSAGES_INFO, SwingConstants.LEFT);
-                    label.setBorder(JBUI.Borders.empty(3));
+                    label.setBorder(JBUI.Borders.empty(8));
                     JPanel panel = new JPanel(new BorderLayout());
                     panel.add(label);
                     panel.setBackground(Colors.LIGHT_BLUE);

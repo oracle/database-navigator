@@ -345,6 +345,50 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="java-fields" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL">
+            select
+                NAME as CLASS_NAME,
+                FIELD_INDEX,
+                FIELD_NAME,
+                ACCESSIBILITY,
+                decode(IS_FINAL,'YES','Y','N') as IS_FINAL,
+                decode(IS_STATIC,'YES','Y','N') as IS_STATIC,
+                ARRAY_DEPTH,
+                BASE_TYPE,
+                decode(FIELD_CLASS,'-',NULL,FIELD_CLASS) as FIELD_CLASS
+            from
+                [PREFIX]_JAVA_FIELDS
+            where
+                OWNER = {0} and
+                NAME = {1}
+            order by
+                FIELD_INDEX
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="all-java-fields" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL">
+            select
+                NAME as CLASS_NAME,
+                FIELD_INDEX,
+                FIELD_NAME,
+                ACCESSIBILITY,
+                decode(IS_FINAL,'YES','Y','N') as IS_FINAL,
+                decode(IS_STATIC,'YES','Y','N') as IS_STATIC,
+                ARRAY_DEPTH,
+                BASE_TYPE,
+                decode(FIELD_CLASS,'-',NULL,FIELD_CLASS) as FIELD_CLASS
+            from
+                [PREFIX]_JAVA_FIELDS
+            where
+                OWNER = {0}
+            order by
+                NAME,
+                FIELD_INDEX
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="java-methods" is-query="true" is-prepared-statement="true" timeout="90">
         <statement prefixes="DBA, ALL">
             select
@@ -353,6 +397,7 @@
                 m.METHOD_INDEX,
                 m.BASE_TYPE as RETURN_TYPE,
                 m.ACCESSIBILITY,
+                m.ARRAY_DEPTH,
                 decode(m.RETURN_CLASS, '-', null, m.RETURN_CLASS) as RETURN_CLASS_NAME,
                 decode(m.IS_STATIC,'YES','Y','N') as IS_STATIC,
                 decode(m.IS_FINAL,'YES','Y','N') as IS_FINAL,
@@ -395,6 +440,7 @@
                 m.METHOD_INDEX,
                 m.BASE_TYPE as RETURN_TYPE,
                 m.ACCESSIBILITY,
+                m.ARRAY_DEPTH,
                 decode(m.RETURN_CLASS, '-', null, m.RETURN_CLASS) as RETURN_CLASS_NAME,
                 decode(m.IS_STATIC,'YES','Y','N') as IS_STATIC,
                 decode(m.IS_FINAL,'YES','Y','N') as IS_FINAL,

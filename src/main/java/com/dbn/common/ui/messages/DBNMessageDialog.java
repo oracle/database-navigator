@@ -16,6 +16,7 @@
 
 package com.dbn.common.ui.messages;
 
+import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Titles;
@@ -32,6 +33,7 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 public class DBNMessageDialog extends DBNDialog<DBNMessageForm> {
     private final Icon icon;
@@ -110,12 +112,23 @@ public class DBNMessageDialog extends DBNDialog<DBNMessageForm> {
         return actions;
     }
 
+    //@Override
+    @Workaround
+    protected void sortActionsOnMac(@NotNull List<Action> actions) {
+        // TODO proper action sequence support needed in "Messages" utility
+    }
+
     private @NotNull AbstractAction createAction(int exitCode) {
         String actionName = UIUtil.replaceMnemonicAmpersand(options[exitCode]);
         return new AbstractAction(actionName) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 close(exitCode);
+            }
+
+            @Override
+            public String toString() {
+                return actionName;
             }
         };
     }

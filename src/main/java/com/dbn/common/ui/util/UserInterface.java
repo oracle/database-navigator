@@ -454,4 +454,17 @@ public class UserInterface {
 
         return component.getName();
     }
+
+    /**
+     * Compares the text of a given JLabel with a specified string.
+     *
+     * @param label the JLabel whose text is to be compared; if the label's text is null, it is treated as an empty string
+     * @param text the string to compare with the JLabel's text; if the string is null, it is treated as an empty string
+     * @return true if the JLabel's text is equal to the specified string, false otherwise
+     */
+    public static boolean matchesText(JLabel label, String text) {
+        String oldText = nvl(label.getText(), "");
+        String newText = nvl(text, "");
+        return oldText.equals(newText);
+    }
 }

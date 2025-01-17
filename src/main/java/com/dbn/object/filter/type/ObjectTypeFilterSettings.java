@@ -68,6 +68,8 @@ public class ObjectTypeFilterSettings extends BasicProjectConfiguration<ProjectC
             new ObjectTypeFilterSetting(this, DBObjectType.TYPE_ATTRIBUTE),
             new ObjectTypeFilterSetting(this, DBObjectType.ARGUMENT),
             new ObjectTypeFilterSetting(this, DBObjectType.JAVA_CLASS),
+            new ObjectTypeFilterSetting(this, DBObjectType.JAVA_FIELD),
+            new ObjectTypeFilterSetting(this, DBObjectType.JAVA_METHOD),
             new ObjectTypeFilterSetting(this, DBObjectType.DIMENSION),
             new ObjectTypeFilterSetting(this, DBObjectType.CLUSTER),
             new ObjectTypeFilterSetting(this, DBObjectType.DBLINK),

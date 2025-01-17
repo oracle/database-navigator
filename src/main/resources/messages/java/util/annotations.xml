@@ -15,6 +15,9 @@
   -->
 
 <root>
+    <item name='java.util.Properties java.lang.Object setProperty(java.lang.String, java.lang.String) 0'>
+        <annotation name='org.jetbrains.annotations.NonNls'/>
+    </item>
     <item name='java.util.Timer'>
         <annotation name='org.jetbrains.annotations.NonNls'/>
     </item>
