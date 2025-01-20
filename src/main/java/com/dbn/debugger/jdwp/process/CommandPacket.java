@@ -16,6 +16,8 @@
 
 package com.dbn.debugger.jdwp.process;
 
+import org.jetbrains.annotations.NonNls;
+
 public class CommandPacket extends Packet {
 
 	public CommandPacket() {
@@ -40,6 +42,7 @@ public class CommandPacket extends Packet {
 
 
 	public String toString() {
+		@NonNls
 		StringBuilder builder = new StringBuilder(super.toString());
 		
 		builder.append(", commandset: ");

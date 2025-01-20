@@ -30,6 +30,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ParserDiagnosticsStateFilterAction extends ComboBoxAction implements DumbAware {
     private final ParserDiagnosticsForm form;
 
@@ -55,7 +57,7 @@ public class ParserDiagnosticsStateFilterAction extends ComboBoxAction implement
 
         ParserDiagnosticsFilter resultFilter = getResultFilter();
         StateTransition.Category stateCategory = resultFilter.getStateCategory();
-        presentation.setText(stateCategory == null ? "state" : stateCategory.name(), false);
+        presentation.setText(stateCategory == null ? txt("app.diagnostics.action.StateFilter") : stateCategory.name(), false);
     }
 
     private ParserDiagnosticsFilter getResultFilter() {
@@ -66,7 +68,7 @@ public class ParserDiagnosticsStateFilterAction extends ComboBoxAction implement
         private final StateTransition.Category stateCategory;
 
         public SelectFilterValueAction(StateTransition.Category transitionCategory) {
-            super(transitionCategory == null ? "No Filter" : transitionCategory.name());
+            super(transitionCategory == null ? txt("app.shared.action.NoFilter") : transitionCategory.name());
             this.stateCategory = transitionCategory;
         }
 

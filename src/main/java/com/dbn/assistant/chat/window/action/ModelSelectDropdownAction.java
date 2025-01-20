@@ -34,6 +34,8 @@ import javax.swing.JComponent;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Action for selecting the current AI-assistant model
  *
@@ -68,21 +70,21 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements DumbAwa
 
         Presentation presentation = e.getPresentation();
         presentation.setText(getText(e));
-        presentation.setDescription(txt("companion.chat.model.tooltip"));
+        presentation.setDescription(txt("app.assistant.tooltip.ChooseModel"));
         presentation.setEnabled(enabled);
     }
 
     private String getText(@NotNull AnActionEvent e) {
         ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
-        if (chatBox == null) return "Model";
+        if (chatBox == null) return txt("app.assistant.action.Model");
 
         String text = getSelectedModelName(e);
         if (text != null) return text;
 
         List<AIModel> models = getProviderModels(e.getDataContext());
-        if (!models.isEmpty()) return "Select Model";
+        if (!models.isEmpty()) return txt("app.assistant.action.SelectModel");
 
-        return "Model";
+        return txt("app.assistant.action.Model");
     }
 
     private static String getSelectedModelName(@NotNull AnActionEvent e) {

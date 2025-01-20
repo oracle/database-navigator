@@ -26,6 +26,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SQLConsoleOpenAction extends AbstractConnectionAction {
     SQLConsoleOpenAction(ConnectionHandler connection) {
         super(connection);
@@ -33,7 +35,7 @@ public class SQLConsoleOpenAction extends AbstractConnectionAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionHandler target) {
-        presentation.setText("Open SQL Console");
+        presentation.setText(txt("app.connection.action.OpenSqlConsole"));
         presentation.setIcon(Icons.SQL_CONSOLE);
     }
 

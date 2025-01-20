@@ -17,13 +17,16 @@
 package com.dbn.database.common.metadata.def;
 
 import com.dbn.database.common.metadata.DBObjectMetadata;
+import com.dbn.database.common.security.ObjectIdentifier;
 
 import java.sql.SQLException;
 
 public interface DBDatabaseLinkMetadata extends DBObjectMetadata {
 
+    @ObjectIdentifier
     String getDblinkName() throws SQLException;
 
+    @ObjectIdentifier
     String getUserName() throws SQLException;
 
     String getHost() throws SQLException;

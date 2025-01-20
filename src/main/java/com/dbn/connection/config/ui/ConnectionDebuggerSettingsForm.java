@@ -30,6 +30,7 @@ import javax.swing.JTextField;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
@@ -55,6 +56,12 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
         resetFormChanges();
         updateTcpFields();
         registerComponent(mainPanel);
+    }
+
+    @Override
+    protected void initAccessibility() {
+        setAccessibleName(tcpPortFromTextField, "TCP port lower range");
+        setAccessibleName(tcpPortToTextField, "TCP port upper range");
     }
 
     @Override

@@ -39,6 +39,7 @@ import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.ui.EditorSettingsProvider;
 import com.intellij.ui.EditorTextField;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
@@ -80,8 +81,7 @@ public class ObjectFilterExpressionForm extends DBNFormBase implements Component
     }
 
     private JComponent createActionToolbar() {
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel,
-                "DBNavigator.ObjectFilter.Expression", true,
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
                 new ToggleObjectFilterStatusAction(this),
                 new ViewObjectFilterAction(this),
                 new EditObjectFilterAction(this),
@@ -126,7 +126,7 @@ public class ObjectFilterExpressionForm extends DBNFormBase implements Component
         markModified();
     }
 
-    private static String normalizeExpression(String expression) {
+    private static String normalizeExpression(@NonNls String expression) {
         return expression.replaceAll("\\s+", " ").trim();
     }
 

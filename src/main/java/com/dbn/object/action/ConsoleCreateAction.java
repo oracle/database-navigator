@@ -22,8 +22,11 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.console.DatabaseConsoleManager;
 import com.dbn.vfs.DBConsoleType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class ConsoleCreateAction extends ProjectAction {
     private final DBConsoleType consoleType;
@@ -43,6 +46,7 @@ public class ConsoleCreateAction extends ProjectAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        e.getPresentation().setText("New " + consoleType.getName() + "...");
+        Presentation presentation = e.getPresentation();
+        presentation.setText(txt("app.objects.action.NewConsole", consoleType.getName()));
     }
 }

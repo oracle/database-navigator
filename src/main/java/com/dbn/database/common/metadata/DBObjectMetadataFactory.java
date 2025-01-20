@@ -17,6 +17,7 @@
 package com.dbn.database.common.metadata;
 
 import com.dbn.common.content.DynamicContentType;
+import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.metadata.impl.DBArgumentMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBCharsetMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBClusterMetadataImpl;
@@ -32,6 +33,7 @@ import com.dbn.database.common.metadata.impl.DBGrantedRoleMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBIndexColumnMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBIndexMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJavaClassMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBJavaFieldMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJavaMethodMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJavaParameterMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBMaterializedViewMetadataImpl;
@@ -51,6 +53,7 @@ import com.dbn.database.common.metadata.impl.DBTypeAttributeMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBTypeMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBUserMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBViewMetadataImpl;
+import com.dbn.database.common.security.ObjectIdentifierMonitor;
 import com.dbn.object.type.DBObjectRelationType;
 import com.dbn.object.type.DBObjectType;
 
@@ -61,7 +64,7 @@ public class DBObjectMetadataFactory {
 
     private DBObjectMetadataFactory() {}
 
-    public <M extends DBObjectMetadata> M create(DynamicContentType contentType, ResultSet resultSet) {
+    public <M extends DBObjectMetadata> M create(DynamicContentType contentType, ResultSet resultSet, DBNConnection connection) {
         M metadata = null;
         if (contentType instanceof DBObjectType) {
             DBObjectType objectType = (DBObjectType) contentType;
@@ -70,6 +73,10 @@ public class DBObjectMetadataFactory {
         } else if (contentType instanceof DBObjectRelationType) {
             DBObjectRelationType relationType = (DBObjectRelationType) contentType;
             metadata = (M) createMetadata(relationType, resultSet);
+        }
+
+        if (metadata != null) {
+            metadata = ObjectIdentifierMonitor.install(metadata, connection);
         }
 
 
@@ -113,6 +120,7 @@ public class DBObjectMetadataFactory {
             case DATABASE_TRIGGER:    return new DBTriggerMetadataImpl(resultSet);
             case DATASET_TRIGGER:     return new DBTriggerMetadataImpl(resultSet);
             case JAVA_CLASS:          return new DBJavaClassMetadataImpl(resultSet);
+            case JAVA_FIELD:          return new DBJavaFieldMetadataImpl(resultSet);
             case JAVA_METHOD:         return new DBJavaMethodMetadataImpl(resultSet);
             case JAVA_PARAMETER:      return new DBJavaParameterMetadataImpl(resultSet);
             case INCOMING_DEPENDENCY: return new DBObjectDependencyMetadataImpl(resultSet);

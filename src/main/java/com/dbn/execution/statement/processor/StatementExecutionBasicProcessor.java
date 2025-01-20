@@ -104,6 +104,7 @@ import static com.dbn.execution.ExecutionStatus.CANCELLED;
 import static com.dbn.execution.ExecutionStatus.CANCEL_REQUESTED;
 import static com.dbn.execution.ExecutionStatus.EXECUTING;
 import static com.dbn.execution.ExecutionStatus.PROMPTED;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 
 @Getter
@@ -514,8 +515,8 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
                 getProject(),
                 getConnection(),
                 false,
-                "Cancelling execution",
-                "Cancelling statement execution",
+                txt("prc.execution.title.CancellingExecution"),
+                txt("prc.execution.text.CancellingExecution"),
                 progress -> Safe.run(databaseCall, call -> call.cancelSilently()));
     }
 

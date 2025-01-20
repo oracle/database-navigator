@@ -21,19 +21,16 @@ import com.dbn.common.icon.Icons;
 import com.dbn.editor.data.DatasetEditorManager;
 import com.dbn.editor.data.filter.DatasetFilterInput;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsActions.ActionText;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractRecordsOpenAction extends BasicAction {
     private final DatasetFilterInput filterInput;
 
-    AbstractRecordsOpenAction(String text, DatasetFilterInput filterInput) {
-        super();
+    AbstractRecordsOpenAction(@ActionText String text, DatasetFilterInput filterInput) {
+        super(text, null, Icons.DBO_TABLE);
         this.filterInput = filterInput;
-        Presentation presentation = getTemplatePresentation();
-        presentation.setText(text, false);
-        presentation.setIcon(Icons.DBO_TABLE);
     }
 
     @Override

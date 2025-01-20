@@ -18,27 +18,23 @@ package com.dbn.database.oracle;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
-import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.CmdLineExecutionInput;
+import com.dbn.database.common.execution.JavaExecutionProcessor;
 import com.dbn.database.common.execution.MethodExecutionProcessor;
 import com.dbn.database.interfaces.DatabaseExecutionInterface;
+import com.dbn.database.oracle.execution.OracleJavaExecutionProcessor;
 import com.dbn.database.oracle.execution.OracleMethodDebugExecutionProcessor;
 import com.dbn.database.oracle.execution.OracleMethodExecutionProcessor;
 import com.dbn.execution.script.CmdLineInterface;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.common.util.Commons.nvl;
-
 @NonNls
-public class OracleExecutionInterface implements DatabaseExecutionInterface {
-    private static final String SQLPLUS_CONNECT_PATTERN_TNS= "[USER]@[TNS_PROFILE]";
-    private static final String SQLPLUS_CONNECT_PATTERN_SID = "[USER]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SID=[DATABASE])))\"";
-    private static final String SQLPLUS_CONNECT_PATTERN_SERVICE = "[USER]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SERVICE_NAME=[DATABASE])))\"";
-    private static final String SQLPLUS_CONNECT_PATTERN_BASIC = "[USER]@[HOST]:[PORT]/[DATABASE]";
+public final class OracleExecutionInterface implements DatabaseExecutionInterface {
 
     @Override
     public MethodExecutionProcessor createExecutionProcessor(DBMethod method) {
@@ -51,53 +47,27 @@ public class OracleExecutionInterface implements DatabaseExecutionInterface {
     }
 
     @Override
+    public JavaExecutionProcessor createExecutionProcessor(DBJavaMethod method) {
+        return new OracleJavaExecutionProcessor(method);
+    }
+
+    @Override
     public CmdLineExecutionInput createScriptExecutionInput(
             @NotNull CmdLineInterface cmdLineInterface,
             @NotNull String filePath,
-            String content,
+            @NotNull String content,
             @Nullable SchemaId schemaId,
             @NotNull DatabaseInfo databaseInfo,
             @NotNull AuthenticationInfo authenticationInfo) {
 
-        CmdLineExecutionInput input = new CmdLineExecutionInput(content);
-        DatabaseUrlType urlType = databaseInfo.getUrlType();
-        String connectPattern =
-                urlType == DatabaseUrlType.TNS ? SQLPLUS_CONNECT_PATTERN_TNS :
-                urlType == DatabaseUrlType.SID ? SQLPLUS_CONNECT_PATTERN_SID :
-                urlType == DatabaseUrlType.SERVICE ? SQLPLUS_CONNECT_PATTERN_SERVICE :
-                SQLPLUS_CONNECT_PATTERN_BASIC;
-
-        String connectArg = connectPattern.
-                replace("[USER]",        nvl(authenticationInfo.getUser(),     "")).
-                replace("[HOST]",        nvl(databaseInfo.getHost(),           "")).
-                replace("[PORT]",        nvl(databaseInfo.getPort(),           "")).
-                replace("[DATABASE]",    nvl(databaseInfo.getDatabase(),       "")).
-                replace("[TNS_PROFILE]", nvl(databaseInfo.getTnsProfile(),     ""));
-
-        boolean tnsConnection = databaseInfo.getUrlType() == DatabaseUrlType.TNS;
-        if (tnsConnection) {
-            input.addEnvironmentVariable("TNS_ADMIN", nvl(databaseInfo.getTnsFolder(), ""));
-        }
-
-        String executable = cmdLineInterface.getExecutablePath();
-        input.initCommand(executable);
-        input.addCommandArgument(connectArg);
-
-        if (schemaId != null) {
-            input.addStatement("alter session set current_schema = " + schemaId + ";");
-        }
-
-        input.addStatement("set echo on;");
-        input.addStatement("set linesize 32000;");
-        input.addStatement("set pagesize 40000;");
-        input.addStatement("set long 50000;");
-
-        input.addStatement("@" + filePath);
-        input.addStatement("exit");
-        return input;
+        return new OracleScriptExecutionInput(
+                cmdLineInterface,
+                filePath,
+                content,
+                schemaId,
+                databaseInfo,
+                authenticationInfo);
     }
-
-
 
 
 }

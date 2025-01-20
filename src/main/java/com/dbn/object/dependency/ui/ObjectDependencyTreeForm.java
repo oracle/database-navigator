@@ -89,7 +89,7 @@ public class ObjectDependencyTreeForm extends DBNFormBase {
         headerForm = new DBNHeaderForm(this, schemaObject);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel,"", true,
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
                 new PreviousSelectionAction(),
                 new NextSelectionAction(),
                 Actions.SEPARATOR,
@@ -112,10 +112,6 @@ public class ObjectDependencyTreeForm extends DBNFormBase {
 
     public class ExpandTreeAction extends BasicAction {
 
-        ExpandTreeAction() {
-            super("Expand All", null, Icons.ACTION_EXPAND_ALL);
-        }
-
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             Trees.expandAll(dependencyTree);
@@ -124,7 +120,8 @@ public class ObjectDependencyTreeForm extends DBNFormBase {
         @Override
         public void update(@NotNull AnActionEvent e) {
             Presentation presentation = e.getPresentation();
-            presentation.setText("Expand All");
+            presentation.setText(txt("app.shared.action.ExpandAll"));
+            presentation.setIcon(Icons.ACTION_EXPAND_ALL);
         }
     }
 
@@ -141,7 +138,7 @@ public class ObjectDependencyTreeForm extends DBNFormBase {
             boolean enabled = dependencyTree.getSelectionHistory().hasPrevious();
 
             presentation.setEnabled(enabled);
-            presentation.setText("Previous Selection");
+            presentation.setText(txt("app.navigation.action.PreviousSelection"));
             presentation.setIcon(Icons.BROWSER_BACK);
         }
     }
@@ -158,16 +155,12 @@ public class ObjectDependencyTreeForm extends DBNFormBase {
             Presentation presentation = e.getPresentation();
             boolean enabled = dependencyTree.getSelectionHistory().hasNext();
             presentation.setEnabled(enabled);
-            presentation.setText("Next Selection");
+            presentation.setText(txt("app.navigation.action.NextSelection"));
             presentation.setIcon(Icons.BROWSER_NEXT);
         }
     }
 
     public class CollapseTreeAction extends BasicAction {
-
-        CollapseTreeAction() {
-            super("Collapse All", null, Icons.ACTION_COLLAPSE_ALL);
-        }
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
@@ -177,7 +170,8 @@ public class ObjectDependencyTreeForm extends DBNFormBase {
         @Override
         public void update(@NotNull AnActionEvent e) {
             Presentation presentation = e.getPresentation();
-            presentation.setText("Collapse All");
+            presentation.setText(txt("app.shared.action.CollapseAll"));
+            presentation.setIcon(Icons.ACTION_COLLAPSE_ALL);
         }
     }
 }

@@ -63,6 +63,7 @@ import static com.dbn.connection.transaction.TransactionAction.TURN_AUTO_COMMIT_
 import static com.dbn.connection.transaction.TransactionAction.TURN_AUTO_COMMIT_ON;
 import static com.dbn.connection.transaction.TransactionAction.actions;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseTransactionManager extends ProjectComponentBase implements ProjectManagerListener {
 
@@ -126,12 +127,12 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
                 String actionName = actions.get(0).getName();
 
                 String title = txt("prc.transactions.title.TransactionalActivity");
-                String description = txt("prc.transactions.info.TransactionalActivity", actionName, connectionName);
+                String text = txt("prc.transactions.text.TransactionalActivity", actionName, connectionName);
                 ProgressRunnable executor = progress -> executeActions(connection, conn, actions, callback);
 
                 if (background)
-                    Progress.background(project, connection, false, title, description, executor); else
-                    Progress.prompt(project, connection, false, title, description, executor);
+                    Progress.background(project, connection, false, title, text, executor); else
+                    Progress.prompt(project, connection, false, title, text, executor);
             }
         }
     }
@@ -168,7 +169,7 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
                     TransactionListener.TOPIC,
                     (listener) -> listener.beforeAction(connection, conn, action));
 
-            ProgressMonitor.setProgressDetail(txt("prc.transactions.info.TransactionalActivity", action.getName(), connectionName));
+            ProgressMonitor.setProgressDetail(txt("prc.transactions.text.TransactionalActivity", action.getName(), connectionName));
 
             action.execute(connection, conn);
             if (action.getNotificationType() != null) {
@@ -227,7 +228,7 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
                     String fileUrl = selectedFile.getPresentableUrl();
 
                     getSettings().getCommitMultipleChanges().resolve(
-                            list(connectionName, fileUrl),
+                            project, list(connectionName, fileUrl),
                             option -> {
                                 switch (option) {
                                     case COMMIT: execute(connection, c, actions, background, commitCallback); break;
@@ -251,6 +252,7 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
 
         List<TransactionAction> actions = actions(ROLLBACK);
 
+        Project project = connection.getProject();
         List<DBNConnection> connections = conn == null ?
                 connection.getConnections(ConnectionType.MAIN, ConnectionType.SESSION) :
                 Collections.singletonList(conn);
@@ -260,13 +262,12 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
 
             PendingTransactionBundle dataChanges = c.getDataChanges();
             if (fromEditor && dataChanges != null && dataChanges.size() > 1) {
-                Project project = connection.getProject();
                 VirtualFile selectedFile = Editors.getSelectedFile(project);
                 if (selectedFile != null) {
                     String connectionName = connection.getConnectionName(c);
 
                     getSettings().getRollbackMultipleChanges().resolve(
-                            list(connectionName, selectedFile.getPresentableUrl()),
+                            project, list(connectionName, selectedFile.getPresentableUrl()),
                             option -> {
                                 switch (option) {
                                     case ROLLBACK: execute(connection, c, actions, background, rollbackCallback); break;
@@ -312,14 +313,15 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
                 TURN_AUTO_COMMIT_OFF :
                 TURN_AUTO_COMMIT_ON;
 
-        List<DBNConnection> connections = connection.getConnections(ConnectionType.MAIN, ConnectionType.SESSION);
         connection.setAutoCommit(!autoCommit);
+        Project project = connection.getProject();
+        List<DBNConnection> connections = connection.getConnections(ConnectionType.MAIN, ConnectionType.SESSION);
         for (DBNConnection conn : connections) {
             if (!autoCommit && conn.hasDataChanges()) {
                 String connectionName = connection.getConnectionName(conn);
 
                 getSettings().getToggleAutoCommit().resolve(
-                        list(connectionName),
+                        project, list(connectionName),
                         option -> {
                             switch (option) {
                                 case COMMIT:   execute(connection, conn, actions(COMMIT, autoCommitAction), true, null); break;
@@ -334,13 +336,14 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
 
     public void disconnect(ConnectionHandler connection) {
         connection.disconnect();
+
+        Project project = connection.getProject();
         List<DBNConnection> connections = connection.getConnections();
         for (DBNConnection conn : connections) {
             if (conn.hasDataChanges()) {
                 String connectionName = connection.getConnectionName(conn);
-
                 getSettings().getDisconnect().resolve(
-                        list(connectionName),
+                        project, list(connectionName),
                         option -> {
                             switch (option) {
                                 case COMMIT:   execute(connection, conn, actions(COMMIT, DISCONNECT), false, null);break;
@@ -365,7 +368,7 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
         InteractiveOptionBroker<TransactionOption> closeProjectOptionHandler = transactionManagerSettings.getCloseProject();
 
         closeProjectOptionHandler.resolve(
-                list(project.getName()),
+                project, list(project.getName()),
                 option -> {
                     switch (option) {
                         case COMMIT: {

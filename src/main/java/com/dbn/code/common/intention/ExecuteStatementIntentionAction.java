@@ -42,6 +42,7 @@ import static com.dbn.common.util.Editors.isMainEditor;
 import static com.dbn.common.util.Files.isDbLanguageFile;
 import static com.dbn.connection.mapping.FileConnectionContextManager.hasConnectivityContext;
 import static com.dbn.debugger.DatabaseDebuggerManager.isDebugConsole;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExecuteStatementIntentionAction extends EditorIntentionAction {
     @Override
@@ -52,7 +53,7 @@ public class ExecuteStatementIntentionAction extends EditorIntentionAction {
     @Override
     @NotNull
     public String getText() {
-        return "Execute statement";
+        return txt("app.codeEditor.action.ExecuteStatement");
     }
 
 

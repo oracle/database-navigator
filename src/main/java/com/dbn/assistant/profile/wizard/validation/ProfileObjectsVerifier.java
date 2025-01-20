@@ -57,7 +57,7 @@ public class ProfileObjectsVerifier extends InputVerifier implements
     boolean isValid = profileTable.getRowCount() > 0;
     if (!isValid) {
       profileTable.setBorder(ERROR_BORDER);
-      profileTable.setToolTipText(txt("profile.mgmt.object_list_step.validation"));
+      profileTable.setToolTipText(txt("cfg.assistant.error.ObjectInfoEmpty"));
     } else {
       profileTable.setBorder(DEFAULT_BORDER);
       profileTable.setToolTipText(null);

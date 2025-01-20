@@ -21,16 +21,14 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.DBObjectMetadata;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.type.DBObjectType;
-import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 
-@Getter
 public abstract class DBRootObjectImpl<M extends DBObjectMetadata> extends DBObjectImpl<M> implements DBRootObject {
 
-    private volatile DBObjectListContainer childObjects;
+    private DBObjectListContainer childObjects;
 
     protected DBRootObjectImpl(@NotNull ConnectionHandler connection, M metadata) throws SQLException {
         super(connection, metadata);
@@ -50,14 +48,19 @@ public abstract class DBRootObjectImpl<M extends DBObjectMetadata> extends DBObj
         initLists(connection);
     }
 
+    @Override
+    @Nullable
+    public synchronized DBObjectListContainer getChildObjects() {
+        // Fortify code correctness (non-synchronized method overrides)
+        // NOTE: do not transform this into a lazy initialized for childObjects
+        //       (there are many cases when this is not needed)
+        return childObjects;
+    }
+
     @NotNull
-    protected DBObjectListContainer ensureChildObjects() {
+    protected synchronized DBObjectListContainer ensureChildObjects() {
         if (childObjects == null) {
-            synchronized (this) {
-                if (childObjects == null) {
-                    childObjects = new DBObjectListContainer(this);
-                }
-            }
+            childObjects = new DBObjectListContainer(this);
         }
         return childObjects;
     }

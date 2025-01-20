@@ -18,11 +18,12 @@ package com.dbn.common.options.setting;
 
 import com.dbn.common.options.PersistentConfiguration;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 
 import javax.swing.JToggleButton;
 
 public class BooleanSetting extends Setting<Boolean, JToggleButton> implements PersistentConfiguration {
-    public BooleanSetting(String name, Boolean value) {
+    public BooleanSetting(@NonNls String name, Boolean value) {
         super(name, value);
     }
     

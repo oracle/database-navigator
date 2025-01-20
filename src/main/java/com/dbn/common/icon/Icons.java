@@ -392,6 +392,8 @@ public class Icons {
     public static final Icon DBO_JAVA_INTERFACE                  = load("/img/object/java/JavaInterface.svg");
     public static final Icon DBO_JAVA_ENUMERATION                = load("/img/object/java/JavaEnumeration.svg");
     public static final Icon DBO_JAVA_EXCEPTION                  = load("/img/object/java/JavaException.svg");
+    public static final Icon DBO_JAVA_FIELD                      = load("/img/object/java/JavaField.svg");
+    public static final Icon DBO_JAVA_FIELDS                     = load("/img/object/java/JavaFields.svg");
     public static final Icon DBO_JAVA_METHOD                     = load("/img/object/java/JavaMethod.svg");
     public static final Icon DBO_JAVA_METHODS                    = load("/img/object/java/JavaMethods.svg");
     public static final Icon DBO_JAVA_METHOD_ABSTRACT            = load("/img/object/java/JavaMethodAbstract.svg");

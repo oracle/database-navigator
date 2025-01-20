@@ -39,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JPanel;
 import javax.swing.tree.TreePath;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Borderless.markBorderless;
 
 public class ExecutionMessagesForm extends DBNFormBase {
@@ -57,7 +58,8 @@ public class ExecutionMessagesForm extends DBNFormBase {
         markBorderless(messagesTree);
 
         messagesScrollPane.setViewportView(messagesTree);
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.ExecutionConsoleMessages", "", false);
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.ExecutionConsoleMessages");
+        setAccessibleName(actionToolbar, txt("app.execution.aria.ExecutionMessageActions"));
         actionsPanel.add(actionToolbar.getComponent());
 
         ProjectEvents.subscribe(

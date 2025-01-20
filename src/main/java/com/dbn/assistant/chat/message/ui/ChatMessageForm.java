@@ -24,7 +24,6 @@ import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
-import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.util.Actions;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -40,10 +39,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+
+import static com.dbn.common.ui.util.Fonts.regularBold;
 
 /**
  * Stub implementation for chat message forms
@@ -90,14 +90,14 @@ public abstract class ChatMessageForm extends DBNFormBase {
                         context.getModel() + "  -  " +
                         context.getAction().getName();
 
-        titleLabel.setFont(Fonts.smaller(Fonts.deriveFont(Fonts.getLabelFont(), Font.BOLD), 2));
+        titleLabel.setFont(regularBold(-2));
         titleLabel.setForeground(Colors.delegate(Colors::getLabelForeground));
         titleLabel.setText(title);
     }
 
     protected void initActionToolbar() {
         JPanel actionPanel = getActionPanel();
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionPanel, "", true, createActions());
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionPanel, true, createActions());
 
         JComponent component = actionToolbar.getComponent();
         component.setOpaque(false);

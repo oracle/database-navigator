@@ -25,6 +25,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ExplainPlanResultCloseAction extends AbstractExplainPlanResultAction {
 
     @Override
@@ -35,7 +37,7 @@ public class ExplainPlanResultCloseAction extends AbstractExplainPlanResultActio
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ExplainPlanResult target) {
-        presentation.setText("Close");
+        presentation.setText(txt("app.execution.action.Close"));
         presentation.setIcon(Icons.EXEC_RESULT_CLOSE);
     }
 }

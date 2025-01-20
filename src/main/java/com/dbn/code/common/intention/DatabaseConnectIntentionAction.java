@@ -36,6 +36,7 @@ import javax.swing.Icon;
 import static com.dbn.assistant.editor.AssistantPrompt.Flavor.COMMENT;
 import static com.dbn.assistant.editor.AssistantPrompt.Flavor.SELECTION;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseConnectIntentionAction extends EditorIntentionAction {
     @Override
@@ -46,7 +47,7 @@ public class DatabaseConnectIntentionAction extends EditorIntentionAction {
     @Override
     @NotNull
     public String getText() {
-        return "Connect to database";
+        return txt("app.codeEditor.action.ConnectToDatabase");
     }
 
 

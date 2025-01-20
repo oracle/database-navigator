@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetFilterCreateEditAction extends AbstractDataEditorAction {
 
@@ -64,10 +65,10 @@ public class DatasetFilterCreateEditAction extends AbstractDataEditorAction {
             DatasetFilterManager filterManager = DatasetFilterManager.getInstance(dataset.getProject());
             DatasetFilter activeFilter = filterManager.getActiveFilter(dataset);
             if (activeFilter == null || activeFilter.getFilterType() == DatasetFilterType.NONE) {
-                presentation.setText("Create Filter");
+                presentation.setText(txt("app.dataEditor.action.CreateFilter"));
                 presentation.setIcon(Icons.DATASET_FILTER_NEW);
             } else {
-                presentation.setText("Edit Filter");
+                presentation.setText(txt("app.dataEditor.action.EditFilter"));
                 presentation.setIcon(Icons.DATASET_FILTER_EDIT);
             }
         } else {

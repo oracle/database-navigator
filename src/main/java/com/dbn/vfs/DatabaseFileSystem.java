@@ -73,6 +73,7 @@ import static com.dbn.vfs.DatabaseFileSystem.FilePathType.OBJECT_CONTENTS;
 import static com.dbn.vfs.DatabaseFileSystem.FilePathType.SESSION_BROWSERS;
 import static com.dbn.vfs.DatabaseFileSystem.FilePathType.SESSION_STATEMENTS;
 
+@NonNls
 @Slf4j
 public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysicalFileSystem,*/ NamedComponent {
     // TODO Review NonPhysical marker: attempts to make this file system non-physical backfired with the PsiFileManager, specifically with rhe psifile/document linkage
@@ -95,7 +96,7 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
         private final String urlToken;
         private final String presentableUrlToken;
 
-        FilePathType(String urlToken, String presentableUrlToken) {
+        FilePathType(@NonNls String urlToken, @NonNls String presentableUrlToken) {
             this.urlToken = urlToken + PS;
             this.presentableUrlToken = presentableUrlToken + PS;
         }

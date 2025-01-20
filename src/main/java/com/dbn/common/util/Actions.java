@@ -29,30 +29,31 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import java.awt.event.InputEvent;
-import java.util.UUID;
 
 import static com.dbn.common.ui.util.ClientProperty.ACTION_TOOLBAR;
+import static com.intellij.openapi.actionSystem.ActionPlaces.POPUP;
+import static com.intellij.openapi.actionSystem.ActionPlaces.TOOLBAR;
 
 @UtilityClass
 public class Actions {
     public static final AnAction SEPARATOR = Separator.getInstance();
 
-    public static ActionToolbar createActionToolbar(@NotNull JComponent component, String name, String place, boolean horizontal){
+    public static ActionToolbar createActionToolbar(@NotNull JComponent component, boolean horizontal, String name){
         ActionManager actionManager = ActionManager.getInstance();
         ActionGroup actionGroup = (ActionGroup) actionManager.getAction(name);
-        ActionToolbar toolbar = actionManager.createActionToolbar(adjustPlace(place), actionGroup, horizontal);
+        ActionToolbar toolbar = actionManager.createActionToolbar(TOOLBAR, actionGroup, horizontal);
         linkActionToolbar(component, toolbar);
         return toolbar;
     }
 
-    public static ActionToolbar createActionToolbar(@NotNull JComponent component, String place, boolean horizontal, ActionGroup actionGroup){
+    public static ActionToolbar createActionToolbar(@NotNull JComponent component, boolean horizontal, ActionGroup actionGroup){
         ActionManager actionManager = ActionManager.getInstance();
-        ActionToolbar toolbar = actionManager.createActionToolbar(adjustPlace(place), actionGroup, horizontal);
+        ActionToolbar toolbar = actionManager.createActionToolbar(TOOLBAR, actionGroup, horizontal);
         linkActionToolbar(component, toolbar);
         return toolbar;
     }
 
-    public static ActionToolbar createActionToolbar(@NotNull JComponent component, String place, boolean horizontal, AnAction... actions){
+    public static ActionToolbar createActionToolbar(@NotNull JComponent component, boolean horizontal, AnAction... actions){
         ActionManager actionManager = ActionManager.getInstance();
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         for (AnAction action : actions) {
@@ -61,7 +62,7 @@ public class Actions {
                 actionGroup.add(action);
         }
 
-        ActionToolbar toolbar = actionManager.createActionToolbar(adjustPlace(place), actionGroup, horizontal);
+        ActionToolbar toolbar = actionManager.createActionToolbar(TOOLBAR, actionGroup, horizontal);
         linkActionToolbar(component, toolbar);
         return toolbar;
     }
@@ -71,22 +72,15 @@ public class Actions {
         toolbar.setTargetComponent(component);
     }
 
-    public static ActionPopupMenu createActionPopupMenu(@NotNull JComponent component, String place, ActionGroup actionGroup){
+    public static ActionPopupMenu createActionPopupMenu(@NotNull JComponent component, ActionGroup actionGroup){
         ActionManager actionManager = ActionManager.getInstance();
-        ActionPopupMenu popupMenu = actionManager.createActionPopupMenu(adjustPlace(place), actionGroup);
+        ActionPopupMenu popupMenu = actionManager.createActionPopupMenu(POPUP, actionGroup);
         popupMenu.setTargetComponent(component);
         return popupMenu;
     }
 
     public static String adjustActionName(@NotNull String name) {
         return name.replaceAll("_", "__");
-    }
-
-    private static String adjustPlace(String place) {
-        if (Strings.isEmpty(place)) {
-            return UUID.randomUUID().toString();
-        }
-        return place;
     }
 
     public static boolean isConsumed(AnActionEvent event) {

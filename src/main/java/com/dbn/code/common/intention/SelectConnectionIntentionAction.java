@@ -38,6 +38,7 @@ import static com.dbn.common.util.Files.isDbLanguagePsiFile;
 import static com.dbn.connection.ConnectionSelectorOptions.Option.SHOW_CREATE_CONNECTION;
 import static com.dbn.connection.ConnectionSelectorOptions.Option.SHOW_VIRTUAL_CONNECTIONS;
 import static com.dbn.connection.ConnectionSelectorOptions.options;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SelectConnectionIntentionAction extends EditorIntentionAction {
     @Override
@@ -48,7 +49,7 @@ public class SelectConnectionIntentionAction extends EditorIntentionAction {
     @Override
     @NotNull
     public String getText() {
-        return "Select connection";
+        return txt("app.codeEditor.action.SelectConnection");
     }
 
     @Override

@@ -29,6 +29,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @BackgroundUpdate
 public class ConsoleSaveToFileAction extends ProjectAction {
 
@@ -50,8 +52,7 @@ public class ConsoleSaveToFileAction extends ProjectAction {
         Presentation presentation = e.getPresentation();
         presentation.setEnabled(true);
         presentation.setVisible(visible);
-        presentation.setText("Save to File");
-        presentation.setDescription("Save console to file");
+        presentation.setText(txt("app.codeEditor.action.SaveConsoleToFile"));
         presentation.setIcon(Icons.CODE_EDITOR_SAVE_TO_FILE);
     }
 }

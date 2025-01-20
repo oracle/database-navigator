@@ -2,6 +2,7 @@
 - Oracle "Select-AI" integration (Database Assistant)
 - Oracle token authentication ("OCI API Key" and "OCI Interactive")
 - Oracle OJVM support (early preview)
+- Password storage in native keychain
 - Support for latest IDE versions (2024.3.x)
 - Bug fixes
 

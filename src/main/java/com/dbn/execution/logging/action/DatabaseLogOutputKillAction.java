@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseLogOutputKillAction extends AbstractDatabaseLoggingAction implements ComponentBase {
 
@@ -37,8 +38,8 @@ public class DatabaseLogOutputKillAction extends AbstractDatabaseLoggingAction i
         if (context.isActive()) {
             Messages.showQuestionDialog(
                     project,
-                    "Kill process",
-                    "This will interrupt the script execution process. \nAre you sure you want to continue?",
+                    txt("msg.execution.title.KillProcess"),
+                    txt("msg.execution.question.KillProcess"),
                     Messages.OPTIONS_YES_NO, 0,
                     option -> when(option == 0, () -> context.stop()));
 
@@ -49,7 +50,7 @@ public class DatabaseLogOutputKillAction extends AbstractDatabaseLoggingAction i
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatabaseLoggingResult loggingResult) {
-        presentation.setText("Kill Process");
+        presentation.setText(txt("app.execution.action.KillProcess"));
         presentation.setIcon(Icons.KILL_PROCESS);
 
         LogOutputContext context = loggingResult == null ? null : loggingResult.getContext();

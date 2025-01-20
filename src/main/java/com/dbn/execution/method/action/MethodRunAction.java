@@ -27,6 +27,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class MethodRunAction extends AnObjectAction<DBMethod> {
     private final boolean listElement;
     public MethodRunAction(DBMethod method, boolean listElement) {
@@ -53,7 +55,7 @@ public class MethodRunAction extends AnObjectAction<DBMethod> {
         if (listElement) {
             super.update(e, presentation, project, target);
         } else {
-            presentation.setText("Run...");
+            presentation.setText(txt("app.execution.action.Run"));
             presentation.setIcon(Icons.METHOD_EXECUTION_RUN);
         }
     }

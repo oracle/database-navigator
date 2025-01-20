@@ -38,6 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.driver.DatabaseDriverManager.COMPONENT_NAME;
@@ -152,7 +153,7 @@ public class DatabaseDriverManager extends ApplicationComponentBase implements P
 
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         Element driverClassesElement = newElement(element, "known-driver-classes");
         for (val entry : driverMetadata.entrySet()) {
             File file = entry.getKey();

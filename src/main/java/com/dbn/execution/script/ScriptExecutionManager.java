@@ -20,10 +20,10 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.process.ProcessController;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.CancellableDatabaseCall;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.util.FileChoosers;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -80,10 +80,13 @@ import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.execution.script.ScriptExecutionProcessHandler.startProcess;
+import static com.dbn.nls.NlsResources.txt;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Getter
@@ -152,15 +155,15 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                 clearOutputOption = executionInput.isClearOutput();
 
                 Progress.background(project, connection, true,
-                        "Executing script",
-                        "Executing database script \"" + virtualFile.getName() + "\"",
+                        txt("prc.execution.title.ExecutingScript"),
+                        txt("prc.execution.text.ExecutingScript",virtualFile.getName()),
                         progress -> {
                             try {
                                 doExecuteScript(executionInput);
                             } catch (Exception e) {
                                 conditionallyLog(e);
-                                Messages.showErrorDialog(getProject(), "Error",
-                                        "Error executing SQL Script \"" + virtualFile.getPath() + "\". " + e.getMessage());
+                                Messages.showErrorDialog(getProject(),
+                                        txt("msg.execution.error.ErrorExecutingScript", virtualFile.getPath(), e.getMessage()));
                             }
                         });
             }
@@ -199,9 +202,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                             content,
                             schemaId,
                             connection.getDatabaseInfo(),
-                            connection.getAuthenticationInfo()
-                    );
-
+                            connection.getAuthenticationInfo());
 
                     FileUtil.writeToFile(temporaryScriptFile, executionInput.getTextContent());
                     if (!temporaryScriptFile.isFile() || !temporaryScriptFile.exists()) {
@@ -209,16 +210,17 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                         throw new IllegalStateException("Failed to create temporary script file " + temporaryScriptFile + ". Check access rights at location.");
                     }
 
-                    ProcessBuilder processBuilder = new ProcessBuilder(executionInput.getCommand());
-                    processBuilder.environment().putAll(executionInput.getEnvironmentVars());
-                    processBuilder.redirectErrorStream(true);
-
-                    String lineCommand = executionInput.getLineCommand();
-                    executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput("Executing command: " + lineCommand));
+                    String commandLine = executionInput.getCommandLine();
+                    executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput("Executing command: " + commandLine));
                     executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput(""));
 
+                    ScriptExecutionProcessHandler processHandler = startProcess(executionInput);
+                    processHandler.whenOutputted(e -> consumeProcessOutput(e.getText(), outputContext));
+                    processHandler.whenNotified(e -> processHandler.sendCommands(executionInput.getStatements()));
+
                     // start the process
-                    Process process = processBuilder.start();
+                    Process process = processHandler.getProcess();
+
                     outputContext.setProcess(process);
                     activeProcesses.put(sourceFile, process);
 
@@ -226,16 +228,9 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     outputContext.start();
                     executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput(outputContext, " - Script execution started", false));
 
-
-                    ProcessController controller = new ProcessController(process, timeout, SECONDS);
-                    controller.init(l -> consumeProcessOutput(l, outputContext));
-
-                    // send password and commands
-                    char[] password = connection.getAuthenticationInfo().getPassword();
-                    controller.sendPassword(password);
-                    controller.sendCommands(executionInput.getStatements());
-
-                    controller.waitFor();
+                    // start monitoring the process and wait for completion
+                    processHandler.startNotify();
+                    processHandler.waitFor();
 
                     LogOutput logOutput = LogOutput.createSysOutput(outputContext,
                             outputContext.isStopped() ?
@@ -258,7 +253,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     Messages.showErrorDialog(project,
                             "Script execution timeout",
                             "The script execution has timed out",
-                            new String[]{"Retry", "Cancel"}, 0,
+                            Messages.OPTIONS_RETRY_CANCEL, 0,
                             option -> when(option == 0, () -> executeScript(sourceFile)));
 
                 }
@@ -268,7 +263,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     Messages.showErrorDialog(project,
                             "Script execution error",
                             "Error executing SQL script \"" + sourceFile.getPath() + "\". \nDetails: " + e.getMessage(),
-                            new String[]{"Retry", "Cancel"}, 0,
+                            Messages.OPTIONS_RETRY_CANCEL, 0,
                             option -> when(option == 0, () -> executeScript(sourceFile)));
                 }
             }.start();
@@ -293,6 +288,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
     }
 
     private void consumeProcessOutput(String line, LogOutputContext outputContext) {
+        line = line.replace("\n", "").replace("\r", "");
         LogOutput stdOutput = LogOutput.createStdOutput(line);
         executionManager.writeLogOutput(outputContext, stdOutput);
     }
@@ -327,10 +323,9 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
     @Nullable
     public VirtualFile selectCmdLineExecutable(@NotNull DatabaseType databaseType, @Nullable String selectedExecutable) {
-        FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(true, false, false, false, false, false);
         CmdLineInterface defaultCli = CmdLineInterface.getDefault(databaseType);
         String extension = OS.isWindows() ? ".exe" : "";
-        fileChooserDescriptor.
+        FileChooserDescriptor fileChooserDescriptor = FileChoosers.singleFile().
                 withTitle("Select Command-Line Client").
                 withDescription("Select Command-Line Interface executable (" + defaultCli.getExecutablePath() + extension + ")").
                 withShowHiddenFiles(true);
@@ -399,7 +394,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         setBooleanAttribute(element, "clear-outputs", clearOutputOption);
         Element interfacesElement = newElement(element, "recently-used-interfaces");
         for (val entry : recentlyUsedInterfaces.entrySet()) {

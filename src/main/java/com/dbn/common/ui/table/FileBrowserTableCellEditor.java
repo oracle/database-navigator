@@ -50,7 +50,7 @@ public class FileBrowserTableCellEditor extends AbstractCellEditor implements Ta
         this.fileChooserDescriptor = fileChooserDescriptor;
         textField.setBorder(Borders.TEXT_FIELD_INSETS);
 
-        DBNButton button = new DBNButton(Icons.DATA_EDITOR_BROWSE);
+        DBNButton button = new DBNButton(Icons.DATA_EDITOR_BROWSE, "File Browser");
         button.setMaximumSize(new Dimension(10, -1));
         mainPanel.setBackground(UIUtil.getTableBackground());
         button.addMouseListener(Mouse.listener().onClick(e -> openFileChooser(e)));

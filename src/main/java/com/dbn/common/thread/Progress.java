@@ -29,6 +29,8 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.Task.Backgroundable;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts.ProgressText;
+import com.intellij.openapi.util.NlsContexts.ProgressTitle;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,7 +41,7 @@ import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BAC
 
 @UtilityClass
 public final class Progress {
-    public static void background(Project project, DatabaseContext context, boolean cancellable, String title, String text, ProgressRunnable runnable) {
+    public static void background(Project project, DatabaseContext context, boolean cancellable, @ProgressTitle String title, @ProgressText String text, ProgressRunnable runnable) {
         if (Checks.isNotValid(project)) return;
         title = Titles.suffixed(title, context);
 
@@ -53,7 +55,7 @@ public final class Progress {
     }
 
 
-    public static void prompt(Project project, DatabaseContext context, boolean cancellable, String title, String text, ProgressRunnable runnable) {
+    public static void prompt(Project project, DatabaseContext context, boolean cancellable, @ProgressTitle String title, @ProgressText String text, ProgressRunnable runnable) {
         if (Checks.isNotValid(project)) return;
         title = Titles.suffixed(title, context);
 
@@ -74,7 +76,7 @@ public final class Progress {
     }
 
 
-    public static void modal(Project project, DatabaseContext context, boolean cancellable, String title, String text, ProgressRunnable runnable) {
+    public static void modal(Project project, DatabaseContext context, boolean cancellable, @ProgressTitle String title, @ProgressText String text, ProgressRunnable runnable) {
         if (Checks.isNotValid(project)) return;
         title = Titles.suffixed(title, context);
 

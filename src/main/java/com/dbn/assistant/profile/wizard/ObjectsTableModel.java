@@ -42,8 +42,8 @@ public class ObjectsTableModel extends AbstractTableModel {
     public static final int OWNER_COLUMN_IDX = 1;
 
     private static final String[] columnNames = {
-            txt("profile.mgmt.obj_table.header.name"),
-            txt("profile.mgmt.obj_table.header.owner")
+            txt("cfg.assistant.title.Dataset"),
+            txt("cfg.assistant.title.Owner")
     };
 
     /**

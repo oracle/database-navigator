@@ -22,11 +22,13 @@ import com.dbn.common.ui.list.CheckBoxList;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SelectAllColumnsAction extends BasicAction {
     private final CheckBoxList list;
 
     public SelectAllColumnsAction(CheckBoxList list)  {
-        super("Select All Columns", null, Icons.ACTION_SELECT_ALL);
+        super(txt("app.dataEditor.action.SelectAllColumns"), null, Icons.ACTION_SELECT_ALL);
         this.list = list;
     }
 

@@ -16,7 +16,10 @@
 
 package com.dbn.browser.ui;
 
+import org.jetbrains.annotations.NonNls;
+
 public abstract class HtmlToolTipBuilder implements ToolTipProvider {
+    @NonNls
     private StringBuilder buffer;
     @Override
     public String getToolTip() {

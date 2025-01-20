@@ -36,6 +36,7 @@ import static com.dbn.common.util.Editors.isMainEditor;
 import static com.dbn.common.util.Files.isDbLanguagePsiFile;
 import static com.dbn.connection.mapping.FileConnectionContextManager.hasConnectivityContext;
 import static com.dbn.debugger.DatabaseDebuggerManager.isDebugConsole;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExecuteScriptIntentionAction extends EditorIntentionAction  {
     @Override
@@ -46,7 +47,7 @@ public class ExecuteScriptIntentionAction extends EditorIntentionAction  {
     @Override
     @NotNull
     public String getText() {
-        return "Execute SQL script";
+        return txt("app.codeEditor.action.ExecuteSqlScript");
     }
 
 

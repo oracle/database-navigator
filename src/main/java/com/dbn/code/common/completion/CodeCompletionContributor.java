@@ -29,10 +29,11 @@ import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.patterns.PsiElementPattern;
 import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 public class CodeCompletionContributor extends CompletionContributor {
-    public static final String DUMMY_TOKEN = "DBN_DUMMY_TOKEN";
+    public static final @NonNls String DUMMY_TOKEN = "DBN_DUMMY_TOKEN";
 
     public CodeCompletionContributor() {
         final PsiElementPattern.Capture<PsiElement> everywhere = PlatformPatterns.psiElement();

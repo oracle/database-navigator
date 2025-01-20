@@ -56,8 +56,12 @@ public class ${CLASS_NAME}  {
     }
 
     public static void main(String[] args) {
-        ${CLASS_NAME} connector = new ${CLASS_NAME}();
+        #if (${AUTH_TYPE} == 'USER_PASSWORD')
+        // init password
+        readPassword();
+        #end
 
+        ${CLASS_NAME} connector = new ${CLASS_NAME}();
         try (Connection connection = connector.connect()) {
             connection.isValid(10);
             System.out.println("INFO: Successfully connected and validated");
@@ -66,4 +70,20 @@ public class ${CLASS_NAME}  {
             System.out.println("ERROR: Failed to connect. Cause:  " + e.getMessage());
         }
     }
+
+    #if (${AUTH_TYPE} == 'USER_PASSWORD')
+    /**
+     * Load password from system environment
+     */
+    private static void readPassword() {
+        String password = System.getenv(JDBC_DB_PASSWORD);
+        if (password == null) {
+            throw new AssertionError(
+                "Your connection is using password authentication, " +
+                "you must set the value on the JDBC_DB_PASSWORD environment variable");
+        }
+        System.setProperty(JDBC_DB_PASSWORD, password);
+    }
+    #end
+
 }

@@ -25,6 +25,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class PendingTransactionsOpenAction extends AbstractConnectionAction {
 
     public PendingTransactionsOpenAction(ConnectionHandler connection) {
@@ -43,6 +45,6 @@ public class PendingTransactionsOpenAction extends AbstractConnectionAction {
         boolean enabled = connection != null && connection.hasUncommittedChanges();
 
         presentation.setEnabled(enabled);
-        presentation.setText("Show Uncommitted Changes");
+        presentation.setText(txt("app.connection.action.ShowUncommittedChanges"));
     }
 }

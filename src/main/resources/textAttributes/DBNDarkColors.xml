@@ -63,13 +63,13 @@
     </option>
     <option name="DBNavigator.DefaultTextAttributes.DataEditor.PrimaryKey">
         <value>
-            <option name="FOREGROUND" value="95A8B4"/>
+            <option name="FOREGROUND" value="C4D1DC"/>
             <option name="BACKGROUND" value="2E3443"/>
         </value>
     </option>
     <option name="DBNavigator.DefaultTextAttributes.DataEditor.ForeignKey">
         <value>
-            <option name="FOREGROUND" value="A1A8A1"/>
+            <option name="FOREGROUND" value="C9D5C9"/>
             <option name="BACKGROUND" value="303C30"/>
         </value>
     </option>
@@ -92,13 +92,13 @@
     </option>
     <option name="DBNavigator.DefaultTextAttributes.SessionBrowser.CachedSession">
         <value>
-            <option name="FOREGROUND" value="A1A8A1"/>
+            <option name="FOREGROUND" value="C9D5C9"/>
             <option name="BACKGROUND" value="1E1F22"/>
         </value>
     </option>
     <option name="DBNavigator.DefaultTextAttributes.SessionBrowser.SnipedSession">
         <value>
-            <option name="FOREGROUND" value="95A8B4"/>
+            <option name="FOREGROUND" value="C4D1DC"/>
             <option name="BACKGROUND" value="1E1F22"/>
         </value>
     </option>

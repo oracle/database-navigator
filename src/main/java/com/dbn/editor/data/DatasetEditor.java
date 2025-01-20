@@ -95,6 +95,7 @@ import static com.dbn.editor.data.DatasetEditorStatus.LOADED;
 import static com.dbn.editor.data.DatasetEditorStatus.LOADING;
 import static com.dbn.editor.data.filter.DatasetFilterManager.EMPTY_FILTER;
 import static com.dbn.editor.data.model.RecordStatus.INSERTING;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 @Getter
@@ -311,7 +312,7 @@ public class DatasetEditor extends DisposableUserDataHolderBase implements
 
     public void loadData(final DatasetLoadInstructions instructions) {
         if (status.isNot(LOADING)) {
-            ConnectionAction.invoke("loading table data", false, this,
+            ConnectionAction.invoke(txt("msg.dataEditor.title.LoadingTableData"), false, this,
                     (action) -> {
                         setLoading(true);
                         Project project = getProject();
@@ -372,26 +373,28 @@ public class DatasetEditor extends DisposableUserDataHolderBase implements
             DatasetFilter filter = filterManager.getActiveFilter(dataset);
             String datasetName = dataset.getQualifiedNameWithType();
             if (connection.isValid()) {
+                boolean timeoutException = messageParserInterface.isTimeoutException(e);
                 if (filter == null || filter == EMPTY_FILTER || filter.getError() != null || e instanceof SQLRecoverableException) {
                     if (instr.isDeliberateAction()) {
-                        String message =
-                                "Error loading data for " + datasetName + ".\n" + (
-                                        messageParserInterface.isTimeoutException(e) ?
-                                                "The operation was timed out. Please check your timeout configuration in Data Editor settings." :
-                                                "Database error message: " + e.getMessage());
+                        String message = timeoutException ?
+                                txt("msg.dataEditor.error.DataLoadTimeout", datasetName) :
+                                txt("msg.dataEditor.error.DataLoadFailed", datasetName, e.getMessage());
 
                         Messages.showErrorDialog(project, message);
                     }
                 } else {
-                    String message =
-                            "Error loading data for " + datasetName + ".\n" + (
-                                    messageParserInterface.isTimeoutException(e) ?
-                                            "The operation was timed out. Please check your timeout configuration in Data Editor settings." :
-                                            "Filter \"" + filter.getName() + "\" may be invalid.\n" +
-                                                    "Database error message: " + e.getMessage());
-                    String[] options = {"Retry", "Edit filter", "Remove filter", "Ignore filter", "Cancel"};
+                    String message = timeoutException ?
+                            txt("msg.dataEditor.error.DataLoadTimeout", datasetName) :
+                            txt("msg.dataEditor.error.DataLoadInvalidFilter", datasetName, filter.getName(), e.getMessage());
 
-                    Messages.showErrorDialog(project, "Error", message, options, 0,
+                    String[] options = {
+                            txt("msg.shared.button.Retry"),
+                            txt("msg.dataEditor.button.EditFilter"),
+                            txt("msg.dataEditor.button.RemoveFilter"),
+                            txt("msg.dataEditor.button.IgnoreFilter"),
+                            txt("msg.shared.button.Cancel")};
+
+                    Messages.showErrorDialog(project, txt("msg.shared.title.Error"), message, options, 0,
                             (option) -> {
                                 DatasetLoadInstructions instructions = DatasetLoadInstructions.clone(instr);
                                 instructions.setDeliberateAction(true);
@@ -414,10 +417,7 @@ public class DatasetEditor extends DisposableUserDataHolderBase implements
                             });
                 }
             } else {
-                String message =
-                        "Error loading data for " + datasetName + ". Could not connect to database.\n" +
-                                "Database error message: " + e.getMessage();
-                Messages.showErrorDialog(project, message);
+                Messages.showErrorDialog(project,  txt("msg.dataEditor.error.DataLoadCannotConnect", datasetName, e.getMessage()));
             }
         });
     }
@@ -592,7 +592,7 @@ public class DatasetEditor extends DisposableUserDataHolderBase implements
                         model.postInsertRecord(true, false, true);
                     } catch (SQLException e1) {
                         Diagnostics.conditionallyLog(e1);
-                        Messages.showErrorDialog(getProject(), "Could not create row in " + getDataset().getQualifiedNameWithType() + '.', e1);
+                        Messages.showErrorDialog(getProject(), txt("msg.dataEditor.error.CannotCreateRow",getDataset().getQualifiedNameWithType()), e1);
                         model.cancelInsert(true);
                     }
                 }

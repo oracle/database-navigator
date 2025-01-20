@@ -26,6 +26,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+
 public class StatementExecutionSettingsForm extends ConfigurationEditorForm<StatementExecutionSettings> {
     private JPanel mainPanel;
     private JTextField fetchBlockSizeTextField;
@@ -38,6 +40,13 @@ public class StatementExecutionSettingsForm extends ConfigurationEditorForm<Stat
         super(settings);
         resetFormChanges();
         registerComponent(mainPanel);
+    }
+
+    @Override
+    protected void initAccessibility() {
+        setAccessibleUnit(fetchBlockSizeTextField, txt("app.shared.unit.Records"));
+        setAccessibleUnit(executionTimeoutTextField, txt("app.shared.unit.Seconds"), txt("app.shared.hint.ZeroForNoTimeout"));
+        setAccessibleUnit(debugExecutionTimeoutTextField, txt("app.shared.unit.Seconds"), txt("app.shared.hint.ZeroForNoTimeout"));
     }
 
     @NotNull

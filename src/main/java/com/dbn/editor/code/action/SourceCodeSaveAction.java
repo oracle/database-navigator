@@ -34,6 +34,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.editor.DBContentType.*;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.vfs.file.status.DBFileStatus.SAVING;
 
 public class SourceCodeSaveAction extends AbstractCodeEditorAction {
@@ -49,7 +51,7 @@ public class SourceCodeSaveAction extends AbstractCodeEditorAction {
         ConfirmationOptionHandler optionHandler = confirmationSettings.getSaveChanges();
 
         String objectName = fileEditor.getObject().getQualifiedNameWithType();
-        boolean canContinue = optionHandler.resolve(objectName);
+        boolean canContinue = optionHandler.resolve(project, objectName);
         if (!canContinue) return;
 
         SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
@@ -67,8 +69,9 @@ public class SourceCodeSaveAction extends AbstractCodeEditorAction {
             presentation.setVisible(!readonly);
             DBContentType contentType = sourceCodeFile.getContentType();
             String text =
-                    contentType == DBContentType.CODE_SPEC ? "Save Spec" :
-                    contentType == DBContentType.CODE_BODY ? "Save Body" : "Save";
+                    contentType == CODE_SPEC ? txt("app.codeEditor.action.SaveSpec") :
+                    contentType == CODE_BODY ? txt("app.codeEditor.action.SaveBody") :
+                            txt("app.codeEditor.action.Save");
 
             presentation.setEnabled(sourceCodeFile.isModified() && sourceCodeFile.isNot(SAVING));
             presentation.setText(text);

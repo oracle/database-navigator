@@ -40,10 +40,10 @@ import javax.swing.JComponent;
 import java.util.List;
 
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
+import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
 public class DatabaseSessionSelectDropdownAction extends ComboBoxAction implements DumbAware {
-    private static final String NAME = "Session";
 
     @Override
     @NotNull
@@ -92,7 +92,7 @@ public class DatabaseSessionSelectDropdownAction extends ComboBoxAction implemen
     public void update(@NotNull AnActionEvent e) {
         Project project = Lookups.getProject(e);
         VirtualFile virtualFile = Lookups.getVirtualFile(e);
-        String text = NAME;
+        String text = txt("app.codeEditor.action.Session");
 
         Icon icon = null;
         boolean visible = false;
@@ -133,7 +133,7 @@ public class DatabaseSessionSelectDropdownAction extends ComboBoxAction implemen
 
         Presentation presentation = e.getPresentation();
         presentation.setText(text, false);
-        presentation.setDescription("Select database session");
+        presentation.setDescription(txt("app.codeEditor.tooltip.SelectDatabaseSession"));
         presentation.setIcon(icon);
         presentation.setVisible(visible);
         presentation.setEnabled(enabled);

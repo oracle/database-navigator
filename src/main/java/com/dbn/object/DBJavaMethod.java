@@ -29,6 +29,8 @@ public interface DBJavaMethod extends DBOrderedObject {
 
     DBJavaClass getReturnClass();
 
+	short getArrayDepth();
+
 	DBJavaAccessibility getAccessibility();
 
 	boolean isFinal();

@@ -145,7 +145,7 @@ public class DatasetBasicFilterCondition extends BasicConfiguration<DatasetBasic
             }
         }
 
-        buffer.append(column == null ? columnName : column.getQuotedName(false));
+        buffer.append(column == null ? columnName : column.getName(true));
         buffer.append(" ");
         buffer.append(operator == null ? " " : operator.getText());
         buffer.append(" ");

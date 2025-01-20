@@ -22,6 +22,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBObjectVirtualFile;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,6 +42,7 @@ public interface DBSchemaObject extends DBObject {
 
     DBLanguage getCodeLanguage(DBContentType contentType);
 
+    @NonNls
     String getCodeParseRootId(DBContentType contentType);
 
     void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException;

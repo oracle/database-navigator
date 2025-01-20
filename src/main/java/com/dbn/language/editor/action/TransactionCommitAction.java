@@ -25,6 +25,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class TransactionCommitAction extends TransactionEditorAction {
 
     @Override
@@ -32,8 +34,8 @@ public class TransactionCommitAction extends TransactionEditorAction {
         super.update(e, project);
 
         Presentation presentation = e.getPresentation();
-        presentation.setText("Commit");
-        presentation.setDescription("Commit changes");
+        presentation.setText(txt("app.codeEditor.action.Commit"));
+        presentation.setDescription(txt("app.codeEditor.tooltip.CommitChanges"));
         presentation.setIcon(Icons.CONNECTION_COMMIT);
     }
 

@@ -23,9 +23,12 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.connection.session.DatabaseSessionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseSessionCreateAction extends ProjectAction {
     private final ConnectionRef connection;
@@ -53,6 +56,7 @@ public class DatabaseSessionCreateAction extends ProjectAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        e.getPresentation().setText("New Session...");
+        Presentation presentation = e.getPresentation();
+        presentation.setText(txt("app.codeEditor.action.NewSession"));
     }
 }

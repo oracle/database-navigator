@@ -35,6 +35,7 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JLabel;
@@ -61,9 +62,10 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
         nameTextField.setText(filter.getDisplayName());
         Project project = dataset.getProject();
 
+        @NonNls
         StringBuilder selectStatement = new StringBuilder("select * from ");
-        selectStatement.append(dataset.getSchema().getQuotedName(false)).append('.');
-        selectStatement.append(dataset.getQuotedName(false));
+        selectStatement.append(dataset.getSchemaName(true)).append('.');
+        selectStatement.append(dataset.getName(true));
         selectStatement.append(" where \n");
         conditionStartOffset = selectStatement.length();
 

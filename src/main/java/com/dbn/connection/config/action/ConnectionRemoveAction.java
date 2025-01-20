@@ -24,6 +24,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ConnectionRemoveAction extends ConnectionSettingsAction {
 
     @Override
@@ -44,7 +46,9 @@ public class ConnectionRemoveAction extends ConnectionSettingsAction {
 
         int length = target == null ? 0 : target.getSelectionSize();
         presentation.setEnabled(length > 0);
-        presentation.setText(length == 1 ? "Remove Connections" : "Remove Connection");
+        presentation.setText(length == 1 ?
+                txt("app.connection.action.RemoveConnection") :
+                txt("app.connection.action.RemoveConnections"));
         presentation.setIcon(Icons.ACTION_REMOVE);
     }
 }

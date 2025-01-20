@@ -24,6 +24,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.interceptor.DatabaseInterceptorType;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.execution.statement.StatementExecutionContext;
 import com.dbn.execution.statement.StatementExecutionInput;
 import com.dbn.language.common.element.ElementType;
@@ -80,6 +81,7 @@ public class StatementExecutionInterceptor implements Interceptor<StatementExecu
             throw new ProcessDeferredException("Assistant not initialized");
         }
 
-        connection.getAssistantInterface().setCurrentProfile(conn, profile.getName());
+        DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
+        assistantInterface.setCurrentProfile(conn, profile.getName(true));
     }
 }

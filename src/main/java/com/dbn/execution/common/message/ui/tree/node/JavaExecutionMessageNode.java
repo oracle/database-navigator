@@ -12,17 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package com.dbn.data.record.navigation.action;
+package com.dbn.execution.common.message.ui.tree.node;
 
-import com.dbn.editor.data.filter.DatasetFilterInput;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.dbn.execution.common.message.ui.tree.MessagesTreeLeafNode;
+import com.dbn.execution.java.JavaExecutionMessage;
 
-public class RecordNavigationActionGroup extends DefaultActionGroup{
+public class JavaExecutionMessageNode extends MessagesTreeLeafNode<JavaExecutionMessagesObjectNode, JavaExecutionMessage> {
 
-    public RecordNavigationActionGroup(DatasetFilterInput filterInput) {
-        add(new RecordEditorOpenAction(filterInput));
-        add(new RecordViewerOpenAction(filterInput));
-    }
+	JavaExecutionMessageNode(JavaExecutionMessagesObjectNode parent, JavaExecutionMessage methodExecutionMessage) {
+		super(parent, methodExecutionMessage);
+	}
 }

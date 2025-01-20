@@ -22,9 +22,13 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.intellij.openapi.vfs.VirtualFile;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@Getter
+@Setter
 public class LogOutputContext {
     public enum Status{
         NEW,
@@ -83,14 +87,6 @@ public class LogOutputContext {
             }
         }
         return false;
-    }
-
-    public boolean isHideEmptyLines() {
-        return hideEmptyLines;
-    }
-
-    public void setHideEmptyLines(boolean hideEmptyLines) {
-        this.hideEmptyLines = hideEmptyLines;
     }
 
     public boolean matches(LogOutputContext context) {

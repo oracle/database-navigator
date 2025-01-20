@@ -25,6 +25,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ConsoleRenameAction extends ProjectAction {
     private final DBConsole console;
 
@@ -35,7 +37,7 @@ public class ConsoleRenameAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Rename Console");
+        presentation.setText(txt("app.objects.action.RenameConsole"));
         presentation.setIcon(Icons.ACTION_EDIT);
     }
 

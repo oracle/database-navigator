@@ -160,12 +160,12 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="drop-object-if-exists">
-        <statement>drop {0} if exists "{1}"."{2}"</statement>
+        <statement>drop {0} if exists {1}.{2}</statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="load-distinct-values" is-query="true">
         <statement>
-            select distinct {2} from "{0}"."{1}" where "{2}" is not null order by "{2}"
+            select distinct {2} from {0}.{1} where {2} is not null order by {2}
         </statement>
     </statement-execution-processor>    
 

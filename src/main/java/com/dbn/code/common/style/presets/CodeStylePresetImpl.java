@@ -21,6 +21,7 @@ import com.dbn.language.common.psi.BasePsiElement;
 import com.intellij.psi.PsiElement;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +31,7 @@ public abstract class CodeStylePresetImpl implements CodeStylePreset {
     private final String id;
     private final String name;
 
-    protected CodeStylePresetImpl(String id, String name) {
+    protected CodeStylePresetImpl(@NonNls String id, String name) {
         this.id = id;
         this.name = name;
         //CodeStylePresetsRegister.registerWrapPreset(this);

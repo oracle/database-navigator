@@ -41,6 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -134,7 +135,7 @@ public class PluginStatusManager extends ApplicationComponentBase implements Per
 
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         Element statusesElement = newElement(element, "plugin-statuses");
         for (String projectPath : pluginStatuses.keySet()) {
             DBPluginStatusPair statusPair = pluginStatuses.get(projectPath);

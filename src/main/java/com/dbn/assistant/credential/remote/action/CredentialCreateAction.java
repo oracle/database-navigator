@@ -23,6 +23,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Credential management creation action
  * (prompts an empty credential detail dialog)
@@ -42,7 +44,7 @@ public class CredentialCreateAction extends CredentialManagementAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.ACTION_ADD);
-        presentation.setText("Create Credential");
+        presentation.setText(txt("app.assistant.action.CreateCredential"));
         presentation.setEnabled(isEnabled(e));
     }
 

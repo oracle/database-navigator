@@ -42,6 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 
 @State(
     name = DatasetFilterManager.COMPONENT_NAME,
@@ -188,7 +189,7 @@ public class DatasetFilterManager extends ProjectComponentBase implements Persis
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
 
         for (val entry : filters.entrySet()) {
             ConnectionId connectionId = entry.getKey();

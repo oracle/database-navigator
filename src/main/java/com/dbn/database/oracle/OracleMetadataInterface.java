@@ -19,6 +19,7 @@ package com.dbn.database.oracle;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseMetadataInterfaceImpl;
 import com.dbn.database.interfaces.DatabaseInterfaces;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -46,6 +47,7 @@ public class OracleMetadataInterface extends DatabaseMetadataInterfaceImpl {
         //String territory = CharacterSetMetaData.getNLSTerritory(Locale.getDefault(Locale.Category.FORMAT));
     }
 
+    @NonNls
     @Override
     public String createDateString(Date date) {
         String dateString = META_DATE_FORMAT.get().format(date);

@@ -40,6 +40,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 import static com.dbn.common.component.Components.applicationService;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 
 @Slf4j
 @Getter
@@ -100,7 +101,7 @@ public class DatabaseNavigator extends ApplicationComponentBase implements Persi
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         Element diagnosticsElement = Settings.newElement(element, "diagnostics");
         Diagnostics.writeState(diagnosticsElement);
         Settings.setString(element, "client-id", clientId);

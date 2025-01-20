@@ -21,9 +21,7 @@ import com.intellij.ui.border.CustomLineBorder;
 import com.intellij.util.ui.JBUI;
 import lombok.experimental.UtilityClass;
 
-import javax.swing.UIManager;
 import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
@@ -70,12 +68,6 @@ public final class Borders {
 
     public static Border topInsetBorder(int inset) {
         return TOP_INSET_BORDERS.computeIfAbsent(inset, i -> new EmptyBorder(JBUI.insets(i, 0, 0, 0)));
-    }
-
-    public static Border buttonBorder() {
-        Border insideBorder = JBUI.Borders.empty(0, 8);
-        Border textFieldBorder = UIManager.getBorder("TextField.border");
-        return new CompoundBorder(textFieldBorder, insideBorder);
     }
 
     public static Border tableBorder(int top, int left, int bottom, int right) {

@@ -21,7 +21,9 @@ import com.dbn.error.TicketRequest;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
+@NonNls
 @Getter
 class JiraTicketRequest implements TicketRequest {
     private final JsonObject jsonObject = new JsonObject();

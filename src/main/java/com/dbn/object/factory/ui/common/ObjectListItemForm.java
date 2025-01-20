@@ -24,8 +24,8 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 
 public class ObjectListItemForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -37,9 +37,7 @@ public class ObjectListItemForm extends DBNFormBase {
     ObjectListItemForm(@NotNull ObjectListForm<?> parent, ObjectFactoryInputForm<?> inputForm) {
         super(parent);
         this.inputForm = inputForm;
-        ActionToolbar actionToolbar = Actions.createActionToolbar(removeActionPanel,
-                "DBNavigator.ObjectFactory.AddElement", true,
-                new RemoveObjectAction());
+        ActionToolbar actionToolbar = Actions.createActionToolbar(removeActionPanel, true, new RemoveObjectAction());
         removeActionPanel.add(actionToolbar.getComponent(), BorderLayout.NORTH);
 
     }
@@ -61,13 +59,17 @@ public class ObjectListItemForm extends DBNFormBase {
 
     public class RemoveObjectAction extends BasicAction {
         RemoveObjectAction() {
-            super("Remove " + getParentForm().getObjectType().getName(), null, Icons.ACTION_CLOSE);
+            super(txt("app.objects.action.RemoveObject", getObjectTypeName()), null, Icons.ACTION_CLOSE);
         }
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             getParentForm().removeObjectPanel(ObjectListItemForm.this);
         }
+    }
+
+    private @NotNull String getObjectTypeName() {
+        return getParentForm().getObjectType().getName();
     }
 
     ObjectFactoryInputForm<?> getObjectDetailsPanel() {

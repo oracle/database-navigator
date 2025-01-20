@@ -192,7 +192,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
                             refreshConnectionList(configuration);
                         } catch (ConfigurationException e1) {
                             conditionallyLog(e1);
-                            Messages.showErrorDialog(project, "Configuration error", e1.getMessage());
+                            Messages.showErrorDialog(project, txt("cfg.connection.title.InvalidConfiguration"), e1.getMessage());
                         }
                     }
                 }

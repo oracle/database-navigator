@@ -53,17 +53,12 @@ public class DatasetEditorUtils {
         List<String> list = new ArrayList<>();
         ResultSet resultSet = null;
         try {
-
             DBDataset dataset = column.getDataset();
-            String schemaName = dataset.getSchemaName();
-            String datasetName = dataset.getName();
-            String columnName = column.getName();
-
             DatabaseMetadataInterface metadata = column.getMetadataInterface();
             resultSet = metadata.getDistinctValues(
-                    schemaName,
-                    datasetName,
-                    columnName,
+                    dataset.getSchemaName(true),
+                    dataset.getName(true),
+                    column.getName(true),
                     conn);
 
             while (resultSet.next()) {

@@ -23,6 +23,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class MoveFilterUpAction extends AbstractFilterListAction {
 
     public MoveFilterUpAction(DatasetFilterList filterList) {
@@ -44,7 +46,7 @@ public class MoveFilterUpAction extends AbstractFilterListAction {
 
         Presentation presentation = e.getPresentation();
         presentation.setEnabled(enabled);
-        presentation.setText("Move Selection Up");
+        presentation.setText(txt("app.dataEditor.action.MoveSelectionUp"));
         presentation.setIcon(Icons.ACTION_MOVE_UP);
     }
 }

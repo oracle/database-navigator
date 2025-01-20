@@ -22,10 +22,12 @@ import com.dbn.connection.transaction.DatabaseTransactionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class AutoCommitToggleAction extends AbstractConnectionToggleAction {
 
     public AutoCommitToggleAction(ConnectionHandler connection) {
-        super("Auto-Commit", connection);
+        super(txt("app.connection.action.AutoCommit"), connection);
 
     }
     @Override

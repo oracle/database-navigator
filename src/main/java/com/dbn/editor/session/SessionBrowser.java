@@ -60,6 +60,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SessionBrowser extends DisposableUserDataHolderBase implements FileEditor, DatabaseContextBase, DataProvider {
     private final WeakRef<DBSessionBrowserVirtualFile> databaseFile;
@@ -112,7 +113,7 @@ public class SessionBrowser extends DisposableUserDataHolderBase implements File
         if (!canLoad(force)) return;
 
         Project project = getProject();
-        ConnectionAction.invoke("loading the sessions", false, this,
+        ConnectionAction.invoke(txt("msg.sessionBrowser.title.LoadingSessions"), false, this,
                 action -> Background.run(() -> {
                     if (!canLoad(force)) return;
 
@@ -166,7 +167,7 @@ public class SessionBrowser extends DisposableUserDataHolderBase implements File
     public void refreshTable() {
         SessionBrowserTable editorTable = getBrowserTable();
         UserInterface.repaint(editorTable);
-        editorTable.accommodateColumnsSize();
+        editorTable.adjustColumnWidths();
         //editorTable.restoreSelection();
     }
 

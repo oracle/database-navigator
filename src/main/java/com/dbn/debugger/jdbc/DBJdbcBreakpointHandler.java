@@ -54,6 +54,7 @@ import java.sql.SQLException;
 import static com.dbn.common.notification.NotificationGroup.DEBUGGER;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProcess> {
     protected BreakpointInfo defaultBreakpointInfo;

@@ -23,11 +23,13 @@ import com.dbn.editor.data.state.column.ui.ColumnStateSelectable;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class RevertColumnOrderAction extends BasicAction {
     private final CheckBoxList list;
 
     public RevertColumnOrderAction(CheckBoxList list)  {
-        super("Revert Column Order", null, Icons.ACTION_REVERT);
+        super(txt("app.dataEditor.action.RevertColumnOrder"), null, Icons.ACTION_REVERT);
         this.list = list;
     }
 

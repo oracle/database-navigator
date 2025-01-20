@@ -20,6 +20,7 @@ import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.connection.ConnectionBundle;
@@ -31,7 +32,6 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.transaction.PendingTransactionBundle;
 import com.dbn.connection.transaction.TransactionAction;
 import com.dbn.connection.transaction.TransactionListener;
-import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
@@ -121,7 +121,7 @@ public class PendingTransactionsForm extends DBNFormBase {
 
     private static class ListCellRenderer extends ColoredListCellRenderer<Object> {
         @Override
-        protected void customizeCellRenderer(@NotNull JList list, Object value, int index, boolean selected, boolean hasFocus) {
+        protected void customize(@NotNull JList list, Object value, int index, boolean selected, boolean hasFocus) {
             ConnectionHandler connection = (ConnectionHandler) value;
             setIcon(connection.getIcon());
             append(connection.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);

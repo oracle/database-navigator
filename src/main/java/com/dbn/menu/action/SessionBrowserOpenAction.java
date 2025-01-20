@@ -24,21 +24,22 @@ import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.action.AbstractConnectionAction;
 import com.dbn.editor.session.SessionBrowserManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.ui.popup.ListPopup;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import static com.dbn.common.ui.util.Popups.popupBuilder;
+import static com.dbn.common.util.Lists.convert;
+import static com.dbn.nls.NlsResources.txt;
+
 public class SessionBrowserOpenAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Open Session Browser...");
+        presentation.setText(txt("app.menu.action.OpenSessionBrowser"));
         presentation.setIcon(Icons.SESSION_BROWSER);
     }
 
@@ -48,7 +49,7 @@ public class SessionBrowserOpenAction extends ProjectAction {
         ConnectionManager connectionManager = ConnectionManager.getInstance(project);
         ConnectionBundle connectionBundle = connectionManager.getConnectionBundle();
         List<ConnectionHandler> connections = connectionBundle.getConnections();
-        if (connections.size() == 0) {
+        if (connections.isEmpty()) {
             connectionManager.promptMissingConnection();
             return;
         }
@@ -58,24 +59,12 @@ public class SessionBrowserOpenAction extends ProjectAction {
             return;
         }
 
-        DefaultActionGroup actionGroup = new DefaultActionGroup();
-        actionGroup.addSeparator();
-        for (ConnectionHandler connection : connections) {
-            actionGroup.add(new SelectConnectionAction(connection));
-        }
+        List<SelectConnectionAction> actions = convert(connections, c -> new SelectConnectionAction(c));
 
-        ListPopup popupBuilder = JBPopupFactory.getInstance().createActionGroupPopup(
-                "Select Session Browser Connection",
-                actionGroup,
-                e.getDataContext(),
-                //JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-                false,
-                true,
-                true,
-                null,
-                actionGroup.getChildrenCount(), null);
-
-        popupBuilder.showCenteredInCurrentWindow(project);
+        popupBuilder(actions, e).
+                withTitle("Select Session Browser Connection").
+                withSpeedSearch().
+                buildAndShowCentered();
     }
 
     private static class SelectConnectionAction extends AbstractConnectionAction{

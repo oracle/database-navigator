@@ -34,7 +34,7 @@ class CalendarTableHeaderCellRenderer extends DefaultTableCellRenderer {
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         setHorizontalAlignment(RIGHT);
-        setFont(Fonts.BOLD);
+        setFont(Fonts.regularBold());
         setBorder(EMPTY_BORDER);
         //setForeground(column == 0 ? Color.RED : GUIUtil.getTableForeground());
         setForeground(FOREGROUND_COLOR);

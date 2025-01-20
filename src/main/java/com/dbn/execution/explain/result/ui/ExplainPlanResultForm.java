@@ -32,6 +32,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPanel;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class ExplainPlanResultForm extends ExecutionResultFormBase<ExplainPlanResult> {
     private JPanel mainPanel;
     private JPanel actionsPanel;
@@ -42,7 +44,8 @@ public class ExplainPlanResultForm extends ExecutionResultFormBase<ExplainPlanRe
 
     public ExplainPlanResultForm(@NotNull ExplainPlanResult explainPlanResult) {
         super(explainPlanResult);
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.ExplainPlanResult", "", false);
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.ExplainPlanResult");
+        setAccessibleName(actionToolbar, txt("app.execution.aria.ExplainPlanResultActions"));
 
         actionsPanel.add(actionToolbar.getComponent());
 

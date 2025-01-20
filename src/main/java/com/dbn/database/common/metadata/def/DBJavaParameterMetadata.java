@@ -17,12 +17,15 @@
 package com.dbn.database.common.metadata.def;
 
 import com.dbn.database.common.metadata.DBObjectMetadata;
+import com.dbn.database.common.security.ObjectIdentifier;
 
 import java.sql.SQLException;
 
 public interface DBJavaParameterMetadata extends DBObjectMetadata {
+	@ObjectIdentifier
 	String getClassName() throws SQLException;
 
+	@ObjectIdentifier
 	String getMethodName() throws SQLException;
 
 	short getMethodIndex() throws SQLException;

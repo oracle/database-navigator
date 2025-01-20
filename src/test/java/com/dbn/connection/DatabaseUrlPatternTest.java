@@ -16,6 +16,7 @@
 
 package com.dbn.connection;
 
+import org.jetbrains.annotations.NonNls;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -100,7 +101,7 @@ public class DatabaseUrlPatternTest {
 
     }
 
-    private static void test(DatabaseUrlPattern pattern, String ... urls) {
+    private static void test(DatabaseUrlPattern pattern, @NonNls String ... urls) {
         for (String url : urls) {
             System.out.println(url);
             Assert.assertTrue(pattern.name() +  ": url " + url + " invalid", pattern.getUrlPattern().matcher(url).matches());

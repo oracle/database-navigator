@@ -25,6 +25,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class BrowserNavigateBackAction extends ProjectAction {
 
     @Override
@@ -35,7 +37,7 @@ public class BrowserNavigateBackAction extends ProjectAction {
         boolean enabled = activeTree != null && activeTree.getNavigationHistory().hasPrevious();
 
         Presentation presentation = e.getPresentation();
-        presentation.setText("Back");
+        presentation.setText(txt("app.browser.action.NavigateBack"));
         presentation.setIcon(Icons.BROWSER_BACK);
         presentation.setEnabled(enabled);
     }

@@ -21,6 +21,7 @@ import com.dbn.database.DatabaseObjectIdentifier;
 import com.dbn.database.common.DatabaseObjectIdentifierImpl;
 import com.dbn.database.interfaces.DatabaseMessageParserInterface;
 import com.dbn.object.type.DBObjectType;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
@@ -31,7 +32,7 @@ public class OracleMessageParserInterface implements DatabaseMessageParserInterf
     @Override
     @Nullable
     public DatabaseObjectIdentifier identifyObject(SQLException exception) {
-        String message = exception.getMessage();
+        @NonNls String message = exception.getMessage();
         if (message != null) {
             if (message.startsWith("ORA-01400")) return identifyColumn(message);
             if (message.startsWith("ORA-01401")) return identifyColumn(message);
@@ -110,7 +111,7 @@ public class OracleMessageParserInterface implements DatabaseMessageParserInterf
 
     @Override
     public DatabaseMessage parseExceptionMessage(SQLException exception) {
-        String message = exception.getMessage();
+        @NonNls String message = exception.getMessage();
         message = message.
             replaceAll("[\r\n]+", "\n").
             replaceAll("\\nPL/SQL", " PL/SQL").

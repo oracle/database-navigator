@@ -27,11 +27,13 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ConnectionFilterSettingsOpenAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Object Filters...");
+        presentation.setText(txt("app.browser.action.ObjectFilters"));
         presentation.setIcon(Icons.DATASET_FILTER);
 
         DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);

@@ -18,6 +18,7 @@ package com.dbn.assistant.chat.message;
 
 import com.intellij.lang.Language;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public class ChatMessageSection {
     private String content;
     private final String languageId;
 
-    public ChatMessageSection(String content, @Nullable String languageId) {
+    public ChatMessageSection(String content, @Nullable @NonNls String languageId) {
         this.content = content.trim();
         this.languageId = languageId;
     }

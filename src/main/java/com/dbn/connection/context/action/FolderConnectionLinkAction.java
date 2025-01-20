@@ -29,6 +29,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.connection.ConnectionSelectorOptions.Option.SHOW_VIRTUAL_CONNECTIONS;
+import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
 public class FolderConnectionLinkAction extends AbstractFolderContextAction {
@@ -54,11 +55,11 @@ public class FolderConnectionLinkAction extends AbstractFolderContextAction {
         Presentation presentation = e.getPresentation();
         VirtualFile file = Lookups.getVirtualFile(e);
         presentation.setVisible(isAvailableFor(file));
-        String text = "Associate Connection...";
+        String text = txt("app.fileContext.action.AssociateConnection");
 
         FileConnectionContext mapping = getFileContext(file, project);
         if (mapping != null && mapping.getConnection() != null) {
-            text = "Change Connection Association...";
+            text = txt("app.fileContext.action.ChangeConnectionAssociation");
         }
 
         presentation.setText(text);

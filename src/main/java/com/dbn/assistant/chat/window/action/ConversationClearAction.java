@@ -26,6 +26,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Action for clearing the AI Assistant conversation history
@@ -48,13 +49,12 @@ public class ConversationClearAction extends AbstractChatBoxAction {
 
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.ACTION_DELETE);
-        presentation.setText("Clear Conversation");
-        presentation.setDescription("Clear all conversation messages");
+        presentation.setText(txt("app.assistant.action.ClearConversation"));
         presentation.setEnabled(enabled);
     }
 
     public void promptConversationClearing(ChatBoxForm chatBox) {
-        Messages.showQuestionDialog(getProject(), "Conversation Clearing", "Are you sure you want to clear this conversation?",
+        Messages.showQuestionDialog(chatBox.getProject(), "Conversation Clearing", "Are you sure you want to clear this conversation?",
             Messages.OPTIONS_YES_NO, 1,
             option -> when(option == 0, chatBox::clearConversation));
     }

@@ -68,6 +68,10 @@ public class DBNCollapsiblePanel extends DBNFormBase {
         this.toggleDetailLabel.addMouseListener(mouseListener);
     }
 
+    public void addChild(DBNCollapsiblePanel child){
+        contentPanel.add(child.getMainComponent(), BorderLayout.SOUTH);
+    }
+
     private void toggleVisibility() {
         setExpanded(!expanded);
     }

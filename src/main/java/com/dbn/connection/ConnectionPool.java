@@ -16,7 +16,6 @@
 
 package com.dbn.connection;
 
-import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Background;
 import com.dbn.connection.config.ConnectionDetailSettings;
@@ -40,18 +39,16 @@ import static com.dbn.common.util.TimeUtil.isOlderThan;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
-public final class ConnectionPool extends StatefulDisposableBase implements NotificationSupport, Disposable {
+public final class ConnectionPool extends ConnectionComponentBase implements NotificationSupport, Disposable {
     static {
         ConnectionPoolCleaner.INSTANCE.start();
     }
 
-    private final ConnectionRef connection;
     private final @Getter(lazy = true) DBNConnectionPool connectionPool = new DBNConnectionPool(getConnection());
     private final @Getter(lazy = true) DBNConnectionCache connectionCache = new DBNConnectionCache(getConnection());
 
     ConnectionPool(@NotNull ConnectionHandler connection) {
         super(connection);
-        this.connection = connection.ref();
     }
 
     DBNConnection ensureTestConnection() throws SQLException {
@@ -127,11 +124,6 @@ public final class ConnectionPool extends StatefulDisposableBase implements Noti
 
     boolean wasNeverAccessed() {
         return getLastAccess() == 0;
-    }
-
-    @NotNull
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
     }
 
     @Override

@@ -21,6 +21,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Characters;
 import com.dbn.common.util.Lists;
+import com.dbn.common.util.Naming;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.database.DatabaseObjectTypeId;
@@ -81,6 +82,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     INDEX(DatabaseObjectTypeId.INDEX, "index", "indexes", Icons.DBO_INDEX, Icons.DBO_INDEX_DISABLED, Icons.DBO_INDEXES, false),
     INDEXTYPE(DatabaseObjectTypeId.INDEXTYPE, "indextype", "indextypes", null, null, null, false),
     JAVA_CLASS(DatabaseObjectTypeId.JAVA_CLASS, "java class", "java classes", Icons.DBO_JAVA_CLASS, null, Icons.DBO_JAVA_CLASSES, false),
+    JAVA_FIELD(DatabaseObjectTypeId.JAVA_FIELD, "field", "fields", Icons.DBO_JAVA_FIELD, null, Icons.DBO_JAVA_FIELDS, false),
     JAVA_METHOD(DatabaseObjectTypeId.JAVA_METHOD, "method", "methods", Icons.DBO_JAVA_METHOD, null, Icons.DBO_JAVA_METHODS, false),
     JAVA_Object(DatabaseObjectTypeId.JAVA_OBJECT, "java object", "java objects", null, null, null, false),
     JAVA_PARAMETER(DatabaseObjectTypeId.JAVA_PARAMETER, "parameter", "parameters", null, null, null, false),
@@ -227,6 +229,14 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
 
     public Icon getDisabledIcon() {
         return nvl(disabledIcon, icon);
+    }
+
+    public String getCapitalizedName() {
+        return Naming.capitalizeWords(name);
+    }
+
+    public String getCapitalizedListName() {
+        return Naming.capitalizeWords(listName);
     }
 
     public boolean isLeaf() {
@@ -417,6 +427,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TYPE_TYPE.addParent(TYPE);
         VIEW.addParent(SCHEMA);
         JAVA_CLASS.addParent(SCHEMA);
+        JAVA_FIELD.addParent(JAVA_CLASS);
         JAVA_METHOD.addParent(JAVA_CLASS);
         JAVA_PARAMETER.addParent(JAVA_METHOD);
 

@@ -25,6 +25,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ConnectionCreateDropdownAction extends BasicActionGroup {
     private final AnAction[] actions = new AnAction[] {
             new ConnectionCreateAction(DatabaseType.ORACLE),
@@ -45,7 +47,7 @@ public class ConnectionCreateDropdownAction extends BasicActionGroup {
     @Override
     public void update(@NotNull AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("New Connection");
+        presentation.setText(txt("app.browser.action.NewConnection"));
         presentation.setIcon(Icons.ACTION_ADD);
         presentation.setEnabled(true);
     }

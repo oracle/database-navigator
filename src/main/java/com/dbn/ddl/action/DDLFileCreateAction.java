@@ -26,6 +26,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DDLFileCreateAction extends ProjectAction {
     private final DBObjectRef<DBSchemaObject> object;
 
@@ -36,7 +38,7 @@ public class DDLFileCreateAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Create New...");
+        presentation.setText(txt("app.ddlFiles.action.CreateNew"));
         presentation.setIcon(Icons.CODE_EDITOR_DDL_FILE_NEW);
     }
 

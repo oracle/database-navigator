@@ -16,7 +16,6 @@
 
 package com.dbn.language.psql.structure;
 
-import com.dbn.common.util.Naming;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.ide.util.treeView.smartTree.Group;
 import com.intellij.ide.util.treeView.smartTree.TreeElement;
@@ -57,7 +56,7 @@ public class PSQLStructureViewModelGroup implements Group {
     private final ItemPresentation itemPresentation = new ItemPresentation(){
         @Override
         public String getPresentableText() {
-            return Naming.capitalize(objectType.getListName());
+            return objectType.getCapitalizedListName();
         }
 
         @Override

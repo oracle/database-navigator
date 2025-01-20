@@ -38,19 +38,19 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 @UtilityClass
 public final class Settings {
 
-    public static char[] getChars(Element parent, String childName, char[] defaultValue) {
+    public static char[] getChars(Element parent, @NonNls String childName, char[] defaultValue) {
         Element element = parent.getChild(childName);
         String stringValue = getStringValue(element);
         return stringValue == null ? defaultValue : stringValue.toCharArray();
     }
 
-    public static String getString(Element parent, String childName, String defaultValue) {
+    public static String getString(Element parent, @NonNls String childName, @NonNls String defaultValue) {
         Element element = parent.getChild(childName);
         String stringValue = getStringValue(element);
         return stringValue == null ? defaultValue : stringValue;
     }
 
-    public static int getInteger(Element parent, String childName, int defaultValue) {
+    public static int getInteger(Element parent, @NonNls String childName, int defaultValue) {
         try {
             Element element = parent.getChild(childName);
             String stringValue = getStringValue(element);
@@ -62,7 +62,7 @@ public final class Settings {
         }
     }
 
-    public static double getDouble(Element parent, String childName, double defaultValue) {
+    public static double getDouble(Element parent, @NonNls String childName, double defaultValue) {
         try {
             Element element = parent.getChild(childName);
             String stringValue = getStringValue(element);
@@ -74,13 +74,13 @@ public final class Settings {
         }
     }
 
-    public static boolean getBoolean(Element parent, String childName, boolean defaultValue) {
+    public static boolean getBoolean(Element parent, @NonNls String childName, boolean defaultValue) {
         Element element = parent.getChild(childName);
         String stringValue = getStringValue(element);
         return stringValue == null ? defaultValue : Boolean.parseBoolean(stringValue);
     }
 
-    public static <T extends Enum<T>> T getEnum(Element parent, String childName, @NotNull T defaultValue) {
+    public static <T extends Enum<T>> T getEnum(Element parent, @NonNls String childName, @NotNull T defaultValue) {
         try {
             Element element = parent.getChild(childName);
             String stringValue = getStringValue(element);
@@ -92,7 +92,7 @@ public final class Settings {
         }
     }
 
-    public static <T extends Enum<T>> T getEnum(Element parent, String childName, @NotNull Class<T> enumType) {
+    public static <T extends Enum<T>> T getEnum(Element parent, @NonNls String childName, @NotNull Class<T> enumType) {
         try {
             Element element = parent.getChild(childName);
             String stringValue = getStringValue(element);
@@ -114,23 +114,24 @@ public final class Settings {
         return null;
     }
 
-    public static String stringAttribute(Element element, String name) {
+    @NonNls
+    public static String stringAttribute(Element element, @NonNls String name) {
         String attributeValue = element == null ? null : element.getAttributeValue(name);
         return Strings.isEmptyOrSpaces(attributeValue) ? attributeValue : attributeValue.intern();
     }
 
-    public static char[] charsAttribute(Element element, String name) {
+    public static char[] charsAttribute(Element element, @NonNls String name) {
         String attributeValue = element == null ? null : element.getAttributeValue(name);
         attributeValue = Strings.isEmptyOrSpaces(attributeValue) ? attributeValue : attributeValue.intern();
         return attributeValue == null ? null : attributeValue.toCharArray();
     }
 
-    public static boolean booleanAttribute(Element element, String attributeName, boolean defaultValue) {
+    public static boolean booleanAttribute(Element element, @NonNls String attributeName, boolean defaultValue) {
         String attributeValue = stringAttribute(element, attributeName);
         return Strings.isEmptyOrSpaces(attributeValue) ? defaultValue : Boolean.parseBoolean(attributeValue);
     }
 
-    public static short shortAttribute(Element element, String attributeName, short defaultValue) {
+    public static short shortAttribute(Element element, @NonNls String attributeName, short defaultValue) {
         try {
             String attributeValue = stringAttribute(element, attributeName);
             if (Strings.isEmpty(attributeValue)) {
@@ -144,7 +145,7 @@ public final class Settings {
         }
     }
 
-    public static int integerAttribute(Element element, String attributeName, int defaultValue) {
+    public static int integerAttribute(Element element, @NonNls String attributeName, int defaultValue) {
         try {
             String attributeValue = stringAttribute(element, attributeName);
             if (Strings.isEmpty(attributeValue)) {
@@ -158,7 +159,7 @@ public final class Settings {
         }
     }
 
-    public static long longAttribute(Element element, String attributeName, long defaultValue) {
+    public static long longAttribute(Element element, @NonNls String attributeName, long defaultValue) {
         try {
             String attributeValue = stringAttribute(element, attributeName);
             if (Strings.isEmpty(attributeValue)) {
@@ -180,7 +181,7 @@ public final class Settings {
         }
     */
 
-    public static <T extends Enum<T>> T enumAttribute(Element element, String attributeName, Class<T> enumClass) {
+    public static <T extends Enum<T>> T enumAttribute(Element element, @NonNls String attributeName, Class<T> enumClass) {
         try {
             String attributeValue = stringAttribute(element, attributeName);
             return Strings.isEmpty(attributeValue) ? null : T.valueOf(enumClass, attributeValue);
@@ -191,7 +192,7 @@ public final class Settings {
         }
     }
 
-    public static <T extends Enum<T>> T enumAttribute(Element element, String attributeName, @NotNull T defaultValue) {
+    public static <T extends Enum<T>> T enumAttribute(Element element, @NonNls String attributeName, @NotNull T defaultValue) {
         try {
             String attributeValue = stringAttribute(element, attributeName);
             return Strings.isEmpty(attributeValue) ? defaultValue : T.valueOf((Class<T>) defaultValue.getClass(), attributeValue);
@@ -202,16 +203,16 @@ public final class Settings {
         }
     }
 
-    public static ConnectionId connectionIdAttribute(Element element, String name) {
+    public static ConnectionId connectionIdAttribute(Element element, @NonNls String name) {
         return ConnectionId.get(stringAttribute(element, name));
     }
 
-    public static SessionId sessionIdAttribute(Element element, String name, SessionId defaultSessionId) {
+    public static SessionId sessionIdAttribute(Element element, @NonNls String name, SessionId defaultSessionId) {
         SessionId sessionId = SessionId.get(stringAttribute(element, name));
         return Commons.nvl(sessionId, defaultSessionId);
     }
 
-    public static SchemaId schemaIdAttribute(Element element, String name) {
+    public static SchemaId schemaIdAttribute(Element element, @NonNls String name) {
         return SchemaId.get(stringAttribute(element, name));
     }
 
@@ -228,58 +229,58 @@ public final class Settings {
         return builder.toString();
     }
 
-    public static void writeCdata(Element element, String content) {
+    public static void writeCdata(Element element, @NonNls String content) {
         element.setContent(new CDATA(content));
     }
 
 
-    public static void setInteger(Element parent, String childName, int value) {
+    public static void setInteger(Element parent, @NonNls String childName, int value) {
         Element element = newElement(parent, childName);
         element.setAttribute("value", Integer.toString(value));
     }
 
-    public static void setChars(Element parent, String childName, char[] value) {
+    public static void setChars(Element parent, @NonNls String childName, char[] value) {
         Element element = newElement(parent, childName);
         element.setAttribute("value", value == null ? "" : new String(value));
     }
 
-    public static void setString(Element parent, String childName, String value) {
+    public static void setString(Element parent, @NonNls String childName, @NonNls String value) {
         Element element = newElement(parent, childName);
         element.setAttribute("value", value == null ? "" : value);
     }
 
-    public static void setDouble(Element parent, String childName, double value) {
+    public static void setDouble(Element parent, @NonNls String childName, double value) {
         Element element = newElement(parent, childName);
         element.setAttribute("value", Double.toString(value));
     }
 
-    public static void setBoolean(Element parent, String childName, boolean value) {
+    public static void setBoolean(Element parent, @NonNls String childName, boolean value) {
         Element element = newElement(parent, childName);
         element.setAttribute("value", Boolean.toString(value));
     }
 
-    public static  <T extends Enum<T>> void setEnum(Element parent, String childName, T value) {
+    public static  <T extends Enum<T>> void setEnum(Element parent, @NonNls String childName, T value) {
         Element element = newElement(parent, childName);
         element.setAttribute("value",value == null ? "" : value.name());
     }
 
-    public static void setBooleanAttribute(Element element, String attributeName, boolean value) {
+    public static void setBooleanAttribute(Element element, @NonNls String attributeName, boolean value) {
         element.setAttribute(attributeName, Boolean.toString(value));
     }
 
-    public static void setIntegerAttribute(Element element, String attributeName, int value) {
+    public static void setIntegerAttribute(Element element, @NonNls String attributeName, int value) {
         element.setAttribute(attributeName, Integer.toString(value));
     }
 
-    public static void setLongAttribute(Element element, String attributeName, long value) {
+    public static void setLongAttribute(Element element, @NonNls String attributeName, long value) {
         element.setAttribute(attributeName, Long.toString(value));
     }
 
-    public static void setStringAttribute(Element element, String attributeName, String value) {
+    public static void setStringAttribute(Element element, @NonNls String attributeName, String value) {
         element.setAttribute(attributeName, value == null ? "" : value);
     }
 
-    public static void setCharsAttribute(Element element, String attributeName, char[] value) {
+    public static void setCharsAttribute(Element element, @NonNls String attributeName, char[] value) {
         element.setAttribute(attributeName, value == null ? "" : new String(value));
     }
 
@@ -287,10 +288,15 @@ public final class Settings {
         element.setAttribute(attributeName, value.name());
     }
 
-    public static Element newElement(String name) {
+    public static Element newStateElement() {
+        return newElement(null, "state");
+    }
+
+    public static Element newElement(@NonNls String name) {
         return newElement(null, name);
     }
-    public static Element newElement(@Nullable Element parent, String name) {
+
+    public static Element newElement(@Nullable Element parent, @NonNls String name) {
         Element child = new Element(name);
         if (parent != null) parent.addContent(child);
         return child;

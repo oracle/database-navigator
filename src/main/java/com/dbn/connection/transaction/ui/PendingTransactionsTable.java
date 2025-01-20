@@ -19,7 +19,6 @@ package com.dbn.connection.transaction.ui;
 import com.dbn.common.dispose.Checks;
 import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
-import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Editors;
@@ -41,6 +40,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class PendingTransactionsTable extends DBNTable<PendingTransactionsTableModel> {
     public PendingTransactionsTable(@NotNull PendingTransactionsDetailForm parent, @NotNull PendingTransactionsTableModel model) {
         super(parent, model, false);
@@ -48,9 +49,10 @@ public class PendingTransactionsTable extends DBNTable<PendingTransactionsTableM
         setDefaultRenderer(PendingTransaction.class, cellRenderer);
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         setCellSelectionEnabled(true);
-        adjustRowHeight(2);
-        accommodateColumnsSize();
+        adjustColumnWidths();
         addMouseListener(Mouse.listener().onClick(e -> clickEvent(e)));
+
+        setAccessibleName(this, "Pending Transactions");
     }
 
     private void clickEvent(MouseEvent e) {
@@ -123,7 +125,6 @@ public class PendingTransactionsTable extends DBNTable<PendingTransactionsTableM
                         changesCount + " uncommitted changes",
                         SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
-            setBorder(Borders.TEXT_FIELD_INSETS);
         }
     }
 }

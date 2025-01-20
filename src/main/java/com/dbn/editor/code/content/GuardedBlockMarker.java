@@ -17,8 +17,10 @@
 package com.dbn.editor.code.content;
 
 import com.intellij.util.Range;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+@NonNls
 public class GuardedBlockMarker extends Range<Integer> implements Comparable<GuardedBlockMarker>{
     public static final String START_OFFSET_IDENTIFIER = "$$DBN_GUARDED_BLOCK_START_OFFSET$$";
     public static final String END_OFFSET_IDENTIFIER = "$$DBN_GUARDED_BLOCK_END_OFFSET$$";

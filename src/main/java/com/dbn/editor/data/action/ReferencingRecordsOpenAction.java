@@ -25,11 +25,13 @@ import com.intellij.openapi.actionSystem.AnAction;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ReferencingRecordsOpenAction extends ObjectListShowAction{
     private Object columnValue;
 
     ReferencingRecordsOpenAction(DBColumn column, Object columnValue) {
-        super("Show referencing records...", column);
+        super(txt("app.data.action.ShowReferencingRecords"), column);
         this.columnValue = columnValue;
     }
 

@@ -17,7 +17,11 @@
 package com.dbn.object.type;
 
 import com.dbn.common.constant.Constant;
+import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
+@Getter
+@NonNls
 public enum DBTriggerEvent implements Constant<DBTriggerEvent> {
     INSERT("insert"),
     UPDATE("update"),
@@ -31,13 +35,9 @@ public enum DBTriggerEvent implements Constant<DBTriggerEvent> {
     DDL("ddl"),
     UNKNOWN("unknown");
 
-    private String name;
+    private final String name;
 
     DBTriggerEvent(String name) {
         this.name = name;
-    }
-
-    public String getName() {
-        return name;
     }
 }

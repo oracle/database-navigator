@@ -26,6 +26,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DatabaseConnectivityTestAction extends AbstractConnectionAction {
 
     DatabaseConnectivityTestAction(ConnectionHandler connection) {
@@ -37,7 +39,7 @@ public class DatabaseConnectivityTestAction extends AbstractConnectionAction {
         connection.getInstructions().setAllowAutoConnect(true);
         ConnectionManager connectionManager = ConnectionManager.getInstance(project);
 
-        ConnectionAction.invoke(txt("app.connection.activity.TestingConnectivity"), true, connection,
+        ConnectionAction.invoke(txt("msg.connection.title.TestingConnectivity"), true, connection,
                 (action) -> connectionManager.testConnection(connection, null, SessionId.MAIN, true, true));
     }
 

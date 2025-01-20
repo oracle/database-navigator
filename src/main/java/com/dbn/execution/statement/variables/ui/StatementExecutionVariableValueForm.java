@@ -37,7 +37,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ui.UIUtil;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -48,6 +50,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 
 
@@ -56,15 +59,13 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
     private JLabel variableNameLabel;
     private JPanel valueFieldPanel;
     private JLabel errorLabel;
-    private JPanel dataTypePanel;
-
-    private final DBNComboBox<GenericDataType> dataTypeComboBox;
+    private DBNComboBox<GenericDataType> dataTypeComboBox;
 
     @Getter
     private final StatementExecutionVariable variable;
     private final TextFieldWithPopup<?> editorComponent;
 
-    StatementExecutionVariableValueForm(StatementExecutionInputForm parent, final StatementExecutionVariable variable) {
+    StatementExecutionVariableValueForm(StatementExecutionInputForm parent, StatementExecutionVariable variable) {
         super(parent);
         this.variable = variable;
         errorLabel.setVisible(false);
@@ -73,12 +74,13 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
         variableNameLabel.setText(variable.getName());
         variableNameLabel.setIcon(Icons.DBO_VARIABLE);
 
-        dataTypeComboBox = new DBNComboBox<>(
+        dataTypeComboBox.setValues(
                 GenericDataType.LITERAL,
                 GenericDataType.NUMERIC,
                 GenericDataType.DATE_TIME);
+
         dataTypeComboBox.setSelectedValue(variable.getDataType());
-        dataTypePanel.add(dataTypeComboBox, BorderLayout.CENTER);
+        setAccessibleName(dataTypeComboBox, "Data Type");
 
         StatementExecutionProcessor executionProcessor = parent.getExecutionProcessor();
         Project project = executionProcessor.getProject();
@@ -87,30 +89,9 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
 
         editorComponent = new TextFieldWithPopup<>(project);
         editorComponent.createCalendarPopup(false);
-        editorComponent.createValuesListPopup(new ListPopupValuesProvider() {
-            @Override
-            public String getDescription() {
-                return "History Values List";
-            }
-
-            @Override
-            public List<String> getValues() {
-                List<String> values = new ArrayList<>();
-                VirtualFile virtualFile = executionProcessor.getVirtualFile();
-                Set<StatementExecutionVariable> variables = variablesCache.getVariables(virtualFile);
-                for (StatementExecutionVariable executionVariable : variables) {
-                    if (Objects.equals(executionVariable.getName(), variable.getName())) {
-                        Iterable<String> valueHistory = executionVariable.getValueHistory();
-                        for (String value : valueHistory) {
-                            values.add(value);
-                        }
-                    }
-                }
-
-                return values;
-            }
-        }, true);
+        editorComponent.createValuesListPopup(createValuesProvider(variable, executionProcessor, variablesCache), null, true);
         editorComponent.setPopupEnabled(TextFieldPopupType.CALENDAR, variable.getDataType() == GenericDataType.DATE_TIME);
+
         valueFieldPanel.add(editorComponent, BorderLayout.CENTER);
         JTextField textField = editorComponent.getTextField();
         String value = variable.getValue();
@@ -130,6 +111,7 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
 
 
         textField.addKeyListener(ComboBoxSelectionKeyListener.create(dataTypeComboBox, false));
+        variableNameLabel.setLabelFor(textField);
 
         variable.setPreviewValueProvider(new VariableValueProvider() {
             @Override
@@ -153,6 +135,32 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
         textField.setToolTipText("<html>While editing variable value, press <b>Up/Down</b> keys to change data type");
 
         Disposer.register(this, editorComponent);
+    }
+
+    private static @NotNull ListPopupValuesProvider createValuesProvider(StatementExecutionVariable variable, StatementExecutionProcessor executionProcessor, StatementExecutionVariables variablesCache) {
+        return new ListPopupValuesProvider() {
+            @Override
+            public String getName() {
+                return "Value History";
+            }
+
+            @Override
+            public List<String> getValues() {
+                List<String> values = new ArrayList<>();
+                VirtualFile virtualFile = executionProcessor.getVirtualFile();
+                Set<StatementExecutionVariable> variables = variablesCache.getVariables(virtualFile);
+                for (StatementExecutionVariable executionVariable : variables) {
+                    if (Objects.equals(executionVariable.getName(), variable.getName())) {
+                        Iterable<String> valueHistory = executionVariable.getValueHistory();
+                        for (String value : valueHistory) {
+                            values.add(value);
+                        }
+                    }
+                }
+
+                return values;
+            }
+        };
     }
 
     public StatementExecutionInputForm getParentForm() {
@@ -192,6 +200,11 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
 
     public JTextField getEditorComponent() {
         return editorComponent.getTextField();
+    }
+
+    @Override
+    public @Nullable JComponent getPreferredFocusedComponent() {
+        return dataTypeComboBox;
     }
 
     @Override

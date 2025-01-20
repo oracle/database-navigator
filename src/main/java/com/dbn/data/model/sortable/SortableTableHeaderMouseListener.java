@@ -50,7 +50,7 @@ public class SortableTableHeaderMouseListener extends MouseAdapter {
                 boolean isEdgeClick = colRect.getMaxX() - 8 < mousePoint.getX();
                 if (isEdgeClick) {
                     if (e.getClickCount() == 2) {
-                        table.accommodateColumnSize(columnIndex, table.getColumnWidthBuffer());
+                        table.adjustColumnWidth(columnIndex, table.getColumnWidthBuffer());
                     }
                 } else {
                     boolean keepExisting = e.isControlDown();

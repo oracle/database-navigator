@@ -19,6 +19,7 @@ package com.dbn.generator.code;
 import com.dbn.common.options.setting.Settings;
 import com.dbn.common.state.PersistentStateElement;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,11 +38,11 @@ import static com.dbn.common.options.setting.Settings.setStringAttribute;
 public class CodeGeneratorState implements PersistentStateElement {
     private final Map<String, String> properties = new HashMap<>();
 
-    public String getAttribute(String key) {
+    public String getAttribute(@NonNls String key) {
         return properties.get(key);
     }
 
-    public void setAttribute(String key, String value) {
+    public void setAttribute(@NonNls String key, @NonNls String value) {
         properties.put(key, value);
     }
 

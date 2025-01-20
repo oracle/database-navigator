@@ -67,7 +67,6 @@ public class DBNStickyPathTree extends DBNTree{
         setBorder(sourceTree.getBorder());
         setRootVisible(sourceTree.isRootVisible());
         setShowsRootHandles(sourceTree.getShowsRootHandles());
-        setRowHeight(sourceTree.getRowHeight());
         setCellRenderer(sourceTree.getCellRenderer());
         setToggleClickCount(sourceTree.getToggleClickCount());
         setPreferredSize(new Dimension(-1, 0));

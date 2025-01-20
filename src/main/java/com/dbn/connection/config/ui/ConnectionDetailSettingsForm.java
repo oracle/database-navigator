@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
@@ -57,7 +58,6 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
     private JPanel mainPanel;
     private JComboBox<CharsetOption> encodingComboBox;
     private JComboBox<EnvironmentType> environmentTypesComboBox;
-    private JPanel generalGroupPanel;
     private JPanel autoConnectHintPanel;
     private JTextField connectivityTimeoutTextField;
     private JTextField maxPoolSizeTextField;
@@ -95,6 +95,14 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
         autoConnectHintPanel.setVisible(visibleHint);
 
         ProjectEvents.subscribe(ensureProject(), this, EnvironmentConfigLocalListener.TOPIC, presentationChangeListener);
+    }
+
+    @Override
+    protected void initAccessibility() {
+        setAccessibleUnit(connectivityTimeoutTextField, txt("app.shared.unit.Seconds"));
+        setAccessibleUnit(passwordExpiryTextField, txt("app.shared.unit.Minutes"));
+        setAccessibleUnit(idleTimeTextField, txt("app.shared.unit.Minutes"));
+        setAccessibleUnit(idleTimePoolTextField, txt("app.shared.unit.Minutes"));
     }
 
     private void notifyPresentationChanges() {

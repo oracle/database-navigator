@@ -42,7 +42,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.Point;
@@ -58,7 +57,7 @@ public abstract class TextFieldPopupProviderForm extends DBNFormBase implements 
     private final boolean buttonVisible;
 
     private boolean enabled = true;
-    private JLabel button;
+    private JComponent button;
     private JBPopup popup;
     private final Set<AnAction> actions = new HashSet<>();
 

@@ -19,6 +19,7 @@ package com.dbn.database.common.statement;
 import com.dbn.common.exception.Exceptions;
 import lombok.Getter;
 
+import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.SQLException;
@@ -36,8 +37,8 @@ public class ByteArray implements CallableStatementOutput{
     @Override
     public void read(CallableStatement statement) throws SQLException {
         Blob blob = statement.getBlob(1);
-        try {
-            value = blob.getBinaryStream().readAllBytes();
+        try (InputStream binaryStream = blob.getBinaryStream()) {
+            value = binaryStream.readAllBytes();
         } catch (Exception e) {
             throw Exceptions.toSqlException(e);
         }

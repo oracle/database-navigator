@@ -20,7 +20,6 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,6 +27,7 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.InputEvent;
 
+import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static java.util.Arrays.stream;
 
 public abstract class ProjectPopupAction extends ProjectAction {
@@ -42,12 +42,13 @@ public abstract class ProjectPopupAction extends ProjectAction {
         if (inputEvent != null) {
             Component component = (Component) inputEvent.getSource();
             if (component.isShowing()) {
-                ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
-                        null,
-                        actionGroup,
-                        e.getDataContext(),
-                        JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-                        true, null, 10);
+                String title = getTemplatePresentation().getText();
+                ListPopup popup = popupBuilder(actionGroup, e).
+                        withTitle(title).
+                        withTitleVisible(false).
+                        withSpeedSearch().
+                        withMaxRowCount(10).
+                        build();
 
                 showBelowComponent(popup, component);
             }

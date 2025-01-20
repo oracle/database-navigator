@@ -22,9 +22,12 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.table.TableCellEditor;
 import java.awt.Component;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class ArrayEditorList extends EditableStringList {
     public ArrayEditorList(ArrayEditorPopupProviderForm parent) {
         super(parent, false, true);
+        setAccessibleName(this, "Array Editor");
     }
 
     @Override

@@ -20,6 +20,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.debugger.jdbc.config.DBStatementJdbcRunConfigFactory;
 import com.dbn.debugger.jdwp.config.DBJdwpStatementRunConfigFactory;
+import com.dbn.nls.NlsResources;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,7 +28,7 @@ import javax.swing.Icon;
 
 @Getter
 public class DBStatementRunConfigType extends DBRunConfigType<DBStatementRunConfigFactory> {
-    public static final String DEFAULT_RUNNER_NAME = "DB Statement Runner";
+    public static final String DEFAULT_RUNNER_NAME = NlsResources.txt("cfg.execution.title.StatementRunnerDefault");
     private final DBStatementRunConfigFactory[] configurationFactories = new DBStatementRunConfigFactory[]{
             new DBStatementJdbcRunConfigFactory(this),
             new DBJdwpStatementRunConfigFactory(this)};
@@ -36,12 +37,12 @@ public class DBStatementRunConfigType extends DBRunConfigType<DBStatementRunConf
     @NotNull
     @Override
     public String getDisplayName() {
-        return "DB Statement";
+        return txt("cfg.execution.title.StatementRunner");
     }
 
     @Override
     public String getConfigurationTypeDescription() {
-        return "DB Navigator - Statement Runner";
+        return txt("cfg.execution.text.StatementRunner");
     }
 
     @Override

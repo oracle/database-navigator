@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.assistant.editor.AssistantEditorUtil.isAssistantAvailable;
 import static com.dbn.assistant.editor.AssistantPromptUtil.isAssistantPromptAvailable;
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Editor intention action allowing to switch the current profile
@@ -42,8 +43,10 @@ public class ProfileSetupIntentionAction extends EditorIntentionAction {
     return EditorIntentionType.ASSISTANT_PROFILE_SETUP;
   }
 
+  @NotNull
+  @Override
   public final String getText() {
-    return "Select AI - Configure Profiles...";
+    return txt("app.assistant.action.SelectAIConfigureProfiles");
   }
 
   @Override

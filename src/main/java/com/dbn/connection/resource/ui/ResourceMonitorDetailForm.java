@@ -131,7 +131,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
         rollbackButton.setEnabled(enabled);
     }
 
-    private final AnActionButton disconnectAction = new BasicActionButton(txt("app.sessions.action.Disconnect"), null, Icons.ACTION_DISCONNECT_SESSION) {
+    private final AnActionButton disconnectAction = new BasicActionButton(txt("app.connection.action.Disconnect"), null, Icons.ACTION_DISCONNECT_SESSION) {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             DatabaseSession session = getSelectedSession();
@@ -164,7 +164,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
 
     };
 
-    private final AnActionButton deleteSessionAction = new BasicActionButton(txt("app.sessions.action.DeleteSession"), null, Icons.ACTION_DELETE) {
+    private final AnActionButton deleteSessionAction = new BasicActionButton(txt("app.connection.action.DeleteSession"), null, Icons.ACTION_DELETE) {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             DatabaseSession session = getSelectedSession();

@@ -38,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.getBoolean;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setBoolean;
 import static com.dbn.plugin.DBPluginStatus.ACTIVE;
 import static com.dbn.plugin.DBPluginStatus.MISSING;
@@ -151,7 +152,7 @@ public class PluginConflictManager extends ApplicationComponentBase implements P
 
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         setBoolean(element, "plugin-conflict-prompted", conflictPrompted);
         setBoolean(element, "file-types-claimed", fileTypesClaimed);
 

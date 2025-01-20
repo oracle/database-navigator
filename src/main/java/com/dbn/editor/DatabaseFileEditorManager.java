@@ -77,6 +77,7 @@ import static com.dbn.common.thread.ThreadProperty.EDITOR_LOAD;
 import static com.dbn.common.thread.ThreadProperty.WORKSPACE_RESTORE;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.editor.DatabaseFileEditorManager.COMPONENT_NAME;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.vfs.DatabaseFileSystem.isFileOpened;
 
 @State(
@@ -123,12 +124,12 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
     public void connectAndOpenEditor(@NotNull DBObject object, @Nullable EditorProviderId editorProviderId, boolean scrollBrowser, boolean focusEditor) {
         if (!isEditable(object)) return;
 
-        ConnectionAction.invoke("opening the object editor", false, object, action -> {
+        ConnectionAction.invoke(txt("msg.editor.title.OpeningObjectEditor"), false, object, action -> {
             Project project = getProject();
             if (focusEditor) {
                 Progress.prompt(project, object, true,
-                        "Opening " + object.getTypeName() + " editor",
-                        "Opening editor for " + object.getQualifiedNameWithType(),
+                        txt("prc.editor.title.OpeningObjectEditor", object.getTypeName()),
+                        txt("prc.editor.text.OpeningObjectEditor", object.getQualifiedNameWithType()),
                         progress -> openEditor(object, editorProviderId, scrollBrowser, true));
             } else {
                 Background.run(() -> openEditor(object, editorProviderId, scrollBrowser, false));
@@ -311,9 +312,10 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
 
         if (ddlFileSettings.isDdlFilesCreationEnabled()) {
             Messages.showQuestionDialog(
-                    project, "No DDL file found",
-                    "Could not find any DDL file for " + object.getQualifiedNameWithType() + ". Do you want to create one? \n" +
-                            "(You can disable this check in \"DDL File\" options)", Messages.OPTIONS_YES_CANCEL, 0,
+                    project,
+                    txt("msg.ddlFiles.title.NoDdlFileFound"),
+                    txt("msg.ddlFiles.question.NoDdlFileFound", object.getQualifiedNameWithType()),
+                    Messages.OPTIONS_YES_NO_CANCEL, 0,
                     option -> {
                         when(option == 0, () -> fileAttachmentManager.createDDLFile(objectRef));
                         when(option == 1, callback);

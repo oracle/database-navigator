@@ -20,9 +20,11 @@ import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CalendarPreviousMonthAction extends CalendarPopupAction {
     CalendarPreviousMonthAction() {
-        super("Previous Month", null, Icons.CALENDAR_PREVIOUS_MONTH);
+        super(txt("app.data.action.PreviousMonth"), null, Icons.CALENDAR_PREVIOUS_MONTH);
 
     }
 

@@ -35,6 +35,7 @@ import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Messages.showInfoDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 @State(
@@ -57,11 +58,11 @@ public class AssistantPrerequisiteManager extends ProjectComponentBase implement
         String host = provider.getHost();
         String user = connection.getUserName();
         String title = txt("prc.assistant.title.GrantingAccess");
-        String message = txt("prc.assistant.message.GrantingNetworkAccess", host, user);
+        String text = txt("prc.assistant.text.GrantingNetworkAccess", host, user);
 
-        Progress.modal(project, connection, false, title, message, progress -> {
+        Progress.modal(project, connection, false, title, text, progress -> {
             try {
-                DatabaseInterfaceInvoker.execute(HIGH, title, message, project, connection.getConnectionId(),
+                DatabaseInterfaceInvoker.execute(HIGH, title, text, project, connection.getConnectionId(),
                         c -> connection.getAssistantInterface().grantACLRights(c, command));
 
                 showInfoDialog(project, txt("msg.assistant.title.AccessGranted"), txt("msg.assistant.info.NetworkAccessGranted", host, user));
@@ -74,12 +75,12 @@ public class AssistantPrerequisiteManager extends ProjectComponentBase implement
 
     public void grantExecutionPrivileges(ConnectionHandler connection, String user) {
         String title = txt("prc.assistant.title.GrantingPrivileges");
-        String message = txt("prc.assistant.message.GrantingExecutionPrivileges", user);
+        String text = txt("prc.assistant.text.GrantingExecutionPrivileges", user);
 
         Project project = getProject();
-        Progress.modal(project, connection, false, title, message, progress -> {
+        Progress.modal(project, connection, false, title, text, progress -> {
             try {
-                DatabaseInterfaceInvoker.execute(HIGH, title, message, project, connection.getConnectionId(),
+                DatabaseInterfaceInvoker.execute(HIGH, title, text, project, connection.getConnectionId(),
                         c -> connection.getAssistantInterface().grantPrivilege(c, user));
 
                 showInfoDialog(project, txt("msg.assistant.title.PrivilegesGranted"), txt("msg.assistant.info.ExecutionPrivilegesGranted", user));

@@ -17,10 +17,11 @@
 package com.dbn.generator.code.java;
 
 import com.dbn.generator.code.shared.base.CodeGeneratorResultBase;
+import com.intellij.openapi.vfs.VirtualFile;
 
 public abstract class JavaCodeGeneratorResult<I extends JavaCodeGeneratorInput> extends CodeGeneratorResultBase<I> {
 
-    public JavaCodeGeneratorResult(I input) {
-        super(input);
+    public JavaCodeGeneratorResult(I input, VirtualFile... files) {
+        super(input, files);
     }
 }

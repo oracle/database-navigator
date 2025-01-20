@@ -18,6 +18,7 @@ package com.dbn.assistant.chat.window;
 
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -40,7 +41,7 @@ public enum PromptAction implements Presentable {
   private final String name;
   private final String description;
 
-  PromptAction(String action, String name, String description) {
+  PromptAction(@NonNls String action, String name, String description) {
     this.id = action;
     this.name = name;
     this.description = description;

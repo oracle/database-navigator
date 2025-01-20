@@ -124,7 +124,7 @@ public class Formatter implements Cloneable, Signed {
         Formatter localFormatter = Formatter.localFormatter.get();
         Formatter baseFormatter = RegionalSettings.getInstance(project).getBaseFormatter();
         if (localFormatter == null || localFormatter.getSignature() != baseFormatter.getSignature()) {
-            localFormatter = baseFormatter;
+            localFormatter = baseFormatter.clone();
             Formatter.localFormatter.set(localFormatter);
         }
         return localFormatter;

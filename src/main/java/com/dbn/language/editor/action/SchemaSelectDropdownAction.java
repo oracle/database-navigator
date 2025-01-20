@@ -40,10 +40,10 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
+import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
 public class SchemaSelectDropdownAction extends ComboBoxAction implements DumbAware {
-    private static final String NAME = "Schema";
 
     @NotNull
     @Override
@@ -71,7 +71,7 @@ public class SchemaSelectDropdownAction extends ComboBoxAction implements DumbAw
     public void update(@NotNull AnActionEvent e) {
         Project project = Lookups.getProject(e);
         VirtualFile virtualFile = Lookups.getVirtualFile(e);
-        String text = NAME;
+        String text = txt("app.codeEditor.action.Schema");
 
         Icon icon = null;
         boolean visible = false;
@@ -104,7 +104,7 @@ public class SchemaSelectDropdownAction extends ComboBoxAction implements DumbAw
 
         Presentation presentation = e.getPresentation();
         presentation.setText(text, false);
-        presentation.setDescription("Select current schema");
+        presentation.setDescription(txt("app.codeEditor.tooltip.SelectCurrentSchema"));
         presentation.setIcon(icon);
         presentation.setVisible(visible);
         presentation.setEnabled(enabled);

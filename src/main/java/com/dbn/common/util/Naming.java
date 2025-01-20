@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.toLowerCase;
 import static com.dbn.common.util.Strings.toUpperCase;
 
@@ -177,6 +178,19 @@ public class Naming {
         }
         return result.toString();
     }
+
+    public static String singleQuoted(String string) {
+        return quoted(string, '\'');
+    }
+
+    public static String doubleQuoted(String string) {
+        return quoted(string, '"');
+    }
+
+    public static String quoted(String string, char quote) {
+        return quote + nvl(string, "") + quote;
+    }
+
 
     public static String unquote(String string) {
         if (string.length() > 1) {

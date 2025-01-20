@@ -65,7 +65,6 @@ public class PendingTransactionDialogForm extends DBNFormBase {
                 "The transactional status of this connection cannot be left inconsistent. Please choose whether to commit or rollback the changes.\n\n" +
                 "NOTE: Changes will be rolled-back if this prompt stays unattended for more than 5 minutes";
         hintTextPane.setBackground(mainPanel.getBackground());
-        hintTextPane.setFont(mainPanel.getFont());
         hintTextPane.setText(text);
 
         String headerName = executionProcessor.getName();

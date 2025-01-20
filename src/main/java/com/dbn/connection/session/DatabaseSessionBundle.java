@@ -17,15 +17,13 @@
 package com.dbn.connection.session;
 
 import com.dbn.common.dispose.Disposed;
-import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.index.IdentifiableMap;
 import com.dbn.common.util.CollectionUtil;
+import com.dbn.connection.ConnectionComponentBase;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.ConnectionType;
 import com.dbn.connection.SessionId;
 import com.dbn.database.DatabaseFeature;
-import com.intellij.openapi.Disposable;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,9 +42,7 @@ import static com.dbn.common.util.Lists.filtered;
 import static com.dbn.common.util.Lists.first;
 
 @Getter
-public class DatabaseSessionBundle extends StatefulDisposableBase implements Disposable{
-    private final
-    ConnectionRef connection;
+public class DatabaseSessionBundle extends ConnectionComponentBase{
     private final DatabaseSession mainSession;
     private DatabaseSession debugSession;
     private DatabaseSession debuggerSession;
@@ -58,7 +54,6 @@ public class DatabaseSessionBundle extends StatefulDisposableBase implements Dis
 
     public DatabaseSessionBundle(ConnectionHandler connection) {
         super(connection);
-        this.connection = connection.ref();
 
         mainSession = new DatabaseSession(SessionId.MAIN, "Main", ConnectionType.MAIN, connection);
         sessions.add(mainSession);
@@ -102,10 +97,6 @@ public class DatabaseSessionBundle extends StatefulDisposableBase implements Dis
 
     public Set<String> getSessionNames() {
         return sessions.stream().map(s -> s.getName()).collect(Collectors.toSet());
-    }
-
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
     }
 
     @NotNull

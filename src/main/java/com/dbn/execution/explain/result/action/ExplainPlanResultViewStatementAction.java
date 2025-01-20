@@ -27,6 +27,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.Component;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ExplainPlanResultViewStatementAction extends AbstractExplainPlanResultAction {
 
     @Override
@@ -37,7 +39,7 @@ public class ExplainPlanResultViewStatementAction extends AbstractExplainPlanRes
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ExplainPlanResult target) {
-        presentation.setText("View SQL Statement");
+        presentation.setText(txt("app.execution.action.ViewSqlStatement"));
         presentation.setIcon(Icons.EXEC_RESULT_VIEW_STATEMENT);
     }
 }

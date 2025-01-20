@@ -46,15 +46,17 @@ public class DBTriggerManagementAdapter extends ObjectManagementAdapterFactoryBa
         DatabaseDataDefinitionInterface databaseInterface = connection.getDataDefinitionInterface();
         databaseInterface.dropObject(
                 object.getTypeName(),
-                object.getQualifiedName(), conn);
+                object.getSchemaName(true),
+                object.getName(true),
+                conn);
     }
 
     @Override
     protected void enableObject(ConnectionHandler connection, DBNConnection conn, DBTrigger object) throws SQLException {
         DatabaseMetadataInterface databaseInterface = connection.getMetadataInterface();;
         databaseInterface.enableTrigger(
-                object.getSchemaName(),
-                object.getName(),
+                object.getSchemaName(true),
+                object.getName(true),
                 conn);
     }
 
@@ -62,8 +64,8 @@ public class DBTriggerManagementAdapter extends ObjectManagementAdapterFactoryBa
     protected void disableObject(ConnectionHandler connection, DBNConnection conn, DBTrigger object) throws SQLException {
         DatabaseMetadataInterface databaseInterface = connection.getMetadataInterface();;
         databaseInterface.disableTrigger(
-                object.getSchemaName(),
-                object.getName(),
+                object.getSchemaName(true),
+                object.getName(true),
                 conn);
     }
 }

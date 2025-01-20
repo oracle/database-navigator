@@ -31,7 +31,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
-import java.awt.Font;
 
 public class ProfileDetailsForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -61,8 +60,8 @@ public class ProfileDetailsForm extends DBNFormBase {
         objectsTable.setSelectionModel(new NullSelectionModel());
         objectsTable.setDefaultRenderer(Object.class, createObjectTableRenderer());
         String[] columnNames = {
-                txt("profile.mgmt.obj_table.header.name"),
-                txt("profile.mgmt.obj_table.header.owner")};
+                txt("cfg.assistant.title.Dataset"),
+                txt("cfg.assistant.title.Owner")};
 
         Object[][] data = profile.getObjects().stream()
                 .map(obj -> new Object[]{obj.getName(), obj.getSchemaName()})
@@ -85,7 +84,6 @@ public class ProfileDetailsForm extends DBNFormBase {
                     append(value.toString(), table.isEnabled() ?
                             SimpleTextAttributes.REGULAR_ATTRIBUTES :
                             SimpleTextAttributes.GRAY_ATTRIBUTES);
-                    setFont(getFont().deriveFont(Font.PLAIN));
                 } else {
                     append("<all>", table.isEnabled() ?
                             SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES :

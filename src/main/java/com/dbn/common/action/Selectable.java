@@ -17,8 +17,7 @@
 package com.dbn.common.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
-
-import java.util.function.Predicate;
+import com.intellij.openapi.util.Condition;
 
 /**
  * Marker interface for selectable actions
@@ -27,7 +26,7 @@ import java.util.function.Predicate;
 public interface Selectable {
     boolean isSelected();
 
-    static Predicate<AnAction> selector() {
+    static <T extends AnAction> Condition<T> selector() {
         return action -> action instanceof Selectable && ((Selectable) action).isSelected();
     }
 }

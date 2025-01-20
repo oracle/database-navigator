@@ -27,7 +27,7 @@
         <children>
           <grid id="ac1bf" binding="profilesPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints>
-              <tabbedpane title-resource-bundle="messages/DBNResources" title-key="ai.settings.window.tab.profiles.title"/>
+              <tabbedpane title-resource-bundle="messages/DBNResources" title-key="cfg.assistant.title.Profiles"/>
             </constraints>
             <properties/>
             <border type="none"/>
@@ -35,7 +35,7 @@
           </grid>
           <grid id="7536e" binding="credentialsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints>
-              <tabbedpane title-resource-bundle="messages/DBNResources" title-key="ai.settings.window.tab.credentials.title"/>
+              <tabbedpane title-resource-bundle="messages/DBNResources" title-key="cfg.assistant.title.Credentials"/>
             </constraints>
             <properties/>
             <border type="none"/>

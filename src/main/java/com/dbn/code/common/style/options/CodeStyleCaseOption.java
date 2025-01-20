@@ -22,6 +22,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Objects;
 
@@ -44,7 +45,7 @@ public class CodeStyleCaseOption implements PersistentConfiguration {
         this.ignoreMixedCase = ignoreMixedCase;
     }
 
-    public String format(String string) {
+    public @NonNls String format(String string) {
         if (string != null) {
             switch (styleCase) {
                 case UPPER: return ignore(string) ? string : toUpperCase(string);

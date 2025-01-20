@@ -55,6 +55,8 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.event.MouseEvent;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectDependencyTree extends DBNTree{
     private final DBObjectSelectionHistory selectionHistory =  new DBObjectSelectionHistory();
     private final ObjectDependencyTreeSpeedSearch speedSearch;
@@ -94,7 +96,7 @@ public class ObjectDependencyTree extends DBNTree{
                         if (schObject.is(DBObjectProperty.EDITABLE)) {
                             actionGroup.add(new EditObjectAction((DBSchemaObject) object));
                         }
-                        ActionPopupMenu actionPopupMenu = Actions.createActionPopupMenu(this, "", actionGroup);
+                        ActionPopupMenu actionPopupMenu = Actions.createActionPopupMenu(this, actionGroup);
                         JPopupMenu popupMenu = actionPopupMenu.getComponent();
                         Dispatch.run(() -> {
                             if (!isShowing()) return;
@@ -187,7 +189,7 @@ public class ObjectDependencyTree extends DBNTree{
     public class SelectObjectAction extends BasicAction {
         private final DBObjectRef<DBSchemaObject> objectRef;
         SelectObjectAction(DBSchemaObject object) {
-            super("Select");
+            super(txt("app.shared.action.Select"));
             objectRef = DBObjectRef.of(object);
         }
 

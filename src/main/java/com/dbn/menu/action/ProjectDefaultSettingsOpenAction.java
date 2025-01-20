@@ -26,6 +26,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ProjectDefaultSettingsOpenAction extends ProjectAction {
 
     @Override
@@ -39,7 +41,7 @@ public class ProjectDefaultSettingsOpenAction extends ProjectAction {
         Presentation presentation = e.getPresentation();
         if (Objects.equals(e.getPlace(), ActionPlaces.MAIN_MENU)) {
             presentation.setIcon(null);
-            presentation.setText("Open Default Settings...");
+            presentation.setText(txt("app.menu.action.OpenDefaultSettings"));
         }
     }
 

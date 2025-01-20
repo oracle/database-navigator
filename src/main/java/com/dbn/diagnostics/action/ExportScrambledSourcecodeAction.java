@@ -18,6 +18,7 @@ package com.dbn.diagnostics.action;
 
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.util.FileChoosers;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.diagnostics.ParserDiagnosticsManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -31,9 +32,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Slf4j
 public class ExportScrambledSourcecodeAction extends ProjectAction {
-    public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = new FileChooserDescriptor(false, true, false, false, false, false).
+    public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.singleFolder().
             withTitle("Select Destination Directory").
             withDescription("Select destination directory for the scrambled sources");
 
@@ -42,8 +45,8 @@ public class ExportScrambledSourcecodeAction extends ProjectAction {
         VirtualFile[] virtualFiles = FileChooser.chooseFiles(FILE_CHOOSER_DESCRIPTOR, project, null);
         if (virtualFiles.length == 1) {
             Progress.modal(project, null, true,
-                    "Scrambling code",
-                    "Running project code scrambler",
+                    txt("prc.diagnostics.title.ScramblingCode"),
+                    txt("prc.diagnostics.text.RunningCodeScrambler"),
                     progress -> {
                         progress.setIndeterminate(false);
                         ParserDiagnosticsManager manager = ParserDiagnosticsManager.get(project);
@@ -56,7 +59,7 @@ public class ExportScrambledSourcecodeAction extends ProjectAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setVisible(Diagnostics.isBulkActionsEnabled());
-        presentation.setText("Export Scrambled Sourcecode");
+        presentation.setText(txt("app.diagnostics.action.ExportScrambledSourcecode"));
     }
 
 

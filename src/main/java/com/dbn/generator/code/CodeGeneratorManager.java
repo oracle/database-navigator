@@ -29,7 +29,6 @@ import com.dbn.generator.code.shared.CodeGeneratorInput;
 import com.dbn.generator.code.shared.CodeGeneratorResult;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputDialog;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputForm;
-import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -45,6 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.util.Editors.openFileEditor;
 import static com.dbn.generator.code.CodeGeneratorManager.COMPONENT_NAME;
@@ -96,7 +96,7 @@ public class CodeGeneratorManager extends ProjectComponentBase implements Persis
 
     public void generateCode(CodeGeneratorContext context) {
         CodeGenerator generator = context.getGenerator();
-        WriteAction.run(() -> generator.generateCode(context));
+        generator.generateCode(context);
     }
 
     @NotNull
@@ -122,7 +122,7 @@ public class CodeGeneratorManager extends ProjectComponentBase implements Persis
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         Element statesElement = newElement(element, "generator-states");
         for (CodeGeneratorCategory category : states.keySet()) {
             Element stateElement = newElement(statesElement, "generator-state");

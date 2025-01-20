@@ -24,11 +24,13 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JList;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class MoveUpAction extends BasicAction {
     private final JList list;
 
     public MoveUpAction(JList list)  {
-        super("Move Up", null, Icons.ACTION_MOVE_UP);
+        super(txt("app.data.action.MoveUp"), null, Icons.ACTION_MOVE_UP);
         this.list = list;
     }
 

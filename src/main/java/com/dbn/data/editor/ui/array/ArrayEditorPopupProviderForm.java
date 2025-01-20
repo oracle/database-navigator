@@ -66,8 +66,8 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
     public ArrayEditorPopupProviderForm(TextFieldWithPopup<?> textField, boolean autoPopup) {
         super(textField, autoPopup, true);
 
-        ActionToolbar actionToolbarLeft = createActionToolbar(leftActionPanel, "DBNavigator.ActionGroup.Arrays.LeftControls", "",true);
-        ActionToolbar actionToolbarRight = createActionToolbar(leftActionPanel, "DBNavigator.ActionGroup.Arrays.RightControls", "",true);
+        ActionToolbar actionToolbarLeft = createActionToolbar(leftActionPanel, true, "DBNavigator.ActionGroup.Arrays.LeftControls");
+        ActionToolbar actionToolbarRight = createActionToolbar(leftActionPanel, true, "DBNavigator.ActionGroup.Arrays.RightControls");
         Arrays.asList(actionToolbarLeft, actionToolbarRight).forEach(tb -> tb.getActions().forEach(a -> registerAction(a)));
 
         leftActionPanel.add(actionToolbarLeft.getComponent(), BorderLayout.WEST);
@@ -160,7 +160,7 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
     }
 
     @Override
-    public String getDescription() {
+    public String getName() {
         return "Array Editor";
     }
 

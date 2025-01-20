@@ -72,7 +72,6 @@ public class CredentialPickerForm extends DBNFormBase {
     credentialsTable = new DBNTable<>(this, credentialTableModel, true);
     credentialsTable.setCellSelectionEnabled(false);
     credentialsTable.setRowSelectionAllowed(true);
-    credentialsTable.setRowHeight(24);
 
     credentialsTable.setDefaultRenderer(LocalCredential.class, createCellRenderer());
     credentialsScrollPane.setViewportView(credentialsTable);

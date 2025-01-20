@@ -16,6 +16,7 @@
 
 package com.dbn.connection.config.tns;
 
+import com.dbn.common.util.FileChoosers;
 import com.dbn.common.util.FileContentCache;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
@@ -23,6 +24,7 @@ import lombok.SneakyThrows;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +35,7 @@ import java.util.regex.Pattern;
 import static com.dbn.common.util.Commons.coalesce;
 
 public class TnsNamesParser {
-    public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = new FileChooserDescriptor(true, false, false, false, false, false).
+    public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.singleFile().
             withTitle("Select TNS Names File").
             withDescription("Select a valid Oracle tnsnames.ora file").
             withFileFilter(virtualFile -> Objects.equals(virtualFile.getExtension(), "ora"));
@@ -53,7 +55,8 @@ public class TnsNamesParser {
     @SneakyThrows
     public static TnsNames parse(File file) {
         List<TnsProfile> tnsProfiles = new ArrayList<>();
-        String tnsContent = new String(Files.readAllBytes(Paths.get(file.getPath())));
+        Path filePath = Paths.get(file.getPath());
+        String tnsContent = Files.readString(filePath);
 
         Pattern pattern = TnsProfilePattern.INSTANCE.get();
         Matcher matcher = pattern.matcher(tnsContent);

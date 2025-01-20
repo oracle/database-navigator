@@ -31,6 +31,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.tree.IElementType;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -41,6 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dbn.common.util.Strings.toLowerCase;
 
+@NonNls
 public class DBLLanguageFileScrambler {
     AtomicInteger fineNameIndex = new AtomicInteger();
     private final Map<String, String> locationMap = new HashMap<>();

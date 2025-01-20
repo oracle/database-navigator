@@ -23,7 +23,6 @@ import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.table.DBNTableTransferHandler;
 import com.dbn.common.ui.util.Borderless;
-import com.dbn.common.ui.util.Borders;
 import com.dbn.diagnostics.data.DiagnosticEntry;
 import com.dbn.diagnostics.ui.model.AbstractDiagnosticsTableModel;
 import com.intellij.ui.SimpleTextAttributes;
@@ -31,6 +30,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableModel;
+
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
 public class DiagnosticsTable<T extends AbstractDiagnosticsTableModel> extends DBNTable<T> implements Borderless{
 
@@ -41,9 +42,10 @@ public class DiagnosticsTable<T extends AbstractDiagnosticsTableModel> extends D
         setTransferHandler(DBNTableTransferHandler.INSTANCE);
         setBackground(Colors.getEditorBackground());
         setCellSelectionEnabled(true);
-        adjustRowHeight(2);
         initTableSorter();
-        accommodateColumnsSize();
+        adjustColumnWidths();
+
+        setAccessibleName(this, "Diagnostic Results");
     }
 
     @Override
@@ -66,7 +68,6 @@ public class DiagnosticsTable<T extends AbstractDiagnosticsTableModel> extends D
                 String presentableValue = model.getPresentableValue(entry, column);
                 append(presentableValue, SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
-            setBorder(Borders.TEXT_FIELD_INSETS);
         }
     }
 }

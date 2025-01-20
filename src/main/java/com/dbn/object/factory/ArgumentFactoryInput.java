@@ -19,6 +19,7 @@ package com.dbn.object.factory;
 import com.dbn.common.util.Strings;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class ArgumentFactoryInput extends ObjectFactoryInput{
     private final boolean input;
     private final boolean output;
 
-    public ArgumentFactoryInput(ObjectFactoryInput parent, int index, String objectName, String dataType, boolean input, boolean output) {
+    public ArgumentFactoryInput(ObjectFactoryInput parent, int index, @NonNls String objectName, @NonNls String dataType, boolean input, boolean output) {
         super(objectName, DBObjectType.ARGUMENT, parent, index);
         this.dataType = dataType == null ? "" : dataType.trim();
         this.input = input;

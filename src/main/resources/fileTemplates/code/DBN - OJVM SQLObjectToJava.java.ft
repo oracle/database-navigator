@@ -1,0 +1,26 @@
+public static ${JAVA_COMPLEX_TYPE} ${SQL_OBJECT_TYPE}toJava(java.sql.Struct obj) {
+    if(obj == null)
+        return null;
+
+    java.lang.Object[] objArray;
+    try {
+        objArray = obj.getAttributes();
+    } catch(java.sql.SQLException e) {
+        return null;
+    }
+
+    ${JAVA_COMPLEX_TYPE} javaObj = new ${JAVA_COMPLEX_TYPE}();
+    #if (${FIELDS} && ${FIELDS} != "")
+        #set($csvProps = "${FIELDS}")
+        #set($props = $csvProps.split(","))
+        #foreach($prop in $props)
+            #set($tokens = $prop.split(";"))
+            #set($name = $tokens[0])
+            #set($value = $tokens[1])
+            #set($end = $tokens[2])
+            javaObj.$name ${value} ${end};
+        #end
+    #end
+
+    return javaObj;
+}

@@ -30,7 +30,6 @@ import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.Popups;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
-import com.dbn.common.util.Context;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionHandlerStatusListener;
@@ -42,7 +41,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -54,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.ui.util.UserInterface.setBackgroundRecursive;
 
 public class SelectorBrowserForm extends DatabaseBrowserForm {
@@ -162,22 +161,19 @@ public class SelectorBrowserForm extends DatabaseBrowserForm {
             actionGroup.add(new SelectConnectionAction(connection));
         }
 
-        popup = JBPopupFactory.getInstance().createActionGroupPopup(
-                null,
-                actionGroup,
-                Context.getDataContext(this),
-                false,
-                false,
-                false,
-                () -> popup = null,
-                10,
-                a -> {
+        popup = popupBuilder(actionGroup, this).
+                withTitle("Connections").
+                withTitleVisible(false).
+                withDisposeCallback(() -> popup = null).
+                withMaxRowCount(20).
+                withPreselectCondition(a -> {
                     if (a instanceof SelectConnectionAction) {
                         SelectConnectionAction connectionAction = (SelectConnectionAction) a;
                         return Objects.equals(connectionAction.getConnectionId(), selectedConnectionId);
                     }
                     return false;
-                });
+                }).build();
+
         Popups.showUnderneathOf(popup, connectionLabel, 8, 200);
     }
 

@@ -33,6 +33,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ConnectionSelectDropdownAction extends ComboBoxAction {
     private final MethodExecutionBrowserForm browserComponent;
     private final boolean debug;
@@ -70,7 +72,7 @@ public class ConnectionSelectDropdownAction extends ComboBoxAction {
     @Override
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        String text = "Select Connection";
+        String text = txt("app.execution.action.SelectConnection");
         Icon icon = null;
 
         ConnectionHandler connection = browserComponent.getSettings().getConnection();

@@ -24,11 +24,13 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectDropAction extends BasicAction {
-    private DBObjectRef<DBSchemaObject> object;
+    private final DBObjectRef<DBSchemaObject> object;
 
     public ObjectDropAction(DBSchemaObject object) {
-        super("Drop...", null, Icons.ACTION_CLOSE);
+        super(txt("app.objects.action.Drop"), null, Icons.ACTION_CLOSE);
         this.object = DBObjectRef.of(object);
     }
 

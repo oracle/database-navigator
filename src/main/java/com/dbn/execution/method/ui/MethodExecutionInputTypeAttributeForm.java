@@ -104,7 +104,7 @@ public class MethodExecutionInputTypeAttributeForm extends DBNFormBase {
                 inputField.createCalendarPopup(false);
             }
 
-            inputField.createValuesListPopup(createValuesProvider(), true);
+            inputField.createValuesListPopup(createValuesProvider(), argument, true);
             inputTextField = inputField.getTextField();
             inputFieldPanel.add(inputField, BorderLayout.CENTER);
             inputTextField.setText(value);
@@ -121,8 +121,8 @@ public class MethodExecutionInputTypeAttributeForm extends DBNFormBase {
     private ListPopupValuesProvider createValuesProvider() {
         return new ListPopupValuesProvider() {
             @Override
-            public String getDescription() {
-                return "History Values List";
+            public String getName() {
+                return "Value History";
             }
 
             @Override

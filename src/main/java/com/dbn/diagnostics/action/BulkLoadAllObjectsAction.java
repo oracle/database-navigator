@@ -29,16 +29,18 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class BulkLoadAllObjectsAction extends AbstractConnectionAction {
     public BulkLoadAllObjectsAction(ConnectionHandler connection) {
-        super("Load All Objects", null, Icons.DATA_EDITOR_RELOAD_DATA, connection);
+        super(connection);
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ConnectionHandler connection) {
         Progress.prompt(project, connection, true,
-                "Loading data dictionary",
-                "Loading all objects of " + connection.getName(),
+                txt("prc.diagnostics.title.LoadingDataDictionary"),
+                txt("prc.diagnostics.text.LoadingAllObjectsOf", connection.getName()),
                 progress -> {
                     DBObjectListContainer objectListContainer = connection.getObjectBundle().getObjectLists();
                     objectListContainer.visit(DBObjectRecursiveLoaderVisitor.INSTANCE, false);
@@ -48,5 +50,7 @@ public class BulkLoadAllObjectsAction extends AbstractConnectionAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionHandler connection) {
         presentation.setVisible(Diagnostics.isBulkActionsEnabled());
+        presentation.setText(txt("app.diagnostics.action.LoadAllObjects"));
+        presentation.setIcon(Icons.DATA_EDITOR_RELOAD_DATA);
     }
 }

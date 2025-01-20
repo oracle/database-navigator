@@ -43,14 +43,20 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
 
     QuotePair getDefaultIdentifierQuotes();
 
-    @Nullable String getDatabaseLogName();
+    @NonNls
+    @Nullable
+    String getDatabaseLogName();
 
+    @NonNls
     String getDefaultAlternativeStatementDelimiter();
 
+    @NonNls
     String getOrderByClause(String columnName, SortDirection sortDirection, boolean nullsFirst);
 
+    @NonNls
     String getForUpdateClause();
 
+    @NonNls
     String getSessionBrowserColumnName(String columnName);
 
     SessionStatus getSessionStatus(String statusName);

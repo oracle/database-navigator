@@ -17,6 +17,7 @@
 package com.dbn.language.common;
 
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 @Getter
 public enum DBLanguageDialectIdentifier {
@@ -32,7 +33,7 @@ public enum DBLanguageDialectIdentifier {
 
     private final String value;
 
-    DBLanguageDialectIdentifier(String value) {
+    DBLanguageDialectIdentifier(@NonNls String value) {
         this.value = value;
     }
 }
