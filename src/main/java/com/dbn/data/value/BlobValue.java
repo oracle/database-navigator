@@ -18,6 +18,7 @@ package com.dbn.data.value;
 
 import com.dbn.data.type.GenericDataType;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.sql.rowset.serial.SerialBlob;
@@ -170,6 +171,7 @@ public class BlobValue extends LargeObjectValue {
         return blob == null ? 0 : blob.length();
     }
 
+    @NonNls
     @Override
     public String getDisplayValue() {
         /*try {

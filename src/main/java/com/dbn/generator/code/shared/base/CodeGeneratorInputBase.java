@@ -19,7 +19,6 @@ package com.dbn.generator.code.shared.base;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.shared.CodeGeneratorInput;
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -40,11 +39,7 @@ public abstract class CodeGeneratorInputBase implements CodeGeneratorInput {
     }
 
     @NotNull
-    protected Project getProject() {
+    public Project getProject() {
         return nd(getDatabaseContext().getProject());
-    }
-
-    protected void fail(String message) throws ConfigurationException {
-        throw new ConfigurationException(message);
     }
 }

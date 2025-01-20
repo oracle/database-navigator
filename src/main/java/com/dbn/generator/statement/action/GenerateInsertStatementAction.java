@@ -22,9 +22,12 @@ import com.dbn.generator.statement.StatementGeneratorResult;
 import com.dbn.object.DBTable;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class GenerateInsertStatementAction extends GenerateStatementAction {
     private DBObjectRef<DBTable> table;
@@ -35,7 +38,8 @@ public class GenerateInsertStatementAction extends GenerateStatementAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        e.getPresentation().setText("INSERT Statement");
+        Presentation presentation = e.getPresentation();
+        presentation.setText(txt("app.codeGenerator.action.InsertStatement"));
     }
 
     @Override

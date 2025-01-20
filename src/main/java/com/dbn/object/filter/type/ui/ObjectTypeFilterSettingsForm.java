@@ -46,9 +46,6 @@ public class ObjectTypeFilterSettingsForm extends ConfigurationEditorForm<Object
     public ObjectTypeFilterSettingsForm(ObjectTypeFilterSettings configuration) {
         super(configuration);
 
-        visibleObjectsList = new CheckBoxList<>(configuration.getSettings());
-        visibleObjectsScrollPane.setViewportView(visibleObjectsList);
-
         boolean masterSettingsAvailable = configuration.getMasterSettings() != null;
         useMasterSettingsCheckBox.setVisible(masterSettingsAvailable);
         if (masterSettingsAvailable) {
@@ -69,6 +66,7 @@ public class ObjectTypeFilterSettingsForm extends ConfigurationEditorForm<Object
         boolean enabled = !masterSettingsAvailable || !useMasterSettingsCheckBox.isSelected();
         visibleObjectsList.setEnabled(enabled);
         visibleObjectsList.setBackground(enabled ? UIUtil.getListBackground() : UIUtil.getComboBoxDisabledBackground());
+        visibleObjectsList.setElements(configuration.getSettings());
         visibleObjectsScrollPane.setVisible(enabled);
 
         registerComponents(visibleObjectsList, useMasterSettingsCheckBox);

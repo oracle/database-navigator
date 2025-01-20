@@ -19,6 +19,7 @@ package com.dbn.connection;
 import com.dbn.common.constant.PseudoConstant;
 import com.dbn.common.constant.PseudoConstantConverter;
 import com.dbn.connection.context.DatabaseContext;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.UUID;
 
@@ -56,7 +57,7 @@ public final class ConnectionId extends PseudoConstant<ConnectionId> {
         return index;
     }
 
-    public static ConnectionId get(String id) {
+    public static ConnectionId get(@NonNls String id) {
         return get(ConnectionId.class, id);
     }
 

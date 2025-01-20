@@ -33,6 +33,7 @@ import com.dbn.credentials.SecretsOwner;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -63,13 +64,13 @@ import static com.dbn.credentials.SecretType.CONNECTION_PASSWORD;
 public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSettings, ConfigurationEditorForm> implements Cloneable<AuthenticationInfo>, TimeAware, SecretsOwner {
 
     interface Attributes {
-        String TOKEN_TYPE = "token-type";
-        String TOKEN_CONFIG_FILE = "token-config-file";
-        String TOKEN_PROFILE = "token-profile";
+        @NonNls String TOKEN_TYPE = "token-type";
+        @NonNls String TOKEN_CONFIG_FILE = "token-config-file";
+        @NonNls String TOKEN_PROFILE = "token-profile";
 
 
         @Deprecated // TODO moved to IDE keychain (cleanup after followup release)
-        String DEPRECATED_PWD_ATTRIBUTE = "deprecated-pwd";
+        @NonNls String DEPRECATED_PWD_ATTRIBUTE = "deprecated-pwd";
     }
 
     private final long timestamp = System.currentTimeMillis();

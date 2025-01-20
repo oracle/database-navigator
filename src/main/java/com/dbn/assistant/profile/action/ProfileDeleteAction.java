@@ -24,6 +24,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Profile management deletion action
  * (allows deleting a profile from the database by prompting the intention)
@@ -46,7 +48,7 @@ public class ProfileDeleteAction extends ProfileManagementAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.ACTION_REMOVE);
-        presentation.setText("Delete Profile");
+        presentation.setText(txt("app.assistant.action.DeleteProfile"));
         presentation.setEnabled(isEnabled(e));
     }
 

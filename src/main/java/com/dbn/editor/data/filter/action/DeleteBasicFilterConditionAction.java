@@ -23,6 +23,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DeleteBasicFilterConditionAction extends BasicAction {
     private DatasetBasicFilterConditionForm conditionForm;
 
@@ -33,7 +35,7 @@ public class DeleteBasicFilterConditionAction extends BasicAction {
     @Override
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Remove Condition");
+        presentation.setText(txt("app.dataEditor.action.RemoveCondition"));
         presentation.setIcon(Icons.ACTION_DELETE);
     }
 

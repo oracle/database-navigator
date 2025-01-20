@@ -63,6 +63,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class DatasetEditorForm extends DBNFormBase implements SearchableDataComponent {
@@ -102,13 +103,14 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
             datasetTableScrollPane.setViewportView(datasetEditorTable);
             datasetEditorTable.initTableGutter();
 
-            ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.DataEditor", "", true);
+            ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.DataEditor");
+            setAccessibleName(actionToolbar, txt("app.dataEditor.aria.DatasetEditorActions"));
 
             actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
             loadingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
             hideLoadingHint();
 
-            ActionToolbar loadingActionToolbar = Actions.createActionToolbar(actionsPanel,"", true, new CancelLoadingAction());
+            ActionToolbar loadingActionToolbar = Actions.createActionToolbar(actionsPanel, true, new CancelLoadingAction());
             loadingActionPanel.add(loadingActionToolbar.getComponent(), BorderLayout.CENTER);
 
             Disposer.register(this, autoCommitLabel);

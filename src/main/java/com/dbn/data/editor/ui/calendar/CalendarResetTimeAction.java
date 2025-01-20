@@ -23,9 +23,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import static com.dbn.nls.NlsResources.txt;
+
 class CalendarResetTimeAction extends CalendarPopupAction {
     CalendarResetTimeAction() {
-        super("Reset Time", null, Icons.CALENDAR_CLEAR_TIME);
+        super(txt("app.data.action.ResetTime"), null, Icons.CALENDAR_CLEAR_TIME);
     }
 
     @Override

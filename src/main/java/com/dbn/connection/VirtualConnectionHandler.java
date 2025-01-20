@@ -32,6 +32,7 @@ import com.dbn.connection.console.DatabaseConsoleBundle;
 import com.dbn.connection.info.ConnectionInfo;
 import com.dbn.connection.interceptor.DatabaseInterceptorBundle;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.connection.security.DatabaseIdentifierCache;
 import com.dbn.connection.session.DatabaseSessionBundle;
 import com.dbn.database.DatabaseCompatibility;
 import com.dbn.database.interfaces.DatabaseInterfaceQueue;
@@ -47,6 +48,7 @@ import com.intellij.lang.Language;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDirectory;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -74,7 +76,6 @@ public class VirtualConnectionHandler extends StatefulDisposableBase implements 
     private final ConnectionInstructions instructions = new ConnectionInstructions();
 
     private final DatabaseCompatibility compatibility = DatabaseCompatibility.noFeatures();
-    private final DatabaseSessionBundle sessionBundle = new DatabaseSessionBundle(this);
 
     private DatabaseInterfaces interfaces;
 
@@ -83,7 +84,7 @@ public class VirtualConnectionHandler extends StatefulDisposableBase implements 
         return new ConnectionSettings(connectionBundleSettings);
     });
 
-    public VirtualConnectionHandler(ConnectionId id, String name, DatabaseType databaseType, double databaseVersion, @NotNull ConnectionBundle connectionBundle) {
+    public VirtualConnectionHandler(ConnectionId id, @NonNls String name, DatabaseType databaseType, double databaseVersion, @NotNull ConnectionBundle connectionBundle) {
         this.id = id;
         this.name = name;
         this.project = ProjectRef.of(connectionBundle.getProject());
@@ -356,6 +357,12 @@ public class VirtualConnectionHandler extends StatefulDisposableBase implements 
     @Override
     @NotNull
     public ConnectionPool getConnectionPool() {
+        return unsupported();
+    }
+
+    @Override
+    @NotNull
+    public DatabaseIdentifierCache getIdentifierCache() {
         return unsupported();
     }
 

@@ -19,26 +19,30 @@ package com.dbn.data.editor.ui;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 @Getter
 @Setter
 public abstract class ListPopupValuesProviderBase implements ListPopupValuesProvider{
-    private final String description;
+    private final String name;
     private boolean loaded = true;
 
-    public ListPopupValuesProviderBase(String description) {
-        this.description = description;
+    public ListPopupValuesProviderBase(String name) {
+        this.name = name;
     }
 
-    public ListPopupValuesProviderBase(String description, boolean loaded) {
-        this.description = description;
+    public ListPopupValuesProviderBase(String name, boolean loaded) {
+        this.name = name;
         this.loaded = loaded;
     }
 
-    @Override
-    public List<String> getSecondaryValues() {
-        return Collections.emptyList();
+    public static ListPopupValuesProviderBase create(String name, Supplier<List<String>> valueProvider) {
+        return new ListPopupValuesProviderBase(name, false) {
+            @Override
+            public List<String> getValues() {
+                return valueProvider.get();
+            }
+        };
     }
 }

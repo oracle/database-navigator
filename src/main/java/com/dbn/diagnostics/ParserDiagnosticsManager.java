@@ -63,6 +63,7 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.notification.NotificationGroup.DEVELOPER;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 @Getter

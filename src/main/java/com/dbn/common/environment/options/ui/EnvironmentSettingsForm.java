@@ -33,10 +33,13 @@ import com.intellij.ui.ToolbarDecorator;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.table.TableCellEditor;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+
+import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
 
 public class EnvironmentSettingsForm extends ConfigurationEditorForm<EnvironmentSettings> {
     private JPanel mainPanel;
@@ -48,6 +51,7 @@ public class EnvironmentSettingsForm extends ConfigurationEditorForm<Environment
     private JPanel environmentTypesPanel;
     private JPanel environmentApplicabilityPanel;
     private JPanel environmentTypesTablePanel;
+    private JLabel environmentColorsLabel;
     private EnvironmentTypesEditorTable environmentTypesTable;
 
     public EnvironmentSettingsForm(EnvironmentSettings settings) {
@@ -82,6 +86,11 @@ public class EnvironmentSettingsForm extends ConfigurationEditorForm<Environment
         environmentTypesTablePanel.add(panel, BorderLayout.CENTER);
         environmentTypesTable.getParent().setBackground(environmentTypesTable.getBackground());
         registerComponents(mainPanel);
+    }
+
+    @Override
+    protected void initAccessibility() {
+        COMPONENT_GROUP_QUALIFIER.set(environmentColorsLabel, true);
     }
 
     @NotNull

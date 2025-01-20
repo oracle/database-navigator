@@ -24,6 +24,7 @@ import com.dbn.object.DBTable;
 import com.dbn.object.DBView;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.type.DBObjectType;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import java.util.Map;
 
 import static com.dbn.common.util.Unsafe.cast;
 
+@NonNls
 class ObjectFilterDefinitions {
     private static final Map<DBObjectType, ObjectFilterDefinition> REGISTRY = new HashMap<>();
 

@@ -88,6 +88,9 @@ public enum DatabaseType implements Constant<DatabaseType>, Presentable{
             AuthenticationType.values(),
             array(DatabaseUrlPattern.GENERIC));
 
+    public static final DatabaseType[] SUPPORTED = {ORACLE, MYSQL, POSTGRES, SQLITE, GENERIC};
+    public static final DatabaseType[] NATIVELY_SUPPORTED = {ORACLE, MYSQL, POSTGRES, SQLITE};
+
     private final String name;
     private final Icon icon;
     private final Icon largeIcon;
@@ -96,6 +99,14 @@ public enum DatabaseType implements Constant<DatabaseType>, Presentable{
     private final String driverClassName;
     private String internalLibraryPath;
     private final String[] derivedDbs;
+
+    public static DatabaseType[] nativelySupported() {
+        return NATIVELY_SUPPORTED;
+    }
+
+    public static DatabaseType[] supported() {
+        return SUPPORTED;
+    }
 
     DatabaseType(
             String name,

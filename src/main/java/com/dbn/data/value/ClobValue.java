@@ -18,6 +18,7 @@ package com.dbn.data.value;
 
 import com.dbn.common.util.Strings;
 import com.dbn.data.type.GenericDataType;
+import org.jetbrains.annotations.NonNls;
 
 import javax.sql.rowset.serial.SerialClob;
 import java.sql.CallableStatement;
@@ -77,6 +78,7 @@ public class ClobValue extends ClobValueBase<Clob>{
         return GenericDataType.CLOB;
     }
 
+    @NonNls
     @Override
     public String getDisplayValue() {
         return "[CLOB]";

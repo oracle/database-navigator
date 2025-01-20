@@ -23,8 +23,10 @@ import com.dbn.database.common.statement.CallableStatementOutput;
 import com.dbn.database.common.statement.StatementExecutionProcessor;
 import com.dbn.database.interfaces.DatabaseInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,6 +38,7 @@ import java.util.Map;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 
+@Getter
 public abstract class DatabaseInterfaceBase implements DatabaseInterface{
     private final String fileName;
     private final DatabaseInterfaces interfaces;
@@ -63,39 +66,39 @@ public abstract class DatabaseInterfaceBase implements DatabaseInterface{
         return XmlContents.fileToElement(getClass(), fileName);
     }
 
-    protected ResultSet executeQuery(@NotNull DBNConnection connection, String loaderId, @Nullable Object... arguments) throws SQLException {
+    protected ResultSet executeQuery(@NotNull DBNConnection connection, @NonNls String loaderId, @Nullable Object... arguments) throws SQLException {
         return executeQuery(connection, false, loaderId, arguments);
     }
 
-    protected ResultSet executeQuery(@NotNull DBNConnection connection, boolean forceExecution, String loaderId, @Nullable Object... arguments) throws SQLException {
+    protected ResultSet executeQuery(@NotNull DBNConnection connection, boolean forceExecution, @NonNls String loaderId, @Nullable Object... arguments) throws SQLException {
         StatementExecutionProcessor executionProcessor = getExecutionProcessor(loaderId);
         ResultSet result = executionProcessor.executeQuery(connection, forceExecution, arguments);
         checkDisposed(connection);
         return result;
     }
 
-    protected <T extends CallableStatementOutput> T executeCall(@NotNull DBNConnection connection, @Nullable T outputReader, String loaderId, @Nullable Object... arguments) throws SQLException {
+    protected <T extends CallableStatementOutput> T executeCall(@NotNull DBNConnection connection, @Nullable T outputReader, @NonNls String loaderId, @Nullable Object... arguments) throws SQLException {
         StatementExecutionProcessor executionProcessor = getExecutionProcessor(loaderId);
         T result = executionProcessor.executeCall(connection, outputReader, arguments);
         checkDisposed(connection);
         return result;
     }
 
-    protected boolean executeStatement(@NotNull DBNConnection connection, String loaderId, @Nullable Object... arguments) throws SQLException {
+    protected boolean executeStatement(@NotNull DBNConnection connection, @NonNls String loaderId, @Nullable Object... arguments) throws SQLException {
         StatementExecutionProcessor executionProcessor = getExecutionProcessor(loaderId);
         boolean result = executionProcessor.executeStatement(connection, arguments);
         checkDisposed(connection);
         return result;
     }
 
-    protected void executeUpdate(@NotNull DBNConnection connection, String loaderId, @Nullable Object... arguments) throws SQLException {
+    protected void executeUpdate(@NotNull DBNConnection connection, @NonNls String loaderId, @Nullable Object... arguments) throws SQLException {
         StatementExecutionProcessor executionProcessor = getExecutionProcessor(loaderId);
         executionProcessor.executeUpdate(connection, arguments);
         checkDisposed(connection);
     }
 
     @NotNull
-    private StatementExecutionProcessor getExecutionProcessor(String loaderId) throws SQLException {
+    private StatementExecutionProcessor getExecutionProcessor(@NonNls String loaderId) throws SQLException {
         StatementExecutionProcessor executionProcessor = processors.get(loaderId);
         if (executionProcessor == null) {
             DatabaseType databaseType = interfaces.getDatabaseType();
@@ -106,9 +109,5 @@ public abstract class DatabaseInterfaceBase implements DatabaseInterface{
 
     private void checkDisposed(DBNConnection connection) {
         nd(connection.getProject());
-    }
-
-    public DatabaseInterfaces getInterfaces() {
-        return interfaces;
     }
 }

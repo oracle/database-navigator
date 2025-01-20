@@ -23,6 +23,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CreateBasicFilterAction extends AbstractFilterListAction {
 
     public CreateBasicFilterAction(DatasetFilterList filterList) {
@@ -38,7 +40,7 @@ public class CreateBasicFilterAction extends AbstractFilterListAction {
     @Override
     public void update(@NotNull AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Basic Filter");
+        presentation.setText(txt("app.dataEditor.action.BasicFilter"));
         presentation.setIcon(Icons.DATASET_FILTER_BASIC);
     }
 }

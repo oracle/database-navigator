@@ -634,7 +634,7 @@
                 prm.POSITION
         </statement>
     </statement-execution-processor>
-     <statement-execution-processor id="referenced-objects" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="referenced-objects" is-query="true" is-prepared-statement="true">
         <statement>
             select distinct * from (
                 select

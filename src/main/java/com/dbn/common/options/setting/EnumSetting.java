@@ -19,11 +19,12 @@ package com.dbn.common.options.setting;
 import com.dbn.common.options.PersistentConfiguration;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 
 import javax.swing.text.JTextComponent;
 
 public class EnumSetting extends Setting<String, JTextComponent> implements PersistentConfiguration {
-    public EnumSetting(String name, String value) {
+    public EnumSetting(@NonNls String name, @NonNls String value) {
         super(name, value);
     }
     

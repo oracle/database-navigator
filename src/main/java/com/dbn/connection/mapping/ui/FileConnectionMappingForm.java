@@ -25,7 +25,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,11 +44,15 @@ public class FileConnectionMappingForm extends DBNFormBase {
         FileConnectionMappingTableModel model = new FileConnectionMappingTableModel(mappings);
         mappingsTable = new FileConnectionMappingTable(this, model);
 
-        mappingsTable.accommodateColumnsSize();
+        mappingsTable.adjustColumnWidths();
         mappingsTableScrollPane.setViewportView(mappingsTable);
 
     }
 
+    @Override
+    public @Nullable JComponent getPreferredFocusedComponent() {
+        return mappingsTable;
+    }
 
     @Override
     protected JComponent getMainComponent() {

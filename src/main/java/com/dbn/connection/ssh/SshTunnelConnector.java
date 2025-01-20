@@ -30,6 +30,7 @@ import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.apache.sshd.common.util.net.SshdSocketAddress;
 import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.core.CoreModuleProperties;
+import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,6 +48,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 public class SshTunnelConnector {
     private final SshTunnelConfig config;
 
+    @NonNls
     private final String localHost = "localhost";
     private int localPort;
     private ClientSession session;

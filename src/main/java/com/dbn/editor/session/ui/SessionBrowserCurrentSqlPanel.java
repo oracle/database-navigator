@@ -84,7 +84,7 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
         this.sessionBrowser = WeakRef.of(sessionBrowser);
         createStatementViewer();
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "", true, new RefreshAction(), new WrapUnwrapContentAction());
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, new RefreshAction(), new WrapUnwrapContentAction());
         actionsPanel.add(actionToolbar.getComponent(),BorderLayout.WEST);
         actionsPanel.setBorder(Borders.lineBorder(JBColor.border(), 0, 0, 1, 0));
     }
@@ -234,7 +234,7 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
 
     public class RefreshAction extends BasicAction {
         RefreshAction() {
-            super("Reload", "", Icons.ACTION_REFRESH);
+            super(txt("app.shared.action.Reload"), "", Icons.ACTION_REFRESH);
         }
 
         @Override

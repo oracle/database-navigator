@@ -19,7 +19,6 @@ package com.dbn.common.ui.tree;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.component.DBNComponent;
-import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.ui.util.UserInterface;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
@@ -53,7 +52,6 @@ public class DBNTree extends Tree implements DBNComponent {
         super(treeModel);
         this.parent = WeakRef.of(parent);
         setTransferHandler(DBNTreeTransferHandler.INSTANCE);
-        setFont(Fonts.getLabelFont());
 
         Disposer.register(parent, this);
         Disposer.register(this, treeModel);

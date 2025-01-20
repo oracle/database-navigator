@@ -20,7 +20,6 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNEditableTable;
 import com.dbn.common.ui.table.DBNTableGutter;
 import com.dbn.common.ui.table.IndexTableGutter;
-import com.dbn.common.ui.util.Borders;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JTextField;
@@ -46,17 +45,6 @@ public class EditableStringList extends DBNEditableTable<EditableStringListModel
         setTableHeader(null);
         this.sorted = sorted;
         this.indexed = indexed;
-
-        if (indexed) {
-            getColumnModel().getColumn(0).setPreferredWidth(20);
-            addFocusListener(new FocusAdapter() {
-                @Override
-                public void focusGained(FocusEvent e) {
-                    accommodateColumnsSize();
-                }
-            });
-        }
-
         addKeyListener(keyListener);
     }
 
@@ -68,7 +56,6 @@ public class EditableStringList extends DBNEditableTable<EditableStringListModel
     @Override
     public Component prepareEditor(TableCellEditor editor, int rowIndex, int columnIndex) {
         JTextField component = (JTextField) super.prepareEditor(editor, rowIndex, columnIndex);
-        component.setBorder(Borders.EMPTY_BORDER);
         component.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {

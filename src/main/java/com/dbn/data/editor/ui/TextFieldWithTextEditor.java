@@ -18,7 +18,6 @@ package com.dbn.data.editor.ui;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Dispatch;
-import com.dbn.common.ui.misc.DBNButton;
 import com.dbn.common.ui.util.Keyboard;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Strings;
@@ -28,9 +27,10 @@ import com.intellij.openapi.actionSystem.Shortcut;
 import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JLabel;
+import javax.swing.JComponent;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
@@ -39,8 +39,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 
+@Getter
 public class TextFieldWithTextEditor extends TextFieldWithButtons {
-    private final DBNButton button;
+    private final JComponent button;
     private final String displayValue;
 
     public TextFieldWithTextEditor(@NotNull Project project) {
@@ -52,7 +53,7 @@ public class TextFieldWithTextEditor extends TextFieldWithButtons {
         this.displayValue = displayValue;
         setBounds(0, 0, 0, 0);
 
-        button = new DBNButton(Icons.DATA_EDITOR_BROWSE);
+        button = createButton(Icons.DATA_EDITOR_BROWSE, "Text Editor");
         button.addMouseListener(mouseListener);
         Shortcut[] shortcuts = Keyboard.getShortcuts(IdeActions.ACTION_SHOW_INTENTION_ACTIONS);
         String shortcutText = KeymapUtil.getShortcutsText(shortcuts);
@@ -73,7 +74,6 @@ public class TextFieldWithTextEditor extends TextFieldWithButtons {
         button.addKeyListener(keyListener);
         addKeyListener(keyListener);
 
-        customizeButton(button);
         customizeTextField(textField);
     }
 
@@ -81,10 +81,6 @@ public class TextFieldWithTextEditor extends TextFieldWithButtons {
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
         button.setEnabled(enabled);
-    }
-
-    public JLabel getButton() {
-        return button;
     }
 
     public void openEditor() {

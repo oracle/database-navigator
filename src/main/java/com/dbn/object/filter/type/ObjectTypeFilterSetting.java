@@ -17,7 +17,6 @@
 package com.dbn.object.filter.type;
 
 import com.dbn.common.ui.list.Selectable;
-import com.dbn.object.filter.type.ui.ObjectTypeFilterSettingsForm;
 import com.dbn.object.type.DBObjectType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -56,34 +55,6 @@ public class ObjectTypeFilterSetting implements Selectable<ObjectTypeFilterSetti
     @Override
     public @NotNull String getName() {
         return cachedUpperCase(objectType.getName());
-    }
-
-    @Override
-    public String getError() {
-        ObjectTypeFilterSettingsForm settingsEditor = parent.getSettingsEditor();
-
-        boolean masterSettingSelected = isMasterSelected();
-
-        boolean settingSelected =
-                (settingsEditor == null && parent.isSelected(this)) ||
-                (settingsEditor != null && settingsEditor.isSelected(this));
-        if (settingSelected && !masterSettingSelected) {
-            return "Disabled on project level";
-        }
-        return null;
-    }
-
-    @Override
-    public boolean isMasterSelected() {
-        ObjectTypeFilterSettings masterSettings = parent.getMasterSettings();
-        if (masterSettings != null) {
-            ObjectTypeFilterSettingsForm masterSettingsEditor = masterSettings.getSettingsEditor();
-            return masterSettingsEditor == null ?
-                    masterSettings.isSelected(this) :
-                    masterSettingsEditor.isSelected(this);
-
-        }
-        return true;
     }
 
     @Override

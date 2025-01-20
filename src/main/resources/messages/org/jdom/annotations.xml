@@ -18,4 +18,7 @@
     <item name='org.jdom.Element'>
         <annotation name='org.jetbrains.annotations.NonNls'/>
     </item>
+    <item name='org.jdom.Element Element(java.lang.String) 0'>
+        <annotation name='org.jetbrains.annotations.NonNls'/>
+    </item>
 </root>

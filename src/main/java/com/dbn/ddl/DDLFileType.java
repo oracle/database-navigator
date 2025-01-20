@@ -22,6 +22,7 @@ import com.dbn.language.common.DBLanguageFileType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -37,7 +38,7 @@ public class DDLFileType {
     private final DBContentType contentType;
     private Set<String> extensions = new LinkedHashSet<>();
 
-    public DDLFileType(DDLFileTypeId id, String description, String extension, DBLanguageFileType languageFileType, DBContentType contentType) {
+    public DDLFileType(DDLFileTypeId id, String description, @NonNls String extension, DBLanguageFileType languageFileType, DBContentType contentType) {
         this.id = id;
         this.description = description;
         this.extensions.add(extension);

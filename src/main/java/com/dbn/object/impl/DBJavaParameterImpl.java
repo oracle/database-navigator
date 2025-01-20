@@ -26,6 +26,7 @@ import com.dbn.object.common.DBObjectImpl;
 import com.dbn.object.lookup.DBJavaClassRef;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
@@ -53,6 +54,7 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 		super.initLists(connection);
 	}
 
+	@NonNls
 	@Override
 	protected String initObject(ConnectionHandler connection, DBObject parentObject, DBJavaParameterMetadata metadata) throws SQLException {
 		methodIndex = metadata.getMethodIndex();

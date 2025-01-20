@@ -49,4 +49,8 @@ public class DatasetFilterInput {
     public Object getColumnValue(DBColumn column) {
         return values.get(DBObjectRef.of(column));
     }
+
+    public boolean isEmpty() {
+        return values.isEmpty();
+    }
 }

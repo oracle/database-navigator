@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.nls.NlsResources.txt;
 
 public class MethodDebugAction extends AbstractCodeEditorAction {
 
@@ -55,7 +56,7 @@ public class MethodDebugAction extends AbstractCodeEditorAction {
         }
 
         presentation.setVisible(visible);
-        presentation.setText("Debug Method");
+        presentation.setText(txt("app.codeEditor.action.DebugMethod"));
         presentation.setIcon(Icons.METHOD_EXECUTION_DEBUG);
     }
 

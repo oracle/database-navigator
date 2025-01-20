@@ -54,6 +54,7 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	private String signature;
 	private String className;
 	private String returnType;
+	private short arrayDepth;
 	private DBJavaClassRef returnClass;
 	private DBJavaAccessibility accessibility;
 
@@ -82,6 +83,7 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 		className = metadata.getClassName();
 		returnType = metadata.getReturnType();
 		accessibility = DBJavaAccessibility.get(metadata.getAccessibility());
+		arrayDepth = metadata.getArrayDepth();
 
 		String returnClassName = metadata.getReturnClassName();
 		if (returnClassName != null) {

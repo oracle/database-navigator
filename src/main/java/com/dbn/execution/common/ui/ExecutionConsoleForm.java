@@ -45,6 +45,7 @@ import com.dbn.execution.compiler.CompilerMessage;
 import com.dbn.execution.compiler.CompilerResult;
 import com.dbn.execution.explain.result.ExplainPlanMessage;
 import com.dbn.execution.explain.result.ExplainPlanResult;
+import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.logging.DatabaseLoggingResult;
 import com.dbn.execution.logging.LogOutput;
 import com.dbn.execution.logging.LogOutputContext;
@@ -187,6 +188,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
             resultTabs.addTabUpdateListener(tabsUpdateListener);
             resultTabs.setPopupActions(new ExecutionConsolePopupActionGroup(this));
             resultTabs.setBorder(null);
+            resultTabs.enableFocusInheritance();
             Disposer.register(this, resultTabs);
             return resultTabs;
         }
@@ -328,6 +330,10 @@ public class ExecutionConsoleForm extends DBNFormBase {
     }
 
     public void addResult(MethodExecutionResult executionResult) {
+        showResultTab(executionResult);
+    }
+
+    public void addResult(JavaExecutionResult executionResult) {
         showResultTab(executionResult);
     }
 

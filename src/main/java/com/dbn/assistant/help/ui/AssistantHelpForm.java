@@ -105,15 +105,15 @@ public class AssistantHelpForm extends DBNFormBase {
     Color background = Colors.lafBrighter(Colors.getEditorBackground(), 5);
 
     String userName = getConnection().getUserName();
-    grantTextField.setText(txt("permissions3.message", userName));
-    grantTextArea.setText(txt("permissions4.message", userName));
+    grantTextField.setText(txt("cfg.assistant.text.GrantExecution", userName));
+    grantTextArea.setText(txt("cfg.assistant.code.GrantExecution", userName));
     grantTextArea.setBackground(background);
 
-    networkAllow.setText(txt("permissions5.message"));
-    aclTextArea.setText(txt("permissions6.message", getAccessPoint(), userName));
+    networkAllow.setText(txt("cfg.assistant.text.AllowNetworkAccess"));
+    aclTextArea.setText(txt("cfg.assistant.code.AllowNetworkAccess", getAccessPoint(), userName));
     aclTextArea.setBackground(background);
 
-    providerComboBox.addActionListener(e -> aclTextArea.setText(txt("permissions6.message", getAccessPoint(), userName)));
+    providerComboBox.addActionListener(e -> aclTextArea.setText(txt("cfg.assistant.code.AllowNetworkAccess", getAccessPoint(), userName)));
 
     copyPrivilegeButton.addActionListener(e -> copyTextToClipboard(grantTextArea.getText()));
     copyACLButton.addActionListener(e -> copyTextToClipboard(aclTextArea.getText()));

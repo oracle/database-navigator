@@ -18,11 +18,11 @@ package com.dbn.assistant.credential.remote.ui;
 
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.object.DBCredential;
 import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.lookup.DBObjectRef;
-import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
@@ -82,7 +82,7 @@ public class CredentialDetailsForm extends DBNFormBase {
     private static @NotNull ColoredListCellRenderer<String> createListCellRenderer() {
         return new ColoredListCellRenderer<>() {
             @Override
-            protected void customizeCellRenderer(@NotNull JList<? extends String> list, String value, int index, boolean selected, boolean hasFocus) {
+            protected void customize(@NotNull JList<? extends String> list, String value, int index, boolean selected, boolean hasFocus) {
                 append(value, list.isEnabled() ?
                         SimpleTextAttributes.REGULAR_ATTRIBUTES :
                         SimpleTextAttributes.GRAY_ATTRIBUTES);

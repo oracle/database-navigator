@@ -51,5 +51,5 @@ public interface PersistentState extends PersistentStateComponent<Element> {
     Element getComponentState();
 
     @NonNls
-    void loadComponentState(@NotNull Element state);
+    void loadComponentState(@NotNull @NonNls Element state);
 }

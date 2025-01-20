@@ -23,7 +23,6 @@ import com.dbn.assistant.chat.message.PersistentChatMessage;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.util.Cursors;
-import com.dbn.common.ui.util.Fonts;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.intellij.ui.JBColor;
@@ -40,7 +39,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -48,6 +46,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 
+import static com.dbn.common.ui.util.Fonts.regularBold;
 import static com.dbn.common.util.Commons.nvl;
 
 /**
@@ -148,7 +147,7 @@ public class ChatMessagePanel extends JPanel {
                     context.getModel() + "  -  " +
                     context.getAction().getName();
     JLabel label = new JLabel(title);
-    label.setFont(Fonts.smaller(Fonts.deriveFont(Fonts.getLabelFont(), Font.BOLD), 2));
+    label.setFont(regularBold(-2));
     label.setForeground(Colors.delegate(Colors::getLabelForeground));
     label.setOpaque(false);
 

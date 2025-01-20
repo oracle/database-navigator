@@ -19,6 +19,7 @@ package com.dbn.editor.data.filter.ui;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.ValueSelectorOption;
+import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.listener.ComboBoxSelectionKeyListener;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.TextFields;
@@ -36,7 +37,6 @@ import com.dbn.object.DBDataset;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -68,9 +68,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
     public DatasetBasicFilterConditionForm(DBDataset dataset, DatasetBasicFilterCondition condition) {
         super(condition);
         this.dataset = DBObjectRef.of(dataset);
-        ActionToolbar actionToolbar = Actions.createActionToolbar(
-                actionsPanel,
-                "DBNavigator.DataEditor.SimpleFilter.Condition", true,
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
                 new EnableDisableBasicFilterConditionAction(this),
                 new DeleteBasicFilterConditionAction(this));
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
@@ -212,9 +210,9 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         }
     }
 
-    private final ListCellRenderer<?> cellRenderer = new ColoredListCellRenderer() {
+    private final ListCellRenderer<?> cellRenderer = new ColoredListCellRenderer<>() {
         @Override
-        protected void customizeCellRenderer(@NotNull JList list, Object value, int index, boolean selected, boolean hasFocus) {
+        protected void customize(@NotNull JList list, Object value, int index, boolean selected, boolean hasFocus) {
             DBObjectRef<DBColumn> columnRef = (DBObjectRef<DBColumn>) value;
             DBColumn column = DBObjectRef.get(columnRef);
             if (column != null) {

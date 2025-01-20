@@ -22,6 +22,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashMap;
@@ -48,7 +49,7 @@ public abstract class CodeStyleCaseSettings extends BasicConfiguration<DBLCodeSt
         addOption("OBJECT_CASE", CodeStyleCase.PRESERVE, true);
     }
 
-    private void addOption(String id, CodeStyleCase option, boolean ignoreMixedCase) {
+    private void addOption(@NonNls String id, CodeStyleCase option, boolean ignoreMixedCase) {
         options.put(id, new CodeStyleCaseOption(id, option, ignoreMixedCase));
     }
 
@@ -79,7 +80,7 @@ public abstract class CodeStyleCaseSettings extends BasicConfiguration<DBLCodeSt
         return getCodeStyleCaseOption("OBJECT_CASE");
     }
 
-    private CodeStyleCaseOption getCodeStyleCaseOption(String name) {
+    private CodeStyleCaseOption getCodeStyleCaseOption(@NonNls String name) {
         return options.get(name);
     }
 

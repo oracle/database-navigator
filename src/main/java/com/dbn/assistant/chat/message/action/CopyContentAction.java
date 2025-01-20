@@ -19,18 +19,28 @@ package com.dbn.assistant.chat.message.action;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CopyContentAction extends BasicAction {
     private final String content;
 
     public CopyContentAction(String content) {
-        super("Copy Content", "Copy content to clipboard", Icons.ACTION_COPY);
         this.content = content;
+    }
+
+    @Override
+    public void update(@NotNull AnActionEvent e) {
+        Presentation presentation = e.getPresentation();
+        presentation.setText(txt("app.assistant.action.CopyContent"));
+        presentation.setDescription(txt("app.assistant.action.CopyContentDesc"));
+        presentation.setIcon(Icons.ACTION_COPY);
     }
 
     @Override

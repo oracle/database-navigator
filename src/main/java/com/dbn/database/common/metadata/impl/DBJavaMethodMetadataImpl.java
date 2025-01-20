@@ -59,6 +59,11 @@ public class DBJavaMethodMetadataImpl extends DBObjectMetadataBase implements DB
 	}
 
 	@Override
+	public short getArrayDepth() throws SQLException{
+		return resultSet.getShort("ARRAY_DEPTH");
+	}
+
+	@Override
 	public String getAccessibility() throws SQLException {
 		return getString("ACCESSIBILITY");
 	}

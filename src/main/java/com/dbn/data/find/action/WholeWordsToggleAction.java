@@ -22,11 +22,13 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class WholeWordsToggleAction extends DataSearchHeaderToggleAction {
     public WholeWordsToggleAction(DataSearchComponent searchComponent) {
         super(
                 searchComponent,
-                "W&hole Words",
+                txt("app.data.action.FindWholeWords"),
                 AllIcons.Actions.Words,
                 AllIcons.Actions.WordsHovered,
                 AllIcons.Actions.WordsSelected);

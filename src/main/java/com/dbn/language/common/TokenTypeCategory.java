@@ -17,6 +17,7 @@
 package com.dbn.language.common;
 
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Objects;
 
@@ -41,7 +42,7 @@ public enum TokenTypeCategory {
 
     private final String name;
 
-    TokenTypeCategory(String name) {
+    TokenTypeCategory(@NonNls String name) {
         this.name = name;
     }
 

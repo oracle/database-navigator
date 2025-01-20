@@ -19,28 +19,27 @@ package com.dbn.common.ui.misc;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Cursors;
 
+import javax.accessibility.AccessibleContext;
+import javax.accessibility.AccessibleRole;
 import javax.swing.Icon;
 import javax.swing.JLabel;
-import javax.swing.border.Border;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class DBNButton extends JLabel {
-    public DBNButton(Icon image) {
+    public DBNButton(Icon image, String name) {
         super(image);
-        setBorder(Borders.buttonBorder());
+        setBorder(Borders.EMPTY_BORDER);
         setCursor(Cursors.handCursor());
+        setAccessibleName(this, name);
     }
 
     @Override
-    public void setBorder(Border border) {
-        super.setBorder(border);
-    }
-
-    @Override
-    public void addMouseListener(MouseListener l) {
+    public synchronized void addMouseListener(MouseListener l) {
         super.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -70,7 +69,7 @@ public class DBNButton extends JLabel {
     }
 
     @Override
-    public void addKeyListener(KeyListener l) {
+    public synchronized void addKeyListener(KeyListener l) {
         super.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -87,5 +86,18 @@ public class DBNButton extends JLabel {
                 if (isEnabled()) l.keyReleased(e);
             }
         });
+    }
+
+    @Override
+    public AccessibleContext getAccessibleContext() {
+        if (accessibleContext == null) {
+            accessibleContext = new AccessibleJLabel() {
+                @Override
+                public AccessibleRole getAccessibleRole() {
+                    return AccessibleRole.PUSH_BUTTON;
+                }
+            };
+        }
+        return accessibleContext;
     }
 }

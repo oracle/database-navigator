@@ -25,6 +25,7 @@ import com.intellij.credentialStore.Credentials;
 import com.intellij.credentialStore.OneTimeString;
 import com.intellij.ide.passwordSafe.PasswordSafe;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -136,6 +137,7 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
         return secret;
     }
 
+    @NonNls
     @NotNull
     @Compatibility
     private static CredentialAttributes createAttributes(SecretType secretType, Object ownerId, String user) {

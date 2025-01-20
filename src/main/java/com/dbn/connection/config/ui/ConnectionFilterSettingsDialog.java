@@ -92,7 +92,7 @@ public class ConnectionFilterSettingsDialog extends DBNDialog<DBNContentWithHead
             super.doOKAction();
         } catch (ConfigurationException e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(getProject(), "Configuration error", e.getMessage());
+            Messages.showErrorDialog(getProject(), txt("cfg.connection.title.InvalidConfiguration"), e.getMessage());
         }
 
     }

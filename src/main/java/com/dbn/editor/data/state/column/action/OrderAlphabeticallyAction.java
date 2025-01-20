@@ -23,11 +23,13 @@ import com.dbn.editor.data.state.column.ui.ColumnStateSelectable;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class OrderAlphabeticallyAction extends BasicAction {
     private final CheckBoxList list;
 
     public OrderAlphabeticallyAction(CheckBoxList list)  {
-        super("Order Columns Alphabetically", null, Icons.ACTION_SORT_ALPHA);
+        super(txt("app.dataEditor.action.OrderColumnsAlphabetically"), null, Icons.ACTION_SORT_ALPHA);
         this.list = list;
     }
 

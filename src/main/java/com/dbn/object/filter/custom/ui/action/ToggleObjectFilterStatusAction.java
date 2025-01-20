@@ -23,6 +23,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ToggleObjectFilterStatusAction extends BasicAction {
     private ObjectFilterExpressionForm form;
 
@@ -39,8 +41,8 @@ public class ToggleObjectFilterStatusAction extends BasicAction {
                         Icons.COMMON_FILTER_INACTIVE);
         presentation.setText(
                 form.isActive() ?
-                        "Deactivate Filter" :
-                        "Activate Filter");
+                        txt("app.objects.action.DeactivateFilter") :
+                        txt("app.objects.action.ActivateFilter"));
     }
 
     @Override

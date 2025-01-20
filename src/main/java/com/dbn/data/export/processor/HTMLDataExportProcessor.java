@@ -26,6 +26,7 @@ import com.dbn.data.export.DataExportFormat;
 import com.dbn.data.export.DataExportInstructions;
 import com.dbn.data.export.DataExportModel;
 import com.dbn.data.type.GenericDataType;
+import org.jetbrains.annotations.NonNls;
 
 import java.awt.datatransfer.Transferable;
 
@@ -68,7 +69,7 @@ public class HTMLDataExportProcessor extends DataExportProcessor{
 
     @Override
     public void performExport(DataExportModel model, DataExportInstructions instructions, ConnectionHandler connection) throws DataExportException {
-        StringBuilder buffer = new StringBuilder();
+        @NonNls StringBuilder buffer = new StringBuilder();
         buffer.append("<html>\n");
         buffer.append("    <head>\n");
         buffer.append("        <style type='text/css'>\n");

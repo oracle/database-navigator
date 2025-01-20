@@ -29,6 +29,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
+import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
 public class FolderSchemaLinkAction extends AbstractFolderContextAction {
@@ -55,13 +56,13 @@ public class FolderSchemaLinkAction extends AbstractFolderContextAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         VirtualFile file = Lookups.getVirtualFile(e);
-        String text = "Associate Schema...";
+        String text = txt("app.fileContext.action.AssociateSchema");
 
         boolean visible = isAvailableFor(file, project);
         if (visible) {
             FileConnectionContext mapping = getFileContext(file, project);
             if (mapping != null && mapping.getSchemaId() != null) {
-                text = "Change Schema Association...";
+                text = txt("app.fileContext.action.ChangeSchemaAssociation");
             }
         }
 

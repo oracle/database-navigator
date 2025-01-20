@@ -51,6 +51,7 @@ public enum DatabaseObjectTypeId {
     INDEXTYPE,
     JAVA_METHOD,
     JAVA_PARAMETER,
+    JAVA_FIELD,
     JAVA_CLASS,
     JAVA_OBJECT,
     LIBRARY,

@@ -44,7 +44,7 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="drop-object">
-        <statement>drop {0} {1}</statement>
+        <statement>drop {0} {1}.{2}</statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="drop-trigger">

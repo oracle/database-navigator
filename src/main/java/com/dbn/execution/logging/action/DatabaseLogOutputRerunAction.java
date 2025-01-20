@@ -27,6 +27,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DatabaseLogOutputRerunAction extends AbstractDatabaseLoggingAction {
 
     @Override
@@ -41,7 +43,7 @@ public class DatabaseLogOutputRerunAction extends AbstractDatabaseLoggingAction 
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatabaseLoggingResult loggingResult) {
-        presentation.setText("Rerun Script");
+        presentation.setText(txt("app.execution.action.RerunScript"));
         presentation.setIcon(Icons.STMT_EXECUTION_RERUN);
 
         LogOutputContext context = loggingResult == null ? null : loggingResult.getContext();

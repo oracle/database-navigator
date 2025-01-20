@@ -41,7 +41,6 @@ public class IdleConnectionDialogForm extends DBNFormBase {
                 "Please specify whether to commit or rollback the changes. You can choose to keep the connection alive for another " + idleMinutesToDisconnect + " more minutes. \n\n" +
                 "NOTE: Connection will close automatically and changes will be rolled-back if this prompt stays unattended for more than " + timeoutMinutes + " minutes.";
         hintTextPane.setBackground(mainPanel.getBackground());
-        hintTextPane.setFont(mainPanel.getFont());
         hintTextPane.setText(text);
 
 

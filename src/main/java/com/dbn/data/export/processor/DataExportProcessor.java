@@ -18,7 +18,6 @@ package com.dbn.data.export.processor;
 
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.util.Commons;
-import com.dbn.common.util.Streams;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.export.DataExportException;
 import com.dbn.data.export.DataExportFormat;
@@ -30,11 +29,10 @@ import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.NonNls;
 
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -57,6 +55,7 @@ public abstract class DataExportProcessor {
         return Formatter.getInstance(project).clone();
     }
 
+    @NonNls
     public abstract String getFileExtension();
 
     public void export(DataExportModel model, DataExportInstructions instructions, ConnectionHandler connection)
@@ -93,20 +92,13 @@ public abstract class DataExportProcessor {
     }
 
     private void writeToFile(File file, String content, Charset charset) throws DataExportException {
-        // TODO (java 11+) Files.writeString(file.toPath(), content, charset);
-        Path filePath = file.toPath();
-        try (BufferedWriter writer = createFileWriter(filePath, charset)){
-                writer.write(content);
-                writer.flush();
+        try {
+            Path filePath = file.toPath();
+            Files.writeString(filePath,content, charset);
         } catch (IOException e) {
             log.warn("Failed to create export file", e);
             throw new DataExportException("Failed to create export file.\nCause: " + e.getMessage());
         }
-    }
-
-    @NotNull
-    private static BufferedWriter createFileWriter(Path path, Charset charset) throws IOException {
-        return Streams.bufferedWriter(Files.newOutputStream(path), charset);
     }
 
     private void writeToClipboard(String content) {

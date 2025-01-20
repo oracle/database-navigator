@@ -34,6 +34,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class JumpToExecutionResultIntentionAction extends EditorIntentionAction  {
 
     private WeakRef<StatementExecutionProcessor> cachedExecutionProcessor;
@@ -46,7 +48,7 @@ public class JumpToExecutionResultIntentionAction extends EditorIntentionAction 
     @Override
     @NotNull
     public String getText() {
-        return "Navigate to result";
+        return txt("app.codeEditor.action.NavigateToResult");
     }
 
 

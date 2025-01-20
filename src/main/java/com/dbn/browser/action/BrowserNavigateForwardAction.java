@@ -25,6 +25,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class BrowserNavigateForwardAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
@@ -33,7 +35,7 @@ public class BrowserNavigateForwardAction extends ProjectAction {
         boolean enabled = activeTree != null && activeTree.getNavigationHistory().hasNext();
 
         Presentation presentation = e.getPresentation();
-        presentation.setText("Forward");
+        presentation.setText(txt("app.browser.action.NavigateForward"));
         presentation.setEnabled(enabled);
         presentation.setIcon(Icons.BROWSER_NEXT);
     }

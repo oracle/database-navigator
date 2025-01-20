@@ -20,9 +20,11 @@ import com.dbn.common.util.Actions;
 import com.dbn.object.common.DBSchemaObject;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DependenciesActionGroup extends DefaultActionGroup {
     public DependenciesActionGroup(DBSchemaObject object) {
-        super("Dependencies", true);
+        super(txt("app.objects.action.Dependencies"), true);
         add(new ObjectDependencyTreeAction(object));
         add(Actions.SEPARATOR);
         add(new ReferencedObjectsListShowAction(object));

@@ -36,17 +36,21 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.datatransfer.StringSelection;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public abstract class GenerateStatementAction extends ProjectAction implements DatabaseContextBase {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        ConnectionAction.invoke("generating the statement", false, this,
+        ConnectionAction.invoke(txt("msg.codeGenerator.title.GeneratingStatement"), false, this,
                 action -> Progress.prompt(project, getConnection(), true,
-                        "Extracting statement",
-                        "Extracting " + e.getPresentation().getText(),
+                        txt("prc.codeGenerator.title.GeneratingStatement"),
+                        txt("prc.codeGenerator.text.GeneratingStatement",e.getPresentation().getText()),
                         progress -> {
                             StatementGeneratorResult result = generateStatement(project);
                             if (result.getMessages().hasErrors()) {
-                                Messages.showErrorDialog(project, "Error generating statement", result.getMessages());
+                                Messages.showErrorDialog(project,
+                                        txt("msg.codeGenerator.message.StatementGenerationError"),
+                                        result.getMessages());
                             } else {
                                 pasteStatement(result, project);
                             }
@@ -68,13 +72,15 @@ public abstract class GenerateStatementAction extends ProjectAction implements D
 
         CopyPasteManager copyPasteManager = CopyPasteManager.getInstance();
         copyPasteManager.setContents(content);
-        Messages.showInfoDialog(project, "Statement extracted", "SQL statement exported to clipboard.");
+        Messages.showInfoDialog(project,
+                txt("msg.codeGenerator.title.StatementGenerated"),
+                txt("msg.codeGenerator.message.StatementGeneratedToClipboard"));
     }
 
     private static void pasteToEditor(final Editor editor, final StatementGeneratorResult generatorResult) {
         Command.run(
                 editor.getProject(),
-                "Extract statement",
+                txt("prc.codeGenerator.label.ExtractStatement"),
                 () -> {
                     String statement = generatorResult.getStatement();
                     PsiUtil.moveCaretOutsideExecutable(editor);

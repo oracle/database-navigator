@@ -27,9 +27,11 @@ import com.dbn.language.sql.dialect.postgres.PostgresSQLLanguageDialect;
 import com.dbn.language.sql.dialect.sqlite.SqliteSQLLanguageDialect;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.tree.IFileElementType;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 public class SQLLanguage extends DBLanguage<SQLLanguageDialect> {
+    @NonNls
     public static final String ID = "DBN-SQL";
     public static final SQLLanguage INSTANCE = new SQLLanguage();
 

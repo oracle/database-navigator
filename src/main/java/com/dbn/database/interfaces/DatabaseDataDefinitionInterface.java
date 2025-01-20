@@ -22,9 +22,11 @@ import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.object.factory.MethodFactoryInput;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.SQLException;
 
+@NonNls
 public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
 
     String createDDLStatement(Project project, DatabaseObjectTypeId objectTypeId, String userName, String schemaName, String objectName, DBContentType contentType, String code, String alternativeDelimiter);
@@ -54,12 +56,13 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
 
 
     default void updateJavaClass(String objectName, String newCode, DBNConnection connection) throws SQLException{};
+
    /*********************************************************
     *                   DROP statements                     *
     *********************************************************/
-    void dropObject(String objectType, String objectName, DBNConnection connection) throws SQLException;
+    void dropObject(String objectType, String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
-    void dropObjectBody(String objectType, String objectName, DBNConnection connection) throws SQLException;
+    void dropObjectBody(String objectType, String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
     default void dropJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {}
    /*********************************************************

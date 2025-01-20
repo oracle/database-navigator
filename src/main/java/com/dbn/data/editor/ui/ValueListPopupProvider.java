@@ -21,19 +21,23 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.util.Keyboard;
 import com.dbn.common.ui.util.Popups;
 import com.dbn.common.util.Actions;
-import com.dbn.common.util.Context;
 import com.dbn.common.util.Strings;
+import com.dbn.object.common.DBObject;
+import com.dbn.object.lookup.DBObjectRef;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.Shortcut;
 import com.intellij.openapi.keymap.KeymapUtil;
-import com.intellij.openapi.ui.popup.JBPopup;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.ui.popup.PopupStep;
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep;
 import lombok.Getter;
@@ -42,10 +46,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
-import javax.swing.JLabel;
+import javax.swing.JComponent;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.dispose.Disposer.replace;
+import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Strings.nonEmptyStrings;
 
 @Getter
@@ -53,24 +59,31 @@ import static com.dbn.common.util.Strings.nonEmptyStrings;
 public class ValueListPopupProvider implements TextFieldPopupProvider{
     private final WeakRef<TextFieldWithPopup> editorComponent;
     private final ListPopupValuesProvider valuesProvider;
+    private DBObjectRef<?> contextObject;
 
     private final boolean autoPopup;
     private final boolean buttonVisible;
     private boolean enabled = true;
     private boolean preparing = false;
 
-    private JLabel button;
-    private transient JBPopup popup;
+    private JComponent button;
+    private transient ListPopup popup;
 
-    ValueListPopupProvider(TextFieldWithPopup editorComponent, ListPopupValuesProvider valuesProvider, boolean autoPopup, boolean buttonVisible) {
+    ValueListPopupProvider(TextFieldWithPopup editorComponent, ListPopupValuesProvider valuesProvider, @Nullable DBObject contextObject, boolean autoPopup, boolean buttonVisible) {
         this.editorComponent = WeakRef.of(editorComponent);
         this.valuesProvider = valuesProvider;
+        this.contextObject = DBObjectRef.of(contextObject);
         this.autoPopup = autoPopup;
         this.buttonVisible = buttonVisible;
     }
 
     public TextFieldWithPopup getEditorComponent() {
         return editorComponent.ensure();
+    }
+
+    @Nullable
+    public DBObject getContextObject() {
+        return DBObjectRef.get(contextObject);
     }
 
     @Override
@@ -91,12 +104,25 @@ public class ValueListPopupProvider implements TextFieldPopupProvider{
         }
 
         if (preparing) return;
-
         preparing = true;
-        Dispatch.async(
-                getEditorComponent(),
-                () -> ensureValuesLoaded(),
-                v -> invokeShowPopup());
+        Project project = getEditorComponent().getProject();
+        DBObject contextObject = getContextObject();
+
+        Progress.prompt(project, null, true,
+                "Loading Values",
+                contextObject == null ?
+                        "Loading possible values" :
+                        "Loading possible values for " + contextObject.getQualifiedNameWithType(),
+                p -> loadAndDisplayValues(p));
+    }
+
+    private void loadAndDisplayValues(ProgressIndicator p) {
+        ensureValuesLoaded();
+        if (p.isCanceled()) {
+            preparing = false;
+            return;
+        }
+        Dispatch.run(getEditorComponent(), () -> invokeShowPopup());
     }
 
     private void invokeShowPopup() {
@@ -107,11 +133,10 @@ public class ValueListPopupProvider implements TextFieldPopupProvider{
         }
     }
 
-    private Object ensureValuesLoaded() {
+    private void ensureValuesLoaded() {
         getValues();
         getSecondaryValues();
         valuesProvider.setLoaded(true);
-        return null;
     }
 
     private void doShowPopup() {
@@ -129,31 +154,32 @@ public class ValueListPopupProvider implements TextFieldPopupProvider{
             };
             popup = JBPopupFactory.getInstance().createListPopup(listPopupStep);
         } else {
-            DefaultActionGroup actionGroup = new DefaultActionGroup();
+            List<AnAction> actions = new ArrayList<>();
 
             for (String value : values) {
                 if (Strings.isNotEmpty(value)) {
-                    actionGroup.add(new ValueSelectAction(value));
+                    actions.add(new ValueSelectAction(value));
                 }
             }
             if (!secondaryValues.isEmpty()) {
                 if (!values.isEmpty()) {
-                    actionGroup.add(Actions.SEPARATOR);
+                    actions.add(Actions.SEPARATOR);
                 }
                 for (String secondaryValue : secondaryValues) {
                     if (Strings.isNotEmpty(secondaryValue)) {
-                        actionGroup.add(new ValueSelectAction(secondaryValue));
+                        actions.add(new ValueSelectAction(secondaryValue));
                     }
                 }
             }
 
-            popup = JBPopupFactory.getInstance().createActionGroupPopup(
-                    null,
-                    actionGroup,
-                    Context.getDataContext(editorComponent),
-                    JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-                    true, null, 10);
+            popup = popupBuilder(actions, editorComponent).
+                    withTitle(getName()).
+                    withTitleVisible(false).
+                    withSpeedSearch().
+                    withMaxRowCount(10).
+                    build();
         }
+
 
         Popups.showUnderneathOf(popup, editorComponent, 4, 200);
     }
@@ -175,8 +201,8 @@ public class ValueListPopupProvider implements TextFieldPopupProvider{
     }
 
     @Override
-    public String getDescription() {
-        return valuesProvider.getDescription();
+    public String getName() {
+        return valuesProvider.getName();
     }
 
     @Override

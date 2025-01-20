@@ -55,6 +55,7 @@ import static com.dbn.common.Priority.LOW;
 import static com.dbn.common.notification.NotificationGroup.BROWSER;
 import static com.dbn.database.DatabaseFeature.OBJECT_INVALIDATION;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
     name = ObjectStatusManager.COMPONENT_NAME,
@@ -73,8 +74,8 @@ public class ObjectStatusManager extends ProjectComponentBase implements Persist
 
     public void refreshObjectsStatus(DBSchema schema) throws SQLException {
         DatabaseInterfaceInvoker.schedule(LOW,
-                "Refreshing object status",
-                "Refreshing object status for " + schema.getQualifiedNameWithType(),
+                txt("prc.objects.title.RefreshingObjectsStatus"),
+                txt("prc.objects.text.RefreshingObjectsStatus", schema.getQualifiedNameWithType()),
                 getProject(),
                 schema.getConnectionId(),
                 conn -> refreshObjectsStatus(schema, conn));
@@ -90,8 +91,8 @@ public class ObjectStatusManager extends ProjectComponentBase implements Persist
                         requester.getReferencingSchemas();
 
                 DatabaseInterfaceInvoker.schedule(LOW,
-                        "Refreshing object status",
-                        "Refreshing object status for " + connection.getName(),
+                        txt("prc.objects.title.RefreshingObjectsStatus"),
+                        txt("prc.objects.text.RefreshingObjectsStatus", connection.getName()),
                         getProject(),
                         connection.getConnectionId(),
                         conn -> refreshObjectStatus(conn, schemas));
@@ -106,7 +107,7 @@ public class ObjectStatusManager extends ProjectComponentBase implements Persist
         int size = schemas.size();
         for (int i = 0; i < size; i++) {
             DBSchema schema = schemas.get(i);
-            ProgressMonitor.setProgressText("Refreshing object status on " + schema.getQualifiedNameWithType());
+            ProgressMonitor.setProgressText(txt("prc.objects.text.RefreshingSchemaObjectsStatus", schema.getQualifiedNameWithType()));
             ProgressMonitor.setProgressFraction(Progress.progressOf(i, size));
             refreshObjectsStatus(schema, conn);
         }

@@ -25,6 +25,7 @@ import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.ui.JBColor;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -125,7 +126,7 @@ public class ColorSchemes {
     }
 
     @Nullable
-    private static EditorColorsScheme find(EditorColorsScheme[] schemes, String ... tokens) {
+    private static EditorColorsScheme find(EditorColorsScheme[] schemes, @NonNls String ... tokens) {
         return Arrays.stream(schemes).filter(s -> matches(s.getName(), tokens)).findFirst().orElse(null);
     }
 

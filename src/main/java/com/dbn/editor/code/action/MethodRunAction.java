@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.nls.NlsResources.txt;
 
 public class MethodRunAction extends AbstractCodeEditorAction {
 
@@ -55,7 +56,7 @@ public class MethodRunAction extends AbstractCodeEditorAction {
         }
 
         presentation.setVisible(visible);
-        presentation.setText("Run Method");
+        presentation.setText(txt("app.codeEditor.action.RunMethod"));
         presentation.setIcon(Icons.METHOD_EXECUTION_RUN);
     }
 

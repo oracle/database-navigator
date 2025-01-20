@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Action for opening the AI-assistant profile setup wizard for creating a new profile
  *
@@ -52,7 +54,7 @@ public class ProfileCreateAction extends AbstractChatBoxAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("New Profile...");
+        presentation.setText(txt("app.assistant.action.NewProfile"));
     }
 
     public Set<String> getProfileNames(Project project, ConnectionId connectionId) {

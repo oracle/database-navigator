@@ -19,7 +19,6 @@ package com.dbn.connection.resource.ui;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
-import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Editors;
@@ -33,6 +32,8 @@ import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class ResourceMonitorTransactionsTable extends DBNTable<ResourceMonitorTransactionsTableModel> {
 
     ResourceMonitorTransactionsTable(@NotNull DBNComponent parent, ResourceMonitorTransactionsTableModel model) {
@@ -40,9 +41,10 @@ public class ResourceMonitorTransactionsTable extends DBNTable<ResourceMonitorTr
         setDefaultRenderer(PendingTransaction.class, new CellRenderer());
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         setCellSelectionEnabled(true);
-        adjustRowHeight(2);
-        accommodateColumnsSize();
+        adjustColumnWidths();
         addMouseListener(Mouse.listener().onClick(e -> clickEvent(e)));
+
+        setAccessibleName(this, "Resource Monitor Transactions");
     }
 
     private void clickEvent(MouseEvent e) {
@@ -90,8 +92,6 @@ public class ResourceMonitorTransactionsTable extends DBNTable<ResourceMonitorTr
             } else if (column == 1) {
                 append(transaction.getChangesCount() + " uncommitted changes", SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
-            setBorder(Borders.TEXT_FIELD_INSETS);
-
         }
     }
 }

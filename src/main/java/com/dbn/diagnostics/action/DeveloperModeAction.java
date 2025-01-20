@@ -21,9 +21,12 @@ import com.dbn.common.util.Messages;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.diagnostics.DiagnosticsManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class DeveloperModeAction extends ProjectAction {
@@ -35,7 +38,8 @@ public class DeveloperModeAction extends ProjectAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        e.getPresentation().setText("Developer Mode...");
+        Presentation presentation = e.getPresentation();
+        presentation.setText(txt("app.diagnostics.action.DeveloperMode"));
     }
 
     @Override

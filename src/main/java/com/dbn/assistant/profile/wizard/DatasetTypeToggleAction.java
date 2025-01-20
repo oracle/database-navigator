@@ -17,7 +17,6 @@
 package com.dbn.assistant.profile.wizard;
 
 import com.dbn.common.action.BasicAction;
-import com.dbn.common.util.Naming;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -26,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.icons.AllIcons.Diff.GutterCheckBox;
 import static com.intellij.icons.AllIcons.Diff.GutterCheckBoxSelected;
 
@@ -50,11 +50,11 @@ public class DatasetTypeToggleAction extends BasicAction {
         super.update(e);
 
         String text =
-            datasetType == DBObjectType.TABLE ? "Tables" :
-            datasetType == DBObjectType.VIEW ? "Views" :
-            datasetType == DBObjectType.MATERIALIZED_VIEW ? "Materialized Views" : "";
+            datasetType == DBObjectType.TABLE ? txt("app.assistant.action.Tables") :
+            datasetType == DBObjectType.VIEW ? txt("app.assistant.action.Views") :
+            datasetType == DBObjectType.MATERIALIZED_VIEW ? txt("app.assistant.action.MaterializedViews") : "";
 
-        String description = "Show " + Naming.capitalizeWords(datasetType.getListName());
+        String description = txt("app.assistant.tooltip.ShowObjectTypes", datasetType.getCapitalizedListName());
 
         Presentation presentation = e.getPresentation();
         presentation.setText(text);

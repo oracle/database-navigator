@@ -51,7 +51,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.ui.LightColors;
 import com.intellij.util.ArrayUtil;
-import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -111,7 +110,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
 
 
         initializeFindModel();
-        matchesLabel.setFont(Fonts.smaller(UIUtil.getLabelFont(), 2));
+        matchesLabel.setFont(Fonts.regular(-2));
         matchesLabel.setText("0 results");
         matchesLabel.setForeground(Colors.getLabelInfoForeground());
 
@@ -235,7 +234,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         DefaultActionGroup actionsGroup = new DefaultActionGroup("Search Bar", false);
         actionsGroup.add(new PrevOccurrenceAction(this, searchField, true));
         actionsGroup.add(new NextOccurrenceAction(this, searchField, true));
-        actionsToolbar = Actions.createActionToolbar(actionsPanel, "SearchBar", true, actionsGroup);
+        actionsToolbar = Actions.createActionToolbar(actionsPanel, true, actionsGroup);
         actionsPanel.add(actionsToolbar.getComponent(), BorderLayout.CENTER);
 
 

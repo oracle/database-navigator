@@ -43,6 +43,8 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.Objects;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class DBLanguageFileEditorToolbarForm extends DBNToolbarForm {
     private JPanel mainPanel;
     private JPanel actionsPanel;
@@ -54,7 +56,8 @@ public class DBLanguageFileEditorToolbarForm extends DBNToolbarForm {
         super(fileEditor, project);
         this.mainPanel.setBorder(Borders.insetBorder(2));
 
-        this.actionToolbar = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.FileEditor", "", true);
+        this.actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.FileEditor");
+        setAccessibleName(actionToolbar, txt("app.codeEditor.aria.CodeEditorActions"));
         this.actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
         this.actionToolbar.getComponent().addComponentListener(createResizeListener());
 

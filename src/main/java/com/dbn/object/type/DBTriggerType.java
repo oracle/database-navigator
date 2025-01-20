@@ -18,7 +18,9 @@ package com.dbn.object.type;
 
 import com.dbn.common.constant.Constant;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
+@NonNls
 @Getter
 public enum DBTriggerType implements Constant<DBTriggerType> {
     BEFORE("before"),

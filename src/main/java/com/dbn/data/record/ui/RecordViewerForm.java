@@ -86,9 +86,7 @@ public class RecordViewerForm extends DBNFormBase implements ComponentAligner.Co
         );
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(
-                actionsPanel,
-                "DBNavigator.Place.DataEditor.TextAreaPopup", true,
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
                 new SortAlphabeticallyAction(),
                 Actions.SEPARATOR);
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);

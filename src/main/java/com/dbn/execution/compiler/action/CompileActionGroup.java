@@ -24,10 +24,12 @@ import com.dbn.object.common.DBSchemaObject;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.DumbAware;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CompileActionGroup extends DefaultActionGroup implements DumbAware {
 
     public CompileActionGroup(DBSchemaObject object) {
-        super("Compile", true);
+        super(txt("app.execution.action.Compile"), true);
         boolean debugSupported = DatabaseFeature.DEBUGGING.isSupported(object);
         getTemplatePresentation().setIcon(Icons.OBJECT_COMPILE);
         if (object.getContentType() == DBContentType.CODE_SPEC_AND_BODY) {

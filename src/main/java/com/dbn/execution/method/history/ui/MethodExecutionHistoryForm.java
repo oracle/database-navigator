@@ -70,7 +70,7 @@ public class MethodExecutionHistoryForm extends DBNFormBase {
     MethodExecutionHistoryForm(MethodExecutionHistoryDialog parent, MethodExecutionInput selectedExecutionInput, boolean debug) {
         super(parent);
         this.debug = debug;
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel,"", true,
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
                 new ShowGroupedTreeAction(),
                 new DeleteHistoryEntryAction(),
                 Actions.SEPARATOR,
@@ -96,7 +96,8 @@ public class MethodExecutionHistoryForm extends DBNFormBase {
     }
 
     @NotNull
-    MethodExecutionHistoryDialog getParentDialog() {
+    @Override
+    public MethodExecutionHistoryDialog getParentDialog() {
         return ensureParentComponent();
     }
 
@@ -218,10 +219,10 @@ public class MethodExecutionHistoryForm extends DBNFormBase {
     private final TreeSelectionListener treeSelectionListener = e -> {
         MethodExecutionInput executionInput = getTree().getSelectedExecutionInput();
         if (executionInput != null) {
-            ConnectionAction.invoke("loading the execution history", true, executionInput,
+            ConnectionAction.invoke(txt("msg.execution.title.LoadingExecutionHistory"), true, executionInput,
                     action -> Progress.prompt(getProject(), action, false,
-                            "Loading method details",
-                            "Loading details of " + executionInput.getMethodRef().getQualifiedNameWithType(),
+                            txt("prc.execution.title.LoadingMethodDetails"),
+                            txt("prc.execution.text.LoadingMethodDetails",executionInput.getMethodRef().getQualifiedNameWithType()),
                             progress -> {
                                 /*DBMethod method = executionInput.getMethod();
                                 if (method != null) {

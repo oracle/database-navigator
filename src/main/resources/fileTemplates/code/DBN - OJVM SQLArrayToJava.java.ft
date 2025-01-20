@@ -1,0 +1,20 @@
+public static ${JAVA_COMPLEX_TYPE}[] ${SQL_OBJECT_TYPE}toJava(java.sql.Array obj) {
+  	if(obj == null)
+        return null;
+
+    java.lang.Object[] objArray;
+    try {
+        objArray = (java.lang.Object[]) obj.getArray();
+    }
+    catch(java.sql.SQLException e) {
+        return null;
+    }
+    if(objArray == null)
+        return null;
+
+    ${JAVA_COMPLEX_TYPE}[] array_ = new ${JAVA_COMPLEX_TYPE}[objArray.length];
+    for(int i = 0; i < objArray.length; i++)
+        array_[i] = ${TYPECAST_START}objArray[i]${TYPECAST_END};
+
+    return array_;
+}

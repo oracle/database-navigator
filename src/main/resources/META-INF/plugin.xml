@@ -24,16 +24,18 @@
     <depends optional="true" config-file="dbn-java-support.xml">com.intellij.modules.java</depends>
     <depends optional="true" config-file="dbn-debugger-support.xml">com.intellij.modules.xdebugger</depends>
     <depends optional="true" config-file="dbn-copyright-support.xml">com.intellij.copyright</depends>
-    <depends optional="true" config-file="dbn-oci-toolkit-support.xml">com.oracle.ocidbtest</depends>
-
-    <vendor email="dancioca@bluewin.ch">Dan Cioca</vendor>
-    <idea-version since-build="231.4840.387" until-build="243.*"/>
+    <vendor email="dan.cioca@oracle.com" url="https://www.oracle.com">Dan Cioca (Oracle)</vendor>
+    <idea-version since-build="201.6668.113" until-build="243.*"/>
     <resource-bundle>messages.DBNResources</resource-bundle>
     <description><![CDATA[
-            <b>Database development, scripting and navigation tool</b><br>
-            This software solution enhances the capabilities of the IntelliJ IDEA development environment and its associated products by providing comprehensive features for database development and maintenance.
-            It includes a robust SQL and PL/SQL editor that adheres to the IDE standards, along with advanced functionality for managing database connections, executing scripts, browsing database objects, editing data and code, supporting database compiler operations, executing and debugging methods, and facilitating the creation of database objects.
-            Additionally, it offers diverse navigation capabilities that seamlessly integrate across all its components, providing a powerful toolset for efficient and effective database development and management.<br>
+            <b>Database development, maintenance and navigation tool</b><br>
+            This software solution enhances the functionality of the IntelliJ IDEA development environment and
+            its related products by offering a comprehensive suite of tools for database development and management.
+            It features a highly capable SQL and PL/SQL editor that aligns with the standards of the IDE,
+            as well as advanced capabilities for managing database connections, executing scripts, browsing and editing database objects, and modifying data and code.
+            The solution further supports database compiler operations, method execution and debugging, and the creation of database objects.
+            Moreover, it includes extensive navigation features that are seamlessly integrated across all components,
+            delivering a robust and efficient toolset for database development and administration.<br>
 
             <b>Supported Databases:</b>
             <ul>
@@ -51,6 +53,8 @@
                 <li>Oracle "Select-AI" integration (Database Assistant)
                 <li>Oracle token authentication ("OCI API Key" and "OCI Interactive")
                 <li>Oracle OJVM support (early preview)
+                <li>Password storage in native keychain
+                <li>Tool accessibility enhancements
                 <li>Support for latest IDE versions (2024.3.x)
                 <li>Bug fixes
             </ul>
@@ -108,7 +112,6 @@
                 <li>Bug fixes
             </ul>
         </ul>
-        <a href="http://confluence.jetbrains.net/display/CONTEST/DBN+-+Change+Notes">See full release notes</a>
      ]]></change-notes>
 
     <application-components>
@@ -149,6 +152,7 @@
         <projectService serviceImplementation="com.dbn.execution.script.ScriptExecutionManager"/>
         <projectService serviceImplementation="com.dbn.execution.compiler.DatabaseCompilerManager"/>
         <projectService serviceImplementation="com.dbn.execution.method.MethodExecutionManager"/>
+        <projectService serviceImplementation="com.dbn.execution.java.JavaExecutionManager"/>
         <projectService serviceImplementation="com.dbn.execution.explain.ExplainPlanManager"/>
         <projectService serviceImplementation="com.dbn.execution.logging.DatabaseLoggingManager"/>
         <projectService serviceImplementation="com.dbn.code.common.completion.CodeCompletionManager"/>
@@ -305,6 +309,9 @@
             <action class="com.dbn.menu.action.MethodExecutionHistoryAction" text="Method Execution History" id="DBNavigator.Actions.MainMenu.MethodExecutionHistory">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift M"/>
             </action>
+            <action class="com.dbn.menu.action.JavaExecutionHistoryAction" text="Java Execution History" id="DBNavigator.Actions.MainMenu.JavaExecutionHistory">
+                <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift J"/>
+            </action>
             <action class="com.dbn.menu.action.FileConnectionMappingsOpenAction" text="File Connection Mappings" id="DBNavigator.Actions.MainMenu.FileConnectionMappings"/>
             <action class="com.dbn.menu.action.ResourceMonitorOpenAction" text="Resource Monitor" id="DBNavigator.Actions.MainMenu.ResourceMonitor"/>
             <!--<action class="com.dbn.action.menu.PendingTransactionsOpenAction" text="Open Transactions" id="DBNavigator.Actions.MainMenu.PendingTransactions"/>-->
@@ -436,6 +443,25 @@
             <action id="DBNavigator.Actions.MethodExecutionCursorResult.ViewRecord" class="com.dbn.execution.method.result.action.CursorResultViewRecordAction" text="Method Execution Cursor Result - View Record" icon="com.dbn.common.icon.Icons.EXEC_RESULT_VIEW_RECORD"/>
             <separator/>
             <action id="DBNavigator.Actions.MethodExecutionCursorResult.Export" class="com.dbn.execution.method.result.action.CursorResultExportAction" text="Method Execution Cursor Result - Export" icon="com.dbn.common.icon.Icons.DATA_EXPORT"/>
+        </group>
+
+        <group id="DBNavigator.ActionGroup.JavaExecutionResult">
+            <action id="DBNavigator.Actions.JavaExecutionResult.Close" class="com.dbn.execution.java.result.action.ExecutionResultCloseAction" text="Java Method Execution Result - Close" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
+            <action id="DBNavigator.Actions.JavaExecutionResult.EditMethod" class="com.dbn.execution.java.result.action.JavaEditAction" text="Java Method Execution Result - Edit Method" icon="com.dbn.common.icon.Icons.OBJECT_EDIT_SOURCE"/>
+            <action id="DBNavigator.Actions.JavaExecutionResult.OpenExecutionDialog" class="com.dbn.execution.java.result.action.JavaExecutionPromptAction" text="Java Method Execution Result - Open Execution Dialog" icon="com.dbn.common.icon.Icons.METHOD_EXECUTION_DIALOG"/>
+            <action id="DBNavigator.Actions.JavaExecutionResult.ExecuteAgain" class="com.dbn.execution.java.result.action.JavaExecutionStartAction" text="Java Method Execution Result - Execute Again" icon="AllIcons.Actions.Rerun"/>
+            <action id="DBNavigator.Actions.JavaExecutionResult.StopExecution" class="com.dbn.execution.java.result.action.JavaExecutionStopAction" text="Java Method Execution Result - Stop Execution" icon="AllIcons.Actions.Suspend"/>
+            <separator/>
+            <action id="DBNavigator.Actions.JavaExecutionResult.Settings" class="com.dbn.execution.java.result.action.ExecutionEngineSettingsAction" text="Java Method Execution Result - Open Execution Dialog" icon="AllIcons.General.GearPlain"/>
+        </group>
+        <group id="DBNavigator.ActionGroup.JavaExecutionCursorResult">
+            <action id="DBNavigator.Actions.JavaExecutionCursorResult.Find" class="com.dbn.execution.java.result.action.CursorResultFindAction" text="Java Method Execution Cursor Result - Find Data" icon="AllIcons.Actions.Find">
+                <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>
+            </action>
+            <action id="DBNavigator.Actions.JavaExecutionCursorResult.FetchNextRecords" class="com.dbn.execution.java.result.action.CursorResultFetchNextRecordsAction" text="Java Method Execution Cursor Result - Fetch Next Records" icon="AllIcons.Actions.Resume"/>
+            <action id="DBNavigator.Actions.JavaExecutionCursorResult.ViewRecord" class="com.dbn.execution.java.result.action.CursorResultViewRecordAction" text="Java Method Execution Cursor Result - View Record" icon="com.dbn.common.icon.Icons.EXEC_RESULT_VIEW_RECORD"/>
+            <separator/>
+            <action id="DBNavigator.Actions.JavaExecutionCursorResult.Export" class="com.dbn.execution.java.result.action.CursorResultExportAction" text="Java Method Execution Cursor Result - Export" icon="com.dbn.common.icon.Icons.DATA_EXPORT"/>
         </group>
 
 

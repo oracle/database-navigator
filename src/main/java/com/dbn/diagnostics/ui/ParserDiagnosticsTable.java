@@ -37,6 +37,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.TableModel;
 import java.awt.event.MouseEvent;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class ParserDiagnosticsTable extends DBNTable<ParserDiagnosticsTableModel> {
 
     public ParserDiagnosticsTable(@NotNull DBNComponent parent, ParserDiagnosticsTableModel model) {
@@ -47,11 +49,11 @@ public class ParserDiagnosticsTable extends DBNTable<ParserDiagnosticsTableModel
         setBackground(Colors.getEditorBackground());
         initTableSorter();
         setCellSelectionEnabled(true);
-        adjustRowHeight(2);
-        accommodateColumnsSize();
+        adjustColumnWidths();
         addMouseListener(Mouse.listener().onClick(e -> clickEvent(e)));
         ClientProperty.BORDER.set(this, Borders.tableBorder(1, 0, 0, 0));
 
+        setAccessibleName(this, "Parser Diagnostic Results");
     }
 
     private void clickEvent(MouseEvent e) {
@@ -98,7 +100,6 @@ public class ParserDiagnosticsTable extends DBNTable<ParserDiagnosticsTableModel
 
             String presentableValue = model.getPresentableValue(entry, column);
             append(presentableValue, textAttributes);
-            setBorder(Borders.TEXT_FIELD_INSETS);
         }
     }
 }

@@ -31,7 +31,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
@@ -40,10 +39,9 @@ import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 
 public class ObjectsLookupSettingsForm extends ConfigurationEditorForm<ObjectsLookupSettings> {
     private JPanel mainPanel;
-    private JScrollPane lookupObjectsScrollPane;
     private JComboBox<ConnectionOption> connectionComboBox;
     private JComboBox<BehaviorOption> behaviorComboBox;
-    private final CheckBoxList lookupObjectsList;
+    private CheckBoxList<ObjectsLookupSettings.ObjectTypeEntry> lookupObjectsList;
 
     public ObjectsLookupSettingsForm(ObjectsLookupSettings configuration) {
         super(configuration);
@@ -59,8 +57,7 @@ public class ObjectsLookupSettingsForm extends ConfigurationEditorForm<ObjectsLo
                 BehaviorOption.LOOKUP,
                 BehaviorOption.LOAD);
 
-        lookupObjectsList = new CheckBoxList<>(configuration.getLookupObjectTypes());
-        lookupObjectsScrollPane.setViewportView(lookupObjectsList);
+        lookupObjectsList.setElements(configuration.getLookupObjectTypes());
 
         resetFormChanges();
         registerComponents(mainPanel);

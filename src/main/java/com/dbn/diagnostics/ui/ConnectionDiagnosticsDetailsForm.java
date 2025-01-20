@@ -52,6 +52,7 @@ public class ConnectionDiagnosticsDetailsForm extends DBNFormBase {
 
         diagnosticsTabs = new DBNTabbedPane<>(this);
         diagnosticsTabsPanel.add(diagnosticsTabs, BorderLayout.CENTER);
+        diagnosticsTabs.enableFocusInheritance();
 
 
         AbstractDiagnosticsTableModel metadataTableModel = new MetadataDiagnosticsTableModel2(connection);

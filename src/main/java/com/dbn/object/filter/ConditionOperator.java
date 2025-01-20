@@ -19,6 +19,7 @@ package com.dbn.object.filter;
 import com.dbn.common.ui.Presentable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 @Getter
 @AllArgsConstructor
@@ -28,7 +29,7 @@ public enum ConditionOperator implements Presentable{
     LIKE("like", true),
     NOT_LIKE("not like", true);
 
-    private final String name;
+    private final @NonNls String name;
     private final boolean allowsWildcards;
 
     public boolean allowsWildcards() {

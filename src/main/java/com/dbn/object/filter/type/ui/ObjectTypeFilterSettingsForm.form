@@ -13,6 +13,7 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
+          <labelFor value="eeced"/>
           <text value="&amp;Visible object types"/>
         </properties>
       </component>
@@ -24,7 +25,12 @@
         <border type="none">
           <color color="-16777216"/>
         </border>
-        <children/>
+        <children>
+          <component id="eeced" class="com.dbn.common.ui.list.CheckBoxList" binding="visibleObjectsList">
+            <constraints/>
+            <properties/>
+          </component>
+        </children>
       </scrollpane>
       <component id="45cf9" class="javax.swing.JCheckBox" binding="useMasterSettingsCheckBox">
         <constraints>

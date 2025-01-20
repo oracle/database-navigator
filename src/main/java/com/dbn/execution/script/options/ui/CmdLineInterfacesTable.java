@@ -29,7 +29,6 @@ import com.dbn.execution.script.ScriptExecutionManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.TableUtil;
-import com.intellij.util.ui.JBUI;
 
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
@@ -38,12 +37,13 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
-import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Borders.TEXT_FIELD_INSETS;
 import static com.dbn.common.ui.util.Mouse.isMainSingleClick;
 
 public class CmdLineInterfacesTable extends DBNTable<CmdLineInterfacesTableModel> {
@@ -56,34 +56,33 @@ public class CmdLineInterfacesTable extends DBNTable<CmdLineInterfacesTableModel
         setSelectionForeground(Colors.getTableForeground());
         setCellSelectionEnabled(true);
         setDefaultRenderer(Object.class, new CmdLineInterfacesTableCellRenderer());
-        adjustRowHeight(3);
 
-        columnModel.getColumn(0).setMaxWidth(120);
-        columnModel.getColumn(1).setMaxWidth(220);
-        columnModel.getColumn(0).setPreferredWidth(120);
-        columnModel.getColumn(1).setPreferredWidth(220);
-
+        setProportionalColumnWidths(15, 25, 60);
         putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-        addMouseListener(mouseListener);
+        addMouseListener(createMouseListener());
+
+        setAccessibleName(this, "Command Line Interfaces");
     }
 
-    private final MouseListener mouseListener = Mouse.listener().onClick(e -> {
-        if (!isMainSingleClick(e)) return;
+    private MouseListener createMouseListener() {
+        return Mouse.listener().onClick(e -> {
+            if (!isMainSingleClick(e)) return;
 
-        Point point = e.getPoint();
-        int rowIndex = rowAtPoint(point);
-        int columnIndex = columnAtPoint(point);
-        if (columnIndex != 2) return;
+            Point point = e.getPoint();
+            int rowIndex = rowAtPoint(point);
+            int columnIndex = columnAtPoint(point);
+            if (columnIndex != 2) return;
 
-        DatabaseType databaseType = (DatabaseType) getValueAt(rowIndex, 0);
-        Project project = getProject();
-        String executablePath = (String) getValueAt(rowIndex, 2);
-        ScriptExecutionManager scriptExecutionManager = ScriptExecutionManager.getInstance(project);
-        VirtualFile virtualFile = scriptExecutionManager.selectCmdLineExecutable(databaseType, executablePath);
-        if (virtualFile != null) {
-            setValueAt(virtualFile.getPath(), rowIndex, 2);
-        }
-    });
+            DatabaseType databaseType = (DatabaseType) getValueAt(rowIndex, 0);
+            Project project = getProject();
+            String executablePath = (String) getValueAt(rowIndex, 2);
+            ScriptExecutionManager scriptExecutionManager = ScriptExecutionManager.getInstance(project);
+            VirtualFile virtualFile = scriptExecutionManager.selectCmdLineExecutable(databaseType, executablePath);
+            if (virtualFile != null) {
+                setValueAt(virtualFile.getPath(), rowIndex, 2);
+            }
+        });
+    }
 
     @Override
     protected void processMouseMotionEvent(MouseEvent e) {
@@ -135,9 +134,9 @@ public class CmdLineInterfacesTable extends DBNTable<CmdLineInterfacesTableModel
     }
 
     @Override
-    public Component prepareEditor(TableCellEditor editor, int rowIndex, int columnIndex) {
+    public JTextField prepareEditor(TableCellEditor editor, int rowIndex, int columnIndex) {
         JTextField textField = (JTextField) super.prepareEditor(editor, rowIndex, columnIndex);
-        textField.setBorder(JBUI.Borders.emptyLeft(3));
+        textField.setBorder(TEXT_FIELD_INSETS);
 
         Dispatch.run(() -> {
             textField.selectAll();

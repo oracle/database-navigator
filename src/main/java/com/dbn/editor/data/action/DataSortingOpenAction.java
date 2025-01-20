@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DataSortingOpenAction extends AbstractDataEditorAction {
 
@@ -39,7 +40,7 @@ public class DataSortingOpenAction extends AbstractDataEditorAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
-        presentation.setText("Data Sorting...");
+        presentation.setText(txt("app.dataEditor.action.DataSorting"));
         presentation.setIcon(Icons.DATA_SORTING);
 
         boolean enabled =

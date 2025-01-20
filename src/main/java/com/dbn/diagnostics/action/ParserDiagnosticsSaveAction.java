@@ -26,6 +26,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ParserDiagnosticsSaveAction extends AbstractParserDiagnosticsAction {
 
     @Override
@@ -41,7 +43,7 @@ public class ParserDiagnosticsSaveAction extends AbstractParserDiagnosticsAction
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ParserDiagnosticsForm form) {
-        presentation.setText("Save Result");
+        presentation.setText(txt("app.diagnostics.action.SaveResult"));
         presentation.setIcon(Icons.ACTION_SAVE);
         if (form != null) {
             ParserDiagnosticsResult result = form.getSelectedResult();

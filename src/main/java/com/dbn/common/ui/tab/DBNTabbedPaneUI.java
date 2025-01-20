@@ -40,7 +40,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeListener;
-import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicArrowButton;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
@@ -99,6 +98,7 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
 
     private int hoverTab = -1;
     private boolean tabsOverlapBorder;
+    private boolean validating;
     private Color tabHoverColor;
 
     private PropertyChangeListener propertyChangeListener;
@@ -108,11 +108,6 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
     private MouseMotionAdapter mouseMotionListener;
 
     private static final JBValue OFFSET = new JBValue.Float(1);
-
-    @SuppressWarnings({"MethodOverridesStaticMethodOfSuperclass", "UnusedDeclaration"})
-    public static ComponentUI createUI(JComponent c) {
-        return new DBNTabbedPaneUI();
-    }
 
     @Override
     protected void installComponents() {
@@ -290,6 +285,8 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
 
     @Override
     public int tabForCoordinate(JTabbedPane pane, int x, int y) {
+        if (!pane.isValid()) return -1;
+
         // prevent tab switch on right mouse click if showing popup
         if (getTabPane().isShowingPopup()) return -1;
 
@@ -513,10 +510,6 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
 
     @Override
     public void paint(Graphics g, JComponent c) {
-        if (Boolean.getBoolean("use.basic.tabs.scrolling")) {
-            super.paint(g, c);
-            return;
-        }
         int selectedIndex = tabPane.getSelectedIndex();
         int tabPlacement = tabPane.getTabPlacement();
 
@@ -697,7 +690,7 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
     }
 
     private void paintUnderline(Graphics g, int x, int y, int w, int h) {
-        g.setColor(tabPane.isEnabled() ? ENABLED_SELECTED_COLOR : DISABLED_SELECTED_COLOR);
+        g.setColor(isTabFocused() ? ENABLED_SELECTED_COLOR : DISABLED_SELECTED_COLOR);
         double arc = SELECTION_ARC.get();
 
         if (arc == 0) {
@@ -706,5 +699,12 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
             RectanglePainter2D.FILL.paint((Graphics2D) g, x, y, w, h, arc, LinePainter2D.StrokeType.INSIDE, 1.0,
                     RenderingHints.VALUE_ANTIALIAS_ON);
         }
+    }
+
+    private boolean isTabFocused() {
+        DBNTabbedPane tabPane = getTabPane();
+        return
+            tabPane.hasFocus() ||
+            tabPane.hasInheritedFocus();
     }
 }

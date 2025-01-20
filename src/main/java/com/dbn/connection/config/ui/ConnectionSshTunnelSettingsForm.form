@@ -26,6 +26,7 @@
               </grid>
             </constraints>
             <properties>
+              <labelFor value="81413"/>
               <text resource-bundle="messages/DBNResources" key="cfg.connection.label.Host"/>
             </properties>
           </component>
@@ -39,6 +40,7 @@
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
+              <labelFor value="60a80"/>
               <text resource-bundle="messages/DBNResources" key="cfg.connection.label.User"/>
             </properties>
           </component>
@@ -47,6 +49,7 @@
               <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
+              <labelFor value="ba1ac"/>
               <text resource-bundle="messages/DBNResources" key="cfg.connection.label.Password"/>
             </properties>
           </component>
@@ -79,6 +82,7 @@
               <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
+              <labelFor value="9e990"/>
               <text resource-bundle="messages/DBNResources" key="cfg.connection.label.Port"/>
             </properties>
           </component>
@@ -95,6 +99,7 @@
               <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
+              <labelFor value="b9fe4"/>
               <text resource-bundle="messages/DBNResources" key="cfg.connection.label.KeyFile"/>
             </properties>
           </component>
@@ -103,6 +108,7 @@
               <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
+              <labelFor value="80b53"/>
               <text resource-bundle="messages/DBNResources" key="cfg.connection.label.KeyPassphrase"/>
             </properties>
           </component>
@@ -130,6 +136,7 @@
               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
+              <labelFor value="6b00d"/>
               <text resource-bundle="messages/DBNResources" key="cfg.connection.label.AuthType"/>
             </properties>
           </component>

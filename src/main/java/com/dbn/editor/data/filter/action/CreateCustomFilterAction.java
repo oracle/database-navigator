@@ -23,6 +23,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CreateCustomFilterAction extends AbstractFilterListAction {
 
     public CreateCustomFilterAction(DatasetFilterList filterList) {
@@ -38,7 +40,7 @@ public class CreateCustomFilterAction extends AbstractFilterListAction {
     @Override
     public void update(@NotNull AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Custom Filter");
+        presentation.setText(txt("app.dataEditor.action.CustomFilter"));
         presentation.setIcon(Icons.DATASET_FILTER_CUSTOM);
     }
 }

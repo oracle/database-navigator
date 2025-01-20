@@ -47,16 +47,18 @@ public class DBConstraintManagementAdapter extends ObjectManagementAdapterFactor
         DatabaseDataDefinitionInterface databaseInterface = connection.getDataDefinitionInterface();
         databaseInterface.dropObject(
                 object.getTypeName(),
-                object.getQualifiedName(), conn);
+                object.getSchemaName(true),
+                object.getName(true),
+                conn);
     }
 
     @Override
     protected void enableObject(ConnectionHandler connection, DBNConnection conn, DBConstraint object) throws SQLException {
         DatabaseMetadataInterface databaseInterface = connection.getMetadataInterface();;
         databaseInterface.enableConstraint(
-                object.getSchemaName(),
-                object.getDataset().getName(),
-                object.getName(),
+                object.getSchemaName(true),
+                object.getDataset().getName(true),
+                object.getName(true),
                 conn);
     }
 
@@ -64,9 +66,9 @@ public class DBConstraintManagementAdapter extends ObjectManagementAdapterFactor
     protected void disableObject(ConnectionHandler connection, DBNConnection conn, DBConstraint object) throws SQLException {
         DatabaseMetadataInterface databaseInterface = connection.getMetadataInterface();;
         databaseInterface.disableConstraint(
-                object.getSchemaName(),
-                object.getDataset().getName(),
-                object.getName(),
+                object.getSchemaName(true),
+                object.getDataset().getName(true),
+                object.getName(true),
                 conn);
     }
 }

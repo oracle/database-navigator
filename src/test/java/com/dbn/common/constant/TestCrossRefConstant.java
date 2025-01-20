@@ -16,6 +16,8 @@
 
 package com.dbn.common.constant;
 
+import org.jetbrains.annotations.NonNls;
+
 public class TestCrossRefConstant extends PseudoConstant<TestCrossRefConstant> {
     // various static initialization ways
     public static final TestCrossRefConstant CROSS_REF_CONSTANT_0 = get("CROSS_REF_CONSTANT_0");
@@ -27,11 +29,11 @@ public class TestCrossRefConstant extends PseudoConstant<TestCrossRefConstant> {
     public static final TestCrossRefConstant CROSS_REF_CONSTANT_7 = new TestCrossRefConstant("CROSS_REF_CONSTANT_7");
     public static final TestCrossRefConstant CROSS_REF_CONSTANT_8 = get("CROSS_REF_CONSTANT_8");
 
-    private TestCrossRefConstant(String id) {
+    private TestCrossRefConstant(@NonNls String id) {
         super(id);
     }
 
-    public static TestCrossRefConstant get(String id) {
+    public static TestCrossRefConstant get(@NonNls String id) {
         return PseudoConstant.get(TestCrossRefConstant.class, id);
     }
 }

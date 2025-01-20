@@ -33,6 +33,7 @@ import com.dbn.database.interfaces.DatabaseDebuggerInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.type.DBObjectType;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.SQLException;
 import java.util.StringTokenizer;
@@ -182,11 +183,13 @@ public class OracleDebuggerInterface extends DatabaseDebuggerInterfaceImpl imple
         return executeCall(connection, new ExecutionBacktraceInfo(), "get-execution-backtrace-table");
     }
 
+    @NonNls
     @Override
     public String[] getRequiredPrivilegeNames() {
         return new String[]{"DEBUG CONNECT SESSION", "DEBUG ANY PROCEDURE"};
     }
 
+    @NonNls
     @Override
     public String getDebugConsoleTemplate(CodeStyleCaseSettings settings) {
         CodeStyleCaseOption kco = settings.getKeywordCaseOption();
@@ -237,11 +240,13 @@ public class OracleDebuggerInterface extends DatabaseDebuggerInterfaceImpl imple
         return null;
     }
 
+    @NonNls
     @Override
     public String getJdwpBlockIdentifier() {
         return "$Oracle.Block";
     }
 
+    @NonNls
     @Override
     public String getJdwpProgramIdentifier(DBObjectType objectType, DBContentType contentType, String qualifiedObjectName) {
         String objectTypeName = "Unknown";

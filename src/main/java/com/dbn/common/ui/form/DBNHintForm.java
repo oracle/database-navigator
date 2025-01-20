@@ -22,7 +22,6 @@ import com.dbn.common.message.MessageType;
 import com.dbn.common.text.MimeType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Dispatch;
-import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.ui.util.LookAndFeel;
 import com.dbn.common.ui.util.UserInterface;
 import com.intellij.ui.HyperlinkLabel;
@@ -62,8 +61,6 @@ public class DBNHintForm extends DBNFormBase {
         setMessageType(messageType);
         setHintContent(hintContent);
 
-
-        hintTextPane.setFont(Fonts.getLabelFont());
         updateComponentColors();
         if (boxed) {
             mainPanel.setBorder(new RoundedLineBorder(Colors.getOutlineColor(), 2));

@@ -36,6 +36,7 @@ import javax.swing.*;
 import static com.dbn.assistant.editor.AssistantPrompt.Flavor.COMMENT;
 import static com.dbn.common.util.Editors.isMainEditor;
 import static com.dbn.common.util.Files.isDbLanguagePsiFile;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SelectSessionIntentionAction extends EditorIntentionAction  {
     @Override
@@ -46,7 +47,7 @@ public class SelectSessionIntentionAction extends EditorIntentionAction  {
     @Override
     @NotNull
     public String getText() {
-        return "Set current session";
+        return txt("app.codeEditor.action.SetCurrentSession");
     }
 
     @Override

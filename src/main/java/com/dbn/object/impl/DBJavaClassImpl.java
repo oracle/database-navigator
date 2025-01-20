@@ -24,8 +24,10 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
@@ -46,6 +48,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGHEST;
+import static com.dbn.common.util.Lists.filter;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 import static com.dbn.object.common.property.DBObjectProperty.DEBUGABLE;
@@ -55,6 +58,7 @@ import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.type.DBJavaClassKind.ENUM;
 import static com.dbn.object.type.DBJavaClassKind.INTERFACE;
+import static com.dbn.object.type.DBObjectType.JAVA_FIELD;
 import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
 
 @Getter
@@ -94,6 +98,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		// TODO support inner classes as child objects
 		DBSchema schema = getSchema();
 		DBObjectListContainer childObjects = ensureChildObjects();
+		childObjects.createSubcontentObjectList(JAVA_FIELD, this, schema);
 		childObjects.createSubcontentObjectList(JAVA_METHOD, this, schema);
 	}
 
@@ -110,6 +115,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		DBObjectStatusHolder objectStatus = getStatus();
 		objectStatus.set(DBObjectStatus.VALID, isValid);
 		objectStatus.set(DBObjectStatus.DEBUG, isDebug);
+		objectStatus.set(DBContentType.CODE, DBObjectStatus.PRESENT, true);
 	}
 
 	@Override
@@ -164,8 +170,23 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	}
 
 	@Override
+	public List<DBJavaMethod> getStaticMethods() {
+		return filter(getMethods(), m -> m.isStatic());
+	}
+
+	@Override
 	public DBJavaMethod getMethod(String name) {
 		return getChildObject(JAVA_METHOD, name);
+	}
+
+	@Override
+	public List<DBJavaField> getFields() {
+		return getChildObjects(JAVA_FIELD);
+	}
+
+	@Override
+	public DBJavaField getField(String name) {
+		return getChildObject(JAVA_FIELD, name);
 	}
 
 	/*********************************************************
@@ -183,8 +204,11 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 				getSchemaId(),
 				conn -> {
 					ConnectionHandler connection = getConnection();
-					DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
-					dataDefinition.updateJavaClass(getName(), newCode, conn);
+					DatabaseDataDefinitionInterface dataDefinitionInterface = connection.getDataDefinitionInterface();
+					dataDefinitionInterface.updateJavaClass(getName(true), newCode, conn);
+
+					DatabaseMetadataInterface metadataInterface = connection.getMetadataInterface();
+					metadataInterface.compileJavaClass(getSchemaName(true), getName(true), conn);
 				});
 	}
 
@@ -195,12 +219,14 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	@NotNull
 	public List<BrowserTreeNode> buildPossibleTreeChildren() {
 		return DatabaseBrowserUtils.createList(
+				getChildObjectList(JAVA_FIELD),
 				getChildObjectList(JAVA_METHOD));
 	}
 
 	@Override
 	public boolean hasVisibleTreeChildren() {
 		ObjectTypeFilterSettings settings = getObjectTypeFilterSettings();
-		return settings.isVisible(JAVA_METHOD);
+		return settings.isVisible(JAVA_FIELD) ||
+				settings.isVisible(JAVA_METHOD) ;
 	}
 }

@@ -17,6 +17,7 @@
 package com.dbn.common.util;
 
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.concurrent.TimeUnit;
 
@@ -85,7 +86,7 @@ public class TimeUtil {
         return millis + " ms";
     }
 
-    private static String presentableDuration(long value, String unit, boolean compact) {
+    private static String presentableDuration(long value, @NonNls String unit, boolean compact) {
         String unitToken = "";
         switch (unit) {
             case "hour": unitToken = compact ? "h" : (value > 1 ? unit + "s" : unit); break;

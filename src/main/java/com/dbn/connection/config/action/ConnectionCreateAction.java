@@ -25,6 +25,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ConnectionCreateAction extends ConnectionSettingsAction {
     private final DatabaseType databaseType;
 
@@ -50,7 +52,7 @@ public class ConnectionCreateAction extends ConnectionSettingsAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionBundleSettingsForm target) {
-        presentation.setText(databaseType == null ? "Custom..." : databaseType.getName());
+        presentation.setText(databaseType == null ? txt("app.connection.action.CustomConnection") : databaseType.getName());
         presentation.setIcon(databaseType == null ? null : databaseType.getIcon());
     }
 }

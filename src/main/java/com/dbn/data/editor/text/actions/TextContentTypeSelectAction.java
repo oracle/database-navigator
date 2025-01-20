@@ -20,8 +20,10 @@ import com.dbn.common.action.BasicAction;
 import com.dbn.data.editor.text.TextContentType;
 import com.dbn.data.editor.text.ui.TextEditorForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+@Getter
 public class TextContentTypeSelectAction extends BasicAction {
     private final TextEditorForm editorForm;
     private final TextContentType contentType;
@@ -30,10 +32,6 @@ public class TextContentTypeSelectAction extends BasicAction {
         super(contentType.getName(), null, contentType.getIcon());
         this.contentType = contentType;
         this.editorForm = editorForm;
-    }
-
-    public TextContentType getContentType() {
-        return contentType;
     }
 
     @Override

@@ -23,13 +23,14 @@ import com.dbn.common.options.setting.Settings;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Commons;
-import com.dbn.common.util.Titles;
-import com.intellij.openapi.ui.Messages;
+import com.dbn.common.util.Messages;
+import com.intellij.openapi.project.Project;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -49,7 +50,7 @@ public class InteractiveOptionBroker<T extends InteractiveOption> implements DoN
 
     @SafeVarargs
     public InteractiveOptionBroker(
-            String configName,
+            @NonNls String configName,
             @Nls String title,
             @Nls String message,
             @NotNull T defaultOption,
@@ -102,7 +103,7 @@ public class InteractiveOptionBroker<T extends InteractiveOption> implements DoN
         return "Remember option";
     }
 
-    public void resolve(Object[] messageArgs, Consumer<T> consumer) {
+    public void resolve(Project project, Object[] messageArgs, Consumer<T> consumer) {
         Dispatch.run(() -> {
             T option;
             if (selectedOption != null && !selectedOption.isAsk()) {
@@ -114,9 +115,11 @@ public class InteractiveOptionBroker<T extends InteractiveOption> implements DoN
                 }
 
                 int optionIndex = Messages.showDialog(
+                        project,
                         txt(message, messageArgs),
-                        Titles.signed(txt(title)),
-                        toStringOptions(options), lastUsedOptionIndex, Icons.DIALOG_QUESTION, this);
+                        txt(title),
+                        toStringOptions(options),
+                        lastUsedOptionIndex, Icons.DIALOG_QUESTION, this);
 
                 option = getOption(optionIndex);
                 if (!option.isCancel() && !option.isAsk()) {

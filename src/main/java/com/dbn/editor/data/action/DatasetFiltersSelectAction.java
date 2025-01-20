@@ -32,14 +32,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JComponent;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetFiltersSelectAction extends ComboBoxAction {
-    public DatasetFiltersSelectAction() {
-        Presentation presentation = getTemplatePresentation();
-        presentation.setText("No Filter");
-        presentation.setIcon(Icons.DATASET_FILTER_EMPTY);
-    }
-
 
     @Override
     @NotNull
@@ -82,7 +77,7 @@ public class DatasetFiltersSelectAction extends ComboBoxAction {
             DatasetFilter activeFilter = filterManager.getActiveFilter(dataset);
 
             if (activeFilter == null) {
-                presentation.setText("No Filter");
+                presentation.setText(txt("app.dataEditor.action.NoFilter"));
                 presentation.setIcon(Icons.DATASET_FILTER_EMPTY);
             } else {
                 //e.getPresentation().setText(activeFilter.getName());

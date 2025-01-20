@@ -78,12 +78,12 @@ public interface DBNFormFieldAdapter {
     void initFieldsVisibility(Condition condition, Filter<JComponent> filter);
 
     /**
-     * Initializes the accessibility condition for the fields represented by the given filter
-     * Upon invocation of {@link #updateFieldsAccessibility()}, the field accessibility will be adjusted based on the given condition
-     * @param condition the condition returning the accessibility flag
+     * Initializes the availability condition for the fields represented by the given filter
+     * Upon invocation of {@link #updateFieldsAvailability()}, the field availability will be adjusted based on the given condition
+     * @param condition the condition returning the availability flag
      * @param filter the {@link Filter} to be used when considering fields to adjusted
      */
-    void initFieldsAccessibility(Condition condition, Filter<JComponent> filter);
+    void initFieldsAvailability(Condition condition, Filter<JComponent> filter);
 
     /**
      * Updates field visibility based on the conditions initialised
@@ -92,10 +92,10 @@ public interface DBNFormFieldAdapter {
     void updateFieldsVisibility();
 
     /**
-     * Updates field accessibility based on the conditions initialised
-     * with {@link #initFieldsAccessibility(Condition, Filter)}
+     * Updates field availability based on the conditions initialised
+     * with {@link #initFieldsAvailability(Condition, Filter)}
      */
-    void updateFieldsAccessibility();
+    void updateFieldsAvailability();
 
     /**
      * Default factory method for {@link DBNFormFieldAdapter}

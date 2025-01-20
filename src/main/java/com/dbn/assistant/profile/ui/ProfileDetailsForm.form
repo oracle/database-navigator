@@ -13,7 +13,8 @@
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="profiles.mgnt.attr.provider.label"/>
+          <labelFor value="f8626"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.Provider"/>
         </properties>
       </component>
       <component id="7fe77" class="javax.swing.JLabel">
@@ -21,7 +22,8 @@
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="profiles.mgnt.attr.model.label"/>
+          <labelFor value="77d58"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.Model"/>
         </properties>
       </component>
       <component id="4ae0a" class="javax.swing.JLabel">
@@ -29,7 +31,8 @@
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="profiles.mgnt.attr.cred.label"/>
+          <labelFor value="1444e"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.Credential"/>
         </properties>
       </component>
       <component id="f8626" class="javax.swing.JTextField" binding="providerTextField">
@@ -68,8 +71,8 @@
         </constraints>
         <properties>
           <horizontalAlignment value="2"/>
-          <labelFor value="73d66"/>
-          <text resource-bundle="messages/DBNResources" key="profiles.mgnt.attr.associated"/>
+          <labelFor value="57e93"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.title.AssociatedObjects"/>
         </properties>
       </component>
       <component id="2d435" class="javax.swing.JLabel">
@@ -77,6 +80,7 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
+          <labelFor value="be777"/>
           <text value="Profile &amp;Name"/>
         </properties>
       </component>

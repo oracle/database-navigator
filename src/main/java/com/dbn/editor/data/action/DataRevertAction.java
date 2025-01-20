@@ -22,11 +22,13 @@ import com.dbn.editor.data.model.DatasetEditorModelCell;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DataRevertAction extends BasicAction {
     private final DatasetEditorModelCell cell;
 
     public DataRevertAction(DatasetEditorModelCell cell) {
-        super("Revert Changes", null, Icons.ACTION_REVERT);
+        super(txt("app.data.action.RevertChanges"), null, Icons.ACTION_REVERT);
         this.cell = cell;
     }
 

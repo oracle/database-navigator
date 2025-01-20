@@ -20,15 +20,18 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.connection.session.DatabaseSession;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 @UtilityClass
 public final class Titles {
 
+    @NonNls
     public static final String PRODUCT_NAME = "DB Navigator";
     public static final String TITLE_PREFIX = PRODUCT_NAME + " - ";
 
     public static String signed(String title) {
+        if (title.startsWith(TITLE_PREFIX)) return title;
         return TITLE_PREFIX + title;
     }
 

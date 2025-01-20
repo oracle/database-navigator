@@ -31,6 +31,7 @@ import com.dbn.database.common.util.ResultSetCondition;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.language.common.QuotePair;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
@@ -75,7 +76,7 @@ import static com.dbn.database.generic.GenericMetadataTranslators.ViewsResultSet
 import static com.dbn.database.generic.GenericMetadataTranslators.resolveMethodType;
 import static com.dbn.database.generic.GenericMetadataTranslators.resolveOwner;
 
-
+@NonNls
 public class GenericMetadataInterface extends DatabaseMetadataInterfaceImpl {
 
     // TODO review (ORACLE behavior - package methods come back with FUNCTION_CAT / PROCEDURE_CAT as package name)

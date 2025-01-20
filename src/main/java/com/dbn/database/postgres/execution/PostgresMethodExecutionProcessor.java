@@ -38,22 +38,23 @@ public class PostgresMethodExecutionProcessor extends MethodExecutionProcessorIm
     @Override
     public String buildExecutionCommand(MethodExecutionInput executionInput) throws SQLException {
         StringBuilder buffer = new StringBuilder();
+        String methodName = getMethod().getQualifiedName(true);
         if (isQuery()) {
             buffer.append("select * from ");
-            buffer.append(getMethod().getQualifiedName());
+            buffer.append(methodName);
             buffer.append("(");
-            for (int i=1; i< getArgumentsCount(); i++) {
-                if (i>1) buffer.append(",");
+            for (int i = 1; i < getArgumentsCount(); i++) {
+                if (i > 1) buffer.append(",");
                 buffer.append("?");
             }
             buffer.append(")");
 
         } else {
             buffer.append("{ ? = call ");
-            buffer.append(getMethod().getQualifiedName());
+            buffer.append(methodName);
             buffer.append("(");
-            for (int i=1; i< getArgumentsCount(); i++) {
-                if (i>1) buffer.append(",");
+            for (int i = 1; i < getArgumentsCount(); i++) {
+                if (i > 1) buffer.append(",");
                 buffer.append("?");
             }
             buffer.append(")}");

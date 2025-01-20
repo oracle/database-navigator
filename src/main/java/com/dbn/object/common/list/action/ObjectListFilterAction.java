@@ -23,12 +23,14 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectListFilterAction extends BasicAction {
 
     private DBObjectList objectList;
 
     public ObjectListFilterAction(DBObjectList objectList) {
-        super("Quick Filter... ");
+        super(txt("app.objects.action.QuickFilter"));
         this.objectList = objectList;
     }
 

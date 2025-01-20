@@ -55,7 +55,7 @@ public class MethodExecutionBrowserForm extends DBNFormBase {
 
     MethodExecutionBrowserForm(MethodExecutionBrowserDialog parent, ObjectTreeModel model, boolean debug) {
         super(parent);
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel,"", true,
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
                 new ConnectionSelectDropdownAction(this, debug),
                 new SchemaSelectDropdownAction(this),
                 Actions.SEPARATOR,
@@ -125,8 +125,8 @@ public class MethodExecutionBrowserForm extends DBNFormBase {
 
     private void updateTree() {
         Progress.prompt(getProject(), null, false,
-                "Loading data dictionary",
-                "Loading executable elements",
+                txt("prc.execution.title.LoadingDataDictionary"),
+                txt("prc.execution.text.LoadingExecutableElements"),
                 progress -> {
                     MethodBrowserSettings settings = getSettings();
                     ObjectTreeModel model = new ObjectTreeModel(settings.getSelectedSchema(), settings.getVisibleObjectTypes(), null);

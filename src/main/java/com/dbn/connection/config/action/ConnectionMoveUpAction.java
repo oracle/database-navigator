@@ -24,6 +24,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ConnectionMoveUpAction extends ConnectionSettingsAction {
 
     @Override
@@ -45,7 +47,7 @@ public class ConnectionMoveUpAction extends ConnectionSettingsAction {
         boolean enabled = target != null && target.getSelectionSize() > 0;
 
         presentation.setEnabled(enabled);
-        presentation.setText("Move Connections Up");
+        presentation.setText(txt("app.connection.action.MoveUp"));
         presentation.setIcon(Icons.ACTION_MOVE_UP);
     }
 }

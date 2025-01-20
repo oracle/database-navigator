@@ -157,6 +157,7 @@ public class StatementExecutionInputForm extends DBNFormBase implements Componen
     }
 
     @NotNull
+    @Override
     public StatementExecutionInputsDialog getParentDialog() {
         return ensureParentComponent();
     }
@@ -175,7 +176,7 @@ public class StatementExecutionInputForm extends DBNFormBase implements Componen
     public JComponent getPreferredFocusedComponent() {
         if (variableValueForms.isEmpty()) return null;
 
-        return variableValueForms.get(0).getEditorComponent();
+        return variableValueForms.get(0).getPreferredFocusedComponent();
     }
 
     public void updateExecutionInput() {

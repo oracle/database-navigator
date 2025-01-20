@@ -17,12 +17,16 @@
 package com.dbn.navigation.action;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class LookupDatabaseObjectAction extends GoToDatabaseObjectAction{
     @Override
     public void update(@NotNull AnActionEvent e) {
         super.update(e);
-        e.getPresentation().setText("Lookup Database Object...");
+        Presentation presentation = e.getPresentation();
+        presentation.setText(txt("app.navigation.action.LookupDatabaseObject"));
     }
 }

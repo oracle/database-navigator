@@ -41,6 +41,7 @@ import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.TextAttributes.getSimpleTextAttributes;
 import static com.dbn.data.grid.color.DataGridTextAttributesKeys.FOREIGN_KEY;
 import static com.dbn.data.grid.color.DataGridTextAttributesKeys.PRIMARY_KEY;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 class ColumnValueTextField extends JTextField {
@@ -132,8 +133,8 @@ class ColumnValueTextField extends JTextField {
 
         Project project = column.getProject();
         Progress.prompt(project, column, true,
-                "Opening record details",
-                "Opening record details for " + column.getQualifiedNameWithType(),
+                txt("prc.dataEditor.title.OpeningRecordDetails"),
+                txt("prc.dataEditor.text.OpeningRecordDetailsFor", column.getQualifiedNameWithType()),
                 progress -> {
                     DatasetFilterInput filterInput = resolveForeignKeyRecord();
                     if (filterInput != null && filterInput.getColumns().size() > 0) {

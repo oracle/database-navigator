@@ -19,6 +19,7 @@ package com.dbn.common.ui.table;
 import com.dbn.common.util.Commons;
 import com.intellij.openapi.ide.CopyPasteManager;
 import org.jdesktop.swingx.plaf.basic.core.BasicTransferable;
+import org.jetbrains.annotations.NonNls;
 
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
@@ -77,7 +78,7 @@ public class DBNTableTransferHandler extends TransferHandler {
         }
 
         StringBuilder plainStr = new StringBuilder();
-        StringBuilder htmlStr = new StringBuilder();
+        @NonNls StringBuilder htmlStr = new StringBuilder();
 
         htmlStr.append("<html>\n<body>\n<table>\n");
 

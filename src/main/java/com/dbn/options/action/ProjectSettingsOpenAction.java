@@ -28,6 +28,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ProjectSettingsOpenAction extends ProjectAction {
     private final ConfigId configId;
     private final boolean showIcon;
@@ -56,6 +58,6 @@ public class ProjectSettingsOpenAction extends ProjectAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setIcon(showIcon ? Icons.ACTION_OPTIONS : null);
-        presentation.setText("Settings...");
+        presentation.setText(txt("app.settings.action.Settings"));
     }
 }

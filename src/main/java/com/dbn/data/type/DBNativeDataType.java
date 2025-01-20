@@ -26,6 +26,7 @@ import com.dbn.database.common.util.DataTypeParseAdapter;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,6 +43,7 @@ import static com.dbn.common.util.Unsafe.silent;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
+@NonNls
 @Getter
 public class DBNativeDataType extends StatefulDisposableBase implements DynamicContentElement{
     private final DataTypeDefinition definition;

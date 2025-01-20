@@ -35,7 +35,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static com.dbn.common.ui.util.ClientProperty.ACCESSIBILITY_CONDITION;
+import static com.dbn.common.ui.util.ClientProperty.AVAILABILITY_CONDITION;
 import static com.dbn.common.ui.util.ClientProperty.VISIBILITY_CONDITION;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.common.util.Unsafe.warned;
@@ -91,8 +91,8 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
     }
 
     @Override
-    public void initFieldsAccessibility(Condition condition, Filter<JComponent> filter) {
-        fields(filter).forEach(c -> ACCESSIBILITY_CONDITION.set(c, condition));
+    public void initFieldsAvailability(Condition condition, Filter<JComponent> filter) {
+        fields(filter).forEach(c -> AVAILABILITY_CONDITION.set(c, condition));
     }
 
     @Override
@@ -107,9 +107,9 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
     }
 
     @Override
-    public void updateFieldsAccessibility() {
+    public void updateFieldsAvailability() {
         for (JComponent component : fields) {
-            Condition condition = ACCESSIBILITY_CONDITION.get(component);
+            Condition condition = AVAILABILITY_CONDITION.get(component);
             if (condition == null) continue;
 
             boolean accessible = condition.check();

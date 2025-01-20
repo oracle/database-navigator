@@ -81,7 +81,6 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
         EditorTypeTable(DBNForm parent, List<DefaultEditorOption> options) {
             super(parent, new EditorTypeTableModel(options), true);
             setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            adjustRowHeight(3);
             setDefaultRenderer(DBObjectType.class, new DBNColoredTableCellRenderer() {
                 @Override
                 protected void customizeCellRenderer(DBNTable table, Object value, boolean selected, boolean hasFocus, int row, int column) {
@@ -92,7 +91,6 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
                     } else {
                         append("");
                     }
-                    setBorder(SELECTION_BORDER);
                 }
             });
 
@@ -101,7 +99,6 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
                 protected void customizeCellRenderer(DBNTable table, Object value, boolean selected, boolean hasFocus, int row, int column) {
                     DefaultEditorType editorType = (DefaultEditorType) value;
                     append(editorType.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                    setBorder(SELECTION_BORDER);
                 }
             });
 

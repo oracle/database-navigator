@@ -25,7 +25,6 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.CardLayouts;
 import com.dbn.common.ui.util.Borders;
-import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Messages;
@@ -75,6 +74,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Splitters.makeRegular;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.isNotEmpty;
@@ -105,14 +105,13 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         connectionsList = new JBList<>(connectionListModel);
         connectionsList.addListSelectionListener(this);
         connectionsList.setCellRenderer(new ConnectionConfigListCellRenderer());
-        connectionsList.setFont(Fonts.getLabelFont());
         connectionsList.setBackground(Colors.getTextFieldBackground());
         connectionsList.setBorder(Borders.EMPTY_BORDER);
         makeRegular(contentSplitPane);
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.ConnectionSettings", "", true);
-        JComponent component = actionToolbar.getComponent();
-        actionsPanel.add(component, BorderLayout.CENTER);
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.ConnectionSettings");
+        setAccessibleName(actionToolbar, txt("cfg.connections.aria.ConnectionConfigurationActions"));
+        actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
         connectionListScrollPane.setViewportView(connectionsList);
 
         List<ConnectionSettings> connections = configuration.getConnections();
@@ -340,7 +339,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             conditionallyLog(e);
             Messages.showErrorDialog(project,
                     txt("msg.connection.title.ExportFailed"),
-                    "msg.connection.error.ExportFailed", e);
+                    txt("msg.connection.error.ExportFailed"), e);
         }
     }
 

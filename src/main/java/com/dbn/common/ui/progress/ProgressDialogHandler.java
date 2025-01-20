@@ -60,6 +60,14 @@ public class ProgressDialogHandler {
         this.progressIndicator = progressIndicator;
     }
 
+    public String getText() {
+        return progressIndicator == null ? text : progressIndicator.getText();
+    }
+
+    public String getText2() {
+        return progressIndicator == null ? null : progressIndicator.getText2();
+    }
+
     public void trigger() {
         // delay the creation of the dialog 1 second to reduce number of prompts if background process finishes in acceptable time
         Timers.executeLater("ProgressDialogPrompt", 300, MILLISECONDS, () -> {
@@ -94,13 +102,14 @@ public class ProgressDialogHandler {
         builder.setProject(getProject());
         builder.setNormalWindowLevel(true);
         builder.setMovable(true);
-        builder.setResizable(true);
+        builder.setResizable(false);
         builder.setTitle(title);
         builder.setCancelOnClickOutside(false);
         builder.setRequestFocus(true);
         builder.setBelongsToGlobalPopupStack(false);
         builder.setMinSize(new JBDimension(300, 100));
         builder.setLocateWithinScreenBounds(false);
+        builder.setLocateByContent(true);
         return builder.createPopup();
     }
 

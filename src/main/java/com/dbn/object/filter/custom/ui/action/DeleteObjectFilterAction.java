@@ -23,6 +23,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DeleteObjectFilterAction extends BasicAction {
     private final ObjectFilterExpressionForm form;
 
@@ -33,7 +35,7 @@ public class DeleteObjectFilterAction extends BasicAction {
     @Override
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Remove Filter");
+        presentation.setText(txt("app.dataEditor.action.RemoveFilter"));
         presentation.setIcon(Icons.ACTION_DELETE);
     }
 

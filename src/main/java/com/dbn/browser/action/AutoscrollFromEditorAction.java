@@ -20,9 +20,12 @@ import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ToggleAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class AutoscrollFromEditorAction extends ToggleAction implements DumbAware {
 
@@ -48,7 +51,8 @@ public class AutoscrollFromEditorAction extends ToggleAction implements DumbAwar
     @Override
     public void update(@NotNull AnActionEvent e) {
         super.update(e);
-        e.getPresentation().setText("Autoscroll from Editor");
+        Presentation presentation = e.getPresentation();
+        presentation.setText(txt("app.browser.action.AutoscrollFromEditor"));
     }
 
 }

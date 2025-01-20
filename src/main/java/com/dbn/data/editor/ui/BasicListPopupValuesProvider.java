@@ -26,8 +26,8 @@ import java.util.List;
 public class BasicListPopupValuesProvider extends ListPopupValuesProviderBase {
     private List<String> values;
 
-    public BasicListPopupValuesProvider(String description, List<String> values) {
-        super(description);
+    public BasicListPopupValuesProvider(String name, List<String> values) {
+        super(name);
         this.values = values;
     }
 }

@@ -25,6 +25,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ClearFiltersAction extends AbstractSessionBrowserAction {
 
     @Override
@@ -44,7 +46,7 @@ public class ClearFiltersAction extends AbstractSessionBrowserAction {
     @Override
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Clear Filter");
+        presentation.setText(txt("app.sessions.action.ClearFilter"));
         presentation.setIcon(Icons.DATASET_FILTER_CLEAR);
 
         boolean enabled = false;

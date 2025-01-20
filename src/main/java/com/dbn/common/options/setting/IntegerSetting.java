@@ -19,11 +19,12 @@ package com.dbn.common.options.setting;
 import com.dbn.common.options.PersistentConfiguration;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 
 import javax.swing.JTextField;
 
 public class IntegerSetting extends Setting<Integer, JTextField> implements PersistentConfiguration {
-    public IntegerSetting(String name, Integer value) {
+    public IntegerSetting(@NonNls String name, Integer value) {
         super(name, value);
     }
     

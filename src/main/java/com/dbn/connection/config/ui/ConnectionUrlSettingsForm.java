@@ -33,7 +33,6 @@ import com.dbn.connection.config.file.ui.DatabaseFileSettingsForm;
 import com.dbn.connection.config.tns.TnsAdmin;
 import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsNamesParser;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBTextField;
@@ -58,6 +57,7 @@ import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.FileChoosers.addSingleFolderChooser;
 import static com.dbn.common.util.Strings.toLowerCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -93,11 +93,10 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
         updateTnsAdminField();
 
-        FileChooserDescriptor tnsFolderChooserDesc = new FileChooserDescriptor(false, true, false, false, false, false);
-        tnsFolderTextField.addBrowseFolderListener(
+        addSingleFolderChooser(
+                getProject(), tnsFolderTextField,
                 txt("cfg.connection.title.SelectWalletDirectory"),
-                txt("cfg.connection.text.ValidTnsNamesFolder"),
-                null, tnsFolderChooserDesc);
+                txt("cfg.connection.text.ValidTnsNamesFolder"));
 
         onTextChange(hostTextField, e -> updateUrlField());
         onTextChange(portTextField, e -> updateUrlField());

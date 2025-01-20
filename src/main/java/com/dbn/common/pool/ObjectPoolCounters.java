@@ -19,6 +19,7 @@ package com.dbn.common.pool;
 import com.dbn.common.count.Counter;
 import com.dbn.common.count.CounterType;
 import com.dbn.common.count.Counters;
+import org.jetbrains.annotations.NonNls;
 
 public class ObjectPoolCounters extends Counters {
     public Counter peak() {
@@ -41,6 +42,7 @@ public class ObjectPoolCounters extends Counters {
         return get(CounterType.CREATING);
     }
 
+    @NonNls
     @Override
     public String toString() {
         return

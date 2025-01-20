@@ -29,6 +29,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 import javax.swing.JList;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ConnectionsSortAction extends ProjectAction {
     private SortDirection currentSortDirection = SortDirection.ASCENDING;
     private final ConnectionBundleSettings connectionBundleSettings;
@@ -45,10 +47,10 @@ public class ConnectionsSortAction extends ProjectAction {
         String text;
         if (currentSortDirection != SortDirection.ASCENDING) {
             icon = Icons.ACTION_SORT_ASC;
-            text = "Sort Connections Ascending";
+            text = txt("app.connection.action.SortConnectionsAscending");
         } else {
             icon = Icons.ACTION_SORT_DESC;
-            text = "Sort Connections Descending";
+            text = txt("app.connection.action.SortConnectionsDescending");
         }
         Presentation presentation = e.getPresentation();
         presentation.setIcon(icon);

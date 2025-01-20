@@ -18,12 +18,13 @@ package com.dbn.database.mysql;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
-import com.dbn.common.util.Strings;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.CmdLineExecutionInput;
 import com.dbn.database.common.DatabaseExecutionInterfaceImpl;
+import com.dbn.database.common.execution.JavaExecutionProcessor;
 import com.dbn.database.common.execution.MethodExecutionProcessor;
 import com.dbn.execution.script.CmdLineInterface;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,39 +42,23 @@ public class MySqlExecutionInterface extends DatabaseExecutionInterfaceImpl {
     }
 
     @Override
+    public JavaExecutionProcessor createExecutionProcessor(DBJavaMethod method) {return null;}
+
+    @Override
     public CmdLineExecutionInput createScriptExecutionInput(
             @NotNull CmdLineInterface cmdLineInterface,
             @NotNull String filePath,
-            String content,
+            @NotNull String content,
             @Nullable SchemaId schemaId,
             @NotNull DatabaseInfo databaseInfo,
             @NotNull AuthenticationInfo authenticationInfo) {
 
-        CmdLineExecutionInput input = new CmdLineExecutionInput(content);
-
-        String executable = cmdLineInterface.getExecutablePath();
-        input.initCommand(executable);
-
-        input.addCommandArgument("-u", authenticationInfo.getUser());
-        input.addCommandArgument("-p"); // request password
-        input.addCommandArgument("--verbose");
-        input.addCommandArgument("-h", databaseInfo.getHost());
-
-        String port = databaseInfo.getPort();
-        if (Strings.isNotEmpty(port)) {
-            input.addCommandArgument("-P", databaseInfo.getPort());
-        }
-
-        String database = databaseInfo.getDatabase();
-        if (Strings.isNotEmpty(database)) {
-            input.addCommandArgument(database);
-        }
-
-        if (schemaId != null) {
-            input.addStatement("use " + schemaId + ";");
-        }
-        input.addStatement("source " + filePath + ";");
-        input.addStatement("exit");
-        return input;
+        return new MySqlScriptExecutionInput(
+                cmdLineInterface,
+                filePath,
+                content,
+                schemaId,
+                databaseInfo,
+                authenticationInfo);
     }
 }

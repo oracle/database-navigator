@@ -73,4 +73,6 @@ public class CodeGeneratorInputDialog extends DBNDialog<CodeGeneratorInputForm> 
     protected void doOKAction() {
         generateCode();
     }
+    
+    
 }

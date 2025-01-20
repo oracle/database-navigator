@@ -41,6 +41,7 @@ import java.util.Collection;
 import java.util.EventListener;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -67,7 +68,8 @@ public final class Nullifier {
             TreePath.class,
             EventListener.class,
             DBNComponent.class,
-            ScriptEngine.class
+            ScriptEngine.class,
+            Timer.class
     };
 
     public static void clearCollection(Collection<?> collection) {

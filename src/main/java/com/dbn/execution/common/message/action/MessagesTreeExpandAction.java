@@ -25,11 +25,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class MessagesTreeExpandAction extends AbstractExecutionMessagesAction {
+import static com.dbn.nls.NlsResources.txt;
 
-    public MessagesTreeExpandAction() {
-        super("Expand All", null, Icons.ACTION_EXPAND_ALL);
-    }
+public class MessagesTreeExpandAction extends AbstractExecutionMessagesAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull MessagesTree messagesTree) {
@@ -38,7 +36,7 @@ public class MessagesTreeExpandAction extends AbstractExecutionMessagesAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable MessagesTree target) {
-        presentation.setText("Expand All");
+        presentation.setText(txt("app.execution.action.ExpandAll"));
         presentation.setIcon(Icons.ACTION_EXPAND_ALL);
     }
 }

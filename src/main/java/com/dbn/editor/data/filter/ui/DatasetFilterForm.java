@@ -22,7 +22,6 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.CardLayouts;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.util.Actions;
 import com.dbn.editor.data.filter.DatasetFilter;
 import com.dbn.editor.data.filter.DatasetFilterGroup;
@@ -38,10 +37,12 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Map;
 
@@ -57,16 +58,13 @@ public class DatasetFilterForm extends ConfigurationEditorForm<DatasetFilterGrou
     public DatasetFilterForm(DatasetFilterGroup filterGroup, @NotNull DBDataset dataset) {
         super(filterGroup);
         filtersList.setModel(filterGroup);
-        filtersList.setFont(Fonts.getLabelFont());
         Project project = dataset.getProject();
 
         DBNHeaderForm headerForm = new DBNHeaderForm(this, dataset);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
         DatasetFilterList filters = getFilterList();
-        ActionToolbar actionToolbar = Actions.createActionToolbar(
-                actionsPanel,
-                "DBNavigator.DataEditor.FiltersList", true,
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
                 new CreateFilterAction(filters),
                 new DeleteFilterAction(filters),
                 new MoveFilterUpAction(filters),

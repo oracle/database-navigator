@@ -18,18 +18,21 @@ package com.dbn.database.oracle;
 
 import com.dbn.common.util.Strings;
 import com.dbn.database.interfaces.DatabaseEnvironmentInterface;
+import org.jetbrains.annotations.NonNls;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 
+import static com.dbn.common.util.Commons.nvl;
+
 public class OracleEnvironmentInterface implements DatabaseEnvironmentInterface {
-    public static final String CLOUD_DATABASE_PATTERN = ".+\\.ade\\..+\\.oraclecloud\\.com";
-    public static final List<String> cloudHostnames = Strings.tokenize(System.getProperty("cloud.hostnames"), ",");
+    public static final @NonNls String CLOUD_DATABASE_PATTERN = ".+\\.ade\\..+\\.oraclecloud\\.com";
+    public static final List<String> cloudHostnames = Strings.tokenize(nvl(System.getProperty("cloud.hostnames"), ""), ",");
 
 
     @Override
-    public boolean isCloudDatabase(String hostname) {
+    public boolean isCloudDatabase(@NonNls String hostname) {
         if (Strings.isEmptyOrSpaces(hostname)) return false;
         if (hostname.matches(CLOUD_DATABASE_PATTERN)) return true;
         if (cloudHostnames.contains(hostname)) return true;

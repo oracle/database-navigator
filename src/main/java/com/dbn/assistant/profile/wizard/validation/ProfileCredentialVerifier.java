@@ -40,7 +40,7 @@ public class ProfileCredentialVerifier extends InputVerifier {
     boolean isValid = comboBox.getSelectedItem() != null;
     if (!isValid) {
       comboBox.setBorder(ERROR_BORDER);
-      comboBox.setToolTipText(txt("profile.mgmt.general_step.credential_name.validation"));
+      comboBox.setToolTipText(txt("cfg.assistant.error.CredentialNameEmpty"));
     } else {
       comboBox.setBorder(DEFAULT_BORDER);
       comboBox.setToolTipText(null);

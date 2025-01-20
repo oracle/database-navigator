@@ -17,9 +17,10 @@
 package com.dbn.generator.code.java.impl;
 
 import com.dbn.generator.code.java.JavaCodeGeneratorResult;
+import com.intellij.openapi.vfs.VirtualFile;
 
 public class JdbcConnectorCodeGeneratorResult extends JavaCodeGeneratorResult<JdbcConnectorCodeGeneratorInput> {
-    public JdbcConnectorCodeGeneratorResult(JdbcConnectorCodeGeneratorInput input) {
-        super(input);
+    public JdbcConnectorCodeGeneratorResult(JdbcConnectorCodeGeneratorInput input, VirtualFile... files) {
+        super(input, files);
     }
 }

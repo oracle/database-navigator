@@ -29,6 +29,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SchemaSelectDropdownAction extends ComboBoxAction {
     MethodExecutionBrowserForm browserComponent;
 
@@ -53,7 +55,7 @@ public class SchemaSelectDropdownAction extends ComboBoxAction {
     @Override
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        String text = "Schema";
+        String text = txt("app.execution.action.Schema");
         Icon icon = null;
 
         DBSchema schema = browserComponent.getSettings().getSelectedSchema();

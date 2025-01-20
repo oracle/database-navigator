@@ -39,6 +39,7 @@ import com.dbn.connection.console.DatabaseConsoleBundle;
 import com.dbn.connection.info.ConnectionInfo;
 import com.dbn.connection.interceptor.DatabaseInterceptorBundle;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.connection.security.DatabaseIdentifierCache;
 import com.dbn.connection.session.DatabaseSession;
 import com.dbn.connection.session.DatabaseSessionBundle;
 import com.dbn.database.DatabaseCompatibility;
@@ -78,6 +79,7 @@ import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.common.util.TimeUtil.isOlderThan;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 @Slf4j
@@ -98,6 +100,7 @@ public class ConnectionHandlerImpl extends StatefulDisposableBase implements Con
     private final @Getter(lazy = true) DatabaseConsoleBundle consoleBundle = new DatabaseConsoleBundle(this);
     private final @Getter(lazy = true) DatabaseSessionBundle sessionBundle = new DatabaseSessionBundle(this);
     private final @Getter(lazy = true) DatabaseInterceptorBundle interceptorBundle = new DatabaseInterceptorBundle(this);
+    private final @Getter(lazy = true) DatabaseIdentifierCache identifierCache = new DatabaseIdentifierCache(this);
 
     private final Latent<DatabaseInterfaces> interfaces = Latent.mutable(
             () -> getDatabaseType(),

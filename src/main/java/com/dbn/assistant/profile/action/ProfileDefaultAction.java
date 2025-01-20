@@ -26,6 +26,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Profile management action - mark profile as default
  * (default profiles are used in the editor AI interactions)
@@ -48,7 +50,7 @@ public class ProfileDefaultAction extends ProfileManagementAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.ACTION_CHECK);
-        presentation.setText("Mark as Default");
+        presentation.setText(txt("app.assistant.action.MarkAsDefault"));
         presentation.setEnabled(isEnabled(e));
     }
 

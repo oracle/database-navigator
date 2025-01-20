@@ -26,6 +26,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class MethodExecutionStartAction extends AbstractMethodExecutionResultAction {
 
     @Override
@@ -46,12 +48,18 @@ public class MethodExecutionStartAction extends AbstractMethodExecutionResultAct
             @Nullable MethodExecutionResult target) {
 
 
-        boolean enabled = target != null &&
-                !target.getDebuggerType().isDebug() &&
-                target.getExecutionContext().isNot(ExecutionStatus.EXECUTING);
+        boolean enabled = isEnabled(target);
 
         presentation.setEnabled(enabled);
-        presentation.setText("Execute Again");
+        presentation.setText(txt("app.execution.action.ExecuteAgain"));
         presentation.setIcon(Icons.METHOD_EXECUTION_RERUN);
+    }
+
+    private static boolean isEnabled(@Nullable MethodExecutionResult target) {
+        if (target == null) return false;
+        if (target.getDebuggerType().isDebug()) return false;
+        if (target.getExecutionContext().is(ExecutionStatus.EXECUTING)) return false;
+
+        return true;
     }
 }

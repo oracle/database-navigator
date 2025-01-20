@@ -31,6 +31,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @BackgroundUpdate
 public class ConnectionSelectAction extends ProjectAction {
     private final ConnectionHandler connection;
@@ -38,7 +40,7 @@ public class ConnectionSelectAction extends ProjectAction {
     ConnectionSelectAction(ConnectionHandler connection) {
         super();
         Presentation presentation = getTemplatePresentation();
-        presentation.setText(connection == null ? "No Connection" : connection.getName(), false);
+        presentation.setText(connection == null ? txt("app.codeEditor.action.NoConnection") : connection.getName(), false);
         presentation.setIcon(connection == null ? Icons.SPACE : connection.getIcon());
         this.connection = connection;
     }

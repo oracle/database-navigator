@@ -23,6 +23,7 @@ import com.dbn.generator.statement.StatementGeneratorResult;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,9 +31,10 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.SQLException;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class GenerateDDLStatementAction extends GenerateStatementAction {
-    private final DBObjectRef object;
+    private final DBObjectRef<?> object;
 
     GenerateDDLStatementAction(DBObject object) {
         this.object = DBObjectRef.of(object);
@@ -40,7 +42,8 @@ public class GenerateDDLStatementAction extends GenerateStatementAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        e.getPresentation().setText("DDL Statement");
+        Presentation presentation = e.getPresentation();
+        presentation.setText(txt("app.codeGenerator.action.DdlStatement"));
     }
 
     @Nullable

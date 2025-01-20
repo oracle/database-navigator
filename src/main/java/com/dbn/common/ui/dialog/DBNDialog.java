@@ -30,6 +30,7 @@ import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.ValidationInfo;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -42,8 +43,10 @@ import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
 
 import static com.dbn.common.util.Classes.simpleClassName;
+import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.common.util.Unsafe.cast;
 
 public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper implements DBNComponent, NlsSupport {
@@ -54,7 +57,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     private @Getter boolean rememberSelection;
     private @Getter Dimension defaultSize;
 
-    protected DBNDialog(Project project, String title, boolean canBeParent) {
+    protected DBNDialog(@Nullable Project project, String title, boolean canBeParent) {
         super(project, canBeParent);
         this.project = ProjectRef.of(project);
         setTitle(Titles.signed(title));
@@ -69,6 +72,33 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
                 (int) defaultSize.getHeight());
         }
         super.init();
+    }
+
+    /**
+     * Validates the input provided in the specified component and updates the validation state
+     * of the form. This method also determines whether the main action button should be enabled
+     * based on the overall validation results.
+     *
+     * @param component the UI component to validate; typically a part of the dialog form
+     */
+    public void validateInput(JComponent component) {
+        F form = getForm();
+        List<ValidationInfo> validationInfos = form.validate(component);
+
+        setErrorInfoAll(validationInfos);
+
+        // do validation for all fields to decide whether to enable main button
+        validationInfos = form.validate();
+        setOKActionEnabled(validationInfos.isEmpty());
+    }
+
+
+    @Nullable
+    @Override
+    protected ValidationInfo doValidate() {
+        F form = getForm();
+        List<ValidationInfo> validationInfos = form.validate();
+        return firstElement(validationInfos);
     }
 
     public void setDialogCallback(@Nullable Dialogs.DialogCallback<?> callback) {
@@ -102,7 +132,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     }
 
     @Override
-    public final void show() {
+    public void show() {
         super.show();
         listeners.notify(l -> l.onAction(DBNDialogListener.Action.OPEN));
     }

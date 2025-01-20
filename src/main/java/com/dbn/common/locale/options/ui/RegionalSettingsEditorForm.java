@@ -48,6 +48,7 @@ import java.awt.event.ItemListener;
 import java.util.Date;
 import java.util.Locale;
 
+import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -95,8 +96,8 @@ public class RegionalSettingsEditorForm extends ConfigurationEditorForm<Regional
         resetFormChanges();
         updatePreview();
 
-        Font labelFont = Fonts.getEditorFont();
-        Font previewFont = Fonts.deriveFont(labelFont, (float) (labelFont.getSize() * 1.2));
+        Font font = Fonts.editor();
+        Font previewFont = Fonts.deriveFont(font, (float) (font.getSize() * 1.2));
         numberPreviewLabel.setFont(previewFont);
         integerPreviewLabel.setFont(previewFont);
         datePreviewLabel.setFont(previewFont);
@@ -106,6 +107,13 @@ public class RegionalSettingsEditorForm extends ConfigurationEditorForm<Regional
         dateFormatComboBox.addListener(previewListener);
         localeComboBox.addListener(previewListener);
         registerComponent(mainPanel);
+    }
+
+    @Override
+    protected void initAccessibility() {
+        // mark the radio buttons as component group qualifiers
+        COMPONENT_GROUP_QUALIFIER.set(presetPatternsRadioButton, true);
+        COMPONENT_GROUP_QUALIFIER.set(customPatternsRadioButton, true);
     }
 
     @Override

@@ -19,7 +19,9 @@ package com.dbn.object.filter.custom;
 import com.dbn.code.common.lookup.CodeCompletionLookupItem;
 import com.intellij.codeInsight.lookup.LookupItem;
 import lombok.Value;
+import org.jetbrains.annotations.NonNls;
 
+@NonNls
 @Value
 public class ObjectFilterAttribute {
     private final Class type;

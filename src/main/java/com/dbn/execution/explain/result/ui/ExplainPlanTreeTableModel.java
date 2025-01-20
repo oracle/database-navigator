@@ -23,6 +23,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.treetable.TreeTableModel;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 import javax.swing.JTree;
 import javax.swing.event.TreeModelListener;
@@ -166,7 +167,7 @@ public class ExplainPlanTreeTableModel implements TreeTableModel, Disposable {
 
         public abstract Object getValue(ExplainPlanEntry entry);
 
-        public static Column create(String name, Class<?> clazz, boolean large, Function<ExplainPlanEntry, Object> valueProvider) {
+        public static Column create(@NonNls String name, Class<?> clazz, boolean large, Function<ExplainPlanEntry, Object> valueProvider) {
             return new Column(name, clazz, large) {
                 @Override
                 public Object getValue(ExplainPlanEntry entry) {

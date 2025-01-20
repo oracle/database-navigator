@@ -36,6 +36,7 @@ import static com.dbn.assistant.editor.AssistantPrompt.Flavor.COMMENT;
 import static com.dbn.common.util.Editors.isMainEditor;
 import static com.dbn.common.util.Files.isDbLanguagePsiFile;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SelectSchemaIntentionAction extends EditorIntentionAction  {
     @Override
@@ -46,7 +47,7 @@ public class SelectSchemaIntentionAction extends EditorIntentionAction  {
     @Override
     @NotNull
     public String getText() {
-        return "Set current schema";
+        return txt("app.codeEditor.action.SetCurrentSchema");
     }
 
     @Override

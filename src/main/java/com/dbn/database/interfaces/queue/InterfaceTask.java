@@ -25,6 +25,7 @@ import com.dbn.common.util.TimeAware;
 import lombok.Getter;
 import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.SQLException;
 import java.util.Comparator;
@@ -111,7 +112,7 @@ class InterfaceTask<R> implements TimeAware {
         return true;
     }
 
-    private static boolean handleIllegalCallingThread(String identifier) {
+    private static boolean handleIllegalCallingThread(@NonNls String identifier) {
         log.error("Database interface access is not allowed from {}: ThreadInfo {}", identifier,
                 ThreadInfo.copy(),
                 new RuntimeException("Illegal database interface invocation"));

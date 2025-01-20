@@ -26,10 +26,12 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class TransactionCommitAction extends AbstractConnectionAction {
 
     public TransactionCommitAction(ConnectionHandler connection) {
-        super("Commit", "Commit connection", Icons.CONNECTION_COMMIT, connection);
+        super(connection);
 
     }
 
@@ -46,5 +48,7 @@ public class TransactionCommitAction extends AbstractConnectionAction {
 
         presentation.setEnabled(enabled);
         presentation.setVisible(visible);
+        presentation.setText(txt("app.connection.action.Commit"));
+        presentation.setIcon(Icons.CONNECTION_COMMIT);
     }
 }

@@ -49,6 +49,8 @@ package com.dbn.editor.data.ui.table.cell;
  import java.awt.event.MouseEvent;
  import java.util.Objects;
 
+ import static com.dbn.nls.NlsResources.txt;
+
  public class DatasetTableCellEditor extends AbstractDatasetTableCellEditor implements KeyListener{
     private static final Border ERROR_BORDER = new LineBorder(JBColor.RED, 1);
     private static final Border POPUP_BORDER = new LineBorder(JBColor.BLUE, 1);
@@ -223,8 +225,8 @@ package com.dbn.editor.data.ui.table.cell;
                         DBColumn column = cell.getColumn();
 
                         Progress.prompt(getProject(), dataset, true,
-                                "Opening record",
-                                "Opening record details for " + column.getQualifiedNameWithType(),
+                                txt("prc.dataEditor.title.OpeningRecord"),
+                                txt("prc.dataEditor.text.OpeningRecordFor",column.getQualifiedNameWithType()),
                                 progress -> {
                                     DatasetFilterInput filterInput = table.getModel().resolveForeignKeyRecord(cell);
                                     if (filterInput != null) {

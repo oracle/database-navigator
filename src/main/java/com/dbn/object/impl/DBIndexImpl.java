@@ -79,8 +79,8 @@ class DBIndexImpl extends DBSchemaObjectImpl<DBIndexMetadata> implements DBIndex
 
     @NotNull
     @Override
-    public String getQualifiedName() {
-        return getSchemaName() + '.' + getName();
+    public String getQualifiedName(boolean quoted) {
+        return getSchemaName(quoted) + '.' + getName(quoted);
     }
 
     @Override

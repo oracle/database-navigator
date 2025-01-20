@@ -40,7 +40,7 @@ public abstract class SortableTable<T extends SortableDataModel<?, ?>> extends B
 
         setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         setCellSelectionEnabled(true);
-        accommodateColumnsSize();
+        adjustColumnWidths();
         if (enableSpeedSearch) {
             new BasicTableSpeedSearch(this);
         }

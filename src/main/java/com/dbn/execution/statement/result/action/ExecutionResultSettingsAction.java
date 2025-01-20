@@ -26,6 +26,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ExecutionResultSettingsAction extends AbstractExecutionResultAction {
 
     @Override
@@ -36,7 +38,7 @@ public class ExecutionResultSettingsAction extends AbstractExecutionResultAction
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable StatementExecutionCursorResult target) {
-        presentation.setText("Settings");
+        presentation.setText(txt("app.execution.action.Settings"));
         presentation.setIcon(Icons.EXEC_RESULT_OPTIONS);
     }
 }

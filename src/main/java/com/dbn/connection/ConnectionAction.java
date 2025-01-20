@@ -24,6 +24,7 @@ import com.dbn.common.thread.ThreadMonitor;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.connection.context.DatabaseContextBase;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
@@ -35,16 +36,16 @@ import static com.dbn.nls.NlsResources.txt;
 
 public abstract class ConnectionAction implements DatabaseContextBase {
     static final String[] OPTIONS_CONNECT_CANCEL = options(
-            txt("app.shared.button.Connect"),
-            txt("app.shared.button.Cancel"));
+            txt("msg.shared.button.Connect"),
+            txt("msg.shared.button.Cancel"));
 
-    private final String description;
+    private final String title;
     private final boolean interactive;
     private final DatabaseContext context;
     private boolean cancelled;
 
-    private ConnectionAction(String description, boolean interactive, DatabaseContext context) {
-        this.description = description;
+    private ConnectionAction(@DialogTitle String title, boolean interactive, DatabaseContext context) {
+        this.title = title;
         this.interactive = interactive;
         this.context = context;
     }
@@ -135,7 +136,7 @@ public abstract class ConnectionAction implements DatabaseContextBase {
         ConnectionManager connectionManager = getConnectionManager(connection);
         connectionManager.promptConnectDialog(
                 connection,
-                description,
+                title,
                 option -> {
                     if (option == 0) {
                         connection.getInstructions().setAllowAutoConnect(true);
@@ -158,11 +159,11 @@ public abstract class ConnectionAction implements DatabaseContextBase {
     }
 
     public static void invoke(
-            String description,
+            @DialogTitle String title,
             boolean interactive,
             DatabaseContext databaseContext,
             Consumer<ConnectionAction> action) {
-        new ConnectionAction(description, interactive, databaseContext) {
+        new ConnectionAction(title, interactive, databaseContext) {
             @Override
             public void execute() {
                 ThreadMonitor.surround(ThreadInfo.copy(), null,
@@ -173,14 +174,14 @@ public abstract class ConnectionAction implements DatabaseContextBase {
     }
 
     public static void invoke(
-            String description,
+            @DialogTitle String title,
             boolean interactive,
             DatabaseContext databaseContext,
             Consumer<ConnectionAction> action,
             Consumer<ConnectionAction> cancel,
             Predicate<ConnectionAction> canExecute) {
 
-        new ConnectionAction(description, interactive, databaseContext) {
+        new ConnectionAction(title, interactive, databaseContext) {
             @Override
             public void execute() {
                 if (canExecute == null || canExecute.test(this)) {
