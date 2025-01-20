@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.dbn.oci.ui.ConnectionConfigForm">
+  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="14" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="0" left="0" bottom="0" right="0"/>
+    <constraints>
+      <xy x="20" y="20" width="904" height="854"/>
+    </constraints>
+    <properties>
+      <alignmentX value="0.0"/>
+      <alignmentY value="0.0"/>
+    </properties>
+    <border type="none"/>
+    <children>
+      <component id="62466" class="javax.swing.JLabel" binding="authenticationLabel">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="TLS type"/>
+          <verticalAlignment value="0"/>
+          <verticalTextPosition value="0"/>
+        </properties>
+      </component>
+      <component id="e88c1" class="javax.swing.JLabel" binding="walletTypeLabel">
+        <constraints>
+          <grid row="1" column="0" row-span="4" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Wallet type"/>
+        </properties>
+      </component>
+      <component id="f95e7" class="com.intellij.openapi.ui.ComboBox" binding="walletTypeComboBox">
+        <constraints>
+          <grid row="2" column="1" row-span="2" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <model/>
+        </properties>
+      </component>
+      <component id="3f5c0" class="javax.swing.JCheckBox" binding="isSpecifyPasswordCheckbox">
+        <constraints>
+          <grid row="10" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Specify password to download credentials ?"/>
+          <visible value="false"/>
+        </properties>
+      </component>
+      <component id="2dcae" class="javax.swing.JLabel" binding="passwordLabel">
+        <constraints>
+          <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Password"/>
+          <visible value="false"/>
+        </properties>
+      </component>
+      <component id="920cb" class="com.intellij.ui.components.JBPasswordField" binding="passwordTextField">
+        <constraints>
+          <grid row="11" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <visible value="false"/>
+        </properties>
+      </component>
+      <component id="fe7cc" class="javax.swing.JLabel" binding="confirmPasswordLabel">
+        <constraints>
+          <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Confirm Password"/>
+          <visible value="false"/>
+        </properties>
+      </component>
+      <component id="60d23" class="com.intellij.ui.components.JBPasswordField" binding="passwordConfirmTextField">
+        <constraints>
+          <grid row="12" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <visible value="false"/>
+        </properties>
+      </component>
+      <vspacer id="4e761">
+        <constraints>
+          <grid row="13" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </vspacer>
+      <component id="2ad24" class="javax.swing.JLabel" binding="walletLocationHelper">
+        <constraints>
+          <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="1" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <alignmentY value="0.0"/>
+          <font size="12"/>
+          <foreground color="-8092281"/>
+          <horizontalAlignment value="2"/>
+          <inheritsPopupMenu value="true"/>
+          <text value="Specify an empty folder to make the plugin download a new wallet"/>
+          <verticalAlignment value="3"/>
+          <verticalTextPosition value="3"/>
+        </properties>
+      </component>
+      <component id="51cfb" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="walletLocationField">
+        <constraints>
+          <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="300" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <enabled value="true"/>
+        </properties>
+      </component>
+      <component id="41f76" class="javax.swing.JLabel" binding="walletLocationLabel">
+        <constraints>
+          <grid row="5" column="0" row-span="5" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Wallet Location"/>
+        </properties>
+      </component>
+      <component id="30dfd" class="com.intellij.openapi.ui.ComboBox" binding="authenticationTypeComboBox">
+        <constraints>
+          <grid row="0" column="1" row-span="2" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <model/>
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>
