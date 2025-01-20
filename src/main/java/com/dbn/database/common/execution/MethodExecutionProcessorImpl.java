@@ -16,6 +16,7 @@
 
 package com.dbn.database.common.execution;
 
+import com.dbn.common.compatibility.Exploitable;
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.thread.CancellableDatabaseCall;
 import com.dbn.common.util.Strings;
@@ -138,6 +139,7 @@ public abstract class MethodExecutionProcessorImpl implements MethodExecutionPro
         }
     }
 
+    @Exploitable
     private void initCommand(MethodExecutionContext context) throws SQLException {
         MethodExecutionInput executionInput = context.getInput();
         String command = buildExecutionCommand(executionInput);

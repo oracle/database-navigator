@@ -659,7 +659,7 @@
 
     <statement-execution-processor id="object-change-timestamp" is-query="true" is-prepared-statement="true">
         <statement>
-            select MODIFIED
+            select unix_timestamp(MODIFIED) * 1000 as MODIFIED
             from mysql.proc
             where
                 DB = {0} and
@@ -667,7 +667,7 @@
                 TYPE = {2}
         </statement>
         <statement>
-            select TIMESTAMP AS MODIFIED
+            select unix_timestamp(TIMESTAMP) * 1000 as MODIFIED
             from mysql.procs_priv
             where
                 DB = {0} and

@@ -17,8 +17,7 @@
 package com.dbn.common.component;
 
 import com.dbn.common.project.ProjectContext;
-import com.dbn.common.thread.ThreadMonitor;
-import com.dbn.common.util.Unsafe;
+import com.dbn.common.thread.ThreadPropertyGate;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.project.Project;
 import org.jdom.Element;
@@ -27,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.thread.ThreadProperty.COMPONENT_STATE;
+import static com.dbn.common.util.Unsafe.warned;
 
 public interface PersistentState extends PersistentStateComponent<Element> {
     @Nullable
@@ -36,19 +36,15 @@ public interface PersistentState extends PersistentStateComponent<Element> {
 
     @Override
     @Nullable
+    @ThreadPropertyGate(COMPONENT_STATE)
     default Element getState() {
-        return ProjectContext.surround(getProject(),
-                () -> ThreadMonitor.surround(COMPONENT_STATE,
-                        () -> Unsafe.warned(null,
-                                () -> getComponentState())));
+        return ProjectContext.surround(getProject(), () -> warned(null, () -> getComponentState()));
     }
 
     @Override
+    @ThreadPropertyGate(COMPONENT_STATE)
     default void loadState(@NotNull Element state) {
-        ProjectContext.surround(getProject(),
-                () -> ThreadMonitor.surround(COMPONENT_STATE,
-                        () -> Unsafe.warned(
-                                () -> loadComponentState(state))));
+        ProjectContext.surround(getProject(), () -> warned(() -> loadComponentState(state)));
     }
 
     @NonNls

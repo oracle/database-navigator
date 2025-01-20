@@ -16,6 +16,7 @@
 
 package com.dbn.database.common.statement;
 
+import com.dbn.common.compatibility.Exploitable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Compactables;
 import com.dbn.common.util.Strings;
@@ -231,6 +232,7 @@ public class StatementExecutionProcessor {
         }
     }
 
+    @Exploitable
     private <T extends CallableStatementOutput> T executeCall(
             @NotNull StatementDefinition definition,
             @NotNull StatementExecutorContext context,

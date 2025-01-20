@@ -143,7 +143,6 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
             if (isChangeMonitoringSupported()) {
                 latestTimestamp = sourceCodeManager.loadChangeTimestamp(object, contentType);
                 checkSources = databaseTimestamp.isOlderThan(latestTimestamp);
-                databaseTimestamp = latestTimestamp;
             }
 
             databaseTimestamp = latestTimestamp;

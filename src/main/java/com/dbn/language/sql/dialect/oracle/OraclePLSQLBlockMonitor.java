@@ -17,10 +17,12 @@
 package com.dbn.language.sql.dialect.oracle;
 
 import com.dbn.language.common.lexer.DBLanguageCompoundLexer;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Deque;
 import java.util.LinkedList;
 
+@Slf4j
 public final class OraclePLSQLBlockMonitor {
     public enum Marker {
         CASE,
@@ -33,7 +35,7 @@ public final class OraclePLSQLBlockMonitor {
     private final Deque<Marker> stack = new LinkedList<>();
     private final int initialState;
     private final int psqlBlockState;
-    private boolean log = false;
+    private boolean debugMode = false;
 
     private int blockStart;
 
@@ -44,12 +46,11 @@ public final class OraclePLSQLBlockMonitor {
     }
 
     public void ignore() {
-        if (log) System.out.println("ignore:    " + lexer.getCurrentToken());
+        log("ignore:    ");
     }
 
-
     public void start(Marker marker) {
-        if (log) System.out.println("start:     " + lexer.getCurrentToken());
+        log("start:     ");
         if (!stack.isEmpty()) {
             stack.clear();
         }
@@ -61,16 +62,16 @@ public final class OraclePLSQLBlockMonitor {
     }
 
     public void mark(Marker marker) {
-        if (log) System.out.println("mark:      " + lexer.getCurrentToken());
+        log("mark:      ");
         stack.push(marker);
     }
 
     public boolean end(boolean force) {
         if (force) {
-            if (log) System.out.println("end force: " + lexer.getCurrentToken());
+            log("end force: ");
             stack.clear();
         } else {
-            if (log) System.out.println("end:       " + lexer.getCurrentToken());
+            log("end:       ");
             Marker marker = stack.poll();
             if (marker == Marker.BEGIN) {
                 if (!stack.isEmpty()) {
@@ -104,9 +105,12 @@ public final class OraclePLSQLBlockMonitor {
         return blockStart < lexer.getCurrentPosition();
     }
 
-
     public void reset() {
         stack.clear();
+    }
+
+    private void log(String step) {
+        if (debugMode) log.info("[BLOCK-MONITOR] {}{}", step, lexer.getCurrentToken());
     }
 
 }

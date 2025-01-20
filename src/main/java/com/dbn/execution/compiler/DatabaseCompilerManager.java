@@ -131,7 +131,9 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
     }
 
     private void updateFilesContentState(DBSchemaObject object, DBContentType contentType) {
-        Background.run(() -> {
+        Progress.background(getProject(), object, false,
+                "Refreshing file state",
+                "Refreshing " + contentType.getDescription() + " of " + object.getQualifiedNameWithType(), p -> {
             DBEditableObjectVirtualFile databaseFile = object.getCachedVirtualFile();
             if (databaseFile != null && databaseFile.isContentLoaded()) {
                 if (contentType.isBundle()) {

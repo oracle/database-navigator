@@ -552,8 +552,10 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                                 objectName,
                                 contentQualifier,
                                 conn);
+                        if (!resultSet.next()) return null;
 
-                        return resultSet.next() ? resultSet.getTimestamp(1) : null;
+                        long time = resultSet.getLong(1);
+                        return new Timestamp(time);
                     } finally {
                         Resources.close(resultSet);
                     }

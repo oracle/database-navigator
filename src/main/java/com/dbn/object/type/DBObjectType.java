@@ -471,7 +471,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
                 return objectType;
             }
         }
-        System.out.println("ERROR - [UNKNOWN] undefined object type: " + typeId);
+        log.warn("DBN - [UNKNOWN] undefined object type: {}", typeId);
         return UNKNOWN;
     }
 
@@ -497,7 +497,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
                     return objectType;
                 }
             }
-            System.out.println("ERROR - [UNKNOWN] undefined object type: " + name);
+            log.warn("DBN - [UNKNOWN] undefined object type: {}", name);
             return UNKNOWN;
         }
     }

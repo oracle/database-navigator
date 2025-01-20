@@ -24,7 +24,7 @@
     <depends optional="true" config-file="dbn-java-support.xml">com.intellij.modules.java</depends>
     <depends optional="true" config-file="dbn-debugger-support.xml">com.intellij.modules.xdebugger</depends>
     <depends optional="true" config-file="dbn-copyright-support.xml">com.intellij.copyright</depends>
-    <depends optional="true">com.oracle.ocidbtest</depends>
+    <depends optional="true" config-file="dbn-oci-toolkit-support.xml">com.oracle.ocidbtest</depends>
 
     <vendor email="dancioca@bluewin.ch">Dan Cioca</vendor>
     <idea-version since-build="231.4840.387" until-build="243.*"/>
@@ -764,10 +764,6 @@
         </intentionAction>
 
         <fileDocumentManagerListener implementation="com.dbn.connection.console.DatabaseConsoleFileInitializer"/>
-
-    </extensions>
-    <extensions defaultExtensionNs="com.oracle.ocidbtest">
-        <contributeADBAction implementation="com.dbn.oci.ContributeADBActionsImpl" />
 
     </extensions>
     <helpset file="help.jar" path="/Help.hs"/>

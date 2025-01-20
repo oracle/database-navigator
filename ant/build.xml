@@ -49,6 +49,7 @@
         <include name="**/?*.dtd"/>
         <include name="**/?*.tld"/>
         <include name="**/?*.txt"/>
+        <include name="**/?*.ft"/>
     </patternset>
     <patternset id="svg.resources">
         <include name="**/?*.svg"/>
