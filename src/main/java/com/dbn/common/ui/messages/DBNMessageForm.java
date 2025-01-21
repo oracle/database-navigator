@@ -119,7 +119,7 @@ public class DBNMessageForm extends DBNFormBase {
         return mainPanel;
     }
 
-    private static class DragHelper extends MouseDragHelper<JPanel> {
+    private static class DragHelper extends MouseDragHelper {
         private final DBNMessageDialog dialog;
         private Point location;
 
