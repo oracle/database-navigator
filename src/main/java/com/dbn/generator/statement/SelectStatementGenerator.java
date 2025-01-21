@@ -114,7 +114,7 @@ public class SelectStatementGenerator extends StatementGenerator {
                 statement.append(aliases.getAlias(dataset));
                 statement.append(".");
             }
-            statement.append(oco.format(column.getQuotedName(false)));
+            statement.append(oco.format(column.getName(true)));
             if (columnIterator.hasNext()) {
                 statement.append(",");
             }
@@ -127,7 +127,7 @@ public class SelectStatementGenerator extends StatementGenerator {
             DBDataset dataset = datasetIterator.next();
 
             statement.append("    ");
-            statement.append(oco.format(dataset.getQuotedName(false)));
+            statement.append(oco.format(dataset.getName(true)));
             if (useAliases) {
                 statement.append(" ");
                 statement.append(aliases.getAlias(dataset));
@@ -156,14 +156,14 @@ public class SelectStatementGenerator extends StatementGenerator {
                             statement.append(aliases.getAlias(column1.getDataset()));
                             statement.append(".");
                         }
-                        statement.append(oco.format(column1.getQuotedName(false)));
+                        statement.append(oco.format(column1.getName(true)));
                         statement.append(" = ");
 
                         if (useAliases) {
                             statement.append(aliases.getAlias(column2.getDataset()));
                             statement.append(".");
                         }
-                        statement.append(oco.format(column2.getQuotedName(false)));
+                        statement.append(oco.format(column2.getName(true)));
                         if (joinIterator.hasNext() || joinColumnIterator.hasNext()) {
                             statement.append(kco.format(" and\n"));
                         }

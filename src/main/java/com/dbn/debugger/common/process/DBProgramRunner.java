@@ -60,6 +60,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.notification.NotificationGroup.DEBUGGER;
 import static com.dbn.common.util.Conditional.when;
@@ -97,10 +98,10 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
         ConnectionHandler connection = runProfile.getConnection();
         if (connection == null) return null;
 
-        ConnectionAction.invoke("the debug execution", false, connection,
+        ConnectionAction.invoke(txt("msg.debugger.title.DebugExecution"), false, connection,
                 action -> Progress.prompt(project, connection, true,
-                        "Checking debug privileges",
-                        "Checking debug privileges for user \"" + connection.getUserName() + "\"",
+                        txt("prc.debugger.title.CheckingPrivileges"),
+                        txt("prc.debugger.text.CheckingPrivileges",connection.getUserName()),
                         progress -> performPrivilegeCheck(
                                 project,
                                 cast(runProfile.getExecutionInput()),
@@ -110,7 +111,7 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
                 action -> {
                     DatabaseDebuggerManager databaseDebuggerManager = DatabaseDebuggerManager.getInstance(project);
                     return databaseDebuggerManager.checkForbiddenOperation(connection,
-                            "Another debug session is active on this connection. You can only run one debug session at the time.");
+                            txt("msg.debugger.error.ActiveDebuggerSession"));
                 });
         return null;
     }
@@ -133,17 +134,15 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
                     environment,
                     callback);
         } else {
-            StringBuilder buffer = new StringBuilder();
-            buffer.append("The current user (").append(connection.getUserName()).append(") does not have sufficient privileges to perform debug operations on this database.\n");
-            buffer.append("Please contact your administrator to grant the required privileges. ");
-            buffer.append("Missing privileges:\n");
-            for (String missingPrivilege : missingPrivileges) {
-                buffer.append(" - ").append(missingPrivilege).append("\n");
-            }
+            String privilegeList = missingPrivileges.stream().map(p -> " - " + p + "\n").collect(Collectors.joining());
 
             showWarningDialog(
-                    project, "Insufficient privileges", buffer.toString(),
-                    options("Continue anyway", "Cancel"), 0,
+                    project,
+                    txt("msg.debugger.title.InsufficientPrivileges"),
+                    txt("msg.debugger.error.InsufficientPrivileges", connection.getUserName(), privilegeList),
+                    options(
+                        txt("msg.debugger.button.ContinueAnyway"),
+                        txt("msg.shared.button.Cancel")), 0,
                     option -> when(option == 0, () ->
                             performInitialization(
                                     connection,
@@ -164,8 +163,8 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
 
         Project project = connection.getProject();
         Progress.prompt(project, connection, true,
-                "Initializing debug environment",
-                "Loading method dependencies",
+                txt("prc.debugger.title.InitializingEnvironment"),
+                txt("prc.debugger.text.LoadingMethodDependencies"),
                 progress -> {
                     if (progress.isCanceled()) return;
                     DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(project);
@@ -209,15 +208,15 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
 
             if (selectedDependencies.length > 0) {
                 Progress.prompt(project, connection, true,
-                        "Compiling dependencies",
-                        "Compiling dependencies for program execution",
+                        txt("prc.debugger.title.CompilingDependencies"),
+                        txt("prc.debugger.text.CompilingDependencies"),
                         progress -> {
                     DatabaseCompilerManager compilerManager = DatabaseCompilerManager.getInstance(project);
                     for (DBObjectRef<DBSchemaObject> objectRef : selectedDependencies) {
                         DBSchemaObject schemaObject = objectRef.ensure();
                         progress.checkCanceled();
 
-                        progress.setText2("Compiling " + objectRef.getQualifiedNameWithType());
+                        progress.setText2(txt("prc.debugger.text.CompilingDependency", objectRef.getQualifiedNameWithType()));
                         DBContentType contentType = schemaObject.getContentType();
                         CompilerAction compilerAction = new CompilerAction(CompilerActionSource.BULK_COMPILE, contentType);
                         compilerManager.compileObject(schemaObject, CompileType.DEBUG, compilerAction);

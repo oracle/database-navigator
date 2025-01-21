@@ -18,14 +18,13 @@ package com.dbn.common.notification;
 
 import com.dbn.common.project.ProjectSupplier;
 import com.dbn.common.util.Titles;
-import com.dbn.nls.NlsSupport;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
-public interface NotificationSupport extends ProjectSupplier, NlsSupport {
+public interface NotificationSupport extends ProjectSupplier {
 
     default void sendNotification(NotificationType type, NotificationGroup group, String message) {
         sendNotification(getProject(), type, group, message);

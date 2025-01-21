@@ -62,6 +62,9 @@ public interface DBObject extends
     String getName();
 
     @NotNull
+    String getName(boolean quoted);
+
+    @NotNull
     @Override
     ConnectionId getConnectionId();
 
@@ -72,7 +75,6 @@ public interface DBObject extends
 
     DBLanguageDialect getLanguageDialect(DBLanguage language);
 
-    String getQuotedName(boolean quoteAlways);
     boolean needsNameQuoting();
     String getQualifiedNameWithType();
     String getNavigationTooltipText();

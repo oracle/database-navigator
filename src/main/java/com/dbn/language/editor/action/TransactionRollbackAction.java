@@ -25,6 +25,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class TransactionRollbackAction extends TransactionEditorAction {
 
     @Override
@@ -32,8 +34,8 @@ public class TransactionRollbackAction extends TransactionEditorAction {
         super.update(e, project);
 
         Presentation presentation = e.getPresentation();
-        presentation.setText("Rollback");
-        presentation.setDescription("Rollback changes");
+        presentation.setText(txt("app.codeEditor.action.Rollback"));
+        presentation.setDescription(txt("app.codeEditor.tooltip.RollbackChanges"));
         presentation.setIcon(Icons.CONNECTION_ROLLBACK);
     }
 

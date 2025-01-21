@@ -19,6 +19,7 @@ package com.dbn.database;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.jetbrains.annotations.NonNls;
 
 @Getter
 @Setter
@@ -35,6 +36,7 @@ public class DatabaseMessage {
         this.details = details;
     }
 
+    @NonNls
     private String buildTooltip() {
         if (details == null) return null;
         return "<html><div style='white-space:nowrap'>" + details.replaceAll("\n", "<br>") + "</div></html>";

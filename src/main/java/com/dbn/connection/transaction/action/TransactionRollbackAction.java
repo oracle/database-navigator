@@ -26,11 +26,12 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class TransactionRollbackAction extends AbstractConnectionAction {
 
     public TransactionRollbackAction(ConnectionHandler connection) {
-        super("Rollback", "Rollback connection", Icons.CONNECTION_ROLLBACK, connection);
-
+        super(connection);
     }
 
     @Override
@@ -46,5 +47,7 @@ public class TransactionRollbackAction extends AbstractConnectionAction {
 
         presentation.setEnabled(enabled);
         presentation.setVisible(visible);
+        presentation.setText(txt("app.connection.action.Rollback"));
+        presentation.setIcon(Icons.CONNECTION_ROLLBACK);
     }
 }

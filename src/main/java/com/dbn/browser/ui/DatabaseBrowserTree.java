@@ -75,6 +75,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public final class DatabaseBrowserTree extends DBNTree implements Borderless {
@@ -290,8 +291,8 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
 
             } else if (deliberate) {
                 Progress.prompt(project, object, true,
-                        "Loading object references",
-                        "Loading references of " + object.getQualifiedNameWithType(),
+                        txt("prc.databaseBrowser.title.LoadingObjectReferences"),
+                        txt("prc.databaseBrowser.text.LoadingReferencesOf", object.getQualifiedNameWithType()),
                         progress -> {
                             DBObject navigationObject = object.getDefaultNavigationObject();
                             if (navigationObject != null) {
@@ -396,8 +397,8 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
                     getProject(),
                     object,
                     true,
-                    "Loading object properties",
-                    "Loading properties of " + object.getQualifiedNameWithType(),
+                    txt("prc.databaseBrowser.title.LoadingObjectProperties"),
+                    txt("prc.databaseBrowser.text.LoadingPropertiesOf", object.getQualifiedNameWithType()),
                     progress -> showPopupMenu(new ObjectActionGroup(object), x, y));
         } else if (lastPathEntity instanceof DBObjectBundle) {
             DBObjectBundle objectsBundle = (DBObjectBundle) lastPathEntity;

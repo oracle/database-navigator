@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
@@ -94,7 +95,7 @@ public class ObjectQuickFilterManager extends ProjectComponentBase implements Pe
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         Settings.setEnum(element, "last-used-operator", lastUsedOperator);
         Element filtersElement = newElement(element, "filters");
 

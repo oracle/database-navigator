@@ -24,6 +24,10 @@ import com.dbn.object.event.ObjectChangeAction;
 import org.jetbrains.annotations.Nls;
 
 import static com.dbn.object.common.status.DBObjectStatus.ENABLED;
+import static com.intellij.openapi.util.NlsContexts.DialogMessage;
+import static com.intellij.openapi.util.NlsContexts.DialogTitle;
+import static com.intellij.openapi.util.NlsContexts.ProgressText;
+import static com.intellij.openapi.util.NlsContexts.ProgressTitle;
 
 /**
  * Abstract implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} for DISABLE actions, 
@@ -43,35 +47,43 @@ public final class DBObjectDisableAdapter<T extends DBSchemaObject> extends Obje
     }
 
     @Nls
+    @Override
+    @DialogTitle
     protected String getSuccessTitle() {
         return txt("msg.objects.title.ActionSuccess_DISABLE");
     }
 
     @Nls
-    protected  String getFailureTitle() {
+    @Override
+    @DialogTitle
+    protected String getFailureTitle() {
         return txt("msg.objects.title.ActionFailure_DISABLE");
     }
 
     @Nls
     @Override
+    @ProgressTitle
     protected String getProcessTitle() {
         return txt("prc.object.title.DisablingObject", getObjectTypeName());
     }
 
     @Nls
     @Override
-    protected String getProcessDescription() {
-        return txt("prc.object.message.DisablingObject", getObjectTypeName(), getObjectName());
+    @ProgressText
+    protected String getProcessText() {
+        return txt("prc.object.text.DisablingObject", getObjectTypeName(), getObjectName());
     }
 
     @Nls
     @Override
+    @DialogMessage
     protected String getSuccessMessage() {
         return txt("msg.object.info.ObjectDisableSuccess", getObjectTypeName(), getObjectName());
     }
 
     @Nls
     @Override
+    @DialogMessage
     protected String getFailureMessage() {
         return txt("msg.object.error.ObjectDisableFailure", getObjectType(), getObjectName());
     }

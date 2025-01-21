@@ -1,0 +1,15 @@
+BEGIN
+
+   EXECUTE IMMEDIATE 'DROP ${TYPE} DBN_OJVM_SQL_WRAPPER';
+
+    #if (${SQLTYPES} && ${SQLTYPES} != "")
+        #set($sqlTypes = "${SQLTYPES}")
+        #set($types = $sqlTypes.split(","))
+        #foreach($typeObj in $types)
+            EXECUTE IMMEDIATE 'DROP TYPE $typeObj FORCE';
+        #end
+    #end
+
+    EXECUTE IMMEDIATE 'DROP JAVA SOURCE DBN_OJVM_JAVA_WRAPPER';
+
+END;

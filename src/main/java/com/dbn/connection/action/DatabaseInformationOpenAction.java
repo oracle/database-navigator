@@ -26,6 +26,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DatabaseInformationOpenAction extends AbstractConnectionAction {
 
     DatabaseInformationOpenAction(ConnectionHandler connection) {
@@ -39,10 +41,10 @@ public class DatabaseInformationOpenAction extends AbstractConnectionAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ConnectionHandler connection) {
-        ConnectionAction.invoke(txt("app.connection.activity.ShowingDatabaseInformation"), true, connection,
+        ConnectionAction.invoke(txt("msg.connection.title.ShowingDatabaseInformation"), true, connection,
                 action -> Progress.prompt(project, connection, false,
                         txt("prc.workspace.title.LoadingDatabaseInformation"),
-                        txt("prc.workspace.message.LoadingDatabaseInformation", connection.getName()),
+                        txt("prc.workspace.text.LoadingDatabaseInformation", connection.getName()),
                         progress -> ConnectionManager.showConnectionInfoDialog(connection)));
     }
 }

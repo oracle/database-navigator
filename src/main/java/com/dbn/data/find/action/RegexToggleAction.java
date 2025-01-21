@@ -22,12 +22,14 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class RegexToggleAction extends DataSearchHeaderToggleAction {
 
     public RegexToggleAction(DataSearchComponent searchComponent) {
         super(
                 searchComponent,
-                "&Regex",
+                txt("app.data.action.FindRegex"),
                 AllIcons.Actions.Regex,
                 AllIcons.Actions.RegexHovered,
                 AllIcons.Actions.RegexSelected);

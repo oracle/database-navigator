@@ -24,6 +24,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class EditObjectFilterAction extends BasicAction {
     private final ObjectFilterExpressionForm form;
 
@@ -35,7 +37,7 @@ public class EditObjectFilterAction extends BasicAction {
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.ACTION_EDIT);
-        presentation.setText("Edit Filter");
+        presentation.setText(txt("app.objects.action.EditFilter"));
     }
 
     @Override

@@ -19,6 +19,7 @@ package com.dbn.common.util;
 import com.intellij.lang.Language;
 import com.intellij.openapi.application.ApplicationInfo;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,8 +54,8 @@ public class Environment {
         return currentMinor > targetMinor;
     }
 
-
-    public static String getVariable(String key) {
+    @NonNls
+    public static String getVariable(@NonNls String key) {
         return variables.computeIfAbsent(key, k -> loadVariable(k));
     }
 

@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionResultRerunAction extends AbstractExecutionResultAction {
 
@@ -45,7 +46,7 @@ public class ExecutionResultRerunAction extends AbstractExecutionResultAction {
         }
 
         presentation.setEnabled(enabled);
-        presentation.setText("Rerun Statement");
+        presentation.setText(txt("app.execution.action.RerunStatement"));
         presentation.setIcon(Icons.EXEC_RESULT_RERUN);
     }
 }

@@ -27,6 +27,8 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DataEditingLockToggleAction extends ToggleAction implements DumbAware {
 
     @Override
@@ -50,12 +52,12 @@ public class DataEditingLockToggleAction extends ToggleAction implements DumbAwa
         if (project == null || datasetEditor == null) {
             presentation.setEnabled(false);
             presentation.setIcon(Icons.DATA_EDITOR_LOCKED);
-            presentation.setText("Lock / Unlock Editing");
+            presentation.setText(txt("app.dataEditor.action.LockUnlockEditing"));
         } else {
             boolean isEnvironmentReadonlyData = datasetEditor.getDataset().getEnvironmentType().isReadonlyData();
             presentation.setVisible(!datasetEditor.isReadonlyData() && !isEnvironmentReadonlyData);
             boolean selected = isSelected(e);
-            presentation.setText(selected ? "Unlock Editing" : "Lock Editing");
+            presentation.setText(selected ? txt("app.dataEditor.action.UnlockEditing") : txt("app.dataEditor.action.LockEditing"));
             presentation.setIcon(selected ? Icons.DATA_EDITOR_LOCKED : Icons.DATA_EDITOR_UNLOCKED);
             boolean enabled = !datasetEditor.isInserting();
             presentation.setEnabled(enabled);

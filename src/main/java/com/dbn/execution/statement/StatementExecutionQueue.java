@@ -29,6 +29,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.nls.NlsResources.txt;
 
 public final class StatementExecutionQueue extends StatefulDisposableBase {
     private final Queue<StatementExecutionProcessor> processors = new ConcurrentLinkedQueue<>();
@@ -66,8 +67,8 @@ public final class StatementExecutionQueue extends StatefulDisposableBase {
         Project project = getProject();
         ConnectionHandler connection = getConnection();
         Progress.background(project, connection, true,
-                "Executing statements",
-                "Executing SQL statements",
+                txt("prc.execution.title.ExecutingStatements"),
+                txt("prc.execution.text.ExecutingSqlStatement"),
                 progress -> {
                     try {
                         StatementExecutionProcessor processor = processors.poll();

@@ -25,6 +25,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class RecordEditAction extends AbstractDataEditorAction {
 
     @Override
@@ -34,7 +36,7 @@ public class RecordEditAction extends AbstractDataEditorAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
-        presentation.setText("Edit Record");
+        presentation.setText(txt("app.dataEditor.action.EditRecord"));
         presentation.setIcon(Icons.DATA_EDITOR_EDIT_RECORD);
 
         boolean enabled =

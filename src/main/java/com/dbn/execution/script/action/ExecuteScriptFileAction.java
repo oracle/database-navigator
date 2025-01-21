@@ -29,6 +29,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @BackgroundUpdate
 public class ExecuteScriptFileAction extends ProjectAction {
 
@@ -54,7 +56,7 @@ public class ExecuteScriptFileAction extends ProjectAction {
 
         Presentation presentation = e.getPresentation();
         presentation.setVisible(visible);
-        presentation.setText("Execute SQL Script");
+        presentation.setText(txt("app.execution.action.ExecuteSqlScript"));
         presentation.setIcon(Icons.EXECUTE_SQL_SCRIPT);
     }
 }

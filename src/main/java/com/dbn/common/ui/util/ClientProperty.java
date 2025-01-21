@@ -38,7 +38,8 @@ public enum ClientProperty {
     TAB_TOOLTIP,
     TAB_CONTENT,
     FOCUS_INHERITANCE,
-    COMPONENT_GROUP_QUALIFIER;
+    COMPONENT_GROUP_QUALIFIER,
+    HAS_VALIDATION_LISTENERS;
 
 
     public boolean is(Component component) {

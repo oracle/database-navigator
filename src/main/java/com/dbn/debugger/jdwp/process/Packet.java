@@ -18,6 +18,7 @@ package com.dbn.debugger.jdwp.process;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NonNls;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -106,16 +107,10 @@ public abstract class Packet {
 		this.data = new byte[expectedRemaining];
 		dout.write(data);
 	}
-	
-	
+
+	@NonNls
+	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("id: ");
-		builder.append(id);
-		builder.append(", length: ");
-		builder.append(length);
-		builder.append(", flags: ");
-		builder.append(flags);
-		return builder.toString();
+        return "id: " + id + ", length: " + length + ", flags: " + flags;
 	}
 }

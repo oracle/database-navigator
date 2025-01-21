@@ -29,6 +29,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jdom.CDATA;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
@@ -39,7 +40,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 @Setter
 @EqualsAndHashCode(callSuper = true)
 public class DatasetCustomFilter extends DatasetFilterImpl {
-    private String condition;
+    private @NonNls String condition;
 
     protected DatasetCustomFilter(DatasetFilterGroup parent, String name) {
         super(parent, name, DatasetFilterType.CUSTOM);
@@ -73,7 +74,7 @@ public class DatasetCustomFilter extends DatasetFilterImpl {
     @Override
     public String createSelectStatement(DBDataset dataset, SortingState sortingState) {
         setError(null);
-        StringBuilder buffer = new StringBuilder();
+        @NonNls StringBuilder buffer = new StringBuilder();
         DatasetFilterUtil.createSimpleSelectStatement(dataset, buffer);
         buffer.append(" where ");
         buffer.append(condition);
@@ -107,7 +108,7 @@ public class DatasetCustomFilter extends DatasetFilterImpl {
         Element conditionElement = newElement(element, "condition");
         if (this.condition == null) return;
 
-        String condition = Strings.replace(this.condition, "\n", "<br>");
+        @NonNls String condition = Strings.replace(this.condition, "\n", "<br>");
         condition = Strings.replace(condition, "  ", "<sp>");
         CDATA cdata = new CDATA(condition);
         conditionElement.setContent(cdata);

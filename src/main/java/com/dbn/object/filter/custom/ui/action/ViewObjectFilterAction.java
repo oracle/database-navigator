@@ -26,6 +26,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.Component;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ViewObjectFilterAction extends BasicAction {
     private final ObjectFilterExpressionForm form;
 
@@ -37,7 +39,7 @@ public class ViewObjectFilterAction extends BasicAction {
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.ACTION_PREVIEW);
-        presentation.setText("View Filter");
+        presentation.setText(txt("app.objects.action.ViewFilter"));
     }
 
     @Override

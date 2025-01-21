@@ -17,13 +17,16 @@
 package com.dbn.database.common.metadata.def;
 
 import com.dbn.database.common.metadata.DBObjectMetadata;
+import com.dbn.database.common.security.ObjectIdentifier;
 
 import java.sql.SQLException;
 
 public interface DBIndexMetadata extends DBObjectMetadata {
 
+    @ObjectIdentifier
     String getIndexName() throws SQLException;
 
+    @ObjectIdentifier
     String getTableName() throws SQLException;
 
     boolean isUnique() throws SQLException;

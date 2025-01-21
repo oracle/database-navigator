@@ -17,16 +17,20 @@
 package com.dbn.database.common.metadata.def;
 
 import com.dbn.database.common.metadata.DBObjectMetadata;
+import com.dbn.database.common.security.ObjectIdentifier;
 
 import java.sql.SQLException;
 
 public interface DBJavaMethodMetadata extends DBObjectMetadata {
+	@ObjectIdentifier
 	String getClassName() throws SQLException;
 
 	String getReturnType() throws SQLException;
 
+	@ObjectIdentifier
 	String getReturnClassName() throws SQLException;
 
+	@ObjectIdentifier
 	String getMethodName() throws SQLException;
 
 	String getMethodSignature() throws SQLException;
@@ -34,6 +38,8 @@ public interface DBJavaMethodMetadata extends DBObjectMetadata {
 	String getAccessibility() throws SQLException;
 
 	short getMethodIndex() throws SQLException;
+
+	short getArrayDepth() throws SQLException;
 
 	boolean isStatic() throws SQLException;
 

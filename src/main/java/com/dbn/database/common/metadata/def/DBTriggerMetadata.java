@@ -17,13 +17,16 @@
 package com.dbn.database.common.metadata.def;
 
 import com.dbn.database.common.metadata.DBObjectMetadata;
+import com.dbn.database.common.security.ObjectIdentifier;
 
 import java.sql.SQLException;
 
 public interface DBTriggerMetadata extends DBObjectMetadata {
 
+    @ObjectIdentifier
     String getTriggerName() throws SQLException;
 
+    @ObjectIdentifier
     String getDatasetName() throws SQLException;
 
     String getTriggerType() throws SQLException;

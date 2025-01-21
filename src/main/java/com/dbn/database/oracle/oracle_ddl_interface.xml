@@ -47,22 +47,19 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="change-java-object">
-        <statement>begin
-            execute immediate
-            '
-                create or replace java source named "{0}" as
-                {1}
-            ';
+        <statement>
+            begin
+                execute immediate 'create or replace java source named {0} as {1}';
             end;
         </statement>
     </statement-execution-processor>
     
     <statement-execution-processor id="drop-object">
-        <statement>drop {0} {1}</statement>
+        <statement>drop {0} {1}.{2}</statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="drop-object-body">
-        <statement>drop {0} body {1}</statement>
+        <statement>drop {0} body {1}.{2}</statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="drop-java-object">
@@ -73,10 +70,10 @@
         </statement>
         <statement>
             begin
-                execute immediate 'drop java source {0}."{1}"';
+                execute immediate 'drop java source {0}.{1}';
             exception
             when others then
-                execute immediate 'drop java class {0}."{1}"';
+                execute immediate 'drop java class {0}.{1}';
             end;
         </statement>
     </statement-execution-processor>

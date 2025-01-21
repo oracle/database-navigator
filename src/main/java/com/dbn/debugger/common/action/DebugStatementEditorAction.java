@@ -43,6 +43,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @BackgroundUpdate
 public class DebugStatementEditorAction extends ProjectAction {
 
@@ -87,7 +89,7 @@ public class DebugStatementEditorAction extends ProjectAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.STMT_EXECUTION_DEBUG);
-        presentation.setText("Debug Statement");
+        presentation.setText(txt("app.debugger.action.DebugStatement"));
         Editor editor = Lookups.getEditor(e);
         boolean enabled = false;
         boolean visible = false;

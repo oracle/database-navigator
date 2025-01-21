@@ -44,6 +44,7 @@ public class StatementExecutionSettingsForm extends ConfigurationEditorForm<Stat
 
     @Override
     protected void initAccessibility() {
+        setAccessibleUnit(fetchBlockSizeTextField, txt("app.shared.unit.Records"));
         setAccessibleUnit(executionTimeoutTextField, txt("app.shared.unit.Seconds"), txt("app.shared.hint.ZeroForNoTimeout"));
         setAccessibleUnit(debugExecutionTimeoutTextField, txt("app.shared.unit.Seconds"), txt("app.shared.hint.ZeroForNoTimeout"));
     }

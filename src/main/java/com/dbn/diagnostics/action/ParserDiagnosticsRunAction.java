@@ -28,18 +28,21 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ParserDiagnosticsRunAction extends AbstractParserDiagnosticsAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ParserDiagnosticsForm form) {
         Progress.prompt(project, null, true,
-                "Running diagnostics",
-                "Running parser diagnostics", progress -> {
-            progress.setIndeterminate(false);
-            ParserDiagnosticsManager manager = getManager(project);
-            ParserDiagnosticsResult result = manager.runParserDiagnostics(progress);
-            Dispatch.run(() -> manager.openParserDiagnostics(result));
-        });
+                txt("prc.diagnostics.title.RunningDiagnostics"),
+                txt("prc.diagnostics.text.RunningParserDiagnostics"),
+                progress -> {
+                    progress.setIndeterminate(false);
+                    ParserDiagnosticsManager manager = getManager(project);
+                    ParserDiagnosticsResult result = manager.runParserDiagnostics(progress);
+                    Dispatch.run(() -> manager.openParserDiagnostics(result));
+                });
     }
 
     @Override
@@ -47,7 +50,7 @@ public class ParserDiagnosticsRunAction extends AbstractParserDiagnosticsAction 
         ParserDiagnosticsManager manager = getManager(project);
         boolean enabled = !manager.isRunning() && !manager.hasDraftResults();
 
-        presentation.setText("Run Diagnostics");
+        presentation.setText(txt("app.diagnostics.action.RunDiagnostics"));
         presentation.setIcon(Icons.ACTION_EXECUTE);
         presentation.setEnabled(enabled);
     }

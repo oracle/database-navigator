@@ -24,9 +24,11 @@ import com.intellij.openapi.actionSystem.AnAction;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ReferencingObjectsListShowAction extends ObjectListShowAction {
     public ReferencingObjectsListShowAction(DBSchemaObject object) {
-        super("Referencing objects", object);
+        super(txt("app.objects.action.ReferencingObjects"), object);
     }
 
     @Override

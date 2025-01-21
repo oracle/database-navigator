@@ -17,6 +17,7 @@
 package com.dbn.database.common.metadata.def;
 
 import com.dbn.database.common.metadata.DBObjectMetadata;
+import com.dbn.database.common.security.ObjectIdentifier;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -24,10 +25,12 @@ import java.sql.SQLException;
 
 public interface DBCredentialMetadata extends DBObjectMetadata {
 
+    @ObjectIdentifier
     String getCredentialName() throws SQLException;
 
     String getCredentialType() throws SQLException;
 
+    @ObjectIdentifier
     String getUserName() throws SQLException;
 
     String getComments() throws SQLException;

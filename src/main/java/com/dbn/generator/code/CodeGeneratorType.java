@@ -17,9 +17,11 @@
 package com.dbn.generator.code;
 
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 import static com.dbn.generator.code.CodeGeneratorCategory.JAVA;
 
+@NonNls
 @Getter
 public enum CodeGeneratorType {
     DATABASE_CONNECTOR(              JAVA, "JdbcConnector", "JDBC Connector",                   "DBN - JDBC Connector.java"),
@@ -33,7 +35,7 @@ public enum CodeGeneratorType {
     private final String template;
     private final String fileName;
 
-    CodeGeneratorType(CodeGeneratorCategory category, String fileName, String name, String template) {
+    CodeGeneratorType(CodeGeneratorCategory category, String fileName, String name, @NonNls String template) {
         this.category = category;
         this.fileName = fileName;
         this.name = name;

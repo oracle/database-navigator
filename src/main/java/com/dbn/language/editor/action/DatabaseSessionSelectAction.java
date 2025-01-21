@@ -29,6 +29,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @BackgroundUpdate
 public class DatabaseSessionSelectAction extends ProjectAction {
     private final DatabaseSession session;
@@ -81,9 +83,9 @@ public class DatabaseSessionSelectAction extends ProjectAction {
         presentation.setText(session.getName());
         presentation.setIcon(session.getIcon());
         if (session.isMain()) {
-            presentation.setDescription("Execute statements using main connection");
+            presentation.setDescription(txt("app.codeEditor.tooltip.ExecuteUsingMainConnection"));
         } else if (session.isPool()) {
-            presentation.setDescription("Execute statements in pool connections (async)");
+            presentation.setDescription(txt("app.codeEditor.tooltip.ExecuteUsingPoolConnection"));
         }
 
 

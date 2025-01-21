@@ -47,6 +47,7 @@ import javax.swing.Icon;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.nls.NlsResources.txt;
 
 public class StatementGutterAction extends BasicAction {
     private final PsiFileRef<DBLanguagePsiFile> psiFile;
@@ -188,14 +189,14 @@ public class StatementGutterAction extends BasicAction {
         StatementExecutionResult executionResult = executionProcessor.getExecutionResult();
         if (executionResult == null) {
             StatementExecutionContext context = executionProcessor.getExecutionContext();
-            if (context.is(ExecutionStatus.EXECUTING)) return "Statement execution is in progress. Cancel?";
-            if (context.is(ExecutionStatus.QUEUED)) return "Statement execution is queued. Cancel?";
+            if (context.is(ExecutionStatus.EXECUTING)) return txt("app.execution.tooltip.StatementExecutionInProgress");
+            if (context.is(ExecutionStatus.QUEUED)) return txt("app.execution.tooltip.StatementExecutionQueued");
             
         } else {
             StatementExecutionStatus executionStatus = executionResult.getExecutionStatus();
-            if (executionStatus == StatementExecutionStatus.ERROR)   return "Statement executed with errors. Execute again?";
-            if (executionStatus == StatementExecutionStatus.WARNING) return "Statement executed with warnings. Execute again?";
-            if (executionStatus == StatementExecutionStatus.SUCCESS) return "Statement executed successfully. Execute again?";
+            if (executionStatus == StatementExecutionStatus.ERROR)   return txt("app.execution.tooltip.StatementExecutedWithErrors");
+            if (executionStatus == StatementExecutionStatus.WARNING) return txt("app.execution.tooltip.StatementExecutedWithWarnings");
+            if (executionStatus == StatementExecutionStatus.SUCCESS) return txt("app.execution.tooltip.StatementExecutedSuccessfully");
         }
         return null;
     }

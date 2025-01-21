@@ -20,11 +20,14 @@ import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.CmdLineExecutionInput;
+import com.dbn.database.common.execution.JavaExecutionProcessor;
 import com.dbn.database.common.execution.MethodExecutionProcessor;
 import com.dbn.database.interfaces.DatabaseExecutionInterface;
+import com.dbn.database.oracle.execution.OracleJavaExecutionProcessor;
 import com.dbn.database.oracle.execution.OracleMethodDebugExecutionProcessor;
 import com.dbn.database.oracle.execution.OracleMethodExecutionProcessor;
 import com.dbn.execution.script.CmdLineInterface;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -41,6 +44,11 @@ public final class OracleExecutionInterface implements DatabaseExecutionInterfac
     @Override
     public MethodExecutionProcessor createDebugExecutionProcessor(DBMethod method) {
         return new OracleMethodDebugExecutionProcessor(method);
+    }
+
+    @Override
+    public JavaExecutionProcessor createExecutionProcessor(DBJavaMethod method) {
+        return new OracleJavaExecutionProcessor(method);
     }
 
     @Override

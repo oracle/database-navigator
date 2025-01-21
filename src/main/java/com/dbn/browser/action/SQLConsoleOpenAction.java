@@ -40,6 +40,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SQLConsoleOpenAction extends ProjectPopupAction {
     private static ConnectionHandler getConnection(@NotNull AnActionEvent e) {
         Project project = Lookups.getProject(e);
@@ -51,11 +53,11 @@ public class SQLConsoleOpenAction extends ProjectPopupAction {
     }
 
     @Override
-    public void update(@NotNull AnActionEvent e, Project project) {
+    public void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         ConnectionHandler connection = getConnection(e);
         presentation.setEnabled(connection != null);
-        presentation.setText("Open SQL Console");
+        presentation.setText(txt("app.browser.action.OpenSqlConsole"));
         presentation.setIcon(Icons.SQL_CONSOLE);
     }
 
@@ -95,7 +97,7 @@ public class SQLConsoleOpenAction extends ProjectPopupAction {
         @Override
         protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionHandler target) {
             if (console == null) {
-                presentation.setText("New " + consoleType.getName() + "...");
+                presentation.setText(txt("app.browser.action.NewConsole",consoleType.getName()));
             } else {
                 presentation.setText(Actions.adjustActionName(console.getName()));
                 presentation.setIcon(console.getIcon());

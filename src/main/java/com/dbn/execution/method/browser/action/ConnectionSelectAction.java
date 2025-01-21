@@ -27,12 +27,9 @@ public class ConnectionSelectAction extends BasicAction {
     private MethodExecutionBrowserForm browserComponent;
 
     ConnectionSelectAction(MethodExecutionBrowserForm browserComponent, ConnectionHandler connection) {
-        super();
+        super(connection.getName(), null, connection.getIcon());
         this.browserComponent = browserComponent;
         this.connection = connection;
-        getTemplatePresentation().setText(connection.getName(), false);
-        getTemplatePresentation().setIcon(connection.getIcon());
-
     }
 
     @Override

@@ -33,6 +33,7 @@ import com.dbn.object.type.DBObjectType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -97,7 +98,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
         return name;
     }
 
-    public String getAttributesJson() {
+    public @NonNls String getAttributesJson() {
         return GSON.toJson(Map.of(
                 "provider", getProvider().getId(),
                 "model", getModel().getApiName(),

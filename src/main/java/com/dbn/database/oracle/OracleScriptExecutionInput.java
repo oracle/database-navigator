@@ -24,12 +24,14 @@ import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.DatabaseScriptExecutionInput;
 import com.dbn.execution.script.CmdLineInterface;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Commons.nvl;
 import static java.lang.Character.isWhitespace;
 
+@NonNls
 public class OracleScriptExecutionInput extends DatabaseScriptExecutionInput {
     private static final String SQLPLUS_CONNECT_PATTERN_TNS= "[USER]@[TNS_PROFILE]";
     private static final String SQLPLUS_CONNECT_PATTERN_SID = "[USER]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SID=[DATABASE])))\"";

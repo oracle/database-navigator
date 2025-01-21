@@ -26,6 +26,7 @@ import com.dbn.options.ProjectSettingsManager;
 import com.intellij.openapi.project.Project;
 
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetEditorReadonlyNotificationPanel extends DatasetEditorNotificationPanel{
     public DatasetEditorReadonlyNotificationPanel(DBSchemaObject object) {
@@ -34,24 +35,25 @@ public class DatasetEditorReadonlyNotificationPanel extends DatasetEditorNotific
         final Project project = object.getProject();
 
         if (isReadonly(object)) {
-            setText("READONLY DATA - This is meant to prevent accidental data changes in \"" + environmentName + "\" environments (check environment settings)");
-            createActionLabel("Edit Mode", () -> Messages.showQuestionDialog(project,
-                    "Enable edit-mode",
-                    "Are you sure you want to enable editing for " + object.getQualifiedNameWithType(),
-                    new String[]{"Yes", "Cancel"}, 0,
-                    option -> when(option == 0, () -> {
-                        EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
-                        environmentManager.enableEditing(object, DBContentType.DATA);
-                    })));
+            setText(txt("ntf.dataEditor.text.ReadonlyData", environmentName));
+            createActionLabel(txt("app.dataEditor.link.EditMode"),
+                    () -> Messages.showQuestionDialog(project,
+                            txt("msg.dataEditor.title.EnableEditMode"),
+                            txt("msg.dataEditor.question.EnableEditMode", object.getQualifiedNameWithType()),
+                            Messages.OPTIONS_YES_CANCEL, 0,
+                            option -> when(option == 0, () -> {
+                                EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
+                                environmentManager.enableEditing(object, DBContentType.DATA);
+                            })));
         } else {
-            setText("EDITABLE DATA! - Edit-mode enabled (the environment \"" + environmentName + "\" is configured as \"Readonly Data\")");
-            createActionLabel("Cancel Editing", () -> {
+            setText(txt("ntf.dataEditor.text.EditableData", environmentName));
+            createActionLabel(txt("app.dataEditor.link.CancelEditing"), () -> {
                 EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
                 environmentManager.disableEditing(object, DBContentType.DATA);
             });
         }
 
-        createActionLabel("Settings", () -> {
+        createActionLabel(txt("app.dataEditor.link.Settings"), () -> {
             ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);
             settingsManager.openProjectSettings(ConfigId.GENERAL);
         });

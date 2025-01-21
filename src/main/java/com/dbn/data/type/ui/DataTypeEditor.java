@@ -19,7 +19,6 @@ package com.dbn.data.type.ui;
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
-import com.dbn.common.ui.misc.DBNButton;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.editor.ui.BasicListPopupValuesProvider;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
@@ -44,7 +43,7 @@ public class DataTypeEditor extends TextFieldWithPopup {
             nativeDataTypeNames.add(typeName);
         }
         BasicListPopupValuesProvider valuesProvider = new BasicListPopupValuesProvider("Native Data Types", nativeDataTypeNames);
-        createValuesListPopup(valuesProvider, true);
+        createValuesListPopup(valuesProvider, null, true);
     }
 
 
@@ -57,10 +56,5 @@ public class DataTypeEditor extends TextFieldWithPopup {
         Dimension preferredSize = textField.getPreferredSize();
         preferredSize = new Dimension(120, preferredSize.height);
         getTextField().setPreferredSize(preferredSize);
-    }
-
-    @Override
-    public void customizeButton(DBNButton button) {
-        super.customizeButton(button);
     }
 }

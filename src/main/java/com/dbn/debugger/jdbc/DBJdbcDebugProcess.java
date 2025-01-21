@@ -158,44 +158,44 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
             sessionImpl.getSessionData().setBreakpointsMuted(false);
         }
         Progress.background(project, getConnection(), true,
-                "Initializing debug environment",
-                "Starting debugger",
+                txt("prc.debugger.title.InitializingDebugEnvironment"),
+                txt("prc.debugger.text.StartingDebugger"),
                 progress -> {
                     try {
                         T input = getExecutionInput();
-                        console.system("Initializing debug environment...");
+                        console.system(txt("log.debugger.info.InitializingEnvironment"));
                         ConnectionHandler connection = getConnection();
                         SchemaId schemaId = input.getExecutionContext().getTargetSchema();
 
-                        ProgressMonitor.setProgressDetail(txt("prc.debugger.message.InitializingTargetConnection"));
+                        ProgressMonitor.setProgressDetail(txt("prc.debugger.text.InitializingTargetConnection"));
                         targetConnection = connection.getDebugConnection(schemaId);
                         targetConnection.setAutoCommit(false);
-                        console.system("Target connection initialized");
+                        console.system(txt("log.debugger.info.TargetConnectionInitialized"));
 
-                        ProgressMonitor.setProgressDetail(txt("prc.debugger.message.InitializingDebuggerConnection"));
+                        ProgressMonitor.setProgressDetail(txt("prc.debugger.text.InitializingDebuggerConnection"));
                         debuggerConnection = connection.getDebuggerConnection();
-                        console.system("Debug connection initialized");
+                        console.system(txt("log.debugger.info.DebugConnectionInitialized"));
 
                         DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
 
-                        ProgressMonitor.setProgressDetail(txt("prc.debugger.message.InitializingTargetSession"));
+                        ProgressMonitor.setProgressDetail(txt("prc.debugger.text.InitializingTargetSession"));
                         DebuggerSessionInfo sessionInfo = debuggerInterface.initializeSession(targetConnection);
-                        console.system("Target session initialized");
+                        console.system(txt("log.debugger.info.TargetSessionInitialized"));
 
-                        ProgressMonitor.setProgressDetail(txt("prc.debugger.message.EnablingDebuggingOnTargetSession"));
+                        ProgressMonitor.setProgressDetail(txt("prc.debugger.text.EnablingDebuggingOnTargetSession"));
                         debuggerInterface.enableDebugging(targetConnection);
-                        console.system("Debug on target session enabled");
+                        console.system(txt("log.debugger.info.DebugEnabled"));
 
 
-                        ProgressMonitor.setProgressDetail(txt("prc.debugger.message.AttachingDebuggerSession"));
+                        ProgressMonitor.setProgressDetail(txt("prc.debugger.text.AttachingDebuggerSession"));
                         debuggerInterface.attachSession(debuggerConnection, sessionInfo.getSessionId());
-                        console.system("Debug session attached");
+                        console.system(txt("log.debugger.info.DebugSessionAttached"));
 
                         synchronizeSession();
                     } catch (SQLException e) {
                         conditionallyLog(e);
                         set(SESSION_INITIALIZATION_THREW_EXCEPTION, true);
-                        console.error("Error initializing debug environment\n" + e.getMessage());
+                        console.error(txt("log.debugger.error.ErrorInitializingEnvironment", e.getMessage()));
                         session.stop();
                     }
                 });
@@ -205,18 +205,18 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
         Project project = getProject();
         ConnectionHandler connection = getConnection();
         Progress.background(project, connection, false,
-                "Initializing debug environment",
-                "Synchronizing sessions",
+                txt("prc.debugger.title.InitializingDebugEnvironment"),
+                txt("prc.debugger.text.SynchronizingSessions"),
                 progress -> {
                     if (is(PROCESS_TERMINATING) || is(TARGET_EXECUTION_TERMINATED)) {
                         getSession().stop();
                     } else {
                         set(BREAKPOINT_SETTING_ALLOWED, true);
-                        progress.setText("Registering breakpoints");
+                        progress.setText(txt("prc.debugger.text.RegisteringBreakpoints"));
                         registerBreakpoints(
                                 () -> Progress.background(project, connection, false,
-                                        "Starting debugger",
-                                        "Synchronizing debug sessions",
+                                        txt("prc.debugger.text.StartingDebugger"),
+                                        txt("prc.debugger.text.SynchronizingSessions"),
                                         (progress1) -> {
                                             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
                                             try {
@@ -224,18 +224,17 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
                                                 if (isNot(TARGET_EXECUTION_THREW_EXCEPTION) && isNot(TARGET_EXECUTION_TERMINATED)) {
                                                     runtimeInfo = debuggerInterface.synchronizeSession(debuggerConnection);
                                                     runtimeInfo = debuggerInterface.stepOver(debuggerConnection);
-                                                    progress.setText("Suspending session");
-                                                    console.system("Debug session synchronized");
+                                                    progress.setText(txt("prc.debugger.text.SuspendingSession"));
+                                                    console.system(txt("log.debugger.info.DebugSessionSynchronized"));
                                                     suspendSession();
                                                 }
 
                                             } catch (SQLException e) {
                                                 conditionallyLog(e);
                                                 set(SESSION_INITIALIZATION_THREW_EXCEPTION, true);
-                                                console.system("Error synchronizing debug session: " + e.getMessage());
+                                                console.system(txt("log.debugger.error.ErrorSynchronizingSession", e.getMessage()));
                                                 Messages.showErrorDialog(getProject(),
-                                                        "Could not initialize debug environment on connection \"" +
-                                                                connection.getName() + "\". ", e);
+                                                        txt("msg.debugger.error.CouldInitDebugEnvironment",connection.getName()), e);
                                                 getSession().stop();
                                             }
                                         }));
@@ -245,8 +244,8 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
     private void startTargetProgram() {
         Progress.background(getProject(), getConnection(), false,
-                "Running debugger",
-                "Running debugger target program",
+                txt("prc.debugger.title.RunningDebugger"),
+                txt("prc.debugger.text.RunningDebuggerTarget"),
                 progress -> {
                     if (is(PROCESS_TERMINATING)) return;
                     if (is(SESSION_INITIALIZATION_THREW_EXCEPTION)) return;
@@ -254,13 +253,13 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
                     try {
                         set(TARGET_EXECUTION_STARTED, true);
 
-                        console.system("Target program execution started: " + input.getExecutionContext().getTargetName());
+                        console.system(txt("log.debugger.info.TargetProgramStarted", input.getExecutionContext().getTargetName()));
                         executeTarget();
-                        console.system("Target program execution ended");
+                        console.system(txt("log.debugger.info.TargetProgramEnded"));
                     } catch (SQLException e) {
                         conditionallyLog(e);
                         set(TARGET_EXECUTION_THREW_EXCEPTION, true);
-                        console.error("Target program execution failed. " + e.getMessage());
+                        console.error(txt("log.debugger.error.TargetProgramFailed", e.getMessage()));
                         // if the method execution threw exception, the debugger-off statement is not reached,
                         // hence the session will hag as debuggable. To avoid this, disable debugging has
                         // to explicitly be called here
@@ -269,7 +268,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
                         //DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
                         //debuggerInterface.disableDebugging(targetConnection);
 
-                        Messages.showErrorDialog(getProject(), "Error executing " + input.getExecutionContext().getTargetName(), e);
+                        Messages.showErrorDialog(getProject(), txt("msg.debugger.error.TargetExecutionFailed", input.getExecutionContext().getTargetName()), e);
                     } finally {
                         set(TARGET_EXECUTION_TERMINATED, true);
                         getSession().stop();
@@ -284,12 +283,12 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
      * otherwise they do not get valid ids
      */
     private void registerBreakpoints(Runnable callback) {
-        console.system("Registering breakpoints...");
+        console.system(txt("log.debugger.info.RegisteringBreakpoints"));
         List<XLineBreakpoint<XBreakpointProperties>> breakpoints = DBBreakpointUtil.getDatabaseBreakpoints(getConnection());
 
         getBreakpointHandler().registerBreakpoints(breakpoints, null);
         registerDefaultBreakpoint();
-        console.system("Done registering breakpoints");
+        console.system(txt("log.debugger.info.DoneRegisteringBreakpoints"));
         callback.run();
     }
 
@@ -320,7 +319,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     public synchronized void stop() {
         if (canStopDebugger()) {
             set(PROCESS_TERMINATING, true);
-            console.system("Stopping debugger...");
+            console.system(txt("log.debugger.info.StoppingDebugger"));
             T input = getExecutionInput();
             ExecutionContext<?> context = input.getExecutionContext();
             context.set(CANCELLED, isNot(PROCESS_STOPPED));
@@ -336,8 +335,8 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
         Project project = getProject();
         ConnectionHandler connection = getConnection();
         Progress.background(project, connection, false,
-                "Stopping debugger",
-                "Stopping debug environment",
+                txt("prc.debugger.title.StoppingDebugger"),
+                txt("prc.debugger.text.StoppingDebugEnvironment"),
                 progress -> {
                     try {
                         unregisterBreakpoints();
@@ -351,10 +350,10 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
                             }
                             debuggerInterface.detachSession(debuggerConnection);
                         }
-                        console.system("Debugger session detached");
+                        console.system(txt("log.debugger.info.DebuggerSessionDetached"));
                     } catch (SQLException e) {
                         conditionallyLog(e);
-                        console.error("Error detaching debugger session: " + e.getMessage());
+                        console.error(txt("log.debugger.error.ErrorDetachingDebuggerSession", e.getMessage()));
                     } finally {
                         set(PROCESS_TERMINATED, true);
                         releaseDebugConnection();
@@ -362,7 +361,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
                         DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(project);
                         debuggerManager.unregisterDebugSession(connection);
-                        console.system("Debugger stopped");
+                        console.system(txt("log.debugger.info.DebuggerStopped"));
                     }
                 });
     }
@@ -379,7 +378,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
     @Override
     public void startStepOver(@Nullable XSuspendContext suspendContext) {
-        DBDebugOperation.run(getProject(), "step over", () -> {
+        DBDebugOperation.run(getProject(), txt("ntf.debugger.constant.Operation_STEP_OVER"), () -> {
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.stepOver(debuggerConnection);
             suspendSession();
@@ -388,7 +387,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
     @Override
     public void startStepInto(@Nullable XSuspendContext suspendContext) {
-        DBDebugOperation.run(getProject(), "step into", () -> {
+        DBDebugOperation.run(getProject(), txt("ntf.debugger.constant.Operation_STEP_INTO"), () -> {
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.stepInto(debuggerConnection);
             suspendSession();
@@ -398,7 +397,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
     @Override
     public void startStepOut(@Nullable XSuspendContext suspendContext) {
-        DBDebugOperation.run(getProject(), "step out", () -> {
+        DBDebugOperation.run(getProject(), txt("ntf.debugger.constant.Operation_STEP_OUT"), () -> {
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.stepOut(debuggerConnection);
             suspendSession();
@@ -407,7 +406,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
     @Override
     public void resume(@Nullable XSuspendContext suspendContext) {
-        DBDebugOperation.run(getProject(), "resume execution", () -> {
+        DBDebugOperation.run(getProject(), txt("ntf.debugger.constant.Operation_RESUME_EXECUTION"), () -> {
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.resumeExecution(debuggerConnection);
             suspendSession();
@@ -416,7 +415,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
     @Override
     public void runToPosition(@NotNull XSourcePosition position, @Nullable XSuspendContext suspendContext) {
-        DBDebugOperation.run(getProject(), "run to position", () -> {
+        DBDebugOperation.run(getProject(), txt("ntf.debugger.constant.Operation_RUN_TO_POSITION"), () -> {
             DBSchemaObject object = DBDebugUtil.getObject(position);
             if (object != null) {
                 DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
@@ -441,7 +440,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     @Override
     public void startPausing() {
         // NOT SUPPORTED!!!
-        DBDebugOperation.run(getProject(), "run to position", () -> {
+        DBDebugOperation.run(getProject(), txt("ntf.debugger.constant.Operation_RUN_TO_POSITION"), () -> {
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.synchronizeSession(debuggerConnection);
             suspendSession();
@@ -449,7 +448,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     }
 
     private void showErrorDialog(SQLException e) {
-        Messages.showErrorDialog(getProject(), "Could not perform operation.", e);
+        Messages.showErrorDialog(getProject(), txt("msg.debugger.error.CouldNotPerformOperation"), e);
     }
 
     @ThreadPropertyGate(DEBUGGER_NAVIGATION)
@@ -486,7 +485,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
                 }
             } catch (SQLException e) {
                 conditionallyLog(e);
-                console.error("Error suspending debugger session: " + e.getMessage());
+                console.error(txt("log.debugger.error.ErrorSuspendingDebuggerSession", e.getMessage()));
             }
 
             DBJdbcDebugSuspendContext suspendContext = new DBJdbcDebugSuspendContext(this);
@@ -550,7 +549,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
             }
         } catch (SQLException e) {
             conditionallyLog(e);
-            console.error("Error stopping debugger session: " + e.getMessage());
+            console.error(txt("log.debugger.error.ErrorStoppingDebuggerSession", e.getMessage()));
         }
     }
 

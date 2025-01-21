@@ -17,16 +17,21 @@
 package com.dbn.database.common.metadata.def;
 
 import com.dbn.database.common.metadata.DBObjectMetadata;
+import com.dbn.database.common.security.ObjectIdentifier;
 
 import java.sql.SQLException;
 
 public interface DBNestedTableMetadata extends DBObjectMetadata {
 
+    @ObjectIdentifier
     String getNestedTableName() throws SQLException;
 
+    @ObjectIdentifier
     String getTableName() throws SQLException;
 
+    @ObjectIdentifier
     String getDeclaredTypeName() throws SQLException;
 
+    @ObjectIdentifier
     String getDeclaredTypeOwner() throws SQLException;
 }

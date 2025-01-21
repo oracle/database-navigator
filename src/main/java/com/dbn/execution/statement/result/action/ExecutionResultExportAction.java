@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionResultExportAction extends AbstractExecutionResultAction {
 
@@ -41,7 +42,7 @@ public class ExecutionResultExportAction extends AbstractExecutionResultAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable StatementExecutionCursorResult target) {
-        presentation.setText("Export Data");
+        presentation.setText(txt("app.execution.action.ExportData"));
         presentation.setIcon(Icons.DATA_EXPORT);
     }
 }

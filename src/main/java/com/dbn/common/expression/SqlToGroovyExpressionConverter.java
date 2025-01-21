@@ -16,11 +16,14 @@
 
 package com.dbn.common.expression;
 
+import org.jetbrains.annotations.NonNls;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@NonNls
 public class SqlToGroovyExpressionConverter {
     private static final Map<String, String> cache = new ConcurrentHashMap<>();
 

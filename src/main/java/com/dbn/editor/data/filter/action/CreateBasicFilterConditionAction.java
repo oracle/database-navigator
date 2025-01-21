@@ -22,12 +22,14 @@ import com.dbn.editor.data.filter.ui.DatasetBasicFilterForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 
 public class CreateBasicFilterConditionAction extends BasicAction {
     private final DatasetBasicFilterForm filterForm;
 
     public CreateBasicFilterConditionAction(DatasetBasicFilterForm filterForm) {
-        super("Add condition", null, Icons.ACTION_ADD);
+        super(txt("app.dataEditor.action.AddFilterCondition"), null, Icons.ACTION_ADD);
         this.filterForm = filterForm;
     }
 

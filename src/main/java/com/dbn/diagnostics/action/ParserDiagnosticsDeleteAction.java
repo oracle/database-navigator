@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ParserDiagnosticsDeleteAction extends AbstractParserDiagnosticsAction {
 
@@ -36,8 +37,8 @@ public class ParserDiagnosticsDeleteAction extends AbstractParserDiagnosticsActi
         ParserDiagnosticsResult result = form.getSelectedResult();
         if (result != null) {
             Messages.showQuestionDialog(project,
-                    "Delete diagnostics result",
-                    "Are you sure you want to delete the diagnostic result " + result.getName(),
+                    txt("msg.diagnostics.title.DeleteResult"),
+                    txt("msg.diagnostics.message.DeleteResultConfirmation",result.getName()),
                     Messages.OPTIONS_YES_NO, 0,
                     option -> when(option == 0, () -> {
                         ParserDiagnosticsManager manager = getManager(project);
@@ -53,7 +54,7 @@ public class ParserDiagnosticsDeleteAction extends AbstractParserDiagnosticsActi
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ParserDiagnosticsForm form) {
-        presentation.setText("Delete Result");
+        presentation.setText(txt("app.diagnostics.action.DeleteResult"));
         presentation.setIcon(Icons.ACTION_DELETE);
         if (form != null) {
             ParserDiagnosticsResult result = form.getSelectedResult();

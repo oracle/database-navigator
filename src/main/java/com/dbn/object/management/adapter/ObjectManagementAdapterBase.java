@@ -35,6 +35,10 @@ import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.event.ObjectChangeNotifier;
 import com.dbn.object.management.ObjectManagementAdapter;
 import com.dbn.object.type.DBObjectType;
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
+import com.intellij.openapi.util.NlsContexts.ProgressText;
+import com.intellij.openapi.util.NlsContexts.ProgressTitle;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nls;
@@ -82,7 +86,7 @@ abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectW
         T object = getObject();
         Progress.modal(getProject(), getConnection(), true,
                 getProcessTitle(),
-                getProcessDescription(),
+                getProcessText(),
                 progress -> invoke());
     }
 
@@ -91,7 +95,7 @@ abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectW
         T object = getObject();
         Progress.prompt(getProject(), getConnection(), true,
                 getProcessTitle(),
-                getProcessDescription(),
+                getProcessText(),
                 progress -> invoke());
     }
 
@@ -100,7 +104,7 @@ abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectW
         T object = getObject();
         Progress.background(getProject(), getConnection(), true,
                 getProcessTitle(),
-                getProcessDescription(),
+                getProcessText(),
                 progress -> invoke());
     }
     
@@ -118,7 +122,7 @@ abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectW
         try {
             DatabaseInterfaceInvoker.execute(HIGHEST,
                     getProcessTitle(),
-                    getProcessDescription(),
+                    getProcessText(),
                     getProject(),
                     getConnectionId(),
                     getOwnerId(),
@@ -150,21 +154,27 @@ abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectW
     }
 
     @Nls
-    protected abstract String getProcessDescription();
-
-    @Nls
-    protected abstract String getSuccessMessage();
-
-    @Nls
-    protected abstract String getFailureMessage();
-
-    @Nls
+    @ProgressTitle
     protected abstract String getProcessTitle();
 
     @Nls
+    @ProgressText
+    protected abstract String getProcessText();
+
+    @Nls
+    @DialogMessage
+    protected abstract String getSuccessMessage();
+
+    @Nls
+    @DialogMessage
+    protected abstract String getFailureMessage();
+
+    @Nls
+    @DialogTitle
     protected abstract String getSuccessTitle();
 
     @Nls
+    @DialogTitle
     protected abstract String getFailureTitle();
 
     @FunctionalInterface

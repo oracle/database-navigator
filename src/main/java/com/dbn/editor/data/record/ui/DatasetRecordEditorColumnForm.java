@@ -61,7 +61,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.ParseException;
-import java.util.List;
 
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -123,13 +122,9 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase implements Compon
                             DataEditorValueListPopupSettings valueListPopupSettings = dataEditorSettings.getValueListPopupSettings();
 
                             if (!column.isPrimaryKey() && !column.isUniqueKey() && dataLength <= valueListPopupSettings.getDataLengthThreshold()) {
-                                ListPopupValuesProvider valuesProvider = new ListPopupValuesProviderBase("Possible Values List", false) {
-                                    @Override
-                                    public List<String> getValues() {
-                                        return columnInfo.getPossibleValues();
-                                    }
-                                };
-                                textFieldWithPopup.createValuesListPopup(valuesProvider, valueListPopupSettings.isShowPopupButton());
+                                ListPopupValuesProvider valuesProvider = ListPopupValuesProviderBase.
+                                        create("Possible Values", () -> columnInfo.getPossibleValues());
+                                textFieldWithPopup.createValuesListPopup(valuesProvider, column, valueListPopupSettings.isShowPopupButton());
                             }
 
                             if (dataLength > 20 && !column.isPrimaryKey() && !column.isForeignKey()) {

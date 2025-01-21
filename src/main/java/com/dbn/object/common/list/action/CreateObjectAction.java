@@ -27,12 +27,14 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CreateObjectAction extends BasicAction {
 
     private final WeakRef<DBObjectList> objectList;
 
     CreateObjectAction(DBObjectList objectList) {
-        super("New " + objectList.getObjectType().getName() + "...");
+        super(txt("app.objects.action.NewObject", objectList.getObjectType().getName()));
         this.objectList = WeakRef.of(objectList);
     }
 

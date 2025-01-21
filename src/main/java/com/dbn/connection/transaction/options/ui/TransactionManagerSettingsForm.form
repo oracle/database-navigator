@@ -41,6 +41,13 @@
               <grid row="0" column="3" row-span="4" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
+          <hspacer id="3baec">
+            <constraints>
+              <grid row="1" column="0" row-span="3" col-span="1" vsize-policy="1" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="20" height="-1"/>
+              </grid>
+            </constraints>
+          </hspacer>
           <component id="fbd66" class="javax.swing.JLabel">
             <constraints>
               <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -50,13 +57,6 @@
               <text value=" on &amp;Project Close"/>
             </properties>
           </component>
-          <hspacer id="3baec">
-            <constraints>
-              <grid row="1" column="0" row-span="3" col-span="1" vsize-policy="1" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="20" height="-1"/>
-              </grid>
-            </constraints>
-          </hspacer>
           <component id="1494e" class="com.intellij.openapi.ui.ComboBox" binding="uncommittedChangesOnProjectCloseComboBox">
             <constraints>
               <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -116,6 +116,13 @@
               <grid row="0" column="3" row-span="3" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
+          <hspacer id="2a900">
+            <constraints>
+              <grid row="1" column="0" row-span="2" col-span="1" vsize-policy="1" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="20" height="-1"/>
+              </grid>
+            </constraints>
+          </hspacer>
           <component id="f029" class="javax.swing.JLabel">
             <constraints>
               <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -131,13 +138,6 @@
             </constraints>
             <properties/>
           </component>
-          <hspacer id="2a900">
-            <constraints>
-              <grid row="1" column="0" row-span="2" col-span="1" vsize-policy="1" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="20" height="-1"/>
-              </grid>
-            </constraints>
-          </hspacer>
           <component id="1e9d1" class="javax.swing.JLabel">
             <constraints>
               <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>

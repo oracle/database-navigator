@@ -23,14 +23,20 @@ import com.dbn.common.action.DataKeys;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class HelpAction extends BasicAction {
 
-  public HelpAction() {
-    super("Help", "Resend this prompt", Icons.ACTION_HELP);
+  @Override
+  public void update(@NotNull AnActionEvent e) {
+    Presentation presentation = e.getPresentation();
+    presentation.setText(txt("app.assistant.action.Help"));
+    presentation.setDescription(txt("app.assistant.action.HelpDesc"));
+    presentation.setIcon(Icons.ACTION_HELP);
   }
-
   @Override
   public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
     ChatBoxForm chatBox = anActionEvent.getData(DataKeys.ASSISTANT_CHAT_BOX);

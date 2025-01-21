@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import org.jetbrains.annotations.NonNls;
 
 import java.io.InputStream;
 
@@ -29,7 +30,7 @@ import java.io.InputStream;
 @UtilityClass
 public final class XmlContents {
 
-    public static Element fileToElement(Class clazz, String fileName) throws Exception {
+    public static Element fileToElement(Class clazz, @NonNls String fileName) throws Exception {
         try (InputStream inputStream = clazz.getResourceAsStream(fileName)){
             return streamToElement(inputStream);
         }
@@ -39,7 +40,7 @@ public final class XmlContents {
         return JDOMUtil.load(inputStream);
     }
 
-    public static Document fileToDocument(Class clazz, String fileName) throws Exception {
+    public static Document fileToDocument(Class clazz, @NonNls String fileName) throws Exception {
         try (InputStream inputStream = clazz.getResourceAsStream(fileName)){
             return streamToDocument(inputStream);
         }

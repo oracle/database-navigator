@@ -29,6 +29,8 @@ import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.actionSystem.Shortcut;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JTextField;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -54,7 +56,8 @@ public class DatasetTableCellEditorWithTextEditor extends DatasetTableCellEditor
             }
 
             @Override
-            public void customizeButton(DBNButton button) {
+            public JComponent createButton(Icon icon, String name) {
+                DBNButton button = new DBNButton(icon, name);
                 button.setBorder(Borders.insetBorder(1));
                 button.setBackground(Colors.getTableBackground());
                 int rowHeight = table.getRowHeight();
@@ -67,6 +70,7 @@ public class DatasetTableCellEditorWithTextEditor extends DatasetTableCellEditor
                         button.setPreferredSize(new Dimension(Math.max(20, rowHeight1), table.getRowHeight() - 2));
                     }
                 });
+                return button;
             }
         };
     }

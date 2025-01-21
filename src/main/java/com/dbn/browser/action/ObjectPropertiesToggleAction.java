@@ -21,13 +21,16 @@ import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ToggleAction;
 import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectPropertiesToggleAction extends ToggleAction implements DumbAware {
     public ObjectPropertiesToggleAction() {
-        super("Show properties", null, Icons.BROWSER_OBJECT_PROPERTIES);
+        super(txt("app.browser.action.ShowObjectProperties"), null, Icons.BROWSER_OBJECT_PROPERTIES);
     }
 
     @Override
@@ -52,6 +55,9 @@ public class ObjectPropertiesToggleAction extends ToggleAction implements DumbAw
     @Override
     public void update(@NotNull AnActionEvent e) {
         super.update(e);
-        e.getPresentation().setText(isSelected(e) ? "Hide Object Properties" : "Show Object Properties");
+        Presentation presentation = e.getPresentation();
+        presentation.setText(isSelected(e) ?
+                txt("app.browser.action.HideObjectProperties") :
+                txt("app.browser.action.ShowObjectProperties"));
     }
 }

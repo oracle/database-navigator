@@ -30,6 +30,7 @@ import com.dbn.database.sqlite.adapter.rs.SqliteIndexesResultSet;
 import com.dbn.database.sqlite.adapter.rs.SqliteTriggerSourceResultSet;
 import com.dbn.database.sqlite.adapter.rs.SqliteTriggersResultSet;
 import com.dbn.database.sqlite.adapter.rs.SqliteViewSourceResultSet;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
@@ -37,6 +38,7 @@ import java.sql.SQLException;
 import java.util.Date;
 
 
+@NonNls
 class SqliteMetadataInterface extends DatabaseMetadataInterfaceImpl {
 
     SqliteMetadataInterface(DatabaseInterfaces provider) {
@@ -57,7 +59,7 @@ class SqliteMetadataInterface extends DatabaseMetadataInterfaceImpl {
              * comply with {@link DBSchemaMetadataImpl}
              */
             @Override
-            public String getString(String columnLabel) throws SQLException {
+            public String getString(@NonNls String columnLabel) throws SQLException {
                 switch (columnLabel) {
                     case "SCHEMA_NAME": return inner.getString("name");
 

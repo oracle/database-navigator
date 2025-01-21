@@ -23,6 +23,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class MoveFilterDownAction extends AbstractFilterListAction {
 
     public MoveFilterDownAction(DatasetFilterList filterList) {
@@ -45,7 +47,7 @@ public class MoveFilterDownAction extends AbstractFilterListAction {
 
         Presentation presentation = e.getPresentation();
         presentation.setEnabled(enabled);
-        presentation.setText("Move Selection Down");
+        presentation.setText(txt("app.dataEditor.action.MoveSelectionDown"));
         presentation.setIcon(Icons.ACTION_MOVE_DOWN);
     }
 }

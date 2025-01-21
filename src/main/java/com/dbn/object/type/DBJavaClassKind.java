@@ -20,7 +20,9 @@ import com.dbn.common.constant.Constant;
 import com.dbn.common.constant.Constants;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
+@NonNls
 @Getter
 @AllArgsConstructor
 public enum DBJavaClassKind implements Constant<DBJavaClassKind> {

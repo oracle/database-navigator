@@ -55,14 +55,14 @@ public class ObjectLookupItemBuilder extends LookupItemBuilder {
     @Override
     protected void adjustLookupItem(@NotNull CodeCompletionLookupItem lookupItem) {
         DBObject object = getObject();
-        if (isValid(object)) {
-            if (object.needsNameQuoting()) {
-                DatabaseCompatibilityInterface compatibility = object.getCompatibilityInterface();
-                String lookupString = object.getName();
-                QuotePair quotes = compatibility.getDefaultIdentifierQuotes();
-                lookupString = quotes.quote(lookupString);
-                lookupItem.setLookupString(lookupString);
-            }
+        if (!isValid(object)) return;
+        if (!object.needsNameQuoting()) return;
+
+        DatabaseCompatibilityInterface compatibility = object.getCompatibilityInterface();
+        String lookupString = object.getName();
+        QuotePair quotes = compatibility.getDefaultIdentifierQuotes();
+        lookupString = quotes.quote(lookupString);
+        lookupItem.setLookupString(lookupString);
 
 
 /*
@@ -71,7 +71,6 @@ public class ObjectLookupItemBuilder extends LookupItemBuilder {
                                 BasicInsertHandler.INSTANCE);
 */
 
-        }
     }
 
     @Nullable

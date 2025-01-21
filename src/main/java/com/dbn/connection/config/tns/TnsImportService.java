@@ -38,6 +38,7 @@ import java.io.File;
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.connection.config.tns.TnsImportService.COMPONENT_NAME;
 
@@ -73,7 +74,7 @@ public class TnsImportService extends ApplicationComponentBase implements Persis
 
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         Element optionsElement = newElement(element, "tns-import-options");
 
         setEnum(optionsElement, "import-type", importType);

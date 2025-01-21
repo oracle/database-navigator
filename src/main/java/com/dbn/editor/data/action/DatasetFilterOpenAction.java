@@ -25,10 +25,12 @@ import com.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DatasetFilterOpenAction extends BasicAction {
     private DatasetEditor datasetEditor;
     DatasetFilterOpenAction(DatasetEditor datasetEditor) {
-        super("Manage Filters...", null, Icons.ACTION_EDIT);
+        super(txt("app.data.action.ManageFilters"), null, Icons.ACTION_EDIT);
         this.datasetEditor = datasetEditor;
     }
 

@@ -21,12 +21,14 @@ import com.intellij.ide.util.treeView.smartTree.ActionPresentation;
 import com.intellij.ide.util.treeView.smartTree.ActionPresentationData;
 import com.intellij.ide.util.treeView.smartTree.TreeElement;
 import com.intellij.openapi.actionSystem.Shortcut;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Collections;
 
 public class ShowDetailsNodeProvider implements FileStructureNodeProvider {
+    @NonNls
     public static final String ID = "SHOW_DETAILS";
 
     @NotNull

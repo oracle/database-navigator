@@ -22,6 +22,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ReloadSessionsAction extends AbstractSessionBrowserAction {
 
     @Override
@@ -37,7 +39,7 @@ public class ReloadSessionsAction extends AbstractSessionBrowserAction {
         Presentation presentation = e.getPresentation();
         SessionBrowser sessionBrowser = getSessionBrowser(e);
         presentation.setEnabled(sessionBrowser != null && !sessionBrowser.isLoading());
-        presentation.setText("Reload");
+        presentation.setText(txt("app.sessionBrowser.action.Reload"));
         presentation.setIcon(Icons.DATA_EDITOR_RELOAD_DATA);
         presentation.setEnabled(true);
 

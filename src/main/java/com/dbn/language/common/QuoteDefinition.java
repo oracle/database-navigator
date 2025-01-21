@@ -16,6 +16,8 @@
 
 package com.dbn.language.common;
 
+import org.jetbrains.annotations.NonNls;
+
 import java.util.Arrays;
 
 public class QuoteDefinition {
@@ -66,6 +68,7 @@ public class QuoteDefinition {
         return false;
     }
 
+    @NonNls
     @Override
     public String toString() {
         return "quote definition (pairs=" + Arrays.toString(quotePairs) +')';

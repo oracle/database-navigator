@@ -20,6 +20,8 @@ import com.intellij.openapi.options.ConfigurationException;
 
 import javax.swing.JTextField;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class IntegerSettingValidator implements SettingValidator<IntegerSetting>{
     private String fieldName;
     private String hint;
@@ -39,11 +41,11 @@ public class IntegerSettingValidator implements SettingValidator<IntegerSetting>
         } catch (NumberFormatException e) {
             inputField.grabFocus();
             inputField.selectAll();
-            String message = "Input value for \"" + name + "\" must be an integer between " + min + " and " + max + ".";
+            String message = txt("msg.shared.error.InvalidInteger", name, min, max);
             if (hint != null) {
                 message = message + " " + hint;
             }
-            throw new ConfigurationException(message, "Invalid config value");
+            throw new ConfigurationException(message, txt("msg.shared.title.InvalidConfigValue"));
         }
     }
 }

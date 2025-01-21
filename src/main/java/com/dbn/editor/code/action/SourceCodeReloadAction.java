@@ -28,6 +28,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.editor.DBContentType.CODE_BODY;
+import static com.dbn.editor.DBContentType.CODE_SPEC;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.vfs.file.status.DBFileStatus.LOADING;
 import static com.dbn.vfs.file.status.DBFileStatus.MODIFIED;
 
@@ -47,8 +50,9 @@ public class SourceCodeReloadAction extends AbstractCodeEditorAction {
         if (Checks.isValid(sourceCodeFile)) {
             DBContentType contentType = sourceCodeFile.getContentType();
             String text =
-                contentType == DBContentType.CODE_SPEC ? "Reload Spec" :
-                contentType == DBContentType.CODE_BODY ? "Reload Body" : "Reload";
+                contentType == CODE_SPEC ? txt("app.codeEditor.action.ReloadSpec") :
+                contentType == CODE_BODY ? txt("app.codeEditor.action.ReloadBody") :
+                        txt("app.codeEditor.action.Reload");
 
             presentation.setText(text);
             presentation.setEnabled(sourceCodeFile.isNot(LOADING) && sourceCodeFile.isNot(MODIFIED));

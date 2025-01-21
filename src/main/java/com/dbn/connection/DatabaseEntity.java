@@ -29,11 +29,16 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.exception.Exceptions.unsupported;
+
 public interface DatabaseEntity extends DatabaseContextBase, StatefulDisposable, Presentable {
 
-    @NotNull
     default String getQualifiedName() {
         return getName();
+    }
+
+    default String getQualifiedName(boolean quoted) {
+        return quoted ? unsupported() : getName();
     }
 
     @NotNull
@@ -66,8 +71,8 @@ public interface DatabaseEntity extends DatabaseContextBase, StatefulDisposable,
     @NotNull
     @Override
     default ConnectionHandler getConnection() {
-        throw new UnsupportedOperationException();
-    };
+        return unsupported();
+    }
 
     default boolean isObject() {
         return this instanceof DBObject;

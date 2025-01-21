@@ -36,6 +36,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @BackgroundUpdate
 public class EditorOptionsAction extends BasicActionGroup {
     @NotNull
@@ -71,7 +73,7 @@ public class EditorOptionsAction extends BasicActionGroup {
 
         Presentation presentation = e.getPresentation();
         presentation.setVisible(virtualFile instanceof DBConsoleVirtualFile);
-        presentation.setText("Options");
+        presentation.setText(txt("app.codeEditor.action.Options"));
         presentation.setIcon(Icons.ACTION_OPTIONS);
     }
 }

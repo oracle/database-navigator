@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -279,7 +280,7 @@ public abstract class TokenTypeBundleBase {
         return Lists.anyMatch(tokenSetIds.values(), tokenIds -> tokenIds.contains(tokenId));
     }
 
-    public SimpleTokenType getTokenType(String id) {
+    public SimpleTokenType getTokenType(@NonNls String id) {
         return tokenTypes.get(id);
     }
 

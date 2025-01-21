@@ -26,10 +26,12 @@ import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class HideEmptySchemasToggleAction extends AbstractConnectionToggleAction {
 
     public HideEmptySchemasToggleAction(ConnectionHandler connection) {
-        super("Hide Empty Schemas", connection);
+        super(txt("app.objects.action.HideEmptySchemas"), connection);
 
     }
     @Override

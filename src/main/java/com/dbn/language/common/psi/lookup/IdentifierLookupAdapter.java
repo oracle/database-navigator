@@ -27,6 +27,7 @@ import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.dbn.language.common.psi.LeafPsiElement;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
@@ -124,6 +125,7 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
         return true;
     }
 
+    @NonNls
     public String toString() {
         return "IdentifierLookupAdapter{" +
                 "identifierType=" + identifierType +

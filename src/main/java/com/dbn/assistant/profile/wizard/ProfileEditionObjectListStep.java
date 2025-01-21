@@ -79,11 +79,11 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   private static final int TABLES_COLUMN_HEADERS_OWNER_IDX = 1;
 
   private static final String[] PROFILE_OBJ_TABLES_COLUMN_HEADERS = {
-      txt("profile.mgmt.obj_table.header.name"),
-      txt("profile.mgmt.obj_table.header.owner")
+      txt("cfg.assistant.title.Dataset"),
+      txt("cfg.assistant.title.Owner")
   };
   private static final String[] DB_OBJ_TABLES_COLUMN_HEADERS = {
-      txt("profile.mgmt.obj_table.header.name")
+      txt("cfg.assistant.title.Dataset")
   };
 
   private JPanel mainPanel;
@@ -109,8 +109,8 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
 */
 
   public ProfileEditionObjectListStep(ConnectionHandler connection, ProfileData profile, boolean isUpdate) {
-    super(txt("profile.mgmt.object_list_step.title"),
-        txt("profile.mgmt.object_list_step.explaination"));
+    super(txt("cfg.assistant.title.ProfileObjectSettings"),
+        txt("cfg.assistant.text.ProfileObjectSettings"));
 
     this.connection = connection.ref();
 

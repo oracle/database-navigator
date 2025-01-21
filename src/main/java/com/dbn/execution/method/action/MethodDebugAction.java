@@ -26,6 +26,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class MethodDebugAction extends AnObjectAction<DBMethod> {
     private final boolean listElement;
     public MethodDebugAction(DBMethod method, boolean listElement) {
@@ -48,7 +50,7 @@ public class MethodDebugAction extends AnObjectAction<DBMethod> {
         if (listElement) {
             super.update(e, presentation, project, target);
         } else {
-            presentation.setText("Debug...");
+            presentation.setText(txt("app.execution.action.Debug"));
             presentation.setIcon(Icons.METHOD_EXECUTION_DEBUG);
         }
     }

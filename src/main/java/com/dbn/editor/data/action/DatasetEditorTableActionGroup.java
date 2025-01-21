@@ -49,6 +49,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class DatasetEditorTableActionGroup extends DefaultActionGroup {
@@ -72,7 +73,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
             add(revertChangesAction);
         }
 
-        DefaultActionGroup filterActionGroup = new DefaultActionGroup("Filter", true);
+        DefaultActionGroup filterActionGroup = new DefaultActionGroup(txt("app.dataEditor.action.Filter"), true);
         filterActionGroup.getTemplatePresentation().setIcon(Icons.DATASET_FILTER_NEW);
         //filterActionGroup.getTemplatePresentation().setIcon(Icons.DATASET_FILTER);
         filterActionGroup.add(new CreateFilterAction(false));
@@ -102,7 +103,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         add(filterActionGroup);
 
         if (columnInfo.isSortable()) {
-            DefaultActionGroup sortingActionGroup = new DefaultActionGroup("Sort", true);
+            DefaultActionGroup sortingActionGroup = new DefaultActionGroup(txt("app.dataEditor.action.Sort"), true);
             //sortingActionGroup.getTemplatePresentation().setIcon(Icons.COMMON_SORTING);
             sortingActionGroup.add(new SortAscendingAction());
             sortingActionGroup.add(new SortDescendingAction());
@@ -131,7 +132,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
 
         addSeparator();
 
-        DefaultActionGroup columnPropertiesActionGroup = new DefaultActionGroup("Column Info", true);
+        DefaultActionGroup columnPropertiesActionGroup = new DefaultActionGroup(txt("app.dataEditor.action.ColumnInfo"), true);
         columnPropertiesActionGroup.add(new NavigateToObjectAction(column));
         for (DBObjectNavigationList navigationList : column.getNavigationLists()) {
             if (!navigationList.isLazy()) {
@@ -175,7 +176,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
 
     private class HideColumnAction extends BasicAction {
         private HideColumnAction() {
-            super("Hide Column");
+            super(txt("app.dataEditor.action.HideColumn"));
         }
 
         @Override
@@ -188,7 +189,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
 
     private class HideAuditColumnsAction extends BasicAction {
         private HideAuditColumnsAction() {
-            super("Hide Audit Columns");
+            super(txt("app.dataEditor.action.HideAuditColumns"));
         }
 
         @Override
@@ -200,7 +201,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
 
     private class ShowAuditColumnsAction extends BasicAction {
         private ShowAuditColumnsAction() {
-            super("Show Audit Columns");
+            super(txt("app.dataEditor.action.ShowAuditColumns"));
         }
 
         @Override
@@ -212,7 +213,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
 
     private class SortAscendingAction extends BasicAction {
         private SortAscendingAction() {
-            super("Sort Ascending", null, Icons.ACTION_SORT_ASC);
+            super(txt("app.data.action.SortAscending"), null, Icons.ACTION_SORT_ASC);
         }
 
         @Override
@@ -226,7 +227,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
 
     private class SortDescendingAction extends BasicAction {
         private SortDescendingAction() {
-            super("Sort Descending", null, Icons.ACTION_SORT_DESC);
+            super(txt("app.data.action.SortDescending"), null, Icons.ACTION_SORT_DESC);
         }
 
         @Override
@@ -241,7 +242,9 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
     private class CreateFilterAction extends BasicAction {
         private final boolean filterByValue;
         private CreateFilterAction(boolean filterByValue) {
-            super(filterByValue ? "Filter by This Value" : "Filter by Column...");
+            super(filterByValue ?
+                    txt("app.dataEditor.action.FilterByValue") :
+                    txt("app.dataEditor.action.FilterByColumn"));
             this.filterByValue = filterByValue;
         }
 
@@ -258,7 +261,9 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         private final String text;
         private final boolean like;
         private CreateClipboardFilterAction(String text, boolean like) {
-            super("Filter by Clipboard Value" + (like ? " (like)" : ""));
+            super(like ?
+                    txt("app.dataEditor.action.FilterByClipboardValueLike") :
+                    txt("app.dataEditor.action.FilterByClipboardValue"));
             this.text = text;
             this.like = like;
         }
@@ -276,8 +281,8 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
     private class CreateAdditionalConditionAction extends BasicAction {
         private CreateAdditionalConditionAction() {
             super(columnValue == null ?
-                    "Add Column to Filter..." :
-                    "Add This Value to Filter");
+                    txt("app.dataEditor.action.AddColumnToFilter") :
+                    txt("app.dataEditor.action.AddValueToFilter"));
         }
 
         @Override

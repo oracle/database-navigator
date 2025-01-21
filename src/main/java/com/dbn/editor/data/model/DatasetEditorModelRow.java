@@ -101,7 +101,9 @@ public class DatasetEditorModelRow extends ResultSetDataModelRow<DatasetEditorMo
             set(DELETED, true);
         } catch (SQLException e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(getProject(), "Cannot delete record", "Could not delete row at index " + getIndex() + ".\nCause: " + e.getMessage());
+            Messages.showErrorDialog(getProject(),
+                    txt("msg.dataEditor.title.CannotDeleteRecord"),
+                    txt("msg.dataEditor.error.CannotDeleteRecord",  getIndex(), e.getMessage()));
         }
     }
 

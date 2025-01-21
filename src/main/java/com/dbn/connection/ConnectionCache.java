@@ -19,6 +19,7 @@ package com.dbn.connection;
 import com.dbn.common.project.Projects;
 import com.dbn.common.ref.WeakRef;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -111,7 +112,7 @@ final class ConnectionCache {
         }
 
         @Override
-        public String toString() {
+        public @NonNls String toString() {
             ConnectionHandler connection = get();
             return connection == null ? "null" : connection.getName();
         }

@@ -26,6 +26,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class RecordsFetchNextAction extends AbstractDataEditorAction {
 
     @Override
@@ -37,7 +39,8 @@ public class RecordsFetchNextAction extends AbstractDataEditorAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
         DataEditorSettings settings = DataEditorSettings.getInstance(project);
-        presentation.setText("Fetch Next " + settings.getGeneralSettings().getFetchBlockSize().value() + " Records");
+        Integer count = settings.getGeneralSettings().getFetchBlockSize().value();
+        presentation.setText(txt("app.dataEditor.action.FetchNextRecords", count));
         presentation.setIcon(Icons.DATA_EDITOR_FETCH_NEXT_RECORDS);
 
         boolean enabled =

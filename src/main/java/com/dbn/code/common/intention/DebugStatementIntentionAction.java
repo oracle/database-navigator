@@ -43,6 +43,7 @@ import javax.swing.Icon;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Files.isDbLanguageFile;
 import static com.dbn.common.util.Files.isDbLanguagePsiFile;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DebugStatementIntentionAction extends EditorIntentionAction {
     @Override
@@ -53,7 +54,7 @@ public class DebugStatementIntentionAction extends EditorIntentionAction {
     @Override
     @NotNull
     public String getText() {
-        return "Debug statement";
+        return txt("app.codeEditor.action.DebugStatement");
     }
 
 

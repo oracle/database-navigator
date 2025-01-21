@@ -18,6 +18,7 @@ package com.dbn.language.common.resolve;
 
 import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.dbn.object.common.DBObject;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +35,7 @@ public abstract class UnderlyingObjectResolver {
 
     private final String id;
 
-    public UnderlyingObjectResolver(String id) {
+    public UnderlyingObjectResolver(@NonNls String id) {
         this.id = id;
         RESOLVERS.put(id, this);
 

@@ -93,8 +93,8 @@ public class ExportDataDialog extends DBNDialog<ExportDataForm> {
                     ConnectionHandler connection = getConnection();
                     DataExportInstructions exportInstructions = getForm().getExportInstructions();
                     Progress.prompt(project, connection, true,
-                            "Exporting data",
-                            "Exporting " + exportInstructions.getFormat() + " data to " + exportInstructions.getDestination(),
+                            txt("prc.data.title.ExportingData"),
+                            txt("prc.data.text.ExportingDataTo", exportInstructions.getFormat(), exportInstructions.getDestination()),
                             progress -> {
                                 DataExportManager exportManager = DataExportManager.getInstance(project);
                                 exportManager.setExportInstructions(exportInstructions);

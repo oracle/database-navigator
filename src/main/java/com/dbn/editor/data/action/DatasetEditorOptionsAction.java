@@ -26,6 +26,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DatasetEditorOptionsAction extends BasicActionGroup {
 
     @NotNull
@@ -42,7 +44,7 @@ public class DatasetEditorOptionsAction extends BasicActionGroup {
     @Override
     public void update(@NotNull AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Options");
+        presentation.setText(txt("app.dataEditor.action.Options"));
         presentation.setIcon(Icons.ACTION_OPTIONS);
     }
 }

@@ -21,23 +21,25 @@ import com.dbn.connection.ConnectionContext;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts.ProgressText;
+import com.intellij.openapi.util.NlsContexts.ProgressTitle;
 import lombok.Getter;
 
 @Getter
 public class InterfaceTaskRequest extends ConnectionContext{
-    private final String title;
-    private final String text;
+    private final @ProgressTitle String title;
+    private final @ProgressText String text;
     private final Priority priority;
 
 
-    private InterfaceTaskRequest(Project project, String title, String text, Priority priority, ConnectionId connectionId, SchemaId schemaId) {
+    private InterfaceTaskRequest(Project project, @ProgressTitle String title, @ProgressText String text, Priority priority, ConnectionId connectionId, SchemaId schemaId) {
         super(project, connectionId, schemaId);
         this.title = title;
         this.text = text;
         this.priority = priority;
     }
 
-    public static InterfaceTaskRequest create(Priority priority, String title, String text, Project project, ConnectionId connectionId, SchemaId schemaId) {
+    public static InterfaceTaskRequest create(Priority priority, @ProgressTitle String title, @ProgressText String text, Project project, ConnectionId connectionId, SchemaId schemaId) {
         return new InterfaceTaskRequest(project, title, text, priority, connectionId, schemaId);
     }
 }

@@ -16,16 +16,22 @@
 
 package com.dbn.database.common.metadata.def;
 
+import com.dbn.database.common.security.ObjectIdentifier;
+
 import java.sql.SQLException;
 
 public interface DBDataTypeMetadata {
 
+    @ObjectIdentifier
     String getDataTypeName() throws SQLException;
 
+    @ObjectIdentifier
     String getDeclaredTypeName() throws SQLException;
 
+    @ObjectIdentifier
     String getDeclaredTypeOwner() throws SQLException;
 
+    @ObjectIdentifier
     String getDeclaredTypeProgram() throws SQLException;
 
     long getDataLength() throws SQLException;

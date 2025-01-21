@@ -24,9 +24,10 @@ import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.BasePsiElement;
 import com.intellij.formatting.Spacing;
 import com.intellij.formatting.Wrap;
+import org.jetbrains.annotations.NonNls;
 
 public abstract class IterationAbstractPreset extends CodeStylePresetImpl {
-    IterationAbstractPreset(String id, String name) {
+    IterationAbstractPreset(@NonNls String id, String name) {
         super(id, name);
     }
 

@@ -117,8 +117,9 @@ class DBConstraintImpl extends DBSchemaObjectImpl<DBConstraintMetadata> implemen
 
     @NotNull
     @Override
-    public String getQualifiedName() {
-        return getSchemaName() + '.' + getName();
+    public String getQualifiedName(boolean quoted) {
+        return getSchemaName(quoted) + '.' + getName(quoted);
+
     }
 
     @Nullable

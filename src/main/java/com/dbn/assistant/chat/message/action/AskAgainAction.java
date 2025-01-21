@@ -21,14 +21,24 @@ import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class AskAgainAction extends BasicAction {
   private final String content;
 
   public AskAgainAction(String content) {
-    super("Ask Again", "Resend this prompt", Icons.ACTION_RETRY);
     this.content = content;
+  }
+
+  @Override
+  public void update(@NotNull AnActionEvent e) {
+    Presentation presentation = e.getPresentation();
+    presentation.setText(txt("app.assistant.action.AskAgain"));
+    presentation.setDescription(txt("app.assistant.action.AskAgainDesc"));
+    presentation.setIcon(Icons.ACTION_RETRY);
   }
 
   @Override

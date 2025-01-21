@@ -18,31 +18,46 @@ package com.dbn.object.filter.quick.action;
 
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.ref.WeakRef;
 import com.dbn.object.filter.quick.ui.ObjectQuickFilterConditionForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class EnableDisableQuickFilterConditionAction extends BasicAction {
-    private ObjectQuickFilterConditionForm conditionForm;
+    private final WeakRef<ObjectQuickFilterConditionForm> conditionForm;
 
     public EnableDisableQuickFilterConditionAction(ObjectQuickFilterConditionForm conditionForm) {
-        this.conditionForm = conditionForm;
+        this.conditionForm = WeakRef.of(conditionForm);
     }
 
     @Override
     public void update(@NotNull AnActionEvent e) {
-        e.getPresentation().setIcon(
+        ObjectQuickFilterConditionForm conditionForm = getConditionForm();
+
+        Presentation presentation = e.getPresentation();
+        presentation.setIcon(
                 conditionForm.isActive() ?
                         Icons.COMMON_FILTER_ACTIVE :
                         Icons.COMMON_FILTER_INACTIVE);
-        e.getPresentation().setText(
+        presentation.setText(
                 conditionForm.isActive() ?
-                        "Deactivate Condition" :
-                        "Activate Condition");
+                        txt("app.objects.action.DeactivateCondition") :
+                        txt("app.objects.action.ActivateCondition"));
     }
 
     @Override
+
     public void actionPerformed(@NotNull AnActionEvent e) {
+        ObjectQuickFilterConditionForm conditionForm = getConditionForm();
         conditionForm.setActive(!conditionForm.isActive());
     }
+
+    private ObjectQuickFilterConditionForm getConditionForm() {
+        return WeakRef.ensure(conditionForm);
+    }
+
 }
+

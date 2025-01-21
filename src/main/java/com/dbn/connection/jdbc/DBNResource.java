@@ -20,8 +20,10 @@ import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.TimeUtil;
 import com.dbn.common.util.UUIDs;
+import com.dbn.connection.ConnectionId;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -34,6 +36,7 @@ import static com.dbn.diagnostics.Diagnostics.isDatabaseResourceDebug;
 public abstract class DBNResource<T> extends ResourceStatusHolder implements Resource{
     private final long initTimestamp = System.currentTimeMillis();
     private final ResourceType resourceType;
+    private final ConnectionId connectionId;
     private final String resourceId = UUIDs.compact();
     protected final T inner;
 
@@ -43,13 +46,14 @@ public abstract class DBNResource<T> extends ResourceStatusHolder implements Res
 
     private final Map<String, Long> errorLogs = new ConcurrentHashMap<>();
 
-    DBNResource(T inner, ResourceType type) {
+    DBNResource(T inner, ResourceType type, ConnectionId connectionId) {
         if (inner instanceof DBNResource) {
             throw new IllegalArgumentException("Resource already wrapped");
         }
 
         this.inner = inner;
         this.resourceType = type;
+        this.connectionId = connectionId;
 
         if (this instanceof CloseableResource) {
             CloseableResource closeable = (CloseableResource) this;
@@ -158,4 +162,7 @@ public abstract class DBNResource<T> extends ResourceStatusHolder implements Res
             }
         });
     }
+
+    @Nullable
+    public abstract DBNConnection getConnection();
 }

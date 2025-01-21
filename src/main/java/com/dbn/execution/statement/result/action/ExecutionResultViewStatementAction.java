@@ -28,6 +28,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.Component;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ExecutionResultViewStatementAction extends AbstractExecutionResultAction {
 
     @Override
@@ -38,7 +40,7 @@ public class ExecutionResultViewStatementAction extends AbstractExecutionResultA
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable StatementExecutionCursorResult target) {
-        presentation.setText("View SQL Statement");
+        presentation.setText(txt("app.execution.action.ViewSqlStatement"));
         presentation.setIcon(Icons.EXEC_RESULT_VIEW_STATEMENT);
     }
 

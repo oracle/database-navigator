@@ -91,6 +91,7 @@ import static com.dbn.editor.data.DatasetLoadInstruction.PRESERVE_CHANGES;
 import static com.dbn.editor.data.DatasetLoadInstruction.USE_CURRENT_FILTER;
 import static com.dbn.editor.data.model.RecordStatus.INSERTING;
 import static com.dbn.editor.data.model.RecordStatus.UPDATING;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
     private static final DatasetLoadInstructions SORT_LOAD_INSTRUCTIONS = new DatasetLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION);
@@ -520,8 +521,8 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
             if (insertRowIndex != -1 && (insertRowIndex == e.getFirstIndex() || insertRowIndex == e.getLastIndex()) && getSelectedRow() != insertRowIndex) {
                 DBDataset dataset = getDataset();
                 Progress.prompt(getProject(), dataset, false,
-                        "Refreshing data",
-                        "Refreshing data for " + dataset.getQualifiedNameWithType(),
+                        txt("prc.dataEditor.title.RefreshingData"),
+                        txt("prc.dataEditor.text.RefreshingDataFor", dataset.getQualifiedNameWithType()),
                         progress -> {
                             try {
                                 model.postInsertRecord(false, true, false);
@@ -583,8 +584,8 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
         if (isNotValid(column)) return;
 
         Progress.prompt(getProject(), dataset, true,
-                "Loading column information",
-                "Loading details of " + column.getQualifiedNameWithType(),
+                txt("prc.dataEditor.title.LoadingColumnInformation"),
+                txt("prc.dataEditor.text.LoadingDetailsOf", column.getQualifiedNameWithType()),
                 progress -> {
                     ActionGroup actionGroup = new DatasetEditorTableActionGroup(getDatasetEditor(), cell, columnInfo);
                     progress.checkCanceled();

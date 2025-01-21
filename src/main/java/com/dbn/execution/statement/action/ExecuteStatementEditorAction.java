@@ -37,6 +37,7 @@ import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
 public class ExecuteStatementEditorAction extends ProjectAction {
@@ -58,7 +59,7 @@ public class ExecuteStatementEditorAction extends ProjectAction {
         Presentation presentation = e.getPresentation();
         presentation.setEnabled(isEnabled(e));
         presentation.setIcon(Icons.STMT_EXECUTION_RUN);
-        presentation.setText("Execute Statement");
+        presentation.setText(txt("app.execution.action.ExecuteStatement"));
         presentation.setVisible(isVisible(e));
     }
 

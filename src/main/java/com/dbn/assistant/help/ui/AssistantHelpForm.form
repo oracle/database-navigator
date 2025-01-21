@@ -21,7 +21,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="messages/DBNResources" key="permissions0.message"/>
+              <text resource-bundle="messages/DBNResources" key="cfg.assistant.text.LearnAboutSelectAI"/>
             </properties>
           </component>
           <hspacer id="b3d9f">
@@ -52,7 +52,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="messages/DBNResources" key="permissions1.message"/>
+              <text resource-bundle="messages/DBNResources" key="cfg.assistant.text.FeaturePrerequisites"/>
             </properties>
           </component>
           <hspacer id="9b0ea">
@@ -81,7 +81,7 @@
               <enabled value="true"/>
               <focusable value="true"/>
               <margin top="5" left="5" bottom="5" right="5"/>
-              <text resource-bundle="messages/DBNResources" key="permissions4.message"/>
+              <text resource-bundle="messages/DBNResources" key="cfg.assistant.code.GrantExecution"/>
             </properties>
           </component>
           <component id="653c3" class="javax.swing.JButton" binding="copyPrivilegeButton">
@@ -97,7 +97,7 @@
               <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="7" hsize-policy="7" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="messages/DBNResources" key="permissions3.message"/>
+              <text resource-bundle="messages/DBNResources" key="cfg.assistant.text.GrantExecution"/>
             </properties>
           </component>
           <vspacer id="250b3">
@@ -130,7 +130,7 @@
               <enabled value="true"/>
               <focusable value="true"/>
               <margin top="5" left="5" bottom="5" right="5"/>
-              <text resource-bundle="messages/DBNResources" key="permissions6.message"/>
+              <text resource-bundle="messages/DBNResources" key="cfg.assistant.code.AllowNetworkAccess"/>
             </properties>
           </component>
           <component id="42cab" class="javax.swing.JButton" binding="copyACLButton">
@@ -147,7 +147,7 @@
             </constraints>
             <properties>
               <text value="Apply"/>
-              <toolTipText resource-bundle="messages/DBNResources" key="privilege.apply.enabled"/>
+              <toolTipText resource-bundle="messages/DBNResources" key="cfg.assistant.tooltip.RunCommandsDirectly"/>
             </properties>
           </component>
           <grid id="659dc" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -164,7 +164,7 @@
                 </constraints>
                 <properties>
                   <labelFor value="12849"/>
-                  <text resource-bundle="messages/DBNResources" key="permissions5.message"/>
+                  <text resource-bundle="messages/DBNResources" key="cfg.assistant.text.AllowNetworkAccess"/>
                 </properties>
               </component>
               <hspacer id="45d2">

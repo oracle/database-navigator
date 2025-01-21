@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.util.Actions.SEPARATOR;
+import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
 public class ProgramMethodDebugAction extends ProjectPopupAction {
@@ -101,7 +102,7 @@ public class ProgramMethodDebugAction extends ProjectPopupAction {
         }
 
         presentation.setVisible(visible);
-        presentation.setText("Debug Method");
+        presentation.setText(txt("app.codeEditor.action.DebugMethod"));
         presentation.setIcon(Icons.METHOD_EXECUTION_DEBUG);
     }
 

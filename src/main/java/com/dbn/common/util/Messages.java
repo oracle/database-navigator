@@ -27,6 +27,9 @@ import com.dbn.common.ui.messages.DBNMessageDialog;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts.Button;
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,11 +47,13 @@ import static com.dbn.nls.NlsResources.txt;
 public class Messages {
 
     public static final String[] OPTIONS_OK = options("OK");
-    public static final String[] OPTIONS_YES_NO = options(txt("app.shared.button.Yes"), txt("app.shared.button.No"));
-    public static final String[] OPTIONS_YES_NO_CANCEL = options(txt("app.shared.button.Yes"), txt("app.shared.button.No"), txt("app.shared.button.Cancel"));
-    public static final String[] OPTIONS_CONTINUE_CANCEL = options(txt("app.shared.button.Continue"), txt("app.shared.button.Cancel"));
+    public static final String[] OPTIONS_YES_NO = options(txt("msg.shared.button.Yes"), txt("msg.shared.button.No"));
+    public static final String[] OPTIONS_YES_NO_CANCEL = options(txt("msg.shared.button.Yes"), txt("msg.shared.button.No"), txt("msg.shared.button.Cancel"));
+    public static final String[] OPTIONS_YES_CANCEL = options(txt("msg.shared.button.Yes"), txt("msg.shared.button.Cancel"));
+    public static final String[] OPTIONS_RETRY_CANCEL = options(txt("msg.shared.button.Retry"), txt("msg.shared.button.Cancel"));
+    public static final String[] OPTIONS_CONTINUE_CANCEL = options(txt("msg.shared.button.Continue"), txt("msg.shared.button.Cancel"));
 
-    public static void showErrorDialog(@Nullable Project project, String title, MessageBundle messages) {
+    public static void showErrorDialog(@Nullable Project project,  @DialogTitle String title, MessageBundle messages) {
         StringBuilder buffer = new StringBuilder();
         for (Message message : messages.getErrorMessages()) {
             buffer.append(message.getText());
@@ -65,26 +70,26 @@ public class Messages {
         }
 
         switch (message.getType()) {
-            case INFO: showInfoDialog(project, nvl(title, "Info"), message.getText());
-            case ERROR: showErrorDialog(project, nvl(title, "Error"), message.getText()); break;
-            case WARNING: showWarningDialog(project, nvl(title, "Warning"), message.getText()); break;
+            case INFO: showInfoDialog(project, nvl(title, txt("msg.shared.title.Info")), message.getText());
+            case ERROR: showErrorDialog(project, nvl(title, txt("msg.shared.title.Error")), message.getText()); break;
+            case WARNING: showWarningDialog(project, nvl(title, txt("msg.shared.title.Warning")), message.getText()); break;
             default:
         }
     }
 
-    public static void showErrorDialog(@Nullable Project project, String message, Exception exception) {
+    public static void showErrorDialog(@Nullable Project project, @DialogMessage String message, Exception exception) {
         showErrorDialog(project, null, message, exception);
     }
 
-    public static void showErrorDialog(@Nullable Project project, String title, String message) {
+    public static void showErrorDialog(@Nullable Project project, @DialogTitle String title, @DialogMessage String message) {
         showErrorDialog(project, title, message, null);
     }
 
-    public static void showErrorDialog(@Nullable Project project, String message) {
+    public static void showErrorDialog(@Nullable Project project, @DialogMessage String message) {
         showErrorDialog(project, null, message, null);
     }
 
-    public static void showErrorDialog(@Nullable Project project, @Nullable String title, String message, @Nullable Exception exception) {
+    public static void showErrorDialog(@Nullable Project project, @Nullable @DialogTitle String title, @DialogMessage String message, @Nullable Exception exception) {
         if (project != null && project.isDisposed()) {
             return; // project is disposed
         }
@@ -107,32 +112,32 @@ public class Messages {
         showDialog(project, message, title, OPTIONS_OK, 0, Icons.DIALOG_ERROR, null, null);
     }
 
-    public static void showErrorDialog(@Nullable Project project, String title, String message, String[] options, int defaultOptionIndex, MessageCallback callback) {
+    public static void showErrorDialog(@Nullable Project project,  @DialogTitle String title, @DialogMessage String message, @Button String[] options, int defaultOptionIndex, MessageCallback callback) {
         showDialog(project, message, title, options, defaultOptionIndex, Icons.DIALOG_ERROR, callback, null);
     }
 
-    public static void showQuestionDialog(@Nullable Project project, String title, String message, String[] options, int defaultOptionIndex, MessageCallback callback) {
+    public static void showQuestionDialog(@Nullable Project project,  @DialogTitle String title, @DialogMessage String message, @Button String[] options, int defaultOptionIndex, MessageCallback callback) {
         showQuestionDialog(project, title, message, options, defaultOptionIndex, callback, null);
     }
 
-    public static void showQuestionDialog(@Nullable Project project, String title, String message, String[] options, int defaultOptionIndex, MessageCallback callback, @Nullable DoNotAskOption doNotAskOption) {
+    public static void showQuestionDialog(@Nullable Project project,  @DialogTitle String title, @DialogMessage String message, @Button String[] options, int defaultOptionIndex, MessageCallback callback, @Nullable DoNotAskOption doNotAskOption) {
         showDialog(project, message, title, options, defaultOptionIndex, Icons.DIALOG_QUESTION, callback, doNotAskOption);
     }
 
 
-    public static void showWarningDialog(@Nullable Project project, String title, String message) {
+    public static void showWarningDialog(@Nullable Project project,  @DialogTitle String title, @DialogMessage String message) {
         showWarningDialog(project, title, message, OPTIONS_OK, 0, null);
     }
 
-    public static void showWarningDialog(@Nullable Project project, String title, String message, String[] options, int defaultOptionIndex, MessageCallback callback) {
+    public static void showWarningDialog(@Nullable Project project,  @DialogTitle String title, @DialogMessage String message, @Button String[] options, int defaultOptionIndex, MessageCallback callback) {
         showDialog(project, message, title, options, defaultOptionIndex, Icons.DIALOG_WARNING, callback, null);
     }
 
-    public static void showInfoDialog(@Nullable Project project, String title, String message) {
+    public static void showInfoDialog(@Nullable Project project,  @DialogTitle String title, @DialogMessage String message) {
         showInfoDialog(project, title, message, OPTIONS_OK, 0, null);
     }
 
-    public static void showInfoDialog(@Nullable Project project, String title, String message, String[] options, int defaultOptionIndex, MessageCallback callback) {
+    public static void showInfoDialog(@Nullable Project project,  @DialogTitle String title, @DialogMessage String message, @Button String[] options, int defaultOptionIndex, MessageCallback callback) {
         showDialog(project, message, title, options, defaultOptionIndex, Icons.DIALOG_INFORMATION, callback, null);
     }
 
@@ -142,9 +147,9 @@ public class Messages {
 
     private static void showDialog(
             @Nullable Project project,
-            String message,
-            String title,
-            String[] options,
+            @DialogMessage String message,
+            @DialogTitle String title,
+            @Button String[] options,
             int defaultOptionIndex,
             @Nullable Icon icon,
             @Nullable MessageCallback callback,
@@ -152,8 +157,6 @@ public class Messages {
 
         Dispatch.run(getModalityState(), () -> {
             if (project != null) nd(project);
-            closeProgressDialogs();
-
             int option = showDialog(project, message, title, options, defaultOptionIndex, icon, doNotAskOption);
             //int option = com.intellij.openapi.ui.Messages.showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, icon, doNotAskOption);
             if (callback != null) {
@@ -163,12 +166,13 @@ public class Messages {
     }
 
     public static int showDialog(@Nullable Project project, String message, String title, String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable DoNotAskOption doNotAskOption) {
+        closeProgressDialogs();
         DBNMessageDialog messageDialog = new DBNMessageDialog(project, icon, title, message, options, defaultOptionIndex, doNotAskOption);
         messageDialog.show();
         return messageDialog.getExitCode();
     }
 
-    public static String[] options(String ... options) {
+    public static @Button String[] options(String ... options) {
         return Commons.list(options);
     }
 

@@ -22,12 +22,14 @@ import com.dbn.editor.data.state.sorting.ui.DatasetEditorSortingForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 
 public class AddSortingColumnAction extends BasicAction {
     private final DatasetEditorSortingForm form;
 
     public AddSortingColumnAction(DatasetEditorSortingForm form) {
-        super("Add Sorting Column ", null, Icons.ACTION_ADD);
+        super(txt("app.data.action.AddSortingColumn"), null, Icons.ACTION_ADD);
         this.form = form;
     }
 

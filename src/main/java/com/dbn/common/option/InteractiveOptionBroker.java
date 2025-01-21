@@ -30,6 +30,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -49,7 +50,7 @@ public class InteractiveOptionBroker<T extends InteractiveOption> implements DoN
 
     @SafeVarargs
     public InteractiveOptionBroker(
-            String configName,
+            @NonNls String configName,
             @Nls String title,
             @Nls String message,
             @NotNull T defaultOption,

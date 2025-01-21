@@ -50,8 +50,8 @@ public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
 
   @Override
   protected void initialize(@NotNull ToolWindow toolWindow) {
-    toolWindow.setTitle(txt("companion.window.title"));
-    toolWindow.setStripeTitle(txt("companion.window.title"));
+    toolWindow.setTitle(txt("app.assistant.title.DatabaseAssistant"));
+    toolWindow.setStripeTitle(txt("app.assistant.title.DatabaseAssistant"));
     toolWindow.setIcon(WINDOW_DATABASE_ASSISTANT.get());
   }
 

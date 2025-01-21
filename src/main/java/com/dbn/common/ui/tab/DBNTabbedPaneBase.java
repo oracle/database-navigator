@@ -27,7 +27,6 @@ import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Actions;
-import com.dbn.common.util.Context;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionGroup;
@@ -35,11 +34,9 @@ import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.actionSystem.impl.PresentationFactory;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.util.ui.JBDimension;
@@ -68,8 +65,10 @@ import java.util.List;
 import static com.dbn.common.ui.util.ClientProperty.TAB_CONTENT;
 import static com.dbn.common.ui.util.ClientProperty.TAB_ICON;
 import static com.dbn.common.ui.util.ClientProperty.TAB_TOOLTIP;
+import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.ui.util.UserInterface.findChildComponent;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -77,7 +76,6 @@ import static com.dbn.common.util.Unsafe.cast;
 class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements StatefulDisposable, DataProviderDelegate {
     private boolean disposed;
     private int popupTabIndex = -1;
-    private ListPopup hiddenTabsPopup;
     private JPanel hiddenTabsActionPanel;
     protected final Listeners<DBNTabsSelectionListener> selectionListeners = new Listeners<>();
     protected final Listeners<DBNTabsUpdateListener> updateListeners = new Listeners<>();
@@ -102,7 +100,7 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
         public HiddenTabsPanel() {
             super(new BorderLayout());
 
-            AnAction action = new AnAction("Show Hidden Tabs", null, AllIcons.Actions.FindAndShowNextMatches) {
+            AnAction action = new AnAction(txt("app.shared.action.ShowHiddenTabs"), null, AllIcons.Actions.FindAndShowNextMatches) {
                 @Override
                 public void actionPerformed(@NotNull AnActionEvent e) {
                     showHiddenTabsPopup(e.getDataContext());
@@ -125,12 +123,12 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
         DBNTabbedPaneUI ui = (DBNTabbedPaneUI) getUI();
         List<Integer> indexes = ui.getHiddenTabIndexes();
 
-        DefaultActionGroup actionGroup = new DefaultActionGroup();
+        List<AnAction> actions = new ArrayList<>();
         for (int index : indexes) {
             String title = getTitleAt(index);
             title = Actions.adjustActionName(title);
             Icon icon = getIconAt(index);
-            actionGroup.add(new AnAction(title, null, icon) {
+            actions.add(new AnAction(title, null, icon) {
                 @Override
                 public void actionPerformed(@NotNull AnActionEvent e) {
                     setSelectedIndex(index);
@@ -138,18 +136,11 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
             });
         }
 
-        hiddenTabsPopup = JBPopupFactory.getInstance().createActionGroupPopup(
-                null,
-                actionGroup,
-                dataContext,
-                false,
-                false,
-                false,
-                () -> hiddenTabsPopup = null,
-                10,
-                a -> false);
-
-        hiddenTabsPopup.showInBestPositionFor(dataContext);
+        popupBuilder(actions, dataContext).
+                withTitle("Hidden Tabs").
+                withTitleVisible(false).
+                withSpeedSearch().
+                buildAndShow();
     }
 
     private void installTabCloser(boolean mutable) {
@@ -327,16 +318,13 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
     private void showPopup(ActionGroup actionGroup, int x, int y) {
         Point location = getLocationOnScreen();
         location.setLocation(location.getX() + x, location.getY() + y);
-        ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
-                null,
-                actionGroup,
-                Context.getDataContext(this),
-                false,
-                false,
-                false,
-                () -> popupTabIndex = -1,
-                10,
-                a -> false);
+
+        ListPopup popup = popupBuilder(actionGroup, this).
+                withTitle("Tab Actions").
+                withTitleVisible(false).
+                withDisposeCallback(() -> popupTabIndex = -1).
+                withMaxRowCount(10).
+                build();
 
         popup.showInScreenCoordinates(this, location);
     }

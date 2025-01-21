@@ -35,11 +35,11 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="drop-object">
-        <statement>drop {0} {1}</statement>
+        <statement>drop {0} {2}</statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="drop-object-if-exists">
-        <statement>drop {0} if exists "{1}"</statement>
+        <statement>drop {0} if exists {2}</statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="get-session-sql-mode" is-query="true">

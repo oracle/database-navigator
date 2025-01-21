@@ -17,9 +17,11 @@
 package com.dbn.language.common.element.util;
 
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Objects;
 
+@NonNls
 @Getter
 public enum ElementTypeDefinition {
 

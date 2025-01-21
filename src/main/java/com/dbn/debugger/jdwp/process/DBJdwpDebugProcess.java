@@ -324,10 +324,12 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         T input = getExecutionInput();
         ManagedThreadCommand.schedule(debugProcess, LOW, () -> {
             Progress.background(getProject(), getConnection(), false,
-                    "Running debugger target program",
-                    "Executing " + (input == null ? " target program" : input.getExecutionContext().getTargetName()),
+                    txt("prc.debugger.title.RunningDebuggerTarget"),
+                    input == null ?
+                            txt("prc.debugger.text.ExecutingTargetProgram") :
+                            txt("prc.debugger.text.Executing", input.getExecutionContext().getTargetName()),
                     progress -> {
-                        console.system("Executing target program...");
+                        console.system(txt("log.debugger.info.ExecutingTargetProgram"));
                         if (is(DBDebugProcessStatus.SESSION_INITIALIZATION_THREW_EXCEPTION)) return;
                         try {
                             set(DBDebugProcessStatus.TARGET_EXECUTION_STARTED, true);
@@ -336,8 +338,10 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                             conditionallyLog(e);
                             set(DBDebugProcessStatus.TARGET_EXECUTION_THREW_EXCEPTION, true);
                             if (isNot(DBDebugProcessStatus.DEBUGGER_STOPPING)) {
-                                String message = input == null ? "Error executing target program" : "Error executing " + input.getExecutionContext().getTargetName();
-                                console.error(message + ": " + e.getMessage());
+                                String errorMessage = e.getMessage();
+                                console.error(input == null ?
+                                        txt("log.debugger.error.ErrorExecutingTargetProgram", errorMessage) :
+                                        txt("log.debugger.error.ErrorExecuting", input.getExecutionContext().getTargetName(), errorMessage));
                             }
                         } finally {
                             set(DBDebugProcessStatus.TARGET_EXECUTION_TERMINATED, true);
@@ -354,7 +358,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         if (canStopDebugger()) {
             set(DBDebugProcessStatus.DEBUGGER_STOPPING, true);
             set(DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED, false);
-            console.system("Stopping debugger...");
+            console.system(txt("log.debugger.info.StoppingDebugger"));
             getSession().stop();
             stopDebugger();
             super.stop();
@@ -367,8 +371,8 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
 
     private void stopDebugger() {
         Progress.background(getProject(), getConnection(), false,
-                "Stopping debugger",
-                "Stopping debugger session",
+                txt("prc.debugger.title.StoppingDebugger"),
+                txt("prc.debugger.text.StoppingDebugSession"),
                 progress -> {
                     T input = getExecutionInput();
                     if (input != null && isNot(DBDebugProcessStatus.TARGET_EXECUTION_TERMINATED)) {
@@ -381,7 +385,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                     DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(getProject());
                     debuggerManager.unregisterDebugSession(connection);
                     releaseTargetConnection();
-                    console.system("Debugger stopped");
+                    console.system(txt("log.debugger.info.DebuggerStopped"));
                     set(DBDebugProcessStatus.DEBUGGER_STOPED, false);
                     set(DBDebugProcessStatus.DEBUGGER_STOPPING, false);
                 });
@@ -389,20 +393,20 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
 
     private void releaseSession(DBNConnection targetConnection) {
         try {
-            console.system("Releasing debug session...");
+            console.system(txt("log.debugger.info.ReleasingDebugSession"));
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             debuggerInterface.disconnectJdwpSession(targetConnection);
 
         } catch (Throwable e) {
             conditionallyLog(e);
-            console.error("Error releasing debug session: " + e.getMessage());
+            console.error(txt("log.debugger.error.ErrorReleasingDebugSession", e.getMessage()));
         }
     }
 
 
 
     protected void releaseTargetConnection() {
-        console.system("Releasing target connection...");
+        console.system(txt("log.debugger.info.ReleasingTargetConnection"));
         Resources.close(targetConnection);
         targetConnection = null;
     }
@@ -436,7 +440,8 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
             }
         } catch (Exception e) {
             conditionallyLog(e);
-            getConsole().warning("Error evaluating suspend position '" + sourceUrl + "': " + Commons.nvl(e.getMessage(), simpleClassName(e)));
+            String errorMessage = Commons.nvl(e.getMessage(), simpleClassName(e));
+            console.warning(txt("log.debugger.error.ErrorEvaluatingSuspendPosition", sourceUrl, errorMessage));
         }
         return null;
     }

@@ -29,12 +29,10 @@ import com.dbn.common.ui.util.Popups;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
-import com.dbn.common.util.Context;
 import com.dbn.common.util.Strings;
 import com.intellij.ide.ui.laf.darcula.ui.DarculaTextBorder;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.util.IconUtil;
 import com.intellij.util.ui.JBUI;
@@ -231,33 +229,26 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
             actionGroup.add(Actions.SEPARATOR);
             actionGroup.add(new AddValueAction());
         }
-        popup = JBPopupFactory.getInstance().createActionGroupPopup(
-                null,
-                actionGroup,
-                Context.getDataContext(this),
-                false,
-                false,
-                false,
-                () -> {
-                    popup = null;
 
-                    innerPanel.setBackground(Colors.getPanelBackground());
-                    innerPanel.setCursor(Cursors.handCursor());
-                    label.setCursor(Cursors.handCursor());
+        popup = Popups.popupBuilder(actionGroup, this).
+                withTitle(label.getText()).
+                withTitleVisible(false).
+                withMaxRowCount(10).
+                withSpeedSearch().
+                withDisposeCallback(() -> adjustSelector()).
+                build();
 
-                    UserInterface.repaint(ValueSelector.this);
-                },
-                10,
-                preselect -> {
-/*
-                    if (anAction instanceof ValueSelector.SelectValueAction) {
-                        SelectValueAction action = (SelectValueAction) anAction;
-                        return action.value.equals(selectedValue);
-                    }
-*/
-                    return false;
-                });
         Popups.showUnderneathOf(popup, this, 3, 200);
+    }
+
+    private void adjustSelector() {
+        popup = null;
+
+        innerPanel.setBackground(Colors.getPanelBackground());
+        innerPanel.setCursor(Cursors.handCursor());
+        label.setCursor(Cursors.handCursor());
+
+        UserInterface.repaint(ValueSelector.this);
     }
 
     public void clearValues() {

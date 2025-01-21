@@ -58,7 +58,9 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.options.ConfigActivity.INITIALIZING;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
     name = ProjectSettingsManager.COMPONENT_NAME,
@@ -184,7 +186,7 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         projectSettings.writeConfiguration(element);
         return element;
     }
@@ -203,40 +205,40 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
     public void exportToDefaultSettings() {
         Project project = getProject();
         Messages.showQuestionDialog(
-                project, "Default project settings",
-                "This will overwrite your default settings with the ones from the current project (including database connections configuration). \nAre you sure you want to continue?",
-                new String[]{"Yes", "No"}, 0,
+                project, txt("msg.settings.title.DefaultProjectSettings"),
+                txt("msg.settings.message.DefaultProjectSettingsOverride"),
+                Messages.OPTIONS_YES_NO, 0,
                 option -> when(option == 0, () -> {
                     try {
-                        Element element = new Element("state");
+                        Element element = newStateElement();
                         getProjectSettings().writeConfiguration(element);
 
                         ConnectionBundleSettings.IS_IMPORT_EXPORT_ACTION.set(true);
                         ProjectSettings defaultProjectSettings = ProjectSettings.getDefault();
                         defaultProjectSettings.readConfiguration(element);
-                        Messages.showInfoDialog(project, "Project settings", "Project settings exported as default");
+                        Messages.showInfoDialog(project, 
+                                txt("msg.settings.title.ProjectSettings"),
+                                txt("msg.settings.message.ProjectSettingsExported"));
                     } finally {
                         ConnectionBundleSettings.IS_IMPORT_EXPORT_ACTION.set(false);
                     }
                 }));
     }
 
-    public void importDefaultSettings(final boolean isNewProject) {
+    public void importDefaultSettings(final boolean newProject) {
         Project project = getProject();
         Boolean settingsLoaded = project.getUserData(UserDataKeys.PROJECT_SETTINGS_LOADED);
-        if (settingsLoaded == null || !settingsLoaded || !isNewProject) {
-            String message = isNewProject ?
-                    "Do you want to import the default project settings into project \"" + project.getName() + "\"?":
-                    "Your current settings will be overwritten with the default project settings, " +
-                    "including database connections configuration.\n" +
-                    "Are you sure you want to import the default project settings into project \"" + project.getName() + "\"?";
+        if (settingsLoaded == null || !settingsLoaded || !newProject) {
+            String projectName = project.getName();
             Messages.showQuestionDialog(
-                    project, "Default project settings",
-                    message,
-                    new String[]{"Yes", "No"}, 0,
+                    project, txt("msg.settings.title.DefaultProjectSettings"),
+                    newProject ?
+                            txt("msg.settings.message.ImportDefaultProjectSettings", projectName) :
+                            txt("msg.settings.message.ImportDefaultProjectSettingsOverride", projectName),
+                    Messages.OPTIONS_YES_NO, 0,
                     option -> when(option == 0, () -> {
                         try {
-                            Element element = new Element("state");
+                            Element element = newStateElement();
                             ProjectSettings defaultProjectSettings = ProjectSettings.getDefault();
                             defaultProjectSettings.writeConfiguration(element);
 
@@ -247,8 +249,10 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
                                     ConnectionConfigListener.TOPIC,
                                     (listener) -> listener.connectionsChanged());
 
-                            if (!isNewProject) {
-                                Messages.showInfoDialog(project, "Project settings", "Default project settings loaded to project \"" + project.getName() + "\".");
+                            if (!newProject) {
+                                Messages.showInfoDialog(project,
+                                        txt("msg.settings.title.ProjectSettings"),
+                                        txt("msg.settings.message.DefaultProjectSettingsLoaded", projectName));
                             }
                         } finally {
                             ConnectionBundleSettings.IS_IMPORT_EXPORT_ACTION.set(false);

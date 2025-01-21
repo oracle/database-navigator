@@ -24,6 +24,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Credential management update action
  * (prompts a credential detail dialog populated with the details of the selected credential)
@@ -47,7 +49,7 @@ public class CredentialEditAction extends CredentialManagementAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.ACTION_EDIT);
-        presentation.setText("Edit Credential");
+        presentation.setText(txt("app.assistant.action.EditCredential"));
         presentation.setEnabled(isEnabled(e));
     }
 
