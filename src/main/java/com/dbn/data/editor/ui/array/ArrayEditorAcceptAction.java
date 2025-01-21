@@ -21,9 +21,11 @@ import com.dbn.data.editor.ui.UserValueHolder;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 class ArrayEditorAcceptAction extends ArrayEditorAction {
     ArrayEditorAcceptAction() {
-        super("Accept Changes", null, Icons.TEXT_CELL_EDIT_ACCEPT);
+        super(txt("app.data.action.AcceptChanges"), null, Icons.TEXT_CELL_EDIT_ACCEPT);
         //setShortcutSet(Keyboard.createShortcutSet(KeyEvent.VK_ENTER, InputEvent.ALT_DOWN_MASK));
     }
 

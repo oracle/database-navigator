@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 public interface ListPopupValuesProvider {
-    String getDescription();
+    String getName();
 
     List<String> getValues();
 

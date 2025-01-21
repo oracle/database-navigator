@@ -19,6 +19,7 @@ package com.dbn.menu.action;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.ui.util.Popups;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionBundle;
@@ -32,11 +33,9 @@ import com.dbn.vfs.DBConsoleType;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.Separator;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,12 +43,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.dbn.common.util.Lists.convert;
+import static com.dbn.nls.NlsResources.txt;
+
 public class SQLConsoleOpenAction extends ProjectAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Open SQL Console...");
+        presentation.setText(txt("app.menu.action.OpenSqlConsole"));
         presentation.setIcon(Icons.SQL_CONSOLE);
     }
 
@@ -69,31 +71,13 @@ public class SQLConsoleOpenAction extends ProjectAction {
             return;
         }
 
-        DefaultActionGroup actionGroup = new DefaultActionGroup();
-        actionGroup.addSeparator();
-        for (ConnectionHandler connection : connections) {
-            actionGroup.add(new SelectConnectionAction(connection));
-        }
+        List<SelectConnectionAction> actions = convert(connections, c -> new SelectConnectionAction(c));
+        ListPopup popup = Popups.popupBuilder(actions, e).
+                withTitle("Select Console Connection").
+                withSpeedSearch().
+                build();
 
-        ListPopup popupBuilder = JBPopupFactory.getInstance().createActionGroupPopup(
-                "Select Console Connection",
-                actionGroup,
-                e.getDataContext(),
-                //JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-                false,
-                true,
-                true,
-                null,
-                actionGroup.getChildrenCount(),
-                preselect -> {
-/*
-                        SelectConsoleAction selectConnectionAction = (SelectConsoleAction) action;
-                        return latestSelection == selectConnectionAction.connection;
-*/
-                    return true;
-                });
-
-        popupBuilder.showCenteredInCurrentWindow(project);
+        popup.showCenteredInCurrentWindow(project);
 
     }
 
@@ -138,7 +122,7 @@ public class SQLConsoleOpenAction extends ProjectAction {
 
 
         SelectConsoleAction(ConnectionHandler connection, DBConsoleType consoleType) {
-            super("New " + consoleType.getName() + "...");
+            super(txt("app.editors.action.NewConsole",consoleType.getName()));
             this.connection = ConnectionRef.of(connection);
             this.consoleType = consoleType;
         }

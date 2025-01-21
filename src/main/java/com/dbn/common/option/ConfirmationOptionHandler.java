@@ -26,6 +26,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
@@ -37,7 +38,7 @@ public class ConfirmationOptionHandler implements DoNotAskOption, PersistentConf
     private final String message;
     private boolean confirm;
 
-    public ConfirmationOptionHandler(String configName, String title, String message, boolean defaultKeepAsking) {
+    public ConfirmationOptionHandler(@NonNls String configName, String title, String message, boolean defaultKeepAsking) {
         this.configName = configName;
         this.title = title;
         this.message = message;

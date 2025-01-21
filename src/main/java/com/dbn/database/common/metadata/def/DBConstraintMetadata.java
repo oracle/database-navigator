@@ -17,13 +17,16 @@
 package com.dbn.database.common.metadata.def;
 
 import com.dbn.database.common.metadata.DBObjectMetadata;
+import com.dbn.database.common.security.ObjectIdentifier;
 
 import java.sql.SQLException;
 
 public interface DBConstraintMetadata extends DBObjectMetadata {
 
+    @ObjectIdentifier
     String getDatasetName() throws SQLException;
 
+    @ObjectIdentifier
     String getConstraintName() throws SQLException;
 
     String getConstraintType() throws SQLException;
@@ -32,6 +35,7 @@ public interface DBConstraintMetadata extends DBObjectMetadata {
 
     String getFkConstraintOwner() throws SQLException;
 
+    @ObjectIdentifier
     String getFkConstraintName() throws SQLException;
 
     boolean isEnabled() throws SQLException;

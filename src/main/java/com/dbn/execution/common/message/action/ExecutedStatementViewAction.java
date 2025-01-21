@@ -30,11 +30,9 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.Component;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutedStatementViewAction extends AbstractExecutionMessagesAction {
-    public ExecutedStatementViewAction() {
-        super("View SQL Statement", null, Icons.EXEC_RESULT_VIEW_STATEMENT);
-    }
 
     @Override
     protected void actionPerformed(
@@ -64,7 +62,7 @@ public class ExecutedStatementViewAction extends AbstractExecutionMessagesAction
                 target.getSelectionPath().getLastPathComponent() instanceof StatementExecutionMessageNode;
 
         presentation.setEnabled(enabled);
-        presentation.setText("View SQL Statement");
+        presentation.setText(txt("app.execution.action.ViewSqlStatement"));
         presentation.setIcon(Icons.EXEC_RESULT_VIEW_STATEMENT);
     }
 }

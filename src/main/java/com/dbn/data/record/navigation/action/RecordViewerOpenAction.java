@@ -24,10 +24,12 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class RecordViewerOpenAction extends ProjectAction {
     private DatasetFilterInput filterInput;
 
-    RecordViewerOpenAction(DatasetFilterInput filterInput) {
+    public RecordViewerOpenAction(DatasetFilterInput filterInput) {
         this.filterInput = filterInput;
     }
 
@@ -40,6 +42,6 @@ public class RecordViewerOpenAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Record Viewer");
+        presentation.setText(txt("app.dataEditor.action.RecordViewer"));
     }
 }

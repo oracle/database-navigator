@@ -16,6 +16,8 @@
 
 package com.dbn.database.common.metadata;
 
+import org.jetbrains.annotations.NonNls;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
@@ -27,12 +29,13 @@ public abstract class DBObjectMetadataBase {
         this.resultSet = resultSet;
     }
 
-    protected String getString(String columnLabel) throws SQLException {
+    @NonNls
+    protected String getString(@NonNls String columnLabel) throws SQLException {
         String string = resultSet.getString(columnLabel);
         return string == null ? null : string.intern();
     }
 
-    protected boolean isYesFlag(String columnLabel) throws SQLException {
+    protected boolean isYesFlag(@NonNls String columnLabel) throws SQLException {
         return Objects.equals(getString(columnLabel), "Y");
     }
 }

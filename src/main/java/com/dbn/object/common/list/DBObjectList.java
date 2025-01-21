@@ -61,4 +61,6 @@ public interface DBObjectList<T extends DBObject> extends BrowserTreeNode, Dynam
     void collectObjects(Consumer<? super DBObject> consumer);
 
     boolean contains(T object);
+
+    String getCapitalizedName();
 }

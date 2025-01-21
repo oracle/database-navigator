@@ -18,6 +18,7 @@ package com.dbn.language.sql.dialect.oracle;
 
 import com.dbn.language.common.lexer.DBLanguageCompoundLexer;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -109,7 +110,7 @@ public final class OraclePLSQLBlockMonitor {
         stack.clear();
     }
 
-    private void log(String step) {
+    private void log(@NonNls String step) {
         if (debugMode) log.info("[BLOCK-MONITOR] {}{}", step, lexer.getCurrentToken());
     }
 

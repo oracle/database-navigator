@@ -24,6 +24,10 @@ import com.dbn.object.event.ObjectChangeAction;
 import org.jetbrains.annotations.Nls;
 
 import static com.dbn.object.common.status.DBObjectStatus.ENABLED;
+import static com.intellij.openapi.util.NlsContexts.DialogMessage;
+import static com.intellij.openapi.util.NlsContexts.DialogTitle;
+import static com.intellij.openapi.util.NlsContexts.ProgressText;
+import static com.intellij.openapi.util.NlsContexts.ProgressTitle;
 
 /**
  * Abstract implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} for ENABLE actions, 
@@ -43,35 +47,42 @@ public final class DBObjectEnableAdapter<T extends DBSchemaObject> extends Objec
     }
 
     @Nls
+    @Override
+    @DialogTitle
     protected String getSuccessTitle() {
         return txt("msg.objects.title.ActionSuccess_ENABLE");
     }
 
     @Nls
-    protected  String getFailureTitle() {
+    @DialogTitle
+    protected String getFailureTitle() {
         return txt("msg.objects.title.ActionFailure_ENABLE");
     }
 
     @Nls
     @Override
+    @ProgressTitle
     protected String getProcessTitle() {
         return txt("prc.object.title.EnablingObject", getObjectTypeName());
     }
 
     @Nls
     @Override
-    protected String getProcessDescription() {
-        return txt("prc.object.message.EnablingObject", getObjectTypeName(), getObjectName());
+    @ProgressText
+    protected String getProcessText() {
+        return txt("prc.object.text.EnablingObject", getObjectTypeName(), getObjectName());
     }
 
     @Nls
     @Override
+    @DialogMessage
     protected String getSuccessMessage() {
         return txt("msg.object.info.ObjectEnableSuccess", getObjectTypeName(), getObjectName());
     }
 
     @Nls
     @Override
+    @DialogMessage
     protected String getFailureMessage() {
         return txt("msg.object.error.ObjectEnableFailure", getObjectType(), getObjectName());
     }

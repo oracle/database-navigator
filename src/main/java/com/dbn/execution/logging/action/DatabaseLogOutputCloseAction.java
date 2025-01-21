@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseLogOutputCloseAction extends AbstractDatabaseLoggingAction {
 
@@ -35,8 +36,8 @@ public class DatabaseLogOutputCloseAction extends AbstractDatabaseLoggingAction 
         if (loggingResult.getContext().isActive()) {
             Messages.showQuestionDialog(
                     project,
-                    "Process active",
-                    "The process is still active. Closing the log output will interrupt the process. \nAre you sure you want to close the console?",
+                    txt("msg.execution.title.ProcessActive"),
+                    txt("msg.execution.question.ProcessActive"),
                     Messages.OPTIONS_YES_NO, 0,
                     option -> when(option == 0, () -> closeConsole(loggingResult, project)));
         } else {
@@ -52,7 +53,7 @@ public class DatabaseLogOutputCloseAction extends AbstractDatabaseLoggingAction 
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatabaseLoggingResult target) {
-        presentation.setText("Close");
+        presentation.setText(txt("app.shared.action.Close"));
         presentation.setIcon(Icons.EXEC_RESULT_CLOSE);
     }
 }

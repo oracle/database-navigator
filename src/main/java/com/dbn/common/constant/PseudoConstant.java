@@ -18,6 +18,7 @@ package com.dbn.common.constant;
 
 import com.dbn.common.util.Unsafe;
 import lombok.EqualsAndHashCode;
+import org.jetbrains.annotations.NonNls;
 
 /**
  * Use this "constant" if the possible values are variable (i.e. cannot be implemented with enum).
@@ -54,7 +55,7 @@ public abstract class PseudoConstant<T extends PseudoConstant<T>> implements Con
 		return id();
 	}
 
-    public static <T extends PseudoConstant<T>> T get(Class<T> clazz, String id) {
+    public static <T extends PseudoConstant<T>> T get(Class<T> clazz, @NonNls String id) {
         return PseudoConstantRegistry.get(clazz, id);
     }
 
@@ -62,7 +63,7 @@ public abstract class PseudoConstant<T extends PseudoConstant<T>> implements Con
         return PseudoConstantRegistry.values(clazz);
     }
 
-    public static <T extends PseudoConstant<T>> T[] list(Class<T> clazz, String ids) {
+    public static <T extends PseudoConstant<T>> T[] list(Class<T> clazz, @NonNls String ids) {
         return PseudoConstantRegistry.list(clazz, ids);
     }
 

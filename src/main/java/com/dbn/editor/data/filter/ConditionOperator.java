@@ -18,6 +18,7 @@ package com.dbn.editor.data.filter;
 
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
@@ -112,7 +113,7 @@ public enum ConditionOperator implements Presentable {
     private final String text;
     private final boolean terminal;
 
-    ConditionOperator(String text, boolean terminal) {
+    ConditionOperator(@NonNls String text, boolean terminal) {
         this.text = text;
         this.terminal = terminal;
     }

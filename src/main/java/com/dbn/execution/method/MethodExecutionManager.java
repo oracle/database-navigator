@@ -54,6 +54,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import lombok.Getter;
 import lombok.val;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -63,8 +64,10 @@ import java.util.List;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
     name = MethodExecutionManager.COMPONENT_NAME,
@@ -125,29 +128,26 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
         Project project = executionInput.getProject();
         DBObjectRef<DBMethod> methodRef = executionInput.getMethodRef();
 
-        ConnectionAction.invoke("the method execution", false, executionInput,
+        ConnectionAction.invoke(txt("msg.execution.title.MethodExecution"), false, executionInput,
                 action -> Progress.prompt(project, action, true,
-                        "Loading method details",
-                        "Loading details of " + methodRef.getQualifiedNameWithType(),
+                        txt("prc.execution.title.LoadingMethodDetails"),
+                        txt("prc.execution.text.LoadingMethodDetails", methodRef.getQualifiedNameWithType()),
                         progress -> {
                             ConnectionHandler connection = action.getConnection();
                             String methodIdentifier = methodRef.getPath();
                             if (connection.isValid()) {
                                 DBMethod method = executionInput.getMethod();
                                 if (method == null) {
-                                    String message = "Can not execute method " + methodIdentifier + ".\nMethod not found!";
-                                    Messages.showErrorDialog(project, message);
+                                    Messages.showErrorDialog(project,
+                                            txt("msg.execution.message.MethodNotFound", methodIdentifier));
                                 } else {
                                     // load the arguments while in background
                                     executionInput.getMethod().getArguments();
                                     showInputDialog(executionInput, debuggerType, callback);
                                 }
                             } else {
-                                String message =
-                                        "Can not execute method " + methodIdentifier + ".\n" +
-                                                "No connectivity to '" + connection.getName() + "'. " +
-                                                "Please check your connection settings and try again.";
-                                Messages.showErrorDialog(project, message);
+                                Messages.showErrorDialog(project,
+                                        txt("msg.execution.message.MethodExecutionConnectivityError", methodIdentifier, connection.getName()));
                             }
                         }));
     }
@@ -166,8 +166,8 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
 
         Project project = getProject();
         Progress.prompt(project, selection, true,
-                "Loading data dictionary",
-                "Loading method execution history",
+                txt("prc.execution.title.LoadingDataDictionary"),
+                txt("prc.execution.text.LoadingMethodExecutionHistory"),
                 progress -> {
                     MethodExecutionInput selectedInput = Commons.nvln(selection, executionHistory.getLastSelection());
                     if (selectedInput != null) {
@@ -208,7 +208,8 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
 
         if (method == null) {
             DBObjectRef<DBMethod> methodRef = input.getMethodRef();
-            Messages.showErrorDialog(getProject(), "Could not resolve " + methodRef.getQualifiedNameWithType() + "\".");
+            String methodIdentifier = methodRef.getQualifiedNameWithType();
+            Messages.showErrorDialog(getProject(), txt("msg.execution.message.CannotResolveMethod", methodIdentifier));
         } else {
             Project project = method.getProject();
             ConnectionHandler connection = Failsafe.nn(method.getConnection());
@@ -216,8 +217,8 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
             MethodExecutionProcessor executionProcessor = executionInterface.createExecutionProcessor(method);
 
             Progress.prompt(project, method, true,
-                    "Executing method",
-                    "Executing " + method.getQualifiedNameWithType(),
+                    txt("prc.execution.title.ExecutingMethod"),
+                    txt("prc.execution.text.ExecutingMethod", method.getQualifiedNameWithType()),
                     progress -> {
                 try {
                     executionProcessor.execute(input, DBDebuggerType.NONE);
@@ -233,9 +234,11 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
                     context.set(ExecutionStatus.EXECUTING, false);
                     if (context.isNot(ExecutionStatus.CANCELLED)) {
                         Messages.showErrorDialog(project,
-                                "Method execution error",
-                                "Error executing " + method.getQualifiedNameWithType() + ".\n" + e.getMessage().trim(),
-                                new String[]{"Try Again", "Cancel"}, 0,
+                                txt("msg.execution.title.MethodExecutionError"),
+                                txt("msg.execution.message.MethodExecutionError", method.getQualifiedNameWithType(), e.getMessage()),
+                                new String[]{
+                                        txt("msg.shared.button.TryAgain"),
+                                        txt("msg.shared.button.Cancel")}, 0,
                                 option -> when(option == 0, () ->
                                         startMethodExecution(input, DBDebuggerType.NONE)));
                     }
@@ -286,8 +289,8 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
             @Nullable Consumer<MethodExecutionInput> callback) {
 
         Progress.prompt(getProject(), executionInput, true,
-                "Loading data dictionary",
-                "Loading executable elements",
+                txt("prc.execution.title.LoadingDataDictionary"),
+                txt("prc.execution.text.LoadingExecutableElements"),
                 progress -> {
                     Project project = getProject();
                     MethodExecutionManager executionManager = MethodExecutionManager.getInstance(project);
@@ -333,7 +336,7 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        @NonNls Element element = newStateElement();
         Element browserSettingsElement = newElement(element, "method-browser");
         browserSettings.writeConfiguration(browserSettingsElement);
 

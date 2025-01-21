@@ -46,6 +46,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.vfs.file.status.DBFileStatus.SAVING;
 
 @State(
@@ -145,10 +146,10 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
 
     public void opedDatabaseDiffWindow(DBSourceCodeVirtualFile sourceCodeFile) {
         DBSchemaObject object = sourceCodeFile.getObject();
-        ConnectionAction.invoke("comparing changes", false, sourceCodeFile,
+        ConnectionAction.invoke(txt("msg.codeEditor.title.ComparingChanges"), false, sourceCodeFile,
                 action -> Progress.prompt(getProject(), object, true,
-                        "Loading source code",
-                        "Loading source code of " + object.getQualifiedNameWithType(),
+                        txt("prc.codeEditor.title.LoadingSourceCode"),
+                        txt("prc.codeEditor.text.LoadingSourceCodeOf", object.getQualifiedNameWithType()),
                         progress -> {
                             Project project = getProject();
                             try {

@@ -22,6 +22,8 @@ import com.dbn.editor.data.state.sorting.ui.DatasetSortingColumnForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DeleteSortingCriteriaAction extends BasicAction {
     private final DatasetSortingColumnForm form;
 
@@ -32,7 +34,7 @@ public class DeleteSortingCriteriaAction extends BasicAction {
     @Override
     public void update(AnActionEvent e) {
         e.getPresentation().setIcon(Icons.ACTION_CLOSE);
-        e.getPresentation().setText("Remove Sorting Criteria");
+        e.getPresentation().setText(txt("app.dataEditor.action.RemoveSortingCriteria"));
     }
 
     @Override

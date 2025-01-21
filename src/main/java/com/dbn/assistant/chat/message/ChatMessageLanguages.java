@@ -19,6 +19,7 @@ package com.dbn.assistant.chat.message;
 import com.intellij.lang.Language;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -35,8 +36,9 @@ import static com.intellij.lang.Language.findLanguageByID;
  * @author Dan Cioca (Oracle)
  */
 @UtilityClass
+@NonNls
 public class ChatMessageLanguages {
-    public static final Map<String, String> LANGUAGE_MAPPINGS = new HashMap<>();
+    public static final Map<String, @NonNls String> LANGUAGE_MAPPINGS = new HashMap<>();
     static {
         // mappings between language ids from llm outputs to IntelliJ language identifiers
         LANGUAGE_MAPPINGS.put("sql", "DBN-SQL");

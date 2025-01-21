@@ -234,7 +234,7 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
 
     public class RefreshAction extends BasicAction {
         RefreshAction() {
-            super("Reload", "", Icons.ACTION_REFRESH);
+            super(txt("app.shared.action.Reload"), "", Icons.ACTION_REFRESH);
         }
 
         @Override

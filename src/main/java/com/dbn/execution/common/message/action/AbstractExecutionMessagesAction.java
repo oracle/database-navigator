@@ -23,13 +23,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Icon;
-
 abstract class AbstractExecutionMessagesAction extends ContextAction<MessagesTree> {
-
-    AbstractExecutionMessagesAction(String name, String description, Icon icon) {
-        super(name, description, icon);
-    }
 
     @Nullable
     protected MessagesTree getContext(@NotNull AnActionEvent e) {

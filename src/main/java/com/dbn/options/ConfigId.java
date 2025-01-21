@@ -17,6 +17,7 @@
 package com.dbn.options;
 
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 @Getter
 public enum ConfigId {
@@ -36,7 +37,7 @@ public enum ConfigId {
 
     private final String name;
 
-    ConfigId(String name) {
+    ConfigId(@NonNls String name) {
         this.name = name;
     }
 }

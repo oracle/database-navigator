@@ -52,8 +52,9 @@ import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+
+import static java.util.Collections.emptyList;
 
 public class MethodExecutionInputArgumentForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -132,7 +133,7 @@ public class MethodExecutionInputArgumentForm extends DBNFormBase {
                     inputField.createCalendarPopup(false);
                 }
 
-                inputField.createValuesListPopup(createValuesProvider(), true);
+                inputField.createValuesListPopup(createValuesProvider(), argument, true);
                 inputTextField = inputField.getTextField();
                 inputTextField.setText(value);
                 inputFieldPanel.add(inputField, BorderLayout.CENTER);
@@ -153,37 +154,34 @@ public class MethodExecutionInputArgumentForm extends DBNFormBase {
     private ListPopupValuesProvider createValuesProvider() {
         return new ListPopupValuesProvider() {
             @Override
-            public String getDescription() {
-                return "History Values List";
+            public String getName() {
+                return "Value History";
             }
 
             @Override
             public List<String> getValues() {
                 DBArgument argument = getArgument();
-                if (argument != null) {
-                    MethodExecutionInput executionInput = getParentForm().getExecutionInput();
-                    return executionInput.getInputValueHistory(argument, null);
-                }
+                if (argument == null) return emptyList();
 
-                return Collections.emptyList();
+                MethodExecutionInput executionInput = getParentForm().getExecutionInput();
+                return executionInput.getInputValueHistory(argument, null);
             }
 
             @Override
             public List<String> getSecondaryValues() {
                 DBArgument argument = getArgument();
-                if (argument != null) {
-                    ConnectionHandler connection = argument.getConnection();
-                    ConnectionId connectionId = connection.getConnectionId();
-                    MethodExecutionManager executionManager = MethodExecutionManager.getInstance(argument.getProject());
-                    MethodExecutionArgumentValueHistory valuesHistory = executionManager.getArgumentValuesHistory();
-                    MethodExecutionArgumentValue argumentValue = valuesHistory.getArgumentValue(connectionId, argument.getName(), false);
-                    if (argumentValue != null) {
-                        List<String> cachedValues = new ArrayList<>(argumentValue.getValueHistory());
-                        cachedValues.removeAll(getValues());
-                        return cachedValues;
-                    }
-                }
-                return Collections.emptyList();
+                if (argument == null) return emptyList();
+
+                ConnectionHandler connection = argument.getConnection();
+                ConnectionId connectionId = connection.getConnectionId();
+                MethodExecutionManager executionManager = MethodExecutionManager.getInstance(argument.getProject());
+                MethodExecutionArgumentValueHistory valuesHistory = executionManager.getArgumentValuesHistory();
+                MethodExecutionArgumentValue argumentValue = valuesHistory.getArgumentValue(connectionId, argument.getName(), false);
+                if (argumentValue == null) return emptyList();
+
+                List<String> cachedValues = new ArrayList<>(argumentValue.getValueHistory());
+                cachedValues.removeAll(getValues());
+                return cachedValues;
             }
         };
     }
@@ -206,19 +204,19 @@ public class MethodExecutionInputArgumentForm extends DBNFormBase {
 
     public void updateExecutionInput() {
         DBArgument argument = getArgument();
-        if (argument != null) {
-            MethodExecutionInput executionInput = getParentForm().getExecutionInput();
-            if (!typeAttributeForms.isEmpty()) {
-                for (MethodExecutionInputTypeAttributeForm typeAttributeComponent : typeAttributeForms) {
-                    typeAttributeComponent.updateExecutionInput();
-                }
-            } else if (userValueHolder != null ) {
-                String value = userValueHolder.getUserValue();
-                executionInput.setInputValue(argument, value);
-            } else {
-                String value = Commons.nullIfEmpty(inputTextField == null ? null : inputTextField.getText());
-                executionInput.setInputValue(argument, value);
+        if (argument == null) return;
+
+        MethodExecutionInput executionInput = getParentForm().getExecutionInput();
+        if (!typeAttributeForms.isEmpty()) {
+            for (MethodExecutionInputTypeAttributeForm typeAttributeComponent : typeAttributeForms) {
+                typeAttributeComponent.updateExecutionInput();
             }
+        } else if (userValueHolder != null ) {
+            String value = userValueHolder.getUserValue();
+            executionInput.setInputValue(argument, value);
+        } else {
+            String value = Commons.nullIfEmpty(inputTextField == null ? null : inputTextField.getText());
+            executionInput.setInputValue(argument, value);
         }
     }
 

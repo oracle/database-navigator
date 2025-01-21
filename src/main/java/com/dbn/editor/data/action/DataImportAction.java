@@ -28,17 +28,20 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DataImportAction extends AbstractDataEditorAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
-        Messages.showInfoDialog(project, "Not implemented", "Data import is not implemented yet.");
+        Messages.showInfoDialog(project,
+                txt("msg.dataEditor.title.DataImportNotSupported"),
+                txt("msg.dataEditor.info.DataImportNotSupported"));
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
-        presentation.setText("Import Data");
+        presentation.setText(txt("app.dataEditor.action.ImportData"));
         presentation.setIcon(Icons.DATA_IMPORT);
 
         if (isValid(datasetEditor)) {

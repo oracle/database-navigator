@@ -20,6 +20,7 @@ import com.dbn.common.util.TransientId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import java.util.regex.Matcher;
 
 import static com.dbn.common.util.Commons.nvl;
 
+@NonNls
 @Getter
 public class StatementDefinition {
     private static final String DBN_PARAM_PLACEHOLDER = "DBN_PARAM_PLACEHOLDER";

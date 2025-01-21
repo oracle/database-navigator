@@ -35,6 +35,7 @@ import java.util.List;
 import static com.dbn.assistant.editor.AssistantEditorUtil.isAssistantAvailable;
 import static com.dbn.assistant.editor.AssistantPromptUtil.isAssistantPromptAvailable;
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Editor intention action allowing to switch the current profile
@@ -47,8 +48,10 @@ public class ProfileSwitchIntentionAction extends EditorIntentionAction {
     return EditorIntentionType.ASSISTANT_PROFILE_SELECT;
   }
 
+  @NotNull
+  @Override
   public final String getText() {
-    return "Select AI - Switch Profile";
+    return txt("app.assistant.action.SelectAISwitchProfile");
   }
 
   @Override

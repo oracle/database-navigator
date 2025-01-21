@@ -20,12 +20,14 @@ import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /******************************************************
  *                       Actions                      *
  ******************************************************/
 public class CalendarNextMonthAction extends CalendarPopupAction {
     CalendarNextMonthAction() {
-        super("Next Month", null, Icons.CALENDAR_NEXT_MONTH);
+        super(txt("app.data.action.NextMonth"), null, Icons.CALENDAR_NEXT_MONTH);
     }
 
     @Override

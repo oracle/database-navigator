@@ -25,6 +25,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class TnsNamesImportAction extends ConnectionSettingsAction{
 
     @Override
@@ -38,6 +40,6 @@ public class TnsNamesImportAction extends ConnectionSettingsAction{
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionBundleSettingsForm target) {
-        presentation.setText("Import TNS Names");
+        presentation.setText(txt("app.connection.action.ImportTnsNames"));
     }
 }

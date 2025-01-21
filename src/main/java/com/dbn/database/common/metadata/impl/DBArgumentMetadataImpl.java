@@ -19,12 +19,14 @@ package com.dbn.database.common.metadata.impl;
 import com.dbn.database.common.metadata.DBObjectMetadataBase;
 import com.dbn.database.common.metadata.def.DBArgumentMetadata;
 import com.dbn.database.common.metadata.def.DBDataTypeMetadata;
+import lombok.Getter;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+@Getter
 public class DBArgumentMetadataImpl extends DBObjectMetadataBase implements DBArgumentMetadata {
-    private DBDataTypeMetadata dataType;
+    private final DBDataTypeMetadata dataType;
 
     public DBArgumentMetadataImpl(ResultSet resultSet) {
         super(resultSet);
@@ -70,9 +72,4 @@ public class DBArgumentMetadataImpl extends DBObjectMetadataBase implements DBAr
     public short getSequence() throws SQLException {
         return resultSet.getShort("SEQUENCE");
     }
-
-    public DBDataTypeMetadata getDataType() {
-        return dataType;
-    }
-
 }

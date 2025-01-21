@@ -22,6 +22,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DataFindAction extends AbstractSessionBrowserAction {
 
     @Override
@@ -38,7 +40,7 @@ public class DataFindAction extends AbstractSessionBrowserAction {
 
         Presentation presentation = e.getPresentation();
         presentation.setEnabled(sessionBrowser != null);
-        presentation.setText("Find...");
+        presentation.setText(txt("app.dataEditor.action.Find"));
         presentation.setIcon(Icons.ACTION_FIND);
     }
 }

@@ -20,9 +20,11 @@ import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 class TextEditorRevertAction extends TextEditorAction {
     public TextEditorRevertAction() {
-        super("Revert Changes", null, Icons.TEXT_CELL_EDIT_REVERT);
+        super(txt("app.dataEditor.action.RevertChanges"), null, Icons.TEXT_CELL_EDIT_REVERT);
     }
 
     @Override

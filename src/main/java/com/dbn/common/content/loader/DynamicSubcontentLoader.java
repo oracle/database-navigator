@@ -30,6 +30,7 @@ import com.dbn.connection.DatabaseEntity;
 import com.dbn.database.common.metadata.DBObjectMetadata;
 import com.dbn.database.interfaces.DatabaseInterfaceQueue;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,12 +49,13 @@ public class DynamicSubcontentLoader<T extends DynamicContentElement, M extends 
 
     private DynamicContentLoader<T, M> alternativeLoader;
 
-    private DynamicSubcontentLoader(String identifier, @NotNull DynamicContentType parentContentType, @NotNull DynamicContentType contentType) {
+    private DynamicSubcontentLoader(@NonNls String identifier, @NotNull DynamicContentType parentContentType, @NotNull DynamicContentType contentType) {
         super(identifier, parentContentType, contentType, true);
     }
 
     public static <T extends DynamicContentElement, M extends DBObjectMetadata> DynamicSubcontentLoader<T, M> create(
-            String identifier, @NotNull DynamicContentType parentContentType,
+            @NonNls String identifier,
+            @NotNull DynamicContentType parentContentType,
             @NotNull DynamicContentType contentType,
             @Nullable DynamicContentLoader<T, M> alternativeLoader) {
 

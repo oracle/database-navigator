@@ -17,6 +17,7 @@
 package com.dbn.language.common.element;
 
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Objects;
 
@@ -30,7 +31,7 @@ public enum TokenPairTemplate {
     private final String endToken;
     private final boolean block;
 
-    TokenPairTemplate(String beginToken, String endToken, boolean block) {
+    TokenPairTemplate(@NonNls String beginToken, @NonNls String endToken, boolean block) {
         this.beginToken = beginToken;
         this.endToken = endToken;
         this.block = block;

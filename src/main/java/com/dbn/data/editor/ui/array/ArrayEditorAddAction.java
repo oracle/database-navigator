@@ -20,9 +20,11 @@ import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 class ArrayEditorAddAction extends ArrayEditorAction {
     ArrayEditorAddAction() {
-        super("Add Value", null, Icons.ARRAY_CELL_EDIT_ADD);
+        super(txt("app.data.action.AddValue"), null, Icons.ARRAY_CELL_EDIT_ADD);
         //setShortcutSet(Keyboard.createShortcutSet(KeyEvent.VK_PLUS, UserInterface.ctrlDownMask()));
         //setShortcutSet(Keyboard.createShortcutSet(KeyEvent.VK_ADD, UserInterface.ctrlDownMask()));
     }

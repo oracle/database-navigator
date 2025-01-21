@@ -25,6 +25,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DDLFileDetachAction extends ProjectAction {
     private final DBObjectRef<DBSchemaObject> object;
 
@@ -44,6 +46,6 @@ public class DDLFileDetachAction extends ProjectAction {
         boolean hasAttachedDDLFiles = fileAttachmentManager.hasAttachedDDLFiles(object);
         Presentation presentation = e.getPresentation();
         presentation.setEnabled(hasAttachedDDLFiles);
-        presentation.setText("Detach Files");
+        presentation.setText(txt("app.ddlFiles.action.DetachFiles"));
     }
 }

@@ -21,10 +21,12 @@ import com.dbn.connection.action.AbstractConnectionToggleAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class AutoConnectToggleAction extends AbstractConnectionToggleAction {
 
     public AutoConnectToggleAction(ConnectionHandler connection) {
-        super("Connect Automatically", connection);
+        super(txt("app.connection.action.ConnectAutomatically"), connection);
 
     }
     @Override

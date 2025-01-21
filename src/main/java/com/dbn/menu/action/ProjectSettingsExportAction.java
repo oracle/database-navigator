@@ -23,6 +23,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ProjectSettingsExportAction extends ProjectAction {
 
     @Override
@@ -34,7 +36,7 @@ public class ProjectSettingsExportAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Export Settings...");
+        presentation.setText(txt("app.menu.action.ExportSettings"));
     }
 
 }

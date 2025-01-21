@@ -72,8 +72,8 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   private final boolean isUpdate;
 
   public ProfileEditionGeneralStep(ConnectionHandler connection, ProfileData profile, Set<String> existingProfileNames, boolean isUpdate) {
-    super(txt("profile.mgmt.general_step.title"),
-            txt("profile.mgmt.general_step.explaination"));
+    super(txt("cfg.assistant.title.GeneralSettings"),
+            txt("cfg.assistant.text.GeneralSettings"));
     this.connection = ConnectionRef.of(connection);
     this.profile = profile;
     this.existingProfileNames = existingProfileNames;

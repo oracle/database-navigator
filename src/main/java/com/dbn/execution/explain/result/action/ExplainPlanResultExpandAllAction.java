@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExplainPlanResultExpandAllAction extends AbstractExplainPlanResultAction {
 
@@ -39,7 +40,7 @@ public class ExplainPlanResultExpandAllAction extends AbstractExplainPlanResultA
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ExplainPlanResult target) {
-        presentation.setText("Expand All");
+        presentation.setText(txt("app.execution.action.ExpandAll"));
         presentation.setIcon(Icons.ACTION_EXPAND_ALL);
     }
 }

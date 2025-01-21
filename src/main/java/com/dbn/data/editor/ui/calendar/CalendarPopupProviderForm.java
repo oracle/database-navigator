@@ -196,7 +196,7 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
     }
 
     @Override
-    public String getDescription() {
+    public String getName() {
         return "Calendar";
     }
 

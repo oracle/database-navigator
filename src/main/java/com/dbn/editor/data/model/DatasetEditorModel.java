@@ -381,8 +381,8 @@ public class DatasetEditorModel
         editorTable.fireEditingCancel();
         DBDataset dataset = getDataset();
         Progress.prompt(getProject(), dataset, true,
-                "Deleting records",
-                "Deleting records from " + dataset.getQualifiedNameWithType(),
+                txt("prc.dataEditor.title.DeletingRecords"),
+                txt("prc.dataEditor.text.DeletingRecordsFrom", dataset.getQualifiedNameWithType()),
                 progress -> {
             progress.setIndeterminate(false);
             for (int index : rowIndexes) {

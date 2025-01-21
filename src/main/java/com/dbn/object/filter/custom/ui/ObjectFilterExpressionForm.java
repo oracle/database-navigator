@@ -39,6 +39,7 @@ import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.ui.EditorSettingsProvider;
 import com.intellij.ui.EditorTextField;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
@@ -125,7 +126,7 @@ public class ObjectFilterExpressionForm extends DBNFormBase implements Component
         markModified();
     }
 
-    private static String normalizeExpression(String expression) {
+    private static String normalizeExpression(@NonNls String expression) {
         return expression.replaceAll("\\s+", " ").trim();
     }
 

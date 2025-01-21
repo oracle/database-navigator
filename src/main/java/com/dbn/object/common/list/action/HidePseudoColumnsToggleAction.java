@@ -26,10 +26,12 @@ import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class HidePseudoColumnsToggleAction extends AbstractConnectionToggleAction {
 
     public HidePseudoColumnsToggleAction(ConnectionHandler connection) {
-        super("Hide pseudo columns", connection);
+        super(txt("app.objects.action.HidePseudoColumns"), connection);
     }
 
     @Override

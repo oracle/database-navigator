@@ -32,7 +32,6 @@ import com.intellij.openapi.Disposable;
 
 import javax.swing.table.TableCellEditor;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class DatasetTableCellEditorFactory implements Disposable {
@@ -80,13 +79,10 @@ public class DatasetTableCellEditorFactory implements Disposable {
                 DataEditorValueListPopupSettings valueListPopupSettings = dataEditorSettings.getValueListPopupSettings();
 
                 if (!column.isPrimaryKey() && !column.isUniqueKey() && dataLength <= valueListPopupSettings.getDataLengthThreshold()) {
-                    ListPopupValuesProvider valuesProvider = new ListPopupValuesProviderBase("Possible Values List", false) {
-                        @Override
-                        public List<String> getValues() {
-                            return dseColumnInfo.getPossibleValues();
-                        }
-                    };
-                    editorComponent.createValuesListPopup(valuesProvider, valueListPopupSettings.isShowPopupButton());
+                    ListPopupValuesProvider valuesProvider = ListPopupValuesProviderBase.
+                            create("Possible Values", () -> dseColumnInfo.getPossibleValues());
+
+                    editorComponent.createValuesListPopup(valuesProvider, column, valueListPopupSettings.isShowPopupButton());
                 }
                 editorComponent.createTextEditorPopup(true);
                 return tableCellEditor;

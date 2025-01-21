@@ -18,6 +18,7 @@ package com.dbn.common.util;
 
 import com.dbn.common.routine.ParametricCallable;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -47,18 +48,22 @@ public class Classes {
         }
     }
 
+    @NonNls
     public static String className(@Nullable Object object) {
         return object == null ? "null" : className(object.getClass());
     }
 
+    @NonNls
     public static String className(@Nullable Class<?> clazz) {
         return clazz == null ? "null" : clazz.getName();
     }
 
+    @NonNls
     public static String simpleClassName(@Nullable Object object) {
         return object == null ? "null" : simpleClassName(object.getClass());
     }
 
+    @NonNls
     public static String simpleClassName(@Nullable Class<?> clazz) {
         return clazz == null ? "null" : clazz.getSimpleName();
     }

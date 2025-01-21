@@ -18,6 +18,10 @@ package com.dbn.object.management.adapter;
 
 import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
+import com.intellij.openapi.util.NlsContexts.ProgressText;
+import com.intellij.openapi.util.NlsContexts.ProgressTitle;
 import org.jetbrains.annotations.Nls;
 
 /**
@@ -33,35 +37,43 @@ public final class DBObjectCreateAdapter<T extends DBObject> extends ObjectManag
     }
 
     @Nls
+    @Override
+    @DialogTitle
     protected String getSuccessTitle() {
         return txt("msg.objects.title.ActionSuccess_CREATE");
     }
 
     @Nls
-    protected  String getFailureTitle() {
+    @Override
+    @DialogTitle
+    protected String getFailureTitle() {
         return txt("msg.objects.title.ActionFailure_CREATE");
     }
 
     @Nls
     @Override
+    @ProgressTitle
     protected String getProcessTitle() {
         return txt("prc.object.title.CreatingObject", getObjectTypeName());
     }
 
     @Nls
     @Override
-    protected String getProcessDescription() {
-        return txt("prc.object.message.CreatingObject", getObjectTypeName(), getObjectName());
+    @ProgressText
+    protected String getProcessText() {
+        return txt("prc.object.text.CreatingObject", getObjectTypeName(), getObjectName());
     }
 
     @Nls
     @Override
+    @DialogMessage
     protected String getSuccessMessage() {
         return txt("msg.object.info.ObjectCreateSuccess", getObjectTypeName(), getObjectName());
     }
 
     @Nls
     @Override
+    @DialogMessage
     protected String getFailureMessage() {
         return txt("msg.object.error.ObjectCreateFailure", getObjectType(), getObjectName());
     }

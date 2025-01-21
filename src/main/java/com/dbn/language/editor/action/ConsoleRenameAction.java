@@ -28,6 +28,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @BackgroundUpdate
 public class ConsoleRenameAction extends ProjectAction {
 
@@ -49,7 +51,7 @@ public class ConsoleRenameAction extends ProjectAction {
 
         Presentation presentation = e.getPresentation();
         presentation.setEnabled(enabled);
-        presentation.setText("Rename Console");
+        presentation.setText(txt("app.codeEditor.action.RenameConsole"));
         presentation.setIcon(Icons.ACTION_EDIT);
     }
 

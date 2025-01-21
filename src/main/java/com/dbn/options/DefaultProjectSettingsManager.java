@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.component.Components.applicationService;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 
 @Getter
 @State(
@@ -53,7 +54,7 @@ public class DefaultProjectSettingsManager extends ApplicationComponentBase impl
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         projectSettings.writeConfiguration(element);
         return element;
     }

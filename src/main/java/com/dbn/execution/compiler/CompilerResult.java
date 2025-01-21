@@ -79,7 +79,7 @@ public class CompilerResult implements Disposable, NotificationSupport, NlsSuppo
             if (conn == null) {
                 DatabaseInterfaceInvoker.execute(HIGH,
                         txt("prc.compiler.title.LoadingCompilerData"),
-                        txt("prc.compiler.message.LoadingCompilerData", qualifiedObjectName),
+                        txt("prc.compiler.text.LoadingCompilerData", qualifiedObjectName),
                         connection.getProject(),
                         connection.getConnectionId(),
                         c -> loadCompilerErrors(connection, schema, objectName, contentType, c));

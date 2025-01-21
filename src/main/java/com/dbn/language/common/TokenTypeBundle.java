@@ -22,6 +22,7 @@ import com.intellij.psi.tree.TokenSet;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Document;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -29,6 +30,7 @@ import java.util.Set;
 
 @Slf4j
 @Getter
+@NonNls
 public class TokenTypeBundle extends TokenTypeBundleBase {
     private final DBLanguage baseLanguage;
 
@@ -89,7 +91,7 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
     }
 
     @Override
-    public SimpleTokenType getTokenType(String id) {
+    public SimpleTokenType getTokenType(@NonNls String id) {
         SimpleTokenType tokenType = super.getTokenType(id);
         if (tokenType != null) return tokenType;
 
@@ -105,7 +107,7 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
     }
 
     @Override
-    public TokenSet getTokenSet(String id) {
+    public TokenSet getTokenSet(@NonNls String id) {
         TokenSet tokenSet = super.getTokenSet(id);
         if (tokenSet != null) return tokenSet;
 

@@ -24,9 +24,11 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JTextField;
 
+import static com.dbn.nls.NlsResources.txt;
+
 class TextEditorAcceptAction extends TextEditorAction {
     public TextEditorAcceptAction() {
-        super("Accept Changes", null, Icons.TEXT_CELL_EDIT_ACCEPT);
+        super(txt("app.dataEditor.action.AcceptChanges"), null, Icons.TEXT_CELL_EDIT_ACCEPT);
     }
 
     @Override

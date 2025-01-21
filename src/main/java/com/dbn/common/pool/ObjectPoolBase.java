@@ -187,7 +187,7 @@ public abstract class ObjectPoolBase<O, E extends Throwable> extends StatefulDis
         Disposer.disposeCollection(objects);
     }
 
-    private void log(String action, O object) {
+    private void log(@NonNls String action, O object) {
         log.info("{}: {} {} - Pool [max={} size={} peak={} waiting={} free={}]",
                 identifier(),
                 action,

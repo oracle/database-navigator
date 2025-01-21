@@ -30,6 +30,7 @@ import com.dbn.execution.common.result.ui.ExecutionResultForm;
 import com.dbn.execution.common.ui.ExecutionConsoleForm;
 import com.dbn.execution.compiler.CompilerResult;
 import com.dbn.execution.explain.result.ExplainPlanResult;
+import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.logging.LogOutput;
 import com.dbn.execution.logging.LogOutputContext;
 import com.dbn.execution.method.result.MethodExecutionResult;
@@ -56,6 +57,7 @@ import static com.dbn.common.navigation.NavigationInstruction.FOCUS;
 import static com.dbn.common.navigation.NavigationInstruction.SCROLL;
 import static com.dbn.common.navigation.NavigationInstruction.SELECT;
 import static com.dbn.common.options.setting.Settings.getBoolean;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setBoolean;
 
 @State(
@@ -193,6 +195,14 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
         });
     }
 
+    public void addExecutionResult(JavaExecutionResult executionResult) {
+        Dispatch.run(() -> {
+            showExecutionConsole();
+            ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
+            executionConsoleForm.addResult(executionResult);
+        });
+    }
+
     public void selectExecutionResult(StatementExecutionResult executionResult) {
         Dispatch.run(() -> {
             ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
@@ -239,7 +249,7 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
      *            PersistentStateComponent       *
      *********************************************/
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         setBoolean(element, "retain-sticky-names", retainStickyNames);
         return element;
     }

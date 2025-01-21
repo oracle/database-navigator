@@ -28,6 +28,7 @@ import com.dbn.database.common.util.CachedResultSetRow;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.database.interfaces.DatabaseInterface.Callable;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -36,6 +37,7 @@ import java.util.Objects;
 
 import static com.dbn.common.cache.CacheKey.key;
 
+@NonNls
 public interface GenericMetadataLoaders {
     CachedResultSet.Mapper<String> METHOD_COLUMNS = original -> {
         switch (original) {

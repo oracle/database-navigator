@@ -25,6 +25,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DDLFileAttachAction extends AnObjectAction<DBSchemaObject> {
     public DDLFileAttachAction(@NotNull DBSchemaObject object) {
         super(object);
@@ -38,6 +40,6 @@ public class DDLFileAttachAction extends AnObjectAction<DBSchemaObject> {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBSchemaObject target) {
-        presentation.setText("Attach Files");
+        presentation.setText(txt("app.ddlFiles.action.AttachFiles"));
     }
 }

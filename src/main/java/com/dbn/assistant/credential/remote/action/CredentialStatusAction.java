@@ -24,6 +24,7 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.icons.AllIcons.Diff.GutterCheckBox;
 import static com.intellij.icons.AllIcons.Diff.GutterCheckBoxSelected;
 
@@ -51,7 +52,9 @@ public class CredentialStatusAction extends CredentialManagementAction {
 
         Presentation presentation = e.getPresentation();
         presentation.setIcon(enabled ? GutterCheckBoxSelected: GutterCheckBox);
-        presentation.setText(enabled ? "Disable Credential" : "Enable Credential");
+        presentation.setText(enabled ?
+                txt("app.assistant.action.DisableCredential") :
+                txt("app.assistant.action.EnableCredential"));
         presentation.setEnabled(isEnabled(e));
     }
 

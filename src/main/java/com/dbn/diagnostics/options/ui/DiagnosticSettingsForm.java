@@ -37,6 +37,8 @@ import java.awt.event.ActionEvent;
 
 import static com.dbn.common.options.ui.ConfigurationEditors.validateIntegerValue;
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 
 public class DiagnosticSettingsForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -91,6 +93,14 @@ public class DiagnosticSettingsForm extends DBNFormBase {
 
         databaseLaggingCheckBox.addActionListener(e -> updateFields(e));
         developerModeCheckBox.addActionListener(e -> updateFields(e));
+    }
+
+    @Override
+    protected void initAccessibility() {
+        setAccessibleUnit(connectivityLagTextField, txt("app.shared.unit.Milliseconds"));
+        setAccessibleUnit(queryingLagTextField, txt("app.shared.unit.Milliseconds"));
+        setAccessibleUnit(fetchingLagTextField, txt("app.shared.unit.Milliseconds"));
+        setAccessibleName(developerModeTimeoutTextField, "Developer mode timeout");
     }
 
     private void updateFields(ActionEvent e) {

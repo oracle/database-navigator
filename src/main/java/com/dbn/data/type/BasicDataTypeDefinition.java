@@ -19,6 +19,7 @@ package com.dbn.data.type;
 import com.dbn.database.common.util.DataTypeParseAdapter;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
@@ -50,6 +51,7 @@ public class BasicDataTypeDefinition implements DataTypeDefinition {
         this.contentTypeName = contentTypeName;
     }
 
+    @NonNls
     @Override
     public String toString() {
         return "[NAME = " + name + ", " +

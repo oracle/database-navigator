@@ -180,20 +180,20 @@ public class CredentialManagementForm extends DBNFormBase {
   public void promptCredentialDeletion(@NotNull DBCredential credential) {
     String credentialName = credential.getName();
 
-    StringBuilder detailedMessage = new StringBuilder(txt("ai.settings.credential.deletion.message.prefix"));
+    StringBuilder detailedMessage = new StringBuilder(txt("msg.assistant.question.DeleteCredential"));
     detailedMessage.append(' ');
     detailedMessage.append(credentialName);
     Set<String> uses = credentialUsage.get(credentialName);
     if (uses != null && !uses.isEmpty()) {
       detailedMessage.append('\n');
-      detailedMessage.append(txt("ai.settings.credential.deletion.message.warning"));
+      detailedMessage.append(txt("msg.assistant.warning.CredentialUsed"));
       uses.forEach(c -> {
         detailedMessage.append(c);
         detailedMessage.append(", ");
       });
     }
     Messages.showQuestionDialog(getProject(),
-            txt("ai.settings.credential.deletion.title"),
+            txt("msg.assistant.title.DeleteCredential"),
             detailedMessage.toString(),
             Messages.OPTIONS_YES_NO, 1,
             option -> when(option == 0, () -> removeCredential(credential)));

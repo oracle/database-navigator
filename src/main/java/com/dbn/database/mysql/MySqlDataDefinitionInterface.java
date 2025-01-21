@@ -47,6 +47,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
 
     @Override
     public String createDDLStatement(Project project, DatabaseObjectTypeId objectTypeId, String userName, String schemaName, String objectName, DBContentType contentType, String code, String alternativeDelimiter) {
+        // TODO SQL-Injection
         if (isEmpty(alternativeDelimiter)) {
             alternativeDelimiter = getInterfaces().getCompatibilityInterface().getDefaultAlternativeStatementDelimiter();
         }

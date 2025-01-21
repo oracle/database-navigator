@@ -18,6 +18,8 @@ package com.dbn.common.action;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsActions.ActionDescription;
+import com.intellij.openapi.util.NlsActions.ActionText;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +32,7 @@ public abstract class ProjectAction extends BasicAction {
 
     public ProjectAction() {}
 
-    public ProjectAction(@Nullable String text, @Nullable String description, @Nullable Icon icon) {
+    public ProjectAction(@Nullable @ActionText String text, @Nullable @ActionDescription String description, @Nullable Icon icon) {
         super(text, description, icon);
     }
 

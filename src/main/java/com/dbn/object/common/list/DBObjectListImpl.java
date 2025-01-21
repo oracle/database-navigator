@@ -38,6 +38,7 @@ import com.dbn.common.search.Search;
 import com.dbn.common.search.SearchAdapter;
 import com.dbn.common.string.StringDeBuilder;
 import com.dbn.common.ui.tree.TreeEventType;
+import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.config.ConnectionFilterSettings;
@@ -330,6 +331,11 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
     @NotNull
     public String getName() {
         return objectType.getListName();
+    }
+
+    @Override
+    public String getCapitalizedName() {
+        return Naming.capitalizeWords(getName());
     }
 
     @Override

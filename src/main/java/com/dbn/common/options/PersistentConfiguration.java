@@ -19,18 +19,19 @@ package com.dbn.common.options;
 import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 
 import static com.dbn.common.options.ConfigActivity.APPLYING;
 import static com.dbn.common.options.ConfigActivity.CLONING;
 
 public interface PersistentConfiguration extends NlsSupport {
-    void readConfiguration(Element element);
-    void writeConfiguration(Element element);
+    void readConfiguration(@NonNls Element element);
+    void writeConfiguration(@NonNls Element element);
 
     default void validate() throws ConfigurationException {};
 
     default void applyTo(PersistentConfiguration configuration) {
-        Element element = new Element("configuration");
+        @NonNls Element element = new Element("configuration");
         writeConfiguration(element);
         configuration.readConfiguration(element);
     }

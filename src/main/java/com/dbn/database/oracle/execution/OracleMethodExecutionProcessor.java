@@ -29,6 +29,7 @@ import com.dbn.object.DBArgument;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBType;
 import com.dbn.object.DBTypeAttribute;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -48,7 +49,7 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
     public String buildExecutionCommand(MethodExecutionInput executionInput) throws SQLException {
         DBArgument returnArgument = getReturnArgument();
 
-        StringBuilder buffer = new StringBuilder();
+        @NonNls StringBuilder buffer = new StringBuilder();
         buffer.append("declare\n");
         buffer.append("     v_timeout BINARY_INTEGER;\n");
 
@@ -59,7 +60,7 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
             if (dataType.isPurelyDeclared()) {
                 buffer.append("    ");
                 appendVariableName(buffer, argument);
-                buffer.append(" ").append(dataType.getQualifiedName()).append(";\n");
+                buffer.append(" ").append(dataType.getQualifiedName(true)).append(";\n");
             } else if (isBoolean(dataType)) {
                 appendVariableName(buffer, argument);
                 buffer.append(" boolean;\n");
@@ -81,10 +82,10 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
                 for (DBTypeAttribute attribute : attributes) {
                     buffer.append("    ");
                     appendVariableName(buffer, argument);
-                    buffer.append(".").append(attribute.getName()).append(" := ?;\n");
+                    buffer.append(".").append(attribute.getName(true)).append(" := ?;\n");
                 }
             } else if(isBoolean(dataType)) {
-                String stringValue = parseBoolean(argument.getName(), executionInput.getInputValue(argument));
+                String stringValue = parseBoolean(argument.getName(true), executionInput.getInputValue(argument));
 
                 buffer.append("    ");
                 appendVariableName(buffer, argument);
@@ -104,7 +105,7 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
         }
 
         // method parameters
-        buffer.append(getMethod().getQualifiedName()).append("(");
+        buffer.append(getMethod().getQualifiedName(true)).append("(");
         for (DBArgument argument : arguments) {
             if (argument != returnArgument) {
                 DBDataType dataType = argument.getDataType();
@@ -134,7 +135,7 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
                     for (DBTypeAttribute attribute : attributes) {
                         buffer.append("    ? := ");
                         appendVariableName(buffer, argument);
-                        buffer.append(".").append(attribute.getName()).append(";\n");
+                        buffer.append(".").append(attribute.getName(true)).append(";\n");
                     }
                 }
             } else if (isBoolean(dataType)) {
@@ -150,7 +151,7 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
         return buffer.toString();
     }
 
-    private static StringBuilder appendVariableName(StringBuilder buffer, DBArgument argument) {
+    private static StringBuilder appendVariableName(@NonNls StringBuilder buffer, DBArgument argument) {
         return buffer.append("var_").append(argument.getPosition());
     }
 
@@ -311,7 +312,7 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
 
     private static String parseBoolean(String argumentName, String booleanString) throws SQLException {
         if (booleanString != null && !booleanString.equalsIgnoreCase("true") && !booleanString.equalsIgnoreCase("false")) {
-            throw new SQLException("Invalid boolean value for argument '" + argumentName + "'. true / false expected");
+            throw new SQLException("Invalid boolean value for argument " + argumentName + ". true / false expected");
         }
         return Boolean.toString(Boolean.parseBoolean(booleanString));
     }

@@ -296,7 +296,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             conditionallyLog(e);
             Messages.showErrorDialog(project,
                     txt("msg.connection.title.ExportFailed"),
-                    "msg.connection.error.ExportFailed", e);
+                    txt("msg.connection.error.ExportFailed"), e);
         }
     }
 

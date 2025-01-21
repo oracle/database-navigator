@@ -35,6 +35,7 @@ import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.notification.NotificationGroup.EXECUTION;
 import static com.dbn.common.notification.NotificationSupport.sendErrorNotification;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionResultVariablesDialogAction extends AbstractExecutionResultAction {
 
@@ -47,8 +48,8 @@ public class ExecutionResultVariablesDialogAction extends AbstractExecutionResul
                 executionProcessor,
                 DBDebuggerType.NONE,
                 () -> Progress.prompt(project, executionProcessor, true,
-                        "Executing statement",
-                        "Executing " + statementName,
+                        txt("prc.execution.title.ExecutingStatement"),
+                        txt("prc.execution.text.ExecutingStatement", statementName),
                         progress -> {
                             try {
                                 executionProcessor.execute();
@@ -70,7 +71,7 @@ public class ExecutionResultVariablesDialogAction extends AbstractExecutionResul
             }
         }
         presentation.setVisible(visible);
-        presentation.setText("Open Variables Dialog");
+        presentation.setText(txt("app.execution.action.OpenVariablesDialog"));
         presentation.setIcon(Icons.EXEC_RESULT_OPEN_EXEC_DIALOG);
     }
 }

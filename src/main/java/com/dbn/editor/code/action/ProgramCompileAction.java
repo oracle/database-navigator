@@ -38,6 +38,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+import static com.dbn.editor.DBContentType.*;
+import static com.dbn.nls.NlsResources.txt;
+
 public class ProgramCompileAction extends AbstractCodeEditorAction {
 
     @Override
@@ -77,10 +80,11 @@ public class ProgramCompileAction extends AbstractCodeEditorAction {
 
                 presentation.setEnabled(isEnabled);
                 String text =
-                        contentType == DBContentType.CODE_SPEC ? "Compile Spec" :
-                        contentType == DBContentType.CODE_BODY ? "Compile Body" : "Compile";
+                        contentType == CODE_SPEC ? txt("app.codeEditor.action.CompileSpec") :
+                        contentType == CODE_BODY ? txt("app.codeEditor.action.CompileBody") :
+                                txt("app.codeEditor.action.Compile");
 
-                if (isDebug) text = text + " (Debug)";
+                if (isDebug) text = text + " " + txt("app.codeEditor.action.DebugSuffix");
                 if (compileType == CompileType.ASK) text = text + "...";
 
                 presentation.setVisible(true);

@@ -19,6 +19,8 @@ package com.dbn.assistant.editor.intention;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.code.common.intention.EditorIntentionType;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Editor intention action for invoking AI-Assistant module from within the editor
  *
@@ -32,7 +34,7 @@ public class AssistantShowIntentionAction extends AssistantBaseIntentionAction {
 
   @Override
   protected String getActionName() {
-    return "Generate SQL";
+    return txt("app.assistant.action.GenerateSql");
   }
 
   @Override

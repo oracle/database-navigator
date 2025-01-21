@@ -30,6 +30,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class RunMethodIntentionAction extends AbstractMethodExecutionIntentionAction{
 
     @Override
@@ -39,7 +41,7 @@ public class RunMethodIntentionAction extends AbstractMethodExecutionIntentionAc
 
     @Override
     protected String getActionName() {
-        return "Run method";
+        return txt("app.codeEditor.action.RunMethod");
     }
 
     @Override

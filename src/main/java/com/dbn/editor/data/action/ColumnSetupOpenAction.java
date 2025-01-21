@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ColumnSetupOpenAction extends AbstractDataEditorAction {
 
@@ -37,7 +38,7 @@ public class ColumnSetupOpenAction extends AbstractDataEditorAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
-        presentation.setText("Column Setup...");
+        presentation.setText(txt("app.dataEditor.action.ColumnSetup"));
         presentation.setIcon(Icons.DATA_COLUMNS);
 
         boolean enabled =

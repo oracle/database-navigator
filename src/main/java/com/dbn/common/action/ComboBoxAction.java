@@ -16,7 +16,6 @@
 
 package com.dbn.common.action;
 
-import com.dbn.nls.NlsSupport;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -31,7 +30,7 @@ import java.awt.GridBagLayout;
 
 public abstract class ComboBoxAction
         extends com.intellij.openapi.actionSystem.ex.ComboBoxAction
-        implements BackgroundUpdateAware, NlsSupport {
+        implements BackgroundUpdateAware {
 
     @NotNull
     @Override

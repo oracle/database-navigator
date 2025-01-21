@@ -49,8 +49,6 @@ import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.ui.popup.ListPopup;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JTextField;
@@ -59,8 +57,10 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Conditional.whenNotEmpty;
+import static com.dbn.nls.NlsResources.txt;
 
 public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAware {
     private ConnectionId latestConnectionId;
@@ -100,50 +100,22 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
 
             if (actionGroup.getChildrenCount() > 1) {
                 removeActionLock();
-                ListPopup popupBuilder = JBPopupFactory.getInstance().createActionGroupPopup(
-                        "Select Connection / Schema for Lookup",
-                        actionGroup,
-                        event.getDataContext(),
-                        //JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-                        false,
-                        true,
-                        true,
-                        null,
-                        actionGroup.getChildrenCount(),
-                        preselect -> {
-                            if (preselect instanceof SelectConnectionAction) {
-                                SelectConnectionAction selectConnectionAction = (SelectConnectionAction) preselect;
+                popupBuilder(actionGroup, event).
+                        withTitle("Select Connection / Schema for Lookup").
+                        withSpeedSearch().
+                        withMaxRowCount(20).
+                        withPreselectCondition(a -> {
+                            if (a instanceof SelectConnectionAction) {
+                                SelectConnectionAction selectConnectionAction = (SelectConnectionAction) a;
                                 return latestConnectionId == selectConnectionAction.getConnection().getConnectionId();
-                            } else if (preselect instanceof SelectSchemaAction) {
-                                SelectSchemaAction selectSchemaAction = (SelectSchemaAction) preselect;
+                            } else if (a instanceof SelectSchemaAction) {
+                                SelectSchemaAction selectSchemaAction = (SelectSchemaAction) a;
                                 DBSchema object = selectSchemaAction.getTarget();
                                 return object != null && Objects.equals(latestSchemaName, object.getName());
                             }
                             return false;
-                        });
 
-/*                    if (popupBuilder instanceof ListPopupImpl) {
-                    ListPopupImpl listPopup = (ListPopupImpl) popupBuilder;
-                    listPopup.getList().setCellRenderer(new DefaultListCellRenderer(){
-                        @Override
-                        public Component getListCellRendererComponent(JList<?> actions, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                            PopupFactoryImpl.ActionItem actionItem  = (PopupFactoryImpl.ActionItem) value;
-                            Component component = super.getListCellRendererComponent(actions, value, index, isSelected, cellHasFocus);
-                            if (component instanceof JLabel) {
-                                JLabel label = (JLabel) component;
-                                label.setIcon(actionItem.getIcon());
-                                label.setText(actionItem.getText().replace("&", ""));
-                                AnAction action = actionItem.getAction();
-                                if (!isSelected && action instanceof SelectConnectionAction) {
-                                    SelectConnectionAction selectConnectionAction = (SelectConnectionAction) action;
-                                    label.setBackground(selectConnectionAction.connection.getEnvironmentType().getColor());
-                                }
-                            }
-                            return component;
-                        }
-                    });
-                }*/
-                popupBuilder.showCenteredInCurrentWindow(project);
+                        }).buildAndShowCentered();
             } else {
                 showLookupPopup(event, project, singleConnection, null);
             }
@@ -302,6 +274,7 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
     @Override
     public void update(@NotNull AnActionEvent e) {
         super.update(e);
-        e.getPresentation().setText("Database Object...");
+        Presentation presentation = e.getPresentation();
+        presentation.setText(txt("app.navigation.action.DatabaseObject"));
     }
 }

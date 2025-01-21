@@ -18,14 +18,16 @@ package com.dbn.connection.config.ui;
 
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.connection.config.ConnectionSslSettings;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import java.awt.event.ActionListener;
+
+import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 
 public class ConnectionSslSettingsForm extends ConfigurationEditorForm<ConnectionSslSettings> {
     private JPanel mainPanel;
@@ -43,14 +45,14 @@ public class ConnectionSslSettingsForm extends ConfigurationEditorForm<Connectio
         enableDisableFields();
         registerComponent(mainPanel);
 
-        certificateAuthFileField.addBrowseFolderListener(txt("cfg.connection.title.SelectCertificateAuthorityFile"), "",
-                null, new FileChooserDescriptor(true, false, false, false, false, false));
+        initFileChoosers();
+    }
 
-        clientCertificateFile.addBrowseFolderListener(txt("cfg.connection.title.SelectClientCertificateFile"), "",
-                null, new FileChooserDescriptor(true, false, false, false, false, false));
-
-        clientKeyFile.addBrowseFolderListener(txt("cfg.connection.title.SelectClientKeyFile"), "",
-                null, new FileChooserDescriptor(true, false, false, false, false, false));
+    private void initFileChoosers() {
+        Project project = getProject();
+        addSingleFileChooser(project, certificateAuthFileField, txt("cfg.connection.title.SelectCertificateAuthorityFile"), "");
+        addSingleFileChooser(project, clientCertificateFile, txt("cfg.connection.title.SelectClientCertificateFile"), "");
+        addSingleFileChooser(project, clientKeyFile, txt("cfg.connection.title.SelectClientKeyFile"), "");
     }
 
     @NotNull

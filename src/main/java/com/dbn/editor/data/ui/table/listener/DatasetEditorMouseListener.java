@@ -32,6 +32,8 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DatasetEditorMouseListener extends MouseAdapter {
     private final WeakRef<DatasetEditorTable> table;
 
@@ -83,11 +85,11 @@ public class DatasetEditorMouseListener extends MouseAdapter {
 
                     Project project = table.getProject();
                     Progress.prompt(project, column, true,
-                            "Opening record",
-                            "Opening record details for " + column.getQualifiedNameWithType(),
+                            txt("prc.dataEditor.title.OpeningRecord"),
+                            txt("prc.dataEditor.text.OpeningRecordFor", column.getQualifiedNameWithType()),
                             progress -> {
                                 DatasetFilterInput filterInput = table.getModel().resolveForeignKeyRecord(cell);
-                                if (filterInput != null && filterInput.getColumns().size() > 0) {
+                                if (filterInput != null && !filterInput.isEmpty()) {
                                     Dispatch.run(() -> {
                                         DatasetEditorManager datasetEditorManager = DatasetEditorManager.getInstance(column.getProject());
                                         datasetEditorManager.navigateToRecord(filterInput, e);

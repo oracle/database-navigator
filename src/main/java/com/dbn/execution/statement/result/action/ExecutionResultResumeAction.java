@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionResultResumeAction extends AbstractExecutionResultAction {
 
@@ -50,7 +51,7 @@ public class ExecutionResultResumeAction extends AbstractExecutionResultAction {
         }
 
         presentation.setEnabled(enabled);
-        presentation.setText("Fetch Next Records");
+        presentation.setText(txt("app.execution.action.FetchNextRecords"));
         presentation.setIcon(Icons.EXEC_RESULT_RESUME);
     }
 }

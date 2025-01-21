@@ -25,17 +25,19 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class RecordEditorOpenAction extends ProjectAction {
     private final DatasetFilterInput filterInput;
 
-    RecordEditorOpenAction(DatasetFilterInput filterInput) {
+    public RecordEditorOpenAction(DatasetFilterInput filterInput) {
         this.filterInput = filterInput;
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Editor");
+        presentation.setText(txt("app.dataEditor.action.RecordEditor"));
         presentation.setIcon(Icons.CONNECTION_NEW);
     }
 

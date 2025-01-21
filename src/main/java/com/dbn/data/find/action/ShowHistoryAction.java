@@ -22,6 +22,7 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CustomShortcutSet;
 import com.intellij.openapi.actionSystem.KeyboardShortcut;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.Shortcut;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.util.containers.ContainerUtil;
@@ -35,6 +36,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ShowHistoryAction extends DataSearchHeaderAction implements DumbAware {
     private JTextField searchField;
 
@@ -42,9 +45,9 @@ public class ShowHistoryAction extends DataSearchHeaderAction implements DumbAwa
     public ShowHistoryAction(final JTextField searchField, DataSearchComponent searchComponent) {
         super(searchComponent);
         this.searchField = searchField;
-        getTemplatePresentation().setIcon(AllIcons.Actions.Search);
-        getTemplatePresentation().setDescription("Search history");
-        getTemplatePresentation().setText("Search History");
+        Presentation presentation = getTemplatePresentation();
+        presentation.setIcon(AllIcons.Actions.Search);
+        presentation.setText(txt("app.data.action.SearchHistory"));
 
         ArrayList<Shortcut> shortcuts = new ArrayList<>();
         ContainerUtil.addAll(shortcuts, ActionManager.getInstance().getAction("IncrementalSearch").getShortcutSet().getShortcuts());

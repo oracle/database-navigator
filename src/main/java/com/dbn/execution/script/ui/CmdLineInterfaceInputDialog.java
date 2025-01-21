@@ -57,12 +57,9 @@ public class CmdLineInterfaceInputDialog extends DBNDialog<CmdLineInterfaceInput
         };
     }
 
-    void setActionEnabled(boolean enabled) {
-        getOKAction().setEnabled(enabled);
-    }
-
     @Override
     protected void doOKAction() {
+        getForm().applyFormChanges();
         super.doOKAction();
     }
 }

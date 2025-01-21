@@ -30,10 +30,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ProgramMethodDebugAction extends ObjectListShowAction {
     public ProgramMethodDebugAction(DBProgram program) {
-        super("Debug...", program);
+        super(txt("app.execution.action.Debug"), program);
         getTemplatePresentation().setIcon(Icons.METHOD_EXECUTION_DEBUG);
     }
 

@@ -18,6 +18,7 @@ package com.dbn.database.common.execution;
 
 import com.dbn.execution.method.MethodExecutionInput;
 import com.dbn.object.DBProcedure;
+import org.jetbrains.annotations.NonNls;
 
 public class SimpleProcedureExecutionProcessor extends MethodExecutionProcessorImpl {
     public SimpleProcedureExecutionProcessor(DBProcedure procedure) {
@@ -26,9 +27,10 @@ public class SimpleProcedureExecutionProcessor extends MethodExecutionProcessorI
 
     @Override
     public String buildExecutionCommand(MethodExecutionInput executionInput) {
+        @NonNls
         StringBuilder buffer = new StringBuilder();
         buffer.append("{call ");
-        buffer.append(getMethod().getQualifiedName());
+        buffer.append(getMethod().getQualifiedName(true));
         buffer.append("(");
         for (int i=0; i< getArgumentsCount(); i++) {
             if (i>0) buffer.append(",");

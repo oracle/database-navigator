@@ -30,6 +30,7 @@ import javax.swing.Icon;
 
 import static com.dbn.assistant.editor.AssistantPrompt.Flavor.COMMENT;
 import static com.dbn.assistant.editor.AssistantPrompt.Flavor.SELECTION;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SetupCodeCompletionIntentionAction extends EditorIntentionAction {
     @Override
@@ -40,7 +41,7 @@ public class SetupCodeCompletionIntentionAction extends EditorIntentionAction {
     @Override
     @NotNull
     public String getText() {
-        return "Setup code completion";
+        return txt("app.codeEditor.action.SetupCodeCompletion");
     }
 
     @Override

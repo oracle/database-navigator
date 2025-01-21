@@ -45,7 +45,7 @@ public class DBCredentialManagementAdapter extends ObjectManagementAdapterFactor
     @Override
     protected void createObject(ConnectionHandler connection, DBNConnection conn, DBCredential object) throws SQLException {
         DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
-        String credentialName = object.getName();
+        String credentialName = object.getName(true);
         DBCredentialType credentialType = object.getType();
 
         if (credentialType == DBCredentialType.PASSWORD) {
@@ -73,7 +73,7 @@ public class DBCredentialManagementAdapter extends ObjectManagementAdapterFactor
     protected void updateObject(ConnectionHandler connection, DBNConnection conn, DBCredential object) throws SQLException {
         DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
         Map<DBAttributeType, String> attributes = object.getAttributes();
-        String credentialName = object.getName();
+        String credentialName = object.getName(true);
 
         // update attributes
         for (DBAttributeType attribute : attributes.keySet()) {
@@ -91,18 +91,18 @@ public class DBCredentialManagementAdapter extends ObjectManagementAdapterFactor
     @Override
     protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBCredential object) throws SQLException {
         DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
-        databaseInterface.deleteCredential(conn, object.getName());
+        databaseInterface.deleteCredential(conn, object.getName(true));
     }
 
     @Override
     protected void enableObject(ConnectionHandler connection, DBNConnection conn, DBCredential object) throws SQLException {
         DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
-        databaseInterface.enableCredential(conn, object.getName());
+        databaseInterface.enableCredential(conn, object.getName(true));
     }
 
     @Override
     protected void disableObject(ConnectionHandler connection, DBNConnection conn, DBCredential object) throws SQLException {
         DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
-        databaseInterface.disableCredential(conn, object.getName());
+        databaseInterface.disableCredential(conn, object.getName(true));
     }
 }

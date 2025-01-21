@@ -18,6 +18,7 @@ package com.dbn.data.value;
 
 import com.dbn.data.type.GenericDataType;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
@@ -41,6 +42,8 @@ public abstract class ValueAdapter<T> {
     public abstract @Nullable String export() throws SQLException;
     public abstract void write(Connection connection, PreparedStatement preparedStatement, int parameterIndex, @Nullable T value) throws SQLException;
     public abstract void write(Connection connection, ResultSet resultSet, int columnIndex, @Nullable T value) throws SQLException;
+
+    @NonNls
     public abstract String getDisplayValue();
 
     public static final Map<GenericDataType, Class<? extends ValueAdapter<?>>> REGISTRY = new EnumMap<>(GenericDataType.class);

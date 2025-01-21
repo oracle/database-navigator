@@ -254,6 +254,16 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
+    public ResultSet loadJavaFields(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "java-fields", ownerName, objectName);
+    }
+
+    @Override
+    public ResultSet loadAllJavaFields(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "all-java-fields", ownerName);
+    }
+
+    @Override
     public ResultSet loadJavaMethods(String ownerName, String objectName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "java-methods", ownerName, objectName);
     }

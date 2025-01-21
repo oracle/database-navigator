@@ -40,6 +40,8 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public abstract class AbstractFilterComboBoxAction extends ComboBoxAction implements DumbAware {
     private final SessionBrowserFilterType filterType;
 
@@ -120,7 +122,7 @@ public abstract class AbstractFilterComboBoxAction extends ComboBoxAction implem
         private final String filterValue;
 
         public SelectFilterValueAction(String filterValue) {
-            super(filterValue == null ? "No Filter" : filterValue, null, filterValue == null ? null : filterType.getIcon());
+            super(filterValue == null ? txt("app.shared.action.NoFilter") : filterValue, null, filterValue == null ? null : filterType.getIcon());
             this.filterValue = filterValue;
         }
 

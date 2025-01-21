@@ -21,6 +21,7 @@ import com.dbn.common.ui.table.DBNReadonlyTableModel;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsProfile;
+import org.jetbrains.annotations.NonNls;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -46,6 +47,7 @@ public class TnsNamesTableModel extends StatefulDisposableBase implements DBNRea
         return 10;
     }
 
+    @NonNls
     @Override
     public String getColumnName(int columnIndex) {
         switch (columnIndex) {

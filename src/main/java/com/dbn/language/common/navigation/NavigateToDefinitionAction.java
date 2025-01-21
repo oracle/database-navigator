@@ -23,8 +23,10 @@ import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class NavigateToDefinitionAction extends NavigationAction{
     public NavigateToDefinitionAction(@Nullable DBObject parentObject, @NotNull BasePsiElement navigationElement, @NotNull DBObjectType objectType) {
-        super("Go to " + objectType.getName() + " Definition", Icons.NAVIGATION_GO_TO_BODY, parentObject, navigationElement);
+        super(txt("app.codeEditor.action.GoToDefinition", objectType.getCapitalizedName()), Icons.NAVIGATION_GO_TO_BODY, parentObject, navigationElement);
     }
 }

@@ -18,6 +18,7 @@ package com.dbn.database.common.util;
 
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
@@ -44,7 +45,7 @@ public class CachedResultSetRow {
         return new CachedResultSetRow(source, columnNames);
     }
 
-    public Object get(String columnName) {
+    public Object get(@NonNls String columnName) {
         return values.get(columnName);
     }
 

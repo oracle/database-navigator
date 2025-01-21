@@ -17,6 +17,7 @@
 package com.dbn.connection.jdbc;
 
 import com.dbn.common.compatibility.Exploitable;
+import com.dbn.connection.ConnectionId;
 import lombok.SneakyThrows;
 
 import java.sql.Array;
@@ -39,8 +40,8 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 
 abstract class DBNConnectionBase extends DBNResource<Connection> implements Connection, CloseableResource {
-    DBNConnectionBase(Connection inner) {
-        super(inner, ResourceType.CONNECTION);
+    DBNConnectionBase(Connection inner, ConnectionId connectionId) {
+        super(inner, ResourceType.CONNECTION, connectionId);
     }
 
     protected abstract <S extends Statement> S wrap(Statement statement);

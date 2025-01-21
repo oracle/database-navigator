@@ -25,6 +25,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectDependencyTreeAction extends AnObjectAction<DBSchemaObject> {
     public ObjectDependencyTreeAction(DBSchemaObject schemaObject) {
         super(schemaObject);
@@ -47,6 +49,6 @@ public class ObjectDependencyTreeAction extends AnObjectAction<DBSchemaObject> {
             @NotNull Presentation presentation,
             @NotNull Project project,
             @Nullable DBSchemaObject target) {
-        presentation.setText("Dependency Tree...");
+        presentation.setText(txt("app.objects.action.DependencyTree"));
     }
 }

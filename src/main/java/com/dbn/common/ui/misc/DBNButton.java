@@ -19,24 +19,23 @@ package com.dbn.common.ui.misc;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Cursors;
 
+import javax.accessibility.AccessibleContext;
+import javax.accessibility.AccessibleRole;
 import javax.swing.Icon;
 import javax.swing.JLabel;
-import javax.swing.border.Border;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-public class DBNButton extends JLabel {
-    public DBNButton(Icon image) {
-        super(image);
-        setBorder(Borders.buttonBorder());
-        setCursor(Cursors.handCursor());
-    }
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
-    @Override
-    public void setBorder(Border border) {
-        super.setBorder(border);
+public class DBNButton extends JLabel {
+    public DBNButton(Icon image, String name) {
+        super(image);
+        setBorder(Borders.EMPTY_BORDER);
+        setCursor(Cursors.handCursor());
+        setAccessibleName(this, name);
     }
 
     @Override
@@ -87,5 +86,18 @@ public class DBNButton extends JLabel {
                 if (isEnabled()) l.keyReleased(e);
             }
         });
+    }
+
+    @Override
+    public AccessibleContext getAccessibleContext() {
+        if (accessibleContext == null) {
+            accessibleContext = new AccessibleJLabel() {
+                @Override
+                public AccessibleRole getAccessibleRole() {
+                    return AccessibleRole.PUSH_BUTTON;
+                }
+            };
+        }
+        return accessibleContext;
     }
 }

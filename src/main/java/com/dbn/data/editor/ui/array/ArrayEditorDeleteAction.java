@@ -23,9 +23,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
+import static com.dbn.nls.NlsResources.txt;
+
 class ArrayEditorDeleteAction extends ArrayEditorAction {
     ArrayEditorDeleteAction() {
-        super("Delete Content", null, Icons.TEXT_CELL_EDIT_DELETE);
+        super(txt("app.data.action.DeleteContent"), null, Icons.TEXT_CELL_EDIT_DELETE);
         //setShortcutSet(Keyboard.createShortcutSet(KeyEvent.VK_DELETE, UserInterface.ctrlDownMask()));
     }
 

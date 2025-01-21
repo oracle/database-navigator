@@ -24,6 +24,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ConnectionDuplicateAction extends ConnectionSettingsAction {
 
     @Override
@@ -43,7 +45,7 @@ public class ConnectionDuplicateAction extends ConnectionSettingsAction {
             @Nullable ConnectionBundleSettingsForm target) {
 
         presentation.setEnabled(target != null && target.getSelectionSize() == 1);
-        presentation.setText("Duplicate Connection");
+        presentation.setText(txt("app.connection.action.DuplicateConnection"));
         presentation.setIcon(Icons.ACTION_COPY);
     }
 }

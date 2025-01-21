@@ -26,6 +26,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class KillSessionsAction extends AbstractSessionBrowserAction {
 
     @Override
@@ -49,7 +51,7 @@ public class KillSessionsAction extends AbstractSessionBrowserAction {
         }
 
         Presentation presentation = e.getPresentation();
-        presentation.setText("Kill Sessions");
+        presentation.setText(txt("app.sessionBrowser.action.KillSessions"));
         presentation.setIcon(Icons.ACTION_KILL_SESSION);
         presentation.setVisible(visible);
         presentation.setEnabled(enabled);

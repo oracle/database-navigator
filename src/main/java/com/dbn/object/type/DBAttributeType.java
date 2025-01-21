@@ -18,6 +18,7 @@ package com.dbn.object.type;
 
 import com.dbn.common.constant.Constant;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 @Getter
 public enum DBAttributeType implements Constant<DBAttributeType> {
@@ -40,7 +41,7 @@ public enum DBAttributeType implements Constant<DBAttributeType> {
 
     private final String id;
 
-    DBAttributeType(String id) {
+    DBAttributeType(@NonNls String id) {
         this.id = id;
     }
 }

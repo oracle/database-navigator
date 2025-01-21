@@ -18,6 +18,7 @@ package com.dbn.connection;
 
 import com.dbn.common.util.Enumerations;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 @Getter
 public enum ConnectionType{
@@ -33,7 +34,7 @@ public enum ConnectionType{
     private final String name;
     private final int priority;
 
-    ConnectionType(String name, int priority) {
+    ConnectionType(@NonNls String name, int priority) {
         this.name = name;
         this.priority = priority;
     }

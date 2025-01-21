@@ -29,6 +29,7 @@ import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.editor.data.DatasetLoadInstruction.DELIBERATE_ACTION;
 import static com.dbn.editor.data.DatasetLoadInstruction.PRESERVE_CHANGES;
 import static com.dbn.editor.data.DatasetLoadInstruction.USE_CURRENT_FILTER;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DataReloadAction extends AbstractDataEditorAction {
 
@@ -41,7 +42,7 @@ public class DataReloadAction extends AbstractDataEditorAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
-        presentation.setText("Reload");
+        presentation.setText(txt("app.dataEditor.action.Reload"));
         presentation.setIcon(Icons.DATA_EDITOR_RELOAD_DATA);
 
         boolean enabled =

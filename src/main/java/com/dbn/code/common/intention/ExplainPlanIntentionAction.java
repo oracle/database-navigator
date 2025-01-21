@@ -40,6 +40,7 @@ import javax.swing.Icon;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Files.isDbLanguageFile;
 import static com.dbn.debugger.DatabaseDebuggerManager.isDebugConsole;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExplainPlanIntentionAction extends EditorIntentionAction {
     @Override
@@ -50,7 +51,7 @@ public class ExplainPlanIntentionAction extends EditorIntentionAction {
     @Override
     @NotNull
     public String getText() {
-        return "Explain plan for statement";
+        return txt("app.codeEditor.action.ExplainPlanForStatement");
     }
 
 

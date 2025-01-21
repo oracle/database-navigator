@@ -33,12 +33,11 @@ import com.dbn.common.ui.util.Popups;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
-import com.dbn.common.util.Context;
 import com.dbn.common.util.Strings;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -46,7 +45,9 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.ComboBoxEditor;
 import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.border.Border;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseListener;
@@ -104,6 +105,11 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
     }
 
     @Override
+    public void setBorder(Border border) {
+        super.setBorder(border);
+    }
+
+    @Override
     public void setBackground(Color background) {
         super.setBackground(background);
         ComboBoxEditor editor = getEditor();
@@ -133,27 +139,33 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
             actionGroup.add(Actions.SEPARATOR);
             actionGroup.add(new AddValueAction());
         }
-        popup = JBPopupFactory.getInstance().createActionGroupPopup(
-                null,
-                actionGroup,
-                Context.getDataContext(this),
-                false,
-                false,
-                false,
-                () -> {
-                    popup = null;
-                    UserInterface.repaintAndFocus(DBNComboBox.this);
-                },
-                10,
-                preselect -> {
-                    if (preselect instanceof DBNComboBox.SelectValueAction) {
-                        SelectValueAction action = (SelectValueAction) preselect;
-                        T value = action.value;
-                        return value != null && value.equals(getSelectedValue());
-                    }
-                    return false;
-                });
+        JLabel label = UserInterface.getComponentLabel(this);
+        String title = label == null ? null : label.getText();
+        popup = Popups.popupBuilder(actionGroup, this).
+                withTitle(title).
+                withTitleVisible(false).
+                withMaxRowCount(10).
+                withSpeedSearch().
+                withDisposeCallback(() -> disposePopup()).
+                withPreselectCondition(a -> preselectAction(a)).
+                build();
+
+
         Popups.showUnderneathOf(popup, this, 3, 200);
+    }
+
+    private void disposePopup() {
+        popup = null;
+        UserInterface.repaintAndFocus(DBNComboBox.this);
+    }
+
+    private boolean preselectAction(AnAction a) {
+        if (a instanceof DBNComboBox.SelectValueAction) {
+            SelectValueAction action = (SelectValueAction) a;
+            T value = action.value;
+            return value != null && value.equals(getSelectedValue());
+        }
+        return false;
     }
 
     public void setValueFactory(PresentableFactory<T> valueFactory) {

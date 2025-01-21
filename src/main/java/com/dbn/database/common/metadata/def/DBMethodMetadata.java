@@ -17,6 +17,7 @@
 package com.dbn.database.common.metadata.def;
 
 import com.dbn.database.common.metadata.DBObjectMetadata;
+import com.dbn.database.common.security.ObjectIdentifier;
 
 import java.sql.SQLException;
 
@@ -34,7 +35,9 @@ public interface DBMethodMetadata extends DBObjectMetadata {
 
     String getLanguage() throws SQLException;
 
+    @ObjectIdentifier
     String getTypeName() throws SQLException;
 
+    @ObjectIdentifier
     String getPackageName() throws SQLException;
 }

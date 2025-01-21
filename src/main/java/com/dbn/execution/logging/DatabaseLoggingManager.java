@@ -33,6 +33,7 @@ import java.sql.SQLException;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.notification.NotificationGroup.LOGGING;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class DatabaseLoggingManager extends ProjectComponentBase {

@@ -22,13 +22,13 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.options.setting.Settings;
-import com.dbn.common.util.Context;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.data.record.ColumnSortingType;
 import com.dbn.data.record.DatasetRecord;
 import com.dbn.data.record.navigation.RecordNavigationTarget;
-import com.dbn.data.record.navigation.action.RecordNavigationActionGroup;
+import com.dbn.data.record.navigation.action.RecordEditorOpenAction;
+import com.dbn.data.record.navigation.action.RecordViewerOpenAction;
 import com.dbn.data.record.ui.RecordViewerDialog;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.EditorProviderId;
@@ -40,7 +40,7 @@ import com.dbn.object.DBTable;
 import com.dbn.object.DBView;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
-import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -48,7 +48,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
@@ -61,8 +60,11 @@ import java.awt.Component;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
+import java.util.List;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @State(
@@ -169,15 +171,16 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
         } else if (navigationTarget == RecordNavigationTarget.VIEWER) {
             openRecordViewer(filterInput);
         } else if (navigationTarget == RecordNavigationTarget.ASK) {
-            ActionGroup actionGroup = new RecordNavigationActionGroup(filterInput);
+            List<AnAction> actions = List.of(
+                    new RecordEditorOpenAction(filterInput),
+                    new RecordViewerOpenAction(filterInput));
             Component component = (Component) inputEvent.getSource();
 
-            ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
-                    "Select Navigation Target",
-                    actionGroup,
-                    Context.getDataContext(component),
-                    JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-                    true, null, 10);
+            ListPopup popup = popupBuilder(actions, component)
+                    .withTitle("Select Navigation Target")
+                    .withMaxRowCount(10)
+                    .withSpeedSearch()
+                    .build();
 
             if (inputEvent instanceof MouseEvent) {
                 MouseEvent mouseEvent = (MouseEvent) inputEvent;
@@ -194,7 +197,7 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         Settings.setEnum(element, "record-view-column-sorting-type", recordViewColumnSortingType);
         Settings.setBoolean(element, "value-preview-text-wrapping", valuePreviewTextWrapping);
         Settings.setBoolean(element, "value-preview-pinned", valuePreviewPinned);

@@ -17,15 +17,19 @@
 package com.dbn.database.common.metadata.def;
 
 import com.dbn.database.common.metadata.DBObjectMetadata;
+import com.dbn.database.common.security.ObjectIdentifier;
 
 import java.sql.SQLException;
 
 public interface DBGrantedPrivilegeMetadata extends DBObjectMetadata {
 
+    @ObjectIdentifier
     String getUserName() throws SQLException;
 
+    @ObjectIdentifier
     String getGrantedPrivilegeName() throws SQLException;
 
+    @ObjectIdentifier
     String getRoleName() throws SQLException;
 
     boolean isAdminOption() throws SQLException;

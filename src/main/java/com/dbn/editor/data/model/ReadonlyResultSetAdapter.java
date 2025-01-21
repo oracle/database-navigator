@@ -18,16 +18,19 @@ package com.dbn.editor.data.model;
 
 import com.dbn.common.dispose.AlreadyDisposedException;
 import com.dbn.common.util.Lists;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
 import com.dbn.connection.Savepoints;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNResultSet;
+import com.dbn.connection.security.DatabaseIdentifierCache;
 import com.dbn.data.model.ColumnInfo;
 import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.DBNativeDataType;
 import com.dbn.data.value.ValueAdapter;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,6 +41,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.common.dispose.Failsafe.nd;
+
+@NonNls
 public class ReadonlyResultSetAdapter extends ResultSetAdapter {
     private DBNConnection connection;
     private Row currentRow;
@@ -157,9 +163,10 @@ public class ReadonlyResultSetAdapter extends ResultSetAdapter {
             throw new SQLException("No primary key defined for table");
         }
 
+        @NonNls
         StringBuilder buffer = new StringBuilder();
         buffer.append("update ");
-        buffer.append(getModel().getDataset().getQualifiedName());
+        buffer.append(getDatasetName());
         buffer.append(" set ");
 
         List<Cell> changedCells = currentRow.getChangedCells();
@@ -201,9 +208,10 @@ public class ReadonlyResultSetAdapter extends ResultSetAdapter {
             throw AlreadyDisposedException.INSTANCE;
         }
 
+        @NonNls
         StringBuilder buffer = new StringBuilder();
         buffer.append("insert into ");
-        buffer.append(getModel().getDataset().getQualifiedName());
+        buffer.append(getDatasetName());
         buffer.append(" (");
 
         for (Cell cell : changedCells) {
@@ -237,9 +245,10 @@ public class ReadonlyResultSetAdapter extends ResultSetAdapter {
             throw new SQLException("No primary key defined for table");
         }
 
+        @NonNls
         StringBuilder buffer = new StringBuilder();
         buffer.append("delete from ");
-        buffer.append(getModel().getDataset().getQualifiedName());
+        buffer.append(getDatasetName());
         buffer.append(" where ");
 
         for (Cell cell : keyCells) {
@@ -259,7 +268,8 @@ public class ReadonlyResultSetAdapter extends ResultSetAdapter {
 
     @Getter
     @EqualsAndHashCode
-    private static class Cell {
+    private class Cell {
+
         private final ColumnInfo columnInfo;
         private transient final Object value;
 
@@ -279,11 +289,11 @@ public class ReadonlyResultSetAdapter extends ResultSetAdapter {
         }
 
         public String getColumnName() {
-            return columnInfo.getName();
+            return quoted(columnInfo.getName());
         }
     }
 
-    private static class Row {
+    private class Row {
         private final Set<Cell> keyCells = new HashSet<>();
         private final Set<Cell> changedCells = new HashSet<>();
 
@@ -306,6 +316,16 @@ public class ReadonlyResultSetAdapter extends ResultSetAdapter {
             changedCells.remove(cell);
             changedCells.add(cell);
         }
+    }
+
+    private String getDatasetName() {
+        return getModel().getDataset().getQualifiedName(true);
+    }
+
+    private String quoted(String identifier) {
+        ConnectionHandler handler = nd(connection.getConnectionHandler());
+        DatabaseIdentifierCache identifierCache = handler.getIdentifierCache();
+        return identifierCache.getQuotedIdentifier(identifier);
     }
 
     @Override

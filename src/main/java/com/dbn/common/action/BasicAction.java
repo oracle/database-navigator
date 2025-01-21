@@ -18,14 +18,15 @@ package com.dbn.common.action;
 
 //import com.intellij.openapi.actionSystem.ActionUpdateThread;
 
-import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.util.NlsActions.ActionDescription;
+import com.intellij.openapi.util.NlsActions.ActionText;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
-public abstract class BasicAction extends AnAction implements BackgroundUpdateAware, DumbAware, NlsSupport {
+public abstract class BasicAction extends AnAction implements BackgroundUpdateAware, DumbAware {
 
     public BasicAction() {
     }
@@ -34,11 +35,11 @@ public abstract class BasicAction extends AnAction implements BackgroundUpdateAw
         super(icon);
     }
 
-    public BasicAction(@Nullable String text) {
+    public BasicAction(@Nullable @ActionText String text) {
         super(text);
     }
 
-    public BasicAction(@Nullable String text, @Nullable String description, @Nullable Icon icon) {
+    public BasicAction(@Nullable @ActionText String text, @Nullable @ActionDescription String description, @Nullable Icon icon) {
         super(text, description, icon);
     }
 }

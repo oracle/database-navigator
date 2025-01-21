@@ -27,6 +27,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DataExportAction extends AbstractDataEditorAction {
 
     @Override
@@ -37,7 +39,7 @@ public class DataExportAction extends AbstractDataEditorAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
-        presentation.setText("Export Data");
+        presentation.setText(txt("app.dataEditor.action.ExportData"));
         presentation.setIcon(Icons.DATA_EXPORT);
 
         boolean enabled =

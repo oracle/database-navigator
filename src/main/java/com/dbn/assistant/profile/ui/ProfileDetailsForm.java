@@ -60,8 +60,8 @@ public class ProfileDetailsForm extends DBNFormBase {
         objectsTable.setSelectionModel(new NullSelectionModel());
         objectsTable.setDefaultRenderer(Object.class, createObjectTableRenderer());
         String[] columnNames = {
-                txt("profile.mgmt.obj_table.header.name"),
-                txt("profile.mgmt.obj_table.header.owner")};
+                txt("cfg.assistant.title.Dataset"),
+                txt("cfg.assistant.title.Owner")};
 
         Object[][] data = profile.getObjects().stream()
                 .map(obj -> new Object[]{obj.getName(), obj.getSchemaName()})

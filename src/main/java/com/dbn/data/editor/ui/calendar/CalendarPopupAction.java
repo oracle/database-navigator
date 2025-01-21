@@ -19,13 +19,15 @@ package com.dbn.data.editor.ui.calendar;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.DataKeys;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.util.NlsActions.ActionDescription;
+import com.intellij.openapi.util.NlsActions.ActionText;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
 public abstract class CalendarPopupAction extends BasicAction {
-    public CalendarPopupAction(@Nullable String text, @Nullable String description, @Nullable Icon icon) {
+    public CalendarPopupAction(@Nullable @ActionText String text, @Nullable @ActionDescription String description, @Nullable Icon icon) {
         super(text, description, icon);
     }
 

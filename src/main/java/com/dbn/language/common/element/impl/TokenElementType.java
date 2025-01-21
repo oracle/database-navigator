@@ -33,6 +33,7 @@ import com.dbn.language.common.psi.TokenPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,7 +49,7 @@ public final class TokenElementType extends LeafElementType implements LookupIte
     private TokenTypeCategory flavor;
     private String text;
 
-    public TokenElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
+    public TokenElementType(ElementTypeBundle bundle, ElementTypeBase parent, @NonNls String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
         String typeId = stringAttribute(def, "type-id");
         text = stringAttribute(def, "text");
@@ -63,7 +64,7 @@ public final class TokenElementType extends LeafElementType implements LookupIte
         setDescription(tokenType.getValue() + " " + getTokenTypeCategory());
     }
 
-    public TokenElementType(ElementTypeBundle bundle, ElementTypeBase parent, String typeId, String id) {
+    public TokenElementType(ElementTypeBundle bundle, ElementTypeBase parent, @NonNls String typeId, @NonNls String id) {
         super(bundle, parent, id, (String)null);
         tokenType = bundle.getTokenTypeBundle().getTokenType(typeId);
         setDescription(tokenType.getValue() + " " + getTokenTypeCategory());

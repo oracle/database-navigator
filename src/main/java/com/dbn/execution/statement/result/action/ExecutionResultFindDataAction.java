@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionResultFindDataAction extends AbstractExecutionResultAction {
 
@@ -39,7 +40,7 @@ public class ExecutionResultFindDataAction extends AbstractExecutionResultAction
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable StatementExecutionCursorResult target) {
-        presentation.setText("Find Data");
+        presentation.setText(txt("app.execution.action.FindData"));
         presentation.setIcon(Icons.ACTION_FIND);
     }
 }

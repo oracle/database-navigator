@@ -71,6 +71,7 @@ import static com.dbn.common.notification.NotificationGroup.SESSION_BROWSER;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.util.Commons.list;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
     name = SessionBrowserManager.COMPONENT_NAME,
@@ -130,7 +131,7 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
     }
 
     public void openSessionBrowser(ConnectionHandler connection) {
-        ConnectionAction.invoke("opening the session browser", false, connection,
+        ConnectionAction.invoke(txt("msg.sessionBrowser.title.OpeningSessionBrowser"), false, connection,
                 (action) -> {
                     Project project = getProject();
                     DBSessionBrowserVirtualFile sessionBrowserFile = connection.getSessionBrowserFile();

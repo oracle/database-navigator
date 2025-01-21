@@ -20,6 +20,7 @@ import com.dbn.execution.common.options.ExecutionEngineSettings;
 import com.dbn.execution.method.options.MethodExecutionSettings;
 import com.dbn.object.DBMethod;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 
 public class OracleMethodDebugExecutionProcessor extends OracleMethodExecutionProcessor {
     public OracleMethodDebugExecutionProcessor(DBMethod method) {
@@ -27,7 +28,7 @@ public class OracleMethodDebugExecutionProcessor extends OracleMethodExecutionPr
     }
 
     @Override
-    protected void preHookExecutionCommand(StringBuilder buffer) {
+    protected void preHookExecutionCommand(@NonNls StringBuilder buffer) {
         super.preHookExecutionCommand(buffer);
         DBMethod method = getMethod();
         Project project = method.getProject();
@@ -39,7 +40,7 @@ public class OracleMethodDebugExecutionProcessor extends OracleMethodExecutionPr
     }
 
     @Override
-    protected void postHookExecutionCommand(StringBuilder buffer) {
+    protected void postHookExecutionCommand(@NonNls StringBuilder buffer) {
         buffer.append("\n");
         buffer.append("    SYS.DBMS_DEBUG.debug_off();\n");
         buffer.append("exception\n");

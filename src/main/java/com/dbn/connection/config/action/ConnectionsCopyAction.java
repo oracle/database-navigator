@@ -24,6 +24,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ConnectionsCopyAction extends ConnectionSettingsAction {
 
     @Override
@@ -46,7 +48,7 @@ public class ConnectionsCopyAction extends ConnectionSettingsAction {
         boolean enabled = target != null && target.getSelectionSize() > 0;
 
         presentation.setEnabled(enabled);
-        presentation.setText("Copy to Clipboard");
+        presentation.setText(txt("app.connection.action.CopyToClipboard"));
         presentation.setIcon(Icons.CONNECTION_COPY);
     }
 }

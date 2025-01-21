@@ -44,6 +44,7 @@ import java.sql.SQLException;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class StatementExecutionCursorResult extends StatementExecutionBasicResult {
     private ResultSetDataModel<?, ?> dataModel;
@@ -80,10 +81,10 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
 
     public void reload() {
         StatementExecutionCursorProcessor executionProcessor = getExecutionProcessor();
-        ConnectionAction.invoke("Reload data", false, executionProcessor, action -> {
+        ConnectionAction.invoke(txt("msg.execution.title.ReloadingData"), false, executionProcessor, action -> {
             Progress.background(getProject(), action, false,
-                    "Loading data",
-                    "Reloading result for " + executionProcessor.getStatementName(),
+                    txt("prc.execution.title.LoadingData"),
+                    txt("prc.execution.text.LoadingResultFor", executionProcessor.getStatementName()),
                     progress -> {
                         StatementExecutionResultForm resultForm = getForm();
                         if (Checks.isValid(resultForm)) {
@@ -140,8 +141,8 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
     public void fetchNextRecords() {
         Project project = getProject();
         Progress.background(project, getConnection(), false,
-                "Loading data",
-                "Loading next records for " + getExecutionProcessor().getStatementName(),
+                txt("prc.execution.title.LoadingData"),
+                txt("prc.execution.text.LoadingNextRecordsFor", getExecutionProcessor().getStatementName()),
                 progress -> {
                     StatementExecutionResultForm resultForm = getForm();
                     if (Checks.isValid(resultForm)) {

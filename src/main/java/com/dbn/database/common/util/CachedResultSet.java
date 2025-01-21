@@ -22,6 +22,7 @@ import com.dbn.common.util.Lists;
 import com.dbn.connection.Resources;
 import com.dbn.connection.ResultSets;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -383,37 +384,37 @@ public class CachedResultSet extends StatefulDisposableBase implements ResultSet
      *            Value accessor implementations                  *
      **************************************************************/
     @Override
-    public Object getObject(String columnLabel) throws SQLException {
+    public Object getObject(@NonNls String columnLabel) throws SQLException {
         CachedResultSetRow currentRow = current();
         return currentRow.get(columnLabel);
     }
 
     @Override
-    public String getString(String columnLabel) throws SQLException {
+    public String getString(@NonNls String columnLabel) throws SQLException {
         Object value = getObject(columnLabel);
         return Data.asString(value);
     }
 
     @Override
-    public short getShort(String columnLabel) throws SQLException {
+    public short getShort(@NonNls String columnLabel) throws SQLException {
         Object value = getObject(columnLabel);
         return Data.asShrt(value);
     }
 
     @Override
-    public int getInt(String columnLabel) throws SQLException {
+    public int getInt(@NonNls String columnLabel) throws SQLException {
         Object value = getObject(columnLabel);
         return Data.asInt(value);
     }
 
     @Override
-    public long getLong(String columnLabel) throws SQLException {
+    public long getLong(@NonNls String columnLabel) throws SQLException {
         Object value = getObject(columnLabel);
         return Data.asLng(value);
     }
 
     @Override
-    public boolean getBoolean(String columnLabel) throws SQLException {
+    public boolean getBoolean(@NonNls String columnLabel) throws SQLException {
         Object value = getObject(columnLabel);
         return Data.asBool(value);
     }

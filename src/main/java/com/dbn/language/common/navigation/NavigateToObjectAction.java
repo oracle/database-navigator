@@ -23,10 +23,12 @@ import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class NavigateToObjectAction extends BasicAction {
     private final DBObjectRef object;
     public NavigateToObjectAction(DBObject object, DBObjectType objectType) {
-        super("Navigate to " + objectType.getName(), null, objectType.getIcon());
+        super(txt("app.objects.action.NavigateToObject", objectType.getName()), null, objectType.getIcon());
         this.object = DBObjectRef.of(object);
     }
 

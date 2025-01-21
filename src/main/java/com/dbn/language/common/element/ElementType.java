@@ -26,20 +26,25 @@ import com.dbn.language.common.element.path.LanguageNodeBase;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.NonNls;
 
 import javax.swing.Icon;
 import java.util.Set;
 
 public interface ElementType extends PropertyHolder<ElementTypeAttribute>{
 
+    @NonNls
     String getId();
 
+    @NonNls
     String getName();
 
+    @NonNls
     default String getDebugName() {
         return getName();
     }
 
+    @NonNls
     String getDescription();
 
     Icon getIcon();

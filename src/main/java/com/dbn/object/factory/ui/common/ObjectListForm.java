@@ -103,7 +103,7 @@ public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFo
 
     public class CreateObjectAction extends BasicAction {
         CreateObjectAction() {
-            super("Add " + getObjectType().getName(), null, Icons.ACTION_ADD);
+            super(txt("app.objects.action.CreateObject",getObjectType().getName()), null, Icons.ACTION_ADD);
         }
 
         @Override

@@ -26,7 +26,6 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.file.FileMappings;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.ui.util.Popups;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Documents;
 import com.dbn.connection.ConnectionAction;
@@ -76,6 +75,8 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.file.util.VirtualFiles.isLocalFileSystem;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Files.isDbLanguageFile;
 import static com.dbn.common.util.Messages.options;
@@ -88,6 +89,7 @@ import static com.dbn.connection.ConnectionType.MAIN;
 import static com.dbn.connection.ConnectionType.POOL;
 import static com.dbn.connection.ConnectionType.SESSION;
 import static com.dbn.connection.mapping.ConnectionContextActions.ConnectionSelectAction;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
     name = FileConnectionContextManager.COMPONENT_NAME,
@@ -284,9 +286,8 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
             if (!isLiveConnection(activeConnection)) {
                 String message =
                         activeConnection == null ?
-                                "The file is not linked to any connection.\nTo continue with the statement execution please select a target connection." :
-                                "The connection you selected for this file is a virtual connection, used only to decide the SQL dialect.\n" +
-                                        "You can not execute statements against this connection. Please select a proper connection to continue.";
+                                txt("msg.fileContext.message.MissingConnectionContext") :
+                                txt("msg.fileContext.message.VirtualConnectionContext");
 
 
                 ConnectionSelectorOptions options = ConnectionSelectorOptions.options(
@@ -294,18 +295,21 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
                         PROMPT_SCHEMA_SELECTION);
 
                 showWarningDialog(project,
-                        "No valid connection", message,
-                        options("Select Connection", "Cancel"), 0,
+                        txt("msg.fileContext.title.InvalidConnection"), message,
+                        options(
+                            txt("msg.fileContext.button.SelectConnection"),
+                            txt("msg.shared.button.Cancel")), 0,
                         option -> when(option == 0, () ->
                                 promptConnectionSelector(file, dataContext, options, callback)));
 
             } else if (getDatabaseSchema(file) == null) {
-                String message =
-                        "You did not select any schema to run the statement against.\n" +
-                                "To continue with the statement execution please select a schema.";
                 showWarningDialog(project,
-                        "No schema selected", message,
-                        options("Use Current Schema", "Select Schema", "Cancel"), 0,
+                        txt("msg.fileContext.title.NoSchemaSelected"),
+                        txt("msg.fileContext.message.NoSchemaSelected"),
+                        options(
+                            txt("msg.fileContext.button.UseCurrentSchema"),
+                            txt("msg.fileContext.button.SelectSchema"),
+                            txt("msg.shared.button.Cancel")), 0,
                         (option) -> {
                             if (option == 0) {
                                 callback.run();
@@ -357,7 +361,11 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
             actions.add(new ConnectionSetupAction(project));
         }
 
-        Popups.showActionsPopup("Select Connection", dataContext, actions, Selectable.selector());
+        popupBuilder(actions, dataContext).
+                withTitle(txt("msg.fileContext.title.SelectConnection")).
+                withPreselectCondition(Selectable.selector()).
+                withSpeedSearch().
+                buildAndShow();
     }
 
     /***************************************************
@@ -368,10 +376,10 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
         ConnectionHandler connection = getConnection(file);
         if (connection == null) return;
 
-        ConnectionAction.invoke("selecting the current schema", true, connection,
+        ConnectionAction.invoke(txt("msg.fileContext.title.SelectingSchema"), true, connection,
                 action -> Progress.prompt(project, connection, true,
-                        "Loading schemas",
-                        "Loading schemas for connection " + connection.getName(),
+                        txt("prc.debugger.title.LoadingSchemas"),
+                        txt("prc.debugger.text.LoadingSchemas", connection.getName()),
                         progress -> {
                             List<AnAction> actions = new ArrayList<>();
                             if (isLiveConnection(connection)) {
@@ -382,7 +390,11 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
                                 }
                             }
 
-                            Popups.showActionsPopup("Select Schema", dataContext, actions, Selectable.selector());
+                            popupBuilder(actions, dataContext).
+                                    withTitle(txt("msg.fileContext.title.SelectSchema")).
+                                    withPreselectCondition(Selectable.selector()).
+                                    withSpeedSearch().
+                                    buildAndShow();
                         }));
     }
 
@@ -391,9 +403,8 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
      *             Select schema popup                 *
      ***************************************************/
     public void promptSessionSelector(VirtualFile file, DataContext dataContext, Runnable callback) throws IncorrectOperationException {
-        Project project = getProject();
         ConnectionAction.invoke(
-                "selecting the current session", true,
+                txt("msg.fileContext.title.SelectingSession"), true,
                 getConnection(file),
                 (action) -> {
                     List<AnAction> actions = new ArrayList<>();
@@ -408,7 +419,11 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
                         actions.add(new SessionCreateAction(file, connection));
                     }
 
-                    Popups.showActionsPopup("Select Session", dataContext, actions, Selectable.selector());
+                    popupBuilder(actions, dataContext).
+                            withTitle(txt("msg.fileContext.title.SelectSession")).
+                            withPreselectCondition(Selectable.selector()).
+                            withSpeedSearch().
+                            buildAndShow();
                 });
     }
 
@@ -432,7 +447,7 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         for (FileConnectionContext mapping : registry.getMappings().values()) {
             Element mappingElement = newElement(element, "mapping");
             mapping.writeState(mappingElement);
@@ -442,7 +457,10 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
 
     @Override
     public void loadComponentState(@NotNull Element element) {
-        Progress.background(getProject(), null, false, "Restoring context", "Restoring file database connection context", indicator -> loadFileMappings(element, indicator));
+        Progress.background(getProject(), null, false,
+                txt("prc.fileContext.title.RestoringContext"),
+                txt("prc.fileContext.text.RestoringContext"),
+                indicator -> loadFileMappings(element, indicator));
     }
 
     private void loadFileMappings(@NotNull Element element, ProgressIndicator indicator) {

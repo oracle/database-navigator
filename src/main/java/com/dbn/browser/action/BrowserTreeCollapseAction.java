@@ -25,12 +25,14 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class BrowserTreeCollapseAction extends ProjectAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Collapse All");
+        presentation.setText(txt("app.browser.action.CollapseAll"));
         presentation.setIcon(Icons.ACTION_COLLAPSE_ALL);
     }
 

@@ -18,31 +18,42 @@ package com.dbn.editor.data.filter.action;
 
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.ref.WeakRef;
 import com.dbn.editor.data.filter.ui.DatasetBasicFilterConditionForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class EnableDisableBasicFilterConditionAction extends BasicAction {
-    private DatasetBasicFilterConditionForm conditionForm;
+    private final WeakRef<DatasetBasicFilterConditionForm> conditionForm;
 
     public EnableDisableBasicFilterConditionAction(DatasetBasicFilterConditionForm conditionForm) {
-        this.conditionForm = conditionForm;
+        this.conditionForm = WeakRef.of(conditionForm);
     }
 
     @Override
     public void update(AnActionEvent e) {
-        e.getPresentation().setIcon(
+        DatasetBasicFilterConditionForm conditionForm = getConditionForm();
+        Presentation presentation = e.getPresentation();
+        presentation.setIcon(
                 conditionForm.isActive() ?
                         Icons.COMMON_FILTER_ACTIVE :
                         Icons.COMMON_FILTER_INACTIVE);
-        e.getPresentation().setText(
+        presentation.setText(
                 conditionForm.isActive() ?
-                        "Deactivate Condition" :
-                        "Activate Condition");
+                        txt("app.dataEditor.action.DeactivateCondition") :
+                        txt("app.dataEditor.action.ActivateCondition"));
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
+        DatasetBasicFilterConditionForm conditionForm = getConditionForm();
         conditionForm.setActive(!conditionForm.isActive());
+    }
+
+    private DatasetBasicFilterConditionForm getConditionForm() {
+        return WeakRef.ensure(conditionForm);
     }
 }

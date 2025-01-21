@@ -44,6 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.util.Editors.openFileEditor;
 import static com.dbn.generator.code.CodeGeneratorManager.COMPONENT_NAME;
@@ -121,7 +122,7 @@ public class CodeGeneratorManager extends ProjectComponentBase implements Persis
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         Element statesElement = newElement(element, "generator-states");
         for (CodeGeneratorCategory category : states.keySet()) {
             Element stateElement = newElement(statesElement, "generator-state");

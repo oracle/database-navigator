@@ -17,7 +17,6 @@
 package com.dbn.execution.method.result.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.execution.ExecutionStatus;
 import com.dbn.execution.method.MethodExecutionContext;
 import com.dbn.execution.method.result.MethodExecutionResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -26,6 +25,11 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.execution.ExecutionStatus.CANCELLED;
+import static com.dbn.execution.ExecutionStatus.CANCEL_REQUESTED;
+import static com.dbn.execution.ExecutionStatus.EXECUTING;
+import static com.dbn.nls.NlsResources.txt;
 
 public class MethodExecutionStopAction extends AbstractMethodExecutionResultAction {
 
@@ -36,8 +40,8 @@ public class MethodExecutionStopAction extends AbstractMethodExecutionResultActi
             @NotNull MethodExecutionResult target) {
 
         MethodExecutionContext context = target.getExecutionContext();
-        context.set(ExecutionStatus.CANCELLED, true);
-        context.set(ExecutionStatus.CANCEL_REQUESTED, true);
+        context.set(CANCELLED, true);
+        context.set(CANCEL_REQUESTED, true);
         ProgressIndicator progress = context.getProgress();
         if (progress != null && !progress.isCanceled()) progress.cancel();
 
@@ -50,14 +54,22 @@ public class MethodExecutionStopAction extends AbstractMethodExecutionResultActi
             @NotNull Project project,
             @Nullable MethodExecutionResult target) {
 
-        boolean enabled = target != null &&
-                !target.getDebuggerType().isDebug() &&
-                target.getExecutionContext().is(ExecutionStatus.EXECUTING) &&
-                target.getExecutionContext().isNot(ExecutionStatus.CANCELLED) &&
-                target.getExecutionContext().isNot(ExecutionStatus.CANCEL_REQUESTED);
+        boolean enabled = isEnabled(target);
 
         presentation.setEnabled(enabled) ;
-        presentation.setText("Stop Execution");
+        presentation.setText(txt("app.execution.action.StopExecution"));
         presentation.setIcon(Icons.METHOD_EXECUTION_STOP);
+    }
+
+    private static boolean isEnabled(@Nullable MethodExecutionResult target) {
+        if (target == null) return false;
+        if (target.getDebuggerType().isDebug()) return false;
+
+        MethodExecutionContext context = target.getExecutionContext();
+        if (context.isNot(EXECUTING)) return false;
+        if (context.is(CANCELLED)) return false;
+        if (context.is(CANCEL_REQUESTED)) return false;
+
+        return true;
     }
 }
