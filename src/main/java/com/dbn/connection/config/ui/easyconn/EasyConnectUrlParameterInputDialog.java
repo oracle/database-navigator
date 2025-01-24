@@ -57,20 +57,6 @@ public class EasyConnectUrlParameterInputDialog extends DBNDialog<EasyConnectUrl
         return new EasyConnectUrlParameterInputForm(this, context.getInput());
     }
 
-    private void generateCode() {
-        // apply the form field values to the input
-        //EasyConnectUrlParameterInputForm inputForm = getForm();
-        //inputForm.applyUserInput();
-
-        //CodeGeneratorManager manager = getCodeGenerationManager();
-        //manager.generateCode(context);
-    }
-
-    @NotNull
-    private CodeGeneratorManager getCodeGenerationManager() {
-        return null;
-    }
-
 
     @NotNull
     @Override

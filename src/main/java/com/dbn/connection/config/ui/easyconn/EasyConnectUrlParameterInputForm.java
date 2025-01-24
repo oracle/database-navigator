@@ -40,10 +40,18 @@ public class EasyConnectUrlParameterInputForm<I extends EasyConnectUrlParameterI
     }
 
     private void initValidation() {
-        /*("ENABLE", "FAILOVER", "LOAD_BALANCE",
-                "SDU", "SOURCE_ROUTE", "RETRY_COUNT", "RETRY_DELAY","HTTPS_PROXY") */
+        /*("ENABLE", ,
+               "HTTPS_PROXY") */
         propertiesEditorForm.addValidator(new IntegerConstraintValidator(0), "SEND_BUF_SIZE");
         propertiesEditorForm.addValidator(new IntegerConstraintValidator(0), "RECV_BUF_SIZE");
+        propertiesEditorForm.addValidator(new StringListConstraintValidator("ON", "OFF"), "FAILOVER");
+        propertiesEditorForm.addValidator(new StringListConstraintValidator("ON", "OFF"), "LOAD_BALANCE");
+        propertiesEditorForm.addValidator(new IntegerConstraintValidator(0), "SDU");
+        propertiesEditorForm.addValidator(new IntegerConstraintValidator(0), "SDU");
+        propertiesEditorForm.addValidator(new StringListConstraintValidator("ON", "OFF"), "SOURCE_ROUTE");
+        propertiesEditorForm.addValidator(new IntegerConstraintValidator(0), "RETRY_COUNT");
+        propertiesEditorForm.addValidator(new IntegerConstraintValidator(0), "RETRY_DELAY");
+
         //?/propertiesEditorForm.addValidator(new );
     }
     public final void applyUserInput() {

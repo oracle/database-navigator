@@ -85,7 +85,7 @@ public class PropertiesEditorForm extends DBNFormBase {
                         String key = (String) source.getValueAt(row, 0);
                         PropertiesValidator v = validators.get(key);
                         if (v != null) {
-                            ValidationInfo result = v.validate(key, v);
+                            ValidationInfo result = v.validate(key, cellValue);
                             if (result != null) {
                                 valInfos.add(result);
                             }
