@@ -56,7 +56,7 @@ public enum DatabaseUrlPattern {
     ORACLE_EZCONNECT(
             // temporary; pattern is much more complicated.
             "jdbc:oracle:thin@tcps://<HOST>:<PORT>/<DATABASE>",
-            compile("^jdbc:oracle:thin:@tcps://"+host+":"+port+"/"+database ),
+            compile("^jdbc:oracle:thin:@tcps://"+host+":"+port+"/"+database),
             Default.ORACLE, DatabaseUrlType.EZCONNECT),
 
     ORACLE_TNS(
