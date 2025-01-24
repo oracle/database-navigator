@@ -60,13 +60,43 @@ public final class OracleExecutionInterface implements DatabaseExecutionInterfac
             @NotNull DatabaseInfo databaseInfo,
             @NotNull AuthenticationInfo authenticationInfo) {
 
-        return new OracleScriptExecutionInput(
-                cmdLineInterface,
-                filePath,
-                content,
-                schemaId,
-                databaseInfo,
-                authenticationInfo);
+        CmdLineExecutionInput input = new CmdLineExecutionInput(content);
+        DatabaseUrlType urlType = databaseInfo.getUrlType();
+        String connectPattern =
+                urlType == DatabaseUrlType.EZCONNECT ? SQLPLUS_CONNECT_PATTERN_BASIC :
+                urlType == DatabaseUrlType.TNS ? SQLPLUS_CONNECT_PATTERN_TNS :
+                urlType == DatabaseUrlType.SID ? SQLPLUS_CONNECT_PATTERN_SID :
+                urlType == DatabaseUrlType.SERVICE ? SQLPLUS_CONNECT_PATTERN_SERVICE :
+                SQLPLUS_CONNECT_PATTERN_BASIC;
+
+        String connectArg = connectPattern.
+                replace("[USER]",        nvl(authenticationInfo.getUser(),     "")).
+                replace("[HOST]",        nvl(databaseInfo.getHost(),           "")).
+                replace("[PORT]",        nvl(databaseInfo.getPort(),           "")).
+                replace("[DATABASE]",    nvl(databaseInfo.getDatabase(),       "")).
+                replace("[TNS_PROFILE]", nvl(databaseInfo.getTnsProfile(),     ""));
+
+        boolean tnsConnection = databaseInfo.getUrlType() == DatabaseUrlType.TNS;
+        if (tnsConnection) {
+            input.addEnvironmentVariable("TNS_ADMIN", nvl(databaseInfo.getTnsFolder(), ""));
+        }
+
+        String executable = cmdLineInterface.getExecutablePath();
+        input.initCommand(executable);
+        input.addCommandArgument(connectArg);
+
+        if (schemaId != null) {
+            input.addStatement("alter session set current_schema = " + schemaId + ";");
+        }
+
+        input.addStatement("set echo on;");
+        input.addStatement("set linesize 32000;");
+        input.addStatement("set pagesize 40000;");
+        input.addStatement("set long 50000;");
+
+        input.addStatement("@" + filePath);
+        input.addStatement("exit");
+        return input;
     }
 
 
