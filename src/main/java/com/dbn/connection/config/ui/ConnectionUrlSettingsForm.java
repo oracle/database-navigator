@@ -35,7 +35,6 @@ import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsNamesParser;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.ui.components.ActionLink;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import org.jetbrains.annotations.NotNull;
@@ -229,14 +228,13 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         boolean ezConnectVisible = urlType == DatabaseUrlType.EZCONNECT;
         boolean tnsVisible = urlType == DatabaseUrlType.TNS;
         boolean flsVisible = urlType == DatabaseUrlType.FILE;
-        boolean customVisible = urlType == DatabaseUrlType.CUSTOM;
         boolean hpdVisible = Constants.isOneOf(urlType,
                 DatabaseUrlType.SID,
                 DatabaseUrlType.SERVICE,
                 DatabaseUrlType.DATABASE,
                 DatabaseUrlType.EZCONNECT);
 
-        urlTextField.setEnabled(customVisible || ezConnectVisible);
+        urlTextField.setEnabled(urlType == DatabaseUrlType.CUSTOM);
 
         // tns folder
         tnsFolderTextField.setVisible(tnsVisible);
@@ -252,9 +250,6 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         hostTextField.setVisible(hpdVisible);
         portLabelField.setVisible(hpdVisible);
         portTextField.setVisible(hpdVisible);
-
-        poolTypeLabel.setVisible(ezConnectVisible);
-        poolTypeComboBox.setVisible(ezConnectVisible);
 
         poolTypeLabel.setVisible(ezConnectVisible);
         poolTypeComboBox.setVisible(ezConnectVisible);
@@ -357,9 +352,5 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
             !Commons.match(databaseInfo.getUrlType(), urlType) ||
             !Commons.match(databaseInfo.getFileBundle(), urlType == DatabaseUrlType.FILE ? getFileBundle() : null);
 
-    }
-
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
     }
 }
