@@ -35,6 +35,7 @@ import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsNamesParser;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.ui.components.ActionLink;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import org.jetbrains.annotations.NotNull;
@@ -356,5 +357,9 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
             !Commons.match(databaseInfo.getUrlType(), urlType) ||
             !Commons.match(databaseInfo.getFileBundle(), urlType == DatabaseUrlType.FILE ? getFileBundle() : null);
 
+    }
+
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
     }
 }
