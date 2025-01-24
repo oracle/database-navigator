@@ -24,18 +24,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.isEmpty;
-import static com.dbn.connection.DatabaseUrlPattern.Elements.database;
-import static com.dbn.connection.DatabaseUrlPattern.Elements.file;
-import static com.dbn.connection.DatabaseUrlPattern.Elements.folder;
-import static com.dbn.connection.DatabaseUrlPattern.Elements.host;
-import static com.dbn.connection.DatabaseUrlPattern.Elements.port;
-import static com.dbn.connection.DatabaseUrlPattern.Elements.profile;
-import static com.dbn.connection.DatabaseUrlPattern.Elements.vendor;
+import static com.dbn.connection.DatabaseUrlPattern.Elements.*;
 import static com.dbn.connection.DatabaseUrlType.CUSTOM;
 import static com.dbn.connection.DatabaseUrlType.DATABASE;
 import static com.dbn.connection.DatabaseUrlType.FILE;
@@ -43,7 +40,7 @@ import static com.dbn.connection.DatabaseUrlType.LDAP;
 import static com.dbn.connection.DatabaseUrlType.LDAPS;
 import static com.dbn.connection.DatabaseUrlType.SERVICE;
 import static com.dbn.connection.DatabaseUrlType.SID;
-import static com.dbn.connection.DatabaseUrlType.TNS;
+import static com.dbn.connection.DatabaseUrlType.*;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static java.util.regex.Pattern.compile;
@@ -55,8 +52,8 @@ public enum DatabaseUrlPattern {
 
     ORACLE_EZCONNECT(
             // temporary; pattern is much more complicated.
-            "jdbc:oracle:thin@tcps://<HOST>:<PORT>/<DATABASE><SERVICE_TYPE>",
-            compile("^jdbc:oracle:thin:@tcps://"+host+":"+port+"/"+database ),
+            "jdbc:oracle:thin@tcps://<HOST>:<PORT>/<DATABASE><POOLTYPE><PARAMS>",
+            compile("^jdbc:oracle:thin:@tcps://"+host+":"+port+"/"+database+pooling+connParams ),
             Default.ORACLE, DatabaseUrlType.EZCONNECT),
 
     ORACLE_TNS(
@@ -119,6 +116,9 @@ public enum DatabaseUrlPattern {
         String profile = "(?<PROFILE>[\\w\\-.]+)";
         String folder = "(?<FOLDER>([a-z]:)?([\\\\/][\\w\\s/_.\\-']+)+)";
         String file = "(?<FILE>([a-z]:)?([\\\\/][\\w\\s/_.\\-']+)+)";
+
+        String pooling = "(:(?<POOLTYPE>[\\w\\-.$#]+))?";
+        String connParams = "\\?(?<PARAMS>(.*))";
     }
 
 
@@ -146,10 +146,11 @@ public enum DatabaseUrlPattern {
                 databaseInfo.getMainFilePath(),
                 databaseInfo.ensureTnsFolder(),
                 databaseInfo.getTnsProfile(),
-                databaseInfo.getServerType());
+                databaseInfo.getPoolType(),
+               databaseInfo.getEasyConnUrl());
     }
 
-    public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile, String serverType) {
+    public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile, String poolType, Map<String, String> easyConnParameters) {
         return urlTemplate.
                 replace("<VENDOR>", nvl(vendor, "")).
                 replace("<HOST>", nvl(host, "")).
@@ -158,8 +159,13 @@ public enum DatabaseUrlPattern {
                 replace("<FILE>", nvl(file, "")).
                 replace("<TNS_FOLDER>", nvl(tnsFolder, "")).replaceAll("\\\\", "/").
                 replace("<TNS_PROFILE>", nvl(tnsProfile, "")).
-                replace("<SERVICE_TYPE>", isEmpty(serverType) || "Default".equalsIgnoreCase(serverType) ? "" 
-                        : ":" + nvl(serverType.toUpperCase(), ""));
+                replace("<POOLTYPE>", isEmpty(poolType) || "Default".equalsIgnoreCase(poolType) ? ""
+                        : ":" + nvl(poolType.toUpperCase(), "")).
+                replace("<PARAMS>", easyConnParameters == null || easyConnParameters.isEmpty()  ? ""
+                                : "?" + easyConnParameters.entrySet().stream().
+                                    map(entry -> isEmpty(entry.getValue()) ? "" : entry.getKey() + "=" + entry.getValue())
+                                        .filter(nvp -> !nvp.isEmpty())
+                                        .collect(Collectors.joining("&")));
     }
 
     public String getDefaultUrl() {
@@ -200,6 +206,35 @@ public enum DatabaseUrlPattern {
 
     public String resolveTnsProfile(String url) {
         return resolveGroup(url, "TNS_PROFILE", TNS);
+    }
+
+    public String resolvePoolType(String url) {
+        return resolveGroup(url, "POOLTYPE", EZCONNECT);
+    }
+
+    public Map<String,String> resolveParameterMap(String url) {
+        Map<String, String> paramsMap = new HashMap<>();
+        int qmarkIdx = url.indexOf('?');
+        if (qmarkIdx < 0 || qmarkIdx == url.length()-1) {
+            return paramsMap;
+        }
+        String paramsString = url.substring(qmarkIdx+1);
+        String[] kvPairs = paramsString.split("&");
+        FOR_LOOP :for (String kv : kvPairs) {
+            int equalsIdx = kv.indexOf('=');
+            if (equalsIdx < 0 || equalsIdx == kv.length()-1) {
+                // invalid so just skip to next
+                continue FOR_LOOP;
+            }
+            String key = kv.substring(0, equalsIdx);
+            String val = kv.substring(equalsIdx+1);
+            if (key.isEmpty()) {
+                // no key so skip
+                continue FOR_LOOP;
+            }
+            paramsMap.put(key,val);
+        }
+        return paramsMap;
     }
 
     public boolean isValid(String url) {

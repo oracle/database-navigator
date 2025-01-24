@@ -92,6 +92,10 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         setOKActionEnabled(validationInfos.isEmpty());
     }
 
+    public void processValidation(List<ValidationInfo> validationInfos) {
+        setErrorInfoAll(validationInfos);
+        setOKActionEnabled(validationInfos.isEmpty());
+    }
 
     @Nullable
     @Override

@@ -44,9 +44,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.dbn.common.options.setting.Settings.getDouble;
 import static com.dbn.common.options.setting.Settings.getEnum;
@@ -190,7 +188,8 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                     databaseInfo.getMainFilePath(),
                     databaseInfo.ensureTnsFolder(),
                     databaseInfo.getTnsProfile(),
-                    databaseInfo.getServerType());
+                    databaseInfo.getPoolType(),
+                    databaseInfo.getEasyConnUrl());
         }
     }
 
@@ -377,6 +376,12 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             setString(element, "database", nvl(databaseInfo.getDatabase()));
             setString(element, "tns-folder", nvl(databaseInfo.getTnsFolder()));
             setString(element, "tns-profile", nvl(databaseInfo.getTnsProfile()));
+            setString(element, "pool-type", nvl(databaseInfo.getPoolType()));
+            Element easyConnElement = newElement(element, "easy-conn-url");
+            Optional.ofNullable(databaseInfo.getEasyConnUrl()).ifPresent(map ->
+                    map.entrySet().forEach(
+                        entry -> setString(easyConnElement, entry.getKey(), entry.getValue())));
+
             DatabaseFileBundle fileBundle = databaseInfo.getFileBundle();
             if (fileBundle != null) {
                 Element filesElement = newElement(element, "files");

@@ -32,7 +32,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.dbn.connection.DatabaseUrlType.CUSTOM;
 import static com.dbn.connection.DatabaseUrlType.DATABASE;
@@ -45,12 +47,13 @@ import static com.dbn.connection.DatabaseUrlType.SID;
 @EqualsAndHashCode
 public class DatabaseInfo implements Cloneable<DatabaseInfo> {
 
+
     public interface Default {
-        DatabaseInfo ORACLE   = new DatabaseInfo("oracle", "localhost", "1521", "XE", SID, "");
-        DatabaseInfo MYSQL    = new DatabaseInfo("mysql", "localhost", "3306", "mysql", DATABASE, "");
-        DatabaseInfo POSTGRES = new DatabaseInfo("postgresql", "localhost", "5432", "postgres", DATABASE, "");
+        DatabaseInfo ORACLE   = new DatabaseInfo("oracle", "localhost", "1521", "XE", SID);
+        DatabaseInfo MYSQL    = new DatabaseInfo("mysql", "localhost", "3306", "mysql", DATABASE);
+        DatabaseInfo POSTGRES = new DatabaseInfo("postgresql", "localhost", "5432", "postgres", DATABASE);
         DatabaseInfo SQLITE   = new DatabaseInfo("sqlite", "sqlite.db", FILE);
-        DatabaseInfo GENERIC  = new DatabaseInfo("dbtype", "localhost", "1234", "database", DATABASE, "");
+        DatabaseInfo GENERIC  = new DatabaseInfo("dbtype", "localhost", "1234", "database", DATABASE);
     }
 
     private String vendor;
@@ -62,17 +65,23 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
     private DatabaseUrlType urlType = DATABASE;
 	private String tnsFolder;
 	private String tnsProfile;
-	private String serverType;
+    private String poolType;
+    private Map<String, String> easyConnUrl;
 
     public DatabaseInfo() {}
 
-    public DatabaseInfo(String vendor, String host, String port, String database, DatabaseUrlType urlType, String serverType) {
+    public DatabaseInfo(String vendor, String host, String port, String database, DatabaseUrlType urlType, String poolType, Map<String, String> paramsMap) {
         this.vendor = vendor;
         this.host = host;
         this.port = port;
         this.database = database;
         this.urlType = urlType;
-        this.serverType = serverType;
+        this.poolType = poolType;
+        this.easyConnUrl = paramsMap;
+    }
+
+    public DatabaseInfo(String vendor, String host, String port, String database, DatabaseUrlType urlType) {
+        this(vendor, host, port, database, urlType, "", new HashMap<>());
     }
 
     public DatabaseInfo(String vendor, String file, DatabaseUrlType urlType) {
@@ -88,7 +97,8 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
                 Strings.isEmpty(tnsFolder) &&
                 Strings.isEmpty(tnsProfile) &&
                 Strings.isEmpty(getFirstFilePath()) &&
-                Strings.isEmpty(serverType);
+                Strings.isEmpty(poolType) &&
+                this.easyConnUrl.isEmpty();
     }
 
     public String ensureTnsFolder() {
@@ -103,7 +113,8 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         this.tnsProfile = null;
         this.fileBundle = null;
         this.url = null;
-        this.serverType = null;
+        this.poolType = null;
+        this.easyConnUrl = null;
     }
 
     public void initializeUrl(DatabaseUrlPattern urlPattern) {
@@ -119,6 +130,9 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         this.database = pattern.resolveDatabase(url);
         this.tnsFolder = pattern.resolveTnsProfile(url);
         this.tnsProfile = pattern.resolveTnsFolder(url);
+        this.poolType = pattern.resolvePoolType(url);
+        this.easyConnUrl = pattern.resolveParameterMap(url);
+
         // TODO: resolve serverType
         initializeFiles(pattern);
     }
@@ -160,6 +174,13 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         return fileBundle == null ? Collections.emptyList() : fileBundle.getAttachedFiles();
     }
 
+    public String getPoolType() {
+        return this.poolType;
+    }
+
+    public Map<String, String> getEasyConnUrl() {
+        return this.easyConnUrl;
+    }
 
     public boolean isCustomUrl() {
         return getUrlType() == CUSTOM;
@@ -177,8 +198,8 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         clone.urlType = this.urlType;
         clone.tnsFolder = this.tnsFolder;
         clone.tnsProfile = this.tnsProfile;
-        clone.serverType = this.serverType;
-
+        clone.poolType = this.poolType;
+        clone.easyConnUrl = new HashMap<>(this.easyConnUrl);
         return clone;
     }
 

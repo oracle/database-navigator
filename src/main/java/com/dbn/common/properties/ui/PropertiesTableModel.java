@@ -29,6 +29,7 @@ import java.util.Map;
 
 public class PropertiesTableModel extends DBNEditableTableModel {
     private final List<KeyValueProperty> properties = new ArrayList<>();
+    private boolean isPropColumnReadonly;
 
     public PropertiesTableModel(Map<String, String> propertiesMap) {
         loadProperties(propertiesMap);
@@ -79,8 +80,15 @@ public class PropertiesTableModel extends DBNEditableTableModel {
 
     }
 
+    public void setPropertyColumnReadonly(boolean isPropColumnReadonly) {
+        this.isPropColumnReadonly = isPropColumnReadonly;
+    }
+
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
+        if (columnIndex == 0) {
+            return !isPropColumnReadonly;
+        }
         return true;
     }
 

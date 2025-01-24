@@ -16,30 +16,42 @@
 
 package com.dbn.common.properties.ui;
 
+import com.dbn.browser.TreeNavigationHistory;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.table.DBNTableModel;
 import com.dbn.common.ui.util.UserInterface;
+import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.ToolbarDecorator;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PropertiesEditorForm extends DBNFormBase {
     private JPanel mainPanel;
     private final PropertiesEditorTable table;
+    private Map<String, PropertiesValidator> validators = new HashMap<>();
 
     public PropertiesEditorForm(DBNForm parent, Map<String, String> properties, boolean showMoveButtons) {
+        this(parent, properties, showMoveButtons, true);
+    }
+    public PropertiesEditorForm(DBNForm parent, Map<String, String> properties, boolean showMoveButtons, boolean showAddRemoveButtons) {
         super(parent);
         table = new PropertiesEditorTable(this, properties);
         Disposer.register(this, table);
 
         ToolbarDecorator decorator = UserInterface.createToolbarDecorator(table);
-        decorator.setAddAction(button -> table.insertRow());
-        decorator.setRemoveAction(button -> table.removeRow());
+        if (showAddRemoveButtons) {
+            decorator.setAddAction(button -> table.insertRow());
+            decorator.setRemoveAction(button -> table.removeRow());
+        }
 
         if (showMoveButtons) {
             decorator.setMoveUpAction(button -> table.moveRowUp());
@@ -50,10 +62,43 @@ public class PropertiesEditorForm extends DBNFormBase {
         Container parentContainer = table.getParent();
         parentContainer.setBackground(table.getBackground());
         mainPanel.add(propertiesPanel, BorderLayout.CENTER);
-/*
+
+        parent.validate();
+        initValidation();
+        //parent.getParentDialog().validateInput();
+/*      i\
         propertiesTableScrollPane.setViewportView(propertiesTable);
         propertiesTableScrollPane.setPreferredSize(new Dimension(200, 80));
 */
+    }
+
+    private void initValidation() {
+        table.getModel().addTableModelListener(l -> {
+            if (l.getColumn() == 1) {
+                DBNTableModel source = (DBNTableModel) l.getSource();
+                int firstRow = l.getFirstRow();
+                int lastRow = l.getLastRow();
+                List<ValidationInfo> valInfos = new ArrayList<>();
+                for (int row = firstRow; row <= lastRow; row++) {
+                    Object cellValue =  source.getValueAt(row, 1);
+                    if (cellValue != null && !"".equals(cellValue)) {
+                        String key = (String) source.getValueAt(row, 0);
+                        PropertiesValidator v = validators.get(key);
+                        if (v != null) {
+                            ValidationInfo result = v.validate(key, v);
+                            if (result != null) {
+                                valInfos.add(result);
+                            }
+                        }
+                    }
+                }
+                getParentDialog().processValidation(valInfos);
+            }
+        });
+    }
+
+    public void addValidator(PropertiesValidator validator, String key) {
+        this.validators.put(key, validator);
     }
 
     public PropertiesEditorTable getTable() {

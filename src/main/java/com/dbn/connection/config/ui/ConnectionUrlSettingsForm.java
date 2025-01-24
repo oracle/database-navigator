@@ -33,6 +33,11 @@ import com.dbn.connection.config.file.ui.DatabaseFileSettingsForm;
 import com.dbn.connection.config.tns.TnsAdmin;
 import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsNamesParser;
+import com.dbn.connection.config.ui.easyconn.EasyConnectUrlParameterContext;
+import com.dbn.connection.config.ui.easyconn.EasyConnectUrlParameterInput;
+import com.dbn.connection.config.ui.easyconn.EasyConnectUrlParameterInputDialog;
+import com.dbn.connection.config.ui.easyconn.EasyConnectUrlParameterResult;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBTextField;
@@ -47,11 +52,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
@@ -86,6 +87,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private JButton parametersButton;
     private final DatabaseFileSettingsForm databaseFileSettingsForm;
     private final Map<DatabaseType, DatabaseInfo> history = new HashMap<>();
+    private Map<String, String> easyConnParameters = new HashMap<>();
 
 
     public ConnectionUrlSettingsForm(ConnectionDatabaseSettingsForm parent, ConnectionDatabaseSettings configuration) {
@@ -98,6 +100,30 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         // TODO pending parameters implementation
         // maybe we should not complicate this with parameters (??), user can still provide a custom url with parameters if really needed
         parametersButton.setVisible(true);
+        parametersButton.addActionListener(e -> {
+            DatabaseType databaseType = getDatabaseType();
+            DatabaseUrlPattern urlPattern =
+                databaseType.getUrlPattern(DatabaseUrlType.EZCONNECT);
+            Map<String, String> props = urlPattern.resolveParameterMap(getUrl());
+
+            Set<String> builtInKeys = Set.of("ENABLE", "FAILOVER", "LOAD_BALANCE", "RECV_BUF_SIZE","SEND_BUF_SIZE",
+                    "SDU", "SOURCE_ROUTE", "RETRY_COUNT", "RETRY_DELAY","HTTPS_PROXY");
+
+            // ensure that we populate table with empty builtin keys even if the current url doesn't have them.
+            for (String key : builtInKeys) {
+                if (!props.containsKey(key)) {
+                    props.put(key,"");
+                }
+            }
+            EasyConnectUrlParameterInput input = new EasyConnectUrlParameterInput(props);
+            EasyConnectUrlParameterContext context = new EasyConnectUrlParameterContext(input);
+
+            EasyConnectUrlParameterInputDialog dialog = new EasyConnectUrlParameterInputDialog(context);
+            if (dialog.showAndGet()) {
+                easyConnParameters = context.getInput().getExistingParameterValues();
+                updateUrlField();
+            }
+        });
 
         updateTnsAdminField();
 
@@ -189,8 +215,13 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
                 getMainFilePath() ,
                 getTnsAdmin(),
                 getTnsProfile(),
-                getServerType());
+                getPoolType(),
+                easyConnParameters);
         urlTextField.setText(url);
+    }
+
+    private String getPoolType() {
+        return getSelection(this.poolTypeComboBox);
     }
 
     private String getMainFilePath() {
@@ -259,6 +290,8 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
         poolTypeLabel.setVisible(ezConnectVisible);
         poolTypeComboBox.setVisible(ezConnectVisible);
+
+        parametersButton.setVisible(ezConnectVisible);
 
         // file based url
         databaseFilesLabel.setVisible(flsVisible);
