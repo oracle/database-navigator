@@ -49,7 +49,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.util.Comparator;
 import java.util.List;
 
@@ -112,11 +111,6 @@ public class ResultSetRecordViewerForm extends DBNFormBase implements ComponentA
         ColumnSortingType columnSortingType = DatasetEditorManager.getInstance(project).getRecordViewColumnSortingType();
         sortColumns(columnSortingType);
         alignFormComponents(this);
-
-        Dimension preferredSize = mainPanel.getPreferredSize();
-        int width = (int) preferredSize.getWidth() + 24;
-        int height = (int) Math.min(preferredSize.getHeight(), 380);
-        mainPanel.setPreferredSize(new Dimension(width, height));
 
         filterTextField.getEmptyText().setText("Filter");
         onTextChange(filterTextField, e -> filterColumForms());

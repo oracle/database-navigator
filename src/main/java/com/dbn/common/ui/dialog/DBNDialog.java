@@ -31,6 +31,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.util.ui.JBDimension;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -120,7 +121,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     }
 
     public void setDefaultSize(int width, int height) {
-        this.defaultSize = new Dimension(width, height);
+        this.defaultSize = new JBDimension(width, height);
     }
 
     @NotNull

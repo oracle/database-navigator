@@ -8,21 +8,13 @@
     <properties/>
     <border type="none"/>
     <children>
-      <component id="dd16a" class="javax.swing.JLabel" binding="errorLabel">
-        <constraints>
-          <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="[error]"/>
-        </properties>
-      </component>
       <component id="b43c1" class="javax.swing.JLabel">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <labelFor value="56bd8"/>
-          <text value="TNS Names File"/>
+          <text value="TNS names file"/>
         </properties>
       </component>
       <component id="56bd8" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="tnsNamesFileTextField">
@@ -65,6 +57,14 @@
         <border type="none"/>
         <children/>
       </scrollpane>
+      <component id="dd16a" class="javax.swing.JLabel" binding="errorLabel">
+        <constraints>
+          <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="[error]"/>
+        </properties>
+      </component>
     </children>
   </grid>
 </form>

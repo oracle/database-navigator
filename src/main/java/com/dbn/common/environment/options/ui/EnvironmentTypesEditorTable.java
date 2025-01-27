@@ -16,6 +16,7 @@
 
 package com.dbn.common.environment.options.ui;
 
+import com.dbn.common.color.Colors;
 import com.dbn.common.environment.EnvironmentTypeBundle;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNEditableTable;
@@ -24,7 +25,6 @@ import com.dbn.common.ui.util.Mouse;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.BooleanTableCellEditor;
 import com.intellij.ui.BooleanTableCellRenderer;
-import com.intellij.ui.ColorChooser;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -73,7 +73,7 @@ public class EnvironmentTypesEditorTable extends DBNEditableTable<EnvironmentTyp
                 int rowIndex = getSelectedRow();
                 if (rowIndex == -1) return;
 
-                openColorChooser(rowIndex, columnIndex);
+                chooseColor(rowIndex, columnIndex);
             }
         };
     }
@@ -96,13 +96,13 @@ public class EnvironmentTypesEditorTable extends DBNEditableTable<EnvironmentTyp
             if (columnIndex != 4) return;
 
             int rowIndex = rowAtPoint(point);
-            openColorChooser(rowIndex, columnIndex);
+            chooseColor(rowIndex, columnIndex);
         });
     }
 
-    private void openColorChooser(int rowIndex, int columnIndex) {
+    private void chooseColor(int rowIndex, int columnIndex) {
         Color color = (Color) getValueAt(rowIndex, columnIndex);
-        color = ColorChooser.chooseColor(EnvironmentTypesEditorTable.this, "Select Environment Color", color);
+        color = Colors.chooseColor(getProject(), this, color, "Select Environment Color");
         if (color == null) return;
 
         setValueAt(color, rowIndex, columnIndex);

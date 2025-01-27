@@ -16,10 +16,12 @@
 
 package com.dbn.common.ui.util;
 
+import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Context;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -27,10 +29,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.Condition;
+import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.util.Lists.convert;
 import static com.dbn.common.util.Unsafe.cast;
 
 /**
@@ -67,6 +73,11 @@ public class ActionPopupBuilder {
     }
 
 
+    static <T extends Presentable> ActionPopupBuilder create(List<T> options, Object context, Consumer<T> selectionConsumer) {
+        List<AnAction> actions = convert(options, p -> new PresentableSelectAction<T>(p, selectionConsumer));
+        return create(actions, context);
+    }
+
     static ActionPopupBuilder create(List<? extends AnAction> actions, Object context) {
         return new ActionPopupBuilder(actions, Context.getDataContext(context));
     }
@@ -78,6 +89,10 @@ public class ActionPopupBuilder {
     public ActionPopupBuilder withTitle(String title) {
         this.title = title;
         return this;
+    }
+
+    public ActionPopupBuilder withSpeedSearch(boolean enabled) {
+        return enabled ? withSpeedSearch() : this;
     }
 
     public ActionPopupBuilder withSpeedSearch() {
@@ -150,4 +165,23 @@ public class ActionPopupBuilder {
     }
 
 
+    @Getter
+    private static class PresentableSelectAction<T extends Presentable> extends AnAction {
+        private final T presentable;
+        private final Consumer<T> selectionConsumer;
+
+        public PresentableSelectAction(T presentable, Consumer<T> selectionConsumer) {
+            super(presentable.getName(),
+                    presentable.getDescription(),
+                    presentable.getIcon());
+
+            this.presentable = presentable;
+            this.selectionConsumer = selectionConsumer;
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            selectionConsumer.accept(presentable);
+        }
+    }
 }

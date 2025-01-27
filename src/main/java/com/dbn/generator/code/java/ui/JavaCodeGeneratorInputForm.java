@@ -37,7 +37,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Set;
@@ -70,10 +73,9 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
         initSelectionListener(moduleComboBox, s -> initContentRoots());
         initStatePersistence();
         initModules();
-        initValidation();
     }
 
-    private void initValidation() {
+    protected void initValidation() {
         formValidator.addTextValidation(packageTextField, p -> isValidPackageName(p), "Invalid package name");
         formValidator.addTextValidation(classNameTextField, p -> isValidClassName(p), "Invalid class name");
     }

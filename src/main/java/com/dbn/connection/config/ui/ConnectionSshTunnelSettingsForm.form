@@ -19,6 +19,11 @@
         <properties/>
         <border type="none"/>
         <children>
+          <vspacer id="cfe93">
+            <constraints>
+              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+            </constraints>
+          </vspacer>
           <component id="2e0f5" class="javax.swing.JLabel">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
@@ -30,48 +35,9 @@
               <text resource-bundle="messages/DBNResources" key="cfg.connection.label.Host"/>
             </properties>
           </component>
-          <vspacer id="cfe93">
-            <constraints>
-              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-            </constraints>
-          </vspacer>
-          <component id="fcfee" class="javax.swing.JLabel">
-            <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <labelFor value="60a80"/>
-              <text resource-bundle="messages/DBNResources" key="cfg.connection.label.User"/>
-            </properties>
-          </component>
-          <component id="409c3" class="javax.swing.JLabel" binding="passwordLabel">
-            <constraints>
-              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <labelFor value="ba1ac"/>
-              <text resource-bundle="messages/DBNResources" key="cfg.connection.label.Password"/>
-            </properties>
-          </component>
           <component id="81413" class="javax.swing.JTextField" binding="hostTextField">
             <constraints>
               <grid row="0" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties/>
-          </component>
-          <component id="60a80" class="javax.swing.JTextField" binding="userTextField">
-            <constraints>
-              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties/>
-          </component>
-          <component id="ba1ac" class="javax.swing.JPasswordField" binding="passwordField">
-            <constraints>
-              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
               </grid>
             </constraints>
@@ -94,35 +60,20 @@
             </constraints>
             <properties/>
           </component>
-          <component id="e3c20" class="javax.swing.JLabel" binding="privateKeyFileLabel">
+          <component id="fcfee" class="javax.swing.JLabel">
             <constraints>
-              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <labelFor value="b9fe4"/>
-              <text resource-bundle="messages/DBNResources" key="cfg.connection.label.KeyFile"/>
+              <labelFor value="60a80"/>
+              <text resource-bundle="messages/DBNResources" key="cfg.connection.label.User"/>
             </properties>
           </component>
-          <component id="bc7b9" class="javax.swing.JLabel" binding="privateKeyPassphraseLabel">
+          <component id="60a80" class="javax.swing.JTextField" binding="userTextField">
             <constraints>
-              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <labelFor value="80b53"/>
-              <text resource-bundle="messages/DBNResources" key="cfg.connection.label.KeyPassphrase"/>
-            </properties>
-          </component>
-          <component id="80b53" class="javax.swing.JPasswordField" binding="keyPassphraseField">
-            <constraints>
-              <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
               </grid>
-            </constraints>
-            <properties/>
-          </component>
-          <component id="b9fe4" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="keyFileField">
-            <constraints>
-              <grid row="4" column="1" row-span="1" col-span="4" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
           </component>
@@ -143,6 +94,55 @@
           <component id="6b00d" class="com.intellij.openapi.ui.ComboBox" binding="authTypeComboBox">
             <constraints>
               <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="409c3" class="javax.swing.JLabel" binding="passwordLabel">
+            <constraints>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <labelFor value="ba1ac"/>
+              <text resource-bundle="messages/DBNResources" key="cfg.connection.label.Password"/>
+            </properties>
+          </component>
+          <component id="ba1ac" class="javax.swing.JPasswordField" binding="passwordField">
+            <constraints>
+              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="e3c20" class="javax.swing.JLabel" binding="privateKeyFileLabel">
+            <constraints>
+              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <labelFor value="b9fe4"/>
+              <text resource-bundle="messages/DBNResources" key="cfg.connection.label.KeyFile"/>
+            </properties>
+          </component>
+          <component id="b9fe4" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="keyFileField">
+            <constraints>
+              <grid row="4" column="1" row-span="1" col-span="4" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="bc7b9" class="javax.swing.JLabel" binding="privateKeyPassphraseLabel">
+            <constraints>
+              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <labelFor value="80b53"/>
+              <text resource-bundle="messages/DBNResources" key="cfg.connection.label.KeyPassphrase"/>
+            </properties>
+          </component>
+          <component id="80b53" class="javax.swing.JPasswordField" binding="keyPassphraseField">
+            <constraints>
+              <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="150" height="-1"/>
+              </grid>
             </constraints>
             <properties/>
           </component>

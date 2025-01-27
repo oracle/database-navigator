@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="2" left="2" bottom="2" right="2"/>
     <constraints>
-      <xy x="20" y="20" width="478" height="400"/>
+      <xy x="20" y="20" width="478" height="155"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -13,14 +13,12 @@
           <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
         </constraints>
       </vspacer>
-      <grid id="4c88" binding="auditColumnSettingsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+      <grid id="bd1af" binding="generalSettingsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints>
-          <grid row="0" column="1" row-span="2" col-span="1" vsize-policy="3" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
-        <border type="none">
-          <color color="-16777216"/>
-        </border>
+        <border type="none"/>
         <children/>
       </grid>
       <grid id="70b25" binding="sortingSettingsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
@@ -31,12 +29,14 @@
         <border type="none"/>
         <children/>
       </grid>
-      <grid id="bd1af" binding="generalSettingsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+      <grid id="4c88" binding="auditColumnSettingsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="1" row-span="2" col-span="1" vsize-policy="3" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
-        <border type="none"/>
+        <border type="none">
+          <color color="-16777216"/>
+        </border>
         <children/>
       </grid>
     </children>

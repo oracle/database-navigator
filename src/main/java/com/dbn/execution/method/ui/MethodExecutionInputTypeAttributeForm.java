@@ -35,6 +35,7 @@ import com.dbn.object.DBTypeAttribute;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.ui.JBDimension;
 import com.intellij.util.ui.UIUtil;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -47,6 +48,8 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 
 public class MethodExecutionInputTypeAttributeForm extends DBNFormBase {
     private JLabel attributeTypeLabel;
@@ -94,12 +97,12 @@ public class MethodExecutionInputTypeAttributeForm extends DBNFormBase {
             userValueHolder.setContentType(contentType);
             inputField.setUserValueHolder(userValueHolder);
 
-            inputField.setPreferredSize(new Dimension(240, -1));
+            inputField.setPreferredSize(new JBDimension(240, -1));
             inputTextField = inputField.getTextField();
             inputFieldPanel.add(inputField, BorderLayout.CENTER);
         } else {
             TextFieldWithPopup inputField = new TextFieldWithPopup(project);
-            inputField.setPreferredSize(new Dimension(240, -1));
+            inputField.setPreferredSize(new JBDimension(240, -1));
             if (genericDataType == GenericDataType.DATE_TIME) {
                 inputField.createCalendarPopup(false);
             }
@@ -110,7 +113,9 @@ public class MethodExecutionInputTypeAttributeForm extends DBNFormBase {
             inputTextField.setText(value);
         }
 
+        attributeLabel.setLabelFor(inputTextField);
         inputTextField.setDisabledTextColor(inputTextField.getForeground());
+        setAccessibleUnit(inputTextField, attributeTypeLabel.getText());
     }
 
     public MethodExecutionInputArgumentForm getParentForm() {

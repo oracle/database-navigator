@@ -52,7 +52,7 @@ public class DBNMessageDialog extends DBNDialog<DBNMessageForm> {
             @NotNull String[] options,
             int defaultOptionIndex,
             @Nullable DoNotAskOption rememberOption) {
-        super(project, title + ": " + message, false); // hidden title contains message for accessibility
+        super(project, title, false);
         this.icon = icon;
         this.title = Titles.signed(title);
         this.message = message;

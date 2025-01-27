@@ -53,6 +53,7 @@ import java.util.List;
 import static com.dbn.assistant.state.AssistantStatus.INITIALIZING;
 import static com.dbn.assistant.state.AssistantStatus.QUERYING;
 import static com.dbn.assistant.state.AssistantStatus.UNAVAILABLE;
+import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.feature.FeatureAcknowledgement.ENGAGED;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.util.Commons.nvl;
@@ -251,7 +252,8 @@ public class ChatBoxForm extends DBNFormBase {
     if (profile == null) return;
     if (model == null) return;
 
-    question = nvl(question, inputField.getAndClearText());
+    String prompt = getInputField().getAndClearText();
+    question = nvl(question, prompt);
     if (Strings.isEmptyOrSpaces(question)) return;
 
     AssistantState state = getAssistantState();
@@ -325,8 +327,12 @@ public class ChatBoxForm extends DBNFormBase {
       showErrorHeader(e);
     }
 
-    inputField.requestFocus();
+    getInputField().requestFocus();
     updateActionToolbars();
+  }
+
+  public ChatBoxInputField getInputField() {
+    return nd(inputField);
   }
 
   private void showErrorHeader(Throwable cause) {
