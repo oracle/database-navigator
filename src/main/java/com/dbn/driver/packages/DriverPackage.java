@@ -18,6 +18,7 @@ package com.dbn.driver.packages;
 
 import com.dbn.connection.DatabaseType;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -41,6 +42,8 @@ import java.util.List;
 public class DriverPackage {
     private final String id;
     private final String name;
+    @Setter
+    private String path;
     private final DatabaseType databaseType;
     private final List<Library> libraries;
 
@@ -53,9 +56,8 @@ public class DriverPackage {
 
     @Override
     public String toString() {
-        return String.format("DriverPackage [id=%s, name=%s, databaseType=%s, libraries=%s]", id, name, databaseType, libraries);
+        return name;
     }
-
     public int size() {
         return libraries.size();
     }

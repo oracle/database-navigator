@@ -19,6 +19,7 @@ package com.dbn.driver.packages;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Files;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 
@@ -26,19 +27,20 @@ import java.io.File;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 public class DriverPackageDownloader {
-    private static Runnable updateUI;
+    private static Consumer<String> updateUI;
 
-    public static void downloadDriverPackage(Project project, DriverPackage driverPackage, Runnable updateUI) {
+    public static void downloadDriverPackage(Project project, DriverPackage driverPackage, Consumer<String> updateUI) {
         DriverPackageDownloader.updateUI = updateUI;
         Progress.modal(project, null, true,
-                "Downloading Driver Package: " + driverPackage.getId(),
+                "Downloading Driver Package: " + driverPackage.getName(),
                 "",
-                indicator -> runProgress(project, indicator, driverPackage));
+                indicator -> runProgress(project, indicator, driverPackage, driverPackage.getPath()));
     }
 
-    private static void runProgress(Project project, ProgressIndicator indicator, DriverPackage driverPackage) {
+    private static void runProgress(Project project, ProgressIndicator indicator, DriverPackage driverPackage, String path) {
         String packageId = driverPackage.getId();
         List<Library> libraryList = driverPackage.getLibraries();
         CountDownLatch latch = new CountDownLatch(libraryList.size());
@@ -47,7 +49,7 @@ public class DriverPackageDownloader {
         setupIndicator(indicator);
 
         for (Library library : libraryList) {
-            downloadLibraryAsync(project, indicator, packageId, library, downloadFailed, latch, driverPackage.size());
+            downloadLibraryAsync(indicator, packageId, path, library, downloadFailed, latch, driverPackage.size());
         }
 
         awaitLatchCompletion(latch, packageId);
@@ -60,9 +62,9 @@ public class DriverPackageDownloader {
         indicator.setFraction(0.01);
     }
 
-    private static void downloadLibraryAsync(Project project, ProgressIndicator indicator, String packageId,
+    private static void downloadLibraryAsync(ProgressIndicator indicator, String packageId, String path,
                                              Library library, AtomicBoolean downloadFailed, CountDownLatch latch, int fileCount) {
-        Background.run(project, () -> {
+        Background.run(() -> {
             if (downloadFailed.get()) {
                 latch.countDown();
                 return;
@@ -72,7 +74,7 @@ public class DriverPackageDownloader {
             if (isAlreadyDownloaded(packageId, library)) {
                 System.out.println("Jar " + currentFile + " already downloaded.");
             } else {
-                attemptDownload(packageId, library, currentFile, downloadFailed);
+                attemptDownload(packageId, library, path, currentFile, downloadFailed);
             }
 
             updateProgress(indicator, currentFile, latch, fileCount);
@@ -85,8 +87,8 @@ public class DriverPackageDownloader {
         return status.getDownloadStatus().equals(DownloadStatus.DONE);
     }
 
-    private static void attemptDownload(String packageId, Library library, String currentFile, AtomicBoolean downloadFailed) {
-        boolean success = MavenArtifactDownloader.downloadArtifact(packageId, library, "drivers");
+    private static void attemptDownload(String packageId, Library library, String path, String currentFile, AtomicBoolean downloadFailed) {
+        boolean success = MavenArtifactDownloader.downloadArtifact(packageId, library, path);
         if (!success) {
             downloadFailed.set(true);
             System.err.println("Error downloading " + currentFile);
@@ -114,7 +116,9 @@ public class DriverPackageDownloader {
             DriverDownloadManager.getInstance().cleanupPackage(packageId);
         } else if (DriverDownloadManager.getInstance().isPackageDownloaded(packageId)) {
             System.out.println("All JARs for package " + packageId + " were successfully downloaded and verified.");
-            updateUI.run();
+            ApplicationManager.getApplication().invokeLater(()->{
+                updateUI.accept(packageId);
+            });
         }
     }
 

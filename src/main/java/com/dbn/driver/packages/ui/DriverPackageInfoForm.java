@@ -19,7 +19,6 @@ package com.dbn.driver.packages.ui;
 import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.panel.DBNCollapsiblePanel;
 import com.dbn.driver.packages.DriverPackage;
 import com.dbn.driver.packages.Library;
 import com.intellij.openapi.Disposable;
@@ -47,13 +46,13 @@ public class DriverPackageInfoForm extends DBNFormBase {
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         for (Library library : driverPackage.getLibraries()) {
             LibraryInfoForm libraryInfoForm = new LibraryInfoForm(library);
-            DBNCollapsiblePanel collapsiblePanel = new DBNCollapsiblePanel(this, libraryInfoForm, false);
 
-            JComponent mainComponent = collapsiblePanel.getMainComponent();
+            JComponent mainComponent = libraryInfoForm.getMainComponent();
             Dimension preferredSize = mainComponent.getPreferredSize();
             mainComponent.setMaximumSize(new Dimension(Integer.MAX_VALUE, preferredSize.height));
 
             infoPanel.add(mainComponent);
+            infoPanel.add(Box.createVerticalStrut(5));
         }
         infoPanel.add(Box.createVerticalGlue());
         JScrollPane scrollPane = new JScrollPane(infoPanel);

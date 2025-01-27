@@ -26,13 +26,14 @@ import com.intellij.ui.HyperlinkLabel;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.Cursor;
 import java.awt.Insets;
 import java.util.List;
 
-public class LibraryInfoForm extends DBNFormBase implements DBNCollapsibleForm {
+public class LibraryInfoForm extends DBNFormBase {
     private Library library;
     private JPanel libraryInfoPanel;
     public LibraryInfoForm(Library library){
@@ -43,19 +44,21 @@ public class LibraryInfoForm extends DBNFormBase implements DBNCollapsibleForm {
         List<Developer> devs = library.getDevelopers();
         List<License> licenses = library.getLicenses();
         int rowCount = devs.size() + licenses.size() + 1;
-        libraryInfoPanel = new JPanel();
+
         libraryInfoPanel.setLayout(new GridLayoutManager(rowCount, 2, new Insets(0, 0, 0, 0), -1, -1));
-//        libraryInfoPanel.setBorder(BorderFactory.createTitledBorder(new EmptyBorder(10, 10, 10, 10), library.getArtifactId()+"-"+library.getVersion()));
-        addLabel("Name:", 0, 0);
-        addField(0, 1, "-", null);
-        if(!devs.isEmpty()) {
+
+        libraryInfoPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEmptyBorder(2, 2, 10, 2),
+                library.getArtifactId() + " - " + library.getVersion()
+        ));
+        if(!devs.isEmpty() && devs.get(0).getName() != null) {
             addLabel("Developers:", 1, 0);
             for (int i = 0; i < devs.size(); i++) {
                 addField(i + 1, 1, devs.get(i).getName(), devs.get(i).getUrl());
             }
         }
 
-        if(!licenses.isEmpty()) {
+        if(!licenses.isEmpty() && licenses.get(0).getName() != null) {
             addLabel("Licenses:", devs.size() + 1, 0);
             for (int i = 0; i < licenses.size(); i++) {
                 addField(i + 1 + devs.size(), 1, licenses.get(i).getName(), licenses.get(i).getUrl());
@@ -93,23 +96,9 @@ public class LibraryInfoForm extends DBNFormBase implements DBNCollapsibleForm {
 
         libraryInfoPanel.revalidate();
         libraryInfoPanel.repaint();
-    }    @Override
+    }
+    @Override
     protected JPanel getMainComponent() {
         return setupDynamicFields();
-    }
-
-    @Override
-    public String getCollapsedTitle() {
-        return library.getArtifactId()+"-"+library.getVersion();
-    }
-
-    @Override
-    public String getCollapsedTitleDetail() {
-        return "";
-    }
-
-    @Override
-    public String getExpandedTitle() {
-        return library.getArtifactId()+"-"+library.getVersion();
     }
 }

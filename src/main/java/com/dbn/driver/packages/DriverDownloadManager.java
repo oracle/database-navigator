@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -81,6 +82,10 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
     private DriverPackageStatus getPackageStatus(String packageId) {
         return packageDownloadStatuses
                 .computeIfAbsent(packageId, k -> createPackageStatus(packageId));
+    }
+
+    public Collection<DriverPackageStatus> getPackagesStatus() {
+        return packageDownloadStatuses.values();
     }
 
     private DriverPackageStatus createPackageStatus(String packageId) {

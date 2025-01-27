@@ -103,7 +103,7 @@
 
     </driver-package>
 
-    <driver-package database-type="Oracle" id="oracle-23.3-token" name="Oracle 23.3">
+    <driver-package database-type="Oracle" id="oracle-23.3-token" name="Oracle 23.3 with Token auth">
 
         <library artifact-id="connector-api" group-id="javax.resource" version="1.5">
             <license name="CDDL + GPLv2 with classpath exception" url="https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html"/>
@@ -257,18 +257,18 @@
         </library>
     </driver-package>
 
-    <driver-package database-type="Oracle" id="oracle-latest" name="Oracle ">
+    <driver-package database-type="Oracle" id="oracle-latest" name="Oracle Standard %s">
         <library artifact-id="ojdbc8-production" group-id="com.oracle.database.jdbc" toResolve="true" type="pom"/>
-        <library artifact-id="connector-api" group-id="javax.resource" version="1.*"/>
+        <library artifact-id="connector-api" group-id="javax.resource" version="1.5"/>
         <library artifact-id="javax.json-api" group-id="javax.json" version="1.1.4"/>
         <library artifact-id="servlet-api" group-id="javax.servlet" version="2.5"/>
     </driver-package>
 
-    <driver-package database-type="Oracle" id="ojdbc-provider-azure" name="Oracle Provider Azure">
+    <driver-package database-type="Oracle" id="ojdbc-provider-azure" name="Oracle with Azure auth %s">
         <library artifact-id="ojdbc-provider-azure" group-id="com.oracle.database.jdbc" toResolve="true" type="jar"/>
     </driver-package>
 
-    <driver-package database-type="Oracle" id="ojdbc-provider-oci" name="Oracle Provider OCI">
+    <driver-package database-type="Oracle" id="ojdbc-provider-oci" name="Oracle with OCI auth %s">
         <library artifact-id="ojdbc-provider-oci" group-id="com.oracle.database.jdbc" toResolve="true" type="jar"/>
     </driver-package>
 

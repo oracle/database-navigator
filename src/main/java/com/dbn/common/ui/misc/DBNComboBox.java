@@ -223,7 +223,7 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
 
     private class AddValueAction extends BasicAction {
         AddValueAction() {
-            super(valueFactory.getActionName(), null, Icons.ACTION_ADD);
+            super(valueFactory.getActionName(), null, valueFactory.getIcon()!=null?valueFactory.getIcon():Icons.ACTION_ADD);
         }
 
         @Override

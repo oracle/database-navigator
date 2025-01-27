@@ -49,7 +49,7 @@ public class MavenArtifactDownloader {
     }
 
     private static boolean downloadAndVerify(String packageId, String artifactUrl, String checksumUrl, String artifactId, String version, String pathLabel) throws IOException {
-        File pluginDir = createPluginDirectory(packageId, pathLabel);
+        File pluginDir = createPluginDirectory(pathLabel);
         if (pluginDir == null) return false;
 
         File outputFile = new File(pluginDir, artifactId + "-" + version + ".jar");
@@ -66,8 +66,8 @@ public class MavenArtifactDownloader {
         }
     }
 
-    private static File createPluginDirectory(String packageId, String pathLabel) {
-        File pluginDir = new File(Files.getPluginDeploymentRoot(), pathLabel + "/" + packageId);
+    private static File createPluginDirectory(String pathLabel) {
+        File pluginDir = new File(pathLabel);
         synchronized (MavenArtifactDownloader.class) {
             if (!pluginDir.exists() && !pluginDir.mkdirs()) {
                 System.err.println("Failed to create output directory: " + pluginDir.getAbsolutePath());

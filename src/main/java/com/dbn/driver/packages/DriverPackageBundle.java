@@ -19,18 +19,18 @@ package com.dbn.driver.packages;
 import com.dbn.common.util.XmlContents;
 import com.dbn.connection.DatabaseType;
 import com.dbn.driver.packages.parser.DependencyParser;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.platform.templates.github.DownloadUtil;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.common.util.Lists.convert;
+import static com.dbn.common.util.Lists.convertParallel;
 import static java.util.Collections.unmodifiableList;
 
 /**
@@ -66,27 +66,46 @@ import static java.util.Collections.unmodifiableList;
  * @author Ayoub Aarrasse
  */
 public class DriverPackageBundle {
-    private static final DriverPackageBundle INSTANCE = new DriverPackageBundle();
+    private static DriverPackageBundle INSTANCE;
     private final List<DriverPackage> driverPackages;
 
     @SneakyThrows
-    private DriverPackageBundle() {
+    private DriverPackageBundle(ProgressIndicator indicator) {
         Element element = XmlContents.fileToElement(getClass(), "driver-packages.xml");
         List<Element> packageElements = element.getChildren("driver-package");
 
-        driverPackages = unmodifiableList(convert(packageElements, DriverPackageBundle::createDriverPackage));
+        driverPackages = unmodifiableList(convertParallel(packageElements, e-> DriverPackageBundle.createDriverPackage(e, indicator, (float) 1 /packageElements.size())));
     }
 
-    private static DriverPackage createDriverPackage(Element element) {
+    public static synchronized void initialize(ProgressIndicator indicator) {
+        if (INSTANCE == null) {
+            INSTANCE = new DriverPackageBundle(indicator);
+        }
+    }
+
+    public static List<DriverPackage> driverPackages() {
+        if (INSTANCE == null) {
+            throw new IllegalStateException("DriverPackageBundle is not initialized. Call initialize() first.");
+        }
+        return INSTANCE.driverPackages;
+    }
+
+    public static List<DriverPackage> driverPackages(DatabaseType databaseType, ProgressIndicator indicator) {
+        initialize(indicator);
+        return driverPackages().stream().filter(dp -> dp.getDatabaseType() == databaseType || dp.getDatabaseType() == DatabaseType.GENERIC).collect(Collectors.toList());
+    }
+    private static DriverPackage createDriverPackage(Element element, ProgressIndicator indicator, float chunk) {
         String id = stringAttribute(element, "id");
         String name = stringAttribute(element, "name");
         String databaseType = stringAttribute(element, "database-type");
 
         // Collect libraries from each child "library" element
-        List<Library> libraries = element.getChildren("library").stream()
+        List<Library> libraries = element.getChildren("library").parallelStream()
                 .flatMap(libElement -> createLibrary(libElement).stream()) // Flatten lists of libraries
                 .collect(Collectors.toList());
-
+        indicator.setText("Downloaded Metadata for " + id);
+        indicator.setFraction(indicator.getFraction() + chunk);
+        if(name.contains("%s")) name = String.format(name, libraries.get(0).getVersion());
         return new DriverPackage(id, name, DatabaseType.resolve(databaseType), libraries);
     }
 
@@ -112,9 +131,6 @@ public class DriverPackageBundle {
         }
     }
 
-    public static List<DriverPackage> driverPackages() {
-        return INSTANCE.driverPackages;
-    }
 
     @NotNull
     public static DriverPackage getDriverPackage(String packageId) {
@@ -130,7 +146,6 @@ public class DriverPackageBundle {
 
             // Fetch all available versions
             List<String> availableVersions = fetchAvailableVersions(groupId, artifactId);
-
             if (currentVersion != null && currentVersion.contains("*")) {
                 return resolveWildcardVersion(currentVersion, availableVersions);
             } else {
@@ -158,39 +173,39 @@ public class DriverPackageBundle {
     }
 
     private static List<String> fetchAvailableVersions(String groupId, String artifactId) throws Exception {
-        // URL encode the groupId and artifactId
-        String encodedGroupId = URLEncoder.encode(groupId, StandardCharsets.UTF_8);
-        String encodedArtifactId = URLEncoder.encode(artifactId, StandardCharsets.UTF_8);
-        String url = String.format(
-                "https://search.maven.org/solrsearch/select?q=g:%%22%s%%22+AND+a:%%22%s%%22&core=gav&wt=json",
-                encodedGroupId, encodedArtifactId);
-
+        // URL for Maven metadata
+        String url = "https://repo1.maven.org/maven2/"+groupId.replace('.', '/')+"/"+artifactId+"/maven-metadata.xml";
         // Temporary file to store the downloaded content
-        File tempFile = File.createTempFile("maven-response", ".json");
+        File tempFile = File.createTempFile("maven-metadata", ".xml");
         tempFile.deleteOnExit();
 
         // Download content to the temporary file
         DownloadUtil.downloadContentToFile(null, url, tempFile);
 
-        // Parse the JSON content from the file
-        JsonObject jsonObject = JsonParser.parseReader(new java.io.FileReader(tempFile)).getAsJsonObject();
-        JsonObject responseObject = jsonObject.getAsJsonObject("response");
-        JsonArray docsArray = responseObject.getAsJsonArray("docs");
-
-        if (!docsArray.isEmpty()) {
-            List<String> versions = new ArrayList<>();
-            for (JsonElement docElement : docsArray) {
-                JsonObject doc = docElement.getAsJsonObject();
-                String version = doc.get("v").getAsString();
+        // Parse the XML content from the file
+        List<String> versions = new ArrayList<>();
+        try (FileReader fileReader = new FileReader(tempFile)) {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(tempFile);
+            NodeList versionNodes = document.getElementsByTagName("version");
+            for (int i = 0; i < versionNodes.getLength(); i++) {
+                String version = versionNodes.item(i).getTextContent();
                 if (isStableVersion(version)) {
                     versions.add(version);
                 }
             }
+        } catch (Exception e) {
+            throw new Exception("Error parsing the XML file", e);
+        }
+
+        if (!versions.isEmpty()) {
             return versions;
         } else {
-            throw new Exception("No documents found for the specified artifact.");
+            throw new Exception("No versions found for the specified artifact.");
         }
     }
+
     private static boolean isStableVersion(String version) {
         String unstableKeywords = "SNAPSHOT|RC|M\\d+|BETA|ALPHA";
         return !version.toUpperCase().matches(".*(" + unstableKeywords + ").*");

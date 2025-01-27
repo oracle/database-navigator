@@ -30,6 +30,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.util.Commons.nvl;
 import static java.lang.Math.max;
@@ -80,6 +81,13 @@ public class Lists {
             result.add(value);
         }
         return result;
+    }
+
+    @NotNull
+    public static <S, T> List<T> convertParallel(@NotNull Collection<S> list, Function<S, T> mapper) {
+        return list.parallelStream()
+                .map(mapper)
+                .collect(Collectors.toList());
     }
 
     @Nullable
