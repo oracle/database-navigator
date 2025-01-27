@@ -25,6 +25,7 @@ import com.dbn.data.record.DatasetRecord;
 import com.dbn.data.type.DBDataType;
 import com.dbn.object.DBColumn;
 import com.dbn.object.lookup.DBObjectRef;
+import com.intellij.util.ui.JBDimension;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,10 +34,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+
+import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 
 public class RecordViewerColumnForm extends DBNFormBase implements ComponentAligner.Form {
     private JLabel columnLabel;
@@ -65,13 +67,16 @@ public class RecordViewerColumnForm extends DBNFormBase implements ComponentAlig
         dataTypeLabel.setForeground(UIUtil.getInactiveTextColor());
 
         valueTextField = new ColumnValueTextField(record, column);
-        valueTextField.setPreferredSize(new Dimension(200, -1));
+        valueTextField.setPreferredSize(new JBDimension(200, -1));
         valueTextField.addKeyListener(keyAdapter);
 
         valueFieldPanel.add(valueTextField, BorderLayout.CENTER);
         valueTextField.setEditable(false);
         valueTextField.setCursor(Cursors.textCursor());
         valueTextField.setBackground(Colors.getTextFieldBackground());
+        columnLabel.setLabelFor(valueTextField);
+
+        setAccessibleUnit(valueTextField, dataTypeLabel.getText());
         updateColumnValue(column);
     }
 

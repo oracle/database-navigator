@@ -14,31 +14,25 @@
  * limitations under the License.
  */
 
-package com.dbn.common.ui;
+package com.dbn.common.ui.link;
 
 import com.dbn.common.ui.form.DBNFormBase;
-import com.intellij.ide.BrowserUtil;
 import com.intellij.ui.HyperlinkLabel;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.event.HyperlinkEvent;
 
 public class HyperLinkForm extends DBNFormBase {
     private JPanel mainPanel;
-    private HyperlinkLabel hyperLink;
     private JLabel textLabel;
+    private HyperlinkLabel hyperLink;
 
     private HyperLinkForm(String text, String linkText, String linkUrl) {
         super(null);
         textLabel.setText(text);
         hyperLink.setHyperlinkText(linkText);
-        hyperLink.addHyperlinkListener(e -> {
-            if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-                BrowserUtil.browse(linkUrl);
-            }
-        });
+        hyperLink.setHyperlinkTarget(linkUrl);
     }
 
     public static HyperLinkForm create(String text, String linkText, String linkUrl) {

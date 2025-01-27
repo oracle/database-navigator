@@ -39,6 +39,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.ParseException;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+
 public class ResultSetRecordViewerColumnForm extends DBNFormBase implements ComponentAligner.Form {
     private JLabel columnLabel;
     private JPanel valueFieldPanel;
@@ -73,6 +75,10 @@ public class ResultSetRecordViewerColumnForm extends DBNFormBase implements Comp
         valueTextField.setEditable(false);
         valueTextField.setCursor(Cursors.textCursor());
         valueTextField.setBackground(Colors.getTextFieldBackground());
+
+        columnLabel.setLabelFor(valueTextField);
+        setAccessibleUnit(valueTextField, dataTypeLabel.getText());
+
         setCell(cell);
     }
 

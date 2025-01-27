@@ -45,6 +45,10 @@ public final class Diagnostics {
         return isDeveloperMode() && miscellaneous.dialogSizingReset;
     }
 
+    public static boolean isNativeAlertsEnabled() {
+        return isDeveloperMode() && miscellaneous.nativeAlertsEnabled;
+    }
+
     public static boolean isBulkActionsEnabled() {
         return isDeveloperMode() && miscellaneous.bulkActionsEnabled;
     }
@@ -148,12 +152,14 @@ public final class Diagnostics {
     @Setter
     public static final class Miscellaneous implements PersistentStateElement{
         private boolean dialogSizingReset = false;
+        private boolean nativeAlertsEnabled = false;
         private boolean bulkActionsEnabled = false;
         private boolean backgroundDisposerDisabled = false;
         private boolean timeoutHandlingDisabled = false;
 
         public boolean hasEnabledFeatures() {
             return dialogSizingReset ||
+                    nativeAlertsEnabled ||
                     bulkActionsEnabled ||
                     backgroundDisposerDisabled ||
                     timeoutHandlingDisabled;
@@ -164,6 +170,7 @@ public final class Diagnostics {
             Element miscellaneous = element.getChild("miscellaneous");
             if (miscellaneous != null) {
                 dialogSizingReset = booleanAttribute(miscellaneous, "dialog-sizing-reset", dialogSizingReset);
+                nativeAlertsEnabled = booleanAttribute(miscellaneous, "native-alerts-enabled", nativeAlertsEnabled);
                 bulkActionsEnabled = booleanAttribute(miscellaneous, "bulk-actions-enabled", bulkActionsEnabled);
                 backgroundDisposerDisabled = booleanAttribute(miscellaneous, "background-disposer-disabled", backgroundDisposerDisabled);
                 timeoutHandlingDisabled = booleanAttribute(miscellaneous, "timeout-handling-disabled", timeoutHandlingDisabled);
@@ -174,6 +181,7 @@ public final class Diagnostics {
         public void writeState(Element element) {
             Element miscellaneous = newElement(element, "miscellaneous");
             setBooleanAttribute(miscellaneous, "dialog-sizing-reset", dialogSizingReset);
+            setBooleanAttribute(miscellaneous, "native-alerts-enabled", nativeAlertsEnabled);
             setBooleanAttribute(miscellaneous, "bulk-actions-enabled", bulkActionsEnabled);
             setBooleanAttribute(miscellaneous, "background-disposer-disabled", backgroundDisposerDisabled);
             setBooleanAttribute(miscellaneous, "timeout-handling-disabled", timeoutHandlingDisabled);

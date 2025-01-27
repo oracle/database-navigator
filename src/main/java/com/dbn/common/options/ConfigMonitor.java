@@ -32,6 +32,10 @@ public final class ConfigMonitor {
     private static final ThreadLocal<List<SettingsChangeNotifier>> CHANGE_NOTIFIERS = new ThreadLocal<>();
     private static final ThreadLocal<PropertyHolderBase<ConfigActivity>> ACTIVITIES = new ThreadLocal<>();
 
+    public static boolean isCloning() {
+        return is(ConfigActivity.CLONING);
+    }
+
     public static boolean is(ConfigActivity activity) {
         PropertyHolderBase<ConfigActivity> propertyHolder = ACTIVITIES.get();
         if (propertyHolder == null) return false; // no property set yet

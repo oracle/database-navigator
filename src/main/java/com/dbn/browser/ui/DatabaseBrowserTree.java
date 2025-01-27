@@ -37,7 +37,6 @@ import com.dbn.common.ui.tree.Trees;
 import com.dbn.common.ui.util.Borderless;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Mouse;
-import com.dbn.common.util.Actions;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
@@ -54,7 +53,6 @@ import com.dbn.object.common.property.DBObjectProperty;
 import com.intellij.ide.IdeTooltip;
 import com.intellij.ide.IdeTooltipManager;
 import com.intellij.openapi.actionSystem.ActionGroup;
-import com.intellij.openapi.actionSystem.ActionPopupMenu;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ActionCallback;
 import com.intellij.util.ui.tree.TreeUtil;
@@ -63,7 +61,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JLabel;
-import javax.swing.JPopupMenu;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
@@ -75,6 +72,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.util.Naming.doubleQuoted;
 import static com.dbn.nls.NlsResources.txt;
 
 @Getter
@@ -309,28 +307,6 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
         }
     }
 
-/*    @Override
-    protected void processMouseMotionEvent(MouseEvent e) {
-        boolean navigable = false;
-        if (e.isControlDown() && e.getID() != MouseEvent.MOUSE_DRAGGED && !e.isConsumed()) {
-            TreePath path = getPathForLocation(e.getX(), e.getY());
-            Object lastPathEntity = path == null ? null : path.getLastPathComponent();
-            if (lastPathEntity instanceof DBObject) {
-                DBObject object = (DBObject) lastPathEntity;
-                DBObject navigationObject = object.getDefaultNavigationObject();
-                navigable = navigationObject != null;
-            }
-            
-        }
-
-        if (navigable) {
-            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        } else {
-            super.processMouseMotionEvent(e);
-            setCursor(Cursor.getDefaultCursor());
-        }
-    }  */
-
     /********************************************************
      *                 TreeSelectionListener                *
      ********************************************************/
@@ -371,52 +347,46 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
                         TreePath path = Trees.getPathAtMousePosition(this, e);
                         processSelectEvent(e, path, e.getClickCount() > 1);
                     }
-                }).
-                onRelease(e -> {
-                    if (e.getButton() != MouseEvent.BUTTON3) return;
-
-                    TreePath path = Trees.getPathAtMousePosition(this, e);
-                    showContextMenu(path, e.getX(), e.getY());
                 });
     }
 
+    @Nullable
     @Override
-    protected void showContextMenu(TreePath path, int x, int y) {
-        if (isNotValid(path)) return;
+    protected ActionGroup createContextActions(TreePath path) {
+        BrowserTreeNode pathNode = (BrowserTreeNode) path.getLastPathComponent();
+        if (isNotValid(pathNode)) return null;
 
-        BrowserTreeNode lastPathEntity = (BrowserTreeNode) path.getLastPathComponent();
-        if (isNotValid(lastPathEntity)) return;
-
-        ActionGroup actionGroup = null;
-        if (lastPathEntity instanceof DBObjectList) {
-            DBObjectList<?> objectList = (DBObjectList<?>) lastPathEntity;
-            actionGroup = new ObjectListActionGroup(objectList);
-        } else if (lastPathEntity instanceof DBObject) {
-            DBObject object = (DBObject) lastPathEntity;
-            Progress.prompt(
-                    getProject(),
-                    object,
-                    true,
-                    txt("prc.databaseBrowser.title.LoadingObjectProperties"),
-                    txt("prc.databaseBrowser.text.LoadingPropertiesOf", object.getQualifiedNameWithType()),
-                    progress -> showPopupMenu(new ObjectActionGroup(object), x, y));
-        } else if (lastPathEntity instanceof DBObjectBundle) {
-            DBObjectBundle objectsBundle = (DBObjectBundle) lastPathEntity;
+        if (pathNode instanceof DBObjectList) {
+            DBObjectList<?> objectList = (DBObjectList<?>) pathNode;
+            return new ObjectListActionGroup(objectList);
+        } else if (pathNode instanceof DBObject) {
+            DBObject object = (DBObject) pathNode;
+            return new ObjectActionGroup(object);
+        } else if (pathNode instanceof DBObjectBundle) {
+            DBObjectBundle objectsBundle = (DBObjectBundle) pathNode;
             ConnectionHandler connection = objectsBundle.getConnection();
-            actionGroup = new ConnectionActionGroup(connection);
+            return new ConnectionActionGroup(connection);
         }
 
-        showPopupMenu(actionGroup, x, y);
+        return null;
     }
 
-    private void showPopupMenu(ActionGroup actionGroup, int x, int y) {
-        if (actionGroup == null) return;
-        ActionPopupMenu actionPopupMenu = Actions.createActionPopupMenu(this, actionGroup);
-        JPopupMenu popupMenu = actionPopupMenu.getComponent();
-        Dispatch.run(() -> {
-            if (!isShowing()) return;
-            popupMenu.show(this, x, y);
-        });
+    @Override
+    protected String getContextMenuNodeName(Object node) {
+        if (node instanceof DBObjectList) {
+            DBObjectList<?> objectList = (DBObjectList<?>) node;
+            return "object list " + doubleQuoted(objectList.getObjectType().getListName());
+        } else if (node instanceof DBObject) {
+            DBObject object = (DBObject) node;
+            return object.getTypeName() + " " + doubleQuoted(object.getName());
+
+        } else if (node instanceof DBObjectBundle) {
+            DBObjectBundle objectsBundle = (DBObjectBundle) node;
+            ConnectionHandler connection = objectsBundle.getConnection();
+            return "connection " + doubleQuoted(connection.getName());
+        }
+
+        return super.getContextMenuNodeName(node);
     }
 
     /********************************************************

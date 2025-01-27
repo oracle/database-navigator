@@ -23,7 +23,6 @@ import com.dbn.assistant.credential.local.LocalCredentialSettings;
 import com.dbn.common.action.BasicActionButton;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.common.ui.util.UserInterface;
 import com.dbn.credentials.Secret;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ConfigurationException;
@@ -32,11 +31,12 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JPanel;
 import javax.swing.table.TableCellEditor;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
+import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
 
 public class LocalCredentialsSettingsForm extends ConfigurationEditorForm<LocalCredentialSettings> {
     private JPanel mainPanel;
@@ -48,13 +48,17 @@ public class LocalCredentialsSettingsForm extends ConfigurationEditorForm<LocalC
         super(settings);
 
         credentialsTable = new LocalCredentialsEditorTable(this, settings.getCredentials());
+        credentialsTablePanel.add(initTableComponent());
 
+        registerComponents(mainPanel);
+    }
 
-        ToolbarDecorator decorator = UserInterface.createToolbarDecorator(credentialsTable);
-        decorator.setAddAction(anActionButton -> credentialsTable.insertRow());
-        decorator.setRemoveAction(anActionButton -> credentialsTable.removeRow());
-        decorator.setMoveUpAction(anActionButton -> credentialsTable.moveRowUp());
-        decorator.setMoveDownAction(anActionButton -> credentialsTable.moveRowDown());
+    private JPanel initTableComponent() {
+        ToolbarDecorator decorator = createToolbarDecorator(credentialsTable);
+        decorator.setAddAction(b -> credentialsTable.insertRow());
+        decorator.setRemoveAction(b -> credentialsTable.removeRow());
+        decorator.setMoveUpAction(b -> credentialsTable.moveRowUp());
+        decorator.setMoveDownAction(b -> credentialsTable.moveRowDown());
         decorator.addExtraAction(new BasicActionButton("Revert Changes", null, Icons.ACTION_REVERT) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
@@ -62,16 +66,12 @@ public class LocalCredentialsSettingsForm extends ConfigurationEditorForm<LocalC
                 if (cellEditor != null) {
                     cellEditor.cancelCellEditing();
                 }
-
                 credentialsTable.setCredentials(getConfiguration().getCredentials());
             }
 
         });
-        decorator.setPreferredSize(new Dimension(-1, 200));
-        JPanel panel = decorator.createPanel();
-        credentialsTablePanel.add(panel, BorderLayout.CENTER);
-        credentialsTable.getParent().setBackground(credentialsTable.getBackground());
-        registerComponents(mainPanel);
+
+        return createToolbarDecoratorComponent(decorator, credentialsTable);
     }
 
     @NotNull

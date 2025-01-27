@@ -22,14 +22,11 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.load.LoadInProgressRegistry;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.tree.DBNTree;
 import com.dbn.common.ui.tree.Trees;
 import com.dbn.common.ui.util.Cursors;
-import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.UserInterface;
-import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.TimeUtil;
 import com.dbn.editor.DatabaseFileEditorManager;
@@ -40,21 +37,22 @@ import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.dependency.ObjectDependencyManager;
 import com.dbn.object.dependency.ObjectDependencyType;
 import com.dbn.object.lookup.DBObjectRef;
-import com.intellij.openapi.actionSystem.ActionPopupMenu;
+import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JPopupMenu;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.event.MouseEvent;
 
+import static com.dbn.common.util.Naming.doubleQuoted;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ObjectDependencyTree extends DBNTree{
@@ -78,34 +76,35 @@ public class ObjectDependencyTree extends DBNTree{
         addTreeSelectionListener((TreeSelectionEvent e) -> UserInterface.repaint(ObjectDependencyTree.this));
 
         speedSearch = new ObjectDependencyTreeSpeedSearch(this);
-        addMouseListener(Mouse.listener().onRelease(e -> releaseEvent(e)));
     }
 
-    private void releaseEvent(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON3) {
-            TreePath path = Trees.getPathAtMousePosition(this, e);
-            if (path != null) {
-                ObjectDependencyTreeNode node = (ObjectDependencyTreeNode) path.getLastPathComponent();
-                if (node != null) {
-                    DefaultActionGroup actionGroup = new DefaultActionGroup();
-                    ObjectDependencyTreeNode rootNode = node.getModel().getRoot();
-                    DBObject object = node.getObject();
-                    if (object instanceof DBSchemaObject && !Commons.match(rootNode.getObject(), object)) {
-                        actionGroup.add(new SelectObjectAction((DBSchemaObject) object));
-                        DBSchemaObject schObject = (DBSchemaObject) object;
-                        if (schObject.is(DBObjectProperty.EDITABLE)) {
-                            actionGroup.add(new EditObjectAction((DBSchemaObject) object));
-                        }
-                        ActionPopupMenu actionPopupMenu = Actions.createActionPopupMenu(this, actionGroup);
-                        JPopupMenu popupMenu = actionPopupMenu.getComponent();
-                        Dispatch.run(() -> {
-                            if (!isShowing()) return;
-                            popupMenu.show(this, e.getX(), e.getY());
-                        });
-                    }
-                }
+    @Nullable
+    @Override
+    protected  ActionGroup createContextActions(TreePath path) {
+        ObjectDependencyTreeNode node = (ObjectDependencyTreeNode) path.getLastPathComponent();
+        ObjectDependencyTreeNode rootNode = node.getModel().getRoot();
+
+        DBObject object = node.getObject();
+        if (object instanceof DBSchemaObject && !Commons.match(rootNode.getObject(), object)) {
+            DefaultActionGroup actionGroup = new DefaultActionGroup();
+            actionGroup.add(new SelectObjectAction((DBSchemaObject) object));
+            DBSchemaObject schObject = (DBSchemaObject) object;
+            if (schObject.is(DBObjectProperty.EDITABLE)) {
+                actionGroup.add(new EditObjectAction((DBSchemaObject) object));
             }
+            return actionGroup;
         }
+
+        return null;
+    }
+
+    @Override
+    protected String getContextMenuNodeName(Object node) {
+        ObjectDependencyTreeNode objectNode = (ObjectDependencyTreeNode) node;
+        DBObject object = objectNode.getObject();
+        if (object == null) return super.getContextMenuNodeName(node);
+
+        return object.getTypeName() + " " + doubleQuoted(object.getName());
     }
 
     @Override

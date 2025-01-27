@@ -21,7 +21,7 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.property.PropertyHolder;
 import com.dbn.common.property.PropertyHolderBase;
-import com.dbn.common.ui.listener.ToggleBorderOnFocusListener;
+import com.dbn.common.ui.panel.DBNButtonPanel;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.Mouse;
@@ -30,7 +30,6 @@ import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
-import com.intellij.ide.ui.laf.darcula.ui.DarculaTextBorder;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.ui.popup.ListPopup;
@@ -42,20 +41,13 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.accessibility.AccessibleContext;
-import javax.accessibility.AccessibleRole;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.border.Border;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,9 +58,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
 @Getter
 @Setter
-public abstract class ValueSelector<T extends Presentable> extends JPanel{
-    public static final Border DEFAULT_BORDER = JBUI.Borders.empty(3);
-    public static final Border FOCUS_BORDER = new DarculaTextBorder();
+public abstract class ValueSelector<T extends Presentable> extends DBNButtonPanel {
 
     private final Listeners<ValueSelectorListener<T>> listeners = Listeners.create();
     private final PropertyHolder<ValueSelectorOption> options = new PropertyHolderBase.IntStore<>() {
@@ -84,6 +74,7 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
 
     private List<T> values;
     private PresentableFactory<T> valueFactory;
+    private PresentableFactory<T> emptyValueFactory;
 
 
     public ValueSelector(@Nullable String text, @Nullable T preselectedValue, ValueSelectorOption... options) {
@@ -101,7 +92,7 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
 
         text = Commons.nvl(text, "");
 
-        addKeyListener(createKeyListener());
+        setActionConsumer(e -> displayPopup());
         addMouseListener(createMouseListener());
         setFocusable(true);
         setAccessibleName(this, text);
@@ -120,30 +111,6 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
         add(innerPanel, BorderLayout.CENTER);
 
         setMinimumSize(new Dimension(0, 30));
-        addFocusListener(createFocusListener());
-    }
-
-    @Override
-    public AccessibleContext getAccessibleContext() {
-        if (accessibleContext == null) {
-            accessibleContext = new AccessibleJPanel() {
-                @Override
-                public AccessibleRole getAccessibleRole() {
-                    return AccessibleRole.PUSH_BUTTON;
-                }
-            };
-        }
-        return accessibleContext;
-    }
-
-
-    private static FocusListener createFocusListener() {
-        return new ToggleBorderOnFocusListener(DEFAULT_BORDER, FOCUS_BORDER);
-    }
-
-    @Override
-    public void setBorder(Border border) {
-        super.setBorder(border);
     }
 
     public void setOptions(ValueSelectorOption ... options) {
@@ -195,36 +162,33 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
                     JPanel innerPanel = getInnerPanel();
                     innerPanel.setBackground(Colors.getPanelBackground());
                     UserInterface.repaint(ValueSelector.this);
-                }).
-                onPress(e -> {
-                    if (getValues().isEmpty()) {
-                        selectValue(null);
-                    } else {
-                        if (isEnabled() && popup == null) {
-                            showPopup();
-                        }
-                    }
                 });
     }
 
-    private KeyListener createKeyListener() {
-        return new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    showPopup();
-                }
+    private void displayPopup() {
+        if (getValues().isEmpty()) {
+            selectValue(null);
+        } else {
+            if (isEnabled() && popup == null) {
+                showPopup();
             }
-        };
+        }
     }
 
     private void showPopup() {
         innerPanel.setCursor(Cursors.defaultCursor());
         label.setCursor(Cursors.defaultCursor());
         DefaultActionGroup actionGroup = new DefaultActionGroup();
+
+        if (emptyValueFactory != null) {
+            actionGroup.add(new AddEmptyValueAction());
+            actionGroup.add(Actions.SEPARATOR);
+        }
+
         for (T value : getValues()) {
             actionGroup.add(new SelectValueAction(value));
         }
+
         if (valueFactory != null) {
             actionGroup.add(Actions.SEPARATOR);
             actionGroup.add(new AddValueAction());
@@ -279,6 +243,28 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
             e.getPresentation().setText(getOptionDisplayName(value), false);
         }
     }
+
+    private class AddEmptyValueAction extends BasicAction {
+        AddEmptyValueAction() {
+            super(emptyValueFactory.getActionName(), null, null);
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            emptyValueFactory.create(inputValue -> {
+                if (inputValue != null) {
+                    addValue(inputValue);
+                    selectValue(inputValue);
+                }
+            });
+        }
+
+        @Override
+        public void update(@NotNull AnActionEvent e) {
+            e.getPresentation().setVisible(emptyValueFactory != null);
+        }
+    }
+
 
     private class AddValueAction extends BasicAction {
         AddValueAction() {

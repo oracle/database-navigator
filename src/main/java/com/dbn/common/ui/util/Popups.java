@@ -16,6 +16,7 @@
 
 package com.dbn.common.ui.util;
 
+import com.dbn.common.ui.Presentable;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.ui.popup.IPopupChooserBuilder;
@@ -34,6 +35,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class Popups {
     public static void showUnderneathOf(@NotNull JBPopup popup, @NotNull Component sourceComponent, int verticalShift, int maxHeight) {
@@ -89,6 +91,11 @@ public class Popups {
         else {
             popup.showUnderneathOf(textField);
         }
+    }
+
+
+    public static <T extends Presentable> ActionPopupBuilder popupBuilder(List<T> options, Object context, Consumer<T> selectionConsumer) {
+        return ActionPopupBuilder.create(options, context, selectionConsumer);
     }
 
     public static ActionPopupBuilder popupBuilder(List<? extends AnAction> actions, Object context) {

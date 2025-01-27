@@ -16,6 +16,7 @@
 
 package com.dbn.common.color;
 
+import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.ui.util.LookAndFeel;
 import com.dbn.data.grid.color.DataGridTextAttributesKeys;
@@ -26,6 +27,8 @@ import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
+import com.intellij.openapi.project.Project;
+import com.intellij.ui.ColorChooserService;
 import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
@@ -34,8 +37,10 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JComponent;
 import javax.swing.UIManager;
 import java.awt.Color;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -277,6 +282,21 @@ public final class Colors {
         Color getDelegate() {
             return delegate.get();
         }
+    }
 
+    /**
+     * Displays a color chooser dialog and allows the user to select a color.
+     * If the user selects a color, it is returned; otherwise, the initial color is returned.
+     *
+     * @param project       the current project context, used for dialog consistency
+     * @param parent        the parent component for the dialog
+     * @param initialColor  the initial color to display in the dialog
+     * @param caption       the text displayed as the dialog's title
+     * @return the chosen color if the dialog selection is confirmed, or the initial color if canceled
+     */
+    @Compatibility
+    public static Color chooseColor(Project project, JComponent parent, Color initialColor, String caption) {
+        ColorChooserService colorChooserService = ColorChooserService.getInstance();
+        return colorChooserService.showDialog(project, parent, caption, initialColor, false, Collections.emptyList(), false);
     }
 }

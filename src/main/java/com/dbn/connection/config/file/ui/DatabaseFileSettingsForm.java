@@ -25,10 +25,9 @@ import com.intellij.ui.ToolbarDecorator;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
 
-import static com.dbn.common.ui.util.UserInterface.createToolbarDecorator;
+import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
+import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
 
 public class DatabaseFileSettingsForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -36,25 +35,27 @@ public class DatabaseFileSettingsForm extends DBNFormBase {
 
     public DatabaseFileSettingsForm(ConnectionUrlSettingsForm parent, DatabaseFileBundle fileBundle) {
         super(parent);
-        table = new DatabaseFilesTable(this, fileBundle);
 
+        table = new DatabaseFilesTable(this, fileBundle);
+        mainPanel.add(initTableComponent());
+    }
+
+    private JPanel initTableComponent() {
         ToolbarDecorator decorator = createToolbarDecorator(table);
-        decorator.setAddAction(anActionButton -> getTable().insertRow());
-        decorator.setRemoveAction(anActionButton -> getTable().removeRow());
+        decorator.setAddAction(b -> getTable().insertRow());
+        decorator.setRemoveAction(b -> getTable().removeRow());
         decorator.setRemoveActionUpdater(e -> getTable().getSelectedRows().length > 0);
-        decorator.setMoveUpAction(anActionButton -> getTable().moveRowUp());
+        decorator.setMoveUpAction(b -> getTable().moveRowUp());
         decorator.setMoveUpActionUpdater(e -> getTable().getSelectedRow() > 1);
-        decorator.setMoveDownAction(anActionButton -> getTable().moveRowDown());
+        decorator.setMoveDownAction(b -> getTable().moveRowDown());
         decorator.setMoveDownActionUpdater(e -> {
             int selectedRow = getTable().getSelectedRow();
             return selectedRow != 0 && selectedRow < getTable().getModel().getRowCount() -1;
         });
-        decorator.setPreferredSize(new Dimension(-1, 300));
-        JPanel panel = decorator.createPanel();
-        mainPanel.add(panel, BorderLayout.CENTER);
-        table.getParent().setBackground(table.getBackground());
+
+        return createToolbarDecoratorComponent(decorator, table);
     }
-    
+
     @NotNull
     @Override
     public JPanel getMainComponent() {

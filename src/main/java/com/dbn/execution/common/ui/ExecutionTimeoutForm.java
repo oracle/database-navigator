@@ -159,6 +159,8 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
             if (debuggerType.isDebug())
                 timeoutSettings.setDebugExecutionTimeout(timeout); else
                 timeoutSettings.setExecutionTimeout(timeout);
+
+            executionTimeoutTextField.requestFocus();
         }
 
         @Override
@@ -178,6 +180,7 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
         public void actionPerformed(@NotNull AnActionEvent e) {
             int timeout = getSettingsTimeout();
             executionTimeoutTextField.setText(String.valueOf(timeout));
+            executionTimeoutTextField.requestFocus();
         }
 
         @Override

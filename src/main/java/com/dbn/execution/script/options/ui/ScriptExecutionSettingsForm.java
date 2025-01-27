@@ -37,12 +37,11 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 
-import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
-import static com.dbn.common.ui.util.UserInterface.createToolbarDecorator;
+import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
+import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
 
 public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptExecutionSettings> {
     private JPanel mainPanel;
@@ -55,23 +54,23 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
         super(settings);
         cmdLineInterfacesTable = new CmdLineInterfacesTable(this, settings.getCommandLineInterfaces());
 
-        ToolbarDecorator decorator = createToolbarDecorator(cmdLineInterfacesTable);
-        decorator.setAddAction(anActionButton ->
-                showNewInterfacePopup(
-                        anActionButton.getDataContext(),
-                        anActionButton.getPreferredPopupPoint()));
-        decorator.setRemoveAction(anActionButton -> cmdLineInterfacesTable.removeRow());
-        decorator.setMoveUpAction(anActionButton -> cmdLineInterfacesTable.moveRowUp());
-        decorator.setMoveDownAction(anActionButton -> cmdLineInterfacesTable.moveRowDown());
-        decorator.setPreferredSize(new Dimension(-1, 300));
-        JPanel actionToolbar = decorator.createPanel();
-        setAccessibleName(actionToolbar, txt("cfg.execution.aria.CommandLineInterfaceConfigActions"));
+        cmdLineInterfacesTablePanel.add(initTableComponent());
 
-        cmdLineInterfacesTablePanel.add(actionToolbar, BorderLayout.CENTER);
         cmdLineInterfacesTable.getParent().setBackground(cmdLineInterfacesTable.getBackground());
         executionTimeoutTextField.setText(String.valueOf(settings.getExecutionTimeout()));
         cmdLineInterfaceLabel.setLabelFor(cmdLineInterfacesTable);
         registerComponents(mainPanel);
+    }
+
+    private JPanel initTableComponent() {
+        ToolbarDecorator decorator = createToolbarDecorator(cmdLineInterfacesTable);
+        decorator.setAddAction(b -> showNewInterfacePopup(b.getDataContext(), b.getPreferredPopupPoint()));
+        decorator.setRemoveAction(b -> cmdLineInterfacesTable.removeRow());
+        decorator.setMoveUpAction(b -> cmdLineInterfacesTable.moveRowUp());
+        decorator.setMoveDownAction(b -> cmdLineInterfacesTable.moveRowDown());
+        decorator.setPreferredSize(new Dimension(-1, 300));
+
+        return createToolbarDecoratorComponent(decorator, cmdLineInterfacesTable);
     }
 
     @Override

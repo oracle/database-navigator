@@ -10,6 +10,70 @@
       <font/>
     </border>
     <children>
+      <vspacer id="63b8">
+        <constraints>
+          <grid row="10" column="0" row-span="1" col-span="3" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </vspacer>
+      <hspacer id="b02ca">
+        <constraints>
+          <grid row="3" column="3" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </hspacer>
+      <component id="37090" class="javax.swing.JLabel" binding="viewIconLabel">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="[view]"/>
+        </properties>
+      </component>
+      <component id="41427" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="bb0e5"/>
+          <text value="View"/>
+        </properties>
+      </component>
+      <component id="bb0e5" class="javax.swing.JTextField" binding="viewTextField">
+        <constraints>
+          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="100" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <margin top="2" left="9" bottom="2" right="6"/>
+        </properties>
+      </component>
+      <component id="41252" class="javax.swing.JLabel" binding="triggerIconLabel">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="[trigger]"/>
+        </properties>
+      </component>
+      <component id="fef98" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="a4e2f"/>
+          <text value="Trigger"/>
+        </properties>
+      </component>
+      <component id="a4e2f" class="javax.swing.JTextField" binding="triggerTextField">
+        <constraints>
+          <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="100" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <margin top="2" left="9" bottom="2" right="6"/>
+        </properties>
+      </component>
       <component id="be5b0" class="javax.swing.JLabel" binding="procedureIconLabel">
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -91,70 +155,6 @@
           <margin top="2" left="9" bottom="2" right="6"/>
         </properties>
       </component>
-      <component id="362ce" class="javax.swing.JTextField" binding="typeTextField">
-        <constraints>
-          <grid row="7" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="100" height="-1"/>
-          </grid>
-        </constraints>
-        <properties>
-          <margin top="2" left="9" bottom="2" right="6"/>
-        </properties>
-      </component>
-      <component id="9ad8f" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <labelFor value="362ce"/>
-          <text value="Type"/>
-        </properties>
-      </component>
-      <component id="abc9e" class="javax.swing.JLabel" binding="typeIconLabel">
-        <constraints>
-          <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="[type]"/>
-        </properties>
-      </component>
-      <vspacer id="63b8">
-        <constraints>
-          <grid row="10" column="0" row-span="1" col-span="3" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-        </constraints>
-      </vspacer>
-      <hspacer id="b02ca">
-        <constraints>
-          <grid row="3" column="3" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-      </hspacer>
-      <component id="37090" class="javax.swing.JLabel" binding="viewIconLabel">
-        <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="[view]"/>
-        </properties>
-      </component>
-      <component id="41427" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <labelFor value="bb0e5"/>
-          <text value="View"/>
-        </properties>
-      </component>
-      <component id="bb0e5" class="javax.swing.JTextField" binding="viewTextField">
-        <constraints>
-          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="100" height="-1"/>
-          </grid>
-        </constraints>
-        <properties>
-          <margin top="2" left="9" bottom="2" right="6"/>
-        </properties>
-      </component>
       <component id="da036" class="javax.swing.JLabel">
         <constraints>
           <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -194,6 +194,33 @@
           <margin top="2" left="9" bottom="2" right="6"/>
         </properties>
       </component>
+      <component id="abc9e" class="javax.swing.JLabel" binding="typeIconLabel">
+        <constraints>
+          <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="[type]"/>
+        </properties>
+      </component>
+      <component id="9ad8f" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="362ce"/>
+          <text value="Type"/>
+        </properties>
+      </component>
+      <component id="362ce" class="javax.swing.JTextField" binding="typeTextField">
+        <constraints>
+          <grid row="7" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="100" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <margin top="2" left="9" bottom="2" right="6"/>
+        </properties>
+      </component>
       <component id="b6966" class="javax.swing.JLabel">
         <constraints>
           <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -225,33 +252,6 @@
       <component id="53712" class="javax.swing.JTextField" binding="typeBodyTextField">
         <constraints>
           <grid row="9" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="100" height="-1"/>
-          </grid>
-        </constraints>
-        <properties>
-          <margin top="2" left="9" bottom="2" right="6"/>
-        </properties>
-      </component>
-      <component id="41252" class="javax.swing.JLabel" binding="triggerIconLabel">
-        <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="[trigger]"/>
-        </properties>
-      </component>
-      <component id="fef98" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <labelFor value="a4e2f"/>
-          <text value="Trigger"/>
-        </properties>
-      </component>
-      <component id="a4e2f" class="javax.swing.JTextField" binding="triggerTextField">
-        <constraints>
-          <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="100" height="-1"/>
           </grid>
         </constraints>
