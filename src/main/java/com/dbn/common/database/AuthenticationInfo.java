@@ -30,6 +30,7 @@ import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretsOwner;
+import com.dbn.credentials.SecretsOwnerRegistry;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
@@ -88,6 +89,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     public AuthenticationInfo(ConnectionDatabaseSettings parent, boolean temporary) {
         super(parent);
         this.temporary = temporary;
+        SecretsOwnerRegistry.register(this);
     }
 
     public ConnectionId getConnectionId() {
@@ -244,6 +246,11 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     @Override
     public Object getSecretOwnerId() {
         return getConnectionId();
+    }
+
+    @Override
+    public String getSecretOwnerName() {
+        return ensureParent().getName();
     }
 
     @Override

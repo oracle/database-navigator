@@ -24,9 +24,10 @@ import lombok.Getter;
  */
 @Getter
 public enum SecretType implements Presentable {
-    CONNECTION_PASSWORD("Connection password"),  // connection passwords
-    SSH_TUNNEL_SECRET("SSH tunnel secret"),      // passwords or passphrases for SSH tunnels
-    GENERIC_CREDENTIAL("Generic credential")     // e.g. database assistant credential tokens
+    CONNECTION_PASSWORD("Connection password"),               // connection passwords
+    SSH_TUNNEL_PASSWORD("SSH tunnel password"),               // password for SSH tunnels
+    SSH_TUNNEL_KEY_PASSPHRASE("SSH tunnel key passphrase"),   // key passphrases for SSH tunnels
+    GENERIC_CREDENTIAL("Generic credential")                  // e.g. database assistant credential tokens
     ;
 
     SecretType(String name) {
