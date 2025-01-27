@@ -228,29 +228,32 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
 
     public void duplicateSelectedConnection() {
         ConnectionSettings connectionSettings = connectionsList.getSelectedValue();
-        if (connectionSettings != null) {
-            getConfiguration().setModified(true);
-            ConnectionSettingsForm settingsEditor = connectionSettings.getSettingsEditor();
-            if (settingsEditor != null) {
-                try {
-                    ConnectionSettings duplicate = settingsEditor.getTemporaryConfig();
-                    duplicate.setNew(true);
-                    duplicate.setSigned(true);
-                    String name = duplicate.getDatabaseSettings().getName();
-                    ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
-                    while (model.getConnectionConfig(name) != null) {
-                        name = Naming.nextNumberedIdentifier(name, true);
-                    }
-                    duplicate.getDatabaseSettings().setName(name);
-                    int selectedIndex = connectionsList.getSelectedIndex() + 1;
-                    model.add(selectedIndex, duplicate);
-                    connectionsList.setSelectedIndex(selectedIndex);
-                } catch (ConfigurationException e) {
-                    conditionallyLog(e);
-                    Messages.showErrorDialog(getProject(), e.getMessage());
-                }
-            }
+        if (connectionSettings == null) return;
 
+        ConnectionSettingsForm settingsEditor = connectionSettings.getSettingsEditor();
+        if (settingsEditor == null) return;
+
+        getConfiguration().setModified(true);
+
+        try {
+            ConnectionSettings duplicate = settingsEditor.getTemporaryConfig();
+            duplicate.setNew(true);
+            duplicate.setSigned(true);
+            ConnectionDatabaseSettings databaseSettings = duplicate.getDatabaseSettings();
+            databaseSettings.getAuthenticationInfo().setTemporary(false);
+
+            String name = databaseSettings.getName();
+            ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
+            while (model.getConnectionConfig(name) != null) {
+                name = Naming.nextNumberedIdentifier(name, true);
+            }
+            databaseSettings.setName(name);
+            int selectedIndex = connectionsList.getSelectedIndex() + 1;
+            model.add(selectedIndex, duplicate);
+            connectionsList.setSelectedIndex(selectedIndex);
+        } catch (ConfigurationException e) {
+            conditionallyLog(e);
+            Messages.showErrorDialog(getProject(), e.getMessage());
         }
     }
 

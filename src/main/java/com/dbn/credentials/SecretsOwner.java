@@ -27,6 +27,9 @@ public interface SecretsOwner {
     Object getSecretOwnerId();
 
     @NotNull
+    String getSecretOwnerName();
+
+    @NotNull
     Secret[] getSecrets();
 
     /**

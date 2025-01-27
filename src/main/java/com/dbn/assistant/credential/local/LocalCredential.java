@@ -24,6 +24,7 @@ import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretType;
 import com.dbn.credentials.SecretsOwner;
+import com.dbn.credentials.SecretsOwnerRegistry;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -51,6 +52,11 @@ public class LocalCredential implements Cloneable<LocalCredential>, PersistentCo
     private String name;
     private String user;
     private char[] key;
+
+
+    public LocalCredential() {
+        SecretsOwnerRegistry.register(this);
+    }
 
     @Override
     @NotNull
@@ -106,8 +112,10 @@ public class LocalCredential implements Cloneable<LocalCredential>, PersistentCo
         if (isNotEmpty(key)) return;
 
         key = charsAttribute(element, "key");
-        DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
-        credentialManager.queueSecretsInsert(getName(), getKeySecret());
+        if (isNotEmpty(key)) {
+            DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
+            credentialManager.queueSecretsInsert(getId(), getKeySecret());
+        }
     }
 
 
@@ -120,6 +128,11 @@ public class LocalCredential implements Cloneable<LocalCredential>, PersistentCo
     @Override
     public Object getSecretOwnerId() {
         return id;
+    }
+
+    @Override
+    public String getSecretOwnerName() {
+        return name;
     }
 
     @Override
