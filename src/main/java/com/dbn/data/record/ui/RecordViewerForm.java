@@ -45,10 +45,10 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.ComponentAligner.alignFormComponents;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 
@@ -102,16 +102,12 @@ public class RecordViewerForm extends DBNFormBase implements ComponentAligner.Co
         sortColumns(columnSortingType);
         alignFormComponents(this);
 
-        Dimension preferredSize = mainPanel.getPreferredSize();
-        int width = (int) preferredSize.getWidth() + 24;
-        int height = (int) Math.min(preferredSize.getHeight(), 380);
-        mainPanel.setPreferredSize(new Dimension(width, height));
-
         filterTextField.getEmptyText().setText("Filter");
         onTextChange(filterTextField, e -> filterColumForms());
 
         int scrollUnitIncrement = (int) columnForms.get(0).getComponent().getPreferredSize().getHeight();
         columnsPanelScrollPane.getVerticalScrollBar().setUnitIncrement(scrollUnitIncrement);
+        setAccessibleName(columnSortingType, "Record columns");
     }
 
     @Override

@@ -3,41 +3,51 @@
   <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="7" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="4" left="4" bottom="4" right="4"/>
     <constraints>
-      <xy x="20" y="20" width="479" height="372"/>
+      <xy x="20" y="20" width="540" height="372"/>
     </constraints>
     <properties/>
     <border type="none" title="General"/>
     <children>
-      <grid id="935fa" binding="hintPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+      <vspacer id="9424">
         <constraints>
-          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties/>
-        <border type="none"/>
-        <children/>
-      </grid>
-      <component id="d67ca" class="javax.swing.JCheckBox" binding="synchronizeDDLFilesCheckBox">
+      </vspacer>
+      <hspacer id="129da">
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </hspacer>
+      <component id="51d12" class="javax.swing.JCheckBox" binding="lookupDDLFilesCheckBox">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="&amp;Synchronize DDL files"/>
+          <text value="&amp;Lookup DDL files when database object is opened "/>
         </properties>
       </component>
       <component id="c2e52" class="javax.swing.JCheckBox" binding="createDDLFileCheckBox">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text value="Suggest &amp;creating DDL file if not found"/>
         </properties>
       </component>
-      <component id="51d12" class="javax.swing.JCheckBox" binding="lookupDDLFilesCheckBox">
+      <component id="d67ca" class="javax.swing.JCheckBox" binding="synchronizeDDLFilesCheckBox">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="&amp;Lookup DDL files when database object is opened "/>
+          <text value="&amp;Synchronize DDL files"/>
+        </properties>
+      </component>
+      <component id="8bd7" class="javax.swing.JCheckBox" binding="makeScriptsRerunnableCheckBox">
+        <constraints>
+          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Make DDL scripts &amp;rerunnable (use &quot;create or replace / drop if exists&quot;)"/>
         </properties>
       </component>
       <component id="66191" class="javax.swing.JCheckBox" binding="useQualifiedObjectNamesCheckBox">
@@ -48,19 +58,14 @@
           <text value="Use &amp;qualified names (e.g. schema.object)"/>
         </properties>
       </component>
-      <vspacer id="9424">
+      <grid id="935fa" binding="hintPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints>
-          <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
-      </vspacer>
-      <component id="8bd7" class="javax.swing.JCheckBox" binding="makeScriptsRerunnableCheckBox">
-        <constraints>
-          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Make DDL scripts &amp;rerunnable (use &quot;create or replace / drop if exists&quot;)"/>
-        </properties>
-      </component>
+        <properties/>
+        <border type="none"/>
+        <children/>
+      </grid>
       <grid id="5a41f" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
@@ -72,11 +77,6 @@
         <border type="none"/>
         <children/>
       </grid>
-      <hspacer id="129da">
-        <constraints>
-          <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-      </hspacer>
     </children>
   </grid>
 </form>

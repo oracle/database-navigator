@@ -20,6 +20,7 @@ import com.dbn.common.thread.Dispatch;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.ui.JBSplitter;
 import com.intellij.ui.OnePixelSplitter;
+import com.intellij.util.ui.JBUI;
 
 import javax.swing.JComponent;
 import javax.swing.JSplitPane;
@@ -45,7 +46,7 @@ public class Splitters {
         JComponent component1 = (JComponent) pane.getTopComponent();
         JComponent component2 = (JComponent) pane.getBottomComponent();
         int orientation = pane.getOrientation();
-        double dividerLocation = pane.getDividerLocation();
+        double dividerLocation = JBUI.scale(pane.getDividerLocation());
         boolean vertical = orientation == VERTICAL_SPLIT;
         Splitter splitter = ClientProperty.REGULAR_SPLITTER.is(pane) ? new JBSplitter(vertical) : new OnePixelSplitter(vertical);
 

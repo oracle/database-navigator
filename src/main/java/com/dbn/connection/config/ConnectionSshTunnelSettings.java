@@ -43,8 +43,7 @@ import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.util.Base64.decode;
 import static com.dbn.common.util.Base64.encode;
 import static com.dbn.common.util.Strings.isNotEmpty;
-import static com.dbn.credentials.SecretType.SSH_TUNNEL_PASSPHRASE;
-import static com.dbn.credentials.SecretType.SSH_TUNNEL_PASSWORD;
+import static com.dbn.credentials.SecretType.SSH_TUNNEL_SECRET;
 
 @Getter
 @Setter
@@ -177,11 +176,11 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
     }
 
     private Secret getPasswordSecret() {
-        return new Secret(SSH_TUNNEL_PASSWORD, user, password);
+        return new Secret(SSH_TUNNEL_SECRET, user, password);
     }
 
     private Secret getKeyPassphraseSecret() {
-        return new Secret(SSH_TUNNEL_PASSPHRASE, keyFile, keyPassphrase );
+        return new Secret(SSH_TUNNEL_SECRET, keyFile, keyPassphrase );
     }
 
     /**
@@ -194,10 +193,10 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
         ConnectionId connectionId = getConnectionId();
         DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
         if (authType == SshAuthType.PASSWORD) {
-            Secret secret = credentialManager.loadSecret(SSH_TUNNEL_PASSWORD, connectionId, user);
+            Secret secret = credentialManager.loadSecret(SSH_TUNNEL_SECRET, connectionId, user);
             password = secret.getToken();
         } else if (authType == SshAuthType.KEY_PAIR) {
-            Secret secret = credentialManager.loadSecret(SSH_TUNNEL_PASSPHRASE, connectionId, keyFile);
+            Secret secret = credentialManager.loadSecret(SSH_TUNNEL_SECRET, connectionId, keyFile);
             keyPassphrase = secret.getToken();
         }
     }

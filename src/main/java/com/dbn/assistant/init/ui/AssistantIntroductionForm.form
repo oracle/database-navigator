@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="-1">
     <margin top="8" left="8" bottom="8" right="8"/>
     <constraints>
-      <xy x="20" y="20" width="500" height="199"/>
+      <xy x="20" y="20" width="492" height="171"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -45,20 +45,19 @@
                   <text value="Database Assistant - powered by"/>
                 </properties>
               </component>
-              <component id="3010f" class="com.intellij.ui.HyperlinkLabel" binding="selectAiHyperlink">
-                <constraints>
-                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <iconTextGap value="2"/>
-                  <text value=""/>
-                </properties>
-              </component>
               <hspacer id="175df">
                 <constraints>
                   <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
               </hspacer>
+              <component id="fc496" class="com.dbn.common.ui.link.DBNHyperlinkLabel" binding="poweredByHyperlink">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value=""/>
+                </properties>
+              </component>
             </children>
           </grid>
           <grid id="300e4" binding="hintPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
@@ -77,11 +76,6 @@
               <text value="Continue"/>
             </properties>
           </component>
-          <hspacer id="f4b99">
-            <constraints>
-              <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
-          </hspacer>
           <component id="f4720" class="javax.swing.JButton" binding="helpButton">
             <constraints>
               <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -90,6 +84,11 @@
               <text value="Help"/>
             </properties>
           </component>
+          <hspacer id="f4b99">
+            <constraints>
+              <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+          </hspacer>
         </children>
       </grid>
     </children>

@@ -169,7 +169,7 @@
                   </hspacer>
                 </children>
               </grid>
-              <grid id="a1c11" layout-manager="GridLayoutManager" row-count="4" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="a1c11" layout-manager="GridLayoutManager" row-count="5" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="4" left="4" bottom="4" right="4"/>
                 <constraints>
                   <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -181,7 +181,7 @@
                 <children>
                   <hspacer id="831c3">
                     <constraints>
-                      <grid row="0" column="1" row-span="4" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                      <grid row="0" column="1" row-span="5" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
                   </hspacer>
                   <component id="bab69" class="javax.swing.JCheckBox" binding="dialogSizingCheckbox">
@@ -192,9 +192,17 @@
                       <text value="&amp;Reset dialog dimensions"/>
                     </properties>
                   </component>
-                  <component id="5e7fe" class="javax.swing.JCheckBox" binding="bulkActionsCheckbox">
+                  <component id="a1dbf" class="javax.swing.JCheckBox" binding="nativeAlertsCheckBox">
                     <constraints>
                       <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="Enable native alert dialogs"/>
+                    </properties>
+                  </component>
+                  <component id="5e7fe" class="javax.swing.JCheckBox" binding="bulkActionsCheckbox">
+                    <constraints>
+                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
                       <text value="Enable &amp;bulk actions"/>
@@ -202,7 +210,7 @@
                   </component>
                   <component id="dea6a" class="javax.swing.JCheckBox" binding="backgroundDisposerCheckBox">
                     <constraints>
-                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
                       <text value="Disable background &amp;disposer"/>
@@ -210,7 +218,7 @@
                   </component>
                   <component id="26fa" class="javax.swing.JCheckBox" binding="timeoutHandlingCheckBox">
                     <constraints>
-                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
                       <text value="Disable &amp;timeout handling"/>

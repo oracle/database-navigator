@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.dbn.connection.info.ui.ConnectionInfoForm">
-  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="5" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="500" height="761"/>
+      <xy x="20" y="20" width="500" height="810"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -16,394 +16,426 @@
         <border type="none"/>
         <children/>
       </grid>
-      <grid id="8ac9c" binding="setupPanel" layout-manager="GridLayoutManager" row-count="9" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="20" vgap="0">
-        <margin top="12" left="12" bottom="12" right="12"/>
+      <vspacer id="62fa8">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </vspacer>
+      <grid id="5f9ff" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
-        <border type="none" title="Setup"/>
+        <border type="none"/>
         <children>
-          <component id="88fc7" class="javax.swing.JLabel" binding="setupNameLabel">
+          <scrollpane id="13bd6">
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                <minimum-size width="100" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <labelFor value="21a54"/>
-              <text value="Name"/>
-            </properties>
-          </component>
-          <component id="f6341" class="javax.swing.JLabel" binding="setupDescriptionLabel">
-            <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <labelFor value="2c7fd"/>
-              <text value="Description"/>
-            </properties>
-          </component>
-          <component id="35593" class="javax.swing.JLabel" binding="setupDriverLibraryLabel">
-            <constraints>
-              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <labelFor value="36482"/>
-              <text value="Driver library"/>
-            </properties>
-          </component>
-          <component id="fb887" class="javax.swing.JLabel" binding="setupDriverLabel">
-            <constraints>
-              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <labelFor value="79ddc"/>
-              <text value="Driver"/>
-            </properties>
-          </component>
-          <component id="f9fd2" class="javax.swing.JLabel" binding="setupHostLabel">
-            <constraints>
-              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <labelFor value="95abe"/>
-              <text value="Host"/>
-            </properties>
-          </component>
-          <component id="51cc7" class="javax.swing.JLabel" binding="setupPortLabel">
-            <constraints>
-              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <labelFor value="5fd10"/>
-              <text value="Port"/>
-            </properties>
-          </component>
-          <component id="ff7ff" class="javax.swing.JLabel" binding="setupDatabaseLabel">
-            <constraints>
-              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <labelFor value="85687"/>
-              <text value="Database"/>
-            </properties>
-          </component>
-          <component id="c49b4" class="javax.swing.JLabel" binding="setupUrlLabel">
-            <constraints>
-              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <labelFor value="f8375"/>
-              <text value="URL"/>
-            </properties>
-          </component>
-          <component id="c1671" class="javax.swing.JLabel" binding="setupFileLabel">
-            <constraints>
-              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <labelFor value="34a12"/>
-              <text value="File"/>
-            </properties>
-          </component>
-          <component id="34a12" class="javax.swing.JTextField" binding="setupFileTextField">
-            <constraints>
-              <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <editable value="false"/>
-              <enabled value="true"/>
-            </properties>
-          </component>
-          <component id="85687" class="javax.swing.JTextField" binding="setupDatabaseTextField">
-            <constraints>
-              <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <editable value="false"/>
-              <enabled value="true"/>
-            </properties>
-          </component>
-          <component id="f8375" class="javax.swing.JTextField" binding="setupUrlTextField">
-            <constraints>
-              <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <editable value="false"/>
-              <enabled value="true"/>
-            </properties>
-          </component>
-          <component id="95abe" class="javax.swing.JTextField" binding="setupHostTextField">
-            <constraints>
-              <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <editable value="false"/>
-              <enabled value="true"/>
-            </properties>
-          </component>
-          <component id="5fd10" class="javax.swing.JTextField" binding="setupPortTextField">
-            <constraints>
-              <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <editable value="false"/>
-              <enabled value="true"/>
-            </properties>
-          </component>
-          <component id="79ddc" class="javax.swing.JTextField" binding="setupDriverTextField">
-            <constraints>
-              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <editable value="false"/>
-              <enabled value="true"/>
-            </properties>
-          </component>
-          <component id="21a54" class="javax.swing.JTextField" binding="setupNameTextField">
-            <constraints>
-              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <editable value="false"/>
-              <enabled value="true"/>
-            </properties>
-          </component>
-          <component id="2c7fd" class="javax.swing.JTextField" binding="setupDescriptionTextField">
-            <constraints>
-              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <editable value="false"/>
-              <enabled value="true"/>
-            </properties>
-          </component>
-          <component id="36482" class="javax.swing.JTextField" binding="setupDriverLibraryTextField">
-            <constraints>
-              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <editable value="false"/>
-              <enabled value="true"/>
-            </properties>
-          </component>
-        </children>
-      </grid>
-      <vspacer id="62fa8">
-        <constraints>
-          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-        </constraints>
-      </vspacer>
-      <grid id="38605" binding="detailsPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-        <margin top="4" left="4" bottom="4" right="4"/>
-        <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-        <border type="none" title="Details"/>
-        <children>
-          <grid id="847b5" binding="metaDataPanel" layout-manager="GridLayoutManager" row-count="8" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="20" vgap="0">
-            <margin top="12" left="12" bottom="12" right="12"/>
-            <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
             <border type="none"/>
             <children>
-              <component id="a43e8" class="javax.swing.JLabel" binding="infoProductNameLabel">
-                <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <labelFor value="4126"/>
-                  <text value="Product name"/>
-                </properties>
-              </component>
-              <component id="da4f0" class="javax.swing.JLabel" binding="infoProductVersionLabel">
-                <constraints>
-                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <labelFor value="cd3d5"/>
-                  <text value="Product version"/>
-                </properties>
-              </component>
-              <component id="64aeb" class="javax.swing.JLabel" binding="infoDriverNameLabel">
-                <constraints>
-                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <labelFor value="c57f0"/>
-                  <text value="Driver name"/>
-                </properties>
-              </component>
-              <component id="d2b68" class="javax.swing.JLabel" binding="infoDriverVersionLabel">
-                <constraints>
-                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <labelFor value="79917"/>
-                  <text value="Driver version"/>
-                </properties>
-              </component>
-              <component id="810b6" class="javax.swing.JLabel" binding="infoConnectionUrlLabel">
-                <constraints>
-                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <labelFor value="68b17"/>
-                  <text value="Connection URL"/>
-                </properties>
-              </component>
-              <component id="d25fa" class="javax.swing.JLabel" binding="infoUserNameLabel">
-                <constraints>
-                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <labelFor value="dc0a5"/>
-                  <text value="User name"/>
-                </properties>
-              </component>
-              <component id="c2528" class="javax.swing.JLabel" binding="infoJdbcTypeLabel">
-                <constraints>
-                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <labelFor value="f4ee5"/>
-                  <text value="Driver JDBC type"/>
-                </properties>
-              </component>
-              <component id="736ee" class="javax.swing.JLabel" binding="infoDatabaseTypeLabel">
-                <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                    <minimum-size width="100" height="-1"/>
+              <grid id="7ca01" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints/>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <grid id="8ac9c" binding="setupPanel" layout-manager="GridLayoutManager" row-count="9" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="20" vgap="0">
+                    <margin top="12" left="12" bottom="12" right="12"/>
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none" title="Setup"/>
+                    <children>
+                      <component id="88fc7" class="javax.swing.JLabel" binding="setupNameLabel">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                            <minimum-size width="100" height="-1"/>
+                          </grid>
+                        </constraints>
+                        <properties>
+                          <labelFor value="21a54"/>
+                          <text value="Name"/>
+                        </properties>
+                      </component>
+                      <component id="21a54" class="javax.swing.JTextField" binding="setupNameTextField">
+                        <constraints>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                            <preferred-size width="150" height="-1"/>
+                          </grid>
+                        </constraints>
+                        <properties>
+                          <editable value="false"/>
+                          <enabled value="true"/>
+                        </properties>
+                      </component>
+                      <component id="f6341" class="javax.swing.JLabel" binding="setupDescriptionLabel">
+                        <constraints>
+                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <labelFor value="2c7fd"/>
+                          <text value="Description"/>
+                        </properties>
+                      </component>
+                      <component id="2c7fd" class="javax.swing.JTextField" binding="setupDescriptionTextField">
+                        <constraints>
+                          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                            <preferred-size width="150" height="-1"/>
+                          </grid>
+                        </constraints>
+                        <properties>
+                          <editable value="false"/>
+                          <enabled value="true"/>
+                        </properties>
+                      </component>
+                      <component id="35593" class="javax.swing.JLabel" binding="setupDriverLibraryLabel">
+                        <constraints>
+                          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <labelFor value="36482"/>
+                          <text value="Driver library"/>
+                        </properties>
+                      </component>
+                      <component id="36482" class="javax.swing.JTextField" binding="setupDriverLibraryTextField">
+                        <constraints>
+                          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                            <preferred-size width="150" height="-1"/>
+                          </grid>
+                        </constraints>
+                        <properties>
+                          <editable value="false"/>
+                          <enabled value="true"/>
+                        </properties>
+                      </component>
+                      <component id="fb887" class="javax.swing.JLabel" binding="setupDriverLabel">
+                        <constraints>
+                          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <labelFor value="79ddc"/>
+                          <text value="Driver"/>
+                        </properties>
+                      </component>
+                      <component id="79ddc" class="javax.swing.JTextField" binding="setupDriverTextField">
+                        <constraints>
+                          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                            <preferred-size width="150" height="-1"/>
+                          </grid>
+                        </constraints>
+                        <properties>
+                          <editable value="false"/>
+                          <enabled value="true"/>
+                        </properties>
+                      </component>
+                      <component id="c49b4" class="javax.swing.JLabel" binding="setupUrlLabel">
+                        <constraints>
+                          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <labelFor value="f8375"/>
+                          <text value="URL"/>
+                        </properties>
+                      </component>
+                      <component id="f8375" class="javax.swing.JTextField" binding="setupUrlTextField">
+                        <constraints>
+                          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                            <preferred-size width="150" height="-1"/>
+                          </grid>
+                        </constraints>
+                        <properties>
+                          <editable value="false"/>
+                          <enabled value="true"/>
+                        </properties>
+                      </component>
+                      <component id="f9fd2" class="javax.swing.JLabel" binding="setupHostLabel">
+                        <constraints>
+                          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <labelFor value="95abe"/>
+                          <text value="Host"/>
+                        </properties>
+                      </component>
+                      <component id="95abe" class="javax.swing.JTextField" binding="setupHostTextField">
+                        <constraints>
+                          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                            <preferred-size width="150" height="-1"/>
+                          </grid>
+                        </constraints>
+                        <properties>
+                          <editable value="false"/>
+                          <enabled value="true"/>
+                        </properties>
+                      </component>
+                      <component id="51cc7" class="javax.swing.JLabel" binding="setupPortLabel">
+                        <constraints>
+                          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <labelFor value="5fd10"/>
+                          <text value="Port"/>
+                        </properties>
+                      </component>
+                      <component id="5fd10" class="javax.swing.JTextField" binding="setupPortTextField">
+                        <constraints>
+                          <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                            <preferred-size width="150" height="-1"/>
+                          </grid>
+                        </constraints>
+                        <properties>
+                          <editable value="false"/>
+                          <enabled value="true"/>
+                        </properties>
+                      </component>
+                      <component id="ff7ff" class="javax.swing.JLabel" binding="setupDatabaseLabel">
+                        <constraints>
+                          <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <labelFor value="85687"/>
+                          <text value="Database"/>
+                        </properties>
+                      </component>
+                      <component id="85687" class="javax.swing.JTextField" binding="setupDatabaseTextField">
+                        <constraints>
+                          <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                            <preferred-size width="150" height="-1"/>
+                          </grid>
+                        </constraints>
+                        <properties>
+                          <editable value="false"/>
+                          <enabled value="true"/>
+                        </properties>
+                      </component>
+                      <component id="c1671" class="javax.swing.JLabel" binding="setupFileLabel">
+                        <constraints>
+                          <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <labelFor value="34a12"/>
+                          <text value="File"/>
+                        </properties>
+                      </component>
+                      <component id="34a12" class="javax.swing.JTextField" binding="setupFileTextField">
+                        <constraints>
+                          <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                            <preferred-size width="150" height="-1"/>
+                          </grid>
+                        </constraints>
+                        <properties>
+                          <editable value="false"/>
+                          <enabled value="true"/>
+                        </properties>
+                      </component>
+                    </children>
                   </grid>
-                </constraints>
-                <properties>
-                  <text value="Database type"/>
-                </properties>
-              </component>
-              <component id="85008" class="javax.swing.JLabel" binding="infoDatabaseTypeValueLabel">
-                <constraints>
-                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="[database type]"/>
-                </properties>
-              </component>
-              <component id="4126" class="javax.swing.JTextField" binding="infoProductNameTextField">
-                <constraints>
-                  <grid row="1" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="150" height="-1"/>
+                  <vspacer id="b513c">
+                    <constraints>
+                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                  </vspacer>
+                  <grid id="38605" binding="detailsPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="4" left="4" bottom="4" right="4"/>
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none" title="Details"/>
+                    <children>
+                      <grid id="847b5" binding="metaDataPanel" layout-manager="GridLayoutManager" row-count="8" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="20" vgap="0">
+                        <margin top="12" left="12" bottom="12" right="12"/>
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <component id="736ee" class="javax.swing.JLabel" binding="infoDatabaseTypeLabel">
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                                <minimum-size width="100" height="-1"/>
+                              </grid>
+                            </constraints>
+                            <properties>
+                              <text value="Database type"/>
+                            </properties>
+                          </component>
+                          <component id="85008" class="javax.swing.JLabel" binding="infoDatabaseTypeValueLabel">
+                            <constraints>
+                              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text value="[database type]"/>
+                            </properties>
+                          </component>
+                          <hspacer id="7ae90">
+                            <constraints>
+                              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                          </hspacer>
+                          <component id="a43e8" class="javax.swing.JLabel" binding="infoProductNameLabel">
+                            <constraints>
+                              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <labelFor value="4126"/>
+                              <text value="Product name"/>
+                            </properties>
+                          </component>
+                          <component id="4126" class="javax.swing.JTextField" binding="infoProductNameTextField">
+                            <constraints>
+                              <grid row="1" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                                <preferred-size width="150" height="-1"/>
+                              </grid>
+                            </constraints>
+                            <properties>
+                              <editable value="false"/>
+                              <enabled value="true"/>
+                            </properties>
+                          </component>
+                          <component id="da4f0" class="javax.swing.JLabel" binding="infoProductVersionLabel">
+                            <constraints>
+                              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <labelFor value="cd3d5"/>
+                              <text value="Product version"/>
+                            </properties>
+                          </component>
+                          <component id="cd3d5" class="javax.swing.JTextField" binding="infoProductVersionTextField">
+                            <constraints>
+                              <grid row="2" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                                <preferred-size width="150" height="-1"/>
+                              </grid>
+                            </constraints>
+                            <properties>
+                              <editable value="false"/>
+                              <enabled value="true"/>
+                            </properties>
+                          </component>
+                          <component id="64aeb" class="javax.swing.JLabel" binding="infoDriverNameLabel">
+                            <constraints>
+                              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <labelFor value="c57f0"/>
+                              <text value="Driver name"/>
+                            </properties>
+                          </component>
+                          <component id="c57f0" class="javax.swing.JTextField" binding="infoDriverNameTextField">
+                            <constraints>
+                              <grid row="3" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                                <preferred-size width="150" height="-1"/>
+                              </grid>
+                            </constraints>
+                            <properties>
+                              <editable value="false"/>
+                              <enabled value="true"/>
+                            </properties>
+                          </component>
+                          <component id="d2b68" class="javax.swing.JLabel" binding="infoDriverVersionLabel">
+                            <constraints>
+                              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <labelFor value="79917"/>
+                              <text value="Driver version"/>
+                            </properties>
+                          </component>
+                          <component id="79917" class="javax.swing.JTextField" binding="infoDriverVersionTextField">
+                            <constraints>
+                              <grid row="4" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                                <preferred-size width="150" height="-1"/>
+                              </grid>
+                            </constraints>
+                            <properties>
+                              <editable value="false"/>
+                              <enabled value="true"/>
+                            </properties>
+                          </component>
+                          <component id="c2528" class="javax.swing.JLabel" binding="infoJdbcTypeLabel">
+                            <constraints>
+                              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <labelFor value="f4ee5"/>
+                              <text value="Driver JDBC type"/>
+                            </properties>
+                          </component>
+                          <component id="f4ee5" class="javax.swing.JTextField" binding="infoJdbcTypeTextField">
+                            <constraints>
+                              <grid row="5" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                                <preferred-size width="150" height="-1"/>
+                              </grid>
+                            </constraints>
+                            <properties>
+                              <editable value="false"/>
+                              <enabled value="true"/>
+                            </properties>
+                          </component>
+                          <component id="810b6" class="javax.swing.JLabel" binding="infoConnectionUrlLabel">
+                            <constraints>
+                              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <labelFor value="68b17"/>
+                              <text value="Connection URL"/>
+                            </properties>
+                          </component>
+                          <component id="68b17" class="javax.swing.JTextField" binding="infoConnectionUrlTextField">
+                            <constraints>
+                              <grid row="6" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                                <preferred-size width="150" height="-1"/>
+                              </grid>
+                            </constraints>
+                            <properties>
+                              <editable value="false"/>
+                              <enabled value="true"/>
+                            </properties>
+                          </component>
+                          <component id="d25fa" class="javax.swing.JLabel" binding="infoUserNameLabel">
+                            <constraints>
+                              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <labelFor value="dc0a5"/>
+                              <text value="User name"/>
+                            </properties>
+                          </component>
+                          <component id="dc0a5" class="javax.swing.JTextField" binding="infoUserNameTextField">
+                            <constraints>
+                              <grid row="7" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                                <preferred-size width="150" height="-1"/>
+                              </grid>
+                            </constraints>
+                            <properties>
+                              <editable value="false"/>
+                              <enabled value="true"/>
+                            </properties>
+                          </component>
+                        </children>
+                      </grid>
+                    </children>
                   </grid>
-                </constraints>
-                <properties>
-                  <editable value="false"/>
-                  <enabled value="true"/>
-                </properties>
-              </component>
-              <hspacer id="7ae90">
-                <constraints>
-                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                </constraints>
-              </hspacer>
-              <component id="cd3d5" class="javax.swing.JTextField" binding="infoProductVersionTextField">
-                <constraints>
-                  <grid row="2" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="150" height="-1"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <editable value="false"/>
-                  <enabled value="true"/>
-                </properties>
-              </component>
-              <component id="c57f0" class="javax.swing.JTextField" binding="infoDriverNameTextField">
-                <constraints>
-                  <grid row="3" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="150" height="-1"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <editable value="false"/>
-                  <enabled value="true"/>
-                </properties>
-              </component>
-              <component id="79917" class="javax.swing.JTextField" binding="infoDriverVersionTextField">
-                <constraints>
-                  <grid row="4" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="150" height="-1"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <editable value="false"/>
-                  <enabled value="true"/>
-                </properties>
-              </component>
-              <component id="f4ee5" class="javax.swing.JTextField" binding="infoJdbcTypeTextField">
-                <constraints>
-                  <grid row="5" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="150" height="-1"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <editable value="false"/>
-                  <enabled value="true"/>
-                </properties>
-              </component>
-              <component id="68b17" class="javax.swing.JTextField" binding="infoConnectionUrlTextField">
-                <constraints>
-                  <grid row="6" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="150" height="-1"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <editable value="false"/>
-                  <enabled value="true"/>
-                </properties>
-              </component>
-              <component id="dc0a5" class="javax.swing.JTextField" binding="infoUserNameTextField">
-                <constraints>
-                  <grid row="7" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="150" height="-1"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <editable value="false"/>
-                  <enabled value="true"/>
-                </properties>
-              </component>
+                  <component id="2552f" class="javax.swing.JLabel" binding="statusMessageLabel">
+                    <constraints>
+                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="[connection status]"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
             </children>
-          </grid>
+          </scrollpane>
         </children>
       </grid>
-      <component id="2552f" class="javax.swing.JLabel" binding="statusMessageLabel">
-        <constraints>
-          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="[connection status]"/>
-        </properties>
-      </component>
     </children>
   </grid>
 </form>
