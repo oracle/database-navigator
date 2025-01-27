@@ -20,6 +20,7 @@ import com.dbn.common.util.Strings;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.ui.ComponentWithBrowseButton;
 import com.intellij.openapi.ui.popup.ListPopup;
+import com.intellij.ui.ToolbarDecorator;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nls;
@@ -30,7 +31,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import java.awt.Component;
 import java.awt.Container;
 
@@ -38,6 +38,7 @@ import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
 import static com.dbn.common.ui.util.UserInterface.getComponentLabel;
 import static com.dbn.common.ui.util.UserInterface.getComponentText;
 import static com.dbn.common.ui.util.UserInterface.visitRecursively;
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.isNotEmpty;
 
 /**
@@ -94,29 +95,36 @@ public class Accessibility {
         if (target instanceof ActionToolbar) {
             ActionToolbar toolbar = (ActionToolbar) target;
             setAccessibleText(toolbar.getComponent(), text, descriptor);
+            return;
+        }
+
+        if (target instanceof ToolbarDecorator) {
+            ToolbarDecorator toolbarDecorator = (ToolbarDecorator) target;
+            setAccessibleText(toolbarDecorator.getActionsPanel(), text, descriptor);
+            return;
         }
 
         log.warn("Cannot set accessible text to target of type {}", target.getClass().getName());
     }
 
-    public static void setAccessibleUnit(JTextField textField, @Nls String unit, @Nls String ... qualifiers) {
-        JLabel label = getComponentLabel(textField);
-        if (label != null) setAccessibleUnit(label, unit, qualifiers);
-    }
+    public static void setAccessibleUnit(JComponent component, @Nls String unit, @Nls String ... qualifiers) {
+        JLabel label = getComponentLabel(component);
+        JComponent accessibleComponent = label == null ? component : label;
 
-    private static void setAccessibleUnit(JLabel label, @Nls String unit, @Nls String ... qualifiers) {
-        AccessibleContext accessibleContext = label.getAccessibleContext();
+        AccessibleContext accessibleContext = accessibleComponent.getAccessibleContext();
 
-        StringBuilder accessibleName = new StringBuilder(accessibleContext.getAccessibleName());
-        accessibleName.append(" (");
-        accessibleName.append(unit);
+        String accessibleName = nvl(accessibleContext.getAccessibleName(), "");
+
+        StringBuilder builder = new StringBuilder(accessibleName);
+        builder.append(" (");
+        builder.append(unit);
         if (qualifiers.length > 0) {
-            accessibleName.append(" - ");
-            accessibleName.append(String.join(", ", qualifiers));
+            builder.append(" - ");
+            builder.append(String.join(", ", qualifiers));
         }
 
-        accessibleName.append("(");
-        accessibleContext.setAccessibleName(accessibleName.toString());
+        builder.append(")");
+        accessibleContext.setAccessibleName(builder.toString());
     }
 
     /**

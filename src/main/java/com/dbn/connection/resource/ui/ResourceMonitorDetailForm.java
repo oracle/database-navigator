@@ -50,7 +50,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 
-import static com.dbn.common.ui.util.UserInterface.createToolbarDecorator;
+import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
+import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.connection.transaction.TransactionAction.actions;
 
@@ -84,13 +85,8 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
             updateTransactionActions();
         });
 
-        ToolbarDecorator toolbar = createToolbarDecorator(sessionsTable);
-        toolbar.addExtraAction(disconnectAction);
-        toolbar.addExtraAction(renameSessionAction);
-        toolbar.addExtraAction(deleteSessionAction);
-        toolbar.setPreferredSize(new Dimension(-1, 400));
-        sessionsPanel.add(toolbar.createPanel(), BorderLayout.CENTER);
-        sessionsTable.getParent().setBackground(sessionsTable.getBackground());
+        sessionsPanel.add(initTableComponent());
+
         sessionLabel.setText("");
 
         // transactions table
@@ -122,6 +118,16 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
         Project project = ensureProject();
         ProjectEvents.subscribe(project, this, TransactionListener.TOPIC, transactionListener);
         ProjectEvents.subscribe(project, this, SessionManagerListener.TOPIC, sessionManagerListener);
+    }
+
+    private @NotNull JPanel initTableComponent() {
+        ToolbarDecorator decorator = createToolbarDecorator(sessionsTable);
+        decorator.addExtraAction(disconnectAction);
+        decorator.addExtraAction(renameSessionAction);
+        decorator.addExtraAction(deleteSessionAction);
+        decorator.setPreferredSize(new Dimension(-1, 400));
+
+        return createToolbarDecoratorComponent(decorator, sessionsTable);
     }
 
     private void updateTransactionActions() {

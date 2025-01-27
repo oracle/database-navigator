@@ -17,6 +17,7 @@
 package com.dbn.connection.config.ui;
 
 import com.dbn.common.color.Colors;
+import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.options.ui.ConfigurationEditors;
 import com.dbn.common.util.Chars;
@@ -141,9 +142,10 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
         configuration.setKeyFile(keyFileField.getText());
         configuration.setKeyPassphrase(keyPassphraseField.getPassword());
 
-        // replace secrets in password store
-        configuration.updateSecrets(oldSecrets);
-
+        if (!ConfigMonitor.isCloning()) {
+            // replace secrets in password store
+            configuration.updateSecrets(oldSecrets);
+        }
     }
 
     @Override
