@@ -20,6 +20,7 @@ import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.thread.Background;
 import com.dbn.common.util.Chars;
+import com.dbn.common.util.Titles;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.credentialStore.OneTimeString;
@@ -142,7 +143,8 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
     @Compatibility
     private static CredentialAttributes createAttributes(SecretType secretType, Object ownerId, String user) {
         user = nvl(user, "default");
-        String serviceName = "DBNavigator." + secretType + "." + ownerId;
+        user = user + "@" + ownerId;
+        String serviceName = Titles.signed(secretType.getName());
         return new CredentialAttributes(serviceName, user, DatabaseCredentialManager.class, false);
     }
 

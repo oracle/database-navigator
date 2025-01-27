@@ -17,7 +17,6 @@
 package com.dbn.common.ui.tree;
 
 import com.dbn.common.ui.util.Borders;
-import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.UserInterface;
 import com.intellij.ide.ui.laf.darcula.DarculaUIUtil;
 import com.intellij.ui.components.JBLayeredPane;
@@ -40,8 +39,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.InputEvent;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -146,8 +144,6 @@ public class DBNStickyPathTree extends DBNTree{
         });
 
         addTreeSelectionListener(e -> selectionHandover(() -> sourceTree.getSelectionModel().setSelectionPath(e.getPath())));
-
-        addMouseListener(createMouseListener());
     }
 
     private void selectionHandover(Runnable runnable) {
@@ -161,14 +157,10 @@ public class DBNStickyPathTree extends DBNTree{
         }
     }
 
-    private MouseListener createMouseListener() {
-        return Mouse.listener().
-                onRelease(e -> {
-                    if (e.getButton() != MouseEvent.BUTTON3) return;
-
-                    TreePath path = Trees.getPathAtMousePosition(this, e);
-                    getSourceTree().showContextMenu(path, e.getX(), e.getY() + getVerticalScroll());
-                });
+    @Override
+    protected void showContextMenu(TreePath path, InputEvent event) {
+        // delegate showing context menu to source tree
+        getSourceTree().showContextMenu(path, event);
     }
 
     private int getVerticalScroll() {

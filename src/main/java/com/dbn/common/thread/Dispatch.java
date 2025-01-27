@@ -68,6 +68,12 @@ public final class Dispatch {
         }
     }
 
+    public static <T> void async(JComponent component, Runnable initializer, Runnable renderer) {
+        async(component,
+                () -> {initializer.run(); return null;},
+                o -> renderer.run());
+    }
+
     public static <T> void async(JComponent component, Supplier<T> supplier, Consumer<T> consumer) {
         if (component.isShowing()) {
             background(component, supplier, consumer);

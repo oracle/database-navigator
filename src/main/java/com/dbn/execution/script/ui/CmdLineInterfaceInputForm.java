@@ -58,14 +58,12 @@ public class CmdLineInterfaceInputForm extends DBNFormBase {
         initDatabaseTypeField();
         initExecutableField();
         initNameField();
-
-        initValidation();
     }
 
     private void initHintPanel() {
         TextContent hintText = TextContent.plain(
-                "Please provide a name for storing Command-Line interface executable.\n" +
-                "Command-Line interfaces can be configured in DBN Settings > Execution Engine > Script Execution.");
+                "Please provide a name for storing the Command-Line interface executable.\n" +
+                "Command-Line interfaces can be configured in the Execution Engine settings.");
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
     }
@@ -100,7 +98,7 @@ public class CmdLineInterfaceInputForm extends DBNFormBase {
         nameTextField.setText(name);
     }
 
-    private void initValidation() {
+    protected void initValidation() {
         formValidator.addTextValidation(nameTextField, t -> isNotEmpty(t), "Please specify an interface name");
         formValidator.addTextValidation(nameTextField, t -> isNotUsed(t), "Interface name already in use");
 

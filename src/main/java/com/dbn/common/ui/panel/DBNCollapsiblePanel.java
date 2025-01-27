@@ -20,25 +20,21 @@ import com.dbn.common.event.ToggleListener;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Listeners;
-import com.dbn.common.ui.util.Mouse;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
-import java.awt.Cursor;
-import java.awt.event.MouseEvent;
-
-import static com.dbn.common.util.Conditional.when;
 
 public class DBNCollapsiblePanel extends DBNFormBase {
+
     private JLabel toggleLabel;
     private JPanel contentPanel;
     private JPanel mainPanel;
     private JLabel toggleDetailLabel;
+    private DBNButtonPanel togglePanel;
     private boolean expanded;
     private final DBNCollapsibleForm contentForm;
 
@@ -56,16 +52,8 @@ public class DBNCollapsiblePanel extends DBNFormBase {
         this.expanded = expanded;
         this.contentPanel.add(contentForm.getComponent(), BorderLayout.CENTER);
 
-        Cursor handCursor = Cursors.handCursor();
-        this.toggleLabel.setCursor(handCursor);
-        this.toggleDetailLabel.setCursor(handCursor);
+        togglePanel.setActionConsumer(e -> toggleVisibility());
         updateVisibility();
-
-        Mouse.Listener mouseListener = Mouse.listener().onClick(e -> when(
-                e.getClickCount() == 1 &&
-                        e.getButton() == MouseEvent.BUTTON1, () -> toggleVisibility()));
-        this.toggleLabel.addMouseListener(mouseListener);
-        this.toggleDetailLabel.addMouseListener(mouseListener);
     }
 
     public void addChild(DBNCollapsiblePanel child){

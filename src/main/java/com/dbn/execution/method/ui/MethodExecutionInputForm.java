@@ -19,10 +19,12 @@ package com.dbn.execution.method.ui;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
+import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
+import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.debugger.DBDebuggerType;
@@ -114,30 +116,28 @@ public class MethodExecutionInputForm extends DBNFormBase {
         headerPanel.setVisible(showHeader);
 
 
-        initArgumentsPanel();
+        boolean preloaded = parentComponent instanceof DBNDialog;
+        initArgumentsPanel(preloaded);
     }
 
-    private void initArgumentsPanel() {
-        if (methodArgumentsLoaded()) {
-            loadingArgumentsPanel.setVisible(false);
-            List<DBArgument> arguments = getMethodArguments();
-            initArgumentsPanel(arguments);
-            updatePreferredSize();
-            return;
+    private void initArgumentsPanel(boolean preloaded) {
+        if (preloaded) {
+            createArgumentsPanel();
+        } else {
+            noArgumentsLabel.setVisible(false);
+            loadingArgumentsPanel.setVisible(true);
+            loadingArgumentsIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
+
+            //lazy arguments initialization
+            Dispatch.async(
+                    mainPanel,
+                    () -> getExecutionInput().initDatabaseElements(),
+                    () -> createArgumentsPanel());
         }
-
-        noArgumentsLabel.setVisible(false);
-        loadingArgumentsPanel.setVisible(true);
-        loadingArgumentsIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
-
-        //lazy load
-        Dispatch.async(
-                mainPanel,
-                () -> getMethodArguments(),
-                a -> initArgumentsPanel(a));
     }
 
-    private void initArgumentsPanel(List<DBArgument> arguments) {
+    private void createArgumentsPanel() {
+        List<DBArgument> arguments = getMethodArguments();
         checkDisposed();
 
         loadingArgumentsPanel.setVisible(false);
@@ -169,6 +169,7 @@ public class MethodExecutionInputForm extends DBNFormBase {
             Dimension minSize = new Dimension(-1, Math.min(argumentForms.size(), 10) * scrollUnitIncrement + 2);
             argumentsScrollPane.setMinimumSize(minSize);
             argumentsScrollPane.getVerticalScrollBar().setUnitIncrement(scrollUnitIncrement);
+            Accessibility.setAccessibleName(argumentsScrollPane, "Method arguments");
         }
 
         for (MethodExecutionInputArgumentForm argumentComponent : argumentForms){

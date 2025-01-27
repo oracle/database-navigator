@@ -59,7 +59,7 @@ public class ObjectListItemForm extends DBNFormBase {
 
     public class RemoveObjectAction extends BasicAction {
         RemoveObjectAction() {
-            super(txt("app.objects.action.RemoveObject", getObjectTypeName()), null, Icons.ACTION_CLOSE);
+            super(txt("app.objects.action.RemoveObject", getObjectTypeName()), null, Icons.ACTION_DELETE);
         }
 
         @Override

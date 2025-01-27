@@ -33,12 +33,14 @@ import javax.swing.JComponent;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @Getter
 public class ProgressDialogHandler {
     private final static Set<JBPopup> progressDialogs = new HashSet<>();
+    private final static AtomicBoolean preventProgressDialogs = new AtomicBoolean();
 
     private final ProjectRef project;
     private final String title;
@@ -72,6 +74,8 @@ public class ProgressDialogHandler {
         // delay the creation of the dialog 1 second to reduce number of prompts if background process finishes in acceptable time
         Timers.executeLater("ProgressDialogPrompt", 300, MILLISECONDS, () -> {
             if (finished()) return;
+            if (preventProgressDialogs.get()) return;
+
             openPopup();
         });
     }
@@ -154,4 +158,9 @@ public class ProgressDialogHandler {
             dialogs.remove();
         }
     }
+
+    public static void preventProgressDialogs(boolean prevent) {
+        preventProgressDialogs.set(prevent);
+    }
+
 }

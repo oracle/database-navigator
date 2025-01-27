@@ -100,6 +100,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
             String objectType = factoryInput.getObjectType().getName();
             String objectErrors = errors.stream().map(error -> " - " + error + "\n").collect(Collectors.joining());
             Messages.showErrorDialog(project, txt("msg.objects.error.ObjectCreationError", objectType, objectErrors));
+            return;
         }
 
         if (factoryInput instanceof MethodFactoryInput) {
