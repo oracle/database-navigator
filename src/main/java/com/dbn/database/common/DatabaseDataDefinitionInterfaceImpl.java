@@ -26,6 +26,7 @@ import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.editor.code.content.GuardedBlockMarker;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.common.QuotePair;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -35,8 +36,9 @@ import java.util.regex.Pattern;
 
 import static com.dbn.common.util.Strings.cachedUpperCase;
 
+@NonNls
 public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterfaceBase implements DatabaseDataDefinitionInterface {
-    public static final String TEMP_OBJECT_NAME = "DBN_TEMPORARY_{0}_0001";
+    public static final @NonNls String TEMP_OBJECT_NAME = "DBN_TEMPORARY_{0}_0001";
 
     public static String getTempObjectName(String objectType) {
         return MessageFormat.format(TEMP_OBJECT_NAME, cachedUpperCase(objectType));
@@ -83,18 +85,22 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
         executeUpdate(connection, "create-object", code);
     }
 
+    @Override
+    public void createJavaClass(String fullyQualifiedClassName, String code, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "create-java-class", fullyQualifiedClassName, code);
+    }
 
    /*********************************************************
     *                   DROP statements                     *
     *********************************************************/
    @Override
-   public void dropObject(String objectType, String objectName, DBNConnection connection) throws SQLException {
-       executeUpdate(connection, "drop-object", objectType, objectName);
+   public void dropObject(String objectType, String ownerName, String objectName, DBNConnection connection) throws SQLException {
+       executeUpdate(connection, "drop-object", objectType, ownerName, objectName);
    }
 
    @Override
-   public void dropObjectBody(String objectType, String objectName, DBNConnection connection) throws SQLException {
-       executeUpdate(connection, "drop-object-body", objectType, objectName);
+   public void dropObjectBody(String objectType, String ownerName, String objectName, DBNConnection connection) throws SQLException {
+       executeUpdate(connection, "drop-object-body", objectType, ownerName, objectName);
    }
 
     @Override
@@ -145,5 +151,10 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
                     sourceCode.substring(gbEndOffset + GuardedBlockMarker.END_OFFSET_IDENTIFIER.length());
             content.setText(sourceCode);
         }
+    }
+
+    protected String quoted(String identifier) {
+        QuotePair quotes = getInterfaces().getCompatibilityInterface().getDefaultIdentifierQuotes();
+        return quotes.quote(identifier);
     }
 }

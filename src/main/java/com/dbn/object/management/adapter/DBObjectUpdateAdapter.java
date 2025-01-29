@@ -20,6 +20,11 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
 import org.jetbrains.annotations.Nls;
 
+import static com.intellij.openapi.util.NlsContexts.DialogMessage;
+import static com.intellij.openapi.util.NlsContexts.DialogTitle;
+import static com.intellij.openapi.util.NlsContexts.ProgressText;
+import static com.intellij.openapi.util.NlsContexts.ProgressTitle;
+
 /**
  * Abstract implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} for UPDATE actions,
  * providing generic process titles and messages
@@ -33,36 +38,44 @@ public final class DBObjectUpdateAdapter<T extends DBObject> extends ObjectManag
     }
 
     @Nls
+    @Override
+    @DialogTitle
     protected String getSuccessTitle() {
         return txt("msg.objects.title.ActionSuccess_UPDATE");
     }
 
     @Nls
-    protected  String getFailureTitle() {
+    @Override
+    @DialogTitle
+    protected String getFailureTitle() {
         return txt("msg.objects.title.ActionFailure_UPDATE");
     }
 
 
     @Nls
     @Override
+    @ProgressTitle
     protected String getProcessTitle() {
         return txt("prc.object.title.UpdatingObject", getObjectTypeName());
     }
 
     @Nls
     @Override
-    protected String getProcessDescription() {
-        return txt("prc.object.message.UpdatingObject", getObjectTypeName(), getObjectName());
+    @ProgressText
+    protected String getProcessText() {
+        return txt("prc.object.text.UpdatingObject", getObjectTypeName(), getObjectName());
     }
 
     @Nls
     @Override
+    @DialogMessage
     protected String getSuccessMessage() {
         return txt("msg.object.info.ObjectUpdateSuccess", getObjectTypeName(), getObjectName());
     }
 
     @Nls
     @Override
+    @DialogMessage
     protected String getFailureMessage() {
         return txt("msg.object.error.ObjectUpdateFailure", getObjectTypeName(), getObjectName());
     }

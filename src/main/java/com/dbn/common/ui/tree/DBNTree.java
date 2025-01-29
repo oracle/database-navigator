@@ -18,52 +18,68 @@ package com.dbn.common.ui.tree;
 
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ref.WeakRef;
+import com.dbn.common.thread.Dispatch;
+import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.util.UserInterface;
+import com.dbn.common.util.Actions;
+import com.dbn.connection.context.DatabaseContext;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.ActionPopupMenu;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.Tree;
+import com.intellij.util.ui.JBUI;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
+import javax.swing.JPopupMenu;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 import static com.dbn.common.dispose.ComponentDisposer.removeListeners;
+import static com.dbn.common.ui.util.Keyboard.onKeyPress;
+import static com.dbn.common.ui.util.Mouse.onButtonRelease;
 
 public class DBNTree extends Tree implements DBNComponent {
-    private final WeakRef<DBNComponent> parent;
+    private WeakRef<DBNComponent> parent;
 
     public DBNTree(@NotNull DBNComponent parent) {
-        this.parent = WeakRef.of(parent);
-        setTransferHandler(DBNTreeTransferHandler.INSTANCE);
-
-        Disposer.register(parent, this);
+        init(parent, null);
     }
 
-    public DBNTree(@NotNull DBNComponent parent, TreeModel treeModel) {
-        super(treeModel);
-        this.parent = WeakRef.of(parent);
-        setTransferHandler(DBNTreeTransferHandler.INSTANCE);
-
-        Disposer.register(parent, this);
-        Disposer.register(this, treeModel);
+    public DBNTree(@NotNull DBNComponent parent, TreeModel model) {
+        super(model);
+        init(parent, model);
     }
 
     public DBNTree(@NotNull DBNComponent parent, TreeNode root) {
         super(root);
+        init(parent, root);
+    }
+
+    private void init(DBNComponent parent, Object disposable) {
         this.parent = WeakRef.of(parent);
         setTransferHandler(DBNTreeTransferHandler.INSTANCE);
+        initListeners();
 
         Disposer.register(parent, this);
-        Disposer.register(this, root);
+        Disposer.register(this, disposable);
+    }
+
+    private void initListeners() {
+        onButtonRelease(this, MouseEvent.BUTTON3, e -> showContextMenu(e));
+        onKeyPress(this, KeyEvent.VK_CONTEXT_MENU, e -> showContextMenu(e));
+        onKeyPress(this, KeyEvent.VK_SPACE, e -> showContextMenu(e));
     }
 
     @Override
@@ -91,8 +107,80 @@ public class DBNTree extends Tree implements DBNComponent {
         return (T) parent.ensure();
     }
 
-    protected void showContextMenu(TreePath path, int x, int y) {
+    @Nullable
+    protected ActionGroup createContextActions(TreePath path) {
+        return null;
+    }
 
+    private void showContextMenu(InputEvent event) {
+        TreePath path = null;
+        if (event instanceof MouseEvent) {
+            MouseEvent mouseEvent = (MouseEvent) event;
+            path = Trees.getPathAtMousePosition(this, mouseEvent);
+        } else if (event instanceof KeyEvent) {
+            path = getSelectionPath();
+        }
+
+        if (path == null) return;
+        showContextMenu(path, event);
+    }
+
+
+    /**
+     * Retrieves the name of the node to be displayed in a context menu.
+     *
+     * @param node the object representing the node from which the name is derived
+     * @return the string representation of the node's name, as retrieved by the {@code toString()} method of the node
+     */
+    protected String getContextMenuNodeName(Object node) {
+        return node.toString();
+    }
+
+    protected void showContextMenu(TreePath path, InputEvent event) {
+        if (path == null) return;
+
+        Object pathNode = path.getLastPathComponent();
+        DatabaseContext context = pathNode instanceof DatabaseContext ? (DatabaseContext) pathNode : null;
+
+        Progress.prompt(
+                getProject(),
+                context,
+                true,
+                "Preparing context menu",
+                "Creating context menu for " + getContextMenuNodeName(pathNode) + "...",
+                progress -> {
+                    ActionGroup contextActions = createContextActions(path);
+                    if (contextActions == null) return;
+                    if (progress.isCanceled()) return;
+
+                    showContextMenu(path, contextActions, event);
+                });
+    }
+
+    protected void showContextMenu(TreePath treePath, ActionGroup contextActions, InputEvent event) {
+        if (contextActions == null) return;
+
+        ActionPopupMenu actionPopupMenu = Actions.createActionPopupMenu(this, contextActions);
+        JPopupMenu popupMenu = actionPopupMenu.getComponent();
+        Dispatch.run(this, () -> {
+            if (!isShowing()) return;
+            DBNTree source = event.getSource() instanceof DBNTree ? (DBNTree) event.getSource() : this;
+
+            if (event instanceof MouseEvent) {
+                MouseEvent mouseEvent = (MouseEvent) event;
+                int x = mouseEvent.getX();
+                int y = mouseEvent.getY();
+
+                popupMenu.show(source, x, y);
+            } else if (event instanceof KeyEvent) {
+                Rectangle bounds = source.getPathBounds(treePath);
+                if (bounds == null) return;
+
+                int x = bounds.x + bounds.width / 2;
+                int y = bounds.y + getRowHeight() + JBUI.scale(8);
+                popupMenu.show(source, x, y);
+            }
+        });
     }
 
     /********************************************************

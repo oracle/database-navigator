@@ -27,6 +27,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class RecordInsertAction extends AbstractDataEditorAction {
 
     @Override
@@ -36,7 +38,7 @@ public class RecordInsertAction extends AbstractDataEditorAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
-        presentation.setText("Insert Record");
+        presentation.setText(txt("app.dataEditor.action.InsertRecord"));
         presentation.setIcon(Icons.DATA_EDITOR_INSERT_RECORD);
 
         if (Checks.isValid(datasetEditor)) {

@@ -58,7 +58,7 @@ public class AssistantSettings
 
   @Override
   public String getDisplayName() {
-    return txt("ai.providers.settings.window.title");
+    return txt("cfg.assistant.title.Assistant");
   }
 
   @Override

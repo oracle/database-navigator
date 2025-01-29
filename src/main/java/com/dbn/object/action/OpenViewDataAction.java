@@ -28,6 +28,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class OpenViewDataAction extends ProjectAction {
     private final DBObjectRef<DBView> view;
 
@@ -39,7 +41,7 @@ public class OpenViewDataAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("View Data");
+        presentation.setText(txt("app.objects.action.ViewData"));
         presentation.setIcon(Icons.OBJECT_VIEW_DATA);
     }
 

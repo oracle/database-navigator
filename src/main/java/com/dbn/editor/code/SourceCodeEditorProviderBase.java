@@ -21,14 +21,12 @@ import com.dbn.common.editor.BasicTextEditorProvider;
 import com.dbn.common.environment.EnvironmentManager;
 import com.dbn.common.exception.ProcessDeferredException;
 import com.dbn.common.util.Editors;
-import com.dbn.common.util.Traces;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.EditorProviderId;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
-import com.intellij.ide.impl.StructureViewWrapperImpl;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -40,6 +38,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
+
+import static com.dbn.common.compatibility.CompatibilityUtil.isStructureViewAccess;
 
 abstract class SourceCodeEditorProviderBase extends BasicTextEditorProvider implements DumbAware {
     public boolean accept(@NotNull Project project, @NotNull VirtualFile virtualFile) {
@@ -64,7 +64,7 @@ abstract class SourceCodeEditorProviderBase extends BasicTextEditorProvider impl
             DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) file;
             databaseFile = sourceCodeFile.getMainDatabaseFile();
 
-            temporary = Traces.isCalledThrough(StructureViewWrapperImpl.class);
+            temporary = isStructureViewAccess();
             if (temporary) return createBasicEditor(project, sourceCodeFile);
 
             // trigger main file editor and cancel the original request

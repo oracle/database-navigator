@@ -48,10 +48,10 @@ public class ProfileNameVerifier extends InputVerifier {
     boolean exists = profileNames.contains(textField.getText().trim().toUpperCase());
     if (isEmpty) {
       textField.setBorder(ERROR_BORDER);
-      textField.setToolTipText(txt("profile.mgmt.general_step.profile_name.validation.empty"));
+      textField.setToolTipText(txt("cfg.assistant.error.ProfileNameEmpty"));
     } else if (exists && !isUpdate) {
       textField.setBorder(ERROR_BORDER);
-      textField.setToolTipText(txt("profile.mgmt.general_step.profile_name.validation.exists"));
+      textField.setToolTipText(txt("cfg.assistant.error.ProfileNameExists"));
     } else {
       textField.setBorder(DEFAULT_BORDER);
       textField.setToolTipText(null);

@@ -20,11 +20,12 @@ import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 
 import javax.swing.text.JTextComponent;
 
 public class StringSetting extends Setting<String, JTextComponent> implements PersistentConfiguration {
-    public StringSetting(String name, String value) {
+    public StringSetting(@NonNls String name, @NonNls String value) {
         super(name, value);
     }
     

@@ -24,6 +24,7 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.icons.AllIcons.Diff.GutterCheckBox;
 import static com.intellij.icons.AllIcons.Diff.GutterCheckBoxSelected;
 
@@ -51,7 +52,9 @@ public class ProfileStatusAction extends ProfileManagementAction {
 
         Presentation presentation = e.getPresentation();
         presentation.setIcon(enabled ? GutterCheckBoxSelected: GutterCheckBox);
-        presentation.setText(enabled ? "Disable Profile" : "Enable Profile");
+        presentation.setText(enabled ?
+                txt("app.assistant.action.DisableProfile") :
+                txt("app.assistant.action.EnableProfile"));
         presentation.setEnabled(isEnabled(e));
     }
 

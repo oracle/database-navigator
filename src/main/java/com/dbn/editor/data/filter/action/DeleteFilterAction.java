@@ -25,6 +25,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DeleteFilterAction extends AbstractFilterListAction {
 
     public DeleteFilterAction(DatasetFilterList filterList) {
@@ -45,7 +47,7 @@ public class DeleteFilterAction extends AbstractFilterListAction {
     @Override
     public void update(@NotNull AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Delete Filter");
+        presentation.setText(txt("app.dataEditor.action.DeleteFilter"));
         presentation.setIcon(Icons.ACTION_REMOVE);
     }
 }

@@ -354,7 +354,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
 
     private class LoadReloadAction extends BasicAction {
         private LoadReloadAction() {
-            super("Load / Reload Content", null, Icons.ACTION_RESUME);
+            super(txt("app.data.action.LoadReloadContent"), null, Icons.ACTION_RESUME);
         }
 
         @Override
@@ -372,7 +372,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
 
     private class CloseAction extends BasicAction {
         private CloseAction() {
-            super("Close", null, Icons.ACTION_CLOSE);
+            super(txt("app.shared.action.Close"), null, Icons.ACTION_CLOSE);
         }
 
         @Override

@@ -22,8 +22,11 @@ import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionPasteAction extends ConnectionSettingsAction {
 
@@ -43,11 +46,12 @@ public class ConnectionPasteAction extends ConnectionSettingsAction {
             @NotNull Project project,
             @Nullable ConnectionBundleSettingsForm target) {
 
+        @NonNls
         String clipboardString = Clipboard.getStringContent();
         boolean enabled = clipboardString != null && clipboardString.contains("connection-configurations");
 
         presentation.setEnabled(enabled);
-        presentation.setText("Paste From Clipboard");
+        presentation.setText(txt("app.connection.action.PasteFromClipboard"));
         presentation.setIcon(Icons.CONNECTION_PASTE);
     }
 }

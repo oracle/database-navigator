@@ -19,7 +19,6 @@ package com.dbn.object.factory;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.thread.Callback;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
@@ -28,6 +27,7 @@ import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.DatabaseFileEditorManager;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBSchemaObject;
@@ -44,11 +44,13 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseObjectFactory extends ProjectComponentBase {
 
@@ -81,69 +83,117 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
     public void openFactoryInputDialog(DBSchema schema, DBObjectType objectType) {
         Project project = getProject();
-        if (objectType.isOneOf(DBObjectType.FUNCTION, DBObjectType.PROCEDURE)) {
+        if (objectType.isOneOf(DBObjectType.FUNCTION, DBObjectType.PROCEDURE, DBObjectType.JAVA_CLASS)) {
             Dialogs.show(() -> new ObjectFactoryInputDialog(project, schema, objectType));
         } else {
-            Messages.showErrorDialog(project, "Operation not supported", "Creation of " + objectType.getListName() + " is not supported yet.");
+            Messages.showErrorDialog(project,
+                    txt("msg.objects.title.OperationNotSupported"),
+                    txt("msg.objects.error.ObjectCreationNotSupported", objectType.getListName()));
         }
     }
 
-    public void createObject(ObjectFactoryInput factoryInput, Callback callback) {
+    public void createObject(ObjectFactoryInput factoryInput) throws SQLException {
         Project project = getProject();
         List<String> errors = new ArrayList<>();
         factoryInput.validate(errors);
-        if (errors.size() > 0) {
-            StringBuilder buffer = new StringBuilder("Could not create " + factoryInput.getObjectType().getName() + ". Please correct following errors: \n");
-            for (String error : errors) {
-                buffer.append(" - ").append(error).append("\n");
-            }
-            Messages.showErrorDialog(project, buffer.toString());
+        if (!errors.isEmpty()) {
+            String objectType = factoryInput.getObjectType().getName();
+            String objectErrors = errors.stream().map(error -> " - " + error + "\n").collect(Collectors.joining());
+            Messages.showErrorDialog(project, txt("msg.objects.error.ObjectCreationError", objectType, objectErrors));
+            return;
         }
 
         if (factoryInput instanceof MethodFactoryInput) {
             MethodFactoryInput methodFactoryInput = (MethodFactoryInput) factoryInput;
-            createMethod(methodFactoryInput, callback);
+            createMethod(methodFactoryInput);
+        }
+
+        if (factoryInput instanceof JavaFactoryInput) {
+            JavaFactoryInput javaFactoryInput = (JavaFactoryInput) factoryInput;
+            createJavaObject(javaFactoryInput);
         }
         // TODO other factory inputs
     }
 
-    private void createMethod(MethodFactoryInput factoryInput, Callback callback) {
-        callback.background(() -> {
-            DBObjectType objectType = factoryInput.isFunction() ? DBObjectType.FUNCTION : DBObjectType.PROCEDURE;
-            String objectTypeName = objectType.getName();
-            String objectName = factoryInput.getObjectName();
-            DBSchema schema = factoryInput.getSchema();
+    private void createMethod(MethodFactoryInput input) throws SQLException {
+        DBObjectType objectType = input.isFunction() ? DBObjectType.FUNCTION : DBObjectType.PROCEDURE;
+        String objectName = input.getObjectName();
+        DBSchema schema = input.getSchema();
 
-            DatabaseInterfaceInvoker.execute(HIGHEST,
-                    "Creating " + objectTypeName,
-                    "Creating " + objectTypeName + " " + objectName,
-                    schema.getProject(),
-                    schema.getConnectionId(),
-                    schema.getSchemaId(),
-                    conn -> {
-                        DatabaseDataDefinitionInterface dataDefinition = schema.getDataDefinitionInterface();
-                        dataDefinition.createMethod(factoryInput, conn);
-                    });
+        DatabaseInterfaceInvoker.execute(HIGHEST,
+                "Creating " + input.getObjectTypeName(),
+                "Creating " + input.getObjectDescription(),
+                schema.getProject(),
+                schema.getConnectionId(),
+                schema.getSchemaId(),
+                conn -> {
+                    DatabaseDataDefinitionInterface dataDefinition = schema.getDataDefinitionInterface();
+                    dataDefinition.createMethod(input, conn);
+                });
 
-            nn(schema.getChildObjectList(objectType)).reload();
+        nn(schema.getChildObjectList(objectType)).reload();
 
-            DBMethod method = schema.getChildObject(objectType, objectName, false);
-            nn(method.getChildObjectList(DBObjectType.ARGUMENT)).reload();
+        DBMethod method = schema.getChildObject(objectType, objectName, false);
+        if (method == null) return;
 
-            DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(getProject());
-            editorManager.connectAndOpenEditor(method, null, false, true);
-            notifyFactoryEvent(new ObjectFactoryEvent(method, ObjectFactoryEvent.EVENT_TYPE_CREATE));
-        });
+        nn(method.getChildObjectList(DBObjectType.ARGUMENT)).reload();
+
+        DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(getProject());
+        editorManager.connectAndOpenEditor(method, null, false, true);
+        notifyFactoryEvent(new ObjectFactoryEvent(method, ObjectFactoryEvent.EVENT_TYPE_CREATE));
+    }
+
+    private void createJavaObject(JavaFactoryInput input) throws SQLException {
+        DBObjectType objectType = DBObjectType.JAVA_CLASS;
+        String objectName = input.getClassName();
+        String packageName = input.getPackageName();
+        String classType = input.getTypeIdentifier();
+        String extendsSuffix = input.getExtendsSuffix();
+        DBSchema schema = input.getSchema();
+
+        String fullyQualifiedClassName;
+
+        StringBuilder javaCode = new StringBuilder();
+        if(!packageName.isEmpty()) {
+            fullyQualifiedClassName = packageName + "." + objectName;
+            javaCode.append("package ").append(packageName).append(";").append("\n");
+        } else {
+            fullyQualifiedClassName = objectName;
+        }
+
+        javaCode.append("public ").append(classType).append(" ").append(objectName).append(extendsSuffix)
+                .append("{")
+                .append("\n")
+                .append("}");
+
+        DatabaseInterfaceInvoker.execute(HIGHEST,
+                "Creating " + input.getObjectTypeName(),
+                "Creating " + input.getObjectDescription(),
+                schema.getProject(),
+                schema.getConnectionId(),
+                conn -> {
+                    DatabaseDataDefinitionInterface dataDefinition = schema.getDataDefinitionInterface();
+                    dataDefinition.createJavaClass(fullyQualifiedClassName, javaCode.toString(), conn);
+                });
+
+        nn(schema.getChildObjectList(objectType)).reload();
+
+        DBJavaClass javaClass = schema.getChildObject(objectType, fullyQualifiedClassName.replace(".","/"), false);
+        if (javaClass == null) return;
+
+        DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(getProject());
+        editorManager.connectAndOpenEditor(javaClass, null, false, true);
+        notifyFactoryEvent(new ObjectFactoryEvent(javaClass, ObjectFactoryEvent.EVENT_TYPE_CREATE));
     }
 
     public void dropObject(DBSchemaObject object) {
         Messages.showQuestionDialog(
                 getProject(),
-                "Drop object",
-                "Are you sure you want to drop the " + object.getQualifiedNameWithType() + "?",
+                txt("msg.objects.title.DropObject"),
+                txt("msg.objects.question.DropObject", object.getQualifiedNameWithType()),
                 Messages.OPTIONS_YES_NO, 0,
                 option -> when(option == 0, () ->
-                        ConnectionAction.invoke("dropping the object", false, object, action -> {
+                        ConnectionAction.invoke(txt("msg.objects.title.DroppingObject"), false, object, action -> {
                             Project project = getProject();
                             DatabaseFileManager databaseFileManager = DatabaseFileManager.getInstance(project);
                             databaseFileManager.closeFile(object);
@@ -156,8 +206,8 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
                             // TODO old implementation (implement appropriate ObjectManagementServices and cleanup)
                             Progress.prompt(project, object, false,
-                                    "Dropping object",
-                                    "Dropping " + object.getQualifiedNameWithType(),
+                                    txt("prc.objects.title.DroppingObject"),
+                                     txt("prc.objects.text.DroppingObject", object.getQualifiedNameWithType()),
                                     progress -> doDropObject(object));
                         })));
 
@@ -167,34 +217,32 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
     private void doDropObject(DBSchemaObject object) {
         try {
             DatabaseInterfaceInvoker.execute(HIGHEST,
-                    "Dropping database object",
-                    "Dropping " + object.getQualifiedNameWithType(),
+                    txt("prc.objects.title.DroppingObject"),
+                    txt("prc.objects.text.DroppingObject", object.getQualifiedNameWithType()),
                     object.getProject(),
                     object.getConnectionId(),
                     conn -> {
                         DBContentType contentType = object.getContentType();
 
-                        String schemaName = object.getSchemaName();
-                        String objectName = object.getName();
+                        String schemaName = object.getSchemaName(true);
+                        String objectName = object.getName(true);
 
-                        // TODO use schemaName, objectName instead of qualified name
-                        String objectQualifiedName = object.getQualifiedName();
                         String objectTypeName = object.getTypeName();
                         DatabaseDataDefinitionInterface dataDefinition = object.getDataDefinitionInterface();
                         DBObjectList<?> objectList = (DBObjectList<?>) object.getParent();
                         if (contentType == DBContentType.CODE_SPEC_AND_BODY) {
                             DBObjectStatusHolder objectStatus = object.getStatus();
                             if (objectStatus.is(DBContentType.CODE_BODY, DBObjectStatus.PRESENT)) {
-                                dataDefinition.dropObjectBody(objectTypeName, objectQualifiedName, conn);
+                                dataDefinition.dropObjectBody(objectTypeName, schemaName, objectName, conn);
                             }
 
                             if (objectStatus.is(DBContentType.CODE_SPEC, DBObjectStatus.PRESENT)) {
-                                dataDefinition.dropObject(objectTypeName, objectQualifiedName, conn);
+                                dataDefinition.dropObject(objectTypeName, schemaName, objectName, conn);
                             }
                         } else if(object.getObjectType() == DBObjectType.JAVA_CLASS) {
                             dataDefinition.dropJavaClass(schemaName, objectName, conn);
                         } else {
-                            dataDefinition.dropObject(objectTypeName, objectQualifiedName, conn);
+                            dataDefinition.dropObject(objectTypeName, schemaName, objectName, conn);
                         }
 
                         objectList.reload();

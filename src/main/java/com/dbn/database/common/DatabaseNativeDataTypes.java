@@ -24,10 +24,12 @@ import com.dbn.data.type.LargeObjectDataTypeDefinition;
 import com.dbn.data.type.LiteralDataTypeDefinition;
 import com.dbn.data.type.NumericDataTypeDefinition;
 import com.dbn.database.common.util.DataTypeParseAdapter;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@NonNls
 public abstract class DatabaseNativeDataTypes {
     protected List<DataTypeDefinition> dataTypes = new ArrayList<>();
     public List<DataTypeDefinition> list() {return dataTypes;}

@@ -28,6 +28,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectEditCodeAction extends ProjectAction {
     private final DBObjectRef<DBSchemaObject> object;
 
@@ -39,7 +41,7 @@ public class ObjectEditCodeAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Edit Code");
+        presentation.setText(txt("app.objects.action.EditCode"));
         presentation.setIcon(Icons.OBJECT_EDIT_SOURCE);
     }
 

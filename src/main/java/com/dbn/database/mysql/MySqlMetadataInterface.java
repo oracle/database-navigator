@@ -19,6 +19,7 @@ package com.dbn.database.mysql;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseMetadataInterfaceImpl;
 import com.dbn.database.interfaces.DatabaseInterfaces;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -61,6 +62,7 @@ public class MySqlMetadataInterface extends DatabaseMetadataInterfaceImpl {
     }
 
     @Override
+    @NonNls
     public String createDateString(Date date) {
         String dateString = META_DATE_FORMAT.get().format(date);
         return "str_to_date('" + dateString + "', '%Y-%m-%d %T')";

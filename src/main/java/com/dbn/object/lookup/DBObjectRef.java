@@ -291,23 +291,35 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
     }
 
     public String getPath() {
+        return getPath(false);
+    }
+
+    public String getPath(boolean quoted) {
         DBObjectRef<?> parent = getParentRef();
         if (parent == null) {
-            return objectName;
+            return adjustIdentifier(objectName, quoted);
         } else {
             StringDeBuilder builder = new StringDeBuilder();
-            builder.append(objectName);
+            builder.append(adjustIdentifier(objectName, quoted));
             while(parent != null) {
                 builder.prepend('.');
-                builder.prepend(parent.objectName);
+                builder.prepend(adjustIdentifier(parent.objectName, quoted));
                 parent = parent.getParentRef();
             }
             return builder.toString();
         }
-    }    
+    }
+
+    private String adjustIdentifier(String identifier, boolean quote) {
+        return quote ? ensureConnection().getIdentifierCache().getQuotedIdentifier(identifier) : identifier;
+    }
 
     public String getQualifiedName() {
-        return getPath();
+        return getQualifiedName(false);
+    }
+
+    public String getQualifiedName(boolean quoted) {
+        return getPath(quoted);
     }
 
     public String getQualifiedObjectName() {

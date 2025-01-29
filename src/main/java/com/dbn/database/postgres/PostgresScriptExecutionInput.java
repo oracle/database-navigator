@@ -22,11 +22,13 @@ import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.DatabaseScriptExecutionInput;
 import com.dbn.execution.script.CmdLineInterface;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 
+@NonNls
 public final class PostgresScriptExecutionInput extends DatabaseScriptExecutionInput {
 
     public PostgresScriptExecutionInput(

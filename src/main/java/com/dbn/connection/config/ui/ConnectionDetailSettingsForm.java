@@ -58,7 +58,6 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
     private JPanel mainPanel;
     private JComboBox<CharsetOption> encodingComboBox;
     private JComboBox<EnvironmentType> environmentTypesComboBox;
-    private JPanel generalGroupPanel;
     private JPanel autoConnectHintPanel;
     private JTextField connectivityTimeoutTextField;
     private JTextField maxPoolSizeTextField;

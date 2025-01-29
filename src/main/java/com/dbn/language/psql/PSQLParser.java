@@ -18,9 +18,10 @@ package com.dbn.language.psql;
 
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguageParser;
+import org.jetbrains.annotations.NonNls;
 
 public class PSQLParser extends DBLanguageParser {
-    public PSQLParser(DBLanguageDialect languageDialect, String tokenTypesFile, String elementTypesFile, String defaultParseRootId) {
+    public PSQLParser(DBLanguageDialect languageDialect, @NonNls String tokenTypesFile, @NonNls String elementTypesFile, @NonNls String defaultParseRootId) {
         super(languageDialect, tokenTypesFile, elementTypesFile, defaultParseRootId);
     }
 

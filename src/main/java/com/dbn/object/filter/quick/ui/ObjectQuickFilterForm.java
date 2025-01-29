@@ -119,6 +119,8 @@ public class ObjectQuickFilterForm extends DBNFormBase {
         conditionsPanel.add(conditionForm.getComponent());
         conditionForms.add(conditionForm);
         joinTypeComboBox.setEnabled(conditionForms.size() > 1);
+        conditionForm.focusPreferredComponent();
+
     }
 
     void removeConditionPanel(ObjectQuickFilterCondition condition) {

@@ -27,6 +27,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
@@ -114,7 +115,7 @@ public class DatasetBasicFilter extends DatasetFilterImpl {
     @Override
     public String createSelectStatement(DBDataset dataset, SortingState sortingState) {
         setError(null);
-        StringBuilder buffer = new StringBuilder();
+        @NonNls StringBuilder buffer = new StringBuilder();
         DatasetFilterUtil.createSimpleSelectStatement(dataset, buffer);
         boolean initialized = false;
         for (DatasetBasicFilterCondition condition : conditions) {

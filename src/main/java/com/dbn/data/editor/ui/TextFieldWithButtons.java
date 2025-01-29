@@ -17,8 +17,8 @@
 package com.dbn.data.editor.ui;
 
 import com.dbn.common.project.ProjectRef;
-import com.dbn.common.ui.misc.DBNButton;
 import com.dbn.common.ui.panel.DBNPanelImpl;
+import com.dbn.common.ui.util.Accessibility;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.JBUI;
@@ -26,6 +26,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.text.Document;
@@ -65,11 +68,18 @@ public abstract class TextFieldWithButtons extends DBNPanelImpl implements DataE
 
     public void customizeTextField(JTextField textField) {}
 
-    public void customizeButton(DBNButton button) {
-        int width = (int) button.getPreferredSize().getWidth();
+    public JComponent createButton(Icon icon, String name) {
+        JButton button = new JButton(icon);
+        Accessibility.setAccessibleName(button, name);
+
         int height = (int) textField.getPreferredSize().getHeight();
-        button.setPreferredSize(new Dimension(width, height));
-        button.setMaximumSize(new Dimension(width, height));
+        int width = height;
+
+        Dimension size = new Dimension(width, height);
+        button.setPreferredSize(size);
+        button.setMaximumSize(size);
+
+        return button;
     }
 
     @Override

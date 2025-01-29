@@ -23,22 +23,27 @@ import com.dbn.object.common.list.DBObjectList;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectsReloadAction extends BasicAction {
 
     private final DBObjectList<?> objectList;
 
     ObjectsReloadAction(DBObjectList<?> objectList) {
-        super((objectList.isLoaded() ? "Reload " : "Load ") + objectList.getName());
+        super((objectList.isLoaded() ?
+                txt("app.objects.action.ReloadObjects", objectList.getName()) :
+                txt("app.objects.action.LoadObjects", objectList.getName())));
         this.objectList = objectList;
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        String listName = objectList.getName();
-        boolean loaded = objectList.isLoaded();
+        String listName = objectList.getCapitalizedName();
 
-        String description = loaded ? "reloading the " + listName : "loading the " + listName;
-        ConnectionAction.invoke(description, true, objectList, action -> reloadObjectList());
+        String title = objectList.isLoaded() ?
+                txt("msg.objects.title.ReloadingObjects", listName) :
+                txt("msg.objects.title.LoadingObjects", listName);
+        ConnectionAction.invoke(title, true, objectList, action -> reloadObjectList());
     }
 
     private void reloadObjectList() {

@@ -24,6 +24,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CreateFilterAction extends BasicActionGroup {
     private DatasetFilterList filterList;
 
@@ -43,7 +45,7 @@ public class CreateFilterAction extends BasicActionGroup {
     @Override
     public void update(@NotNull AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Create Filter");
+        presentation.setText(txt("app.dataEditor.action.CreateFilter"));
         presentation.setIcon(Icons.ACTION_ADD);
     }
 }

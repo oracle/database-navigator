@@ -17,11 +17,13 @@
 package com.dbn.database.common.metadata.def;
 
 import com.dbn.database.common.metadata.DBObjectMetadata;
+import com.dbn.database.common.security.ObjectIdentifier;
 
 import java.sql.SQLException;
 
 public interface DBClusterMetadata extends DBObjectMetadata {
 
+    @ObjectIdentifier
     String getClusterName() throws SQLException;
 
 }

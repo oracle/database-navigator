@@ -29,6 +29,7 @@ import com.intellij.psi.tree.IElementType;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jdom.Document;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -42,7 +43,7 @@ public abstract class DBLanguageParser implements PsiParser {
     private final @Getter(lazy = true) TokenTypeBundle tokenTypes = loadTokenTypes();
     private final @Getter(lazy = true) ElementTypeBundle elementTypes = loadElementTypes();
 
-    public DBLanguageParser(DBLanguageDialect languageDialect, String tokenTypesFile, String elementTypesFile, String defaultParseRootId) {
+    public DBLanguageParser(DBLanguageDialect languageDialect, @NonNls String tokenTypesFile, @NonNls String elementTypesFile, @NonNls String defaultParseRootId) {
         this.languageDialect = languageDialect;
         this.defaultParseRootId = defaultParseRootId;
         this.tokenTypesFile = tokenTypesFile;

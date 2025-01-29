@@ -27,5 +27,5 @@ public enum DDLFileTypeId {
     TYPE,
     TYPE_SPEC,
     TYPE_BODY,
-
+    JAVA_SOURCE
 }

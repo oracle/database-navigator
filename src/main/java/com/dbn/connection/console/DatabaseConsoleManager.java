@@ -76,6 +76,7 @@ import static com.dbn.common.options.setting.Settings.readCdata;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
     name = DatabaseConsoleManager.COMPONENT_NAME,
@@ -115,8 +116,8 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
     public void createConsole(ConnectionHandler connection, String name, DBConsoleType type) {
         Project project = connection.getProject();
         Progress.background(project, connection, true,
-                txt("msg.consoles.title.CreatingConsole"),
-                txt("msg.consoles.info.CreatingConsole", type.getName(), name),
+                txt("prc.consoles.title.CreatingConsole"),
+                txt("prc.consoles.text.CreatingConsole", type.getName(), name),
                 indicator -> {
                     DBConsole console = connection.getConsoleBundle().createConsole(name, type);
                     DBConsoleVirtualFile consoleFile = console.getVirtualFile();

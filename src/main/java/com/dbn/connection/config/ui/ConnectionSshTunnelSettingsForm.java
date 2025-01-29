@@ -17,13 +17,13 @@
 package com.dbn.connection.config.ui;
 
 import com.dbn.common.color.Colors;
+import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.options.ui.ConfigurationEditors;
 import com.dbn.common.util.Chars;
 import com.dbn.connection.config.ConnectionSshTunnelSettings;
 import com.dbn.connection.ssh.SshAuthType;
 import com.dbn.credentials.Secret;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +39,7 @@ import java.awt.event.ActionListener;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 
 public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<ConnectionSshTunnelSettings> {
     private JPanel mainPanel;
@@ -67,10 +68,7 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
         showHideFields();
         registerComponent(mainPanel);
 
-        keyFileField.addBrowseFolderListener(
-                txt("cfg.connection.title.SelectPrivateKeyFile"),
-                "",
-                null, new FileChooserDescriptor(true, false, false, false, false, false));
+        addSingleFileChooser(getProject(), keyFileField, txt("cfg.connection.title.SelectPrivateKeyFile"), "");
     }
 
     @NotNull
@@ -144,9 +142,10 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
         configuration.setKeyFile(keyFileField.getText());
         configuration.setKeyPassphrase(keyPassphraseField.getPassword());
 
-        // replace secrets in password store
-        configuration.updateSecrets(oldSecrets);
-
+        if (!ConfigMonitor.isCloning()) {
+            // replace secrets in password store
+            configuration.updateSecrets(oldSecrets);
+        }
     }
 
     @Override

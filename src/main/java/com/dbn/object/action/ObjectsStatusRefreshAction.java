@@ -24,12 +24,14 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectsStatusRefreshAction extends BasicAction {
 
     private final ConnectionRef connection;
 
     public ObjectsStatusRefreshAction(ConnectionHandler connection) {
-        super("Refresh Objects Status");
+        super(txt("app.objects.action.RefreshObjectsStatus"));
         this.connection = connection.ref();
     }
 

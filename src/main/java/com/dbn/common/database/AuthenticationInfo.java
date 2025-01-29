@@ -30,9 +30,11 @@ import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretsOwner;
+import com.dbn.credentials.SecretsOwnerRegistry;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -63,13 +65,13 @@ import static com.dbn.credentials.SecretType.CONNECTION_PASSWORD;
 public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSettings, ConfigurationEditorForm> implements Cloneable<AuthenticationInfo>, TimeAware, SecretsOwner {
 
     interface Attributes {
-        String TOKEN_TYPE = "token-type";
-        String TOKEN_CONFIG_FILE = "token-config-file";
-        String TOKEN_PROFILE = "token-profile";
+        @NonNls String TOKEN_TYPE = "token-type";
+        @NonNls String TOKEN_CONFIG_FILE = "token-config-file";
+        @NonNls String TOKEN_PROFILE = "token-profile";
 
 
         @Deprecated // TODO moved to IDE keychain (cleanup after followup release)
-        String DEPRECATED_PWD_ATTRIBUTE = "deprecated-pwd";
+        @NonNls String DEPRECATED_PWD_ATTRIBUTE = "deprecated-pwd";
     }
 
     private final long timestamp = System.currentTimeMillis();
@@ -87,6 +89,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     public AuthenticationInfo(ConnectionDatabaseSettings parent, boolean temporary) {
         super(parent);
         this.temporary = temporary;
+        SecretsOwnerRegistry.register(this);
     }
 
     public ConnectionId getConnectionId() {
@@ -243,6 +246,11 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     @Override
     public Object getSecretOwnerId() {
         return getConnectionId();
+    }
+
+    @Override
+    public String getSecretOwnerName() {
+        return ensureParent().getName();
     }
 
     @Override

@@ -25,6 +25,7 @@ import com.dbn.object.type.DBObjectType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ import java.util.Map;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.convert;
 
+@NonNls
 @UtilityClass
 public class DBObjectUtil {
     private static final Gson GSON = new GsonBuilder().create();

@@ -16,16 +16,12 @@
 
 package com.dbn.common.ui.util;
 
-import com.dbn.common.thread.Dispatch;
-import com.dbn.common.util.Context;
+import com.dbn.common.ui.Presentable;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.ui.popup.IPopupChooserBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.popup.list.ListPopupImpl;
@@ -39,7 +35,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.function.Consumer;
 
 public class Popups {
     public static void showUnderneathOf(@NotNull JBPopup popup, @NotNull Component sourceComponent, int verticalShift, int maxHeight) {
@@ -97,23 +93,16 @@ public class Popups {
         }
     }
 
-    public static void showActionsPopup(String title, Object context, List<? extends AnAction> actions, Predicate<AnAction> selected) {
-        Dispatch.run(() -> { //AWT events are not allowed inside write action
-            ActionGroup actionGroup = new DefaultActionGroup(actions);
 
-            DataContext dataContext = Context.getDataContext(context);
-            ListPopup popupBuilder = JBPopupFactory.getInstance().createActionGroupPopup(
-                    title,
-                    actionGroup,
-                    dataContext,
-                    JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-                    true,
-                    null,
-                    1000,
-                    action -> selected.test(action),
-                    null);
+    public static <T extends Presentable> ActionPopupBuilder popupBuilder(List<T> options, Object context, Consumer<T> selectionConsumer) {
+        return ActionPopupBuilder.create(options, context, selectionConsumer);
+    }
 
-            popupBuilder.showInBestPositionFor(dataContext);
-        });
+    public static ActionPopupBuilder popupBuilder(List<? extends AnAction> actions, Object context) {
+        return ActionPopupBuilder.create(actions, context);
+    }
+
+    public static ActionPopupBuilder popupBuilder(ActionGroup actionGroup, Object context) {
+        return ActionPopupBuilder.create(actionGroup, context);
     }
 }

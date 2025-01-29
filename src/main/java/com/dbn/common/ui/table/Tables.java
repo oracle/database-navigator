@@ -16,6 +16,9 @@
 
 package com.dbn.common.ui.table;
 
+import com.dbn.common.ui.Presentable;
+import org.jetbrains.annotations.Nls;
+
 import javax.swing.JTable;
 import java.awt.Rectangle;
 
@@ -43,5 +46,28 @@ public class Tables {
         if (table.getSelectedColumnCount() != 1 || table.getSelectedColumn() != columnIndex) {
             table.setColumnSelectionInterval(columnIndex, columnIndex);
         }
+    }
+
+    /**
+     * Attaches a value selector to a specific column of a JTable.
+     * The value selector allows users to select values of type {@code T} from a predefined list.
+     *
+     * @param <T>         the type of values that the selector can handle, must extend {@link Presentable}
+     * @param table       the JTable to which the value selector will be attached
+     * @param columnIndex the index of the column to which the value selector will be applied
+     * @param title       the title of the value selector popup
+     * @param values      an array of possible values that the user can select
+     */
+    public static <T extends Presentable> void attachValueSelector(JTable table, int columnIndex, @Nls String title, T[] values) {
+        new TableValueSelector<>(table, columnIndex, title, values);
+    }
+
+    public static boolean isFirstCellSelected(JTable table) {
+        return table.getSelectedRow() == 0 && table.getSelectedColumn() == 0;
+    }
+
+    public static boolean isLastCellSelected(JTable table) {
+        return table.getSelectedRow() == table.getRowCount() - 1 &&
+                table.getSelectedColumn() == table.getColumnCount() - 1;
     }
 }

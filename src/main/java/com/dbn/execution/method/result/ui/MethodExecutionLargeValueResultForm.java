@@ -74,7 +74,9 @@ public class MethodExecutionLargeValueResultForm extends DBNFormBase {
                 text = largeObjectValue.read();
             } catch (SQLException e) {
                 conditionallyLog(e);
-                Messages.showWarningDialog(project, "Load error", "Could not load value for argument " + argument.getName() + ". Cause: " + e.getMessage());
+                Messages.showWarningDialog(project,
+                        txt("msg.execution.title.MethodArgumentLoadError"),
+                        txt("msg.execution.message.MethodArgumentLoadError", argument.getName(), e.getMessage()));
             }
         } else if (value instanceof String) {
             text = (String) value;

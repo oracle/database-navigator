@@ -22,9 +22,12 @@ import com.dbn.data.sorting.SortDirection;
 import com.dbn.data.sorting.SortingInstruction;
 import com.dbn.editor.data.state.sorting.ui.DatasetSortingColumnForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class ChangeSortingDirectionAction extends BasicAction {
     private final DatasetSortingColumnForm form;
@@ -40,8 +43,9 @@ public class ChangeSortingDirectionAction extends BasicAction {
         Icon icon =
             direction == SortDirection.ASCENDING ? Icons.DATA_SORTING_ASC :
             direction == SortDirection.DESCENDING ? Icons.DATA_SORTING_DESC : null;
-        e.getPresentation().setIcon(icon);
-        e.getPresentation().setText("Change Sorting Direction");
+        Presentation presentation = e.getPresentation();
+        presentation.setIcon(icon);
+        presentation.setText(txt("app.dataEditor.action.ChangeSortingDirection"));
     }
 
     @Override

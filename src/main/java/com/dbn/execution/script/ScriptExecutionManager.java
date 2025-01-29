@@ -23,6 +23,7 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.CancellableDatabaseCall;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.util.FileChoosers;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -79,11 +80,13 @@ import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.execution.script.ScriptExecutionProcessHandler.startProcess;
+import static com.dbn.nls.NlsResources.txt;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Getter
@@ -152,15 +155,15 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                 clearOutputOption = executionInput.isClearOutput();
 
                 Progress.background(project, connection, true,
-                        "Executing script",
-                        "Executing database script \"" + virtualFile.getName() + "\"",
+                        txt("prc.execution.title.ExecutingScript"),
+                        txt("prc.execution.text.ExecutingScript",virtualFile.getName()),
                         progress -> {
                             try {
                                 doExecuteScript(executionInput);
                             } catch (Exception e) {
                                 conditionallyLog(e);
-                                Messages.showErrorDialog(getProject(), "Error",
-                                        "Error executing SQL Script \"" + virtualFile.getPath() + "\". " + e.getMessage());
+                                Messages.showErrorDialog(getProject(),
+                                        txt("msg.execution.error.ErrorExecutingScript", virtualFile.getPath(), e.getMessage()));
                             }
                         });
             }
@@ -250,7 +253,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     Messages.showErrorDialog(project,
                             "Script execution timeout",
                             "The script execution has timed out",
-                            new String[]{"Retry", "Cancel"}, 0,
+                            Messages.OPTIONS_RETRY_CANCEL, 0,
                             option -> when(option == 0, () -> executeScript(sourceFile)));
 
                 }
@@ -260,7 +263,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     Messages.showErrorDialog(project,
                             "Script execution error",
                             "Error executing SQL script \"" + sourceFile.getPath() + "\". \nDetails: " + e.getMessage(),
-                            new String[]{"Retry", "Cancel"}, 0,
+                            Messages.OPTIONS_RETRY_CANCEL, 0,
                             option -> when(option == 0, () -> executeScript(sourceFile)));
                 }
             }.start();
@@ -320,10 +323,9 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
     @Nullable
     public VirtualFile selectCmdLineExecutable(@NotNull DatabaseType databaseType, @Nullable String selectedExecutable) {
-        FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(true, false, false, false, false, false);
         CmdLineInterface defaultCli = CmdLineInterface.getDefault(databaseType);
         String extension = OS.isWindows() ? ".exe" : "";
-        fileChooserDescriptor.
+        FileChooserDescriptor fileChooserDescriptor = FileChoosers.singleFile().
                 withTitle("Select Command-Line Client").
                 withDescription("Select Command-Line Interface executable (" + defaultCli.getExecutablePath() + extension + ")").
                 withShowHiddenFiles(true);
@@ -392,7 +394,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         setBooleanAttribute(element, "clear-outputs", clearOutputOption);
         Element interfacesElement = newElement(element, "recently-used-interfaces");
         for (val entry : recentlyUsedInterfaces.entrySet()) {

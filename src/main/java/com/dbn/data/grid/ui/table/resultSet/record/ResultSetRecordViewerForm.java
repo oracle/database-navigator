@@ -49,7 +49,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.util.Comparator;
 import java.util.List;
 
@@ -112,11 +111,6 @@ public class ResultSetRecordViewerForm extends DBNFormBase implements ComponentA
         ColumnSortingType columnSortingType = DatasetEditorManager.getInstance(project).getRecordViewColumnSortingType();
         sortColumns(columnSortingType);
         alignFormComponents(this);
-
-        Dimension preferredSize = mainPanel.getPreferredSize();
-        int width = (int) preferredSize.getWidth() + 24;
-        int height = (int) Math.min(preferredSize.getHeight(), 380);
-        mainPanel.setPreferredSize(new Dimension(width, height));
 
         filterTextField.getEmptyText().setText("Filter");
         onTextChange(filterTextField, e -> filterColumForms());
@@ -251,7 +245,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase implements ComponentA
 
     private class FirstRecordAction extends BasicAction {
         private FirstRecordAction() {
-            super("First Record", null, Icons.DATA_EDITOR_FIRST_RECORD);
+            super(txt("app.dataEditor.action.FirstRecord"), null, Icons.DATA_EDITOR_FIRST_RECORD);
         }
 
         @Override
@@ -272,7 +266,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase implements ComponentA
 
     private class PreviousRecordAction extends BasicAction {
         private PreviousRecordAction() {
-            super("Previous Record", null, Icons.DATA_EDITOR_PREVIOUS_RECORD);
+            super(txt("app.dataEditor.action.PreviousRecord"), null, Icons.DATA_EDITOR_PREVIOUS_RECORD);
         }
 
         @Override
@@ -297,7 +291,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase implements ComponentA
 
     private class NextRecordAction extends BasicAction {
         private NextRecordAction() {
-            super("Next Record", null, Icons.DATA_EDITOR_NEXT_RECORD);
+            super(txt("app.dataEditor.action.NextRecord"), null, Icons.DATA_EDITOR_NEXT_RECORD);
         }
 
         @Override
@@ -322,7 +316,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase implements ComponentA
 
     private class LastRecordAction extends BasicAction {
         private LastRecordAction() {
-            super("Last Record", null, Icons.DATA_EDITOR_LAST_RECORD);
+            super(txt("app.dataEditor.action.LastRecord"), null, Icons.DATA_EDITOR_LAST_RECORD);
         }
 
         @Override

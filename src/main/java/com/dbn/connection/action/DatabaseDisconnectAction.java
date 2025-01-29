@@ -24,9 +24,11 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DatabaseDisconnectAction extends AbstractConnectionAction {
     DatabaseDisconnectAction(ConnectionHandler connection) {
-        super("Disconnect", "Disconnect from " + connection.getName(), null, connection);
+        super(connection);
     }
 
     @Override
@@ -38,5 +40,6 @@ public class DatabaseDisconnectAction extends AbstractConnectionAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionHandler target) {
         presentation.setEnabled(target != null && target.getConnectionStatus().isConnected());
+        presentation.setText(txt("app.connection.action.Disconnect"));
     }
 }

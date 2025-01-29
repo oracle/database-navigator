@@ -49,10 +49,10 @@ public class CredentialEditFormValidator implements NlsSupport {
         JTextField credentialNameField = form.getCredentialNameField();
         String credentialName = credentialNameField.getText();
         if (credentialName.isEmpty()) {
-            return new ValidationInfo(txt("ai.settings.credentials.info.credential_name.validation_error_1"), credentialNameField);
+            return new ValidationInfo(txt("cfg.assistant.error.CredentialNameEmpty"), credentialNameField);
         }
         if (form.getUsedCredentialNames().contains(credentialName.toUpperCase()) && form.getCredential() == null) {
-            return new ValidationInfo(txt("ai.settings.credentials.info.credential_name.validation_error_2"),
+            return new ValidationInfo(txt("cfg.assistant.error.CredentialNameExists"),
                     credentialNameField);
         }
         if (credentialNameField.isEnabled()) {
@@ -75,26 +75,26 @@ public class CredentialEditFormValidator implements NlsSupport {
         JTextField userOcidField = form.getOciCredentialUserOcidField();
         String userOcid = userOcidField.getText();
         if (userOcid.isEmpty()) {
-            return new ValidationInfo(txt("ai.settings.credentials.oci.info.user_ocid.validation_error_1"), userOcidField);
+            return new ValidationInfo(txt("cfg.assistant.error.UserOcidEmpty"), userOcidField);
         }
         if (!userOcid.startsWith("ocid1.user.oc1.")) {
-            return new ValidationInfo(txt("ai.settings.credentials.oci.info.user_ocid.validation_error_2"), userOcidField);
+            return new ValidationInfo(txt("cfg.assistant.error.UserOcidInvalid"), userOcidField);
         }
         JTextField userTenancyOcidField = form.getOciCredentialUserTenancyOcidField();
         String userTenancyOcid = userTenancyOcidField.getText();
         if (userTenancyOcid.isEmpty()) {
-            return new ValidationInfo(txt("ai.settings.credentials.oci.info.tenancy_ocid.validation_error_1"), userTenancyOcidField);
+            return new ValidationInfo(txt("cfg.assistant.error.UserTenancyOcidEmpty"), userTenancyOcidField);
         }
         if (!userTenancyOcid.startsWith("ocid1.tenancy.oc1.")) {
-            return new ValidationInfo(txt("ai.settings.credentials.oci.info.tenancy_ocid.validation_error_2"), userTenancyOcidField);
+            return new ValidationInfo(txt("cfg.assistant.error.UserTenancyOcidInvalid"), userTenancyOcidField);
         }
         JTextField fingerprintField = form.getOciCredentialFingerprintField();
         if (fingerprintField.getText().isEmpty()) {
-            return new ValidationInfo(txt("ai.settings.credentials.oci.info.fingerprint.validation_error_1"), fingerprintField);
+            return new ValidationInfo(txt("cfg.assistant.error.FingerprintEmpty"), fingerprintField);
         }
         JTextField privateKeyField = form.getOciCredentialPrivateKeyField();
         if (privateKeyField.getText().isEmpty()) {
-            return new ValidationInfo(txt("ai.settings.credentials.oci.info.private_key.validation_error_1"), privateKeyField);
+            return new ValidationInfo(txt("cfg.assistant.error.PrivateKeyEmpty"), privateKeyField);
         }
         return null;
     }
@@ -104,11 +104,11 @@ public class CredentialEditFormValidator implements NlsSupport {
 
         JTextField usernameField = form.getPasswordCredentialUsernameField();
         if (usernameField.getText().isEmpty()) {
-            return new ValidationInfo(txt("ai.settings.credentials.info.username.validation_error_1"), usernameField);
+            return new ValidationInfo(txt("cfg.assistant.error.UserNameEmpty"), usernameField);
         }
         JPasswordField passwordField = form.getPasswordCredentialPasswordField();
         if (passwordField.getText().isEmpty()) {
-            return new ValidationInfo(txt("ai.settings.credentials.info.password.validation_error_1"), passwordField);
+            return new ValidationInfo(txt("cfg.assistant.error.PasswordEmpty"), passwordField);
         }
         return null;
     }

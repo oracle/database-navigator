@@ -60,8 +60,8 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
 
 
   public ProfileEditionProviderStep(ConnectionHandler connection, ProfileData profile, boolean isUpdate) {
-    super(txt("profile.mgmt.provider_step.title"),
-            txt("profile.mgmt.provider_step.explaination"));
+    super(txt("cfg.assistant.title.ProviderSettings"),
+            txt("cfg.assistant.text.ProviderSettings"));
     this.profile = profile;
     configureTemperatureSlider();
     populateCombos();

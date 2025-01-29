@@ -31,6 +31,9 @@ import com.intellij.openapi.project.Project;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.nls.NlsResources.txt;
+
 @State(
     name = ObjectDependencyManager.COMPONENT_NAME,
     storages = @Storage(DatabaseNavigator.STORAGE_FILE)
@@ -57,13 +60,13 @@ public class ObjectDependencyManager extends ProjectComponentBase implements Per
     }
 
     public void openDependencyTree(DBSchemaObject schemaObject) {
-        ConnectionAction.invoke("opening object dependency tree", false, schemaObject,
+        ConnectionAction.invoke(txt("msg.objects.title.OpeningDependencyTree"), false, schemaObject,
                 action -> Dialogs.show(() -> new ObjectDependencyTreeDialog(getProject(), schemaObject)));
     }
 
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         Settings.setEnum(element, "last-used-dependency-type", lastUserDependencyType);
         return element;
     }

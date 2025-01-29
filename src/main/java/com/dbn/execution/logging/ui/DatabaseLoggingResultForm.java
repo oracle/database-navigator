@@ -38,6 +38,8 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class DatabaseLoggingResultForm extends ExecutionResultFormBase<DatabaseLoggingResult> {
     private JPanel mainPanel;
     private JPanel consolePanel;
@@ -69,6 +71,8 @@ public class DatabaseLoggingResultForm extends ExecutionResultFormBase<DatabaseL
             toolbarActions.add(actionManager.getAction("DBNavigator.Actions.DatabaseLogOutput.Close"), Constraints.FIRST);
             toolbarActions.add(actionManager.getAction("DBNavigator.Actions.DatabaseLogOutput.Settings"), Constraints.LAST);
             ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, toolbarActions);
+            setAccessibleName(actionToolbar, txt("cfg.execution.aria.ExecutionConsoleLogOutputActions"));
+
             actionsPanel.add(actionToolbar.getComponent());
             actionToolbar.setTargetComponent(console.getToolbarContextComponent());
         }

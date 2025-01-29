@@ -18,6 +18,7 @@ package com.dbn.code.common.style.formatting;
 
 import com.dbn.common.util.Commons;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 
 public class FormattingDefinition {
     public static final FormattingDefinition LINE_BREAK_BEFORE = new FormattingDefinition(null, null, SpacingDefinition.MIN_LINE_BREAK, null);
@@ -77,6 +78,7 @@ public class FormattingDefinition {
                 spacingAfter == null;
     }
 
+    @NonNls
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder("");

@@ -28,6 +28,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DebugMethodIntentionAction extends AbstractMethodExecutionIntentionAction {
     @Override
     public EditorIntentionType getType() {
@@ -36,7 +38,7 @@ public class DebugMethodIntentionAction extends AbstractMethodExecutionIntention
 
     @Override
     protected String getActionName() {
-        return "Debug method";
+        return txt("app.codeEditor.action.DebugMethod");
     }
 
     @Override

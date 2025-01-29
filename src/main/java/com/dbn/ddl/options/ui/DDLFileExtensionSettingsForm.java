@@ -56,6 +56,8 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
     private JTextField typeTextField;
     private JTextField typeSpecTextField;
     private JTextField typeBodyTextField;
+    private JLabel javaIconLabel;
+    private JTextField javaTextField;
 
     private final Map<String, JTextField> extensionTextFields = new HashMap<>();
 
@@ -68,6 +70,7 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
         functionIconLabel.setText(null);
         packageIconLabel.setText(null);
         typeIconLabel.setText(null);
+        javaIconLabel.setText(null);
 
         viewIconLabel.setIcon(Icons.DBO_VIEW);
         triggerIconLabel.setIcon(Icons.DBO_TRIGGER);
@@ -75,6 +78,7 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
         functionIconLabel.setIcon(Icons.DBO_FUNCTION);
         packageIconLabel.setIcon(Icons.DBO_PACKAGE);
         typeIconLabel.setIcon(Icons.DBO_TYPE);
+        javaIconLabel.setIcon(Icons.DBO_JAVA_CLASS);
 
         registerComponent(mainPanel);
 
@@ -88,6 +92,7 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
         extensionTextFields.put("Type", typeTextField);
         extensionTextFields.put("Type Spec", typeSpecTextField);
         extensionTextFields.put("Type Bpdy", typeBodyTextField);
+        extensionTextFields.put("Java Source", javaTextField);
     }
 
     @NotNull
@@ -127,6 +132,7 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
         applySetting(typeTextField, DDLFileTypeId.TYPE, changed);
         applySetting(typeSpecTextField, DDLFileTypeId.TYPE_SPEC, changed);
         applySetting(typeBodyTextField, DDLFileTypeId.TYPE_BODY, changed);
+        applySetting(javaTextField, DDLFileTypeId.JAVA_SOURCE, changed);
 
         if (changed.get()) {
             Project project = getConfiguration().getProject();
@@ -155,6 +161,7 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
         resetSetting(typeTextField, DDLFileTypeId.TYPE);
         resetSetting(typeSpecTextField, DDLFileTypeId.TYPE_SPEC);
         resetSetting(typeBodyTextField, DDLFileTypeId.TYPE_BODY);
+        resetSetting(javaTextField, DDLFileTypeId.JAVA_SOURCE);
     }
 
     private void resetSetting(JTextField textField, DDLFileTypeId fileTypeId) {

@@ -24,6 +24,7 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.util.NlsActions.ActionText;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +34,7 @@ public abstract class NavigationAction extends BasicAction {
     private final PsiElementRef<BasePsiElement> navigationElement;
     private final DBObjectRef<DBObject> parentObjectRef;
 
-    NavigationAction(String text, Icon icon, @Nullable DBObject parentObject, @NotNull BasePsiElement navigationElement) {
+    NavigationAction(@ActionText String text, @Nullable Icon icon, @Nullable DBObject parentObject, @NotNull BasePsiElement navigationElement) {
         super(text, null, icon);
         this.parentObjectRef = DBObjectRef.of(parentObject);
         this.navigationElement = PsiElementRef.of(navigationElement);

@@ -18,9 +18,8 @@ package com.dbn.connection.console;
 
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Disposer;
-import com.dbn.common.dispose.StatefulDisposableBase;
+import com.dbn.connection.ConnectionComponentBase;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBConsole;
 import com.dbn.object.impl.DBConsoleImpl;
 import com.dbn.vfs.DBConsoleType;
@@ -37,14 +36,11 @@ import java.util.Set;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 
-public class DatabaseConsoleBundle extends StatefulDisposableBase {
-    private final ConnectionRef connection;
-
+public class DatabaseConsoleBundle extends ConnectionComponentBase {
     private final List<DBConsole> consoles = DisposableContainers.concurrentList(this);
 
     public DatabaseConsoleBundle(ConnectionHandler connection) {
         super(connection);
-        this.connection = connection.ref();
     }
 
     public List<DBConsole> getConsoles() {
@@ -70,10 +66,6 @@ public class DatabaseConsoleBundle extends StatefulDisposableBase {
         }
 
         return consoleNames;
-    }
-
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
     }
 
     @NotNull

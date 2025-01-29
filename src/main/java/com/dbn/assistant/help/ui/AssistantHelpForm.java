@@ -23,7 +23,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
-import com.intellij.ide.BrowserUtil;
 import com.intellij.ui.HyperlinkLabel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,14 +33,11 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
-import javax.swing.event.HyperlinkEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-
-import static com.dbn.common.util.Conditional.when;
 
 /**
  * Database Assistant prerequisites information form
@@ -99,21 +95,21 @@ public class AssistantHelpForm extends DBNFormBase {
   private void initializeWindow() {
     AIProvider.values().forEach(p -> providerComboBox.addItem(p));
 
-    docuLink.addHyperlinkListener(e -> when(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED, () -> BrowserUtil.browse(SELECT_AI_DOCS)));
     docuLink.setHyperlinkText("Select AI Docs");
+    docuLink.setHyperlinkTarget(SELECT_AI_DOCS);
 
     Color background = Colors.lafBrighter(Colors.getEditorBackground(), 5);
 
     String userName = getConnection().getUserName();
-    grantTextField.setText(txt("permissions3.message", userName));
-    grantTextArea.setText(txt("permissions4.message", userName));
+    grantTextField.setText(txt("cfg.assistant.text.GrantExecution", userName));
+    grantTextArea.setText(txt("cfg.assistant.code.GrantExecution", userName));
     grantTextArea.setBackground(background);
 
-    networkAllow.setText(txt("permissions5.message"));
-    aclTextArea.setText(txt("permissions6.message", getAccessPoint(), userName));
+    networkAllow.setText(txt("cfg.assistant.text.AllowNetworkAccess"));
+    aclTextArea.setText(txt("cfg.assistant.code.AllowNetworkAccess", getAccessPoint(), userName));
     aclTextArea.setBackground(background);
 
-    providerComboBox.addActionListener(e -> aclTextArea.setText(txt("permissions6.message", getAccessPoint(), userName)));
+    providerComboBox.addActionListener(e -> aclTextArea.setText(txt("cfg.assistant.code.AllowNetworkAccess", getAccessPoint(), userName)));
 
     copyPrivilegeButton.addActionListener(e -> copyTextToClipboard(grantTextArea.getText()));
     copyACLButton.addActionListener(e -> copyTextToClipboard(aclTextArea.getText()));

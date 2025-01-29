@@ -18,23 +18,27 @@ package com.dbn.common.ui.util;
 
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.ui.ComponentWithBrowseButton;
+import com.intellij.openapi.ui.popup.ListPopup;
+import com.intellij.ui.ToolbarDecorator;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.accessibility.AccessibleContext;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import java.awt.Component;
 import java.awt.Container;
 
 import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
-import static com.dbn.common.ui.util.UserInterface.findChildComponent;
 import static com.dbn.common.ui.util.UserInterface.getComponentLabel;
 import static com.dbn.common.ui.util.UserInterface.getComponentText;
 import static com.dbn.common.ui.util.UserInterface.visitRecursively;
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.isNotEmpty;
 
 /**
@@ -43,6 +47,7 @@ import static com.dbn.common.util.Strings.isNotEmpty;
  *
  * @author Dan Cioca (Oracle)
  */
+@Slf4j
 @UtilityClass
 public class Accessibility {
 
@@ -55,46 +60,71 @@ public class Accessibility {
         return Strings.isNotEmpty(getAccessibleName(component));
     }
 
-    public static void setAccessibleName(ActionToolbar toolbar, @Nullable String name) {
-        setAccessibleName(toolbar.getComponent(), name);
+    public static void setAccessibleName(@Nullable Object target, @Nullable @Nls String name) {
+        setAccessibleText(target, name, false);
     }
 
-    public static void setAccessibleDescription(ActionToolbar toolbar, String description) {
-        setAccessibleDescription(toolbar.getComponent(), description);
+    public static void setAccessibleDescription(@Nullable Object target, @Nls String description) {
+        setAccessibleText(target, description, false);
     }
 
-    public static void setAccessibleName(Component component, @Nullable String name) {
-        if (name == null) return;
+    private static void setAccessibleText(@Nullable Object target, @Nullable @Nls String text, boolean descriptor) {
+        if (target == null) return;
+        if (text == null) return;
 
-        String friendlyName = name.replace("_", " ");
-        AccessibleContext accessibleContext = component.getAccessibleContext();
-        accessibleContext.setAccessibleName(friendlyName);
-    }
+        if (target instanceof Component) {
+            Component component = (Component) target;
+            String friendlyName = text.replace("_", " ");
 
-    public static void setAccessibleDescription(Component component, String description) {
-        String friendlyDescription = description.replace("_", " ");
-        AccessibleContext accessibleContext = component.getAccessibleContext();
-        accessibleContext.setAccessibleDescription(friendlyDescription);
-    }
-
-    public static void setAccessibleUnit(JTextField textField, @Nls String unit, @Nls String ... qualifiers) {
-        JLabel label = getComponentLabel(textField);
-        if (label != null) setAccessibleUnit(label, unit, qualifiers);
-    }
-
-    private static void setAccessibleUnit(JLabel label, @Nls String unit, @Nls String ... qualifiers) {
-        AccessibleContext accessibleContext = label.getAccessibleContext();
-
-        StringBuilder accessibleName = new StringBuilder(accessibleContext.getAccessibleName());
-        accessibleName.append(" (");
-        accessibleName.append(unit);
-        if (qualifiers.length > 0) {
-            accessibleName.append(" - ");
-            accessibleName.append(String.join(", ", qualifiers));
+            AccessibleContext accessibleContext = component.getAccessibleContext();
+            if (descriptor) {
+                accessibleContext.setAccessibleDescription(friendlyName);
+            } else {
+                accessibleContext.setAccessibleName(friendlyName);
+            }
+            return;
         }
 
-        accessibleName.append("(");
-        accessibleContext.setAccessibleName(accessibleName.toString());
+        if (target instanceof ListPopup) {
+            ListPopup listPopup = (ListPopup) target;
+            JList actionList = UserInterface.findChildComponent(listPopup.getContent(), JList.class, c -> true);
+            setAccessibleText(actionList, text, descriptor);
+            return;
+        }
+
+        if (target instanceof ActionToolbar) {
+            ActionToolbar toolbar = (ActionToolbar) target;
+            setAccessibleText(toolbar.getComponent(), text, descriptor);
+            return;
+        }
+
+        if (target instanceof ToolbarDecorator) {
+            ToolbarDecorator toolbarDecorator = (ToolbarDecorator) target;
+            setAccessibleText(toolbarDecorator.getActionsPanel(), text, descriptor);
+            return;
+        }
+
+        log.warn("Cannot set accessible text to target of type {}", target.getClass().getName());
+    }
+
+    public static void setAccessibleUnit(JComponent component, @Nls String unit, @Nls String ... qualifiers) {
+        JLabel label = getComponentLabel(component);
+        JComponent accessibleComponent = label == null ? component : label;
+
+        AccessibleContext accessibleContext = accessibleComponent.getAccessibleContext();
+
+        String accessibleName = nvl(accessibleContext.getAccessibleName(), "");
+
+        StringBuilder builder = new StringBuilder(accessibleName);
+        builder.append(" (");
+        builder.append(unit);
+        if (qualifiers.length > 0) {
+            builder.append(" - ");
+            builder.append(String.join(", ", qualifiers));
+        }
+
+        builder.append(")");
+        accessibleContext.setAccessibleName(builder.toString());
     }
 
     /**
@@ -103,9 +133,27 @@ public class Accessibility {
      * It also propagates the accessibility name of parent panels to their child panels if not already set
      * @param component the root component to perform accessibility initialization for
      */
-    public static void initAccessibilityGroups(JComponent component) {
+    public static void initComponentGroupsAccessibility(JComponent component) {
         visitRecursively(component, JPanel.class, p -> initAccessibilityGroup(p));
         visitRecursively(component, JPanel.class, p -> propagateAccessibility(p));
+    }
+
+
+    /**
+     * Initializes accessibility for custom components within the given container by correctly associating
+     * {@link JLabel} components with the appropriate child components they label.
+     * The method works recursively, visiting all child components of the provided container.
+     *
+     * @param component the root {@link JComponent} whose child components will be initialized for accessibility.
+     */
+    public static void initCustomComponentAccessibility(JComponent component) {
+        visitRecursively(component, JLabel.class, l -> {
+            Component targetComponent = l.getLabelFor();
+            if (targetComponent instanceof ComponentWithBrowseButton) {
+                ComponentWithBrowseButton customComponent = (ComponentWithBrowseButton) targetComponent;
+                l.setLabelFor(customComponent.getChildComponent());
+            }
+        });
     }
 
     private static void propagateAccessibility(JPanel panel) {
@@ -115,10 +163,13 @@ public class Accessibility {
 
     private static void initAccessibilityGroup(JPanel panel) {
         if (hasAccessibleName(panel)) return;
-
-        JComponent groupQualifier = findChildComponent(panel, c -> COMPONENT_GROUP_QUALIFIER.is(c));
-        String groupName = getComponentText(groupQualifier);
-        setAccessibleName(panel, groupName);
+        for (Component component : panel.getComponents()) {
+            if (COMPONENT_GROUP_QUALIFIER.is(component)) {
+                String groupName = getComponentText(component);
+                setAccessibleName(panel, groupName);
+                return;
+            }
+        }
     }
 
     private static String findAccessibilityTitle(JPanel panel) {

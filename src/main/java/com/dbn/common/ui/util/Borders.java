@@ -19,17 +19,18 @@ package com.dbn.common.ui.util;
 import com.dbn.common.color.Colors;
 import com.intellij.ui.border.CustomLineBorder;
 import com.intellij.util.ui.JBUI;
+import com.intellij.util.ui.PlatformColors;
 import lombok.experimental.UtilityClass;
 
-import javax.swing.UIManager;
 import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
 import java.awt.Insets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.intellij.util.ui.JBUI.Borders.customLine;
 
 @UtilityClass
 public final class Borders {
@@ -43,6 +44,8 @@ public final class Borders {
     public static final Border BOTTOM_LINE_BORDER = new CustomLineBorder(Colors.getOutlineColor(),0,0, 1,0);
     public static final Border COMPONENT_OUTLINE_BORDER = new LineBorder(Colors.getOutlineColor(),1);
     public static final Border TOOLBAR_DECORATOR_BORDER = new CustomLineBorder(Colors.getOutlineColor(),1, 1, 0, 1);
+
+    public static final Border LINK_FOCUS_BORDER = customLine(PlatformColors.BLUE, 0, 0, 1, 0);
 
     private static final Map<Color, Border> LINE_BORDERS = new ConcurrentHashMap<>();
     private static final Map<Integer, Border> INSET_BORDERS = new ConcurrentHashMap<>();
@@ -70,12 +73,6 @@ public final class Borders {
 
     public static Border topInsetBorder(int inset) {
         return TOP_INSET_BORDERS.computeIfAbsent(inset, i -> new EmptyBorder(JBUI.insets(i, 0, 0, 0)));
-    }
-
-    public static Border buttonBorder() {
-        Border insideBorder = JBUI.Borders.empty(0, 8);
-        Border textFieldBorder = UIManager.getBorder("TextField.border");
-        return new CompoundBorder(textFieldBorder, insideBorder);
     }
 
     public static Border tableBorder(int top, int left, int bottom, int right) {

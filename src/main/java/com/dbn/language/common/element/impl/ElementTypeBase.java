@@ -44,6 +44,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -267,7 +268,7 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
         return virtualObjectType != null;
     }
 
-    protected boolean getBooleanAttribute(Element element, String attributeName) {
+    protected boolean getBooleanAttribute(Element element, @NonNls String attributeName) {
         String attributeValue = stringAttribute(element, attributeName);
         if (Strings.isNotEmpty(attributeValue)) {
             if (Objects.equals(attributeValue, "true")) return true;

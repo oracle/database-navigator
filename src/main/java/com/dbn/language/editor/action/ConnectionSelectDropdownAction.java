@@ -34,11 +34,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+
+import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
 public class ConnectionSelectDropdownAction extends ComboBoxAction implements DumbAware {
-    private static final String NAME = "DB Connections";
 
     @Override
     @NotNull
@@ -50,7 +52,7 @@ public class ConnectionSelectDropdownAction extends ComboBoxAction implements Du
     @Override
     public void update(@NotNull AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        String text = NAME;
+        String text = txt("app.codeEditor.action.DbConnections");
         Icon icon = null;
 
         Project project = Lookups.getProject(e);

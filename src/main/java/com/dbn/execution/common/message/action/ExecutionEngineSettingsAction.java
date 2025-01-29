@@ -26,10 +26,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ExecutionEngineSettingsAction extends AbstractExecutionMessagesAction {
-    public ExecutionEngineSettingsAction() {
-        super("Settings", null, Icons.EXEC_RESULT_OPTIONS);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull MessagesTree messagesTree) {
@@ -39,7 +38,7 @@ public class ExecutionEngineSettingsAction extends AbstractExecutionMessagesActi
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable MessagesTree target) {
-        presentation.setText("Settings");
+        presentation.setText(txt("app.execution.action.Settings"));
         presentation.setIcon(Icons.EXEC_RESULT_OPTIONS);
     }
 }

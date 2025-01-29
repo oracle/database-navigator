@@ -22,12 +22,14 @@ import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectTypeToggleAction extends ToggleAction {
     private MethodExecutionBrowserForm browserComponent;
     private final DBObjectType objectType;
 
     public ObjectTypeToggleAction(MethodExecutionBrowserForm browserComponent, DBObjectType objectType) {
-        super("Show " + objectType.getListName(), null, objectType.getIcon());
+        super(txt("app.execution.action.ShowObjects", objectType.getCapitalizedListName()), null, objectType.getIcon());
         this.objectType = objectType;
         this.browserComponent = browserComponent;
     }

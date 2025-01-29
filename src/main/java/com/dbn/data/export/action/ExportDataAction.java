@@ -27,12 +27,14 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ExportDataAction extends BasicAction {
     private final WeakRef<ResultSetTable<?>> table;
     private final DBObjectRef<DBDataset> dataset;
 
     public ExportDataAction(ResultSetTable<?> table, DBDataset dataset) {
-        super("Export Data", null, Icons.DATA_EXPORT);
+        super(txt("app.data.action.ExportData"), null, Icons.DATA_EXPORT);
         this.table = WeakRef.of(table);
         this.dataset = DBObjectRef.of(dataset);
     }

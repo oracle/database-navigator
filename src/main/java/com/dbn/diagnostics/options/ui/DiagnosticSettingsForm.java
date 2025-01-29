@@ -37,6 +37,8 @@ import java.awt.event.ActionEvent;
 
 import static com.dbn.common.options.ui.ConfigurationEditors.validateIntegerValue;
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 
 public class DiagnosticSettingsForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -49,6 +51,7 @@ public class DiagnosticSettingsForm extends DBNFormBase {
     private JTextField queryingLagTextField;
     private JTextField fetchingLagTextField;
     private JCheckBox dialogSizingCheckbox;
+    private JCheckBox nativeAlertsCheckBox;
     private JCheckBox bulkActionsCheckbox;
     private JCheckBox failsafeLoggingCheckBox;
     private JCheckBox backgroundDisposerCheckBox;
@@ -83,6 +86,7 @@ public class DiagnosticSettingsForm extends DBNFormBase {
 
         Miscellaneous miscellaneous = Diagnostics.getMiscellaneous();
         dialogSizingCheckbox.setSelected(miscellaneous.isDialogSizingReset());
+        nativeAlertsCheckBox.setSelected(miscellaneous.isNativeAlertsEnabled());
         bulkActionsCheckbox.setSelected(miscellaneous.isBulkActionsEnabled());
         backgroundDisposerCheckBox.setSelected(miscellaneous.isBackgroundDisposerDisabled());
         timeoutHandlingCheckBox.setSelected(miscellaneous.isTimeoutHandlingDisabled());
@@ -93,6 +97,14 @@ public class DiagnosticSettingsForm extends DBNFormBase {
         developerModeCheckBox.addActionListener(e -> updateFields(e));
     }
 
+    @Override
+    protected void initAccessibility() {
+        setAccessibleUnit(connectivityLagTextField, txt("app.shared.unit.Milliseconds"));
+        setAccessibleUnit(queryingLagTextField, txt("app.shared.unit.Milliseconds"));
+        setAccessibleUnit(fetchingLagTextField, txt("app.shared.unit.Milliseconds"));
+        setAccessibleName(developerModeTimeoutTextField, "Developer mode timeout");
+    }
+
     private void updateFields(ActionEvent e) {
         boolean developerMode = developerModeCheckBox.isSelected();
         developerModeTimeoutTextField.setEnabled(developerMode);
@@ -100,6 +112,7 @@ public class DiagnosticSettingsForm extends DBNFormBase {
         databaseResourcesCheckBox.setEnabled(developerMode);
         databaseLaggingCheckBox.setEnabled(developerMode);
         dialogSizingCheckbox.setEnabled(developerMode);
+        nativeAlertsCheckBox.setEnabled(developerMode);
         bulkActionsCheckbox.setEnabled(developerMode);
         failsafeLoggingCheckBox.setEnabled(developerMode);
         backgroundDisposerCheckBox.setEnabled(developerMode);
@@ -133,6 +146,7 @@ public class DiagnosticSettingsForm extends DBNFormBase {
 
         Miscellaneous miscellaneous = Diagnostics.getMiscellaneous();
         miscellaneous.setDialogSizingReset(dialogSizingCheckbox.isSelected());
+        miscellaneous.setNativeAlertsEnabled(nativeAlertsCheckBox.isSelected());
         miscellaneous.setBulkActionsEnabled(bulkActionsCheckbox.isSelected());
         miscellaneous.setBackgroundDisposerDisabled(backgroundDisposerCheckBox.isSelected());
         miscellaneous.setTimeoutHandlingDisabled(timeoutHandlingCheckBox.isSelected());

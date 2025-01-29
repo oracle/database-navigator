@@ -16,13 +16,13 @@
 
 package com.dbn.common.ui.messages;
 
+import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Titles;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.openapi.util.NlsContexts.DialogTitle;
-import com.intellij.ui.AppIcon;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,6 +32,7 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 public class DBNMessageDialog extends DBNDialog<DBNMessageForm> {
     private final Icon icon;
@@ -50,7 +51,7 @@ public class DBNMessageDialog extends DBNDialog<DBNMessageForm> {
             @NotNull String[] options,
             int defaultOptionIndex,
             @Nullable DoNotAskOption rememberOption) {
-        super(project, title + ": " + message, false); // hidden title contains message for accessibility
+        super(project, title, false);
         this.icon = icon;
         this.title = Titles.signed(title);
         this.message = message;
@@ -98,16 +99,16 @@ public class DBNMessageDialog extends DBNDialog<DBNMessageForm> {
         Dialogs.undecorate(this, true);
     }
 
-    @Override
-    public void show() {
-        AppIcon.getInstance().requestAttention(getProject(), true);
-        super.show();
-    }
-
     @NotNull
     @Override
     protected Action[] createActions() {
         return actions;
+    }
+
+    //@Override
+    @Workaround
+    protected void sortActionsOnMac(@NotNull List<Action> actions) {
+        // TODO proper action sequence support needed in "Messages" utility
     }
 
     private @NotNull AbstractAction createAction(int exitCode) {
@@ -116,6 +117,11 @@ public class DBNMessageDialog extends DBNDialog<DBNMessageForm> {
             @Override
             public void actionPerformed(ActionEvent e) {
                 close(exitCode);
+            }
+
+            @Override
+            public String toString() {
+                return actionName;
             }
         };
     }

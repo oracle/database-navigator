@@ -25,6 +25,8 @@ import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Slf4j
 public class ParserDiagnosticsOpenAction extends ProjectAction {
 
@@ -38,7 +40,7 @@ public class ParserDiagnosticsOpenAction extends ProjectAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setVisible(Diagnostics.isDeveloperMode());
-        presentation.setText("Parser Diagnostics...");
+        presentation.setText(txt("app.diagnostics.action.ParserDiagnostics"));
     }
 
 

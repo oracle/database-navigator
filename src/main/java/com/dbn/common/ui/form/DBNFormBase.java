@@ -35,6 +35,7 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.util.containers.ContainerUtil;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,16 +43,21 @@ import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
+import java.awt.Dimension;
 import java.util.List;
 import java.util.Set;
 
-import static com.dbn.common.ui.util.Accessibility.initAccessibilityGroups;
+import static com.dbn.common.ui.util.Accessibility.initComponentGroupsAccessibility;
+import static com.dbn.common.ui.util.Accessibility.initCustomComponentAccessibility;
 import static com.dbn.common.ui.util.UserInterface.findChildComponent;
+import static com.dbn.common.ui.util.UserInterface.hasChildComponent;
 import static com.dbn.common.ui.util.UserInterface.isFocusableComponent;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.intellij.util.ui.UIUtil.getScrollBarWidth;
 
 public abstract class DBNFormBase
         extends DBNComponentBase
@@ -60,6 +66,7 @@ public abstract class DBNFormBase
     private boolean initialized;
     private final Set<JComponent> enabled = ContainerUtil.createWeakSet();
     private final Latent<DBNFormFieldAdapter> fieldAdapter = Latent.basic(() -> DBNFormFieldAdapter.create(this));
+    private final Latent<Boolean> hasScrollBars = Latent.basic(() -> hasChildComponent(getMainComponent(), c -> c instanceof JScrollPane));
 
     protected final DBNFormValidator formValidator = new DBNFormValidatorImpl(this);
 
@@ -82,9 +89,17 @@ public abstract class DBNFormBase
         return getMainComponent();
     }
 
+    @Nullable
     @Override
-    public @Nullable JComponent getPreferredFocusedComponent() {
+    public JComponent getPreferredFocusedComponent() {
         return findChildComponent(getMainComponent(), c -> isFocusableComponent(c));
+    }
+
+    public void focusPreferredComponent() {
+        JComponent preferredFocusedComponent = getPreferredFocusedComponent();
+        if (preferredFocusedComponent != null) {
+            preferredFocusedComponent.requestFocus();
+        }
     }
 
     /**
@@ -102,15 +117,18 @@ public abstract class DBNFormBase
      *
      * @param runnable the task to execute when the form is shown
      */
-    protected void whenShown(Runnable runnable) {
+    protected final void whenShown(Runnable runnable) {
         whenFirstShown(getMainComponent(), runnable);
     }
 
     private void initialize() {
+        if (isDisposed()) return;
         if (initialized) return;
         initialized = true;
 
 
+        initValidation();
+        initStatePersistence();
         initFormAccessibility();
 
         JComponent mainComponent = getMainComponent();
@@ -118,28 +136,73 @@ public abstract class DBNFormBase
         UserInterface.updateScrollPaneBorders(mainComponent);
         UserInterface.updateTitledBorders(mainComponent);
         UserInterface.updateSplitPanes(mainComponent);
+        adjustFormSize(mainComponent);
+
         ApplicationEvents.subscribe(this, LafManagerListener.TOPIC, source -> lookAndFeelChanged());
-        //GuiUtils.replaceJSplitPaneWithIDEASplitter(mainComponent);
+    }
+
+    /**
+     * Adjusts the size of the given form component to account for its content and any additional elements,
+     * such as scrollbars, when it is displayed within a parent component (e.g., a dialog).
+     * Validates and lays out the component to ensure its proper rendering.
+     *
+     * @param mainComponent the main component of the form whose size needs to be adjusted
+     */
+    private void adjustFormSize(JComponent mainComponent) {
+        mainComponent.doLayout();
+        mainComponent.validate();
+
+        Disposable parentComponent = getParentComponent();
+        if (parentComponent instanceof DBNDialog) {
+
+            boolean hasScrollBars = this.hasScrollBars.get();
+            if (!hasScrollBars) return;
+
+            // buffers to be added to the form size to hide scroll-bars unless absolutely necessary
+            int buffer = getScrollBarWidth();
+
+            Dimension dimension = mainComponent.getPreferredSize();
+            dimension = new Dimension(dimension.width + buffer * 4, dimension.height + buffer * 2);
+            mainComponent.setPreferredSize(dimension);
+            mainComponent.revalidate();
+            mainComponent.repaint();
+        }
     }
 
     private void initFormAccessibility() {
         JComponent mainComponent = getMainComponent();
-
         initAccessibility();
-        initAccessibilityGroups(mainComponent);
+        initComponentGroupsAccessibility(mainComponent);
+        initCustomComponentAccessibility(mainComponent);
         //...
     }
+
+
 
     @Override
     public final List<ValidationInfo> validate(JComponent... components) {
         return formValidator.validateForm(components);
     }
 
+    @ApiStatus.OverrideOnly
+    protected void initValidation() {}
+
+    @ApiStatus.OverrideOnly
     protected void initAccessibility() {}
 
-    protected void lookAndFeelChanged() {
+    /**
+     * Initializes the persistence mechanisms for the state of the form or component.
+     * This method is intended to be overridden by subclasses to define custom state
+     * persistence logic, such as saving and restoring UI state or settings.
+     * <br>
+     * It does not include any default implementation and should be implemented in
+     * subclasses if state persistence is required.
+     */
+    @ApiStatus.OverrideOnly
+    protected void initStatePersistence () {}
 
-    }
+    @ApiStatus.OverrideOnly
+    protected void lookAndFeelChanged() {}
 
     protected void updateActionToolbars() {
         dispatch(() -> UserInterface.updateActionToolbars(getMainComponent()));

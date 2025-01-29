@@ -14,7 +14,7 @@
         </constraints>
         <properties>
           <labelFor value="f8626"/>
-          <text resource-bundle="messages/DBNResources" key="profiles.mgnt.attr.provider.label"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.Provider"/>
         </properties>
       </component>
       <component id="7fe77" class="javax.swing.JLabel">
@@ -23,7 +23,7 @@
         </constraints>
         <properties>
           <labelFor value="77d58"/>
-          <text resource-bundle="messages/DBNResources" key="profiles.mgnt.attr.model.label"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.Model"/>
         </properties>
       </component>
       <component id="4ae0a" class="javax.swing.JLabel">
@@ -32,7 +32,7 @@
         </constraints>
         <properties>
           <labelFor value="1444e"/>
-          <text resource-bundle="messages/DBNResources" key="profiles.mgnt.attr.cred.label"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.Credential"/>
         </properties>
       </component>
       <component id="f8626" class="javax.swing.JTextField" binding="providerTextField">
@@ -72,7 +72,7 @@
         <properties>
           <horizontalAlignment value="2"/>
           <labelFor value="57e93"/>
-          <text resource-bundle="messages/DBNResources" key="profiles.mgnt.attr.associated"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.title.AssociatedObjects"/>
         </properties>
       </component>
       <component id="2d435" class="javax.swing.JLabel">

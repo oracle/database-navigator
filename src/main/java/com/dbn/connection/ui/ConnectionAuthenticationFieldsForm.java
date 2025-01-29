@@ -26,7 +26,6 @@ import com.dbn.common.util.Chars;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -54,6 +53,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.connection.AuthenticationTokenType.OCI_API_KEY;
 import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
@@ -82,11 +82,11 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
     public ConnectionAuthenticationFieldsForm(@NotNull DBNForm parentComponent) {
         super(parentComponent);
-        
-        tokenConfigFileTextField.addBrowseFolderListener(
+
+        addSingleFileChooser(
+                getProject(), tokenConfigFileTextField,
                 "Select OCI Configuration File",
-                "Folder must contain an oci config file (usually ~/.oci/config)",
-                null, new FileChooserDescriptor(true, false, false, false, false, false));
+                "Folder must contain an oci config file (usually ~/.oci/config)");
         onTextChange(tokenConfigFileTextField, e -> refreshTokenProfileOptions());
         
         initComboBox(authTypeComboBox, AuthenticationType.values());

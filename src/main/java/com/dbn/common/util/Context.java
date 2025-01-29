@@ -18,6 +18,7 @@ package com.dbn.common.util;
 
 import com.dbn.common.ui.form.DBNForm;
 import com.intellij.ide.DataManager;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -38,6 +39,7 @@ public class Context {
         if (source instanceof Editor) return getDataContext((Editor) source);
         if (source instanceof FileEditor) return getDataContext((FileEditor) source);
         if (source instanceof Component) return getDataContext((Component) source);
+        if (source instanceof AnActionEvent) return ((AnActionEvent) source).getDataContext();
 
         throw new UnsupportedOperationException("Unsupported source for data context lookup: " + className(source));
     }

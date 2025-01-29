@@ -31,6 +31,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.vfs.file.status.DBFileStatus.LOADING;
 
 public class SourceCodeRevertAction extends AbstractCodeEditorAction {
@@ -50,7 +51,7 @@ public class SourceCodeRevertAction extends AbstractCodeEditorAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project, @Nullable SourceCodeEditor fileEditor, @Nullable DBSourceCodeVirtualFile sourceCodeFile) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Revert Changes");
+        presentation.setText(txt("app.codeEditor.action.RevertChanges"));
         presentation.setIcon(Icons.CODE_EDITOR_RESET);
 
         if (Checks.isValid(sourceCodeFile)) {

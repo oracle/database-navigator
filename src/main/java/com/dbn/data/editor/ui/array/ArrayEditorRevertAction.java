@@ -20,9 +20,11 @@ import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 class ArrayEditorRevertAction extends ArrayEditorAction {
     ArrayEditorRevertAction() {
-        super("Revert Changes", null, Icons.TEXT_CELL_EDIT_REVERT);
+        super(txt("app.data.action.RevertChanges"), null, Icons.TEXT_CELL_EDIT_REVERT);
         //setShortcutSet(Keyboard.createShortcutSet(KeyEvent.VK_ESCAPE, 0));
     }
 

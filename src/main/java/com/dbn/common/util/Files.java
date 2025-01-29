@@ -27,11 +27,13 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.LightVirtualFile;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.Objects;
 
+@NonNls
 @UtilityClass
 public final class Files {
     // keep in sync with file type definitions in  plugin.xml

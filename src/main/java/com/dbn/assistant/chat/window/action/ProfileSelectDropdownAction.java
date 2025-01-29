@@ -32,6 +32,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Action for selecting the current AI-assistant profile
  *
@@ -64,22 +66,22 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements DumbA
 
         Presentation presentation = e.getPresentation();
         presentation.setText(getText(e));
-        presentation.setDescription(txt("companion.chat.profile.tooltip"));
+        presentation.setDescription(txt("app.assistant.tooltip.ChooseProfile"));
         presentation.setEnabled(enabled);
         presentation.setIcon(profile == null ? null : profile.getIcon());
     }
 
     private String getText(@NotNull AnActionEvent e) {
         ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
-        if (chatBox == null) return "Profile";
+        if (chatBox == null) return txt("app.assistant.action.Profile");
 
         String text = getSelectedProfileName(e);
         if (text != null) return text;
 
         List<DBAIProfile> profiles = chatBox.getProfiles();
-        if (!profiles.isEmpty()) return "Select Profile";
+        if (!profiles.isEmpty()) return txt("app.assistant.action.SelectProfile");
 
-        return "Profile";
+        return txt("app.assistant.action.Profile");
     }
 
     @Nullable

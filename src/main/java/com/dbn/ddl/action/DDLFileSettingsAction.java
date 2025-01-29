@@ -22,6 +22,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DDLFileSettingsAction extends ProjectSettingsOpenAction {
     public DDLFileSettingsAction() {
         super(ConfigId.DDL_FILES, false);
@@ -30,6 +32,6 @@ public class DDLFileSettingsAction extends ProjectSettingsOpenAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         super.update(e, project);
-        e.getPresentation().setText("DDL File Settings...");
+        e.getPresentation().setText(txt("app.ddlFiles.action.DdlFileSettings"));
     }
 }

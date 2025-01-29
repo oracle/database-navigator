@@ -23,6 +23,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
@@ -85,6 +86,7 @@ public class DatasetColumnState implements Comparable<DatasetColumnState>, Persi
         return new DatasetColumnState(this);
     }
 
+    @NonNls
     @Override
     public String toString() {
         return name + ' ' + position + (visible ? " visible" : " hidden");

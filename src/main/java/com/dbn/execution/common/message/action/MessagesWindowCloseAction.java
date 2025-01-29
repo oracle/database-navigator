@@ -25,10 +25,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class MessagesWindowCloseAction extends AbstractExecutionMessagesAction {
-    public MessagesWindowCloseAction() {
-        super("Close", null, Icons.EXEC_RESULT_CLOSE);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull MessagesTree messagesTree) {
@@ -38,7 +37,7 @@ public class MessagesWindowCloseAction extends AbstractExecutionMessagesAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable MessagesTree target) {
-        presentation.setText("Close");
+        presentation.setText(txt("app.execution.action.Close"));
         presentation.setIcon(Icons.EXEC_RESULT_CLOSE);
     }
 }

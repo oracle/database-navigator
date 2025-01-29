@@ -39,6 +39,7 @@ import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
 public class ExplainPlanEditorAction extends ProjectAction {
@@ -60,7 +61,7 @@ public class ExplainPlanEditorAction extends ProjectAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.STMT_EXECUTION_EXPLAIN);
-        presentation.setText("Explain Plan for Statement");
+        presentation.setText(txt("app.execution.action.ExplainPlanForStatement"));
 
         boolean visible = false;
         boolean enabled = false;

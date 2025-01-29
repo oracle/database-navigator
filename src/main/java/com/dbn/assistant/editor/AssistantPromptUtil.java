@@ -29,6 +29,7 @@ import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.assistant.editor.AssistantPrompt.Flavor.COMMENT;
@@ -118,7 +119,7 @@ public class AssistantPromptUtil {
         return AssistantPrompt.create(promptElement.getText(), STATEMENT);
     }
 
-    private static @Nullable String adjustPrompt(String text) {
+    private static @Nullable String adjustPrompt(@NonNls String text) {
         if (text == null) return null;
 
         text = text.trim();

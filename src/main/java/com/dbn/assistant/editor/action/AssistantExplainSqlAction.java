@@ -19,6 +19,8 @@ package com.dbn.assistant.editor.action;
 import com.dbn.assistant.chat.window.PromptAction;
 import org.jetbrains.annotations.Nls;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Editor menu action to invoke AI-Assistant with "Explain SQL" instruction
  *
@@ -34,9 +36,9 @@ public class AssistantExplainSqlAction extends AssistantBaseEditorAction {
   @Override
   protected @Nls String getActionName(AssistantBaseEditorAction.ActionPlace place) {
     switch (place) {
-      case GENERATE_ACTION_GROUP: return "SQL Statement with Explanation";
+      case GENERATE_ACTION_GROUP: return txt("app.assistant.action.SqlStatementWithExplanation");
       case EDITOR_POPUP_MENU:
-      default: return "Generate and Explain SQL";
+      default: return txt("app.assistant.action.GenerateAndExplainSql");
     }
   }
 }

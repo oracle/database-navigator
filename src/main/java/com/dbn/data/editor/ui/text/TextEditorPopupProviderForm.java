@@ -169,7 +169,7 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
     }
 
     @Override
-    public String getDescription() {
+    public String getName() {
         return "Text Editor";
     }
 

@@ -18,6 +18,7 @@ package com.dbn.database.interfaces.queue;
 
 import com.dbn.common.count.Counter;
 import com.dbn.common.count.Counters;
+import org.jetbrains.annotations.NonNls;
 
 import static com.dbn.common.count.CounterType.FINISHED;
 import static com.dbn.common.count.CounterType.QUEUED;
@@ -40,6 +41,7 @@ public class InterfaceCounters extends Counters {
         return get(FINISHED);
     }
 
+    @NonNls
     @Override
     public String toString() {
         return

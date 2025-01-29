@@ -38,10 +38,13 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorCodeGeneratorInput, JdbcConnectorCodeGeneratorResult> {
     public JdbcConnectorCodeGenerator(CodeGeneratorType type) {
@@ -153,7 +156,7 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         addProperty(properties, "PROPERTIES", propsCsv);
     }
 
-    private static void addProperty(Properties properties, String key, Object value) {
+    private static void addProperty(Properties properties, @NonNls String key, Object value) {
         if (value == null) return;
         properties.put(key, value.toString());
     }
@@ -161,8 +164,8 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
     @Override
     protected String getTitle(OutcomeType outcomeType) {
         switch (outcomeType) {
-            case SUCCESS: return "Success";
-            case FAILURE: return "Failure";
+            case SUCCESS: return txt("msg.shared.title.Success");
+            case FAILURE: return txt("msg.shared.title.Failure");
         }
         return "";
     }

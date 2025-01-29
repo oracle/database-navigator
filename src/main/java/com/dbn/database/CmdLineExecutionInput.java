@@ -21,6 +21,7 @@ import com.dbn.common.util.Strings;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -39,11 +40,11 @@ public class CmdLineExecutionInput {
         this.scriptContent = scriptContent;
     }
 
-    public void addEnvironmentVariable(String key, char[] value) {
+    public void addEnvironmentVariable(@NonNls String key, char[] value) {
         command.withEnvironment(key, Chars.toString(value));
     }
 
-    public void addEnvironmentVariable(String key, String value) {
+    public void addEnvironmentVariable(@NonNls String key, @NonNls String value) {
         command.withEnvironment(key, value);
     }
 
@@ -51,7 +52,7 @@ public class CmdLineExecutionInput {
         return scriptContent;
     }
 
-    public void addStatement(String statement) {
+    public void addStatement(@NonNls String statement) {
         statements.add(statement);
     }
 
@@ -59,12 +60,12 @@ public class CmdLineExecutionInput {
         command.setExePath(executable);
     }
 
-    public void addParameter(String param) {
+    public void addParameter(@NonNls String param) {
         if (Strings.isEmpty(param)) return;
         command.addParameter(param);
     }
 
-    public void addParameter(String param, String value) {
+    public void addParameter(@NonNls String param, @NonNls String value) {
         if (Strings.isEmpty(value)) return;
         command.addParameter(param);
         command.addParameter(value);

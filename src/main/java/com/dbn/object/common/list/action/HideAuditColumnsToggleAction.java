@@ -26,10 +26,12 @@ import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class HideAuditColumnsToggleAction extends AbstractConnectionToggleAction {
 
     public HideAuditColumnsToggleAction(ConnectionHandler connection) {
-        super("Hide audit columns", connection);
+        super(txt("app.objects.action.HideAuditColumns"), connection);
 
     }
     @Override

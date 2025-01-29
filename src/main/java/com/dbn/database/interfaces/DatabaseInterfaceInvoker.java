@@ -28,6 +28,8 @@ import com.dbn.connection.SchemaId;
 import com.dbn.database.interfaces.DatabaseInterface.Callable;
 import com.dbn.database.interfaces.queue.InterfaceTaskRequest;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts.ProgressText;
+import com.intellij.openapi.util.NlsContexts.ProgressTitle;
 import lombok.experimental.UtilityClass;
 
 import java.sql.SQLException;
@@ -42,7 +44,7 @@ public final class DatabaseInterfaceInvoker {
      * Database Interface invocation against a pool connection
      * Schedules the task and returns immediately
      */
-    public static void schedule(Priority priority, String title, String text, Project project, ConnectionId connectionId, ConnectionRunnable runnable) throws SQLException {
+    public static void schedule(Priority priority, @ProgressTitle String title, @ProgressText String text, Project project, ConnectionId connectionId, ConnectionRunnable runnable) throws SQLException {
         InterfaceTaskRequest request = InterfaceTaskRequest.create(priority, title, text, project, connectionId, null);
         ConnectionHandler connection = request.getConnection();
         DatabaseInterfaceQueue interfaceQueue = connection.getInterfaceQueue();
@@ -67,14 +69,14 @@ public final class DatabaseInterfaceInvoker {
         execute(priority, null, null, project, connectionId, runnable);
     }
 
-    public static void execute(Priority priority, String title, String text, Project project, ConnectionId connectionId, ConnectionRunnable runnable) throws SQLException {
+    public static void execute(Priority priority, @ProgressTitle String title, @ProgressText String text, Project project, ConnectionId connectionId, ConnectionRunnable runnable) throws SQLException {
         execute(priority, title, text, project, connectionId, null, runnable);
     }
 
     /**
      * @deprecated use {@link #execute(Priority, String, String, Project, ConnectionId, ConnectionRunnable)}
      */
-    public static void execute(Priority priority, String title, String text, Project project, ConnectionId connectionId, @Deprecated SchemaId schemaId, ConnectionRunnable runnable) throws SQLException {
+    public static void execute(Priority priority, @ProgressTitle String title, @ProgressText String text, Project project, ConnectionId connectionId, @Deprecated SchemaId schemaId, ConnectionRunnable runnable) throws SQLException {
         InterfaceTaskRequest request = InterfaceTaskRequest.create(priority, title, text, project, connectionId, schemaId);
         ConnectionHandler connection = request.getConnection();
         DatabaseInterfaceQueue interfaceQueue = connection.getInterfaceQueue();
@@ -101,7 +103,7 @@ public final class DatabaseInterfaceInvoker {
         return load(priority, null, null, project, connectionId, callable);
     }
 
-    public static <T> T load(Priority priority, String title, String text, Project project, ConnectionId connectionId, ConnectionCallable<T> callable) throws SQLException {
+    public static <T> T load(Priority priority, @ProgressTitle String title, @ProgressText String text, Project project, ConnectionId connectionId, ConnectionCallable<T> callable) throws SQLException {
         InterfaceTaskRequest request = InterfaceTaskRequest.create(priority, title, text, project, connectionId, null);
         ConnectionHandler connection = request.getConnection();
         DatabaseInterfaceQueue interfaceQueue = connection.getInterfaceQueue();

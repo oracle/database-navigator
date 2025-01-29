@@ -25,10 +25,12 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DatabaseLoggingToggleAction extends AbstractConnectionToggleAction {
 
     public DatabaseLoggingToggleAction(ConnectionHandler connection) {
-        super("Database Logging", connection);
+        super(txt("app.connection.action.DatabaseLogging"), connection);
     }
 
     @Override
@@ -51,7 +53,7 @@ public class DatabaseLoggingToggleAction extends AbstractConnectionToggleAction 
         presentation.setVisible(supportsLogging);
         String databaseLogName = compatibility.getDatabaseLogName();
         if (Strings.isNotEmpty(databaseLogName)) {
-            presentation.setText("Database Logging (" + databaseLogName + ")");
+            presentation.setText(txt("app.connection.action.DatabaseLoggingNamed", databaseLogName));
         }
     }
 }

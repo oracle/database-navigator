@@ -47,6 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.datatransfer.StringSelection;
@@ -182,7 +183,7 @@ public class ElementTypeBundle {
     }
 
 
-    public static String determineMandatoryAttribute(Element def, String attribute, String message) throws ElementTypeDefinitionException {
+    public static String determineMandatoryAttribute(Element def, @NonNls String attribute, String message) throws ElementTypeDefinitionException {
         String value = stringAttribute(def, attribute);
         if (value == null) {
             throw new ElementTypeDefinitionException(message + "Missing '" + attribute + "' attribute.");
@@ -190,7 +191,7 @@ public class ElementTypeBundle {
         return value;
     }
 
-    public ElementTypeBase resolveElementDefinition(Element def, String type, ElementTypeBase parent) throws ElementTypeDefinitionException {
+    public ElementTypeBase resolveElementDefinition(Element def, @NonNls String type, ElementTypeBase parent) throws ElementTypeDefinitionException {
         ElementTypeBase result;
         if (ElementTypeDefinition.SEQUENCE.is(type)){
             result = new SequenceElementType(this, parent, createId(), def);

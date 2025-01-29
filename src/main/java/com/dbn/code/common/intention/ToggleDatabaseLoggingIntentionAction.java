@@ -42,6 +42,7 @@ import static com.dbn.common.util.Files.isDbLanguagePsiFile;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.database.DatabaseFeature.DATABASE_LOGGING;
 import static com.dbn.debugger.DatabaseDebuggerManager.isDebugConsole;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ToggleDatabaseLoggingIntentionAction extends EditorIntentionAction {
     private PsiFileRef<?> lastChecked;
@@ -58,16 +59,20 @@ public class ToggleDatabaseLoggingIntentionAction extends EditorIntentionAction 
         ConnectionHandler connection = getLastCheckedConnection();
         if (Checks.isValid(connection)) {
             DatabaseCompatibilityInterface compatibility = connection.getCompatibilityInterface();
-            String databaseLogName = compatibility.getDatabaseLogName();
+            String logName = compatibility.getDatabaseLogName();
             boolean loggingEnabled = connection.isLoggingEnabled();
-            if (Strings.isEmpty(databaseLogName)) {
-                return loggingEnabled ? "Disable database logging" : "Enable database logging";
+            if (Strings.isEmpty(logName)) {
+                return loggingEnabled ?
+                        txt("app.codeEditor.action.DisableDatabaseLogging") :
+                        txt("app.codeEditor.action.EnableDatabaseLogging");
             } else {
-                return (loggingEnabled ? "Disable logging (" : "Enable logging (") + databaseLogName + ')';
+                return loggingEnabled ?
+                        txt("app.codeEditor.action.DisableLogging", logName) :
+                        txt("app.codeEditor.action.EnableLogging", logName);
             }
         }
 
-        return "Toggle database logging";
+        return txt("app.codeEditor.action.ToggleDatabaseLogging");
     }
 
     @Override

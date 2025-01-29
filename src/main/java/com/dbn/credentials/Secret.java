@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Chars.isEmpty;
 import static com.dbn.common.util.Commons.nvl;
+import static java.util.Arrays.copyOf;
 
 /**
  * A secret construct similar to {@link java.net.PasswordAuthentication}, holding additional
@@ -44,7 +45,7 @@ public final class Secret {
     public Secret(SecretType type, String user, char[] token) {
         this.type = type;
         this.user = nvl(user, "");
-        this.token = token;
+        this.token = token == null ? EMPTY : copyOf(token, token.length);
     }
 
     @Nullable
@@ -59,7 +60,7 @@ public final class Secret {
 
     public String safePresentation() {
         // secret representation with length of token only
-        return type + ":" + (isEmpty(token) ? '0' : token.length);
+        return type + ":" + (isEmpty(token) ? "0" : token.length);
     }
 
     @Override

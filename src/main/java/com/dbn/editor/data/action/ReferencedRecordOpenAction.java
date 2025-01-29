@@ -18,9 +18,11 @@ package com.dbn.editor.data.action;
 
 import com.dbn.editor.data.filter.DatasetFilterInput;
 
+import static com.dbn.nls.NlsResources.txt;
+
 class ReferencedRecordOpenAction extends AbstractRecordsOpenAction {
 
     ReferencedRecordOpenAction(DatasetFilterInput filterInput) {
-        super("Show referenced " + filterInput.getDataset().getName() + " record", filterInput);
+        super(txt("app.data.action.ShowReferencedRecord",filterInput.getDataset().getName()), filterInput);
     }
 }

@@ -21,11 +21,13 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class MatchCaseToggleAction extends DataSearchHeaderToggleAction {
     public MatchCaseToggleAction(DataSearchComponent searchComponent) {
         super(
                 searchComponent,
-                "&Case Sensitive",
+                txt("app.data.action.FindCaseSensitive"),
                 AllIcons.Actions.MatchCase,
                 AllIcons.Actions.MatchCaseHovered,
                 AllIcons.Actions.MatchCaseSelected);

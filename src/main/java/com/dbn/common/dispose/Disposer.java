@@ -25,7 +25,6 @@ import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.ui.tabs.JBTabs;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.Reference;
@@ -48,15 +47,16 @@ public final class Disposer {
             JBTabs.class
             /*, ...*/);
 
-    public static void register(@Nullable Disposable parent, @NotNull Object object) {
+    public static void register(@Nullable Disposable parent, @Nullable Object object) {
         if (object instanceof Disposable) {
             Disposable disposable = (Disposable) object;
             register(parent, disposable);
         }
     }
 
-    public static void register(@Nullable Disposable parent, @NotNull Disposable disposable) {
+    public static void register(@Nullable Disposable parent, @Nullable Disposable disposable) {
         if (parent == null) return;
+        if (disposable == null) return;
 
         if (disposable instanceof UnlistedDisposable) {
             log.error("Unlisted disposable {} should not be registered",

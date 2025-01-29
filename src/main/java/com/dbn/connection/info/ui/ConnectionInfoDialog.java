@@ -36,7 +36,6 @@ public class ConnectionInfoDialog extends DBNDialog<ConnectionInfoForm> {
         super(connection.getProject(), "Connection information", true);
         this.connection = connection.ref();
         renameAction(getCancelAction(), "Close");
-        setResizable(false);
         setModal(true);
         init();
     }
@@ -47,7 +46,6 @@ public class ConnectionInfoDialog extends DBNDialog<ConnectionInfoForm> {
         this.connectionName = connectionName;
         this.environmentType = environmentType;
         renameAction(getCancelAction(), "Close");
-        setResizable(false);
         setModal(true);
         init();
     }

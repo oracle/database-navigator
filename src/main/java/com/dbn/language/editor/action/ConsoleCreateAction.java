@@ -29,6 +29,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @BackgroundUpdate
 public class ConsoleCreateAction extends ProjectAction {
     private final DBConsoleType consoleType;
@@ -50,6 +52,6 @@ public class ConsoleCreateAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("New " + consoleType.getName() + "...");
+        presentation.setText(txt("app.codeEditor.action.NewConsole", consoleType.getName()));
     }
 }

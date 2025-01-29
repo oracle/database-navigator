@@ -35,6 +35,7 @@ import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ public class DatasetEditorSortingForm extends DBNFormBase {
     private JPanel sortingInstructionsPanel;
     private JPanel actionsPanel;
     private JPanel headerPanel;
+    private JLabel dataSortingLabel;
 
     private final DBObjectRef<DBDataset> dataset;
     private final List<DatasetSortingColumnForm> sortingInstructionForms = DisposableContainers.concurrentList(this);
@@ -73,13 +75,6 @@ public class DatasetEditorSortingForm extends DBNFormBase {
 
         actionsPanel.add(new ColumnSelector(), BorderLayout.CENTER);
         createHeaderForm(dataset);
-
-/*
-        ActionToolbar actionToolbar = ActionUtil.createActionToolbar(
-                "DBNavigator.DataEditor.Sorting.Add", true,
-                new AddSortingColumnAction(this));
-        actionsPanel.add(actionToolbar.getComponent(), BorderLayout.EAST);
-*/
     }
 
     List<DatasetSortingColumnForm> getSortingInstructionForms() {

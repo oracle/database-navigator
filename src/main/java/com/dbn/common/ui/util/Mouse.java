@@ -20,6 +20,7 @@ import com.dbn.common.routine.Consumer;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -75,6 +76,36 @@ public class Mouse {
 
     public static boolean isMainDoubleClick(MouseEvent e) {
         return e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2;
+    }
+
+    /**
+     * Adds a mouse listener to the specified component that triggers a consumer for mouse click events
+     * matching the specified button and click count.
+     *
+     * @param component the JComponent to which the mouse listener is added
+     * @param button the mouse button that should trigger the consumer, as defined in MouseEvent (e.g., MouseEvent.BUTTON1)
+     * @param clickCount the number of clicks required to trigger the consumer
+     * @param consumer the callback function to be executed when the mouse click event matches the given button and click count
+     */
+    public static void onMouseClick(JComponent component, int button, int clickCount, Consumer<MouseEvent> consumer) {
+        component.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton() != button) return;
+                if (e.getClickCount() != clickCount) return;
+                consumer.accept(e);
+            }
+        });
+    }
+
+    public static void onButtonRelease(JComponent component, int button, Consumer<MouseEvent> consumer) {
+        component.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.getButton() != button) return;
+                consumer.accept(e);
+            }
+        });
     }
 
     public static class Listener implements MouseListener, MouseMotionListener {

@@ -55,6 +55,7 @@ import java.util.stream.Collectors;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.notification.NotificationGroup.DDL;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.lang.Language.findLanguageByID;
 
 @State(

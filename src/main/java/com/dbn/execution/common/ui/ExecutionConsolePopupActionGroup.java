@@ -32,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.Component;
 
 import static com.dbn.common.ui.util.ClientProperty.TAB_CONTENT;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionConsolePopupActionGroup extends DefaultActionGroup {
     private final WeakRef<ExecutionConsoleForm> executionConsoleForm;
@@ -58,7 +59,7 @@ public class ExecutionConsolePopupActionGroup extends DefaultActionGroup {
     }
 
     AnAction renameAction() {
-        return new BasicAction("Rename Result...") {
+        return new BasicAction(txt("app.execution.action.RenameResult")) {
             @Override
             public void update(@NotNull AnActionEvent e) {
                 Component component = getTabComponent(e);
@@ -89,7 +90,7 @@ public class ExecutionConsolePopupActionGroup extends DefaultActionGroup {
     }
 
     private @NotNull BasicAction closeAction() {
-        return new BasicAction("Close") {
+        return new BasicAction(txt("app.shared.action.Close")) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 Component component = getTabComponent(e);
@@ -101,7 +102,7 @@ public class ExecutionConsolePopupActionGroup extends DefaultActionGroup {
     }
 
     private AnAction closeAllAction() {
-        return new BasicAction("Close All") {
+        return new BasicAction(txt("app.shared.action.CloseAll")) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 getExecutionConsoleForm().removeAllTabs();
@@ -110,7 +111,7 @@ public class ExecutionConsolePopupActionGroup extends DefaultActionGroup {
     }
 
     private AnAction closeAllButThisAction() {
-        return new BasicAction("Close All But This") {
+        return new BasicAction(txt("app.shared.action.CloseAllButThis")) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 Component component = getTabComponent(e);

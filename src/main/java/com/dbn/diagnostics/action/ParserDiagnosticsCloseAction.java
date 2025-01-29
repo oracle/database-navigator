@@ -26,6 +26,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ParserDiagnosticsCloseAction extends AbstractParserDiagnosticsAction {
 
     @Override
@@ -36,7 +38,7 @@ public class ParserDiagnosticsCloseAction extends AbstractParserDiagnosticsActio
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ParserDiagnosticsForm target) {
-        presentation.setText("Close");
+        presentation.setText(txt("app.diagnostics.action.Close"));
         presentation.setIcon(Icons.ACTION_CLOSE);
     }
 }

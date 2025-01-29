@@ -25,6 +25,7 @@ import com.dbn.common.util.TimeAware;
 import lombok.Getter;
 import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.SQLException;
 import java.util.Comparator;
@@ -34,6 +35,7 @@ import java.util.concurrent.locks.LockSupport;
 
 import static com.dbn.common.thread.ThreadMonitor.isDispatchThread;
 import static com.dbn.common.thread.ThreadMonitor.isModalProcess;
+import static com.dbn.common.thread.ThreadMonitor.isProgressProcess;
 import static com.dbn.common.thread.ThreadMonitor.isReadActionThread;
 import static com.dbn.common.thread.ThreadMonitor.isWriteActionThread;
 import static com.dbn.database.interfaces.queue.InterfaceTaskStatus.FINISHED;
@@ -107,11 +109,12 @@ class InterfaceTask<R> implements TimeAware {
     private static boolean verifyCallingTread() {
         if (isDispatchThread()) return handleIllegalCallingThread("event dispatch thread");
         if (isWriteActionThread()) return handleIllegalCallingThread("write action threads");
-        if (isReadActionThread()) return handleIllegalCallingThread("read action threads");
+        if (isReadActionThread() && !isProgressProcess()) return handleIllegalCallingThread("read action threads");
+        // TODO verify why object factory modal process is creating a read-action
         return true;
     }
 
-    private static boolean handleIllegalCallingThread(String identifier) {
+    private static boolean handleIllegalCallingThread(@NonNls String identifier) {
         log.error("Database interface access is not allowed from {}: ThreadInfo {}", identifier,
                 ThreadInfo.copy(),
                 new RuntimeException("Illegal database interface invocation"));

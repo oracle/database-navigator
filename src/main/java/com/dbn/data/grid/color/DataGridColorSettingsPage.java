@@ -32,22 +32,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DataGridColorSettingsPage implements ColorSettingsPage {
     protected final List<AttributesDescriptor> attributeDescriptors = new ArrayList<>();
     protected final List<ColorDescriptor> colorDescriptors = new ArrayList<>();
 
     public DataGridColorSettingsPage() {
-        attributeDescriptors.add(new AttributesDescriptor("Plain Data", DataGridTextAttributesKeys.PLAIN_DATA));
-        attributeDescriptors.add(new AttributesDescriptor("Audit Data", DataGridTextAttributesKeys.AUDIT_DATA));
-        attributeDescriptors.add(new AttributesDescriptor("Modified Data", DataGridTextAttributesKeys.MODIFIED_DATA));
-        attributeDescriptors.add(new AttributesDescriptor("Deleted Data", DataGridTextAttributesKeys.DELETED_DATA));
-        attributeDescriptors.add(new AttributesDescriptor("Error Data", DataGridTextAttributesKeys.ERROR_DATA));
-        attributeDescriptors.add(new AttributesDescriptor("Readonly Data", DataGridTextAttributesKeys.READONLY_DATA));
-        attributeDescriptors.add(new AttributesDescriptor("Loading Data", DataGridTextAttributesKeys.LOADING_DATA));
-        attributeDescriptors.add(new AttributesDescriptor("Primary Key", DataGridTextAttributesKeys.PRIMARY_KEY));
-        attributeDescriptors.add(new AttributesDescriptor("Foreign Key", DataGridTextAttributesKeys.FOREIGN_KEY));
-        attributeDescriptors.add(new AttributesDescriptor("Selection", DataGridTextAttributesKeys.SELECTION));
-        attributeDescriptors.add(new AttributesDescriptor("Caret Row", DataGridTextAttributesKeys.CARET_ROW));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.dataEditor.const.TextAttribute_PLAIN_DATA"), DataGridTextAttributesKeys.PLAIN_DATA));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.dataEditor.const.TextAttribute_AUDIT_DATA"), DataGridTextAttributesKeys.AUDIT_DATA));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.dataEditor.const.TextAttribute_MODIFIED_DATA"), DataGridTextAttributesKeys.MODIFIED_DATA));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.dataEditor.const.TextAttribute_DELETED_DATA"), DataGridTextAttributesKeys.DELETED_DATA));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.dataEditor.const.TextAttribute_ERROR_DATA"), DataGridTextAttributesKeys.ERROR_DATA));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.dataEditor.const.TextAttribute_READONLY_DATA"), DataGridTextAttributesKeys.READONLY_DATA));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.dataEditor.const.TextAttribute_LOADING_DATA"), DataGridTextAttributesKeys.LOADING_DATA));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.dataEditor.const.TextAttribute_PRIMARY_KEY"), DataGridTextAttributesKeys.PRIMARY_KEY));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.dataEditor.const.TextAttribute_FOREIGN_KEY"), DataGridTextAttributesKeys.FOREIGN_KEY));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.dataEditor.const.TextAttribute_SELECTION"), DataGridTextAttributesKeys.SELECTION));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.dataEditor.const.TextAttribute_CARET_ROW"), DataGridTextAttributesKeys.CARET_ROW));
     }
 
     @Override

@@ -23,6 +23,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Action for opening the AI-assistant profile setup dialog
  *
@@ -41,6 +43,6 @@ public class ProfilesSetupAction extends AbstractChatBoxAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Profile Setup...");
+        presentation.setText(txt("app.assistant.action.ProfileSetup"));
     }
 }

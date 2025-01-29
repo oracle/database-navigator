@@ -46,6 +46,7 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.feature.FeatureAvailability.AVAILABLE;
 import static com.dbn.common.feature.FeatureAvailability.UNAVAILABLE;
 import static com.dbn.common.feature.FeatureAvailability.UNCERTAIN;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 @State(
@@ -94,8 +95,8 @@ public class AssistantInitializationManager extends ProjectComponentBase impleme
         ConnectionHandler connection = ConnectionHandler.get(connectionId);
 
         Progress.background(project, connection, false,
-                "Checking Feature Availability",
-                "Verifying database assistance feature availability",
+                txt("prc.assistant.title.CheckingFeatureAvailability"),
+                txt("prc.assistant.text.CheckingFeatureAvailability"),
                 p -> verifyAssistantAvailability(connectionId));
     }
 
@@ -154,8 +155,8 @@ public class AssistantInitializationManager extends ProjectComponentBase impleme
 
     private static boolean checkAvailability(ConnectionHandler connection) throws SQLException {
         return DatabaseInterfaceInvoker.load(HIGHEST,
-                "Loading metadata",
-                "Verifying database assistant feature support",
+                txt("prc.assistant.title.LoadingMetadata"),
+                txt("prc.assistant.text.CheckingFeatureSupport"),
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> connection.getAssistantInterface().isAssistantFeatureSupported(conn));
@@ -163,8 +164,8 @@ public class AssistantInitializationManager extends ProjectComponentBase impleme
 
     private static DatabaseAssistantType resolveAssistantType(ConnectionHandler connection) throws SQLException {
         return DatabaseInterfaceInvoker.load(HIGHEST,
-                "Loading metadata",
-                "Resolving database assistant type",
+                txt("prc.assistant.title.LoadingMetadata"),
+                txt("prc.assistant.text.ResolvingAssistantType"),
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> connection.getAssistantInterface().getAssistantType(conn));

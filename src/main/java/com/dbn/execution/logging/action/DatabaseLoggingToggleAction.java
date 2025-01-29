@@ -35,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
+import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
 public class DatabaseLoggingToggleAction extends ToggleAction implements DumbAware {
@@ -71,7 +72,7 @@ public class DatabaseLoggingToggleAction extends ToggleAction implements DumbAwa
         Presentation presentation = e.getPresentation();
 
         boolean visible = false;
-        String name = "Database Logging";
+        String name = txt("app.execution.action.DatabaseLogging");
         if (connection != null) {
             boolean supportsLogging = DatabaseFeature.DATABASE_LOGGING.isSupported(connection);
             if (supportsLogging && isVisible(e)) {

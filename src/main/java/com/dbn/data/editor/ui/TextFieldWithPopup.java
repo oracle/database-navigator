@@ -16,19 +16,18 @@
 
 package com.dbn.data.editor.ui;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.DisposableContainers;
-import com.dbn.common.ui.misc.DBNButton;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.data.editor.ui.array.ArrayEditorPopupProviderForm;
 import com.dbn.data.editor.ui.calendar.CalendarPopupProviderForm;
 import com.dbn.data.editor.ui.text.TextEditorPopupProviderForm;
+import com.dbn.object.common.DBObject;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
@@ -48,10 +47,6 @@ public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButto
 
     private final List<TextFieldPopupProvider> popupProviders = DisposableContainers.list(this);
     private T parentComponent;
-
-    public TextFieldWithPopup() {
-        this(null);
-    }
 
     public TextFieldWithPopup(Project project) {
         this(project, null);
@@ -105,8 +100,8 @@ public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButto
     /******************************************************
      *                    PopupProviders                  *
      ******************************************************/
-    public void createValuesListPopup(ListPopupValuesProvider valuesProvider, boolean buttonVisible) {
-        ValueListPopupProvider popupProvider = new ValueListPopupProvider(this, valuesProvider, false, buttonVisible);
+    public void createValuesListPopup(ListPopupValuesProvider valuesProvider, @Nullable DBObject contextObject, boolean buttonVisible) {
+        ValueListPopupProvider popupProvider = new ValueListPopupProvider(this, valuesProvider, contextObject, false, buttonVisible);
         addPopupProvider(popupProvider);
     }
 
@@ -131,22 +126,30 @@ public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButto
         if (!popupProvider.isButtonVisible()) return;
 
         Icon buttonIcon = popupProvider.getButtonIcon();
-        DBNButton button = new DBNButton(buttonIcon);
+        String providerName = popupProvider.getName();
+        JComponent button = createButton(buttonIcon, providerName);
 
-        String toolTipText = "Open " + popupProvider.getDescription();
+        String toolTipText = "Open " + providerName;
         String keyShortcutDescription = popupProvider.getKeyShortcutDescription();
         if (keyShortcutDescription != null) {
             toolTipText += " (" + keyShortcutDescription + ')';
         }
         button.setToolTipText(toolTipText);
+        addButtonListener(popupProvider, button);
 
-        button.addMouseListener(Mouse.listener().onClick(e -> showPopup(popupProvider)));
 
         int index = buttonsPanel.getComponentCount();
         buttonsPanel.add(button, index);
-        customizeButton(button);
         popupProvider.setButton(button);
-        Colors.subscribe(this, () -> customizeButton(button));
+    }
+
+    private void addButtonListener(TextFieldPopupProvider popupProvider, JComponent buttonComponent) {
+        if (buttonComponent instanceof JButton) {
+            JButton button = (JButton) buttonComponent;
+            button.addActionListener(e -> showPopup(popupProvider));
+        } else {
+            buttonComponent.addMouseListener(Mouse.listener().onClick(e -> showPopup(popupProvider)));
+        }
     }
 
     private void showPopup(TextFieldPopupProvider popupProvider) {
@@ -162,7 +165,7 @@ public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButto
         for (TextFieldPopupProvider popupProvider : popupProviders) {
             if (popupProvider.getPopupType() == popupType) {
                 popupProvider.setEnabled(enabled);
-                JLabel button = popupProvider.getButton();
+                JComponent button = popupProvider.getButton();
                 if (button != null) {
                     button.setVisible(enabled);
                 }

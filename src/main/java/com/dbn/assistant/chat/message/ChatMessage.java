@@ -29,6 +29,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class ChatMessage {
 
     protected MessageType type = MessageType.NEUTRAL;
     protected AuthorType author;
-    protected String content;
+    protected @NonNls String content;
     protected ChatMessageContext context;
     private Latent<List<ChatMessageSection>> sections = Latent.basic(() -> buildSections());
 

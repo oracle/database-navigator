@@ -16,21 +16,27 @@
 
 package com.dbn.database.common.metadata.def;
 
+import com.dbn.database.common.security.ObjectIdentifier;
+
 import java.sql.SQLException;
 
 public interface DBTypeMetadata extends DBProgramMetadata {
 
+    @ObjectIdentifier
     String getTypeName() throws SQLException;
 
     String getTypeCode() throws SQLException;
 
+    @ObjectIdentifier
     String getSupertypeOwner() throws SQLException;
 
+    @ObjectIdentifier
     String getSupertypeName() throws SQLException;
 
     boolean isCollection() throws SQLException;
 
     DBDataTypeMetadata getDataType();
 
+    @ObjectIdentifier
     String getPackageName() throws SQLException;
 }

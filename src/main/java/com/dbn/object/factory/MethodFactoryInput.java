@@ -18,7 +18,6 @@ package com.dbn.object.factory;
 
 import com.dbn.common.util.Strings;
 import com.dbn.object.DBSchema;
-import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,18 +29,12 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class MethodFactoryInput extends ObjectFactoryInput{
+public class MethodFactoryInput extends SchemaObjectFactoryInput{
     private List<ArgumentFactoryInput> arguments = new ArrayList<>();
     private ArgumentFactoryInput returnArgument;
-    private final DBObjectRef<DBSchema> schema;
 
-    public MethodFactoryInput(DBSchema schema, String objectName, DBObjectType methodType, int index) {
-        super(objectName, methodType, null, index);
-        this.schema = DBObjectRef.of(schema);
-    }
-
-    public DBSchema getSchema() {
-        return DBObjectRef.get(schema);
+    public MethodFactoryInput(DBSchema schema, String objectName, DBObjectType methodType) {
+        super(schema, objectName, methodType);
     }
 
     public boolean isFunction() {
@@ -56,7 +49,7 @@ public class MethodFactoryInput extends ObjectFactoryInput{
             errors.add(getObjectType().getName() + " name is not specified" + hint);
             
         } else if (!Strings.isWord(objectName)) {
-            errors.add("invalid " + getObjectType().getName() +" name specified" + ": \"" + objectName + "\"");
+            errors.add("invalid " + getObjectType().getName() + " name specified" + ": \"" + objectName + "\"");
         }
 
 

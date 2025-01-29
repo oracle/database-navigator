@@ -83,6 +83,7 @@ import static com.dbn.common.util.Commons.list;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
     name = DatabaseDebuggerManager.COMPONENT_NAME,
@@ -222,12 +223,15 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
             } else {
                 ApplicationInfo applicationInfo = ApplicationInfo.getInstance();
                 Messages.showErrorDialog(
-                        project, "Unsupported debugger",
-                        debuggerType.name() + " debugging is not supported in \"" +
-                                applicationInfo.getVersionName() + " " +
-                                applicationInfo.getFullVersion() + "\".\n" +
-                                "Do you want to use classic debugger over JDBC instead?",
-                        new String[]{"Use " + DBDebuggerType.JDBC.getName(), "Cancel"}, 0,
+                        project,
+                        txt("msg.debugger.title.UnsupportedDebugger"),
+                        txt("msg.debugger.error.UnsupportedDebugger",
+                                debuggerType.getName(),
+                                applicationInfo.getVersionName(),
+                                applicationInfo.getFullVersion()),
+                        new String[]{
+                                txt("msg.debugger.button.UseDebugger",DBDebuggerType.JDBC.getName()),
+                                txt("msg.shared.button.Cancel")}, 0,
                         o -> when(o == 0, () -> debuggerStarter.accept(DBDebuggerType.JDBC)));
             }
         });
@@ -251,7 +255,7 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
                         boolean added = addToCompileList(compileList, schemaObject);
                         if (added) {
                             String objectName = schemaObject.getQualifiedNameWithType();
-                            setProgressDetail(txt("prc.debugger.message.LoadingDependencies", objectName));
+                            setProgressDetail(txt("prc.debugger.text.LoadingDependencies", objectName));
                             schemaObject.getReferencedObjects();
                         }
                     }

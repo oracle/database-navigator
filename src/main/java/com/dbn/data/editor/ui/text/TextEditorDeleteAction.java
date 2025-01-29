@@ -23,9 +23,11 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JTextField;
 
+import static com.dbn.nls.NlsResources.txt;
+
 class TextEditorDeleteAction extends TextEditorAction {
     public TextEditorDeleteAction() {
-        super("Delete Content", null, Icons.TEXT_CELL_EDIT_DELETE);
+        super(txt("app.dataEditor.action.DeleteContent"), null, Icons.TEXT_CELL_EDIT_DELETE);
     }
 
     @Override

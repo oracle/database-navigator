@@ -23,6 +23,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Profile management reload action
  * (invokes the reload of profiles from the database and refreshes the list)
@@ -42,7 +44,7 @@ public class ProfilesReloadAction extends ProfileManagementAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.ACTION_RELOAD);
-        presentation.setText("Reload Profiles");
+        presentation.setText(txt("app.assistant.action.ReloadProfile"));
         presentation.setEnabled(isEnabled(e));
     }
 

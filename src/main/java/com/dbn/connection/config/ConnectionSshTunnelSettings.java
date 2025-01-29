@@ -25,6 +25,7 @@ import com.dbn.connection.ssh.SshAuthType;
 import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretsOwner;
+import com.dbn.credentials.SecretsOwnerRegistry;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,7 +44,7 @@ import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.util.Base64.decode;
 import static com.dbn.common.util.Base64.encode;
 import static com.dbn.common.util.Strings.isNotEmpty;
-import static com.dbn.credentials.SecretType.SSH_TUNNEL_PASSPHRASE;
+import static com.dbn.credentials.SecretType.SSH_TUNNEL_KEY_PASSPHRASE;
 import static com.dbn.credentials.SecretType.SSH_TUNNEL_PASSWORD;
 
 @Getter
@@ -65,6 +66,7 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
 
     ConnectionSshTunnelSettings(ConnectionSettings parent) {
         super(parent);
+        SecretsOwnerRegistry.register(this);
     }
 
     @Override
@@ -170,6 +172,11 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
     }
 
     @Override
+    public String getSecretOwnerName() {
+        return ensureParent().getDatabaseSettings().getName();
+    }
+
+    @Override
     public Secret[] getSecrets() {
         return new Secret[] {
                 getPasswordSecret(),
@@ -181,7 +188,7 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
     }
 
     private Secret getKeyPassphraseSecret() {
-        return new Secret(SSH_TUNNEL_PASSPHRASE, keyFile, keyPassphrase );
+        return new Secret(SSH_TUNNEL_KEY_PASSPHRASE, keyFile, keyPassphrase);
     }
 
     /**
@@ -197,7 +204,7 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
             Secret secret = credentialManager.loadSecret(SSH_TUNNEL_PASSWORD, connectionId, user);
             password = secret.getToken();
         } else if (authType == SshAuthType.KEY_PAIR) {
-            Secret secret = credentialManager.loadSecret(SSH_TUNNEL_PASSPHRASE, connectionId, keyFile);
+            Secret secret = credentialManager.loadSecret(SSH_TUNNEL_KEY_PASSPHRASE, connectionId, keyFile);
             keyPassphrase = secret.getToken();
         }
     }

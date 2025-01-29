@@ -23,6 +23,7 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import lombok.Data;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,13 +36,13 @@ public class TextContentType implements Selectable<TextContentType> {
     private final FileType fileType;
     private transient boolean selected = true;
 
-    public TextContentType(String name, FileType fileType) {
+    public TextContentType(@NonNls String name, FileType fileType) {
         this.name = name.intern();
         this.fileType = fileType;
     }
 
     @Nullable
-    public static TextContentType create(String name, String fileTypeName) {
+    public static TextContentType create(@NonNls String name, @NonNls String fileTypeName) {
         FileType fileType = FileTypeManager.getInstance().getStdFileType(fileTypeName);
         // if returned expected file type
         if (Objects.equals(fileType.getName(), fileTypeName)) {
@@ -50,7 +51,7 @@ public class TextContentType implements Selectable<TextContentType> {
         return null;
     }
 
-    public static TextContentType get(Project project, String contentTypeName) {
+    public static TextContentType get(Project project, @NonNls String contentTypeName) {
         DataEditorQualifiedEditorSettings qualifiedEditorSettings = DataEditorSettings.getInstance(project).getQualifiedEditorSettings();
         TextContentType contentType = qualifiedEditorSettings.getContentType(contentTypeName);
         return contentType == null ? getPlainText(project) : contentType;

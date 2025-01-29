@@ -25,11 +25,11 @@ import com.intellij.credentialStore.Credentials;
 import com.intellij.credentialStore.OneTimeString;
 import com.intellij.ide.passwordSafe.PasswordSafe;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.util.Commons.match;
@@ -81,9 +81,9 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
     }
 
     public void updateSecret(@NotNull Object ownerId, Secret oldSecret, Secret newSecret) {
-        if (Objects.equals(oldSecret, newSecret)) return;
-
-        if (!match(oldSecret.getUser(), newSecret.getUser())) {
+        String oldUser = oldSecret.getUser();
+        String newUser = newSecret.getUser();
+        if (!match(oldUser, newUser)) {
             // username has changed. remove the secret
             removeSecret(ownerId, oldSecret);
         }
@@ -136,11 +136,20 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
         return secret;
     }
 
+    @NonNls
     @NotNull
     @Compatibility
     private static CredentialAttributes createAttributes(SecretType secretType, Object ownerId, String user) {
-        user = nvl(user, "default");
-        String serviceName = "DBNavigator." + secretType + "." + ownerId;
+        String serviceTypeName = secretType.getName();
+        String ownerName = SecretsOwnerRegistry.getOwnerName(ownerId);
+        String userName = nvl(user, "default");
+
+        String serviceName = String.format(
+                "DB Navigator - %s: %s@%s",
+                serviceTypeName,
+                userName,
+                ownerName);
+
         return new CredentialAttributes(serviceName, user, DatabaseCredentialManager.class, false);
     }
 

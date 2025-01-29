@@ -21,7 +21,6 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.ComponentAligner;
-import com.dbn.common.ui.util.Cursors;
 import com.dbn.data.editor.ui.BasicDataEditorComponent;
 import com.dbn.data.editor.ui.DataEditorComponent;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
@@ -61,8 +60,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.ParseException;
-import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.data.model.RecordStatus.DELETED;
@@ -123,13 +122,9 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase implements Compon
                             DataEditorValueListPopupSettings valueListPopupSettings = dataEditorSettings.getValueListPopupSettings();
 
                             if (!column.isPrimaryKey() && !column.isUniqueKey() && dataLength <= valueListPopupSettings.getDataLengthThreshold()) {
-                                ListPopupValuesProvider valuesProvider = new ListPopupValuesProviderBase("Possible Values List", false) {
-                                    @Override
-                                    public List<String> getValues() {
-                                        return columnInfo.getPossibleValues();
-                                    }
-                                };
-                                textFieldWithPopup.createValuesListPopup(valuesProvider, valueListPopupSettings.isShowPopupButton());
+                                ListPopupValuesProvider valuesProvider = ListPopupValuesProviderBase.
+                                        create("Possible Values", () -> columnInfo.getPossibleValues());
+                                textFieldWithPopup.createValuesListPopup(valuesProvider, column, valueListPopupSettings.isShowPopupButton());
                             }
 
                             if (dataLength > 20 && !column.isPrimaryKey() && !column.isForeignKey()) {
@@ -155,7 +150,10 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase implements Compon
         }
 
         valueFieldPanel.add((Component) editorComponent, BorderLayout.CENTER);
-        editorComponent.getTextField().setCursor(Cursors.textCursor());
+        JTextField editorTextField = editorComponent.getTextField();
+
+        columnLabel.setLabelFor(editorTextField);
+        setAccessibleUnit(editorTextField, dataTypeLabel.getText());
         setCell(cell);
 
         Disposer.register(this, editorComponent);

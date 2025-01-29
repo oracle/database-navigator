@@ -43,6 +43,7 @@ import java.sql.Statement;
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExplainPlanManager extends ProjectComponentBase {
     public static final String COMPONENT_NAME = "DBNavigator.Project.ExplainPlanManager";
@@ -79,10 +80,10 @@ public class ExplainPlanManager extends ProjectComponentBase {
         contextManager.selectConnectionAndSchema(
                 databaseFile.getVirtualFile(),
                 dataContext,
-                ()-> ConnectionAction.invoke("generating the explain plan", false, executable,
+                ()-> ConnectionAction.invoke(txt("msg.execution.title.GeneratingExplainPlan"), false, executable,
                         action -> Progress.prompt(getProject(), action, true,
-                                "Extracting explain plan",
-                                "Extracting explain plan for " + elementDescription,
+                                txt("prc.execution.title.ExtractingExplainPlan"),
+                                txt("prc.execution.text.ExtractingExplainPlanFor", elementDescription),
                                 progress -> {
                                     ConnectionHandler connection = action.getConnection();
                                     ExplainPlanResult explainPlanResult = createExplainPlan(executable, connection);

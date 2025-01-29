@@ -19,6 +19,7 @@ package com.dbn.debugger.jdbc.frame;
 import com.dbn.debugger.common.frame.DBDebugValue;
 import com.dbn.debugger.jdbc.DBJdbcDebugProcess;
 import com.intellij.xdebugger.frame.XValueModifier;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
@@ -27,7 +28,7 @@ import java.util.List;
 public class DBJdbcDebugValue extends DBDebugValue<DBJdbcDebugStackFrame>{
     private DBJdbcDebugValueModifier modifier;
 
-    DBJdbcDebugValue(DBJdbcDebugStackFrame stackFrame, DBJdbcDebugValue parentValue, String variableName, @Nullable List<String> childVariableNames, Icon icon) {
+    DBJdbcDebugValue(DBJdbcDebugStackFrame stackFrame, DBJdbcDebugValue parentValue, @NonNls String variableName, @Nullable List<String> childVariableNames, Icon icon) {
         super(stackFrame, variableName, childVariableNames, parentValue, icon);
     }
 

@@ -78,6 +78,7 @@ class Connector {
         String ORACLE_JDBC_DEBUG_JDWP = "oracle.jdbc.debugJDWP";
     }
 
+    @NonNls
     private interface PropertyValue {
         String TOKEN_AUTHENTICATION_OCI_API_KEY = "OCI_API_KEY";
         String TOKEN_AUTHENTICATION_OCI_INTERACTIVE = "OCI_INTERACTIVE";

@@ -35,18 +35,19 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @BackgroundUpdate
 public class CodeEditorDDLFileAction extends ProjectPopupAction {
     @Override
-    public void update(@NotNull AnActionEvent e, Project project) {
+    public void update(@NotNull AnActionEvent e, @NotNull Project project) {
         DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);
         DBObjectType objectType = sourceCodeFile == null ? null : sourceCodeFile.getObjectType();
 
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.CODE_EDITOR_DDL_FILE);
-        presentation.setText("DDL Files");
+        presentation.setText(txt("app.codeEditor.action.DdlFiles"));
         presentation.setEnabled(objectType != null);
-        presentation.setVisible(objectType != DBObjectType.JAVA_CLASS); // TODO amend this when DDLs are supported in OJVM
     }
 
     @Override

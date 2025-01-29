@@ -49,7 +49,12 @@ public interface DatabaseContext extends DatabaseInterfacesProvider {
     DBSchema getSchema();
 
     @Nullable
-    String getSchemaName();
+    default String getSchemaName() {
+        return getSchemaName(false);
+    }
+
+    @Nullable
+    String getSchemaName(boolean quoted);
 
     @Nullable
     DatabaseSession getSession();

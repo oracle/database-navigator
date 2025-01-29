@@ -17,7 +17,9 @@
 package com.dbn.common.text;
 
 import com.dbn.common.constant.Constant;
+import org.jetbrains.annotations.NonNls;
 
+@NonNls
 public enum MimeType implements Constant<MimeType> {
     TEXT_PLAIN("text/plain"),
     TEXT_HTML("text/html"),

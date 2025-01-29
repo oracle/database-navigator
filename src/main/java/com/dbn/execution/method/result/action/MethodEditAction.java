@@ -25,6 +25,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class MethodEditAction extends AbstractMethodExecutionResultAction {
 
     @Override
@@ -39,7 +41,7 @@ public class MethodEditAction extends AbstractMethodExecutionResultAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable MethodExecutionResult target) {
-        presentation.setText("Edit Method");
+        presentation.setText(txt("app.execution.action.EditMethod"));
         presentation.setIcon(Icons.OBJECT_EDIT_SOURCE);
 
     }

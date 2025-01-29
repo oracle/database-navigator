@@ -46,6 +46,7 @@ import com.sun.jdi.connect.AttachingConnector;
 import com.sun.jdi.connect.spi.Connection;
 import com.sun.jdi.connect.spi.TransportService;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -165,13 +166,13 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
         return createDebugProcess(session, debuggerSession, tcpConfig);
 
     }
-    public static String extractHost(String input) {
+    public static String extractHost(@NonNls String input) {
         int hostStartIndex = input.indexOf("host=") + 5;
         int hostEndIndex = input.indexOf(";port=");
         return input.substring(hostStartIndex, hostEndIndex);
     }
 
-    public static String extractPort(String input) {
+    public static String extractPort(@NonNls String input) {
         int portStartIndex = input.indexOf("port=") + 5;
         return input.substring(portStartIndex);
     }

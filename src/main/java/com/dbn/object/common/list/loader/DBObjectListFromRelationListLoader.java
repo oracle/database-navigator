@@ -25,6 +25,7 @@ import com.dbn.database.common.metadata.DBObjectMetadata;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectRelation;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,7 +39,8 @@ public class DBObjectListFromRelationListLoader<
     }
 
     public static <T extends DynamicContentElement, M extends DBObjectMetadata> DBObjectListFromRelationListLoader<T, M> create(
-            String identifier, @Nullable DynamicContentType parentContentType,
+            @NonNls String identifier,
+            @Nullable DynamicContentType parentContentType,
             @NotNull DynamicContentType contentType) {
         return new DBObjectListFromRelationListLoader<>(identifier, parentContentType, contentType);
     }

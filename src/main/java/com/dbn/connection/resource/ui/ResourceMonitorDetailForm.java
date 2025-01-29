@@ -50,7 +50,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 
-import static com.dbn.common.ui.util.UserInterface.createToolbarDecorator;
+import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
+import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.connection.transaction.TransactionAction.actions;
 
@@ -84,13 +85,8 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
             updateTransactionActions();
         });
 
-        ToolbarDecorator toolbar = createToolbarDecorator(sessionsTable);
-        toolbar.addExtraAction(disconnectAction);
-        toolbar.addExtraAction(renameSessionAction);
-        toolbar.addExtraAction(deleteSessionAction);
-        toolbar.setPreferredSize(new Dimension(-1, 400));
-        sessionsPanel.add(toolbar.createPanel(), BorderLayout.CENTER);
-        sessionsTable.getParent().setBackground(sessionsTable.getBackground());
+        sessionsPanel.add(initTableComponent());
+
         sessionLabel.setText("");
 
         // transactions table
@@ -124,6 +120,16 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
         ProjectEvents.subscribe(project, this, SessionManagerListener.TOPIC, sessionManagerListener);
     }
 
+    private @NotNull JPanel initTableComponent() {
+        ToolbarDecorator decorator = createToolbarDecorator(sessionsTable);
+        decorator.addExtraAction(disconnectAction);
+        decorator.addExtraAction(renameSessionAction);
+        decorator.addExtraAction(deleteSessionAction);
+        decorator.setPreferredSize(new Dimension(-1, 400));
+
+        return createToolbarDecoratorComponent(decorator, sessionsTable);
+    }
+
     private void updateTransactionActions() {
         DBNConnection connection = getSelectedConnection();
         boolean enabled = connection != null && connection.hasDataChanges();
@@ -131,7 +137,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
         rollbackButton.setEnabled(enabled);
     }
 
-    private final AnActionButton disconnectAction = new BasicActionButton(txt("app.sessions.action.Disconnect"), null, Icons.ACTION_DISCONNECT_SESSION) {
+    private final AnActionButton disconnectAction = new BasicActionButton(txt("app.connection.action.Disconnect"), null, Icons.ACTION_DISCONNECT_SESSION) {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             DatabaseSession session = getSelectedSession();
@@ -164,7 +170,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
 
     };
 
-    private final AnActionButton deleteSessionAction = new BasicActionButton(txt("app.sessions.action.DeleteSession"), null, Icons.ACTION_DELETE) {
+    private final AnActionButton deleteSessionAction = new BasicActionButton(txt("app.connection.action.DeleteSession"), null, Icons.ACTION_DELETE) {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             DatabaseSession session = getSelectedSession();

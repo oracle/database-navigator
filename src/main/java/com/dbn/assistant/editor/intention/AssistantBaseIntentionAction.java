@@ -32,6 +32,7 @@ import static com.dbn.assistant.editor.AssistantEditorUtil.isAssistantAvailable;
 import static com.dbn.assistant.editor.AssistantPromptUtil.isAssistantPromptAvailable;
 import static com.dbn.assistant.editor.AssistantPromptUtil.resolveAssistantPrompt;
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Intention action stub for DB-Assistant editor intentions
@@ -63,6 +64,6 @@ public abstract class AssistantBaseIntentionAction extends EditorIntentionAction
     @NotNull
     @Override
     public final String getText() {
-        return "Select AI - " + getActionName();
+        return txt("app.assistant.action.SelectAI", getActionName());
     }
 }

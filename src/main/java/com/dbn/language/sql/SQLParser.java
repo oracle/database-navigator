@@ -18,9 +18,10 @@ package com.dbn.language.sql;
 
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguageParser;
+import org.jetbrains.annotations.NonNls;
 
 public class SQLParser extends DBLanguageParser {
-    public SQLParser(DBLanguageDialect languageDialect, String tokenTypesFile, String elementTypesFile, String defaultParseRootId) {
+    public SQLParser(DBLanguageDialect languageDialect, @NonNls String tokenTypesFile, @NonNls String elementTypesFile, @NonNls String defaultParseRootId) {
         super(languageDialect, tokenTypesFile, elementTypesFile, defaultParseRootId);
     }
 }

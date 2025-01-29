@@ -16,7 +16,6 @@
 
 package com.dbn.object.properties;
 
-import com.dbn.common.util.Naming;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.pom.Navigatable;
@@ -49,7 +48,7 @@ public class DBObjectPresentableProperty extends PresentableProperty{
 
     @Override
     public String getName() {
-        return name == null ? Naming.capitalize(objectRef.getObjectType().getName()) : name;
+        return name == null ? objectRef.getObjectType().getCapitalizedName() : name;
     }
 
     @Override

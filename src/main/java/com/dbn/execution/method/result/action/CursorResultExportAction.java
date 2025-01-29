@@ -26,11 +26,13 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CursorResultExportAction extends MethodExecutionCursorResultAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Export Data");
+        presentation.setText(txt("app.execution.action.ExportData"));
         presentation.setIcon(Icons.DATA_EXPORT);
     }
     @Override

@@ -45,7 +45,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.util.Comparator;
 import java.util.List;
 
@@ -94,11 +93,6 @@ public class DatasetRecordEditorForm extends DBNFormBase implements ComponentAli
         ColumnSortingType columnSortingType = datasetEditorManager.getRecordViewColumnSortingType();
         sortColumns(columnSortingType);
         alignFormComponents(this);
-
-        Dimension preferredSize = mainPanel.getPreferredSize();
-        int width = (int) preferredSize.getWidth() + 24;
-        int height = (int) Math.min(preferredSize.getHeight(), 380);
-        mainPanel.setPreferredSize(new Dimension(width, height));
 
         filterTextField.getEmptyText().setText("Filter");
         onTextChange(filterTextField, e -> filterColumForms());
@@ -243,7 +237,7 @@ public class DatasetRecordEditorForm extends DBNFormBase implements ComponentAli
 
     private class FirstRecordAction extends BasicAction {
         private FirstRecordAction() {
-            super("First Record", null, Icons.DATA_EDITOR_FIRST_RECORD);
+            super(txt("app.data.action.FirstRecord"), null, Icons.DATA_EDITOR_FIRST_RECORD);
         }
 
         @Override
@@ -263,7 +257,7 @@ public class DatasetRecordEditorForm extends DBNFormBase implements ComponentAli
 
     private class PreviousRecordAction extends BasicAction {
         private PreviousRecordAction() {
-            super("Previous Record", null, Icons.DATA_EDITOR_PREVIOUS_RECORD);
+            super(txt("app.data.action.PreviousRecord"), null, Icons.DATA_EDITOR_PREVIOUS_RECORD);
         }
 
         @Override
@@ -286,7 +280,7 @@ public class DatasetRecordEditorForm extends DBNFormBase implements ComponentAli
 
     private class NextRecordAction extends BasicAction {
         private NextRecordAction() {
-            super("Next Record", null, Icons.DATA_EDITOR_NEXT_RECORD);
+            super(txt("app.data.action.NextRecord"), null, Icons.DATA_EDITOR_NEXT_RECORD);
         }
 
         @Override
@@ -309,7 +303,7 @@ public class DatasetRecordEditorForm extends DBNFormBase implements ComponentAli
 
     private class LastRecordAction extends BasicAction {
         private LastRecordAction() {
-            super("Last Record", null, Icons.DATA_EDITOR_LAST_RECORD);
+            super(txt("app.data.action.LastRecord"), null, Icons.DATA_EDITOR_LAST_RECORD);
         }
 
         @Override

@@ -65,6 +65,7 @@ public class ObjectsLookupSettings extends BasicProjectConfiguration<NavigationS
         //new ObjectTypeEntry(DBObjectType.TYPE_ATTRIBUTE, false),
         //new ObjectTypeEntry(DBObjectType.ARGUMENT, false),
         new ObjectTypeEntry(DBObjectType.JAVA_CLASS, true),
+        new ObjectTypeEntry(DBObjectType.JAVA_FIELD, true),
         new ObjectTypeEntry(DBObjectType.JAVA_METHOD, true),
         new ObjectTypeEntry(DBObjectType.JAVA_PARAMETER, true),
         new ObjectTypeEntry(DBObjectType.DIMENSION, false),

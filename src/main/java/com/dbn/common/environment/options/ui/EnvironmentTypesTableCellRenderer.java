@@ -37,12 +37,11 @@ public class EnvironmentTypesTableCellRenderer extends DBNColoredTableCellRender
             Color color = (Color) value;
             if (color == null) color = EnvironmentType.EnvironmentColor.NONE;
             setBackground(color);
-/*
-            setBorder(new CompoundBorder(
-                    new LineBorder(table.getBackground()),
-                    new ColoredSideBorder(color.brighter(), color.brighter(), color.darker(), color.darker(), 1)));
-*/
-            setBorder(Borders.lineBorder(Colors.getTableBackground(), 3));
+
+            Color borderColor = selected ?
+                    Colors.getTableSelectionBackground(hasFocus) :
+                    Colors.getTableBackground();
+            setBorder(Borders.lineBorder(borderColor, 4));
         } else {
             String stringValue = (String) value;
             if (Strings.isNotEmpty(stringValue)) {

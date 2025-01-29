@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class FileConnectionMappingTableModel extends DBNMutableTableModel<FileConnectionContext> {
-    public static final String[] COLUMNS = {"File", "Connection", "Environment", "Schema", "Session", ""};
+    public static final String[] COLUMNS = {"File", "Connection", "Schema", "Session", "Environment"};
     private final List<FileConnectionContext> mappings;
 
     public FileConnectionMappingTableModel(List<FileConnectionContext> mappings) {
@@ -73,9 +73,9 @@ public class FileConnectionMappingTableModel extends DBNMutableTableModel<FileCo
         switch (column) {
             case 0: return row.getFile();
             case 1: return row.getConnection();
-            case 2: return Safe.call(row.getConnection(), c -> c.getEnvironmentType());
-            case 3: return row.getSchemaId();
-            case 4: return row.getSession();
+            case 2: return row.getSchemaId();
+            case 3: return row.getSession();
+            case 4: return Safe.call(row.getConnection(), c -> c.getEnvironmentType());
         }
         return "";
     }
@@ -85,9 +85,9 @@ public class FileConnectionMappingTableModel extends DBNMutableTableModel<FileCo
         switch (column) {
             case 0: return Safe.call(row.getFile(), f -> f.getPath(), "");
             case 1: return Safe.call(row.getConnection(), c -> c.getName(), "");
-            case 2: return Safe.call(row.getConnection(), c -> c.getEnvironmentType().getName(), "");
-            case 3: return Safe.call(row.getSchemaId(), s -> s.getName(), "");
-            case 4: return Safe.call(row.getSession(), s -> s.getName(), "");
+            case 2: return Safe.call(row.getSchemaId(), s -> s.getName(), "");
+            case 3: return Safe.call(row.getSession(), s -> s.getName(), "");
+            case 4: return Safe.call(row.getConnection(), c -> c.getEnvironmentType().getName(), "");
         }
         return "";
     }

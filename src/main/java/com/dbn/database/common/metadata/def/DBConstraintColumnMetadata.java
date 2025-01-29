@@ -17,15 +17,19 @@
 package com.dbn.database.common.metadata.def;
 
 import com.dbn.database.common.metadata.DBObjectMetadata;
+import com.dbn.database.common.security.ObjectIdentifier;
 
 import java.sql.SQLException;
 
 public interface DBConstraintColumnMetadata extends DBObjectMetadata {
 
+    @ObjectIdentifier
     String getConstraintName() throws SQLException;
 
+    @ObjectIdentifier
     String getColumnName() throws SQLException;
 
+    @ObjectIdentifier
     String getDatasetName() throws SQLException;
 
     short getPosition() throws SQLException;

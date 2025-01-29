@@ -23,6 +23,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Action for sending the user prompt content to the AI-assistant engine
  *
@@ -44,7 +46,7 @@ public class PromptSubmitAction extends AbstractChatBoxAction {
 
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.ACTION_EXECUTE);
-        presentation.setText("Submit Prompt");
+        presentation.setText(txt("app.assistant.action.SubmitPrompt"));
         presentation.setEnabled(enabled);
     }
 }

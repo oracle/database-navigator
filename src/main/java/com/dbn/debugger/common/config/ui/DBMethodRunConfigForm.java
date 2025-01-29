@@ -138,8 +138,8 @@ public class DBMethodRunConfigForm extends DBProgramRunConfigForm<DBMethodRunCon
 
     public void setExecutionInput(@Nullable MethodExecutionInput executionInput, boolean touchForm) {
         Progress.modal(getProject(), executionInput, false,
-                "Loading data dictionary",
-                "Loading method information",
+                txt("prc.execution.title.LoadingDataDictionary"),
+                txt("prc.execution.text.LoadingMethodInformation"),
                 progress -> {
                     // initialize method and arguments
                     initialiseExecutionInput(executionInput, progress);

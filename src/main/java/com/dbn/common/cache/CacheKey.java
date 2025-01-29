@@ -17,6 +17,7 @@
 package com.dbn.common.cache;
 
 import lombok.Value;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Arrays;
 
@@ -34,7 +35,7 @@ public class CacheKey<T> {
         this.key = tokens[tokens.length - 1];
     }
 
-    public static <T> CacheKey<T> key(String... tokens) {
+    public static <T> CacheKey<T> key(@NonNls String... tokens) {
         return new CacheKey<>(tokens);
     }
 }

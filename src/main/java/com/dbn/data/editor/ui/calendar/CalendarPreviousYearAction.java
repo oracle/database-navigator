@@ -20,9 +20,11 @@ import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CalendarPreviousYearAction extends CalendarPopupAction {
     CalendarPreviousYearAction() {
-        super("Previous Year", null, Icons.CALENDAR_PREVIOUS_YEAR);
+        super(txt("app.data.action.PreviousYear"), null, Icons.CALENDAR_PREVIOUS_YEAR);
     }
 
     @Override

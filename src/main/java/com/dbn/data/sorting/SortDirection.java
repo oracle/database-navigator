@@ -16,6 +16,9 @@
 
 package com.dbn.data.sorting;
 
+import org.jetbrains.annotations.NonNls;
+
+@NonNls
 public enum SortDirection {
     INDEFINITE(0, ""),
     ASCENDING(1, "asc"),

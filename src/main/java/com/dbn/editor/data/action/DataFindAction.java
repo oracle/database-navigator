@@ -24,6 +24,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DataFindAction extends AbstractDataEditorAction {
 
     @Override
@@ -44,7 +46,7 @@ public class DataFindAction extends AbstractDataEditorAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
-        presentation.setText("Find Data...");
+        presentation.setText(txt("app.dataEditor.action.FindData"));
         presentation.setIcon(Icons.ACTION_FIND);
 
         if (datasetEditor == null) {

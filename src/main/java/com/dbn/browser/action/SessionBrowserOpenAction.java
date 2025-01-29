@@ -28,6 +28,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SessionBrowserOpenAction extends ProjectAction {
     private static ConnectionHandler getConnection(@NotNull AnActionEvent e) {
         Project project = Lookups.getProject(e);
@@ -49,7 +51,7 @@ public class SessionBrowserOpenAction extends ProjectAction {
             presentation.setVisible(false);
             presentation.setEnabled(false);
         }
-        presentation.setText("Open Session Browser");
+        presentation.setText(txt("app.browser.action.OpenSessionBrowser"));
         presentation.setIcon(Icons.SESSION_BROWSER);
     }
 

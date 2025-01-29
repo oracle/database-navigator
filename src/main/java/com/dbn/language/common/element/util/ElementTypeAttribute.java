@@ -18,6 +18,7 @@ package com.dbn.language.common.element.util;
 
 import com.dbn.common.property.Property;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 @Getter
 public enum ElementTypeAttribute implements Property.LongBase {
@@ -65,11 +66,11 @@ public enum ElementTypeAttribute implements Property.LongBase {
     private final String description;
     private final boolean specific;
 
-    ElementTypeAttribute(String name, String description) {
+    ElementTypeAttribute(@NonNls String name, String description) {
         this(name, description, false);
     }
 
-    ElementTypeAttribute(String name, String description, boolean specific) {
+    ElementTypeAttribute(@NonNls String name, String description, boolean specific) {
         this.name = name;
         this.description = description;
         this.specific = specific;

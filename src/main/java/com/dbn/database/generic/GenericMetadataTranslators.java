@@ -36,6 +36,7 @@ import com.dbn.database.common.util.CachedResultSetRow;
 import com.dbn.database.common.util.WrappedCachedResultSet;
 import com.dbn.database.interfaces.DatabaseInterface.Callable;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -577,15 +578,17 @@ public class GenericMetadataTranslators {
     /**************************************************************
      *                    Static utilities                        *
      **************************************************************/
+    @NonNls
     static String generateUniqueKeyName(String tableName, String qualifier) {
         return "unq_" + tableName;
     }
 
+    @NonNls
     static String generateForeignKeyName(String tableName, String qualifier) {
         return "fk_" + tableName;
     }
 
-    static String resolveOwner(ResultSet resultSet, String catalogCol, String schemaCol) throws SQLException {
+    static String resolveOwner(ResultSet resultSet, @NonNls String catalogCol,  @NonNls String schemaCol) throws SQLException {
         return resolve(
                 () -> resultSet.getString(schemaCol),
                 () -> resultSet.getString(catalogCol));

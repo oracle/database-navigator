@@ -16,7 +16,6 @@
 
 package com.dbn.editor.data.ui.table.cell;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.ui.misc.DBNButton;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.data.editor.ui.TextFieldPopupProvider;
@@ -28,6 +27,8 @@ import com.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import java.awt.Dimension;
@@ -156,15 +157,15 @@ public class DatasetTableCellEditorWithPopup extends DatasetTableCellEditor {
         }
 
         @Override
-        public void customizeButton(final DBNButton button) {
+        public JComponent createButton(Icon icon, String name) {
+            DBNButton button = new DBNButton(icon, name);
             JTable table = getTableComponent();
-            if (table == null) return;
+            if (table == null) return button;
 
             button.setBorder(Borders.insetBorder(1));
-            button.setBackground(Colors.getTableBackground());
+            button.setOpaque(false);
             int rowHeight = table.getRowHeight();
             button.setPreferredSize(new Dimension(Math.max(20, rowHeight), rowHeight - 2));
-            button.getParent().setBackground(getTextField().getBackground());
             table.addPropertyChangeListener(e -> {
                 Object newProperty = e.getNewValue();
                 if (newProperty instanceof Font) {
@@ -172,6 +173,8 @@ public class DatasetTableCellEditorWithPopup extends DatasetTableCellEditor {
                     button.setPreferredSize(new Dimension(Math.max(20, rowHeight1), table.getRowHeight() - 2));
                 }
             });
+
+            return button;
         }
 
         JTable getTableComponent() {

@@ -30,10 +30,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ProgramMethodRunAction extends ObjectListShowAction {
     public ProgramMethodRunAction(DBProgram program) {
-        super("Run...", program);
+        super(txt("app.execution.action.Run"), program);
         getTemplatePresentation().setIcon(Icons.METHOD_EXECUTION_RUN);
     }
 

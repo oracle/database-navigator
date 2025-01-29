@@ -35,6 +35,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class TimedReloadComboBoxAction extends ComboBoxAction implements DumbAware {
 
     public TimedReloadComboBoxAction() {
@@ -58,14 +60,14 @@ public class TimedReloadComboBoxAction extends ComboBoxAction implements DumbAwa
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
         Icon icon = Icons.ACTION_TIMED_REFRESH_OFF;
-        String text = "No Refresh";
+        String text = txt("app.sessionBrowser.action.NoRefresh");
 
 
         SessionBrowser sessionBrowser = getSessionBrowser(e);
         if (sessionBrowser != null) {
             int refreshInterval = sessionBrowser.getRefreshInterval();
             if (refreshInterval > 0) {
-                text = refreshInterval + " seconds";
+                text = txt("app.sessionBrowser.action.RefreshSeconds", refreshInterval);
                 if (sessionBrowser.isPreventLoading(false)) {
                     icon = Icons.ACTION_TIMED_REFRESH_INTERRUPTED;
                 } else {
@@ -108,7 +110,9 @@ public class TimedReloadComboBoxAction extends ComboBoxAction implements DumbAwa
         private final int seconds;
 
         SelectRefreshTimeAction(int seconds) {
-            super(seconds == 0 ? "No Refresh" : seconds + " seconds", null, seconds == 0 ? null : Icons.COMMON_TIMER);
+            super(seconds == 0 ?
+                    txt("app.dataEditor.action.NoRefresh"):
+                    txt("app.dataEditor.action.RefreshSeconds", seconds), null, seconds == 0 ? null : Icons.COMMON_TIMER);
             this.seconds = seconds;
         }
 

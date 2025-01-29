@@ -63,6 +63,7 @@ import static com.dbn.connection.transaction.TransactionAction.TURN_AUTO_COMMIT_
 import static com.dbn.connection.transaction.TransactionAction.TURN_AUTO_COMMIT_ON;
 import static com.dbn.connection.transaction.TransactionAction.actions;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseTransactionManager extends ProjectComponentBase implements ProjectManagerListener {
 
@@ -126,12 +127,12 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
                 String actionName = actions.get(0).getName();
 
                 String title = txt("prc.transactions.title.TransactionalActivity");
-                String description = txt("prc.transactions.info.TransactionalActivity", actionName, connectionName);
+                String text = txt("prc.transactions.text.TransactionalActivity", actionName, connectionName);
                 ProgressRunnable executor = progress -> executeActions(connection, conn, actions, callback);
 
                 if (background)
-                    Progress.background(project, connection, false, title, description, executor); else
-                    Progress.prompt(project, connection, false, title, description, executor);
+                    Progress.background(project, connection, false, title, text, executor); else
+                    Progress.prompt(project, connection, false, title, text, executor);
             }
         }
     }
@@ -168,7 +169,7 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
                     TransactionListener.TOPIC,
                     (listener) -> listener.beforeAction(connection, conn, action));
 
-            ProgressMonitor.setProgressDetail(txt("prc.transactions.info.TransactionalActivity", action.getName(), connectionName));
+            ProgressMonitor.setProgressDetail(txt("prc.transactions.text.TransactionalActivity", action.getName(), connectionName));
 
             action.execute(connection, conn);
             if (action.getNotificationType() != null) {

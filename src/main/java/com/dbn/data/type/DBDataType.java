@@ -29,8 +29,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-import static com.dbn.common.util.Strings.toLowerCase;
-
 @Getter
 @Setter
 public class DBDataType {
@@ -96,9 +94,13 @@ public class DBDataType {
     }
 
     public String getName() {
+        return getName(false);
+    }
+
+    public String getName(boolean quoted) {
         return (set ? "set of " : "") +
                 (nativeType == null && declaredType == null ? name :
-                 nativeType == null ? declaredType.getQualifiedName() :
+                 nativeType == null ? declaredType.getQualifiedName(quoted) :
                  nativeType.getName());
     }
 
@@ -131,10 +133,14 @@ public class DBDataType {
     }
 
     public String getQualifiedName() {
+        return getQualifiedName(false);
+    }
+
+    public String getQualifiedName(boolean quoted) {
         if (qualifiedName == null) {
             StringBuilder buffer = new StringBuilder();
-            String name = getName();
-            buffer.append(name == null ? "" : toLowerCase(name));
+            String name = getName(quoted);
+            buffer.append(name == null ? "" : name);
             if (precision > 0) {
                 buffer.append(" (");
                 buffer.append(precision);
