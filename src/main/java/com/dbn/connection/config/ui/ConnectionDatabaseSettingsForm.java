@@ -258,7 +258,11 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         databaseInfo.setUrl(urlSettingsForm.getUrl());
 
         if (urlType == DatabaseUrlType.EZCONNECT) {
-            // TODO: EZCONNECT
+            databaseInfo.setPoolType(this.urlSettingsForm.getPoolType());
+            databaseInfo.setHost(urlSettingsForm.getHost());
+            databaseInfo.setPort(urlSettingsForm.getPort());
+            databaseInfo.setDatabase(urlSettingsForm.getDatabase());
+            databaseInfo.setEasyConnUrl(urlSettingsForm.getEasyConnParameters());
         }
         else if (urlType == DatabaseUrlType.TNS) {
         	databaseInfo.setTnsFolder(urlSettingsForm.getTnsFolder());

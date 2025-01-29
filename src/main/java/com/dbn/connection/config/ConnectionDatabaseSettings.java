@@ -307,6 +307,19 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             databaseInfo.setDatabase(getString(element, "database", null));
             databaseInfo.setTnsFolder(getString(element, "tns-folder", null));
             databaseInfo.setTnsProfile(getString(element, "tns-profile", null));
+            databaseInfo.setPoolType(getString(element, "pool-type", "Default"));
+            Element easyConnPropsElem = element.getChild("easy-conn-properties");
+            Map<String, String> easyConnPropsMap = new HashMap<>();
+            if (easyConnPropsElem != null) {
+                List<Element> keys = easyConnPropsElem.getChildren("key");
+                for (Element key : keys) {
+                    String keyName = key.getValue();
+                    String value = key.getTextNormalize();
+                    if (keyName != null) {
+                        easyConnPropsMap.put(keyName, nvl(value));
+                    }
+                }
+            }
 
             urlPattern = DatabaseUrlPattern.get(databaseType, urlType);
 
@@ -377,10 +390,14 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             setString(element, "tns-folder", nvl(databaseInfo.getTnsFolder()));
             setString(element, "tns-profile", nvl(databaseInfo.getTnsProfile()));
             setString(element, "pool-type", nvl(databaseInfo.getPoolType()));
-            Element easyConnElement = newElement(element, "easy-conn-url");
+            Element easyConnElement = newElement(element, "easy-conn-properties");
             Optional.ofNullable(databaseInfo.getEasyConnUrl()).ifPresent(map ->
                     map.entrySet().forEach(
-                        entry -> setString(easyConnElement, entry.getKey(), entry.getValue())));
+                        entry -> {
+                            Element keyElem = newElement(easyConnElement, "key");
+                            setString(keyElem, "keyName", nvl(entry.getKey()));
+                            keyElem.addContent(entry.getValue());
+                        }));
 
             DatabaseFileBundle fileBundle = databaseInfo.getFileBundle();
             if (fileBundle != null) {

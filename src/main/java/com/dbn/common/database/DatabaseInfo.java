@@ -174,6 +174,13 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         return fileBundle == null ? Collections.emptyList() : fileBundle.getAttachedFiles();
     }
 
+    public void setTnsProfile(String tnsName) {
+        this.tnsProfile = tnsName;
+    }
+
+    public void setPoolType(String poolType) {
+        this.poolType = poolType;
+    }
     public String getPoolType() {
         return this.poolType;
     }

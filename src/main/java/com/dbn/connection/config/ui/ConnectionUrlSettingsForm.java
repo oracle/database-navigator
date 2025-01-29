@@ -216,11 +216,15 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
                 getTnsAdmin(),
                 getTnsProfile(),
                 getPoolType(),
-                easyConnParameters);
+                getEasyConnParameters());
         urlTextField.setText(url);
     }
 
-    private String getPoolType() {
+    public Map<String, String> getEasyConnParameters() {
+        return Collections.unmodifiableMap(this.easyConnParameters);
+    }
+
+    String getPoolType() {
         return getSelection(this.poolTypeComboBox);
     }
 
