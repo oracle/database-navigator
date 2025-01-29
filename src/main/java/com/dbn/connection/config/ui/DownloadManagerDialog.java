@@ -32,13 +32,12 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 
 public class DownloadManagerDialog extends DBNDialog<DownloadManagerForm> {
     private final DatabaseType databaseType;
+    DriverPackage selectedDriverPackage;
     DownloadManagerForm downloadManagerForm;
-    private final Consumer<String> updateExternalOption;
 
-    public DownloadManagerDialog(Project project, DatabaseType databaseType, Consumer<String> updateExternalForm) {
+    public DownloadManagerDialog(Project project, DatabaseType databaseType) {
         super(project, "Libraries Download Manager", true);
         this.databaseType = databaseType;
-        this.updateExternalOption = updateExternalForm;
         renameAction(getOKAction(), "Download");
         setModal(true);
         setResizable(true);
@@ -64,7 +63,7 @@ public class DownloadManagerDialog extends DBNDialog<DownloadManagerForm> {
     @Override
     public void doOKAction() {
         handleDownloadButtonClick();
-        this.close(0);
+
     }
 
     @Override
@@ -73,8 +72,8 @@ public class DownloadManagerDialog extends DBNDialog<DownloadManagerForm> {
     }
 
     private void handleDownloadButtonClick() {
-        DriverPackage driverPackage = getSelection(downloadManagerForm.libraryPackageComboBox);
-        driverPackage.setPath(downloadManagerForm.libraryPathTextField.getText()+"/"+driverPackage.getId());
-        DriverPackageDownloader.downloadDriverPackage(getProject(), driverPackage,  updateExternalOption);
+        selectedDriverPackage = getSelection(downloadManagerForm.libraryPackageComboBox);
+        selectedDriverPackage.setPath(downloadManagerForm.libraryPathTextField.getText()+"/"+selectedDriverPackage.getId());
+        DriverPackageDownloader.downloadDriverPackage(getProject(), selectedDriverPackage, () -> this.close(0));
     }
 }

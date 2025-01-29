@@ -27,20 +27,19 @@ import java.io.File;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 public class DriverPackageDownloader {
-    private static Consumer<String> updateUI;
+    private static Runnable updateUI;
 
-    public static void downloadDriverPackage(Project project, DriverPackage driverPackage, Consumer<String> updateUI) {
+    public static void downloadDriverPackage(Project project, DriverPackage driverPackage, Runnable updateUI) {
         DriverPackageDownloader.updateUI = updateUI;
         Progress.modal(project, null, true,
                 "Downloading Driver Package: " + driverPackage.getName(),
                 "",
-                indicator -> runProgress(project, indicator, driverPackage, driverPackage.getPath()));
+                indicator -> runProgress(indicator, driverPackage, driverPackage.getPath()));
     }
 
-    private static void runProgress(Project project, ProgressIndicator indicator, DriverPackage driverPackage, String path) {
+    private static void runProgress(ProgressIndicator indicator, DriverPackage driverPackage, String path) {
         String packageId = driverPackage.getId();
         List<Library> libraryList = driverPackage.getLibraries();
         CountDownLatch latch = new CountDownLatch(libraryList.size());
@@ -117,7 +116,7 @@ public class DriverPackageDownloader {
         } else if (DriverDownloadManager.getInstance().isPackageDownloaded(packageId)) {
             System.out.println("All JARs for package " + packageId + " were successfully downloaded and verified.");
             ApplicationManager.getApplication().invokeLater(()->{
-                updateUI.accept(packageId);
+                updateUI.run();
             });
         }
     }

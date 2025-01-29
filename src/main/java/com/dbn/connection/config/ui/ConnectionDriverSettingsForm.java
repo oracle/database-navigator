@@ -40,6 +40,7 @@ import com.dbn.driver.packages.DriverPackageStatus;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.JBColor;
@@ -61,6 +62,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getElements;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -282,9 +284,8 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         setSelection(driverComboBox, DriverOption.get(driverOptions, configuration.getDriver()));
     }
 
-    public void updateExternalOption(String driverPackageId) {
+    public void updateExternalOption(DriverPackage driverPackage) {
         populateDriverLibraryAction();
-        DriverPackage driverPackage = DriverPackageBundle.getDriverPackage(driverPackageId);
         driverLibraryTextField.setText(driverPackage.getPath());
     }
     public void populateDriverLibraryAction() {
@@ -292,8 +293,10 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         downloadedLibrariesComboBox.setValueFactory(new PresentableFactory<>(txt("cfg.connection.link.DownloadLibraries")) {
             @Override
             public void create(Consumer<PresentableDriverPackage> consumer) {
-                downloadManagerDialog = new DownloadManagerDialog(ensureProject(), getDatabaseType(), (String id) -> updateExternalOption(id));
-                Dialogs.show(() -> downloadManagerDialog);
+                downloadManagerDialog = new DownloadManagerDialog(ensureProject(), getDatabaseType());
+                Dialogs.show(() -> downloadManagerDialog, (dialog, exitCode) -> {
+                    when(exitCode != DialogWrapper.CANCEL_EXIT_CODE, () -> updateExternalOption(dialog.selectedDriverPackage));
+                });
             }
 
             @Override
