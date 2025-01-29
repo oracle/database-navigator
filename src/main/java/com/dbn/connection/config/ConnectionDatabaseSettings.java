@@ -46,14 +46,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.*;
 
-import static com.dbn.common.options.setting.Settings.getDouble;
-import static com.dbn.common.options.setting.Settings.getEnum;
-import static com.dbn.common.options.setting.Settings.getString;
-import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.setDouble;
-import static com.dbn.common.options.setting.Settings.setEnum;
-import static com.dbn.common.options.setting.Settings.setString;
-import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.options.setting.Settings.*;
 
 @Slf4j
 @Getter
@@ -189,7 +182,8 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                     databaseInfo.ensureTnsFolder(),
                     databaseInfo.getTnsProfile(),
                     databaseInfo.getPoolType(),
-                    databaseInfo.getEasyConnUrl());
+                    databaseInfo.getEasyConnUrl(),
+                    databaseInfo.isTCPS());
         }
     }
 
@@ -308,6 +302,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             databaseInfo.setTnsFolder(getString(element, "tns-folder", null));
             databaseInfo.setTnsProfile(getString(element, "tns-profile", null));
             databaseInfo.setPoolType(getString(element, "pool-type", "Default"));
+            databaseInfo.setTcps(getBoolean(element, "secure-tcp", true));
             Element easyConnPropsElem = element.getChild("easy-conn-properties");
             Map<String, String> easyConnPropsMap = new HashMap<>();
             if (easyConnPropsElem != null) {
@@ -390,6 +385,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             setString(element, "tns-folder", nvl(databaseInfo.getTnsFolder()));
             setString(element, "tns-profile", nvl(databaseInfo.getTnsProfile()));
             setString(element, "pool-type", nvl(databaseInfo.getPoolType()));
+            setBoolean(element, "secure-tcp", databaseInfo.isTCPS());
             Element easyConnElement = newElement(element, "easy-conn-properties");
             Optional.ofNullable(databaseInfo.getEasyConnUrl()).ifPresent(map ->
                     map.entrySet().forEach(

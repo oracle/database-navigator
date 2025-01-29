@@ -48,6 +48,7 @@ import static com.dbn.connection.DatabaseUrlType.SID;
 public class DatabaseInfo implements Cloneable<DatabaseInfo> {
 
 
+
     public interface Default {
         DatabaseInfo ORACLE   = new DatabaseInfo("oracle", "localhost", "1521", "XE", SID);
         DatabaseInfo MYSQL    = new DatabaseInfo("mysql", "localhost", "3306", "mysql", DATABASE);
@@ -67,6 +68,7 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
 	private String tnsProfile;
     private String poolType;
     private Map<String, String> easyConnUrl;
+    private boolean tcps = true; // default
 
     public DatabaseInfo() {}
 
@@ -132,6 +134,7 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         this.tnsProfile = pattern.resolveTnsFolder(url);
         this.poolType = pattern.resolvePoolType(url);
         this.easyConnUrl = pattern.resolveParameterMap(url);
+        this.tcps = Boolean.valueOf(pattern.resolveSecureTCP(url));
 
         // TODO: resolve serverType
         initializeFiles(pattern);
@@ -187,6 +190,10 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
 
     public Map<String, String> getEasyConnUrl() {
         return this.easyConnUrl;
+    }
+
+    public boolean isTCPS() {
+        return this.tcps;
     }
 
     public boolean isCustomUrl() {

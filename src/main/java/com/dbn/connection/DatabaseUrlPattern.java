@@ -52,8 +52,8 @@ public enum DatabaseUrlPattern {
 
     ORACLE_EZCONNECT(
             // temporary; pattern is much more complicated.
-            "jdbc:oracle:thin@tcps://<HOST>:<PORT>/<DATABASE><POOLTYPE><PARAMS>",
-            compile("^jdbc:oracle:thin:@tcps://"+host+":"+port+"/"+database+pooling+connParams ),
+            "jdbc:oracle:thin@<TCPS>://<HOST>:<PORT>/<DATABASE><POOLTYPE><PARAMS>",
+            compile("^jdbc:oracle:thin:@"+tcps+"://"+host+":"+port+"/"+database+pooling+connParams ),
             Default.ORACLE, DatabaseUrlType.EZCONNECT),
 
     ORACLE_TNS(
@@ -119,6 +119,7 @@ public enum DatabaseUrlPattern {
 
         String pooling = "(:(?<POOLTYPE>[\\w\\-.$#]+))?";
         String connParams = "\\?(?<PARAMS>(.*))";
+        String tcps = "(?<TCPS>(tcp|tcps))";
     }
 
 
@@ -147,12 +148,14 @@ public enum DatabaseUrlPattern {
                 databaseInfo.ensureTnsFolder(),
                 databaseInfo.getTnsProfile(),
                 databaseInfo.getPoolType(),
-               databaseInfo.getEasyConnUrl());
+                databaseInfo.getEasyConnUrl(),
+                databaseInfo.isTCPS());
     }
 
-    public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile, String poolType, Map<String, String> easyConnParameters) {
+    public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile, String poolType, Map<String, String> easyConnParameters, boolean isTCPS) {
         return urlTemplate.
                 replace("<VENDOR>", nvl(vendor, "")).
+                replace("<TCPS>", isTCPS ? "tcps" : "tcp").
                 replace("<HOST>", nvl(host, "")).
                 replace(":<PORT>", isEmpty(port) ? "" : ":" + port).
                 replace("<DATABASE>", nvl(database, "")).
@@ -210,6 +213,10 @@ public enum DatabaseUrlPattern {
 
     public String resolvePoolType(String url) {
         return resolveGroup(url, "POOLTYPE", EZCONNECT);
+    }
+
+    public String resolveSecureTCP(String url) {
+        return resolveGroup(url, "TCPS", EZCONNECT);
     }
 
     public Map<String,String> resolveParameterMap(String url) {

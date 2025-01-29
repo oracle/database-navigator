@@ -263,6 +263,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
             databaseInfo.setPort(urlSettingsForm.getPort());
             databaseInfo.setDatabase(urlSettingsForm.getDatabase());
             databaseInfo.setEasyConnUrl(urlSettingsForm.getEasyConnParameters());
+            databaseInfo.setTcps(urlSettingsForm.isTCPS());
         }
         else if (urlType == DatabaseUrlType.TNS) {
         	databaseInfo.setTnsFolder(urlSettingsForm.getTnsFolder());

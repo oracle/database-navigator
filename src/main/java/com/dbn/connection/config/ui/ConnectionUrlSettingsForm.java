@@ -36,20 +36,13 @@ import com.dbn.connection.config.tns.TnsNamesParser;
 import com.dbn.connection.config.ui.easyconn.EasyConnectUrlParameterContext;
 import com.dbn.connection.config.ui.easyconn.EasyConnectUrlParameterInput;
 import com.dbn.connection.config.ui.easyconn.EasyConnectUrlParameterInputDialog;
-import com.dbn.connection.config.ui.easyconn.EasyConnectUrlParameterResult;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 import java.awt.BorderLayout;
 import java.io.File;
 import java.util.*;
@@ -85,6 +78,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private JComboBox<String> poolTypeComboBox;
     private JLabel poolTypeLabel;
     private JButton parametersButton;
+    private JCheckBox tcpsCheckBox;
     private final DatabaseFileSettingsForm databaseFileSettingsForm;
     private final Map<DatabaseType, DatabaseInfo> history = new HashMap<>();
     private Map<String, String> easyConnParameters = new HashMap<>();
@@ -97,9 +91,6 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         databaseFilesPanel.add(databaseFileSettingsForm.getComponent(), BorderLayout.CENTER);
         urlTypeComboBox.addActionListener(e -> updateFieldVisibility());
 
-        // TODO pending parameters implementation
-        // maybe we should not complicate this with parameters (??), user can still provide a custom url with parameters if really needed
-        parametersButton.setVisible(true);
         parametersButton.addActionListener(e -> {
             DatabaseType databaseType = getDatabaseType();
             DatabaseUrlPattern urlPattern =
@@ -139,6 +130,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         onTextChange(tnsFolderTextField, e -> updateUrlField());
         tnsProfileComboBox.addActionListener(e -> updateUrlField());
         poolTypeComboBox.addActionListener(e -> updateUrlField());
+        tcpsCheckBox.addActionListener(e -> updateUrlField());
 
         updateTnsProfilesField();
     }
@@ -216,8 +208,13 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
                 getTnsAdmin(),
                 getTnsProfile(),
                 getPoolType(),
-                getEasyConnParameters());
+                getEasyConnParameters(),
+                isTCPS());
         urlTextField.setText(url);
+    }
+
+    boolean isTCPS() {
+        return tcpsCheckBox.isSelected();
     }
 
     public Map<String, String> getEasyConnParameters() {
@@ -244,6 +241,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
         List<String> tnsEntries = getTnsEntries(tnsFile);
         tnsProfileComboBox.setValues(Presentable.basic(tnsEntries));
+
     }
 
     private String getTnsAdmin() {
@@ -294,6 +292,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
         poolTypeLabel.setVisible(ezConnectVisible);
         poolTypeComboBox.setVisible(ezConnectVisible);
+        tcpsCheckBox.setVisible(ezConnectVisible);
 
         parametersButton.setVisible(ezConnectVisible);
 
@@ -356,6 +355,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         portTextField.setText(databaseInfo.getPort());
         databaseTextField.setText(databaseInfo.getDatabase());
         tnsFolderTextField.setText(databaseInfo.getTnsFolder());
+        tcpsCheckBox.setSelected(databaseInfo.isTCPS());
 
         String tnsProfile = databaseInfo.getTnsProfile();
         if (Strings.isNotEmpty(tnsProfile)) {
@@ -371,6 +371,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         urlTypeLabel.setVisible(urlTypes.length > 1);
         urlTypeComboBox.setVisible(urlTypes.length > 1);
         urlTextField.setText(databaseInfo.getUrl());
+        setSelection(poolTypeComboBox, databaseInfo.getPoolType());
     }
 
     @NotNull
