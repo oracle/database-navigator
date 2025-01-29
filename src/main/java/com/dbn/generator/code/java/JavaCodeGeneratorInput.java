@@ -18,9 +18,7 @@ package com.dbn.generator.code.java;
 
 import com.dbn.common.project.Modules;
 import com.dbn.common.thread.Read;
-import com.dbn.common.util.Strings;
 import com.dbn.connection.context.DatabaseContext;
-import com.dbn.generator.code.java.ui.JavaCodeGeneratorInputForm;
 import com.dbn.generator.code.shared.base.CodeGeneratorInputBase;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.ConfigurationException;
@@ -34,18 +32,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.options.Configs.fail;
+import static com.dbn.common.util.Java.isValidClassName;
+import static com.dbn.common.util.Java.isValidPackageName;
 import static com.dbn.common.util.Strings.isEmpty;
 
 @Getter
 @Setter
 public abstract class JavaCodeGeneratorInput extends CodeGeneratorInputBase {
-    private static final Pattern PACKAGE_NAME_PATTERN = Pattern.compile("^[a-zA-Z_]([a-zA-Z0-9_]*)(\\.[a-zA-Z_]([a-zA-Z0-9_]*))*$");
-    private static final Pattern CLASS_NAME_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z0-9_]*$");
-
     private String moduleName;
     private String contentRoot;
     private String packageName;
@@ -116,13 +112,5 @@ public abstract class JavaCodeGeneratorInput extends CodeGeneratorInputBase {
         return nd(directory);
     }
 
-    public static boolean isValidPackageName(String packageName) {
-        // allow empty package names
-        return Strings.isEmpty(packageName) || PACKAGE_NAME_PATTERN.matcher(packageName).matches();
-    }
-
-    public static boolean isValidClassName(String className) {
-        return CLASS_NAME_PATTERN.matcher(className).matches();
-    }
 }
 

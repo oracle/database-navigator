@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.dbn.generator.code;
+package com.dbn.common.state;
 
 import com.dbn.common.options.setting.Settings;
-import com.dbn.common.state.PersistentStateElement;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 
@@ -29,19 +28,21 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 
 /**
- * Generic state holder for the code generator.
- * Allows storing an indefinite number of properties to be persisted and reused whenever the code generator is invoked again.
- * e.g. can be used for remembering and restoring the module and content-root selection for the generated files.
+ * Generic state holder for different areas of the application.
+ * Allows storing an indefinite number of properties to be persisted and reused whenever a functionality is invoked again.
+ * e.g. can be used in code generator for remembering and restoring the module and content-root selection for the generated files.
  *
  * @author Dan Cioca (Oracle)
  */
-public class CodeGeneratorState implements PersistentStateElement {
+public class GenericStateHolder implements PersistentStateElement, StateHolder {
     private final Map<String, String> properties = new HashMap<>();
 
+    @Override
     public String getAttribute(@NonNls String key) {
         return properties.get(key);
     }
 
+    @Override
     public void setAttribute(@NonNls String key, @NonNls String value) {
         properties.put(key, value);
     }

@@ -31,6 +31,7 @@ import com.dbn.execution.LocalExecutionInput;
 import com.dbn.execution.method.result.MethodExecutionResult;
 import com.dbn.object.DBArgument;
 import com.dbn.object.DBMethod;
+import com.dbn.object.DBType;
 import com.dbn.object.DBTypeAttribute;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
@@ -89,6 +90,25 @@ public class MethodExecutionInput extends LocalExecutionInput implements Compara
         executionResult.setPrevious(this.executionResult);
         this.executionResult = executionResult;
         return initExecutionContext();
+    }
+
+    /**
+     * Initializes all database elements required for showing the method input form
+     * It makes sure all arguments are loaded, including their declared type details if applicable
+     * <br>
+     * This is to be executed in background before the method execution dialog is shown
+     */
+    public void initDatabaseElements() {
+        DBMethod method = getMethod();
+        if (method == null) return;
+
+        List<DBArgument> arguments = method.getArguments();
+        for (DBArgument argument : arguments) {
+            DBType declaredType = argument.getDataType().getDeclaredType();
+            if (declaredType != null) {
+                declaredType.getAttributes();
+            }
+        }
     }
 
     @Override

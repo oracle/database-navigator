@@ -23,6 +23,8 @@ import com.intellij.ui.CheckboxTree;
 
 import javax.swing.tree.TreeNode;
 
+import static com.dbn.common.ui.util.UserInterface.enableSelectOnFocus;
+
 public class CodeCompletionFilterTree extends CheckboxTree {
 
     public CodeCompletionFilterTree(CodeCompletionFilterTreeModel model) {
@@ -34,5 +36,7 @@ public class CodeCompletionFilterTree extends CheckboxTree {
         installSpeedSearch();
         setTransferHandler(DBNTreeTransferHandler.INSTANCE);
         setBackground(Colors.getTextFieldBackground());
+
+        enableSelectOnFocus(this);
     }
 }

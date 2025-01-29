@@ -16,33 +16,33 @@
 
 package com.dbn.object.factory.ui.common;
 
-import com.dbn.common.action.BasicAction;
 import com.dbn.common.dispose.DisposableContainers;
-import com.dbn.common.icon.Icons;
+import com.dbn.common.routine.Consumer;
+import com.dbn.common.ui.Presentable;
+import com.dbn.common.ui.PresentableFactory;
+import com.dbn.common.ui.ValueSelector;
+import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.UserInterface;
-import com.dbn.common.util.Actions;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.factory.ObjectFactoryInput;
 import com.dbn.object.type.DBObjectType;
-import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.util.PlatformIcons;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.BoxLayout;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel listPanel;
-    private JPanel actionsPanel;
-    private JLabel newLabel;
+    private JPanel actionPanel;
     private final ConnectionRef connection;
 
     private final List<ObjectFactoryInputForm<T>> inputForms = DisposableContainers.list(this);
@@ -52,10 +52,7 @@ public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFo
         this.connection = connection.ref();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, new CreateObjectAction());
-        actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
-
-        newLabel.setText("Add " + getObjectType().getName());
+        actionPanel.add(new DetailSelector());
     }
 
     @NotNull
@@ -68,11 +65,33 @@ public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFo
         return connection.ensure();
     }
 
-    protected abstract ObjectFactoryInputForm<T> createObjectDetailsPanel(int index);
+    protected abstract ObjectFactoryInputForm<T> createObjectDetailsPanel(int index, @Nullable ObjectDetail detail);
+
     public abstract DBObjectType getObjectType();
 
-    public void createObjectPanel() {
-        ObjectFactoryInputForm<T> inputForm = createObjectDetailsPanel(inputForms.size());
+    public abstract List<ObjectDetail> getObjectDetailOptions();
+
+    private class DetailSelector extends ValueSelector<ObjectDetail> {
+        DetailSelector() {
+            super(PlatformIcons.ADD_ICON, "Add " + getObjectType().getName(), null, ValueSelectorOption.HIDE_DESCRIPTION);
+            addListener((oldValue, newValue) -> createObjectPanel(newValue));
+
+            setEmptyValueFactory(new PresentableFactory<>("(custom type)") {
+                @Override
+                public void create(Consumer<ObjectDetail> consumer) {
+                    createObjectPanel(null);
+                }
+            });
+        }
+
+        @Override
+        public List<ObjectDetail> loadValues() {
+            return getObjectDetailOptions();
+        }
+    }
+
+    public void createObjectPanel(ObjectDetail detail) {
+        ObjectFactoryInputForm<T> inputForm = createObjectDetailsPanel(inputForms.size(), detail);
         inputForms.add(inputForm);
         ObjectListItemForm listItemForm = new ObjectListItemForm(this, inputForm);
         listPanel.add(listItemForm.getComponent());
@@ -101,14 +120,12 @@ public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFo
         return objectFactoryInputs;
     }
 
-    public class CreateObjectAction extends BasicAction {
-        CreateObjectAction() {
-            super(txt("app.objects.action.CreateObject",getObjectType().getName()), null, Icons.ACTION_ADD);
-        }
+    @Getter
+    public static class ObjectDetail implements Presentable {
+        private final String name;
 
-        @Override
-        public void actionPerformed(@NotNull AnActionEvent e) {
-            createObjectPanel();
+        public ObjectDetail(String name) {
+            this.name = name;
         }
     }
 }

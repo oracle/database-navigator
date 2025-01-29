@@ -141,8 +141,8 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
                                     Messages.showErrorDialog(project,
                                             txt("msg.execution.message.MethodNotFound", methodIdentifier));
                                 } else {
-                                    // load the arguments while in background
-                                    executionInput.getMethod().getArguments();
+                                    // load the arguments and declared types while in background
+                                    executionInput.initDatabaseElements();
                                     showInputDialog(executionInput, debuggerType, callback);
                                 }
                             } else {
@@ -153,7 +153,7 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
     }
 
     private void showInputDialog(@NotNull MethodExecutionInput executionInput, @NotNull DBDebuggerType debuggerType, @NotNull Runnable executor) {
-        MethodExecutionInputDialog.open(executionInput, debuggerType, executor);
+        Dialogs.show(() -> new MethodExecutionInputDialog(executionInput, debuggerType, executor));
     }
 
 

@@ -22,7 +22,7 @@ import com.dbn.common.editor.EditorNotificationPanel;
 import com.dbn.common.feature.FeatureAcknowledgement;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.message.MessageType;
-import com.dbn.common.ui.HyperLinkForm;
+import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;

@@ -18,6 +18,7 @@ package com.dbn.common.ui.progress;
 
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.dialog.DBNDialogMonitor;
 import com.dbn.common.util.Timers;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -25,12 +26,12 @@ import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.JBDimension;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -38,7 +39,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @Getter
 public class ProgressDialogHandler {
-    private final static Set<JBPopup> progressDialogs = new HashSet<>();
+    private final static Set<JBPopup> progressDialogs = ContainerUtil.createWeakSet();
 
     private final ProjectRef project;
     private final String title;
@@ -72,6 +73,8 @@ public class ProgressDialogHandler {
         // delay the creation of the dialog 1 second to reduce number of prompts if background process finishes in acceptable time
         Timers.executeLater("ProgressDialogPrompt", 300, MILLISECONDS, () -> {
             if (finished()) return;
+            if (DBNDialogMonitor.hasOpenDialogs()) return;
+
             openPopup();
         });
     }
@@ -154,4 +157,5 @@ public class ProgressDialogHandler {
             dialogs.remove();
         }
     }
+
 }

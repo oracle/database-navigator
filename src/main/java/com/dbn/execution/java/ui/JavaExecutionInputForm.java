@@ -53,6 +53,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -205,7 +206,7 @@ public class JavaExecutionInputForm extends DBNFormBase {
         if( method == null ){
             return Collections.emptyList();
         } else {
-            List<DBJavaParameter> parameters = method.getParameters();
+            List<DBJavaParameter> parameters = new ArrayList<>(method.getParameters());
             parameters.sort(Comparator.comparingInt(DBOrderedObject::getPosition));
             for (DBJavaParameter parameter : parameters) {
                 loadJavaFields(parameter.getParameterClass());
@@ -231,7 +232,7 @@ public class JavaExecutionInputForm extends DBNFormBase {
         DBJavaMethod method = executionInput.getMethod();
         if (method == null) return false;
 
-        DBObjectList<DBObject> argumentList = method.getChildObjectList(DBObjectType.ARGUMENT);
+        DBObjectList<DBObject> argumentList = method.getChildObjectList(DBObjectType.JAVA_PARAMETER);
         return argumentList != null && argumentList.isLoaded();
     }
 

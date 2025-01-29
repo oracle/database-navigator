@@ -28,16 +28,20 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
+import static com.dbn.common.util.Unsafe.silent;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
 @UtilityClass
 public final class Traces {
 
-    public static final Set<String> SKIPPED_CALL_STACK_CLASSES = new HashSet<>(Arrays.asList(
+    private static final Set<String> SKIPPED_CALL_STACK_CLASSES = new HashSet<>(Arrays.asList(
             Traces.class.getName(),
             ThreadInfo.class.getName(),
             ThreadMonitor.class.getName(),
@@ -46,39 +50,56 @@ public final class Traces {
             Progress.class.getName(),
             Failsafe.class.getName()));
 
-    public static boolean isCalledThrough(String ... oneOfClassesNames) {
-        StackTraceElement[] callStack = Thread.currentThread().getStackTrace();
-        try {
-            for (int i = 3; i < callStack.length; i++) {
-                StackTraceElement stackTraceElement = callStack[i];
-                String className = stackTraceElement.getClassName();
-                for (String name : oneOfClassesNames) {
-                    if (Objects.equals(name, className)) {
-                        return true;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            conditionallyLog(e);
-            return false;
-        }
-        return false;
+    private static final Map<String, Class> classCache = new ConcurrentHashMap<>();
+
+    private Class getClass(String className) {
+        return classCache.computeIfAbsent(className, n -> silent(NoMatchSurrogate.class, () -> Class.forName(n)));
     }
-    public static boolean isCalledThrough(Class ... oneOfClasses) {
+
+    /**
+     * Determines if a method is called through a class that matches the given predicate within a specified maximum stack depth.
+     *
+     * @param matcher a predicate that evaluates whether a given class matches certain conditions
+     * @param maxDepth the maximum depth of the stack trace to search for a matching class
+     * @return true if a method call originates through a class that satisfies the given matcher predicate within the given stack depth, false otherwise
+     */
+    public static boolean isCalledThroughClass(Predicate<Class> matcher, int maxDepth) {
+        return isCalledThrough(n -> matcher.test(getClass(n)), maxDepth);
+    }
+
+    /**
+     * Determines if the current method call is made through the specified class
+     * within a given stack depth limit.
+     *
+     * @param clazz the class to check in the call stack
+     * @param maxDepth the maximum depth to search in the call stack
+     * @return true if the method is called through the specified class within the given depth, false otherwise
+     */
+    public static boolean isCalledThroughClass(Class clazz, int maxDepth) {
+        return isCalledThrough(n -> Objects.equals(clazz.getName(), n), maxDepth);
+    }
+
+    /**
+     * Checks if the current thread's call stack contains a class name that matches the specified predicate
+     * within the specified maximum depth of the call stack.
+     *
+     * @param matcher a {@link Predicate} used to match class names in the call stack
+     * @param maxDepth the maximum depth of the call stack to scan
+     * @return true if a class name matching the predicate is found in the call stack within the specified depth, false otherwise
+     */
+    public static boolean isCalledThrough(Predicate<String> matcher, int maxDepth) {
         StackTraceElement[] callStack = Thread.currentThread().getStackTrace();
         try {
-            for (int i = 3; i < callStack.length; i++) {
+            int scanDepth = Math.min(callStack.length, maxDepth);
+            for (int i = 3; i < scanDepth; i++) {
                 StackTraceElement stackTraceElement = callStack[i];
                 String className = stackTraceElement.getClassName();
-                for (Class clazz : oneOfClasses) {
-                    if (Objects.equals(clazz.getName(), className) /*|| clazz.isAssignableFrom(Class.forName(className))*/) {
-                        return true;
-                    }
+                if (matcher.test(className)) {
+                    return true;
                 }
             }
         } catch (Exception e) {
             conditionallyLog(e);
-            return false;
         }
         return false;
     }
@@ -112,4 +133,6 @@ public final class Traces {
                 .filter(st -> !SKIPPED_CALL_STACK_CLASSES.contains(st.getClassName()))
                 .toArray(StackTraceElement[]::new);
     }
+
+    private static class NoMatchSurrogate {}
 }

@@ -16,12 +16,23 @@
 
 package com.dbn.credentials;
 
+import com.dbn.common.ui.Presentable;
+import lombok.Getter;
+
 /**
  * Secret type classification used to uniquely identify secret tokens stored in {@link com.intellij.ide.passwordSafe.PasswordSafe}
  */
-public enum SecretType {
-    CONNECTION_PASSWORD,   // connection passwords
-    SSH_TUNNEL_PASSWORD,   // passwords for SSH tunnels
-    SSH_TUNNEL_PASSPHRASE, // passwords for SSH tunnels
-    GENERIC_CREDENTIAL     // e.g. database assistant credential tokens
+@Getter
+public enum SecretType implements Presentable {
+    CONNECTION_PASSWORD("Connection password"),               // connection passwords
+    SSH_TUNNEL_PASSWORD("SSH tunnel password"),               // password for SSH tunnels
+    SSH_TUNNEL_KEY_PASSPHRASE("SSH tunnel key passphrase"),   // key passphrases for SSH tunnels
+    GENERIC_CREDENTIAL("Generic credential")                  // e.g. database assistant credential tokens
+    ;
+
+    SecretType(String name) {
+        this.name = name;
+    }
+
+    private final String name;
 }

@@ -67,6 +67,8 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
         setCellRenderer(new CellRenderer());
         addMouseListener(createMouseListener());
         addKeyListener(createKeyListener());
+
+        UserInterface.enableSelectOnFocus(this);
     }
 
     public void setElements(List<T> elements) {

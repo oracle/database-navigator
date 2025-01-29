@@ -78,8 +78,8 @@ public class ConnectionAuthenticationForm extends DBNFormBase {
                     passwordExpiryTime == 1 ? "1 minute" : passwordExpiryTime + " minutes";
 
             hintText = plain("The system needs your credentials to connect to this database. " +
-                            "\nYou can configure how long the credentials stay active on idle connectivity " +
-                            "in DBN Settings > Connection > Details (currently set to " + expiryTimeText + ")");
+                            "\nYou can configure how long the credentials stay active for an idle connection, " +
+                            "in the Connection Details settings (currently set to " + expiryTimeText + ")");
 
         } else {
             hintText = plain("The system needs your credentials to connect to this database.");

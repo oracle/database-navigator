@@ -39,20 +39,20 @@ public abstract class ProjectPopupAction extends ProjectAction {
         stream(children).forEach(a -> actionGroup.add(a));
 
         InputEvent inputEvent = e.getInputEvent();
-        if (inputEvent != null) {
-            Component component = (Component) inputEvent.getSource();
-            if (component.isShowing()) {
-                String title = getTemplatePresentation().getText();
-                ListPopup popup = popupBuilder(actionGroup, e).
-                        withTitle(title).
-                        withTitleVisible(false).
-                        withSpeedSearch().
-                        withMaxRowCount(10).
-                        build();
+        if (inputEvent == null) return;
 
-                showBelowComponent(popup, component);
-            }
-        }
+        Component component = (Component) inputEvent.getSource();
+        if (!component.isShowing()) return;
+
+        String title = getTemplatePresentation().getText();
+        ListPopup popup = popupBuilder(actionGroup, e).
+                withTitle(title).
+                withTitleVisible(false).
+                withSpeedSearch().
+                withMaxRowCount(10).
+                build();
+
+        showBelowComponent(popup, component);
     }
 
     private static void showBelowComponent(ListPopup popup, Component component) {

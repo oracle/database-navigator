@@ -35,6 +35,7 @@ import java.util.concurrent.locks.LockSupport;
 
 import static com.dbn.common.thread.ThreadMonitor.isDispatchThread;
 import static com.dbn.common.thread.ThreadMonitor.isModalProcess;
+import static com.dbn.common.thread.ThreadMonitor.isProgressProcess;
 import static com.dbn.common.thread.ThreadMonitor.isReadActionThread;
 import static com.dbn.common.thread.ThreadMonitor.isWriteActionThread;
 import static com.dbn.database.interfaces.queue.InterfaceTaskStatus.FINISHED;
@@ -108,7 +109,8 @@ class InterfaceTask<R> implements TimeAware {
     private static boolean verifyCallingTread() {
         if (isDispatchThread()) return handleIllegalCallingThread("event dispatch thread");
         if (isWriteActionThread()) return handleIllegalCallingThread("write action threads");
-        if (isReadActionThread()) return handleIllegalCallingThread("read action threads");
+        if (isReadActionThread() && !isProgressProcess()) return handleIllegalCallingThread("read action threads");
+        // TODO verify why object factory modal process is creating a read-action
         return true;
     }
 

@@ -20,7 +20,9 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.listener.PopupCloseListener;
+import com.dbn.common.ui.listener.ToggleBorderOnFocusListener;
 import com.dbn.common.ui.util.Cursors;
+import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.ui.util.Mouse;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
@@ -34,6 +36,13 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.Cursor;
+import java.awt.Font;
+import java.awt.event.KeyEvent;
+
+import static com.dbn.common.ui.util.Borders.LINK_FOCUS_BORDER;
+import static com.dbn.common.ui.util.Keyboard.onKeyPress;
+import static com.dbn.common.ui.util.Mouse.onMouseClick;
+import static java.awt.event.MouseEvent.BUTTON1;
 
 public class AboutComponent extends DBNFormBase {
     public static final String PAYPAL_URL = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3QAPZFCCARA4J";
@@ -42,9 +51,10 @@ public class AboutComponent extends DBNFormBase {
     private JLabel downloadPageLinkLabel;
     private JLabel supportPageLinkLabel;
     private JLabel requestTrackerPageLinkLabel;
-    private JPanel linksPanel;
     private JLabel versionLabel;
     private JLabel supportPageLabel;
+    private JLabel downloadPageLabel;
+    private JLabel requestTrackerLabel;
 
     public AboutComponent(Project project) {
         super(null, project);
@@ -54,20 +64,21 @@ public class AboutComponent extends DBNFormBase {
         logoLabel.setText("");
         //linksPanel.setBorder(Borders.BOTTOM_LINE_BORDER);
 
-        downloadPageLinkLabel.setForeground(CodeInsightColors.HYPERLINK_ATTRIBUTES.getDefaultAttributes().getForegroundColor());
-        downloadPageLinkLabel.setCursor(handCursor);
-        downloadPageLinkLabel.addMouseListener(Mouse.listener().onClick(e ->
-                BrowserUtil.browse("http://plugins.jetbrains.com/plugin/?id=1800")));
+        Font smallerFont = Fonts.regular(-2);
 
-        supportPageLinkLabel.setForeground(CodeInsightColors.HYPERLINK_ATTRIBUTES.getDefaultAttributes().getForegroundColor());
-        supportPageLinkLabel.setCursor(handCursor);
-        supportPageLinkLabel.addMouseListener(Mouse.listener().onClick(e ->
-                BrowserUtil.browse("http://confluence.jetbrains.com/display/CONTEST/Database+Navigator")));
+        downloadPageLabel.setFont(smallerFont);
+        initLinkLabel(downloadPageLinkLabel, "http://plugins.jetbrains.com/plugin/?id=1800");
 
+
+        supportPageLabel.setFont(smallerFont);
+        initLinkLabel(supportPageLinkLabel, "http://confluence.jetbrains.com/display/CONTEST/Database+Navigator");
         // TODO support page no longer available
         supportPageLabel.setVisible(false);
         supportPageLinkLabel.setVisible(false);
 
+
+        requestTrackerLabel.setFont(smallerFont);
+        requestTrackerPageLinkLabel.setFont(smallerFont);
         requestTrackerPageLinkLabel.setForeground(CodeInsightColors.HYPERLINK_ATTRIBUTES.getDefaultAttributes().getForegroundColor());
         requestTrackerPageLinkLabel.setCursor(handCursor);
         requestTrackerPageLinkLabel.addMouseListener(Mouse.listener().onClick(e ->
@@ -78,6 +89,22 @@ public class AboutComponent extends DBNFormBase {
         version = version.substring(0, version.lastIndexOf(".")); // remove the compatibility qualifier
 
         versionLabel.setText("Version: " + version);
+
+        whenShown(() -> downloadPageLabel.requestFocus());
+    }
+
+    private void initLinkLabel(JLabel label, String url) {
+        Font smallerFont = Fonts.regular(-2);
+        label.setFont(smallerFont);
+        label.setForeground(CodeInsightColors.HYPERLINK_ATTRIBUTES.getDefaultAttributes().getForegroundColor());
+        label.setCursor(Cursors.handCursor());
+        label.setFocusable(true);
+        label.setRequestFocusEnabled(true);
+
+        onMouseClick(label, BUTTON1, 1, e -> BrowserUtil.browse(url));
+        onKeyPress(label, KeyEvent.VK_SPACE, e -> BrowserUtil.browse(url));
+        label.addFocusListener(new ToggleBorderOnFocusListener(null, LINK_FOCUS_BORDER));
+
     }
 
     @NotNull

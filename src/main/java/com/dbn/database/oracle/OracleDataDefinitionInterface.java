@@ -56,7 +56,16 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
             objectTypeId = DatabaseObjectTypeId.TRIGGER;
         }
 
-        if (objectTypeId == DatabaseObjectTypeId.VIEW) {
+        if(objectTypeId == DatabaseObjectTypeId.JAVA_CLASS){
+            return kco.format("begin \n") +
+                    kco.format("execute immediate \n") +
+                    kco.format("' \n") +
+                    kco.format("create" + (makeRerunnable ? " or replace" : "") + " and compile java source named " )
+                    + "\"" + oco.format(objectName.replace("/", ".")) + "\""
+                    + kco.format(" as\n") +
+                    code +
+                    "';\n" + "end;\n/";
+        } else if (objectTypeId == DatabaseObjectTypeId.VIEW) {
             return kco.format("create" + (makeRerunnable ? " or replace" : "") + " view ") + oco.format((useQualified ? schemaName + "." : "") + objectName) + kco.format(" as\n") + code + "\n/";
         } else {
             String objectType = cachedLowerCase(objectTypeId.toString());

@@ -35,5 +35,17 @@ public abstract class ObjectFactoryInput {
         this.index = index;
     }
 
+    public String getObjectPath() {
+        return objectName;
+    }
+
+    public String getObjectTypeName() {
+        return objectType.getName();
+    }
+
+    public String getObjectDescription() {
+        return getObjectTypeName() + " \"" + getObjectPath() + "\"";
+    }
+
     public abstract void validate(List<String> errors);
 }

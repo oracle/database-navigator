@@ -25,7 +25,6 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.common.ui.util.UserInterface;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -36,10 +35,10 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.table.TableCellEditor;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
 
 import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
+import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
+import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
 
 public class EnvironmentSettingsForm extends ConfigurationEditorForm<EnvironmentSettings> {
     private JPanel mainPanel;
@@ -57,6 +56,7 @@ public class EnvironmentSettingsForm extends ConfigurationEditorForm<Environment
     public EnvironmentSettingsForm(EnvironmentSettings settings) {
         super(settings);
         environmentTypesTable = new EnvironmentTypesEditorTable(this, settings.getEnvironmentTypes());
+        environmentTypesTablePanel.add(initTableComponent());
 
         EnvironmentVisibilitySettings visibilitySettings = settings.getVisibilitySettings();
         visibilitySettings.getConnectionTabs().from(connectionTabsCheckBox);
@@ -65,27 +65,28 @@ public class EnvironmentSettingsForm extends ConfigurationEditorForm<Environment
         visibilitySettings.getDialogHeaders().from(dialogHeadersCheckBox);
         visibilitySettings.getExecutionResultTabs().from(executionResultTabsCheckBox);
 
-        ToolbarDecorator decorator = UserInterface.createToolbarDecorator(environmentTypesTable);
-        decorator.setAddAction(anActionButton -> environmentTypesTable.insertRow());
-        decorator.setRemoveAction(anActionButton -> environmentTypesTable.removeRow());
-        decorator.setMoveUpAction(anActionButton -> environmentTypesTable.moveRowUp());
-        decorator.setMoveDownAction(anActionButton -> environmentTypesTable.moveRowDown());
+
+        registerComponents(mainPanel);
+    }
+
+    private JPanel initTableComponent() {
+        ToolbarDecorator decorator = createToolbarDecorator(environmentTypesTable);
+        decorator.setAddAction(b -> environmentTypesTable.insertRow());
+        decorator.setRemoveAction(b -> environmentTypesTable.removeRow());
+        decorator.setMoveUpAction(b -> environmentTypesTable.moveRowUp());
+        decorator.setMoveDownAction(b -> environmentTypesTable.moveRowDown());
         decorator.addExtraAction(new BasicActionButton("Revert Changes", null, Icons.ACTION_REVERT) {
             @Override
-            public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
+            public void actionPerformed(@NotNull AnActionEvent e) {
                 TableCellEditor cellEditor = environmentTypesTable.getCellEditor();
                 if (cellEditor != null) {
                     cellEditor.cancelCellEditing();
                 }
                 environmentTypesTable.setEnvironmentTypes(EnvironmentTypeBundle.DEFAULT);
             }
-
         });
-        JPanel panel = decorator.createPanel();
-        panel.setMinimumSize(new Dimension(-1, 200));
-        environmentTypesTablePanel.add(panel, BorderLayout.CENTER);
-        environmentTypesTable.getParent().setBackground(environmentTypesTable.getBackground());
-        registerComponents(mainPanel);
+
+        return createToolbarDecoratorComponent(decorator, environmentTypesTable);
     }
 
     @Override

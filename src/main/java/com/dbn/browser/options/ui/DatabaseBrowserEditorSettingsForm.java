@@ -23,13 +23,12 @@ import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNEditableTable;
 import com.dbn.common.ui.table.DBNEditableTableModel;
 import com.dbn.common.ui.table.DBNTable;
-import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.table.Tables;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.object.common.editor.DefaultEditorOption;
 import com.dbn.object.common.editor.DefaultEditorType;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.ui.ComboBoxTableRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +36,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.table.TableCellEditor;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -102,27 +100,7 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
                 }
             });
 
-            ComboBoxTableRenderer<DefaultEditorType> editor = new ComboBoxTableRenderer<>(DefaultEditorType.values());
-            editor.setBorder(Borders.TEXT_FIELD_INSETS);
-            setDefaultEditor(DefaultEditorType.class, editor);
-
-            getSelectionModel().addListSelectionListener(e -> {
-                if (!e.getValueIsAdjusting()) {
-                    //editCellAt(getSelectedRows()[0], getSelectedColumns()[0]);
-                }
-            });
-        }
-
-        @Override
-        public TableCellEditor getCellEditor(int row, int column) {
-            if (column == 1) {
-                EditorTypeTableModel model = getModel();
-                DefaultEditorOption editorOption = model.options.get(row);
-                DBObjectType objectType = editorOption.getObjectType();
-                DefaultEditorType[] editorTypes = DefaultEditorType.getEditorTypes(objectType);
-                return new ComboBoxTableRenderer<>(editorTypes);
-            }
-            return null;
+            Tables.attachValueSelector(this, 1, "Editor Type", DefaultEditorType.values());
         }
 
         @Override

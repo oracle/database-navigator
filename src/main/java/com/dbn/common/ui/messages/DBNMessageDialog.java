@@ -23,7 +23,6 @@ import com.dbn.common.util.Titles;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.openapi.util.NlsContexts.DialogTitle;
-import com.intellij.ui.AppIcon;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,7 +51,7 @@ public class DBNMessageDialog extends DBNDialog<DBNMessageForm> {
             @NotNull String[] options,
             int defaultOptionIndex,
             @Nullable DoNotAskOption rememberOption) {
-        super(project, title + ": " + message, false); // hidden title contains message for accessibility
+        super(project, title, false);
         this.icon = icon;
         this.title = Titles.signed(title);
         this.message = message;
@@ -98,12 +97,6 @@ public class DBNMessageDialog extends DBNDialog<DBNMessageForm> {
 
     private void initDecoration() {
         Dialogs.undecorate(this, true);
-    }
-
-    @Override
-    public void show() {
-        AppIcon.getInstance().requestAttention(getProject(), true);
-        super.show();
     }
 
     @NotNull

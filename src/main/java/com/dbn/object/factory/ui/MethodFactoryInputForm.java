@@ -20,8 +20,10 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.SchemaId;
 import com.dbn.data.type.ui.DataTypeEditor;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.object.DBSchema;
@@ -39,13 +41,12 @@ import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.Color;
 
+import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Strings.toUpperCase;
 
 public abstract class MethodFactoryInputForm extends ObjectFactoryInputForm<MethodFactoryInput> {
     private JPanel mainPanel;
-    private JLabel connectionLabel;
-    private JLabel schemaLabel;
     protected JTextField nameTextField;
     private JPanel returnArgumentPanel;
     private JPanel argumentListComponent;
@@ -53,6 +54,8 @@ public abstract class MethodFactoryInputForm extends ObjectFactoryInputForm<Meth
     JPanel returnArgumentDataTypeEditor;
     private JPanel headerPanel;
     private JLabel nameLabel;
+    private DBNComboBox<ConnectionHandler> connectionComboBox;
+    private DBNComboBox<SchemaId> schemaComboBox;
 
     private ArgumentFactoryInputListForm argumentListPanel;
     private final DBObjectRef<DBSchema> schema;
@@ -60,15 +63,23 @@ public abstract class MethodFactoryInputForm extends ObjectFactoryInputForm<Meth
     public MethodFactoryInputForm(DBNComponent parent, DBSchema schema, DBObjectType objectType, int index) {
         super(parent, schema.getConnection(), objectType, index);
         this.schema = DBObjectRef.of(schema);
-        connectionLabel.setText(getConnection().getName());
-        connectionLabel.setIcon(getConnection().getIcon());
 
-        schemaLabel.setText(schema.getName());
-        schemaLabel.setIcon(schema.getIcon());
+        ConnectionHandler connection = getConnection();
+        connectionComboBox.setValues(connection);
+        connectionComboBox.setSelectedValue(connection);
+        connectionComboBox.set(HIDE_DESCRIPTION, true);
+        connectionComboBox.setEnabled(false); // TODO support connection switch
+
+        SchemaId schemaId = schema.getSchemaId();
+        schemaComboBox.setValues(schemaId);
+        schemaComboBox.setSelectedValue(schemaId);
+        schemaComboBox.set(HIDE_DESCRIPTION, true);
+        schemaComboBox.setEnabled(false); // TODO support connection switch
+
 
         returnArgumentPanel.setVisible(hasReturnArgument());
         returnArgumentPanel.setBorder(Borders.BOTTOM_LINE_BORDER);
-        argumentListPanel.createObjectPanel();
+        argumentListPanel.createObjectPanel(null);
         //argumentListPanel.createObjectPanel();
         //argumentListPanel.createObjectPanel();
 
@@ -76,8 +87,8 @@ public abstract class MethodFactoryInputForm extends ObjectFactoryInputForm<Meth
         returnArgumentIconLabel.setIcon(Icons.DBO_ARGUMENT_OUT);
 
         nameLabel.setText(
-                objectType == DBObjectType.FUNCTION ? "Function Name" :
-                objectType == DBObjectType.PROCEDURE ? "Procedure Name" : "Name");
+                objectType == DBObjectType.FUNCTION ? "Function name" :
+                objectType == DBObjectType.PROCEDURE ? "Procedure name" : "Name");
 
         DBNHeaderForm headerForm = createHeaderForm(schema, objectType);
         onTextChange(nameTextField, e -> headerForm.setTitle(getSchema().getName() + "." + toUpperCase(nameTextField.getText())));
@@ -101,7 +112,7 @@ public abstract class MethodFactoryInputForm extends ObjectFactoryInputForm<Meth
 
     @Override
     public MethodFactoryInput createFactoryInput(ObjectFactoryInput parent) {
-        MethodFactoryInput methodFactoryInput = new MethodFactoryInput(getSchema(), nameTextField.getText(), getObjectType(), getIndex());
+        MethodFactoryInput methodFactoryInput = new MethodFactoryInput(getSchema(), nameTextField.getText(), getObjectType());
         methodFactoryInput.setArguments(argumentListPanel.createFactoryInputs(methodFactoryInput));
         return methodFactoryInput;
     }

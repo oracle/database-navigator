@@ -38,7 +38,6 @@ import static com.dbn.common.ui.progress.ProgressDialogHandler.closeProgressDial
 
 @UtilityClass
 public class Dialogs {
-
     public static <T extends DBNDialog<?>> void show(@NotNull Supplier<T> builder) {
         show(builder, null);
     }

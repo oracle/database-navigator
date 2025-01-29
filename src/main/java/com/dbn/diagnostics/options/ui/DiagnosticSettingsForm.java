@@ -51,6 +51,7 @@ public class DiagnosticSettingsForm extends DBNFormBase {
     private JTextField queryingLagTextField;
     private JTextField fetchingLagTextField;
     private JCheckBox dialogSizingCheckbox;
+    private JCheckBox nativeAlertsCheckBox;
     private JCheckBox bulkActionsCheckbox;
     private JCheckBox failsafeLoggingCheckBox;
     private JCheckBox backgroundDisposerCheckBox;
@@ -85,6 +86,7 @@ public class DiagnosticSettingsForm extends DBNFormBase {
 
         Miscellaneous miscellaneous = Diagnostics.getMiscellaneous();
         dialogSizingCheckbox.setSelected(miscellaneous.isDialogSizingReset());
+        nativeAlertsCheckBox.setSelected(miscellaneous.isNativeAlertsEnabled());
         bulkActionsCheckbox.setSelected(miscellaneous.isBulkActionsEnabled());
         backgroundDisposerCheckBox.setSelected(miscellaneous.isBackgroundDisposerDisabled());
         timeoutHandlingCheckBox.setSelected(miscellaneous.isTimeoutHandlingDisabled());
@@ -110,6 +112,7 @@ public class DiagnosticSettingsForm extends DBNFormBase {
         databaseResourcesCheckBox.setEnabled(developerMode);
         databaseLaggingCheckBox.setEnabled(developerMode);
         dialogSizingCheckbox.setEnabled(developerMode);
+        nativeAlertsCheckBox.setEnabled(developerMode);
         bulkActionsCheckbox.setEnabled(developerMode);
         failsafeLoggingCheckBox.setEnabled(developerMode);
         backgroundDisposerCheckBox.setEnabled(developerMode);
@@ -143,6 +146,7 @@ public class DiagnosticSettingsForm extends DBNFormBase {
 
         Miscellaneous miscellaneous = Diagnostics.getMiscellaneous();
         miscellaneous.setDialogSizingReset(dialogSizingCheckbox.isSelected());
+        miscellaneous.setNativeAlertsEnabled(nativeAlertsCheckBox.isSelected());
         miscellaneous.setBulkActionsEnabled(bulkActionsCheckbox.isSelected());
         miscellaneous.setBackgroundDisposerDisabled(backgroundDisposerCheckBox.isSelected());
         miscellaneous.setTimeoutHandlingDisabled(timeoutHandlingCheckBox.isSelected());

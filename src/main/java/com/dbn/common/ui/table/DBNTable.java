@@ -58,6 +58,8 @@ import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
 import java.awt.Rectangle;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;
@@ -69,6 +71,10 @@ import java.util.TimerTask;
 import static com.dbn.common.dispose.ComponentDisposer.removeListeners;
 import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.ui.table.Tables.isFirstCellSelected;
+import static com.dbn.common.ui.table.Tables.isLastCellSelected;
+import static com.dbn.common.ui.util.UserInterface.focusNextComponent;
+import static com.dbn.common.ui.util.UserInterface.focusPreviousComponent;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class DBNTable<T extends DBNTableModel> extends JTable implements StatefulDisposable, UserDataHolder {
@@ -127,8 +133,33 @@ public class DBNTable<T extends DBNTableModel> extends JTable implements Statefu
         setSelectionBackground(Colors.getTableSelectionBackground(true));
         setSelectionForeground(Colors.getTableSelectionForeground(true));
 
+        addKeyListener(createTabKeyListener());
+
         Disposer.register(parent, this);
         Disposer.register(this, tableModel);
+    }
+
+    protected KeyAdapter createTabKeyListener() {
+        return new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() != KeyEvent.VK_TAB) return;
+                DBNTable<T> table = DBNTable.this;
+
+                boolean empty = table.getRowCount() == 0;
+                if (e.isShiftDown()) {
+                    if (empty || isFirstCellSelected(table)) {
+                        focusPreviousComponent(table);
+                        e.consume();
+                    }
+                } else {
+                    if (empty || isLastCellSelected(table)) {
+                        focusNextComponent(table);
+                        e.consume();
+                    }
+                }
+            }
+        };
     }
 
     @Nullable
