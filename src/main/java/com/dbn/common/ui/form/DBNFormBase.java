@@ -128,6 +128,7 @@ public abstract class DBNFormBase
 
 
         initValidation();
+        initStatePersistence();
         initFormAccessibility();
 
         JComponent mainComponent = getMainComponent();
@@ -188,6 +189,17 @@ public abstract class DBNFormBase
 
     @ApiStatus.OverrideOnly
     protected void initAccessibility() {}
+
+    /**
+     * Initializes the persistence mechanisms for the state of the form or component.
+     * This method is intended to be overridden by subclasses to define custom state
+     * persistence logic, such as saving and restoring UI state or settings.
+     * <br>
+     * It does not include any default implementation and should be implemented in
+     * subclasses if state persistence is required.
+     */
+    @ApiStatus.OverrideOnly
+    protected void initStatePersistence () {}
 
     @ApiStatus.OverrideOnly
     protected void lookAndFeelChanged() {}

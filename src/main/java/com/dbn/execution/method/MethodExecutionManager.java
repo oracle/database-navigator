@@ -153,7 +153,7 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
     }
 
     private void showInputDialog(@NotNull MethodExecutionInput executionInput, @NotNull DBDebuggerType debuggerType, @NotNull Runnable executor) {
-        MethodExecutionInputDialog.open(executionInput, debuggerType, executor);
+        Dialogs.show(() -> new MethodExecutionInputDialog(executionInput, debuggerType, executor));
     }
 
 

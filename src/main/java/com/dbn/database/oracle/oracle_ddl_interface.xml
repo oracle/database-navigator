@@ -42,6 +42,14 @@
         <statement>create {0}</statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="create-java-class">
+        <statement>
+            begin
+            execute immediate 'create and compile java source named "{0}" as {1}';
+            end;
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="change-object">
         <statement>create or replace {0}</statement>
     </statement-execution-processor>
@@ -63,11 +71,6 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="drop-java-object">
-        <statement>
-            begin
-              dbms_java.dropjava('{0}.{1}');
-            end;
-        </statement>
         <statement>
             begin
                 execute immediate 'drop java source {0}.{1}';

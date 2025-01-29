@@ -55,6 +55,7 @@ public class SelectDDLFileForm extends DBNFormBase {
         filesList.setModel(listModel);
         filesList.setCellRenderer(new FileListCellRenderer());
         filesList.setSelectedIndex(0);
+        filesList.setBorder(null);
 
         if (!isFileOpenEvent) mainPanel.remove(doNotPromptCheckBox);
     }

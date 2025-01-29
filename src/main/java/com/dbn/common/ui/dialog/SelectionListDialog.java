@@ -20,7 +20,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 import java.util.List;
 
 @Getter
@@ -40,6 +40,10 @@ public class SelectionListDialog<T> extends DBNDialog<SelectionListForm<T>> {
         this.initialSelection = initialSelection;
         this.contextObject = contextObject;
         init();
+    }
+
+    public void setSelectButtonText(String text) {
+        super.setOKButtonText(text);
     }
 
     @NotNull

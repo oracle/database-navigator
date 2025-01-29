@@ -471,6 +471,8 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         PACKAGE.addDdlFileType(DBContentType.CODE_SPEC, DDLFileTypeId.PACKAGE_SPEC);
         PACKAGE.addDdlFileType(DBContentType.CODE_BODY, DDLFileTypeId.PACKAGE_BODY);
 
+        JAVA_CLASS.addDdlFileType(DBContentType.CODE, DDLFileTypeId.JAVA_SOURCE);
+
     }
 
     /*************************************************************************

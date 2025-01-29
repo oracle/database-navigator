@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package com.dbn.ddl;
+package com.dbn.common.state;
 
-public enum DDLFileTypeId {
-    VIEW,
-    TRIGGER,
-    PROCEDURE,
-    FUNCTION,
-    PACKAGE,
-    PACKAGE_SPEC,
-    PACKAGE_BODY,
-    TYPE,
-    TYPE_SPEC,
-    TYPE_BODY,
-    JAVA_SOURCE
+import org.jetbrains.annotations.NonNls;
+
+public interface StateHolder {
+
+    String getAttribute(@NonNls String key);
+
+    void setAttribute(@NonNls String key, @NonNls String value);
 }

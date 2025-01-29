@@ -16,15 +16,10 @@
 
 package com.dbn.execution.java.ui;
 
-import com.dbn.common.Pair;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.common.ui.dialog.DBNDialogRegistry;
-import com.dbn.common.util.Dialogs;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.java.JavaExecutionInput;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.AbstractAction;
@@ -36,7 +31,7 @@ public class JavaExecutionInputDialog extends DBNDialog<JavaExecutionInputForm> 
     private final DBDebuggerType debuggerType;
     private final Runnable executor;
 
-    private JavaExecutionInputDialog(@NotNull JavaExecutionInput executionInput, @NotNull DBDebuggerType debuggerType, @NotNull Runnable executor) {
+    public JavaExecutionInputDialog(@NotNull JavaExecutionInput executionInput, @NotNull DBDebuggerType debuggerType, @NotNull Runnable executor) {
         super(executionInput.getProject(), (debuggerType.isDebug() ? "Debug" : "Execute") + " method", true);
         this.executionInput = executionInput;
         this.debuggerType = debuggerType;
@@ -45,13 +40,6 @@ public class JavaExecutionInputDialog extends DBNDialog<JavaExecutionInputForm> 
         setResizable(true);
         setDefaultSize(800, 600);
         init();
-    }
-
-    public static void open(@NotNull JavaExecutionInput executionInput, @NotNull DBDebuggerType debuggerType, @NotNull Runnable executor) {
-        Dispatch.run(true, () -> {
-            val key = Pair.of(executionInput.getMethodRef(), debuggerType);
-            Dialogs.show(() -> DBNDialogRegistry.ensure(key, () -> new JavaExecutionInputDialog(executionInput, debuggerType, executor)));
-        });
     }
 
     @NotNull

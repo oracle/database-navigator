@@ -16,6 +16,7 @@
 
 package com.dbn.vfs.file;
 
+import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.ThreadMonitor;
 import com.dbn.common.thread.Write;
@@ -57,6 +58,7 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
+import static com.dbn.common.compatibility.CompatibilityUtil.isStructureViewAccess;
 import static com.dbn.common.util.GuardedBlocks.createGuardedBlocks;
 import static com.dbn.common.util.GuardedBlocks.removeGuardedBlocks;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -319,8 +321,11 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
 
     @NotNull
     @Override
+    @Workaround
     public VirtualFile getOriginFile() {
-        // DBN-536 TODO check why below was needed
-        return this;//getMainDatabaseFile();
+        // WORKAROUND: structure view builder is expecting the main database file for matching the editor selection
+        // Logic here is conditional to avoid issue reported in DBN-536
+        return isStructureViewAccess() ? getMainDatabaseFile() : this;
+
     }
 }

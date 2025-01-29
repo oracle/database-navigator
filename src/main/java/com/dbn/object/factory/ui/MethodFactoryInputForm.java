@@ -112,7 +112,7 @@ public abstract class MethodFactoryInputForm extends ObjectFactoryInputForm<Meth
 
     @Override
     public MethodFactoryInput createFactoryInput(ObjectFactoryInput parent) {
-        MethodFactoryInput methodFactoryInput = new MethodFactoryInput(getSchema(), nameTextField.getText(), getObjectType(), getIndex());
+        MethodFactoryInput methodFactoryInput = new MethodFactoryInput(getSchema(), nameTextField.getText(), getObjectType());
         methodFactoryInput.setArguments(argumentListPanel.createFactoryInputs(methodFactoryInput));
         return methodFactoryInput;
     }
