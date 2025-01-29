@@ -16,7 +16,9 @@
 
 package com.dbn.common.compatibility;
 
+import com.dbn.common.util.Traces;
 import com.intellij.find.editorHeaderActions.Utils;
+import com.intellij.ide.structureView.StructureViewWrapper;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
@@ -43,5 +45,14 @@ public class CompatibilityUtil {
 
         VirtualFile[] files = fileEditorManager.getSelectedFiles();
         return files.length == 0 ? null : fileEditorManager.getSelectedEditor(files[0]);
+    }
+
+    /**
+     * Determines if the current method call is invoked through the psi structure view builder.
+     * Uses {@link Traces} utilities to scan the call stack for the {@link StructureViewWrapper} class
+     */
+    @Workaround
+    public static boolean isStructureViewAccess() {
+        return Traces.isCalledThroughClass(c -> StructureViewWrapper.class.isAssignableFrom(c), 20);
     }
 }

@@ -148,7 +148,7 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 	}
 
 	private void showInputDialog(@NotNull JavaExecutionInput executionInput, @NotNull DBDebuggerType debuggerType, @NotNull Runnable executor) {
-		JavaExecutionInputDialog.open(executionInput, debuggerType, executor);
+		Dialogs.show(() -> new JavaExecutionInputDialog(executionInput, debuggerType, executor));
 	}
 
 

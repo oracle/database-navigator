@@ -23,8 +23,10 @@ import com.intellij.ui.components.JBList;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.DefaultListModel;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 import java.util.List;
 
 public class SelectionListForm<T> extends DBNFormBase {
@@ -52,6 +54,7 @@ public class SelectionListForm<T> extends DBNFormBase {
         selectionList.setModel(model);
         selectionList.setSelectedValue(selection == null ? elements.get(0) : selection, true);
         selectionList.setCellRenderer(SimpleListCellRenderer.create("", o -> o.toString()));
+        selectionList.setBorder(null);
     }
 
     @Override

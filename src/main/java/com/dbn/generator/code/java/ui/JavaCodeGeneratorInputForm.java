@@ -18,12 +18,12 @@ package com.dbn.generator.code.java.ui;
 
 import com.dbn.common.file.VirtualFilePresentable;
 import com.dbn.common.project.ModulePresentable;
+import com.dbn.common.state.StateHolder;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.CodeGeneratorCategory;
 import com.dbn.generator.code.CodeGeneratorManager;
-import com.dbn.generator.code.CodeGeneratorState;
 import com.dbn.generator.code.CodeGeneratorType;
 import com.dbn.generator.code.java.JavaCodeGeneratorInput;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputDialog;
@@ -45,13 +45,13 @@ import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
-import static com.dbn.common.ui.util.ComboBoxes.initPersistence;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
-import static com.dbn.common.ui.util.TextFields.onTextChange;
-import static com.dbn.generator.code.java.JavaCodeGeneratorInput.isValidClassName;
-import static com.dbn.generator.code.java.JavaCodeGeneratorInput.isValidPackageName;
+import static com.dbn.common.util.Java.isValidClassName;
+import static com.dbn.common.util.Java.isValidPackageName;
+import static com.dbn.common.util.Strings.isNotEmpty;
 
 public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extends CodeGeneratorInputForm<I> {
     private JPanel headerPanel;
@@ -71,13 +71,13 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
         classNameTextField.setText(getGeneratorType().getFileName());
 
         initSelectionListener(moduleComboBox, s -> initContentRoots());
-        initStatePersistence();
         initModules();
     }
 
     protected void initValidation() {
-        formValidator.addTextValidation(packageTextField, p -> isValidPackageName(p), "Invalid package name");
-        formValidator.addTextValidation(classNameTextField, p -> isValidClassName(p), "Invalid class name");
+        formValidator.addTextValidation(packageTextField, p -> isValidPackageName(p), "Please enter a valid package name");
+        formValidator.addTextValidation(classNameTextField, p -> isNotEmpty(p), "Please enter a class name");
+        formValidator.addTextValidation(classNameTextField, p -> isValidClassName(p), "Please enter a valid class name");
     }
 
     @Override
@@ -85,23 +85,16 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
         return mainPanel;
     }
 
-    private void initStatePersistence() {
+    protected void initStatePersistence() {
         Project project = ensureProject();
         CodeGeneratorCategory generatorCategory = getGeneratorCategory();
         CodeGeneratorManager codeGeneratorManager = CodeGeneratorManager.getInstance(project);
 
-        CodeGeneratorState state = codeGeneratorManager.getState(generatorCategory);
+        StateHolder state = codeGeneratorManager.getState(generatorCategory);
 
-        initPersistence(moduleComboBox,
-                () -> state.getAttribute("module-selection"),
-                s -> state.setAttribute("module-selection", s));
-
-        initPersistence(contentRootComboBox,
-                () -> state.getAttribute("content-root-selection"),
-                s -> state.setAttribute("content-root-selection", s));
-
-        packageTextField.setText(state.getAttribute("package-selection"));
-        onTextChange(packageTextField, e -> state.setAttribute("package-selection", getPackageName()));
+        initPersistence(moduleComboBox, state, "module-selection");
+        initPersistence(contentRootComboBox, state, "content-root-selection");
+        initPersistence(packageTextField, state, "package-selection");
     }
 
     private void initModules() {
