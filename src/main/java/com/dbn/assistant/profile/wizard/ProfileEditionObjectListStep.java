@@ -23,6 +23,7 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.UserInterface;
@@ -73,19 +74,6 @@ import static com.dbn.nls.NlsResources.txt;
  */
 @Slf4j
 public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizardModel> implements Disposable {
-
-
-  private static final int TABLES_COLUMN_HEADERS_NAME_IDX = 0;
-  private static final int TABLES_COLUMN_HEADERS_OWNER_IDX = 1;
-
-  private static final String[] PROFILE_OBJ_TABLES_COLUMN_HEADERS = {
-      txt("cfg.assistant.title.Dataset"),
-      txt("cfg.assistant.title.Owner")
-  };
-  private static final String[] DB_OBJ_TABLES_COLUMN_HEADERS = {
-      txt("cfg.assistant.title.Dataset")
-  };
-
   private JPanel mainPanel;
   private JBTextField filterTextField;
   private JTable profileObjectListTable;
@@ -97,7 +85,6 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
 
   private final ConnectionRef connection;
   private final ProfileData profile;
-  private final boolean isUpdate;
 
   ObjectsTableModel objectsTableModel = new ObjectsTableModel();
 
@@ -115,13 +102,13 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     this.connection = connection.ref();
 
     this.profile = profile;
-    this.isUpdate = isUpdate;
 
     initHintPanel();
     initObjectTables();
     initActionToolbar();
     initSchemaSelector();
     initFilterField();
+    initAccessibility();
 
     objectsTableModel.addTableModelListener(l -> updateDatasetsFilter());
 
@@ -131,6 +118,11 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
       });
     }
     UserInterface.updateSplitPanes(mainPanel);
+  }
+
+  private void initAccessibility() {
+    Accessibility.setAccessibleName(databaseObjectsTable, "Available Datasets");
+    Accessibility.setAccessibleName(profileObjectListTable, "Profile Datasets");
   }
 
   private void initHintPanel() {
@@ -163,6 +155,8 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
             DatasetTypeToggleAction.create(DBObjectType.TABLE, selectedDatasetTypes, toggleCallback),
             DatasetTypeToggleAction.create(DBObjectType.VIEW, selectedDatasetTypes, toggleCallback),
             DatasetTypeToggleAction.create(DBObjectType.MATERIALIZED_VIEW, selectedDatasetTypes, toggleCallback));
+
+    Accessibility.setAccessibleName(actionToolbar, "Dataset Type Filters");
 
     JComponent component = actionToolbar.getComponent();
     component.setOpaque(false);

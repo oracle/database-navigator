@@ -16,7 +16,6 @@
 
 package com.dbn.editor.data.filter.ui;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.util.Borders;
@@ -45,12 +44,16 @@ import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.util.Objects;
 
+import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
+import static com.dbn.common.ui.util.ClientProperty.NO_INDENT;
+
 public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCustomFilter> {
     private JPanel mainPanel;
     private JPanel actionsPanel;
     private JPanel editorPanel;
     private JTextField nameTextField;
     private JLabel errorLabel;
+    private JLabel queryLabel;
 
     private Document document;
     private EditorEx editor;
@@ -59,6 +62,8 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
 
     public DatasetCustomFilterForm(DBDataset dataset, DatasetCustomFilter filter) {
         super(filter);
+
+        NO_INDENT.set(mainPanel, true);
         nameTextField.setText(filter.getDisplayName());
         Project project = dataset.getProject();
 
@@ -87,7 +92,8 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
         if (!isValidCondition) editor.getSelectionModel().setSelection(conditionStartOffset, document.getTextLength());
 
         JScrollPane editorScrollPane = editor.getScrollPane();
-        editorScrollPane.setViewportBorder(Borders.lineBorder(Colors.getEditorBackground(), 4));
+        editorScrollPane.setViewportBorder(Borders.insetBorder(4));
+
 
         //viewer.setBackgroundColor(viewer.getColorsScheme().getColor(ColorKey.find("CARET_ROW_COLOR")));
         //viewer.getScrollPane().setViewportBorder(new LineBorder(viewer.getBackroundColor(), 4, false));
@@ -112,6 +118,11 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
             errorLabel.setText(filter.getError());
             errorLabel.setIcon(Icons.EXEC_MESSAGES_ERROR);
         }
+    }
+
+    @Override
+    protected void initAccessibility() {
+        COMPONENT_GROUP_QUALIFIER.set(queryLabel, true);
     }
 
     @Override

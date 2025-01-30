@@ -48,8 +48,6 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
 
   private JPanel profileEditionProviderMainPane;
   private JComboBox<AIProvider> providerNameCombo;
-  private JLabel providerNameLabel;
-  private JLabel providerModelLabel;
   private JComboBox<AIModel> providerModelCombo;
   private JSlider temperatureSlider;
   private final ProfileData profile;
