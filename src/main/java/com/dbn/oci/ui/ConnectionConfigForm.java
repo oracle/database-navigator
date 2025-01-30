@@ -37,7 +37,7 @@ public class ConnectionConfigForm extends DBNFormBase {
 
 
   private JPanel mainPanel;
-  private ComboBox<String> authenticationTypeComboBox;
+  private ComboBox authenticationTypeComboBox;
   private ComboBox<String> walletTypeComboBox;
   private JCheckBox isSpecifyPasswordCheckbox;
   private JBPasswordField passwordTextField;
@@ -97,16 +97,20 @@ public class ConnectionConfigForm extends DBNFormBase {
     walletLocationField.setText(walletDefaultPath);
     walletLocationField.setToolTipText(walletTooltip);
     isDirtyWalletPath = !validateWalletPath();
+    passwordTextField.setVisible(false);
+    passwordLabel.setVisible(false);
+    passwordConfirmTextField.setVisible(false);
+    confirmPasswordLabel.setVisible(false);
 
-      if (isMtlsRequired) {
-        authenticationTypeComboBox.setEnabled(false);
-        authenticationLabel.setEnabled(false);
-        authenticationTypeComboBox.setSelectedItem(AUTHENTICATION_TYPE_MTLS);
-        setAuthenticationTypeToMTLS();
-      }else {
-        authenticationTypeComboBox.setSelectedItem(AUTHENTICATION_TYPE_TLS);
-        setAuthenticationTypeToTLS();
-      }
+    if (isMtlsRequired) {
+      authenticationTypeComboBox.setEnabled(false);
+      authenticationLabel.setEnabled(false);
+      authenticationTypeComboBox.setSelectedItem(AUTHENTICATION_TYPE_MTLS);
+      setAuthenticationTypeToMTLS();
+    }else {
+      authenticationTypeComboBox.setSelectedItem(AUTHENTICATION_TYPE_TLS);
+      setAuthenticationTypeToTLS();
+    }
 
 
 

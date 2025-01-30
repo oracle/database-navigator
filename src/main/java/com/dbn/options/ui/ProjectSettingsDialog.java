@@ -19,13 +19,12 @@ package com.dbn.options.ui;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.util.Messages;
-import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.tns.TnsImportData;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
-import com.dbn.oci.ConnectionSettings;
+import com.dbn.oci.ConnectionData;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.intellij.openapi.application.ModalityState;
@@ -67,9 +66,9 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
         selectConnectionSettings(connectionId);
     }
 
-    public ProjectSettingsDialog(Project project, @NotNull DatabaseType databaseType, @NotNull ConnectionConfigType configType, ConnectionSettings connectionSettings) {
+    public ProjectSettingsDialog(Project project, @NotNull DatabaseType databaseType, @NotNull ConnectionConfigType configType, ConnectionData connectionData) {
         this(project);
-        ConnectionId connectionId = getConnectionSettingsEditor().createNewConnection(databaseType, configType,connectionSettings);
+        ConnectionId connectionId = getConnectionSettingsEditor().createNewConnection(databaseType, configType, connectionData);
         selectConnectionSettings(connectionId);
     }
 
@@ -78,9 +77,9 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
         getConnectionSettingsEditor().importTnsNames(importData);
         selectConnectionSettings(null);
     }
-    public ProjectSettingsDialog(Project project, @NotNull TnsImportData importData, ConnectionSettings connectionSettings) {
+    public ProjectSettingsDialog(Project project, @NotNull TnsImportData importData, ConnectionData connectionData) {
         this(project);
-        getConnectionSettingsEditor().importTnsNames(importData, connectionSettings);
+        getConnectionSettingsEditor().importTnsNames(importData, connectionData);
         selectConnectionSettings(null);
     }
 

@@ -10,33 +10,34 @@ import java.io.File;
 import java.util.Map;
 @Getter
 @Setter
-public class ConnectionSettings {
+public class ConnectionData {
   private String displayName;
-  private Boolean isMtlsConnectionRequired;
+  private boolean mtlsConnectionRequired;
   private Map<String, String> allConnectionStrings;
-  private boolean isDedicated;
+  private boolean dedicated;
   private  String configFile;
   private  String configProfile;
   private String parentCompartment;
+  private String connectionName;
   OCIDatabase database;
-  static ConnectionSettings toConnectionSettings(UIModelContext modelContext) {
+  static ConnectionData toConnectionSettings(UIModelContext modelContext) {
     OCIDatabase database = (OCIDatabase) modelContext.getContextObject();
-    ConnectionSettings connectionSettings = new ConnectionSettings();
+    ConnectionData connectionData = new ConnectionData();
     String compId = modelContext.getContextObject().getCompartmentId();
     String dbIdentifier = database.getDisplayName()+"_"+database.getId().substring(database.getId().length()-8);
     String walletDefaultPath = "comp"+ compId.substring(compId.length()-8)+"/"+dbIdentifier;
-    connectionSettings.setParentCompartment(walletDefaultPath);
+    connectionData.setParentCompartment(walletDefaultPath);
 
-    connectionSettings.setDatabase(database);
-    connectionSettings.setDisplayName(database.getDisplayName());
-    connectionSettings.setIsMtlsConnectionRequired(database.getIsMtlsConnectionRequired());
-    connectionSettings.setAllConnectionStrings(database.getTlsConnectionStrings().getAllConnectionStrings());
-    connectionSettings.setConfigFile(modelContext.getConfigFile());
-    connectionSettings.setConfigProfile(modelContext.getConfigProfile());
-    return connectionSettings;
+    connectionData.setDatabase(database);
+    connectionData.setDisplayName(database.getDisplayName());
+    connectionData.setMtlsConnectionRequired(database.getIsMtlsConnectionRequired());
+    connectionData.setAllConnectionStrings(database.getTlsConnectionStrings().getAllConnectionStrings());
+    connectionData.setConfigFile(modelContext.getConfigFile());
+    connectionData.setConfigProfile(modelContext.getConfigProfile());
+    return connectionData;
   }
 
-  public String getId() {
+  public String getOcid() {
     return this.database.getId();
   }
   public String getCompartmentId() {

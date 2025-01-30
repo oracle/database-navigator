@@ -44,6 +44,7 @@ import com.dbn.connection.config.tns.TnsImportType;
 import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsProfile;
 import com.dbn.driver.DriverSource;
+import com.dbn.oci.ConnectionData;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.options.ConfigurationException;
@@ -229,15 +230,15 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         return connectionSettings.getConnectionId();
     }
 
-    public ConnectionId createNewConnection(@NotNull DatabaseType databaseType, @NotNull ConnectionConfigType configType, com.dbn.oci.ConnectionSettings ociConnectionSettings) {
+    public ConnectionId createNewConnection(@NotNull DatabaseType databaseType, @NotNull ConnectionConfigType configType, ConnectionData ociConnectionData) {
         ConnectionBundleSettings connectionBundleSettings = getConfiguration();
-        ConnectionSettings connectionSettings = new ConnectionSettings(connectionBundleSettings, databaseType, configType);
+        ConnectionSettings connectionSettings = new ConnectionSettings(connectionBundleSettings, databaseType, configType, ociConnectionData.getOcid());
         connectionSettings.setNew(true);
         connectionSettings.generateNewId();
         connectionBundleSettings.setModified(true);
         connectionBundleSettings.getConnections().add(connectionSettings);
 
-        String name =ociConnectionSettings.getDisplayName() ;
+        String name = ociConnectionData.getConnectionName() ;
         ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
         while (model.getConnectionConfig(name) != null) {
             name = Naming.nextNumberedIdentifier(name, true);
@@ -249,9 +250,10 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
 
 
         DatabaseInfo databaseInfo = connectionConfig.getDatabaseInfo();
-        String dbUrl = getUrl(ociConnectionSettings);
+        String dbUrl = getUrl(ociConnectionData);
         databaseInfo.setUrl(dbUrl);
-
+        connectionConfig.getAuthenticationInfo().setTokenConfigFile(ociConnectionData.getConfigFile());
+        connectionConfig.getAuthenticationInfo().setTokenProfile(ociConnectionData.getConfigProfile());
         databaseInfo.setUrlType(DatabaseUrlType.CUSTOM);
         DatabaseUrlPattern urlPattern = Commons.nvl(databaseType.resolveUrlPattern(dbUrl), DatabaseUrlPattern.ORACLE_SERVICE);
         databaseInfo.initializeDetails(urlPattern);
@@ -263,9 +265,9 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         return connectionSettings.getConnectionId();
     }
 
-    private String  getUrl(com.dbn.oci.ConnectionSettings connectionSettings){
+    private String  getUrl(ConnectionData connectionData){
         String urlPrefix = "jdbc:oracle:thin:@tcps://";
-        String connectionStringHigh = connectionSettings.getAllConnectionStrings().get("HIGH");
+        String connectionStringHigh = connectionData.getAllConnectionStrings().get("HIGH");
       return urlPrefix + connectionStringHigh;
     }
 
@@ -399,7 +401,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
     public void importTnsNames(TnsImportData importData){
         importTnsNames(importData,null);
     }
-    public void importTnsNames(TnsImportData importData, com.dbn.oci.ConnectionSettings ociConnectionSettings) {
+    public void importTnsNames(TnsImportData importData, ConnectionData ociConnectionData) {
         ConnectionBundleSettings connectionBundleSettings = getConfiguration();
         ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
         int index = connectionsList.getModel().getSize();
@@ -408,27 +410,25 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         TnsNames tnsNames = importData.getTnsNames();
         List<TnsProfile> tnsProfiles = importData.isSelectedOnly() ? tnsNames.getSelectedProfiles() : tnsNames.getProfiles();
         for (TnsProfile tnsProfile : tnsProfiles) {
-            ConnectionSettings connectionSettings = new ConnectionSettings(connectionBundleSettings, DatabaseType.ORACLE, ConnectionConfigType.BASIC);
-            connectionSettings.setNew(true);
-            connectionSettings.generateNewId();
+            ConnectionSettings connectionSettings = getConnectionSettings(ociConnectionData, connectionBundleSettings);
             connectionBundleSettings.setModified(true);
             connectionBundleSettings.getConnections().add(connectionSettings);
 
             ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
             DatabaseInfo databaseInfo = databaseSettings.getDatabaseInfo();
             importTnsData(databaseInfo, tnsProfile, tnsNames, importData.getImportType());
-
-            String name = tnsProfile.getProfile();
+            String name;
+            if (ociConnectionData != null) {
+                name = ociConnectionData.getConnectionName();
+                databaseSettings.getAuthenticationInfo().setTokenConfigFile(ociConnectionData.getConfigFile());
+                databaseSettings.getAuthenticationInfo().setTokenProfile(ociConnectionData.getConfigProfile());
+            }else {
+                name = tnsProfile.getProfile();
+            }
             while (model.getConnectionConfig(name) != null) {
                 name = Naming.nextNumberedIdentifier(name, true);
             }
-            if (ociConnectionSettings == null){
-                databaseSettings.setName(name);
-            }else {
-                // name db based on it's id or display name
-                databaseSettings.setName(ociConnectionSettings.getDisplayName());
-            }
-//            databaseSettings.setName(name);
+            databaseSettings.setName(name);
             databaseSettings.setDatabaseType(DatabaseType.ORACLE);
             databaseSettings.setDriverSource(DriverSource.BUNDLED);
 
@@ -439,6 +439,19 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         }
 
         connectionsList.setSelectedIndices(selectedIndexes.stream().mapToInt(i -> i).toArray());
+    }
+
+    private static @NotNull ConnectionSettings getConnectionSettings(ConnectionData ociConnectionData, ConnectionBundleSettings connectionBundleSettings) {
+        ConnectionSettings connectionSettings = null;
+        if (ociConnectionData == null) {
+            connectionSettings = new ConnectionSettings(connectionBundleSettings, DatabaseType.ORACLE, ConnectionConfigType.BASIC);
+        }else {
+            connectionSettings = new ConnectionSettings(connectionBundleSettings, DatabaseType.ORACLE, ConnectionConfigType.BASIC, ociConnectionData.getOcid());
+
+        }
+        connectionSettings.setNew(true);
+        connectionSettings.generateNewId();
+        return connectionSettings;
     }
 
     private static void importTnsData(DatabaseInfo databaseInfo, TnsProfile tnsName, TnsNames tnsNames, TnsImportType importType) {

@@ -8,7 +8,7 @@ import com.dbn.connection.config.tns.TnsImportData;
 import com.dbn.connection.config.tns.TnsImportType;
 import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsNamesParser;
-import com.dbn.oci.ConnectionSettings;
+import com.dbn.oci.ConnectionData;
 import com.dbn.options.ProjectSettingsManager;
 import com.intellij.ide.DataManager;
 import com.intellij.notification.NotificationType;
@@ -27,18 +27,18 @@ import java.util.Optional;
 import java.util.Random;
 
 public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm>  {
-  private final ConnectionSettings connectionSettings;
+  private final ConnectionData connectionData;
 
-  public ConnectionConfigDialog(Project project, String title, boolean canBeParent, ConnectionSettings connectionSettings) {
+  public ConnectionConfigDialog(Project project, String title, boolean canBeParent, ConnectionData connectionData) {
     super(project, title, canBeParent);
-    this.connectionSettings = connectionSettings;
+    this.connectionData = connectionData;
     init();
     setDefaultSize(468,363);
   }
 
   @Override
   protected @NotNull ConnectionConfigForm createForm() {
-    return new ConnectionConfigForm(this, connectionSettings.getIsMtlsConnectionRequired(),connectionSettings.getParentCompartment());
+    return new ConnectionConfigForm(this, connectionData.isMtlsConnectionRequired(), connectionData.getParentCompartment());
   }
 
 
@@ -70,10 +70,8 @@ public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm>  {
   protected void doOKAction() {
     ConnectionConfigForm form = getForm();
     //todo need to be improved
-    if (!form.validateWalletPath()){
-      return;
-    }
-    if (form.isMTLS() && form.isDirtyWalletPath()){
+
+    if (form.isMTLS() && (form.isDirtyWalletPath() || !form.validateWalletPath())){
       return;
     }
     DataContext dataContext = DataManager.getInstance().getDataContext();
@@ -81,6 +79,7 @@ public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm>  {
     ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);
 
     if (form.isMTLS()) {
+      connectionData.setConnectionName(connectionData.getDisplayName()+"_MTLS");
       String walletLocation = form.getWalletLocation();
       String password = form.getPassword();
       password = form.isSpecifyPassword()?password: generateRandomPassword();
@@ -92,7 +91,8 @@ public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm>  {
       }
 
     } else {
-      settingsManager.createConnection(DatabaseType.ORACLE, ConnectionConfigType.CUSTOM, connectionSettings);
+      connectionData.setConnectionName(connectionData.getDisplayName()+"_TLS");
+      settingsManager.createConnection(DatabaseType.ORACLE, ConnectionConfigType.CUSTOM, connectionData);
     }
     close(OK_EXIT_CODE);
 
@@ -153,7 +153,7 @@ public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm>  {
     tnsImportData.setTnsNames(tnsNames);
     tnsImportData.setSelectedOnly(true);
 
-    settingsManager.createConnections(tnsImportData, connectionSettings);
+    settingsManager.createConnections(tnsImportData, connectionData);
   }
 
   private void downloadNewWallet(String walletLocation, String password,Runnable preDownloadRunnable ,Runnable showConnectionSettingsRunnable) {
@@ -167,7 +167,7 @@ public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm>  {
               if (preDownloadRunnable != null) {
                 preDownloadRunnable.run();
               }
-              boolean downloadSuccess = connectionSettings.downloadWallet(
+              boolean downloadSuccess = connectionData.downloadWallet(
                       new File(walletLocation ),
                       "",
                       password

@@ -37,6 +37,7 @@ import java.util.Objects;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.connection.config.ConnectionSettingsStatus.*;
 
 @Getter
@@ -46,6 +47,8 @@ public class ConnectionSettings extends CompositeProjectConfiguration<Connection
         implements Cloneable<ConnectionSettings> {
 
     private ConnectionId connectionId;
+    private String sourceId ="" ;
+
 
     private final PropertyHolderBase<ConnectionSettingsStatus> status = new PropertyHolderBase.IntStore<>(ACTIVE, SIGNED) {
         @Override
@@ -70,6 +73,11 @@ public class ConnectionSettings extends CompositeProjectConfiguration<Connection
         super(parent);
         databaseSettings = new ConnectionDatabaseSettings(this, databaseType, configType);
     }
+  public ConnectionSettings(ConnectionBundleSettings parent, DatabaseType databaseType, ConnectionConfigType configType,String dbOcid) {
+    super(parent);
+    this.sourceId = dbOcid;
+    databaseSettings = new ConnectionDatabaseSettings(this, databaseType, configType);
+  }
 
     @Override
     protected Configuration[] createConfigurations() {
@@ -87,7 +95,7 @@ public class ConnectionSettings extends CompositeProjectConfiguration<Connection
         connectionId = ConnectionId.create();
     }
 
-    @NotNull
+  @NotNull
     @Override
     public ConnectionSettingsForm createConfigurationEditor() {
         return new ConnectionSettingsForm(this);
@@ -129,6 +137,7 @@ public class ConnectionSettings extends CompositeProjectConfiguration<Connection
             generateNewId();
         } else {
             connectionId = connectionIdAttribute(element, "id");
+            sourceId = stringAttribute(element,"source-id");
         }
         status.set(ACTIVE, booleanAttribute(element, "active", true));
         status.set(SIGNED, booleanAttribute(element, "signed", true));
@@ -137,6 +146,7 @@ public class ConnectionSettings extends CompositeProjectConfiguration<Connection
 
     @Override
     public void writeConfiguration(Element element) {
+        element.setAttribute("source-id", sourceId);
         element.setAttribute("id", connectionId.id());
         element.setAttribute("active", Boolean.toString(isActive()));
         element.setAttribute("signed", Boolean.toString(isSigned()));
@@ -148,7 +158,7 @@ public class ConnectionSettings extends CompositeProjectConfiguration<Connection
         Element element = new Element("Connection");
         writeConfiguration(element);
         ConnectionDatabaseSettings databaseSettings = getDatabaseSettings();
-        ConnectionSettings clone = new ConnectionSettings(getParent() /*TODO config*/, databaseSettings.getDatabaseType(), databaseSettings.getConfigType());
+        ConnectionSettings clone = new ConnectionSettings(getParent() /*TODO config*/, databaseSettings.getDatabaseType(), databaseSettings.getConfigType(), sourceId);
         clone.readConfiguration(element);
         clone.getDatabaseSettings().setConnectivityStatus(databaseSettings.getConnectivityStatus());
         clone.generateNewId();

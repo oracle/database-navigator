@@ -31,7 +31,6 @@ import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.project.Projects;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
-import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionBundleSettings;
@@ -46,6 +45,7 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.data.options.DataEditorSettings;
 import com.dbn.execution.common.options.ExecutionEngineSettings;
 import com.dbn.navigation.options.NavigationSettings;
+import com.dbn.oci.ConnectionData;
 import com.dbn.options.general.GeneralProjectSettings;
 import com.dbn.options.ui.ProjectSettingsDialog;
 import com.intellij.openapi.components.State;
@@ -150,8 +150,8 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), databaseType, configType));
     }
 
-    public void createConnection(DatabaseType databaseType, ConnectionConfigType connectionConfigType, com.dbn.oci.ConnectionSettings connectionSettings) {
-        Dialogs.show(() -> new ProjectSettingsDialog(getProject(), databaseType, connectionConfigType, connectionSettings));
+    public void createConnection(DatabaseType databaseType, ConnectionConfigType connectionConfigType, ConnectionData connectionData) {
+        Dialogs.show(() -> new ProjectSettingsDialog(getProject(), databaseType, connectionConfigType, connectionData));
 
     }
 
@@ -159,8 +159,8 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), importData));
     }
     // opened from oci-toolkit
-    public void createConnections(TnsImportData importData, com.dbn.oci.ConnectionSettings connectionSettings) {
-        Dialogs.show(() -> new ProjectSettingsDialog(getProject(), importData,connectionSettings));
+    public void createConnections(TnsImportData importData, ConnectionData connectionData) {
+        Dialogs.show(() -> new ProjectSettingsDialog(getProject(), importData, connectionData));
     }
 
     @Override
