@@ -277,8 +277,11 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
                 DatabaseUrlType.DATABASE,
                 DatabaseUrlType.EZCONNECT);
 
-        urlTextField.setEnabled(urlType == DatabaseUrlType.CUSTOM || urlType == DatabaseUrlType.EZCONNECT);
-
+        urlTextField.setEnabled(urlType == DatabaseUrlType.CUSTOM );
+        if (urlType == DatabaseUrlType.EZCONNECT) {
+            urlTextField.setEditable(false);
+            urlTextField.setEnabled(true);
+        }
         // tns folder
         tnsFolderTextField.setVisible(tnsVisible);
         tnsFolderLabel.setVisible(tnsVisible);
