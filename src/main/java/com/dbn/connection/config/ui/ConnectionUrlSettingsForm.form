@@ -160,10 +160,10 @@
         </constraints>
         <properties>
           <model>
-            <item value="Default"/>
-            <item value="Dedicated"/>
-            <item value="Shared"/>
-            <item value="Pooled"/>
+            <item value="DEFAULT"/>
+            <item value="DEDICATED"/>
+            <item value="SHARED"/>
+            <item value="POOLED"/>
           </model>
         </properties>
       </component>
@@ -186,7 +186,7 @@
       </component>
       <component id="9520a" class="javax.swing.JButton" binding="parametersButton">
         <constraints>
-          <grid row="4" column="5" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="5" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text value="Parameters"/>

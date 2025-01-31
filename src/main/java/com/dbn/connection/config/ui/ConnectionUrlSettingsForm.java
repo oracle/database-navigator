@@ -98,7 +98,8 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
             Map<String, String> props = urlPattern.resolveParameterMap(getUrl());
 
             Set<String> builtInKeys = Set.of("ENABLE", "FAILOVER", "LOAD_BALANCE", "RECV_BUF_SIZE","SEND_BUF_SIZE",
-                    "SDU", "SOURCE_ROUTE", "RETRY_COUNT", "RETRY_DELAY","HTTPS_PROXY");
+                    "SDU", "SOURCE_ROUTE", "RETRY_COUNT", "RETRY_DELAY","HTTPS_PROXY", "HTTPS_PROXY_PORT",
+                    "WALLET_LOCATION");
 
             // ensure that we populate table with empty builtin keys even if the current url doesn't have them.
             for (String key : builtInKeys) {
@@ -217,6 +218,9 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         return tcpsCheckBox.isSelected();
     }
 
+    public void setEasyConnParameters(Map<String, String> easyConnParameters) {
+        this.easyConnParameters = easyConnParameters;
+    }
     public Map<String, String> getEasyConnParameters() {
         return Collections.unmodifiableMap(this.easyConnParameters);
     }
@@ -273,7 +277,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
                 DatabaseUrlType.DATABASE,
                 DatabaseUrlType.EZCONNECT);
 
-        urlTextField.setEnabled(urlType == DatabaseUrlType.CUSTOM);
+        urlTextField.setEnabled(urlType == DatabaseUrlType.CUSTOM || urlType == DatabaseUrlType.EZCONNECT);
 
         // tns folder
         tnsFolderTextField.setVisible(tnsVisible);
@@ -346,8 +350,13 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         databaseInfo.setTnsProfile(getTnsProfile());
         databaseInfo.setUrlType(getUrlType());
         databaseInfo.setUrl(getUrl());
+        databaseInfo.setPoolType(getPoolType());
+        databaseInfo.setEasyConnUrl(getEasyConnParameters());
+        databaseInfo.setTcps(isTCPS());
         return databaseInfo;
     }
+
+
 
     private void applyDatabaseInfo(DatabaseInfo databaseInfo) {
         databaseFileSettingsForm.setFileBundle(databaseInfo.getFileBundle());
@@ -356,6 +365,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         databaseTextField.setText(databaseInfo.getDatabase());
         tnsFolderTextField.setText(databaseInfo.getTnsFolder());
         tcpsCheckBox.setSelected(databaseInfo.isTCPS());
+        easyConnParameters = databaseInfo.getEasyConnUrl();
 
         String tnsProfile = databaseInfo.getTnsProfile();
         if (Strings.isNotEmpty(tnsProfile)) {

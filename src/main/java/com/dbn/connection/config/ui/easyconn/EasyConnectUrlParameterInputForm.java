@@ -72,8 +72,8 @@ public class EasyConnectUrlParameterInputForm<I extends EasyConnectUrlParameterI
         glayout.setRows(1);
         glayout.setColumns(1);
         mainPanel.setLayout(glayout);
-        //JLabel propsLbl = new JLabel("Parameters");
-        //mainPanel.add(propsLbl);
+
+
 
         Map<String, String> props = this.input.getExistingParameterValues();
         this.propertiesEditorForm =

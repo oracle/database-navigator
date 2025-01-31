@@ -52,7 +52,7 @@ public enum DatabaseUrlPattern {
 
     ORACLE_EZCONNECT(
             // temporary; pattern is much more complicated.
-            "jdbc:oracle:thin@<TCPS>://<HOST>:<PORT>/<DATABASE><POOLTYPE><PARAMS>",
+            "jdbc:oracle:thin:@<TCPS>://<HOST>:<PORT>/<DATABASE><POOLTYPE><PARAMS>",
             compile("^jdbc:oracle:thin:@"+tcps+"://"+host+":"+port+"/"+database+pooling+connParams ),
             Default.ORACLE, DatabaseUrlType.EZCONNECT),
 
@@ -116,9 +116,8 @@ public enum DatabaseUrlPattern {
         String profile = "(?<PROFILE>[\\w\\-.]+)";
         String folder = "(?<FOLDER>([a-z]:)?([\\\\/][\\w\\s/_.\\-']+)+)";
         String file = "(?<FILE>([a-z]:)?([\\\\/][\\w\\s/_.\\-']+)+)";
-
-        String pooling = "(:(?<POOLTYPE>[\\w\\-.$#]+))?";
-        String connParams = "\\?(?<PARAMS>(.*))";
+        String pooling = "(?<POOLTYPE>:[\\w\\-.$#]+)?";
+        String connParams = "(?<PARAMS>\\?(.*))?";
         String tcps = "(?<TCPS>(tcp|tcps))";
     }
 

@@ -188,6 +188,9 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         return this.poolType;
     }
 
+    public void setEasyConnUrl(Map<String, String> easyConnUrl) {
+        this.easyConnUrl = easyConnUrl;
+    }
     public Map<String, String> getEasyConnUrl() {
         return this.easyConnUrl;
     }

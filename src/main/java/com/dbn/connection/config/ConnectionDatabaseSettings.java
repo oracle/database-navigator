@@ -308,13 +308,14 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             if (easyConnPropsElem != null) {
                 List<Element> keys = easyConnPropsElem.getChildren("key");
                 for (Element key : keys) {
-                    String keyName = key.getValue();
+                    String keyName = key.getAttributeValue("keyName");
                     String value = key.getTextNormalize();
-                    if (keyName != null) {
+                    if (keyName != null && !keyName.isEmpty()) {
                         easyConnPropsMap.put(keyName, nvl(value));
                     }
                 }
             }
+            databaseInfo.setEasyConnUrl(easyConnPropsMap);
 
             urlPattern = DatabaseUrlPattern.get(databaseType, urlType);
 
@@ -388,12 +389,12 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             setBoolean(element, "secure-tcp", databaseInfo.isTCPS());
             Element easyConnElement = newElement(element, "easy-conn-properties");
             Optional.ofNullable(databaseInfo.getEasyConnUrl()).ifPresent(map ->
-                    map.entrySet().forEach(
-                        entry -> {
-                            Element keyElem = newElement(easyConnElement, "key");
-                            setString(keyElem, "keyName", nvl(entry.getKey()));
-                            keyElem.addContent(entry.getValue());
-                        }));
+                map.entrySet().forEach(
+                    entry -> {
+                        Element keyElem = newElement(easyConnElement, "key");
+                        keyElem.setAttribute("keyName", nvl(entry.getKey()));
+                        keyElem.setText(entry.getValue());
+                    }));
 
             DatabaseFileBundle fileBundle = databaseInfo.getFileBundle();
             if (fileBundle != null) {
