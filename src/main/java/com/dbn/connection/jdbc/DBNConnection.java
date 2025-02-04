@@ -194,6 +194,11 @@ public class DBNConnection extends DBNConnectionBase {
 
     @Override
     protected <S extends Statement> S wrap(Statement statement) {
+        return wrap(statement, null);
+    }
+
+    @Override
+    protected <S extends Statement> S wrap(Statement statement, String sql) {
         updateLastAccess();
         if (statement instanceof CallableStatement) {
             CallableStatement callableStatement = (CallableStatement) statement;
@@ -207,7 +212,9 @@ public class DBNConnection extends DBNConnectionBase {
             statement = new DBNStatement<>(statement, this);
         }
 
-        activeStatements.add((DBNStatement) statement);
+        DBNStatement dbnStatement = (DBNStatement) statement;
+        dbnStatement.setSql(sql);
+        activeStatements.add(dbnStatement);
         return cast(statement);
     }
 

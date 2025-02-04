@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.Character.isWhitespace;
 
+@NonNls
 @UtilityClass
 public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
 

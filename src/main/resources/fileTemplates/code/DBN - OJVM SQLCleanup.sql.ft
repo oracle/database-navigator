@@ -1,15 +1,22 @@
+DECLARE
+    PROCEDURE execute_immediate(statement IN VARCHAR2) IS
+    BEGIN
+        EXECUTE IMMEDIATE statement;
+    EXCEPTION
+        WHEN OTHERS THEN
+        dbms_output.put_line('SQLERRM: ' || SQLERRM);
+    END;
 BEGIN
+    execute_immediate('DROP ${TYPE} DBN_OJVM_SQL_WRAPPER');
 
-   EXECUTE IMMEDIATE 'DROP ${TYPE} DBN_OJVM_SQL_WRAPPER';
 
     #if (${SQLTYPES} && ${SQLTYPES} != "")
         #set($sqlTypes = "${SQLTYPES}")
         #set($types = $sqlTypes.split(","))
         #foreach($typeObj in $types)
-            EXECUTE IMMEDIATE 'DROP TYPE $typeObj FORCE';
+            execute_immediate('DROP TYPE $typeObj FORCE');
         #end
     #end
 
-    EXECUTE IMMEDIATE 'DROP JAVA SOURCE DBN_OJVM_JAVA_WRAPPER';
-
+    execute_immediate('DROP JAVA SOURCE DBN_OJVM_JAVA_WRAPPER');
 END;

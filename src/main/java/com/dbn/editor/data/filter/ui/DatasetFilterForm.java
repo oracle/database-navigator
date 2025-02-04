@@ -22,6 +22,7 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.CardLayouts;
 import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.util.Actions;
 import com.dbn.editor.data.filter.DatasetFilter;
 import com.dbn.editor.data.filter.DatasetFilterGroup;
@@ -79,6 +80,7 @@ public class DatasetFilterForm extends ConfigurationEditorForm<DatasetFilterGrou
         }
         valueChanged(null);
         filtersList.addListSelectionListener(this);
+        Accessibility.setAccessibleName(filtersList, "Filters");
     }
 
     public DatasetFilterList getFilterList() {

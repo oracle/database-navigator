@@ -29,8 +29,8 @@ public class DBJavaFieldMetadataImpl extends DBObjectMetadataBase implements DBJ
 	}
 
 	@Override
-	public String getClassName() throws SQLException {
-		return getString("CLASS_NAME");
+	public String getOwnerClassName() throws SQLException {
+		return getString("OWNER_CLASS_NAME");
 	}
 
 	@Override
@@ -64,12 +64,7 @@ public class DBJavaFieldMetadataImpl extends DBObjectMetadataBase implements DBJ
 	}
 
 	@Override
-	public String getType() throws SQLException {
-		return getString("BASE_TYPE");
-	}
-
-	@Override
 	public String getFieldClassName() throws SQLException {
-		return getString("FIELD_CLASS");
+		return getString("FIELD_CLASS_NAME");
 	}
 }

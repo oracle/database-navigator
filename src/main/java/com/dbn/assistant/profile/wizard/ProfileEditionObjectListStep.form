@@ -32,7 +32,7 @@
           </component>
           <component id="b6733" class="com.intellij.ui.components.JBTextField" binding="filterTextField">
             <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="0" fill="1" indent="0" use-parent-layout="false">
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="240" height="-1"/>
               </grid>
             </constraints>
@@ -90,16 +90,16 @@
                     <constraints>
                       <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <focusable value="false"/>
+                      <requestFocusEnabled value="false"/>
+                    </properties>
                     <border type="none"/>
                     <children>
                       <component id="a23b6" class="javax.swing.JTable" binding="databaseObjectsTable">
                         <constraints/>
                         <properties>
-                          <autoResizeMode value="4"/>
                           <dragEnabled value="true"/>
-                          <fillsViewportHeight value="true"/>
-                          <rowHeight value="18"/>
                         </properties>
                       </component>
                     </children>
@@ -109,7 +109,8 @@
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Available Datasets"/>
+                      <labelFor value="3fd37"/>
+                      <text value="&amp;Available Datasets"/>
                     </properties>
                   </component>
                 </children>
@@ -126,7 +127,10 @@
                     <constraints>
                       <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <focusable value="false"/>
+                      <requestFocusEnabled value="false"/>
+                    </properties>
                     <border type="none"/>
                     <children>
                       <component id="8fb46" class="javax.swing.JTable" binding="profileObjectListTable">
@@ -134,8 +138,6 @@
                         <properties>
                           <dragEnabled value="true"/>
                           <dropMode value="INSERT_ROWS"/>
-                          <fillsViewportHeight value="true"/>
-                          <rowHeight value="18"/>
                         </properties>
                       </component>
                     </children>
@@ -145,7 +147,8 @@
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Profile Datasets"/>
+                      <labelFor value="655dc"/>
+                      <text value="&amp;Profile Datasets"/>
                     </properties>
                   </component>
                 </children>

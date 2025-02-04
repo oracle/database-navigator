@@ -28,6 +28,8 @@ import com.dbn.execution.ExecutionOption;
 import com.dbn.execution.ExecutionOptions;
 import com.dbn.execution.ExecutionTarget;
 import com.dbn.execution.LocalExecutionInput;
+import com.dbn.execution.common.input.ExecutionVariable;
+import com.dbn.execution.common.input.ValueHolder;
 import com.dbn.execution.method.result.MethodExecutionResult;
 import com.dbn.object.DBArgument;
 import com.dbn.object.DBMethod;
@@ -58,7 +60,7 @@ public class MethodExecutionInput extends LocalExecutionInput implements Compara
 
     private transient MethodExecutionResult executionResult;
     private final List<ArgumentValue> argumentValues = new ArrayList<>();
-    private Map<String, MethodExecutionArgumentValue> argumentValueHistory = new HashMap<>();
+    private Map<String, ExecutionVariable> argumentValueHistory = new HashMap<>();
 
     public MethodExecutionInput(Project project) {
         super(project, ExecutionTarget.METHOD);
@@ -187,9 +189,9 @@ public class MethodExecutionInput extends LocalExecutionInput implements Compara
                         getArgumentValue(argument) :
                         getArgumentValue(argument, typeAttribute);
 
-        ArgumentValueHolder valueStore = argumentValue.getValueHolder();
-        if (valueStore instanceof MethodExecutionArgumentValue) {
-            MethodExecutionArgumentValue executionVariable = (MethodExecutionArgumentValue) valueStore;
+        ValueHolder valueStore = argumentValue.getValueHolder();
+        if (valueStore instanceof ExecutionVariable) {
+            ExecutionVariable executionVariable = (ExecutionVariable) valueStore;
             return executionVariable.getValueHistory();
         }
         return Collections.emptyList();
@@ -225,14 +227,14 @@ public class MethodExecutionInput extends LocalExecutionInput implements Compara
         return argumentValue;
     }
 
-    private MethodExecutionArgumentValue getExecutionVariable(String name) {
-        for (MethodExecutionArgumentValue executionVariable : argumentValueHistory.values()) {
-            if (Strings.equalsIgnoreCase(executionVariable.getName(), name)) {
+    private ExecutionVariable getExecutionVariable(String name) {
+        for (ExecutionVariable executionVariable : argumentValueHistory.values()) {
+            if (Strings.equalsIgnoreCase(executionVariable.getPath(), name)) {
                 return executionVariable;
             }
         }
-        MethodExecutionArgumentValue executionVariable = new MethodExecutionArgumentValue(name);
-        argumentValueHistory.put(executionVariable.getName(), executionVariable);
+        ExecutionVariable executionVariable = new ExecutionVariable(name);
+        argumentValueHistory.put(executionVariable.getPath(), executionVariable);
         return executionVariable;
     }
 
@@ -249,8 +251,8 @@ public class MethodExecutionInput extends LocalExecutionInput implements Compara
                 () -> element.getChild("argument-actions")); // TODO temporary backward functionality
         if (argumentsElement != null) {
             for (Element valueElement : argumentsElement.getChildren()) {
-                MethodExecutionArgumentValue argumentValue = new MethodExecutionArgumentValue(valueElement);
-                argumentValueHistory.put(argumentValue.getName(), argumentValue);
+                ExecutionVariable argumentValue = new ExecutionVariable(valueElement);
+                argumentValueHistory.put(argumentValue.getPath(), argumentValue);
             }
         }
     }
@@ -262,7 +264,7 @@ public class MethodExecutionInput extends LocalExecutionInput implements Compara
         element.setAttribute("execution-schema", getTargetSchemaId() == null ? "" : getTargetSchemaId().id());
 
         Element argumentValuesElement = newElement(element, "argument-values");
-        for (MethodExecutionArgumentValue executionVariable : argumentValueHistory.values()) {
+        for (ExecutionVariable executionVariable : argumentValueHistory.values()) {
             Element argumentElement = newElement(argumentValuesElement, "argument");
             executionVariable.writeState(argumentElement);
         }
@@ -282,9 +284,9 @@ public class MethodExecutionInput extends LocalExecutionInput implements Compara
         clone.setTargetSchemaId(getTargetSchemaId());
         clone.setOptions(ExecutionOptions.clone(getOptions()));
         clone.argumentValueHistory = new HashMap<>();
-        for (MethodExecutionArgumentValue executionVariable : argumentValueHistory.values()) {
+        for (ExecutionVariable executionVariable : argumentValueHistory.values()) {
             clone.argumentValueHistory.put(
-                    executionVariable.getName(),
+                    executionVariable.getPath(),
                     executionVariable.clone());
         }
         return clone;

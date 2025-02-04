@@ -25,7 +25,8 @@ import java.awt.Component;
 public enum ClientProperty {
     REGULAR_SPLITTER,
     BORDER,
-    BORDERLESS,
+    NO_BORDER,
+    NO_INDENT,
     REGISTERED,
     CACHED_VALUE,
     CLASSIFICATION,

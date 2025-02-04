@@ -116,7 +116,12 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
 
     @Override
     public ResultSet loadJavaClasses(String ownerName, DBNConnection connection) throws SQLException {
-        return executeQuery(connection, "java-objects", ownerName);
+        return executeQuery(connection, "java-classes", ownerName);
+    }
+
+    @Override
+    public ResultSet loadJavaPrimitives(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "java-primitives", ownerName);
     }
 
     @Override
@@ -251,6 +256,16 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     @Override
     public ResultSet loadAllPackageTypes(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "all-package-types", ownerName);
+    }
+
+    @Override
+    public ResultSet loadJavaInnerClasses(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "java-inner-classes", ownerName, objectName);
+    }
+
+    @Override
+    public ResultSet loadAllJavaInnerClasses(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "all-java-inner-classes", ownerName);
     }
 
     @Override

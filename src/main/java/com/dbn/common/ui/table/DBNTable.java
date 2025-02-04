@@ -53,16 +53,11 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
 import java.awt.Rectangle;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.font.FontRenderContext;
-import java.awt.font.LineMetrics;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -71,10 +66,7 @@ import java.util.TimerTask;
 import static com.dbn.common.dispose.ComponentDisposer.removeListeners;
 import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.common.dispose.Failsafe.nd;
-import static com.dbn.common.ui.table.Tables.isFirstCellSelected;
-import static com.dbn.common.ui.table.Tables.isLastCellSelected;
-import static com.dbn.common.ui.util.UserInterface.focusNextComponent;
-import static com.dbn.common.ui.util.UserInterface.focusPreviousComponent;
+import static com.dbn.common.ui.table.Tables.installFocusTraversal;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class DBNTable<T extends DBNTableModel> extends JTable implements StatefulDisposable, UserDataHolder {
@@ -132,34 +124,10 @@ public class DBNTable<T extends DBNTableModel> extends JTable implements Statefu
 
         setSelectionBackground(Colors.getTableSelectionBackground(true));
         setSelectionForeground(Colors.getTableSelectionForeground(true));
-
-        addKeyListener(createTabKeyListener());
+        installFocusTraversal(this);
 
         Disposer.register(parent, this);
         Disposer.register(this, tableModel);
-    }
-
-    protected KeyAdapter createTabKeyListener() {
-        return new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() != KeyEvent.VK_TAB) return;
-                DBNTable<T> table = DBNTable.this;
-
-                boolean empty = table.getRowCount() == 0;
-                if (e.isShiftDown()) {
-                    if (empty || isFirstCellSelected(table)) {
-                        focusPreviousComponent(table);
-                        e.consume();
-                    }
-                } else {
-                    if (empty || isLastCellSelected(table)) {
-                        focusNextComponent(table);
-                        e.consume();
-                    }
-                }
-            }
-        };
     }
 
     @Nullable
@@ -201,16 +169,13 @@ public class DBNTable<T extends DBNTableModel> extends JTable implements Statefu
 
     protected void adjustRowHeight(int padding) {
         rowVerticalPadding = padding;
-        adjustRowHeight();
+        Tables.adjustTableRowHeight(this, padding);
     }
 
     protected void adjustRowHeight() {
-        Font font = getFont();
-        FontRenderContext fontRenderContext = getFontMetrics(font).getFontRenderContext();
-        LineMetrics lineMetrics = font.getLineMetrics("ABCÄÜÖÂÇĞIİÖŞĀČḎĒËĠḤŌŠṢṬŪŽy", fontRenderContext);
-        int fontHeight = Math.round(lineMetrics.getHeight());
-        setRowHeight(fontHeight + (rowVerticalPadding * 2));
+        adjustRowHeight(rowVerticalPadding);
     }
+
 
     @Override
     @NotNull

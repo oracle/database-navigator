@@ -58,6 +58,7 @@ public class BasicTableTextAttributes implements DataGridTextAttributes {
     private final SimpleTextAttributes foreignKeyAtCaretRow;
     private final SimpleTextAttributes foreignKeyAtCaretRowModified;
     private final SimpleTextAttributes selection;
+    private final SimpleTextAttributes caretRow;
     private final SimpleTextAttributes searchResult;
 
     private final Color caretRowBgColor;
@@ -66,6 +67,7 @@ public class BasicTableTextAttributes implements DataGridTextAttributes {
 
     private BasicTableTextAttributes() {
         EditorColorsScheme globalScheme = EditorColorsManager.getInstance().getGlobalScheme();
+        caretRow = TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.CARET_ROW);
         caretRowBgColor = globalScheme.getAttributes(DataGridTextAttributesKeys.CARET_ROW).getBackgroundColor();
 
         deletedData = TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.DELETED_DATA);

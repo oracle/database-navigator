@@ -16,8 +16,11 @@
 
 package com.dbn.execution.java.result.ui;
 
-import com.dbn.execution.java.ArgumentValue;
+import com.dbn.execution.common.input.ExecutionValue;
+import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBJavaParameter;
 import lombok.Getter;
 
 import javax.swing.event.TreeModelListener;
@@ -30,18 +33,28 @@ import java.util.List;
 public class ArgumentValuesTreeModel implements TreeModel {
     private final ArgumentValuesTreeNode root;
 
-    ArgumentValuesTreeModel(DBJavaMethod method, List<ArgumentValue> inputArgumentValues) {
-        root = new ArgumentValuesTreeNode(null, method);
-        ArgumentValuesTreeNode inputNode = new ArgumentValuesTreeNode(root, "Input");
-
-        createArgumentValueNodes(inputNode, inputArgumentValues);
+    ArgumentValuesTreeModel(DBJavaMethod method, List<ExecutionValue> inputValues) {
+        root = new ArgumentValuesTreeNode(null, method.ref(), null);
+        ArgumentValuesTreeNode inputNode = new ArgumentValuesTreeNode(root, null, "Input");
+        ArgumentValuesTreeNode outputNode = new ArgumentValuesTreeNode(root, null, "Output");
+        createArgumentValueNodes(method, inputNode, inputValues);
     }
 
-    private static void createArgumentValueNodes(ArgumentValuesTreeNode parentNode, List<ArgumentValue> inputArgumentValues) {
-        for (ArgumentValue argumentValue : inputArgumentValues) {
-            if(argumentValue.isComplexClass())
-                continue;
-            new ArgumentValuesTreeNode(parentNode, argumentValue);
+    private static void createArgumentValueNodes(DBJavaMethod method, ArgumentValuesTreeNode parentNode, List<ExecutionValue> inputValues) {
+        for (ExecutionValue fieldValue : inputValues) {
+            String[] tokens = fieldValue.getPath().split("\\.");
+            DBJavaParameter parameter = method.getParameter(tokens[0]);
+
+            ArgumentValuesTreeNode argumentNode = parentNode.initChild(parameter);
+            DBJavaClass argumentClass = parameter.getJavaClass();
+
+            for (int i = 1; i < tokens.length; i++) {
+                if (argumentClass == null) break;
+                DBJavaField field = argumentClass.getField(tokens[i]);
+                argumentNode = argumentNode.initChild(field);
+                argumentClass = field.getJavaClass();
+            }
+            argumentNode.setUserValue(fieldValue);
         }
     }
 

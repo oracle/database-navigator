@@ -31,8 +31,8 @@ import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.DBNativeDataType;
 import com.dbn.data.type.DataTypeDefinition;
 import com.dbn.data.type.GenericDataType;
-import com.dbn.execution.method.MethodExecutionArgumentValue;
-import com.dbn.execution.method.MethodExecutionArgumentValueHistory;
+import com.dbn.execution.common.input.ExecutionVariable;
+import com.dbn.execution.common.input.ExecutionVariableHistory;
 import com.dbn.execution.method.MethodExecutionInput;
 import com.dbn.execution.method.MethodExecutionManager;
 import com.dbn.object.DBArgument;
@@ -179,8 +179,8 @@ public class MethodExecutionInputArgumentForm extends DBNFormBase {
                 ConnectionHandler connection = argument.getConnection();
                 ConnectionId connectionId = connection.getConnectionId();
                 MethodExecutionManager executionManager = MethodExecutionManager.getInstance(argument.getProject());
-                MethodExecutionArgumentValueHistory valuesHistory = executionManager.getArgumentValuesHistory();
-                MethodExecutionArgumentValue argumentValue = valuesHistory.getArgumentValue(connectionId, argument.getName(), false);
+                ExecutionVariableHistory valuesHistory = executionManager.getArgumentValuesHistory();
+                ExecutionVariable argumentValue = valuesHistory.getExecutionVariable(connectionId, argument.getName(), false);
                 if (argumentValue == null) return emptyList();
 
                 List<String> cachedValues = new ArrayList<>(argumentValue.getValueHistory());

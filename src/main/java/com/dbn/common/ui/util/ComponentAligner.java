@@ -20,8 +20,13 @@ import lombok.experimental.UtilityClass;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.util.Collections;
 import java.util.List;
 
+/**
+ * Utility class for aligning form components within containers.
+ * Provides methods to ensure consistent alignment of components across nested forms.
+ */
 @UtilityClass
 public class ComponentAligner {
 
@@ -45,6 +50,11 @@ public class ComponentAligner {
             int width = (int) components[i].getPreferredSize().getWidth();
             metrics[i] = Math.max(metrics[i], width);
         }
+        List<? extends Form> childForms = form.getAlignableForms();
+        for (Form childForm : childForms) {
+            readMetrics(childForm, metrics);
+        }
+
     }
 
     private static void adjustMetrics(Form form, int[] metrics) {
@@ -53,10 +63,18 @@ public class ComponentAligner {
             Dimension dimension = new Dimension(metrics[i], components[i].getHeight());
             components[i].setPreferredSize(dimension);
         }
+        List<? extends Form> childForms = form.getAlignableForms();
+        for (Form childForm : childForms) {
+            adjustMetrics(childForm, metrics);
+        }
     }
 
     public interface Form {
         Component[] getAlignableComponents();
+
+        default List<? extends Form> getAlignableForms() {
+            return Collections.emptyList();
+        }
     }
 
     public interface Container {

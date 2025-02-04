@@ -34,6 +34,11 @@ public class DBJavaClassMetadataImpl extends DBObjectMetadataBase implements DBJ
 	}
 
 	@Override
+	public String getOuterClassName() throws SQLException {
+		return getString("OUTER_CLASS_NAME");
+	}
+
+	@Override
 	public String getObjectKind() throws SQLException {
 		return getString("OBJECT_KIND");
 	}
@@ -41,6 +46,11 @@ public class DBJavaClassMetadataImpl extends DBObjectMetadataBase implements DBJ
 	@Override
 	public String getAccessibility() throws SQLException {
 		return getString("ACCESSIBILITY");
+	}
+
+	@Override
+	public boolean isPrimitive() throws SQLException {
+		return isYesFlag("IS_PRIMITIVE");
 	}
 
 	@Override

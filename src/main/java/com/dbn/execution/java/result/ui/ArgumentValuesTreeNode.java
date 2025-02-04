@@ -16,24 +16,30 @@
 
 package com.dbn.execution.java.result.ui;
 
-import com.dbn.execution.java.ArgumentValue;
+import com.dbn.execution.common.input.ExecutionValue;
 import com.dbn.object.common.DBObject;
+import com.dbn.object.lookup.DBObjectRef;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.swing.tree.TreeNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
+@Setter
 public class ArgumentValuesTreeNode implements TreeNode{
-    private final Object userValue;
+    private final DBObjectRef object;
+    private Object userValue;
     private final ArgumentValuesTreeNode parent;
     private final List<ArgumentValuesTreeNode> children = new ArrayList<>();
 
-    protected ArgumentValuesTreeNode(ArgumentValuesTreeNode parent, Object userValue) {
+    protected ArgumentValuesTreeNode(ArgumentValuesTreeNode parent, DBObjectRef object, Object userValue) {
         this.parent = parent;
+        this.object = object;
         if (parent != null) {
             parent.children.add(this);
         }
@@ -46,11 +52,20 @@ public class ArgumentValuesTreeNode implements TreeNode{
         }
     }
 
+    public ArgumentValuesTreeNode initChild(DBObject object) {
+        for (ArgumentValuesTreeNode treeNode : children) {
+            if (Objects.equals(object.ref(), treeNode.getObject())) {
+                return treeNode;
+            }
+        }
+        return new ArgumentValuesTreeNode(this, object.ref(), null);
+    }
+
     @Override
     public String toString() {
-        if (userValue instanceof ArgumentValue) {
-            ArgumentValue argumentValue = (ArgumentValue) userValue;
-            return String.valueOf(argumentValue.getValue());
+        if (userValue instanceof ExecutionValue) {
+            ExecutionValue fieldValue = (ExecutionValue) userValue;
+            return String.valueOf(fieldValue.getValue());
         }
 
         if (userValue instanceof DBObject) {

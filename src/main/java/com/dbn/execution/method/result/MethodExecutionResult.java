@@ -26,9 +26,9 @@ import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.ExecutionResultBase;
+import com.dbn.execution.common.input.ValueHolder;
 import com.dbn.execution.common.options.ExecutionEngineSettings;
 import com.dbn.execution.method.ArgumentValue;
-import com.dbn.execution.method.ArgumentValueHolder;
 import com.dbn.execution.method.MethodExecutionContext;
 import com.dbn.execution.method.MethodExecutionInput;
 import com.dbn.execution.method.result.ui.MethodExecutionResultForm;
@@ -71,7 +71,7 @@ public class MethodExecutionResult extends ExecutionResultBase<MethodExecutionRe
     }
 
     public void addArgumentValue(DBArgument argument, Object value) throws SQLException {
-        ArgumentValueHolder<Object> valueStore = ArgumentValue.createBasicValueHolder(value);
+        ValueHolder<Object> valueStore = ValueHolder.basic(value);
         ArgumentValue argumentValue = new ArgumentValue(argument, valueStore);
         argumentValues.add(argumentValue);
         if (value instanceof DBNResultSet) {
@@ -88,7 +88,7 @@ public class MethodExecutionResult extends ExecutionResultBase<MethodExecutionRe
     }
 
     public void addArgumentValue(DBArgument argument, DBTypeAttribute attribute, Object value) {
-        ArgumentValueHolder<Object> valueStore = ArgumentValue.createBasicValueHolder(value);
+        ValueHolder<Object> valueStore = ValueHolder.basic(value);
         ArgumentValue argumentValue = new ArgumentValue(argument, attribute, valueStore);
         argumentValues.add(argumentValue);
     }

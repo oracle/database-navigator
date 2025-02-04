@@ -26,8 +26,8 @@ import com.dbn.data.editor.ui.TextFieldWithTextEditor;
 import com.dbn.data.editor.ui.UserValueHolderImpl;
 import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.GenericDataType;
-import com.dbn.execution.method.MethodExecutionArgumentValue;
-import com.dbn.execution.method.MethodExecutionArgumentValueHistory;
+import com.dbn.execution.common.input.ExecutionVariable;
+import com.dbn.execution.common.input.ExecutionVariableHistory;
 import com.dbn.execution.method.MethodExecutionInput;
 import com.dbn.execution.method.MethodExecutionManager;
 import com.dbn.object.DBArgument;
@@ -147,8 +147,8 @@ public class MethodExecutionInputTypeAttributeForm extends DBNFormBase {
                 if (argument != null && typeAttribute != null) {
                     ConnectionHandler connection = argument.getConnection();
                     MethodExecutionManager executionManager = MethodExecutionManager.getInstance(argument.getProject());
-                    MethodExecutionArgumentValueHistory argumentValuesCache = executionManager.getArgumentValuesHistory();
-                    MethodExecutionArgumentValue argumentValue = argumentValuesCache.getArgumentValue(
+                    ExecutionVariableHistory argumentValuesCache = executionManager.getArgumentValuesHistory();
+                    ExecutionVariable argumentValue = argumentValuesCache.getExecutionVariable(
                             connection.getConnectionId(),
                             getAttributeQualifiedName(),
                             false);

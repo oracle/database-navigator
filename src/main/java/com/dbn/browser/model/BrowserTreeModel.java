@@ -112,6 +112,8 @@ public abstract class BrowserTreeModel extends StatefulDisposableBase implements
     public int getChildCount(Object parent) {
         if (parent instanceof BrowserTreeNode) {
             BrowserTreeNode parentNode = (BrowserTreeNode) parent;
+            if (parentNode.isLeaf()) return 0;
+
             return guarded(0, parentNode, p -> p.getChildCount());
         }
         return 0;
@@ -121,7 +123,7 @@ public abstract class BrowserTreeModel extends StatefulDisposableBase implements
     public boolean isLeaf(Object node) {
         if (node instanceof BrowserTreeNode) {
             BrowserTreeNode treeNode = (BrowserTreeNode) node;
-            return guarded(true, treeNode, n -> n.isLeaf());
+            return treeNode.isLeaf();
         }
         return true;
     }
