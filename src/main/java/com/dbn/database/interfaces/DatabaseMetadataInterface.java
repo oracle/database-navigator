@@ -157,6 +157,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      */
     ResultSet loadJavaClasses(String ownerName, DBNConnection connection) throws SQLException;
 
+    ResultSet loadJavaPrimitives(String ownerName, DBNConnection connection) throws SQLException;
+
     /**
      * Loads the materialized views of the given owner<br>
      * Column names of the returned ResultSet
@@ -483,6 +485,10 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      * Sort by TYPE_NAME asc
      */
     ResultSet loadAllPackageTypes(String ownerName, DBNConnection connection) throws SQLException;
+
+    ResultSet loadJavaInnerClasses(String ownerName, String objectName, DBNConnection connection) throws SQLException;
+
+    ResultSet loadAllJavaInnerClasses(String ownerName, DBNConnection connection) throws SQLException;
 
     ResultSet loadJavaFields(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 

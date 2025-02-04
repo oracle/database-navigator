@@ -21,7 +21,7 @@ import com.dbn.database.common.metadata.DBObjectMetadata;
 import java.sql.SQLException;
 
 public interface DBJavaFieldMetadata extends DBObjectMetadata {
-	String getClassName() throws SQLException;
+	String getOwnerClassName() throws SQLException;
 
 	short getFieldIndex() throws SQLException;
 
@@ -34,8 +34,6 @@ public interface DBJavaFieldMetadata extends DBObjectMetadata {
 	boolean isStatic() throws SQLException;
 
 	short getArrayDepth() throws SQLException;
-
-	String getType() throws SQLException;
 
 	String getFieldClassName() throws SQLException;
 }

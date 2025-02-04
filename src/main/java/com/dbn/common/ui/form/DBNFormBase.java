@@ -23,6 +23,7 @@ import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.component.DBNComponentBase;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
@@ -238,6 +239,20 @@ public abstract class DBNFormBase
         }
         return null;
     }
+
+    @Override
+    public <F extends DBNForm> F getParentFrom(Class<F> formClass) {
+        DBNComponent parent = getParentComponent();
+        if (parent == null) return null;
+        if (formClass.isAssignableFrom(parent.getClass())) return cast(parent);
+
+        if (parent instanceof DBNForm) {
+            DBNForm parentForm = (DBNForm) parent;
+            return parentForm.getParentFrom(formClass);
+        }
+        return null;
+    }
+
 
     @Override
     public void disposeInner() {

@@ -398,6 +398,7 @@ public class Icons {
     public static final Icon DBO_JAVA_METHOD                     = load("/img/object/java/JavaMethod.svg");
     public static final Icon DBO_JAVA_METHODS                    = load("/img/object/java/JavaMethods.svg");
     public static final Icon DBO_JAVA_METHOD_ABSTRACT            = load("/img/object/java/JavaMethodAbstract.svg");
+    public static final Icon DBO_JAVA_PARAMETER                  = load("/img/object/java/JavaParameter.svg");
     public static final Icon DBO_JAVA_RECORD                     = load("/img/object/java/JavaRecord.svg");
     public static final Icon DBO_MATERIALIZED_VIEW               = load("/img/object/view/MaterializedView.svg");
     public static final Icon DBO_MATERIALIZED_VIEWS              = load("/img/object/view/MaterializedViews.svg");

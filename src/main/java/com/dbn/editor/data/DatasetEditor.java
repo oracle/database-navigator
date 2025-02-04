@@ -311,52 +311,50 @@ public class DatasetEditor extends DisposableUserDataHolderBase implements
     }
 
     public void loadData(final DatasetLoadInstructions instructions) {
-        if (status.isNot(LOADING)) {
-            ConnectionAction.invoke(txt("msg.dataEditor.title.LoadingTableData"), false, this,
-                    (action) -> {
-                        setLoading(true);
-                        Project project = getProject();
-                        ProjectEvents.notify(project,
-                                DatasetLoadListener.TOPIC,
-                                (listener) -> listener.datasetLoading(getDatabaseFile()));
+        if (status.is(LOADING)) return;
 
-                        Background.run(() -> {
-                            DatasetEditorForm editorForm = getEditorForm();
+        ConnectionAction.invoke(txt("msg.dataEditor.title.LoadingTableData"), false, this,
+                (action) -> {
+                    setLoading(true);
+                    Project project = getProject();
+                    ProjectEvents.notify(project,
+                            DatasetLoadListener.TOPIC,
+                            (listener) -> listener.datasetLoading(getDatabaseFile()));
+
+                    Background.run(() -> {
+                        DatasetEditorForm editorForm = getEditorForm();
+                        try {
+                            editorForm.showLoadingHint();
+                            editorForm.getEditorTable().cancelEditing();
+                            DatasetEditorTable oldEditorTable = instructions.isRebuild() ? editorForm.beforeRebuild() : null;
                             try {
-                                editorForm.showLoadingHint();
-                                editorForm.getEditorTable().cancelEditing();
-                                DatasetEditorTable oldEditorTable = instructions.isRebuild() ? editorForm.beforeRebuild() : null;
-                                try {
-                                    DatasetEditorModel tableModel = getTableModel();
-                                    tableModel.load(instructions.isUseCurrentFilter(), instructions.isPreserveChanges());
-                                    DatasetEditorTable editorTable = getEditorTable();
-                                    editorTable.clearSelection();
-                                } finally {
-                                    if (!isDisposed()) {
-                                        editorForm.afterRebuild(oldEditorTable);
-                                    }
-                                }
-                                dataLoadError = null;
-                            } catch (ProcessCanceledException e) {
-                                Diagnostics.conditionallyLog(e);
-                            } catch (SQLException e) {
-                                Diagnostics.conditionallyLog(e);
-                                dataLoadError = e.getMessage();
-                                handleLoadError(e, instructions);
-                            } catch (Exception e) {
-                                Diagnostics.conditionallyLog(e);
-                                log.error("Error loading table data", e);
+                                DatasetEditorModel tableModel = getTableModel();
+                                tableModel.load(instructions.isUseCurrentFilter(), instructions.isPreserveChanges());
+                                DatasetEditorTable editorTable = getEditorTable();
+                                editorTable.clearSelection();
                             } finally {
-                                status.set(LOADED, true);
-                                editorForm.hideLoadingHint();
-                                setLoading(false);
-                                ProjectEvents.notify(project,
-                                        DatasetLoadListener.TOPIC,
-                                        (listener) -> listener.datasetLoaded(getDatabaseFile()));
+                                editorForm.afterRebuild(oldEditorTable);
                             }
-                        });
+                            dataLoadError = null;
+                        } catch (ProcessCanceledException e) {
+                            Diagnostics.conditionallyLog(e);
+                        } catch (SQLException e) {
+                            Diagnostics.conditionallyLog(e);
+                            dataLoadError = e.getMessage();
+                            handleLoadError(e, instructions);
+                        } catch (Exception e) {
+                            Diagnostics.conditionallyLog(e);
+                            log.error("Error loading table data", e);
+                        } finally {
+                            status.set(LOADED, true);
+                            editorForm.hideLoadingHint();
+                            setLoading(false);
+                            ProjectEvents.notify(project,
+                                    DatasetLoadListener.TOPIC,
+                                    (listener) -> listener.datasetLoaded(getDatabaseFile()));
+                        }
                     });
-        }
+                });
 
     }
 

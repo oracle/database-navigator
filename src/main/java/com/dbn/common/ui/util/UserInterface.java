@@ -44,6 +44,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTree;
+import javax.swing.JViewport;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
@@ -72,6 +73,7 @@ import static com.dbn.common.Reflection.invokeMethod;
 import static com.dbn.common.ui.util.Borderless.isBorderless;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.common.util.Unsafe.logged;
 import static com.dbn.common.util.Unsafe.silent;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -210,13 +212,9 @@ public class UserInterface {
         if (border instanceof TitledBorder) {
             TitledBorder titledBorder = (TitledBorder) border;
             String title = titledBorder.getTitle();
-            int indent = Strings.isEmpty(title) ? 0 : 20;
+            int indent = Strings.isEmpty(title) || ClientProperty.NO_INDENT.is(panel) ? 0 : 16;
             IdeaTitledBorder replacement = new IdeaTitledBorder(title, indent, Borders.EMPTY_INSETS);
-/*
-            titledBorder.setTitleColor(Colors.HINT_COLOR);
-            titledBorder.setBorder(Borders.TOP_LINE_BORDER);
-            border = new CompoundBorder(Borders.topInsetBorder(8), titledBorder);
-*/
+
             border = new CompoundBorder(Borders.topInsetBorder(8), replacement);
             panel.setBorder(border);
         }
@@ -260,7 +258,8 @@ public class UserInterface {
     }
 
     public static void visitRecursively(JComponent component, Visitor<JComponent> visitor) {
-        visitor.visit(component);
+        logged(() -> visitor.visit(component));
+
         Component[] childComponents = component.getComponents();
         for (Component childComponent : childComponents) {
             if (childComponent instanceof JComponent) {
@@ -271,7 +270,9 @@ public class UserInterface {
     }
 
     public static <T extends JComponent> void visitRecursively(JComponent component, Class<T> type, Visitor<T> visitor) {
-        if (type.isAssignableFrom(component.getClass())) visitor.visit(cast(component));
+        if (type.isAssignableFrom(component.getClass())) {
+            logged(() -> visitor.visit(cast(component)));
+        }
 
         Component[] childComponents = component.getComponents();
         for (Component childComponent : childComponents) {
@@ -291,6 +292,17 @@ public class UserInterface {
             sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
             sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
             sp.setBorder(isBorderlessPane(sp) ? null : Borders.COMPONENT_OUTLINE_BORDER);
+
+            JViewport viewport = sp.getViewport();
+            Component view = viewport.getView();
+            if (view instanceof JList || view instanceof JTree) {
+                sp.setViewportBorder(Borders.insetBorder(4));
+            }
+
+            if (view instanceof JComponent) {
+                JComponent viewComponent = (JComponent) view;
+                viewComponent.setBorder(null);
+            }
         });
     }
 

@@ -14,9 +14,29 @@
  * limitations under the License.
  */
 
-package com.dbn.execution.method;
+package com.dbn.execution.common.input;
 
-public interface ArgumentValueHolder<T> {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+public interface ValueHolder<T> {
     T getValue();
     void setValue(T value);
+
+
+    static <T> ValueHolder<T> basic() {
+        return basic(null);
+    }
+
+    static <T> ValueHolder<T> basic(T value) {
+        return new BasicValueHolder<>(value);
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    class BasicValueHolder<T> implements ValueHolder<T> {
+        private T value;
+    }
 }

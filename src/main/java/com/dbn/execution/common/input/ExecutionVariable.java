@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.execution.java;
+package com.dbn.execution.common.input;
 
 import com.dbn.common.list.MostRecentStack;
 import com.dbn.common.options.setting.Settings;
@@ -23,7 +23,6 @@ import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import lombok.Data;
-import org.jdom.CDATA;
 import org.jdom.Element;
 
 import java.util.ArrayList;
@@ -31,22 +30,23 @@ import java.util.List;
 
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.options.setting.Settings.writeCdata;
 
 @Data
-public class JavaExecutionArgumentValue implements PersistentStateElement, Cloneable<JavaExecutionArgumentValue>, ArgumentValueHolder<String> {
-    private String name;
+public class ExecutionVariable implements PersistentStateElement, Cloneable<ExecutionVariable>, ValueHolder<String> {
+    private String path;
     private transient MostRecentStack<String> valueHistory = new MostRecentStack<>();
 
-    public JavaExecutionArgumentValue(String name) {
-        this.name = name;
+    public ExecutionVariable(String path) {
+        this.path = path;
     }
 
-    public JavaExecutionArgumentValue(Element element) {
+    public ExecutionVariable(Element element) {
         readState(element);
     }
 
-    public JavaExecutionArgumentValue(JavaExecutionArgumentValue source) {
-        name = source.name;
+    public ExecutionVariable(ExecutionVariable source) {
+        path = source.path;
         valueHistory.setValues(source.valueHistory.values());
     }
 
@@ -66,7 +66,7 @@ public class JavaExecutionArgumentValue implements PersistentStateElement, Clone
 
     @Override
     public void readState(Element element) {
-        name = stringAttribute(element, "name");
+        path = stringAttribute(element, "path");
         List<String> values = new ArrayList<>();
         String value = Commons.nullIfEmpty(element.getAttributeValue("value"));
         if (Strings.isNotEmpty(value)) {
@@ -84,17 +84,15 @@ public class JavaExecutionArgumentValue implements PersistentStateElement, Clone
 
     @Override
     public void writeState(Element element) {
-        element.setAttribute("name", name);
+        element.setAttribute("path", path);
         for (String value : valueHistory) {
             Element valueElement = newElement(element, "value");
-
-            CDATA cdata = new CDATA(value);
-            valueElement.setContent(cdata);
+            writeCdata(valueElement, value, true);
         }
     }
 
     @Override
-    public JavaExecutionArgumentValue clone() {
-        return new JavaExecutionArgumentValue(this);
+    public ExecutionVariable clone() {
+        return new ExecutionVariable(this);
     }
 }

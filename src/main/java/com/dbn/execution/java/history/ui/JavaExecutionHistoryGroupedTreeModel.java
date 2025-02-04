@@ -16,9 +16,7 @@
 
 package com.dbn.execution.java.history.ui;
 
-import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.database.DatabaseFeature;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.lookup.DBObjectRef;
@@ -27,34 +25,36 @@ import com.dbn.object.type.DBObjectType;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+
+import static com.dbn.common.util.Strings.equalsIgnoreCase;
+import static com.dbn.database.DatabaseFeature.DEBUGGING;
+import static java.util.Collections.emptyList;
 
 public class JavaExecutionHistoryGroupedTreeModel extends JavaExecutionHistoryTreeModel {
 
 	JavaExecutionHistoryGroupedTreeModel(List<JavaExecutionInput> executionInputs, boolean debug) {
 		super(executionInputs);
 		for (JavaExecutionInput executionInput : executionInputs) {
-			if (!executionInput.isObsolete() &&
-					!executionInput.isInactive() &&
-					(!debug || DatabaseFeature.DEBUGGING.isSupported(executionInput.getConnection()))) {
-				RootTreeNode root = getRoot();
+            if (executionInput.isObsolete()) continue;
+            if (executionInput.isInactive()) continue;
+            if (debug && !DEBUGGING.isSupported(executionInput.getConnection())) continue;
 
-				if (root != null) {
-					ConnectionTreeNode connectionNode = root.getConnectionNode(executionInput);
-					SchemaTreeNode schemaNode = connectionNode.getSchemaNode(executionInput);
+            RootTreeNode root = getRoot();
+            if (root == null) continue;
 
-					DBObjectRef<DBJavaMethod> methodRef = executionInput.getMethodRef();
-					DBObjectRef<?> parentRef = methodRef.getParentRef(DBObjectType.PROGRAM);
-					if (parentRef != null) {
-						ProgramTreeNode programNode = schemaNode.getProgramNode(executionInput);
-						programNode.getMethodNode(executionInput);
-					} else {
-						schemaNode.getMethodNode(executionInput);
-					}
-				}
-			}
-		}
+            ConnectionTreeNode connectionNode = root.getConnectionNode(executionInput);
+            SchemaTreeNode schemaNode = connectionNode.getSchemaNode(executionInput);
+
+            DBObjectRef<DBJavaMethod> methodRef = executionInput.getMethodRef();
+            DBObjectRef<?> parentRef = methodRef.getParentRef(DBObjectType.JAVA_CLASS);
+            if (parentRef != null) {
+                ProgramTreeNode programNode = schemaNode.getProgramNode(executionInput);
+                programNode.getMethodNode(executionInput);
+            } else {
+                schemaNode.getMethodNode(executionInput);
+            }
+        }
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public class JavaExecutionHistoryGroupedTreeModel extends JavaExecutionHistoryTr
 			path.add(root);
 			path.add(connectionTreeNode);
 			path.add(schemaTreeNode);
-			if (executionInput.getMethodRef().getParentObject(DBObjectType.PROGRAM) != null) {
+			if (executionInput.getMethodRef().getParentObject(DBObjectType.JAVA_CLASS) != null) {
 				ProgramTreeNode programTreeNode = schemaTreeNode.getProgramNode(executionInput);
 				path.add(programTreeNode);
 				MethodTreeNode methodTreeNode = programTreeNode.getMethodNode(executionInput);
@@ -85,44 +85,43 @@ public class JavaExecutionHistoryGroupedTreeModel extends JavaExecutionHistoryTr
 	@Override
 	public List<JavaExecutionInput> getExecutionInputs() {
 		RootTreeNode root = getRoot();
-		if (root != null) {
-			List<TreeNode> children = root.getChildren();
-			if (children != null && !children.isEmpty()) {
-				List<JavaExecutionInput> executionInputs = new ArrayList<>();
-				for (TreeNode connectionTreeNode : children) {
-					ConnectionTreeNode connectionNode = (ConnectionTreeNode) connectionTreeNode;
-					for (TreeNode schemaTreeNode : connectionNode.getChildren()) {
-						SchemaTreeNode schemaNode = (SchemaTreeNode) schemaTreeNode;
-						for (TreeNode node : schemaNode.getChildren()) {
-							if (node instanceof ProgramTreeNode) {
-								ProgramTreeNode programNode = (ProgramTreeNode) node;
-								for (TreeNode methodTreeNode : programNode.getChildren()) {
-									MethodTreeNode methodNode = (MethodTreeNode) methodTreeNode;
-									JavaExecutionInput executionInput =
-											getExecutionInput(connectionNode, schemaNode, programNode, methodNode);
+        if (root == null) return emptyList();
 
-									if (executionInput != null) {
-										executionInputs.add(executionInput);
-									}
-								}
+        List<TreeNode> children = root.getChildren();
+        if (children == null || children.isEmpty()) return emptyList();
 
-							} else {
-								MethodTreeNode methodNode = (MethodTreeNode) node;
-								JavaExecutionInput executionInput =
-										getExecutionInput(connectionNode, schemaNode, null, methodNode);
+        List<JavaExecutionInput> executionInputs = new ArrayList<>();
+        for (TreeNode connectionTreeNode : children) {
+            ConnectionTreeNode connectionNode = (ConnectionTreeNode) connectionTreeNode;
+            for (TreeNode schemaTreeNode : connectionNode.getChildren()) {
+                SchemaTreeNode schemaNode = (SchemaTreeNode) schemaTreeNode;
+                for (TreeNode node : schemaNode.getChildren()) {
+                    if (node instanceof ProgramTreeNode) {
+                        ProgramTreeNode programNode = (ProgramTreeNode) node;
+                        for (TreeNode methodTreeNode : programNode.getChildren()) {
+                            MethodTreeNode methodNode = (MethodTreeNode) methodTreeNode;
+                            JavaExecutionInput executionInput =
+                                    getExecutionInput(connectionNode, schemaNode, programNode, methodNode);
 
-								if (executionInput != null) {
-									executionInputs.add(executionInput);
-								}
-							}
-						}
-					}
-				}
-				return executionInputs;
-			}
-		}
-		return Collections.emptyList();
-	}
+                            if (executionInput != null) {
+                                executionInputs.add(executionInput);
+                            }
+                        }
+
+                    } else {
+                        MethodTreeNode methodNode = (MethodTreeNode) node;
+                        JavaExecutionInput executionInput =
+                                getExecutionInput(connectionNode, schemaNode, null, methodNode);
+
+                        if (executionInput != null) {
+                            executionInputs.add(executionInput);
+                        }
+                    }
+                }
+            }
+        }
+        return executionInputs;
+    }
 
 	private JavaExecutionInput getExecutionInput(
 			ConnectionTreeNode connectionNode,
@@ -133,17 +132,17 @@ public class JavaExecutionHistoryGroupedTreeModel extends JavaExecutionHistoryTr
 			DBObjectRef<DBJavaMethod> methodRef = executionInput.getMethodRef();
 			ConnectionHandler connection = executionInput.getConnection();
 			if (connection != null && connection.getConnectionId().equals(connectionNode.getConnectionId()) &&
-					Strings.equalsIgnoreCase(methodRef.getSchemaName(), schemaNode.getName()) &&
-					Strings.equalsIgnoreCase(methodRef.getObjectName(), methodNode.getName()) &&
+					equalsIgnoreCase(methodRef.getSchemaName(), schemaNode.getName()) &&
+					equalsIgnoreCase(methodRef.getObjectName(), methodNode.getName()) &&
 					methodRef.getOverload() == methodNode.getOverload()) {
 
-				DBObjectRef<?> programRef = methodRef.getParentRef(DBObjectType.PROGRAM);
+				DBObjectRef<?> programRef = methodRef.getParentRef(DBObjectType.JAVA_CLASS);
 				if (programNode == null && programRef == null) {
 					return executionInput;
 				} else if (programNode != null && programRef != null) {
 					String programName = programNode.getName();
 					String inputProgramName = programRef.getObjectName();
-					if (Strings.equalsIgnoreCase(programName, inputProgramName)) {
+					if (equalsIgnoreCase(programName, inputProgramName)) {
 						return executionInput;
 					}
 				}

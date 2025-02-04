@@ -80,6 +80,7 @@ import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.object.common.property.DBObjectProperty.DISPOSED;
 import static com.dbn.object.common.property.DBObjectProperty.LISTS_LOADED;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static java.util.Collections.emptyList;
 
 public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectTreeNodeBase implements DBObject, ToolTipProvider {
@@ -146,14 +147,7 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
 
     @Override
     public DBSchema getSchema() {
-        DBObject object = this;
-        while (object != null) {
-            if (object instanceof DBSchema) {
-                return (DBSchema) object;
-            }
-            object = object.getParentObject();
-        }
-        return null;
+        return DBObjectRef.get(ref.getParentRef(SCHEMA));
     }
 
     public SchemaId getSchemaId() {
