@@ -25,7 +25,6 @@ import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Borders;
-import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.connection.ConnectionHandler;
@@ -56,6 +55,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TableModelEvent;
 import java.awt.BorderLayout;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.Collections;
 import java.util.List;
@@ -63,6 +63,11 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.table.Tables.adjustTableRowHeight;
+import static com.dbn.common.ui.table.Tables.installFocusTraversal;
+import static com.dbn.common.ui.table.Tables.selectTableRow;
+import static com.dbn.common.ui.util.Keyboard.onKeyPress;
+import static com.dbn.common.ui.util.Mouse.onMouseClick;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.nls.NlsResources.txt;
@@ -205,9 +210,6 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   }
 
   private void initializeDatabaseObjectTable(ProfileObjectsTransferHandler th) {
-    // keep this !
-    // if set to true a RowSorter is created each the model changes
-    // and that breaks our logic
     this.databaseObjectsTable.setAutoCreateRowSorter(false);
     this.databaseObjectsTable.setTransferHandler(th);
     this.databaseObjectsTable.setModel(new AvailableDatasetsTableModel());
@@ -217,13 +219,11 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     this.databaseObjectsTable.setBackground(Colors.getTextFieldBackground());
     this.databaseObjectsTable.setGridColor(Colors.getTextFieldBackground());
     this.databaseObjectsTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-    this.databaseObjectsTable.addMouseListener(Mouse.listener().onClick(e -> {
-      if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-        int selectedRow = databaseObjectsTable.getSelectedRow();
-        DBDataset dataset = (DBDataset) databaseObjectsTable.getModel().getValueAt(selectedRow, 0);
-        objectsTableModel.addItems(List.of(dataset));
-      }
-    }));
+
+    adjustTableRowHeight(databaseObjectsTable, 1);
+    installFocusTraversal(databaseObjectsTable);
+    onMouseClick(databaseObjectsTable, MouseEvent.BUTTON1, 2, e -> selectDatabaseObject());
+    onKeyPress(databaseObjectsTable, KeyEvent.VK_SPACE, e -> selectDatabaseObject());
 
     this.databaseObjectsTable.setDefaultRenderer(DBDataset.class,
             new ColoredTableCellRenderer() {
@@ -248,12 +248,11 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     this.profileObjectListTable.setTableHeader(null);
     this.profileObjectListTable.setBackground(Colors.getTextFieldBackground());
     this.profileObjectListTable.setGridColor(Colors.getTextFieldBackground());
-    this.profileObjectListTable.addMouseListener(Mouse.listener().onClick(e -> {
-      if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-        int row = profileObjectListTable.rowAtPoint(e.getPoint());
-        objectsTableModel.removeItem(row);
-      }
-    }));
+
+    adjustTableRowHeight(profileObjectListTable, 1);
+    installFocusTraversal(profileObjectListTable);
+    onMouseClick(profileObjectListTable, MouseEvent.BUTTON1, 2, e -> deselectDatabaseObject());
+    onKeyPress(profileObjectListTable, KeyEvent.VK_SPACE, e -> deselectDatabaseObject());
 
     profileObjectListTable.setDefaultRenderer(Object.class, new ColoredTableCellRenderer() {
       @Override
@@ -277,6 +276,23 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
         profileObjectListTable.getInputVerifier().verify(profileObjectListTable);
       }
     });
+  }
+
+  private void selectDatabaseObject() {
+    int selectedRow = databaseObjectsTable.getSelectedRow();
+    if (selectedRow < 0) return;
+
+    DBDataset dataset = (DBDataset) databaseObjectsTable.getModel().getValueAt(selectedRow, 0);
+    objectsTableModel.addItems(List.of(dataset));
+    selectTableRow(databaseObjectsTable, selectedRow);
+  }
+
+  private void deselectDatabaseObject() {
+    int selectedRow = profileObjectListTable.getSelectedRow();
+    if (selectedRow < 0) return;
+
+    objectsTableModel.removeItem(selectedRow);
+    selectTableRow(profileObjectListTable, selectedRow);
   }
 
   private void startActivityNotifier() {

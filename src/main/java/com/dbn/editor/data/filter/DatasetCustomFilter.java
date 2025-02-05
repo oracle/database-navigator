@@ -27,7 +27,6 @@ import com.dbn.object.DBDataset;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.jdom.CDATA;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -35,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.writeCdata;
 
 @Getter
 @Setter
@@ -110,8 +110,7 @@ public class DatasetCustomFilter extends DatasetFilterImpl {
 
         @NonNls String condition = Strings.replace(this.condition, "\n", "<br>");
         condition = Strings.replace(condition, "  ", "<sp>");
-        CDATA cdata = new CDATA(condition);
-        conditionElement.setContent(cdata);
+        writeCdata(conditionElement, condition);
     }
 
 }

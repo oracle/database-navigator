@@ -50,4 +50,14 @@ public interface DBNForm extends DBNComponent, DataProviderDelegate, NlsSupport 
      */
     @Nullable
     <D extends DBNDialog> D getParentDialog();
+
+    /**
+     * Retrieves the parent of the current form that matches the specified form class type.
+     *
+     * @param <F>       the type of the parent form, extending from {@link DBNForm}
+     * @param formClass the class object representing the desired form type
+     * @return an instance of the parent form matching the specified type, or {@code null} if no matching parent exists
+     */
+    @Nullable
+    <F extends DBNForm> F getParentFrom(Class<F> formClass);
 }

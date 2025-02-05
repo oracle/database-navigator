@@ -16,13 +16,22 @@
 
 package com.dbn.object;
 
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaAccessibility;
+import com.dbn.object.type.DBJavaValueType;
+import org.jetbrains.annotations.Nullable;
 
 
 public interface DBJavaField extends DBOrderedObject {
-	short getIndex();
+	boolean isArray();
 
-	String getClassName();
+	boolean isClass();
+
+	boolean isPrimitive();
+
+	boolean isPlainValue();
+
+	short getIndex();
 
 	DBJavaAccessibility getAccessibility();
 
@@ -32,7 +41,22 @@ public interface DBJavaField extends DBOrderedObject {
 
 	short getArrayDepth();
 
-	String getType();
+	DBJavaClass getJavaClass();
 
-	DBJavaClass getFieldClass();
+	DBObjectRef<DBJavaClass> getJavaClassRef();
+
+	String getJavaClassName();
+
+	DBJavaClass getOwnerClass();
+
+	String getOwnerClassName();
+
+	@Nullable
+	DBJavaValueType getValueType();
+
+	@Nullable
+	DBJavaMethod findGetterMethod();
+
+	@Nullable
+	DBJavaMethod findSetterMethod();
 }

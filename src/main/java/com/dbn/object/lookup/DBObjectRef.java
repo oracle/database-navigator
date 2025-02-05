@@ -60,6 +60,9 @@ import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.object.type.DBObjectType.ANY;
+import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
+import static com.dbn.object.type.DBObjectType.JAVA_INNER_CLASS;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static com.dbn.object.type.DBObjectType.SYNONYM;
 import static com.dbn.vfs.DatabaseFileSystem.PS;
 import static com.dbn.vfs.DatabaseFileSystem.PSS;
@@ -115,6 +118,7 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
     }
 
     public void setParent(Object parent) {
+        reference.clear();
         if (parent == null) return;
 
         if (parent instanceof DBObject) {
@@ -324,12 +328,12 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
 
     public String getQualifiedObjectName() {
         DBObjectRef<?> parent = getParentRef();
-        if (parent == null || parent.objectType == DBObjectType.SCHEMA) {
+        if (parent == null || parent.objectType == SCHEMA) {
             return objectName;
         } else {
             StringDeBuilder builder = new StringDeBuilder();
             builder.append(objectName);
-            while(parent != null && parent.objectType != DBObjectType.SCHEMA) {
+            while(parent != null && parent.objectType != SCHEMA) {
                 builder.prepend('.');
                 builder.prepend(parent.objectName);
                 parent = parent.getParentRef();
@@ -462,24 +466,40 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
 
     @Nullable
     private T lookup(@NotNull ConnectionHandler connection) {
-        DBObject object = null;
         DBObjectRef<?> parent = getParentRef();
         if (parent == null) {
             DBObjectBundle objectBundle = connection.getObjectBundle();
-            object = objectBundle.getObject(objectType, objectName, overload);
-        } else {
-            DBObject parentObject = parent.get();
-            if (parentObject != null) {
-                object = parentObject.getChildObject(objectType, objectName, overload, true);
-                DBObjectType genericType = objectType.getGenericType();
-                if (object == null && genericType != objectType) {
-                    object = parentObject.getChildObject(genericType, objectName, overload, true);
-                }
+            return cast(objectBundle.getObject(objectType, objectName, overload));
+        }
 
-                object = unpackSynonym(object);
+        DBObject parentObject = parent.get();
+        DBObject object = lookup(parentObject);
+        if (object != null) return cast(object);
+
+        if (objectType.isOneOf(JAVA_CLASS, JAVA_INNER_CLASS)) {
+            // java fallback on JVM schema SYS - TODO find more generic solution
+            if (parent.isOfType(SCHEMA) && !parent.getObjectName().equals("SYS")) {
+                parentObject = connection.getSchema(SchemaId.get("SYS"));
+                object = lookup(parentObject);
             }
+
         }
         return cast(object);
+
+    }
+
+    @Nullable
+    private DBObject lookup(DBObject parentObject) {
+        if (parentObject == null) return null;
+
+        DBObject object = parentObject.getChildObject(objectType, objectName, overload, true);
+        DBObjectType genericType = objectType.getGenericType();
+        if (object == null && genericType != objectType) {
+            object = parentObject.getChildObject(genericType, objectName, overload, true);
+        }
+
+        object = unpackSynonym(object);
+        return object;
     }
 
     @Nullable
@@ -502,7 +522,7 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
     }
 
     public DBSchema getSchema() {
-        return getParentObject(DBObjectType.SCHEMA);
+        return getParentObject(SCHEMA);
     }
 
     @Nullable
@@ -513,7 +533,7 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
     }
 
     public String getSchemaName() {
-        DBObjectRef<DBObject> schema = getParentRef(DBObjectType.SCHEMA);
+        DBObjectRef<DBObject> schema = getParentRef(SCHEMA);
         return schema == null ? null : schema.getObjectName();
     }
 

@@ -38,6 +38,8 @@ import com.dbn.database.interfaces.DatabaseExecutionInterface;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.ExecutionStatus;
+import com.dbn.execution.common.input.ExecutionVariable;
+import com.dbn.execution.common.input.ExecutionVariableHistory;
 import com.dbn.execution.method.browser.MethodBrowserSettings;
 import com.dbn.execution.method.browser.ui.MethodExecutionBrowserDialog;
 import com.dbn.execution.method.history.ui.MethodExecutionHistoryDialog;
@@ -79,7 +81,7 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
 
     private final MethodBrowserSettings browserSettings = new MethodBrowserSettings();
     private final MethodExecutionHistory executionHistory = new MethodExecutionHistory(getProject());
-    private final MethodExecutionArgumentValueHistory argumentValuesHistory = new MethodExecutionArgumentValueHistory();
+    private final ExecutionVariableHistory argumentValuesHistory = new ExecutionVariableHistory();
 
     private MethodExecutionManager(Project project) {
         super(project, COMPONENT_NAME);
@@ -252,11 +254,11 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
         if (connection == null) return;
 
         for (val entry : input.getArgumentValueHistory().entrySet()) {
-            MethodExecutionArgumentValue argumentValue = entry.getValue();
+            ExecutionVariable argumentValue = entry.getValue();
 
             argumentValuesHistory.cacheVariable(
                     connection.getConnectionId(),
-                    argumentValue.getName(),
+                    argumentValue.getPath(),
                     argumentValue.getValue());
         }
     }

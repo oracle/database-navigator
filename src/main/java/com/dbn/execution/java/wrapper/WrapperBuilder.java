@@ -16,12 +16,14 @@
 
 package com.dbn.execution.java.wrapper;
 
+import com.dbn.common.util.Strings;
 import com.dbn.execution.java.wrapper.JavaComplexType.AttributeDirection;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.DBOrderedObject;
+import com.dbn.object.lookup.DBObjectRef;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +31,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.common.util.Java.isVoid;
+import static com.dbn.execution.java.wrapper.TypeMappings.getSqlType;
+import static com.dbn.execution.java.wrapper.TypeMappings.isSupportedType;
+import static com.dbn.execution.java.wrapper.TypeMappings.isUnsupportedType;
+import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
+import static com.dbn.object.type.DBJavaValueType.isPseudoPrimitive;
 
 /**
  * Parses {@link DBJavaMethod} instances into {@link Wrapper} objects,
@@ -49,7 +56,7 @@ public final class WrapperBuilder {
 	 */
 	private static final WrapperBuilder INSTANCE = new WrapperBuilder();
 
-	public static final String newSqlTypePrepend = "DBN_OJVM_TYPE_";
+	public static final String DBN_TYPE_SUFFIX = "DBN_OJVM_TYPE_";
 
 	/**
 	 * Private constructor to enforce Singleton usage.
@@ -111,7 +118,7 @@ public final class WrapperBuilder {
 	private void setMethodMetadata(DBJavaMethod javaMethod, Wrapper wrapper) {
 		String methodName = javaMethod.getName().split("#")[0];
 		wrapper.setWrappedJavaMethodName(methodName);
-		wrapper.setFullyQualifiedClassName(convertClassNameToDotNotation(javaMethod.getClassName()));
+		wrapper.setFullyQualifiedClassName(getCanonicalName(javaMethod.getOwnerClassName()));
 		// Replace "void" return in the signature with a more readable style, if present.
 
 		String javaMethodSignature = javaMethod.getSignature().replace(": void", "").replace(":", " return");
@@ -135,13 +142,8 @@ public final class WrapperBuilder {
 
 		// Create a Wrapper.MethodAttribute for each parameter
 		for (DBJavaParameter parameter : parameters) {
-			DBJavaClass parameterClass = parameter.getParameterClass();
-			String className = (parameterClass == null) ? "" : parameterClass.getQualifiedName();
-
 			Wrapper.MethodAttribute attr = createMethodAttribute(
-					parameterClass,
-					parameter.getParameterType(),
-					className,
+					parameter.getJavaClassRef(),
 					parameter.getArrayDepth(),
 					AttributeDirection.ARGUMENT,
 					context,
@@ -157,43 +159,40 @@ public final class WrapperBuilder {
 			DBJavaMethod javaMethod,
 			Wrapper wrapper,
 			WrapperBuilderContext context) {
-		if (!"void".equals(javaMethod.getReturnType())) {
-			Wrapper.MethodAttribute returnAttr = createMethodAttribute(
-					javaMethod.getReturnClass(),
-					javaMethod.getReturnType(),
-					javaMethod.getClassName(),
-					javaMethod.getArrayDepth(),
-					AttributeDirection.RETURN,
-					context,
-					wrapper
-			);
-			wrapper.setReturnType(returnAttr);
-		}
-	}
+		DBObjectRef<DBJavaClass> returnClass = javaMethod.getReturnClassRef();
+		String returnClassName = getCanonicalName(returnClass.getObjectName());
+        if (isVoid(returnClassName)) return;
+
+        Wrapper.MethodAttribute returnAttr = createMethodAttribute(
+                returnClass,
+                javaMethod.getReturnArrayDepth(),
+                AttributeDirection.RETURN,
+                context,
+                wrapper);
+        wrapper.setReturnType(returnAttr);
+    }
 
 	/**
 	 * Creates a {@link Wrapper.MethodAttribute} for the given DB elements, either
 	 * a simple attribute if primitive/supported, or a complex type otherwise.
 	 */
 	private Wrapper.MethodAttribute createMethodAttribute(
-			DBJavaClass javaClass,
-			String type,
-			String className,
+			DBObjectRef<DBJavaClass> javaClass,
 			short arrayDepth,
 			AttributeDirection attributeDirection,
 			WrapperBuilderContext context,
 			Wrapper wrapper) {
-		String effectiveParameterType = getParameterType(type, className);
 
 		// If non-array and we have a direct mapping -> simple attribute
-		if (arrayDepth == 0 && TypeMappingsManager.isSupportedType(effectiveParameterType)) {
-			return buildSimpleMethodAttribute(effectiveParameterType);
+		String className = getCanonicalName(javaClass.getObjectName());
+		if (arrayDepth == 0 && isSupportedType(className)) {
+			return buildSimpleMethodAttribute(className);
 		}
 
 		// Otherwise, build or retrieve a JavaComplexType
 		JavaComplexType javaComplexType = (arrayDepth > 0) ?
-				createJavaComplexArrayType(javaClass, effectiveParameterType, arrayDepth, attributeDirection, context, wrapper) :
-				createJavaComplexType(javaClass, effectiveParameterType, attributeDirection, context, wrapper);
+				createJavaComplexArrayType(javaClass, arrayDepth, attributeDirection, context, wrapper) :
+				createJavaComplexType(javaClass, attributeDirection, context, wrapper);
 
 		if (javaComplexType == null) {
 			// If still null, it's unsupported or cyclical
@@ -207,13 +206,12 @@ public final class WrapperBuilder {
 	/**
 	 * Builds a simple (non-complex) method attribute with a known SQL type mapping.
 	 */
-	private Wrapper.MethodAttribute buildSimpleMethodAttribute(String effectiveParameterType) {
+	private Wrapper.MethodAttribute buildSimpleMethodAttribute(String javaClassName) {
 		Wrapper.MethodAttribute methodAttribute = new Wrapper.MethodAttribute();
-		methodAttribute.setArray(false);
-		methodAttribute.setTypeName(convertClassNameToDotNotation(effectiveParameterType));
+		methodAttribute.setJavaTypeName(javaClassName);
 
-		SqlType sqlType = TypeMappingsManager.getCorrespondingSqlType(effectiveParameterType);
-		methodAttribute.setCorrespondingSqlTypeName(sqlType.getSqlTypeName());
+		String sqlTypeName = TypeMappings.getSqlTypeName(javaClassName);
+		methodAttribute.setSqlTypeName(sqlTypeName);
 		methodAttribute.setComplexType(false);
 		return methodAttribute;
 	}
@@ -223,13 +221,12 @@ public final class WrapperBuilder {
 	 */
 	private Wrapper.MethodAttribute buildComplexMethodAttribute(JavaComplexType javaComplexType) {
 		Wrapper.MethodAttribute methodAttribute = new Wrapper.MethodAttribute();
-		methodAttribute.setArray(javaComplexType.isArray());
 		methodAttribute.setArrayDepth(javaComplexType.getArrayDepth());
-		methodAttribute.setTypeName(convertClassNameToDotNotation(javaComplexType.getTypeName()));
+		methodAttribute.setJavaTypeName(javaComplexType.getJavaClassName());
 		methodAttribute.setComplexType(true);
 
 		SqlComplexType sqlType = javaComplexType.getCorrespondingSqlType();
-		methodAttribute.setCorrespondingSqlTypeName((sqlType == null) ? "" : sqlType.getName());
+		methodAttribute.setSqlTypeName((sqlType == null) ? "" : sqlType.getName());
 
 		return methodAttribute;
 	}
@@ -243,12 +240,13 @@ public final class WrapperBuilder {
 	 * or parameter type, populating its fields recursively if needed.
 	 */
 	private JavaComplexType createJavaComplexType(
-			DBJavaClass javaClass,
-			String parameterType,
+			DBObjectRef<DBJavaClass> javaClass,
 			AttributeDirection attributeDirection,
 			WrapperBuilderContext context,
 			Wrapper wrapper) {
-		ComplexTypeKey key = buildComplexTypeKey(javaClass, parameterType, (short) 0);
+		String javaClassName = getCanonicalName(javaClass);
+
+		ComplexTypeKey key = new ComplexTypeKey(javaClassName, (short) 0);
 		if (addToContextAndDetectCycle(key, context)) return null;
 
 		JavaComplexType existing = getComplexTypeFromCache(key, attributeDirection, context);
@@ -258,12 +256,14 @@ public final class WrapperBuilder {
 		}
 
 		// Create a new complex type shell
-		JavaComplexType javaComplexType = buildComplexTypeShell(javaClass, parameterType, attributeDirection, false);
+		JavaComplexType javaComplexType = buildComplexTypeShell(javaClassName, attributeDirection, (short) 0);
 		SqlComplexType sqlComplexType = new SqlComplexType();
 		sqlComplexType.setArray(false);
 
+
 		// Populate fields if we have a DBJavaClass
-		if (javaClass != null) {
+		boolean complexType = !isPseudoPrimitive(javaClassName);
+		if (complexType) {
 			populateComplexTypeFields(
 					javaClass,
 					attributeDirection,
@@ -283,13 +283,14 @@ public final class WrapperBuilder {
 	 * populating its contained type recursively if necessary.
 	 */
 	private JavaComplexType createJavaComplexArrayType(
-			DBJavaClass dbJavaClass,
-			String parameterType,
+			DBObjectRef<DBJavaClass> javaClass,
 			short arrayDepth,
 			AttributeDirection attributeDirection,
 			WrapperBuilderContext context,
 			Wrapper wrapper) {
-		ComplexTypeKey key = buildComplexTypeKey(dbJavaClass, parameterType, arrayDepth);
+		String javaClassName = getCanonicalName(javaClass);
+
+		ComplexTypeKey key = new ComplexTypeKey(javaClassName, arrayDepth);
 		if (addToContextAndDetectCycle(key, context)) return null;
 
 		JavaComplexType existing = getComplexTypeFromCache(key, attributeDirection, context);
@@ -299,47 +300,43 @@ public final class WrapperBuilder {
 		}
 
 		// Create new array-type shell
-		JavaComplexType javaComplexType = buildComplexTypeShell(dbJavaClass, parameterType, attributeDirection, true);
-		javaComplexType.setArrayDepth(arrayDepth);
+		JavaComplexType javaComplexType = buildComplexTypeShell(javaClassName, attributeDirection, arrayDepth);
 
 		SqlComplexType sqlComplexType = new SqlComplexType();
 		sqlComplexType.setArray(true);
 
 		// If base type is unsupported, abort
-		if (TypeMappingsManager.isUnSupportedType(parameterType)) {
-			log.error("Encountered unsupported type for array: {}", parameterType);
+		if (TypeMappings.isUnsupportedType(javaClassName)) {
+			log.error("Encountered unsupported type for array: {}", javaClassName);
 			context.removeFromSet(key);
 			return null;
 		}
 
-		// Identify the contained type name
-		String sqlBaseName = (dbJavaClass != null) ? dbJavaClass.getName() : parameterType;
-
-		String containedTypeName = null;
+		String sqlTypeName = null;
 		JavaComplexType containedJavaComplexType;
 
 		// Single-dimension vs multi-dimension array
 		if (arrayDepth <= 1) {
-			containedTypeName = getContainedTypeName(parameterType);
-			if (containedTypeName == null) {
+			sqlTypeName = TypeMappings.getSqlTypeName(javaClassName);
+			if (sqlTypeName == null) {
 				// Possibly a nested complex type
-				containedJavaComplexType = createJavaComplexType(dbJavaClass, parameterType, attributeDirection, context, wrapper);
+				containedJavaComplexType = createJavaComplexType(javaClass, attributeDirection, context, wrapper);
 				if (containedJavaComplexType != null) {
-					containedTypeName = containedJavaComplexType.getCorrespondingSqlType().getName();
+					sqlTypeName = containedJavaComplexType.getCorrespondingSqlType().getName();
 				}
 			}
 		} else {
 			// Multi-dimensional
-			containedJavaComplexType = createJavaComplexArrayType(dbJavaClass, parameterType,
+			containedJavaComplexType = createJavaComplexArrayType(javaClass,
 					(short) (arrayDepth - 1), attributeDirection,
 					context, wrapper);
 			if (containedJavaComplexType != null) {
-				containedTypeName = containedJavaComplexType.getCorrespondingSqlType().getName();
+				sqlTypeName = containedJavaComplexType.getCorrespondingSqlType().getName();
 			}
 		}
 
-		sqlComplexType.setContainedTypeName(containedTypeName);
-		sqlComplexType.setName(getOrCreateNewSqlTypeName(sqlBaseName, arrayDepth, wrapper));
+		sqlComplexType.setContainedTypeName(sqlTypeName);
+		sqlComplexType.setName(getSqlTypeName(javaClassName, arrayDepth, wrapper));
 		javaComplexType.setCorrespondingSqlType(sqlComplexType);
 
 		wrapper.addArgumentJavaComplexType(javaComplexType);
@@ -352,43 +349,13 @@ public final class WrapperBuilder {
 	/**
 	 * Builds a fresh {@link JavaComplexType} shell (for both array and non-array types).
 	 */
-	private JavaComplexType buildComplexTypeShell(DBJavaClass dbJavaClass, String parameterType, AttributeDirection attributeDirection, boolean isArray) {
-		JavaComplexType javaComplexType = new JavaComplexType();
-		javaComplexType.setAttributeDirection(attributeDirection);
-		javaComplexType.setArray(isArray);
-		javaComplexType.setArrayType(isArray ? JavaComplexType.ArrayType.SQUARE_BRACKET : null);
-		javaComplexType.setArrayDepth((short) 0);
-		javaComplexType.setTypeName(parameterType);
-
-		if (dbJavaClass != null) {
-			javaComplexType.setTypeName(dbJavaClass.getName());
-		}
-		return javaComplexType;
-	}
-
-	/**
-	 * Attempts to return a contained (base) type name if it is a direct mapping in TypeMappingsManager.
-	 * Returns {@code null} if no direct mapping is found (indicating a complex type).
-	 */
-	private String getContainedTypeName(String parameterType) {
-		if (TypeMappingsManager.isSupportedType(parameterType)) {
-			return TypeMappingsManager.getCorrespondingSqlType(parameterType).getSqlTypeName();
-		}
-		return null;
-	}
-
-	// -------------------------------------------------
-	// ComplexTypeKey and Cycle Detection
-	// -------------------------------------------------
-
-	/**
-	 * Builds a new {@link ComplexTypeKey} from the given parameters.
-	 */
-	private ComplexTypeKey buildComplexTypeKey(DBJavaClass dbJavaClass, String parameterType, short arrayDepth) {
-		String keyName = (dbJavaClass == null)
-				? convertClassNameToDotNotation(parameterType)
-				: convertClassNameToDotNotation(dbJavaClass.getQualifiedName());
-		return new ComplexTypeKey(keyName, arrayDepth);
+	private JavaComplexType buildComplexTypeShell(String javaClassName, AttributeDirection attributeDirection, short arrayDepth) {
+		JavaComplexType complexType = new JavaComplexType();
+		complexType.setAttributeDirection(attributeDirection);
+		complexType.setArrayType(arrayDepth == 0 ? null : JavaComplexType.ArrayType.SQUARE_BRACKET);
+		complexType.setArrayDepth(arrayDepth);
+		complexType.setJavaClassName(javaClassName);
+		return complexType;
 	}
 
 	/**
@@ -440,7 +407,7 @@ public final class WrapperBuilder {
 			// For arrays, mark all corresponding array dimension entries + the base
 			for (short i = 1; i <= javaComplexType.getArrayDepth(); i++) {
 				ComplexTypeKey complexTypeKey = new ComplexTypeKey(
-						javaComplexType.getTypeName(),
+						javaComplexType.getJavaClassName(),
 						javaComplexType.getArrayDepth());
 				JavaComplexType mappedType = context.getJavaComplexType(complexTypeKey);
 				if (mappedType != null) {
@@ -448,7 +415,7 @@ public final class WrapperBuilder {
 				}
 			}
 			// Also update the non-array variant if it exists
-			ComplexTypeKey baseKey = new ComplexTypeKey(javaComplexType.getTypeName(), (short) 0);
+			ComplexTypeKey baseKey = new ComplexTypeKey(javaComplexType.getJavaClassName(), (short) 0);
 			JavaComplexType baseType = context.getJavaComplexType(baseKey);
 			if (baseType != null) {
 				changeAttributeDirection(baseType, context);
@@ -484,8 +451,8 @@ public final class WrapperBuilder {
 			SqlComplexType sqlComplexType,
 			WrapperBuilderContext context,
 			Wrapper wrapper) {
-		String sqlTypeName = getOrCreateNewSqlTypeName(
-				javaComplexType.getTypeName(),
+		String sqlTypeName = getSqlTypeName(
+				javaComplexType.getJavaClassName(),
 				javaComplexType.getArrayDepth(), wrapper);
 		sqlComplexType.setName(sqlTypeName);
 		javaComplexType.setCorrespondingSqlType(sqlComplexType);
@@ -504,19 +471,19 @@ public final class WrapperBuilder {
 	 * building nested types if necessary.
 	 */
 	private void populateComplexTypeFields(
-			DBJavaClass dbJavaClass,
+			DBObjectRef<DBJavaClass> javaClass,
 			AttributeDirection attributeDirection,
 			JavaComplexType javaComplexType,
 			SqlComplexType sqlComplexType,
 			WrapperBuilderContext context,
 			Wrapper wrapper) {
-		List<DBJavaField> javaFields = dbJavaClass.getFields();
+		List<DBJavaField> javaFields = javaClass.get().getFields();
 		for (DBJavaField javaField : javaFields) {
-			JavaComplexType.Field field = buildJavaComplexField(javaField, dbJavaClass, wrapper);
+			JavaComplexType.Field field = buildJavaComplexField(javaField, javaClass, wrapper);
 			javaComplexType.addField(field);
 
 			// If it's a primitive or directly supported type, add to the SQL type
-			SqlType sqlType = TypeMappingsManager.getCorrespondingSqlType(field.getType());
+			SqlType sqlType = getSqlType(field.getType());
 			if (sqlType != null && javaField.getArrayDepth() <= 0) {
 				sqlComplexType.addField(field.getName(), sqlType.getSqlTypeName(), field.getFieldIndex());
 			} else {
@@ -530,45 +497,41 @@ public final class WrapperBuilder {
 	/**
 	 * Builds a single {@link JavaComplexType.Field} instance from a {@link DBJavaField}.
 	 */
-	private JavaComplexType.Field buildJavaComplexField(DBJavaField dbJavaField, DBJavaClass dbJavaClass, Wrapper wrapper) {
+	private JavaComplexType.Field buildJavaComplexField(DBJavaField javaField, DBObjectRef<DBJavaClass> parentJavaClass, Wrapper wrapper) {
 		JavaComplexType.Field field = new JavaComplexType.Field();
 
 		// Get the raw field type in string form
-		String fieldParameter;
-		try {
-			fieldParameter = getParameterType(dbJavaField.getType(), dbJavaField.getClassName());
-		} catch (Exception e) {
-			log.error("Could not create JavaComplexType for field: {}", dbJavaField, e);
-			conditionallyLog(e);
-			fieldParameter = dbJavaField.getType(); // fallback
-		}
+		String fieldJavaClassName = getCanonicalName(javaField.getJavaClassName());
 
-		if (TypeMappingsManager.isUnSupportedType(fieldParameter)) {
-			log.error("Encountered unsupported type for field {}: {}", dbJavaField, fieldParameter);
+		if (isUnsupportedType(fieldJavaClassName)) {
+			log.error("Encountered unsupported type for field {}: {}", javaField, fieldJavaClassName);
 		}
 
 		// Basic field setup
-		field.setFieldIndex(dbJavaField.getIndex());
-		field.setName(dbJavaField.getName());
-		field.setAccessModifier(dbJavaField.getAccessibility().toString());
-		field.setType(fieldParameter, TypeMappingsManager.getCorrespondingSqlType(fieldParameter));
+		field.setFieldIndex(javaField.getIndex());
+		field.setName(javaField.getName());
+		if(javaField.getAccessibility() != null)
+			field.setAccessModifier(javaField.getAccessibility().toString());
+		field.setType(fieldJavaClassName, getSqlType(fieldJavaClassName));
 
 		// If array
-		if (dbJavaField.getArrayDepth() > 0) {
-			field.setArray(true);
-			field.setArrayDepth(dbJavaField.getArrayDepth());
+		short arrayDepth = javaField.getArrayDepth();
+		if (arrayDepth > 0) {
+			field.setArrayDepth(arrayDepth);
 		}
 
 		// If the field is non-public, set up the getter/setter if present
-		if (!"PUBLIC".equals(field.getAccessModifier().toString())) {
-			field.setGetter(getGetter(field.getName(), fieldParameter, field.getArrayDepth(), dbJavaClass));
-			field.setSetter(getSetter(field.getName(), fieldParameter, field.getArrayDepth(), dbJavaClass));
+		if (field.getAccessModifier() != JavaComplexType.Field.AccessModifier.PUBLIC) {
+			DBJavaMethod getter = javaField.findGetterMethod();
+			DBJavaMethod setter = javaField.findSetterMethod();
+			field.setGetter(getter == null ? null : getter.getSimpleName());
+			field.setSetter(setter == null ? null : setter.getSimpleName());
 		}
 
 		// If the underlying Java class is known
-		if (field.getSqlType().isEmpty()) {
+		if (Strings.isEmpty(field.getSqlType())) {
 			// Re-use the same complexTypeConversion map.
-			field.setSqlType(getOrCreateNewSqlTypeName(fieldParameter, field.getArrayDepth(), wrapper));
+			field.setSqlType(getSqlTypeName(fieldJavaClassName, field.getArrayDepth(), wrapper));
 		}
 
 		return field;
@@ -579,27 +542,25 @@ public final class WrapperBuilder {
 	 */
 	private void handleNestedField(
 			JavaComplexType.Field field,
-			DBJavaField dbJavaField,
+			DBJavaField javaField,
 			AttributeDirection attributeDirection,
 			SqlComplexType sqlComplexType,
 			WrapperBuilderContext context,
 			Wrapper wrapper) {
 		field.setComplexType(true);
 		JavaComplexType fieldJavaComplexType;
-		if (dbJavaField.getArrayDepth() > 0) {
+		if (javaField.getArrayDepth() > 0) {
 			// Nested array
 			fieldJavaComplexType = createJavaComplexArrayType(
-					dbJavaField.getFieldClass(),
-					field.getType(),
-					dbJavaField.getArrayDepth(),
+					javaField.getJavaClassRef(),
+					javaField.getArrayDepth(),
 					attributeDirection,
 					context,
 					wrapper);
 		} else {
 			// Nested object
 			fieldJavaComplexType = createJavaComplexType(
-					dbJavaField.getFieldClass(),
-					field.getType(),
+					javaField.getJavaClassRef(),
 					attributeDirection,
 					context,
 					wrapper);
@@ -614,161 +575,16 @@ public final class WrapperBuilder {
 	}
 
 	// -------------------------------------------------
-	// Getters / Setters
-	// -------------------------------------------------
-
-	/**
-	 * Finds a setter method matching the given field signature, if one exists.
-	 * TODO move logic to DBJavaClass (getFieldSetter)
-	 */
-	@Nullable
-	private String getSetter(
-			String fieldName,
-			String fieldParameter,
-			short arrayDepth,
-			DBJavaClass javaClass) {
-		if (javaClass == null) return null;
-
-		String setterName = "set" + capitalize(fieldName);
-		List<DBJavaMethod> methods = javaClass.getMethods();
-		DBJavaMethod setterMethod = null;
-		for (DBJavaMethod method : methods) {
-			if (setterName.equals(method.getName().split("#")[0])) {
-				setterMethod = method;
-				break;
-			}
-		}
-        if (setterMethod == null) return null;
-
-        List<DBJavaParameter> methodParameters = setterMethod.getParameters();
-        if (methodParameters.size() != 1) return null;
-
-		DBJavaParameter param = methodParameters.get(0);
-		String targetFieldClass;
-		DBJavaField javaField = javaClass.getField(fieldName);
-		if (javaField != null && javaField.getFieldClass() != null) {
-			String qualifiedName = javaField.getFieldClass().getQualifiedName();
-			targetFieldClass = convertClassNameToDotNotation(qualifiedName);
-		} else {
-			targetFieldClass = fieldParameter;
-		}
-
-		if (getParameterType(param).equals(targetFieldClass)
-				&& param.getArrayDepth() == arrayDepth) {
-			return setterName;
-		}
-
-        return null;
-	}
-
-	/**
-	 * Finds a getter method matching the given field signature, if one exists.
-	 * // TODO move logic to DBJavaClass (getFieldGetter)
-	 */
-	@Nullable
-	private String getGetter(
-			String fieldName,
-			String fieldParameter,
-			short arrayDepth,
-			DBJavaClass javaClass) {
-		if (javaClass == null) return null;
-
-		String getterName = "get" + capitalize(fieldName);
-		List<DBJavaMethod> methods = javaClass.getMethods();
-		DBJavaMethod getterMethod = null;
-		for (DBJavaMethod method : methods) {
-			if (getterName.equals(method.getName().split("#")[0])) {
-				getterMethod = method;
-				break;
-			}
-		}
-
-        if (getterMethod == null) return null;
-
-		String methodReturn = getParameterType(getterMethod.getReturnType(), getterMethod.getClassName());
-		if (methodReturn.equals(fieldParameter)
-				&& getterMethod.getArrayDepth() == arrayDepth
-				&& getterMethod.getParameters().isEmpty()) {
-			return getterName;
-		}
-        return null;
-	}
-
-	// -------------------------------------------------
 	// Type Utilities
 	// -------------------------------------------------
 
 	/**
-	 * Retrieves the parameter type from a {@link DBJavaParameter}.
-	 */
-	private String getParameterType(DBJavaParameter javaParameter) {
-		String parameterType = convertClassNameToDotNotation(javaParameter.getParameterType());
-
-		// If parameter type is empty, try to get it from the parameter class
-		if (parameterType.isEmpty() || parameterType.equals("-") || parameterType.equals("class")) {
-			DBJavaClass parameterClass = javaParameter.getParameterClass();
-			if (parameterClass != null) {
-				parameterType = convertClassNameToDotNotation(parameterClass.getQualifiedName());
-			}
-		}
-		validateParameterType(parameterType);
-		return parameterType;
-	}
-
-	/**
-	 * Retrieves the parameter type by analyzing a raw type and class name, if needed.
-	 */
-	private String getParameterType(String type, String className) {
-		String parameterType = convertClassNameToDotNotation(type);
-
-		if (parameterType.isEmpty() || parameterType.equals("-") || parameterType.equals("class")) {
-			if (className != null) {
-				parameterType = convertClassNameToDotNotation(className);
-			}
-		}
-		validateParameterType(parameterType);
-		return parameterType;
-	}
-
-	/**
 	 * Builds a new SQL type name, prepending a constant prefix plus an incrementing integer.
 	 */
-	private String getOrCreateNewSqlTypeName(String className, short arrayDepth, Wrapper wrapper) {
-		// The SQL type prefix used to create new type names
-		ComplexTypeKey key = new ComplexTypeKey(className, arrayDepth);
-		if (!wrapper.getComplexTypeConversion().containsKey(key)) {
-			// Assign a new index based on current map size (or use another scheme if needed)
-			wrapper.addEntryToComplexTypeConversion(key,
-					wrapper.getComplexTypeConversion().size() + 1);
-		}
-		return newSqlTypePrepend + wrapper.getComplexTypeConversion().get(key);
+	private String getSqlTypeName(String className, short arrayDepth, Wrapper wrapper) {
+		return DBN_TYPE_SUFFIX + wrapper.getSqlTypeIndex(className, arrayDepth);
 	}
 
-	/**
-	 * Ensures the parameter type is neither {@code null} nor empty. Logs an error if it is.
-	 */
-	private void validateParameterType(String parameterType) {
-		if (parameterType == null || parameterType.isEmpty()) {
-			log.error("Parameter type is empty or null.");
-		}
-	}
-
-	/**
-	 * Converts slash notation to dot notation (e.g., "java/lang/String" -> "java.lang.String").
-	 */
-	public static String convertClassNameToDotNotation(String className) {
-		return className.replace('/', '.');
-	}
-
-	/**
-	 * Capitalizes the first character of a string (e.g. "field" -> "Field").
-	 */
-	private String capitalize(String str) {
-		if (str == null || str.isEmpty()) {
-			return str;
-		}
-		return Character.toUpperCase(str.charAt(0)) + str.substring(1);
-	}
 
 	// -------------------------------------------------
 	// ComplexTypeKey
@@ -788,5 +604,13 @@ public final class WrapperBuilder {
 			this.className = className;
 			this.arrayLength = arrayLength;
 		}
+	}
+
+	public static String getCanonicalPath(DBJavaClass javaClass) {
+		// avoid accessing java class-name cache with fully qualified java path
+
+		// TODO verify if execution on foreign schema is allowed
+		//return javaClass.getSchemaName() + "." + getCanonicalName(javaClass.getName());
+		return getCanonicalName(javaClass.getName());
 	}
 }

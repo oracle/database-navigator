@@ -25,20 +25,24 @@ import java.util.List;
 @Getter
 @Setter
 public class JavaComplexType {
+
 	public enum AttributeDirection {ARGUMENT, RETURN, BOTH}
 
 	public enum ArrayType {SQUARE_BRACKET, LIST, OTHER}
 
-	private String typeName;
+	private String javaClassName;
 	private AttributeDirection attributeDirection;
 	private SqlComplexType correspondingSqlType;
-	private boolean isArray = false;
 	private short arrayDepth = 0;
 	private ArrayType arrayType;
 	private List<Field> fields = new ArrayList<>();
 
+	public boolean isArray() {
+		return arrayDepth > 0;
+	}
+
 	public void setArrayType(ArrayType arrayType) {
-		if (isArray) {
+		if (arrayDepth > 0) {
 			this.arrayType = arrayType;
 		}
 	}
@@ -57,10 +61,9 @@ public class JavaComplexType {
 		private String name;
 		private String type;
 		private boolean complexType = false;
-		private AccessModifier accessModifier;
+		private AccessModifier accessModifier = null;
 		private String setter;
 		private String getter;
-		private boolean isArray = false;
 		private short arrayDepth = 0;
 		private short fieldIndex;
 		private String sqlType;
@@ -74,6 +77,10 @@ public class JavaComplexType {
 				typeCastStart = sqlTypeDetails.getTransformerPrefix();
 				typeCastEnd = sqlTypeDetails.getTransformerSuffix();
 			}
+		}
+
+		public boolean isArray() {
+			return arrayDepth > 0;
 		}
 
 		public void setAccessModifier(String accessModifier) {

@@ -113,7 +113,17 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
     @Nullable
     public <T extends DBObject> DBObjectList<T> getObjectList(DBObjectType objectType) {
         DBObjectList<T> objectList = objects(objectType);
-        return isValid(objectList) ? objectList : null;
+        if (isValid(objectList)) return objectList;
+
+        Set<DBObjectType> inheritingTypes = objectType.getInheritingTypes();
+        if (inheritingTypes.isEmpty()) return null;
+
+        for (DBObjectType inheritingType : inheritingTypes) {
+            objectList = objects(inheritingType);
+            if (isValid(objectList)) return objectList;
+        }
+
+        return null;
     }
 
     public <T extends DBObject> T getObject(DBObjectType objectType, String name, short overload) {

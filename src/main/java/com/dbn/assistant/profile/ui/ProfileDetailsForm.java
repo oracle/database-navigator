@@ -32,6 +32,8 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import static com.dbn.common.ui.table.Tables.adjustTableRowHeight;
+
 public class ProfileDetailsForm extends DBNFormBase {
     private JPanel mainPanel;
     private JTextField providerTextField;
@@ -69,10 +71,12 @@ public class ProfileDetailsForm extends DBNFormBase {
         DefaultTableModel tableModel = new DefaultTableModel(data, columnNames) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return (column == 1 && row == 0);
+                return false;
             }
         };
         objectsTable.setModel(tableModel);
+        adjustTableRowHeight(objectsTable, 1);
+
     }
 
     private @NotNull TableCellRenderer createObjectTableRenderer() {

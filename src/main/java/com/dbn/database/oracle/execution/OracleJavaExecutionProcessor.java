@@ -25,17 +25,21 @@ import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.common.execution.JavaExecutionProcessorImpl;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
-import com.dbn.execution.java.wrapper.WrapperBuilder;
 import com.dbn.execution.java.wrapper.Wrapper;
+import com.dbn.execution.java.wrapper.Wrapper.MethodAttribute;
+import com.dbn.execution.java.wrapper.WrapperBuilder;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.sql.Array;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.List;
@@ -72,9 +76,11 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		}
 
 		buffer.append("declare\n");
-		if(! isProcedure){
+		if(!isProcedure){
+			MethodAttribute returnType = wrapper.getReturnType();
 			buffer.append("output_arg ")
-					.append(wrapper.getReturnType().getCorrespondingSqlTypeName())
+					.append(returnType.getSqlTypeName())
+					.append(returnType.getSqlDeclarationSuffix())
 					.append(";")
 					.append("\n");
 		}
@@ -105,27 +111,27 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
 	@SneakyThrows
 	@Override
-	protected void bindParameters(JavaExecutionInput executionInput, DBNPreparedStatement<?> callableStatement, Wrapper wrapper) {
-
+	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement callableStatement, Wrapper wrapper) {
 		// bind input variables
 		int parameterIndex = 1;
-		for (DBJavaParameter argument : getArguments()) {
+		for (DBJavaParameter parameter : getArguments()) {
 
-			String clazz = argument.getParameterType();
-			boolean isArray = argument.getArrayDepth() > 0;
-			if(isArray){
-				String objectName = wrapper.getMethodArguments().get(parameterIndex- 1).getCorrespondingSqlTypeName();
-				Array arrObj = getArrayObject(executionInput, argument.getParameterClass().getFields(), wrapper, objectName);
-				callableStatement.setArray(parameterIndex,  arrObj);
+			String parameterName = parameter.getName();
+			if (parameter.isArray()) {
+				String objectName = wrapper.getMethodArguments().get(parameterIndex - 1).getSqlTypeName();
+				Array arrObj = getArrayObject(executionInput, parameter.getJavaClass().getFields(), wrapper, objectName, parameterName);
+				callableStatement.setArray(parameterIndex, arrObj);
 
-			}else if(clazz.equals("class")) {
-				String objectName = wrapper.getMethodArguments().get(parameterIndex- 1).getCorrespondingSqlTypeName();
-				Object structObj = getStructObject(executionInput, argument.getParameterClass().getFields(), wrapper, objectName);
+			} else if (!parameter.isPlainValue()) { // TODO support pseudo-primitives com.dbn.object.type.DBJavaValueType
+				String objectName = wrapper.getMethodArguments().get(parameterIndex - 1).getSqlTypeName();
+				Object structObj = getStructObject(executionInput, parameter.getJavaClass().getFields(), wrapper, objectName, parameterName);
 				callableStatement.setObject(parameterIndex, structObj);
 
 			} else {
-				String value = executionInput.getInputValue(argument);
-				if (clazz.equals("String")) callableStatement.setString(parameterIndex, value);
+				String clazz = parameter.getJavaClassName();
+				String value = executionInput.getInputValue(parameterName);
+				if (value == null) callableStatement.setObject(parameterIndex, null);
+				else if (clazz.equals("String")) callableStatement.setString(parameterIndex, value);
 				else if (clazz.equals("byte")) callableStatement.setByte(parameterIndex, Byte.parseByte(value));
 				else if (clazz.equals("short")) callableStatement.setShort(parameterIndex, Short.parseShort(value));
 				else if (clazz.equals("int")) callableStatement.setInt(parameterIndex, Integer.parseInt(value));
@@ -148,7 +154,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	}
 
 	@SneakyThrows
-	private Object getStructObject(JavaExecutionInput executionInput, List<DBJavaField> fields, Wrapper wrapper, String objectName){
+	private Object getStructObject(JavaExecutionInput executionInput, List<DBJavaField> fields, Wrapper wrapper, String objectName, String fieldPath){
 		ConnectionHandler connection = getMethod().getConnection();
 		SessionId targetSessionId = executionInput.getTargetSessionId();
 		SchemaId targetSchemaId = executionInput.getTargetSchemaId();
@@ -158,38 +164,10 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		Object[] customTypeAttributes = new Object[fields.size()];
 		int i = 0;
 		for (DBJavaField field : fields) {
-			String value = executionInput.getInputValue(field);
-			switch(field.getType()){
-				case "int":
-					customTypeAttributes[i] = Integer.parseInt(value);
-					break;
-				case "float":
-					customTypeAttributes[i] = Float.parseFloat(value);
-					break;
-				case "double":
-					customTypeAttributes[i] = Double.parseDouble(value);
-					break;
-				case "byte":
-					customTypeAttributes[i] = Byte.parseByte(value);
-					break;
-				case "short":
-					customTypeAttributes[i] = Short.parseShort(value);
-					break;
-				case "long":
-					customTypeAttributes[i] = Long.parseLong(value);
-					break;
-				case "boolean":
-					customTypeAttributes[i] = Boolean.parseBoolean(value);
-					break;
-				case "class":
-					WrapperBuilder.ComplexTypeKey key = new WrapperBuilder.ComplexTypeKey(field.getFieldClass().getName(), field.getArrayDepth());
-					int typeNumber = wrapper.getComplexTypeConversion().get(key);
-					String innerObjectName = WrapperBuilder.newSqlTypePrepend + typeNumber;
-					customTypeAttributes[i] = getStructObject(executionInput, field.getFieldClass().getFields(), wrapper, innerObjectName);
-					break;
-				default:
-					customTypeAttributes[i] = value;
-			}
+			String newFieldPath = fieldPath + "." + field.getName();
+
+			String value = executionInput.getInputValue(newFieldPath);
+			customTypeAttributes[i] = parseValue(executionInput, wrapper, field, newFieldPath, value);
 			i++;
 		}
 
@@ -205,7 +183,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	}
 
 	@SneakyThrows
-	private Array getArrayObject(JavaExecutionInput executionInput, List<DBJavaField> fields, Wrapper wrapper, String objectName){
+	private Array getArrayObject(JavaExecutionInput executionInput, List<DBJavaField> fields, Wrapper wrapper, String objectName, String fieldPath){
 		ConnectionHandler connection = getMethod().getConnection();
 		SessionId targetSessionId = executionInput.getTargetSessionId();
 		SchemaId targetSchemaId = executionInput.getTargetSchemaId();
@@ -215,38 +193,8 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		Object[] customTypeAttributes = new Object[fields.size()];
 		int i = 0;
 		for (DBJavaField field : fields) {
-			String value = executionInput.getInputValue(field);
-			switch(field.getType()){
-				case "int":
-					customTypeAttributes[i] = Integer.parseInt(value);
-					break;
-				case "float":
-					customTypeAttributes[i] = Float.parseFloat(value);
-					break;
-				case "double":
-					customTypeAttributes[i] = Double.parseDouble(value);
-					break;
-				case "byte":
-					customTypeAttributes[i] = Byte.parseByte(value);
-					break;
-				case "short":
-					customTypeAttributes[i] = Short.parseShort(value);
-					break;
-				case "long":
-					customTypeAttributes[i] = Long.parseLong(value);
-					break;
-				case "boolean":
-					customTypeAttributes[i] = Boolean.parseBoolean(value);
-					break;
-				case "class":
-					WrapperBuilder.ComplexTypeKey key = new WrapperBuilder.ComplexTypeKey(field.getFieldClass().getName(), field.getArrayDepth());
-					int typeNumber = wrapper.getComplexTypeConversion().get(key);
-					String innerObjectName = WrapperBuilder.newSqlTypePrepend + typeNumber;
-					customTypeAttributes[i] = getStructObject(executionInput, field.getFieldClass().getFields(), wrapper, innerObjectName);
-					break;
-				default:
-					customTypeAttributes[i] = value;
-			}
+			String value = executionInput.getInputValue(fieldPath);
+			customTypeAttributes[i] = parseValue(executionInput, wrapper, field, fieldPath, value);
 			i++;
 		}
 
@@ -261,4 +209,24 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		return (Array) structCtr.newInstance(structDescriptor, conn.getInner(), customTypeAttributes);
 	}
 
+	@Nullable
+	private Object parseValue(JavaExecutionInput executionInput, Wrapper wrapper, DBJavaField field, String fieldPath, String fieldValue) {
+		if (fieldValue == null) return null;
+
+		switch(field.getJavaClassName()){
+			case "int": return Integer.parseInt(fieldValue);
+			case "float": return Float.parseFloat(fieldValue);
+			case "double": return Double.parseDouble(fieldValue);
+			case "byte": return Byte.parseByte(fieldValue);
+			case "short": return Short.parseShort(fieldValue);
+			case "long": return Long.parseLong(fieldValue);
+			case "boolean": return Boolean.parseBoolean(fieldValue);
+			case "class":
+				DBJavaClass javaClass = field.getJavaClass();
+				int typeIndex = wrapper.getSqlTypeIndex(javaClass.getCanonicalName(), field.getArrayDepth());
+				String innerObjectName = WrapperBuilder.DBN_TYPE_SUFFIX + typeIndex;
+				return getStructObject(executionInput, javaClass.getFields(), wrapper, innerObjectName, fieldPath);
+			default:return fieldValue;
+		}
+	}
 }

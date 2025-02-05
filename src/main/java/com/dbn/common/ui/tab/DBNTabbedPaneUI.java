@@ -98,6 +98,7 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
 
     private int hoverTab = -1;
     private boolean tabsOverlapBorder;
+    private boolean layingOutContainer;
     private Color tabHoverColor;
 
     private PropertyChangeListener propertyChangeListener;
@@ -607,6 +608,16 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
 
         @Override
         public void layoutContainer(Container parent) {
+            try {
+                if (layingOutContainer) return;
+                layingOutContainer = true;
+                doLayoutContainer(parent);
+            } finally {
+                layingOutContainer = false;
+            }
+        }
+
+        private void doLayoutContainer(Container parent) {
             DBNTabbedPane tabPane = getTabPane();
             JPanel hiddenTabsActionPanel = tabPane.getHiddenTabsActionPanel();
             hiddenTabsActionPanel.setBounds(new Rectangle());

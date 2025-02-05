@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.wrapper;
 
+import com.dbn.execution.java.wrapper.WrapperBuilder.ComplexTypeKey;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -36,7 +37,7 @@ public class Wrapper {
     private List<MethodAttribute> methodArguments = new ArrayList<>();
     private MethodAttribute returnType;
 	private String javaMethodSignature;
-	private Map<WrapperBuilder.ComplexTypeKey, Integer> complexTypeConversion = new HashMap<>();
+	private Map<WrapperBuilder.ComplexTypeKey, Integer> sqlTypeIndexes = new HashMap<>();
 
 	public void addArgumentJavaComplexType(JavaComplexType argumentJavaComplexType) {
         argumentJavaComplexTypes.add(argumentJavaComplexType);
@@ -49,19 +50,27 @@ public class Wrapper {
     @Getter
     @Setter
     public static class MethodAttribute {
-		private String typeName;           // Java type name
-		private String correspondingSqlTypeName;  // Corresponding SQL type name
-        private String converterMethodName;  // Method used for type conversion
-        private boolean isArray = false;
-		private boolean isComplexType;
+		private String javaTypeName;         // Java type name
+		private String sqlTypeName;          // Java type name
+		private boolean complexType;
         private short arrayDepth = 0;
-		private short attributePosition;
+
+		public boolean isArray() {
+			return arrayDepth > 0;
+		}
+
+		public String getSqlDeclarationSuffix() {
+			SqlType sqlType = TypeMappings.getSqlType(javaTypeName);
+			return sqlType == null ? "" : sqlType.getDeclarationSuffix();
+		}
 	}
 
-	public void addEntryToComplexTypeConversion(WrapperBuilder.ComplexTypeKey key, Integer sequenceNumber)
-	{
-		complexTypeConversion.put(key, sequenceNumber);
+	public int getSqlTypeIndex(String className, short arrayDepth){
+		ComplexTypeKey key = new ComplexTypeKey(className, arrayDepth);
+		int size = sqlTypeIndexes.size();
+		return sqlTypeIndexes.computeIfAbsent(key, k -> size + 1);
 	}
+
 
 	public String getJavaSignature(boolean includeArgumentNames){
 
@@ -69,7 +78,7 @@ public class Wrapper {
 		return this.getMethodArguments()
 				.stream()
 				.map(e -> (
-						e.isArray() ? "java.sql.Array" : e.isComplexType() ? "java.sql.Struct" : e.getTypeName())
+						e.isArray() ? "java.sql.Array" : e.isComplexType() ? "java.sql.Struct" : e.getJavaTypeName())
 						+ (includeArgumentNames ? " arg" + idx.getAndIncrement(): "")
 				)
 				.collect(Collectors.joining(", "));

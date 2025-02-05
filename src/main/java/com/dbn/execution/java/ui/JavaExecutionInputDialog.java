@@ -19,6 +19,7 @@ package com.dbn.execution.java.ui;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.debugger.DBDebuggerType;
+import com.dbn.diagnostics.Diagnostics;
 import com.dbn.execution.java.JavaExecutionInput;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,7 +46,7 @@ public class JavaExecutionInputDialog extends DBNDialog<JavaExecutionInputForm> 
     @NotNull
     @Override
     protected JavaExecutionInputForm createForm() {
-        return new JavaExecutionInputForm(this, executionInput, true, debuggerType);
+        return new JavaExecutionInputForm(this, executionInput, debuggerType, true);
     }
 
     @Override
@@ -60,7 +61,8 @@ public class JavaExecutionInputDialog extends DBNDialog<JavaExecutionInputForm> 
 
     @Override
     protected String getDimensionServiceKey() {
-        return null;
+        // remember dialog dimension based on number of fields
+        return Diagnostics.isDialogSizingReset() ? null : super.getDimensionServiceKey() + getForm().countFields();
     }
 
     private class ExecuteAction extends AbstractAction {

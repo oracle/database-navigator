@@ -49,6 +49,8 @@ package com.dbn.editor.data.ui.table.cell;
  import java.awt.event.MouseEvent;
  import java.util.Objects;
 
+ import static com.dbn.common.ui.table.Tables.isFirstCellSelected;
+ import static com.dbn.common.ui.table.Tables.isLastCellSelected;
  import static com.dbn.nls.NlsResources.txt;
 
  public class DatasetTableCellEditor extends AbstractDatasetTableCellEditor implements KeyListener{
@@ -185,29 +187,42 @@ package com.dbn.editor.data.ui.table.cell;
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (!e.isConsumed()) {
-            JTextField textField = getTextField();
+        if (e.isConsumed()) return;
 
-            int caretPosition = textField.getCaretPosition();
-            if (e.getKeyCode() == 37 ) { // LEFT
-                if (isSelected()) {
-                    textField.setCaretPosition(0);
-                } else  if (caretPosition == 0) {
-                    e.consume();
-                    DatasetEditorModelCell cell = getCell();
-                    if (cell != null) cell.editPrevious();
-                }
-            }
-            else if (e.getKeyCode() == 39 ) { // RIGHT
-                if (!isSelected() && caretPosition == textField.getDocument().getLength()) {
-                    e.consume();
-                    DatasetEditorModelCell cell = getCell();
-                    if (cell != null) cell.editNext();
-                }
-            }
-            else if (e.getKeyCode() == 27 ) { // ESC
+        JTextField textField = getTextField();
+        int caretPosition = textField.getCaretPosition();
+
+        int keyCode = e.getKeyCode();
+        if (keyCode == 37 ) { // LEFT
+            if (isSelected()) {
+                textField.setCaretPosition(0);
+            } else  if (caretPosition == 0) {
                 e.consume();
-                getTable().cancelEditing();
+                DatasetEditorModelCell cell = getCell();
+                if (cell != null) cell.editPrevious();
+            }
+        } else if (keyCode == 39 ) { // RIGHT
+            if (!isSelected() && caretPosition == textField.getDocument().getLength()) {
+                e.consume();
+                DatasetEditorModelCell cell = getCell();
+                if (cell != null) cell.editNext();
+            }
+        } else if (keyCode == 27 ) { // ESC
+            e.consume();
+            getTable().cancelEditing();
+
+        } else if (keyCode == KeyEvent.VK_TAB) {
+            DatasetEditorTable table = getTable();
+            if (e.isShiftDown()) {
+                if (isFirstCellSelected(table)) {
+                    table.removeEditor();
+                    e.consume();
+                }
+            } else {
+                if (isLastCellSelected(table)) {
+                    table.removeEditor();
+                    e.consume();
+                }
             }
         }
     }

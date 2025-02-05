@@ -29,7 +29,7 @@ import com.dbn.data.editor.text.TextContentType;
 import com.dbn.data.value.LargeObjectValue;
 import com.dbn.editor.data.options.DataEditorQualifiedEditorSettings;
 import com.dbn.editor.data.options.DataEditorSettings;
-import com.dbn.execution.java.ArgumentValue;
+import com.dbn.execution.common.input.ExecutionValue;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -51,6 +51,7 @@ import java.sql.SQLException;
 
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
 public class JavaExecutionLargeValueResultForm extends DBNFormBase {
     private JPanel actionsPanel;
@@ -61,13 +62,13 @@ public class JavaExecutionLargeValueResultForm extends DBNFormBase {
     private EditorEx editor;
     private TextContentType contentType;
 
-    JavaExecutionLargeValueResultForm(JavaExecutionResultForm parent, DBJavaParameter argument, ArgumentValue argumentValue) {
+    JavaExecutionLargeValueResultForm(JavaExecutionResultForm parent, DBJavaParameter argument, ExecutionValue fieldValue) {
         super(parent);
         this.argument = DBObjectRef.of(argument);
 
         String text = "";
         Project project = getProject();
-        Object value = argumentValue.getValue();
+        Object value = fieldValue.getValue();
         if (value instanceof LargeObjectValue) {
             LargeObjectValue largeObjectValue = (LargeObjectValue) value;
             try {
@@ -83,8 +84,7 @@ public class JavaExecutionLargeValueResultForm extends DBNFormBase {
         text = Strings.removeCharacter(nvl(text, ""), '\r');
         Document document = Documents.createDocument(text);
 
-        String contentTypeName = argument.getParameterType();
-        contentType = TextContentType.get(project, contentTypeName);
+        contentType = TextContentType.get(project, getCanonicalName(argument.getJavaClassName()));
 
         if (contentType == null) contentType = TextContentType.getPlainText(project);
 
@@ -92,8 +92,6 @@ public class JavaExecutionLargeValueResultForm extends DBNFormBase {
         editor.getContentComponent().setFocusTraversalKeysEnabled(false);
 
         largeValuePanel.add(editor.getComponent(), BorderLayout.CENTER);
-
-
         largeValuePanel.setBorder(IdeBorderFactory.createBorder());
 
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, new ContentTypeComboBoxAction());

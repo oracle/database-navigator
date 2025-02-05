@@ -59,6 +59,7 @@ import javax.swing.JPanel;
 import javax.swing.table.TableColumn;
 import javax.swing.text.JTextComponent;
 import java.awt.BorderLayout;
+import java.awt.DefaultFocusTraversalPolicy;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -127,6 +128,12 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
             autoCommitLabel.init(getProject(), datasetEditor.getFile(), connection, SessionId.MAIN);
         }
 
+        UserInterface.whenShown(mainPanel, () -> datasetEditorTable.requestFocus(), false);
+
+        mainPanel.setFocusCycleRoot(true);
+        mainPanel.setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
+        mainPanel.setFocusTraversalPolicyProvider(true);
+
         Disposer.register(datasetEditor, this);
     }
 
@@ -161,17 +168,20 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
         return oldEditorTable;
     }
 
-    public void afterRebuild(final DatasetEditorTable oldEditorTable) {
-        if (oldEditorTable != null) {
-            Dispatch.run(() -> {
-                DatasetEditorTable datasetEditorTable = getEditorTable();
-                datasetTableScrollPane.setViewportView(datasetEditorTable);
-                datasetEditorTable.initTableGutter();
-                datasetEditorTable.updateBackground(false);
+    public void afterRebuild(DatasetEditorTable oldEditorTable) {
+        if (isDisposed()) return;
 
-                Disposer.dispose(oldEditorTable);
-            });
-        }
+        // update viewport and co. only if table was rebuilt (a.i. the old table is not null)
+        if (oldEditorTable == null) return;
+        Dispatch.run(() -> {
+            DatasetEditorTable datasetEditorTable = getEditorTable();
+            datasetTableScrollPane.setViewportView(datasetEditorTable);
+            datasetEditorTable.initTableGutter();
+            datasetEditorTable.updateBackground(false);
+
+            Disposer.dispose(oldEditorTable);
+        });
+
     }
 
     @NotNull

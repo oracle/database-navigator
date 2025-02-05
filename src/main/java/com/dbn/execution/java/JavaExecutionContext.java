@@ -20,14 +20,23 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.execution.ExecutionContext;
 import com.dbn.execution.ExecutionOptions;
+import com.dbn.execution.java.wrapper.Wrapper;
+import com.dbn.execution.java.wrapper.WrapperBuilder;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.lookup.DBObjectRef;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@Getter
 public class JavaExecutionContext extends ExecutionContext<JavaExecutionInput> {
+    private Wrapper wrapper;
     public JavaExecutionContext(JavaExecutionInput input) {
         super(input);
+    }
+
+    public void initWrapper(DBJavaMethod method) throws Exception {
+        wrapper = WrapperBuilder.getInstance().build(method);
     }
 
     @NotNull

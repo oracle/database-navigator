@@ -33,6 +33,8 @@ import javax.swing.KeyStroke;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 @UtilityClass
@@ -105,5 +107,18 @@ public class Keyboard {
                 }
             }
         });
+    }
+
+    /**
+     * Add the given key listener as first in the sequence for the component
+     *
+     * @param component the JComponent to which the key listener is added
+     * @param listener the KeyListener to be added to the component
+     */
+    public static void insertKeyListener(JComponent component, KeyListener listener) {
+        KeyListener[] keyListeners = component.getKeyListeners();
+        Arrays.stream(keyListeners).forEach(l -> component.removeKeyListener(l));
+        component.addKeyListener(listener);
+        Arrays.stream(keyListeners).forEach(l -> component.addKeyListener(l));
     }
 }

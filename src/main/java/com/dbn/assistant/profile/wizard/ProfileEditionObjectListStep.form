@@ -90,16 +90,16 @@
                     <constraints>
                       <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <focusable value="false"/>
+                      <requestFocusEnabled value="false"/>
+                    </properties>
                     <border type="none"/>
                     <children>
                       <component id="a23b6" class="javax.swing.JTable" binding="databaseObjectsTable">
                         <constraints/>
                         <properties>
-                          <autoResizeMode value="4"/>
                           <dragEnabled value="true"/>
-                          <fillsViewportHeight value="true"/>
-                          <rowHeight value="18"/>
                         </properties>
                       </component>
                     </children>
@@ -127,7 +127,10 @@
                     <constraints>
                       <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <focusable value="false"/>
+                      <requestFocusEnabled value="false"/>
+                    </properties>
                     <border type="none"/>
                     <children>
                       <component id="8fb46" class="javax.swing.JTable" binding="profileObjectListTable">
@@ -135,8 +138,6 @@
                         <properties>
                           <dragEnabled value="true"/>
                           <dropMode value="INSERT_ROWS"/>
-                          <fillsViewportHeight value="true"/>
-                          <rowHeight value="18"/>
                         </properties>
                       </component>
                     </children>

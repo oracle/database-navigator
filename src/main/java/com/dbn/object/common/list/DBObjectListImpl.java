@@ -41,6 +41,7 @@ import com.dbn.common.ui.tree.TreeEventType;
 import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseEntity;
+import com.dbn.connection.SchemaId;
 import com.dbn.connection.config.ConnectionFilterSettings;
 import com.dbn.database.common.metadata.DBObjectMetadata;
 import com.dbn.navigation.psi.DBObjectListPsiDirectory;
@@ -346,6 +347,27 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
     }
 
     @Override
+    public @Nullable SchemaId getSchemaId() {
+        BrowserTreeNode parent = getParent();
+        if (parent instanceof DBObject) {
+            DBObject object = (DBObject) parent;
+            return object.getSchemaId();
+        }
+
+        return null;
+    }
+
+    @Override
+    public @Nullable DBSchema getSchema() {
+        BrowserTreeNode parent = getParent();
+        if (parent instanceof DBObject) {
+            DBObject object = (DBObject) parent;
+            return object.getSchema();
+        }
+        return null;
+    }
+
+    @Override
     @NotNull
     public Project getProject() {
         DatabaseEntity parent = getParentEntity();
@@ -604,7 +626,7 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
             int rangeStart = 0;
             for (int i = 0; i < elements.size(); i++) {
                 T object = elements.get(i);
-                DBObjectRef parent = object.getParentObject().ref();
+                DBObjectRef parent = object.getParentObjectRef();
                 currentParent = nvl(currentParent, parent);
 
                 if (!Objects.equals(currentParent, parent)) {
