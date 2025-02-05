@@ -262,7 +262,9 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         int index = connectionsList.getModel().getSize();
         model.add(index, connectionSettings);
         connectionsList.setSelectedIndex(index);
-        return connectionSettings.getConnectionId();
+        ConnectionId connectionId =  connectionSettings.getConnectionId();
+        ociConnectionData.setConnectionId(connectionId.id());
+        return connectionId;
     }
 
     private String  getUrl(ConnectionData connectionData){
@@ -420,6 +422,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             String name;
             if (ociConnectionData != null) {
                 name = ociConnectionData.getConnectionName();
+                ociConnectionData.setConnectionId(databaseSettings.getId());
                 databaseSettings.getAuthenticationInfo().setTokenConfigFile(ociConnectionData.getConfigFile());
                 databaseSettings.getAuthenticationInfo().setTokenProfile(ociConnectionData.getConfigProfile());
             }else {

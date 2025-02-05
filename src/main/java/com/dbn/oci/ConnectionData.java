@@ -19,6 +19,7 @@ public class ConnectionData {
   private  String configProfile;
   private String parentCompartment;
   private String connectionName;
+  private String connectionId;
   OCIDatabase database;
   static ConnectionData toConnectionSettings(UIModelContext modelContext) {
     OCIDatabase database = (OCIDatabase) modelContext.getContextObject();
