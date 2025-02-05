@@ -18,11 +18,12 @@ package com.dbn.driver.packages;
 
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.checksum.ChecksumType;
-import com.dbn.common.util.Files;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.platform.templates.github.DownloadUtil;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.UUID;
@@ -30,27 +31,30 @@ import java.util.UUID;
 public class MavenArtifactDownloader {
 
     private static final String MAVEN_REPO_URL = "https://repo.maven.apache.org/maven2";
+    private static final String DRIVER_PACKAGES_PATH = "/Users/ayoub/IdeaProjects/dbn-internal/build/idea-sandbox/plugins/dbn-plugin/driver-packages";
 
-    public static boolean downloadArtifact(String packageId, Library library, String pathLabel) {
+
+    public static String downloadArtifact(String packageId, Library library, String pathLabel) {
         String groupId = library.getGroupId();
         String artifactId = library.getArtifactId();
         String version = library.getVersion();
         String artifactPath = groupId.replace(".", "/") + "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + ".jar";
         String artifactUrl = MAVEN_REPO_URL + "/" + artifactPath;
         String checksumUrl = artifactUrl + ".sha1";
-
+        System.out.println(library);
+        System.out.println(checksumUrl);
         try {
             DriverDownloadManager.getInstance().updateJarDownloadStatus(packageId, artifactId + "-" + version, DownloadStatus.PENDING);
-            return downloadAndVerify(packageId, artifactUrl, checksumUrl, artifactId, version, pathLabel);
+            return downloadAndVerify(packageId, artifactUrl, checksumUrl, artifactId, version, groupId, pathLabel);
         } catch (IOException e) {
             System.err.println("Download failed for " + artifactId + "-" + version + ": " + e.getMessage());
-            return false;
+            return e.getMessage();
         }
     }
 
-    private static boolean downloadAndVerify(String packageId, String artifactUrl, String checksumUrl, String artifactId, String version, String pathLabel) throws IOException {
+    private static String downloadAndVerify(String packageId, String artifactUrl, String checksumUrl, String artifactId, String version, String groupId, String pathLabel) throws IOException {
         File pluginDir = createPluginDirectory(pathLabel);
-        if (pluginDir == null) return false;
+        if (pluginDir == null) return "Couldn't create or access download directory";
 
         File outputFile = new File(pluginDir, artifactId + "-" + version + ".jar");
 
@@ -59,7 +63,7 @@ public class MavenArtifactDownloader {
             System.out.println("Artifact downloaded to: " + outputFile.getAbsolutePath());
 
             String expectedChecksum = getLibraryChecksum(checksumUrl);
-            return verifyChecksum(expectedChecksum, outputFile, packageId, artifactId, version);
+            return verifyChecksum(expectedChecksum, outputFile, packageId, artifactId, version, groupId);
         } catch (IOException e) {
             deleteFile(outputFile);
             throw e;
@@ -93,16 +97,35 @@ public class MavenArtifactDownloader {
         }
     }
 
-    private static boolean verifyChecksum(String expectedChecksum, File outputFile, String packageId, String artifactId, String version) throws IOException {
+    private static String verifyChecksum(String expectedChecksum, File outputFile, String packageId, String artifactId, String version, String groupId) throws IOException {
         String actualChecksum = Checksum.fromFileContent(outputFile, ChecksumType.SHA_1);
+
         if (expectedChecksum.equalsIgnoreCase(actualChecksum)) {
+            // Update download status
             DriverDownloadManager.getInstance().updateJarDownloadStatus(packageId, artifactId + "-" + version, DownloadStatus.DONE);
-            return true;
+
+            // Append checksum to file
+            appendChecksumToFile(packageId, groupId, artifactId, version, actualChecksum);
+            return "";
         } else {
             System.err.println("Checksum verification failed! Expected: " + expectedChecksum + ", Actual: " + actualChecksum);
             DriverDownloadManager.getInstance().updateJarDownloadStatus(packageId, artifactId + "-" + version, DownloadStatus.FAILED);
             deleteFile(outputFile);
-            return false;
+            return "Checksum verification failed for " + artifactId + "-" + version;
+        }
+    }
+
+    private static void appendChecksumToFile(String packageId, String groupId, String artifactId, String version, String checksum) {
+        File checksumFile = new File(DRIVER_PACKAGES_PATH, packageId + ".txt");
+        String entry = artifactId + "-" + version + " " + checksum;
+
+        synchronized (MavenArtifactDownloader.class) { // Ensure thread safety
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(checksumFile, true))) {
+                writer.write(entry);
+                writer.newLine();
+            } catch (IOException e) {
+                System.err.println("Failed to write checksum to file: " + e.getMessage());
+            }
         }
     }
 

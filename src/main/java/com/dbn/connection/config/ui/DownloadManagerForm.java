@@ -23,6 +23,7 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.driver.packages.DriverPackage;
 import com.dbn.driver.packages.DriverPackageBundle;
 import com.dbn.driver.packages.ui.DriverPackageInfoDialog;
+import com.github.weisj.jsvg.D;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -33,9 +34,11 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.awt.Color;
 import java.util.List;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.util.Files.getPluginDeploymentRoot;
 
 public class DownloadManagerForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -44,19 +47,22 @@ public class DownloadManagerForm extends DBNFormBase {
     private JLabel libraryPathLabel;
     TextFieldWithBrowseButton libraryPathTextField;
     private HyperlinkLabel libraryInfoLink;
+    JLabel errorHintLabel;
     private final DatabaseType databaseType;
     private static final FileChooserDescriptor LIBRARY_FILE_DESCRIPTOR = new FileChooserDescriptor(false, true, false, false, false, false);
 
 
-    public DownloadManagerForm(@Nullable Disposable parent, DatabaseType databaseType) {
+    public DownloadManagerForm(@Nullable Disposable parent, DatabaseType databaseType, List<DriverPackage> driverPackages) {
         super(parent);
         this.databaseType = databaseType;
 
-        populateDriverLibraryComboBox();
+        populateDriverLibraryComboBox(driverPackages);
         libraryInfoLink.setHyperlinkText(txt("cfg.connection.link.LibraryInfo"));
         libraryInfoLink.addHyperlinkListener(e -> {
             handleInfoButtonClick();
         });
+        errorHintLabel.setForeground(Color.RED);
+        errorHintLabel.setVisible(false);
     }
 
     @Override
@@ -65,34 +71,38 @@ public class DownloadManagerForm extends DBNFormBase {
     }
 
 
-    private void populateDriverLibraryComboBox() {
+    private void populateDriverLibraryComboBox(List<DriverPackage> driverPackages) {
         libraryPackageComboBox.removeAllItems(); // Clear the ComboBox first
-        libraryPackageComboBox.setEnabled(false); // Disable until the operation completes
+//        libraryPackageComboBox.setEnabled(false); // Disable until the operation completes
 
-        Progress.modal(getProject(), null, true,
-                "Downloading Libraries Metadata",
-                "",
-                indicator -> {
-                    indicator.setIndeterminate(false);
-                    indicator.setFraction(0.01);
-                    try {
-                        // Blocking call to fetch driver packages
-                        List<DriverPackage> driverPackages = DriverPackageBundle.driverPackages(databaseType, indicator);
-
-                        libraryPackageComboBox.setEnabled(true); // Re-enable the ComboBox
-
-                        for (DriverPackage driverPackage : driverPackages) {
-                                libraryPackageComboBox.addItem(driverPackage);
-                        }
-                    } catch (Exception ex) {
-                        libraryPackageComboBox.setEnabled(true); // Re-enable the ComboBox
-                    }
-                });
+        for (DriverPackage driverPackage : driverPackages) {
+            libraryPackageComboBox.addItem(driverPackage);
+        }
+//        Progress.modal(getProject(), null, true,
+//                "Downloading Libraries Metadata",
+//                "",
+//                indicator -> {
+//                    indicator.setIndeterminate(false);
+//                    indicator.setFraction(0.01);
+//                    try {
+//                        // Blocking call to fetch driver packages
+//                        List<DriverPackage> driverPackages = DriverPackageBundle.driverPackages(databaseType, indicator);
+//
+//                        libraryPackageComboBox.setEnabled(true); // Re-enable the ComboBox
+//
+//                        for (DriverPackage driverPackage : driverPackages) {
+//                                libraryPackageComboBox.addItem(driverPackage);
+//                        }
+//                    } catch (Exception ex) {
+//                        libraryPackageComboBox.setEnabled(true); // Re-enable the ComboBox
+//                    }
+//                });
 
         libraryPathTextField.addBrowseFolderListener(
                 txt("cfg.connection.title.SelectDriverLibrary"),
                 txt("cfg.connection.text.LibraryDriverClasses"),
                 null, LIBRARY_FILE_DESCRIPTOR);
+        libraryPathTextField.setText(getPluginDeploymentRoot().getPath()+"/driver-packages");
     }
 
     private void handleInfoButtonClick() {

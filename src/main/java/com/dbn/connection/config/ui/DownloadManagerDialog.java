@@ -16,17 +16,21 @@
 
 package com.dbn.connection.config.ui;
 
+import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.DatabaseType;
-import com.dbn.connection.config.ConnectionFilterSettings;
 import com.dbn.driver.packages.DriverPackage;
+import com.dbn.driver.packages.DriverPackageBundle;
 import com.dbn.driver.packages.DriverPackageDownloader;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import io.ktor.http.ContentType;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
-import java.util.function.Consumer;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 
@@ -34,10 +38,12 @@ public class DownloadManagerDialog extends DBNDialog<DownloadManagerForm> {
     private final DatabaseType databaseType;
     DriverPackage selectedDriverPackage;
     DownloadManagerForm downloadManagerForm;
+    List<DriverPackage> driverPackages;
 
-    public DownloadManagerDialog(Project project, DatabaseType databaseType) {
+    public DownloadManagerDialog(Project project, DatabaseType databaseType, List<DriverPackage> driverPackages) {
         super(project, "Libraries Download Manager", true);
         this.databaseType = databaseType;
+        this.driverPackages = driverPackages;
         renameAction(getOKAction(), "Download");
         setModal(true);
         setResizable(true);
@@ -47,7 +53,7 @@ public class DownloadManagerDialog extends DBNDialog<DownloadManagerForm> {
     @NotNull
     @Override
     protected DownloadManagerForm createForm() {
-        downloadManagerForm = new DownloadManagerForm(this, databaseType);
+        downloadManagerForm = new DownloadManagerForm(this, databaseType, driverPackages);
         return downloadManagerForm;
     }
 
@@ -74,6 +80,12 @@ public class DownloadManagerDialog extends DBNDialog<DownloadManagerForm> {
     private void handleDownloadButtonClick() {
         selectedDriverPackage = getSelection(downloadManagerForm.libraryPackageComboBox);
         selectedDriverPackage.setPath(downloadManagerForm.libraryPathTextField.getText()+"/"+selectedDriverPackage.getId());
-        DriverPackageDownloader.downloadDriverPackage(getProject(), selectedDriverPackage, () -> this.close(0));
+        DriverPackageDownloader.downloadDriverPackage(getProject(), selectedDriverPackage, (String errorMessage) -> {
+            if(errorMessage.isBlank()) this.close(0);
+            else {
+                downloadManagerForm.errorHintLabel.setText(errorMessage);
+                downloadManagerForm.errorHintLabel.setVisible(true);
+            }
+        });
     }
 }

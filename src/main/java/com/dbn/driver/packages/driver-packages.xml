@@ -15,7 +15,7 @@
   -->
 <driver-packages>
 
-    <driver-package database-type="Oracle" id="oracle-23.3-standard" name="Oracle 23.3">
+    <driver-package database-type="Oracle" id="oracle-23.6-standard" name="Oracle Standard 23.6">
 
         <library artifact-id="connector-api" group-id="javax.resource" version="1.5">
             <license name="CDDL + GPLv2 with classpath exception" url="https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html"/>
@@ -25,12 +25,12 @@
             <license name="Dual license consisting of the CDDL v1.1 and GPL v2" url="https://oss.oracle.com/licenses/CDDL+GPL-1.1"/>
         </library>
 
-        <library artifact-id="ojdbc8" group-id="com.oracle.database.jdbc" version="23.3.0.23.09">
+        <library artifact-id="ojdbc8" group-id="com.oracle.database.jdbc" version="23.6.0.24.10">
             <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
             <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
         </library>
 
-        <library artifact-id="orai18n" group-id="com.oracle.database.nls" version="23.3.0.23.09">
+        <library artifact-id="orai18n" group-id="com.oracle.database.nls" version="23.6.0.24.10">
             <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
             <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
         </library>
@@ -39,12 +39,12 @@
             <license name="CDDL + GPLv2 with classpath exception" url="https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html"/>
         </library>
 
-        <library artifact-id="xdb" group-id="com.oracle.database.xml" version="23.3.0.23.09">
+        <library artifact-id="xdb" group-id="com.oracle.database.xml" version="23.6.0.24.10">
             <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
             <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
         </library>
 
-        <library artifact-id="xmlparserv2" group-id="com.oracle.database.xml" version="23.3.0.23.09">
+        <library artifact-id="xmlparserv2" group-id="com.oracle.database.xml" version="23.6.0.24.10">
             <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
             <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
         </library>
@@ -103,7 +103,7 @@
 
     </driver-package>
 
-    <driver-package database-type="Oracle" id="oracle-23.3-token" name="Oracle 23.3 with Token auth">
+    <driver-package database-type="Oracle" id="oracle-23.6-token" name="Oracle 23.6 + Token auth">
 
         <library artifact-id="connector-api" group-id="javax.resource" version="1.5">
             <license name="CDDL + GPLv2 with classpath exception" url="https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html"/>
@@ -203,17 +203,17 @@
             <license name="The Universal Permissive License (UPL), Version 1.0" url="https://www.oracle.com/downloads/licenses/upl-license.html"/>
         </library>
 
-        <library artifact-id="ojdbc8" group-id="com.oracle.database.jdbc" version="23.4.0.24.05">
+        <library artifact-id="ojdbc8" group-id="com.oracle.database.jdbc" version="23.6.0.24.10">
             <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
             <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
         </library>
 
-        <library artifact-id="orai18n" group-id="com.oracle.database.nls" version="23.4.0.24.05">
+        <library artifact-id="orai18n" group-id="com.oracle.database.nls" version="23.6.0.24.10">
             <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
             <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
         </library>
 
-        <library artifact-id="oraclepki" group-id="com.oracle.database.security" version="23.4.0.24.05">
+        <library artifact-id="oraclepki" group-id="com.oracle.database.security" version="23.6.0.24.10">
             <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
             <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
         </library>
@@ -246,12 +246,12 @@
             <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt"/>
         </library>
 
-        <library artifact-id="xdb" group-id="com.oracle.database.xml" version="23.3.0.23.09">
+        <library artifact-id="xdb" group-id="com.oracle.database.xml" version="23.6.0.24.10">
             <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
             <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
         </library>
 
-        <library artifact-id="xmlparserv2" group-id="com.oracle.database.xml" version="23.4.0.24.05">
+        <library artifact-id="xmlparserv2" group-id="com.oracle.database.xml" version="23.6.0.24.10">
             <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
             <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
         </library>
@@ -264,11 +264,11 @@
         <library artifact-id="servlet-api" group-id="javax.servlet" version="2.5"/>
     </driver-package>
 
-    <driver-package database-type="Oracle" id="ojdbc-provider-azure" name="Oracle with Azure auth %s">
+    <driver-package database-type="Oracle" id="ojdbc-provider-azure" name="Oracle %s + Azure auth %s">
         <library artifact-id="ojdbc-provider-azure" group-id="com.oracle.database.jdbc" toResolve="true" type="jar"/>
     </driver-package>
 
-    <driver-package database-type="Oracle" id="ojdbc-provider-oci" name="Oracle with OCI auth %s">
+    <driver-package database-type="Oracle" id="ojdbc-provider-oci" name="Oracle %s + OCI auth %s">
         <library artifact-id="ojdbc-provider-oci" group-id="com.oracle.database.jdbc" toResolve="true" type="jar"/>
     </driver-package>
 

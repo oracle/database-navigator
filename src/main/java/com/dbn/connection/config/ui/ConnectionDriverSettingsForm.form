@@ -81,17 +81,20 @@
           <text resource-bundle="messages/DBNResources" key="cfg.connection.placeholder.Check"/>
         </properties>
       </component>
-      <component id="32467" class="com.dbn.common.ui.misc.DBNComboBox" binding="downloadedLibrariesComboBox">
-        <constraints>
-          <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-      </component>
       <hspacer id="bc759">
         <constraints>
           <grid row="0" column="5" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
       </hspacer>
+      <component id="35b4" class="javax.swing.JButton" binding="downloadButton">
+        <constraints>
+          <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="..."/>
+          <toolTipText value="Download driver libraries"/>
+        </properties>
+      </component>
     </children>
   </grid>
 </form>

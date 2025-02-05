@@ -16,6 +16,8 @@
 
 package com.dbn.driver.packages;
 
+import com.dbn.common.checksum.Checksum;
+import com.dbn.common.checksum.ChecksumType;
 import com.dbn.common.util.XmlContents;
 import com.dbn.connection.DatabaseType;
 import com.dbn.driver.packages.parser.DependencyParser;
@@ -29,13 +31,18 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
@@ -82,18 +89,81 @@ public class DriverPackageBundle {
             INSTANCE = new DriverPackageBundle(indicator);
         }
     }
+    private static final String DRIVER_PACKAGES_PATH = "/Users/ayoub/IdeaProjects/dbn-internal/build/idea-sandbox/plugins/dbn-plugin/driver-packages";
 
     public static List<DriverPackage> driverPackages() {
         if (INSTANCE == null) {
             throw new IllegalStateException("DriverPackageBundle is not initialized. Call initialize() first.");
         }
+        if(!DriverDownloadManager.getInstance().getPackagesStatus().isEmpty()){
+            for (DriverPackage driverPackage : INSTANCE.driverPackages) {
+                String packageId = driverPackage.getId();
+                if(driverPackage.getPath()==null) continue;
+                File packageDir = new File(driverPackage.getPath());
+                File checksumFile = new File(DRIVER_PACKAGES_PATH, packageId + ".txt");
+
+                if (!checksumFile.exists()) {
+                    for(Library library :driverPackage.getLibraries()){
+                        String jarId = library.getArtifactId()+"-"+library.getVersion();
+                        DriverDownloadManager.getInstance().updateJarDownloadStatus(packageId, jarId, DownloadStatus.NEW);
+                    }
+                    continue;
+                }
+
+                try (BufferedReader reader = new BufferedReader(new FileReader(checksumFile))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        String[] parts = line.split(" ");
+                        if (parts.length != 2) continue;
+
+                        String artifactIdVersion = parts[0]; // Format: artifactId-version
+                        String expectedChecksum = parts[1];
+
+                        File jarFile = new File(packageDir, artifactIdVersion+".jar");
+
+                        if (!jarFile.exists() || !verifyChecksum(jarFile, expectedChecksum, packageId, artifactIdVersion)) {
+                            DriverDownloadManager.getInstance().updateJarDownloadStatus(packageId, parts[0], DownloadStatus.NEW);
+                            break;
+                        }
+                    }
+                } catch (IOException e) {
+                    System.err.println("Error reading checksum file for package: " + packageId);
+                }
+            }
+
+        }
+
         return INSTANCE.driverPackages;
     }
+    private static boolean verifyChecksum(File outputFile, String expectedChecksum, String packageId, String artifactIdAndVersion) {
+            // Compute actual SHA-1 checksum
+            String actualChecksum = Checksum.fromFileContent(outputFile, ChecksumType.SHA_1);
+
+            if (expectedChecksum.equalsIgnoreCase(actualChecksum)) {
+                // Update status to DONE if checksum matches
+                DriverDownloadManager.getInstance().updateJarDownloadStatus(packageId, artifactIdAndVersion, DownloadStatus.DONE);
+                return true;
+            } else {
+                System.err.println("Checksum verification failed for " + artifactIdAndVersion +
+                        "! Expected: " + expectedChecksum + ", Actual: " + actualChecksum);
+                DriverDownloadManager.getInstance().updateJarDownloadStatus(packageId, artifactIdAndVersion, DownloadStatus.FAILED);
+                return false;
+            }
+    }
+
 
     public static List<DriverPackage> driverPackages(DatabaseType databaseType, ProgressIndicator indicator) {
         initialize(indicator);
         return driverPackages().stream().filter(dp -> dp.getDatabaseType() == databaseType || dp.getDatabaseType() == DatabaseType.GENERIC).collect(Collectors.toList());
     }
+
+    public static List<DriverPackage> getDownloadedDriverPackage() {
+        if (INSTANCE == null) return new ArrayList<>();
+        return driverPackages().stream()
+                .filter(driverPackage -> DriverDownloadManager.getInstance().isPackageDownloaded(driverPackage.getId()))
+                .collect(Collectors.toList());
+    }
+
     private static DriverPackage createDriverPackage(Element element, ProgressIndicator indicator, float chunk) {
         String id = stringAttribute(element, "id");
         String name = stringAttribute(element, "name");
@@ -105,10 +175,36 @@ public class DriverPackageBundle {
                 .collect(Collectors.toList());
         indicator.setText("Downloaded Metadata for " + id);
         indicator.setFraction(indicator.getFraction() + chunk);
-        if(name.contains("%s")) name = String.format(name, libraries.get(0).getVersion());
+        // Pattern to find %s occurrences
+        int placeholderCount = countPlaceholders(name);
+
+        if (placeholderCount == 1) {
+            name = String.format(name, libraries.get(0).getVersion());
+        } else if (placeholderCount == 2) {
+            // Get the first matching "ojdbc[8|11|17]" library
+            Library ojdbcLibrary = libraries.stream()
+                    .filter(lib -> lib.getArtifactId().matches("ojdbc(8|11|17)"))
+                    .findFirst()
+                    .orElse(null);
+
+            // Use the first available library for the second %s
+            Library firstLibrary = libraries.get(0);
+
+            if (ojdbcLibrary != null) {
+                name = String.format(name, ojdbcLibrary.getVersion(), firstLibrary.getVersion());
+            }
+        }
         return new DriverPackage(id, name, DatabaseType.resolve(databaseType), libraries);
     }
 
+    private static int countPlaceholders(String str) {
+        Matcher matcher = Pattern.compile("%s").matcher(str);
+        int count = 0;
+        while (matcher.find()) {
+            count++;
+        }
+        return count;
+    }
     private static List<Library> createLibrary(Element element) {
         String groupId = stringAttribute(element, "group-id");
         String artifactId = stringAttribute(element, "artifact-id");

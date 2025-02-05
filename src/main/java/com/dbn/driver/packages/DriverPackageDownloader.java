@@ -26,12 +26,12 @@ import com.intellij.openapi.project.Project;
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 public class DriverPackageDownloader {
-    private static Runnable updateUI;
+    private static Consumer<String> updateUI;
 
-    public static void downloadDriverPackage(Project project, DriverPackage driverPackage, Runnable updateUI) {
+    public static void downloadDriverPackage(Project project, DriverPackage driverPackage, Consumer<String> updateUI) {
         DriverPackageDownloader.updateUI = updateUI;
         Progress.modal(project, null, true,
                 "Downloading Driver Package: " + driverPackage.getName(),
@@ -43,17 +43,18 @@ public class DriverPackageDownloader {
         String packageId = driverPackage.getId();
         List<Library> libraryList = driverPackage.getLibraries();
         CountDownLatch latch = new CountDownLatch(libraryList.size());
-        AtomicBoolean downloadFailed = new AtomicBoolean(false);
+        StringBuilder errorMessage = new StringBuilder();
 
         setupIndicator(indicator);
 
+        errorMessage.setLength(0);
         for (Library library : libraryList) {
-            downloadLibraryAsync(indicator, packageId, path, library, downloadFailed, latch, driverPackage.size());
+            downloadLibraryAsync(indicator, packageId, path, library, errorMessage, latch, driverPackage.size());
         }
 
         awaitLatchCompletion(latch, packageId);
 
-        handleCompletion(packageId, libraryList, downloadFailed.get());
+        handleCompletion(packageId, libraryList, errorMessage.toString());
     }
 
     private static void setupIndicator(ProgressIndicator indicator) {
@@ -62,18 +63,17 @@ public class DriverPackageDownloader {
     }
 
     private static void downloadLibraryAsync(ProgressIndicator indicator, String packageId, String path,
-                                             Library library, AtomicBoolean downloadFailed, CountDownLatch latch, int fileCount) {
+                                             Library library, StringBuilder errorMessage, CountDownLatch latch, int fileCount) {
         Background.run(() -> {
-            if (downloadFailed.get()) {
+            if (!errorMessage.toString().isBlank()) {
                 latch.countDown();
                 return;
             }
-
             String currentFile = library.getArtifactId() + "-" + library.getVersion() + ".jar";
             if (isAlreadyDownloaded(packageId, library)) {
                 System.out.println("Jar " + currentFile + " already downloaded.");
             } else {
-                attemptDownload(packageId, library, path, currentFile, downloadFailed);
+                attemptDownload(packageId, library, path, errorMessage);
             }
 
             updateProgress(indicator, currentFile, latch, fileCount);
@@ -86,12 +86,23 @@ public class DriverPackageDownloader {
         return status.getDownloadStatus().equals(DownloadStatus.DONE);
     }
 
-    private static void attemptDownload(String packageId, Library library, String path, String currentFile, AtomicBoolean downloadFailed) {
-        boolean success = MavenArtifactDownloader.downloadArtifact(packageId, library, path);
-        if (!success) {
-            downloadFailed.set(true);
-            System.err.println("Error downloading " + currentFile);
+    private static void attemptDownload(String packageId, Library library, String path, StringBuilder errorMessage) {
+        String s = MavenArtifactDownloader.downloadArtifact(packageId, library, path);
+        String formattedHtml = s.isBlank()?"":toHtmlFormat(s, 50);
+        if (errorMessage.length() == 0) errorMessage.append(formattedHtml);
+    }
+
+    private static String toHtmlFormat(String text, int maxLineLength) {
+        StringBuilder html = new StringBuilder("<html>");
+        int length = text.length();
+
+        for (int i = 0; i < length; i += maxLineLength) {
+            int end = Math.min(i + maxLineLength, length);
+            html.append(text, i, end).append("<br>");
         }
+
+        html.append("</html>");
+        return html.toString();
     }
 
     private static void updateProgress(ProgressIndicator indicator, String currentFile, CountDownLatch latch, int fileCount) {
@@ -108,15 +119,18 @@ public class DriverPackageDownloader {
             Thread.currentThread().interrupt();
         }
     }
-    private static void handleCompletion(String packageId, List<Library> libraries, boolean downloadFailed) {
-        if (downloadFailed) {
+    private static void handleCompletion(String packageId, List<Library> libraries, String errorMessage) {
+        if (!errorMessage.isBlank()) {
             System.out.println("One or more downloads failed. Cleaning up...");
             cleanupDownloadedJars(packageId, libraries);
             DriverDownloadManager.getInstance().cleanupPackage(packageId);
+            ApplicationManager.getApplication().invokeLater(()->{
+                updateUI.accept(errorMessage);
+            });
         } else if (DriverDownloadManager.getInstance().isPackageDownloaded(packageId)) {
             System.out.println("All JARs for package " + packageId + " were successfully downloaded and verified.");
             ApplicationManager.getApplication().invokeLater(()->{
-                updateUI.run();
+                updateUI.accept("");
             });
         }
     }
