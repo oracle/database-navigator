@@ -39,6 +39,8 @@ import javax.swing.JTextPane;
 import java.awt.Color;
 import java.awt.Dimension;
 
+import static com.dbn.common.text.HtmlContents.initFonts;
+
 public class DBNHintForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel contentPanel;
@@ -49,6 +51,7 @@ public class DBNHintForm extends DBNFormBase {
 
     private final boolean boxed;
     private boolean highlighted;
+    private TextContent content;
 
     public DBNHintForm(DBNForm parent, @Nullable TextContent hintContent, MessageType messageType, boolean boxed) {
         this(parent, hintContent, messageType, boxed, null, null);
@@ -81,6 +84,12 @@ public class DBNHintForm extends DBNFormBase {
 
         // workaround to force the text pane to resize to fit the content (alternative suggestions welcome)
         hintTextPane.setPreferredSize(new Dimension(-1, 500));
+        hintTextPane.addPropertyChangeListener(e -> {
+            if ("font".equals(e.getPropertyName())) {
+                // appearance: accessibility zoom changes
+                updateHintContent();
+            }
+        });
     }
 
     private void updateComponentColors() {
@@ -142,15 +151,38 @@ public class DBNHintForm extends DBNFormBase {
     }
 
     public void setHintContent(@Nullable TextContent content) {
+        this.content = content;
+        updateHintContent();
+    }
+
+    private void updateHintContent() {
         if (content == null) {
-            hintTextPane.setContentType(MimeType.TEXT_PLAIN.id());
-            hintTextPane.setText("");
+            initEmptyContent();
+        } else if (content.isHtml()) {
+            initHtmlContent();
         } else {
-            hintTextPane.setContentType(content.getTypeId());
-            hintTextPane.setText(content.getText());
+            initPlainContent();
         }
 
         resizeTextPane();
+    }
+
+    private void initPlainContent() {
+        hintTextPane.setContentType(content.getTypeId());
+        hintTextPane.setText(content.getText());
+    }
+
+    private void initHtmlContent() {
+        String htmlContent = content.getText();
+        htmlContent = initFonts(htmlContent); // TODO use velocity template engine
+
+        hintTextPane.setContentType(content.getTypeId());
+        hintTextPane.setText(htmlContent);
+    }
+
+    private void initEmptyContent() {
+        hintTextPane.setContentType(MimeType.TEXT_PLAIN.id());
+        hintTextPane.setText("");
     }
 
     public void setMessageType(MessageType messageType) {

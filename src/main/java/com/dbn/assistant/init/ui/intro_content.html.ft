@@ -16,8 +16,8 @@
 
 <html lang="en">
 <head><title>DB Assistant</title></head>
-<body style="font-family:Segoe UI,SansSerif,serif; font-size: 9px">
-<div style="font-family:Segoe UI,SansSerif,serif; font-size: 12px">
+<body style="${REGULAR_FONT_STYLE}">
+<div style="${REGULAR_LARGE_FONT_STYLE}">
     <b>Oracle Autonomous Database Select AI</b><br>
 </div>
 Use natural language to analyze your data and get quick insights about your business

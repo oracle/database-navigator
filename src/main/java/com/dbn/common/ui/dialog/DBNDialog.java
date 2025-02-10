@@ -21,6 +21,8 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNForm;
+import com.dbn.common.ui.form.DBNFormValidator;
+import com.dbn.common.ui.form.DBNFormValidatorImpl;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Titles;
@@ -58,6 +60,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
 
     private @Getter boolean rememberSelection;
     private @Getter Dimension defaultSize;
+    private @Getter final DBNFormValidator formValidator = new DBNFormValidatorImpl(this);
 
     protected DBNDialog(@Nullable Project project, String title, boolean canBeParent) {
         super(project, canBeParent);

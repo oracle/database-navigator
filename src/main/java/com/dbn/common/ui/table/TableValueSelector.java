@@ -85,11 +85,17 @@ class TableValueSelector<T extends Presentable> {
 
         Object value = table.getValueAt(row, column);
 
-        popupBuilder(values, table, t -> table.setValueAt(t, row, column))
+        popupBuilder(values, table, t -> selectValue(t, table, row, column))
                 .withTitle(title)
                 .withTitleVisible(false)
                 .withSpeedSearch(values.size() > 10)
                 //.withPreselectCondition(e -> )
                 .buildAndShow();
+    }
+
+    private static <T extends Presentable> void selectValue(T t, JTable table, int row, int column) {
+        table.setValueAt(t, row, column);
+        // todo check how to override the table focus event
+        // announceEvent(table, table.getColumnName(column) +  " value at row " + (row + 1) + " changed to " + t.getAccessibleName());
     }
 }

@@ -135,18 +135,18 @@ public class DatasetFilterForm extends ConfigurationEditorForm<DatasetFilterGrou
             CardLayouts.showBlankCard(filterDetailsPanel);
         } else {
             String id = filter.getId();
-            ConfigurationEditorForm configurationEditorForm = filterDetailPanels.get(id);
-            if (configurationEditorForm == null) {
+            ConfigurationEditorForm filterForm = filterDetailPanels.get(id);
+            if (filterForm == null) {
                 JComponent component = filter.createComponent();
                 CardLayouts.addCard(filterDetailsPanel, component, id);
 
-                configurationEditorForm = filter.ensureSettingsEditor();
-                filterDetailPanels.put(id, configurationEditorForm);
+                filterForm = filter.ensureSettingsEditor();
+                filterDetailPanels.put(id, filterForm);
 
-                Disposer.register(this, configurationEditorForm);
+                Disposer.register(this, filterForm);
             }
             CardLayouts.showCard(filterDetailsPanel, id);
-            configurationEditorForm.focus();
+            filterForm.focusPreferredComponent();
         }
     }
 }

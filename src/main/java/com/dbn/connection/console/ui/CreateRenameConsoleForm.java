@@ -73,8 +73,8 @@ public class CreateRenameConsoleForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        formValidator.addTextValidation(consoleNameTextField, n-> isNotEmpty(n), "Console name must be specified");
-        formValidator.addTextValidation(consoleNameTextField, n-> isNotUsed(n), "Console name already in use");
+        addTextValidation(consoleNameTextField, n-> isNotEmpty(n), "Console name must be specified");
+        addTextValidation(consoleNameTextField, n-> isNotUsed(n), "Console name already in use");
     }
 
     private boolean isNotUsed(String name) {

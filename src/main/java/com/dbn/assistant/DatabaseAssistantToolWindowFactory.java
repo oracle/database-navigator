@@ -22,9 +22,7 @@ import com.dbn.common.ui.window.DBNToolWindowFactory;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.connection.ConsoleChangeListener;
 import com.dbn.connection.mapping.FileConnectionContextListener;
-import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
@@ -39,6 +37,7 @@ import javax.swing.JPanel;
 
 import static com.dbn.assistant.DatabaseAssistantManager.TOOL_WINDOW_ID;
 import static com.dbn.common.icon.Icons.WINDOW_DATABASE_ASSISTANT;
+import static com.dbn.common.util.ContextLookup.getConnectionId;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -62,9 +61,6 @@ public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
     toolWindow.setAutoHide(false);
 
     DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
-    ProjectEvents.subscribe(project, manager,
-            ConsoleChangeListener.TOPIC,
-            connectionId -> manager.switchToConnection(connectionId));
 
     ProjectEvents.subscribe(project, manager,
             FileConnectionContextListener.TOPIC,
@@ -107,10 +103,7 @@ public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
         if (!toolWindow.isVisible()) return;
 
         VirtualFile file = Editors.getSelectedFile(project);
-        if (file == null) return;
-
-        FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
-        ConnectionId connectionId = contextManager.getConnectionId(file);
+        ConnectionId connectionId = getConnectionId(project, file);
         if (connectionId == null) return; // do not switch away from last selected connection
 
         DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);

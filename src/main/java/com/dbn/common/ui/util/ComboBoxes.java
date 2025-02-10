@@ -18,6 +18,7 @@ package com.dbn.common.ui.util;
 
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.list.ColoredListCellRenderer;
+import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.misc.DBNComboBoxModel;
 import org.jetbrains.annotations.NotNull;
 
@@ -111,6 +112,12 @@ public class ComboBoxes {
         }
 
         return list;
+    }
+
+    public static <T extends Presentable> void onSelectionChange(DBNComboBox<T> comboBox, Consumer<T> consumer) {
+        comboBox.addListener((oldValue, newValue) -> {
+            consumer.accept(newValue);
+        });
     }
 
 }

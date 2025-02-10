@@ -18,12 +18,12 @@
 <head>
     <title>Object filter expression</title>
 </head>
-<body style="font-family:SansSerif,serif; font-size: 9px">
+<body style="${REGULAR_FONT_STYLE}">
 <span style="font-size: larger">SQL object filter expression</span><br><br>
-<u>Supported variables:</u><ul style="font-family: Courier New, Courier, monospace;">$$SUPPORTED_ATTRIBUTES$$</ul>
+<u>Supported variables:</u><ul style="${MONOSPACE_FONT_STYLE}">$$SUPPORTED_ATTRIBUTES$$</ul>
 
 <u>Example:</u><br>
-<span style="font-family: Courier New, Courier, monospace;">$$SAMPLE_EXPRESSION$$</span>
+<span style="${MONOSPACE_FONT_STYLE}">$$SAMPLE_EXPRESSION$$</span>
 <br>
 <br>
 

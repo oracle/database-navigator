@@ -53,7 +53,6 @@ public class DatasetEditorTableGutterRenderer extends DBNTableGutterRendererBase
                 iconLabel.setIcon(icon);
             }
         }
-        //lText.setFont(isSelected ? BOLD_FONT : REGULAR_FONT);
 
         boolean isCaretRow = table.getCellSelectionEnabled() && table.getSelectedRow() == index && table.getSelectedRowCount() == 1;
         Color background = isSelected ?

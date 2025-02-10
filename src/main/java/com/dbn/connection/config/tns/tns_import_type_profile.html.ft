@@ -16,12 +16,12 @@
 
 <html lang="en">
 <head><title>Wallet connectivity</title></head>
-<body style="font-family:SansSerif,serif; font-size: 9px">
+<body style="${REGULAR_FONT_STYLE}">
 TNS wallet connectivity<br>
 Thin JDBC URL using TNS_ADMIN wallet location and the TNS profile name<br><br>
 
 Example:<br>
-<span style="font-family: Courier New, Courier, monospace; font-size: larger;">jdbc:oracle:thin:@profile_1?TNS_ADMIN=C:/Users/tns/wallet/</span>
+<span style="${MONOSPACE_LARGE_FONT_STYLE}">jdbc:oracle:thin:@profile_1?TNS_ADMIN=C:/Users/tns/wallet/</span>
 <br>
 <br>
 </body>

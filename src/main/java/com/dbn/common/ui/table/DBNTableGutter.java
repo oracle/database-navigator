@@ -35,6 +35,8 @@ import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import java.awt.event.MouseEvent;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 @Getter
 @Setter
 public abstract class DBNTableGutter<T extends DBNTableWithGutter> extends JList implements StatefulDisposable, EditorColorsListener {
@@ -53,6 +55,7 @@ public abstract class DBNTableGutter<T extends DBNTableWithGutter> extends JList
 
         ApplicationEvents.subscribe(this, EditorColorsManager.TOPIC, this);
         Disposer.register(table, this);
+        setAccessibleName(this, "Table gutter");
     }
 
     @Override

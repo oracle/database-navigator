@@ -24,6 +24,7 @@ import com.dbn.common.ui.table.DBNEditableTable;
 import com.dbn.common.ui.table.DBNEditableTableModel;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.table.Tables;
+import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.object.common.sorting.DBObjectComparator;
 import com.dbn.object.common.sorting.DBObjectComparators;
@@ -57,6 +58,10 @@ public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<
         registerComponent(sortingTypeTable);
     }
 
+    @Override
+    protected void initAccessibility() {
+        Accessibility.setAccessibleName(sortingTypeTable, "Objects sorting");
+    }
 
 
     @Override

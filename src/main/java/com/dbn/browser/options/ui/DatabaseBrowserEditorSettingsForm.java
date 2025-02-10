@@ -24,6 +24,7 @@ import com.dbn.common.ui.table.DBNEditableTable;
 import com.dbn.common.ui.table.DBNEditableTableModel;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.table.Tables;
+import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.object.common.editor.DefaultEditorOption;
 import com.dbn.object.common.editor.DefaultEditorType;
@@ -56,6 +57,10 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
         registerComponent(editorTypeTable);
     }
 
+    @Override
+    protected void initAccessibility() {
+        Accessibility.setAccessibleName(editorTypeTable, "Default editor types");
+    }
 
     @Override
     public void applyFormChanges() throws ConfigurationException {

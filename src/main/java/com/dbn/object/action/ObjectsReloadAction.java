@@ -31,8 +31,8 @@ public class ObjectsReloadAction extends BasicAction {
 
     ObjectsReloadAction(DBObjectList<?> objectList) {
         super((objectList.isLoaded() ?
-                txt("app.objects.action.ReloadObjects", objectList.getName()) :
-                txt("app.objects.action.LoadObjects", objectList.getName())));
+                txt("app.objects.action.ReloadObjects", objectList.getCapitalizedName()) :
+                txt("app.objects.action.LoadObjects", objectList.getCapitalizedName())));
         this.objectList = objectList;
     }
 

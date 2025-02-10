@@ -74,7 +74,7 @@ public class HTMLDataExportProcessor extends DataExportProcessor{
         buffer.append("    <head>\n");
         buffer.append("        <style type='text/css'>\n");
         buffer.append("            tr{vertical-align:top;}\n");
-        buffer.append("            tns_import_type_profile.html {border:solid #a9a9a9; border-width:1px 0 0 1px; font-family:Verdana,serif; font-size:70%;font-weight:bold}\n");
+        buffer.append("            th {border:solid #a9a9a9; border-width:1px 0 0 1px; font-family:Verdana,serif; font-size:70%;font-weight:bold}\n");
         buffer.append("            td {border:solid #a9a9a9; border-width:1px 0 0 1px; font-family:Verdana,serif; font-size:70%;}\n");
         buffer.append("            table{border:solid #a9a9a9; border-width:0 1px 1px 0;}\n");
         buffer.append("        </style>\n");
@@ -86,7 +86,7 @@ public class HTMLDataExportProcessor extends DataExportProcessor{
         if (instructions.isCreateHeader()) {
             for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++){
                 String columnName = getColumnName(model, instructions, columnIndex);
-                buffer.append("                <tns_import_type_profile.html><b>").append(columnName).append("</b></tns_import_type_profile.html>\n");
+                buffer.append("                <th><b>").append(columnName).append("</b></th>\n");
             }
         }
 

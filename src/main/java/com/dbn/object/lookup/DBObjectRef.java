@@ -118,7 +118,6 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
     }
 
     public void setParent(Object parent) {
-        reference.clear();
         if (parent == null) return;
 
         if (parent instanceof DBObject) {
@@ -455,12 +454,12 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
         }
     }
 
-    private void clearReference() {
+    public void clearReference() {
         WeakRef<T> reference = this.reference;
-        if (reference != null) {
-            reference.clear();
-            this.reference = null;
-        }
+        if (reference == null) return;
+
+        reference.clear();
+        this.reference = null;
     }
 
 
