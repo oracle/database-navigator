@@ -16,12 +16,12 @@
 
 <html lang="en">
 <head><title>Full TNS descriptor</title></head>
-<body style="font-family:SansSerif,serif; font-size: 9px">
+<body style="${REGULAR_FONT_STYLE}">
 Full TNS descriptor<br>
 Thin JDBC URL using the full TNS descriptor from the selected profile<br><br>
 
 Example:<br>
-<span style="font-family: Courier New, Courier, monospace; font-size: larger;">
+<span style="${MONOSPACE_LARGE_FONT_STYLE}">
     jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)
     <br>&nbsp;&nbsp;&nbsp;&nbsp;(Host=localhost)(Port=1521))
     <br>&nbsp;&nbsp;&nbsp;&nbsp;(CONNECT_DATA=(SID=XE)(GLOBAL_NAME=XE)))</span>

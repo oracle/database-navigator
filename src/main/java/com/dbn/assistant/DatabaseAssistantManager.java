@@ -34,7 +34,9 @@ import com.dbn.common.action.Selectable;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.exception.Exceptions;
+import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Progress;
@@ -52,6 +54,9 @@ import com.dbn.object.common.DBObjectBundle;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
+import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -81,6 +86,7 @@ import static com.dbn.common.ui.CardLayouts.showCard;
 import static com.dbn.common.ui.CardLayouts.visibleCardId;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.ContextLookup.getConnectionId;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.common.util.Lists.first;
 import static com.dbn.common.util.Lists.firstElement;
@@ -108,6 +114,20 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
   private DatabaseAssistantManager(Project project) {
     super(project, COMPONENT_NAME);
+    ProjectEvents.subscribe(project, this,
+            FileEditorManagerListener.FILE_EDITOR_MANAGER,
+            fileEditorManagerListener());
+  }
+
+  private FileEditorManagerListener fileEditorManagerListener() {
+    return new DBNFileEditorManagerListener() {
+      @Override
+      public void whenSelectionChanged(FileEditorManagerEvent event) {
+        FileEditor editor = event.getNewEditor();
+        ConnectionId connectionId = getConnectionId(getProject(), editor);
+        switchToConnection(connectionId);
+      }
+    };
   }
 
   public static DatabaseAssistantManager getInstance(@NotNull Project project) {
@@ -120,6 +140,8 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     toolWindow.show(null);
     switchToConnection(connectionId);
   }
+
+
 
   public String getAssistantName(@Nullable ConnectionId connectionId) {
     String defaultName = txt("app.assistant.title.DatabaseAssistantName_GENERIC");

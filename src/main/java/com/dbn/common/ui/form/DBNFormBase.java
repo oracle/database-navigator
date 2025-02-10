@@ -36,6 +36,7 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.util.containers.ContainerUtil;
+import lombok.experimental.Delegate;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -69,8 +70,6 @@ public abstract class DBNFormBase
     private final Latent<DBNFormFieldAdapter> fieldAdapter = Latent.basic(() -> DBNFormFieldAdapter.create(this));
     private final Latent<Boolean> hasScrollBars = Latent.basic(() -> hasChildComponent(getMainComponent(), c -> c instanceof JScrollPane));
 
-    protected final DBNFormValidator formValidator = new DBNFormValidatorImpl(this);
-
     public DBNFormBase(@Nullable Disposable parent) {
         super(parent);
     }
@@ -88,6 +87,14 @@ public abstract class DBNFormBase
     public final JComponent getComponent() {
         initialize();
         return getMainComponent();
+    }
+
+    @Delegate
+    protected DBNFormValidator getFormValidator() {
+        DBNDialog dialog = getParentDialog();
+        return dialog == null ?
+                DBNFormValidator.SURROGATE :
+                dialog.getFormValidator();
     }
 
     @Nullable
@@ -134,7 +141,7 @@ public abstract class DBNFormBase
 
         JComponent mainComponent = getMainComponent();
         DataProviders.register(mainComponent, this);
-        UserInterface.updateScrollPaneBorders(mainComponent);
+        UserInterface.updateScrollPanes(mainComponent);
         UserInterface.updateTitledBorders(mainComponent);
         UserInterface.updateSplitPanes(mainComponent);
         adjustFormSize(mainComponent);
@@ -182,7 +189,7 @@ public abstract class DBNFormBase
 
     @Override
     public final List<ValidationInfo> validate(JComponent... components) {
-        return formValidator.validateForm(components);
+        return validateForm(components);
     }
 
     @ApiStatus.OverrideOnly

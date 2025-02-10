@@ -50,6 +50,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.attachStateAnnouncer;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.nls.NlsResources.txt;
@@ -215,6 +216,7 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
             this.selectable = selectable;
             checkBox = new JCheckBox("", selectable.isSelected());
             checkBox.setOpaque(false);
+            attachStateAnnouncer(checkBox, selectable.getAccessibleName());
 
             label = new JLabel(selectable.getName(), selectable.getIcon(), SwingConstants.LEFT);
             label.setOpaque(false);

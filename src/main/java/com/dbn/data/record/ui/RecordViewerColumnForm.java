@@ -76,8 +76,12 @@ public class RecordViewerColumnForm extends DBNFormBase implements ComponentAlig
         valueTextField.setBackground(Colors.getTextFieldBackground());
         columnLabel.setLabelFor(valueTextField);
 
-        setAccessibleUnit(valueTextField, dataTypeLabel.getText());
         updateColumnValue(column);
+    }
+
+    @Override
+    protected void initAccessibility() {
+        setAccessibleUnit(valueTextField, dataTypeLabel.getText());
     }
 
     @NotNull

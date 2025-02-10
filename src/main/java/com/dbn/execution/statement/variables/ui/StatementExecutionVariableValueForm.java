@@ -18,6 +18,7 @@ package com.dbn.execution.statement.variables.ui;
 
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.locale.Formatter;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.listener.ComboBoxSelectionKeyListener;
 import com.dbn.common.ui.misc.DBNComboBox;
@@ -45,12 +46,17 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.Accessibility.attachSelectionAnnouncer;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 
 
@@ -58,7 +64,6 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
     private JPanel mainPanel;
     private JLabel variableNameLabel;
     private JPanel valueFieldPanel;
-    private JLabel errorLabel;
     private DBNComboBox<GenericDataType> dataTypeComboBox;
 
     @Getter
@@ -68,8 +73,6 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
     StatementExecutionVariableValueForm(StatementExecutionInputForm parent, StatementExecutionVariable variable) {
         super(parent);
         this.variable = variable;
-        errorLabel.setVisible(false);
-        errorLabel.setIcon(Icons.STMT_EXECUTION_ERROR);
 
         variableNameLabel.setText(variable.getName());
         variableNameLabel.setIcon(Icons.DBO_VARIABLE);
@@ -80,7 +83,6 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
                 GenericDataType.DATE_TIME);
 
         dataTypeComboBox.setSelectedValue(variable.getDataType());
-        setAccessibleName(dataTypeComboBox, "Data Type");
 
         StatementExecutionProcessor executionProcessor = parent.getExecutionProcessor();
         Project project = executionProcessor.getProject();
@@ -130,11 +132,52 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
             variable.setDataType(newValue);
             editorComponent.setPopupEnabled(TextFieldPopupType.CALENDAR, newValue == GenericDataType.DATE_TIME);
             getParentForm().updatePreview();
+            setAccessibleUnit(textField, newValue.getName());
         });
 
         textField.setToolTipText("<html>While editing variable value, press <b>Up/Down</b> keys to change data type");
-
         Disposer.register(this, editorComponent);
+    }
+
+    @Override
+    protected void initValidation() {
+        addTextValidation(editorComponent.getTextField(), f -> validateDataType());
+    }
+
+    private String validateDataType() {
+        Formatter formatter = Formatter.getInstance(ensureProject());
+        String value = editorComponent.getTextField().getText().trim();
+        if (Strings.isEmpty(value)) return null;
+
+        GenericDataType dataType = dataTypeComboBox.getSelectedValue();
+        if (dataType == GenericDataType.DATE_TIME){
+            try {
+                formatter.parseDateTime(value);
+            } catch (ParseException e) {
+                String pattern = formatter.getDateFormatPattern();
+                String sample = formatter.formatDate(new Date());
+                return "Invalid date. Expected format \"" + pattern + "\" (e.g. \"" + sample + "\")";
+            }
+        } else if (dataType == GenericDataType.NUMERIC){
+            try {
+                formatter.parseNumber(value);
+            } catch (ParseException e) {
+                String pattern = formatter.getNumberFormatPattern();
+                String sample = formatter.formatNumber(123456.7890);
+                return "Invalid number. Expected format \"" + pattern + "\" (e.g. \"" + sample + "\")";
+            }
+        }
+        return null;
+    }
+
+    @Override
+    protected void initAccessibility() {
+        JTextField textField = editorComponent.getTextField();
+        setAccessibleUnit(textField, dataTypeComboBox.getSelectedValueName());
+        setAccessibleDescription(textField, "Press up or down arrow keys to change data type");
+        setAccessibleName(dataTypeComboBox, "Data type");
+        setAccessibleDescription(dataTypeComboBox, "Data type for " + variableNameLabel.getText() + " variable");
+        attachSelectionAnnouncer(dataTypeComboBox, "Data type");
     }
 
     private static @NotNull ListPopupValuesProvider createValuesProvider(StatementExecutionVariable variable, StatementExecutionProcessor executionProcessor, StatementExecutionVariables variablesCache) {
@@ -165,16 +208,6 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
 
     public StatementExecutionInputForm getParentForm() {
         return ensureParentComponent();
-    }
-
-    void showErrorLabel(String errorText) {
-        errorLabel.setVisible(true);
-        errorLabel.setText(errorText);
-    }
-    
-    void hideErrorLabel(){
-        errorLabel.setVisible(false);
-        errorLabel.setText(null);
     }
 
     void saveValue() {

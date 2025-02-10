@@ -34,6 +34,10 @@ public interface Presentable extends Named {
     @NotNull
     String getName();
 
+    default String getAccessibleName() {
+        return getName();
+    }
+
     @Nullable
     default String getDescription() {
         return null;

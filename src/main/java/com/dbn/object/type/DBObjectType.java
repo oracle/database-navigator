@@ -370,6 +370,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         GRANTED_ROLE.setInheritedType(ROLE);
 
         // Parent relations
+        AI_PROFILE.addParent(SCHEMA);
         ARGUMENT.addParent(FUNCTION);
         ARGUMENT.addParent(PROCEDURE);
         ARGUMENT.addParent(METHOD);

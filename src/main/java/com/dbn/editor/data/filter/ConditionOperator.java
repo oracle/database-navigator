@@ -128,6 +128,12 @@ public enum ConditionOperator implements Presentable {
         return text;
     }
 
+    @Override
+    public String getAccessibleName() {
+        return name().replace("_", " ");
+    }
+
+
     public static ConditionOperator get(String text) {
         for (ConditionOperator operator : ConditionOperator.values()) {
             if (Objects.equals(operator.text, text)) return operator;

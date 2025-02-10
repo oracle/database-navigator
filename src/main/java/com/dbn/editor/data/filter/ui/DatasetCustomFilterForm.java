@@ -125,11 +125,6 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
         COMPONENT_GROUP_QUALIFIER.set(queryLabel, true);
     }
 
-    @Override
-    public void focus() {
-        editor.getContentComponent().requestFocus();
-    }
-
     public String getFilterName() {
         return nameTextField.getText();
     }

@@ -26,7 +26,6 @@ import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
-import com.dbn.common.util.Actions;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBDataset;
@@ -36,14 +35,13 @@ import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.ColoredTableCellRenderer;
+import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
 import com.intellij.util.ui.AsyncProcessIcon;
-import com.intellij.util.ui.JBUI;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,7 +58,6 @@ import java.awt.event.MouseEvent;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.table.Tables.adjustTableRowHeight;
@@ -84,9 +81,12 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   private JTable profileObjectListTable;
   private JTable databaseObjectsTable;
   private DBNComboBox<DBSchema> schemaComboBox;
-  private JPanel actionsPanel;
   private JPanel hintPanel;
   private JPanel initializingIconPanel;
+  private JBCheckBox tablesCheckBox;
+  private JBCheckBox viewsCheckBox;
+  private JBCheckBox mviewsCheckBox;
+  private JPanel filtersPanel;
 
   private final ConnectionRef connection;
   private final ProfileData profile;
@@ -110,7 +110,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
 
     initHintPanel();
     initObjectTables();
-    initActionToolbar();
+    initFiltersPanel();
     initSchemaSelector();
     initFilterField();
     initAccessibility();
@@ -152,24 +152,23 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     onTextChange(filterTextField, e -> updateDatasetsFilter());
   }
 
-  protected void initActionToolbar() {
-    Supplier<Set<DBObjectType>> selectedDatasetTypes = () -> getDatasetFilter().getObjectTypes();
-    Runnable toggleCallback = () -> updateDatasetsFilter();
-
-    ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
-            DatasetTypeToggleAction.create(DBObjectType.TABLE, selectedDatasetTypes, toggleCallback),
-            DatasetTypeToggleAction.create(DBObjectType.VIEW, selectedDatasetTypes, toggleCallback),
-            DatasetTypeToggleAction.create(DBObjectType.MATERIALIZED_VIEW, selectedDatasetTypes, toggleCallback));
-
-    Accessibility.setAccessibleName(actionToolbar, "Dataset Type Filters");
-
-    JComponent component = actionToolbar.getComponent();
-    component.setOpaque(false);
-    component.setBorder(Borders.EMPTY_BORDER);
-    actionsPanel.add(component, BorderLayout.CENTER);
-    actionsPanel.setBorder(JBUI.Borders.empty(4));
-
+  protected void initFiltersPanel() {
+    Accessibility.setAccessibleName(filtersPanel, "Dataset Type Filters");
     initializingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
+    tablesCheckBox.addActionListener(e -> filterDatasets(DBObjectType.TABLE, tablesCheckBox.isSelected()));
+    viewsCheckBox.addActionListener(e -> filterDatasets(DBObjectType.VIEW, viewsCheckBox.isSelected()));
+    mviewsCheckBox.addActionListener(e -> filterDatasets(DBObjectType.MATERIALIZED_VIEW, mviewsCheckBox.isSelected()));
+    tablesCheckBox.setSelected(true);
+  }
+
+  private void filterDatasets(DBObjectType type, boolean selected) {
+    Set<DBObjectType> objectTypes = getDatasetFilter().getObjectTypes();
+    if (selected) {
+      objectTypes.add(type);
+    } else {
+      objectTypes.remove(type);
+    }
+    updateDatasetsFilter();
   }
 
 
@@ -344,6 +343,12 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
         stopActivityNotifier();
       }
     });
+  }
+
+  @Nullable
+  @Override
+  public JComponent getPreferredFocusedComponent() {
+    return schemaComboBox;
   }
 
 
