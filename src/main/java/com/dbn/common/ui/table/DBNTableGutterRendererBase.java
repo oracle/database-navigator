@@ -34,6 +34,8 @@ import java.awt.font.FontRenderContext;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public abstract class DBNTableGutterRendererBase implements DBNTableGutterRenderer{
     protected JLabel textLabel;
     protected JLabel iconLabel;
@@ -72,6 +74,8 @@ public abstract class DBNTableGutterRendererBase implements DBNTableGutterRender
             mainPanel.setPreferredSize(dimension);
             Dispatch.run(() -> resize(list, preferredWidth));
         }
+
+        setAccessibleName(mainPanel, "Index " + (index + 1));
         return mainPanel;
     }
 

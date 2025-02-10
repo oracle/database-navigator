@@ -51,7 +51,8 @@ public class DDLFileExtensionSettings extends BasicProjectConfiguration<DDLFileS
             new DDLFileType(DDLFileTypeId.PACKAGE_BODY, "DDL File - Package Body", "pkb", PSQLFileType.INSTANCE, CODE_BODY),
             new DDLFileType(DDLFileTypeId.TYPE, "DDL File - Type", "tpe", PSQLFileType.INSTANCE, CODE_SPEC_AND_BODY),
             new DDLFileType(DDLFileTypeId.TYPE_SPEC, "DDL File - Type Spec", "tps", PSQLFileType.INSTANCE, CODE_SPEC),
-            new DDLFileType(DDLFileTypeId.TYPE_BODY, "DDL File - Type Body", "tpb", PSQLFileType.INSTANCE, CODE_BODY)
+            new DDLFileType(DDLFileTypeId.TYPE_BODY, "DDL File - Type Body", "tpb", PSQLFileType.INSTANCE, CODE_BODY),
+            new DDLFileType(DDLFileTypeId.JAVA_SOURCE, "DDL File - Java Source", "sql", SQLFileType.INSTANCE, CODE)
     );
 
     DDLFileExtensionSettings(DDLFileSettings parent) {

@@ -20,8 +20,10 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.execution.ExecutionResult;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+@Getter
 public abstract class ExecutionResultFormBase<T extends ExecutionResult<?>> extends DBNFormBase implements ExecutionResultForm<T>{
     private T executionResult;
 

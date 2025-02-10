@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.dbn.common.ui.util.ClientProperty.HAS_VALIDATION_LISTENERS;
@@ -41,11 +42,11 @@ import static com.dbn.common.util.Commons.isEmpty;
 import static com.dbn.common.util.Commons.isOneOf;
 import static com.dbn.common.util.Commons.nvl;
 
-final class DBNFormValidatorImpl extends WeakRefWrapper<DBNForm> implements DBNFormValidator {
+public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implements DBNFormValidator {
     private final List<DBNFormFieldValidator<?>> validators = new ArrayList<>();
 
-    public DBNFormValidatorImpl(DBNForm form) {
-        super(form);
+    public DBNFormValidatorImpl(DBNDialog dialog) {
+        super(dialog);
     }
 
     @Override
@@ -54,9 +55,19 @@ final class DBNFormValidatorImpl extends WeakRefWrapper<DBNForm> implements DBNF
     }
 
     @Override
-    public void addTextValidation(JTextComponent textField, Predicate<String> validator, String message) {
-        addValidation(textField, textComponent -> validator.test(textField.getText()), message);
+    public <C extends JComponent> void addValidation(C component, Function<C, String> validator) {
+        validators.add(new DBNFormFieldValidator<>(component, c -> validateTarget(validator, c)));
+    }
 
+    @Override
+    public void addTextValidation(JTextComponent textField, Function<JTextComponent, String> validator) {
+        addValidation(textField, validator);
+        addValidationListeners(textField);
+    }
+
+    @Override
+    public void addTextValidation(JTextComponent textField, Predicate<String> validator, String message) {
+        addValidation(textField, f -> validator.test(f.getText()), message);
         addValidationListeners(textField);
     }
 
@@ -64,8 +75,7 @@ final class DBNFormValidatorImpl extends WeakRefWrapper<DBNForm> implements DBNF
         if (HAS_VALIDATION_LISTENERS.is(textField)) return;
         HAS_VALIDATION_LISTENERS.set(textField, true);
 
-        DBNDialog dialog = getTarget().getParentDialog();
-        if (dialog == null) return;
+        DBNDialog dialog = getTarget();
 
         // add document listener to perform validation on text change and enable / disable dialog button
         textField.getDocument().addDocumentListener(new DocumentAdapter() {
@@ -87,6 +97,12 @@ final class DBNFormValidatorImpl extends WeakRefWrapper<DBNForm> implements DBNF
     private static <C extends JComponent> void validateTarget(C target, Predicate<C> validator, String message) throws ValidationException {
         boolean valid = validator.test(target);
         if (!valid) throw new ValidationException(message);
+    }
+
+
+    private static <C extends JComponent> void validateTarget(Function<C, String> validator, C target) throws ValidationException {
+        String error = validator.apply(target);
+        if (error != null) throw new ValidationException(error);
     }
 
     @NotNull

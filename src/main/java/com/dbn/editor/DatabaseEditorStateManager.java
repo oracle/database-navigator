@@ -26,9 +26,6 @@ import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.util.Editors;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConsoleChangeListener;
-import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.code.SourceCodeManagerListener;
 import com.dbn.editor.data.DatasetEditor;
@@ -121,15 +118,7 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
                 }
 
                 FileEditor newEditor = event.getNewEditor();
-                if(newEditor != null){
-                FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(getProject());
-                ConnectionHandler connectionHandler = contextManager.getConnection(newEditor.getFile());
-                if(connectionHandler != null) {
-                    ProjectEvents.notify(ensureProject(), ConsoleChangeListener.TOPIC, (listener) -> {
-                        listener.consoleChanged(connectionHandler.getConnectionId());
-                    });
-                }
-                }
+
                 if (newEditor instanceof SourceCodeEditor) {
                     SourceCodeEditor sourceCodeEditor = (SourceCodeEditor) newEditor;
                     editorProviderId = sourceCodeEditor.getEditorProviderId();

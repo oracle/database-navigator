@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package com.dbn.connection;
+package com.dbn.common.state;
 
-import com.intellij.util.messages.Topic;
+import org.jetbrains.annotations.NonNls;
 
-import java.util.EventListener;
+public interface StateHolder {
 
-/**
- * Listener to console switch from the UI
- */
-public interface ConsoleChangeListener extends EventListener {
-    Topic<ConsoleChangeListener> TOPIC = Topic.create("Connection console changed", ConsoleChangeListener.class);
+    String getAttribute(@NonNls String key);
 
-    /**
-     * Console change event
-     * @param connectionId the connectionId that is now active
-     */
-    void consoleChanged(ConnectionId connectionId);
+    void setAttribute(@NonNls String key, @NonNls String value);
 }

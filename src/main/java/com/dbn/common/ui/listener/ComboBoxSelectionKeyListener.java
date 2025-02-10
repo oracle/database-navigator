@@ -19,14 +19,13 @@ package com.dbn.common.ui.listener;
 import com.dbn.common.ui.util.UserInterface;
 
 import javax.swing.JComboBox;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class ComboBoxSelectionKeyListener extends KeyAdapter {
-    private JComboBox comboBox;
-    private boolean useControlKey;
+    private final JComboBox comboBox;
+    private final boolean useControlKey;
 
     public static KeyListener create(JComboBox comboBox, boolean useControlKey) {
         return new ComboBoxSelectionKeyListener(comboBox, useControlKey);
@@ -39,23 +38,24 @@ public class ComboBoxSelectionKeyListener extends KeyAdapter {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (!e.isConsumed()) {
-            int operatorSelectionIndex = comboBox.getSelectedIndex();
-            if ((useControlKey && e.getModifiers() == InputEvent.CTRL_MASK) ||
-                    (!useControlKey && e.getModifiers() != InputEvent.CTRL_MASK)) {
-                if (e.getKeyCode() == 38) {//UP
-                    if (operatorSelectionIndex > 0) {
-                        comboBox.setSelectedIndex(operatorSelectionIndex - 1);
-                        UserInterface.repaint(comboBox);
-                    }
-                    e.consume();
-                } else if (e.getKeyCode() == 40) { // DOWN
-                    if (operatorSelectionIndex < comboBox.getItemCount() - 1) {
-                        comboBox.setSelectedIndex(operatorSelectionIndex + 1);
-                        UserInterface.repaint(comboBox);
-                    }
-                    e.consume();
+        if (e.isConsumed()) return;
+
+        int operatorSelectionIndex = comboBox.getSelectedIndex();
+        boolean controlled = e.isControlDown() || (e.getModifiersEx() & KeyEvent.META_DOWN_MASK) != 0;
+
+        if ((useControlKey && controlled) || (!useControlKey && !controlled)) {
+            if (e.getKeyCode() == 38) {//UP
+                if (operatorSelectionIndex > 0) {
+                    comboBox.setSelectedIndex(operatorSelectionIndex - 1);
+                    UserInterface.repaint(comboBox);
                 }
+                e.consume();
+            } else if (e.getKeyCode() == 40) { // DOWN
+                if (operatorSelectionIndex < comboBox.getItemCount() - 1) {
+                    comboBox.setSelectedIndex(operatorSelectionIndex + 1);
+                    UserInterface.repaint(comboBox);
+                }
+                e.consume();
             }
         }
     }

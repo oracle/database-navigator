@@ -61,6 +61,7 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
     private ResultSetTable<?> resultTable;
     private DBNTableScrollPane resultScrollPane;
     private final RecordViewInfo recordViewInfo;
+    private final ActionToolbar actionToolbar;
 
     private transient final Latent<DataSearchComponent> dataSearchComponent = Latent.basic(() -> {
         DataSearchComponent dataSearchComponent = new DataSearchComponent(StatementExecutionResultForm.this);
@@ -71,9 +72,7 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
 
     public StatementExecutionResultForm(@NotNull StatementExecutionCursorResult executionResult) {
         super(executionResult);
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.StatementExecutionResult");
-        setAccessibleName(actionToolbar, txt("app.execution.aria.StatementExecutionResultActions"));
-
+        actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.StatementExecutionResult");
         actionsPanel.add(actionToolbar.getComponent());
 
         recordViewInfo = new RecordViewInfo(executionResult.getName(), executionResult.getIcon());
@@ -87,6 +86,12 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
 
         Disposer.register(this, resultTable);
         Disposer.register(this, executionResult);
+    }
+
+    @Override
+    protected void initAccessibility() {
+        setAccessibleName(resultTable, "Statement execution result " + getExecutionResult().getName());
+        setAccessibleName(actionToolbar, txt("app.execution.aria.StatementExecutionResultActions"));
     }
 
     public void rebuildForm() {

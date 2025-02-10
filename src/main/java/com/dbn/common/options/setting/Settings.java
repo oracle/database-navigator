@@ -31,6 +31,8 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.util.Strings.containsOneOf;
+import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -222,8 +224,8 @@ public final class Settings {
         for (int i=0; i<contentSize; i++) {
             Content content = element.getContent(i);
             if (content instanceof Text) {
-                Text cdata = (Text) content;
-                builder.append(cdata.getText());
+                Text text = (Text) content;
+                builder.append(text.getText());
             }
         }
         return builder.toString();
@@ -233,6 +235,13 @@ public final class Settings {
         element.setContent(new CDATA(content));
     }
 
+    public static void writeCdata(Element element, @NonNls String content, boolean conditional) {
+        if (needsCdataWrapping(content) || !conditional) {
+            element.setContent(new CDATA(content));
+        } else {
+            element.setText(content);
+        }
+    }
 
     public static void setInteger(Element parent, @NonNls String childName, int value) {
         Element element = newElement(parent, childName);
@@ -301,4 +310,19 @@ public final class Settings {
         if (parent != null) parent.addContent(child);
         return child;
     }
+
+    /**
+     * Determines if the given string value needs to be wrapped in CDATA to ensure
+     * proper handling within XML.
+     *
+     * @param value the string value to check for special characters that require CDATA wrapping
+     * @return true if the string contains characters that need CDATA wrapping;
+     *         false otherwise
+     */
+    public static boolean needsCdataWrapping(String value) {
+        return
+            isNotEmpty(value) &&
+            containsOneOf(value, "<", ">", "&", "\"", "'", "\n", "\r");
+    }
+
 }

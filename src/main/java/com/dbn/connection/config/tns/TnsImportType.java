@@ -29,9 +29,9 @@ import static com.dbn.nls.NlsResources.txt;
 @Getter
 @AllArgsConstructor
 public enum TnsImportType implements Presentable {
-    FIELDS(txt("cfg.connection.const.TnsImportType_FIELDS"), loadInfo("tns_import_type_fields.html")),
-    PROFILE(txt("cfg.connection.const.TnsImportType_PROFILE"), loadInfo("tns_import_type_profile.html")),
-    DESCRIPTOR(txt("cfg.connection.const.TnsImportType_DESCRIPTOR"), loadInfo("tns_import_type_descriptor.html"));
+    FIELDS(txt("cfg.connection.const.TnsImportType_FIELDS"), loadInfo("tns_import_type_fields.html.ft")),
+    PROFILE(txt("cfg.connection.const.TnsImportType_PROFILE"), loadInfo("tns_import_type_profile.html.ft")),
+    DESCRIPTOR(txt("cfg.connection.const.TnsImportType_DESCRIPTOR"), loadInfo("tns_import_type_descriptor.html.ft"));
 
     private final String name;
     private final TextContent info;

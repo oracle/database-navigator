@@ -17,6 +17,7 @@
 package com.dbn.common.exception;
 
 import com.dbn.common.util.Commons;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
@@ -98,5 +99,9 @@ public class Exceptions {
 
     public static String causeMessage(Throwable e) {
         return causeOf(e).getMessage();
+    }
+
+    public static void illegalState(@NonNls String message) {
+        throw new IllegalStateException(message);
     }
 }

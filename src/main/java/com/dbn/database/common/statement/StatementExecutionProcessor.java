@@ -245,13 +245,20 @@ public class StatementExecutionProcessor {
                     if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
 
                     DBNConnection connection = context.getConnection();
-                    DBNCallableStatement statement = connection.prepareCall(statementText);
-                    context.setStatement(statement);
+                    DBNCallableStatement statement = null;
                     try {
-                        if (outputReader != null) outputReader.registerParameters(statement);
+                        if (prepared) {
+                            statement = definition.prepareCall(connection, arguments);
+                            initOutputReader(outputReader, statement, arguments.length);
+                        } else {
+                            statement = connection.prepareCall(statementText);
+                            initOutputReader(outputReader, statement, 0);
+                        }
+
+                        context.setStatement(statement);
                         statement.setQueryTimeout(timeout);
                         statement.execute();
-                        if (outputReader != null) outputReader.read(statement);
+                        invokeOutputReader(outputReader, statement);
                         return outputReader;
                     } catch (SQLException e) {
                         conditionallyLog(e);
@@ -263,6 +270,18 @@ public class StatementExecutionProcessor {
                         Resources.close(statement);
                     }
                 });
+    }
+
+    private static <T extends CallableStatementOutput> void initOutputReader(@Nullable T outputReader, DBNCallableStatement statement, int parameterShift) throws SQLException {
+        if (outputReader == null) return;
+
+        outputReader.shiftParameterIndex(parameterShift);
+        outputReader.registerParameters(statement);
+    }
+
+    private static <T extends CallableStatementOutput> void invokeOutputReader(@Nullable T outputReader, DBNCallableStatement statement) throws SQLException {
+        if (outputReader == null) return;
+        outputReader.read(statement);
     }
 
     public void executeUpdate(DBNConnection connection, Object... arguments) throws SQLException {

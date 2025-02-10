@@ -20,7 +20,6 @@ import com.dbn.code.common.style.DBLCodeStyleManager;
 import com.dbn.code.common.style.options.DBLCodeStyleSettings;
 import com.dbn.common.exception.OutdatedContentException;
 import com.dbn.common.util.Documents;
-import com.dbn.common.util.Traces;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.psi.PsiUtil;
 import com.intellij.formatting.Block;
@@ -37,6 +36,8 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.impl.source.codeStyle.CodeFormatterFacade;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.common.util.Traces.isCalledThroughClass;
 
 public class DBLFormattingModelBuilder implements FormattingModelBuilder {
 
@@ -59,7 +60,7 @@ public class DBLFormattingModelBuilder implements FormattingModelBuilder {
         Project project = element.getProject();
         DBLCodeStyleSettings settings = language.codeStyleSettings(project);
 
-        boolean deliberate = Traces.isCalledThrough(CodeFormatterFacade.class);
+        boolean deliberate = isCalledThroughClass(CodeFormatterFacade.class, 10);
         if (deliberate && settings.getCaseSettings().isEnabled()) {
             DBLCodeStyleManager.getInstance(project).formatCase(element.getContainingFile());
         }

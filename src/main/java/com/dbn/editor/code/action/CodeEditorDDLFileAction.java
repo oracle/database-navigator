@@ -48,7 +48,6 @@ public class CodeEditorDDLFileAction extends ProjectPopupAction {
         presentation.setIcon(Icons.CODE_EDITOR_DDL_FILE);
         presentation.setText(txt("app.codeEditor.action.DdlFiles"));
         presentation.setEnabled(objectType != null);
-        presentation.setVisible(objectType != DBObjectType.JAVA_CLASS); // TODO amend this when DDLs are supported in OJVM
     }
 
     @Override

@@ -22,11 +22,11 @@ import java.awt.Component;
 public interface Borderless {
 
     static void markBorderless(Component component) {
-        ClientProperty.BORDERLESS.set(component, Boolean.TRUE);
+        ClientProperty.NO_BORDER.set(component, Boolean.TRUE);
     }
 
     static boolean isBorderless(Component component) {
-        Boolean borderless = ClientProperty.BORDERLESS.get(component);
+        Boolean borderless = ClientProperty.NO_BORDER.get(component);
         if (borderless != null) return borderless;
         if (component instanceof JPanel) return true;
         if (component instanceof Borderless) return true;

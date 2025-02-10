@@ -22,6 +22,7 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.CardLayouts;
 import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.util.Actions;
 import com.dbn.editor.data.filter.DatasetFilter;
 import com.dbn.editor.data.filter.DatasetFilterGroup;
@@ -79,6 +80,7 @@ public class DatasetFilterForm extends ConfigurationEditorForm<DatasetFilterGrou
         }
         valueChanged(null);
         filtersList.addListSelectionListener(this);
+        Accessibility.setAccessibleName(filtersList, "Filters");
     }
 
     public DatasetFilterList getFilterList() {
@@ -133,18 +135,18 @@ public class DatasetFilterForm extends ConfigurationEditorForm<DatasetFilterGrou
             CardLayouts.showBlankCard(filterDetailsPanel);
         } else {
             String id = filter.getId();
-            ConfigurationEditorForm configurationEditorForm = filterDetailPanels.get(id);
-            if (configurationEditorForm == null) {
+            ConfigurationEditorForm filterForm = filterDetailPanels.get(id);
+            if (filterForm == null) {
                 JComponent component = filter.createComponent();
                 CardLayouts.addCard(filterDetailsPanel, component, id);
 
-                configurationEditorForm = filter.ensureSettingsEditor();
-                filterDetailPanels.put(id, configurationEditorForm);
+                filterForm = filter.ensureSettingsEditor();
+                filterDetailPanels.put(id, filterForm);
 
-                Disposer.register(this, configurationEditorForm);
+                Disposer.register(this, filterForm);
             }
             CardLayouts.showCard(filterDetailsPanel, id);
-            configurationEditorForm.focus();
+            filterForm.focusPreferredComponent();
         }
     }
 }

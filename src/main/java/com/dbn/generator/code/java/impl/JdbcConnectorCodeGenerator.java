@@ -36,9 +36,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.NonNls;
 
 import java.util.Map;
 import java.util.Properties;
@@ -136,7 +136,7 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         AuthenticationType authType = authenticationInfo.getType();
         AuthenticationTokenType authTokenType = authenticationInfo.getTokenType();
         addProperty(properties, "AUTH_TYPE", authType);
-        addProperty(properties, "AUTH_TYPE_NAME", authType == null ? null  :authType.getName());
+        addProperty(properties, "AUTH_TYPE_NAME", authType == null ? null : authType.getName());
         addProperty(properties, "AUTH_TOKEN_TYPE", authTokenType);
         addProperty(properties, "AUTH_TOKEN_TYPE_NAME", authTokenType == null ? null : authTokenType.getName());
 

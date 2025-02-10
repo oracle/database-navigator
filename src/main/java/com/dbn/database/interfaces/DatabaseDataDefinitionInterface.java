@@ -44,6 +44,8 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
 
     void createObject(String code, DBNConnection connection) throws SQLException;
 
+    void createJavaClass(String qualifiedName, String code, DBNConnection connection) throws SQLException;
+
     /*********************************************************
      *                   CHANGE statements                   *
      *********************************************************/

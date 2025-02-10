@@ -20,7 +20,16 @@ import com.dbn.common.ui.Presentable;
 import org.jetbrains.annotations.Nls;
 
 import javax.swing.JTable;
+import java.awt.Font;
 import java.awt.Rectangle;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.font.FontRenderContext;
+import java.awt.font.LineMetrics;
+
+import static com.dbn.common.ui.util.Keyboard.insertKeyListener;
+import static com.dbn.common.ui.util.UserInterface.focusNextComponent;
+import static com.dbn.common.ui.util.UserInterface.focusPreviousComponent;
 
 public class Tables {
     private Tables() {}
@@ -69,5 +78,69 @@ public class Tables {
     public static boolean isLastCellSelected(JTable table) {
         return table.getSelectedRow() == table.getRowCount() - 1 &&
                 table.getSelectedColumn() == table.getColumnCount() - 1;
+    }
+
+    public static void installFocusTraversal(JTable table) {
+        insertKeyListener(table, new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.isConsumed()) return;
+                if (e.getKeyCode() != KeyEvent.VK_TAB) return;
+                JTable table = (JTable) e.getSource();
+
+                if (e.isShiftDown()) {
+                    if (allowTabFocusTraversal(table) || isFirstCellSelected(table)) {
+                        focusPreviousComponent(table);
+                        e.consume();
+                    }
+                } else {
+                    if (allowTabFocusTraversal(table) || isLastCellSelected(table)) {
+                        focusNextComponent(table);
+                        e.consume();
+                    }
+                }
+            }
+        });
+    }
+
+    private static boolean allowTabFocusTraversal(JTable table) {
+        if (table.getRowCount() == 0) return true; // no data -> o cell navigation
+        if (!table.getColumnSelectionAllowed()) return true; // no cell tab navigation possible
+        if (table.getSelectedRowCount() > 1) return true; // multiple rows selected -> no cell tab navigation
+        if (table.getSelectedColumnCount() > 1) return true; // multiple columns selected -> no cell tab navigation
+        return false;
+    }
+
+    /**
+     * Selects a row in the given JTable. If the specified row index is out of bounds,
+     * the method adjusts it to the nearest valid index within the table's row range.
+     *
+     * @param table    the JTable in which the row selection will be applied
+     * @param rowIndex the index of the row to be selected; adjusted if out of bounds
+     */
+    public static void selectTableRow(JTable table, int rowIndex) {
+        int rowCount = table.getRowCount();
+        if (rowCount == 0) return;
+
+        int lastIndex = rowCount - 1;
+        if (rowIndex > lastIndex) {
+            rowIndex = lastIndex;
+        }
+        table.setRowSelectionInterval(rowIndex, rowIndex);
+    }
+
+    /**
+     * Adjusts the row height of a given JTable by calculating the necessary height
+     * based on the table's font and specified padding.
+     *
+     * @param table   the JTable whose row height will be adjusted
+     * @param padding the additional space (in pixels) to add above and below the font height
+     */
+    public static void adjustTableRowHeight(JTable table, int padding) {
+        Font font = table.getFont();
+        FontRenderContext fontRenderContext = table.getFontMetrics(font).getFontRenderContext();
+        LineMetrics lineMetrics = font.getLineMetrics("ABCÄÜÖÂÇĞIİÖŞĀČḎĒËĠḤŌŠṢṬŪŽy", fontRenderContext);
+        int fontHeight = Math.round(lineMetrics.getHeight());
+        table.setRowHeight(fontHeight + (padding * 2));
     }
 }

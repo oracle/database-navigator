@@ -20,7 +20,6 @@ import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.tree.DBNTreeModel;
-import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
@@ -36,6 +35,7 @@ import javax.swing.tree.TreePath;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.common.util.Strings.equalsIgnoreCase;
 import static com.dbn.connection.ConnectionId.UNKNOWN;
 
 public abstract class JavaExecutionHistoryTreeModel extends DBNTreeModel implements StatefulDisposable {
@@ -110,7 +110,7 @@ public abstract class JavaExecutionHistoryTreeModel extends DBNTreeModel impleme
 			if (!isLeaf())
 				for (TreeNode node : getChildren()) {
 					SchemaTreeNode schemaNode = (SchemaTreeNode) node;
-					if (Strings.equalsIgnoreCase(schemaNode.getName(), executionInput.getMethodRef().getSchemaName())) {
+					if (equalsIgnoreCase(schemaNode.getName(), executionInput.getMethodRef().getSchemaName())) {
 						return schemaNode;
 					}
 				}
@@ -125,13 +125,13 @@ public abstract class JavaExecutionHistoryTreeModel extends DBNTreeModel impleme
 
 		ProgramTreeNode getProgramNode(JavaExecutionInput executionInput) {
 			DBObjectRef<DBJavaMethod> methodRef = executionInput.getMethodRef();
-			DBObjectRef<?> programRef = methodRef.getParentRef(DBObjectType.PROGRAM);
+			DBObjectRef<?> programRef = methodRef.getParentRef(DBObjectType.JAVA_CLASS);
 			String programName = programRef.getObjectName();
 			if (!isLeaf())
 				for (TreeNode node : getChildren()) {
 					if (node instanceof ProgramTreeNode) {
 						ProgramTreeNode programNode = (ProgramTreeNode) node;
-						if (Strings.equalsIgnoreCase(programNode.getName(), programName)) {
+						if (equalsIgnoreCase(programNode.getName(), programName)) {
 							return programNode;
 						}
 					}
@@ -157,8 +157,8 @@ public abstract class JavaExecutionHistoryTreeModel extends DBNTreeModel impleme
 	static class ProgramTreeNode extends JavaExecutionHistoryTreeNode {
 		ProgramTreeNode(JavaExecutionHistoryTreeNode parent, JavaExecutionInput executionInput) {
 			super(parent,
-					getNodeType(JavaRefUtil.getProgramObjectType(executionInput.getMethodRef())),
-					JavaRefUtil.getProgramName(executionInput.getMethodRef()));
+					getNodeType(DBObjectType.JAVA_CLASS),
+					executionInput.getMethodRef().getParentRef().getObjectName());
 		}
 
 		MethodTreeNode getMethodNode(JavaExecutionInput executionInput) {
@@ -168,7 +168,7 @@ public abstract class JavaExecutionHistoryTreeModel extends DBNTreeModel impleme
 			if (!isLeaf())
 				for (TreeNode node : getChildren()) {
 					MethodTreeNode methodNode = (MethodTreeNode) node;
-					if (Strings.equalsIgnoreCase(methodNode.getName(), methodName) && methodNode.getOverload() == overload) {
+					if (equalsIgnoreCase(methodNode.getName(), methodName) && methodNode.getOverload() == overload) {
 						return methodNode;
 					}
 				}

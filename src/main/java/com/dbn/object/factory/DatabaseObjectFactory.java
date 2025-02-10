@@ -19,7 +19,6 @@ package com.dbn.object.factory;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.thread.Callback;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
@@ -28,6 +27,7 @@ import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.DatabaseFileEditorManager;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBSchemaObject;
@@ -83,7 +83,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
     public void openFactoryInputDialog(DBSchema schema, DBObjectType objectType) {
         Project project = getProject();
-        if (objectType.isOneOf(DBObjectType.FUNCTION, DBObjectType.PROCEDURE)) {
+        if (objectType.isOneOf(DBObjectType.FUNCTION, DBObjectType.PROCEDURE, DBObjectType.JAVA_CLASS)) {
             Dialogs.show(() -> new ObjectFactoryInputDialog(project, schema, objectType));
         } else {
             Messages.showErrorDialog(project,
@@ -92,7 +92,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         }
     }
 
-    public void createObject(ObjectFactoryInput factoryInput, Callback callback) {
+    public void createObject(ObjectFactoryInput factoryInput) throws SQLException {
         Project project = getProject();
         List<String> errors = new ArrayList<>();
         factoryInput.validate(errors);
@@ -105,38 +105,85 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
         if (factoryInput instanceof MethodFactoryInput) {
             MethodFactoryInput methodFactoryInput = (MethodFactoryInput) factoryInput;
-            createMethod(methodFactoryInput, callback);
+            createMethod(methodFactoryInput);
+        }
+
+        if (factoryInput instanceof JavaFactoryInput) {
+            JavaFactoryInput javaFactoryInput = (JavaFactoryInput) factoryInput;
+            createJavaObject(javaFactoryInput);
         }
         // TODO other factory inputs
     }
 
-    private void createMethod(MethodFactoryInput factoryInput, Callback callback) {
-        callback.background(() -> {
-            DBObjectType objectType = factoryInput.isFunction() ? DBObjectType.FUNCTION : DBObjectType.PROCEDURE;
-            String objectTypeName = objectType.getName();
-            String objectName = factoryInput.getObjectName();
-            DBSchema schema = factoryInput.getSchema();
+    private void createMethod(MethodFactoryInput input) throws SQLException {
+        DBObjectType objectType = input.isFunction() ? DBObjectType.FUNCTION : DBObjectType.PROCEDURE;
+        String objectName = input.getObjectName();
+        DBSchema schema = input.getSchema();
 
-            DatabaseInterfaceInvoker.execute(HIGHEST,
-                    "Creating " + objectTypeName,
-                    "Creating " + objectTypeName + " " + objectName,
-                    schema.getProject(),
-                    schema.getConnectionId(),
-                    schema.getSchemaId(),
-                    conn -> {
-                        DatabaseDataDefinitionInterface dataDefinition = schema.getDataDefinitionInterface();
-                        dataDefinition.createMethod(factoryInput, conn);
-                    });
+        DatabaseInterfaceInvoker.execute(HIGHEST,
+                "Creating " + input.getObjectTypeName(),
+                "Creating " + input.getObjectDescription(),
+                schema.getProject(),
+                schema.getConnectionId(),
+                schema.getSchemaId(),
+                conn -> {
+                    DatabaseDataDefinitionInterface dataDefinition = schema.getDataDefinitionInterface();
+                    dataDefinition.createMethod(input, conn);
+                });
 
-            nn(schema.getChildObjectList(objectType)).reload();
+        nn(schema.getChildObjectList(objectType)).reload();
 
-            DBMethod method = schema.getChildObject(objectType, objectName, false);
-            nn(method.getChildObjectList(DBObjectType.ARGUMENT)).reload();
+        DBMethod method = schema.getChildObject(objectType, objectName, false);
+        if (method == null) return;
 
-            DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(getProject());
-            editorManager.connectAndOpenEditor(method, null, false, true);
-            notifyFactoryEvent(new ObjectFactoryEvent(method, ObjectFactoryEvent.EVENT_TYPE_CREATE));
-        });
+        nn(method.getChildObjectList(DBObjectType.ARGUMENT)).reload();
+
+        DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(getProject());
+        editorManager.connectAndOpenEditor(method, null, false, true);
+        notifyFactoryEvent(new ObjectFactoryEvent(method, ObjectFactoryEvent.EVENT_TYPE_CREATE));
+    }
+
+    private void createJavaObject(JavaFactoryInput input) throws SQLException {
+        DBObjectType objectType = DBObjectType.JAVA_CLASS;
+        String objectName = input.getClassName();
+        String packageName = input.getPackageName();
+        String classType = input.getTypeIdentifier();
+        String extendsSuffix = input.getExtendsSuffix();
+        DBSchema schema = input.getSchema();
+
+        String fullyQualifiedClassName;
+
+        StringBuilder javaCode = new StringBuilder();
+        if(!packageName.isEmpty()) {
+            fullyQualifiedClassName = packageName + "." + objectName;
+            javaCode.append("package ").append(packageName).append(";").append("\n");
+        } else {
+            fullyQualifiedClassName = objectName;
+        }
+
+        javaCode.append("public ").append(classType).append(" ").append(objectName).append(extendsSuffix)
+                .append("{")
+                .append("\n")
+                .append("}");
+
+        DatabaseInterfaceInvoker.execute(HIGHEST,
+                "Creating " + input.getObjectTypeName(),
+                "Creating " + input.getObjectDescription(),
+                schema.getProject(),
+                schema.getConnectionId(),
+                conn -> {
+                    DatabaseDataDefinitionInterface dataDefinition = schema.getDataDefinitionInterface();
+                    dataDefinition.createJavaClass(fullyQualifiedClassName, javaCode.toString(), conn);
+                });
+
+        nn(schema.getChildObjectList(objectType)).reload();
+
+        DBJavaClass javaClass = schema.getChildObject(objectType, fullyQualifiedClassName.replace(".","/"), false);
+        if (javaClass == null) return;
+
+        DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(getProject());
+        editorManager.connectAndOpenEditor(javaClass, null, false, true);
+        notifyFactoryEvent(new ObjectFactoryEvent(javaClass, ObjectFactoryEvent.EVENT_TYPE_CREATE));
     }
 
     public void dropObject(DBSchemaObject object) {

@@ -26,9 +26,9 @@ import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.ExecutionResultBase;
+import com.dbn.execution.common.input.ExecutionValue;
+import com.dbn.execution.common.input.ValueHolder;
 import com.dbn.execution.common.options.ExecutionEngineSettings;
-import com.dbn.execution.java.ArgumentValue;
-import com.dbn.execution.java.ArgumentValueHolder;
 import com.dbn.execution.java.JavaExecutionContext;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.ui.JavaExecutionResultForm;
@@ -53,7 +53,7 @@ import java.util.Map;
 @Setter
 public class JavaExecutionResult extends ExecutionResultBase<JavaExecutionResultForm> {
     private final WeakRef<JavaExecutionInput> executionInput;
-    private final List<ArgumentValue> argumentValues = new ArrayList<>();
+    private final List<ExecutionValue> fieldValues = new ArrayList<>();
     private final DBDebuggerType debuggerType;
     private String logOutput;
     private int executionDuration;
@@ -69,20 +69,20 @@ public class JavaExecutionResult extends ExecutionResultBase<JavaExecutionResult
         this.executionDuration = (int) (System.currentTimeMillis() - getExecutionContext().getExecutionTimestamp());
     }
 
-    public void addArgumentValue(DBJavaParameter argument, Object value) throws SQLException {
-        ArgumentValueHolder<Object> valueStore = ArgumentValue.createBasicValueHolder(value);
-        ArgumentValue argumentValue = new ArgumentValue(argument, valueStore);
-        argumentValues.add(argumentValue);
+    public void addArgumentValue(DBJavaParameter parameter, Object value) throws SQLException {
+        ValueHolder<Object> valueStore = ValueHolder.basic(value);
+        ExecutionValue fieldValue = new ExecutionValue(parameter.getName(), valueStore);
+        fieldValues.add(fieldValue);
         if (value instanceof DBNResultSet) {
             DBNResultSet resultSet = (DBNResultSet) value;
             if (cursorModels == null) {
                 cursorModels = new HashMap<>();
             }
 
-            ExecutionEngineSettings settings = ExecutionEngineSettings.getInstance(argument.getProject());
+            ExecutionEngineSettings settings = ExecutionEngineSettings.getInstance(parameter.getProject());
             int maxRecords = settings.getStatementExecutionSettings().getResultSetFetchBlockSize();
             ResultSetDataModel dataModel = new ResultSetDataModel(resultSet, getConnection(), maxRecords);
-            cursorModels.put(DBObjectRef.of(argument), dataModel);
+            cursorModels.put(DBObjectRef.of(parameter), dataModel);
         }
     }
 

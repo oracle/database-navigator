@@ -17,19 +17,24 @@
 package com.dbn.object.factory.ui.common;
 
 import com.dbn.common.dispose.Failsafe;
-import com.dbn.common.thread.Callback;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.util.Messages;
+import com.dbn.diagnostics.Diagnostics;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.DatabaseObjectFactory;
 import com.dbn.object.factory.ObjectFactoryInput;
 import com.dbn.object.factory.ui.FunctionFactoryInputForm;
+import com.dbn.object.factory.ui.JavaFactoryInputForm;
 import com.dbn.object.factory.ui.ProcedureFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+
+import java.sql.SQLException;
 
 public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?>> {
     private final DBObjectRef<DBSchema> schema;
@@ -47,28 +52,47 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
     @NotNull
     @Override
     protected ObjectFactoryInputForm<?> createForm() {
-        DBSchema schema = this.schema.ensure();
+        DBSchema schema = getSchema();
         return objectType == DBObjectType.FUNCTION ? new FunctionFactoryInputForm(this, schema, objectType, 0) :
                objectType == DBObjectType.PROCEDURE ? new ProcedureFactoryInputForm(this, schema, objectType, 0) :
+               objectType == DBObjectType.JAVA_CLASS ? new JavaFactoryInputForm(this,schema, 0):
                        Failsafe.nn(null);
+    }
+
+    private DBSchema getSchema() {
+        return this.schema.ensure();
+    }
+
+    @Override
+    protected String getDimensionServiceKey() {
+        // use custom dimension service keys for every object type
+        return Diagnostics.isDialogSizingReset() ? null : super.getDimensionServiceKey() + "." + objectType;
     }
 
     @Override
     public void doOKAction() {
+        ObjectFactoryInputForm form = getForm();
+        ObjectFactoryInput input = form.createFactoryInput(null);
+        Progress.modal(
+                getProject(),
+                getSchema(), true,
+                "Creating " + input.getObjectTypeName(),
+                "Creating " + input.getObjectDescription(),
+                p -> invokeObjectFactory(p, input));
+    }
+
+    private void invokeObjectFactory(ProgressIndicator progress, ObjectFactoryInput input) {
         Project project = getProject();
 
-        ObjectFactoryInputForm form = getForm();
-        ObjectFactoryInput factoryInput = form.createFactoryInput(null);
-        String objectTypeName = factoryInput.getObjectType().getName();
-
-        Callback callback = Callback.create();
-        callback.before(() -> form.freezeForm());
-        callback.onSuccess(() -> Dispatch.run(() -> super.doOKAction()));
-        callback.onFailure(e -> Messages.showErrorDialog(project, "Could not create " + objectTypeName + ".", e));
-        callback.after(() -> form.unfreezeForm());
-
         DatabaseObjectFactory factory = DatabaseObjectFactory.getInstance(project);
-        factory.createObject(factoryInput, callback);
+        try {
+            factory.createObject(input);
+            if (progress.isCanceled()) return; // do not close the dialog if cancelled
+
+            Dispatch.run(getComponent(), () -> super.doOKAction());
+        } catch (SQLException e) {
+            Messages.showErrorDialog(project, "Failed to create " + input.getObjectTypeName() + ".", e);
+        }
     }
 
     @Override

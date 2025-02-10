@@ -119,7 +119,9 @@ public class DBObjectMetadataFactory {
             case ARGUMENT:            return new DBArgumentMetadataImpl(resultSet);
             case DATABASE_TRIGGER:    return new DBTriggerMetadataImpl(resultSet);
             case DATASET_TRIGGER:     return new DBTriggerMetadataImpl(resultSet);
+            case JAVA_PRIMITIVE:      return new DBJavaClassMetadataImpl(resultSet);
             case JAVA_CLASS:          return new DBJavaClassMetadataImpl(resultSet);
+            case JAVA_INNER_CLASS:    return new DBJavaClassMetadataImpl(resultSet);
             case JAVA_FIELD:          return new DBJavaFieldMetadataImpl(resultSet);
             case JAVA_METHOD:         return new DBJavaMethodMetadataImpl(resultSet);
             case JAVA_PARAMETER:      return new DBJavaParameterMetadataImpl(resultSet);

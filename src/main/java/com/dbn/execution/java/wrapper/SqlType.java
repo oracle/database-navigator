@@ -17,23 +17,28 @@
 package com.dbn.execution.java.wrapper;
 
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
+@NonNls
 @Getter
 public class SqlType {
     private final String sqlTypeName;
     private final String transformerPrefix;
     private final String transformerSuffix;
+    private final String declarationSuffix;
 
+    public SqlType(String sqlTypeName) {
+        this(sqlTypeName, "", "", "");
+    }
     public SqlType(String sqlTypeName, String transformerPrefix, String transformerSuffix) {
+        this(sqlTypeName, transformerPrefix, transformerSuffix, "");
+    }
+
+    public SqlType(String sqlTypeName, String transformerPrefix, String transformerSuffix, String declarationSuffix) {
         this.sqlTypeName = sqlTypeName;
         this.transformerPrefix = transformerPrefix;
         this.transformerSuffix = transformerSuffix;
+        this.declarationSuffix = declarationSuffix;
     }
 
-    // Constructor for cases where we only have sqlTypeName
-    public SqlType(String sqlTypeName) {
-        this.sqlTypeName = sqlTypeName;
-        this.transformerPrefix = "";
-        this.transformerSuffix = "";
-    }
 }

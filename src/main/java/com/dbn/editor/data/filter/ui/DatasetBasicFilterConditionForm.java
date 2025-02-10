@@ -22,6 +22,7 @@ import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.listener.ComboBoxSelectionKeyListener;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Safe;
@@ -41,6 +42,7 @@ import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -50,6 +52,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static com.dbn.common.ui.util.Accessibility.announceEvent;
+import static com.dbn.common.ui.util.Accessibility.attachSelectionAnnouncer;
 
 public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<DatasetBasicFilterCondition> {
 
@@ -96,6 +101,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
                 filterForm.updateNameAndPreview();
             }
             operatorSelector.reloadValues();
+            announceEvent(columnSelector, "Selected column is " + columnSelector.getSelectedValueName());
         });
 
 
@@ -129,7 +135,18 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
                 "press <b>Up/Down</b> keys to change column or <br> " +
                 "press <b>Ctrl-Up/Ctrl-Down</b> keys to change operator</html>");
 
+
         Disposer.register(this, editorComponent);
+    }
+
+    @Override
+    protected void initAccessibility() {
+        Accessibility.setAccessibleDescription(editorComponent.getTextField(),
+                "Press Up or Down arrow keys to change column or " +
+                "press Ctrl-Up or Ctrl-Down arrow keys to change operator");
+
+        attachSelectionAnnouncer(columnSelector, "Column");
+        attachSelectionAnnouncer(operatorSelector, "Operator");
     }
 
     @NotNull
@@ -151,13 +168,6 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
             return columns;
         }
         return Collections.emptyList();
-    }
-
-    @Override
-    public void focus() {
-        JTextField valueTextField = editorComponent.getTextField();
-        valueTextField.selectAll();
-        valueTextField.grabFocus();
     }
 
     public void setBasicFilterPanel(DatasetBasicFilterForm filterForm) {
@@ -221,6 +231,12 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
             }
         }
     };
+
+    @Nullable
+    @Override
+    public JComponent getPreferredFocusedComponent() {
+        return editorComponent.getTextField();
+    }
 
     @NotNull
     @Override

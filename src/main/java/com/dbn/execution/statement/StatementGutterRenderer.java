@@ -17,7 +17,6 @@
 package com.dbn.execution.statement;
 
 import com.dbn.common.compatibility.Workaround;
-import com.dbn.common.util.Traces;
 import com.dbn.execution.statement.action.StatementGutterAction;
 import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.intellij.codeInsight.daemon.impl.ShowIntentionsPass;
@@ -28,6 +27,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.util.Objects;
+
+import static com.dbn.common.util.Traces.isCalledThroughClass;
 
 public class StatementGutterRenderer extends GutterIconRenderer {
     private final StatementGutterAction action;
@@ -53,7 +54,7 @@ public class StatementGutterRenderer extends GutterIconRenderer {
     @Nullable
     @Workaround // TODO workaround for Idea 15 bug (showing gutter actions as intentions)
     public AnAction getClickAction() {
-        return Traces.isCalledThrough(ShowIntentionsPass.class) ? null : action;
+        return isCalledThroughClass(ShowIntentionsPass.class, 20) ? null : action;
     }
 
     @Override

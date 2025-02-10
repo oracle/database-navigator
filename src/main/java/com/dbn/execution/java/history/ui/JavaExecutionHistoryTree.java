@@ -19,8 +19,9 @@ package com.dbn.execution.java.history.ui;
 import com.dbn.common.ui.tree.DBNColoredTreeCellRenderer;
 import com.dbn.common.ui.tree.DBNTree;
 import com.dbn.execution.java.JavaExecutionInput;
+import com.dbn.execution.java.history.ui.JavaExecutionHistoryTreeModel.MethodTreeNode;
+import com.dbn.execution.java.history.ui.JavaExecutionHistoryTreeModel.ProgramTreeNode;
 import com.intellij.openapi.Disposable;
-import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ui.tree.TreeUtil;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -35,6 +36,9 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
+import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
 
 @Getter
 public class JavaExecutionHistoryTree extends DBNTree implements Disposable {
@@ -91,8 +95,8 @@ public class JavaExecutionHistoryTree extends DBNTree implements Disposable {
 	@Nullable
 	JavaExecutionInput getSelectedExecutionInput() {
 		Object selection = getLastSelectedPathComponent();
-		if (selection instanceof JavaExecutionHistoryTreeModel.MethodTreeNode) {
-			JavaExecutionHistoryTreeModel.MethodTreeNode methodNode = (JavaExecutionHistoryTreeModel.MethodTreeNode) selection;
+		if (selection instanceof MethodTreeNode) {
+			MethodTreeNode methodNode = (MethodTreeNode) selection;
 			return methodNode.getExecutionInput();
 		}
 		return null;
@@ -103,13 +107,27 @@ public class JavaExecutionHistoryTree extends DBNTree implements Disposable {
 		public void customizeCellRenderer(DBNTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
 			JavaExecutionHistoryTreeNode node = (JavaExecutionHistoryTreeNode) value;
 			setIcon(node.getIcon());
-			append(nvl(node.getName(), ""), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-			if (node instanceof JavaExecutionHistoryTreeModel.MethodTreeNode) {
-				JavaExecutionHistoryTreeModel.MethodTreeNode methodTreeNode = (JavaExecutionHistoryTreeModel.MethodTreeNode) node;
-				short overload = methodTreeNode.getOverload();
-				if (overload > 0) {
-					append(" #" + overload, SimpleTextAttributes.GRAY_ATTRIBUTES);
+			String name = node.getName();
+			if (node instanceof ProgramTreeNode) {
+				append(getCanonicalName(name), REGULAR_ATTRIBUTES);
+			}
+			else if (node instanceof MethodTreeNode) {
+				int overloadIndex = name.lastIndexOf("#");
+				String methodPath = overloadIndex > 0 ? name.substring(0, overloadIndex) : name;
+
+				int pathIndex = name.lastIndexOf(".");
+				if (pathIndex > 0) {
+					String className = getCanonicalName(methodPath.substring(0, pathIndex));
+					String methodName = methodPath.substring(pathIndex + 1);
+					append(className + "." + methodName, REGULAR_ATTRIBUTES);
+				} else {
+					append(methodPath, REGULAR_ATTRIBUTES);
 				}
+
+				String methodOverload = name.substring(overloadIndex);
+				append(" " + methodOverload, GRAY_ATTRIBUTES);
+			} else {
+				append(nvl(name, ""), REGULAR_ATTRIBUTES);
 			}
 		}
 	}

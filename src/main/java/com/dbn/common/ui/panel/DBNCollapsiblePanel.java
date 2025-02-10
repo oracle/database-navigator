@@ -27,6 +27,10 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.awt.event.InputEvent;
+
+import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
 public class DBNCollapsiblePanel extends DBNFormBase {
 
@@ -52,7 +56,7 @@ public class DBNCollapsiblePanel extends DBNFormBase {
         this.expanded = expanded;
         this.contentPanel.add(contentForm.getComponent(), BorderLayout.CENTER);
 
-        togglePanel.setActionConsumer(e -> toggleVisibility());
+        togglePanel.setActionConsumer(e -> toggleVisibility(e));
         updateVisibility();
     }
 
@@ -60,7 +64,7 @@ public class DBNCollapsiblePanel extends DBNFormBase {
         contentPanel.add(child.getMainComponent(), BorderLayout.SOUTH);
     }
 
-    private void toggleVisibility() {
+    private void toggleVisibility(InputEvent e) {
         setExpanded(!expanded);
     }
 
@@ -68,14 +72,24 @@ public class DBNCollapsiblePanel extends DBNFormBase {
         this.expanded = expanded;
         updateVisibility();
         listeners.notify(l -> l.toggled(expanded));
+        setAccessibleName(togglePanel, getTitle() + " " + getStateName(expanded));
+        setAccessibleDescription(togglePanel, expanded ? null : contentForm.getCollapsedTitleDetail());
+    }
+
+    private String getTitle() {
+        return expanded ? contentForm.getExpandedTitle() : contentForm.getCollapsedTitle();
+    }
+
+    private static String getStateName(boolean expanded) {
+        return expanded ? "expanded" : "collapsed";
     }
 
     private void updateVisibility() {
         contentPanel.setVisible(expanded);
         toggleDetailLabel.setVisible(!expanded);
-        toggleDetailLabel.setText(contentForm.getCollapsedTitleDetail());
+        toggleDetailLabel.setText(" - " + contentForm.getCollapsedTitleDetail());
         toggleLabel.setIcon(expanded ? UIUtil.getTreeExpandedIcon() : UIUtil.getTreeCollapsedIcon());
-        toggleLabel.setText(expanded ? contentForm.getExpandedTitle() : contentForm.getCollapsedTitle());
+        toggleLabel.setText(getTitle());
     }
 
     public void addToggleListener(ToggleListener listener) {

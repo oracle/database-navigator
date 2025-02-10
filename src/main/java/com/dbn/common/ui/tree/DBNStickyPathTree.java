@@ -28,10 +28,12 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.border.Border;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -47,6 +49,7 @@ import java.util.Objects;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.thread.Dispatch.alarm;
 import static com.dbn.common.thread.Dispatch.alarmRequest;
+import static com.dbn.common.ui.BorderDelegate.delegate;
 import static com.dbn.common.ui.util.UserInterface.getParentOfType;
 
 public class DBNStickyPathTree extends DBNTree{
@@ -62,7 +65,6 @@ public class DBNStickyPathTree extends DBNTree{
     public DBNStickyPathTree(@NotNull DBNTree sourceTree) {
         super(sourceTree);
         setBackground(sourceTree.getBackground());
-        setBorder(sourceTree.getBorder());
         setRootVisible(sourceTree.isRootVisible());
         setShowsRootHandles(sourceTree.getShowsRootHandles());
         setCellRenderer(sourceTree.getCellRenderer());
@@ -74,15 +76,19 @@ public class DBNStickyPathTree extends DBNTree{
         //Reflection.invokeMethod(scrollPane, "setOverlappingScrollBar", false);
         container = scrollPane.getParent();
 
+        setBorder(delegate(() -> scrollPane.getViewportBorder()));
+
+
         JBLayeredPane layeredPane = new JBLayeredPane();
         UserInterface.replaceComponent(scrollPane, layeredPane);
         layeredPane.add(scrollPane, JLayeredPane.DEFAULT_LAYER);
 
-
         headerPanel = new JPanel(new BorderLayout());
         headerPanel.setPreferredSize(new Dimension(-1, 0));
         headerPanel.add(this, BorderLayout.CENTER);
-        headerPanel.setBorder(Borders.lineBorder(DarculaUIUtil.getOutlineColor(false, false), 0, 0, 1, 0));
+
+        Color splitterColor = DarculaUIUtil.getOutlineColor(false, false);
+        headerPanel.setBorder(Borders.lineBorder(splitterColor, 0, 0, 1, 0));
         headerPanel.setBackground(sourceTree.getBackground());
         layeredPane.add(headerPanel, JLayeredPane.PALETTE_LAYER);
 
@@ -233,7 +239,15 @@ public class DBNStickyPathTree extends DBNTree{
     }
 
     private int computeOverlayHeight(int visibleRows) {
-        return visibleRows > 0 ? visibleRows * getRowHeight() + 1 : 0;
+        int topInsets = getTopInsets();
+        return visibleRows > 0 ? visibleRows * getRowHeight() + 1 + topInsets: 0;
+    }
+
+    private int getTopInsets() {
+        Border border = getBorder();
+        if (border == null) return 0;
+
+        return border.getBorderInsets(this).top;
     }
 
     @Nullable
@@ -241,7 +255,7 @@ public class DBNStickyPathTree extends DBNTree{
         if (!checkFeatureEnabled()) return null;
 
         int verticalScroll = getVerticalScroll();
-        if (verticalScroll < getRowHeight()) return null;
+        if (verticalScroll < getRowHeight() - getTopInsets() -2) return null;
 
         verticalScroll = verticalScroll + getOverlayHigh();
         DBNTree sourceTree = getSourceTree();
