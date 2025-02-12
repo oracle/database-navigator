@@ -75,7 +75,7 @@ public abstract class DBNTableGutterRendererBase implements DBNTableGutterRender
             Dispatch.run(() -> resize(list, preferredWidth));
         }
 
-        setAccessibleName(mainPanel, "Index " + (index + 1));
+        setAccessibleName(mainPanel, "Row index " + (index + 1));
         return mainPanel;
     }
 

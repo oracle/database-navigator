@@ -20,11 +20,9 @@ import com.dbn.common.action.DataProviderDelegate;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.nls.NlsSupport;
-import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
-import java.util.List;
 
 public interface DBNForm extends DBNComponent, DataProviderDelegate, NlsSupport {
 
@@ -32,15 +30,6 @@ public interface DBNForm extends DBNComponent, DataProviderDelegate, NlsSupport 
     default JComponent getPreferredFocusedComponent() {
         return null;
     }
-
-    /**
-     * Form validator invoked by the dialog validation logic for preventing invalid inputs from being submitted
-     * {@link DBNForm} implementations which require input validation must overwrite this with the appropriate validation logic
-     *
-     * @param components the components to be validated (if left empty, all components will be validated)
-     * @return a list of {@link ValidationInfo} objects representing the validation errors
-     */
-    List<ValidationInfo> validate(JComponent... components);
 
     /**
      * Retrieves the parent dialog of the current form, if present.
