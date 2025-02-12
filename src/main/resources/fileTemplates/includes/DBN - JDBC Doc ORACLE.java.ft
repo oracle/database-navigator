@@ -1,5 +1,5 @@
 #set($urlPattern = "${JDBC_URL_PATTERN}")
-#set($urlPatternHtml = $urlPattern.replace("<", "&lt;").replace(">", "&gt;"))
+#set($urlPatternHtml = $urlPattern.replace("<", "{").replace(">", "}"))
 /**
  * Oracle JDBC Connector<br>
  * This is generated code. The {@link ${CLASS_NAME}#connect()} method is implemented to connect to the

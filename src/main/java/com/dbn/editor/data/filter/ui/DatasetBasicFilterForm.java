@@ -89,7 +89,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
 
 
     public DatasetBasicFilterForm(DBDataset dataset, DatasetBasicFilter filter) {
-        super(filter);
+            super(filter);
 
         NO_INDENT.set(mainPanel, true);
 
@@ -143,13 +143,6 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
     }
 
     @Override
-    public void focus() {
-        if (conditionForms.size() > 0) {
-            conditionForms.get(0).focus();
-        }
-    }
-
-    @Override
     protected ActionListener createActionListener() {
         return e -> updateNameAndPreview();
     }
@@ -185,7 +178,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
             }
         }
 
-        String name = buffer.length() > 0 ? buffer.toString() : getConfiguration().getFilterGroup().createFilterName("Filter");
+        String name = buffer.length() > 0 ? buffer.toString() : getConfiguration().getName();
         nameTextField.setText(name);
         nameTextField.setForeground(UIUtil.getInactiveTextColor());
     }
@@ -265,7 +258,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
             conditionsPanel.add(conditionForm.getComponent());
 
             UserInterface.repaint(conditionsPanel);
-            conditionForm.focus();
+            conditionForm.focusPreferredComponent();
         }
     }
 

@@ -16,12 +16,12 @@
 
 <html lang="en">
 <head><title>Basic connectivity</title></head>
-<body style="font-family:SansSerif,serif; font-size: 9px">
+<body style="${REGULAR_FONT_STYLE}">
 Basic host / port / database connectivity<br>
 Thin JDBC URL based on Host, Port and SID / Service Name<br><br>
 
 Example:<br>
-<span style="font-family: Courier New, Courier, monospace; font-size: larger;">jdbc:oracle:thin:@localhost:1521:XE</span>
+<span style="${MONOSPACE_LARGE_FONT_STYLE}">jdbc:oracle:thin:@localhost:1521:XE</span>
 <br>
 <br>
 </body>

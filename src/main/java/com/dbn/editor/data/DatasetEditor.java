@@ -383,7 +383,7 @@ public class DatasetEditor extends DisposableUserDataHolderBase implements
                 } else {
                     String message = timeoutException ?
                             txt("msg.dataEditor.error.DataLoadTimeout", datasetName) :
-                            txt("msg.dataEditor.error.DataLoadInvalidFilter", datasetName, filter.getName(), e.getMessage());
+                            txt("msg.dataEditor.error.DataLoadInvalidFilter", datasetName, e.getMessage());
 
                     String[] options = {
                             txt("msg.shared.button.Retry"),

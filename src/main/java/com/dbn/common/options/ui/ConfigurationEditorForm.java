@@ -128,6 +128,4 @@ public abstract class ConfigurationEditorForm<E extends BasicConfiguration> exte
         }
 
     }
-
-    public void focus() {}
 }

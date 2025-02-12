@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package com.dbn.connection;
+package com.dbn.database.common.statement;
 
-import com.intellij.util.messages.Topic;
+public abstract class CallableStatementOutputBase implements CallableStatementOutput{
+    private int parameterIndexOffset;
 
-import java.util.EventListener;
+    protected int shifted(int parameterIndex) {
+        return parameterIndex + parameterIndexOffset;
+    }
 
-/**
- * Listener to console switch from the UI
- */
-public interface ConsoleChangeListener extends EventListener {
-    Topic<ConsoleChangeListener> TOPIC = Topic.create("Connection console changed", ConsoleChangeListener.class);
-
-    /**
-     * Console change event
-     * @param connectionId the connectionId that is now active
-     */
-    void consoleChanged(ConnectionId connectionId);
+    @Override
+    public void shiftParameterIndex(int shift) {
+        parameterIndexOffset = shift;
+    }
 }

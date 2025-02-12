@@ -80,6 +80,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		String outerClassName = metadata.getOuterClassName();
 		if (Strings.isNotEmpty(outerClassName)) {
 			outerClass = new DBObjectRef<>(schema.ref(), DBObjectType.JAVA_CLASS, outerClassName);
+			ref.clearReference();
 			ref.setParent(outerClass);
 		}
 	}

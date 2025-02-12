@@ -23,16 +23,19 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.feature.FeatureAvailability;
 import com.dbn.common.feature.FeatureAvailabilityInfo;
+import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.thread.Progress;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.connection.ConsoleChangeListener;
 import com.dbn.connection.mapping.FileConnectionContextListener;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
+import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +49,7 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.feature.FeatureAvailability.AVAILABLE;
 import static com.dbn.common.feature.FeatureAvailability.UNAVAILABLE;
 import static com.dbn.common.feature.FeatureAvailability.UNCERTAIN;
+import static com.dbn.common.util.ContextLookup.getConnectionId;
 import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
@@ -59,8 +63,8 @@ public class AssistantInitializationManager extends ProjectComponentBase impleme
         super(project, COMPONENT_NAME);
 
         ProjectEvents.subscribe(project, this,
-                ConsoleChangeListener.TOPIC,
-                connectionId -> initialize(connectionId));
+                FileEditorManagerListener.FILE_EDITOR_MANAGER,
+                fileEditorManagerListener());
 
         ProjectEvents.subscribe(project, this,
                 FileConnectionContextListener.TOPIC,
@@ -77,6 +81,19 @@ public class AssistantInitializationManager extends ProjectComponentBase impleme
             public void connectionChanged(Project project, VirtualFile file, ConnectionHandler connection) {
                 if (connection == null) return;
                 initialize(connection.getConnectionId());
+            }
+        };
+    }
+
+    private FileEditorManagerListener fileEditorManagerListener() {
+        return new DBNFileEditorManagerListener() {
+            @Override
+            public void whenSelectionChanged(FileEditorManagerEvent event) {
+                FileEditor editor = event.getNewEditor();
+                ConnectionId connectionId = getConnectionId(getProject(), editor);
+                if (connectionId == null) return;
+
+                initialize(connectionId);
             }
         };
     }

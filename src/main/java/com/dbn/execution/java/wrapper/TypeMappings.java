@@ -16,7 +16,6 @@
 
 package com.dbn.execution.java.wrapper;
 
-import com.esotericsoftware.kryo.kryo5.util.Null;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
@@ -90,7 +89,7 @@ public final class TypeMappings {
         return DATA_TYPES.get(className);
     }
 
-    @Null
+    @Nullable
     public static String getSqlTypeName(String className){
         SqlType sqlType = getSqlType(className);
         return sqlType == null ? null : sqlType.getSqlTypeName();

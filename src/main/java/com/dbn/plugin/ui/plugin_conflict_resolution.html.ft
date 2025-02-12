@@ -16,7 +16,7 @@
 
 <html lang="en">
 <head><title>Plugin conflict</title></head>
-<body style="font-family:Segoe UI,SansSerif,serif; font-size: 9px">
+<body style="${REGULAR_FONT_STYLE}">
 PLUGIN CONFLICT<br>
 <ul>
     <li><b>Database Navigator</b> - third party</li>

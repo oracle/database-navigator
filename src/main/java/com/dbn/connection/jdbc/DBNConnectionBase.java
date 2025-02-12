@@ -65,7 +65,8 @@ abstract class DBNConnectionBase extends DBNResource<Connection> implements Conn
 
     @Override
     @Exploitable
-    public DBNCallableStatement prepareCall(String sql) throws SQLException {
+    @SneakyThrows
+    public DBNCallableStatement prepareCall(String sql) {
         return wrap(inner.prepareCall(sql), sql);
     }
 

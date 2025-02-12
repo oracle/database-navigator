@@ -184,12 +184,23 @@ public class DBNConnection extends DBNConnectionBase {
     @Exploitable
     public DBNPreparedStatement prepareStatementCached(String sql) {
         return cachedStatements.computeIfAbsent(sql, s -> {
-            DBNPreparedStatement preparedStatement = prepareStatement(s);
-            preparedStatement.setCached(true);
-            preparedStatement.setFetchSize(500);
-            preparedStatement.setSql(s);
-            return preparedStatement;
+            DBNPreparedStatement statement = prepareStatement(s);
+            statement.setCached(true);
+            statement.setFetchSize(500);
+            statement.setSql(s);
+            return statement;
         });
+    }
+
+    @Exploitable
+    public DBNCallableStatement prepareCallCached(String sql) {
+        return cast(cachedStatements.computeIfAbsent(sql, s -> {
+            DBNPreparedStatement statement = prepareCall(s);
+            statement.setCached(true);
+            statement.setFetchSize(500);
+            statement.setSql(s);
+            return statement;
+        }));
     }
 
     @Override

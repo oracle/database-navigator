@@ -40,7 +40,9 @@ public enum ClientProperty {
     TAB_CONTENT,
     FOCUS_INHERITANCE,
     COMPONENT_GROUP_QUALIFIER,
-    HAS_VALIDATION_LISTENERS;
+    HAS_VALIDATION_LISTENERS,
+    ACCESSIBLE_NAME,
+    ACCESSIBLE_DESCRIPTION;
 
 
     public boolean is(Component component) {

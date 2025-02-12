@@ -43,7 +43,7 @@ public abstract class DBObjectRelationImpl<S extends DBObject, T extends DBObjec
         this.sourceObjectRef = DBObjectRef.of(sourceObject);
         this.targetObjectRef = DBObjectRef.of(targetObject);
 
-        // hold strong reference to objects of type DBCastedObject (no strong references in place)
+        // hold strong reference to objects of type DBCastedObject (no other strong references in place)
         this.sourceObject = sourceObject instanceof DBCastedObject ? sourceObject : null;
         this.targetObject = targetObject instanceof DBCastedObject ? targetObject : null;
     }
@@ -51,11 +51,13 @@ public abstract class DBObjectRelationImpl<S extends DBObject, T extends DBObjec
 
 
     public S getSourceObject() {
-        return DBObjectRef.get(sourceObjectRef);
+        // favor strong reference to source object if available
+        return nvl(sourceObject, () -> DBObjectRef.get(sourceObjectRef));
     }
 
     public T getTargetObject() {
-        return DBObjectRef.get(targetObjectRef);
+        // favor strong reference to target object if available
+        return nvl(targetObject, () -> DBObjectRef.get(targetObjectRef));
     }
 
     public String toString() {

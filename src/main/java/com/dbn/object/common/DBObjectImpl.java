@@ -589,7 +589,7 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
             DBObject object = parentObjectRef.ensure();
 
             DBObjectListContainer childObjects = nd(object.getChildObjects());
-            DBObjectList parentObjectList = childObjects.getObjectList(objectType);
+            DBObjectList parentObjectList = childObjects.resolveObjectList(objectType);
             return nd(parentObjectList);
 
         } else {

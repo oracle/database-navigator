@@ -42,6 +42,10 @@ public class TextContent {
         return type.id();
     }
 
+    public boolean isHtml() {
+        return type == MimeType.TEXT_HTML;
+    }
+
     public static TextContent plain(String text) {
         return new TextContent(text, MimeType.TEXT_PLAIN);
     }

@@ -53,7 +53,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
 @Getter
@@ -96,8 +95,6 @@ public abstract class ValueSelector<T extends Presentable> extends DBNButtonPane
         addMouseListener(createMouseListener());
         setFocusable(true);
         setAccessibleName(this, text);
-        setAccessibleDescription(this, text);
-
 
         label = new JLabel(text, cropIcon(icon), SwingConstants.LEFT);
         label.setCursor(Cursors.handCursor());
