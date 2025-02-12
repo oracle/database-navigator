@@ -21,12 +21,10 @@ import com.intellij.ui.ColoredTableCellRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.accessibility.AccessibleContext;
 import javax.swing.JTable;
 import javax.swing.border.Border;
 
 import static com.dbn.common.ui.util.Borders.TEXT_FIELD_INSETS;
-import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public abstract class DBNColoredTableCellRenderer extends ColoredTableCellRenderer {
@@ -39,7 +37,6 @@ public abstract class DBNColoredTableCellRenderer extends ColoredTableCellRender
             DBNTable dbnTable = (DBNTable) table;
 
             customizeCellRenderer(dbnTable, value, selected, hasFocus, row, column);
-            customizeCellAccessibility(dbnTable, value, selected, hasFocus, row, column);
         } catch (ProcessCanceledException e){
             conditionallyLog(e);
         } catch (Throwable e){
@@ -48,17 +45,4 @@ public abstract class DBNColoredTableCellRenderer extends ColoredTableCellRender
     }
 
     protected abstract void customizeCellRenderer(DBNTable table, @Nullable Object value, boolean selected, boolean hasFocus, int row, int column);
-
-    private void customizeCellAccessibility(DBNTable table, @Nullable Object value, boolean selected, boolean hasFocus, int row, int column) {
-        AccessibleContext accessibleContext = this.accessibleContext;
-        if (accessibleContext == null) return; // accessibility not initialized, most likely not required
-
-        DBNTableModel<Object> model = table.getModel();
-        String columnValue = model.getPresentableValue(value, column);
-        if (isEmpty(columnValue)) columnValue = "empty";
-
-        String columnName = model.getColumnName(column);
-        String accessibleName = isEmpty(columnName) ? columnValue : columnName + ": " + columnValue;
-        accessibleContext.setAccessibleName(accessibleName);
-    }
 }

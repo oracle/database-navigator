@@ -23,7 +23,6 @@ import com.dbn.common.text.MimeType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.util.LookAndFeel;
-import com.dbn.common.ui.util.UserInterface;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.RoundedLineBorder;
 import com.intellij.uiDesigner.core.GridLayoutManager;
@@ -38,8 +37,12 @@ import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 import static com.dbn.common.text.HtmlContents.initFonts;
+import static com.dbn.common.ui.util.ClientProperty.RESIZING;
+import static com.dbn.common.ui.util.UserInterface.adjustDimension;
 
 public class DBNHintForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -90,6 +93,13 @@ public class DBNHintForm extends DBNFormBase {
                 updateHintContent();
             }
         });
+
+        mainPanel.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                resizeComponent();
+            }
+        });
     }
 
     private void updateComponentColors() {
@@ -106,21 +116,30 @@ public class DBNHintForm extends DBNFormBase {
     }
 
     @SneakyThrows
-    private void resizeTextPane() {
-        Dispatch.run(() -> {
-            Dimension preferredSize = hintTextPane.getPreferredSize();
-            hintTextPane.revalidate();
+    private void resizeComponent() {
+        Dispatch.run(mainPanel, () -> {
+            if (RESIZING.is(mainPanel)) return;
 
-            Dimension contentPreferredSize = contentPanel.getPreferredSize();
-            mainPanel.setPreferredSize(UserInterface.adjust(contentPreferredSize, 0, 10));
-            mainPanel.revalidate();
-
-            Dimension contentSize = UserInterface.adjust(preferredSize, 4, 4);
-            if (!preferredSize.equals(contentSize)) {
-                hintTextPane.setPreferredSize(contentSize);
-                hintTextPane.revalidate();
+            try {
+                RESIZING.set(mainPanel, true);
+                doResizeComponent();
+            } finally {
+                RESIZING.set(mainPanel, false);
             }
         });
+    }
+
+    private void doResizeComponent() {
+        Dimension preferredSize = hintTextPane.getPreferredSize();
+        hintTextPane.revalidate();
+
+        Dimension contentPreferredSize = contentPanel.getPreferredSize();
+        mainPanel.setPreferredSize(adjustDimension(contentPreferredSize, 0, 10));
+        mainPanel.revalidate();
+
+        Dimension contentSize = adjustDimension(preferredSize, 4, 4);
+        hintTextPane.setPreferredSize(contentSize);
+        hintTextPane.revalidate();
     }
 
     @NotNull
@@ -164,7 +183,7 @@ public class DBNHintForm extends DBNFormBase {
             initPlainContent();
         }
 
-        resizeTextPane();
+        resizeComponent();
     }
 
     private void initPlainContent() {

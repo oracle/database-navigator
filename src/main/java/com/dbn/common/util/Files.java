@@ -149,4 +149,17 @@ public final class Files {
         if (index == -1) return name;
         return name.substring(0, index);
     }
+
+    /**
+     * Normalizes a file system path by replacing all occurrences of backslashes ("\\")
+     * and forward slashes ("/") with the platform-specific file separator.
+     *
+     * @param path the file path to normalize; must not be null
+     * @return the normalized file path with platform-specific separators
+     */
+    public static String normalizePath(String path) {
+        return path.
+            replace("\\", File.separator).
+            replace("/", File.separator);
+    }
 }

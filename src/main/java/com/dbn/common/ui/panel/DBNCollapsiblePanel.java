@@ -60,6 +60,11 @@ public class DBNCollapsiblePanel extends DBNFormBase {
         updateVisibility();
     }
 
+    protected void initAccessibility() {
+        setAccessibleName(togglePanel, getTitle() + " " + getStateName(expanded));
+        setAccessibleDescription(togglePanel, expanded ? null : contentForm.getCollapsedTitleDetail());
+    }
+
     public void addChild(DBNCollapsiblePanel child){
         contentPanel.add(child.getMainComponent(), BorderLayout.SOUTH);
     }
@@ -72,8 +77,7 @@ public class DBNCollapsiblePanel extends DBNFormBase {
         this.expanded = expanded;
         updateVisibility();
         listeners.notify(l -> l.toggled(expanded));
-        setAccessibleName(togglePanel, getTitle() + " " + getStateName(expanded));
-        setAccessibleDescription(togglePanel, expanded ? null : contentForm.getCollapsedTitleDetail());
+        initAccessibility();
     }
 
     private String getTitle() {
@@ -87,7 +91,7 @@ public class DBNCollapsiblePanel extends DBNFormBase {
     private void updateVisibility() {
         contentPanel.setVisible(expanded);
         toggleDetailLabel.setVisible(!expanded);
-        toggleDetailLabel.setText(" - " + contentForm.getCollapsedTitleDetail());
+        toggleDetailLabel.setText(contentForm.getCollapsedTitleDetail());
         toggleLabel.setIcon(expanded ? UIUtil.getTreeExpandedIcon() : UIUtil.getTreeCollapsedIcon());
         toggleLabel.setText(getTitle());
     }

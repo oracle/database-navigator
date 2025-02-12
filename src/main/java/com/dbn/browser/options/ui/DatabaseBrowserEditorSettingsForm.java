@@ -42,6 +42,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 
 public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<DatabaseBrowserEditorSettings> {
@@ -101,7 +102,9 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
                 @Override
                 protected void customizeCellRenderer(DBNTable table, Object value, boolean selected, boolean hasFocus, int row, int column) {
                     DefaultEditorType editorType = (DefaultEditorType) value;
+
                     append(editorType.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                    setAccessibleDescription(this, "Press space key to change the default editor type");
                 }
             });
 

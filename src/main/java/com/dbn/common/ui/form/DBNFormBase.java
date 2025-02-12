@@ -34,7 +34,6 @@ import com.intellij.ide.ui.LafManagerListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.util.containers.ContainerUtil;
 import lombok.experimental.Delegate;
 import org.jetbrains.annotations.ApiStatus;
@@ -49,7 +48,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 import java.awt.Dimension;
-import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.ui.util.Accessibility.initComponentGroupsAccessibility;
@@ -183,13 +181,6 @@ public abstract class DBNFormBase
         initComponentGroupsAccessibility(mainComponent);
         initCustomComponentAccessibility(mainComponent);
         //...
-    }
-
-
-
-    @Override
-    public final List<ValidationInfo> validate(JComponent... components) {
-        return validateForm(components);
     }
 
     @ApiStatus.OverrideOnly

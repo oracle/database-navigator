@@ -352,7 +352,7 @@ public class UserInterface {
         return null;
     }
 
-    public static Dimension adjust(Dimension dimension, int widthAdjustment, int heightAdjustment) {
+    public static Dimension adjustDimension(Dimension dimension, int widthAdjustment, int heightAdjustment) {
         return new Dimension((int) dimension.getWidth() + widthAdjustment, (int) dimension.getHeight() + heightAdjustment);
     }
 
