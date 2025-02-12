@@ -49,7 +49,7 @@ public class ConnectionConfigForm extends DBNFormBase {
   private JLabel confirmPasswordLabel;
   private TextFieldWithBrowseButton walletLocationField;
   private JLabel walletLocationHelper;
-  private boolean isDirtyWalletPath = false ;
+
   @Getter
   WalletPathType walletPathType ;
   String walletTooltip = "Please provide either an empty folder or a valid wallet location containing only the wallet files,<br> with no additional files or directories.";
@@ -60,8 +60,7 @@ public class ConnectionConfigForm extends DBNFormBase {
     initComboBox();
     setListeners();
     initForm(isMtlsRequired,this.walletDefaultPath);
-    setupValidation();
-
+    initValidation();
   }
 
   private void initComboBox() {
@@ -96,7 +95,6 @@ public class ConnectionConfigForm extends DBNFormBase {
   private void initForm(boolean isMtlsRequired, String parentCompartment) {
     walletLocationField.setText(walletDefaultPath);
     walletLocationField.setToolTipText(walletTooltip);
-    isDirtyWalletPath = !validateWalletPath();
     passwordTextField.setVisible(false);
     passwordLabel.setVisible(false);
     passwordConfirmTextField.setVisible(false);
@@ -122,8 +120,6 @@ public class ConnectionConfigForm extends DBNFormBase {
     walletLocationLabel.setVisible(true);
     walletLocationHelper.setVisible(true);
     walletLocationField.setVisible(true);
-    validateWalletPath();
-
   }
 
   private void setAuthenticationTypeToTLS() {
@@ -136,98 +132,70 @@ public class ConnectionConfigForm extends DBNFormBase {
     authenticationLabel.setLabelFor(authenticationTypeComboBox);
   }
 
-  private void setupValidation() {
-    // Validator for the password field
-    new ComponentValidator(this)
-            .withValidator(this::validatePassword)
-            .installOn(passwordTextField);
+  protected void initValidation() {
+    // Validator for the confirm password field
+    formValidator.addTextValidation(passwordTextField, this::validatePassword,"Password must be 8-60 characters long and include at least one letter and one number.");
 
     // Validator for the confirm password field
-    new ComponentValidator(this)
-            .withValidator(this::validateConfirmPassword)
-            .installOn(passwordConfirmTextField);
+    formValidator.addTextValidation(passwordConfirmTextField, this::validateConfirmPassword,"Confirm Password does not match.");
 
-    addDocumentListenersToFields();
+    formValidator.addTextValidation(walletLocationField.getTextField(),this::validateWalletPath,"<html><b>Error:</b> Invalid location:<br>"
+            +walletTooltip+"</html>");
   }
 
-  public ValidationInfo validatePassword() {
-    String password = new String(passwordTextField.getPassword());
-
-    // Check length
-    if (password.length() < 8 || password.length() > 60) {
-      return new ValidationInfo("Password must be 8 to 60 characters.", passwordTextField);
-    }
-
-    // Check for alphabetic character
-    if (!password.matches(".*[a-zA-Z].*")) {
-      return new ValidationInfo("Password must contain at least 1 alphabetic character.", passwordTextField);
-    }
-
-    // Check for numeric character
-    if (!password.matches(".*\\d.*")) {
-      return new ValidationInfo("Password must contain at least 1 numeric character.", passwordTextField);
-    }
-
-    return null; // Validation passed
-  }
-
-  public ValidationInfo validateConfirmPassword() {
-    String password = new String(passwordTextField.getPassword());
-    String confirmPassword = new String(passwordConfirmTextField.getPassword());
-
-    if (!password.equals(confirmPassword)) {
-      return new ValidationInfo("Passwords do not match.", passwordConfirmTextField);
-    }
-    return null;
-  }
-
-  private void addDocumentListenersToFields() {
-    walletLocationField.getTextField().getDocument().addDocumentListener(new DocumentAdapter() {
-
-      @Override
-      protected void textChanged(@NotNull DocumentEvent documentEvent) {
-          isDirtyWalletPath = !validateWalletPath();
-      }
-    });
-    DocumentAdapter listener = new DocumentAdapter() {
-      @Override
-      protected void textChanged(@NotNull DocumentEvent e) {
-        // Revalidate both fields on input change
-        ComponentValidator.getInstance(passwordTextField).ifPresent(ComponentValidator::revalidate);
-        ComponentValidator.getInstance(passwordConfirmTextField).ifPresent(ComponentValidator::revalidate);
-      }
-    };
-
-    passwordTextField.getDocument().addDocumentListener(listener);
-    passwordConfirmTextField.getDocument().addDocumentListener(listener);
-  }
-
-  public boolean validateWalletPath() {
-    String walletPath = walletLocationField.getText().trim();
-    WalletPathValidator.WalletValidationResult validationResult = WalletPathValidator.validateWalletLocation(walletPath,walletDefaultPath);
-
-    switch (validationResult) {
-      case VALID_EMPTY_LOCATION:
-        TextFields.updateFieldError(walletLocationField.getTextField(),null);
-        walletLocationField.getTextField().setToolTipText("A wallet will be downloaded in this folder");
-        walletPathType = WalletPathType.EMPTY_FOLDER;
-        isSpecifyPasswordCheckbox.setVisible(true);
-        return true;
-      case VALID_EXISTING_WALLET:
-
-        TextFields.updateFieldError(walletLocationField.getTextField(),null);
-        walletLocationField.getTextField().setToolTipText("A valid wallet already exists ");
-        this.walletPathType = WalletPathType.EXISTING_WALLET;
-        return true;
-      case INVALID_LOCATION:
-
-        TextFields.updateFieldError(walletLocationField.getTextField(),"<html><b>Error:</b> Invalid location:<br>"
-                                                                            +walletTooltip+"</html>");
-        isSpecifyPasswordCheckbox.setVisible(false);
-
+  public boolean validatePassword(String passwordText) {
+    if (isSpecifyPassword()) {
+      // Check length
+      if (passwordText.length() < 8 || passwordText.length() > 60) {
         return false;
+      }
+
+      // Check for alphabetic character
+      if (!passwordText.matches(".*[a-zA-Z].*")) {
+        return false;
+      }
+
+      // Check for numeric character
+      if (!passwordText.matches(".*\\d.*")) {
+        return false;
+      }
     }
-    return false;
+
+    return true; // Validation passed
+  }
+
+  public boolean validateConfirmPassword(String confirmPasswordText) {
+    if (isSpecifyPassword()) {
+      String password = new String(passwordTextField.getPassword());
+
+      if (!password.equals(confirmPasswordText)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public boolean validateWalletPath(String walletPath) {
+    if (isMTLS()) {
+
+
+      walletPath = walletLocationField.getText().trim();
+      WalletPathValidator.WalletValidationResult validationResult = WalletPathValidator.validateWalletLocation(walletPath, walletDefaultPath);
+
+      switch (validationResult) {
+        case VALID_EMPTY_LOCATION:
+          walletPathType = WalletPathType.EMPTY_FOLDER;
+          isSpecifyPasswordCheckbox.setVisible(true);
+          return true;
+        case VALID_EXISTING_WALLET:
+          this.walletPathType = WalletPathType.EXISTING_WALLET;
+          return true;
+        case INVALID_LOCATION:
+          isSpecifyPasswordCheckbox.setVisible(false);
+          return false;
+      }
+    }
+      return true;
   }
 
   @Override
@@ -246,9 +214,5 @@ public class ConnectionConfigForm extends DBNFormBase {
 
   public boolean isSpecifyPassword(){
     return isSpecifyPasswordCheckbox.isSelected();
-  }
-
-  public boolean isDirtyWalletPath() {
-    return isDirtyWalletPath;
   }
 }

@@ -41,23 +41,6 @@ public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm>  {
     return new ConnectionConfigForm(this, connectionData.isMtlsConnectionRequired(), connectionData.getParentCompartment());
   }
 
-
-
-  @Override
-  protected @NotNull List<ValidationInfo> doValidateAll() {
-    List<ValidationInfo> validationInfos = new ArrayList<>();
-
-    if (!getForm().isMTLS() || !getForm().isSpecifyPassword())
-      return new ArrayList<>();
-    ValidationInfo passwordValidation =  getForm().validatePassword();
-    ValidationInfo confirmPasswordValidation =  getForm().validateConfirmPassword();
-
-    Optional.ofNullable(passwordValidation).ifPresent(validationInfos::add);
-    Optional.ofNullable(confirmPasswordValidation).ifPresent(validationInfos::add);
-
-    return validationInfos;
-  }
-
   @Override
   protected Action @NotNull [] createActions() {
     String okActionText = "Create Connection";
@@ -69,11 +52,7 @@ public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm>  {
   @Override
   protected void doOKAction() {
     ConnectionConfigForm form = getForm();
-    //todo need to be improved
 
-    if (form.isMTLS() && (form.isDirtyWalletPath() || !form.validateWalletPath())){
-      return;
-    }
     DataContext dataContext = DataManager.getInstance().getDataContext();
     Project project = dataContext.getData(CommonDataKeys.PROJECT);
     ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);
