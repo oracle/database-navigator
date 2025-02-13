@@ -23,8 +23,10 @@ import com.dbn.data.type.ui.DataTypeEditor;
 import com.dbn.object.factory.ArgumentFactoryInput;
 import com.dbn.object.factory.ObjectFactoryInput;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
+import com.dbn.object.factory.ui.common.ObjectListForm.ObjectDetail;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
@@ -33,6 +35,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
 public class ArgumentFactoryInputForm extends ObjectFactoryInputForm<ArgumentFactoryInput> {
     private JPanel mainPanel;
@@ -43,7 +47,7 @@ public class ArgumentFactoryInputForm extends ObjectFactoryInputForm<ArgumentFac
     private JPanel dataTypeEditor;
     private final boolean enforceInArgument;
 
-    ArgumentFactoryInputForm(DBNForm parent, ConnectionHandler connection, boolean enforceInArgument, int index) {
+    ArgumentFactoryInputForm(DBNForm parent, ConnectionHandler connection, boolean enforceInArgument, int index, @Nullable ObjectDetail detail) {
         super(parent, connection, DBObjectType.ARGUMENT, index);
         this.enforceInArgument = enforceInArgument;
         iconLabel.setText(null);
@@ -55,6 +59,17 @@ public class ArgumentFactoryInputForm extends ObjectFactoryInputForm<ArgumentFac
             inCheckBox.addActionListener(actionListener);
             outCheckBox.addActionListener(actionListener);
         }
+        getDataTypeEditor().setText(detail == null ? "" : detail.getName());
+    }
+
+    @Override
+    protected void initAccessibility() {
+        JTextField typeTextField = getDataTypeEditor().getTextField();
+
+        setAccessibleName(typeTextField, "Argument type");
+        setAccessibleName(nameTextField, "Argument name");
+        setAccessibleName(inCheckBox, "Is input argument");
+        setAccessibleName(outCheckBox, "Is output argument");
     }
 
     private final ActionListener actionListener = new ActionListener() {
@@ -77,9 +92,13 @@ public class ArgumentFactoryInputForm extends ObjectFactoryInputForm<ArgumentFac
                 parent,
                 getIndex(),
                 nameTextField.getText(),
-                ((DataTypeEditor) dataTypeEditor).getDataTypeRepresentation(),
+                getDataTypeEditor().getDataTypeRepresentation(),
                 enforceInArgument || inCheckBox.isSelected(),
                 outCheckBox.isSelected());
+    }
+
+    private DataTypeEditor getDataTypeEditor() {
+        return (DataTypeEditor) dataTypeEditor;
     }
 
     @Override

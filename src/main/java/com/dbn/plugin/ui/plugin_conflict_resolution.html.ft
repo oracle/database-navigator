@@ -1,0 +1,39 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="en">
+<head><title>Plugin conflict</title></head>
+<body style="${REGULAR_FONT_STYLE}">
+PLUGIN CONFLICT<br>
+<ul>
+    <li><b>Database Navigator</b> - third party</li>
+    <li><b>Database Tools and SQL</b> - JetBrains standard distribution</li>
+</ul>
+Both <u>Database Navigator</u> (DBN) and
+the <u>Database Tools and SQL</u> plugins provide very similar database functionality.
+Having both plugins installed can lead to ambiguous and at times conflicting user experience. <u>You are advised to disable one of them.</u><br><br>
+
+<u>Database Navigator</u> is NOT a complementary product to, nor is it integrated with, the standard distribution database tool.
+You may not need this plugin since you already have fully-featured database support.
+
+<br><br>
+Please select one of the options below to continue.
+<br>
+<br>
+</body>
+</html>
+
+

@@ -98,6 +98,16 @@ public class Mouse {
         });
     }
 
+    public static void onButtonRelease(JComponent component, int button, Consumer<MouseEvent> consumer) {
+        component.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.getButton() != button) return;
+                consumer.accept(e);
+            }
+        });
+    }
+
     public static class Listener implements MouseListener, MouseMotionListener {
         private Consumer<MouseEvent> clickConsumer;
         private Consumer<MouseEvent> pressConsumer;

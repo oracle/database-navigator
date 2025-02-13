@@ -31,8 +31,8 @@ import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.DBNativeDataType;
 import com.dbn.data.type.DataTypeDefinition;
 import com.dbn.data.type.GenericDataType;
-import com.dbn.execution.method.MethodExecutionArgumentValue;
-import com.dbn.execution.method.MethodExecutionArgumentValueHistory;
+import com.dbn.execution.common.input.ExecutionVariable;
+import com.dbn.execution.common.input.ExecutionVariableHistory;
 import com.dbn.execution.method.MethodExecutionInput;
 import com.dbn.execution.method.MethodExecutionManager;
 import com.dbn.object.DBArgument;
@@ -41,6 +41,7 @@ import com.dbn.object.DBTypeAttribute;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.ui.JBDimension;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,6 +55,7 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static java.util.Collections.emptyList;
 
 public class MethodExecutionInputArgumentForm extends DBNFormBase {
@@ -123,12 +125,12 @@ public class MethodExecutionInputArgumentForm extends DBNFormBase {
                 userValueHolder.setContentType(contentType);
                 inputField.setUserValueHolder(userValueHolder);
 
-                inputField.setPreferredSize(new Dimension(240, -1));
+                inputField.setPreferredSize(new JBDimension(240, -1));
                 inputTextField = inputField.getTextField();
                 inputFieldPanel.add(inputField, BorderLayout.CENTER);
             } else {
                 TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
-                inputField.setPreferredSize(new Dimension(240, -1));
+                inputField.setPreferredSize(new JBDimension(240, -1));
                 if (genericDataType == GenericDataType.DATE_TIME) {
                     inputField.createCalendarPopup(false);
                 }
@@ -139,7 +141,9 @@ public class MethodExecutionInputArgumentForm extends DBNFormBase {
                 inputFieldPanel.add(inputField, BorderLayout.CENTER);
             }
 
+            argumentLabel.setLabelFor(inputTextField);
             inputTextField.setDisabledTextColor(inputTextField.getForeground());
+            setAccessibleUnit(inputTextField, argumentTypeLabel.getText());
         } else {
             inputFieldPanel.setVisible(false);
         }
@@ -175,8 +179,8 @@ public class MethodExecutionInputArgumentForm extends DBNFormBase {
                 ConnectionHandler connection = argument.getConnection();
                 ConnectionId connectionId = connection.getConnectionId();
                 MethodExecutionManager executionManager = MethodExecutionManager.getInstance(argument.getProject());
-                MethodExecutionArgumentValueHistory valuesHistory = executionManager.getArgumentValuesHistory();
-                MethodExecutionArgumentValue argumentValue = valuesHistory.getArgumentValue(connectionId, argument.getName(), false);
+                ExecutionVariableHistory valuesHistory = executionManager.getArgumentValuesHistory();
+                ExecutionVariable argumentValue = valuesHistory.getExecutionVariable(connectionId, argument.getName(), false);
                 if (argumentValue == null) return emptyList();
 
                 List<String> cachedValues = new ArrayList<>(argumentValue.getValueHistory());

@@ -22,6 +22,7 @@ import com.dbn.connection.security.DatabaseIdentifierCache;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
@@ -70,8 +71,13 @@ public class ObjectIdentifierMonitor<T> implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Object result = method.invoke(target, args);
-        return registerIdentifier(method, result);
+        try {
+            Object result = method.invoke(target, args);
+            return registerIdentifier(method, result);
+        } catch (InvocationTargetException e) {
+            // unwrap InvocationTargetException produced by the proxy
+            throw e.getTargetException();
+        }
     }
 
     private Object registerIdentifier(Method method, Object result) {

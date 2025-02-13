@@ -16,7 +16,6 @@
 
 package com.dbn.execution.statement.result.ui;
 
-import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -24,34 +23,26 @@ import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Strings;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.statement.result.StatementExecutionResult;
-import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
-import java.util.Objects;
 
 import static com.dbn.common.text.TextContent.plain;
-import static com.dbn.common.ui.util.TextFields.onTextChange;
 
 public class RenameExecutionResultForm extends DBNFormBase {
     private JPanel headerPanel;
     private JPanel mainPanel;
     private JPanel hintPanel;
-    private JLabel errorLabel;
     private JTextField resultNameTextField;
     private JCheckBox stickyCheckBox;
 
     RenameExecutionResultForm(RenameExecutionResultDialog parent, @NotNull StatementExecutionResult executionResult) {
         super(parent);
-        errorLabel.setForeground(JBColor.RED);
-        errorLabel.setIcon(Icons.EXEC_MESSAGES_ERROR);
-        errorLabel.setVisible(false);
 
         DBNHeaderForm headerForm = new DBNHeaderForm(this,
                 "Execution result - " + executionResult.getName(),
@@ -68,32 +59,10 @@ public class RenameExecutionResultForm extends DBNFormBase {
 
         ExecutionManager executionManager = ExecutionManager.getInstance(ensureProject());
         stickyCheckBox.setSelected(executionManager.isRetainStickyNames());
-
-        onTextChange(resultNameTextField, e -> updateErrorMessage(executionResult));
     }
 
-    private void updateErrorMessage(StatementExecutionResult executionResult) {
-        String errorText = null;
-        String text = Strings.trim(resultNameTextField.getText());
-
-        if (Strings.isEmpty(text)) {
-            errorText = "Result name must be specified";
-        }
-
-/*
-                else if (consoleNames.contains(text)) {
-                    errorText = "Console name already in use";
-                }
-*/
-
-
-        errorLabel.setVisible(errorText != null);
-
-        RenameExecutionResultDialog parent = ensureParentComponent();
-        parent.getOKAction().setEnabled(errorText == null && (!Objects.equals(executionResult.getName(), text)));
-        if (errorText != null) {
-            errorLabel.setText(errorText);
-        }
+    protected void initValidation() {
+        addTextValidation(resultNameTextField, n -> !Strings.isEmpty(n), "Please specify a result name");
     }
 
     @Nullable

@@ -32,7 +32,7 @@ import com.dbn.object.DBProgram;
 import com.dbn.object.action.AnObjectAction;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
-import com.dbn.object.type.DBJavaAccessibility;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -44,7 +44,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.dbn.common.util.Actions.SEPARATOR;
 import static com.dbn.nls.NlsResources.txt;
@@ -86,23 +88,25 @@ public class ProgramMethodRunAction extends ProjectPopupAction {
                 JavaExecutionHistory executionHistory = javaExecutionManager.getExecutionHistory();
                 List<DBJavaMethod> recentMethods = executionHistory.getRecentlyExecutedMethods((DBJavaClass) schemaObject);
 
+                Set<DBObjectRef<DBJavaMethod>> methodRefs = new HashSet<>();
+
                 if (recentMethods != null) {
                     for (DBJavaMethod method : recentMethods) {
                         RunJavaMethodAction action = new RunJavaMethodAction(method);
                         actions.add(action);
                     }
                     actions.add(SEPARATOR);
+                    methodRefs = new HashSet<>(DBObjectRef.from(recentMethods));
                 }
 
                 List<? extends DBObject> objects = schemaObject.collectChildObjects(DBObjectType.JAVA_METHOD);
                 for (DBObject object : objects) {
                     DBJavaMethod method = (DBJavaMethod) object;
-                    if(method.isStatic() && method.getAccessibility() == DBJavaAccessibility.PUBLIC) {
-                        if (recentMethods == null || !recentMethods.contains(method)) {
-                            RunJavaMethodAction action = new RunJavaMethodAction(method);
-                            actions.add(action);
-                        }
-                    }
+                    if (!method.isExecutable()) continue;
+                    if (methodRefs.contains(method.ref())) continue;
+
+                    RunJavaMethodAction action = new RunJavaMethodAction(method);
+                    actions.add(action);
                 }
             }
         }

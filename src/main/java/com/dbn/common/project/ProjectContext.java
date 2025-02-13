@@ -26,21 +26,32 @@ public class ProjectContext {
     private static final ThreadLocal<ProjectRef> local = new ThreadLocal<>();
 
     public static void surround(Project project, Runnable runnable) {
+        ProjectRef initial = local.get();
         try {
             local.set(ProjectRef.of(project));
             runnable.run();
         } finally {
-            local.remove();
+            if (initial == null) {
+                local.remove();
+            } else {
+                local.set(initial);
+            }
         }
     }
 
     @SneakyThrows
     public static <T> T surround(Project project, Callable<T> callable) {
+        // restore initial in case of nested invocations
+        ProjectRef initial = local.get();
         try {
             local.set(ProjectRef.of(project));
             return callable.call();
         } finally {
-            local.remove();
+            if (initial == null) {
+                local.remove();
+            } else {
+                local.set(initial);
+            }
         }
     }
 

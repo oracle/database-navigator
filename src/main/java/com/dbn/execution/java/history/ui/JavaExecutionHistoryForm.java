@@ -131,7 +131,7 @@ public class JavaExecutionHistoryForm extends DBNFormBase {
 
 	@NotNull
 	private JavaExecutionInputForm createMethodExecutionForm(JavaExecutionInput executionInput) {
-		JavaExecutionInputForm form = new JavaExecutionInputForm(this, executionInput, true, DBDebuggerType.NONE);
+		JavaExecutionInputForm form = new JavaExecutionInputForm(this, executionInput, DBDebuggerType.NONE, true);
 		form.addChangeListener(getChangeListener());
 		return form;
 	}

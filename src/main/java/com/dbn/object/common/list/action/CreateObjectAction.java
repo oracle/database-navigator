@@ -50,7 +50,7 @@ public class CreateObjectAction extends BasicAction {
     @Override
     public void update(@NotNull AnActionEvent e) {
         DBObjectType objectType = getObjectList().getObjectType();
-        e.getPresentation().setVisible(objectType.isOneOf(DBObjectType.FUNCTION, DBObjectType.PROCEDURE));
+        e.getPresentation().setVisible(objectType.isOneOf(DBObjectType.FUNCTION, DBObjectType.PROCEDURE, DBObjectType.JAVA_CLASS));
     }
 
     @NotNull

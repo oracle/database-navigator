@@ -20,8 +20,12 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.ui.tree.DBNTreeTransferHandler;
 import com.dbn.common.ui.tree.Trees;
 import com.intellij.ui.CheckboxTree;
+import com.intellij.ui.CheckedTreeNode;
 
 import javax.swing.tree.TreeNode;
+
+import static com.dbn.common.ui.util.Accessibility.announceEvent;
+import static com.dbn.common.ui.util.UserInterface.enableSelectOnFocus;
 
 public class CodeCompletionFilterTree extends CheckboxTree {
 
@@ -34,5 +38,12 @@ public class CodeCompletionFilterTree extends CheckboxTree {
         installSpeedSearch();
         setTransferHandler(DBNTreeTransferHandler.INSTANCE);
         setBackground(Colors.getTextFieldBackground());
+
+        enableSelectOnFocus(this);
+    }
+
+    @Override
+    protected void onNodeStateChanged(CheckedTreeNode node) {
+        announceEvent(this, node.toString() + " state changed to " + (node.isChecked() ? "checked" : "unchecked"));
     }
 }

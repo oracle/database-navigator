@@ -33,6 +33,7 @@ public class ObjectNavigationListActionGroup extends DefaultActionGroup {
     private final boolean showFullList;
 
     public ObjectNavigationListActionGroup(DBObject parentObject, DBObjectNavigationList navigationList, boolean showFullList) {
+        super(navigationList.getName(), true);
         this.parentObject = DBObjectRef.of(parentObject);
         this.navigationList = navigationList;
         this.showFullList = showFullList;

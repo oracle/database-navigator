@@ -19,10 +19,12 @@ package com.dbn.execution.method.ui;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
+import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
+import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.debugger.DBDebuggerType;
@@ -30,10 +32,7 @@ import com.dbn.execution.common.ui.ExecutionOptionsForm;
 import com.dbn.execution.method.MethodExecutionInput;
 import com.dbn.object.DBArgument;
 import com.dbn.object.DBMethod;
-import com.dbn.object.common.DBObject;
-import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.type.DBObjectType;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.util.ui.AsyncProcessIcon;
 import lombok.Getter;
@@ -103,9 +102,6 @@ public class MethodExecutionInputForm extends DBNFormBase {
         collapsiblePanel.setExpanded(executionInput.isContextExpanded());
         collapsiblePanel.addToggleListener(expanded -> executionInput.setContextExpanded(expanded));
         executionOptionsPanel.add(collapsiblePanel.getComponent());
-        //executionOptionsPanel.add(executionOptionsForm.getComponent());
-
-        //objectPanel.add(new ObjectDetailsPanel(method).getComponent(), BorderLayout.NORTH);
 
         if (showHeader) {
             DBNHeaderForm headerForm = new DBNHeaderForm(this, methodRef);
@@ -117,27 +113,30 @@ public class MethodExecutionInputForm extends DBNFormBase {
         initArgumentsPanel();
     }
 
+    private boolean methodDetailsInitialized() {
+        // method details are expected to be pre-initialized if opened in an isolated execution dialog
+        // TODO find a clearer solution to this
+        return getParentComponent() instanceof DBNDialog;
+    }
+
     private void initArgumentsPanel() {
-        if (methodArgumentsLoaded()) {
-            loadingArgumentsPanel.setVisible(false);
-            List<DBArgument> arguments = getMethodArguments();
-            initArgumentsPanel(arguments);
-            updatePreferredSize();
+        if (methodDetailsInitialized()) {
+            createArgumentsPanel();
             return;
         }
-
         noArgumentsLabel.setVisible(false);
         loadingArgumentsPanel.setVisible(true);
         loadingArgumentsIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
 
-        //lazy load
+        //lazy arguments initialization
         Dispatch.async(
                 mainPanel,
-                () -> getMethodArguments(),
-                a -> initArgumentsPanel(a));
+                () -> getExecutionInput().initDatabaseElements(),
+                () -> createArgumentsPanel());
     }
 
-    private void initArgumentsPanel(List<DBArgument> arguments) {
+    private void createArgumentsPanel() {
+        List<DBArgument> arguments = getMethodArguments();
         checkDisposed();
 
         loadingArgumentsPanel.setVisible(false);
@@ -169,6 +168,7 @@ public class MethodExecutionInputForm extends DBNFormBase {
             Dimension minSize = new Dimension(-1, Math.min(argumentForms.size(), 10) * scrollUnitIncrement + 2);
             argumentsScrollPane.setMinimumSize(minSize);
             argumentsScrollPane.getVerticalScrollBar().setUnitIncrement(scrollUnitIncrement);
+            Accessibility.setAccessibleName(argumentsScrollPane, "Method arguments");
         }
 
         for (MethodExecutionInputArgumentForm argumentComponent : argumentForms){
@@ -189,17 +189,6 @@ public class MethodExecutionInputForm extends DBNFormBase {
         DBMethod method = executionInput.getMethod();
         return method == null ? Collections.emptyList() : method.getArguments();
     }
-
-    private boolean methodArgumentsLoaded() {
-        if (!executionInput.getMethodRef().isLoaded()) return false;
-
-        DBMethod method = executionInput.getMethod();
-        if (method == null) return false;
-
-        DBObjectList<DBObject> argumentList = method.getChildObjectList(DBObjectType.ARGUMENT);
-        return argumentList != null && argumentList.isLoaded();
-    }
-
 
     @NotNull
     @Override

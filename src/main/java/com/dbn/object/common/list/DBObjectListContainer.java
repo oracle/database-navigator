@@ -44,6 +44,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.common.Direction.ANY;
 import static com.dbn.common.Direction.DOWN;
 import static com.dbn.common.Direction.UP;
 import static com.dbn.common.dispose.Checks.isNotValid;
@@ -110,12 +111,6 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
         return getOwner().getConnection().getDatabaseType();
     }
 
-    @Nullable
-    public <T extends DBObject> DBObjectList<T> getObjectList(DBObjectType objectType) {
-        DBObjectList<T> objectList = objects(objectType);
-        return isValid(objectList) ? objectList : null;
-    }
-
     public <T extends DBObject> T getObject(DBObjectType objectType, String name, short overload) {
         return objectType == DBObjectType.ANY  ?
                 findAnyObject(name, overload) :
@@ -154,24 +149,58 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
     }
 
     @Nullable
-    private <T extends DBObject> T findInheritedObject(DBObjectType objectType, String name, short overload) {
-        DBObjectType inheritedType = objectType.getInheritedType();
-        if (inheritedType != null && inheritedType != objectType) {
-            return findObject(inheritedType, name, overload, UP);
+    private <T extends DBObject> DBObjectList<T> findObjectList(DBObjectType objectType, Direction direction) {
+        DBObjectList<T> objectList = getObjectList(objectType);
+        if (isValid(objectList)) return objectList;
+
+        switch (direction) {
+            case UP:   return findInheritedObjectList(objectType);
+            case DOWN: return findInheritingObjectList(objectType);
+            case ANY:  return Commons.coalesce(
+                    () -> findInheritedObjectList(objectType),
+                    () -> findInheritingObjectList(objectType));
         }
         return null;
     }
 
     @Nullable
+    private <T extends DBObject> T findInheritedObject(DBObjectType objectType, String name, short overload) {
+        DBObjectType inheritedType = objectType.getInheritedType();
+        if (inheritedType == null) return null;
+        if (inheritedType == objectType) return null;
+
+        return findObject(inheritedType, name, overload, UP);
+    }
+
+    @Nullable
     private <T extends DBObject> T findInheritingObject(DBObjectType objectType, String name, short overload) {
         Set<DBObjectType> inheritingTypes = objectType.getInheritingTypes();
-        if (!inheritingTypes.isEmpty()) {
-            for (DBObjectType objType : inheritingTypes) {
-                DBObject object = findObject(objType, name, overload, DOWN);
-                if (object != null) {
-                    return cast(object);
-                }
-            }
+        if (inheritingTypes.isEmpty()) return null;
+
+        for (DBObjectType inheritingType : inheritingTypes) {
+            DBObject object = findObject(inheritingType, name, overload, DOWN);
+            if (isValid(object)) return cast(object);
+        }
+        return null;
+    }
+
+    @Nullable
+    private <T extends DBObject> DBObjectList<T>  findInheritedObjectList(DBObjectType objectType) {
+        DBObjectType inheritedType = objectType.getInheritedType();
+        if (inheritedType == null) return null;
+        if (inheritedType == objectType) return null;
+
+        return findObjectList(inheritedType, UP);
+    }
+
+    @Nullable
+    private <T extends DBObject> DBObjectList<T> findInheritingObjectList(DBObjectType objectType) {
+        Set<DBObjectType> inheritingTypes = objectType.getInheritingTypes();
+        if (inheritingTypes.isEmpty()) return null;
+
+        for (DBObjectType inheritingType : inheritingTypes) {
+            DBObjectList<T> objectList = findObjectList(inheritingType, DOWN);
+            if (isValid(objectList)) return objectList;
         }
         return null;
     }
@@ -409,16 +438,30 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
     }
 
     @Nullable
-    private <T extends DBObject> DBObjectList<T> objects(DBObjectType objectType) {
-        if (objects != null && objects != DISPOSED_OBJECTS) {
-            int index = objectsIndex(objectType);
-            if (index < objects.length) {
-                return cast(objects[index]);
-            }
-        }
+    public <T extends DBObject> DBObjectList<T> getObjectList(DBObjectType objectType) {
+        if (objects == null) return null;
+        if (objects == DISPOSED_OBJECTS) return null;
 
-        return null;
+        int index = objectsIndex(objectType);
+        if (index >= objects.length) return null;
+
+        DBObjectList<T> objectList = cast(objects[index]);
+        if (isNotValid(objectList)) return null;
+
+        return objectList;
     }
+
+    /**
+     * Lenient version of {@link #getObjectList(DBObjectType)} allowing a lookup by inherited and inheriting type
+     * @param objectType the base {@link DBObjectType} to start lookup for
+     * @return the {@link DBObjectList} corresponding to the given object type
+     * @param <T> the type of the {@link DBObject} contained in the list
+     */
+    @Nullable
+    public <T extends DBObject> DBObjectList<T> resolveObjectList(DBObjectType objectType) {
+        return findObjectList(objectType, ANY);
+    }
+
 
     /*****************************************************************
      *                      Disposable

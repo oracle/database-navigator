@@ -262,6 +262,12 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
         return (T) getSelectedItem();
     }
 
+    @Nullable
+    public String getSelectedValueName() {
+        T value = getSelectedValue();
+        return value == null ? "" : getName(value);
+    }
+
     public void setSelectedValue(@Nullable T value) {
         selectValue(value);
     }

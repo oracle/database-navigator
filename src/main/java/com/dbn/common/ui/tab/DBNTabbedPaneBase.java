@@ -79,7 +79,9 @@ import static java.lang.Boolean.TRUE;
 @Slf4j
 class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements StatefulDisposable, DataProviderDelegate {
     private boolean disposed;
-    private int popupTabIndex = -1;
+    private transient boolean showingPopup;
+    private transient int popupTabIndex = -1;
+
     private JPanel hiddenTabsActionPanel;
     protected final Listeners<DBNTabsSelectionListener> selectionListeners = new Listeners<>();
     protected final Listeners<DBNTabsUpdateListener> updateListeners = new Listeners<>();
@@ -333,7 +335,7 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
             if (tabIndex == -1) return;
 
             popupTabIndex = tabIndex;
-            //setSelectedIndex(tabIndex);
+            showingPopup = true;
             e.consume();
             showPopup(actionGroup, e.getX(), e.getY());
         }));
@@ -346,7 +348,7 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
         ListPopup popup = popupBuilder(actionGroup, this).
                 withTitle("Tab Actions").
                 withTitleVisible(false).
-                withDisposeCallback(() -> popupTabIndex = -1).
+                withDisposeCallback(() -> showingPopup = false).
                 withMaxRowCount(10).
                 build();
 
@@ -358,9 +360,5 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
         if (DataKeys.TABBED_PANE.is(dataId)) return this;
 
         return null;
-    }
-
-    public boolean isShowingPopup() {
-        return popupTabIndex > -1;
     }
 }

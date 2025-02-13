@@ -17,6 +17,7 @@
 package com.dbn.execution.method;
 
 import com.dbn.data.type.DBDataType;
+import com.dbn.execution.common.input.ValueHolder;
 import com.dbn.object.DBArgument;
 import com.dbn.object.DBTypeAttribute;
 import com.dbn.object.lookup.DBObjectRef;
@@ -33,15 +34,15 @@ import java.util.Objects;
 public class ArgumentValue {
     private final DBObjectRef<DBArgument> argumentRef;
     private DBObjectRef<DBTypeAttribute> attributeRef;
-    private ArgumentValueHolder valueHolder;
+    private ValueHolder valueHolder;
 
-    public ArgumentValue(@NotNull DBArgument argument, @Nullable DBTypeAttribute attribute, ArgumentValueHolder valueHolder) {
+    public ArgumentValue(@NotNull DBArgument argument, @Nullable DBTypeAttribute attribute, ValueHolder valueHolder) {
         this.argumentRef = DBObjectRef.of(argument);
         this.attributeRef = DBObjectRef.of(attribute);
         this.valueHolder = valueHolder;
     }
 
-    public ArgumentValue(@NotNull DBArgument argument, ArgumentValueHolder valueHolder) {
+    public ArgumentValue(@NotNull DBArgument argument, ValueHolder valueHolder) {
         this.argumentRef = DBObjectRef.of(argument);
         this.valueHolder = valueHolder;
     }
@@ -104,24 +105,5 @@ public class ArgumentValue {
 
     public String toString() {
         return argumentRef.getObjectName() + " = " + getValue();
-    }
-
-    public static <T> ArgumentValueHolder<T> createBasicValueHolder(T value) {
-        ArgumentValueHolder<T> valueStore = new ArgumentValueHolder<>() {
-            private T value;
-
-            @Override
-            public T getValue() {
-                return value;
-            }
-
-            @Override
-            public void setValue(T value) {
-                this.value = value;
-            }
-        };
-
-        valueStore.setValue(value);
-        return valueStore;
     }
 }

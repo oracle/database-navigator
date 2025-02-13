@@ -57,8 +57,8 @@ public enum DatabaseUrlPattern {
             Default.ORACLE, DatabaseUrlType.EZCONNECT),
 
     ORACLE_TNS(
-            "jdbc:oracle:thin:@<TNS_PROFILE>?TNS_ADMIN=<TNS_FOLDER>",
-            compile("^jdbc:oracle:(thin|oci):@" + profile + "\\?TNS_ADMIN=" + folder + "$", CASE_INSENSITIVE),
+            "jdbc:oracle:thin:@<TNS_PROFILE>?TNS_ADMIN=\"<TNS_FOLDER>\"",
+            compile("^jdbc:oracle:(thin|oci):@" + profile + "\\?TNS_ADMIN=\"" + folder + "\"$", CASE_INSENSITIVE),
             Default.ORACLE, TNS),
 
     ORACLE_SID(

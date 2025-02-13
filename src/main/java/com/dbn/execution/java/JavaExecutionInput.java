@@ -18,7 +18,6 @@ package com.dbn.execution.java;
 
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.util.Cloneable;
-import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
@@ -28,7 +27,11 @@ import com.dbn.execution.ExecutionOption;
 import com.dbn.execution.ExecutionOptions;
 import com.dbn.execution.ExecutionTarget;
 import com.dbn.execution.LocalExecutionInput;
+import com.dbn.execution.common.input.ExecutionValue;
+import com.dbn.execution.common.input.ExecutionVariable;
+import com.dbn.execution.common.input.ValueHolder;
 import com.dbn.execution.java.result.JavaExecutionResult;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
@@ -40,15 +43,14 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.common.util.Commons.coalesce;
 
 @Getter
 @Setter
@@ -56,8 +58,8 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
     private DBObjectRef<DBJavaMethod> method;
 
     private transient JavaExecutionResult executionResult;
-    private final List<ArgumentValue> argumentValues = new ArrayList<>();
-    private Map<String, JavaExecutionArgumentValue> argumentValueHistory = new HashMap<>();
+    private final Map<String, ExecutionValue<String>> inputValues = new LinkedHashMap<>();
+    private Map<String, ExecutionVariable> executionVariables = new LinkedHashMap<>();
 
     public JavaExecutionInput(Project project) {
         super(project, ExecutionTarget.METHOD);
@@ -90,6 +92,35 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         return initExecutionContext();
     }
 
+    /**
+     * Initializes all database elements required for showing the method input form
+     * It makes sure all parameters are loaded, including their java class details if applicable
+     * <br>
+     * This is to be executed in background before the method execution dialog is shown
+     */
+    public void initDatabaseElements() {
+        DBJavaMethod method = getMethod();
+        if (method == null) return;
+
+        List<DBJavaParameter> parameters = method.getParameters();
+        for (DBJavaParameter parameter : parameters) {
+            if (parameter.isPlainValue()) continue;
+
+            DBJavaClass parameterClass = parameter.getJavaClass();
+            initClass(parameterClass);
+        }
+    }
+
+    private void initClass(DBJavaClass javaClass) {
+        if (javaClass == null) return;
+
+        List<DBJavaField> fields = javaClass.getFields();
+        for (DBJavaField field : fields) {
+            if (field.isPlainValue()) continue;
+            initClass(field.getJavaClass());
+        }
+    }
+
     @Override
     protected JavaExecutionContext createExecutionContext() {
         return new JavaExecutionContext(this);
@@ -113,7 +144,9 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
 
     @Override
     public boolean isSchemaSelectionAllowed() {
-        return DatabaseFeature.AUTHID_METHOD_EXECUTION.isSupported(getConnection());
+        //return DatabaseFeature.AUTHID_METHOD_EXECUTION.isSupported(getConnection());
+        // TODO verify if execution on foreign schema is allowed
+        return false;
     }
 
     @Override
@@ -145,82 +178,41 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         return connection != null && !connection.getSettings().isActive();
     }
 
-    public void setInputValue(@NotNull DBJavaParameter argument, String value) {
-        ArgumentValue argumentValue = getArgumentValue(argument);
-        argumentValue.setValue(value);
+    @Nullable
+    public String getInputValue(String path) {
+        ExecutionValue<String> fieldValue = inputValues.get(path);
+        return fieldValue == null ? null : fieldValue.getValueHolder().getValue() ;
     }
 
-    public void setInputValue(@NotNull DBJavaField argument, String value) {
-        ArgumentValue argumentValue = getArgumentValue(argument);
-        argumentValue.setValue(value);
+    public String ensureInputValue(String path) {
+        ExecutionValue<String> fieldValue = prepareInputValue(path);
+        return fieldValue.getValueHolder().getValue();
     }
 
-    public String getInputValue(@NotNull DBJavaParameter argument) {
-        ArgumentValue argumentValue = getArgumentValue(argument);
-        return (String) argumentValue.getValue();
+    public void setInputValue(String path, String value) {
+        ExecutionValue<String> fieldValue = prepareInputValue(path);
+        fieldValue.getValueHolder().setValue(value);
     }
 
-    public String getInputValue(@NotNull DBJavaField argument) {
-        ArgumentValue argumentValue = getArgumentValue(argument);
-        return (String) argumentValue.getValue();
-    }
+    public List<String> getInputValueHistory(String path) {
+        ExecutionValue<String> fieldValue = prepareInputValue(path) ;
 
-    public List<String> getInputValueHistory(@NotNull DBJavaField argument) {
-        ArgumentValue argumentValue = getArgumentValue(argument);
-
-        ArgumentValueHolder<?> valueStore = argumentValue.getValueHolder();
-        if (valueStore instanceof JavaExecutionArgumentValue) {
-            JavaExecutionArgumentValue executionVariable = (JavaExecutionArgumentValue) valueStore;
+        ValueHolder<?> valueStore = fieldValue.getValueHolder();
+        if (valueStore instanceof ExecutionVariable) {
+            ExecutionVariable executionVariable = (ExecutionVariable) valueStore;
             return executionVariable.getValueHistory();
         }
         return Collections.emptyList();
     }
 
-    public List<String> getInputValueHistory(@NotNull DBJavaParameter argument) {
-        ArgumentValue argumentValue = getArgumentValue(argument) ;
-
-        ArgumentValueHolder<?> valueStore = argumentValue.getValueHolder();
-        if (valueStore instanceof JavaExecutionArgumentValue) {
-            JavaExecutionArgumentValue executionVariable = (JavaExecutionArgumentValue) valueStore;
-            return executionVariable.getValueHistory();
-        }
-        return Collections.emptyList();
+    @NotNull
+    private ExecutionValue<String> prepareInputValue(String path) {
+        return inputValues.computeIfAbsent(path, p -> new ExecutionValue<>(path, getExecutionVariable(path)));
     }
 
-    private ArgumentValue getArgumentValue(@NotNull DBJavaParameter argument) {
-        for (ArgumentValue argumentValue : argumentValues) {
-            if (argumentValue.matches(argument)) {
-                return argumentValue;
-            }
-        }
-        ArgumentValue argumentValue = new ArgumentValue(argument, null);
-        argumentValue.setValueHolder(getExecutionVariable(argumentValue.getName()));
-        argumentValues.add(argumentValue);
-        return argumentValue;
-    }
-
-    private ArgumentValue getArgumentValue(@NotNull DBJavaField argument) {
-        for (ArgumentValue argumentValue : argumentValues) {
-            if (argumentValue.matches(argument)) {
-                return argumentValue;
-            }
-        }
-
-        ArgumentValue argumentValue = new ArgumentValue(argument, null);
-        argumentValue.setValueHolder(getExecutionVariable(argumentValue.getName()));
-        argumentValues.add(argumentValue);
-        return argumentValue;
-    }
-
-    private JavaExecutionArgumentValue getExecutionVariable(String name) {
-        for (JavaExecutionArgumentValue executionVariable : argumentValueHistory.values()) {
-            if (Strings.equalsIgnoreCase(executionVariable.getName(), name)) {
-                return executionVariable;
-            }
-        }
-        JavaExecutionArgumentValue executionVariable = new JavaExecutionArgumentValue(name);
-        argumentValueHistory.put(executionVariable.getName(), executionVariable);
-        return executionVariable;
+    @NotNull
+    private ExecutionVariable getExecutionVariable(String path) {
+        return executionVariables.computeIfAbsent(path, p -> new ExecutionVariable(p) );
     }
 
     /*********************************************************
@@ -231,13 +223,11 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         super.readConfiguration(element);
         method.readState(element);
         setTargetSchemaId(SchemaId.get(stringAttribute(element, "execution-schema")));
-        Element argumentsElement = coalesce(
-                () -> element.getChild("argument-values"),
-                () -> element.getChild("argument-actions")); // TODO temporary backward functionality
-        if (argumentsElement != null) {
-            for (Element valueElement : argumentsElement.getChildren()) {
-                JavaExecutionArgumentValue argumentValue = new JavaExecutionArgumentValue(valueElement);
-                argumentValueHistory.put(argumentValue.getName(), argumentValue);
+        Element variablesElement = element.getChild("execution-variables");
+        if (variablesElement != null) {
+            for (Element variableElement : variablesElement.getChildren()) {
+                ExecutionVariable executionVariable = new ExecutionVariable(variableElement);
+                executionVariables.put(executionVariable.getPath(), executionVariable);
             }
         }
     }
@@ -248,10 +238,10 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         method.writeState(element);
         element.setAttribute("execution-schema", getTargetSchemaId() == null ? "" : getTargetSchemaId().id());
 
-        Element argumentValuesElement = newElement(element, "argument-values");
-        for (JavaExecutionArgumentValue executionVariable : argumentValueHistory.values()) {
-            Element argumentElement = newElement(argumentValuesElement, "argument");
-            executionVariable.writeState(argumentElement);
+        Element variablesElement = newElement(element, "execution-variables");
+        for (ExecutionVariable executionVariable : executionVariables.values()) {
+            Element variableElement = newElement(variablesElement, "variable");
+            executionVariable.writeState(variableElement);
         }
     }
 
@@ -268,10 +258,10 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         clone.method = method;
         clone.setTargetSchemaId(getTargetSchemaId());
         clone.setOptions(ExecutionOptions.clone(getOptions()));
-        clone.argumentValueHistory = new HashMap<>();
-        for (JavaExecutionArgumentValue executionVariable : argumentValueHistory.values()) {
-            clone.argumentValueHistory.put(
-                    executionVariable.getName(),
+        clone.executionVariables = new HashMap<>();
+        for (ExecutionVariable executionVariable : executionVariables.values()) {
+            clone.executionVariables.put(
+                    executionVariable.getPath(),
                     executionVariable.clone());
         }
         return clone;

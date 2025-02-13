@@ -49,7 +49,7 @@ public class PluginConflictResolutionForm extends DBNFormBase {
     @SneakyThrows
     public PluginConflictResolutionForm(@NotNull PluginConflictResolutionDialog dialog) {
         super(dialog);
-        String content = Commons.readInputStream(getClass().getResourceAsStream("plugin_conflict_resolution.html"));
+        String content = Commons.readInputStream(getClass().getResourceAsStream("plugin_conflict_resolution.html.ft"));
         TextContent hintText = html(content);
         DBNHintForm disclaimerForm = new DBNHintForm(this, hintText, null, true);
         disclaimerForm.setHighlighted(true);

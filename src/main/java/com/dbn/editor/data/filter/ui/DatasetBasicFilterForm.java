@@ -64,6 +64,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
+import static com.dbn.common.ui.util.ClientProperty.NO_INDENT;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
@@ -75,9 +77,9 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
     private JTextField nameTextField;
     private JLabel errorLabel;
     private JPanel previewPanel;
-    private JPanel addConditionsPanel;
-    private JPanel filterNamePanel;
     private JComboBox<ConditionJoinType> joinTypeComboBox;
+    private JLabel conditionsLabel;
+    private JLabel previewLabel;
 
     private final DBObjectRef<DBDataset> datasetRef;
     private final List<DatasetBasicFilterConditionForm> conditionForms = DisposableContainers.list(this);
@@ -87,14 +89,15 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
 
 
     public DatasetBasicFilterForm(DBDataset dataset, DatasetBasicFilter filter) {
-        super(filter);
+            super(filter);
+
+        NO_INDENT.set(mainPanel, true);
+
         conditionsPanel.setLayout(new BoxLayout(conditionsPanel, BoxLayout.Y_AXIS));
         datasetRef = DBObjectRef.of(dataset);
         nameTextField.setText(filter.getDisplayName());
 
         actionsPanel.add(new ColumnSelector(), BorderLayout.CENTER);
-        addConditionsPanel.setBorder(Borders.BOTTOM_LINE_BORDER);
-        filterNamePanel.setBorder(Borders.BOTTOM_LINE_BORDER);
 
         for (DatasetBasicFilterCondition condition : filter.getConditions()) {
             addConditionPanel(condition);
@@ -118,6 +121,12 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
         isCustomNamed = filter.isCustomNamed();
     }
 
+    @Override
+    protected void initAccessibility() {
+        COMPONENT_GROUP_QUALIFIER.set(conditionsLabel, true);
+        COMPONENT_GROUP_QUALIFIER.set(previewLabel, true);
+    }
+
     private class ColumnSelector extends ValueSelector<DBColumn> {
         ColumnSelector() {
             super(PlatformIcons.ADD_ICON, "Add Condition", null, ValueSelectorOption.HIDE_DESCRIPTION);
@@ -130,13 +139,6 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
             List<DBColumn> columns = new ArrayList<>(dataset.getColumns());
             Collections.sort(columns);
             return columns;
-        }
-    }
-
-    @Override
-    public void focus() {
-        if (conditionForms.size() > 0) {
-            conditionForms.get(0).focus();
         }
     }
 
@@ -176,7 +178,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
             }
         }
 
-        String name = buffer.length() > 0 ? buffer.toString() : getConfiguration().getFilterGroup().createFilterName("Filter");
+        String name = buffer.length() > 0 ? buffer.toString() : getConfiguration().getName();
         nameTextField.setText(name);
         nameTextField.setForeground(UIUtil.getInactiveTextColor());
     }
@@ -256,7 +258,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
             conditionsPanel.add(conditionForm.getComponent());
 
             UserInterface.repaint(conditionsPanel);
-            conditionForm.focus();
+            conditionForm.focusPreferredComponent();
         }
     }
 

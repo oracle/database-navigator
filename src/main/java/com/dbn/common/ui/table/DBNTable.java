@@ -42,7 +42,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JViewport;
 import javax.swing.event.EventListenerList;
 import javax.swing.table.DefaultTableColumnModel;
@@ -53,14 +52,11 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-import java.awt.font.FontRenderContext;
-import java.awt.font.LineMetrics;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -69,9 +65,10 @@ import java.util.TimerTask;
 import static com.dbn.common.dispose.ComponentDisposer.removeListeners;
 import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.ui.table.Tables.installFocusTraversal;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
-public class DBNTable<T extends DBNTableModel> extends JTable implements StatefulDisposable, UserDataHolder {
+public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> implements StatefulDisposable, UserDataHolder {
     private static final int MAX_COLUMN_WIDTH = 300;
     private static final int MIN_COLUMN_WIDTH = 10;
 
@@ -126,6 +123,7 @@ public class DBNTable<T extends DBNTableModel> extends JTable implements Statefu
 
         setSelectionBackground(Colors.getTableSelectionBackground(true));
         setSelectionForeground(Colors.getTableSelectionForeground(true));
+        installFocusTraversal(this);
 
         Disposer.register(parent, this);
         Disposer.register(this, tableModel);
@@ -170,16 +168,13 @@ public class DBNTable<T extends DBNTableModel> extends JTable implements Statefu
 
     protected void adjustRowHeight(int padding) {
         rowVerticalPadding = padding;
-        adjustRowHeight();
+        Tables.adjustTableRowHeight(this, padding);
     }
 
     protected void adjustRowHeight() {
-        Font font = getFont();
-        FontRenderContext fontRenderContext = getFontMetrics(font).getFontRenderContext();
-        LineMetrics lineMetrics = font.getLineMetrics("ABCÄÜÖÂÇĞIİÖŞĀČḎĒËĠḤŌŠṢṬŪŽy", fontRenderContext);
-        int fontHeight = Math.round(lineMetrics.getHeight());
-        setRowHeight(fontHeight + (rowVerticalPadding * 2));
+        adjustRowHeight(rowVerticalPadding);
     }
+
 
     @Override
     @NotNull
@@ -302,7 +297,7 @@ public class DBNTable<T extends DBNTableModel> extends JTable implements Statefu
             JViewport viewport = getViewport();
             if (viewport == null || scrollDistance == 0) return;
 
-            Dispatch.run(() -> {
+            Dispatch.run(viewport, () -> {
                 Point viewPosition = viewport.getViewPosition();
                 viewport.setViewPosition(new Point((int) (viewPosition.x + scrollDistance), viewPosition.y));
                 calculateScrollDistance();
@@ -397,8 +392,9 @@ public class DBNTable<T extends DBNTableModel> extends JTable implements Statefu
         }
         setColumnModel(columnModel);
     }
+
     /********************************************************
-     *                    Disposable                        *
+     *                    User Data                        *
      ********************************************************/
 
     @Nullable

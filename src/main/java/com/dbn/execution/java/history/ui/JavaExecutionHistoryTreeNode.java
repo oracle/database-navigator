@@ -33,10 +33,8 @@ public class JavaExecutionHistoryTreeNode extends DBNTreeNode {
 		ROOT,
 		CONNECTION,
 		SCHEMA,
-		PACKAGE,
-		TYPE,
-		PROCEDURE,
-		FUNCTION,
+		CLASS,
+		METHOD,
 		UNKNOWN
 	}
 
@@ -54,24 +52,17 @@ public class JavaExecutionHistoryTreeNode extends DBNTreeNode {
 	public Icon getIcon() {
 		return
 				type == Type.CONNECTION ? Icons.CONNECTION_CONNECTED :
-						type == Type.SCHEMA ? Icons.DBO_SCHEMA :
-								type == Type.PACKAGE ? Icons.DBO_PACKAGE :
-										type == Type.TYPE ? Icons.DBO_TYPE :
-												type == Type.PROCEDURE ? Icons.DBO_PROCEDURE :
-														type == Type.FUNCTION ? Icons.DBO_FUNCTION : null;
+				type == Type.SCHEMA ? Icons.DBO_SCHEMA :
+				type == Type.CLASS ? Icons.DBO_JAVA_CLASS :
+				type == Type.METHOD ? Icons.DBO_JAVA_METHOD : null;
 	}
 
 	public static Type getNodeType(DBObjectType objectType) {
 		return
 				objectType == DBObjectType.SCHEMA ? Type.SCHEMA :
-						objectType == DBObjectType.PACKAGE ? Type.PACKAGE :
-								objectType == DBObjectType.TYPE ? Type.TYPE :
-										objectType == DBObjectType.PROCEDURE ||
-												objectType == DBObjectType.PACKAGE_PROCEDURE ||
-												objectType == DBObjectType.TYPE_PROCEDURE ? Type.PROCEDURE :
-												objectType == DBObjectType.FUNCTION ||
-														objectType == DBObjectType.PACKAGE_FUNCTION ||
-														objectType == DBObjectType.TYPE_FUNCTION ? Type.FUNCTION : Type.UNKNOWN;
+				objectType == DBObjectType.JAVA_CLASS ? Type.CLASS :
+				objectType == DBObjectType.JAVA_METHOD ? Type.METHOD :
+						Type.UNKNOWN;
 	}
 
 	public List<TreeNode> getChildren() {
@@ -80,9 +71,7 @@ public class JavaExecutionHistoryTreeNode extends DBNTreeNode {
 
 	@Override
 	public boolean getAllowsChildren() {
-		return
-				type != Type.PROCEDURE &&
-						type != Type.FUNCTION;
+		return type != Type.METHOD;
 	}
 
 	public boolean isValid() {

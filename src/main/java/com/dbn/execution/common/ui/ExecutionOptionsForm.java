@@ -18,9 +18,7 @@ package com.dbn.execution.common.ui;
 
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
-import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.AutoCommitLabel;
-import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -42,7 +40,6 @@ import com.dbn.execution.LocalExecutionInput;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -50,17 +47,17 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.util.List;
 
+import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
+
 public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleForm {
     private JPanel mainPanel;
     private JPanel timeoutPanel;
-    private JLabel connectionLabel;
-    private JLabel targetSchemaLabel;
-    private JLabel targetSessionLabel;
     private JCheckBox commitCheckBox;
     private JCheckBox reuseVariablesCheckBox;
     private JCheckBox enableLoggingCheckBox;
-    private DBNComboBox<SchemaId> targetSchemaComboBox;
+    private DBNComboBox<ConnectionHandler> targetConnectionComboBox;
     private DBNComboBox<DatabaseSession> targetSessionComboBox;
+    private DBNComboBox<SchemaId> targetSchemaComboBox;
     private AutoCommitLabel autoCommitLabel;
 
     private final LocalExecutionInput executionInput;
@@ -72,27 +69,26 @@ public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleF
         this.executionInput = executionInput;
         this.debuggerType = debuggerType;
 
+        // display as combo-box to align with the other components
         ConnectionHandler connection = executionInput.ensureConnection();
+        targetConnectionComboBox.setValues(connection);
+        targetConnectionComboBox.setSelectedValue(connection);
+        targetConnectionComboBox.set(HIDE_DESCRIPTION, true);
+        targetConnectionComboBox.setEnabled(false);
 
         if (isSchemaSelectionAllowed()) {
-            //ActionToolbar actionToolbar = ActionUtil.createActionToolbar("", true, new SetExecutionSchemaComboBoxAction(executionInput));
-
             targetSchemaComboBox.setValues(connection.getSchemaIds());
             targetSchemaComboBox.setSelectedValue(executionInput.getTargetSchemaId());
-            targetSchemaComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
+            targetSchemaComboBox.set(HIDE_DESCRIPTION, true);
             targetSchemaComboBox.addActionListener(actionListener);
-            targetSchemaLabel.setVisible(false);
         } else {
-            targetSchemaComboBox.setVisible(false);
-            targetSchemaLabel.setVisible(true);
             SchemaId targetSchema = executionInput.getTargetSchemaId();
-            if (targetSchema == null) {
-                targetSessionLabel.setText("No schema selected");
-                targetSessionLabel.setIcon(Icons.DBO_SCHEMA);
-            } else {
-                targetSchemaLabel.setText(targetSchema.id());
-                targetSchemaLabel.setIcon(Icons.DBO_SCHEMA);
-            }
+            if (targetSchema == null) targetSchema = SchemaId.get("No schema selected");
+            targetSchemaComboBox.setValues(targetSchema);
+            targetSchemaComboBox.setSelectedValue(targetSchema);
+            targetSchemaComboBox.setEnabled(false);
+            targetSchemaComboBox.setFocusable(true);
+            targetSchemaComboBox.setRequestFocusEnabled(true);
         }
 
         DatabaseSessionBundle sessionBundle = connection.getSessionBundle();
@@ -103,20 +99,17 @@ public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleF
 
             targetSessionComboBox.setValues(sessions);
             targetSessionComboBox.setSelectedValue(targetSession);
-            targetSessionComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
+            targetSessionComboBox.set(HIDE_DESCRIPTION, true);
             targetSessionComboBox.addActionListener(actionListener);
-            targetSessionLabel.setVisible(false);
         } else {
-            targetSessionComboBox.setVisible(false);
-            targetSessionLabel.setVisible(true);
             targetSessionId = debuggerType == DBDebuggerType.NONE ? targetSessionId : SessionId.DEBUG;
             DatabaseSession targetSession = sessionBundle.getSession(targetSessionId);
-            targetSessionLabel.setText(targetSession.getName());
-            targetSessionLabel.setIcon(targetSession.getIcon());
+
+            targetSessionComboBox.setValues(targetSession);
+            targetSessionComboBox.setSelectedValue(targetSession);
+            targetSessionComboBox.setEnabled(false);
         }
 
-        connectionLabel.setText(connection.getName());
-        connectionLabel.setIcon(connection.getIcon());
         autoCommitLabel.init(getProject(), null, connection, targetSessionId);
 
         ExecutionOptions options = executionInput.getOptions();
@@ -153,18 +146,24 @@ public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleF
 
     @Override
     public String getCollapsedTitle() {
-        return "Target context: ";
+        return "Target context:";
     }
 
     @Override
     public String getCollapsedTitleDetail() {
-        String connectionToken = getConnection().getName();
-        LocalExecutionInput executionInput = getExecutionInput();
-        SchemaId schemaId = executionInput.getTargetSchemaId();
-        String sessionName = executionInput.getTargetSessionName();
+        // connection
+        ConnectionHandler connection = targetConnectionComboBox.getSelectedValue();
+        String connectionToken = connection == null ? "" : connection.getName();
 
+        // schema
+        SchemaId schemaId = targetSchemaComboBox.getSelectedValue();
         String schemaToken = schemaId == null ? "" : (" / " + schemaId);
+
+        // session
+        DatabaseSession session = targetSessionComboBox.getSelectedValue();
+        String sessionName = session == null ? null : session.getName();
         String sessionToken = sessionName == null ? "" : (" / " + sessionName);
+
         return connectionToken + schemaToken + sessionToken;
     }
 

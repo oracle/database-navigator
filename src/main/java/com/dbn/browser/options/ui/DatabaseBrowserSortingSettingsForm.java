@@ -24,6 +24,7 @@ import com.dbn.common.ui.table.DBNEditableTable;
 import com.dbn.common.ui.table.DBNEditableTableModel;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.table.Tables;
+import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.object.common.sorting.DBObjectComparator;
 import com.dbn.object.common.sorting.DBObjectComparators;
@@ -43,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 
 public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<DatabaseBrowserSortingSettings> {
@@ -57,6 +59,10 @@ public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<
         registerComponent(sortingTypeTable);
     }
 
+    @Override
+    protected void initAccessibility() {
+        Accessibility.setAccessibleName(sortingTypeTable, "Objects sorting");
+    }
 
 
     @Override
@@ -102,6 +108,7 @@ public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<
                     String name = sortingType == null ? "" : sortingType.getName();
 
                     append(name, SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                    setAccessibleDescription(this, "Press space key to change the sorting type");
                 }
             });
 

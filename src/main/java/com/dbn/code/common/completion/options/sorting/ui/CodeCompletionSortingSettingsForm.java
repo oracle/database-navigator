@@ -23,7 +23,6 @@ import com.dbn.code.common.completion.options.sorting.action.MoveUpAction;
 import com.dbn.common.color.Colors;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.list.ColoredListCellRenderer;
-import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.util.Actions;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -42,6 +41,8 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.UserInterface.enableSelectOnFocus;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 
 public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<CodeCompletionSortingSettings> {
@@ -60,7 +61,9 @@ public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<C
                 new MoveUpAction(sortingItemsList, settings),
                 new MoveDownAction(sortingItemsList, settings));
         actionPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
-        Accessibility.setAccessibleName(sortingItemsList, "Code completion sorting elements");
+        setAccessibleName(sortingItemsList, "Code completion sorting elements");
+        enableSelectOnFocus(sortingItemsList);
+
         registerComponent(mainPanel);
     }
 

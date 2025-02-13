@@ -16,20 +16,32 @@
 
 package com.dbn.object.impl;
 
+import com.dbn.common.util.Java;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaParameterMetadata;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
+import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
-import com.dbn.object.lookup.DBJavaClassRef;
+import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBJavaValueType;
 import com.dbn.object.type.DBObjectType;
+import com.intellij.core.CoreJavaCodeStyleManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.codeStyle.JavaCodeStyleManager;
+import com.intellij.psi.codeStyle.SuggestedNameInfo;
+import com.intellij.psi.codeStyle.VariableKind;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
+
+import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.object.common.property.DBObjectProperty.PRIMITIVE;
 
 @Getter
 public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> implements DBJavaParameter {
@@ -37,8 +49,7 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 	private short position;
 	private short arrayDepth;
 
-	private String parameterType;
-	private DBJavaClassRef parameterClass;
+	private DBObjectRef<DBJavaClass> javaClass;
 
 	public DBJavaParameterImpl(@NotNull DBJavaMethod javaMethod, DBJavaParameterMetadata metadata) throws SQLException {
 		super(javaMethod, metadata);
@@ -61,37 +72,65 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 		position = metadata.getArgumentPosition();
 		arrayDepth = metadata.getArrayDepth();
 
-		parameterType = metadata.getBaseType();
-		boolean isClass = parameterType.equals("class");
-		String argumentClass = metadata.getArgumentClass();
+		String argumentClassName = metadata.getArgumentClassName();
+		set(PRIMITIVE, Java.isPrimitive(argumentClassName));
 
-		String arrMatrix = arrayDepth > 0 ? "[]".repeat(arrayDepth) : "";
+		DBSchema schema = nd(parentObject.getSchema());
+		javaClass = new DBObjectRef<>(DBObjectRef.of(schema), DBObjectType.JAVA_CLASS, argumentClassName);
 
-		if (isClass) {
-			parameterClass = new DBJavaClassRef(parentObject.getSchema(), argumentClass, "SYS");
-			String className = argumentClass.substring(argumentClass.lastIndexOf("/") + 1);
-			return className + arrMatrix + " p" + position;
-		} else {
-			return parameterType + arrMatrix + " p" + position;
-		}
+		return "param" + position;
+	}
+
+	// TODO consider friendly names
+    private String createParameterName(Project project, String parameterType) {
+		String[] tokens = parameterType.split("[./]");
+		String lastToken = tokens[tokens.length - 1];
+
+		JavaCodeStyleManager codeStyleManager = CoreJavaCodeStyleManager.getInstance(project);
+		SuggestedNameInfo suggestedNames = codeStyleManager.suggestVariableName(VariableKind.PARAMETER, lastToken, null, null);
+		if (suggestedNames.names.length > 0) return suggestedNames.names[0] + position;
+
+		return tokens[tokens.length - 1] + position;
 	}
 
 	@Override
-	public DBJavaClass getParameterClass() {
-		return parameterClass == null ? null : parameterClass.get();
+	public boolean isArray() {
+		return arrayDepth > 0;
 	}
 
 	@Override
-	public String getPresentableText() {
-
-		return super.getPresentableText();
+	public boolean isClass() {
+		return !isPrimitive();
 	}
 
 	@Override
-	public String getParameterTypeName() {
-		return parameterClass == null ?
-				parameterType :
-				parameterClass.getClassSimpleName();
+	public boolean isPrimitive() {
+		return is(PRIMITIVE);
+	}
+
+	@Override
+	public boolean isPlainValue() {
+		return isPrimitive() || getValueType() != null;
+	}
+
+	@Nullable
+	@Override
+	public DBJavaValueType getValueType() {
+		return DBJavaValueType.forObjectName(javaClass.getObjectName());
+	}
+
+	public DBJavaClass getJavaClass() {
+		return javaClass.get();
+	}
+
+	@Override
+	public DBObjectRef<DBJavaClass> getJavaClassRef() {
+		return javaClass;
+	}
+
+	@Override
+	public String getJavaClassName() {
+		return javaClass.getObjectName();
 	}
 
 	@Override

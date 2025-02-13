@@ -38,6 +38,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 
+import static com.dbn.common.ui.util.Accessibility.attachSelectionAnnouncer;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 
@@ -59,8 +62,8 @@ public class ObjectQuickFilterConditionForm extends DBNFormBase {
         objectNameLabel.setIcon(objectType.getIcon());
         objectNameLabel.setText(cachedUpperCase(objectType.getName()) + " NAME");
 
-        operatorComboBox.setValues(ConditionOperator.values());
         patternTextField.setText(condition.getPattern());
+        operatorComboBox.setValues(ConditionOperator.values());
         operatorComboBox.setSelectedValue(condition.getOperator());
         operatorComboBox.addListener((oldValue, newValue) -> {
             Project project = ensureProject();
@@ -77,6 +80,14 @@ public class ObjectQuickFilterConditionForm extends DBNFormBase {
                 new EnableDisableQuickFilterConditionAction(this),
                 new DeleteQuickFilterConditionAction(this));
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
+    }
+
+    @Override
+    protected void initAccessibility() {
+        setAccessibleName(operatorComboBox, "Condition operator");
+        setAccessibleName(patternTextField, "Condition value for " + objectNameLabel.getText());
+        setAccessibleDescription(patternTextField, "Press Up or Down arrow keys to change the operator");
+        attachSelectionAnnouncer(operatorComboBox, "Operator");
     }
 
     @NotNull

@@ -30,7 +30,7 @@ import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.list.ObjectListProvider;
-import com.dbn.object.lookup.DBJavaClassRef;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
@@ -43,19 +43,20 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.icon.Icons.withStaticMarker;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
+import static com.dbn.object.type.DBJavaAccessibility.PUBLIC;
+import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 
 @Getter
 public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> implements DBJavaMethod {
 	private short index;
 	private String signature;
-	private String className;
-	private String returnType;
-	private short arrayDepth;
-	private DBJavaClassRef returnClass;
+	private short returnArrayDepth;
+	private DBObjectRef<DBJavaClass> returnClass;
 	private DBJavaAccessibility accessibility;
 
 	public DBJavaMethodImpl(@NotNull DBJavaClass javaClass, DBJavaMethodMetadata metadata) throws SQLException {
@@ -80,16 +81,12 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	protected String initObject(ConnectionHandler connection, DBObject parentObject, DBJavaMethodMetadata metadata) throws SQLException {
 		index = metadata.getMethodIndex();
 		signature = metadata.getMethodSignature();
-		className = metadata.getClassName();
-		returnType = metadata.getReturnType();
 		accessibility = DBJavaAccessibility.get(metadata.getAccessibility());
-		arrayDepth = metadata.getArrayDepth();
+		returnArrayDepth = metadata.getArrayDepth();
 
 		String returnClassName = metadata.getReturnClassName();
-		if (returnClassName != null) {
-			DBSchema schema = parentObject.getSchema();
-			returnClass = new DBJavaClassRef(schema, returnClassName, "SYS");
-		}
+		DBSchema schema = nd(parentObject.getSchema());
+		returnClass = new DBObjectRef<>(DBObjectRef.of(schema), JAVA_CLASS, returnClassName);
 
 		set(STATIC, metadata.isStatic());
 		set(FINAL, metadata.isFinal());
@@ -105,6 +102,11 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	@Override
 	public String getPresentableText() {
 		return signature;
+	}
+
+	@Override
+	public String getSimpleName() {
+		return getName().split("#")[0];
 	}
 
 	@Nullable
@@ -133,8 +135,23 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	}
 
 	@Override
+	public DBObjectRef<DBJavaClass> getReturnClassRef() {
+		return returnClass;
+	}
+
+	@Override
+	public String getReturnClassName() {
+		return returnClass == null ? null : returnClass.getObjectName();
+	}
+
+	@Override
 	public List<DBJavaParameter> getParameters() {
 		return getChildObjects(DBObjectType.JAVA_PARAMETER);
+	}
+
+	@Override
+	public DBJavaParameter getParameter(String name) {
+		return getChildObject(DBObjectType.JAVA_PARAMETER, name);
 	}
 
 	@Override
@@ -143,8 +160,18 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	}
 
 	@Override
+	public String getOwnerClassName() {
+		return getOwnerClass().getName();
+	}
+
+	@Override
 	public boolean isStatic() {
 		return is(STATIC);
+	}
+
+	@Override
+	public boolean isExecutable() {
+		return isStatic() && (accessibility == PUBLIC);
 	}
 
 	@Override

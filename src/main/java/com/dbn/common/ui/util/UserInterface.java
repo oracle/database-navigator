@@ -24,17 +24,14 @@ import com.dbn.common.util.Environment;
 import com.dbn.common.util.Strings;
 import com.intellij.ide.ui.UISettings;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.ActionToolbarPosition;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.ui.AncestorListenerAdapter;
-import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.border.IdeaTitledBorder;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import lombok.Getter;
 import lombok.experimental.UtilityClass;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractButton;
@@ -46,6 +43,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JTree;
+import javax.swing.JViewport;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
@@ -58,10 +57,13 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.IllegalComponentStateException;
+import java.awt.KeyboardFocusManager;
 import java.awt.LayoutManager;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.InputEvent;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
@@ -71,6 +73,7 @@ import static com.dbn.common.Reflection.invokeMethod;
 import static com.dbn.common.ui.util.Borderless.isBorderless;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.common.util.Unsafe.logged;
 import static com.dbn.common.util.Unsafe.silent;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -141,7 +144,7 @@ public class UserInterface {
 
 
     public static void removeBorders(JComponent root) {
-        UserInterface.visitRecursively(root, component -> component.setBorder(null));
+        visitRecursively(root, component -> component.setBorder(null));
     }
 
     @Nullable
@@ -209,13 +212,9 @@ public class UserInterface {
         if (border instanceof TitledBorder) {
             TitledBorder titledBorder = (TitledBorder) border;
             String title = titledBorder.getTitle();
-            int indent = Strings.isEmpty(title) ? 0 : 20;
+            int indent = Strings.isEmpty(title) || ClientProperty.NO_INDENT.is(panel) ? 0 : 16;
             IdeaTitledBorder replacement = new IdeaTitledBorder(title, indent, Borders.EMPTY_INSETS);
-/*
-            titledBorder.setTitleColor(Colors.HINT_COLOR);
-            titledBorder.setBorder(Borders.TOP_LINE_BORDER);
-            border = new CompoundBorder(Borders.topInsetBorder(8), titledBorder);
-*/
+
             border = new CompoundBorder(Borders.topInsetBorder(8), replacement);
             panel.setBorder(border);
         }
@@ -234,6 +233,11 @@ public class UserInterface {
             component.repaint();
             component.requestFocus();
         });
+    }
+
+    public static void requestFocus(@Nullable JComponent component) {
+        if (component == null) return;
+        Dispatch.run(component, () -> component.requestFocus());
     }
 
     @Compatibility
@@ -259,7 +263,8 @@ public class UserInterface {
     }
 
     public static void visitRecursively(JComponent component, Visitor<JComponent> visitor) {
-        visitor.visit(component);
+        logged(() -> visitor.visit(component));
+
         Component[] childComponents = component.getComponents();
         for (Component childComponent : childComponents) {
             if (childComponent instanceof JComponent) {
@@ -270,7 +275,9 @@ public class UserInterface {
     }
 
     public static <T extends JComponent> void visitRecursively(JComponent component, Class<T> type, Visitor<T> visitor) {
-        if (type.isAssignableFrom(component.getClass())) visitor.visit(cast(component));
+        if (type.isAssignableFrom(component.getClass())) {
+            logged(() -> visitor.visit(cast(component)));
+        }
 
         Component[] childComponents = component.getComponents();
         for (Component childComponent : childComponents) {
@@ -285,17 +292,45 @@ public class UserInterface {
         visitRecursively(component, JPanel.class, p -> updateTitledBorder(p));
     }
 
-    public static void updateScrollPaneBorders(JComponent component) {
+    public static void updateScrollPanes(JComponent component) {
         visitRecursively(component, JScrollPane.class, sp -> {
             sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
             sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
             sp.setBorder(isBorderlessPane(sp) ? null : Borders.COMPONENT_OUTLINE_BORDER);
+
+            sp.setRequestFocusEnabled(false);
+            sp.setFocusable(false);
+
+            JViewport viewport = sp.getViewport();
+            Component view = viewport.getView();
+            if (view instanceof JList || view instanceof JTree) {
+                sp.setViewportBorder(Borders.insetBorder(4));
+            }
+
+            if (view instanceof JComponent) {
+                JComponent viewComponent = (JComponent) view;
+                viewComponent.setBorder(null);
+            }
         });
     }
 
     private static boolean isBorderlessPane(JScrollPane scrollPane) {
         Component component = scrollPane.getViewport().getView();
         return isBorderless(component);
+    }
+
+
+    @Nullable
+    public static <T extends JComponent> T getRootParentOfType(Component component, Class<T> type) {
+        T root = null;
+        Component parent = component.getParent();
+        while (parent != null) {
+            if (type.isAssignableFrom(parent.getClass())) {
+                root = cast(parent);
+            }
+            parent = parent.getParent();
+        }
+        return root;
     }
 
     @Nullable
@@ -317,26 +352,8 @@ public class UserInterface {
         return null;
     }
 
-    public static Dimension adjust(Dimension dimension, int widthAdjustment, int heightAdjustment) {
+    public static Dimension adjustDimension(Dimension dimension, int widthAdjustment, int heightAdjustment) {
         return new Dimension((int) dimension.getWidth() + widthAdjustment, (int) dimension.getHeight() + heightAdjustment);
-    }
-
-    @NotNull
-    public static ToolbarDecorator createToolbarDecorator(JTable table) {
-        ToolbarDecorator decorator = ToolbarDecorator.createDecorator(table);
-        decorator.setToolbarPosition(ActionToolbarPosition.TOP);
-        decorator.setToolbarBorder(Borders.TOOLBAR_DECORATOR_BORDER);
-        decorator.setPanelBorder(Borders.EMPTY_BORDER);
-        return decorator;
-    }
-
-    @NotNull
-    public static ToolbarDecorator createToolbarDecorator(JList<?> list) {
-        ToolbarDecorator decorator = ToolbarDecorator.createDecorator(list);
-        decorator.setToolbarPosition(ActionToolbarPosition.TOP);
-        decorator.setToolbarBorder(Borders.TOOLBAR_DECORATOR_BORDER);
-        decorator.setPanelBorder(Borders.EMPTY_BORDER);
-        return decorator;
     }
 
 
@@ -428,9 +445,13 @@ public class UserInterface {
     }
 
     @Nullable
-    public static JLabel getComponentLabel(JComponent component) {
-        Container parentComponent = component.getParent();
-        return UserInterface.findChildComponent(parentComponent, JLabel.class, l -> l.getLabelFor() == component);
+    public static JLabel getComponentLabel(@Nullable Component component) {
+        if (component == null) return null;
+
+        JPanel rootPanel = getRootParentOfType(component, JPanel.class);
+        if (rootPanel == null) return null;
+
+        return findChildComponent(rootPanel, JLabel.class, l -> l.getLabelFor() == component);
     }
 
     @Nullable
@@ -452,6 +473,12 @@ public class UserInterface {
             return textComponent.getText();
         }
 
+        if (component instanceof JComboBox) {
+            JComboBox comboBox = (JComboBox) component;
+            Object selectedItem = comboBox.getSelectedItem();
+            return selectedItem == null ? null : selectedItem.toString();
+        }
+
         return component.getName();
     }
 
@@ -467,4 +494,66 @@ public class UserInterface {
         String newText = nvl(text, "");
         return oldText.equals(newText);
     }
+
+    /**
+     * Updates the background color of the parent container of the specified component
+     * to match the background color of the component.
+     *
+     * @param component the JComponent whose background color will be propagated to its parent
+     */
+    public static void propagateBackgroundUp(JComponent component) {
+        Container parent = component.getParent();
+        parent.setBackground(component.getBackground());
+    }
+
+    /**
+     * Transfers focus to the next focusable component, starting with the specified component.
+     *
+     * @param component the JComponent from which the focus traversal begins
+     */
+    public static void focusNextComponent(JComponent component) {
+        KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        manager.focusNextComponent(component);
+    }
+
+    /**
+     * Transfers focus to the previous focusable component, starting with the specified component.
+     *
+     * @param component the JComponent from which the focus traversal begins
+     */
+    public static void focusPreviousComponent(JComponent component) {
+        KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        manager.focusPreviousComponent(component);
+    }
+
+    /**
+     * Enables automatic selection of the first item in a {@link JList} when it gains focus,
+     * if no item is already selected and the list is non-empty.
+     *
+     * @param list the {@link JList} for which focus-based selection should be enabled
+     */
+    public static void enableSelectOnFocus(JList list) {
+        list.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (list.getSelectedIndex() != -1) return;
+                if (list.getModel().getSize() <= 0) return;
+                list.setSelectedIndex(0);
+            }
+        });
+    }
+
+    public static void enableSelectOnFocus(JTree tree) {
+        tree.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (tree.getSelectionCount() > 0) return;
+                if (tree.getRowCount() == 0) return;
+
+                tree.setSelectionRow(0);
+            }
+        });
+    }
+
+
 }

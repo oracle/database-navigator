@@ -16,23 +16,23 @@
 
 package com.dbn.common.properties.ui;
 
-import com.dbn.browser.TreeNavigationHistory;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.table.DBNTableModel;
-import com.dbn.common.ui.util.UserInterface;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.ToolbarDecorator;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
+import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
 
 public class PropertiesEditorForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -47,29 +47,22 @@ public class PropertiesEditorForm extends DBNFormBase {
         table = new PropertiesEditorTable(this, properties);
         Disposer.register(this, table);
 
-        ToolbarDecorator decorator = UserInterface.createToolbarDecorator(table);
+        JPanel tablePanel = initTableComponent(showMoveButtons);
+        mainPanel.add(tablePanel, BorderLayout.CENTER);
+  }
+
+    private JPanel initTableComponent(boolean showMoveButtons) {
+        ToolbarDecorator decorator = createToolbarDecorator(table);
         if (showAddRemoveButtons) {
-            decorator.setAddAction(button -> table.insertRow());
-            decorator.setRemoveAction(button -> table.removeRow());
+            decorator.setAddAction(b -> table.insertRow());
+            decorator.setRemoveAction(b -> table.removeRow());
         }
 
         if (showMoveButtons) {
-            decorator.setMoveUpAction(button -> table.moveRowUp());
-            decorator.setMoveDownAction(button -> table.moveRowDown());
+            decorator.setMoveUpAction(b -> table.moveRowUp());
+            decorator.setMoveDownAction(b -> table.moveRowDown());
         }
-
-        JPanel propertiesPanel = decorator.createPanel();
-        Container parentContainer = table.getParent();
-        parentContainer.setBackground(table.getBackground());
-        mainPanel.add(propertiesPanel, BorderLayout.CENTER);
-
-        parent.validate();
-        initValidation();
-        //parent.getParentDialog().validateInput();
-/*      i\
-        propertiesTableScrollPane.setViewportView(propertiesTable);
-        propertiesTableScrollPane.setPreferredSize(new Dimension(200, 80));
-*/
+        return createToolbarDecoratorComponent(decorator, table);
     }
 
     private void initValidation() {

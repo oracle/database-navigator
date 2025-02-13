@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.common.content.DynamicContentProperty.LOADING;
 import static com.dbn.common.notification.NotificationGroup.METADATA;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -138,7 +139,7 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
 
     @Override
     public boolean isLoading() {
-        return is(DynamicContentProperty.LOADING);
+        return is(LOADING);
     }
 
     public boolean isLoadingInBackground() {
@@ -270,12 +271,13 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
 
         Synchronized.on(this, o -> {
             if (o.isReady()) return; // content meanwhile loaded by another thread
+            if (o.is(LOADING)) return; // content already loading in current thread (cyclic access)
 
-            o.set(DynamicContentProperty.LOADING, true);
+            o.set(LOADING, true);
             try {
                 o.performLoad(force);
             } finally {
-                o.set(DynamicContentProperty.LOADING, false);
+                o.set(LOADING, false);
                 o.changeSignature();
             }
         });

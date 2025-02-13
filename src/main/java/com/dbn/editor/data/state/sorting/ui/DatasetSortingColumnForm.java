@@ -40,6 +40,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+
 public class DatasetSortingColumnForm extends DBNFormBase {
     private JPanel actionsPanel;
     private JPanel mainPanel;
@@ -66,6 +69,8 @@ public class DatasetSortingColumnForm extends DBNFormBase {
                 new ChangeSortingDirectionAction(this),
                 new DeleteSortingCriteriaAction(this));
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
+
+        setAccessibleUnit(columnComboBox, dataTypeLabel.getText());
     }
 
     @NotNull
@@ -107,6 +112,7 @@ public class DatasetSortingColumnForm extends DBNFormBase {
     public void setIndex(int index) {
         sortingInstruction.setIndex(index);
         indexLabel.setText(Integer.toString(index));
+        setAccessibleName(columnComboBox, "Sorting column " + index);
     }
 
     @NotNull

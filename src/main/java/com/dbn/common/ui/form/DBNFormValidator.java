@@ -16,12 +16,9 @@
 
 package com.dbn.common.ui.form;
 
-import com.intellij.openapi.ui.ValidationInfo;
-import org.jetbrains.annotations.NotNull;
-
 import javax.swing.JComponent;
 import javax.swing.text.JTextComponent;
-import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -30,6 +27,7 @@ import java.util.function.Predicate;
  * The validations are used to ensure form inputs adhere to given constraints.
  */
 public interface DBNFormValidator {
+    DBNFormValidator SURROGATE = new DBNFormValidatorSurrogate();
 
     /**
      * Adds a validation rule to a specified Swing component. The validation rule
@@ -44,6 +42,8 @@ public interface DBNFormValidator {
      */
     <C extends JComponent> void addValidation(C component, Predicate<C> validator, String message);
 
+    <C extends JComponent> void addValidation(C component, Function<C, String> validator);
+
     /**
      * Adds a text validation rule to a specified JTextComponent. The validation rule
      * is defined by a predicate that evaluates the validity of the text input, along with
@@ -56,14 +56,7 @@ public interface DBNFormValidator {
      */
     void addTextValidation(JTextComponent textField, Predicate<String> validator, String message);
 
-    /**
-     * Validates the specified Swing components based on the registered validation rules
-     * and returns a list of validation errors, if any. If no components are specified,
-     * the method validates all components with associated validation rules.
-     *
-     * @param components the components to validate; if no components are provided, all registered components will be validated
-     * @return a list of {@link ValidationInfo} instances representing validation errors; an empty list if all validations pass
-     */
-    @NotNull
-    List<ValidationInfo> validateForm(JComponent... components);
+    void addTextValidation(JTextComponent textField, Function<JTextComponent, String> validator);
+
+    void validateInput(JComponent component);
 }

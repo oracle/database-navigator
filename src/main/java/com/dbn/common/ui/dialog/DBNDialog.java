@@ -21,7 +21,8 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNForm;
-import com.dbn.common.ui.util.Listeners;
+import com.dbn.common.ui.form.DBNFormValidator;
+import com.dbn.common.ui.form.DBNFormValidatorImpl;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Titles;
@@ -31,6 +32,8 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.ui.AppIcon;
+import com.intellij.util.ui.JBDimension;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -45,17 +48,20 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
 
+import static com.dbn.common.ui.dialog.DBNDialogMonitor.registerDialog;
+import static com.dbn.common.ui.dialog.DBNDialogMonitor.releaseDialog;
 import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.common.util.Unsafe.cast;
 
+@Getter
 public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper implements DBNComponent, NlsSupport {
     private F form;
     private final ProjectRef project;
-    private final Listeners<DBNDialogListener> listeners = Listeners.create(getDisposable());
 
-    private @Getter boolean rememberSelection;
-    private @Getter Dimension defaultSize;
+    private boolean rememberSelection;
+    private Dimension defaultSize;
+    private final DBNFormValidator formValidator = new DBNFormValidatorImpl(this);
 
     protected DBNDialog(@Nullable Project project, String title, boolean canBeParent) {
         super(project, canBeParent);
@@ -82,27 +88,25 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
      * @param component the UI component to validate; typically a part of the dialog form
      */
     public void validateInput(JComponent component) {
-        F form = getForm();
-        List<ValidationInfo> validationInfos = form.validate(component);
+        List<ValidationInfo> validationInfos = buildValidationInfos(component);
 
         setErrorInfoAll(validationInfos);
 
         // do validation for all fields to decide whether to enable main button
-        validationInfos = form.validate();
-        setOKActionEnabled(validationInfos.isEmpty());
-    }
-
-    public void processValidation(List<ValidationInfo> validationInfos) {
-        setErrorInfoAll(validationInfos);
+        validationInfos = buildValidationInfos();
         setOKActionEnabled(validationInfos.isEmpty());
     }
 
     @Nullable
     @Override
     protected ValidationInfo doValidate() {
-        F form = getForm();
-        List<ValidationInfo> validationInfos = form.validate();
+        List<ValidationInfo> validationInfos = buildValidationInfos();
         return firstElement(validationInfos);
+    }
+
+    private List<ValidationInfo> buildValidationInfos(JComponent ... components) {
+        DBNFormValidatorImpl formValidator = (DBNFormValidatorImpl) this.formValidator;
+        return formValidator.buildValidationInfo(components);
     }
 
     public void setDialogCallback(@Nullable Dialogs.DialogCallback<?> callback) {
@@ -119,12 +123,8 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         });
     }
 
-    public void addDialogListener(DBNDialogListener listener) {
-        listeners.add(listener);
-    }
-
     public void setDefaultSize(int width, int height) {
-        this.defaultSize = new Dimension(width, height);
+        this.defaultSize = new JBDimension(width, height);
     }
 
     @NotNull
@@ -137,8 +137,9 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
 
     @Override
     public void show() {
+        AppIcon.getInstance().requestAttention(getProject(), true);
+        registerDialog(this);
         super.show();
-        listeners.notify(l -> l.onAction(DBNDialogListener.Action.OPEN));
     }
 
     @Override
@@ -219,7 +220,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         if (disposed) return;
         disposed = true;
 
-        listeners.notify(l -> l.onAction(DBNDialogListener.Action.CLOSE));
+        releaseDialog(this);
         super.dispose();
         Disposer.dispose(form);
         disposeInner();

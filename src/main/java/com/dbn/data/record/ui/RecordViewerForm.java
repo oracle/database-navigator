@@ -45,10 +45,10 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.ComponentAligner.alignFormComponents;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 
@@ -58,7 +58,7 @@ public class RecordViewerForm extends DBNFormBase implements ComponentAligner.Co
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JBTextField filterTextField;
-    private DBNScrollPane columnsPanelScrollPane;
+    private DBNScrollPane columnsScrollPane;
 
     private final List<RecordViewerColumnForm> columnForms = DisposableContainers.list(this);
 
@@ -91,27 +91,30 @@ public class RecordViewerForm extends DBNFormBase implements ComponentAligner.Co
                 Actions.SEPARATOR);
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
 
-
         columnsPanel.setLayout(new BoxLayout(columnsPanel, BoxLayout.Y_AXIS));
 
         for (DBColumn column : record.getDataset().getColumns()) {
             RecordViewerColumnForm columnForm = new RecordViewerColumnForm(this, record, column);
             columnForms.add(columnForm);
         }
-        ColumnSortingType columnSortingType = DatasetEditorManager.getInstance(project).getRecordViewColumnSortingType();
-        sortColumns(columnSortingType);
+        ColumnSortingType sortingType = getEditorManager().getRecordViewColumnSortingType();
+        sortColumns(sortingType);
         alignFormComponents(this);
-
-        Dimension preferredSize = mainPanel.getPreferredSize();
-        int width = (int) preferredSize.getWidth() + 24;
-        int height = (int) Math.min(preferredSize.getHeight(), 380);
-        mainPanel.setPreferredSize(new Dimension(width, height));
 
         filterTextField.getEmptyText().setText("Filter");
         onTextChange(filterTextField, e -> filterColumForms());
 
         int scrollUnitIncrement = (int) columnForms.get(0).getComponent().getPreferredSize().getHeight();
-        columnsPanelScrollPane.getVerticalScrollBar().setUnitIncrement(scrollUnitIncrement);
+        columnsScrollPane.getVerticalScrollBar().setUnitIncrement(scrollUnitIncrement);
+    }
+
+    @Override
+    protected void initAccessibility() {
+        setAccessibleName(columnsScrollPane, "Record columns");
+    }
+
+    private DatasetEditorManager getEditorManager() {
+        return DatasetEditorManager.getInstance(ensureProject());
     }
 
     @Override
@@ -139,10 +142,6 @@ public class RecordViewerForm extends DBNFormBase implements ComponentAligner.Co
         return mainPanel;
     }
 
-    public JComponent getColumnsPanel() {
-        return columnsPanel;
-    }
-
     /*********************************************************
      *                   Column sorting                      *
      *********************************************************/
@@ -157,7 +156,6 @@ public class RecordViewerForm extends DBNFormBase implements ComponentAligner.Co
             for (RecordViewerColumnForm columnForm : columnForms) {
                 columnsPanel.add(columnForm.getComponent());
             }
-            UserInterface.repaint(columnsPanel);
         }
     }
 
@@ -199,17 +197,18 @@ public class RecordViewerForm extends DBNFormBase implements ComponentAligner.Co
 
         @Override
         public boolean isSelected(@NotNull AnActionEvent e) {
-            Project project = record.getDataset().getProject();
-            ColumnSortingType columnSortingType = DatasetEditorManager.getInstance(project).getRecordViewColumnSortingType();
-            return columnSortingType == ColumnSortingType.ALPHABETICAL;
+            DatasetEditorManager editorManager = getEditorManager();
+            ColumnSortingType sortingType = editorManager.getRecordViewColumnSortingType();
+            return sortingType == ColumnSortingType.ALPHABETICAL;
         }
 
         @Override
         public void setSelected(@NotNull AnActionEvent e, boolean selected) {
-            Project project = record.getDataset().getProject();
             ColumnSortingType columnSorting = selected ? ColumnSortingType.ALPHABETICAL : ColumnSortingType.BY_INDEX;
-            DatasetEditorManager.getInstance(project).setRecordViewColumnSortingType(columnSorting);
+            DatasetEditorManager editorManager = getEditorManager();
+            editorManager.setRecordViewColumnSortingType(columnSorting);
             sortColumns(columnSorting);
+            UserInterface.repaint(columnsPanel);
         }
     }
 }

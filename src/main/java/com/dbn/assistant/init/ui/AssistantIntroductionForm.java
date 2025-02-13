@@ -26,7 +26,6 @@ import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
-import com.intellij.ide.BrowserUtil;
 import com.intellij.ui.HyperlinkLabel;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +33,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.event.HyperlinkEvent;
 import java.awt.BorderLayout;
 
 /**
@@ -45,13 +43,14 @@ import java.awt.BorderLayout;
  * @author Dan Cioca (Oracle)
  */
 public class AssistantIntroductionForm extends DBNFormBase {
+
     private JPanel mainPanel;
     private JPanel hintPanel;
-    private HyperlinkLabel selectAiHyperlink;
-    private JButton continueButton;
-    private JButton helpButton;
     private JPanel initPanel;
     private JPanel introPanel;
+    private JButton helpButton;
+    private JButton continueButton;
+    private HyperlinkLabel poweredByHyperlink;
 
     @SneakyThrows
     public AssistantIntroductionForm(@NotNull ChatBoxForm parent) {
@@ -85,12 +84,8 @@ public class AssistantIntroductionForm extends DBNFormBase {
     }
 
     private void initHyperlink() {
-        selectAiHyperlink.setHyperlinkText("Oracle Select AI");
-        selectAiHyperlink.addHyperlinkListener(e -> {
-            if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-                BrowserUtil.browse("https://www.oracle.com/autonomous-database/select-ai/");
-            }
-        });
+        poweredByHyperlink.setHyperlinkText("Oracle Select AI");
+        poweredByHyperlink.setHyperlinkTarget("https://www.oracle.com/autonomous-database/select-ai/");
     }
 
     private void initIntroContent() {
@@ -102,7 +97,7 @@ public class AssistantIntroductionForm extends DBNFormBase {
 
     @SneakyThrows
     private TextContent loadIntroContent() {
-        String content = Commons.readInputStream(getClass().getResourceAsStream("intro_content.html"));
+        String content = Commons.readInputStream(getClass().getResourceAsStream("intro_content.html.ft"));
         return TextContent.html(content);
     }
 
