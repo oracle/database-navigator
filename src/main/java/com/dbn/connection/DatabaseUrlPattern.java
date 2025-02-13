@@ -32,15 +32,25 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.isEmpty;
-import static com.dbn.connection.DatabaseUrlPattern.Elements.*;
+import static com.dbn.connection.DatabaseUrlPattern.Elements.database;
+import static com.dbn.connection.DatabaseUrlPattern.Elements.file;
+import static com.dbn.connection.DatabaseUrlPattern.Elements.folder;
+import static com.dbn.connection.DatabaseUrlPattern.Elements.host;
+import static com.dbn.connection.DatabaseUrlPattern.Elements.parameters;
+import static com.dbn.connection.DatabaseUrlPattern.Elements.port;
+import static com.dbn.connection.DatabaseUrlPattern.Elements.profile;
+import static com.dbn.connection.DatabaseUrlPattern.Elements.protocol;
+import static com.dbn.connection.DatabaseUrlPattern.Elements.serverType;
+import static com.dbn.connection.DatabaseUrlPattern.Elements.vendor;
 import static com.dbn.connection.DatabaseUrlType.CUSTOM;
 import static com.dbn.connection.DatabaseUrlType.DATABASE;
+import static com.dbn.connection.DatabaseUrlType.EZCONNECT;
 import static com.dbn.connection.DatabaseUrlType.FILE;
 import static com.dbn.connection.DatabaseUrlType.LDAP;
 import static com.dbn.connection.DatabaseUrlType.LDAPS;
 import static com.dbn.connection.DatabaseUrlType.SERVICE;
 import static com.dbn.connection.DatabaseUrlType.SID;
-import static com.dbn.connection.DatabaseUrlType.*;
+import static com.dbn.connection.DatabaseUrlType.TNS;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static java.util.regex.Pattern.compile;
@@ -52,8 +62,8 @@ public enum DatabaseUrlPattern {
 
     ORACLE_EZCONNECT(
             // temporary; pattern is much more complicated.
-            "jdbc:oracle:thin:@<TCPS>://<HOST>:<PORT>/<DATABASE><POOLTYPE><PARAMS>",
-            compile("^jdbc:oracle:thin:@"+tcps+"://"+host+":"+port+"/"+database+pooling+connParams ),
+            "jdbc:oracle:thin:@<PROTOCOL>//<HOST>:<PORT>/<DATABASE><SERVER_TYPE><PARAMETERS>",
+            compile("^jdbc:oracle:thin:@(" + protocol + ":)?//" + host + "(:" + port + ")?/" + database + serverType + parameters),
             Default.ORACLE, DatabaseUrlType.EZCONNECT),
 
     ORACLE_TNS(
@@ -116,9 +126,9 @@ public enum DatabaseUrlPattern {
         String profile = "(?<PROFILE>[\\w\\-.]+)";
         String folder = "(?<FOLDER>([a-z]:)?([\\\\/][\\w\\s/_.\\-']+)+)";
         String file = "(?<FILE>([a-z]:)?([\\\\/][\\w\\s/_.\\-']+)+)";
-        String pooling = "(?<POOLTYPE>:[\\w\\-.$#]+)?";
-        String connParams = "(?<PARAMS>\\?(.*))?";
-        String tcps = "(?<TCPS>(tcp|tcps))";
+        String serverType = "(?<SERVERTYPE>:[\\w\\-.$#]+)?";
+        String parameters = "(?<PARAMETERS>\\?(.*))?";
+        String protocol = "(?<PROTOCOL>(tcp|tcps))";
     }
 
 
@@ -146,25 +156,25 @@ public enum DatabaseUrlPattern {
                 databaseInfo.getMainFilePath(),
                 databaseInfo.ensureTnsFolder(),
                 databaseInfo.getTnsProfile(),
-                databaseInfo.getPoolType(),
-                databaseInfo.getEasyConnUrl(),
-                databaseInfo.isTCPS());
+                databaseInfo.getServerType(),
+                databaseInfo.getParameters(),
+                databaseInfo.getProtocol());
     }
 
-    public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile, String poolType, Map<String, String> easyConnParameters, boolean isTCPS) {
+    public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile, String serverType, Map<String, String> parameters, DatabaseProtocol protocol) {
         return urlTemplate.
                 replace("<VENDOR>", nvl(vendor, "")).
-                replace("<TCPS>", isTCPS ? "tcps" : "tcp").
                 replace("<HOST>", nvl(host, "")).
                 replace(":<PORT>", isEmpty(port) ? "" : ":" + port).
                 replace("<DATABASE>", nvl(database, "")).
+                replace("<PROTOCOL>", protocol == null ? "" : protocol + ":").
                 replace("<FILE>", nvl(file, "")).
                 replace("<TNS_FOLDER>", nvl(tnsFolder, "")).replaceAll("\\\\", "/").
                 replace("<TNS_PROFILE>", nvl(tnsProfile, "")).
-                replace("<POOLTYPE>", isEmpty(poolType) || "Default".equalsIgnoreCase(poolType) ? ""
-                        : ":" + nvl(poolType.toUpperCase(), "")).
-                replace("<PARAMS>", easyConnParameters == null || easyConnParameters.isEmpty()  ? ""
-                                : "?" + easyConnParameters.entrySet().stream().
+                replace("<SERVER_TYPE>", isEmpty(serverType) || "Default".equalsIgnoreCase(serverType) ? ""
+                        : ":" + nvl(serverType.toUpperCase(), "")).
+                replace("<PARAMETERS>", parameters == null || parameters.isEmpty()  ? ""
+                                : "?" + parameters.entrySet().stream().
                                     map(entry -> isEmpty(entry.getValue()) ? "" : entry.getKey() + "=" + entry.getValue())
                                         .filter(nvp -> !nvp.isEmpty())
                                         .collect(Collectors.joining("&")));
@@ -203,22 +213,23 @@ public enum DatabaseUrlPattern {
     }
 
     public String resolveTnsFolder(String url) {
-        return resolveGroup(url, "TNS_FOLDER", TNS);
+        return resolveGroup(url, "FOLDER", TNS);
     }
 
     public String resolveTnsProfile(String url) {
-        return resolveGroup(url, "TNS_PROFILE", TNS);
+        return resolveGroup(url, "PROFILE", TNS);
     }
 
-    public String resolvePoolType(String url) {
-        return resolveGroup(url, "POOLTYPE", EZCONNECT);
+    public String resolveServerType(String url) {
+        return resolveGroup(url, "SERVERTYPE", EZCONNECT);
     }
 
-    public String resolveSecureTCP(String url) {
-        return resolveGroup(url, "TCPS", EZCONNECT);
+    public DatabaseProtocol resolveProtocol(String url) {
+        String protocol = resolveGroup(url, "PROTOCOL", EZCONNECT);
+        return DatabaseProtocol.get(protocol);
     }
 
-    public Map<String,String> resolveParameterMap(String url) {
+    public Map<String,String> resolveParameters(String url) {
         Map<String, String> paramsMap = new HashMap<>();
         int qmarkIdx = url.indexOf('?');
         if (qmarkIdx < 0 || qmarkIdx == url.length()-1) {

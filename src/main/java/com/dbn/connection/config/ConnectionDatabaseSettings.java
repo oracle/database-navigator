@@ -25,6 +25,7 @@ import com.dbn.common.util.Strings;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectivityStatus;
+import com.dbn.connection.DatabaseProtocol;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
@@ -44,9 +45,21 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.options.setting.Settings.getDouble;
+import static com.dbn.common.options.setting.Settings.getEnum;
+import static com.dbn.common.options.setting.Settings.getString;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setDouble;
+import static com.dbn.common.options.setting.Settings.setEnum;
+import static com.dbn.common.options.setting.Settings.setString;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 
 @Slf4j
 @Getter
@@ -181,9 +194,9 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                     databaseInfo.getMainFilePath(),
                     databaseInfo.ensureTnsFolder(),
                     databaseInfo.getTnsProfile(),
-                    databaseInfo.getPoolType(),
-                    databaseInfo.getEasyConnUrl(),
-                    databaseInfo.isTCPS());
+                    databaseInfo.getServerType(),
+                    databaseInfo.getParameters(),
+                    databaseInfo.getProtocol());
         }
     }
 
@@ -284,7 +297,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
 
         String url = getString(element, "url", databaseInfo.getUrl());
         DatabaseUrlType defaultUrlType =
-                Strings.isEmptyOrSpaces(url) ?
+                isEmptyOrSpaces(url) ?
                         databaseType.getDefaultUrlPattern().getUrlType() :
                         DatabaseUrlType.CUSTOM;
 
@@ -301,21 +314,20 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             databaseInfo.setDatabase(getString(element, "database", null));
             databaseInfo.setTnsFolder(getString(element, "tns-folder", null));
             databaseInfo.setTnsProfile(getString(element, "tns-profile", null));
-            databaseInfo.setPoolType(getString(element, "pool-type", "Default"));
-            databaseInfo.setTcps(getBoolean(element, "secure-tcp", true));
-            Element easyConnPropsElem = element.getChild("easy-conn-properties");
-            Map<String, String> easyConnPropsMap = new HashMap<>();
-            if (easyConnPropsElem != null) {
-                List<Element> keys = easyConnPropsElem.getChildren("key");
-                for (Element key : keys) {
-                    String keyName = key.getAttributeValue("keyName");
-                    String value = key.getTextNormalize();
-                    if (keyName != null && !keyName.isEmpty()) {
-                        easyConnPropsMap.put(keyName, nvl(value));
-                    }
+            databaseInfo.setServerType(getString(element, "server-type", "Default"));
+            databaseInfo.setProtocol(getEnum(element, "protocol", DatabaseProtocol.class));
+
+            Element paramsElement = element.getChild("url-parameters");
+            Map<String, String> parameters = new HashMap<>();
+            if (paramsElement != null) {
+                List<Element> paramElements = paramsElement.getChildren();
+                for (Element paramElement : paramElements) {
+                    String key = stringAttribute(paramElement,"key");
+                    String value = stringAttribute(paramElement, "value");
+                    parameters.put(key, value);
                 }
             }
-            databaseInfo.setEasyConnUrl(easyConnPropsMap);
+            databaseInfo.setParameters(parameters);
 
             urlPattern = DatabaseUrlPattern.get(databaseType, urlType);
 
@@ -339,24 +351,13 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
         authenticationInfo.readConfiguration(element);
         sessionUser = getString(element, "session-user", sessionUser);
 
-
-        // TODO backward compatibility (to remove)
-        Element propertiesElement = element.getChild("properties");
-        if (propertiesElement != null) {
-            for (Element propertyElement : propertiesElement.getChildren()) {
-                Map<String, String> properties = getParent().getPropertiesSettings().getProperties();
-                properties.put(
-                        stringAttribute(propertyElement, "key"),
-                        stringAttribute(propertyElement, "value"));
-            }
-        }
         deriveDatabaseType();
         updateSignature();
     }
 
     @Nullable
     public File getDriverLibraryFile() {
-        return Strings.isEmptyOrSpaces(driverLibrary) ?  null : new File(driverLibrary);
+        return isEmptyOrSpaces(driverLibrary) ?  null : new File(driverLibrary);
     }
 
     @Override
@@ -385,16 +386,18 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             setString(element, "database", nvl(databaseInfo.getDatabase()));
             setString(element, "tns-folder", nvl(databaseInfo.getTnsFolder()));
             setString(element, "tns-profile", nvl(databaseInfo.getTnsProfile()));
-            setString(element, "pool-type", nvl(databaseInfo.getPoolType()));
-            setBoolean(element, "secure-tcp", databaseInfo.isTCPS());
-            Element easyConnElement = newElement(element, "easy-conn-properties");
-            Optional.ofNullable(databaseInfo.getEasyConnUrl()).ifPresent(map ->
-                map.entrySet().forEach(
-                    entry -> {
-                        Element keyElem = newElement(easyConnElement, "key");
-                        keyElem.setAttribute("keyName", nvl(entry.getKey()));
-                        keyElem.setText(entry.getValue());
-                    }));
+            setString(element, "server-type", nvl(databaseInfo.getServerType()));
+            setEnum(element, "protocol", databaseInfo.getProtocol());
+
+            Element paramsElement = newElement(element, "url-parameters");
+            databaseInfo.getParameters().forEach((key, value) -> {
+                if (isEmptyOrSpaces(key)) return;
+                if (isEmptyOrSpaces(value)) return;
+
+                Element paramElement = newElement(paramsElement, "parameter");
+                setStringAttribute(paramElement, "key", key);
+                setStringAttribute(paramElement, "value", value);
+            });
 
             DatabaseFileBundle fileBundle = databaseInfo.getFileBundle();
             if (fileBundle != null) {
