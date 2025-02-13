@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,12 +31,10 @@ import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.file.DatabaseFileBundle;
 import com.dbn.connection.config.file.ui.DatabaseFileSettingsForm;
+import com.dbn.connection.config.parameter.ui.UrlParameterInputDialog;
 import com.dbn.connection.config.tns.TnsAdmin;
 import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsNamesParser;
-import com.dbn.connection.config.ui.easyconn.EasyConnectUrlParameterContext;
-import com.dbn.connection.config.ui.easyconn.EasyConnectUrlParameterInput;
-import com.dbn.connection.config.ui.easyconn.EasyConnectUrlParameterInputDialog;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBTextField;
@@ -54,10 +52,10 @@ import java.awt.BorderLayout;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
@@ -71,8 +69,23 @@ import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.common.util.Strings.toLowerCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static java.util.Collections.unmodifiableMap;
 
 public class ConnectionUrlSettingsForm extends DBNFormBase {
+    public static final List<@NotNull String> EASY_CONNECT_PARAMETER_NAMES = List.of(
+            "ENABLE",
+            "FAILOVER",
+            "LOAD_BALANCE",
+            "RECV_BUF_SIZE",
+            "SEND_BUF_SIZE",
+            "SDU",
+            "SOURCE_ROUTE",
+            "RETRY_COUNT",
+            "RETRY_DELAY",
+            "HTTPS_PROXY",
+            "HTTPS_PROXY_PORT",
+            "WALLET_LOCATION");
+
     private JLabel urlTypeLabel;
     private JLabel hostLabelField;
     private JLabel portLabelField;
@@ -107,32 +120,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         databaseFileSettingsForm = new DatabaseFileSettingsForm(this, configuration.getDatabaseInfo().getFileBundle());
         databaseFilesPanel.add(databaseFileSettingsForm.getComponent(), BorderLayout.CENTER);
         urlTypeComboBox.addActionListener(e -> updateFieldVisibility());
-
-        parametersButton.addActionListener(e -> {
-            DatabaseType databaseType = getDatabaseType();
-            DatabaseUrlPattern urlPattern =
-                databaseType.getUrlPattern(DatabaseUrlType.EZCONNECT);
-            Map<String, String> props = urlPattern.resolveParameters(getUrl());
-
-            Set<String> builtInKeys = Set.of("ENABLE", "FAILOVER", "LOAD_BALANCE", "RECV_BUF_SIZE","SEND_BUF_SIZE",
-                    "SDU", "SOURCE_ROUTE", "RETRY_COUNT", "RETRY_DELAY","HTTPS_PROXY", "HTTPS_PROXY_PORT",
-                    "WALLET_LOCATION");
-
-            // ensure that we populate table with empty builtin keys even if the current url doesn't have them.
-            for (String key : builtInKeys) {
-                if (!props.containsKey(key)) {
-                    props.put(key,"");
-                }
-            }
-            EasyConnectUrlParameterInput input = new EasyConnectUrlParameterInput(props);
-            EasyConnectUrlParameterContext context = new EasyConnectUrlParameterContext(input);
-
-            EasyConnectUrlParameterInputDialog dialog = new EasyConnectUrlParameterInputDialog(getProject(), context);
-            if (dialog.showAndGet()) {
-                parameters = context.getInput().getExistingParameterValues();
-                updateUrlField();
-            }
-        });
+        parametersButton.addActionListener(e -> openParametersDialog());
 
         updateTnsAdminField();
 
@@ -151,6 +139,25 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         protocolComboBox.addActionListener(e -> updateUrlField());
 
         updateTnsProfilesField();
+    }
+
+    private void openParametersDialog() {
+        DatabaseType databaseType = getDatabaseType();
+        DatabaseUrlPattern urlPattern = databaseType.getUrlPattern(DatabaseUrlType.EZCONNECT);
+        if (urlPattern == null) return;
+
+        // ensure that we populate table with empty builtin keys even if the current url doesn't have them.
+        // (also retain logical order of the parameters)
+        Map<String, String> parameters = new LinkedHashMap<>();
+        EASY_CONNECT_PARAMETER_NAMES.forEach(key -> parameters.put(key, ""));
+
+        parameters.putAll(this.parameters);
+
+        UrlParameterInputDialog dialog = new UrlParameterInputDialog(getProject(), parameters);
+        if (dialog.showAndGet()) {
+            this.parameters = dialog.getParameters();
+            updateUrlField();
+        }
     }
 
     private void updateTnsAdminField() {
@@ -232,7 +239,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     }
 
     public Map<String, String> getParameters() {
-        return Collections.unmodifiableMap(this.parameters);
+        return unmodifiableMap(this.parameters);
     }
 
     public DatabaseProtocol getProtocol() {

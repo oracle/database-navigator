@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,13 @@ package com.dbn.connection;
 import com.dbn.common.constant.Constants;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.database.DatabaseInfo.Default;
+import com.dbn.common.util.Parameters;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -230,28 +231,12 @@ public enum DatabaseUrlPattern {
     }
 
     public Map<String,String> resolveParameters(String url) {
-        Map<String, String> paramsMap = new HashMap<>();
         int qmarkIdx = url.indexOf('?');
         if (qmarkIdx < 0 || qmarkIdx == url.length()-1) {
-            return paramsMap;
+            return Collections.emptyMap();
         }
-        String paramsString = url.substring(qmarkIdx+1);
-        String[] kvPairs = paramsString.split("&");
-        FOR_LOOP :for (String kv : kvPairs) {
-            int equalsIdx = kv.indexOf('=');
-            if (equalsIdx < 0 || equalsIdx == kv.length()-1) {
-                // invalid so just skip to next
-                continue FOR_LOOP;
-            }
-            String key = kv.substring(0, equalsIdx);
-            String val = kv.substring(equalsIdx+1);
-            if (key.isEmpty()) {
-                // no key so skip
-                continue FOR_LOOP;
-            }
-            paramsMap.put(key,val);
-        }
-        return paramsMap;
+        String paramsString = url.substring(qmarkIdx);
+        return Parameters.toParameterMap(paramsString);
     }
 
     public boolean isValid(String url) {

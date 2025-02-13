@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.dbn.connection.config.ui.easyconn;
+package com.dbn.connection.config.parameter.ui;
 
-import com.dbn.common.outcome.DialogCloseOutcomeHandler;
-import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
+import java.util.Map;
 
 /**
  * A dialog that collects Easy Connect URL-specific parameters.  These are distinct from the regular driver
@@ -31,31 +30,21 @@ import javax.swing.Action;
  * parsed from a syntactically valid Easy Connect URL and will save values back to the same map.
  */
 @Getter
-public class EasyConnectUrlParameterInputDialog extends DBNDialog<EasyConnectUrlParameterInputForm> {
-    private final EasyConnectUrlParameterContext context;
+public class UrlParameterInputDialog extends DBNDialog<UrlParameterInputForm> {
+    private final Map<String, String> parameters;
 
-    public EasyConnectUrlParameterInputDialog(Project project, EasyConnectUrlParameterContext context) {
-        super(project, "Set Easy Connect Parameters", false);
-        this.context = context;
+    public UrlParameterInputDialog(Project project, Map<String, String> parameters) {
+        super(project, "Easy-Connect Parameters", false); // TODO specific to EZ_CONNECT - make more generic
+        this.parameters = parameters;
 
-        // add handler to close the dialog on success
-        this.context.addOutcomeHandler(OutcomeType.SUCCESS, DialogCloseOutcomeHandler.create(this));
         init();
-    }
-
-    @Override
-    protected void init() {
-        super.init();
-        getForm().getMainComponent().validate();
-        setSize(getForm().getMainComponent().getWidth(), getForm().getMainComponent().getHeight());
     }
 
     @NotNull
     @Override
-    protected EasyConnectUrlParameterInputForm createForm() {
-        return new EasyConnectUrlParameterInputForm(this, context.getInput());
+    protected UrlParameterInputForm createForm() {
+        return new UrlParameterInputForm(this, parameters);
     }
-
 
     @NotNull
     @Override
@@ -67,7 +56,8 @@ public class EasyConnectUrlParameterInputDialog extends DBNDialog<EasyConnectUrl
 
     @Override
     protected void doOKAction() {
-        getOKAction().setEnabled(true);
+        parameters.clear();
+        parameters.putAll(getForm().getProperties());
         super.doOKAction();
     }
     

@@ -156,7 +156,7 @@
         </constraints>
         <properties>
           <labelFor value="c9c7d"/>
-          <text value="&amp;Server Type"/>
+          <text value="&amp;Server type"/>
         </properties>
       </component>
       <component id="a622a" class="javax.swing.JTextField" binding="portTextField">
