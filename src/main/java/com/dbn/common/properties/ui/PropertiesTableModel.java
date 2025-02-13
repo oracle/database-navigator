@@ -20,6 +20,8 @@ import com.dbn.common.properties.KeyValueProperty;
 import com.dbn.common.ui.table.DBNEditableTableModel;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.val;
 
 import java.util.ArrayList;
@@ -27,9 +29,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Getter
+@Setter
 public class PropertiesTableModel extends DBNEditableTableModel {
     private final List<KeyValueProperty> properties = new ArrayList<>();
-    private boolean isPropColumnReadonly;
+
+    /**
+     * Determines whether the properties table model has predefined properties.
+     * This flag can be used to distinguish between user-defined properties
+     * and properties that are already part of the system's default configuration.
+     */
+    private boolean predefinedPropertySet;
 
     public PropertiesTableModel(Map<String, String> propertiesMap) {
         loadProperties(propertiesMap);
@@ -80,14 +90,10 @@ public class PropertiesTableModel extends DBNEditableTableModel {
 
     }
 
-    public void setPropertyColumnReadonly(boolean isPropColumnReadonly) {
-        this.isPropColumnReadonly = isPropColumnReadonly;
-    }
-
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         if (columnIndex == 0) {
-            return !isPropColumnReadonly;
+            return !predefinedPropertySet;
         }
         return true;
     }

@@ -95,6 +95,11 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         // do validation for all fields to decide whether to enable main button
         validationInfos = buildValidationInfos();
         setOKActionEnabled(validationInfos.isEmpty());
+
+        // revalidate the ui if dialog errors are listed in the dialog footer
+        Window window = getWindow();
+        window.revalidate();
+        window.repaint();
     }
 
     @Nullable

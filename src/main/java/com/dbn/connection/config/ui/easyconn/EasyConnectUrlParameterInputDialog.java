@@ -19,12 +19,11 @@ package com.dbn.connection.config.ui.easyconn;
 import com.dbn.common.outcome.DialogCloseOutcomeHandler;
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.generator.code.CodeGeneratorContext;
-import com.dbn.generator.code.CodeGeneratorManager;
+import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Action;
 
 /**
  * A dialog that collects Easy Connect URL-specific parameters.  These are distinct from the regular driver
@@ -35,8 +34,8 @@ import javax.swing.*;
 public class EasyConnectUrlParameterInputDialog extends DBNDialog<EasyConnectUrlParameterInputForm> {
     private final EasyConnectUrlParameterContext context;
 
-    public EasyConnectUrlParameterInputDialog(EasyConnectUrlParameterContext context) {
-        super(null, "Set Easy Connect Parameters", false);
+    public EasyConnectUrlParameterInputDialog(Project project, EasyConnectUrlParameterContext context) {
+        super(project, "Set Easy Connect Parameters", false);
         this.context = context;
 
         // add handler to close the dialog on success

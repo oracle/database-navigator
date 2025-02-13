@@ -17,43 +17,42 @@
 package com.dbn.connection.config.ui.easyconn;
 
 import com.dbn.common.properties.ui.PropertiesEditorForm;
-import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.properties.ui.PropertiesTableModel;
 import com.dbn.generator.code.shared.CodeGeneratorInput;
 import lombok.Getter;
 
-import javax.swing.*;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import java.awt.*;
-import java.util.Map;
-
 @Getter
-public class EasyConnectUrlParameterInputForm<I extends EasyConnectUrlParameterInput> extends DBNFormBase {
+public class EasyConnectUrlParameterInputForm<I extends EasyConnectUrlParameterInput> extends PropertiesEditorForm {
     private final I input;
-    private PropertiesEditorForm propertiesEditorForm;
-    private JPanel mainPanel;
     public EasyConnectUrlParameterInputForm(EasyConnectUrlParameterInputDialog dialog, I input) {
-        super(dialog);
+        super(dialog, input.getExistingParameterValues(), false, false);
         this.input = input;
-        initMainPanel();
-        initValidation();;
+        initPropertyTable();
+        initPropertyValidators();
     }
 
-    private void initValidation() {
+    private void initPropertyTable() {
+        PropertiesTableModel model = getTable().getModel();
+        model.setPredefinedPropertySet(true);
+        model.addTableModelListener(e -> applyUserInput());
+    }
+
+    protected void initPropertyValidators() {
         /*("ENABLE", ,
                "HTTPS_PROXY") */
-        propertiesEditorForm.addValidator(new IntegerConstraintValidator(0), "SEND_BUF_SIZE");
-        propertiesEditorForm.addValidator(new IntegerConstraintValidator(0), "RECV_BUF_SIZE");
-        propertiesEditorForm.addValidator(new StringListConstraintValidator("ON", "OFF"), "FAILOVER");
-        propertiesEditorForm.addValidator(new StringListConstraintValidator("ON", "OFF"), "LOAD_BALANCE");
-        propertiesEditorForm.addValidator(new IntegerConstraintValidator(0), "SDU");
-        propertiesEditorForm.addValidator(new IntegerConstraintValidator(0), "SDU");
-        propertiesEditorForm.addValidator(new StringListConstraintValidator("ON", "OFF"), "SOURCE_ROUTE");
-        propertiesEditorForm.addValidator(new IntegerConstraintValidator(0), "RETRY_COUNT");
-        propertiesEditorForm.addValidator(new IntegerConstraintValidator(0), "RETRY_DELAY");
+        addValidator(new IntegerConstraintValidator(0), "SEND_BUF_SIZE");
+        addValidator(new IntegerConstraintValidator(0), "RECV_BUF_SIZE");
+        addValidator(new StringListConstraintValidator("ON", "OFF"), "FAILOVER");
+        addValidator(new StringListConstraintValidator("ON", "OFF"), "LOAD_BALANCE");
+        addValidator(new IntegerConstraintValidator(0), "SDU");
+        addValidator(new IntegerConstraintValidator(0), "SDU");
+        addValidator(new StringListConstraintValidator("ON", "OFF"), "SOURCE_ROUTE");
+        addValidator(new IntegerConstraintValidator(0), "RETRY_COUNT");
+        addValidator(new IntegerConstraintValidator(0), "RETRY_DELAY");
 
         //?/propertiesEditorForm.addValidator(new );
     }
+
     public final void applyUserInput() {
         applyUserInput(input);
     }
@@ -63,35 +62,6 @@ public class EasyConnectUrlParameterInputForm<I extends EasyConnectUrlParameterI
      * @param input the
      */
     protected void applyUserInput(I input) {
-        input.setParameters(this.propertiesEditorForm.getProperties());
-    }
-
-    protected JPanel initMainPanel() {
-        this.mainPanel = new JPanel();
-        GridLayout glayout = new GridLayout();
-        glayout.setRows(1);
-        glayout.setColumns(1);
-        mainPanel.setLayout(glayout);
-
-
-
-        Map<String, String> props = this.input.getExistingParameterValues();
-        this.propertiesEditorForm =
-                new PropertiesEditorForm(this, props, false, false);
-        propertiesEditorForm.getTable().getModel().setPropertyColumnReadonly(true);
-        propertiesEditorForm.getTable().getModel().addTableModelListener(new TableModelListener() {
-            @Override
-            public void tableChanged(TableModelEvent e) {
-                applyUserInput();
-            }
-        });
-
-        mainPanel.add(propertiesEditorForm.getComponent());
-        return mainPanel;
-    }
-
-    @Override
-    protected JComponent getMainComponent() {
-        return this.mainPanel;
+        input.setParameters(getProperties());
     }
 }

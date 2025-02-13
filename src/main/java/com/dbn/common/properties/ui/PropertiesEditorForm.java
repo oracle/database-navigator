@@ -17,7 +17,7 @@
 package com.dbn.common.properties.ui;
 
 import com.dbn.common.dispose.Disposer;
-import com.dbn.common.ui.form.DBNForm;
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.table.DBNTableModel;
 import com.intellij.openapi.ui.ValidationInfo;
@@ -37,21 +37,21 @@ import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
 public class PropertiesEditorForm extends DBNFormBase {
     private JPanel mainPanel;
     private final PropertiesEditorTable table;
-    private Map<String, PropertiesValidator> validators = new HashMap<>();
+    private final Map<String, PropertiesValidator> validators = new HashMap<>();
 
-    public PropertiesEditorForm(DBNForm parent, Map<String, String> properties, boolean showMoveButtons) {
+    public PropertiesEditorForm(DBNComponent parent, Map<String, String> properties, boolean showMoveButtons) {
         this(parent, properties, showMoveButtons, true);
     }
-    public PropertiesEditorForm(DBNForm parent, Map<String, String> properties, boolean showMoveButtons, boolean showAddRemoveButtons) {
+    public PropertiesEditorForm(DBNComponent parent, Map<String, String> properties, boolean showMoveButtons, boolean showAddRemoveButtons) {
         super(parent);
         table = new PropertiesEditorTable(this, properties);
         Disposer.register(this, table);
 
-        JPanel tablePanel = initTableComponent(showMoveButtons);
+        JPanel tablePanel = initTableComponent(showMoveButtons, showAddRemoveButtons);
         mainPanel.add(tablePanel, BorderLayout.CENTER);
-  }
+    }
 
-    private JPanel initTableComponent(boolean showMoveButtons) {
+    private JPanel initTableComponent(boolean showMoveButtons, boolean showAddRemoveButtons) {
         ToolbarDecorator decorator = createToolbarDecorator(table);
         if (showAddRemoveButtons) {
             decorator.setAddAction(b -> table.insertRow());
@@ -65,28 +65,27 @@ public class PropertiesEditorForm extends DBNFormBase {
         return createToolbarDecoratorComponent(decorator, table);
     }
 
-    private void initValidation() {
-        table.getModel().addTableModelListener(l -> {
-            if (l.getColumn() == 1) {
-                DBNTableModel source = (DBNTableModel) l.getSource();
-                int firstRow = l.getFirstRow();
-                int lastRow = l.getLastRow();
-                List<ValidationInfo> valInfos = new ArrayList<>();
-                for (int row = firstRow; row <= lastRow; row++) {
-                    Object cellValue =  source.getValueAt(row, 1);
-                    if (cellValue != null && !"".equals(cellValue)) {
-                        String key = (String) source.getValueAt(row, 0);
-                        PropertiesValidator v = validators.get(key);
-                        if (v != null) {
-                            ValidationInfo result = v.validate(key, cellValue);
-                            if (result != null) {
-                                valInfos.add(result);
-                            }
+    protected void initValidation() {
+        if (validators.isEmpty()) return;
+
+        addValidator(table, t -> {
+            DBNTableModel model = t.getModel();
+            List<ValidationInfo> validationInfos = new ArrayList<>();
+            int rowCount = table.getRowCount();
+            for (int row = 0; row < rowCount; row++) {
+                Object cellValue =  model.getValueAt(row, 1);
+                if (cellValue != null && !"".equals(cellValue)) {
+                    String key = (String) model.getValueAt(row, 0);
+                    PropertiesValidator v = validators.get(key);
+                    if (v != null) {
+                        ValidationInfo result = v.validate(key, cellValue);
+                        if (result != null) {
+                            validationInfos.add(result);
                         }
                     }
                 }
-                getParentDialog().processValidation(valInfos);
             }
+            return validationInfos;
         });
     }
 
