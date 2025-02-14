@@ -1,22 +1,19 @@
 package com.dbn.oci.ui;
 
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.util.TextFields;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.ComboBox;
-import com.intellij.openapi.ui.ComponentValidator;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.openapi.ui.ValidationInfo;
-import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.components.JBPasswordField;
 import com.oracle.oci.intellij.ui.common.AutonomousDatabaseConstants;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import javax.swing.event.DocumentEvent;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -134,12 +131,12 @@ public class ConnectionConfigForm extends DBNFormBase {
 
   protected void initValidation() {
     // Validator for the confirm password field
-    formValidator.addTextValidation(passwordTextField, this::validatePassword,"Password must be 8-60 characters long and include at least one letter and one number.");
+    addTextValidation(passwordTextField, this::validatePassword,"Password must be 8-60 characters long and include at least one letter and one number.");
 
     // Validator for the confirm password field
-    formValidator.addTextValidation(passwordConfirmTextField, this::validateConfirmPassword,"Confirm Password does not match.");
+    addTextValidation(passwordConfirmTextField, this::validateConfirmPassword,"Confirm Password does not match.");
 
-    formValidator.addTextValidation(walletLocationField.getTextField(),this::validateWalletPath,"<html><b>Error:</b> Invalid location:<br>"
+    addTextValidation(walletLocationField.getTextField(),this::validateWalletPath,"<html><b>Error:</b> Invalid location:<br>"
             +walletTooltip+"</html>");
   }
 

@@ -37,8 +37,12 @@ import java.util.Objects;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
+import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.connection.config.ConnectionSettingsStatus.*;
+import static com.dbn.connection.config.ConnectionSettingsStatus.ACTIVE;
+import static com.dbn.connection.config.ConnectionSettingsStatus.NEW;
+import static com.dbn.connection.config.ConnectionSettingsStatus.SIGNED;
 
 @Getter
 @Setter
@@ -146,10 +150,10 @@ public class ConnectionSettings extends CompositeProjectConfiguration<Connection
 
     @Override
     public void writeConfiguration(Element element) {
-        element.setAttribute("source-id", sourceId);
-        element.setAttribute("id", connectionId.id());
-        element.setAttribute("active", Boolean.toString(isActive()));
-        element.setAttribute("signed", Boolean.toString(isSigned()));
+        setStringAttribute(element, "source-id", sourceId);
+        setStringAttribute(element, "id", connectionId.id());
+        setBooleanAttribute(element, "active", isActive());
+        setBooleanAttribute(element, "signed", isSigned());
         super.writeConfiguration(element);
     }
 
