@@ -1,7 +1,10 @@
 package com.dbn.oci.ui;
 
+import com.dbn.common.notification.NotificationGroup;
+import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.common.util.Messages;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.tns.TnsImportData;
@@ -10,23 +13,18 @@ import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsNamesParser;
 import com.dbn.oci.ConnectionData;
 import com.dbn.options.ProjectSettingsManager;
-import com.intellij.ide.DataManager;
-import com.intellij.notification.NotificationType;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.ValidationInfo;
-import com.oracle.oci.intellij.ui.common.UIUtil;
+import com.intellij.openapi.util.io.FileUtil;
+import com.oracle.oci.intellij.api.oci.OCIDatabase;
+import com.oracle.oci.intellij.api.oci.commands.DownloadWalletCommand;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Action;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.io.IOException;
 import java.util.Random;
 
-public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm>  {
+public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm> implements NotificationSupport {
   private final ConnectionData connectionData;
 
   public ConnectionConfigDialog(Project project, String title, boolean canBeParent, ConnectionData connectionData) {
@@ -53,19 +51,19 @@ public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm>  {
   protected void doOKAction() {
     ConnectionConfigForm form = getForm();
 
-    DataContext dataContext = DataManager.getInstance().getDataContext();
-    Project project = dataContext.getData(CommonDataKeys.PROJECT);
+    Project project = ensureProject();
     ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);
 
     if (form.isMTLS()) {
       connectionData.setConnectionName(connectionData.getDisplayName()+"_MTLS");
       String walletLocation = form.getWalletLocation();
-      String password = form.getPassword();
-      password = form.isSpecifyPassword()?password: generateRandomPassword();
+      String password = form.isSpecifyPassword() ?
+              form.getPassword() :
+              generateRandomPassword();
 
       if (form.getWalletPathType().equals(ConnectionConfigForm.WalletPathType.EMPTY_FOLDER)){
         downloadNewWallet(walletLocation,password,null,()->openSettings(settingsManager,walletLocation));
-      }else {
+      } else {
         openSettings(settingsManager,walletLocation);
       }
 
@@ -74,8 +72,6 @@ public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm>  {
       settingsManager.createConnection(DatabaseType.ORACLE, ConnectionConfigType.CUSTOM, connectionData);
     }
     close(OK_EXIT_CODE);
-
-
   }
 
   public String generateRandomPassword() {
@@ -135,38 +131,58 @@ public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm>  {
     settingsManager.createConnections(tnsImportData, connectionData);
   }
 
-  private void downloadNewWallet(String walletLocation, String password,Runnable preDownloadRunnable ,Runnable showConnectionSettingsRunnable) {
+  private void downloadNewWallet(String walletLocation, String password, Runnable preDownloadRunnable, Runnable showConnectionSettingsRunnable) {
     if (walletLocation == null || walletLocation.isEmpty()) {
-      UIUtil.fireNotification(NotificationType.ERROR, "Invalid wallet location.");
+      Messages.showErrorDialog(getProject(), "Missing Wallet Location", "Wallet location not specified.");
       return;
     }
 
-    Progress.prompt(getProject(),null,false,"Downloading wallet","Downloading wallet",
+    Progress.prompt(getProject(), null, false, "Downloading wallet", "Downloading wallet",
             progress -> {
               if (preDownloadRunnable != null) {
                 preDownloadRunnable.run();
               }
-              boolean downloadSuccess = connectionData.downloadWallet(
-                      new File(walletLocation ),
-                      "",
-                      password
-              );
-
-              if (downloadSuccess) {
-                UIUtil.fireNotification(NotificationType.INFORMATION, "The wallet has been downloaded successfully.");
-              } else {
-                UIUtil.fireNotification(NotificationType.ERROR, "Failed to download the wallet.");
-              }
-              try {
-                showConnectionSettingsRunnable.run();
-              }catch (Exception ex){
-                throw new RuntimeException(ex);
-              }
-
+              downloadWallet(new File(walletLocation), "", password);
+              showConnectionSettingsRunnable.run();
             }
-            );
-
+    );
   }
 
+  private void downloadWallet(File walletLocation, String walletType, String password) {
+    OCIDatabase database = connectionData.getDatabase();
+    String displayName = database.getDisplayName();
 
+    try {
+      prepareWalletLocation(walletLocation);
+
+      DownloadWalletCommand command = new DownloadWalletCommand(database, walletLocation, walletType, password);
+      command.execute();
+      // soft non-intrusive notification
+      sendInfoNotification(NotificationGroup.CONNECTION, "The wallet for database \"" + displayName + "\" was downloaded successfully.");
+    } catch (Exception e) {
+      // error prompt
+      Messages.showErrorDialog(getProject(), "Wallet Download Failed", "Failed to download the wallet for database " + displayName + ".", e);
+    }
+  }
+
+  private static void prepareWalletLocation(File location) throws IOException {
+    String path = location.getAbsolutePath();
+
+    // make sure the full path is available
+    // (oci download command only attempts to create last directory in the path)
+    if (!FileUtil.createDirectory(location)) {
+      throw new IOException("Could not create wallet directory \"" + path + "\"");
+    }
+
+    // verify if available
+    if (!location.exists() || !location.isDirectory()) {
+      throw new IOException("Could not create wallet directory \"" + path + "\"");
+    }
+
+    // verify if location is empty (prevent blind overwrite)
+    File[] files = location.listFiles();
+    if (files != null && files.length > 0) {
+      throw new IOException("Wallet directory \"" + path + "\" is not empty");
+    }
+  }
 }

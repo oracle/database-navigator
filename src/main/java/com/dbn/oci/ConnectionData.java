@@ -2,11 +2,9 @@ package com.dbn.oci;
 
 import com.oracle.oci.intellij.api.ext.UIModelContext;
 import com.oracle.oci.intellij.api.oci.OCIDatabase;
-import com.oracle.oci.intellij.api.oci.commands.DownloadWalletCommand;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.File;
 import java.util.Map;
 @Getter
 @Setter
@@ -20,16 +18,20 @@ public class ConnectionData {
   private String parentCompartment;
   private String connectionName;
   private String connectionId;
-  OCIDatabase database;
+  private final OCIDatabase database;
+
+  public ConnectionData(OCIDatabase database) {
+    this.database = database;
+  }
+
   static ConnectionData toConnectionSettings(UIModelContext modelContext) {
     OCIDatabase database = (OCIDatabase) modelContext.getContextObject();
-    ConnectionData connectionData = new ConnectionData();
+    ConnectionData connectionData = new ConnectionData(database);
     String compId = modelContext.getContextObject().getCompartmentId();
     String dbIdentifier = database.getDisplayName()+"_"+database.getId().substring(database.getId().length()-8);
     String walletDefaultPath = "comp"+ compId.substring(compId.length()-8)+"/"+dbIdentifier;
     connectionData.setParentCompartment(walletDefaultPath);
 
-    connectionData.setDatabase(database);
     connectionData.setDisplayName(database.getDisplayName());
     connectionData.setMtlsConnectionRequired(database.getIsMtlsConnectionRequired());
     connectionData.setAllConnectionStrings(database.getTlsConnectionStrings().getAllConnectionStrings());
@@ -43,16 +45,5 @@ public class ConnectionData {
   }
   public String getCompartmentId() {
     return this.database.getCompartmentId();
-  }
-  public boolean downloadWallet(File walletLocation,String walletType,String password)  {
-
-
-        DownloadWalletCommand command = new DownloadWalletCommand(database, walletLocation, walletType, password);
-        try {
-          command.execute();
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
-    return true;
   }
 }
