@@ -27,11 +27,12 @@ public class WalletPathValidator  {
 
   public static WalletValidationResult validateWalletLocation(String path,String defaultPath) {
     File folder = new File(path);
-    if ((!folder.exists() || !folder.isDirectory()) && defaultPath.equals(path)){
+    if (!folder.exists()) {
+      // new wallet location
       return WalletValidationResult.VALID_EMPTY_LOCATION;
     }
-    // Check if the path exists and is a directory
-    if (!folder.exists() || !folder.isDirectory()) {
+    // Check if the path is not a directory
+    if (!folder.isDirectory()) {
       return WalletValidationResult.INVALID_LOCATION;
     }
 

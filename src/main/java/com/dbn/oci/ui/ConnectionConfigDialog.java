@@ -4,6 +4,7 @@ import com.dbn.common.notification.NotificationGroup;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.common.util.Dialogs.DialogCallback;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionConfigType;
@@ -13,6 +14,7 @@ import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsNamesParser;
 import com.dbn.oci.ConnectionData;
 import com.dbn.options.ProjectSettingsManager;
+import com.dbn.options.ui.ProjectSettingsDialog;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.oracle.oci.intellij.api.oci.OCIDatabase;
@@ -23,6 +25,8 @@ import javax.swing.Action;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
+
+import static com.dbn.browser.DatabaseBrowserUtils.promoteNewConnection;
 
 public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm> implements NotificationSupport {
   private final ConnectionData connectionData;
@@ -54,24 +58,38 @@ public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm> impl
     Project project = ensureProject();
     ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);
 
-    if (form.isMTLS()) {
-      connectionData.setConnectionName(connectionData.getDisplayName()+"_MTLS");
-      String walletLocation = form.getWalletLocation();
-      String password = form.isSpecifyPassword() ?
-              form.getPassword() :
-              generateRandomPassword();
+    // collect form data before dialog is closed
+    boolean mutualTls = form.isMTLS();
+    boolean walletDownloadRequired = form.isWalletDownload();
+    String walletLocation = form.getWalletLocation();
+    String password = form.isSpecifyPassword() ?
+            form.getPassword() :
+            generateRandomPassword();
 
-      if (form.getWalletPathType().equals(ConnectionConfigForm.WalletPathType.EMPTY_FOLDER)){
-        downloadNewWallet(walletLocation,password,null,()->openSettings(settingsManager,walletLocation));
+    close(OK_EXIT_CODE);
+    String databaseName = connectionData.getDisplayName();
+    if (mutualTls) {
+      connectionData.setConnectionName(databaseName + "_MTLS");
+
+      if (walletDownloadRequired) {
+        downloadNewWallet(walletLocation, password, null, () -> openSettings(settingsManager, walletLocation, promoteConnectionCallback()));
       } else {
-        openSettings(settingsManager,walletLocation);
+        openSettings(settingsManager, walletLocation, promoteConnectionCallback());
       }
 
     } else {
-      connectionData.setConnectionName(connectionData.getDisplayName()+"_TLS");
-      settingsManager.createConnection(DatabaseType.ORACLE, ConnectionConfigType.CUSTOM, connectionData);
+      connectionData.setConnectionName(databaseName + "_TLS");
+      settingsManager.createConnection(DatabaseType.ORACLE, ConnectionConfigType.CUSTOM, connectionData, promoteConnectionCallback());
     }
-    close(OK_EXIT_CODE);
+  }
+
+  private DialogCallback<ProjectSettingsDialog> promoteConnectionCallback() {
+    return (dialog, exitCode) -> {
+      if (exitCode == OK_EXIT_CODE) {
+        Project project = getProject();
+        promoteNewConnection(project, connectionData.getConnectionId());
+      }
+    };
   }
 
   public String generateRandomPassword() {
@@ -113,7 +131,7 @@ public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm> impl
     return new String(passwordArray);
   }
 
-  private void openSettings(ProjectSettingsManager settingsManager,String walletLocation){
+  private void openSettings(ProjectSettingsManager settingsManager, String walletLocation, DialogCallback<ProjectSettingsDialog> callback){
     File tnsNamesFile = new File(walletLocation + "/tnsnames.ora");
     TnsNames tnsNames;
     try {
@@ -128,7 +146,7 @@ public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm> impl
     tnsImportData.setTnsNames(tnsNames);
     tnsImportData.setSelectedOnly(true);
 
-    settingsManager.createConnections(tnsImportData, connectionData);
+    settingsManager.createConnection(tnsImportData, connectionData, callback);
   }
 
   private void downloadNewWallet(String walletLocation, String password, Runnable preDownloadRunnable, Runnable showConnectionSettingsRunnable) {
@@ -137,7 +155,7 @@ public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm> impl
       return;
     }
 
-    Progress.prompt(getProject(), null, false, "Downloading wallet", "Downloading wallet",
+    Progress.prompt(getProject(), null, false, "Downloading wallet", "Downloading wallet for database \"" + connectionData.getDisplayName() + "\"",
             progress -> {
               if (preDownloadRunnable != null) {
                 preDownloadRunnable.run();

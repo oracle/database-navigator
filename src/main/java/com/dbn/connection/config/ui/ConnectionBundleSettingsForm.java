@@ -52,7 +52,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.ListUtil;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
-
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -263,7 +262,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         model.add(index, connectionSettings);
         connectionsList.setSelectedIndex(index);
         ConnectionId connectionId =  connectionSettings.getConnectionId();
-        ociConnectionData.setConnectionId(connectionId.id());
+        ociConnectionData.setConnectionId(connectionId);
         return connectionId;
     }
 
@@ -422,7 +421,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             String name;
             if (ociConnectionData != null) {
                 name = ociConnectionData.getConnectionName();
-                ociConnectionData.setConnectionId(databaseSettings.getId());
+                ociConnectionData.setConnectionId(databaseSettings.getConnectionId());
                 databaseSettings.getAuthenticationInfo().setTokenConfigFile(ociConnectionData.getConfigFile());
                 databaseSettings.getAuthenticationInfo().setTokenProfile(ociConnectionData.getConfigProfile());
             }else {

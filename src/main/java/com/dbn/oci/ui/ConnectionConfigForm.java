@@ -24,10 +24,6 @@ public class ConnectionConfigForm extends DBNFormBase {
   public static String WALLET_DEFAULT_LOCATION = System.getProperty("user.home") + "/.oci_toolkit/wallets";
   private final String walletDefaultPath;
 
-  public enum WalletPathType{
-    EMPTY_FOLDER,
-    EXISTING_WALLET,
-  }
   private static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = new FileChooserDescriptor(false, true, false, false, false, false)
           .withTitle("Select Wallet")
           .withDescription("Select a valid Oracle Database wallet");
@@ -48,7 +44,7 @@ public class ConnectionConfigForm extends DBNFormBase {
   private JLabel walletLocationHelper;
 
   @Getter
-  WalletPathType walletPathType ;
+  private boolean walletDownload; // indicator that wallet download is required
   String walletTooltip = "Please provide either an empty folder or a valid wallet location containing only the wallet files,<br> with no additional files or directories.";
 
   public ConnectionConfigForm(@Nullable Disposable parent, boolean isMtlsRequired, String parentCompartment) {
@@ -174,25 +170,24 @@ public class ConnectionConfigForm extends DBNFormBase {
 
   public boolean validateWalletPath(String walletPath) {
     if (isMTLS()) {
-
-
-      walletPath = walletLocationField.getText().trim();
+      walletPath = walletPath.trim(); // todo are we sure we want to trim here?
       WalletPathValidator.WalletValidationResult validationResult = WalletPathValidator.validateWalletLocation(walletPath, walletDefaultPath);
 
       switch (validationResult) {
         case VALID_EMPTY_LOCATION:
-          walletPathType = WalletPathType.EMPTY_FOLDER;
           isSpecifyPasswordCheckbox.setVisible(true);
+          walletDownload = true;
           return true;
         case VALID_EXISTING_WALLET:
-          this.walletPathType = WalletPathType.EXISTING_WALLET;
+          walletDownload = false;
           return true;
         case INVALID_LOCATION:
+          walletDownload = false;
           isSpecifyPasswordCheckbox.setVisible(false);
           return false;
       }
     }
-      return true;
+    return true;
   }
 
   @Override

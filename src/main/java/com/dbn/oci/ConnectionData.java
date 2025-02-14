@@ -1,5 +1,6 @@
 package com.dbn.oci;
 
+import com.dbn.connection.ConnectionId;
 import com.oracle.oci.intellij.api.ext.UIModelContext;
 import com.oracle.oci.intellij.api.oci.OCIDatabase;
 import lombok.Getter;
@@ -13,11 +14,11 @@ public class ConnectionData {
   private boolean mtlsConnectionRequired;
   private Map<String, String> allConnectionStrings;
   private boolean dedicated;
-  private  String configFile;
-  private  String configProfile;
+  private String configFile;
+  private String configProfile;
   private String parentCompartment;
   private String connectionName;
-  private String connectionId;
+  private ConnectionId connectionId;
   private final OCIDatabase database;
 
   public ConnectionData(OCIDatabase database) {
