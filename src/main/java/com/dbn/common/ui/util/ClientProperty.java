@@ -27,6 +27,7 @@ public enum ClientProperty {
     BORDER,
     NO_BORDER,
     NO_INDENT,
+    RESIZING,
     REGISTERED,
     CACHED_VALUE,
     CLASSIFICATION,

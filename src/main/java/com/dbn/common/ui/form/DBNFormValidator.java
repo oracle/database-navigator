@@ -16,12 +16,8 @@
 
 package com.dbn.common.ui.form;
 
-import com.intellij.openapi.ui.ValidationInfo;
-import org.jetbrains.annotations.NotNull;
-
 import javax.swing.JComponent;
 import javax.swing.text.JTextComponent;
-import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -62,14 +58,5 @@ public interface DBNFormValidator {
 
     void addTextValidation(JTextComponent textField, Function<JTextComponent, String> validator);
 
-    /**
-     * Validates the specified Swing components based on the registered validation rules
-     * and returns a list of validation errors, if any. If no components are specified,
-     * the method validates all components with associated validation rules.
-     *
-     * @param components the components to validate; if no components are provided, all registered components will be validated
-     * @return a list of {@link ValidationInfo} instances representing validation errors; an empty list if all validations pass
-     */
-    @NotNull
-    List<ValidationInfo> validateForm(JComponent... components);
+    void validateInput(JComponent component);
 }

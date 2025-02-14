@@ -50,6 +50,8 @@ public abstract class DBNTableGutter<T extends DBNTableWithGutter> extends JList
         if (rowHeight != 0) setFixedCellHeight(rowHeight);
         setBackground(Colors.getPanelBackground());
         setBorder(Borders.EMPTY_BORDER);
+        setFocusable(false);
+        setRequestFocusEnabled(false);
 
         setCellRenderer(createCellRenderer());
 
