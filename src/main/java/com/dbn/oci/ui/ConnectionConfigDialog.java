@@ -45,9 +45,7 @@ public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm> impl
 
   @Override
   protected Action @NotNull [] createActions() {
-    String okActionText = "Create Connection";
-    getOKAction().putValue(Action.NAME, okActionText);
-    getCancelAction().putValue(Action.NAME, "Close");
+    renameAction(getOKAction(), "Create Connection");
     return super.createActions();
   }
 
