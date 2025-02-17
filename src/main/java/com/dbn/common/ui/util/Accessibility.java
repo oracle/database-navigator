@@ -23,7 +23,6 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.ui.ComponentWithBrowseButton;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.ui.ToolbarDecorator;
-import com.intellij.util.ui.accessibility.AccessibleAnnouncerUtil;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nls;
@@ -219,7 +218,8 @@ public class Accessibility {
 
     @Compatibility
     public static void announceEvent(Accessible component, String eventMessage) {
-        AccessibleAnnouncerUtil.announce(component, eventMessage, true);
+        // only supported from 23.1 onwards
+        //AccessibleAnnouncerUtil.announce(component, eventMessage, true);
     }
 
     public static void attachSelectionAnnouncer(DBNComboBox<?> comboBox, String name) {
