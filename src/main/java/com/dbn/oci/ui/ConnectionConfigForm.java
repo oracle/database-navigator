@@ -180,6 +180,7 @@ public class ConnectionConfigForm extends DBNFormBase {
           return true;
         case VALID_EXISTING_WALLET:
           walletDownload = false;
+          isSpecifyPasswordCheckbox.setVisible(false);
           return true;
         case INVALID_LOCATION:
           walletDownload = false;

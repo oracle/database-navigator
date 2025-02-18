@@ -1,5 +1,6 @@
 package com.dbn.oci.ui;
 
+import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.notification.NotificationGroup;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Progress;
@@ -15,6 +16,7 @@ import com.dbn.connection.config.tns.TnsNamesParser;
 import com.dbn.oci.ConnectionData;
 import com.dbn.options.ProjectSettingsManager;
 import com.dbn.options.ui.ProjectSettingsDialog;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.oracle.oci.intellij.api.oci.OCIDatabase;
@@ -153,13 +155,18 @@ public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm> impl
       return;
     }
 
-    Progress.prompt(getProject(), null, false, "Downloading wallet", "Downloading wallet for database \"" + connectionData.getDisplayName() + "\"",
+    Progress.prompt(getProject(), null, true, "Downloading wallet", "Downloading wallet for database \"" + connectionData.getDisplayName() + "\"",
             progress -> {
               if (preDownloadRunnable != null) {
                 preDownloadRunnable.run();
               }
-              downloadWallet(new File(walletLocation), "", password);
-              showConnectionSettingsRunnable.run();
+              File walletLocationFile = new File(walletLocation);
+              downloadWallet(walletLocationFile, "", password);
+              if (progress.isCanceled()){
+                cleanupDownloadFolder(walletLocationFile);
+              }else {
+                showConnectionSettingsRunnable.run();
+              }
             }
     );
   }
@@ -199,6 +206,19 @@ public class ConnectionConfigDialog extends DBNDialog<ConnectionConfigForm> impl
     File[] files = location.listFiles();
     if (files != null && files.length > 0) {
       throw new IOException("Wallet directory \"" + path + "\" is not empty");
+    }
+  }
+
+  private void cleanupDownloadFolder(File directory) {
+    if (directory.exists()) {
+      File[] files = directory.listFiles();
+      if (files != null) {
+        for (File file : files) {
+          if (file.isFile()) {
+            file.delete();
+          }
+        }
+      }
     }
   }
 }
