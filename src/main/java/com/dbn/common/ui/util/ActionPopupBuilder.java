@@ -16,6 +16,7 @@
 
 package com.dbn.common.ui.util;
 
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Context;
 import com.intellij.openapi.actionSystem.ActionGroup;
@@ -32,6 +33,7 @@ import com.intellij.openapi.util.Condition;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.Component;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -150,18 +152,30 @@ public class ActionPopupBuilder {
     }
 
     public void buildAndShow() {
-        ListPopup popup = build();
-        popup.showInBestPositionFor(dataContext);
+        Dispatch.run(dataContext, true, () -> {
+            ListPopup popup = build();
+            popup.showInBestPositionFor(dataContext);
+        });
     }
 
     public void buildAndShowCentered() {
-        ListPopup popup = build();
-        Project project = PlatformDataKeys.PROJECT.getData(dataContext);
-        if (project == null)  {
-            popup.showInBestPositionFor(dataContext);
-        } else {
-            popup.showCenteredInCurrentWindow(project);
-        }
+        Dispatch.run(dataContext, true, () -> {
+            ListPopup popup = build();
+            Project project = getContextProject();
+            if (project == null)  {
+                popup.showInBestPositionFor(dataContext);
+            } else {
+                popup.showCenteredInCurrentWindow(project);
+            }
+        });
+    }
+
+    private Component getContextComponent() {
+        return PlatformDataKeys.CONTEXT_COMPONENT.getData(dataContext);
+    }
+
+    private Project getContextProject() {
+        return PlatformDataKeys.PROJECT.getData(dataContext);
     }
 
 
