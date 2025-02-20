@@ -32,10 +32,9 @@ public class ConsoleCreateAction extends ProjectAction {
     private final DBConsoleType consoleType;
     private final ConnectionRef connection;
 
-    ConsoleCreateAction(ConnectionHandler connection, DBConsoleType consoleType) {
+    public ConsoleCreateAction(ConnectionHandler connection, DBConsoleType consoleType) {
         this.connection = connection.ref();
         this.consoleType = consoleType;
-
     }
 
     @Override

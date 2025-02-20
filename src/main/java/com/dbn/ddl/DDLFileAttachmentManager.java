@@ -74,7 +74,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -317,7 +316,7 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
                     DBEditableObjectVirtualFile editableObjectFile = object.getEditableVirtualFile();
                     updateDDLFiles(editableObjectFile);
 
-                } catch (IOException e) {
+                } catch (Exception e) {
                     conditionallyLog(e);
                     Messages.showErrorDialog(project, txt("msg.ddlFiles.error.FileCreationFailed", parentDirectory + File.separator + fileName), e);
                 }
