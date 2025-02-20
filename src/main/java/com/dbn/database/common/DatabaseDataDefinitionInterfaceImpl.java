@@ -115,8 +115,8 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
 
         StringBuilder buffer = new StringBuilder();
         QuotePair quotes = getInterfaces().getCompatibilityInterface().getDefaultIdentifierQuotes();
-        String bq = "\\" + quotes.beginChar() + "?";
-        String eq = "\\" + quotes.endChar() + "?";
+        String bq = "(" + Pattern.quote(quotes.beginQuote()) + ")?";
+        String eq = "(" + Pattern.quote(quotes.endQuote()) + ")?";
         String regex = objectType + "\\s+(" + bq + schemaName + eq + "\\s*\\.)?\\s*" + bq + objectName + eq;
         if (qualified) {
             Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);

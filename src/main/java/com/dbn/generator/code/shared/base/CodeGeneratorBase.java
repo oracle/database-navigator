@@ -19,13 +19,13 @@ package com.dbn.generator.code.shared.base;
 import com.dbn.common.outcome.Outcome;
 import com.dbn.common.outcome.OutcomeHandlers;
 import com.dbn.common.outcome.OutcomeType;
+import com.dbn.common.thread.Write;
 import com.dbn.generator.code.CodeGeneratorContext;
 import com.dbn.generator.code.CodeGeneratorRegistry;
 import com.dbn.generator.code.CodeGeneratorType;
 import com.dbn.generator.code.shared.CodeGenerator;
 import com.dbn.generator.code.shared.CodeGeneratorInput;
 import com.dbn.generator.code.shared.CodeGeneratorResult;
-import com.intellij.openapi.application.WriteAction;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,7 +54,7 @@ public abstract class CodeGeneratorBase<I extends CodeGeneratorInput, R extends 
 
         OutcomeHandlers outcomeHandlers = context.getOutcomeHandlers();
         try {
-            R result = WriteAction.compute(() -> generateCode(input));
+            R result = Write.compute(() -> generateCode(input));
             if (result == null) {
                 // overwrite result with null in the context if set by previous attempts
                 // do not call outcome handlers (input dialog will remain open)

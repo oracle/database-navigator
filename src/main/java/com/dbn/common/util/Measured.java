@@ -50,10 +50,10 @@ public final class Measured {
     }
 
     private static void logStart(String identifier) {
-        log.info("[DBN] Started " + identifier);
+        log.info("[DBN] Started {}", identifier);
     }
 
     private static void logEnd(String identifier, long start) {
-        log.info("[DBN] Done " + identifier + " - " + (System.currentTimeMillis() - start) + "ms");
+        log.info("[DBN] Done {} - {}ms", identifier, System.currentTimeMillis() - start);
     }
 }

@@ -139,14 +139,18 @@ public abstract class PropertyHolderBase<T extends Property> implements Property
             this.computed = source.computed;
         }
 
-        public final synchronized boolean is(T property) {
-            return (computed & property.maskOn()) != 0;
+        public final boolean is(T property) {
+            synchronized (this) {
+                return (computed & property.maskOn()) != 0;
+            }
         }
 
-        protected synchronized void change(T property, boolean value) {
-            this.computed = value ?
-                    this.computed | property.maskOn() :
-                    this.computed & property.maskOff();
+        protected void change(T property, boolean value) {
+            synchronized (this) {
+                this.computed = value ?
+                        this.computed | property.maskOn() :
+                        this.computed & property.maskOff();
+            }
             changed(property, value);
         }
 
@@ -168,14 +172,18 @@ public abstract class PropertyHolderBase<T extends Property> implements Property
             this.computed = source.computed;
         }
 
-        public final synchronized boolean is(T property) {
-            return (computed & property.maskOn()) != 0;
+        public final boolean is(T property) {
+            synchronized (this) {
+                return (computed & property.maskOn()) != 0;
+            }
         }
 
-        protected synchronized void change(T property, boolean value) {
-            this.computed = value ?
-                    this.computed | property.maskOn() :
-                    this.computed & property.maskOff();
+        protected void change(T property, boolean value) {
+            synchronized (this) {
+                this.computed = value ?
+                        this.computed | property.maskOn() :
+                        this.computed & property.maskOff();
+            }
             changed(property, value);
         }
 

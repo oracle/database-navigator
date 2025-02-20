@@ -46,6 +46,7 @@ import java.util.Objects;
 
 import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
 import static com.dbn.common.ui.util.ClientProperty.NO_INDENT;
+import static com.dbn.common.ui.util.UserInterface.updateScrollPanes;
 
 public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCustomFilter> {
     private JPanel mainPanel;
@@ -57,7 +58,8 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
 
     private Document document;
     private EditorEx editor;
-    private final int conditionStartOffset;
+    private String statement;
+    private int conditionOffset;
     private static final String COMMENT = "-- enter your custom conditions here";
 
     public DatasetCustomFilterForm(DBDataset dataset, DatasetCustomFilter filter) {
@@ -65,31 +67,47 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
 
         NO_INDENT.set(mainPanel, true);
         nameTextField.setText(filter.getDisplayName());
-        Project project = dataset.getProject();
 
+        initSelectStatement(dataset, filter);
+        initErrorLabel(filter);
+
+        // delay the initialisation of filter editor to force psi write action in the dialog modality state
+        whenShown(() -> initFilterEditor(dataset, filter) );
+    }
+
+    private void initSelectStatement(DBDataset dataset, DatasetCustomFilter filter) {
         @NonNls
         StringBuilder selectStatement = new StringBuilder("select * from ");
         selectStatement.append(dataset.getSchemaName(true)).append('.');
         selectStatement.append(dataset.getName(true));
         selectStatement.append(" where \n");
-        conditionStartOffset = selectStatement.length();
+        conditionOffset = selectStatement.length();
 
         String condition = filter.getCondition();
         boolean isValidCondition = Strings.isNotEmptyOrSpaces(condition);
         selectStatement.append(isValidCondition ? condition : COMMENT);
 
-        DBDatasetFilterVirtualFile filterFile = new DBDatasetFilterVirtualFile(dataset, selectStatement.toString());
+        statement = selectStatement.toString();
+    }
+
+    private void initFilterEditor(DBDataset dataset, DatasetCustomFilter filter) {
+        Project project = dataset.getProject();
+
+        String condition = filter.getCondition();
+        boolean isValidCondition = Strings.isNotEmptyOrSpaces(condition);
+
+        DBDatasetFilterVirtualFile filterFile = new DBDatasetFilterVirtualFile(dataset, statement);
         DatabaseFileViewProvider viewProvider = new DatabaseFileViewProvider(project, filterFile, true);
         PsiFile selectStatementFile = filterFile.initializePsiFile(viewProvider, SQLLanguage.INSTANCE);
 
         document = Documents.ensureDocument(selectStatementFile);
-        document.createGuardedBlock(0, conditionStartOffset);
+        document.createGuardedBlock(0, conditionOffset);
         editor = Editors.createEditor(document, project, filterFile, SQLFileType.INSTANCE);
         Editors.initEditorHighlighter(editor, SQLLanguage.INSTANCE, dataset);
 
         editor.setEmbeddedIntoDialogWrapper(true);
-        editor.getCaretModel().moveToOffset(conditionStartOffset);
-        if (!isValidCondition) editor.getSelectionModel().setSelection(conditionStartOffset, document.getTextLength());
+        editor.getCaretModel().moveToOffset(conditionOffset);
+        if (!isValidCondition) editor.getSelectionModel().setSelection(conditionOffset, document.getTextLength());
 
         JScrollPane editorScrollPane = editor.getScrollPane();
         editorScrollPane.setViewportBorder(Borders.insetBorder(4));
@@ -110,6 +128,10 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
         settings.setUseTabCharacter(true);
 
         editorPanel.add(editor.getComponent(), BorderLayout.CENTER);
+        updateScrollPanes(editorPanel);
+    }
+
+    private void initErrorLabel(DatasetCustomFilter filter) {
         if (filter.getError() == null) {
             errorLabel.setVisible(false);
             errorLabel.setText("");
@@ -142,7 +164,7 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
     @Override
     public void applyFormChanges() throws ConfigurationException {
         DatasetCustomFilter filter = getConfiguration();
-        String condition = document.getText().substring(conditionStartOffset);
+        String condition = document.getText().substring(conditionOffset);
         if (Objects.equals(condition, COMMENT))
             filter.setCondition(""); else
             filter.setCondition(condition);
