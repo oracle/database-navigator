@@ -16,63 +16,67 @@
 
 package com.dbn.language.common;
 
+import com.intellij.util.containers.ContainerUtil;
+
+import java.util.Set;
+
 public class QuotePair {
-    private static String POSSIBLE_BEGIN_QUOTES = "";
-    private static String POSSIBLE_END_QUOTES = "";
+    private static final Set<String> POSSIBLE_BEGIN_QUOTES = ContainerUtil.newConcurrentSet();
+    private static final Set<String> POSSIBLE_END_QUOTES = ContainerUtil.newConcurrentSet();
 
     public static final QuotePair DEFAULT_IDENTIFIER_QUOTE_PAIR = new QuotePair('"', '"');
-    private final char beginChar;
-    private final char endChar;
+    private final String beginQuote;
+    private final String endQuote;
+    private final int quoteSize;
 
-    public QuotePair(char beginChar, char endChar) {
-        this.beginChar = beginChar;
-        this.endChar = endChar;
-        POSSIBLE_BEGIN_QUOTES = POSSIBLE_BEGIN_QUOTES.indexOf(beginChar) == -1 ? POSSIBLE_BEGIN_QUOTES + beginChar : POSSIBLE_BEGIN_QUOTES;
-        POSSIBLE_END_QUOTES = POSSIBLE_END_QUOTES.indexOf(endChar) == -1 ? POSSIBLE_END_QUOTES + endChar : POSSIBLE_END_QUOTES;
+    public QuotePair(char beginQuote, char endChar) {
+        this(String.valueOf(beginQuote), String.valueOf(endChar));
+    }
+    public QuotePair(String beginQuote, String endQuote) {
+        this.beginQuote = beginQuote;
+        this.endQuote = endQuote;
+        this.quoteSize = beginQuote.length() + endQuote.length();
+        POSSIBLE_BEGIN_QUOTES.add(beginQuote.intern());
+        POSSIBLE_END_QUOTES.add(endQuote.intern());
     }
 
     public static boolean isPossibleBeginQuote(char chr) {
-        return POSSIBLE_BEGIN_QUOTES.indexOf(chr) > -1;
+        return POSSIBLE_BEGIN_QUOTES.contains(String.valueOf(chr));
     }
 
     public static boolean isPossibleEndQuote(char chr) {
-        return POSSIBLE_END_QUOTES.indexOf(chr) > -1;
+        return POSSIBLE_END_QUOTES.contains(String.valueOf(chr));
     }
 
-    public char beginChar() {
-        return beginChar;
+    public String beginQuote() {
+        return beginQuote;
     }
 
-    public char endChar() {
-        return endChar;
+    public String endQuote() {
+        return endQuote;
     }
 
     public boolean isQuoted(CharSequence charSequence) {
-        char firstChar = charSequence.charAt(0);
-        char lastChar = charSequence.charAt(charSequence.length() - 1);
+        if (charSequence.length() < quoteSize) return false;
 
-        return firstChar == beginChar && lastChar == endChar;
+        String string = charSequence.toString();
+        return string.startsWith(beginQuote) && string.endsWith(endQuote);
     }
 
     public String quote(String identifier) {
-        return beginChar + identifier + endChar;
+        if (isQuoted(identifier)) return identifier;
+
+        return beginQuote + identifier + endQuote;
     }
 
     public String unquote(String identifier) {
-        int length = identifier.length();
-        if (length < 2) return identifier;
+        if (!isQuoted(identifier)) return identifier;
 
-        char firstChar = identifier.charAt(0);
-        char lastChar = identifier.charAt(length - 1);
-
-        if (firstChar == beginChar && lastChar == endChar) {
-            return identifier.substring(1, length - 1);
-        }
-        return identifier;
+        return identifier.substring(beginQuote.length(), identifier.length() - endQuote.length());
     }
 
     @Override
     public String toString() {
-        return "quote pair (begin=" + beginChar + ", end=" + endChar +')';
+        return "quote pair (begin=" + beginQuote + ", end=" + endQuote +')';
     }
 }

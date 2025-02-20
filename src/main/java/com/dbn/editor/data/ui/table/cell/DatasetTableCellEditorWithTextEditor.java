@@ -16,7 +16,6 @@
 
 package com.dbn.editor.data.ui.table.cell;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.ui.misc.DBNButton;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Keyboard;
@@ -59,10 +58,10 @@ public class DatasetTableCellEditorWithTextEditor extends DatasetTableCellEditor
             public JComponent createButton(Icon icon, String name) {
                 DBNButton button = new DBNButton(icon, name);
                 button.setBorder(Borders.insetBorder(1));
-                button.setBackground(Colors.getTableBackground());
+                button.setOpaque(false);
+
                 int rowHeight = table.getRowHeight();
                 button.setPreferredSize(new Dimension(Math.max(20, rowHeight), rowHeight - 2));
-                button.getParent().setBackground(getTextField().getBackground());
                 table.addPropertyChangeListener(e -> {
                     Object newProperty = e.getNewValue();
                     if (newProperty instanceof Font) {
