@@ -260,12 +260,16 @@ class Connector {
             databaseSettings.setConfirmedDatabaseType(databaseType);
             databaseSettings.setDatabaseVersion(ConnectionUtil.getDatabaseVersion(metaData));
             databaseSettings.setConnectivityStatus(ConnectivityStatus.VALID);
+            String connectionName = connectionSettings.getDatabaseSettings().getName();
+            ConnectionId connectionId = connectionSettings.getConnectionId();
+
             DBNConnection conn = DBNConnection.wrap(
                     project,
                     connection,
-                    connectionSettings.getDatabaseSettings().getName(),
+                    databaseType,
                     connectionType,
-                    connectionSettings.getConnectionId(),
+                    connectionId,
+                    connectionName,
                     sessionId);
 
             Resources.setAutoCommit(conn, autoCommit);
