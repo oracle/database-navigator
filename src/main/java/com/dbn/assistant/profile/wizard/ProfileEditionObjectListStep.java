@@ -213,6 +213,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     this.databaseObjectsTable.setTransferHandler(th);
     this.databaseObjectsTable.setModel(new AvailableDatasetsTableModel());
     this.databaseObjectsTable.setTableHeader(null);
+    this.databaseObjectsTable.setFillsViewportHeight(true);
 
     this.databaseObjectsTable.setDragEnabled(true);
     this.databaseObjectsTable.setBackground(Colors.getTextFieldBackground());
@@ -245,6 +246,8 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     this.profileObjectListTable.setModel(objectsTableModel);
     this.profileObjectListTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     this.profileObjectListTable.setTableHeader(null);
+    this.profileObjectListTable.setDragEnabled(true);
+    this.profileObjectListTable.setFillsViewportHeight(true);
     this.profileObjectListTable.setBackground(Colors.getTextFieldBackground());
     this.profileObjectListTable.setGridColor(Colors.getTextFieldBackground());
 

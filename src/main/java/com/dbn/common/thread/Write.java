@@ -16,48 +16,67 @@
 
 package com.dbn.common.thread;
 
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.util.Measured;
 import com.intellij.openapi.application.Application;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.application.WriteAction;
-import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ThrowableComputable;
 import lombok.experimental.UtilityClass;
 
+import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.intellij.openapi.application.ApplicationManager.getApplication;
+import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
+
 @UtilityClass
 public final class Write {
 
+    /**
+     * FIRE write action and FORGET
+     * @param runnable the code to be executed in write action
+     */
     public static void run(Runnable runnable) {
         run(null, runnable);
     }
 
+    /**
+     * FIRE write action and FORGET
+     * @param project optional {@link Project} to surround write action with an "undo" command wrapper
+     * @param runnable the code to be executed in write action
+     */
     public static void run(Project project, Runnable runnable) {
-        Application application = ApplicationManager.getApplication();
+        Application application = getApplication();
         if (application.isWriteAccessAllowed()) {
             if (project == null) {
-                Measured.run("executing Write action", () -> Failsafe.guarded(runnable, r -> r.run()));
+                Measured.run("executing Write action", () -> guarded(runnable, r -> r.run()));
             } else {
-                Measured.run("executing Write action", () -> Failsafe.guarded(() -> WriteCommandAction.writeCommandAction(Failsafe.nd(project)).run(() -> runnable.run())));
+                Measured.run("executing Write action", () -> writeCommandAction(project).run(() -> guarded(runnable, r -> r.run())));
             }
-
-        } else if (application.isDispatchThread()) {
-            application.runWriteAction(() -> run(project, runnable));
-
-        } else if (application.isReadAccessAllowed()){
-            // write action invoked from within read action
-            Background.run(() -> {
-                ModalityState modalityState = ModalityState.defaultModalityState();
-                application.invokeAndWait(() -> run(project, runnable), modalityState);
-            });
-        } else {
-            Dispatch.run(() -> run(project, runnable));
+            return;
         }
+
+        if (!application.isDispatchThread() && application.isReadAccessAllowed()){
+            // write action invoked from within read action (defer through background thread)
+            // TODO can we not simply fallback on the dispatch thread invocation below?
+            Background.run(() -> run(project, runnable));
+            return;
+        }
+
+        // determine the current modality state ("any" is not allowed here)
+        // (see com.intellij.openapi.application.TransactionGuard)
+        ModalityState modalityState = Dispatch.getCurrentModalityState();
+        Dispatch.execute(modalityState, () -> application.runWriteAction(() -> run(project, runnable)));
     }
 
+    /**
+     * FIRE write action and WAIT for computation result
+     * @param computable the computation code to be executed in write action
+     * @return the result of the computation
+     * @param <T> the type of the computation result
+     * @param <E> the type of exception thrown by the computable
+     * @throws E any exception caused by the given computable
+     */
     public static <T, E extends Throwable> T compute(ThrowableComputable<T, E> computable) throws E {
-        return WriteAction.compute(computable);
+        Application application = getApplication();
+        return application.runWriteAction(computable);
     }
 }

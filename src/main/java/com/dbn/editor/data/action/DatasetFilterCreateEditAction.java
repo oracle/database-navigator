@@ -16,6 +16,7 @@
 
 package com.dbn.editor.data.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.icon.Icons;
 import com.dbn.editor.data.DatasetEditor;
 import com.dbn.editor.data.filter.DatasetFilter;
@@ -32,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.nls.NlsResources.txt;
 
+@BackgroundUpdate
 public class DatasetFilterCreateEditAction extends AbstractDataEditorAction {
 
     @Override
@@ -45,7 +47,6 @@ public class DatasetFilterCreateEditAction extends AbstractDataEditorAction {
             if (filterType == null || filterType == DatasetFilterType.NONE) {
                 filterType = DatasetFilterType.BASIC;
             }
-
 
             filterManager.openFiltersDialog(dataset, false, true, filterType, null);
         }

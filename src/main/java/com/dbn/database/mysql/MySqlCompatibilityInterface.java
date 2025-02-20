@@ -114,4 +114,12 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
         if (Strings.isEmpty(statusName)) return SessionStatus.INACTIVE;
         else return SessionStatus.ACTIVE;
     }
+
+    @Override
+    public boolean useMetadataIdentifierQuoting() {
+        // strangely enough, mysql driver decides to use double quotes when Statement.enquoteIdentifier() is invoked,
+        // though fails with syntax error when a statement with such quoted identifiers is executed
+        // TODO see if we are missing something here
+        return true;
+    }
 }

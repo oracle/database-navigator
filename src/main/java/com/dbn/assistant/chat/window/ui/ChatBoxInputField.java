@@ -132,7 +132,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         Document document = Documents.ensureDocument(psiFile);
 
         EditorEx editor = Editors.createEditor(document, project, file, file.getFileType());
-        editor.setEmbeddedIntoDialogWrapper(false);
+        //editor.setEmbeddedIntoDialogWrapper(false); TODO quick-fix check why it does not grab focus if this is set to false
         editor.setBorder(Borders.EMPTY_BORDER);
 
         JScrollPane scrollPane = editor.getScrollPane();

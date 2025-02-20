@@ -102,7 +102,7 @@ public final class ConnectionPool extends ConnectionComponentBase implements Not
         }
 
         getConnectionCache().visit(
-                c -> c.getType().matches(connectionTypes),
+                c -> c.getConnectionType().matches(connectionTypes),
                 c -> connections.add(c));
         return connections;
     }
@@ -143,7 +143,7 @@ public final class ConnectionPool extends ConnectionComponentBase implements Not
         if (connection.isPoolConnection()) {
             getConnectionPool().release(connection);
         } else {
-            log.error("Trying to release non-POOL connection: " + connection.getType(), new IllegalArgumentException("No POOL connection"));
+            log.error("Trying to release non-POOL connection: " + connection.getConnectionType(), new IllegalArgumentException("No POOL connection"));
         }
 
     }
