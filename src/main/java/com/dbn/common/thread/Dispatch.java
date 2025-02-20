@@ -23,10 +23,12 @@ import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.util.Alarm;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import java.awt.Component;
@@ -48,7 +50,7 @@ public final class Dispatch {
 
     public static void run(boolean conditional, Runnable runnable) {
         if (conditional && isDispatchThread()) {
-            runSafe(runnable);
+            guarded(runnable, r -> r.run());
         } else {
             run((ModalityState) null, runnable);
         }
@@ -56,7 +58,7 @@ public final class Dispatch {
 
     public static void run(DataContext dataContext, boolean conditional, Runnable runnable) {
         if (conditional && isDispatchThread()) {
-            runSafe(runnable);
+            guarded(runnable, r -> r.run());
         } else {
             Component component = Lookups.getComponent(dataContext);
             run(component, runnable);
@@ -68,10 +70,18 @@ public final class Dispatch {
         run(modalityState, runnable);
     }
 
-    public static void run(ModalityState modalityState, Runnable runnable) {
+    // fire and forget
+    public static void run(@Nullable ModalityState modalityState, Runnable runnable) {
         ThreadInfo invoker = ThreadInfo.copy();
         modalityState = nvl(modalityState, () -> ModalityState.defaultModalityState());
-        getApplication().invokeLater(() -> ThreadMonitor.surround(invoker, null, () -> runSafe(runnable)), modalityState);
+        getApplication().invokeLater(() -> ThreadMonitor.surround(invoker, null, () -> guarded(runnable, r -> r.run())), modalityState);
+    }
+
+    // fire and wait
+    public static void execute(@Nullable ModalityState modalityState, Runnable runnable) {
+        ThreadInfo invoker = ThreadInfo.copy();
+        modalityState = nvl(modalityState, () -> ModalityState.defaultModalityState());
+        getApplication().invokeAndWait(() -> ThreadMonitor.surround(invoker, null, () -> guarded(runnable, r -> r.run())), modalityState);
     }
 
     public static <T, E extends Throwable> T call(boolean conditional, ThrowableCallable<T, E> callable) throws E{
@@ -147,15 +157,17 @@ public final class Dispatch {
         });
     }
 
+    public static ModalityState getCurrentModalityState() {
+        Application application = getApplication();
+        if (application.isDispatchThread()) {
+            return application.getCurrentModalityState();
+        }
 
-    public static boolean isModalState() {
-        // return ModalityState.defaultModalityState().dominates(ModalityState.nonModal());
-        return ModalityState.defaultModalityState().dominates(ModalityState.NON_MODAL);
+        // invoke and wait in "any" ModalityState
+        AtomicReference<ModalityState> atomicReference = new AtomicReference<>();
+        application.invokeAndWait(() -> atomicReference.set(application.getCurrentModalityState()), ModalityState.any());
+        return atomicReference.get();
     }
 
-
-    private static void runSafe(Runnable runnable) {
-        guarded(runnable, r -> r.run());
-    }
 }
 
