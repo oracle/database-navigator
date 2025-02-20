@@ -36,7 +36,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.Separator;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.ListPopup;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -72,13 +71,10 @@ public class SQLConsoleOpenAction extends ProjectAction {
         }
 
         List<SelectConnectionAction> actions = convert(connections, c -> new SelectConnectionAction(c));
-        ListPopup popup = Popups.popupBuilder(actions, e).
+        Popups.popupBuilder(actions, e).
                 withTitle("Select Console Connection").
                 withSpeedSearch().
-                build();
-
-        popup.showCenteredInCurrentWindow(project);
-
+                buildAndShowCentered();
     }
 
     private static class SelectConnectionAction extends ActionGroup {
