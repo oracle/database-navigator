@@ -16,6 +16,7 @@
 
 package com.dbn.editor.data.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.dispose.Checks;
 import com.dbn.common.icon.Icons;
 import com.dbn.editor.data.DatasetEditor;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
 
+@BackgroundUpdate
 public class RecordEditAction extends AbstractDataEditorAction {
 
     @Override
