@@ -20,12 +20,15 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.UnsafeWeakList;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static com.dbn.common.dispose.Failsafe.guarded;
 
 /**
  * A registry for managing and retrieving {@link SecretsOwner} instances. This class maintains
@@ -80,13 +83,31 @@ public class SecretsOwnerRegistry {
     }
 
     private static SecretsOwner findOwner(Object ownerId) {
+        // cleanup the data
+        DATA.removeIf(o -> getSecretsOwnerId(o) == null);
+
         for (SecretsOwner secretsOwner : DATA) {
-            if (Objects.equals(secretsOwner.getSecretOwnerId(), ownerId)) {
+            Object secretOwnerId = getSecretsOwnerId(secretsOwner);
+
+            if (Objects.equals(secretOwnerId, ownerId)) {
                 return secretsOwner;
             }
         }
         log.error("No secrets owner found for id: {}", ownerId);
         return NULL;
+    }
+
+    /**
+     * Failsafe retrieval of secrets owner id.
+     * The weak cached references may still hold disposed objects until fully dereferenced.
+     * This can cause AlreadyDisposedException if not handled accordingly
+     *
+     * @param secretsOwner the {@link SecretsOwner} to retrieve id for
+     * @return the secrets owner id
+     */
+    @Nullable
+    private static Object getSecretsOwnerId(SecretsOwner secretsOwner) {
+        return guarded(null, secretsOwner, o -> o.getSecretOwnerId());
     }
 
     private static final SecretsOwner NULL = new SecretsOwner() {
