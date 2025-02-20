@@ -97,7 +97,7 @@ public class AssistantIntroductionForm extends DBNFormBase {
 
     @SneakyThrows
     private TextContent loadIntroContent() {
-        String content = Commons.readInputStream(getClass().getResourceAsStream("intro_content.html"));
+        String content = Commons.readInputStream(getClass().getResourceAsStream("intro_content.html.ft"));
         return TextContent.html(content);
     }
 

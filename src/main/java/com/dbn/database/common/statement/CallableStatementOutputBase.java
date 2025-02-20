@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-package com.dbn.execution.java;
+package com.dbn.database.common.statement;
 
-public interface ArgumentValueHolder<T> {
-    T getValue();
-    void setValue(T value);
+public abstract class CallableStatementOutputBase implements CallableStatementOutput{
+    private int parameterIndexOffset;
+
+    protected int shifted(int parameterIndex) {
+        return parameterIndex + parameterIndexOffset;
+    }
+
+    @Override
+    public void shiftParameterIndex(int shift) {
+        parameterIndexOffset = shift;
+    }
 }

@@ -61,6 +61,7 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 
 public class StatementExecutionInputForm extends DBNFormBase implements ComponentAligner.Container {
@@ -152,6 +153,11 @@ public class StatementExecutionInputForm extends DBNFormBase implements Componen
     }
 
     @Override
+    protected void initAccessibility() {
+        setAccessibleName(variablesScrollPane, "Execution variables");
+    }
+
+    @Override
     public List<StatementExecutionVariableValueForm> getAlignableForms() {
         return variableValueForms;
     }
@@ -195,13 +201,6 @@ public class StatementExecutionInputForm extends DBNFormBase implements Componen
         StatementExecutionVariablesBundle executionVariables = executionProcessor.getExecutionVariables();
         if (executionVariables != null) {
             previewText = executionVariables.prepareStatementText(connection, this.statementText, true);
-
-            for (StatementExecutionVariableValueForm variableValueForm : variableValueForms) {
-                String errorText = executionVariables.getError(variableValueForm.getVariable());
-                if (errorText == null)
-                    variableValueForm.hideErrorLabel(); else
-                    variableValueForm.showErrorLabel(errorText);
-            }
         }
 
 

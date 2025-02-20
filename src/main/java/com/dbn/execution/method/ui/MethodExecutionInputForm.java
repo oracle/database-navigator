@@ -32,10 +32,7 @@ import com.dbn.execution.common.ui.ExecutionOptionsForm;
 import com.dbn.execution.method.MethodExecutionInput;
 import com.dbn.object.DBArgument;
 import com.dbn.object.DBMethod;
-import com.dbn.object.common.DBObject;
-import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.type.DBObjectType;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.util.ui.AsyncProcessIcon;
 import lombok.Getter;
@@ -105,9 +102,6 @@ public class MethodExecutionInputForm extends DBNFormBase {
         collapsiblePanel.setExpanded(executionInput.isContextExpanded());
         collapsiblePanel.addToggleListener(expanded -> executionInput.setContextExpanded(expanded));
         executionOptionsPanel.add(collapsiblePanel.getComponent());
-        //executionOptionsPanel.add(executionOptionsForm.getComponent());
-
-        //objectPanel.add(new ObjectDetailsPanel(method).getComponent(), BorderLayout.NORTH);
 
         if (showHeader) {
             DBNHeaderForm headerForm = new DBNHeaderForm(this, methodRef);
@@ -116,24 +110,29 @@ public class MethodExecutionInputForm extends DBNFormBase {
         headerPanel.setVisible(showHeader);
 
 
-        boolean preloaded = parentComponent instanceof DBNDialog;
-        initArgumentsPanel(preloaded);
+        initArgumentsPanel();
     }
 
-    private void initArgumentsPanel(boolean preloaded) {
-        if (preloaded) {
-            createArgumentsPanel();
-        } else {
-            noArgumentsLabel.setVisible(false);
-            loadingArgumentsPanel.setVisible(true);
-            loadingArgumentsIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
+    private boolean methodDetailsInitialized() {
+        // method details are expected to be pre-initialized if opened in an isolated execution dialog
+        // TODO find a clearer solution to this
+        return getParentComponent() instanceof DBNDialog;
+    }
 
-            //lazy arguments initialization
-            Dispatch.async(
-                    mainPanel,
-                    () -> getExecutionInput().initDatabaseElements(),
-                    () -> createArgumentsPanel());
+    private void initArgumentsPanel() {
+        if (methodDetailsInitialized()) {
+            createArgumentsPanel();
+            return;
         }
+        noArgumentsLabel.setVisible(false);
+        loadingArgumentsPanel.setVisible(true);
+        loadingArgumentsIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
+
+        //lazy arguments initialization
+        Dispatch.async(
+                mainPanel,
+                () -> getExecutionInput().initDatabaseElements(),
+                () -> createArgumentsPanel());
     }
 
     private void createArgumentsPanel() {
@@ -190,17 +189,6 @@ public class MethodExecutionInputForm extends DBNFormBase {
         DBMethod method = executionInput.getMethod();
         return method == null ? Collections.emptyList() : method.getArguments();
     }
-
-    private boolean methodArgumentsLoaded() {
-        if (!executionInput.getMethodRef().isLoaded()) return false;
-
-        DBMethod method = executionInput.getMethod();
-        if (method == null) return false;
-
-        DBObjectList<DBObject> argumentList = method.getChildObjectList(DBObjectType.ARGUMENT);
-        return argumentList != null && argumentList.isLoaded();
-    }
-
 
     @NotNull
     @Override

@@ -112,7 +112,7 @@ public class ObjectFilterDetailsForm extends DBNFormBase {
     @NonNls
     @SneakyThrows
     private static TextContent loadHintText() {
-        String content = Commons.readInputStream(ObjectFilterDetailsForm.class.getResourceAsStream("object_filter_expression_guide.html"));
+        String content = Commons.readInputStream(ObjectFilterDetailsForm.class.getResourceAsStream("object_filter_expression_guide.html.ft"));
         return TextContent.html(content);
     }
 

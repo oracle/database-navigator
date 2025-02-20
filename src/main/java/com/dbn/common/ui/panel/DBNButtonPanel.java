@@ -86,7 +86,7 @@ public class DBNButtonPanel extends JPanel {
             accessibleContext = new AccessibleJPanel() {
                 @Override
                 public AccessibleRole getAccessibleRole() {
-                    return AccessibleRole.PUSH_BUTTON;
+                    return AccessibleRole.HEADER;
                 }
             };
         }

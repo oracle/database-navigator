@@ -23,6 +23,7 @@ import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.component.DBNComponentBase;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
@@ -33,8 +34,8 @@ import com.intellij.ide.ui.LafManagerListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.util.containers.ContainerUtil;
+import lombok.experimental.Delegate;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,7 +48,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 import java.awt.Dimension;
-import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.ui.util.Accessibility.initComponentGroupsAccessibility;
@@ -68,8 +68,6 @@ public abstract class DBNFormBase
     private final Latent<DBNFormFieldAdapter> fieldAdapter = Latent.basic(() -> DBNFormFieldAdapter.create(this));
     private final Latent<Boolean> hasScrollBars = Latent.basic(() -> hasChildComponent(getMainComponent(), c -> c instanceof JScrollPane));
 
-    protected final DBNFormValidator formValidator = new DBNFormValidatorImpl(this);
-
     public DBNFormBase(@Nullable Disposable parent) {
         super(parent);
     }
@@ -87,6 +85,14 @@ public abstract class DBNFormBase
     public final JComponent getComponent() {
         initialize();
         return getMainComponent();
+    }
+
+    @Delegate
+    protected DBNFormValidator getFormValidator() {
+        DBNDialog dialog = getParentDialog();
+        return dialog == null ?
+                DBNFormValidator.SURROGATE :
+                dialog.getFormValidator();
     }
 
     @Nullable
@@ -133,7 +139,7 @@ public abstract class DBNFormBase
 
         JComponent mainComponent = getMainComponent();
         DataProviders.register(mainComponent, this);
-        UserInterface.updateScrollPaneBorders(mainComponent);
+        UserInterface.updateScrollPanes(mainComponent);
         UserInterface.updateTitledBorders(mainComponent);
         UserInterface.updateSplitPanes(mainComponent);
         adjustFormSize(mainComponent);
@@ -175,13 +181,6 @@ public abstract class DBNFormBase
         initComponentGroupsAccessibility(mainComponent);
         initCustomComponentAccessibility(mainComponent);
         //...
-    }
-
-
-
-    @Override
-    public final List<ValidationInfo> validate(JComponent... components) {
-        return formValidator.validateForm(components);
     }
 
     @ApiStatus.OverrideOnly
@@ -238,6 +237,20 @@ public abstract class DBNFormBase
         }
         return null;
     }
+
+    @Override
+    public <F extends DBNForm> F getParentFrom(Class<F> formClass) {
+        DBNComponent parent = getParentComponent();
+        if (parent == null) return null;
+        if (formClass.isAssignableFrom(parent.getClass())) return cast(parent);
+
+        if (parent instanceof DBNForm) {
+            DBNForm parentForm = (DBNForm) parent;
+            return parentForm.getParentFrom(formClass);
+        }
+        return null;
+    }
+
 
     @Override
     public void disposeInner() {

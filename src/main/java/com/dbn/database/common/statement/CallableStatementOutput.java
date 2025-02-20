@@ -20,6 +20,11 @@ import java.sql.CallableStatement;
 import java.sql.SQLException;
 
 public interface CallableStatementOutput {
+    default void shiftParameterIndex(int shift) {
+        if (shift > 0) throw new UnsupportedOperationException();
+    }
+
     void registerParameters(CallableStatement statement) throws SQLException;
+
     void read(CallableStatement statement) throws SQLException;
 }

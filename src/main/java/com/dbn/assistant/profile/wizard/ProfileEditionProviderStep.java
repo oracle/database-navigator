@@ -46,10 +46,8 @@ import static com.dbn.nls.NlsResources.txt;
  */
 public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardModel>  implements Disposable {
 
-  private JPanel profileEditionProviderMainPane;
+  private JPanel mainPanel;
   private JComboBox<AIProvider> providerNameCombo;
-  private JLabel providerNameLabel;
-  private JLabel providerModelLabel;
   private JComboBox<AIModel> providerModelCombo;
   private JSlider temperatureSlider;
   private final ProfileData profile;
@@ -70,7 +68,7 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
       providerModelCombo.setSelectedItem(profile.getModel() != null ? profile.getModel() : profile.getProvider().getDefaultModel());
       temperatureSlider.setValue((int) (profile.getTemperature() * 10));
     } else {
-      UserInterface.whenShown(profileEditionProviderMainPane, () -> {
+      UserInterface.whenShown(mainPanel, () -> {
         AIProvider provider = guessProviderType(profile);
         providerNameCombo.setSelectedItem(provider);
         providerModelCombo.setSelectedItem(provider.getDefaultModel());
@@ -137,12 +135,13 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
 
   @Override
   public JComponent prepare(WizardNavigationState wizardNavigationState) {
-    return profileEditionProviderMainPane;
+    return mainPanel;
   }
 
+  @Nullable
   @Override
-  public @Nullable JComponent getPreferredFocusedComponent() {
-    return null;
+  public JComponent getPreferredFocusedComponent() {
+    return providerNameCombo;
   }
 
   @Override

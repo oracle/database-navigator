@@ -16,24 +16,31 @@
 
 package com.dbn.common.ui.util;
 
+import com.dbn.common.compatibility.Compatibility;
+import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.ui.ComponentWithBrowseButton;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.ui.ToolbarDecorator;
+import com.intellij.util.ui.accessibility.AccessibleAnnouncerUtil;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
+import javax.accessibility.Accessible;
 import javax.accessibility.AccessibleContext;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 import java.awt.Component;
 import java.awt.Container;
 
+import static com.dbn.common.ui.util.ClientProperty.ACCESSIBLE_DESCRIPTION;
+import static com.dbn.common.ui.util.ClientProperty.ACCESSIBLE_NAME;
 import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
 import static com.dbn.common.ui.util.UserInterface.getComponentLabel;
 import static com.dbn.common.ui.util.UserInterface.getComponentText;
@@ -56,6 +63,11 @@ public class Accessibility {
         return accessibleContext.getAccessibleName();
     }
 
+    public static String getAccessibleDescription(Component component) {
+        AccessibleContext accessibleContext = component.getAccessibleContext();
+        return accessibleContext.getAccessibleDescription();
+    }
+
     public static boolean hasAccessibleName(Component component) {
         return Strings.isNotEmpty(getAccessibleName(component));
     }
@@ -65,22 +77,31 @@ public class Accessibility {
     }
 
     public static void setAccessibleDescription(@Nullable Object target, @Nls String description) {
-        setAccessibleText(target, description, false);
+        setAccessibleText(target, description, true);
     }
 
     private static void setAccessibleText(@Nullable Object target, @Nullable @Nls String text, boolean descriptor) {
         if (target == null) return;
         if (text == null) return;
+        if (target instanceof AccessibleContext) {
+            String friendlyText = friendlyText(text);
+            AccessibleContext accessibleContext = (AccessibleContext) target;
+            if (descriptor) {
+                accessibleContext.setAccessibleDescription(friendlyText);
+            } else {
+                accessibleContext.setAccessibleName(friendlyText);
+            }
+            return;
+        }
 
         if (target instanceof Component) {
             Component component = (Component) target;
-            String friendlyName = text.replace("_", " ");
 
-            AccessibleContext accessibleContext = component.getAccessibleContext();
+            setAccessibleText(component.getAccessibleContext(), text, descriptor);
             if (descriptor) {
-                accessibleContext.setAccessibleDescription(friendlyName);
+                ACCESSIBLE_DESCRIPTION.set(component, getAccessibleName(component));
             } else {
-                accessibleContext.setAccessibleName(friendlyName);
+                ACCESSIBLE_NAME.set(component, getAccessibleDescription(component));
             }
             return;
         }
@@ -107,24 +128,37 @@ public class Accessibility {
         log.warn("Cannot set accessible text to target of type {}", target.getClass().getName());
     }
 
+    public static String friendlyText(String text) {
+        // TODO find screen-reader text cleanser library
+        return text.replace("_", " ");
+    }
+
     public static void setAccessibleUnit(JComponent component, @Nls String unit, @Nls String ... qualifiers) {
         JLabel label = getComponentLabel(component);
         JComponent accessibleComponent = label == null ? component : label;
 
         AccessibleContext accessibleContext = accessibleComponent.getAccessibleContext();
 
-        String accessibleName = nvl(accessibleContext.getAccessibleName(), "");
-
-        StringBuilder builder = new StringBuilder(accessibleName);
-        builder.append(" (");
-        builder.append(unit);
-        if (qualifiers.length > 0) {
-            builder.append(" - ");
-            builder.append(String.join(", ", qualifiers));
+        String accessibleName = ACCESSIBLE_NAME.get(component);
+        if (accessibleName == null) {
+            accessibleName = nvl(accessibleContext.getAccessibleName(), "");
+            ACCESSIBLE_NAME.set(component, accessibleName);
         }
 
-        builder.append(")");
-        accessibleContext.setAccessibleName(builder.toString());
+        if (unit == null) {
+            accessibleContext.setAccessibleName(accessibleName);
+        } else {
+            StringBuilder builder = new StringBuilder(accessibleName);
+            builder.append(" (");
+            builder.append(unit);
+            if (qualifiers.length > 0) {
+                builder.append(" - ");
+                builder.append(String.join(", ", qualifiers));
+            }
+
+            builder.append(")");
+            accessibleContext.setAccessibleName(builder.toString());
+        }
     }
 
     /**
@@ -181,6 +215,19 @@ public class Accessibility {
             return findAccessibilityTitle(parentPanel);
         }
         return null;
+    }
+
+    @Compatibility
+    public static void announceEvent(Accessible component, String eventMessage) {
+        AccessibleAnnouncerUtil.announce(component, eventMessage, true);
+    }
+
+    public static void attachSelectionAnnouncer(DBNComboBox<?> comboBox, String name) {
+        ComboBoxes.onSelectionChange(comboBox, selectedItem -> announceEvent(comboBox, name + " selection changed to " + selectedItem.getAccessibleName()));
+    }
+
+    public static void attachStateAnnouncer(JToggleButton toggle, String name) {
+        toggle.addActionListener(e -> announceEvent(toggle, name + " state changed to " + (toggle.isSelected() ? "checked" : "unchecked")));
     }
 }
 

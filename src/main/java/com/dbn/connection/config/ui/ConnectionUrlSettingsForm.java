@@ -58,6 +58,9 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.FileChoosers.addSingleFolderChooser;
+import static com.dbn.common.util.Files.normalizePath;
+import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.common.util.Strings.toLowerCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -110,7 +113,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
     private void updateTnsAdminField() {
         String location = TnsAdmin.location();
-        if (Strings.isEmptyOrSpaces(location)) return;
+        if (isEmptyOrSpaces(location)) return;
 
         JBTextField textField = (JBTextField) tnsFolderTextField.getTextField();
         textField.getEmptyText().setText(location);
@@ -186,7 +189,13 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private void updateTnsProfilesField() {
         String tnsAdmin = getTnsAdmin();
 
-        tnsProfileComboBox.setValues(Collections.emptyList());
+        String tnsProfile = getTnsProfile();
+        // retain profile selection if list is not overwritten by a new set of entries
+        List<Presentable> tnsProfiles = isEmpty(tnsProfile) ?
+                Collections.emptyList():
+                Collections.singletonList(Presentable.basic(tnsProfile));
+
+        tnsProfileComboBox.setValues(tnsProfiles);
         File tnsFolder = new File(tnsAdmin);
         if (!tnsFolder.isDirectory()) return;
 
@@ -199,8 +208,10 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
     private String getTnsAdmin() {
         String tnsPath = tnsFolderTextField.getText();
-        if (Strings.isEmptyOrSpaces(tnsPath)) tnsPath = TnsAdmin.location();
-        return nvl(tnsPath, "");
+        if (isEmptyOrSpaces(tnsPath)) {
+            tnsPath = nvl(TnsAdmin.location(), "");
+        }
+        return normalizePath(tnsPath);
     }
 
     private List<String> getTnsEntries(File tnsnamesOraFile) {

@@ -18,6 +18,7 @@ package com.dbn.connection.config.tns.ui;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.util.Files;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsNamesParser;
@@ -99,6 +100,7 @@ public class TnsNamesImportForm extends DBNFormBase {
         try {
             String fileName = tnsNamesFileTextField.getTextField().getText();
             if (Strings.isNotEmpty(fileName)) {
+                fileName = Files.normalizePath(fileName);
                 tnsNames = TnsNamesParser.get(new File(fileName));
                 tnsNamesTable.setModel(new TnsNamesTableModel(tnsNames));
                 tnsNamesTable.adjustColumnWidths();

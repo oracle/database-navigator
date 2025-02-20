@@ -17,7 +17,7 @@
 package com.dbn.database.common.assistant;
 
 import com.dbn.common.exception.Exceptions;
-import com.dbn.database.common.statement.CallableStatementOutput;
+import com.dbn.database.common.statement.CallableStatementOutputBase;
 import lombok.Getter;
 
 import java.io.BufferedReader;
@@ -33,18 +33,18 @@ import java.sql.Types;
  * @author Dan Cioca (Oracle)
  */
 @Getter
-public class AssistantQueryResponse implements CallableStatementOutput {
+public class AssistantQueryResponse extends CallableStatementOutputBase {
 
   private Clob response;
 
   @Override
   public void registerParameters(CallableStatement statement) throws SQLException {
-    statement.registerOutParameter(1, Types.CLOB);
+    statement.registerOutParameter(shifted(1), Types.CLOB);
   }
 
   @Override
   public void read(CallableStatement statement) throws SQLException {
-    response = statement.getClob(1);
+    response = statement.getClob(shifted(1));
   }
 
   public String read() throws SQLException {

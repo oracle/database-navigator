@@ -28,12 +28,17 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionProperties;
 import com.dbn.connection.ConnectionStatusListener;
 import com.dbn.connection.ConnectionType;
+import com.dbn.connection.DatabaseInterfacesBundle;
+import com.dbn.connection.DatabaseType;
 import com.dbn.connection.Resources;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.transaction.PendingTransactionBundle;
+import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.database.interfaces.DatabaseInterface.Callable;
 import com.dbn.database.interfaces.DatabaseInterface.Runnable;
+import com.dbn.database.interfaces.DatabaseInterfaces;
+import com.dbn.language.common.QuotePair;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
@@ -68,7 +73,8 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 public class DBNConnection extends DBNConnectionBase {
     private final ProjectRef project;
     private final String name;
-    private final ConnectionType type;
+    private final DatabaseType databaseType;
+    private final ConnectionType connectionType;
     private final SessionId sessionId;
     private final ConnectionProperties properties;
 
@@ -80,6 +86,7 @@ public class DBNConnection extends DBNConnectionBase {
     private final Set<DBNResultSet> activeCursors = ConcurrentHashMap.newKeySet();
     private final Map<String, DBNPreparedStatement> cachedStatements = new ConcurrentHashMap<>();
     private transient DBNStatement enquoteStatement;
+    private QuotePair identifierEnquoter;
 
     private final IncrementalResourceStatusAdapter<DBNConnection> active =
             IncrementalResourceStatusAdapter.create(
@@ -167,33 +174,60 @@ public class DBNConnection extends DBNConnectionBase {
                 }
             };
 
-    private DBNConnection(Project project, Connection connection, String name, ConnectionType type, ConnectionId id, SessionId sessionId) throws SQLException {
+    private DBNConnection(Project project, Connection connection, DatabaseType databaseType, ConnectionType connectionType, ConnectionId id, String name, SessionId sessionId) throws SQLException {
         super(connection, id);
         this.project = ProjectRef.of(project);
+        this.databaseType = databaseType;
+        this.connectionType = connectionType;
         this.name = name;
-        this.type = type;
         this.sessionId = sessionId;
         this.properties = new ConnectionProperties(connection);
+
+        initIdentifierQuotes();
     }
 
-    public static DBNConnection wrap(Project project, Connection connection, String name, ConnectionType type, ConnectionId id, SessionId sessionId) throws SQLException {
-        return new DBNConnection(project, connection, name, type, id, sessionId);
+    public static DBNConnection wrap(Project project, Connection connection, DatabaseType databaseType, ConnectionType connectionType, ConnectionId id, String name, SessionId sessionId) throws SQLException {
+        return new DBNConnection(project, connection, databaseType, connectionType, id, name, sessionId);
     }
 
+    private void initIdentifierQuotes() throws SQLException {
+        DatabaseInterfaces interfaces = DatabaseInterfacesBundle.get(databaseType);
+        DatabaseCompatibilityInterface compatibilityInterface = interfaces.getCompatibilityInterface();
+        if (compatibilityInterface.useMetadataIdentifierQuoting()) {
+            String quoteString = inner.getMetaData().getIdentifierQuoteString();
+            identifierEnquoter = new QuotePair(quoteString, quoteString);
+        }
+    }
 
     @Exploitable
     public DBNPreparedStatement prepareStatementCached(String sql) {
         return cachedStatements.computeIfAbsent(sql, s -> {
-            DBNPreparedStatement preparedStatement = prepareStatement(s);
-            preparedStatement.setCached(true);
-            preparedStatement.setFetchSize(500);
-            preparedStatement.setSql(s);
-            return preparedStatement;
+            DBNPreparedStatement statement = prepareStatement(s);
+            statement.setCached(true);
+            statement.setFetchSize(500);
+            statement.setSql(s);
+            return statement;
         });
+    }
+
+    @Exploitable
+    public DBNCallableStatement prepareCallCached(String sql) {
+        return cast(cachedStatements.computeIfAbsent(sql, s -> {
+            DBNPreparedStatement statement = prepareCall(s);
+            statement.setCached(true);
+            statement.setFetchSize(500);
+            statement.setSql(s);
+            return statement;
+        }));
     }
 
     @Override
     protected <S extends Statement> S wrap(Statement statement) {
+        return wrap(statement, null);
+    }
+
+    @Override
+    protected <S extends Statement> S wrap(Statement statement, String sql) {
         updateLastAccess();
         if (statement instanceof CallableStatement) {
             CallableStatement callableStatement = (CallableStatement) statement;
@@ -207,7 +241,9 @@ public class DBNConnection extends DBNConnectionBase {
             statement = new DBNStatement<>(statement, this);
         }
 
-        activeStatements.add((DBNStatement) statement);
+        DBNStatement dbnStatement = (DBNStatement) statement;
+        dbnStatement.setSql(sql);
+        activeStatements.add(dbnStatement);
         return cast(statement);
     }
 
@@ -266,23 +302,23 @@ public class DBNConnection extends DBNConnectionBase {
     }
 
     public boolean isPoolConnection() {
-        return type == ConnectionType.POOL;
+        return connectionType == ConnectionType.POOL;
     }
 
     public boolean isDebugConnection() {
-        return type == ConnectionType.DEBUG;
+        return connectionType == ConnectionType.DEBUG;
     }
 
     public boolean isDebuggerConnection() {
-        return type == ConnectionType.DEBUGGER;
+        return connectionType == ConnectionType.DEBUGGER;
     }
 
     public boolean isMainConnection() {
-        return type == ConnectionType.MAIN;
+        return connectionType == ConnectionType.MAIN;
     }
 
     public boolean isTestConnection() {
-        return type == ConnectionType.TEST;
+        return connectionType == ConnectionType.TEST;
     }
 
     @Override
@@ -335,6 +371,8 @@ public class DBNConnection extends DBNConnectionBase {
     }
 
     public String enquoteIdentifier(String identifier) throws SQLException {
+        if (identifierEnquoter != null) return identifierEnquoter.quote(identifier);
+
         if (enquoteStatement == null) enquoteStatement = createStatement();
         return enquoteStatement.enquoteIdentifier(identifier, true);
     }

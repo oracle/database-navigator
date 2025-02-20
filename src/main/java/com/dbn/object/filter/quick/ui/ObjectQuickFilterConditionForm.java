@@ -38,6 +38,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 
+import static com.dbn.common.ui.util.Accessibility.attachSelectionAnnouncer;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Strings.cachedUpperCase;
@@ -83,7 +85,9 @@ public class ObjectQuickFilterConditionForm extends DBNFormBase {
     @Override
     protected void initAccessibility() {
         setAccessibleName(operatorComboBox, "Condition operator");
-        setAccessibleName(patternTextField, "Condition value");
+        setAccessibleName(patternTextField, "Condition value for " + objectNameLabel.getText());
+        setAccessibleDescription(patternTextField, "Press Up or Down arrow keys to change the operator");
+        attachSelectionAnnouncer(operatorComboBox, "Operator");
     }
 
     @NotNull

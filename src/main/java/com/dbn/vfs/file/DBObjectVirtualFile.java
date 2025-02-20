@@ -44,6 +44,7 @@ import java.io.File;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
 public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
     private static final WeakRefCache<DBObjectRef, DBObjectVirtualFile> virtualFileCache = WeakRefCache.weakKey();
@@ -120,11 +121,10 @@ public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
 
     @Override
     public @NotNull String getPresentableName() {
-        String presentableName = super.getPresentableName();
         if (getObjectType() == DBObjectType.JAVA_CLASS) {
-            presentableName = presentableName.replace("/", ".");
+            return getCanonicalName(getName());
         }
-        return presentableName;
+        return super.getPresentableName();
     }
 
     private String getConnectionName() {

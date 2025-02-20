@@ -54,11 +54,6 @@ public class StatementExecutionInputsDialog extends DBNDialog<StatementExecution
     }
 
     @Override
-    protected String getDimensionServiceKey() {
-        return super.getDimensionServiceKey();
-    }
-
-    @Override
     @NotNull
     protected final Action[] createActions() {
         return new Action[]{

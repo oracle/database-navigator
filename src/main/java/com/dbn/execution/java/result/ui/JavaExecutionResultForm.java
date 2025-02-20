@@ -30,8 +30,8 @@ import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SessionId;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
+import com.dbn.execution.common.input.ExecutionValue;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
-import com.dbn.execution.java.ArgumentValue;
 import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.logging.LogOutput;
 import com.dbn.execution.logging.LogOutputContext;
@@ -50,6 +50,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTree;
 import java.awt.BorderLayout;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.util.Commons.nvl;
@@ -71,8 +72,8 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
 
     public JavaExecutionResultForm(@NotNull JavaExecutionResult executionResult) {
         super(executionResult);
-        List<ArgumentValue> inputArgumentValues = executionResult.getExecutionInput().getArgumentValues();
-        argumentValuesTree = new ArgumentValuesTree(this, inputArgumentValues);
+        List<ExecutionValue> fieldValues = getInputValues();
+        argumentValuesTree = new ArgumentValuesTree(this, fieldValues);
         argumentValuesScrollPane.setViewportView(argumentValuesTree);
 
 
@@ -86,6 +87,10 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
         updateStatusBarLabels();
         executionResultPanel.setSize(800, -1);
         TreeUtil.expand(argumentValuesTree, 2);
+    }
+
+    private @NotNull ArrayList<ExecutionValue> getInputValues() {
+        return new ArrayList<>(getExecutionResult().getExecutionInput().getInputValues().values());
     }
 
     public DBJavaMethod getMethod() {
@@ -103,10 +108,11 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
 
     private void updateArgumentValueTree() {
         JavaExecutionResult executionResult = getExecutionResult();
-        List<ArgumentValue> inputArgumentValues = executionResult.getExecutionInput().getArgumentValues();
+        List<ExecutionValue> inputFieldValues = getInputValues();
+        List<ExecutionValue> outputFieldValues = executionResult.getFieldValues();
 
         DBJavaMethod method = executionResult.getMethod();
-        ArgumentValuesTreeModel treeModel = new ArgumentValuesTreeModel(method, inputArgumentValues);
+        ArgumentValuesTreeModel treeModel = new ArgumentValuesTreeModel(method, inputFieldValues);
         argumentValuesTree.setModel(treeModel);
         TreeUtil.expand(argumentValuesTree, 2);
     }
@@ -144,17 +150,17 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
     }
 
     private void addOutputArgumentTabs(JavaExecutionResult executionResult) {
-        List<ArgumentValue> argumentValues = executionResult.getArgumentValues();
-        for (ArgumentValue argumentValue : argumentValues) {
-            DBJavaParameter argument = argumentValue.getArgument();
+        List<ExecutionValue> fieldValues = executionResult.getFieldValues();
+        for (ExecutionValue fieldValue : fieldValues) {
+            DBJavaParameter argument = null;  // TODO inputValue.getArgument();
             if (argument == null) continue;
 
-            if (argumentValue.isCursor()) {
+            if (fieldValue.isCursor()) {
                 DBNForm argumentForm = new JavaExecutionCursorResultForm(this, executionResult, argument);
                 addOutputTab(argument, argumentForm);
 
-            } else if (argumentValue.isLargeObject() || argumentValue.isLargeValue()) {
-                DBNForm argumentForm = new JavaExecutionLargeValueResultForm(this, argument, argumentValue);
+            } else if (fieldValue.isLargeObject() || fieldValue.isLargeValue()) {
+                DBNForm argumentForm = new JavaExecutionLargeValueResultForm(this, argument, fieldValue);
                 addOutputTab(argument, argumentForm);
             }
         }

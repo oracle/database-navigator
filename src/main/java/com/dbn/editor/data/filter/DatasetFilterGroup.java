@@ -22,7 +22,6 @@ import com.dbn.common.options.BasicProjectConfiguration;
 import com.dbn.common.options.ProjectConfiguration;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.Lists;
-import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.editor.data.filter.ui.DatasetFilterForm;
@@ -36,14 +35,19 @@ import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.ListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Naming.nextNumberedIdentifier;
+import static java.util.stream.Collectors.toSet;
 
 @Getter
 @Setter
@@ -111,14 +115,11 @@ public class DatasetFilterGroup extends BasicProjectConfiguration<ProjectConfigu
 
 
     public String createFilterName(String baseName) {
-        while (lookupFilter(baseName) != null) {
-            baseName = Naming.nextNumberedIdentifier(baseName, true);
-        }
-        return baseName;
+        return nextNumberedIdentifier(baseName, true, () -> getFilterNames());
     }
 
-    private Object lookupFilter(String name) {
-        return com.dbn.common.util.Lists.first(getFilters(), filter -> Objects.equals(filter.getName(), name));
+    private Set<String> getFilterNames() {
+        return getFilters().stream().map(f -> f.getName()).collect(toSet());
     }
 
     public DatasetCustomFilter createCustomFilter(boolean interactive) {

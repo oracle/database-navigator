@@ -17,10 +17,13 @@
 package com.dbn.common.util;
 
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.lang.model.SourceVersion;
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.util.Strings.isEmpty;
@@ -33,11 +36,13 @@ import static com.dbn.common.util.Strings.isEmpty;
  *
  * @author Dan Cioca (Oracle)
  */
+@NonNls
 @UtilityClass
 public class Java {
 
     private static final Pattern PACKAGE_NAME_PATTERN = Pattern.compile("^[a-zA-Z_]([a-zA-Z0-9_]*)(\\.[a-zA-Z_]([a-zA-Z0-9_]*))*$");
     private static final Pattern CLASS_NAME_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z0-9_]*$");
+    private static final Set<String> PRIMITIVES = Set.of("boolean", "byte", "char", "double", "float", "int", "long" , "short", "void");
 
     /**
      * Validates whether the given text is a valid Java package name.
@@ -99,5 +104,14 @@ public class Java {
         return isEmpty(packageName) ? className : packageName + "." + className;
     }
 
+    @NonNls
+    public static boolean isPrimitive(String className) {
+        return PRIMITIVES.contains(className);
+    }
+
+    @NonNls
+    public static boolean isVoid(String className) {
+        return Objects.equals(className, "void");
+    }
 
 }

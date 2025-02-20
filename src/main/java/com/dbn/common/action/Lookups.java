@@ -80,4 +80,8 @@ public class Lookups {
         DataContext dataContext = Context.getDataContext(component);
         return PlatformDataKeys.PROJECT.getData(dataContext);
     }
+
+    public static Component getComponent(DataContext dataContext){
+        return PlatformDataKeys.CONTEXT_COMPONENT.getData(dataContext);
+    }
 }

@@ -21,6 +21,8 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNForm;
+import com.dbn.common.ui.form.DBNFormValidator;
+import com.dbn.common.ui.form.DBNFormValidatorImpl;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Titles;
@@ -52,12 +54,14 @@ import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.common.util.Unsafe.cast;
 
+@Getter
 public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper implements DBNComponent, NlsSupport {
     private F form;
     private final ProjectRef project;
 
-    private @Getter boolean rememberSelection;
-    private @Getter Dimension defaultSize;
+    private boolean rememberSelection;
+    private Dimension defaultSize;
+    private final DBNFormValidator formValidator = new DBNFormValidatorImpl(this);
 
     protected DBNDialog(@Nullable Project project, String title, boolean canBeParent) {
         super(project, canBeParent);
@@ -84,23 +88,25 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
      * @param component the UI component to validate; typically a part of the dialog form
      */
     public void validateInput(JComponent component) {
-        F form = getForm();
-        List<ValidationInfo> validationInfos = form.validate(component);
+        List<ValidationInfo> validationInfos = buildValidationInfos(component);
 
         setErrorInfoAll(validationInfos);
 
         // do validation for all fields to decide whether to enable main button
-        validationInfos = form.validate();
+        validationInfos = buildValidationInfos();
         setOKActionEnabled(validationInfos.isEmpty());
     }
-
 
     @Nullable
     @Override
     protected ValidationInfo doValidate() {
-        F form = getForm();
-        List<ValidationInfo> validationInfos = form.validate();
+        List<ValidationInfo> validationInfos = buildValidationInfos();
         return firstElement(validationInfos);
+    }
+
+    private List<ValidationInfo> buildValidationInfos(JComponent ... components) {
+        DBNFormValidatorImpl formValidator = (DBNFormValidatorImpl) this.formValidator;
+        return formValidator.buildValidationInfo(components);
     }
 
     public void setDialogCallback(@Nullable Dialogs.DialogCallback<?> callback) {

@@ -55,12 +55,7 @@ public class DBJavaParameterMetadataImpl extends DBObjectMetadataBase implements
 	}
 
 	@Override
-	public String getBaseType() throws SQLException {
-		return getString("BASE_TYPE");
-	}
-
-	@Override
-	public String getArgumentClass() throws SQLException {
-		return getString("ARGUMENT_CLASS");
+	public String getArgumentClassName() throws SQLException {
+		return getString("ARGUMENT_CLASS_NAME");
 	}
 }

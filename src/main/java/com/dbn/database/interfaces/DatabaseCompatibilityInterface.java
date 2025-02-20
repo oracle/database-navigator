@@ -67,4 +67,8 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
     @Nullable DatabaseAttachmentHandler getDatabaseAttachmentHandler();
 
     <T> T attemptFeatureInvocation(JdbcProperty feature, Callable<T> invoker) throws SQLException;
+
+    default boolean useMetadataIdentifierQuoting() {
+        return false;
+    }
 }
