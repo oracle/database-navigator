@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 
 public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<DatabaseBrowserSortingSettings> {
@@ -107,6 +108,7 @@ public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<
                     String name = sortingType == null ? "" : sortingType.getName();
 
                     append(name, SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                    setAccessibleDescription(this, "Press space key to change the sorting type");
                 }
             });
 

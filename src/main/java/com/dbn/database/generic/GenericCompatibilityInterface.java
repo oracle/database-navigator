@@ -87,4 +87,9 @@ public class GenericCompatibilityInterface extends DatabaseCompatibilityInterfac
     public String getExplainPlanStatementPrefix() {
         return null;
     }
+
+    @Override
+    public boolean useMetadataIdentifierQuoting() {
+        return true;
+    }
 }

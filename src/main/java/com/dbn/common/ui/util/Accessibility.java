@@ -63,6 +63,11 @@ public class Accessibility {
         return accessibleContext.getAccessibleName();
     }
 
+    public static String getAccessibleDescription(Component component) {
+        AccessibleContext accessibleContext = component.getAccessibleContext();
+        return accessibleContext.getAccessibleDescription();
+    }
+
     public static boolean hasAccessibleName(Component component) {
         return Strings.isNotEmpty(getAccessibleName(component));
     }
@@ -78,18 +83,25 @@ public class Accessibility {
     private static void setAccessibleText(@Nullable Object target, @Nullable @Nls String text, boolean descriptor) {
         if (target == null) return;
         if (text == null) return;
+        if (target instanceof AccessibleContext) {
+            String friendlyText = friendlyText(text);
+            AccessibleContext accessibleContext = (AccessibleContext) target;
+            if (descriptor) {
+                accessibleContext.setAccessibleDescription(friendlyText);
+            } else {
+                accessibleContext.setAccessibleName(friendlyText);
+            }
+            return;
+        }
 
         if (target instanceof Component) {
             Component component = (Component) target;
-            String friendlyName = text.replace("_", " ");
 
-            AccessibleContext accessibleContext = component.getAccessibleContext();
+            setAccessibleText(component.getAccessibleContext(), text, descriptor);
             if (descriptor) {
-                accessibleContext.setAccessibleDescription(friendlyName);
-                ACCESSIBLE_DESCRIPTION.set(component, friendlyName);
+                ACCESSIBLE_DESCRIPTION.set(component, getAccessibleName(component));
             } else {
-                accessibleContext.setAccessibleName(friendlyName);
-                ACCESSIBLE_NAME.set(component, friendlyName);
+                ACCESSIBLE_NAME.set(component, getAccessibleDescription(component));
             }
             return;
         }
@@ -114,6 +126,11 @@ public class Accessibility {
         }
 
         log.warn("Cannot set accessible text to target of type {}", target.getClass().getName());
+    }
+
+    public static String friendlyText(String text) {
+        // TODO find screen-reader text cleanser library
+        return text.replace("_", " ");
     }
 
     public static void setAccessibleUnit(JComponent component, @Nls String unit, @Nls String ... qualifiers) {

@@ -16,6 +16,7 @@
 
 package com.dbn.connection.config.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.clipboard.Clipboard;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
@@ -28,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
 
+@BackgroundUpdate
 public class ConnectionPasteAction extends ConnectionSettingsAction {
 
     @Override

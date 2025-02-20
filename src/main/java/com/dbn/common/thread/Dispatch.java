@@ -16,20 +16,27 @@
 
 package com.dbn.common.thread;
 
+import com.dbn.common.action.Lookups;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.util.Alarm;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
+import java.awt.Component;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.thread.ThreadMonitor.isDispatchThread;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Commons.nvl;
 import static com.intellij.openapi.application.ApplicationManager.getApplication;
@@ -42,26 +49,43 @@ public final class Dispatch {
     }
 
     public static void run(boolean conditional, Runnable runnable) {
-        if (conditional && ThreadMonitor.isDispatchThread()) {
-            Failsafe.guarded(runnable, r -> r.run());
+        if (conditional && isDispatchThread()) {
+            guarded(runnable, r -> r.run());
         } else {
             run((ModalityState) null, runnable);
         }
     }
 
-    public static void run(JComponent component, Runnable runnable) {
+    public static void run(DataContext dataContext, boolean conditional, Runnable runnable) {
+        if (conditional && isDispatchThread()) {
+            guarded(runnable, r -> r.run());
+        } else {
+            Component component = Lookups.getComponent(dataContext);
+            run(component, runnable);
+        }
+    }
+
+    public static void run(Component component, Runnable runnable) {
         ModalityState modalityState = ModalityState.stateForComponent(component);
         run(modalityState, runnable);
     }
 
-    public static void run(ModalityState modalityState, Runnable runnable) {
+    // fire and forget
+    public static void run(@Nullable ModalityState modalityState, Runnable runnable) {
         ThreadInfo invoker = ThreadInfo.copy();
         modalityState = nvl(modalityState, () -> ModalityState.defaultModalityState());
-        getApplication().invokeLater(() -> ThreadMonitor.surround(invoker, null, () -> Failsafe.guarded(() -> runnable.run())), modalityState);
+        getApplication().invokeLater(() -> ThreadMonitor.surround(invoker, null, () -> guarded(runnable, r -> r.run())), modalityState);
+    }
+
+    // fire and wait
+    public static void execute(@Nullable ModalityState modalityState, Runnable runnable) {
+        ThreadInfo invoker = ThreadInfo.copy();
+        modalityState = nvl(modalityState, () -> ModalityState.defaultModalityState());
+        getApplication().invokeAndWait(() -> ThreadMonitor.surround(invoker, null, () -> guarded(runnable, r -> r.run())), modalityState);
     }
 
     public static <T, E extends Throwable> T call(boolean conditional, ThrowableCallable<T, E> callable) throws E{
-        if (conditional && ThreadMonitor.isDispatchThread()) {
+        if (conditional && isDispatchThread()) {
             return callable.call();
         } else {
             return call(callable);
@@ -133,9 +157,17 @@ public final class Dispatch {
         });
     }
 
+    public static ModalityState getCurrentModalityState() {
+        Application application = getApplication();
+        if (application.isDispatchThread()) {
+            return application.getCurrentModalityState();
+        }
 
-    public static boolean isModalState() {
-        // return ModalityState.defaultModalityState().dominates(ModalityState.nonModal());
-        return ModalityState.defaultModalityState().dominates(ModalityState.NON_MODAL);
+        // invoke and wait in "any" ModalityState
+        AtomicReference<ModalityState> atomicReference = new AtomicReference<>();
+        application.invokeAndWait(() -> atomicReference.set(application.getCurrentModalityState()), ModalityState.any());
+        return atomicReference.get();
     }
+
 }
+

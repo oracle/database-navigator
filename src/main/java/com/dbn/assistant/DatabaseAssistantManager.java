@@ -214,6 +214,8 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
    */
   public void switchToConnection(@Nullable ConnectionId connectionId) {
     JPanel toolWindowPanel = getToolWindowPanel();
+    if (toolWindowPanel == null) return;
+
     String id = visibleCardId(toolWindowPanel);
     ConnectionId selectedConnectionId = isBlankCard(id) ? null : ConnectionId.get(id);
 
@@ -225,6 +227,9 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
   private ChatBoxForm getChatBox(@Nullable ConnectionId connectionId) {
     if (connectionId == null) return null;
 
+    JPanel toolWindowPanel = getToolWindowPanel();
+    if (toolWindowPanel == null) return null;
+
     ConnectionHandler connection = ConnectionHandler.get(connectionId);
     if (connection == null) return null;
     // TODO clarify - present assistant for unsupported databases?
@@ -232,7 +237,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
     return chatBoxes.computeIfAbsent(connectionId, id -> {
       ChatBoxForm chatBox = new ChatBoxForm(connection);
-      addCard(getToolWindowPanel(), chatBox, connectionId);
+      addCard(toolWindowPanel, chatBox, connectionId);
       return chatBox;
     });
   }
@@ -241,19 +246,27 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     return assistantStates.computeIfAbsent(connectionId, c -> new AssistantStateDelegate(getProject(), c));
   }
 
+  @Nullable
   public ToolWindow getToolWindow() {
     ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(getProject());
     return toolWindowManager.getToolWindow(TOOL_WINDOW_ID);
   }
 
+  @Nullable
   private JPanel getToolWindowPanel() {
-    Content content = getToolWindow().getContentManager().getContent(0);
-    return (JPanel) content.getComponent();
+    ToolWindow toolWindow = getToolWindow();
+    if (toolWindow == null) return null;
+
+    Content content = toolWindow.getContentManager().getContent(0);
+    return content == null ? null : (JPanel) content.getComponent();
   }
 
   private void initToolWindow(ConnectionId connectionId) {
     ToolWindow toolWindow = getToolWindow();
+    if (toolWindow == null) return;
+
     JPanel toolWindowPanel = getToolWindowPanel();
+    if (toolWindowPanel == null) return;
 
     ChatBoxForm chatBox = getChatBox(connectionId);
     if (chatBox == null) {

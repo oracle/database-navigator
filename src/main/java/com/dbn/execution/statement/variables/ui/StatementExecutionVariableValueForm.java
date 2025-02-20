@@ -111,7 +111,6 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
             textField.setText(value);
         }
 
-
         textField.addKeyListener(ComboBoxSelectionKeyListener.create(dataTypeComboBox, false));
         variableNameLabel.setLabelFor(textField);
 
@@ -133,6 +132,7 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
             editorComponent.setPopupEnabled(TextFieldPopupType.CALENDAR, newValue == GenericDataType.DATE_TIME);
             getParentForm().updatePreview();
             setAccessibleUnit(textField, newValue.getName());
+            validateInput(textField);
         });
 
         textField.setToolTipText("<html>While editing variable value, press <b>Up/Down</b> keys to change data type");
@@ -173,9 +173,9 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
     @Override
     protected void initAccessibility() {
         JTextField textField = editorComponent.getTextField();
+        setAccessibleName(dataTypeComboBox, "Data type");
         setAccessibleUnit(textField, dataTypeComboBox.getSelectedValueName());
         setAccessibleDescription(textField, "Press up or down arrow keys to change data type");
-        setAccessibleName(dataTypeComboBox, "Data type");
         setAccessibleDescription(dataTypeComboBox, "Data type for " + variableNameLabel.getText() + " variable");
         attachSelectionAnnouncer(dataTypeComboBox, "Data type");
     }
