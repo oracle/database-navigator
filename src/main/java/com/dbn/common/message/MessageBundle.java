@@ -22,11 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class MessageBundle {
+public class MessageBundle implements MessageCollector {
     private List<Message> infoMessages;
     private List<Message> warningMessages;
     private List<Message> errorMessages;
 
+    @Override
     public void addMessage(Message message) {
         switch (message.getType()) {
             case INFO: infoMessages = addMessage(message, infoMessages); break;
@@ -35,14 +36,17 @@ public class MessageBundle {
         }
     }
 
+    @Override
     public void addInfoMessage(String message) {
         addMessage(new Message(MessageType.INFO, message));
     }
 
+    @Override
     public void addWarningMessage(String message) {
         addMessage(new Message(MessageType.WARNING, message));
     }
 
+    @Override
     public void addErrorMessage(String message) {
         addMessage(new Message(MessageType.ERROR, message));
     }
@@ -53,12 +57,14 @@ public class MessageBundle {
         return list;
     }
 
+    @Override
     public boolean hasErrors() {
-        return errorMessages != null && errorMessages.size() > 0;
+        return errorMessages != null && !errorMessages.isEmpty();
     }
 
+    @Override
     public boolean hasWarnings() {
-        return warningMessages != null && warningMessages.size() > 0;
+        return warningMessages != null && !warningMessages.isEmpty();
     }
 
 }
