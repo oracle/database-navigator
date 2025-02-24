@@ -281,13 +281,15 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
 
         List<AnAction> actions = new ArrayList<>();
         for (DriverPackage driverPackage : driverPackages) {
-            String title = Actions.adjustActionName(driverPackage.getName());
-            actions.add(new DumbAwareAction(title, null, null) {
-                @Override
-                public void actionPerformed(@NotNull AnActionEvent e) {
+            if(driverPackage.getDatabaseType() == getDatabaseType()){
+                String title = Actions.adjustActionName(driverPackage.getName());
+                actions.add(new DumbAwareAction(title, null, null) {
+                    @Override
+                    public void actionPerformed(@NotNull AnActionEvent e) {
                         driverLibraryTextField.setText(driverPackage.getPath());
-                }
-            });
+                    }
+                });
+            }
         }
         actions.add(Separator.create());
         actions.add(new DumbAwareAction("Download Libraries...", null, AllIcons.Actions.Download) {
@@ -300,15 +302,18 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                             indicator.setIndeterminate(false);
                             indicator.setFraction(0.01);
                             try {
+                                driverPackages.clear();
                                 driverPackages.addAll(DriverPackageBundle.driverPackages(getDatabaseType(), indicator));
-                            } catch (Exception ex) {
-                            }
-                            ApplicationManager.getApplication().invokeLater(()->{
-                                DownloadManagerDialog downloadDialog = new DownloadManagerDialog(ensureProject(), getDatabaseType(), driverPackages);
-                                Dialogs.show(() -> downloadDialog, (dialog, exitCode) -> {
-                                    when(exitCode != DialogWrapper.CANCEL_EXIT_CODE, () -> driverLibraryTextField.setText(dialog.selectedDriverPackage.getPath()));
+                                ApplicationManager.getApplication().invokeLater(()->{
+                                    DownloadManagerDialog downloadDialog = new DownloadManagerDialog(ensureProject(), getDatabaseType(), driverPackages);
+                                    Dialogs.show(() -> downloadDialog, (dialog, exitCode) -> {
+                                        when(exitCode != DialogWrapper.CANCEL_EXIT_CODE, () -> driverLibraryTextField.setText(dialog.selectedDriverPackage.getPath()));
+                                    });
                                 });
-                            });
+                            } catch (Exception ex) {
+                                ApplicationManager.getApplication().invokeLater(()-> Messages.showErrorDialog(getProject(), ex.getMessage()));
+                            }
+
                         });
             }
         });

@@ -36,7 +36,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -47,6 +46,7 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Files.getPluginDeploymentRoot;
 import static com.dbn.common.util.Lists.convertParallel;
 import static java.util.Collections.unmodifiableList;
 
@@ -89,9 +89,9 @@ public class DriverPackageBundle {
             INSTANCE = new DriverPackageBundle(indicator);
         }
     }
-    private static final String DRIVER_PACKAGES_PATH = "/Users/ayoub/IdeaProjects/dbn-internal/build/idea-sandbox/plugins/dbn-plugin/driver-packages";
+    private static final String DRIVER_PACKAGES_PATH = getPluginDeploymentRoot().getPath()+"/driver-packages/checksums";
 
-    public static List<DriverPackage> driverPackages() {
+    public static List<DriverPackage> driverPackages(){
         if (INSTANCE == null) {
             throw new IllegalStateException("DriverPackageBundle is not initialized. Call initialize() first.");
         }
@@ -122,7 +122,7 @@ public class DriverPackageBundle {
                         File jarFile = new File(packageDir, artifactIdVersion+".jar");
 
                         if (!jarFile.exists() || !verifyChecksum(jarFile, expectedChecksum, packageId, artifactIdVersion)) {
-                            DriverDownloadManager.getInstance().updateJarDownloadStatus(packageId, parts[0], DownloadStatus.NEW);
+                            DriverDownloadManager.getInstance().cleanupPackage(packageId);
                             break;
                         }
                     }
@@ -140,31 +140,32 @@ public class DriverPackageBundle {
             String actualChecksum = Checksum.fromFileContent(outputFile, ChecksumType.SHA_1);
 
             if (expectedChecksum.equalsIgnoreCase(actualChecksum)) {
-                // Update status to DONE if checksum matches
-                DriverDownloadManager.getInstance().updateJarDownloadStatus(packageId, artifactIdAndVersion, DownloadStatus.DONE);
                 return true;
             } else {
                 System.err.println("Checksum verification failed for " + artifactIdAndVersion +
                         "! Expected: " + expectedChecksum + ", Actual: " + actualChecksum);
-                DriverDownloadManager.getInstance().updateJarDownloadStatus(packageId, artifactIdAndVersion, DownloadStatus.FAILED);
                 return false;
             }
     }
 
 
-    public static List<DriverPackage> driverPackages(DatabaseType databaseType, ProgressIndicator indicator) {
+    public static List<DriverPackage> driverPackages(DatabaseType databaseType, ProgressIndicator indicator){
         initialize(indicator);
         return driverPackages().stream().filter(dp -> dp.getDatabaseType() == databaseType || dp.getDatabaseType() == DatabaseType.GENERIC).collect(Collectors.toList());
     }
 
     public static List<DriverPackage> getDownloadedDriverPackage() {
         if (INSTANCE == null) return new ArrayList<>();
-        return driverPackages().stream()
-                .filter(driverPackage -> DriverDownloadManager.getInstance().isPackageDownloaded(driverPackage.getId()))
-                .collect(Collectors.toList());
+        try {
+            return driverPackages().stream()
+                    .filter(driverPackage -> DriverDownloadManager.getInstance().isPackageDownloaded(driverPackage.getId()))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
     }
-
-    private static DriverPackage createDriverPackage(Element element, ProgressIndicator indicator, float chunk) {
+    @SneakyThrows
+    private static DriverPackage createDriverPackage(Element element, ProgressIndicator indicator, float chunk){
         String id = stringAttribute(element, "id");
         String name = stringAttribute(element, "name");
         String databaseType = stringAttribute(element, "database-type");
@@ -205,6 +206,8 @@ public class DriverPackageBundle {
         }
         return count;
     }
+
+    @SneakyThrows
     private static List<Library> createLibrary(Element element) {
         String groupId = stringAttribute(element, "group-id");
         String artifactId = stringAttribute(element, "artifact-id");
@@ -218,7 +221,7 @@ public class DriverPackageBundle {
         if (toResolve) {
             // Resolve dependencies for non-jar types
             return DependencyParser.resolveDependencies(
-                    new Library(groupId, artifactId, version, null, null),
+                    new Library(groupId, artifactId, version),
                     type
             ); // Return all resolved dependencies
         } else {
@@ -229,13 +232,12 @@ public class DriverPackageBundle {
 
 
     @NotNull
-    public static DriverPackage getDriverPackage(String packageId) {
+    public static DriverPackage getDriverPackage(String packageId){
         Optional<DriverPackage> driverPackage = driverPackages().stream().filter(p -> p.getId().equals(packageId)).findFirst();
         return driverPackage.get();
     }
 
-    private static String ensureVersion(String groupId, String artifactId, String currentVersion) {
-        try {
+    private static String ensureVersion(String groupId, String artifactId, String currentVersion) throws Exception{
             if (currentVersion != null && isValidVersion(currentVersion)) {
                 return currentVersion;
             }
@@ -247,10 +249,6 @@ public class DriverPackageBundle {
             } else {
                 return fetchLatestVersion(availableVersions);
             }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return null;
-        }
     }
 
     private static String fetchLatestVersion(List<String> availableVersions) throws Exception {

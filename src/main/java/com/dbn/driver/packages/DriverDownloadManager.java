@@ -81,14 +81,20 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
 
     private DriverPackageStatus getPackageStatus(String packageId) {
         return packageDownloadStatuses
-                .computeIfAbsent(packageId, k -> createPackageStatus(packageId));
+                .computeIfAbsent(packageId, k -> {
+                    try {
+                        return createPackageStatus(packageId);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e.getMessage());
+                    }
+                });
     }
 
     public Collection<DriverPackageStatus> getPackagesStatus() {
         return packageDownloadStatuses.values();
     }
 
-    private DriverPackageStatus createPackageStatus(String packageId) {
+    private DriverPackageStatus createPackageStatus(String packageId) throws Exception {
         DriverPackage driverPackage = DriverPackageBundle.getDriverPackage(packageId);
         int packageCount = driverPackage.size();
         return new DriverPackageStatus(packageId, packageCount);
@@ -109,12 +115,8 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
     }
 
     public void cleanupPackage(String packageId) {
-        if (packageDownloadStatuses.remove(packageId) != null) {
-            log.info("Download records for package {} removed.", packageId);
-        } else {
-            log.warn("No records found for package {}.", packageId);
-        }
-    }
+        getPackageStatus(packageId).getLibraryStatuses().stream().forEach(libraryStatus->libraryStatus.setDownloadStatus(DownloadStatus.NEW));
+   }
 
     @Override
     public Element getComponentState() {
