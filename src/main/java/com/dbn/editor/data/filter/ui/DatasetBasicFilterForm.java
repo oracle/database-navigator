@@ -69,6 +69,7 @@ import static com.dbn.common.ui.util.ClientProperty.NO_INDENT;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.UserInterface.updateScrollPanes;
 
 public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasicFilter> {
     private JPanel conditionsPanel;
@@ -117,8 +118,10 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
             errorLabel.setText(filter.getError());
             errorLabel.setIcon(Icons.EXEC_MESSAGES_ERROR);
         }
-        updateNameAndPreview();
         isCustomNamed = filter.isCustomNamed();
+
+        // delay the initialisation of filter editor to force psi write action in the dialog modality state
+        whenShown(() -> updateNameAndPreview());
     }
 
     @Override
@@ -235,6 +238,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
             this.viewer.getComponent().setFocusable(false);
             previewPanel.add(this.viewer.getComponent(), BorderLayout.CENTER);
 
+            updateScrollPanes(previewPanel);
         } else {
             Documents.setText(previewDocument, selectStatement);
         }

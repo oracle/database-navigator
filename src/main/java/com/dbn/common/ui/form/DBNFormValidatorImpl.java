@@ -94,6 +94,12 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         });
     }
 
+    public void validateInput(JComponent component) {
+        DBNDialog dialog = getTarget();
+        dialog.validateInput(component);
+
+    }
+
     private static <C extends JComponent> void validateTarget(C target, Predicate<C> validator, String message) throws ValidationException {
         boolean valid = validator.test(target);
         if (!valid) throw new ValidationException(message);
@@ -105,9 +111,16 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         if (error != null) throw new ValidationException(error);
     }
 
+    /**
+     * Validates the specified Swing components based on the registered validation rules
+     * and returns a list of validation errors, if any. If no components are specified,
+     * the method validates all components with associated validation rules.
+     *
+     * @param components the components to validate; if no components are provided, all registered components will be validated
+     * @return a list of {@link ValidationInfo} instances representing validation errors; an empty list if all validations pass
+     */
     @NotNull
-    @Override
-    public List<ValidationInfo> validateForm(JComponent... components) {
+    public List<ValidationInfo> buildValidationInfo(JComponent... components) {
         List<ValidationInfo> result = null;
         Set<JComponent> invalidFields = new HashSet<>();
         for (DBNFormFieldValidator<?> validator : validators) {

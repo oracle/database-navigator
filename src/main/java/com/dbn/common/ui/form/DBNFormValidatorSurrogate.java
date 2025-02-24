@@ -16,14 +16,10 @@
 
 package com.dbn.common.ui.form;
 
-import com.intellij.openapi.ui.ValidationInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.text.JTextComponent;
-import java.util.Collections;
-import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -61,9 +57,7 @@ public class DBNFormValidatorSurrogate implements DBNFormValidator{
     }
 
     @Override
-    public @NotNull List<ValidationInfo> validateForm(JComponent... components) {
-        return Collections.emptyList();
-    }
+    public void validateInput(JComponent component) {}
 
     private static void notSupported() {
         illegalState("Form validator not bound to dialog. Validation not supported.");

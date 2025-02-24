@@ -24,10 +24,10 @@ import com.dbn.common.component.ProjectManagerListener;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.exception.ProcessDeferredException;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.ThreadMonitor;
 import com.dbn.common.thread.ThreadProperty;
+import com.dbn.common.thread.Write;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -72,6 +72,7 @@ import java.util.UUID;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.util.Commons.list;
 import static com.dbn.common.util.Lists.anyMatch;
+import static com.dbn.connection.config.ConnectionConfigListener.whenChangedOrRemoved;
 import static com.dbn.nls.NlsResources.txt;
 
 @State(
@@ -93,10 +94,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
 
         ProjectEvents.subscribe(project, this, FileEditorManagerListener.FILE_EDITOR_MANAGER, fileEditorManagerListener());
         ProjectEvents.subscribe(project, this, FileEditorManagerListener.Before.FILE_EDITOR_MANAGER, fileEditorManagerListenerBefore());
-        ProjectEvents.subscribe(project, this,
-                ConnectionConfigListener.TOPIC,
-                ConnectionConfigListener.whenChangedOrRemoved(id -> closeFiles(id)));
-
+        ProjectEvents.subscribe(project, this, ConnectionConfigListener.TOPIC, whenChangedOrRemoved(id -> closeFiles(id)));
     }
 
     public static DatabaseFileManager getInstance(@NotNull Project project) {
@@ -205,8 +203,9 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
     }
 
     public void closeFile(@NotNull VirtualFile file) {
-        FileEditorManager editorManager = FileEditorManager.getInstance(getProject());
-        Dispatch.run(true, () -> editorManager.closeFile(file));
+        Project project = getProject();
+        FileEditorManager editorManager = FileEditorManager.getInstance(project);
+        Write.run(project, () -> editorManager.closeFile(file));
     }
 
     public void closeDatabaseFiles(@NotNull final List<ConnectionId> connectionIds) {

@@ -32,36 +32,9 @@ public class QuoteDefinition {
         return quotePairs[0];
     }
 
-    public QuotePair getQuote(char character) {
-        for (QuotePair quotePair : quotePairs) {
-            if (character == quotePair.beginChar() || character == quotePair.endChar()) {
-                return quotePair;
-            }
-        }
-        return null;
-    }
-
     public boolean isQuoted(CharSequence charSequence) {
         for (QuotePair quotePair : quotePairs) {
             if (quotePair.isQuoted(charSequence)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean isQuoteBegin(char character) {
-        for (QuotePair quotePair : quotePairs) {
-            if (quotePair.beginChar() == character) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean isQuoteEnd(char beginQuote, char character) {
-        for (QuotePair quotePair : quotePairs) {
-            if (quotePair.beginChar() == beginQuote && quotePair.endChar() == character) {
                 return true;
             }
         }

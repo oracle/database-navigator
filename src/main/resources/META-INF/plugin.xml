@@ -50,12 +50,12 @@
         <ul>
             <li><b>3.5.0</b>
             <ul>
-                <li>Oracle "Select-AI" integration (Database Assistant)
+                <li>Oracle "Select-AI" integration (Database Assistant - experimental)
                 <li>Oracle token authentication ("OCI API Key" and "OCI Interactive")
                 <li>Oracle OJVM support (early preview)
                 <li>Password storage in native keychain
                 <li>Tool accessibility enhancements
-                <li>Support for latest IDE versions (2024.3.x)
+                <li>Support for latest IDE versions (2024.3.x and 2025.1.x)
                 <li>Bug fixes
             </ul>
             <li><b>3.4.4425</b>

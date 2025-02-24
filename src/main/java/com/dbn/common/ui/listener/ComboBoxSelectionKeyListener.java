@@ -16,8 +16,6 @@
 
 package com.dbn.common.ui.listener;
 
-import com.dbn.common.ui.util.UserInterface;
-
 import javax.swing.JComboBox;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -40,23 +38,27 @@ public class ComboBoxSelectionKeyListener extends KeyAdapter {
     public void keyPressed(KeyEvent e) {
         if (e.isConsumed()) return;
 
-        int operatorSelectionIndex = comboBox.getSelectedIndex();
+        int selectionIndex = comboBox.getSelectedIndex();
         boolean controlled = e.isControlDown() || (e.getModifiersEx() & KeyEvent.META_DOWN_MASK) != 0;
 
         if ((useControlKey && controlled) || (!useControlKey && !controlled)) {
             if (e.getKeyCode() == 38) {//UP
-                if (operatorSelectionIndex > 0) {
-                    comboBox.setSelectedIndex(operatorSelectionIndex - 1);
-                    UserInterface.repaint(comboBox);
+                if (selectionIndex > 0) {
+                    changeSelection(selectionIndex - 1);
                 }
                 e.consume();
             } else if (e.getKeyCode() == 40) { // DOWN
-                if (operatorSelectionIndex < comboBox.getItemCount() - 1) {
-                    comboBox.setSelectedIndex(operatorSelectionIndex + 1);
-                    UserInterface.repaint(comboBox);
+                if (selectionIndex < comboBox.getItemCount() - 1) {
+                    changeSelection(selectionIndex + 1);
                 }
                 e.consume();
             }
         }
+    }
+
+    private void changeSelection(int index) {
+        comboBox.setSelectedIndex(index);
+        comboBox.revalidate();
+        comboBox.repaint();
     }
 }

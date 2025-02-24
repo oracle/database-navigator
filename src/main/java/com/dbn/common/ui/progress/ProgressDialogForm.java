@@ -57,7 +57,6 @@ public class ProgressDialogForm extends DBNFormBase {
         progressBar.setIndeterminate(true);
         progressBar.setVisible(true);
         progressBar.setBorder(null);
-        updateProgressLabels();
 
         KeyAdapter keyListener = createKeyListener();
         cancelButton.addKeyListener(keyListener);
@@ -67,6 +66,7 @@ public class ProgressDialogForm extends DBNFormBase {
         backgroundButton.addActionListener(e -> handler.release());
         progressText2Label.setForeground(Colors.lafBrighter(Colors.getLabelForeground(), 10));
         progressUpdater.schedule(createProgressRefreshTask(), 100, 100);
+        updateProgressLabels();
     }
 
     private @NotNull TimerTask createProgressRefreshTask() {
