@@ -20,11 +20,14 @@ import com.intellij.platform.templates.github.DownloadUtil;
 import lombok.Getter;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.graph.DependencyNode;
+
+import java.io.FileInputStream;
 import java.util.List;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.xml.sax.InputSource;
+
 import java.io.File;
-import java.io.FileReader;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
@@ -100,9 +103,11 @@ public class Library {
     }
 
     private Model parsePom(File pomFile) {
-        try (FileReader fileReader = new FileReader(pomFile)) {
+        try (FileInputStream fis = new FileInputStream(pomFile)) {
             MavenXpp3Reader reader = new MavenXpp3Reader();
-            return reader.read(fileReader);
+            InputSource inputSource = new InputSource(fis);
+            inputSource.setSystemId(pomFile.getAbsolutePath());
+            return reader.read(inputSource.getByteStream());
         } catch (Exception e) {
             e.printStackTrace();
             return null;
