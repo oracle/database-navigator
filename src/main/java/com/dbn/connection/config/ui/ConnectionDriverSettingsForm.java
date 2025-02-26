@@ -305,14 +305,14 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                             try {
                                 driverPackages.clear();
                                 driverPackages.addAll(DriverPackageBundle.driverPackages(getDatabaseType(), indicator, messages));
-                                ApplicationManager.getApplication().invokeAndWait(()->{
+                                ApplicationManager.getApplication().invokeLater(()->{
                                     DownloadManagerDialog downloadDialog = new DownloadManagerDialog(ensureProject(), getDatabaseType(), driverPackages);
                                     Dialogs.show(() -> downloadDialog, (dialog, exitCode) -> {
                                         when(exitCode != DialogWrapper.CANCEL_EXIT_CODE, () -> driverLibraryTextField.setText(dialog.selectedDriverPackage.getPath()));
                                     });
                                 });
                             } catch (Exception ex) {
-                                ApplicationManager.getApplication().invokeAndWait(()-> Messages.showErrorDialog(getProject(), ex.getMessage()));
+                                ApplicationManager.getApplication().invokeLater(()-> Messages.showErrorDialog(getProject(), ex.getMessage()));
                             }
 
                         });

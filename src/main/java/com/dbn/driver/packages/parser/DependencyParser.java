@@ -44,11 +44,11 @@ import java.util.List;
 public class DependencyParser {
     private static String central_url;
 
-    public static List<Library> resolveDependencies(Library library, String type) {
+    public static List<Library> resolveDependencies(Library library, String type) throws Exception{
         List<Library> libraries = new ArrayList<>();
         // Run the network operation in a background thread
-        try {
-            RepositorySystem repositorySystem = newRepositorySystem();
+
+        RepositorySystem repositorySystem = newRepositorySystem();
 
             RepositorySystemSession session = newRepositorySystemSession(repositorySystem);
 
@@ -68,9 +68,7 @@ public class DependencyParser {
             DependencyNode root = collectResult.getRoot();
             if (type.equals("pom")) traverse(root.getChildren().get(0), libraries, library);
             else traverse(root.getChildren().get(0), libraries);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
         return libraries;
 
     }
@@ -103,6 +101,8 @@ public class DependencyParser {
         // Add required services
         locator.addService(TransporterFactory.class, CustomTransporterFactory.class);
         locator.addService(LocalRepositoryManagerFactory.class, org.eclipse.aether.internal.impl.SimpleLocalRepositoryManagerFactory.class);
+        locator.addService(org.eclipse.aether.spi.connector.RepositoryConnectorFactory.class,
+                org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory.class);
 
         locator.setErrorHandler(new DefaultServiceLocator.ErrorHandler() {
             @Override
