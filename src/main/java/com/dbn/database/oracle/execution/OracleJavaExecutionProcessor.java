@@ -39,14 +39,16 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.sql.Array;
 import java.sql.Connection;
+import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Comparator;
 import java.util.List;
 
 public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
-
+	private int sqlType = 0;
 	public OracleJavaExecutionProcessor(DBJavaMethod method) {
 		super(method);
 	}
@@ -103,6 +105,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 					.append("(")
 					.append(methodCallPrepare)
 					.append(");\n");
+			buffer.append("? := output_arg ;\n");
 		}
 		postHookExecutionCommand(buffer);
 		buffer.append("end;\n");
@@ -146,11 +149,26 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 			}
 			parameterIndex++;
 		}
+		String returnArgument = getReturnArgument();
+		boolean isProcedure = returnArgument.equals("void");
+		if(!isProcedure) {
+			sqlType = getSQLTypes(returnArgument);
+			if(sqlType == Types.STRUCT) {
+				String returnTypeSQL = wrapper.getReturnType().getSqlTypeName();
+				((CallableStatement) callableStatement).registerOutParameter(parameterIndex, sqlType, returnTypeSQL);
+			} else
+				((CallableStatement) callableStatement).registerOutParameter(parameterIndex, sqlType);
+		}
 	}
 
 	@Override
 	public void loadValues(JavaExecutionResult executionResult, DBNPreparedStatement<?> preparedStatement) throws SQLException {
-
+		if (preparedStatement instanceof CallableStatement) {
+			int outputIndex = getArgumentsCount() + 1;
+			CallableStatement callableStatement = (CallableStatement) preparedStatement;
+			Object result = getResult(callableStatement, outputIndex);
+			executionResult.addArgumentValue(getReturnArgument(), result);
+		}
 	}
 
 	@SneakyThrows
@@ -211,7 +229,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
 	@Nullable
 	private Object parseValue(JavaExecutionInput executionInput, Wrapper wrapper, DBJavaField field, String fieldPath, String fieldValue) {
-		if (fieldValue == null) return null;
+		if (field == null) return null;
 
 		switch(field.getJavaClassName()){
 			case "int": return Integer.parseInt(fieldValue);
@@ -221,12 +239,49 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 			case "short": return Short.parseShort(fieldValue);
 			case "long": return Long.parseLong(fieldValue);
 			case "boolean": return Boolean.parseBoolean(fieldValue);
-			case "class":
-				DBJavaClass javaClass = field.getJavaClass();
-				int typeIndex = wrapper.getSqlTypeIndex(javaClass.getCanonicalName(), field.getArrayDepth());
-				String innerObjectName = WrapperBuilder.DBN_TYPE_SUFFIX + typeIndex;
-				return getStructObject(executionInput, javaClass.getFields(), wrapper, innerObjectName, fieldPath);
-			default:return fieldValue;
+			default:
+				if(field.isClass()) {
+					DBJavaClass javaClass = field.getJavaClass();
+					int typeIndex = wrapper.getSqlTypeIndex(javaClass.getCanonicalName(), field.getArrayDepth());
+					String innerObjectName = WrapperBuilder.DBN_TYPE_SUFFIX + typeIndex;
+					return getStructObject(executionInput, javaClass.getFields(), wrapper, innerObjectName, fieldPath);
+				}
+				return fieldValue;
+		}
+	}
+
+	private int getSQLTypes(String javaType) {
+		switch (javaType) {
+			case "int" : return Types.INTEGER;
+			case "float" : return Types.FLOAT;
+			case "double": return Types.DOUBLE;
+			case "boolean": return Types.BIT;
+			case "byte": return Types.TINYINT;
+			case "short": return Types.SMALLINT;
+			case "long": return Types.BIGINT;
+			case "char": return Types.CHAR;
+			case "String":
+			case "java/lang/String":
+			case "java.lang.String": return Types.VARCHAR;
+			case "java.math.BigDecimal": return Types.DECIMAL;
+			case "java.math.BigInteger": return Types.BIGINT;
+			default: return Types.STRUCT;
+		}
+	}
+
+	private Object getResult(CallableStatement callableStatement, int outputIndex) throws SQLException {
+		switch (sqlType) {
+			case Types.INTEGER: return callableStatement.getInt(outputIndex);
+			case Types.FLOAT: return callableStatement.getFloat(outputIndex);
+			case Types.DOUBLE: return callableStatement.getDouble(outputIndex);
+			case Types.BIT: return callableStatement.getBoolean(outputIndex);
+			case Types.TINYINT: return callableStatement.getByte(outputIndex);
+			case Types.SMALLINT: return callableStatement.getShort(outputIndex);
+			case Types.BIGINT: return callableStatement.getLong(outputIndex);
+			case Types.CHAR: return callableStatement.getString(outputIndex).charAt(0);
+			case Types.VARCHAR: return callableStatement.getString(outputIndex);
+			case Types.DECIMAL: return callableStatement.getBigDecimal(outputIndex);
+			default: return callableStatement.getObject(outputIndex);
 		}
 	}
 }

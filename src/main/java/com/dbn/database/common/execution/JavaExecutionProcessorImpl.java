@@ -49,7 +49,6 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -87,7 +86,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 	public List<DBJavaParameter> getArguments() {
 		DBJavaMethod method = getMethod();
-		List<DBJavaParameter> parameter = method.getParameters();
+		List<DBJavaParameter> parameter = new ArrayList<> (method.getParameters());
 		parameter.sort(Comparator.comparingInt(DBOrderedObject::getPosition));
 		return parameter;
 	}
@@ -147,7 +146,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		setProgressDetail("Initializing java execution environment");
 		initCreateWrapperCommand(context);
 		initTimeout(context);
-		execute(context);
+		execute(context, false);
 	}
 
 	private void triggerExecution(JavaExecutionContext context) throws SQLException {
@@ -157,7 +156,12 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		initLogging(context);
 		initTimeout(context);
 		initParameters(context);
-		execute(context);
+		if (isQuery()) {
+			boolean hasReturnType = isReturnType();
+			execute(context, hasReturnType);
+		} else {
+			execute(context, false);
+		}
 	}
 
 	private void releaseExecutionWrappers(JavaExecutionContext context) {
@@ -166,7 +170,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 			setProgressDetail("Releasing java execution environment");
 			initDropWrapperCommand(context);
 			initTimeout(context);
-			execute(context);
+			execute(context, false);
 		} catch (ProcessCanceledException e) {
 			conditionallyLog(e);
 		} catch (Throwable t) {
@@ -443,7 +447,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		return generateCode("DBN - OJVM SQLWrapper.sql", properties);
 	}
 
-	private void initCreateWrapperCommand(JavaExecutionContext context) throws SQLException {
+	private void initCreateWrapperCommand(JavaExecutionContext context) {
 		Wrapper wrapper = context.getWrapper();
 		List<String> sqlTypes = createSQLTypes(wrapper);
 		String javaCode = createJavaWrapper(wrapper);
@@ -468,7 +472,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		context.setStatement(statement);
 	}
 
-	private void initDropWrapperCommand(JavaExecutionContext context) throws SQLException {
+	private void initDropWrapperCommand(JavaExecutionContext context) {
 		Wrapper wrapper = context.getWrapper();
 		Properties properties = new Properties();
 		DBNConnection conn = context.getConnection();
@@ -514,7 +518,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		context.setLogging(logging);
 	}
 
-	private void initParameters(JavaExecutionContext context) throws SQLException {
+	private void initParameters(JavaExecutionContext context) {
 		if (!isQuery()) return;
 
 		Wrapper wrapper = context.getWrapper();
@@ -535,7 +539,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 	}
 
-	private void execute(JavaExecutionContext context) throws SQLException {
+	private void execute(JavaExecutionContext context, boolean catchResult) throws SQLException {
 		ConnectionHandler connection = nd(context.getTargetConnection());
 		DBNConnection conn = context.getConnection();
 
@@ -547,7 +551,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 			@Override
 			public JavaExecutionResult execute() throws SQLException {
-				return executeStatement(context, getConnection());
+				return executeStatement(context, getConnection(), catchResult);
 			}
 
 			@Override
@@ -563,14 +567,15 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 	}
 
 	@Nullable
-	private JavaExecutionResult executeStatement(JavaExecutionContext context, ConnectionHandler connection) throws SQLException {
+	private JavaExecutionResult executeStatement(JavaExecutionContext context, ConnectionHandler connection, boolean catchResult) throws SQLException {
 		DBNPreparedStatement<?> statement = context.getStatement();
 		statement.execute();
 
 		JavaExecutionInput executionInput = context.getInput();
 		JavaExecutionResult executionResult = executionInput.getExecutionResult();
 		if (executionResult != null) {
-			loadValues(executionResult, statement);
+			if(catchResult)
+				loadValues(executionResult, statement);
 			executionResult.calculateExecDuration();
 
 			if (context.isLogging()) {
@@ -588,7 +593,11 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 	}
 
 	protected boolean isQuery() {
-		return getArgumentsCount() > 0;
+		return getArgumentsCount() > 0 || isReturnType();
+	}
+
+	private boolean isReturnType(){
+		return !getMethod().getSignature().split(":")[1].trim().equals("void");
 	}
 
 	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement preparedStatement, Wrapper wrapper) {
@@ -596,13 +605,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 	}
 
 	public void loadValues(JavaExecutionResult executionResult, DBNPreparedStatement<?> preparedStatement) throws SQLException {
-		for (DBJavaParameter argument : getArguments()) {
-			if (preparedStatement instanceof CallableStatement) {
-				CallableStatement callableStatement = (CallableStatement) preparedStatement;
-				Object result = callableStatement.getObject(argument.getPosition());
-				executionResult.addArgumentValue(argument, result);
-			}
-		}
+
 	}
 
 	private Project getProject() {

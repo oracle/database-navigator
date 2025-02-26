@@ -22,19 +22,19 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.ExecutionResultBase;
 import com.dbn.execution.common.input.ExecutionValue;
 import com.dbn.execution.common.input.ValueHolder;
-import com.dbn.execution.common.options.ExecutionEngineSettings;
 import com.dbn.execution.java.JavaExecutionContext;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.ui.JavaExecutionResultForm;
 import com.dbn.language.common.DBLanguagePsiFile;
+import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
+import com.dbn.object.DBOrderedObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -44,8 +44,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.sql.SQLException;
+import java.sql.Struct;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -69,20 +70,29 @@ public class JavaExecutionResult extends ExecutionResultBase<JavaExecutionResult
         this.executionDuration = (int) (System.currentTimeMillis() - getExecutionContext().getExecutionTimestamp());
     }
 
-    public void addArgumentValue(DBJavaParameter parameter, Object value) throws SQLException {
-        ValueHolder<Object> valueStore = ValueHolder.basic(value);
-        ExecutionValue fieldValue = new ExecutionValue(parameter.getName(), valueStore);
-        fieldValues.add(fieldValue);
-        if (value instanceof DBNResultSet) {
-            DBNResultSet resultSet = (DBNResultSet) value;
-            if (cursorModels == null) {
-                cursorModels = new HashMap<>();
+    private void addComplexArgumentValues(String parentName, List<DBJavaField> parameter, Struct value) throws SQLException {
+        Object[] returnObjects = value.getAttributes();
+        for (int i=0; i < returnObjects.length; i++){
+            Object returnObject = returnObjects[i];
+            if(returnObject instanceof Struct){
+                List<DBJavaField> fields = parameter.get(i).getJavaClass().getFields();
+                fields.sort(Comparator.comparingInt(DBOrderedObject::getPosition));
+                addComplexArgumentValues(parentName + "." + parameter.get(i).getName(), fields, (java.sql.Struct) returnObject);
+            } else {
+                addArgumentValue(parentName + "." + parameter.get(i).getName(), returnObject);
             }
+        }
+    }
 
-            ExecutionEngineSettings settings = ExecutionEngineSettings.getInstance(parameter.getProject());
-            int maxRecords = settings.getStatementExecutionSettings().getResultSetFetchBlockSize();
-            ResultSetDataModel dataModel = new ResultSetDataModel(resultSet, getConnection(), maxRecords);
-            cursorModels.put(DBObjectRef.of(parameter), dataModel);
+    public void addArgumentValue(String parameter, Object value) throws SQLException {
+        ValueHolder<Object> valueStore = ValueHolder.basic(value);
+        if(value instanceof Struct) {
+            List<DBJavaField> fields = getMethod().getReturnClass().getFields();
+            fields.sort(Comparator.comparingInt(DBOrderedObject::getPosition));
+            addComplexArgumentValues("", fields, (java.sql.Struct) value);
+        } else {
+            ExecutionValue fieldValue = new ExecutionValue(parameter, valueStore);
+            fieldValues.add(fieldValue);
         }
     }
 

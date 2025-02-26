@@ -73,7 +73,9 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
     public JavaExecutionResultForm(@NotNull JavaExecutionResult executionResult) {
         super(executionResult);
         List<ExecutionValue> fieldValues = getInputValues();
-        argumentValuesTree = new ArgumentValuesTree(this, fieldValues);
+        List<ExecutionValue> outputValues = executionResult.getFieldValues();
+
+        argumentValuesTree = new ArgumentValuesTree(this, fieldValues, outputValues);
         argumentValuesScrollPane.setViewportView(argumentValuesTree);
 
 
@@ -112,7 +114,7 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
         List<ExecutionValue> outputFieldValues = executionResult.getFieldValues();
 
         DBJavaMethod method = executionResult.getMethod();
-        ArgumentValuesTreeModel treeModel = new ArgumentValuesTreeModel(method, inputFieldValues);
+        ArgumentValuesTreeModel treeModel = new ArgumentValuesTreeModel(method, inputFieldValues, outputFieldValues);
         argumentValuesTree.setModel(treeModel);
         TreeUtil.expand(argumentValuesTree, 2);
     }

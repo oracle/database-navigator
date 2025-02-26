@@ -33,11 +33,45 @@ import java.util.List;
 public class ArgumentValuesTreeModel implements TreeModel {
     private final ArgumentValuesTreeNode root;
 
-    ArgumentValuesTreeModel(DBJavaMethod method, List<ExecutionValue> inputValues) {
+    ArgumentValuesTreeModel(DBJavaMethod method, List<ExecutionValue> inputValues, List<ExecutionValue> outputValues) {
         root = new ArgumentValuesTreeNode(null, method.ref(), null);
         ArgumentValuesTreeNode inputNode = new ArgumentValuesTreeNode(root, null, "Input");
         ArgumentValuesTreeNode outputNode = new ArgumentValuesTreeNode(root, null, "Output");
         createArgumentValueNodes(method, inputNode, inputValues);
+        createOutputValuesNodes(method, outputNode, outputValues);
+    }
+
+    private static void createOutputValuesNodes(DBJavaMethod method, ArgumentValuesTreeNode parentNode, List<ExecutionValue> outputValues) {
+        boolean isVoidReturnType = method.getSignature().split(": ")[1].equals("void");
+        if(isVoidReturnType) return;
+
+        DBJavaClass returnClass = method.getReturnClass();
+        ArgumentValuesTreeNode argumentNode;
+        if(returnClass == null || returnClass.getName().equals("java/lang/String")){
+            argumentNode = new ArgumentValuesTreeNode(parentNode, null, outputValues.get(0));
+        } else {
+            argumentNode = new ArgumentValuesTreeNode(parentNode, returnClass.ref(), null);
+        }
+
+        for (ExecutionValue fieldValue : outputValues) {
+
+            String[] tokens = fieldValue.getPath().split("\\.");
+
+            for (int i = 1; i < tokens.length; i++) {
+                if (returnClass == null) break;
+                DBJavaField field = getField(returnClass, tokens[i]);
+                if(field == null) continue;
+
+                ArgumentValuesTreeNode childNode = argumentNode.initChild(field);
+                childNode.setUserValue(fieldValue);
+                DBJavaClass childReturnClass = field.getJavaClass();
+                if(childReturnClass != null) { // it is complex field
+                    childNode.setUserValue(null);
+                    argumentNode = childNode;
+                    returnClass = childReturnClass;
+                }
+            }
+        }
     }
 
     private static void createArgumentValueNodes(DBJavaMethod method, ArgumentValuesTreeNode parentNode, List<ExecutionValue> inputValues) {
@@ -50,12 +84,25 @@ public class ArgumentValuesTreeModel implements TreeModel {
 
             for (int i = 1; i < tokens.length; i++) {
                 if (argumentClass == null) break;
-                DBJavaField field = argumentClass.getField(tokens[i]);
+                DBJavaField field = getField(argumentClass, tokens[i]);
                 argumentNode = argumentNode.initChild(field);
                 argumentClass = field.getJavaClass();
             }
             argumentNode.setUserValue(fieldValue);
         }
+    }
+
+    private static DBJavaField getField(DBJavaClass dbJavaClass, String fieldName){
+        DBJavaField field = dbJavaClass.getField(fieldName);
+        if(field == null){
+            // TODO check why field is null
+            List<DBJavaField> fields =  dbJavaClass.getFields();
+            for(DBJavaField field1: fields){
+                if(field1.getName().equals(fieldName))
+                    field = field1;
+            }
+        }
+        return field;
     }
 
     @Override

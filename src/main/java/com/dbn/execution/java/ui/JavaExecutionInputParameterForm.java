@@ -49,6 +49,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.nd;
@@ -126,6 +127,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 
 		verticalBoxLayout(fieldsPanel);
 		List<DBJavaField> fields = javaClass.getFields();
+		fields.sort(Comparator.comparingInt(DBJavaField::getIndex));
 		fields.forEach(f -> addFieldPanel(f));
 	}
 
