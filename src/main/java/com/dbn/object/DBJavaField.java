@@ -31,8 +31,6 @@ public interface DBJavaField extends DBOrderedObject {
 
 	boolean isPlainValue();
 
-	short getIndex();
-
 	DBJavaAccessibility getAccessibility();
 
 	boolean isFinal();

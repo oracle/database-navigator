@@ -38,13 +38,15 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.sql.Array;
-import java.sql.Connection;
 import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.Comparator;
 import java.util.List;
+
+import static com.dbn.common.util.Lists.sortedCopy;
+import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 
 public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
@@ -178,7 +180,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		SchemaId targetSchemaId = executionInput.getTargetSchemaId();
 		DBNConnection conn = connection.getConnection(targetSessionId, targetSchemaId);
 
-		fields.sort(Comparator.comparingInt(DBJavaField::getIndex));
+		fields = sortedCopy(fields, POSITION_COMPARATOR);
 		Object[] customTypeAttributes = new Object[fields.size()];
 		int i = 0;
 		for (DBJavaField field : fields) {
@@ -207,7 +209,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		SchemaId targetSchemaId = executionInput.getTargetSchemaId();
 		DBNConnection conn = connection.getConnection(targetSessionId, targetSchemaId);
 
-		fields.sort(Comparator.comparingInt(DBJavaField::getIndex));
+		fields = sortedCopy(fields, POSITION_COMPARATOR);
 		Object[] customTypeAttributes = new Object[fields.size()];
 		int i = 0;
 		for (DBJavaField field : fields) {

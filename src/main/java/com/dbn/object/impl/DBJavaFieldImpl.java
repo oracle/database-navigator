@@ -50,7 +50,7 @@ import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 
 @Getter
 public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implements DBJavaField {
-	private short index;
+	private short position;
 	private short arrayDepth;
 	private DBObjectRef<DBJavaClass> javaClass;
 	private DBJavaAccessibility accessibility;
@@ -66,7 +66,7 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 
 	@Override
 	protected String initObject(ConnectionHandler connection, DBObject parentObject, DBJavaFieldMetadata metadata) throws SQLException {
-		index = metadata.getFieldIndex();
+		position = metadata.getFieldIndex();
 		arrayDepth = metadata.getArrayDepth();
 
 		String fieldClassName = metadata.getFieldClassName();
@@ -86,7 +86,7 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 
 	@Override
 	public short getPosition() {
-		return index;
+		return position;
 	}
 
 	@Override

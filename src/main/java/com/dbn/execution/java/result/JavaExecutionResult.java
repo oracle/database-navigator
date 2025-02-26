@@ -34,7 +34,6 @@ import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
-import com.dbn.object.DBOrderedObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -46,9 +45,11 @@ import javax.swing.Icon;
 import java.sql.SQLException;
 import java.sql.Struct;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+
+import static com.dbn.common.util.Lists.sortedCopy;
+import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 
 @Getter
 @Setter
@@ -76,7 +77,7 @@ public class JavaExecutionResult extends ExecutionResultBase<JavaExecutionResult
             Object returnObject = returnObjects[i];
             if(returnObject instanceof Struct){
                 List<DBJavaField> fields = parameter.get(i).getJavaClass().getFields();
-                fields.sort(Comparator.comparingInt(DBOrderedObject::getPosition));
+                fields = sortedCopy(fields, POSITION_COMPARATOR);
                 addComplexArgumentValues(parentName + "." + parameter.get(i).getName(), fields, (java.sql.Struct) returnObject);
             } else {
                 addArgumentValue(parentName + "." + parameter.get(i).getName(), returnObject);
@@ -88,7 +89,7 @@ public class JavaExecutionResult extends ExecutionResultBase<JavaExecutionResult
         ValueHolder<Object> valueStore = ValueHolder.basic(value);
         if(value instanceof Struct) {
             List<DBJavaField> fields = getMethod().getReturnClass().getFields();
-            fields.sort(Comparator.comparingInt(DBOrderedObject::getPosition));
+            fields = sortedCopy(fields, POSITION_COMPARATOR);
             addComplexArgumentValues("", fields, (java.sql.Struct) value);
         } else {
             ExecutionValue fieldValue = new ExecutionValue(parameter, valueStore);

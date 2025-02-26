@@ -22,19 +22,19 @@ import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
-import com.dbn.object.DBOrderedObject;
 import com.dbn.object.lookup.DBObjectRef;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Comparator;
 import java.util.List;
 
 import static com.dbn.common.util.Java.isVoid;
+import static com.dbn.common.util.Lists.sortedCopy;
 import static com.dbn.execution.java.wrapper.TypeMappings.getSqlType;
 import static com.dbn.execution.java.wrapper.TypeMappings.isSupportedType;
 import static com.dbn.execution.java.wrapper.TypeMappings.isUnsupportedType;
+import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static com.dbn.object.type.DBJavaValueType.isPseudoPrimitive;
 
@@ -138,7 +138,7 @@ public final class WrapperBuilder {
 		}
 
 		// Sort by position to ensure correct order
-		parameters.sort(Comparator.comparingInt(DBOrderedObject::getPosition));
+		parameters = sortedCopy(parameters, POSITION_COMPARATOR);
 
 		// Create a Wrapper.MethodAttribute for each parameter
 		for (DBJavaParameter parameter : parameters) {
@@ -508,7 +508,7 @@ public final class WrapperBuilder {
 		}
 
 		// Basic field setup
-		field.setFieldIndex(javaField.getIndex());
+		field.setFieldIndex(javaField.getPosition());
 		field.setName(javaField.getName());
 		if(javaField.getAccessibility() != null)
 			field.setAccessModifier(javaField.getAccessibility().toString());

@@ -40,7 +40,6 @@ import com.dbn.execution.java.wrapper.Wrapper.MethodAttribute;
 import com.dbn.execution.logging.DatabaseLoggingManager;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
-import com.dbn.object.DBOrderedObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
@@ -65,9 +64,11 @@ import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
+import static com.dbn.common.util.Lists.sortedCopy;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.execution.java.wrapper.TypeMappings.getSqlType;
 import static com.dbn.execution.java.wrapper.WrapperBuilder.DBN_TYPE_SUFFIX;
+import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 
 @Slf4j
 public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcessor {
@@ -86,9 +87,9 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 	public List<DBJavaParameter> getArguments() {
 		DBJavaMethod method = getMethod();
-		List<DBJavaParameter> parameter = new ArrayList<> (method.getParameters());
-		parameter.sort(Comparator.comparingInt(DBOrderedObject::getPosition));
-		return parameter;
+		List<DBJavaParameter> parameters = method.getParameters();
+		parameters = sortedCopy(parameters, POSITION_COMPARATOR);
+		return parameters;
 	}
 
 	protected int getArgumentsCount() {
