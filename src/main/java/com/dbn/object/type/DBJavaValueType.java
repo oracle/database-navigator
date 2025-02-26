@@ -19,6 +19,7 @@ package com.dbn.object.type;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -50,6 +51,7 @@ public final class DBJavaValueType {
             String.class,
             Number.class,
             BigDecimal.class,
+            BigInteger.class,
 
             AtomicBoolean.class,
             AtomicInteger.class,

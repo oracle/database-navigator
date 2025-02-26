@@ -29,7 +29,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static com.dbn.common.util.Java.isVoid;
 import static com.dbn.common.util.Lists.sortedCopy;
 import static com.dbn.execution.java.wrapper.TypeMappings.getSqlType;
 import static com.dbn.execution.java.wrapper.TypeMappings.isSupportedType;
@@ -118,7 +117,8 @@ public final class WrapperBuilder {
 	private void setMethodMetadata(DBJavaMethod javaMethod, Wrapper wrapper) {
 		String methodName = javaMethod.getName().split("#")[0];
 		wrapper.setWrappedJavaMethodName(methodName);
-		wrapper.setFullyQualifiedClassName(getCanonicalName(javaMethod.getOwnerClassName()));
+		DBObjectRef<DBJavaClass> ownerClass = javaMethod.getOwnerClassRef();
+		wrapper.setFullyQualifiedClassName(getCanonicalName(ownerClass));
 		// Replace "void" return in the signature with a more readable style, if present.
 
 		String javaMethodSignature = javaMethod.getSignature().replace(": void", "").replace(":", " return");
@@ -159,10 +159,9 @@ public final class WrapperBuilder {
 			DBJavaMethod javaMethod,
 			Wrapper wrapper,
 			WrapperBuilderContext context) {
-		DBObjectRef<DBJavaClass> returnClass = javaMethod.getReturnClassRef();
-		String returnClassName = getCanonicalName(returnClass.getObjectName());
-        if (isVoid(returnClassName)) return;
+        if (javaMethod.isReturningVoid()) return;
 
+		DBObjectRef<DBJavaClass> returnClass = javaMethod.getReturnClassRef();
         Wrapper.MethodAttribute returnAttr = createMethodAttribute(
                 returnClass,
                 javaMethod.getReturnArrayDepth(),
@@ -184,7 +183,7 @@ public final class WrapperBuilder {
 			Wrapper wrapper) {
 
 		// If non-array and we have a direct mapping -> simple attribute
-		String className = getCanonicalName(javaClass.getObjectName());
+		String className = getCanonicalName(javaClass);
 		if (arrayDepth == 0 && isSupportedType(className)) {
 			return buildSimpleMethodAttribute(className);
 		}
@@ -485,7 +484,7 @@ public final class WrapperBuilder {
 			// If it's a primitive or directly supported type, add to the SQL type
 			SqlType sqlType = getSqlType(field.getType());
 			if (sqlType != null && javaField.getArrayDepth() <= 0) {
-				sqlComplexType.addField(field.getName(), sqlType.getSqlTypeName(), field.getFieldIndex());
+				sqlComplexType.addField(field.getName(), sqlType.getSqlTypeName() + sqlType.getDeclarationSuffix(), field.getFieldIndex());
 			} else {
 				// It's a nested complex field
 				handleNestedField(field, javaField, attributeDirection, sqlComplexType,
@@ -501,7 +500,7 @@ public final class WrapperBuilder {
 		JavaComplexType.Field field = new JavaComplexType.Field();
 
 		// Get the raw field type in string form
-		String fieldJavaClassName = getCanonicalName(javaField.getJavaClassName());
+		String fieldJavaClassName = getCanonicalName(javaField.getJavaClassRef());
 
 		if (isUnsupportedType(fieldJavaClassName)) {
 			log.error("Encountered unsupported type for field {}: {}", javaField, fieldJavaClassName);
@@ -604,13 +603,5 @@ public final class WrapperBuilder {
 			this.className = className;
 			this.arrayLength = arrayLength;
 		}
-	}
-
-	public static String getCanonicalPath(DBJavaClass javaClass) {
-		// avoid accessing java class-name cache with fully qualified java path
-
-		// TODO verify if execution on foreign schema is allowed
-		//return javaClass.getSchemaName() + "." + getCanonicalName(javaClass.getName());
-		return getCanonicalName(javaClass.getName());
 	}
 }

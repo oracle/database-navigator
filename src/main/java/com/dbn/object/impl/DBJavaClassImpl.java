@@ -144,12 +144,12 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 
 	@Override
 	public String getCanonicalName() {
-		return DBJavaNameCache.getCanonicalName(getName());
+		return DBJavaNameCache.getCanonicalName(ref());
 	}
 
 	@Override
 	public String getSimpleName() {
-		return DBJavaNameCache.getSimpleName(getName());
+		return DBJavaNameCache.getSimpleName(ref());
 	}
 
 	@Override

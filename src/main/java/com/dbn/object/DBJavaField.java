@@ -47,8 +47,6 @@ public interface DBJavaField extends DBOrderedObject {
 
 	DBJavaClass getOwnerClass();
 
-	String getOwnerClassName();
-
 	@Nullable
 	DBJavaValueType getValueType();
 

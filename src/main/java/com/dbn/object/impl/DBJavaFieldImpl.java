@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.dbn.common.dispose.Failsafe.nd;
-import static com.dbn.common.util.Java.isVoid;
 import static com.dbn.common.util.Strings.capitalize;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.PRIMITIVE;
@@ -100,11 +99,6 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 	@Override
 	public DBJavaClass getOwnerClass() {
 		return getParentObject();
-	}
-
-	@Override
-	public String getOwnerClassName() {
-		return getOwnerClass().getName();
 	}
 
 	@Override
@@ -184,7 +178,7 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 			methodName = methodName.split("#")[0];
 
 			if (!Objects.equals(methodName, setterName)) continue;
-			if (!isVoid(method.getReturnClassName())) continue;
+			if (!method.isReturningVoid()) continue;
 			// TODO
 			List<DBJavaParameter> parameters = method.getParameters();
 			if (parameters.size() != 1) continue;

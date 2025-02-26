@@ -37,6 +37,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -46,7 +48,9 @@ import java.sql.Types;
 import java.util.List;
 
 import static com.dbn.common.util.Lists.sortedCopy;
+import static com.dbn.common.util.Strings.firstCharacter;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
+import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
 public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
@@ -133,7 +137,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 				callableStatement.setObject(parameterIndex, structObj);
 
 			} else {
-				String clazz = parameter.getJavaClassName();
+				String clazz = parameter.getJavaClassRef().getObjectName();
 				String value = executionInput.getInputValue(parameterName);
 				if (value == null) callableStatement.setObject(parameterIndex, null);
 				else if (clazz.equals("String")) callableStatement.setString(parameterIndex, value);
@@ -233,16 +237,35 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	private Object parseValue(JavaExecutionInput executionInput, Wrapper wrapper, DBJavaField field, String fieldPath, String fieldValue) {
 		if (field == null) return null;
 
-		switch(field.getJavaClassName()){
-			case "int": return Integer.parseInt(fieldValue);
-			case "float": return Float.parseFloat(fieldValue);
-			case "double": return Double.parseDouble(fieldValue);
-			case "byte": return Byte.parseByte(fieldValue);
-			case "short": return Short.parseShort(fieldValue);
-			case "long": return Long.parseLong(fieldValue);
+		String className = getCanonicalName(field.getJavaClassRef());
+
+		// TODO isolate this logic and safely handle null fieldValue
+		switch (className) {
+			// primitives
 			case "boolean": return Boolean.parseBoolean(fieldValue);
+			case "byte": return Byte.parseByte(fieldValue);
+			case "char": return firstCharacter(fieldValue);
+			case "double": return Double.parseDouble(fieldValue);
+			case "float": return Float.parseFloat(fieldValue);
+			case "int": return Integer.parseInt(fieldValue);
+			case "long": return Long.parseLong(fieldValue);
+			case "short": return Short.parseShort(fieldValue);
+
+			// pseudo-primitives (prevent expensive class-details load from SYS schema)
+			case "java.lang.Boolean": return Boolean.parseBoolean(fieldValue);
+			case "java.lang.Byte": return Byte.parseByte(fieldValue);
+			case "java.lang.Character": firstCharacter(fieldValue);
+			case "java.lang.Double": return Double.parseDouble(fieldValue);
+			case "java.lang.Float": return Float.parseFloat(fieldValue);
+			case "java.lang.Integer": return Integer.parseInt(fieldValue);
+			case "java.lang.Long": return Long.parseLong(fieldValue);
+			case "java.lang.Short": return Short.parseShort(fieldValue);
+			case "java.lang.String": return fieldValue;
+			case "java.math.BigDecimal": return new BigDecimal(fieldValue);
+			case "java.math.BigInteger": return new BigInteger(fieldValue);
+			//...
 			default:
-				if(field.isClass()) {
+				if (field.isClass()) {
 					DBJavaClass javaClass = field.getJavaClass();
 					int typeIndex = wrapper.getSqlTypeIndex(javaClass.getCanonicalName(), field.getArrayDepth());
 					String innerObjectName = WrapperBuilder.DBN_TYPE_SUFFIX + typeIndex;

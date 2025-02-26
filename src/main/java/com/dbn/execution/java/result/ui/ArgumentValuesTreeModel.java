@@ -42,8 +42,7 @@ public class ArgumentValuesTreeModel implements TreeModel {
     }
 
     private static void createOutputValuesNodes(DBJavaMethod method, ArgumentValuesTreeNode parentNode, List<ExecutionValue> outputValues) {
-        boolean isVoidReturnType = method.getSignature().split(": ")[1].equals("void");
-        if(isVoidReturnType) return;
+        if(method.isReturningVoid()) return;
 
         DBJavaClass returnClass = method.getReturnClass();
         ArgumentValuesTreeNode argumentNode;

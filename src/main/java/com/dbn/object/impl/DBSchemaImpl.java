@@ -181,10 +181,10 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(TYPE_ATTRIBUTE,    this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(TYPE_FUNCTION,     this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(TYPE_PROCEDURE,    this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(JAVA_INNER_CLASS,  this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(JAVA_FIELD,        this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(JAVA_METHOD,       this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(JAVA_PARAMETER,    this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(JAVA_INNER_CLASS,  this, INTERNAL, GROUPED);
         childObjects.createObjectList(ARGUMENT,          this, INTERNAL, GROUPED, HIDDEN);
 
         //ol.createHiddenObjectList(DBObjectType.TYPE_METHOD, this, TYPE_METHODS_LOADER);
@@ -248,10 +248,16 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     public <T extends DBObject> T  getChildObject(DBObjectType type, String name, short overload, boolean lookupHidden) {
         if (type != ANY && !type.isSchemaObject()) return null;
 
-        DBObject object = super.getChildObject(type, name, overload, lookupHidden);
-        if (object == null && type == JAVA_CLASS) {
-            object = super.getChildObject(JAVA_INNER_CLASS, name, overload, lookupHidden);
+        DBObject object;
+        if (type == JAVA_CLASS) {
+            object = coalesce(
+                    () -> super.getChildObject(JAVA_CLASS, name, overload, lookupHidden),
+                    () -> super.getChildObject(JAVA_PRIMITIVE, name, overload, lookupHidden),
+                    () -> super.getChildObject(JAVA_INNER_CLASS, name, overload, lookupHidden));
+        } else {
+            object = super.getChildObject(type, name, overload, lookupHidden);
         }
+
         if (object == null && type != SYNONYM) {
             DBSynonym synonym = super.getChildObject(SYNONYM, name, overload, lookupHidden);
             if (synonym != null) {

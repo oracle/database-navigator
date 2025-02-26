@@ -129,11 +129,6 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 	}
 
 	@Override
-	public String getJavaClassName() {
-		return javaClass.getObjectName();
-	}
-
-	@Override
 	public short getPosition() {
 		return position;
 	}

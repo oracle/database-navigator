@@ -84,7 +84,7 @@ public class JavaExecutionLargeValueResultForm extends DBNFormBase {
         text = Strings.removeCharacter(nvl(text, ""), '\r');
         Document document = Documents.createDocument(text);
 
-        contentType = TextContentType.get(project, getCanonicalName(parameter.getJavaClassName()));
+        contentType = TextContentType.get(project, getCanonicalName(parameter.getJavaClassRef()));
 
         if (contentType == null) contentType = TextContentType.getPlainText(project);
 

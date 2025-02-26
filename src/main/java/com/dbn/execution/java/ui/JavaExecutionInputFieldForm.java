@@ -125,12 +125,13 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 	private void initPlainField() {
 		DBJavaField field = getField();
 
-		String javaClassName = field.getJavaClassName();
 		if (field.isClass()) {
-			String className = getCanonicalName(javaClassName);
+			DBObjectRef<DBJavaClass> javaClass = field.getJavaClassRef();
+			String className = getCanonicalName(javaClass);
 			fieldTypeLabel.setText(className);
 			fieldTypeLabel.setIcon(/*field.getFieldClass().getIcon()*/Icons.DBO_JAVA_CLASS); // TODO do not force loading the field class
 		} else {
+			String javaClassName = field.getJavaClassName();
 			fieldTypeLabel.setText(javaClassName);
 		}
 
@@ -155,13 +156,13 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 
 	private void initClassField() {
 		DBJavaField field = getField();
-		String className = field.getJavaClassName();
+		DBObjectRef<DBJavaClass> fieldClass = field.getJavaClassRef();
 
 		DBJavaClass javaClass = field.getJavaClass();
 		fieldTypeLabel.setText("");
 		fieldTypeLabel.setVisible(false);
 
-		JLabel classLabel = new JLabel(getCanonicalName(className));
+		JLabel classLabel = new JLabel(getCanonicalName(fieldClass));
 		classLabel.setIcon(javaClass == null ? Icons.DBO_JAVA_CLASS : javaClass.getIcon());
 		classLabel.setForeground(UIUtil.getInactiveTextColor());
 		inputFieldPanel.add(classLabel, BorderLayout.WEST);

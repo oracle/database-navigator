@@ -98,7 +98,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 	protected String getReturnArgument() {
 		DBJavaMethod method = getMethod();
-		return method.getReturnClassName();
+		return method.getReturnClassRef().getObjectName();
 	}
 
 
