@@ -58,13 +58,13 @@ public class JavaExecutionLargeValueResultForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel largeValuePanel;
 
-    private final DBObjectRef<DBJavaParameter> argument;
+    private final DBObjectRef<DBJavaParameter> parameter;
     private EditorEx editor;
     private TextContentType contentType;
 
-    JavaExecutionLargeValueResultForm(JavaExecutionResultForm parent, DBJavaParameter argument, ExecutionValue fieldValue) {
+    JavaExecutionLargeValueResultForm(JavaExecutionResultForm parent, DBJavaParameter parameter, ExecutionValue fieldValue) {
         super(parent);
-        this.argument = DBObjectRef.of(argument);
+        this.parameter = DBObjectRef.of(parameter);
 
         String text = "";
         Project project = getProject();
@@ -75,7 +75,7 @@ public class JavaExecutionLargeValueResultForm extends DBNFormBase {
                 text = largeObjectValue.read();
             } catch (SQLException e) {
                 conditionallyLog(e);
-                Messages.showWarningDialog(project, "Load error", "Could not load value for argument " + argument.getName() + ". Cause: " + e.getMessage());
+                Messages.showWarningDialog(project, "Load error", "Could not load value for parameter " + parameter.getName() + ". Cause: " + e.getMessage());
             }
         } else if (value instanceof String) {
             text = (String) value;
@@ -84,7 +84,7 @@ public class JavaExecutionLargeValueResultForm extends DBNFormBase {
         text = Strings.removeCharacter(nvl(text, ""), '\r');
         Document document = Documents.createDocument(text);
 
-        contentType = TextContentType.get(project, getCanonicalName(argument.getJavaClassName()));
+        contentType = TextContentType.get(project, getCanonicalName(parameter.getJavaClassName()));
 
         if (contentType == null) contentType = TextContentType.getPlainText(project);
 
@@ -113,8 +113,8 @@ public class JavaExecutionLargeValueResultForm extends DBNFormBase {
         Editors.initEditorHighlighter(editor, contentType);
     }
 
-    public DBJavaParameter getArgument() {
-        return argument.get();
+    public DBJavaParameter getParameter() {
+        return parameter.get();
     }
 
     @NotNull
