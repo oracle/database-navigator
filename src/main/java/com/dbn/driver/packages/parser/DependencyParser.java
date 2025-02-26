@@ -103,7 +103,6 @@ public class DependencyParser {
         // Add required services
         locator.addService(TransporterFactory.class, CustomTransporterFactory.class);
         locator.addService(LocalRepositoryManagerFactory.class, org.eclipse.aether.internal.impl.SimpleLocalRepositoryManagerFactory.class);
-        locator.addService(org.eclipse.aether.spi.connector.RepositoryConnectorFactory.class, org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory.class);
 
         locator.setErrorHandler(new DefaultServiceLocator.ErrorHandler() {
             @Override
@@ -120,6 +119,7 @@ public class DependencyParser {
         DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
         LocalRepository localRepo = new LocalRepository("target/local-repo");
         session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
+        session.setSystemProperty("java.version", System.getProperty("java.version"));
         return session;
     }
 

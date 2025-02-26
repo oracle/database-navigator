@@ -18,6 +18,7 @@ package com.dbn.driver.packages;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.component.PersistentState;
+import com.dbn.common.message.AsyncMessageCollector;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import lombok.extern.slf4j.Slf4j;
@@ -80,11 +81,13 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
     }
 
     private DriverPackageStatus getPackageStatus(String packageId) {
+        AsyncMessageCollector messages = new AsyncMessageCollector();
         return packageDownloadStatuses
                 .computeIfAbsent(packageId, k -> {
                     try {
-                        return createPackageStatus(packageId);
+                        return createPackageStatus(packageId, messages);
                     } catch (Exception e) {
+                        messages.addErrorMessage(e.getMessage());
                         throw new RuntimeException(e.getMessage());
                     }
                 });
@@ -94,8 +97,8 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
         return packageDownloadStatuses.values();
     }
 
-    private DriverPackageStatus createPackageStatus(String packageId) throws Exception {
-        DriverPackage driverPackage = DriverPackageBundle.getDriverPackage(packageId);
+    private DriverPackageStatus createPackageStatus(String packageId, AsyncMessageCollector messages) {
+        DriverPackage driverPackage = DriverPackageBundle.getDriverPackage(packageId, messages);
         int packageCount = driverPackage.size();
         return new DriverPackageStatus(packageId, packageCount);
     }
@@ -115,7 +118,7 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
     }
 
     public void cleanupPackage(String packageId) {
-        getPackageStatus(packageId).getLibraryStatuses().stream().forEach(libraryStatus->libraryStatus.setDownloadStatus(DownloadStatus.NEW));
+        getPackageStatus(packageId).getLibraryStatuses().forEach(libraryStatus->libraryStatus.setDownloadStatus(DownloadStatus.NEW));
    }
 
     @Override

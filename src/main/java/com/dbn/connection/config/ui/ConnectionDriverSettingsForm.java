@@ -18,6 +18,7 @@ package com.dbn.connection.config.ui;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.message.AsyncMessageCollector;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Actions;
@@ -47,7 +48,6 @@ import com.intellij.ui.JBColor;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -79,6 +79,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     private HyperlinkLabel reloadDriversLink;
     private JLabel reloadDriversCheckLabel;
     private JButton downloadButton;
+    AsyncMessageCollector messages = new AsyncMessageCollector();
 
     private static final FileChooserDescriptor LIBRARY_FILE_DESCRIPTOR = new FileChooserDescriptor(false, true, true, true, false, false);
 
@@ -134,7 +135,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             });
         });
         downloadButton.addActionListener(e -> {
-            showDownloadPopup(downloadButton, DriverPackageBundle.getDownloadedDriverPackage());
+            showDownloadPopup(downloadButton, DriverPackageBundle.getDownloadedDriverPackage(messages));
         });
     }
 
@@ -303,15 +304,15 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                             indicator.setFraction(0.01);
                             try {
                                 driverPackages.clear();
-                                driverPackages.addAll(DriverPackageBundle.driverPackages(getDatabaseType(), indicator));
-                                ApplicationManager.getApplication().invokeLater(()->{
+                                driverPackages.addAll(DriverPackageBundle.driverPackages(getDatabaseType(), indicator, messages));
+                                ApplicationManager.getApplication().invokeAndWait(()->{
                                     DownloadManagerDialog downloadDialog = new DownloadManagerDialog(ensureProject(), getDatabaseType(), driverPackages);
                                     Dialogs.show(() -> downloadDialog, (dialog, exitCode) -> {
                                         when(exitCode != DialogWrapper.CANCEL_EXIT_CODE, () -> driverLibraryTextField.setText(dialog.selectedDriverPackage.getPath()));
                                     });
                                 });
                             } catch (Exception ex) {
-                                ApplicationManager.getApplication().invokeLater(()-> Messages.showErrorDialog(getProject(), ex.getMessage()));
+                                ApplicationManager.getApplication().invokeAndWait(()-> Messages.showErrorDialog(getProject(), ex.getMessage()));
                             }
 
                         });
