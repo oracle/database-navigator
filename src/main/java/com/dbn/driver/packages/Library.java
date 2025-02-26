@@ -22,6 +22,7 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.graph.DependencyNode;
 
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -49,8 +50,8 @@ public class Library {
     private final String groupId;
     private final String artifactId;
     private final String version;
-    private final List<Developer> developers;
-    private final List<License> licenses;
+    private List<Developer> developers = new ArrayList<>();
+    private List<License> licenses = new ArrayList<>();
 
     public Library(String groupId, String artifactId, String version, List<Developer> developers, List<License> licenses) {
         this.groupId = groupId;
@@ -73,9 +74,8 @@ public class Library {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
-
-        File pomFile = downloadPomFile(groupId, artifactId, version);
-        if (pomFile != null) {
+        try {
+            File pomFile = downloadPomFile(groupId, artifactId, version);
             Model model = parsePom(pomFile);
             if (model != null) {
                 this.developers = convertDevelopers(model.getDevelopers());
@@ -84,33 +84,24 @@ public class Library {
                 this.developers = Collections.emptyList();
                 this.licenses = Collections.emptyList();
             }
-        } else {
-            this.developers = Collections.emptyList();
-            this.licenses = Collections.emptyList();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 
-    private File downloadPomFile(String groupId, String artifactId, String version) {
-        try {
+    private File downloadPomFile(String groupId, String artifactId, String version) throws Exception{
             String pomUrl = constructPomUrl(groupId, artifactId, version);
             File tempFile = File.createTempFile("artifact-pom", ".xml");
             DownloadUtil.downloadAtomically(null, pomUrl, tempFile);
             return tempFile;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
-    private Model parsePom(File pomFile) {
+    private Model parsePom(File pomFile) throws Exception {
         try (FileInputStream fis = new FileInputStream(pomFile)) {
             MavenXpp3Reader reader = new MavenXpp3Reader();
             InputSource inputSource = new InputSource(fis);
             inputSource.setSystemId(pomFile.getAbsolutePath());
             return reader.read(inputSource.getByteStream());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
         }
     }
 

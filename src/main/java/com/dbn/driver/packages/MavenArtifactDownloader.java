@@ -18,6 +18,7 @@ package com.dbn.driver.packages;
 
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.checksum.ChecksumType;
+import com.dbn.common.message.AsyncMessageCollector;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.platform.templates.github.DownloadUtil;
 
@@ -36,20 +37,18 @@ public class MavenArtifactDownloader {
     private static final String DRIVER_PACKAGES_PATH = getPluginDeploymentRoot().getPath()+"/driver-packages/checksums";
 
 
-    public static String downloadArtifact(String packageId, Library library, String pathLabel) {
+    public static String downloadArtifact(String packageId, AsyncMessageCollector messages, Library library, String pathLabel) {
         String groupId = library.getGroupId();
         String artifactId = library.getArtifactId();
         String version = library.getVersion();
         String artifactPath = groupId.replace(".", "/") + "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + ".jar";
         String artifactUrl = MAVEN_REPO_URL + "/" + artifactPath;
         String checksumUrl = artifactUrl + ".sha1";
-        System.out.println(library);
-        System.out.println(checksumUrl);
         try {
             DriverDownloadManager.getInstance().updateJarDownloadStatus(packageId, artifactId + "-" + version, DownloadStatus.PENDING);
             return downloadAndVerify(packageId, artifactUrl, checksumUrl, artifactId, version, groupId, pathLabel);
         } catch (IOException e) {
-            System.err.println("Download failed for " + artifactId + "-" + version + ": " + e.getMessage());
+            messages.addErrorMessage("Download failed for " + artifactId + "-" + version + ": " + e.getMessage());
             return e.getMessage();
         }
     }

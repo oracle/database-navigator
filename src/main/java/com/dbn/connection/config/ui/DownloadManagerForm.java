@@ -16,14 +16,11 @@
 
 package com.dbn.connection.config.ui;
 
-import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.DatabaseType;
 import com.dbn.driver.packages.DriverPackage;
-import com.dbn.driver.packages.DriverPackageBundle;
 import com.dbn.driver.packages.ui.DriverPackageInfoDialog;
-import com.github.weisj.jsvg.D;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -73,31 +70,10 @@ public class DownloadManagerForm extends DBNFormBase {
 
     private void populateDriverLibraryComboBox(List<DriverPackage> driverPackages) {
         libraryPackageComboBox.removeAllItems(); // Clear the ComboBox first
-//        libraryPackageComboBox.setEnabled(false); // Disable until the operation completes
 
         for (DriverPackage driverPackage : driverPackages) {
             libraryPackageComboBox.addItem(driverPackage);
         }
-//        Progress.modal(getProject(), null, true,
-//                "Downloading Libraries Metadata",
-//                "",
-//                indicator -> {
-//                    indicator.setIndeterminate(false);
-//                    indicator.setFraction(0.01);
-//                    try {
-//                        // Blocking call to fetch driver packages
-//                        List<DriverPackage> driverPackages = DriverPackageBundle.driverPackages(databaseType, indicator);
-//
-//                        libraryPackageComboBox.setEnabled(true); // Re-enable the ComboBox
-//
-//                        for (DriverPackage driverPackage : driverPackages) {
-//                                libraryPackageComboBox.addItem(driverPackage);
-//                        }
-//                    } catch (Exception ex) {
-//                        libraryPackageComboBox.setEnabled(true); // Re-enable the ComboBox
-//                    }
-//                });
-
         libraryPathTextField.addBrowseFolderListener(
                 txt("cfg.connection.title.SelectDriverLibrary"),
                 txt("cfg.connection.text.LibraryDriverClasses"),

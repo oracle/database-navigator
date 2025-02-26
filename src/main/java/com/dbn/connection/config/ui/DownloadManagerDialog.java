@@ -16,20 +16,15 @@
 
 package com.dbn.connection.config.ui;
 
-import com.dbn.common.thread.Progress;
+import com.dbn.common.message.AsyncMessageCollector;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.DatabaseType;
 import com.dbn.driver.packages.DriverPackage;
-import com.dbn.driver.packages.DriverPackageBundle;
 import com.dbn.driver.packages.DriverPackageDownloader;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
-import io.ktor.http.ContentType;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
@@ -80,7 +75,8 @@ public class DownloadManagerDialog extends DBNDialog<DownloadManagerForm> {
     private void handleDownloadButtonClick() {
         selectedDriverPackage = getSelection(downloadManagerForm.libraryPackageComboBox);
         selectedDriverPackage.setPath(downloadManagerForm.libraryPathTextField.getText()+"/"+selectedDriverPackage.getId());
-        DriverPackageDownloader.downloadDriverPackage(getProject(), selectedDriverPackage, (String errorMessage) -> {
+        AsyncMessageCollector messages = new AsyncMessageCollector();
+        DriverPackageDownloader.downloadDriverPackage(getProject(), selectedDriverPackage, messages, (String errorMessage) -> {
             if(errorMessage.isBlank()) this.close(0);
             else {
                 downloadManagerForm.errorHintLabel.setText(errorMessage);
