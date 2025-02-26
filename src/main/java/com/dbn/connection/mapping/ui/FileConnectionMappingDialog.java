@@ -17,19 +17,26 @@
 package com.dbn.connection.mapping.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.connection.mapping.FileConnectionContext;
 import com.intellij.openapi.project.Project;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
+@Getter
 public class FileConnectionMappingDialog extends DBNDialog<FileConnectionMappingForm> {
+    private final FileConnectionContext selectedContext;
 
-    public FileConnectionMappingDialog(Project project) {
+    public FileConnectionMappingDialog(Project project, @Nullable FileConnectionContext selectedContext) {
         super(project, "File connection mappings", true);
         setModal(false);
         setResizable(true);
         setDefaultSize(1200, 700);
         renameAction(getCancelAction(), "Close");
+        this.selectedContext = selectedContext;
+
         init();
     }
 

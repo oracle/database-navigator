@@ -18,11 +18,12 @@ package com.dbn.connection.mapping;
 
 import com.dbn.common.editor.EditorNotificationProvider;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.util.Editors;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionHandlerStatusListener;
+import com.dbn.connection.ConnectionId;
 import com.dbn.connection.mapping.ui.FileConnectionContextNotificationPanel;
 import com.dbn.language.psql.PSQLFileType;
 import com.dbn.language.sql.SQLFileType;
-import com.intellij.injected.editor.VirtualFileWindow;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
@@ -32,10 +33,16 @@ import com.intellij.ui.EditorNotifications;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
+import static com.dbn.common.util.Editors.getNotifications;
+import static com.dbn.common.util.Editors.getOpenFiles;
+
 public class FileConnectionContextNotificationProvider extends EditorNotificationProvider<FileConnectionContextNotificationPanel> {
     private static final Key<FileConnectionContextNotificationPanel> KEY = Key.create("DBNavigator.FileConnectionMappingNotificationPanel");
     public FileConnectionContextNotificationProvider() {
-        ProjectEvents.subscribe(FileConnectionContextListener.TOPIC, mappingListener);
+        ProjectEvents.subscribe(FileConnectionContextListener.TOPIC, createContextListener());
+        ProjectEvents.subscribe(ConnectionHandlerStatusListener.TOPIC, createConnectionHandlerStatusListener());
     }
 
     @NotNull
@@ -54,19 +61,59 @@ public class FileConnectionContextNotificationProvider extends EditorNotificatio
         FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
         FileConnectionContext mapping = contextManager.getMapping(virtualFile);
         if (mapping == null) return null;
+        if (!mapping.isValid()) return null;
 
         return new FileConnectionContextNotificationPanel(project, virtualFile, mapping);
     }
 
-    public static final FileConnectionContextListener mappingListener = new FileConnectionContextListener() {
-        @Override
-        public void mappingChanged(Project project, VirtualFile file) {
-            if (file instanceof VirtualFileWindow) {
-                VirtualFileWindow fileWindow = (VirtualFileWindow) file;
-                file = fileWindow.getDelegate();
+    private static FileConnectionContextListener createContextListener() {
+        return new FileConnectionContextListener() {
+            @Override
+            public void mappingChanged(Project project, VirtualFile file) {
+/*
+                // TODO cleanup - does not support inherited database context
+                if (file instanceof VirtualFileWindow) {
+                    VirtualFileWindow fileWindow = (VirtualFileWindow) file;
+                    file = fileWindow.getDelegate();
+                }
+
+                EditorNotifications notifications = getNotifications(project);;
+                FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
+                VirtualFile[] openFiles = getOpenFiles(project);
+                for (VirtualFile openFile : openFiles) {
+                    FileConnectionContext mapping = contextManager.getMapping(openFile);
+                    if (mapping == null) continue;
+
+                    if (Objects.equals(mapping.getFile(), file)) {
+                        notifications.updateNotifications(openFile);
+                    }
+                }
+*/
+
+                EditorNotifications notifications = getNotifications(project);;
+                notifications.updateAllNotifications();
+
             }
-            EditorNotifications notifications = Editors.getNotifications(project);;
-            notifications.updateNotifications(file);
-        }
-    };
+        };
+    }
+
+    private static ConnectionHandlerStatusListener createConnectionHandlerStatusListener() {
+        return connectionId -> {
+            ConnectionHandler connection = ConnectionHandler.get(connectionId);
+            if(connection == null) return;
+
+            Project project = connection.getProject();
+
+            EditorNotifications notifications = getNotifications(project);
+            VirtualFile[] openFiles = getOpenFiles(project);
+
+            FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
+            for (VirtualFile file : openFiles) {
+                ConnectionId contextConnectionId = contextManager.getConnectionId(file);
+                if (Objects.equals(contextConnectionId, connectionId)) {
+                    notifications.updateNotifications(file);
+                }
+            }
+        };
+    }
 }

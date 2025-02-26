@@ -18,15 +18,23 @@ package com.dbn.connection.mapping.ui;
 
 import com.dbn.common.editor.EditorNotificationPanel;
 import com.dbn.common.message.MessageType;
+import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.mapping.FileConnectionContext;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JLabel;
+
+import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.util.Conditional.when;
+
 public class FileConnectionContextNotificationPanel extends EditorNotificationPanel {
+    private boolean inheritedContext;
 
     public FileConnectionContextNotificationPanel(
             @NotNull Project project,
@@ -44,33 +52,50 @@ public class FileConnectionContextNotificationPanel extends EditorNotificationPa
             setIcon(null);
         }
 
-        createActionLabel("Unlink", () -> delink());
+        VirtualFile mappingFile = mapping.getFile();
+        inheritedContext = mappingFile != null && !file.equals(mappingFile);
+        if (inheritedContext) {
+            JLabel inheritedLabel = new JLabel("(database context inherited from " + mappingFile.getPath() + ")");
+            inheritedLabel.setForeground(UIUtil.getLabelDisabledForeground());
+            inheritedLabel.setOpaque(false);
+            setContent(inheritedLabel);
+        }
 
-
-/*
-        Project project = editableObject.getProject();
-        DBObjectRef<DBSchemaObject> editableObjectRef = DBObjectRef.of(editableObject);
-        String objectName = editableObject.getQualifiedNameWithType();
-        String objectTypeName = editableObject.getObjectType().getName();
-        setText("This DDL file is attached to the database " + objectName + ". " +
-                "Changes done to the " + objectTypeName + " are mirrored to this DDL file, overwriting any changes you may do to it.");
-        createActionLabel("Detach", () -> {
-            if (!project.isDisposed()) {
-                DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
-                attachmentManager.detachDDLFile(virtualFile);
-                DBSchemaObject editableObject1 = DBObjectRef.get(editableObjectRef);
-                if (editableObject1 != null) {
-                    DatabaseFileSystem.getInstance().reopenEditor(editableObject1);
-                }
-            }
-        });
-*/
+        createActionLabel("Delink", () -> delink());
+        createActionLabel("Mappings", () -> mappings());
     }
 
     private void delink() {
         Project project = getProject();
-        VirtualFile file = getFile();
         FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
-        contextManager.removeMapping(file);
+        VirtualFile file = getFile();
+        if (inheritedContext) {
+            FileConnectionContext mapping = contextManager.getMapping(file);
+            if (mapping == null) return;
+            if (!mapping.isValid()) return;
+
+            VirtualFile mappingFile = nd(mapping.getFile());
+            ConnectionHandler connection = nd(mapping.getConnection());
+
+            Messages.showQuestionDialog(
+                    project,
+                    "Remove database context",
+                    "Are you sure you want to delink the database \"" + connection.getName() + "\" from the directory \"" + mappingFile.getPath() + "\"?",
+                    Messages.OPTIONS_YES_NO,
+                    0,
+                    option -> when(option == 0,
+                            () -> contextManager.removeMapping(mappingFile)));
+
+
+
+        } else {
+            contextManager.removeMapping(file);
+        }
+    }
+
+    private void mappings() {
+        FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(getProject());
+        FileConnectionContext selectedContext = contextManager.getMapping(getFile());
+        contextManager.openFileConnectionMappings(selectedContext);
     }
 }
