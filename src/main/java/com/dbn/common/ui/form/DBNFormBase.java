@@ -109,11 +109,11 @@ public abstract class DBNFormBase
     }
 
     /**
-     * Passes on the runnable to the dispatch thread (Application.invokeLater) under full awareness of the component modality state
+     * Passes on the runnable to the dispatch thread (Application.invokeAndWait) under full awareness of the component modality state
      * @param runnable the runnable to be sent to dispatch thread
      */
     protected void dispatch(Runnable runnable) {
-        Dispatch.run(getMainComponent(), runnable);
+        Dispatch.execute(getMainComponent(), runnable);
     }
 
     /**

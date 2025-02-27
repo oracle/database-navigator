@@ -16,7 +16,6 @@
 
 package com.dbn.data.export.ui;
 
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
@@ -102,7 +101,7 @@ public class ExportDataDialog extends DBNDialog<ExportDataForm> {
                                         table,
                                         exportInstructions,
                                         connection,
-                                        () -> Dispatch.run(() -> ExportDataDialog.super.doOKAction()));
+                                        () -> dispatch(() -> ExportDataDialog.super.doOKAction()));
                             });
                 }
         );
