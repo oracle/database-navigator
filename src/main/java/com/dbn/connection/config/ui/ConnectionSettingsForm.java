@@ -23,7 +23,6 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.CompositeConfigurationEditorForm;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.common.ui.util.UserInterface;
@@ -239,7 +238,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
     private final ConnectionPresentationChangeListener connectionPresentationChangeListener = new ConnectionPresentationChangeListener() {
         @Override
         public void presentationChanged(String name, Icon icon, Color color, ConnectionId connectionId, DatabaseType databaseType) {
-            Dispatch.run(() -> {
+            dispatch(() -> {
                 if (isNotValid(ConnectionSettingsForm.this)) return;
 
                 ConnectionSettings configuration = getConfiguration();

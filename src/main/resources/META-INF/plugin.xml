@@ -17,7 +17,7 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator" require-restart="true">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>3.5.0.0</version>
+    <version>3.5.2.0</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -49,7 +49,7 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
-            <li><b>3.5.0</b>
+            <li><b>3.5.2</b>
             <ul>
                 <li>Oracle "Select-AI" integration (Database Assistant - experimental)
                 <li>Oracle token authentication ("OCI API Key" and "OCI Interactive")

@@ -28,7 +28,6 @@ import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jdom.Element;
@@ -37,6 +36,8 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.util.Editors.getOpenFiles;
+import static com.dbn.common.util.Editors.updateEditorPresentations;
 import static com.dbn.object.common.status.DBObjectStatus.EDITABLE;
 
 @State(
@@ -61,9 +62,8 @@ public class EnvironmentManager extends ProjectComponentBase implements Persiste
         return new EnvironmentManagerListener() {
             @Override
             public void configurationChanged(Project project) {
-                FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
-                VirtualFile[] openFiles = fileEditorManager.getOpenFiles();
-                Editors.updateEditorPresentations(project, openFiles);
+                VirtualFile[] openFiles = getOpenFiles(project);
+                updateEditorPresentations(project, openFiles);
             }
         };
     }

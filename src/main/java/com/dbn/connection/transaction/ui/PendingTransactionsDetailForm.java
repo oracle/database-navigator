@@ -18,7 +18,6 @@ package com.dbn.connection.transaction.ui;
 
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -135,7 +134,7 @@ public class PendingTransactionsDetailForm extends DBNFormBase {
     };
 
     private void refreshForm(ConnectionHandler connection) {
-        Dispatch.run(() -> {
+        dispatch(() -> {
             checkDisposed();
             PendingTransactionsTableModel transactionsTableModel = new PendingTransactionsTableModel(connection);
             pendingTransactionsTable.setModel(transactionsTableModel);

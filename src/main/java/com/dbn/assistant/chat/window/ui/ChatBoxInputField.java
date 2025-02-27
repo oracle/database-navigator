@@ -26,6 +26,7 @@ import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionId;
+import com.dbn.object.event.ObjectChangeListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
@@ -69,6 +70,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         Disposer.register(chatBox, this);
 
         ProjectEvents.subscribe(getProject(), this, AssistantStateListener.TOPIC, createStateListener());
+        ProjectEvents.subscribe(getProject(), this, ObjectChangeListener.TOPIC, createObjectChangeListener());
     }
 
     /**
@@ -76,11 +78,16 @@ public class ChatBoxInputField extends JPanel implements Disposable {
      * the current state of the assistant
      */
     private AssistantStateListener createStateListener() {
-        return (project, connectionId) -> {
-            if (!Objects.equals(getConnectionId(), connectionId)) return;
+        return (project, connectionId) -> refreshState(connectionId);
+    }
 
-            setReadonly(!getChatBox().isPromptingAvailable());
-        };
+    private ObjectChangeListener createObjectChangeListener() {
+        return (connectionId, ownerId, objectType) -> refreshState(connectionId);
+    }
+
+    private void refreshState(ConnectionId connectionId) {
+        if (!Objects.equals(getConnectionId(), connectionId)) return;
+        setReadonly(!getChatBox().isPromptingAvailable());
     }
 
     private Project getProject() {
