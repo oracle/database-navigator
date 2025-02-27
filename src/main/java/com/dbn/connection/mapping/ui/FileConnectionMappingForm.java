@@ -17,10 +17,8 @@
 package com.dbn.connection.mapping.ui;
 
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.table.DBNTable;
 import com.dbn.connection.mapping.FileConnectionContext;
 import com.dbn.connection.mapping.FileConnectionContextManager;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.Nullable;
@@ -34,9 +32,9 @@ public class FileConnectionMappingForm extends DBNFormBase {
     private JBScrollPane mappingsTableScrollPane;
     private JPanel mainPanel;
 
-    private final DBNTable<FileConnectionMappingTableModel> mappingsTable;
+    private final FileConnectionMappingTable mappingsTable;
 
-    public FileConnectionMappingForm(@Nullable Disposable parent) {
+    public FileConnectionMappingForm(FileConnectionMappingDialog parent) {
         super(parent);
         Project project = ensureProject();
         FileConnectionContextManager manager = FileConnectionContextManager.getInstance(project);
@@ -47,6 +45,14 @@ public class FileConnectionMappingForm extends DBNFormBase {
         mappingsTable.adjustColumnWidths();
         mappingsTableScrollPane.setViewportView(mappingsTable);
 
+        initSelection(parent, mappings);
+    }
+
+    private void initSelection(FileConnectionMappingDialog parent, List<FileConnectionContext> mappings) {
+        FileConnectionContext selectedContext = parent.getSelectedContext();
+        if (selectedContext == null) return;
+
+        mappingsTable.selectMapping(selectedContext);
     }
 
     @Override

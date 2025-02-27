@@ -41,6 +41,7 @@ public abstract class EditorNotificationProvider<T extends JComponent>
         Dispatch.run(() -> Editors.updateNotifications(project, DBEditableObjectVirtualFile.of(databaseContentFile)));
     }
 
+    @Override
     public final T createNotificationPanel(@NotNull VirtualFile virtualFile, @NotNull FileEditor fileEditor, @NotNull Project project) {
         return guarded(null, () -> createComponent(virtualFile, fileEditor, project));
     }
