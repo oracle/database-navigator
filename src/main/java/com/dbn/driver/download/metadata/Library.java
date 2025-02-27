@@ -16,16 +16,10 @@
 
 package com.dbn.driver.download.metadata;
 
-import com.dbn.common.download.Downloads;
 import lombok.Getter;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.graph.DependencyNode;
-import org.xml.sax.InputSource;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

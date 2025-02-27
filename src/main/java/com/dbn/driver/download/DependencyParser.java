@@ -19,10 +19,11 @@ import com.dbn.common.Pair;
 import com.dbn.driver.download.metadata.Developer;
 import com.dbn.driver.download.metadata.Library;
 import com.dbn.driver.download.metadata.License;
-import com.intellij.platform.templates.github.DownloadUtil;
+import com.dbn.common.download.Downloads;
+import com.dbn.common.util.Measured;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.apache.maven.repository.internal.DefaultArtifactDescriptorReader;
+
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
@@ -32,13 +33,16 @@ import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.collection.CollectResult;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.DependencyNode;
-import org.eclipse.aether.impl.ArtifactDescriptorReader;
+
 import org.eclipse.aether.impl.ArtifactResolver;
 import org.eclipse.aether.internal.impl.DefaultArtifactResolver;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.repository.RepositoryPolicy;
-import org.eclipse.aether.resolution.*;
+import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.aether.spi.connector.transport.PeekTask;
 import org.eclipse.aether.spi.connector.transport.Transporter;
 import org.eclipse.aether.spi.connector.transport.TransporterFactory;
@@ -46,7 +50,6 @@ import org.eclipse.aether.spi.connector.transport.GetTask;
 import org.eclipse.aether.spi.connector.transport.PutTask;
 import org.eclipse.aether.spi.localrepo.LocalRepositoryManagerFactory;
 import org.eclipse.aether.transfer.NoTransporterException;
-import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.impl.DefaultServiceLocator;
 import org.xml.sax.InputSource;
 
@@ -78,7 +81,9 @@ public class DependencyParser {
         collectRequest.addDependency(new Dependency(artifact2, "compile"));
         collectRequest.addRepository(central);
 
-        CollectResult collectResult = repositorySystem.collectDependencies(session, collectRequest);
+        CollectResult collectResult = Measured.call(
+                "collecting dependencies for library " + library,
+                () -> repositorySystem.collectDependencies(session, collectRequest));
 
         DependencyNode root = collectResult.getRoot();
         if (type.equals("pom")) traverse(root.getChildren().get(0), libraries, library);
@@ -177,7 +182,7 @@ public class DependencyParser {
 
                 // Use DownloadUtil to download the artifact and ensure ideal
                 // handling of download ( taking proxy into consideration )
-                DownloadUtil.downloadAtomically(null, fullUrl, targetFile);
+                Downloads.downloadAtomically(null, fullUrl, targetFile);
 
             } catch (Exception e) {
                 throw new Exception("Error during download", e);
