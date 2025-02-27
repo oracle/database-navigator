@@ -22,7 +22,6 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.latent.Latent;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.misc.DBNTableScrollPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
@@ -95,7 +94,7 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
     }
 
     public void rebuildForm() {
-        Dispatch.run(() -> {
+        dispatch(() -> {
             StatementExecutionCursorResult executionResult = getExecutionResult();
             JScrollBar horizontalScrollBar = resultScrollPane.getHorizontalScrollBar();
             int horizontalScrolling = horizontalScrollBar.getValue();
@@ -115,7 +114,7 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
     }
 
     public void updateVisibleComponents() {
-        Dispatch.run(() -> {
+        dispatch(() -> {
             StatementExecutionCursorResult executionResult = getExecutionResult();
             ResultSetDataModel<?, ?> dataModel = executionResult.getTableModel();
             ConnectionHandler connection = executionResult.getConnection();
