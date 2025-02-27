@@ -418,6 +418,14 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
         getModel().checkColumnBounds(columnIndex);
     }
 
+    /**
+     * Passes on the runnable to the dispatch thread (Application.invokeAndWait) under full awareness of the component modality state
+     * @param runnable the runnable to be sent to dispatch thread
+     */
+    protected void dispatch(Runnable runnable) {
+        Dispatch.execute(this, runnable);
+    }
+
     /********************************************************
      *                    Disposable                        *
      ********************************************************/

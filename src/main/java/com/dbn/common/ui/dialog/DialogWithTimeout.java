@@ -17,7 +17,6 @@
 package com.dbn.common.ui.dialog;
 
 import com.dbn.common.dispose.Disposer;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.TimeUtil;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -59,7 +58,7 @@ public abstract class DialogWithTimeout extends DBNDialog<DialogWithTimeoutForm>
                     d.secondsLeft = d.secondsLeft -1;
                     d.getForm().updateTimeLeft(secondsLeft);
                     if (d.secondsLeft == 0) {
-                        Dispatch.run(() -> d.doDefaultAction());
+                        dispatch(() -> d.doDefaultAction());
                     }
                 }
             });

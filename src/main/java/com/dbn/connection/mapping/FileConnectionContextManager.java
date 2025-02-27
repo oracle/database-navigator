@@ -129,7 +129,11 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
     }
 
     public void openFileConnectionMappings() {
-        Dialogs.show(() -> new FileConnectionMappingDialog(getProject()));
+        openFileConnectionMappings(null);
+    }
+
+    public void openFileConnectionMappings(FileConnectionContext selectedContext) {
+        Dialogs.show(() -> new FileConnectionMappingDialog(getProject(), selectedContext));
     }
 
 
