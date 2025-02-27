@@ -18,9 +18,9 @@ package com.dbn.driver.packages;
 
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.checksum.ChecksumType;
+import com.dbn.common.download.Downloads;
 import com.dbn.common.message.AsyncMessageCollector;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.platform.templates.github.DownloadUtil;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -60,7 +60,7 @@ public class MavenArtifactDownloader {
         File outputFile = new File(pluginDir, artifactId + "-" + version + ".jar");
 
         try {
-            DownloadUtil.downloadAtomically(null, artifactUrl, outputFile);
+            Downloads.downloadAtomically(null, artifactUrl, outputFile);
             System.out.println("Artifact downloaded to: " + outputFile.getAbsolutePath());
 
             String expectedChecksum = getLibraryChecksum(checksumUrl);
@@ -86,7 +86,7 @@ public class MavenArtifactDownloader {
     private static String getLibraryChecksum(String checksumUrl) throws IOException {
         File tempFile = FileUtil.createTempFile(UUID.randomUUID().toString(), ".tmp", true);
         try {
-            DownloadUtil.downloadAtomically(null, checksumUrl, tempFile);
+            Downloads.downloadAtomically(null, checksumUrl, tempFile);
             try (Scanner scanner = new Scanner(tempFile)) {
                 // Read the first line and extract the checksum
                 String line = scanner.nextLine().trim();

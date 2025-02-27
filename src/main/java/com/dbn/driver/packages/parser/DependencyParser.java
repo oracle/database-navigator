@@ -15,27 +15,29 @@
  */
 package com.dbn.driver.packages.parser;
 
+import com.dbn.common.download.Downloads;
+import com.dbn.common.util.Measured;
 import com.dbn.driver.packages.Library;
-import com.intellij.platform.templates.github.DownloadUtil;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
-import org.eclipse.aether.*;
+import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.collection.CollectResult;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.DependencyNode;
+import org.eclipse.aether.impl.DefaultServiceLocator;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.repository.RepositoryPolicy;
+import org.eclipse.aether.spi.connector.transport.GetTask;
 import org.eclipse.aether.spi.connector.transport.PeekTask;
+import org.eclipse.aether.spi.connector.transport.PutTask;
 import org.eclipse.aether.spi.connector.transport.Transporter;
 import org.eclipse.aether.spi.connector.transport.TransporterFactory;
-import org.eclipse.aether.spi.connector.transport.GetTask;
-import org.eclipse.aether.spi.connector.transport.PutTask;
 import org.eclipse.aether.spi.localrepo.LocalRepositoryManagerFactory;
 import org.eclipse.aether.transfer.NoTransporterException;
-import org.eclipse.aether.DefaultRepositorySystemSession;
-import org.eclipse.aether.impl.DefaultServiceLocator;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -63,7 +65,9 @@ public class DependencyParser {
             collectRequest.addDependency(new Dependency(artifact2, "compile"));
             collectRequest.addRepository(central);
 
-            CollectResult collectResult = repositorySystem.collectDependencies(session, collectRequest);
+            CollectResult collectResult = Measured.call(
+                    "collecting dependencies for library " + library,
+                    () -> repositorySystem.collectDependencies(session, collectRequest));
 
             DependencyNode root = collectResult.getRoot();
             if (type.equals("pom")) traverse(root.getChildren().get(0), libraries, library);
@@ -152,7 +156,7 @@ public class DependencyParser {
 
                 // Use DownloadUtil to download the artifact and ensure ideal
                 // handling of download ( taking proxy into consideration )
-                DownloadUtil.downloadAtomically(null, fullUrl, targetFile);
+                Downloads.downloadAtomically(null, fullUrl, targetFile);
 
             } catch (Exception e) {
                 throw new Exception("Error during download", e);

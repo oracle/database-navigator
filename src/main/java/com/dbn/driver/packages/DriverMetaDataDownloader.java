@@ -16,11 +16,11 @@
 
 package com.dbn.driver.packages;
 
+import com.dbn.common.download.Downloads;
 import com.dbn.common.message.AsyncMessageCollector;
 import com.dbn.connection.DatabaseType;
 import com.dbn.driver.packages.parser.DependencyParser;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.platform.templates.github.DownloadUtil;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.w3c.dom.Document;
@@ -148,7 +148,7 @@ public class DriverMetaDataDownloader {
         tempFile.deleteOnExit();
 
         // Download content to the temporary file
-        DownloadUtil.downloadContentToFile(null, url, tempFile);
+        Downloads.downloadContentToFile(null, url, tempFile);
 
         // Parse the XML content from the file
         List<String> versions = new ArrayList<>();

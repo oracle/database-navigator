@@ -16,20 +16,19 @@
 
 package com.dbn.driver.packages;
 
-import com.intellij.platform.templates.github.DownloadUtil;
+import com.dbn.common.download.Downloads;
 import lombok.Getter;
-import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.graph.DependencyNode;
-
-import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.graph.DependencyNode;
 import org.xml.sax.InputSource;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -92,7 +91,7 @@ public class Library {
     private File downloadPomFile(String groupId, String artifactId, String version) throws Exception{
             String pomUrl = constructPomUrl(groupId, artifactId, version);
             File tempFile = File.createTempFile("artifact-pom", ".xml");
-            DownloadUtil.downloadAtomically(null, pomUrl, tempFile);
+            Downloads.downloadAtomically(null, pomUrl, tempFile);
             return tempFile;
     }
 
