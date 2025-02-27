@@ -589,4 +589,9 @@ public class Editors {
             fileEditorManager.updateFilePresentation(file);
         }
     }
+
+    public static VirtualFile[] getOpenFiles(Project project) {
+        FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
+        return fileEditorManager.getOpenFiles();
+    }
 }

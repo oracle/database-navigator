@@ -26,7 +26,6 @@ import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Background;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.PooledThread;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -143,7 +142,7 @@ public class ObjectPropertiesForm extends DBNFormBase {
                     new ObjectPropertiesTableModel(object.getPresentableProperties());
             Disposer.register(ObjectPropertiesForm.this, tableModel);
 
-            Dispatch.run(() -> {
+            dispatch(() -> {
                 if (object == null) {
                     objectTypeLabel.setText("Object properties:");
                     objectLabel.setText("(no object selected)");

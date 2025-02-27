@@ -51,4 +51,7 @@ public interface FileConnectionContext extends DatabaseContextBase, PersistentSt
         throw new UnsupportedOperationException();
     }
 
+    default boolean isValid() {
+        return getConnectionId() != null && getFile() != null;
+    }
 }

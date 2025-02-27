@@ -16,7 +16,6 @@
 
 package com.dbn.common.ui.dialog;
 
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.TimeUtil;
@@ -50,7 +49,7 @@ public class DialogWithTimeoutForm extends DBNFormBase {
     }
 
     public void updateTimeLeft(int secondsLeft) {
-        Dispatch.run(() -> {
+        dispatch(() -> {
             int minutes = 0;
             int seconds = secondsLeft;
             if (secondsLeft > 60) {

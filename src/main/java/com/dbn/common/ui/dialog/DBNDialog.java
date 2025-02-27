@@ -19,6 +19,7 @@ package com.dbn.common.ui.dialog;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.project.ProjectRef;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormValidator;
@@ -215,6 +216,13 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         rememberSelectionCheckBox.addActionListener(e -> rememberSelection = rememberSelectionCheckBox.isSelected());
     }
 
+    /**
+     * Passes on the runnable to the dispatch thread (Application.invokeAndWait) under full awareness of the component modality state
+     * @param runnable the runnable to be sent to dispatch thread
+     */
+    protected void dispatch(Runnable runnable) {
+        Dispatch.execute(getComponent(), runnable);
+    }
 
     @Getter
     @Setter

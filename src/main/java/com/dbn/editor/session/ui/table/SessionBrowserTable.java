@@ -17,7 +17,6 @@
 package com.dbn.editor.session.ui.table;
 
 import com.dbn.common.ref.WeakRef;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.util.Actions;
 import com.dbn.data.grid.ui.table.basic.BasicTableCellRenderer;
@@ -106,7 +105,7 @@ public class SessionBrowserTable extends ResultSetTable<SessionBrowserModel> {
 
     @Override
     public void clearSelection() {
-        Dispatch.run(() -> SessionBrowserTable.super.clearSelection());
+        dispatch(() -> SessionBrowserTable.super.clearSelection());
     }
 
     @Override

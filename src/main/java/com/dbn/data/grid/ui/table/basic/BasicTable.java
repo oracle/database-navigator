@@ -238,7 +238,7 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
     }
 
     public void updateBackground(boolean readonly) {
-        Dispatch.run(() -> {
+        dispatch(() -> {
             JBViewport viewport = UIUtil.getParentOfType(JBViewport.class, this);
             DataGridTextAttributes attributes = cellRenderer.getAttributes();
             Color background = readonly ?

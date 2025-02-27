@@ -18,7 +18,6 @@ package com.dbn.connection.resource.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.util.UserInterface;
@@ -154,7 +153,7 @@ public class ResourceMonitorForm extends DBNFormBase {
     };
 
     private void refreshForm() {
-        Dispatch.run(() -> updateListModel());
+        dispatch(() -> updateListModel());
 
     }
 }
