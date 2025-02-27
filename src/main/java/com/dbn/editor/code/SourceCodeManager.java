@@ -72,7 +72,6 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.actionSystem.EditorActionManager;
 import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.fileTypes.BinaryFileDecompiler;
@@ -110,6 +109,7 @@ import static com.dbn.common.navigation.NavigationInstruction.SCROLL;
 import static com.dbn.common.notification.NotificationGroup.SOURCE_CODE;
 import static com.dbn.common.util.Commons.list;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Editors.getOpenFiles;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Messages.showQuestionDialog;
@@ -699,8 +699,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     @Override
     public boolean canCloseProject() {
         Project project = getProject();
-        FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
-        VirtualFile[] openFiles = fileEditorManager.getOpenFiles();
+        VirtualFile[] openFiles = getOpenFiles(project);
 
         for (VirtualFile openFile : openFiles) {
             if (openFile instanceof DBEditableObjectVirtualFile) {

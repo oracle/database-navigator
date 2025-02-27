@@ -40,7 +40,6 @@ import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
@@ -60,6 +59,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Editors.getOpenFiles;
 import static com.dbn.editor.DatabaseEditorStateManager.COMPONENT_NAME;
 
 @State(
@@ -142,9 +142,8 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
         return new EnvironmentManagerListener() {
             @Override
             public void configurationChanged(Project project) {
-                FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
                 EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
-                VirtualFile[] openFiles = fileEditorManager.getOpenFiles();
+                VirtualFile[] openFiles = getOpenFiles(project);
                 for (VirtualFile virtualFile : openFiles) {
                     if (virtualFile instanceof DBEditableObjectVirtualFile) {
                         DBEditableObjectVirtualFile editableDatabaseFile = (DBEditableObjectVirtualFile) virtualFile;

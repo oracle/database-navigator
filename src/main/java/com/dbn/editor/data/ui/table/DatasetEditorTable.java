@@ -225,7 +225,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
                     runnable.run();
                 } finally {
                     scope.set(UPDATING, false);
-                    Dispatch.run(() -> {
+                    dispatch(() -> {
                         DBNTableGutter tableGutter = getTableGutter();
                         UserInterface.repaint(tableGutter);
                         UserInterface.repaint(DatasetEditorTable.this);
@@ -247,7 +247,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
     }
 
     public void showErrorPopup(@NotNull DatasetEditorModelCell cell) {
-        Dispatch.run(() -> {
+        dispatch(() -> {
             checkDisposed();
 
             if (!isShowing()) {
@@ -594,7 +594,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
 
                     ActionPopupMenu actionPopupMenu = Actions.createActionPopupMenu(DatasetEditorTable.this, actionGroup);
                     JPopupMenu popupMenu = actionPopupMenu.getComponent();
-                    Dispatch.run(() -> {
+                    dispatch(() -> {
                         Component component = (Component) e.getSource();
                         if (!component.isShowing()) return;
 

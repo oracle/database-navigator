@@ -42,6 +42,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
+import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionContextActions {
@@ -51,7 +52,7 @@ public class ConnectionContextActions {
         private final boolean promptSchemaSelection;
 
         ConnectionSelectAction(ConnectionHandler connection, VirtualFile file, boolean promptSchemaSelection, Runnable callback) {
-            super(connection.getName(), null, connection.getIcon(), connection);
+            super(adjustActionName(connection.getName()), null, connection.getIcon(), connection);
             this.file = VirtualFileRef.of(file);
             this.callback = callback;
             this.promptSchemaSelection = promptSchemaSelection;
@@ -60,23 +61,23 @@ public class ConnectionContextActions {
         @Override
         protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ConnectionHandler connection) {
             VirtualFile file = this.file.get();
-            if (file != null) {
-                FileConnectionContextManager manager = getContextManager(getProject());
-                manager.setConnection(file, connection);
-                if (promptSchemaSelection) {
-                    manager.promptSchemaSelector(file, e.getDataContext(), callback);
-                } else {
-                    SchemaId schemaId = manager.getDatabaseSchema(file);
-                    if (schemaId == null) {
-                        SchemaId defaultSchema = connection.getDefaultSchema();
-                        manager.setDatabaseSchema(file, defaultSchema);
-                    }
-                    if (callback != null) {
-                        callback.run();
-                    }
-                }
+            if (file == null) return;
 
+            FileConnectionContextManager manager = getContextManager(getProject());
+            manager.setConnection(file, connection);
+            if (promptSchemaSelection) {
+                manager.promptSchemaSelector(file, e.getDataContext(), callback);
+            } else {
+                SchemaId schemaId = manager.getDatabaseSchema(file);
+                if (schemaId == null) {
+                    SchemaId defaultSchema = connection.getDefaultSchema();
+                    manager.setDatabaseSchema(file, defaultSchema);
+                }
+                if (callback != null) {
+                    callback.run();
+                }
             }
+
         }
 
         public boolean isSelected() {

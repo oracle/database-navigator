@@ -17,7 +17,6 @@
 package com.dbn.common.ui.table;
 
 import com.dbn.common.color.Colors;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.util.Borders;
 import com.intellij.ui.SimpleTextAttributes;
@@ -109,7 +108,7 @@ public class DBNEditableTable<T extends DBNEditableTableModel> extends DBNTableW
 
             //selectCell(rowIndex, columnIndex);
 
-            Dispatch.run(() -> {
+            dispatch(() -> {
                 if (getSelectedRow() != rowIndex) return;
                 if (getSelectedColumn() != columnIndex) return;
 

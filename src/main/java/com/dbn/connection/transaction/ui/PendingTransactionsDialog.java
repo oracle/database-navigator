@@ -17,7 +17,6 @@
 package com.dbn.connection.transaction.ui;
 
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
@@ -129,7 +128,7 @@ public class PendingTransactionsDialog extends DBNDialog<PendingTransactionsForm
         public void afterAction(@NotNull ConnectionHandler connection, DBNConnection conn, TransactionAction action, boolean succeeded) {
             ConnectionManager connectionManager = ConnectionManager.getInstance(connection.getProject());
             if (!connectionManager.hasUncommittedChanges()) {
-                Dispatch.run(() -> {
+                dispatch(() -> {
                     renameAction(getCancelAction(), "Close");
                     commitAllAction.setEnabled(false);
                     rollbackAllAction.setEnabled(false);

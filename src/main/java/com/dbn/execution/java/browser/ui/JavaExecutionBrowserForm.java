@@ -16,7 +16,6 @@
 
 package com.dbn.execution.java.browser.ui;
 
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.tree.DBNTree;
@@ -132,7 +131,7 @@ public class JavaExecutionBrowserForm extends DBNFormBase {
                     ObjectTreeModel model = new ObjectTreeModel(settings.getSelectedSchema(), settings.getVisibleObjectTypes(), null);
                     DBNTree methodsTree = nd(this.methodsTree);
 
-                    Dispatch.run(() -> methodsTree.setModel(model));
+                    dispatch(() -> methodsTree.setModel(model));
                     UserInterface.repaint(methodsTree);
                 });
     }

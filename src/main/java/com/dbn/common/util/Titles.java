@@ -16,12 +16,15 @@
 
 package com.dbn.common.util;
 
+import com.dbn.common.dispose.Failsafe;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.connection.session.DatabaseSession;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.common.util.Unsafe.silent;
 
 @UtilityClass
 public final class Titles {
@@ -38,7 +41,7 @@ public final class Titles {
     public static String suffixed(String title, @Nullable DatabaseContext databaseContext) {
         if (databaseContext == null) return title;
 
-        ConnectionHandler connection = databaseContext.getConnection();
+        ConnectionHandler connection = silent(null, () -> databaseContext.getConnection());
         if (connection == null) return title;
 
         title = title + " - " + connection.getName();

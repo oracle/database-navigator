@@ -16,9 +16,9 @@
 
 package com.dbn.common.ui.dialog;
 
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.util.Listeners;
+import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
@@ -111,11 +111,11 @@ public class OptionsDialog<O extends Presentable> extends DBNDialog<OptionsDialo
             O selectedOption,
             String[] actions,
             OptionDialogActionListener<O> actionListener) {
-        Dispatch.run(() -> {
+        Dialogs.show(() -> {
             OptionsDialog<O> optionsDialog = new OptionsDialog<>(project, dialogTitle, optionLabel, options, selectedOption, actions);
             optionsDialog.addActionListener(actionListener);
-            optionsDialog.show();
-        });
+            return optionsDialog;
+        }, null);
     }
 
 }

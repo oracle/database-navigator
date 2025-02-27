@@ -56,7 +56,7 @@ public abstract class BasicTextEditorProvider implements FileEditorProvider, Nam
 
     protected void updateTabIcon(final DBEditableObjectVirtualFile databaseFile, final BasicTextEditor textEditor, final Icon icon) {
         Project project = databaseFile.getProject();
-        Dispatch.run(() -> Editors.setEditorProviderIcon(project, databaseFile, textEditor, icon));
+        Dispatch.run(textEditor.getComponent(), () -> Editors.setEditorProviderIcon(project, databaseFile, textEditor, icon));
     }
 
     @NotNull
