@@ -37,9 +37,9 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Separator;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.DumbAwareAction;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.HyperlinkLabel;
@@ -295,7 +295,9 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         actions.add(new DumbAwareAction("Download Libraries...", null, AllIcons.Actions.Download) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
-                Progress.modal(getProject(), null, true,
+                Project project = getProject();
+                DatabaseType databaseType = getDatabaseType();
+                Progress.modal(project, null, true,
                         "Downloading Libraries Metadata",
                         "",
                         indicator -> {
@@ -303,15 +305,12 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                             indicator.setFraction(0.01);
                             try {
                                 driverPackages.clear();
-                                driverPackages.addAll(DriverPackageMetadata.driverPackages(getDatabaseType(), indicator, messages));
-                                ApplicationManager.getApplication().invokeLater(()->{
-                                    DownloadManagerDialog downloadDialog = new DownloadManagerDialog(ensureProject(), getDatabaseType(), driverPackages);
-                                    Dialogs.show(() -> downloadDialog, (dialog, exitCode) -> {
-                                        when(exitCode != DialogWrapper.CANCEL_EXIT_CODE, () -> driverLibraryTextField.setText(dialog.selectedDriverPackage.getPath()));
-                                    });
+                                driverPackages.addAll(DriverPackageMetadata.driverPackages(databaseType, indicator, messages));
+                                Dialogs.show(() -> new DownloadManagerDialog(project, databaseType, driverPackages), (dialog, exitCode) -> {
+                                    when(exitCode != DialogWrapper.CANCEL_EXIT_CODE, () -> driverLibraryTextField.setText(dialog.selectedDriverPackage.getPath()));
                                 });
                             } catch (Exception ex) {
-                                ApplicationManager.getApplication().invokeLater(()-> Messages.showErrorDialog(getProject(), ex.getMessage()));
+                                Messages.showErrorDialog(project, ex.getMessage());
                             }
 
                         });
