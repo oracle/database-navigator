@@ -22,7 +22,6 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.thread.Write;
 import com.dbn.common.util.Commons;
-import com.dbn.common.util.Unsafe;
 import com.dbn.language.common.DBLanguageFileType;
 import com.dbn.language.psql.PSQLFileType;
 import com.dbn.language.sql.SQLFileType;
@@ -53,6 +52,8 @@ import static com.dbn.common.file.FileTypeService.COMPONENT_NAME;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Commons.coalesce;
+import static com.dbn.common.util.Unsafe.silent;
 
 @Slf4j
 @Getter
@@ -182,7 +183,7 @@ public class FileTypeService extends ApplicationComponentBase implements Persist
 
     @NotNull
     public FileType getCurrentFileType(@NonNls String extension) {
-        return Unsafe.silent(UnknownFileType.INSTANCE, extension, e -> FileTypeManager.getInstance().getFileTypeByExtension(e));
+        return silent(UnknownFileType.INSTANCE, extension, e -> FileTypeManager.getInstance().getFileTypeByExtension(e));
     }
 
     @Override
@@ -213,12 +214,27 @@ public class FileTypeService extends ApplicationComponentBase implements Persist
 
     @Nullable
     private static FileType getFileType(String fileTypeName) {
-        FileType[] registeredFileTypes = FileTypeManager.getInstance().getRegisteredFileTypes();
+        return coalesce(
+                () -> legacyFindFileType(fileTypeName),
+                () -> findFileType(fileTypeName));
+    }
+
+    @Nullable
+    private static FileType legacyFindFileType(String fileTypeName) {
+        FileType[] registeredFileTypes = silent(FileType.EMPTY_ARRAY,
+                () -> FileTypeManager.getInstance().getRegisteredFileTypes());
+
         return Arrays
                 .stream(registeredFileTypes)
                 .filter(ft -> Objects.equals(ft.getName(), fileTypeName))
                 .findFirst()
                 .orElse(null);
+    }
+
+    @Nullable
+    private static FileType findFileType(String fileTypeName) {
+        return silent(null,
+                () -> FileTypeManager.getInstance().findFileTypeByName(fileTypeName));
     }
 
     public List<FileNameMatcher> getAssociations(DBLanguageFileType fileType) {

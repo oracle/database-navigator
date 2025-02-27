@@ -28,6 +28,7 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.ThreadMonitor;
 import com.dbn.common.thread.ThreadProperty;
 import com.dbn.common.thread.Write;
+import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -209,8 +210,8 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
     }
 
     public void closeDatabaseFiles(@NotNull final List<ConnectionId> connectionIds) {
-        FileEditorManager fileEditorManager = FileEditorManager.getInstance(getProject());
-        for (VirtualFile virtualFile : fileEditorManager.getOpenFiles()) {
+        VirtualFile[] openFiles = Editors.getOpenFiles(getProject());
+        for (VirtualFile virtualFile : openFiles) {
             if (virtualFile instanceof DBVirtualFileBase) {
                 DBVirtualFileBase databaseVirtualFile = (DBVirtualFileBase) virtualFile;
                 ConnectionId connectionId = databaseVirtualFile.getConnectionId();

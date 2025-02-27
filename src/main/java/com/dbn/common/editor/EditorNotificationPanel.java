@@ -18,6 +18,7 @@ package com.dbn.common.editor;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.compatibility.Compatibility;
+import com.dbn.common.dispose.ComponentDisposer;
 import com.dbn.common.file.VirtualFileRef;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.message.MessageType;
@@ -26,6 +27,7 @@ import com.dbn.common.ui.form.DBNForm;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.mapping.FileConnectionContextManager;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.colors.ColorKey;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
@@ -42,7 +44,7 @@ import java.awt.Color;
 
 import static javax.swing.SwingConstants.RIGHT;
 
-public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationPanel{
+public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationPanel implements Disposable {
     private final VirtualFileRef file;
     private final ProjectRef project;
     private final JPanel contentPanel;
@@ -129,6 +131,11 @@ public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationP
     protected ConnectionId getConnectionId() {
         ConnectionHandler connection = getConnection();
         return connection.getConnectionId();
+    }
+
+    @Override
+    public void dispose() {
+        ComponentDisposer.dispose(this);
     }
 
 

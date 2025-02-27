@@ -20,11 +20,9 @@ import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.DataProviders;
 import com.dbn.common.dispose.Disposer;
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.ref.WeakRef;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.AutoCommitLabel;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNTableScrollPane;
@@ -64,6 +62,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -173,7 +172,7 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
 
         // update viewport and co. only if table was rebuilt (a.i. the old table is not null)
         if (oldEditorTable == null) return;
-        Dispatch.run(() -> {
+        dispatch(() -> {
             DatasetEditorTable datasetEditorTable = getEditorTable();
             datasetTableScrollPane.setViewportView(datasetEditorTable);
             datasetEditorTable.initTableGutter();
@@ -201,16 +200,16 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
     }
 
     public void showLoadingHint() {
-        Dispatch.run(() -> Failsafe.nn(loadingDataPanel).setVisible(true));
+        dispatch(() -> nn(loadingDataPanel).setVisible(true));
     }
 
     public void hideLoadingHint() {
-        Dispatch.run(() -> Failsafe.nn(loadingDataPanel).setVisible(false));
+        dispatch(() -> nn(loadingDataPanel).setVisible(false));
     }
 
     @NotNull
     public DatasetEditorTable getEditorTable() {
-        return Failsafe.nn(datasetEditorTable);
+        return nn(datasetEditorTable);
     }
 
     private ConnectionHandler getConnectionHandler() {
@@ -240,7 +239,7 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
         } else {
             searchPanel.setVisible(true);    
         }
-        Dispatch.run(() -> searchField.requestFocus());
+        dispatch(() -> searchField.requestFocus());
     }
 
     private DataSearchComponent getSearchComponent() {

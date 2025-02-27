@@ -44,6 +44,9 @@ import static com.intellij.openapi.application.ApplicationManager.getApplication
 @UtilityClass
 public final class Dispatch {
 
+    /**
+     * @deprecated use {@link #run(Component, Runnable)} or {@link #run(DataContext, boolean, Runnable)} or provide correct modality state
+     */
     public static void run(Runnable runnable) {
         run((ModalityState) null, runnable);
     }
@@ -77,10 +80,15 @@ public final class Dispatch {
         getApplication().invokeLater(() -> ThreadMonitor.surround(invoker, null, () -> guarded(runnable, r -> r.run())), modalityState);
     }
 
+    public static void execute(@NotNull Component component, Runnable runnable) {
+        ModalityState modalityState = ModalityState.stateForComponent(component);
+        execute(modalityState, runnable);
+    }
+
     // fire and wait
     public static void execute(@Nullable ModalityState modalityState, Runnable runnable) {
         ThreadInfo invoker = ThreadInfo.copy();
-        modalityState = nvl(modalityState, () -> ModalityState.defaultModalityState());
+        modalityState = nvl(modalityState, () -> getCurrentModalityState());
         getApplication().invokeAndWait(() -> ThreadMonitor.surround(invoker, null, () -> guarded(runnable, r -> r.run())), modalityState);
     }
 

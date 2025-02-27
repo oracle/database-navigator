@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.util.Editors.getOpenFiles;
 
 public class DatabaseLoaderManager extends ProjectComponentBase {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseLoaderManager";
@@ -63,7 +64,7 @@ public class DatabaseLoaderManager extends ProjectComponentBase {
 
         FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
         FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
-        VirtualFile[] openFiles = fileEditorManager.getOpenFiles();
+        VirtualFile[] openFiles = getOpenFiles(project);
         for (VirtualFile openFile : openFiles) {
             checkDisposed();
             ConnectionHandler activeConnection = contextManager.getConnection(openFile);

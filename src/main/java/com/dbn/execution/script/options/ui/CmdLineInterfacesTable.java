@@ -17,7 +17,6 @@
 package com.dbn.execution.script.options.ui;
 
 import com.dbn.common.color.Colors;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.util.Cursors;
@@ -138,7 +137,7 @@ public class CmdLineInterfacesTable extends DBNTable<CmdLineInterfacesTableModel
         JTextField textField = (JTextField) super.prepareEditor(editor, rowIndex, columnIndex);
         textField.setBorder(TEXT_FIELD_INSETS);
 
-        Dispatch.run(() -> {
+        dispatch(() -> {
             textField.selectAll();
             textField.grabFocus();
         });
