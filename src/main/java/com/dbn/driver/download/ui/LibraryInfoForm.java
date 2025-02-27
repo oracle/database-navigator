@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package com.dbn.driver.packages.ui;
+package com.dbn.driver.download.ui;
 
-import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.driver.packages.Developer;
-import com.dbn.driver.packages.Library;
-import com.dbn.driver.packages.License;
+import com.dbn.driver.download.metadata.Developer;
+import com.dbn.driver.download.metadata.Library;
+import com.dbn.driver.download.metadata.License;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.uiDesigner.core.GridConstraints;

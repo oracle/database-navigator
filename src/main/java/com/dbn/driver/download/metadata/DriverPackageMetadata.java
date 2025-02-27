@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package com.dbn.driver.packages;
+package com.dbn.driver.download.metadata;
 
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.checksum.ChecksumType;
 import com.dbn.common.message.AsyncMessageCollector;
 import com.dbn.common.util.XmlContents;
 import com.dbn.connection.DatabaseType;
+import com.dbn.driver.download.DownloadStatus;
+import com.dbn.driver.download.DriverDownloadManager;
+import com.dbn.driver.download.DriverMetadataDownloader;
 import com.intellij.openapi.progress.ProgressIndicator;
 import lombok.SneakyThrows;
 import org.jdom.Element;
@@ -62,22 +65,22 @@ import static java.util.Collections.unmodifiableList;
  *
  * @author Ayoub Aarrasse
  */
-public class DriverPackageBundle {
-    private static DriverPackageBundle INSTANCE;
+public class DriverPackageMetadata {
+    private static DriverPackageMetadata INSTANCE;
     private final List<DriverPackage> driverPackages;
 
     @SneakyThrows
-    private DriverPackageBundle(ProgressIndicator indicator, AsyncMessageCollector messages) {
+    private DriverPackageMetadata(ProgressIndicator indicator, AsyncMessageCollector messages) {
         Element element = XmlContents.fileToElement(getClass(), "driver-packages.xml");
         List<Element> packageElements = element.getChildren("driver-package");
         Function<Element, DriverPackage> driverPackageFunction = e->
-                new DriverMetaDataDownloader().createDriverPackage(e, indicator, messages,(float) 1 /packageElements.size());
+                new DriverMetadataDownloader().createDriverPackage(e, indicator, messages,(float) 1 /packageElements.size());
         driverPackages = unmodifiableList(convertParallel(packageElements, driverPackageFunction));
     }
 
     public synchronized static void initialize(ProgressIndicator indicator, AsyncMessageCollector messages) {
         if (INSTANCE == null) {
-            INSTANCE = new DriverPackageBundle(indicator, messages);
+            INSTANCE = new DriverPackageMetadata(indicator, messages);
         }
     }
     private static final String DRIVER_PACKAGES_PATH = getPluginDeploymentRoot().getPath()+"/driver-packages/checksums";
@@ -141,7 +144,7 @@ public class DriverPackageBundle {
 
     public static List<DriverPackage> driverPackages(DatabaseType databaseType, ProgressIndicator indicator, AsyncMessageCollector messages) {
         initialize(indicator, messages);
-        return driverPackages(messages).stream().filter(dp -> dp.getDatabaseType() == databaseType || dp.getDatabaseType() == DatabaseType.GENERIC).collect(Collectors.toList());
+        return driverPackages(messages).stream().filter(dp -> dp.getDatabaseType() == databaseType || databaseType == DatabaseType.GENERIC).collect(Collectors.toList());
     }
 
     public static List<DriverPackage> getDownloadedDriverPackage(AsyncMessageCollector messages) {

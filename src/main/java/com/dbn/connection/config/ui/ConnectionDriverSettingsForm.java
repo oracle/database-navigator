@@ -31,8 +31,8 @@ import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.driver.DatabaseDriverManager;
 import com.dbn.driver.DriverBundle;
 import com.dbn.driver.DriverSource;
-import com.dbn.driver.packages.DriverPackage;
-import com.dbn.driver.packages.DriverPackageBundle;
+import com.dbn.driver.download.metadata.DriverPackage;
+import com.dbn.driver.download.metadata.DriverPackageMetadata;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -40,7 +40,6 @@ import com.intellij.openapi.actionSystem.Separator;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.DumbAwareAction;
-import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.HyperlinkLabel;
@@ -135,7 +134,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             });
         });
         downloadButton.addActionListener(e -> {
-            showDownloadPopup(downloadButton, DriverPackageBundle.getDownloadedDriverPackage(messages));
+            showDownloadPopup(downloadButton, DriverPackageMetadata.getDownloadedDriverPackage(messages));
         });
     }
 
@@ -304,7 +303,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                             indicator.setFraction(0.01);
                             try {
                                 driverPackages.clear();
-                                driverPackages.addAll(DriverPackageBundle.driverPackages(getDatabaseType(), indicator, messages));
+                                driverPackages.addAll(DriverPackageMetadata.driverPackages(getDatabaseType(), indicator, messages));
                                 ApplicationManager.getApplication().invokeLater(()->{
                                     DownloadManagerDialog downloadDialog = new DownloadManagerDialog(ensureProject(), getDatabaseType(), driverPackages);
                                     Dialogs.show(() -> downloadDialog, (dialog, exitCode) -> {

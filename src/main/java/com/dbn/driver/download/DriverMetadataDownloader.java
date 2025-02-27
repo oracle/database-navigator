@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.dbn.driver.packages;
+package com.dbn.driver.download;
 
 import com.dbn.common.download.Downloads;
 import com.dbn.common.message.AsyncMessageCollector;
 import com.dbn.connection.DatabaseType;
-import com.dbn.driver.packages.parser.DependencyParser;
+import com.dbn.driver.download.metadata.DriverPackage;
+import com.dbn.driver.download.metadata.Library;
 import com.intellij.openapi.progress.ProgressIndicator;
 import lombok.SneakyThrows;
 import org.jdom.Element;
@@ -41,11 +42,11 @@ import java.util.stream.Collectors;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
-public class DriverMetaDataDownloader {
+public class DriverMetadataDownloader {
     private AsyncMessageCollector messages;
 
     @SneakyThrows
-    public  DriverPackage createDriverPackage(Element element, ProgressIndicator indicator, AsyncMessageCollector messages, float chunk){
+    public DriverPackage createDriverPackage(Element element, ProgressIndicator indicator, AsyncMessageCollector messages, float chunk){
         this.messages = messages;
         String id = stringAttribute(element, "id");
         String name = stringAttribute(element, "name");

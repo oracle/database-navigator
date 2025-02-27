@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dbn.driver.packages;
+package com.dbn.driver.download;
 
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.message.AsyncMessageCollector;
+import com.dbn.driver.download.metadata.DriverPackage;
+import com.dbn.driver.download.metadata.DriverPackageMetadata;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.driver.packages.DriverDownloadManager.COMPONENT_NAME;
+import static com.dbn.driver.download.DriverDownloadManager.COMPONENT_NAME;
 
 /**
  * Download Manager for tracking the state of driver package downloads.
@@ -49,7 +51,7 @@ import static com.dbn.driver.packages.DriverDownloadManager.COMPONENT_NAME;
         storages = @Storage(DatabaseNavigator.STORAGE_FILE)
 )
 public class DriverDownloadManager extends ApplicationComponentBase implements PersistentState {
-    public static final String COMPONENT_NAME = "DBNavigator.Application.DownloadManager";
+    public static final String COMPONENT_NAME = "DBNavigator.Application.DriverDownloadManager";
 
     private final Map<String, DriverPackageStatus> packageDownloadStatuses = new ConcurrentHashMap<>();
 
@@ -88,7 +90,7 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
                         return createPackageStatus(packageId, messages);
                     } catch (Exception e) {
                         messages.addErrorMessage(e.getMessage());
-                        throw new RuntimeException(e.getMessage());
+                        throw new RuntimeException(e.getMessage(), e);
                     }
                 });
     }
@@ -98,7 +100,7 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
     }
 
     private DriverPackageStatus createPackageStatus(String packageId, AsyncMessageCollector messages) {
-        DriverPackage driverPackage = DriverPackageBundle.getDriverPackage(packageId, messages);
+        DriverPackage driverPackage = DriverPackageMetadata.getDriverPackage(packageId, messages);
         int packageCount = driverPackage.size();
         return new DriverPackageStatus(packageId, packageCount);
     }
@@ -141,7 +143,6 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
                 String packageId = packageElement.getAttributeValue("id");
                 DriverPackageStatus jarStatuses = getPackageStatus(packageId);
                 jarStatuses.readState(packageElement);
-                packageDownloadStatuses.put(packageId, jarStatuses);
             }
         }
     }

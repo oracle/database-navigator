@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.driver.packages;
+package com.dbn.driver.download;
 
 import com.dbn.common.state.PersistentStateElement;
 import lombok.Getter;

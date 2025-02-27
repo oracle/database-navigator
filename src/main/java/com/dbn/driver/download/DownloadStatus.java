@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.driver.packages;
+package com.dbn.driver.download;
 
 public enum DownloadStatus {
     NEW, // Download didn't start yet

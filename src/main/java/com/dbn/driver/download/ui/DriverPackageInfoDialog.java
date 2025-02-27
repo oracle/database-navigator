@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.dbn.driver.packages.ui;
+package com.dbn.driver.download.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.driver.packages.DriverPackage;
+import com.dbn.driver.download.metadata.DriverPackage;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 

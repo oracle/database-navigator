@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.dbn.driver.packages;
+package com.dbn.driver.download;
 
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.checksum.ChecksumType;
 import com.dbn.common.download.Downloads;
 import com.dbn.common.message.AsyncMessageCollector;
+import com.dbn.driver.download.metadata.Library;
 import com.intellij.openapi.util.io.FileUtil;
 
 import java.io.BufferedWriter;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.driver.packages;
+package com.dbn.driver.download.metadata;
 
 import com.dbn.common.download.Downloads;
 import lombok.Getter;
@@ -27,7 +27,6 @@ import org.xml.sax.InputSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,10 +61,10 @@ public class Library {
 
 
     // Constructor using DependencyNode
-    public Library(DependencyNode node) {
+    public Library(DependencyNode node, List<Developer> developers, List<License> licenses) {
         this(node.getArtifact().getGroupId(),
                 node.getArtifact().getArtifactId(),
-                node.getArtifact().getVersion());
+                node.getArtifact().getVersion(), developers, licenses);
     }
 
     // New Constructor using groupId, artifactId, and version
@@ -73,60 +72,44 @@ public class Library {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
-        try {
-            File pomFile = downloadPomFile(groupId, artifactId, version);
-            Model model = parsePom(pomFile);
-            if (model != null) {
-                this.developers = convertDevelopers(model.getDevelopers());
-                this.licenses = convertLicenses(model.getLicenses());
-            } else {
-                this.developers = Collections.emptyList();
-                this.licenses = Collections.emptyList();
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+//        try {
+//            File pomFile = downloadPomFile(groupId, artifactId, version);
+//            Model model = parsePom(pomFile);
+//            if (model != null) {
+//                this.developers = convertDevelopers(model.getDevelopers());
+//                this.licenses = convertLicenses(model.getLicenses());
+//            } else {
+//                this.developers = Collections.emptyList();
+//                this.licenses = Collections.emptyList();
+//            }
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
     }
+//
+//    private File downloadPomFile(String groupId, String artifactId, String version) throws Exception{
+//            String pomUrl = constructPomUrl(groupId, artifactId, version);
+//            File tempFile = File.createTempFile("artifact-pom", ".xml");
+//            Downloads.downloadAtomically(null, pomUrl, tempFile);
+//            return tempFile;
+//    }
+//
+//    private Model parsePom(File pomFile) throws Exception {
+//        try (FileInputStream fis = new FileInputStream(pomFile)) {
+//            MavenXpp3Reader reader = new MavenXpp3Reader();
+//            InputSource inputSource = new InputSource(fis);
+//            inputSource.setSystemId(pomFile.getAbsolutePath());
+//            return reader.read(inputSource.getByteStream());
+//        }
+//    }
 
-    private File downloadPomFile(String groupId, String artifactId, String version) throws Exception{
-            String pomUrl = constructPomUrl(groupId, artifactId, version);
-            File tempFile = File.createTempFile("artifact-pom", ".xml");
-            Downloads.downloadAtomically(null, pomUrl, tempFile);
-            return tempFile;
-    }
+//    private String constructPomUrl(String groupId, String artifactId, String version) {
+//        String groupPath = groupId.replace(".", "/");
+//        return String.format("https://repo.maven.apache.org/maven2/%s/%s/%s/%s-%s.pom",
+//                groupPath, artifactId, version, artifactId, version);
+//    }
+//
 
-    private Model parsePom(File pomFile) throws Exception {
-        try (FileInputStream fis = new FileInputStream(pomFile)) {
-            MavenXpp3Reader reader = new MavenXpp3Reader();
-            InputSource inputSource = new InputSource(fis);
-            inputSource.setSystemId(pomFile.getAbsolutePath());
-            return reader.read(inputSource.getByteStream());
-        }
-    }
-
-    private String constructPomUrl(String groupId, String artifactId, String version) {
-        String groupPath = groupId.replace(".", "/");
-        return String.format("https://repo.maven.apache.org/maven2/%s/%s/%s/%s-%s.pom",
-                groupPath, artifactId, version, artifactId, version);
-    }
-
-    private List<Developer> convertDevelopers(List<org.apache.maven.model.Developer> mavenDevelopers) {
-        if (mavenDevelopers == null) {
-            return Collections.emptyList();
-        }
-        return mavenDevelopers.stream()
-                .map(dev -> new Developer(dev.getName(), dev.getUrl()))
-                .collect(Collectors.toList());
-    }
-
-    private List<License> convertLicenses(List<org.apache.maven.model.License> mavenLicenses) {
-        if (mavenLicenses == null) {
-            return Collections.emptyList();
-        }
-        return mavenLicenses.stream()
-                .map(lic -> new License(lic.getName(), lic.getUrl()))
-                .collect(Collectors.toList());
-    }
 
     public boolean is(Artifact artifact) {
         if (artifact == null) return false;

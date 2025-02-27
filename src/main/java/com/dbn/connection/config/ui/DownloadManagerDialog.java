@@ -19,8 +19,8 @@ package com.dbn.connection.config.ui;
 import com.dbn.common.message.AsyncMessageCollector;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.DatabaseType;
-import com.dbn.driver.packages.DriverPackage;
-import com.dbn.driver.packages.DriverPackageDownloader;
+import com.dbn.driver.download.metadata.DriverPackage;
+import com.dbn.driver.download.DriverPackageDownloader;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 

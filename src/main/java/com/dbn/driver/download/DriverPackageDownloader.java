@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package com.dbn.driver.packages;
+package com.dbn.driver.download;
 
 import com.dbn.common.message.AsyncMessageCollector;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Files;
+import com.dbn.driver.download.metadata.DriverPackage;
+import com.dbn.driver.download.metadata.Library;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;

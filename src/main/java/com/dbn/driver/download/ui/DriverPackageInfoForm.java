@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.dbn.driver.packages.ui;
+package com.dbn.driver.download.ui;
 
 import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.driver.packages.DriverPackage;
-import com.dbn.driver.packages.Library;
+import com.dbn.driver.download.metadata.DriverPackage;
+import com.dbn.driver.download.metadata.Library;
 import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

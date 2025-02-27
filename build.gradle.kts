@@ -59,9 +59,9 @@ dependencies {
 
   implementation(project(":modules:dbn-api"))
   implementation(project(":modules:dbn-spi"))
-
-  implementation("org.apache.maven:maven-resolver-provider:3.9.9")
     implementation("org.apache.maven.resolver:maven-resolver-connector-basic:1.9.22")
+  implementation("org.apache.maven:maven-resolver-provider:3.9.9")
+
 
 }
 
