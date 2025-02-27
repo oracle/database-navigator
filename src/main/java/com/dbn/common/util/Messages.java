@@ -38,6 +38,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.thread.Dispatch.getCurrentModalityState;
 import static com.dbn.common.ui.progress.ProgressDialogHandler.closeProgressDialogs;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -156,7 +157,7 @@ public class Messages {
             @Nullable MessageCallback callback,
             @Nullable DoNotAskOption doNotAskOption) {
 
-        Dispatch.run(getModalityState(), () -> {
+        Dispatch.execute(getCurrentModalityState(), () -> {
             if (project != null) nd(project);
             int option = showDialog(project, message, title, options, defaultOptionIndex, icon, doNotAskOption);
             //int option = com.intellij.openapi.ui.Messages.showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, icon, doNotAskOption);

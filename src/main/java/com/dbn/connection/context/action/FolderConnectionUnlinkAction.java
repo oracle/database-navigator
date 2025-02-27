@@ -27,6 +27,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
@@ -58,7 +59,7 @@ public class FolderConnectionUnlinkAction extends AbstractFolderContextAction {
             if (fileContext != null) {
                 ConnectionHandler connection = fileContext.getConnection();
                 if (connection != null) {
-                    text = txt("app.fileContext.action.RemoveAssociationWith", connection.getName());
+                    text = txt("app.fileContext.action.RemoveAssociationWith", adjustActionName(connection.getName()));
                 }
             }
 

@@ -87,7 +87,7 @@ public abstract class AbstractDatasetTableCellEditor extends AbstractCellEditor 
     private DatasetEditorModelCellValueListener cellValueListener() {
         return cell -> {
             if (cell == getCell()) {
-                Dispatch.run(() -> setCellValueToEditor());
+                Dispatch.run(getTable(), () -> setCellValueToEditor());
             }
         };
     }

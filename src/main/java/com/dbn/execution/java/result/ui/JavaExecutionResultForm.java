@@ -19,7 +19,6 @@ package com.dbn.execution.java.result.ui;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.common.ui.tab.DBNTabs;
@@ -99,7 +98,7 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
     }
 
     public void rebuildForm() {
-        Dispatch.run(() -> {
+        dispatch(() -> {
             updateArgumentValueTree();
             updateOutputTabs();
             updateStatusBarLabels();
