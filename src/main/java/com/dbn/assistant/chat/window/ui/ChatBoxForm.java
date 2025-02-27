@@ -27,7 +27,6 @@ import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Background;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.util.Actions;
@@ -160,7 +159,7 @@ public class ChatBoxForm extends DBNFormBase {
   private void restoreMessages() {
     List<PersistentChatMessage> messages = getAssistantState().getMessages();
     messageContainer.addAll(messages, this);
-    Dispatch.run(() -> scrollConversationDown());
+    dispatch(() -> scrollConversationDown());
   }
 
   @NotNull
@@ -342,8 +341,8 @@ public class ChatBoxForm extends DBNFormBase {
   private void appendMessageToChat(PersistentChatMessage message) {
     List<PersistentChatMessage> messages = List.of(message);
     getAssistantState().addMessages(messages);
-    Dispatch.run(() -> messageContainer.addAll(messages, this));
-    Dispatch.run(() -> scrollConversationDown());
+    dispatch(() -> messageContainer.addAll(messages, this));
+    dispatch(() -> scrollConversationDown());
     updateActionToolbars();
   }
 

@@ -19,7 +19,6 @@ package com.dbn.connection.resource.ui;
 import com.dbn.common.action.BasicActionButton;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -265,7 +264,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
     };
 
     private void refreshSessionData() {
-        Dispatch.run(() -> {
+        dispatch(() -> {
             checkDisposed();
             ConnectionHandler connection = getConnection();
 
@@ -275,7 +274,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
     }
 
     private void refreshTransactionsData(DBNConnection conn) {
-        Dispatch.run(() -> {
+        dispatch(() -> {
             checkDisposed();
             ConnectionHandler connection = getConnection();
 

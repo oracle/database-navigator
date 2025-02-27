@@ -21,7 +21,6 @@ import com.dbn.common.action.ProjectAction;
 import com.dbn.common.action.ToggleAction;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.UserInterface;
@@ -229,7 +228,7 @@ public class MethodExecutionHistoryForm extends DBNFormBase {
                                     method.getArguments();
                                 }*/
 
-                                Dispatch.run(() -> {
+                                dispatch(() -> {
                                     MethodExecutionHistoryDialog dialog = getParentDialog();
                                     showMethodExecutionPanel(executionInput);
                                     dialog.setSelectedExecutionInput(executionInput);

@@ -23,7 +23,6 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.ref.WeakRef;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Borders;
@@ -109,7 +108,7 @@ public class SessionBrowserForm extends DBNFormBase implements SearchableDataCom
     }
 
     public void showLoadingHint() {
-        Dispatch.run(() -> {
+        dispatch(() -> {
             Failsafe.nd(this);
             loadingLabel.setVisible(true);
             loadingIconPanel.setVisible(true);
@@ -119,7 +118,7 @@ public class SessionBrowserForm extends DBNFormBase implements SearchableDataCom
     }
 
     public void hideLoadingHint() {
-        Dispatch.run(() -> {
+        dispatch(() -> {
             Failsafe.nd(this);
             loadingLabel.setVisible(false);
             loadingIconPanel.setVisible(false);

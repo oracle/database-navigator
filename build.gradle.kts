@@ -29,7 +29,7 @@ plugins {
 }
 
 group = "com.dbn"
-version = "3.5.0.0"
+version = "3.5.2.0"
 
 repositories {
   mavenCentral()
@@ -53,16 +53,18 @@ dependencies {
   implementation("org.apache.commons:commons-collections4:4.4")
   implementation("org.apache.commons:commons-lang3:3.17.0")
   implementation("org.apache.logging.log4j:log4j-api:2.24.1")
+  implementation("org.apache.xmlbeans:xmlbeans:5.2.1")
+
+  // ssh tunnel libraries
   implementation("org.apache.sshd:sshd-common:2.13.2")
   implementation("org.apache.sshd:sshd-core:2.13.2")
-  implementation("org.apache.xmlbeans:xmlbeans:5.2.1")
+
+  // driver download libraries
+  implementation("org.apache.maven.resolver:maven-resolver-connector-basic:1.9.22")
+  implementation("org.apache.maven:maven-resolver-provider:3.9.9")
 
   implementation(project(":modules:dbn-api"))
   implementation(project(":modules:dbn-spi"))
-    implementation("org.apache.maven.resolver:maven-resolver-connector-basic:1.9.22")
-  implementation("org.apache.maven:maven-resolver-provider:3.9.9")
-
-
 }
 
 licenseReport {
@@ -95,7 +97,7 @@ sourceSets{
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-  version.set("241.19416.15")
+  version.set("2024.3.3")
   type.set("IC") // Target IDE Platform
 
   plugins.set(listOf("java", "copyright"))

@@ -21,6 +21,7 @@ import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.util.UserInterface;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.ui.PopupBorder;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +34,6 @@ import java.awt.Point;
 import java.awt.Window;
 import java.util.function.Supplier;
 
-import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.ui.progress.ProgressDialogHandler.closeProgressDialogs;
 
 @UtilityClass
@@ -43,17 +43,13 @@ public class Dialogs {
     }
 
     public static <T extends DBNDialog<?>> void show(@NotNull Supplier<T> builder, @Nullable DialogCallback<T> callback) {
-        Dispatch.run(true, () -> {
+        ModalityState modalityState = Dispatch.getCurrentModalityState();
+        Dispatch.execute(modalityState, () -> {
             closeProgressDialogs();
             T dialog = builder.get();
             dialog.setDialogCallback(callback);
             dialog.show();
         });
-    }
-
-    public static <T extends DBNDialog> void close(@Nullable T dialog, int exitCode) {
-        if (isNotValid(dialog)) return;
-        Dispatch.run(true, () -> dialog.close(exitCode));
     }
 
     /**

@@ -19,7 +19,6 @@ package com.dbn.editor.code.ui;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ref.WeakRef;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNToolbarForm;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
@@ -71,7 +70,7 @@ public class SourceCodeEditorToolbarForm extends DBNToolbarForm {
             public void sourceCodeLoading(@NotNull DBSourceCodeVirtualFile sourceCodeFile) {
                 DBSourceCodeVirtualFile virtualFile = getVirtualFile();
                 if (virtualFile.equals(sourceCodeFile)) {
-                    Dispatch.run(() -> loadingDataPanel.setVisible(true));
+                    dispatch(() -> loadingDataPanel.setVisible(true));
                 }
             }
 
@@ -79,7 +78,7 @@ public class SourceCodeEditorToolbarForm extends DBNToolbarForm {
             public void sourceCodeLoaded(@NotNull DBSourceCodeVirtualFile sourceCodeFile, boolean initialLoad) {
                 DBSourceCodeVirtualFile virtualFile = getVirtualFile();
                 if (virtualFile.equals(sourceCodeFile)) {
-                    Dispatch.run(() -> loadingDataPanel.setVisible(false));
+                    dispatch(() -> loadingDataPanel.setVisible(false));
                 }
             }
         };

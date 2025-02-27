@@ -140,7 +140,7 @@ public class DataSearchResultController {
                 searchResult.stopUpdating();
             }
 
-            Dispatch.run(() -> {
+            Dispatch.run(table, () -> {
                 int selectedRowIndex = table.getSelectedRow();
                 int selectedColumnIndex = table.getSelectedRow();
                 if (selectedRowIndex < 0) selectedRowIndex = 0;

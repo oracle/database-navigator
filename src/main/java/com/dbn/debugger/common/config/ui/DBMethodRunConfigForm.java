@@ -21,7 +21,6 @@ import com.dbn.common.action.ProjectPopupAction;
 import com.dbn.common.color.Colors;
 import com.dbn.common.environment.options.EnvironmentSettings;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
@@ -143,7 +142,7 @@ public class DBMethodRunConfigForm extends DBProgramRunConfigForm<DBMethodRunCon
                 progress -> {
                     // initialize method and arguments
                     initialiseExecutionInput(executionInput, progress);
-                    Dispatch.run(() -> initializeInputForm(executionInput, touchForm));
+                    dispatch(() -> initializeInputForm(executionInput, touchForm));
                 });
     }
 
