@@ -33,12 +33,11 @@ import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -47,8 +46,25 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
 
+import static com.dbn.common.data.Data.asBigDecimal;
+import static com.dbn.common.data.Data.asBigInteger;
+import static com.dbn.common.data.Data.asBoolean;
+import static com.dbn.common.data.Data.asBooleanPrimitive;
+import static com.dbn.common.data.Data.asByte;
+import static com.dbn.common.data.Data.asBytePrimitive;
+import static com.dbn.common.data.Data.asCharacter;
+import static com.dbn.common.data.Data.asCharacterPrimitive;
+import static com.dbn.common.data.Data.asDouble;
+import static com.dbn.common.data.Data.asDoublePrimitive;
+import static com.dbn.common.data.Data.asFloat;
+import static com.dbn.common.data.Data.asFloatPrimitive;
+import static com.dbn.common.data.Data.asInteger;
+import static com.dbn.common.data.Data.asIntegerPrimitive;
+import static com.dbn.common.data.Data.asLong;
+import static com.dbn.common.data.Data.asLongPrimitive;
+import static com.dbn.common.data.Data.asShort;
+import static com.dbn.common.data.Data.asShortPrimitive;
 import static com.dbn.common.util.Lists.sortedCopy;
-import static com.dbn.common.util.Strings.firstCharacter;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
@@ -240,32 +256,31 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	private Object parseValue(JavaExecutionInput executionInput, Wrapper wrapper, DBJavaField field, String fieldPath, String fieldValue) {
 		if (field == null) return null;
 
+		@NonNls
 		String className = getCanonicalName(field.getJavaClassRef());
-
-		// TODO isolate this logic and safely handle null fieldValue
 		switch (className) {
 			// primitives
-			case "boolean": return Boolean.parseBoolean(fieldValue);
-			case "byte": return Byte.parseByte(fieldValue);
-			case "char": return firstCharacter(fieldValue);
-			case "double": return Double.parseDouble(fieldValue);
-			case "float": return Float.parseFloat(fieldValue);
-			case "int": return Integer.parseInt(fieldValue);
-			case "long": return Long.parseLong(fieldValue);
-			case "short": return Short.parseShort(fieldValue);
+			case "boolean": return asBooleanPrimitive(fieldValue);
+			case "byte": return asBytePrimitive(fieldValue);
+			case "char": return asCharacterPrimitive(fieldValue);
+			case "double": return asDoublePrimitive(fieldValue);
+			case "float": return asFloatPrimitive(fieldValue);
+			case "int": return asIntegerPrimitive(fieldValue);
+			case "long": return asLongPrimitive(fieldValue);
+			case "short": return asShortPrimitive(fieldValue);
 
 			// pseudo-primitives (prevent expensive class-details load from SYS schema)
-			case "java.lang.Boolean": return Boolean.parseBoolean(fieldValue);
-			case "java.lang.Byte": return Byte.parseByte(fieldValue);
-			case "java.lang.Character": firstCharacter(fieldValue);
-			case "java.lang.Double": return Double.parseDouble(fieldValue);
-			case "java.lang.Float": return Float.parseFloat(fieldValue);
-			case "java.lang.Integer": return Integer.parseInt(fieldValue);
-			case "java.lang.Long": return Long.parseLong(fieldValue);
-			case "java.lang.Short": return Short.parseShort(fieldValue);
+			case "java.lang.Boolean": return asBoolean(fieldValue);
+			case "java.lang.Byte": return asByte(fieldValue);
+			case "java.lang.Character": asCharacter(fieldValue);
+			case "java.lang.Double": return asDouble(fieldValue);
+			case "java.lang.Float": return asFloat(fieldValue);
+			case "java.lang.Integer": return asInteger(fieldValue);
+			case "java.lang.Long": return asLong(fieldValue);
+			case "java.lang.Short": return asShort(fieldValue);
 			case "java.lang.String": return fieldValue;
-			case "java.math.BigDecimal": return new BigDecimal(fieldValue);
-			case "java.math.BigInteger": return new BigInteger(fieldValue);
+			case "java.math.BigDecimal": return asBigDecimal(fieldValue);
+			case "java.math.BigInteger": return asBigInteger(fieldValue);
 			//...
 			default:
 				if (field.isClass()) {
@@ -278,7 +293,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		}
 	}
 
-	private int getSQLTypes(String javaType) {
+	private int getSQLTypes(@NonNls String javaType) {
 		switch (javaType) {
 			case "int" : return Types.INTEGER;
 			case "float" : return Types.FLOAT;

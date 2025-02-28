@@ -21,21 +21,34 @@ import com.dbn.common.util.Unsafe;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import static com.dbn.common.util.Strings.firstCharacter;
+
 
 @UtilityClass
 public final class Data {
 
     public static <T> T cast(@Nullable Object object, Class<T> type) {
         if (object != null) {
-            if (type == String.class)   return Unsafe.cast(asString(object));
-            if (type == Short.class)    return Unsafe.cast(asShort(object));
-            if (type == Integer.class)  return Unsafe.cast(asInteger(object));
-            if (type == Long.class)     return Unsafe.cast(asLong(object));
-            if (type == Boolean.class)  return Unsafe.cast(asBoolean(object));
-            if (type == short.class)    return Unsafe.cast(asShrt(object));
-            if (type == int.class)      return Unsafe.cast(asInt(object));
-            if (type == long.class)     return Unsafe.cast(asLng(object));
-            if (type == boolean.class)  return Unsafe.cast(asBool(object));
+            if (type == Boolean.class)   return Unsafe.cast(asBoolean(object));
+            if (type == Character.class) return Unsafe.cast(asCharacter(object));
+            if (type == Double.class)    return Unsafe.cast(asDouble(object));
+            if (type == Float.class)     return Unsafe.cast(asFloat(object));
+            if (type == Integer.class)   return Unsafe.cast(asInteger(object));
+            if (type == Long.class)      return Unsafe.cast(asLong(object));
+            if (type == Short.class)     return Unsafe.cast(asShort(object));
+            if (type == String.class)    return Unsafe.cast(asString(object));
+            if (type == boolean.class)   return Unsafe.cast(asBooleanPrimitive(object));
+            if (type == char.class)      return Unsafe.cast(asCharacterPrimitive(object));
+            if (type == double.class)    return Unsafe.cast(asDoublePrimitive(object));
+            if (type == float.class)     return Unsafe.cast(asFloatPrimitive(object));
+            if (type == int.class)       return Unsafe.cast(asIntegerPrimitive(object));
+            if (type == long.class)      return Unsafe.cast(asLongPrimitive(object));
+            if (type == short.class)     return Unsafe.cast(asShortPrimitive(object));
+            if (type == BigDecimal.class) return Unsafe.cast(asBigDecimal(object));
+            if (type == BigInteger.class) return Unsafe.cast(asBigInteger(object));
 
             throw new UnsupportedOperationException("Cast from " + object.getClass() + " to " + type + " is not implemented");
             // TODO add more cast logic if required
@@ -49,6 +62,17 @@ public final class Data {
         return object.toString();
     }
 
+    public static Character asCharacter(@Nullable Object object) {
+        if (object == null) return null;
+        if (object instanceof Character) return (Character) object;
+        return firstCharacter(object.toString());
+    }
+
+    public static char asCharacterPrimitive(@Nullable Object object) {
+        Character character = asCharacter(object);
+        return character == null ? 0 : character;
+    }
+
     @Nullable
     public static Integer asInteger(@Nullable Object object) {
         if (object == null) return null;
@@ -57,9 +81,21 @@ public final class Data {
         return Integer.valueOf(object.toString());
     }
 
-    public static int asInt(@Nullable Object object) {
+    public static int asIntegerPrimitive(@Nullable Object object) {
         Integer integer = asInteger(object);
         return integer == null ? 0 : integer;
+    }
+
+    public static Byte asByte(@Nullable Object object) {
+        if (object == null) return null;
+        if (object instanceof Byte) return (Byte) object;
+        if (object instanceof Number) return ((Number) object).byteValue();
+        return Byte.valueOf(object.toString());
+    }
+
+    public static byte asBytePrimitive(@Nullable Object object) {
+        Byte byteValue = asByte(object);
+        return byteValue == null ? 0 : byteValue;
     }
 
     public static Short asShort(@Nullable Object object) {
@@ -69,7 +105,7 @@ public final class Data {
         return Short.valueOf(object.toString());
     }
 
-    public static short asShrt(@Nullable Object object) {
+    public static short asShortPrimitive(@Nullable Object object) {
         Short shrt = asShort(object);
         return shrt == null ? 0 : shrt;
     }
@@ -82,9 +118,33 @@ public final class Data {
         return Long.valueOf(object.toString());
     }
 
-    public static long asLng(@Nullable Object object) {
+    public static long asLongPrimitive(@Nullable Object object) {
         Long longVal = asLong(object);
         return longVal == null ? 0 : longVal;
+    }
+
+    public static Double asDouble(@Nullable Object object) {
+        if (object == null) return null;
+        if (object instanceof Double) return (Double) object;
+        if (object instanceof Number) return ((Number) object).doubleValue();
+        return Double.valueOf(object.toString());
+    }
+
+    public static double asDoublePrimitive(@Nullable Object object) {
+        Double doubleVal = asDouble(object);
+        return doubleVal == null ? 0 : doubleVal;
+    }
+
+    public static Float asFloat(@Nullable Object object) {
+        if (object == null) return null;
+        if (object instanceof Float) return (Float) object;
+        if (object instanceof Number) return ((Number) object).floatValue();
+        return Float.valueOf(object.toString());
+    }
+
+    public static float asFloatPrimitive(@Nullable Object object) {
+        Float floatVal = asFloat(object);
+        return floatVal == null ? 0 : floatVal;
     }
 
     @Nullable
@@ -96,9 +156,21 @@ public final class Data {
         return null;
     }
 
-    public static boolean asBool(@Nullable Object object) {
+    public static boolean asBooleanPrimitive(@Nullable Object object) {
         Boolean bool = asBoolean(object);
         return bool != null && bool;
+    }
+
+    public static BigDecimal asBigDecimal(@Nullable Object object) {
+        if (object == null) return null;
+        if (object instanceof BigDecimal) return (BigDecimal) object;
+        return new BigDecimal(object.toString());
+    }
+
+    public static BigInteger asBigInteger(@Nullable Object object) {
+        if (object == null) return null;
+        if (object instanceof BigInteger) return (BigInteger) object;
+        return new BigInteger(object.toString());
     }
 
 
