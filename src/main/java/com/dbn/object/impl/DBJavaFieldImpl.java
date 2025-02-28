@@ -156,7 +156,7 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 			methodName = methodName.split("#")[0];
 
 			if (!Objects.equals(methodName, getterName)) continue;
-			if (!Objects.equals(method.getReturnClassRef(), getJavaClassRef())) continue;
+			if (!Objects.equals(method.getReturnClassRef().getObjectName(), getJavaClassRef().getObjectName())) continue;
 			if (!Objects.equals(method.getReturnArrayDepth(), getArrayDepth())) continue;
 
 			return method;
@@ -180,7 +180,7 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 			if (parameters.size() != 1) continue;
 
 			DBJavaParameter parameter = parameters.get(0);
-			if (!Objects.equals(parameter.getJavaClassRef(), getJavaClassRef())) continue;
+			if (!Objects.equals(parameter.getJavaClassRef().getObjectName(), getJavaClassRef().getObjectName())) continue;
 			if (!Objects.equals(parameter.getArrayDepth(), getArrayDepth())) continue;
 
 			return method;
