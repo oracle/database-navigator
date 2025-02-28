@@ -48,6 +48,8 @@ public interface DBJavaClass extends DBSchemaObject {
 
 	boolean isPrimitive();
 
+	boolean isScalar();
+
     List<DBJavaMethod> getMethods();
 
 	List<DBJavaMethod> getStaticMethods();

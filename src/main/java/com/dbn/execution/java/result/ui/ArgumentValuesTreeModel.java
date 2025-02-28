@@ -21,6 +21,7 @@ import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
+import com.dbn.object.lookup.DBObjectRef;
 import lombok.Getter;
 
 import javax.swing.event.TreeModelListener;
@@ -28,6 +29,8 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.util.List;
+
+import static com.dbn.object.type.DBJavaScalarType.isScalar;
 
 @Getter
 public class ArgumentValuesTreeModel implements TreeModel {
@@ -42,32 +45,39 @@ public class ArgumentValuesTreeModel implements TreeModel {
     }
 
     private static void createOutputValuesNodes(DBJavaMethod method, ArgumentValuesTreeNode parentNode, List<ExecutionValue> outputValues) {
-        if(method.isReturningVoid()) return;
+        // void
+        if (method.isReturningVoid()) return;
 
-        DBJavaClass returnClass = method.getReturnClass();
-        ArgumentValuesTreeNode argumentNode;
-        if(returnClass == null || returnClass.getName().equals("java/lang/String")){
-            argumentNode = new ArgumentValuesTreeNode(parentNode, null, outputValues.get(0));
-        } else {
-            argumentNode = new ArgumentValuesTreeNode(parentNode, returnClass.ref(), null);
+        // scalar (single value)
+        DBObjectRef<DBJavaClass> returnClassRef = method.getReturnClassRef();
+        if(returnClassRef == null || isScalar(returnClassRef)){
+            new ArgumentValuesTreeNode(parentNode, returnClassRef, outputValues.get(0));
+            return;
         }
 
-        for (ExecutionValue fieldValue : outputValues) {
+        // complex java class
+        ArgumentValuesTreeNode  argumentNode = new ArgumentValuesTreeNode(parentNode, returnClassRef, null);
+        DBJavaClass returnClass = returnClassRef.get();
+        if (returnClass == null) return;
 
+        for (ExecutionValue fieldValue : outputValues) {
             String[] tokens = fieldValue.getPath().split("\\.");
+            ArgumentValuesTreeNode currentNode = argumentNode;
+            DBJavaClass currentClass = returnClass;
 
             for (int i = 1; i < tokens.length; i++) {
-                if (returnClass == null) break;
-                DBJavaField field = getField(returnClass, tokens[i]);
+                DBJavaField field = getField(currentClass, tokens[i]);
                 if(field == null) continue;
 
-                ArgumentValuesTreeNode childNode = argumentNode.initChild(field);
+                ArgumentValuesTreeNode childNode = currentNode.initChild(field);
                 childNode.setUserValue(fieldValue);
+
+                if (field.isScalar())  continue;
                 DBJavaClass childReturnClass = field.getJavaClass();
-                if(childReturnClass != null) { // it is complex field
+                if (childReturnClass != null) { // it is complex field
                     childNode.setUserValue(null);
-                    argumentNode = childNode;
-                    returnClass = childReturnClass;
+                    currentNode = childNode;
+                    currentClass = childReturnClass;
                 }
             }
         }

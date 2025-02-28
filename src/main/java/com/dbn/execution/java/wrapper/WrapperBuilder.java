@@ -35,7 +35,7 @@ import static com.dbn.execution.java.wrapper.TypeMappings.isSupportedType;
 import static com.dbn.execution.java.wrapper.TypeMappings.isUnsupportedType;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
-import static com.dbn.object.type.DBJavaValueType.isPseudoPrimitive;
+import static com.dbn.object.type.DBJavaScalarType.isScalar;
 
 /**
  * Parses {@link DBJavaMethod} instances into {@link Wrapper} objects,
@@ -261,7 +261,7 @@ public final class WrapperBuilder {
 
 
 		// Populate fields if we have a DBJavaClass
-		boolean complexType = !isPseudoPrimitive(javaClassName);
+		boolean complexType = !isScalar(javaClassName);
 		if (complexType) {
 			populateComplexTypeFields(
 					javaClass,

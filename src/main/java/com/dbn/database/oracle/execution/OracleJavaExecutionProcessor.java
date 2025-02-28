@@ -134,7 +134,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 				Array arrObj = getArrayObject(executionInput, parameter.getJavaClass().getFields(), wrapper, objectName, parameterName);
 				callableStatement.setArray(parameterIndex, arrObj);
 
-			} else if (!parameter.isPlainValue()) { // TODO support pseudo-primitives com.dbn.object.type.DBJavaValueType
+			} else if (!parameter.isScalar()) { // TODO support pseudo-primitives com.dbn.object.type.DBJavaValueType
 				String objectName = wrapper.getMethodArguments().get(parameterIndex - 1).getSqlTypeName();
 				Object structObj = getStructObject(executionInput, parameter.getJavaClass().getFields(), wrapper, objectName, parameterName);
 				callableStatement.setObject(parameterIndex, structObj);
@@ -176,7 +176,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 			int outputIndex = getArgumentsCount() + 1;
 			CallableStatement callableStatement = (CallableStatement) preparedStatement;
 			Object result = getResult(callableStatement, outputIndex);
-			executionResult.addArgumentValue(getReturnArgument(), result);
+			executionResult.addArgumentValue("return", result);
 		}
 	}
 

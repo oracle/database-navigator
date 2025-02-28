@@ -40,6 +40,7 @@ import com.dbn.object.lookup.DBJavaNameCache;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBJavaClassKind;
+import com.dbn.object.type.DBJavaScalarType;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -59,6 +60,7 @@ import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.INNER;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.common.property.DBObjectProperty.PRIMITIVE;
+import static com.dbn.object.common.property.DBObjectProperty.SCALAR;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.type.DBJavaClassKind.ENUM;
 import static com.dbn.object.type.DBJavaClassKind.INTERFACE;
@@ -95,13 +97,17 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		this.kind = DBJavaClassKind.get(metadata.getObjectKind());
 		this.accessibility = DBJavaAccessibility.get(metadata.getAccessibility());
 
+		String className = metadata.getObjectName();
+
 		set(FINAL, metadata.isFinal());
 		set(ABSTRACT, metadata.isAbstract());
 		set(STATIC, metadata.isStatic());
 		set(INNER, metadata.isInner());
 		set(PRIMITIVE, metadata.isPrimitive());
+		set(SCALAR, isPrimitive() || DBJavaScalarType.isScalar(className));
 
-		return metadata.getObjectName();
+
+		return className;
 	}
 
 
@@ -196,6 +202,11 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	@Override
 	public boolean isPrimitive() {
 		return is(PRIMITIVE);
+	}
+
+	@Override
+	public boolean isScalar() {
+		return is(SCALAR);
 	}
 
 	@Override

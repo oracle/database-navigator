@@ -81,7 +81,7 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 		fieldLabel.setBorder(Borders.insetBorder(4, computeIndent(), 4, 0));
 		fieldPath = buildFieldPath();
 
-		if (field.isPlainValue()) {
+		if (field.isScalar()) {
 			initPlainField();
 		} else {
 			initClassField();

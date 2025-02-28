@@ -19,6 +19,7 @@ package com.dbn.execution.java.result.ui;
 import com.dbn.common.ui.tree.DBNColoredTreeCellRenderer;
 import com.dbn.common.ui.tree.DBNTree;
 import com.dbn.execution.common.input.ExecutionValue;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
@@ -47,7 +48,15 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
             return;
         }
 
-        if (object != null) {
+        if (object instanceof DBJavaClass) {
+            DBJavaClass javaClass = (DBJavaClass) object;
+            if (javaClass.isScalar()) {
+
+            } else {
+                append(javaClass.getCanonicalName(), REGULAR_ATTRIBUTES);
+                setIcon(object.getIcon());
+            }
+        } else if (object != null) {
             setIcon(object.getIcon());
             append(object.getName(), REGULAR_ATTRIBUTES);
         }
@@ -65,6 +74,7 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
             append(stringValue, REGULAR_BOLD_ATTRIBUTES);
         }
 
+        // data type qualification
         if (object instanceof DBJavaParameter) {
             DBJavaParameter parameter = (DBJavaParameter) object;
             String dataType = getCanonicalName(parameter.getJavaClassRef());
@@ -75,6 +85,11 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
             String dataType = getCanonicalName(field.getJavaClassRef());
 
             append(" (" + dataType + ")", GRAY_ATTRIBUTES);
+        } else if (object instanceof DBJavaClass) {
+            DBJavaClass javaClass = (DBJavaClass) object;
+            if (javaClass.isScalar()) {
+                append(" (" + javaClass.getCanonicalName() + ")", GRAY_ATTRIBUTES);
+            }
         }
 
     }

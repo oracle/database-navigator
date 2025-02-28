@@ -80,7 +80,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 		parameterLabel.setBorder(Borders.insetBorder(4, 0, 4, 0));
 
 		parameterTypeLabel.setForeground(UIUtil.getInactiveTextColor());
-		if (parameter.isPlainValue()) {
+		if (parameter.isScalar()) {
 			initPlainField();
 		} else {
 			initClassField();

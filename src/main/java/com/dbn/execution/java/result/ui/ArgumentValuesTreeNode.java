@@ -32,12 +32,12 @@ import java.util.Objects;
 @Getter
 @Setter
 public class ArgumentValuesTreeNode implements TreeNode{
-    private final DBObjectRef object;
-    private Object userValue;
     private final ArgumentValuesTreeNode parent;
     private final List<ArgumentValuesTreeNode> children = new ArrayList<>();
+    private final DBObjectRef<?> object;
+    private Object userValue;
 
-    protected ArgumentValuesTreeNode(ArgumentValuesTreeNode parent, DBObjectRef object, Object userValue) {
+    protected ArgumentValuesTreeNode(ArgumentValuesTreeNode parent, DBObjectRef<?> object, Object userValue) {
         this.parent = parent;
         this.object = object;
         if (parent != null) {
@@ -73,7 +73,7 @@ public class ArgumentValuesTreeNode implements TreeNode{
             return object.getName();
         }
 
-        return userValue.toString();
+        return userValue == null ? null : userValue.toString();
     }
 
     /*********************************************************

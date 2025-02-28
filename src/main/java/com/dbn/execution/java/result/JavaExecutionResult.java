@@ -90,7 +90,7 @@ public class JavaExecutionResult extends ExecutionResultBase<JavaExecutionResult
         if(value instanceof Struct) {
             List<DBJavaField> fields = getMethod().getReturnClass().getFields();
             fields = sortedCopy(fields, POSITION_COMPARATOR);
-            addComplexArgumentValues("", fields, (java.sql.Struct) value);
+            addComplexArgumentValues(parameter, fields, (java.sql.Struct) value);
         } else {
             ExecutionValue fieldValue = new ExecutionValue(parameter, valueStore);
             fieldValues.add(fieldValue);

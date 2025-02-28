@@ -29,7 +29,6 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaAccessibility;
-import com.dbn.object.type.DBJavaValueType;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -44,6 +43,7 @@ import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Strings.capitalize;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.PRIMITIVE;
+import static com.dbn.object.common.property.DBObjectProperty.SCALAR;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 
@@ -70,6 +70,7 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 
 		String fieldClassName = metadata.getFieldClassName();
 		set(PRIMITIVE, Java.isPrimitive(fieldClassName));
+		set(SCALAR, Java.isScalar(fieldClassName));
 
 		DBSchema schema = nd(parentObject.getSchema());
 		javaClass = new DBObjectRef<>(DBObjectRef.of(schema), JAVA_CLASS, fieldClassName);
@@ -127,13 +128,8 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 	}
 
 	@Override
-	public boolean isPlainValue() {
-		return isPrimitive() || getValueType() != null;
-	}
-
-	@Override
-	public DBJavaValueType getValueType() {
-		return DBJavaValueType.forObjectName(javaClass.getObjectName());
+	public boolean isScalar() {
+		return is(SCALAR);
 	}
 
 	public DBJavaClass getJavaClass() {

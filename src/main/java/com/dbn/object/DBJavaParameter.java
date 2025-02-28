@@ -17,8 +17,6 @@
 package com.dbn.object;
 
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.type.DBJavaValueType;
-import org.jetbrains.annotations.Nullable;
 
 public interface DBJavaParameter extends DBOrderedObject {
     boolean isArray();
@@ -27,14 +25,11 @@ public interface DBJavaParameter extends DBOrderedObject {
 
     boolean isPrimitive();
 
-    boolean isPlainValue();
+    boolean isScalar();
 
     short getArrayDepth();
 
     DBJavaClass getJavaClass();
 
     DBObjectRef<DBJavaClass> getJavaClassRef();
-
-    @Nullable
-    DBJavaValueType getValueType();
 }
