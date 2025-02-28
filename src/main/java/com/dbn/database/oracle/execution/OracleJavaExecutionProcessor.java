@@ -64,12 +64,15 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
 	@Override
 	public String buildExecutionCommand(JavaExecutionInput executionInput, Wrapper wrapper) {
-		String wrapperName = "DBN_OJVM_SQL_WRAPPER";
-
 		String returnArgument = getReturnArgument();
+		boolean isProcedure = returnArgument.equals("void");
+
+		String wrapperName = isProcedure ?
+				"DBN_OJVM_SQL_PROCEDURE_WRAPPER" :
+				"DBN_OJVM_SQL_FUNCTION_WRAPPER";
+
 		List<DBJavaParameter> arguments = getArguments();
 
-		boolean isProcedure = returnArgument.equals("void");
 		StringBuilder buffer = new StringBuilder();
 
 		StringBuilder methodCallPrepare = new StringBuilder();
