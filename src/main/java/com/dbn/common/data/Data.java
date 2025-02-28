@@ -26,34 +26,42 @@ import java.math.BigInteger;
 
 import static com.dbn.common.util.Strings.firstCharacter;
 
-
+/**
+ * Utility class for type conversion and type casting operations. It provides a
+ * series of static methods to convert an object to a specified type, including
+ * primitive types, wrapper classes, and some common data types such as
+ * BigDecimal and BigInteger. This class contains a general cast method to
+ * facilitate safe type casting and a variety of methods for converting objects
+ * to specific types.
+ *
+ * @author Dan Cioca (Oracle)
+ */
 @UtilityClass
 public final class Data {
 
     public static <T> T cast(@Nullable Object object, Class<T> type) {
-        if (object != null) {
-            if (type == Boolean.class)   return Unsafe.cast(asBoolean(object));
-            if (type == Character.class) return Unsafe.cast(asCharacter(object));
-            if (type == Double.class)    return Unsafe.cast(asDouble(object));
-            if (type == Float.class)     return Unsafe.cast(asFloat(object));
-            if (type == Integer.class)   return Unsafe.cast(asInteger(object));
-            if (type == Long.class)      return Unsafe.cast(asLong(object));
-            if (type == Short.class)     return Unsafe.cast(asShort(object));
-            if (type == String.class)    return Unsafe.cast(asString(object));
-            if (type == boolean.class)   return Unsafe.cast(asBooleanPrimitive(object));
-            if (type == char.class)      return Unsafe.cast(asCharacterPrimitive(object));
-            if (type == double.class)    return Unsafe.cast(asDoublePrimitive(object));
-            if (type == float.class)     return Unsafe.cast(asFloatPrimitive(object));
-            if (type == int.class)       return Unsafe.cast(asIntegerPrimitive(object));
-            if (type == long.class)      return Unsafe.cast(asLongPrimitive(object));
-            if (type == short.class)     return Unsafe.cast(asShortPrimitive(object));
-            if (type == BigDecimal.class) return Unsafe.cast(asBigDecimal(object));
-            if (type == BigInteger.class) return Unsafe.cast(asBigInteger(object));
+        if (object == null) return null;
 
-            throw new UnsupportedOperationException("Cast from " + object.getClass() + " to " + type + " is not implemented");
-            // TODO add more cast logic if required
-        }
-        return null;
+        if (type == Boolean.class)    return Unsafe.cast(asBoolean(object));
+        if (type == Character.class)  return Unsafe.cast(asCharacter(object));
+        if (type == Double.class)     return Unsafe.cast(asDouble(object));
+        if (type == Float.class)      return Unsafe.cast(asFloat(object));
+        if (type == Integer.class)    return Unsafe.cast(asInteger(object));
+        if (type == Long.class)       return Unsafe.cast(asLong(object));
+        if (type == Short.class)      return Unsafe.cast(asShort(object));
+        if (type == String.class)     return Unsafe.cast(asString(object));
+        if (type == boolean.class)    return Unsafe.cast(asBooleanPrimitive(object));
+        if (type == char.class)       return Unsafe.cast(asCharacterPrimitive(object));
+        if (type == double.class)     return Unsafe.cast(asDoublePrimitive(object));
+        if (type == float.class)      return Unsafe.cast(asFloatPrimitive(object));
+        if (type == int.class)        return Unsafe.cast(asIntegerPrimitive(object));
+        if (type == long.class)       return Unsafe.cast(asLongPrimitive(object));
+        if (type == short.class)      return Unsafe.cast(asShortPrimitive(object));
+        if (type == BigDecimal.class) return Unsafe.cast(asBigDecimal(object));
+        if (type == BigInteger.class) return Unsafe.cast(asBigInteger(object));
+
+        throw new UnsupportedOperationException("Cast from " + object.getClass() + " to " + type + " is not implemented");
+        // TODO add more cast logic if required
     }
 
     @Nullable
@@ -172,7 +180,6 @@ public final class Data {
         if (object instanceof BigInteger) return (BigInteger) object;
         return new BigInteger(object.toString());
     }
-
 
     public static Class<?> primitive(Class<?> type) {
         if (type.isPrimitive()) return type;
