@@ -288,11 +288,16 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 			case "short": return Types.SMALLINT;
 			case "long": return Types.BIGINT;
 			case "char": return Types.CHAR;
-			case "String":
-			case "java/lang/String":
 			case "java.lang.String": return Types.VARCHAR;
+			case "java.lang.Character": return Types.CHAR;
 			case "java.math.BigDecimal": return Types.DECIMAL;
 			case "java.math.BigInteger": return Types.BIGINT;
+			case "java.lang.Integer": return Types.INTEGER;
+			case "java.lang.Long": return Types.BIGINT;
+			case "java.lang.Double": return Types.DOUBLE;
+			case "java.lang.Short": return Types.SMALLINT;
+			case "java.lang.Float": return Types.FLOAT;
+			case "java.lang.Byte": return Types.TINYINT;
 			default: return Types.STRUCT;
 		}
 	}

@@ -69,6 +69,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.execution.java.wrapper.TypeMappings.getSqlType;
 import static com.dbn.execution.java.wrapper.WrapperBuilder.DBN_TYPE_SUFFIX;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
+import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
 @Slf4j
 public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcessor {
@@ -98,7 +99,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 	protected String getReturnArgument() {
 		DBJavaMethod method = getMethod();
-		return method.getReturnClassRef().getObjectName();
+		return getCanonicalName(method.getReturnClassRef());
 	}
 
 

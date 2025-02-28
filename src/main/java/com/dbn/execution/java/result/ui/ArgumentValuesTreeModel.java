@@ -37,9 +37,10 @@ public class ArgumentValuesTreeModel implements TreeModel {
     private final ArgumentValuesTreeNode root;
 
     ArgumentValuesTreeModel(DBJavaMethod method, List<ExecutionValue> inputValues, List<ExecutionValue> outputValues) {
-        root = new ArgumentValuesTreeNode(null, method.ref(), null);
-        ArgumentValuesTreeNode inputNode = new ArgumentValuesTreeNode(root, null, "Input");
-        ArgumentValuesTreeNode outputNode = new ArgumentValuesTreeNode(root, null, "Output");
+        root = new ArgumentValuesTreeNode(null, null, method.ref(), null);
+        ArgumentValuesTreeNode inputNode = new ArgumentValuesTreeNode(root, "Input", null, null);
+        ArgumentValuesTreeNode outputNode = new ArgumentValuesTreeNode(root, "Output", null, null);
+
         createArgumentValueNodes(method, inputNode, inputValues);
         createOutputValuesNodes(method, outputNode, outputValues);
     }
@@ -51,12 +52,12 @@ public class ArgumentValuesTreeModel implements TreeModel {
         // scalar (single value)
         DBObjectRef<DBJavaClass> returnClassRef = method.getReturnClassRef();
         if(returnClassRef == null || isScalar(returnClassRef)){
-            new ArgumentValuesTreeNode(parentNode, returnClassRef, outputValues.get(0));
+            new ArgumentValuesTreeNode(parentNode, "return", returnClassRef, outputValues.get(0));
             return;
         }
 
         // complex java class
-        ArgumentValuesTreeNode  argumentNode = new ArgumentValuesTreeNode(parentNode, returnClassRef, null);
+        ArgumentValuesTreeNode  argumentNode = new ArgumentValuesTreeNode(parentNode, "return", returnClassRef, null);
         DBJavaClass returnClass = returnClassRef.get();
         if (returnClass == null) return;
 
@@ -70,12 +71,12 @@ public class ArgumentValuesTreeModel implements TreeModel {
                 if(field == null) continue;
 
                 ArgumentValuesTreeNode childNode = currentNode.initChild(field);
-                childNode.setUserValue(fieldValue);
+                childNode.setValue(fieldValue);
 
                 if (field.isScalar())  continue;
                 DBJavaClass childReturnClass = field.getJavaClass();
                 if (childReturnClass != null) { // it is complex field
-                    childNode.setUserValue(null);
+                    childNode.setValue(null);
                     currentNode = childNode;
                     currentClass = childReturnClass;
                 }
@@ -97,7 +98,7 @@ public class ArgumentValuesTreeModel implements TreeModel {
                 argumentNode = argumentNode.initChild(field);
                 argumentClass = field.getJavaClass();
             }
-            argumentNode.setUserValue(fieldValue);
+            argumentNode.setValue(fieldValue);
         }
     }
 
