@@ -16,7 +16,6 @@
 
 package com.dbn.assistant.credential.local;
 
-import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
@@ -33,14 +32,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-import static com.dbn.common.options.ConfigActivity.INITIALIZING;
 import static com.dbn.common.options.setting.Settings.charsAttribute;
 import static com.dbn.common.options.setting.Settings.setCharsAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Base64.decode;
 import static com.dbn.common.util.Base64.encode;
-import static com.dbn.common.util.Chars.isNotEmpty;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.credentials.SecretType.GENERIC_CREDENTIAL;
 
@@ -90,7 +87,6 @@ public class LocalCredential implements Cloneable<LocalCredential>, PersistentCo
             // (avoid storing it in config xml)
             key = decode(charsAttribute(element, "transient-key"));
         }
-        restorePassword(element);
     }
 
     @Override
@@ -105,20 +101,6 @@ public class LocalCredential implements Cloneable<LocalCredential>, PersistentCo
             setCharsAttribute(element, "transient-key", encode(key));
         }
     }
-
-    @Deprecated // TODO cleanup in subsequent release (temporarily support old storage)
-    private void restorePassword(Element element) {
-        if (!ConfigMonitor.is(INITIALIZING)) return; // only during config initialization
-        if (isNotEmpty(key)) return;
-
-        key = charsAttribute(element, "key");
-        if (isNotEmpty(key)) {
-            DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
-            credentialManager.queueSecretsInsert(getId(), getKeySecret());
-        }
-    }
-
-
 
     /*********************************************************
      *                     SecretHolder                      *
