@@ -20,10 +20,11 @@ import com.dbn.common.latent.Latent;
 import com.dbn.common.util.Safe;
 import com.intellij.openapi.util.ScalableIcon;
 import lombok.Getter;
-import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
+import java.awt.Component;
+import java.awt.Graphics;
 
 @Getter
 abstract class LatentIcon implements ScalableIcon {
@@ -46,8 +47,23 @@ abstract class LatentIcon implements ScalableIcon {
 
     protected abstract Icon load();
 
-    @Delegate
+
     private ScalableIcon delegate() {
         return (ScalableIcon) delegate.get();
+    }
+
+    @Override
+    public void paintIcon(Component c, Graphics g, int x, int y) {
+        delegate().paintIcon(c, g, x, y);
+    }
+
+    @Override
+    public int getIconWidth() {
+        return delegate().getIconWidth();
+    }
+
+    @Override
+    public int getIconHeight() {
+        return delegate().getIconHeight();
     }
 }
