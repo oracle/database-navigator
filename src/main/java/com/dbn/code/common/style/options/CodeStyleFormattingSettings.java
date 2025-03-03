@@ -19,6 +19,7 @@ package com.dbn.code.common.style.options;
 import com.dbn.code.common.style.options.ui.CodeStyleFormattingSettingsForm;
 import com.dbn.code.common.style.presets.CodeStylePreset;
 import com.dbn.common.options.BasicConfiguration;
+import com.dbn.diagnostics.Diagnostics;
 import com.dbn.language.common.psi.BasePsiElement;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -72,6 +73,11 @@ public abstract class CodeStyleFormattingSettings extends BasicConfiguration<DBL
             }
         }
         return null;
+    }
+
+    public boolean isActive() {
+        // TODO remove developer-mode restriction when fully implemented
+        return enabled && Diagnostics.isDeveloperMode();
     }
 
     /*********************************************************

@@ -23,12 +23,10 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
 import lombok.experimental.UtilityClass;
-import org.jetbrains.annotations.Nullable;
 
 import java.awt.Component;
 
 import static com.dbn.common.util.Classes.className;
-import static com.dbn.common.util.Unsafe.cast;
 
 @UtilityClass
 public class Context {
@@ -59,17 +57,4 @@ public class Context {
     public static DataContext getDataContext(Component component) {
         return DataManager.getInstance().getDataContext(component);
     }
-
-    @Nullable
-    public static <T> T getData(Component component, String dataId) {
-        DataContext dataContext = getDataContext(component);
-        return cast(dataContext.getData(dataId));
-    }
-
-    @Nullable
-    public static <T> T getData(FileEditor component, String dataId) {
-        DataContext dataContext = getDataContext(component);
-        return cast(dataContext.getData(dataId));
-    }
-
 }

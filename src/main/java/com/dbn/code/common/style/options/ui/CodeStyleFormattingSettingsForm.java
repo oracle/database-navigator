@@ -20,7 +20,10 @@ import com.dbn.code.common.style.options.CodeStyleFormattingOption;
 import com.dbn.code.common.style.options.CodeStyleFormattingSettings;
 import com.dbn.code.common.style.presets.CodeStylePreset;
 import com.dbn.common.Pair;
+import com.dbn.common.message.MessageType;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
+import com.dbn.common.text.TextContent;
+import com.dbn.common.ui.form.DBNHintForm;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -45,12 +48,19 @@ public class CodeStyleFormattingSettingsForm extends ConfigurationEditorForm<Cod
     private JPanel mainPanel;
     private JPanel settingsPanel;
     private JCheckBox enableCheckBox;
+    private JPanel hintPanel;
     private final List<Pair<CodeStyleFormattingOption, JComboBox<CodeStylePreset>>> mappings = new ArrayList<>();
 
     public CodeStyleFormattingSettingsForm(CodeStyleFormattingSettings settings) {
         super(settings);
         CodeStyleFormattingOption[] options = settings.getOptions();
         settingsPanel.setLayout(new GridLayoutManager(options.length + 1, 2, JBUI.insets(4), -1, -1));
+        TextContent hintText = TextContent.plain(
+                "Code formatting is currently an experimental feature and can only be enabled along with developer-mode. " +
+                "Use with caution and avoid uncontrolled code formatting activities like version-control pre-commit actions.");
+        DBNHintForm hintForm = new DBNHintForm(this, hintText, MessageType.WARNING, true);
+
+        hintPanel.add(hintForm.getComponent());
         for (int i=0; i< options.length; i++) {
             CodeStyleFormattingOption option = options[i];
             JLabel label = new JLabel(option.getDisplayName());
@@ -96,6 +106,7 @@ public class CodeStyleFormattingSettingsForm extends ConfigurationEditorForm<Cod
         for (Pair<CodeStyleFormattingOption, JComboBox<CodeStylePreset>> mapping : mappings) {
             mapping.second().setEnabled(selected);
         }
+        hintPanel.setVisible(selected);
     }
 
     @NotNull

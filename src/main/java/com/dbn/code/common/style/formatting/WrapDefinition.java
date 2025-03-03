@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 
-public enum WrapDefinition implements FormattingAttribute<Wrap>{
+public enum WrapDefinition implements FormattingAttributeDefinition<Wrap> {
     NONE    (() -> CodeStylePreset.WRAP_NONE),
     NORMAL  (() -> CodeStylePreset.WRAP_NORMAL),
     ALWAYS  (() -> CodeStylePreset.WRAP_ALWAYS),

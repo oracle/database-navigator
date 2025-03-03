@@ -22,6 +22,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
+import com.dbn.common.util.Actions;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.TextAttributes;
 import com.dbn.data.editor.ui.TextFieldPopupProviderForm;
@@ -68,7 +69,7 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
 
         ActionToolbar actionToolbarLeft = createActionToolbar(leftActionPanel, true, "DBNavigator.ActionGroup.Arrays.LeftControls");
         ActionToolbar actionToolbarRight = createActionToolbar(leftActionPanel, true, "DBNavigator.ActionGroup.Arrays.RightControls");
-        Arrays.asList(actionToolbarLeft, actionToolbarRight).forEach(tb -> tb.getActions().forEach(a -> registerAction(a)));
+        Arrays.asList(actionToolbarLeft, actionToolbarRight).forEach(tb -> Actions.getActions(tb).forEach(a -> registerAction(a)));
 
         leftActionPanel.add(actionToolbarLeft.getComponent(), BorderLayout.WEST);
         rightActionPanel.add(actionToolbarRight.getComponent(), BorderLayout.EAST);

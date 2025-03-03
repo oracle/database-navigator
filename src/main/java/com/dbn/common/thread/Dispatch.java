@@ -23,7 +23,6 @@ import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.util.Alarm;
 import lombok.experimental.UtilityClass;
@@ -166,14 +165,13 @@ public final class Dispatch {
     }
 
     public static ModalityState getCurrentModalityState() {
-        Application application = getApplication();
-        if (application.isDispatchThread()) {
-            return application.getCurrentModalityState();
+        if (isDispatchThread()) {
+            return ModalityState.current();
         }
 
         // invoke and wait in "any" ModalityState
         AtomicReference<ModalityState> atomicReference = new AtomicReference<>();
-        application.invokeAndWait(() -> atomicReference.set(application.getCurrentModalityState()), ModalityState.any());
+        getApplication().invokeAndWait(() -> atomicReference.set(ModalityState.current()), ModalityState.any());
         return atomicReference.get();
     }
 

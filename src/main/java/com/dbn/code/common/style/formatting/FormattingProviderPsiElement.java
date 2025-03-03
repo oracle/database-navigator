@@ -17,8 +17,10 @@
 package com.dbn.code.common.style.formatting;
 
 import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.Nullable;
 
 public interface FormattingProviderPsiElement extends PsiElement {
+    @Nullable
     FormattingAttributes getFormattingAttributes();
 
     FormattingAttributes getFormattingAttributesRecursive(boolean left);
