@@ -30,14 +30,12 @@
     <description><![CDATA[
             <b>Database development, maintenance and navigation tool</b><br>
             This software solution enhances the functionality of the IntelliJ IDEA development environment and
-            its related products by offering a comprehensive suite of tools for database development and management.<br>
+            its related products by offering a comprehensive suite of tools for database development and management.
             It features a highly capable SQL and PL/SQL editor that aligns with the standards of the IDE,
             as well as advanced capabilities for managing database connections, executing scripts, browsing and editing database objects, and modifying data and code.
-            The solution further supports database compiler operations, method execution and debugging, and the creation of database objects.<br>
+            The solution further supports database compiler operations, method execution and debugging, and the creation of database objects.
             Moreover, it includes extensive navigation features that are seamlessly integrated across all components,
-            delivering a robust and efficient toolset for database development and administration.<br><br>
-
-            This product is developed and maintained by <a href="https://www.oracle.com/">Oracle</a><br><br>
+            delivering a robust and efficient toolset for database development and administration.<br>
 
             <b>Supported Databases:</b>
             <ul>
