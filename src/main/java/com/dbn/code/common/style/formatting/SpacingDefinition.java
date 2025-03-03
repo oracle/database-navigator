@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 
-public enum SpacingDefinition implements FormattingAttribute<Spacing>{
+public enum SpacingDefinition implements FormattingAttributeDefinition<Spacing> {
     NO_SPACE       (() -> CodeStylePreset.SPACING_NO_SPACE),
     ONE_SPACE      (() -> CodeStylePreset.SPACING_ONE_SPACE),
     LINE_BREAK     (() -> CodeStylePreset.SPACING_LINE_BREAK),
