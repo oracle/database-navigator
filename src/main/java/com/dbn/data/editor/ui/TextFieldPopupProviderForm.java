@@ -25,17 +25,14 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.listener.KeyAdapter;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Keyboard;
-import com.dbn.common.util.Context;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.Shortcut;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.openapi.ui.popup.JBPopup;
+import com.intellij.util.containers.ContainerUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +43,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
-import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -59,7 +55,7 @@ public abstract class TextFieldPopupProviderForm extends DBNFormBase implements 
     private boolean enabled = true;
     private JComponent button;
     private JBPopup popup;
-    private final Set<AnAction> actions = new HashSet<>();
+    private final Set<AnAction> actions = ContainerUtil.createWeakSet();
 
     protected TextFieldPopupProviderForm(TextFieldWithPopup<?> editorComponent, boolean autoPopup, boolean buttonVisible) {
         super(editorComponent, editorComponent.getProject());
@@ -118,12 +114,9 @@ public abstract class TextFieldPopupProviderForm extends DBNFormBase implements 
         for (AnAction action : actions) {
             if (!Keyboard.match(action, e)) continue;
 
-            DataContext dataContext = Context.getDataContext(this);
             ActionManager actionManager = ActionManager.getInstance();
-            Presentation templatePresentation = action.getTemplatePresentation();
-            Presentation presentation = new Presentation(templatePresentation.getText());
-            AnActionEvent actionEvent = new AnActionEvent(null, dataContext, "", presentation, actionManager, 2);
-            action.actionPerformed(actionEvent);
+            actionManager.tryToExecute(action, e, getMainComponent(), null, false);
+
             e.consume();
             return;
         }
