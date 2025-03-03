@@ -16,11 +16,16 @@
 
 package com.dbn.driver.download.metadata;
 
+import com.dbn.common.state.PersistentStateElement;
 import com.dbn.connection.DatabaseType;
 import lombok.Getter;
 import lombok.Setter;
+import org.jdom.Element;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.dbn.common.options.setting.Settings.*;
 
 /**
  * DriverPackage represents a set of Maven libraries required for a specific database driver.
@@ -39,13 +44,15 @@ import java.util.List;
  * @author Ayoub Aarrasse
  */
 @Getter
-public class DriverPackage {
+public class DriverPackage implements PersistentStateElement {
     private final String id;
-    private final String name;
+    private String name;
     @Setter
     private String path;
-    private final DatabaseType databaseType;
-    private final List<Library> libraries;
+    private DatabaseType databaseType;
+    private List<Library> libraries = new ArrayList<>();
+    @Setter
+    private boolean old;
 
     public DriverPackage(String id, String name, DatabaseType databaseType, List<Library> libraries) {
         this.id = id;
@@ -54,11 +61,43 @@ public class DriverPackage {
         this.libraries = libraries;
     }
 
+    public DriverPackage(String id){
+        this.id =id;
+    }
+
     @Override
     public String toString() {
         return name;
     }
     public int size() {
         return libraries.size();
+    }
+
+    @Override
+    public void readState(Element element) {
+        this.name = stringAttribute(element, "name");
+        this.path = stringAttribute(element, "path");
+        this.databaseType = enumAttribute(element, "database-type", DatabaseType.class);
+        for (Element libElement : element.getChildren("library")) {
+            Library library = new Library(
+                    stringAttribute(libElement, "group-id"),
+                    stringAttribute(libElement, "artifact-id"),
+                    stringAttribute(libElement, "version")
+            );
+            library.readState(libElement);
+            libraries.add(library);
+        }
+    }
+
+    @Override
+    public void writeState(Element element) {
+        setStringAttribute(element, "id", id);
+        setStringAttribute(element, "name", name);
+        setStringAttribute(element, "path", path);
+        setEnumAttribute(element, "database-type", databaseType);
+        for (Library library : libraries) {
+            Element libElement = newElement(element, "library");
+            library.writeState(libElement);
+        }
     }
 }

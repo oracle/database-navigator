@@ -37,18 +37,16 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 public class DriverPackageStatus implements PersistentStateElement {
     private final Map<String, LibraryStatus> libraryStatuses = new ConcurrentHashMap<>();
     private final String packageId;
-    private final int packageCount;
 
-    DriverPackageStatus(String packageId, int packageCount){
+    DriverPackageStatus(String packageId){
         this.packageId = packageId;
-        this.packageCount = packageCount;
     }
 
     public LibraryStatus getLibraryStatus(String libraryId){
         return libraryStatuses.computeIfAbsent(libraryId, n-> new LibraryStatus(libraryId));
     }
 
-    public boolean isComplete(){
+    public boolean isComplete(int packageCount){
         return libraryStatuses.size()==packageCount && libraryStatuses.values().stream().allMatch(s->s.downloadStatus.equals(DownloadStatus.DONE));
     }
 

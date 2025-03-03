@@ -257,18 +257,18 @@
         </library>
     </driver-package>
 
-    <driver-package database-type="Oracle" id="oracle-latest" name="Oracle Standard %s">
+    <driver-package database-type="Oracle" id="oracle-%s" name="Oracle Standard %s">
         <library artifact-id="ojdbc8-production" group-id="com.oracle.database.jdbc" toResolve="true" type="pom"/>
         <library artifact-id="connector-api" group-id="javax.resource" version="1.5"/>
         <library artifact-id="javax.json-api" group-id="javax.json" version="1.1.4"/>
         <library artifact-id="servlet-api" group-id="javax.servlet" version="2.5"/>
     </driver-package>
 
-    <driver-package database-type="Oracle" id="ojdbc-provider-azure" name="Oracle %s + Azure auth %s">
+    <driver-package database-type="Oracle" id="ojdbc-azure-%s" name="Oracle %s + Azure auth %s">
         <library artifact-id="ojdbc-provider-azure" group-id="com.oracle.database.jdbc" toResolve="true" type="jar"/>
     </driver-package>
 
-    <driver-package database-type="Oracle" id="ojdbc-provider-oci" name="Oracle %s + OCI auth %s">
+    <driver-package database-type="Oracle" id="ojdbc-oci-%s" name="Oracle %s + OCI auth %s">
         <library artifact-id="ojdbc-provider-oci" group-id="com.oracle.database.jdbc" toResolve="true" type="jar"/>
     </driver-package>
 

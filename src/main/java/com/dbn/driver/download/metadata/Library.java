@@ -16,13 +16,17 @@
 
 package com.dbn.driver.download.metadata;
 
+import com.dbn.common.state.PersistentStateElement;
 import lombok.Getter;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.graph.DependencyNode;
+import org.jdom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.dbn.common.options.setting.Settings.*;
 
 /**
  * Library holds the metadata for a Maven dependency required by a driver package.
@@ -38,7 +42,7 @@ import java.util.stream.Collectors;
  * @author Ayoub Aarrasse
  */
 @Getter
-public class Library {
+public class Library implements PersistentStateElement {
     private final String groupId;
     private final String artifactId;
     private final String version;
@@ -53,7 +57,6 @@ public class Library {
         this.licenses = licenses;
     }
 
-
     // Constructor using DependencyNode
     public Library(DependencyNode node, List<Developer> developers, List<License> licenses) {
         this(node.getArtifact().getGroupId(),
@@ -66,44 +69,7 @@ public class Library {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
-//        try {
-//            File pomFile = downloadPomFile(groupId, artifactId, version);
-//            Model model = parsePom(pomFile);
-//            if (model != null) {
-//                this.developers = convertDevelopers(model.getDevelopers());
-//                this.licenses = convertLicenses(model.getLicenses());
-//            } else {
-//                this.developers = Collections.emptyList();
-//                this.licenses = Collections.emptyList();
-//            }
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//        }
     }
-//
-//    private File downloadPomFile(String groupId, String artifactId, String version) throws Exception{
-//            String pomUrl = constructPomUrl(groupId, artifactId, version);
-//            File tempFile = File.createTempFile("artifact-pom", ".xml");
-//            Downloads.downloadAtomically(null, pomUrl, tempFile);
-//            return tempFile;
-//    }
-//
-//    private Model parsePom(File pomFile) throws Exception {
-//        try (FileInputStream fis = new FileInputStream(pomFile)) {
-//            MavenXpp3Reader reader = new MavenXpp3Reader();
-//            InputSource inputSource = new InputSource(fis);
-//            inputSource.setSystemId(pomFile.getAbsolutePath());
-//            return reader.read(inputSource.getByteStream());
-//        }
-//    }
-
-//    private String constructPomUrl(String groupId, String artifactId, String version) {
-//        String groupPath = groupId.replace(".", "/");
-//        return String.format("https://repo.maven.apache.org/maven2/%s/%s/%s/%s-%s.pom",
-//                groupPath, artifactId, version, artifactId, version);
-//    }
-//
-
 
     public boolean is(Artifact artifact) {
         if (artifact == null) return false;
@@ -119,4 +85,37 @@ public class Library {
                 developers.stream().map(Developer::getName).collect(Collectors.joining(", ")),
                 licenses.stream().map(License::getName).collect(Collectors.joining(", ")));
     }
+
+    @Override
+    public void readState(Element element) {
+        // Read developers
+        this.developers = element.getChildren("developer").stream()
+                .map(e -> new Developer(stringAttribute(e, "name"), stringAttribute(e, "url")))
+                .collect(Collectors.toList());
+
+        // Read licenses
+        this.licenses = element.getChildren("license").stream()
+                .map(e -> new License(stringAttribute(e, "name"), stringAttribute(e, "url")))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void writeState(Element element) {
+        setStringAttribute(element, "group-id", groupId);
+        setStringAttribute(element, "artifact-id", artifactId);
+        setStringAttribute(element, "version", version);
+
+        for (Developer dev : this.developers) {
+            Element devElement = newElement(element, "developer");
+            setStringAttribute(devElement, "name", dev.getName());
+            setStringAttribute(devElement, "url", dev.getUrl());
+        }
+
+        for (License lic : this.licenses) {
+            Element licElement = newElement(element, "license");
+            setStringAttribute(licElement, "name", lic.getName());
+            setStringAttribute(licElement, "url", lic.getUrl());
+        }
+    }
+
 }

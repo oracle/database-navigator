@@ -31,8 +31,8 @@ import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.driver.DatabaseDriverManager;
 import com.dbn.driver.DriverBundle;
 import com.dbn.driver.DriverSource;
+import com.dbn.driver.download.DriverDownloadManager;
 import com.dbn.driver.download.metadata.DriverPackage;
-import com.dbn.driver.download.metadata.DriverPackageMetadata;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -134,7 +134,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             });
         });
         downloadButton.addActionListener(e -> {
-            showDownloadPopup(downloadButton, DriverPackageMetadata.getDownloadedDriverPackage(messages));
+            showDownloadPopup(downloadButton, DriverDownloadManager.getDriverPackageMetadata().getDownloadedDriverPackage(messages, getDatabaseType()));
         });
     }
 
@@ -281,7 +281,6 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
 
         List<AnAction> actions = new ArrayList<>();
         for (DriverPackage driverPackage : driverPackages) {
-            if(driverPackage.getDatabaseType() == getDatabaseType()){
                 String title = Actions.adjustActionName(driverPackage.getName());
                 actions.add(new DumbAwareAction(title, null, null) {
                     @Override
@@ -289,7 +288,6 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                         driverLibraryTextField.setText(driverPackage.getPath());
                     }
                 });
-            }
         }
         actions.add(Separator.create());
         actions.add(new DumbAwareAction("Download Libraries...", null, AllIcons.Actions.Download) {
@@ -298,14 +296,14 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                 Project project = getProject();
                 DatabaseType databaseType = getDatabaseType();
                 Progress.modal(project, null, true,
-                        "Downloading Libraries Metadata",
+                        "Downloading libraries metadata",
                         "",
                         indicator -> {
                             indicator.setIndeterminate(false);
                             indicator.setFraction(0.01);
                             try {
                                 driverPackages.clear();
-                                driverPackages.addAll(DriverPackageMetadata.driverPackages(databaseType, indicator, messages));
+                                driverPackages.addAll(DriverDownloadManager.getDriverPackageMetadata().getAllDriverPackages(databaseType, indicator, messages));
                                 Dialogs.show(() -> new DownloadManagerDialog(project, databaseType, driverPackages), (dialog, exitCode) -> {
                                     when(exitCode != DialogWrapper.CANCEL_EXIT_CODE, () -> driverLibraryTextField.setText(dialog.selectedDriverPackage.getPath()));
                                 });

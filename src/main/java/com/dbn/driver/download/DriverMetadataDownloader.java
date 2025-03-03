@@ -56,6 +56,7 @@ public class DriverMetadataDownloader {
         List<Library> libraries = element.getChildren("library").parallelStream()
                 .flatMap(libElement -> createLibrary(libElement).stream()) // Flatten lists of libraries
                 .collect(Collectors.toList());
+        if(id.contains("%s")) id = String.format(id, libraries.get(0).getVersion());
         indicator.setText("Downloaded Metadata for " + id);
         indicator.setFraction(indicator.getFraction() + chunk);
         // Pattern to find %s occurrences

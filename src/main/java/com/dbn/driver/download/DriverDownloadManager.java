@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.driver.download.DriverDownloadManager.COMPONENT_NAME;
 
 /**
@@ -55,8 +56,14 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
 
     private final Map<String, DriverPackageStatus> packageDownloadStatuses = new ConcurrentHashMap<>();
 
+    private final DriverPackageMetadata driverPackageMetadata = new DriverPackageMetadata();
+
     public static DriverDownloadManager getInstance() {
         return applicationService(DriverDownloadManager.class);
+    }
+
+    public static DriverPackageMetadata getDriverPackageMetadata() {
+        return getInstance().driverPackageMetadata;
     }
 
     public DriverDownloadManager() {
@@ -87,7 +94,7 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
         return packageDownloadStatuses
                 .computeIfAbsent(packageId, k -> {
                     try {
-                        return createPackageStatus(packageId, messages);
+                        return createPackageStatus(packageId);
                     } catch (Exception e) {
                         messages.addErrorMessage(e.getMessage());
                         throw new RuntimeException(e.getMessage(), e);
@@ -99,10 +106,8 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
         return packageDownloadStatuses.values();
     }
 
-    private DriverPackageStatus createPackageStatus(String packageId, AsyncMessageCollector messages) {
-        DriverPackage driverPackage = DriverPackageMetadata.getDriverPackage(packageId, messages);
-        int packageCount = driverPackage.size();
-        return new DriverPackageStatus(packageId, packageCount);
+    private DriverPackageStatus createPackageStatus(String packageId) {
+        return new DriverPackageStatus(packageId);
     }
 
     /**
@@ -111,12 +116,13 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
      * @param packageId Unique ID of the driver package
      * @return True if all JARs in the package are verified, false otherwise
      */
-    public boolean isPackageDownloaded(String packageId) {
+    public boolean isPackageDownloaded(String packageId, boolean isCached) {
         DriverPackageStatus jarStatuses = getPackageStatus(packageId);
         if (jarStatuses == null) {
             return false;
         }
-        return jarStatuses.isComplete();
+        DriverPackage dp = isCached?driverPackageMetadata.getCachedDriverPackage(packageId):driverPackageMetadata.getDriverPackage(packageId);
+        return jarStatuses.isComplete(dp.getLibraries().size());
     }
 
     public void cleanupPackage(String packageId) {
@@ -127,10 +133,16 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
     public Element getComponentState() {
         Element element = new Element("state");
         Element downloadsElement = newElement(element, "package-download-statuses");
-
+        Element metadataElement = newElement(element, "package-metadata");
         for (Map.Entry<String, DriverPackageStatus> packageEntry : packageDownloadStatuses.entrySet()) {
             Element packageElement = newElement(downloadsElement, "package");
             packageEntry.getValue().writeState(packageElement);
+        }
+        for (DriverPackage driverPackage : driverPackageMetadata.getDriverPackages()) {
+            if(isPackageDownloaded(driverPackage.getId(), false)){
+                Element packageElement = newElement(metadataElement, "package");
+                driverPackage.writeState(packageElement);
+            }
         }
         return element;
     }
@@ -143,6 +155,13 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
                 String packageId = packageElement.getAttributeValue("id");
                 DriverPackageStatus jarStatuses = getPackageStatus(packageId);
                 jarStatuses.readState(packageElement);
+            }
+        }
+        Element metadataElement = element.getChild("package-metadata");
+        if (metadataElement != null) {
+            for (Element packageElement : metadataElement.getChildren("package")) {
+                DriverPackage driverPackage = driverPackageMetadata.getCachedDriverPackage(stringAttribute(packageElement, "id"));
+                driverPackage.readState(packageElement);
             }
         }
     }

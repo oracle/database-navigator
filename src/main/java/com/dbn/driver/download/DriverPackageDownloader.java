@@ -133,7 +133,7 @@ public class DriverPackageDownloader {
             ApplicationManager.getApplication().invokeLater(()->{
                 updateUI.accept(errorMessage);
             });
-        } else if (DriverDownloadManager.getInstance().isPackageDownloaded(packageId)) {
+        } else if (DriverDownloadManager.getInstance().isPackageDownloaded(packageId, false)) {
             System.out.println("All JARs for package " + packageId + " were successfully downloaded and verified.");
             ApplicationManager.getApplication().invokeLater(()->{
                 updateUI.accept("");
