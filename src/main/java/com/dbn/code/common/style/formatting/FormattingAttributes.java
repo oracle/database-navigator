@@ -21,23 +21,23 @@ import com.intellij.formatting.Indent;
 import com.intellij.formatting.Spacing;
 import com.intellij.formatting.Wrap;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 public class FormattingAttributes {
     public static final FormattingAttributes NO_ATTRIBUTES = new FormattingAttributes(null, null, null, null);
 
+    @Getter
     public enum Type {
         WRAP(true),
         INDENT(true),
         SPACING_BEFORE(true),
         SPACING_AFTER(false);
 
-        boolean left;
-        private Type(boolean left) {
+        final boolean left;
+        Type(boolean left) {
             this.left = left;
-        }
-        public boolean isLeft() {
-            return left;
         }
     }
 
@@ -110,7 +110,7 @@ public class FormattingAttributes {
         return wrap == null && indent == null && spacingBefore == null && spacingAfter == null;
     }
 
-    public Object getAttribute(Type type) {
+    public FormattingAttributeDefinition getAttributeDefinition(Type type) {
         switch (type) {
             case WRAP: return wrap;
             case INDENT: return indent;
@@ -120,13 +120,21 @@ public class FormattingAttributes {
         return null;
     }
 
-    public static Object getAttribute(FormattingAttributes attributes, Type type) {
-        return attributes == null ? null : attributes.getAttribute(type);
+    @Nullable
+    public static FormattingAttributeDefinition getAttributeDefinition(@Nullable FormattingAttributes attributes, Type type) {
+        return attributes == null ? null : attributes.getAttributeDefinition(type);
+    }
+
+    @Nullable
+    public static Object getAttribute(@Nullable FormattingAttributes attributes, Type type) {
+        FormattingAttributeDefinition attributeDefinition = getAttributeDefinition(attributes, type);
+        return attributeDefinition == null ? null : attributeDefinition.getValue();
     }
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder("");
+        @NonNls
+        StringBuilder result = new StringBuilder();
         if (wrap != null) result.append(" wrap=").append(wrap);
         if (indent != null) result.append(" indent=").append(indent);
         if (spacingBefore != null) result.append(" spacingBefore=").append(spacingBefore);

@@ -30,7 +30,6 @@ import static com.dbn.nls.NlsResources.txt;
 public class ObjectDependencyTreeAction extends AnObjectAction<DBSchemaObject> {
     public ObjectDependencyTreeAction(DBSchemaObject schemaObject) {
         super(schemaObject);
-        setDefaultIcon(true);
     }
 
     @Override
