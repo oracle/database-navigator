@@ -18,7 +18,6 @@ package com.dbn.common.database;
 
 import com.dbn.common.constant.Constants;
 import com.dbn.common.options.BasicConfiguration;
-import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.util.Chars;
 import com.dbn.common.util.Cloneable;
@@ -40,11 +39,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Objects;
 
-import static com.dbn.common.database.AuthenticationInfo.Attributes.DEPRECATED_PWD_ATTRIBUTE;
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_CONFIG_FILE;
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_PROFILE;
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_TYPE;
-import static com.dbn.common.options.ConfigActivity.INITIALIZING;
 import static com.dbn.common.options.setting.Settings.getChars;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
@@ -68,10 +65,6 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         @NonNls String TOKEN_TYPE = "token-type";
         @NonNls String TOKEN_CONFIG_FILE = "token-config-file";
         @NonNls String TOKEN_PROFILE = "token-profile";
-
-
-        @Deprecated // TODO moved to IDE keychain (cleanup after followup release)
-        @NonNls String DEPRECATED_PWD_ATTRIBUTE = "deprecated-pwd";
     }
 
     private final long timestamp = System.currentTimeMillis();
@@ -157,8 +150,6 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         tokenType = getEnum(element, TOKEN_TYPE, AuthenticationTokenType.class);
         tokenConfigFile = getString(element, TOKEN_CONFIG_FILE, tokenConfigFile);
         tokenProfile = getString(element, TOKEN_PROFILE, tokenProfile);
-
-        restorePassword(element);
     }
 
     /**
@@ -185,21 +176,6 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         setEnum(element, TOKEN_TYPE, tokenType);
         setString(element, TOKEN_CONFIG_FILE, tokenConfigFile);
         setString(element, TOKEN_PROFILE, tokenProfile);
-    }
-
-    @Deprecated // TODO cleanup in subsequent release (temporarily support old storage)
-    private void restorePassword(Element element) {
-        if (!ConfigMonitor.is(INITIALIZING)) return; // only during config initialization
-
-        if (type != USER_PASSWORD) return;
-        if (Chars.isNotEmpty(password)) return;
-
-        password = decode(getChars(element, DEPRECATED_PWD_ATTRIBUTE, Chars.EMPTY_ARRAY));
-        // password still in old config store
-        if (isNotEmpty(user) && Chars.isNotEmpty(password)) {
-            DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
-            credentialManager.queueSecretsInsert(getConnectionId(), getPasswordSecret());
-        }
     }
 
     @Override
