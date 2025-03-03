@@ -103,7 +103,7 @@ public class Actions {
         if (actionGroup instanceof DefaultActionGroup) {
             ActionManager actionManager = ActionManager.getInstance();
             DefaultActionGroup defaultActionGroup = (DefaultActionGroup) actionGroup;
-            AnAction[] actions = defaultActionGroup.getChildren(actionManager);
+            AnAction[] actions = defaultActionGroup.getChildren(null, actionManager);
             return Arrays
                     .stream(actions)
                     .filter(a -> !isSeparator(a))
