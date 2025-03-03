@@ -17,8 +17,6 @@
 package com.dbn.connection.config;
 
 import com.dbn.common.options.BasicProjectConfiguration;
-import com.dbn.common.options.ConfigMonitor;
-import com.dbn.common.util.Chars;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ui.ConnectionSshTunnelSettingsForm;
 import com.dbn.connection.ssh.SshAuthType;
@@ -32,7 +30,6 @@ import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.options.ConfigActivity.INITIALIZING;
 import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.getChars;
 import static com.dbn.common.options.setting.Settings.getEnum;
@@ -43,7 +40,6 @@ import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.util.Base64.decode;
 import static com.dbn.common.util.Base64.encode;
-import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.credentials.SecretType.SSH_TUNNEL_KEY_PASSPHRASE;
 import static com.dbn.credentials.SecretType.SSH_TUNNEL_PASSWORD;
 
@@ -51,10 +47,6 @@ import static com.dbn.credentials.SecretType.SSH_TUNNEL_PASSWORD;
 @Setter
 @EqualsAndHashCode(callSuper = false)
 public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<ConnectionSettings, ConnectionSshTunnelSettingsForm> implements SecretsOwner {
-     // TODO passwords moved to IDE keychain (cleanup after followup release)
-    @Deprecated private static final String DEPRECATED_PWD_ATTRIBUTE = "deprecated-proxy-pwd";
-    @Deprecated private static final String DEPRECATED_PASSPHRASE_ATTRIBUTE = "key-passphrase";
-
     private boolean active = false;
     private String host;
     private String user;
@@ -109,8 +101,6 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
             password = decode(getChars(element, "transient-password", encode(password)));
             keyPassphrase = decode(getChars(element, "transient-key-passphrase", encode(keyPassphrase)));
         }
-
-        restorePasswords(element);
     }
 
     @Override
@@ -133,34 +123,6 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
     public ConnectionId getConnectionId() {
         return ensureParent().getConnectionId();
     }
-
-    @Deprecated // TODO cleanup in subsequent release (temporarily support old storage)
-    private void restorePasswords(Element element) {
-        if (!ConfigMonitor.is(INITIALIZING)) return; // only during config initialization
-        if (!active) return;
-
-        DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
-        if (authType == SshAuthType.PASSWORD) {
-            if (Chars.isNotEmpty(password)) return; // do not overwrite
-
-            password = decode(getChars(element, DEPRECATED_PWD_ATTRIBUTE, Chars.EMPTY_ARRAY));
-            if (isNotEmpty(user) && Chars.isNotEmpty(password)) {
-                // password still in old config store
-                credentialManager.queueSecretsInsert(getConnectionId(), getPasswordSecret());
-            }
-        }
-
-        if (authType == SshAuthType.KEY_PAIR) {
-            if (Chars.isNotEmpty(keyPassphrase)) return; // do not overwrite
-
-            keyPassphrase = decode(getChars(element, DEPRECATED_PASSPHRASE_ATTRIBUTE, Chars.EMPTY_ARRAY));
-            if (isNotEmpty(keyFile) && Chars.isNotEmpty(keyPassphrase)) {
-                // passphrase still in old config store
-                credentialManager.queueSecretsInsert(getConnectionId(), getKeyPassphraseSecret());
-            }
-        }
-    }
-
 
     /*********************************************************
      *                     SecretHolder                      *

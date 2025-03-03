@@ -65,7 +65,7 @@ public class DBLFormattingModelBuilder implements FormattingModelBuilder {
             DBLCodeStyleManager.getInstance(project).formatCase(element.getContainingFile());
         }
 
-        Block rootBlock = deliberate && settings.getFormattingSettings().isEnabled() ?
+        Block rootBlock = deliberate && settings.getFormattingSettings().isActive() ?
                 new FormattingBlock(codeStyleSettings, settings, element, null, 0) :
                 new PassiveFormattingBlock(element);
         return FormattingModelProvider.createFormattingModelForPsiFile(psiFile, rootBlock, codeStyleSettings);
