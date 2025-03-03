@@ -17,6 +17,7 @@
 package com.dbn.object.common;
 
 import com.dbn.object.lookup.DBObjectRef;
+import com.intellij.pom.Navigatable;
 import lombok.experimental.Delegate;
 
 class DBObjectDelegateBase implements DBObject {
@@ -26,9 +27,24 @@ class DBObjectDelegateBase implements DBObject {
         this.ref = DBObjectRef.of(object);
     }
 
-    @Delegate
+    // partial delegation implementation given api changes across ide versions
+    @Delegate(excludes = {Navigatable.class})
     public DBObject delegate() {
         return DBObjectRef.ensure(ref);
     }
 
+    @Override
+    public void navigate(boolean requestFocus) {
+        delegate().navigate(requestFocus);
+    }
+
+    @Override
+    public boolean canNavigate() {
+        return delegate().canNavigate();
+    }
+
+    @Override
+    public boolean canNavigateToSource() {
+        return delegate().canNavigateToSource();
+    }
 }
