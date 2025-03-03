@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 
-public enum IndentDefinition implements FormattingAttribute<Indent> {
+public enum IndentDefinition implements FormattingAttributeDefinition<Indent> {
     NONE          (() -> Indent.getNoneIndent()),
     NORMAL        (() -> Indent.getNormalIndent(true)),
     CONTINUE      (() -> Indent.getContinuationIndent()),
