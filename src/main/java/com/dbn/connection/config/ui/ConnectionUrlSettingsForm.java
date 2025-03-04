@@ -72,7 +72,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.Collections.unmodifiableMap;
 
 public class ConnectionUrlSettingsForm extends DBNFormBase {
-    public static final List<@NotNull String> EASY_CONNECT_PARAMETER_NAMES = List.of(
+    public static final List<String> EASY_CONNECT_PARAMETER_NAMES = List.of(
             "ENABLE",
             "FAILOVER",
             "LOAD_BALANCE",
