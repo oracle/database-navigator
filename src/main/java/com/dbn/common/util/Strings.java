@@ -435,5 +435,12 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
     public interface CharPredicate {
         boolean test(char chr);
     }
+
+    public static Character firstCharacter(String string) {
+        if (string != null && !string.isEmpty()) {
+            return string.charAt(0);
+        }
+        return null;
+    }
 }
 

@@ -16,9 +16,12 @@
 
 package com.dbn.object.type;
 
+import com.dbn.object.lookup.DBObjectRef;
 import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,8 +30,14 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static java.util.Collections.unmodifiableMap;
 
+/**
+ * Collection of java classes which can be considered "scalar" as in holding one single value in mathematical terms.
+ * Scalar classes have special treatment in the java execution engine (e.g. kept unpacked when introspecting java results aso...)
+ *
+ * @author Dan Cioca (Oracle)
+ */
 @Getter
-public final class DBJavaValueType {
+public final class DBJavaScalarType {
     private static final Class[] REGISTRY = new Class[]{
             boolean.class,
             byte.class,
@@ -50,6 +59,7 @@ public final class DBJavaValueType {
             String.class,
             Number.class,
             BigDecimal.class,
+            BigInteger.class,
 
             AtomicBoolean.class,
             AtomicInteger.class,
@@ -58,15 +68,15 @@ public final class DBJavaValueType {
             //...
     };
 
-    private static final Map<String, DBJavaValueType> canonicalNameMappings;   // e.g. com.dbn.SampleClass (canonical representation)
-    private static final Map<String, DBJavaValueType> objectNameMappings;      // e.g. com/dbn/SampleClass (database object representation)
+    private static final Map<String, DBJavaScalarType> canonicalNameMappings;   // e.g. com.dbn.SampleClass (canonical representation)
+    private static final Map<String, DBJavaScalarType> objectNameMappings;      // e.g. com/dbn/SampleClass (database object representation)
 
     static {
-        Map<String, DBJavaValueType> nameMap = new HashMap<>();
-        Map<String, DBJavaValueType> pathMap = new HashMap<>();
+        Map<String, DBJavaScalarType> nameMap = new HashMap<>();
+        Map<String, DBJavaScalarType> pathMap = new HashMap<>();
         for (Class<?> type : REGISTRY) {
-            nameMap.put(type.getCanonicalName(), new DBJavaValueType(type));
-            pathMap.put(type.getCanonicalName().replace(".", "/"), new DBJavaValueType(type));
+            nameMap.put(type.getCanonicalName(), new DBJavaScalarType(type));
+            pathMap.put(type.getCanonicalName().replace(".", "/"), new DBJavaScalarType(type));
         }
         canonicalNameMappings = unmodifiableMap(nameMap);
         objectNameMappings = unmodifiableMap(pathMap);
@@ -77,32 +87,37 @@ public final class DBJavaValueType {
     private final String path;
     private final String canonicalName;
 
-    DBJavaValueType(Class<?> type) {
+    DBJavaScalarType(Class<?> type) {
         this.type = type;
         this.name = type.getSimpleName();
         this.path = type.getCanonicalName().replace(".", "/");
         this.canonicalName = type.getCanonicalName();
     }
 
-    public static DBJavaValueType forName(String name) {
+    public static DBJavaScalarType forName(String name) {
         return canonicalNameMappings.get(name);
     }
 
-    public static DBJavaValueType forObjectName(String objectName) {
+    public static DBJavaScalarType forObjectName(String objectName) {
         return objectNameMappings.get(objectName);
     }
 
     /**
-     * Determines whether the given class name represents a pseudo-primitive type.
-     * A pseudo-primitive type is a value type that is either a standard Java primitive,
+     * Determines whether the given class name represents a scalar (single value) type.
+     * A scalar type is a value type that is either a standard Java primitive,
      * its corresponding wrapper class, or commonly used value types such as {@code String},
      * {@code Number}, {@code BigDecimal}, or atomic value types.
      *
-     * @return {@code true} if the className corresponds to a pseudo-primitive type;
+     * @return {@code true} if the className corresponds to a scalar type;
      *         {@code false} otherwise.
      */
-    public static boolean isPseudoPrimitive(String className) {
+    public static boolean isScalar(String className) {
         return forObjectName(className) != null;
+    }
+
+    public static boolean isScalar(@Nullable DBObjectRef<?> object) {
+        return object != null && object.getObjectType().matches(DBObjectType.JAVA_CLASS) && isScalar(object.getObjectName());
+
     }
 }
 

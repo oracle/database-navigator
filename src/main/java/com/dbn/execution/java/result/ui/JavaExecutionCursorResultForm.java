@@ -50,7 +50,7 @@ public class JavaExecutionCursorResultForm extends DBNFormBase implements Search
     private JPanel searchPanel;
     private DBNTableScrollPane resultScrollPane;
 
-    private final DBObjectRef<DBJavaParameter> argument;
+    private final DBObjectRef<DBJavaParameter> parameter;
     private final ResultSetTable<ResultSetDataModel<?, ?>> resultTable;
 
     private final Latent<DataSearchComponent> dataSearchComponent = Latent.basic(() -> {
@@ -60,10 +60,10 @@ public class JavaExecutionCursorResultForm extends DBNFormBase implements Search
         return dataSearchComponent;
     });
 
-    JavaExecutionCursorResultForm(JavaExecutionResultForm parent, JavaExecutionResult executionResult, DBJavaParameter argument) {
+    JavaExecutionCursorResultForm(JavaExecutionResultForm parent, JavaExecutionResult executionResult, DBJavaParameter parameter) {
         super(parent);
-        this.argument = DBObjectRef.of(argument);
-        ResultSetDataModel<?, ?> dataModel = executionResult.getTableModel(argument);
+        this.parameter = DBObjectRef.of(parameter);
+        ResultSetDataModel<?, ?> dataModel = executionResult.getTableModel(parameter);
         RecordViewInfo recordViewInfo = new RecordViewInfo(
                 executionResult.getName(),
                 executionResult.getIcon());
@@ -80,8 +80,8 @@ public class JavaExecutionCursorResultForm extends DBNFormBase implements Search
         DataProviders.register(actionToolbar.getComponent(), this);
     }
 
-    public DBJavaParameter getArgument() {
-        return argument.get();
+    public DBJavaParameter getParameter() {
+        return parameter.get();
     }
 
     @NotNull
@@ -146,7 +146,7 @@ public class JavaExecutionCursorResultForm extends DBNFormBase implements Search
             return JavaExecutionCursorResultForm.this;
         }
         if (DataKeys.JAVA_EXECUTION_ARGUMENT.is(dataId)) {
-            return DBObjectRef.get(argument);
+            return DBObjectRef.get(parameter);
         }
         return super.getData(dataId);
     }

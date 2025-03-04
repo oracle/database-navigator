@@ -29,7 +29,6 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaAccessibility;
-import com.dbn.object.type.DBJavaValueType;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -41,16 +40,16 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.dbn.common.dispose.Failsafe.nd;
-import static com.dbn.common.util.Java.isVoid;
 import static com.dbn.common.util.Strings.capitalize;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.PRIMITIVE;
+import static com.dbn.object.common.property.DBObjectProperty.SCALAR;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 
 @Getter
 public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implements DBJavaField {
-	private short index;
+	private short position;
 	private short arrayDepth;
 	private DBObjectRef<DBJavaClass> javaClass;
 	private DBJavaAccessibility accessibility;
@@ -66,11 +65,12 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 
 	@Override
 	protected String initObject(ConnectionHandler connection, DBObject parentObject, DBJavaFieldMetadata metadata) throws SQLException {
-		index = metadata.getFieldIndex();
+		position = metadata.getFieldIndex();
 		arrayDepth = metadata.getArrayDepth();
 
 		String fieldClassName = metadata.getFieldClassName();
 		set(PRIMITIVE, Java.isPrimitive(fieldClassName));
+		set(SCALAR, Java.isScalar(fieldClassName));
 
 		DBSchema schema = nd(parentObject.getSchema());
 		javaClass = new DBObjectRef<>(DBObjectRef.of(schema), JAVA_CLASS, fieldClassName);
@@ -86,7 +86,7 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 
 	@Override
 	public short getPosition() {
-		return index;
+		return position;
 	}
 
 	@Override
@@ -100,11 +100,6 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 	@Override
 	public DBJavaClass getOwnerClass() {
 		return getParentObject();
-	}
-
-	@Override
-	public String getOwnerClassName() {
-		return getOwnerClass().getName();
 	}
 
 	@Override
@@ -133,13 +128,8 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 	}
 
 	@Override
-	public boolean isPlainValue() {
-		return isPrimitive() || getValueType() != null;
-	}
-
-	@Override
-	public DBJavaValueType getValueType() {
-		return DBJavaValueType.forObjectName(javaClass.getObjectName());
+	public boolean isScalar() {
+		return is(SCALAR);
 	}
 
 	public DBJavaClass getJavaClass() {
@@ -166,7 +156,7 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 			methodName = methodName.split("#")[0];
 
 			if (!Objects.equals(methodName, getterName)) continue;
-			if (!Objects.equals(method.getReturnClassRef(), getJavaClassRef())) continue;
+			if (!Objects.equals(method.getReturnClassRef().getObjectName(), getJavaClassRef().getObjectName())) continue;
 			if (!Objects.equals(method.getReturnArrayDepth(), getArrayDepth())) continue;
 
 			return method;
@@ -184,13 +174,13 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 			methodName = methodName.split("#")[0];
 
 			if (!Objects.equals(methodName, setterName)) continue;
-			if (!isVoid(method.getReturnClassName())) continue;
+			if (!method.isReturningVoid()) continue;
 			// TODO
 			List<DBJavaParameter> parameters = method.getParameters();
 			if (parameters.size() != 1) continue;
 
 			DBJavaParameter parameter = parameters.get(0);
-			if (!Objects.equals(parameter.getJavaClassRef(), getJavaClassRef())) continue;
+			if (!Objects.equals(parameter.getJavaClassRef().getObjectName(), getJavaClassRef().getObjectName())) continue;
 			if (!Objects.equals(parameter.getArrayDepth(), getArrayDepth())) continue;
 
 			return method;
