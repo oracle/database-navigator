@@ -40,8 +40,9 @@ public class DriverPackageInfoDialog extends DBNDialog<DriverPackageInfoForm> {
             return new DriverPackageInfoForm(this, driverPackage);
     }
 
+    @NotNull
     @Override
-    protected Action @NotNull [] createActions() {
+    protected Action [] createActions() {
         return new Action[]{
                 new AbstractAction("Close") {
                     @Override
