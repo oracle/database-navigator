@@ -51,16 +51,16 @@
 
     </driver-package>
 
-    <driver-package database-type="MySQL" id="mysql-8.0-standard" name="MySQL 8.0.33">
+    <driver-package database-type="MySQL" id="mysql-9.2.0" name="MySQL 9.2.0">
 
-        <library artifact-id="mysql-connector-j" group-id="com.mysql" version="8.0.33">
+        <library artifact-id="mysql-connector-j" group-id="com.mysql" version="9.2.0">
             <license name="The GNU General Public License, v2 with Universal FOSS Exception, v1.0" url="Unknown"/>
             <developer name="Oracle Corporation" url="https://www.oracle.com/"/>
         </library>
 
     </driver-package>
 
-    <driver-package database-type="PostgreSQL" id="postgresql-42.6-standard" name="PostgreSQL 42.6.0">
+    <driver-package database-type="PostgreSQL" id="postgresql-42.7.5" name="PostgreSQL 42.7.5">
 
         <library artifact-id="org.osgi.dto" group-id="org.osgi" version="1.1.1">
             <license name="Apache-2.0" url="https://www.apache.org/licenses/LICENSE-2.0"/>
@@ -82,7 +82,7 @@
             <developer name="Eclipse Foundation" url="https://www.osgi.org/"/>
         </library>
 
-        <library artifact-id="postgresql" group-id="org.postgresql" version="42.6.0">
+        <library artifact-id="postgresql" group-id="org.postgresql" version="42.7.5">
             <license name="BSD-2-Clause" url="https://jdbc.postgresql.org/about/license.html"/>
             <developer name="Dave Cramer"/>
             <developer name="Kris Jurka"/>
@@ -94,9 +94,9 @@
 
     </driver-package>
 
-    <driver-package database-type="SQLite" id="sqllite-3.45-standard" name="SQLite 3.45.3">
+    <driver-package database-type="SQLite" id="sqllite-3.49.0" name="SQLite 3.49.0">
 
-        <library artifact-id="sqlite-jdbc" group-id="org.xerial" version="3.45.3.0">
+        <library artifact-id="sqlite-jdbc" group-id="org.xerial" version="3.49.0.0">
             <license name="The Apache Software License, Version 2.0" url="https://www.apache.org/licenses/LICENSE-2.0.txt"/>
             <developer name="Xerial Project"/>
         </library>
