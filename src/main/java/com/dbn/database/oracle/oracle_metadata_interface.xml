@@ -330,8 +330,8 @@
                 'N' as IS_INNER,
                 'N' as IS_STATIC,
                 'Y' as IS_VALID,
-                'N' as IS_DEBUG
-                'Y' as IS_PRIMITIVE,
+                'N' as IS_DEBUG,
+                'Y' as IS_PRIMITIVE
             from PRIMITIVES connect by level &lt;= regexp_count(CSV, ',') + 1
         </statement>
     </statement-execution-processor>
@@ -454,7 +454,8 @@
                 [PREFIX]_JAVA_FIELDS
             where
                 OWNER = {0} and
-                NAME = {1}
+                NAME = {1} and
+                BASE_TYPE is not null
             order by
                 FIELD_INDEX
         </statement>
@@ -474,7 +475,8 @@
             from
                 [PREFIX]_JAVA_FIELDS
             where
-                OWNER = {0}
+                OWNER = {0} and
+                BASE_TYPE is not null
             order by
                 NAME,
                 FIELD_INDEX

@@ -20,6 +20,7 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBJavaClassKind;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -47,6 +48,8 @@ public interface DBJavaClass extends DBSchemaObject {
 
 	boolean isPrimitive();
 
+	boolean isScalar();
+
     List<DBJavaMethod> getMethods();
 
 	List<DBJavaMethod> getStaticMethods();
@@ -57,6 +60,7 @@ public interface DBJavaClass extends DBSchemaObject {
 
 	DBJavaField getField(String name);
 
+	@Nullable
 	DBJavaClass getOuterClass();
 
 	List<DBJavaClass> getInnerClasses();
