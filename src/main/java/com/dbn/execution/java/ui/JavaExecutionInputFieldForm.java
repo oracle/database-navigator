@@ -53,6 +53,8 @@ import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.common.util.Lists.sortedCopy;
+import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static java.util.Collections.emptyList;
 
@@ -79,7 +81,7 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 		fieldLabel.setBorder(Borders.insetBorder(4, computeIndent(), 4, 0));
 		fieldPath = buildFieldPath();
 
-		if (field.isPlainValue()) {
+		if (field.isScalar()) {
 			initPlainField();
 		} else {
 			initClassField();
@@ -123,12 +125,13 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 	private void initPlainField() {
 		DBJavaField field = getField();
 
-		String javaClassName = field.getJavaClassName();
 		if (field.isClass()) {
-			String className = getCanonicalName(javaClassName);
+			DBObjectRef<DBJavaClass> javaClass = field.getJavaClassRef();
+			String className = getCanonicalName(javaClass);
 			fieldTypeLabel.setText(className);
 			fieldTypeLabel.setIcon(/*field.getFieldClass().getIcon()*/Icons.DBO_JAVA_CLASS); // TODO do not force loading the field class
 		} else {
+			String javaClassName = field.getJavaClassName();
 			fieldTypeLabel.setText(javaClassName);
 		}
 
@@ -153,19 +156,20 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 
 	private void initClassField() {
 		DBJavaField field = getField();
-		String className = field.getJavaClassName();
+		DBObjectRef<DBJavaClass> fieldClass = field.getJavaClassRef();
 
 		DBJavaClass javaClass = field.getJavaClass();
 		fieldTypeLabel.setText("");
 		fieldTypeLabel.setVisible(false);
 
-		JLabel classLabel = new JLabel(getCanonicalName(className));
+		JLabel classLabel = new JLabel(getCanonicalName(fieldClass));
 		classLabel.setIcon(javaClass == null ? Icons.DBO_JAVA_CLASS : javaClass.getIcon());
 		classLabel.setForeground(UIUtil.getInactiveTextColor());
 		inputFieldPanel.add(classLabel, BorderLayout.WEST);
 
 		verticalBoxLayout(fieldsPanel);
 		List<DBJavaField> fields = javaClass == null ? emptyList() : javaClass.getFields();
+		fields = sortedCopy(fields, POSITION_COMPARATOR);
 		fields.forEach(f -> addFieldPanel(f));
 	}
 

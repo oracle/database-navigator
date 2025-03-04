@@ -87,7 +87,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     JAVA_FIELD(DatabaseObjectTypeId.JAVA_FIELD, "java field", "fields", Icons.DBO_JAVA_FIELD, null, Icons.DBO_JAVA_FIELDS, false),
     JAVA_METHOD(DatabaseObjectTypeId.JAVA_METHOD, "java method", "methods", Icons.DBO_JAVA_METHOD, null, Icons.DBO_JAVA_METHODS, false),
     JAVA_OBJECT(DatabaseObjectTypeId.JAVA_OBJECT, "java object", "objects", null, null, null, false),
-    JAVA_PARAMETER(DatabaseObjectTypeId.JAVA_PARAMETER, "java parameter", "parameters", null, null, null, false),
+    JAVA_PARAMETER(DatabaseObjectTypeId.JAVA_PARAMETER, "java parameter", "parameters", Icons.DBO_JAVA_PARAMETER, null, null, false),
     LIBRARY(DatabaseObjectTypeId.LIBRARY, "library", "libraries", null, null, null, false),
     LOB(DatabaseObjectTypeId.LOB, "lob", "lobs", null, null, null, false),
     MATERIALIZED_VIEW(DatabaseObjectTypeId.MATERIALIZED_VIEW, "materialized view", "materialized views", Icons.DBO_MATERIALIZED_VIEW, null, Icons.DBO_MATERIALIZED_VIEWS, false),

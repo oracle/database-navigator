@@ -32,8 +32,8 @@ import java.util.List;
 
 class ArgumentValuesTree extends DBNTree{
 
-    ArgumentValuesTree(JavaExecutionResultForm parent, List<ExecutionValue> inputValues) {
-        super(parent, createModel(parent, inputValues));
+    ArgumentValuesTree(JavaExecutionResultForm parent, List<ExecutionValue> inputValues, List<ExecutionValue> outputValues) {
+        super(parent, createModel(parent, inputValues, outputValues));
         setCellRenderer(new ArgumentValuesTreeRenderer());
         Color bgColor = TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.PLAIN_DATA).getBgColor();
         setBackground(bgColor == null ? Colors.getTableBackground() : bgColor);
@@ -48,8 +48,8 @@ class ArgumentValuesTree extends DBNTree{
     }
 
     @NotNull
-    private static ArgumentValuesTreeModel createModel(JavaExecutionResultForm parentForm, List<ExecutionValue> inputValues) {
-        return new ArgumentValuesTreeModel(parentForm.getMethod(), inputValues);
+    private static ArgumentValuesTreeModel createModel(JavaExecutionResultForm parentForm, List<ExecutionValue> inputValues, List<ExecutionValue> outputValues) {
+        return new ArgumentValuesTreeModel(parentForm.getMethod(), inputValues, outputValues);
     }
 
     private TreeSelectionListener createTreeSelectionListener() {
@@ -58,7 +58,7 @@ class ArgumentValuesTree extends DBNTree{
             ArgumentValuesTreeNode treeNode = (ArgumentValuesTreeNode) path.getLastPathComponent();
             if (treeNode == null) return;
 
-            Object userValue = treeNode.getUserValue();
+            Object userValue = treeNode.getValue();
             if (userValue instanceof ExecutionValue) {
                 ExecutionValue fieldValue = (ExecutionValue) userValue;
                 DBJavaParameter argument = null; // TODO inputValue.getArgument();
