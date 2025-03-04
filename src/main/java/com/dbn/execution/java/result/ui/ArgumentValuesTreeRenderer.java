@@ -18,7 +18,9 @@ package com.dbn.execution.java.result.ui;
 
 import com.dbn.common.ui.tree.DBNColoredTreeCellRenderer;
 import com.dbn.common.ui.tree.DBNTree;
+import com.dbn.common.util.Strings;
 import com.dbn.execution.common.input.ExecutionValue;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
@@ -37,7 +39,6 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
     @Override
     public void customizeCellRenderer(@NotNull DBNTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
         ArgumentValuesTreeNode treeNode = (ArgumentValuesTreeNode) value;
-        Object userValue = treeNode.getUserValue();
         DBObject object = DBObjectRef.get(treeNode.getObject());
 
         if (object instanceof DBJavaMethod) {
@@ -47,35 +48,57 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
             return;
         }
 
-        if (object != null) {
-            setIcon(object.getIcon());
+        renderName(treeNode);
+        renderKey(object);
+        renderValue(treeNode);
+
+        // data type qualification
+        renderDataType(object);
+
+    }
+
+    private void renderName(ArgumentValuesTreeNode treeNode) {
+        String name = treeNode.getName();
+        if (Strings.isNotEmpty(name)) {
+            append(name, REGULAR_ATTRIBUTES);
+        }
+    }
+
+    private void renderKey(DBObject object) {
+        if (object instanceof DBJavaField) {
+            append(object.getName(), REGULAR_ATTRIBUTES);
+
+        } else if (object instanceof DBJavaParameter) {
             append(object.getName(), REGULAR_ATTRIBUTES);
         }
+    }
 
-        if (userValue instanceof String) {
-            append((String) userValue, treeNode.isLeaf() ?
-                    REGULAR_ATTRIBUTES :
-                    REGULAR_BOLD_ATTRIBUTES);
-        }
-
+    private void renderValue(ArgumentValuesTreeNode treeNode) {
+        Object userValue = treeNode.getValue();
         if (userValue instanceof ExecutionValue) {
             ExecutionValue fieldValue = (ExecutionValue) userValue;
             String stringValue = Objects.toString(fieldValue.getValue());
             append(" = ", REGULAR_ATTRIBUTES);
             append(stringValue, REGULAR_BOLD_ATTRIBUTES);
         }
+    }
 
+    private void renderDataType(DBObject object) {
         if (object instanceof DBJavaParameter) {
             DBJavaParameter parameter = (DBJavaParameter) object;
-            String dataType = getCanonicalName(parameter.getJavaClassName());
+            String dataType = getCanonicalName(parameter.getJavaClassRef());
 
             append(" (" + dataType + ")", GRAY_ATTRIBUTES);
+            setIcon(object.getIcon());
         } else if (object instanceof DBJavaField) {
             DBJavaField field = (DBJavaField) object;
-            String dataType = getCanonicalName(field.getJavaClassName());
+            String dataType = getCanonicalName(field.getJavaClassRef());
 
             append(" (" + dataType + ")", GRAY_ATTRIBUTES);
+            setIcon(object.getIcon());
+        } else if (object instanceof DBJavaClass) {
+            DBJavaClass javaClass = (DBJavaClass) object;
+            append(" (" + javaClass.getCanonicalName() + ")", GRAY_ATTRIBUTES);
         }
-
     }
 }

@@ -26,13 +26,11 @@ public interface DBJavaMethod extends DBOrderedObject {
 
 	DBJavaClass getOwnerClass();
 
-	String getOwnerClassName();
+	DBObjectRef<DBJavaClass> getOwnerClassRef();
 
     DBJavaClass getReturnClass();
 
 	DBObjectRef<DBJavaClass> getReturnClassRef();
-
-	String getReturnClassName();
 
 	short getReturnArrayDepth();
 
@@ -45,6 +43,8 @@ public interface DBJavaMethod extends DBOrderedObject {
 	boolean isExecutable();
 
 	boolean isAbstract();
+
+	boolean isReturningVoid();
 
 	String getSignature();
 

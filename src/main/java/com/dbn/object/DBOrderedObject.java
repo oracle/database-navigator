@@ -18,6 +18,10 @@ package com.dbn.object;
 
 import com.dbn.object.common.DBObject;
 
+import java.util.Comparator;
+
 public interface DBOrderedObject extends DBObject {
+    Comparator<DBOrderedObject> POSITION_COMPARATOR = Comparator.comparingInt(DBOrderedObject::getPosition);
+
     short getPosition();
 }

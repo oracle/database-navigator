@@ -104,7 +104,7 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
 
         List<DBJavaParameter> parameters = method.getParameters();
         for (DBJavaParameter parameter : parameters) {
-            if (parameter.isPlainValue()) continue;
+            if (parameter.isScalar()) continue;
 
             DBJavaClass parameterClass = parameter.getJavaClass();
             initClass(parameterClass);
@@ -116,7 +116,7 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
 
         List<DBJavaField> fields = javaClass.getFields();
         for (DBJavaField field : fields) {
-            if (field.isPlainValue()) continue;
+            if (field.isScalar()) continue;
             initClass(field.getJavaClass());
         }
     }

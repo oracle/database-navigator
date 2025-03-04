@@ -28,7 +28,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Comparator;
 import java.util.List;
 
 public class DatasetEditorModelHeader extends ResultSetDataModelHeader<DatasetEditorColumnInfo> {
@@ -62,6 +61,4 @@ public class DatasetEditorModelHeader extends ResultSetDataModelHeader<DatasetEd
         }
         return -1;
     }
-
-    private static final Comparator<DBColumn> COLUMN_POSITION_COMPARATOR = (column1, column2) -> column1.getPosition() - column2.getPosition();
 }

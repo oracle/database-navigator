@@ -53,6 +53,8 @@ import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.common.util.Lists.sortedCopy;
+import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static java.util.Collections.emptyList;
 
@@ -78,7 +80,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 		parameterLabel.setBorder(Borders.insetBorder(4, 0, 4, 0));
 
 		parameterTypeLabel.setForeground(UIUtil.getInactiveTextColor());
-		if (parameter.isPlainValue()) {
+		if (parameter.isScalar()) {
 			initPlainField();
 		} else {
 			initClassField();
@@ -95,13 +97,10 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 		inputField.setPreferredSize(new Dimension(240, -1));
 
 		inputField.createValuesListPopup(createValuesProvider(), parameter, true);
-		String javaClassName = parameter.getJavaClassName();
+		DBObjectRef<DBJavaClass> javaClass = parameter.getJavaClassRef();
+		parameterTypeLabel.setText(getCanonicalName(javaClass));
 		if (parameter.isClass()) {
-			String className = getCanonicalName(javaClassName);
-			parameterTypeLabel.setText(className);
 			parameterTypeLabel.setIcon(/*parameter.getParameterClass().getIcon()*/Icons.DBO_JAVA_CLASS); // TODO performance issue (do not force loading the field class)
-		} else {
-			parameterTypeLabel.setText(javaClassName);
 		}
 
 		inputTextField = inputField.getTextField();
@@ -126,6 +125,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 
 		verticalBoxLayout(fieldsPanel);
 		List<DBJavaField> fields = javaClass.getFields();
+		fields = sortedCopy(fields, POSITION_COMPARATOR);
 		fields.forEach(f -> addFieldPanel(f));
 	}
 

@@ -7,7 +7,7 @@ DECLARE
         dbms_output.put_line('SQLERRM: ' || SQLERRM);
     END;
 BEGIN
-    execute_immediate('DROP ${TYPE} DBN_OJVM_SQL_WRAPPER');
+    execute_immediate('DROP ${TYPE} DBN_OJVM_SQL_${TYPE}_WRAPPER');
 
 
     #if (${SQLTYPES} && ${SQLTYPES} != "")
