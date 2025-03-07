@@ -29,9 +29,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Parameters.toParameterString;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.database;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.file;
@@ -174,11 +174,7 @@ public enum DatabaseUrlPattern {
                 replace("<TNS_PROFILE>", nvl(tnsProfile, "")).
                 replace("<SERVER_TYPE>", isEmpty(serverType) || "Default".equalsIgnoreCase(serverType) ? ""
                         : ":" + nvl(serverType.toUpperCase(), "")).
-                replace("<PARAMETERS>", parameters == null || parameters.isEmpty()  ? ""
-                                : "?" + parameters.entrySet().stream().
-                                    map(entry -> isEmpty(entry.getValue()) ? "" : entry.getKey() + "=" + entry.getValue())
-                                        .filter(nvp -> !nvp.isEmpty())
-                                        .collect(Collectors.joining("&")));
+                replace("<PARAMETERS>", toParameterString(parameters));
     }
 
     public String getDefaultUrl() {

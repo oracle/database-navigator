@@ -19,7 +19,6 @@ package com.dbn.common.properties.ui;
 import com.dbn.common.properties.KeyValueProperty;
 import com.dbn.common.ui.table.DBNEditableTableModel;
 import com.dbn.common.util.Commons;
-import com.dbn.common.util.Strings;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.val;
@@ -28,6 +27,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 
 @Getter
 @Setter
@@ -60,10 +61,11 @@ public class PropertiesTableModel extends DBNEditableTableModel {
 
         for (KeyValueProperty property : properties) {
             String key = property.getKey();
-            if (!Strings.isEmptyOrSpaces(key)) {
-                String value = Commons.nvl(property.getValue(), "");
-                propertiesMap.put(key, value);
-            }
+            String value = property.getValue();
+            if (isEmptyOrSpaces(key)) continue;
+            if (isEmptyOrSpaces(value)) continue;
+
+            propertiesMap.put(key.trim(), value.trim());
         }
         return propertiesMap;
     }
