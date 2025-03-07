@@ -392,8 +392,6 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         portTextField.setText(databaseInfo.getPort());
         databaseTextField.setText(databaseInfo.getDatabase());
         tnsFolderTextField.setText(databaseInfo.getTnsFolder());
-        protocolComboBox.setSelectedItem(databaseInfo.getProtocol());
-        protocolComboBox.setSelectedItem(databaseInfo.getProtocol());
         parameters = databaseInfo.getParameters();
 
         String tnsProfile = databaseInfo.getTnsProfile();
@@ -408,6 +406,8 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         setSelection(urlTypeComboBox, databaseInfo.getUrlType());
 
         initComboBox(protocolComboBox, true, DatabaseProtocol.values());
+        setSelection(protocolComboBox, databaseInfo.getProtocol());
+
         setSelection(serverTypeComboBox, databaseInfo.getServerType());
 
         urlTypeLabel.setVisible(urlTypes.length > 1);
