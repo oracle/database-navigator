@@ -476,12 +476,12 @@ public class ExecutionConsoleForm extends DBNFormBase {
             ExecutionResultForm executionResultForm;
             if (previousExecutionResult == null) {
                 executionResultForm = getExecutionResultForm(executionResult);
-                if (executionResultForm != null) {
+                if (isValid(executionResultForm)) {
                     selectResultTab(executionResult);
                 }
             } else {
                 executionResultForm = getExecutionResultForm(previousExecutionResult);
-                if (executionResultForm != null) {
+                if (isValid(executionResultForm)) {
                     executionResultForms.remove(previousExecutionResult);
                     executionResultForms.put(executionResult, executionResultForm);
                     executionResultForm.setExecutionResult(executionResult);
