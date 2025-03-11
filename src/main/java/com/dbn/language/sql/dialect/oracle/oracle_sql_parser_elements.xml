@@ -4687,7 +4687,6 @@
                 </one-of>
                 <token id="02724" optional="true" type-id="KW_PUBLIC" />
                 <one-of formatting-spacing-before="LINE_BREAK" id="02725">
-
                     <element ref-id="create_view" />
                     <element ref-id="create_synonym" />
                     <element ref-id="create_directory" />
@@ -4958,6 +4957,188 @@
         </iteration>
     </element-def>
 
+    <element-def description="CREATE JSON VIEW statement" id="create_json_view_statement" original-name="create_json_relational_duality_view">
+        <token id="02854" type-id="KW_CREATE" />
+        <sequence id="02855" optional="true">
+            <token id="02856" type-id="KW_OR" />
+            <token id="02857" type-id="KW_REPLACE" />
+        </sequence>
+        <sequence id="02858" optional="true">
+            <token id="02859" optional="true" type-id="KW_NO" />
+            <token id="02860" type-id="KW_FORCE" />
+        </sequence>
+        <one-of id="02861" optional="true">
+            <token id="02862" type-id="KW_EDITIONING" />
+            <token id="02863" type-id="KW_NONEDITIONABLE" />
+        </one-of>
+        <element ref-id="create_json_view" />
+    </element-def>
+
+    <element-def attributes="SPECIFIC" description="CREATE JSON VIEW statement" id="create_json_view">
+        <token id="02867" type-id="KW_JSON" />
+        <token id="02867" type-id="KW_RELATIONAL" optional="true"/>
+        <token id="02867" type-id="KW_DUALITY"/>
+        <token id="02867" type-id="KW_VIEW"/>
+        <sequence>
+            <token id="02867" type-id="KW_IF"/>
+            <token id="02867" type-id="KW_NOT"/>
+            <token id="02867" type-id="KW_EXISTS"/>
+        </sequence>
+        <qualified-identifier id="02868" separator="CHR_DOT">
+            <variant>
+                <object-ref id="02869" optional="true" type="SCHEMA" />
+                <object-def attributes="SUBJECT" id="02870" type="JSON_VIEW" />
+            </variant>
+        </qualified-identifier>
+        <element optional="true" ref-id="json_duality_view_replication_clause"/>
+        <token id="02867" type-id="KW_AS" />
+        <one-of>
+            <token id="04480" original-name="graphql_query_for_DV" type-id="STRING" />
+            <element ref-id="select_json_statement"/>
+        </one-of>
+    </element-def>
+
+    <element-def attributes="SPECIFIC" description="SELECT JSON statement" id="select_json_statement" custom="true">
+        <token id="02867" type-id="KW_SELECT" />
+        <element ref-id="select_json_block"/>
+    </element-def>
+    <element-def id="select_json_block" description="SELECT JSON statement block" custom="true" branch="br_select_json">
+        <element ref-id="json_object_gen_clause"/>
+        <token id="02867" type-id="KW_FROM" />
+        <qualified-identifier id="04006" separator="CHR_DOT">
+            <variant>
+                <object-ref id="04007" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="04008" referenceable="true" type="TABLE" original-name="root_table"/>
+            </variant>
+        </qualified-identifier>
+        <alias-def id="04009" original-name="root_table_alias" type="TABLE" />
+        <element ref-id="table_tags_clause" optional="true"/>
+    </element-def>
+
+    <element-def attributes="CLAUSE" description="Duality view REPLICATION clause" id="json_duality_view_replication_clause" original-name="duality_view_replication_clause">
+        <one-of id="02968" tokens="KW_ENABLE, KW_DISABLE" />
+        <token id="02867" type-id="KW_LOGICAL" />
+        <token id="02867" type-id="KW_REPLICATION" />
+    </element-def>
+    <element-def attributes="CLAUSE" description="JSON Object Gen clause" id="json_object_gen_clause" original-name="object_gen_clause">
+        <token id="02867" type-id="KW_JSON" />
+        <wrapper template="BRACES">
+            <sequence>
+                <iteration separator="CHR_COMMA">
+                    <element ref-id="json_key_value_clause"/>
+                </iteration>
+                <sequence optional="true">
+                    <token type-id="CHR_COMMA"/>
+                    <element ref-id="json_flex_clause"/>
+                </sequence>
+            </sequence>
+        </wrapper>
+    </element-def>
+    <element-def attributes="CLAUSE" description="JSON KEY VALUE clause" id="json_key_value_clause" original-name="key_value_clause">
+        <one-of>
+            <sequence>
+                <token id="02867" type-id="KW_KEY" optional="true"/>
+                <token id="04480" original-name="string" type-id="STRING" />
+                <one-of>
+                    <token id="02867" type-id="KW_IS"/>
+                    <token id="02867" type-id="CHR_COLON"/>
+                </one-of>
+                <one-of>
+                    <sequence>
+                        <qualified-identifier id="04006" separator="CHR_DOT">
+                            <variant>
+                                <object-ref id="04007" optional="true" type="SCHEMA" />
+                                <object-ref id="04008" optional="true" type="TABLE"/>
+                                <object-ref id="04008" type="COLUMN" original-name="column_name"/>
+                            </variant>
+                            <variant>
+                                <alias-ref id="04008" optional="true" type="TABLE"/>
+                                <object-ref id="04008" type="COLUMN" original-name="column_name"/>
+                            </variant>
+                        </qualified-identifier>
+                        <element ref-id="column_tags_clause" optional="true"/>
+                    </sequence>
+                    <wrapper template="PARENTHESES">
+                        <element ref-id="json_duality_view_subquery"/>
+                    </wrapper>
+                    <wrapper template="BRACKETS">
+                        <element ref-id="json_duality_view_subquery"/>
+                    </wrapper>
+                </one-of>
+            </sequence>
+            <sequence>
+                <token id="02867" type-id="KW_UNNEST" />
+                <wrapper template="PARENTHESES">
+                    <element ref-id="json_duality_view_subquery"/>
+                </wrapper>
+            </sequence>
+        </one-of>
+    </element-def>
+
+    <element-def attributes="CLAUSE" description="JSON FLEX clause" id="json_flex_clause" original-name="flex_clause">
+        <qualified-identifier id="04006" separator="CHR_DOT">
+            <variant>
+                <object-ref id="04007" optional="true" type="SCHEMA" />
+                <object-ref id="04008" optional="true" type="TABLE"/>
+                <object-ref id="04008" type="COLUMN" original-name="column_name"/>
+            </variant>
+            <variant>
+                <alias-ref id="04008" optional="true" type="TABLE"/>
+                <object-ref id="04008" type="COLUMN" original-name="column_name"/>
+            </variant>
+        </qualified-identifier>
+        <token id="02867" type-id="KW_AS" />
+        <token id="02867" type-id="KW_FLEX" />
+        <token id="02867" type-id="KW_COLUMN" optional="true"/>
+    </element-def>
+
+    <element-def attributes="CLAUSE" id="column_tags_clause" description="Column Tags clause">
+        <token id="02867" type-id="KW_WITH" />
+        <iteration>
+            <one-of>
+                <sequence>
+                    <one-of tokens="KW_CHECK, KW_NOCHECK"/>
+                    <token id="02867" type-id="KW_ETAG" optional="true"/>
+                </sequence>
+                <token id="02867" type-id="KW_UPDATE" />
+                <token id="02867" type-id="KW_NOUPDATE" />
+            </one-of>
+        </iteration>
+    </element-def>
+
+    <element-def attributes="CLAUSE" id="table_tags_clause" description="Table Tags clause">
+        <token id="02867" type-id="KW_WITH" />
+        <iteration>
+            <one-of>
+                <sequence>
+                    <one-of tokens="KW_CHECK, KW_NOCHECK"/>
+                    <token id="02867" type-id="KW_ETAG" optional="true"/>
+                </sequence>
+                <token id="02867" type-id="KW_INSERT" />
+                <token id="02867" type-id="KW_NOINSERT" />
+                <token id="02867" type-id="KW_UPDATE" />
+                <token id="02867" type-id="KW_NOUPDATE" />
+                <token id="02867" type-id="KW_DELETE" />
+                <token id="02867" type-id="KW_NODELETE" />
+            </one-of>
+        </iteration>
+    </element-def>
+
+    <element-def id="json_duality_view_subquery" original-name="duality_view_subquery" description="JSON Duality View subquery">
+        <token id="02867" type-id="KW_SELECT" />
+        <element ref-id="json_object_gen_clause"/>
+        <token id="02867" type-id="KW_FROM" />
+        <qualified-identifier id="04006" separator="CHR_DOT">
+            <variant>
+                <object-ref id="04007" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="04008" referenceable="true" type="TABLE" original-name="child_table"/>
+            </variant>
+        </qualified-identifier>
+        <alias-def id="04009" original-name="child_table_alias" type="TABLE" />
+        <element ref-id="table_tags_clause" optional="true"/>
+        <token id="02867" type-id="KW_WHERE" />
+        <element ref-id="condition" original-name="join_condition"/>
+    </element-def>
 
 
     <element-def description="CREATE VIEW statement" id="create_view_statement">
@@ -7374,6 +7555,7 @@
                     <token id="04138" type-id="KW_SELECT" />
                     <one-of id="04139">
                         <element ref-id="select_ai_block" branch-check="-br_with" />
+                        <element ref-id="select_json_block" branch-check="-br_with" />
                         <element ref-id="select_block" />
                     </one-of>
                 </sequence>
@@ -7382,7 +7564,7 @@
                 <element ref-id="subquery" />
             </wrapper>
         </one-of>
-        <sequence branch-check="-br_select_ai" optional="true" id="04141">
+        <sequence branch-check="-br_select_ai -br_select_json" optional="true" id="04141">
             <iteration id="04142" optional="true">
                 <element ref-id="union_intersect_minus_clause" />
             </iteration>
