@@ -42,7 +42,6 @@ import com.dbn.connection.config.ConnectionFilterSettings;
 import com.dbn.connection.config.ConnectionPropertiesSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.ConnectionSshTunnelSettings;
-import com.dbn.connection.config.ConnectionSslSettings;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
@@ -83,8 +82,9 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
         tabbedPane.addTab(txt("cfg.connection.title.Database"), databaseSettings.createComponent());
 
         if (databaseSettings.getConfigType() == ConnectionConfigType.BASIC) {
-            ConnectionSslSettings sslSettings = connectionSettings.getSslSettings();
-            tabbedPane.addTab(txt("cfg.connection.title.Ssl"), new JBScrollPane(sslSettings.createComponent()));
+            // TODO enable when ssl connectivity is implemented
+            //ConnectionSslSettings sslSettings = connectionSettings.getSslSettings();
+            //tabbedPane.addTab(txt("cfg.connection.title.Ssl"), new JBScrollPane(sslSettings.createComponent()));
 
             ConnectionSshTunnelSettings sshTunnelSettings = connectionSettings.getSshTunnelSettings();
             tabbedPane.addTab(txt("cfg.connection.title.SshTunnel"), new JBScrollPane(sshTunnelSettings.createComponent()));

@@ -20,12 +20,15 @@ import com.dbn.common.ui.util.Keyboard;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.Shortcut;
 import com.intellij.openapi.actionSystem.ex.AnActionListener;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.awt.Component;
 
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.intellij.openapi.actionSystem.AnAction.getEventProject;
@@ -40,6 +43,7 @@ public abstract class ShortcutInterceptor implements AnActionListener {
         this.delegateActionClass = getDelegateAction().getClass();
     }
 
+    @Nullable
     protected AnAction getDelegateAction() {
         return ActionManager.getInstance().getAction(delegateActionId);
     }
@@ -58,13 +62,9 @@ public abstract class ShortcutInterceptor implements AnActionListener {
 
     protected void invokeDelegateAction(@NotNull AnActionEvent event) {
         AnAction delegateAction = getDelegateAction();
-        AnActionEvent delegateEvent = new AnActionEvent(
-                event.getInputEvent(),
-                event.getDataContext(),
-                event.getPlace(),
-                new Presentation(),
-                ActionManager.getInstance(), 0);
+        if (delegateAction == null) return;
 
-        delegateAction.actionPerformed(delegateEvent);
+        Component component = event.getData(PlatformDataKeys.CONTEXT_COMPONENT);
+        ActionManager.getInstance().tryToExecute(delegateAction, event.getInputEvent(), component, null, false);
     }
 }

@@ -16,6 +16,7 @@
 
 package com.dbn.common.util;
 
+import com.dbn.object.type.DBJavaScalarType;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
@@ -107,6 +108,11 @@ public class Java {
     @NonNls
     public static boolean isPrimitive(String className) {
         return PRIMITIVES.contains(className);
+    }
+
+    @NonNls
+    public static boolean isScalar(String className) {
+        return DBJavaScalarType.isScalar(className);
     }
 
     @NonNls

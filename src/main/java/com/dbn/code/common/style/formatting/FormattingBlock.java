@@ -16,6 +16,7 @@
 
 package com.dbn.code.common.style.formatting;
 
+import com.dbn.code.common.style.formatting.FormattingAttributes.Type;
 import com.dbn.code.common.style.options.CodeStyleFormattingSettings;
 import com.dbn.code.common.style.options.DBLCodeStyleSettings;
 import com.dbn.code.common.style.presets.CodeStyleDefaultPresets;
@@ -53,6 +54,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.code.common.style.formatting.FormattingAttributes.Type.INDENT;
+import static com.dbn.code.common.style.formatting.FormattingAttributes.Type.SPACING_AFTER;
+import static com.dbn.code.common.style.formatting.FormattingAttributes.Type.SPACING_BEFORE;
+import static com.dbn.code.common.style.formatting.FormattingAttributes.Type.WRAP;
+
 public class FormattingBlock implements Block {
     private final PsiElementRef psiElementRef;
     private final CodeStyleSettings codeStyleSettings;
@@ -86,43 +92,41 @@ public class FormattingBlock implements Block {
 
 
     private Indent getIndentAttribute() {
-        return (Indent) getAttribute(FormattingAttributes.Type.INDENT);
+        return (Indent) getAttribute(INDENT);
     }
 
     private Wrap getWrapAttribute() {
-        return (Wrap) getAttribute(FormattingAttributes.Type.WRAP);
+        return (Wrap) getAttribute(WRAP);
     }
 
     private Spacing getSpacingBeforeAttribute() {
-        return (Spacing) getAttribute(FormattingAttributes.Type.SPACING_BEFORE);
+        return (Spacing) getAttribute(SPACING_BEFORE);
     }
 
     private Spacing getSpacingAfterAttribute() {
-        return (Spacing) getAttribute(FormattingAttributes.Type.SPACING_AFTER);
+        return (Spacing) getAttribute(SPACING_AFTER);
     }
 
 
-    private Object getAttribute(FormattingAttributes.Type type) {
+    private Object getAttribute(Type type) {
         PsiElement psiElement = getPsiElement();
         if (psiElement instanceof FormattingProviderPsiElement) {
             FormattingProviderPsiElement providerPsiElement = (FormattingProviderPsiElement) psiElement;
             FormattingAttributes attributes = providerPsiElement.getFormattingAttributes();
-            Object attribute = FormattingAttributes.getAttribute(attributes, type);
-            if (attribute != null) {
-                return attribute;
-            }
+            Object attribute = FormattingAttributes.getAttribute(attributes,  type);
+            if (attribute != null) return attribute;
 
-            if (type == FormattingAttributes.Type.SPACING_BEFORE || type == FormattingAttributes.Type.SPACING_AFTER) {
+            if (type == SPACING_BEFORE || type == SPACING_AFTER) {
                 PsiElement parent = providerPsiElement.getParent();
                 PsiElement child = type.isLeft() ? parent.getFirstChild() : parent.getLastChild();
                 if (child != providerPsiElement) {
                     attributes = providerPsiElement.getFormattingAttributesRecursive(type.isLeft());
                     attribute = FormattingAttributes.getAttribute(attributes, type);
-                    if (attribute != null) {
-                        return attribute;
-                    }
+                    if (attribute != null) return attribute;
                 }
             }
+
+            //...
         }
         return null;
     }

@@ -35,7 +35,6 @@ public class ObjectEditDataAction extends ProjectAction {
 
     public ObjectEditDataAction(DBSchemaObject object) {
         this.object = DBObjectRef.of(object);
-        setDefaultIcon(true);
     }
 
     @Override

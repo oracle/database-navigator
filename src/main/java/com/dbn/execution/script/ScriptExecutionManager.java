@@ -85,6 +85,7 @@ import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.execution.logging.LogOutput.createSysOutput;
 import static com.dbn.execution.script.ScriptExecutionProcessHandler.startProcess;
 import static com.dbn.nls.NlsResources.txt;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -181,7 +182,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         AtomicReference<File> tempScriptFile = new AtomicReference<>();
         LogOutputContext outputContext = new LogOutputContext(connection, sourceFile, null);
         int timeout = input.getExecutionTimeout();
-        executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput(outputContext, " - Initializing script execution", input.isClearOutput()));
+        executionManager.writeLogOutput(outputContext, createSysOutput(outputContext, " - Initializing script execution", input.isClearOutput()));
 
         try {
             new CancellableDatabaseCall<>(connection, null, timeout, SECONDS) {
@@ -192,7 +193,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     String content = new String(sourceFile.contentsToByteArray());
                     File temporaryScriptFile = createTempScriptFile();
 
-                    executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput("Creating temporary script file " + temporaryScriptFile));
+                    executionManager.writeLogOutput(outputContext, createSysOutput("Creating temporary script file " + temporaryScriptFile));
                     tempScriptFile.set(temporaryScriptFile);
 
                     DatabaseExecutionInterface executionInterface = connection.getInterfaces().getExecutionInterface();
@@ -211,12 +212,11 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     }
 
                     String commandLine = executionInput.getCommandLine();
-                    executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput("Executing command: " + commandLine));
-                    executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput(""));
+                    executionManager.writeLogOutput(outputContext, createSysOutput("Executing command: " + commandLine));
+                    executionManager.writeLogOutput(outputContext, createSysOutput(""));
 
                     ScriptExecutionProcessHandler processHandler = startProcess(executionInput);
                     processHandler.whenOutputted(e -> consumeProcessOutput(e.getText(), outputContext));
-                    processHandler.whenNotified(e -> processHandler.sendCommands(executionInput.getStatements()));
 
                     // start the process
                     Process process = processHandler.getProcess();
@@ -226,13 +226,13 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
                     outputContext.setHideEmptyLines(false);
                     outputContext.start();
-                    executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput(outputContext, " - Script execution started", false));
+                    executionManager.writeLogOutput(outputContext, createSysOutput(outputContext, " - Script execution started", false));
 
                     // start monitoring the process and wait for completion
                     processHandler.startNotify();
                     processHandler.waitFor();
 
-                    LogOutput logOutput = LogOutput.createSysOutput(outputContext,
+                    LogOutput logOutput = createSysOutput(outputContext,
                             outputContext.isStopped() ?
                                     " - Script execution interrupted by user" :
                                     " - Script execution finished", false);
@@ -273,7 +273,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         } catch (Exception e) {
             conditionallyLog(e);
             executionManager.writeLogOutput(outputContext, LogOutput.createErrOutput(e.getMessage()));
-            executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput(outputContext, " - Script execution finished with errors", false));
+            executionManager.writeLogOutput(outputContext, createSysOutput(outputContext, " - Script execution finished with errors", false));
             throw e;
         } finally {
             context.set(ExecutionStatus.EXECUTING, false);
@@ -281,7 +281,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
             activeProcesses.remove(sourceFile);
             File temporaryScriptFile = tempScriptFile.get();
             if (temporaryScriptFile != null && temporaryScriptFile.exists()) {
-                executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput("Deleting temporary script file " + temporaryScriptFile));
+                executionManager.writeLogOutput(outputContext, createSysOutput("Deleting temporary script file " + temporaryScriptFile));
                 FileUtil.delete(temporaryScriptFile);
             }
         }
