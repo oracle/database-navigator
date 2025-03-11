@@ -5005,13 +5005,7 @@
     <element-def id="select_json_block" description="SELECT JSON statement block" custom="true" branch="br_select_json">
         <element ref-id="json_object_gen_clause" />
         <token id="02879" type-id="KW_FROM" />
-        <qualified-identifier id="02880" separator="CHR_DOT">
-            <variant>
-                <object-ref id="02881" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="02882" referenceable="true" type="TABLE" original-name="root_table" />
-            </variant>
-        </qualified-identifier>
-        <alias-def id="02883" original-name="root_table_alias" type="TABLE" />
+        <element ref-id="json_query_table_ref"/>
         <element ref-id="table_tags_clause" optional="true" />
     </element-def>
 
@@ -5045,17 +5039,7 @@
                 </one-of>
                 <one-of id="02900">
                     <sequence id="02901">
-                        <qualified-identifier id="02902" separator="CHR_DOT">
-                            <variant>
-                                <object-ref id="02903" optional="true" type="SCHEMA" />
-                                <object-ref id="02904" optional="true" type="TABLE" />
-                                <object-ref id="02905" type="COLUMN" original-name="column_name" />
-                            </variant>
-                            <variant>
-                                <alias-ref id="02906" optional="true" type="TABLE" />
-                                <object-ref id="02907" type="COLUMN" original-name="column_name" />
-                            </variant>
-                        </qualified-identifier>
+                        <element ref-id="json_query_column_ref"/>
                         <element ref-id="column_tags_clause" optional="true" />
                     </sequence>
                     <wrapper template="PARENTHESES" id="02908">
@@ -5076,17 +5060,7 @@
     </element-def>
 
     <element-def attributes="CLAUSE" description="JSON FLEX clause" id="json_flex_clause" original-name="flex_clause">
-        <qualified-identifier id="02913" separator="CHR_DOT">
-            <variant>
-                <object-ref id="02914" optional="true" type="SCHEMA" />
-                <object-ref id="02915" optional="true" type="TABLE" />
-                <object-ref id="02916" type="COLUMN" original-name="column_name" />
-            </variant>
-            <variant>
-                <alias-ref id="02917" optional="true" type="TABLE" />
-                <object-ref id="02918" type="COLUMN" original-name="column_name" />
-            </variant>
-        </qualified-identifier>
+        <element ref-id="json_query_column_ref"/>
         <token id="02919" type-id="KW_AS" />
         <token id="02920" type-id="KW_FLEX" />
         <token id="02921" type-id="KW_COLUMN" optional="true" />
@@ -5128,18 +5102,35 @@
         <token id="02942" type-id="KW_SELECT" />
         <element ref-id="json_object_gen_clause" />
         <token id="02943" type-id="KW_FROM" />
-        <qualified-identifier id="02944" separator="CHR_DOT">
-            <variant>
-                <object-ref id="02945" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="02946" referenceable="true" type="TABLE" original-name="child_table" />
-            </variant>
-        </qualified-identifier>
-        <alias-def id="02947" original-name="child_table_alias" type="TABLE" />
+        <element ref-id="json_query_table_ref"/>
         <element ref-id="table_tags_clause" optional="true" />
         <token id="02948" type-id="KW_WHERE" />
         <element ref-id="condition" original-name="join_condition" />
     </element-def>
 
+    <element-def id="json_query_table_ref" description="JSON query table" custom="true">
+        <qualified-identifier id="02880" separator="CHR_DOT">
+            <variant>
+                <object-ref id="02881" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="02882" referenceable="true" type="TABLE" original-name="root_table / child_table" />
+            </variant>
+        </qualified-identifier>
+        <alias-def id="02883" original-name="root_table_alias / child_table_alias" type="TABLE" />
+    </element-def>
+
+    <element-def id="json_query_column_ref" description="JSON query column reference" custom="true">
+        <qualified-identifier id="02902" separator="CHR_DOT">
+            <variant>
+                <object-ref id="02903" optional="true" type="SCHEMA" local="true"/>
+                <object-ref id="02904" optional="true" type="TABLE" local="true" />
+                <object-ref id="02905" type="COLUMN" original-name="column_name" />
+            </variant>
+            <variant>
+                <alias-ref id="02906" optional="true" type="TABLE" />
+                <object-ref id="02907" type="COLUMN" original-name="column_name" />
+            </variant>
+        </qualified-identifier>
+    </element-def>
 
     <element-def description="CREATE VIEW statement" id="create_view_statement">
         <token id="02949" type-id="KW_CREATE" />
