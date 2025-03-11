@@ -75,8 +75,8 @@ public class DownloadManagerDialog extends DBNDialog<DownloadManagerForm> {
     private void handleDownloadButtonClick() {
         selectedDriverPackage = getSelection(downloadManagerForm.libraryPackageComboBox);
         selectedDriverPackage.setPath(downloadManagerForm.libraryPathTextField.getText()+"/"+selectedDriverPackage.getId());
-        AsyncMessageCollector messages = new AsyncMessageCollector();
-        DriverPackageDownloader.downloadDriverPackage(getProject(), selectedDriverPackage, messages, (String errorMessage) -> {
+        DriverPackageDownloader downloader = new DriverPackageDownloader();
+        downloader.downloadDriverPackage(getProject(), selectedDriverPackage, (String errorMessage) -> {
             if(errorMessage.isBlank()) this.close(0);
             else {
                 downloadManagerForm.errorHintLabel.setText(errorMessage);

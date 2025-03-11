@@ -19,8 +19,8 @@ package com.dbn.driver.download;
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.checksum.ChecksumType;
 import com.dbn.common.download.Downloads;
-import com.dbn.common.message.AsyncMessageCollector;
 import com.dbn.driver.download.metadata.Library;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.util.io.FileUtil;
 
 import java.io.BufferedWriter;
@@ -38,7 +38,7 @@ public class MavenArtifactDownloader {
     private static final String DRIVER_PACKAGES_PATH = getPluginDeploymentRoot().getPath()+"/driver-packages/checksums";
 
 
-    public static String downloadArtifact(String packageId, AsyncMessageCollector messages, Library library, String pathLabel) {
+    public static String downloadArtifact(DownloadSession session, String packageId, Library library) {
         String groupId = library.getGroupId();
         String artifactId = library.getArtifactId();
         String version = library.getVersion();
@@ -47,24 +47,24 @@ public class MavenArtifactDownloader {
         String checksumUrl = artifactUrl + ".sha1";
         try {
             DriverDownloadManager.getInstance().updateJarDownloadStatus(packageId, artifactId + "-" + version, DownloadStatus.PENDING);
-            return downloadAndVerify(packageId, artifactUrl, checksumUrl, artifactId, version, groupId, pathLabel);
+            return downloadAndVerify(session, packageId, artifactUrl, checksumUrl, artifactId, version, groupId);
         } catch (IOException e) {
-            messages.addErrorMessage("Download failed for " + artifactId + "-" + version + ": " + e.getMessage());
+            session.addErrorMessage("Download failed for " + artifactId + "-" + version + ": " + e.getMessage());
             return e.getMessage();
         }
     }
 
-    private static String downloadAndVerify(String packageId, String artifactUrl, String checksumUrl, String artifactId, String version, String groupId, String pathLabel) throws IOException {
-        File pluginDir = createPluginDirectory(pathLabel);
+    private static String downloadAndVerify(DownloadSession session, String packageId, String artifactUrl, String checksumUrl, String artifactId, String version, String groupId) throws IOException {
+        File pluginDir = createPluginDirectory(session.getDownloadPath());
         if (pluginDir == null) return "Couldn't create or access download directory";
 
         File outputFile = new File(pluginDir, artifactId + "-" + version + ".jar");
 
         try {
-            Downloads.downloadAtomically(null, artifactUrl, outputFile);
+            Downloads.downloadAtomically(session.getProgressIndicator(), artifactUrl, outputFile);
             System.out.println("Artifact downloaded to: " + outputFile.getAbsolutePath());
 
-            String expectedChecksum = getLibraryChecksum(checksumUrl);
+            String expectedChecksum = getLibraryChecksum(session.getProgressIndicator(), checksumUrl);
             return verifyChecksum(expectedChecksum, outputFile, packageId, artifactId, version, groupId);
         } catch (IOException e) {
             deleteFile(outputFile);
@@ -84,10 +84,10 @@ public class MavenArtifactDownloader {
         return pluginDir;
     }
 
-    private static String getLibraryChecksum(String checksumUrl) throws IOException {
+    private static String getLibraryChecksum(ProgressIndicator indicator, String checksumUrl) throws IOException {
         File tempFile = FileUtil.createTempFile(UUID.randomUUID().toString(), ".tmp", true);
         try {
-            Downloads.downloadAtomically(null, checksumUrl, tempFile);
+            Downloads.downloadAtomically(indicator, checksumUrl, tempFile);
             try (Scanner scanner = new Scanner(tempFile)) {
                 // Read the first line and extract the checksum
                 String line = scanner.nextLine().trim();
