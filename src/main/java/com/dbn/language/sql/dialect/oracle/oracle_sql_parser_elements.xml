@@ -4688,6 +4688,7 @@
                 <token id="02724" optional="true" type-id="KW_PUBLIC" />
                 <one-of formatting-spacing-before="LINE_BREAK" id="02725">
                     <element ref-id="create_view" />
+                    <element ref-id="create_json_view" />
                     <element ref-id="create_synonym" />
                     <element ref-id="create_directory" />
                     <element ref-id="create_context" />
@@ -4979,7 +4980,7 @@
         <token id="02865" type-id="KW_RELATIONAL" optional="true" />
         <token id="02866" type-id="KW_DUALITY" />
         <token id="02867" type-id="KW_VIEW" />
-        <sequence id="02868">
+        <sequence id="02868" optional="true">
             <token id="02869" type-id="KW_IF" />
             <token id="02870" type-id="KW_NOT" />
             <token id="02871" type-id="KW_EXISTS" />
@@ -4987,7 +4988,7 @@
         <qualified-identifier id="02872" separator="CHR_DOT">
             <variant>
                 <object-ref id="02873" optional="true" type="SCHEMA" />
-                <object-def attributes="SUBJECT" id="02874" type="JSON_VIEW" />
+                <object-def attributes="SUBJECT" id="02874" type="JSON_VIEW" original-name="view_name"/>
             </variant>
         </qualified-identifier>
         <element optional="true" ref-id="json_duality_view_replication_clause" />
