@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -222,5 +223,20 @@ public class Lists {
             greatest = max(greatest, s);
         }
         return greatest;
+    }
+
+    /**
+     * Returns a sorted copy of the provided list. The elements are sorted
+     * according to the order induced by the specified comparator.
+     *
+     * @param <T> the type of elements in the list
+     * @param list the list to be copied and sorted
+     * @param comparator the comparator to determine the order of the elements in the resulting list
+     * @return a new list containing all elements of the original list, sorted as specified
+     */
+    public static <T> List<T> sortedCopy(List<T> list, Comparator<? super T> comparator) {
+        List<T> copy = new ArrayList<>(list);
+        copy.sort(comparator);
+        return copy;
     }
 }

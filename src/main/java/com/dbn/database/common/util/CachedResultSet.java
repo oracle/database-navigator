@@ -16,7 +16,6 @@
 
 package com.dbn.database.common.util;
 
-import com.dbn.common.data.Data;
 import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.Resources;
@@ -34,6 +33,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.dbn.common.data.Data.asBooleanPrimitive;
+import static com.dbn.common.data.Data.asIntegerPrimitive;
+import static com.dbn.common.data.Data.asLongPrimitive;
+import static com.dbn.common.data.Data.asShortPrimitive;
+import static com.dbn.common.data.Data.asString;
+import static com.dbn.common.data.Data.cast;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -250,7 +255,7 @@ public class CachedResultSet extends StatefulDisposableBase implements ResultSet
         for (int i = 0; i < rows.size(); i++) {
             CachedResultSetRow row = rows.get(i);
             Object columnValue = row.get(columnName);
-            T castedValue = Data.cast(columnValue, columnType);
+            T castedValue = cast(columnValue, columnType);
             list.add(castedValue);
         }
 
@@ -392,31 +397,31 @@ public class CachedResultSet extends StatefulDisposableBase implements ResultSet
     @Override
     public String getString(@NonNls String columnLabel) throws SQLException {
         Object value = getObject(columnLabel);
-        return Data.asString(value);
+        return asString(value);
     }
 
     @Override
     public short getShort(@NonNls String columnLabel) throws SQLException {
         Object value = getObject(columnLabel);
-        return Data.asShrt(value);
+        return asShortPrimitive(value);
     }
 
     @Override
     public int getInt(@NonNls String columnLabel) throws SQLException {
         Object value = getObject(columnLabel);
-        return Data.asInt(value);
+        return asIntegerPrimitive(value);
     }
 
     @Override
     public long getLong(@NonNls String columnLabel) throws SQLException {
         Object value = getObject(columnLabel);
-        return Data.asLng(value);
+        return asLongPrimitive(value);
     }
 
     @Override
     public boolean getBoolean(@NonNls String columnLabel) throws SQLException {
         Object value = getObject(columnLabel);
-        return Data.asBool(value);
+        return asBooleanPrimitive(value);
     }
 
     // TODO add more accessors overrides if needed
