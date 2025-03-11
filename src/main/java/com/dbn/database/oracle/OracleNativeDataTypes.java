@@ -86,6 +86,7 @@ public class OracleNativeDataTypes extends DatabaseNativeDataTypes {
         createLargeValueDefinition("NCLOB", NClob.class, OracleTypes.NCLOB, GenericDataType.NCLOB);
         createLargeValueDefinition("XMLTYPE", Clob.class, Types.SQLXML, GenericDataType.XMLTYPE, true, "XML");
 
+        createBasicDefinition("VECTOR", Float[].class, OracleTypes.ARRAY, GenericDataType.VECTOR);
         createBasicDefinition("BFILE", Object.class, OracleTypes.BFILE, GenericDataType.FILE);
         createBasicDefinition("ROWID", Object.class, OracleTypes.ROWID, GenericDataType.ROWID);
         createBasicDefinition("UROWID", Object.class, OracleTypes.ROWID, GenericDataType.ROWID);
