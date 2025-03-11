@@ -5003,7 +5003,10 @@
         <element ref-id="select_json_block" />
     </element-def>
     <element-def id="select_json_block" description="SELECT JSON statement block" custom="true" branch="br_select_json">
-        <element ref-id="json_object_gen_clause" />
+        <one-of>
+            <element ref-id="json_object_gen_clause" />
+            <element ref-id="json_array_gen_clause" />
+        </one-of>
         <token id="02879" type-id="KW_FROM" />
         <element ref-id="json_query_table_ref" />
         <element ref-id="table_tags_clause" optional="true" />
@@ -5013,6 +5016,12 @@
         <one-of id="02880" tokens="KW_ENABLE, KW_DISABLE" />
         <token id="02881" type-id="KW_LOGICAL" />
         <token id="02882" type-id="KW_REPLICATION" />
+    </element-def>
+    <element-def attributes="CLAUSE" description="JSON Array Gen clause" id="json_array_gen_clause" custom="true">
+        <token type-id="FN_JSON_ARRAYAGG"/>
+        <wrapper template="PARENTHESES">
+            <element ref-id="json_object_gen_clause"/>
+        </wrapper>
     </element-def>
     <element-def attributes="CLAUSE" description="JSON Object Gen clause" id="json_object_gen_clause" original-name="object_gen_clause">
         <token id="02883" type-id="KW_JSON" />
@@ -5100,7 +5109,10 @@
 
     <element-def id="json_duality_view_subquery" original-name="duality_view_subquery" description="JSON Duality View subquery">
         <token id="02926" type-id="KW_SELECT" />
-        <element ref-id="json_object_gen_clause" />
+        <one-of>
+            <element ref-id="json_object_gen_clause" />
+            <element ref-id="json_array_gen_clause" />
+        </one-of>
         <token id="02927" type-id="KW_FROM" />
         <element ref-id="json_query_table_ref" />
         <element ref-id="table_tags_clause" optional="true" />
