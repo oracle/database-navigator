@@ -22,17 +22,20 @@ import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.progress.ProgressDialogHandler;
 import com.dbn.common.util.Titles;
+import com.dbn.common.util.Unsafe;
 import com.dbn.connection.context.DatabaseContext;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.Task.Backgroundable;
+import com.intellij.openapi.progress.util.ProgressIndicatorListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts.ProgressText;
 import com.intellij.openapi.util.NlsContexts.ProgressTitle;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -137,4 +140,25 @@ public final class Progress {
         }, 500, 500);
     }
 
+    /**
+     * Installs a thread interrupter that listens for cancellation events from the provided
+     * {@link ProgressIndicator} and interrupts the current thread if the cancellation occurs.
+     *
+     * @param indicator the progress indicator to monitor for cancellation events; if null, the method
+     *                  does nothing. This indicator should support cancellation checks.
+     */
+    public static void installThreadInterrupter(@Nullable ProgressIndicator indicator) {
+        if (indicator == null) return;
+        indicator.checkCanceled();
+
+        Thread curentThread = Thread.currentThread();
+        new ProgressIndicatorListener() {
+            @Override
+            public void cancelled() {
+                Unsafe.warned(() -> curentThread.interrupt());
+            }
+
+        }.installToProgressIfPossible(indicator);
+
+    }
 }

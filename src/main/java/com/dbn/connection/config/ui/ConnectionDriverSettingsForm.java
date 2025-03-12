@@ -321,8 +321,8 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                                 Dialogs.show(() -> new DownloadManagerDialog(project, databaseType, driverPackages), (dialog, exitCode) -> {
                                     when(exitCode != DialogWrapper.CANCEL_EXIT_CODE, () -> driverLibraryTextField.setText(dialog.selectedDriverPackage.getPath()));
                                 });
-                            } catch (Exception ex) {
-                                Messages.showErrorDialog(project, ex.getMessage());
+                            } catch (Exception e) {
+                                Messages.showErrorDialog(project, "Failed to download driver libraries metadata", e);
                             }
 
                         });

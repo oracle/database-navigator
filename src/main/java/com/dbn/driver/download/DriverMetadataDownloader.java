@@ -41,12 +41,15 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.thread.Progress.installThreadInterrupter;
 
 public class DriverMetadataDownloader {
     private AsyncMessageCollector messages;
 
     @SneakyThrows
     public DriverPackage createDriverPackage(Element element, ProgressIndicator indicator, AsyncMessageCollector messages, float chunk){
+        installThreadInterrupter(indicator);
+
         this.messages = messages;
         String id = stringAttribute(element, "id");
         String name = stringAttribute(element, "name");
@@ -106,6 +109,8 @@ public class DriverMetadataDownloader {
     }
     @SneakyThrows
     private  List<Library> createLibrary(Element element, ProgressIndicator indicator) {
+        installThreadInterrupter(indicator);
+
         String groupId = stringAttribute(element, "group-id");
         String artifactId = stringAttribute(element, "artifact-id");
         String version = stringAttribute(element, "version");
