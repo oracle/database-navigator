@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,8 +46,8 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 @Getter
 class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader {
     private final DriverBundleMetadata metadata;
-    private final List<File> jars = new ArrayList<>();
-    private final List<Class<Driver>> drivers = new ArrayList<>();
+    private final Set<File> jars = new LinkedHashSet<>();
+    private final Set<Class<Driver>> drivers = new LinkedHashSet<>();
     private final Set<String> classNames = new HashSet<>();
     private final Map<String, Class> loadedClasses = new HashMap<>();
 
