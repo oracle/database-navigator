@@ -31,11 +31,12 @@ public class DownloadSession {
     private final MessageCollector messages = new AsyncMessageCollector();
     @Getter
     private final String downloadPath;
-    private final List<WeakReference<Thread>> runningThreads = new CopyOnWriteArrayList<>();
     @Getter
     private final ProgressIndicator progressIndicator;
     @Getter
     private final CountDownLatch latch;
+    @Getter
+    private final List<String> downloadedArtifacts = new CopyOnWriteArrayList<>();
 
     public DownloadSession(ProgressIndicator progressIndicator, String path, int size) {
         this.progressIndicator = progressIndicator;
@@ -63,4 +64,7 @@ public class DownloadSession {
         return messages.getErrorMessages();
     }
 
+    public void addDownloadedArtifacts(String artifactId) {
+        downloadedArtifacts.add(artifactId);
+    }
 }

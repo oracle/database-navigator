@@ -139,7 +139,7 @@ public class DriverPackageDownloader {
     private void handleCompletion(String packageId, DownloadSession session, List<Library> libraries) {
         if (!session.getErrorMessages().isEmpty()) {
             session.addErrorMessage("One or more downloads failed. Cleaning up...");
-            cleanupDownloadedJars(packageId, session, libraries);
+            cleanupDownloadedJars(session);
             DriverDownloadManager.getInstance().cleanupPackage(packageId);
             ApplicationManager.getApplication().invokeLater(()->{
                 updateUI.accept(toHtmlFormat(session.getErrorMessages().get(0).getText(), 50));
@@ -149,12 +149,16 @@ public class DriverPackageDownloader {
             ApplicationManager.getApplication().invokeLater(()->{
                 updateUI.accept("");
             });
+        } else {
+            System.out.println("Download process cancelled for package: " + packageId);
+            cleanupDownloadedJars(session);
+            DriverDownloadManager.getInstance().cleanupPackage(packageId);
         }
     }
 
-    private void cleanupDownloadedJars(String packageId, DownloadSession session, List<Library> libraries) {
-        libraries.forEach(library -> {
-            File jarFile = getFileForJar(packageId, library.getArtifactId() + "-" + library.getVersion());
+    private void cleanupDownloadedJars(DownloadSession session) {
+        session.getDownloadedArtifacts().forEach(library -> {
+            File jarFile = new File(session.getDownloadPath()+"/"+library);
 
             if (jarFile.exists() && !jarFile.delete()) {
                 session.addErrorMessage("Failed to delete file: " + jarFile.getAbsolutePath());
@@ -162,9 +166,5 @@ public class DriverPackageDownloader {
                 System.out.println("Deleted file: " + jarFile.getAbsolutePath());
             }
         });
-    }
-
-    private File getFileForJar(String packageId, String jarId) {
-        return new File(Files.getPluginDeploymentRoot() + "/drivers/" + packageId, jarId + ".jar");
     }
 }

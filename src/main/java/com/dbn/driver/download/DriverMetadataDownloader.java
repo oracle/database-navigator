@@ -54,7 +54,7 @@ public class DriverMetadataDownloader {
 
         // Collect libraries from each child "library" element
         List<Library> libraries = element.getChildren("library").parallelStream()
-                .flatMap(libElement -> createLibrary(libElement).stream()) // Flatten lists of libraries
+                .flatMap(libElement -> createLibrary(libElement, indicator).stream()) // Flatten lists of libraries
                 .collect(Collectors.toList());
         if(id.contains("%s")) id = String.format(id, libraries.get(0).getVersion());
         indicator.setText("Downloaded Metadata for " + id);
@@ -91,7 +91,7 @@ public class DriverMetadataDownloader {
     }
 
     @SneakyThrows
-    private  List<Library> createLibrary(Element element) {
+    private  List<Library> createLibrary(Element element, ProgressIndicator indicator) {
         String groupId = stringAttribute(element, "group-id");
         String artifactId = stringAttribute(element, "artifact-id");
         String version = stringAttribute(element, "version");
@@ -99,7 +99,7 @@ public class DriverMetadataDownloader {
         String type = stringAttribute(element, "type");
         if (type == null) type = "jar";
         // Resolve the version if not explicitly provided
-        version = ensureVersion(groupId, artifactId, version);
+        version = ensureVersion(groupId, artifactId, version, indicator);
 
         if (toResolve) {
             // Resolve dependencies for non-jar types
@@ -113,13 +113,13 @@ public class DriverMetadataDownloader {
         }
     }
 
-    private  String ensureVersion(String groupId, String artifactId, String currentVersion) throws Exception{
+    private  String ensureVersion(String groupId, String artifactId, String currentVersion, ProgressIndicator indicator) throws Exception{
         if (currentVersion != null && isValidVersion(currentVersion)) {
             return currentVersion;
         }
 
         // Fetch all available versions
-        List<String> availableVersions = fetchAvailableVersions(groupId, artifactId);
+        List<String> availableVersions = fetchAvailableVersions(groupId, artifactId, indicator);
         if (currentVersion != null && currentVersion.contains("*")) {
             return resolveWildcardVersion(currentVersion, availableVersions);
         } else {
@@ -142,7 +142,7 @@ public class DriverMetadataDownloader {
                 .orElseThrow(() -> new Exception("No matching version found for pattern: " + wildcardVersion));
     }
 
-    private  List<String> fetchAvailableVersions(String groupId, String artifactId) throws Exception {
+    private  List<String> fetchAvailableVersions(String groupId, String artifactId, ProgressIndicator indicator) throws Exception {
         // URL for Maven metadata
         String url = "https://repo1.maven.org/maven2/"+groupId.replace('.', '/')+"/"+artifactId+"/maven-metadata.xml";
         // Temporary file to store the downloaded content

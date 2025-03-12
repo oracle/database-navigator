@@ -61,6 +61,8 @@ public class MavenArtifactDownloader {
         File outputFile = new File(pluginDir, artifactId + "-" + version + ".jar");
 
         try {
+            session.addDownloadedArtifacts(artifactId + "-" + version + ".jar");
+
             Downloads.downloadAtomically(session.getProgressIndicator(), artifactUrl, outputFile);
             System.out.println("Artifact downloaded to: " + outputFile.getAbsolutePath());
 

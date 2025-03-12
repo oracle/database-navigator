@@ -78,7 +78,10 @@ public class DownloadManagerForm extends DBNFormBase {
                 txt("cfg.connection.title.SelectDriverLibrary"),
                 txt("cfg.connection.text.LibraryDriverClasses"),
                 null, LIBRARY_FILE_DESCRIPTOR);
-        libraryPathTextField.setText(getPluginDeploymentRoot().getPath()+"/driver-packages");
+        libraryPathTextField.setText(getPluginDeploymentRoot().getPath()+"/driver-packages/"+getSelection(libraryPackageComboBox).getId());
+        libraryPackageComboBox.addActionListener(e -> {
+            libraryPathTextField.setText(getPluginDeploymentRoot().getPath()+"/driver-packages/"+getSelection(libraryPackageComboBox).getId());
+        });
     }
 
     private void handleInfoButtonClick() {
