@@ -63,6 +63,7 @@ import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.connection.DatabaseType.GENERIC;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -78,6 +79,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     private HyperlinkLabel reloadDriversLink;
     private JLabel reloadDriversCheckLabel;
     private JButton downloadButton;
+    private JLabel driverErrorLabel;
     AsyncMessageCollector messages = new AsyncMessageCollector();
 
     private static final FileChooserDescriptor LIBRARY_FILE_DESCRIPTOR = new FileChooserDescriptor(false, true, true, true, false, false);
@@ -102,6 +104,9 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                 txt("cfg.connection.title.SelectDriverLibrary"),
                 txt("cfg.connection.text.LibraryDriverClasses"),
                 null, LIBRARY_FILE_DESCRIPTOR);
+
+        driverErrorLabel.setText("");
+        driverErrorLabel.setVisible(false);
 
         reloadDriversCheckLabel.setText("");
         reloadDriversCheckLabel.setIcon(Icons.COMMON_CHECK);
@@ -170,7 +175,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             if (fileExists) {
                 libraryTextField.setForeground(Colors.getTextFieldForeground());
                 DatabaseType libraryDatabaseType = DatabaseType.resolve(driverLibrary);
-                if (isBuiltInLibrarySupported(databaseType) && libraryDatabaseType != getDatabaseType()) {
+                if (isBuiltInLibrarySupported(databaseType) && libraryDatabaseType != getDatabaseType() && libraryDatabaseType != GENERIC) {
                     error = txt("cfg.connection.error.DriverLibraryMismatch");
                     initComboBox(driverComboBox);
                     setSelection(driverComboBox, null);
@@ -215,6 +220,15 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                 initComboBox(driverComboBox);
                 //driverComboBox.addItem("");
             }
+
+            if (error != null) {
+                driverErrorLabel.setIcon(Icons.COMMON_ERROR);
+                driverErrorLabel.setText(error);
+                driverErrorLabel.setVisible(true);
+            } else {
+                driverErrorLabel.setText("");
+                driverErrorLabel.setVisible(false);
+            }
         }
     }
 
@@ -229,7 +243,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     }
 
     private boolean isBuiltInLibrarySupported(DatabaseType databaseType) {
-        return databaseType != DatabaseType.GENERIC;
+        return databaseType != GENERIC;
     }
 
     private boolean isDriverLibraryAccessible() {
