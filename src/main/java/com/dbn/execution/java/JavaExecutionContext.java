@@ -35,8 +35,8 @@ public class JavaExecutionContext extends ExecutionContext<JavaExecutionInput> {
         super(input);
     }
 
-    public void initWrapper(DBJavaMethod method) throws Exception {
-        wrapper = WrapperBuilder.getInstance().build(method);
+    public void initWrapper(DBJavaMethod method, boolean useFriendlyNames) throws Exception {
+        wrapper = WrapperBuilder.getInstance().build(method, useFriendlyNames);
     }
 
     @NotNull

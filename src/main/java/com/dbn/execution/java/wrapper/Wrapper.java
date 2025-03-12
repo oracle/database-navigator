@@ -38,6 +38,30 @@ public class Wrapper {
     private MethodAttribute returnType;
 	private String javaMethodSignature;
 	private Map<WrapperBuilder.ComplexTypeKey, Integer> sqlTypeIndexes = new HashMap<>();
+	public static final String DBN_TYPE_SUFFIX = "DBN_OJVM_TYPE_";
+
+	private boolean useFriendlyNames;
+
+	public String getJavaWrapperClassName(){
+		if(useFriendlyNames) return "DBN_CLASS_NAME_WRAPPER";
+		return "DBN_OJVM_JAVA_WRAPPER";
+	}
+
+	public String getSQLWrapperName(){
+		String type;
+		if(returnType == null || returnType.getJavaTypeName().equals("void")){
+			type = "PROCEDURE_";
+		} else {
+			type = "FUNCTION_";
+		}
+		if(useFriendlyNames) return "DBN_SQL_" + type + "WRAPPER";
+		return "DBN_OJVM_SQL_" + type + "WRAPPER";
+	}
+
+	public String getSqlTypeName(String className, short arrayDepth) {
+		if(useFriendlyNames) return "DBN_" + className.replace(".","_");
+		return DBN_TYPE_SUFFIX + getSqlTypeIndex(className, arrayDepth);
+	}
 
 	public void addArgumentJavaComplexType(JavaComplexType argumentJavaComplexType) {
         argumentJavaComplexTypes.add(argumentJavaComplexType);

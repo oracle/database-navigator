@@ -67,7 +67,6 @@ import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
 import static com.dbn.common.util.Lists.sortedCopy;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.execution.java.wrapper.TypeMappings.getSqlType;
-import static com.dbn.execution.java.wrapper.WrapperBuilder.DBN_TYPE_SUFFIX;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
@@ -76,7 +75,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 	private final DBObjectRef<DBJavaMethod> method;
 	Set<String> addedTypes = new HashSet<>();
 
-	protected JavaExecutionProcessorImpl(DBJavaMethod method) {
+	public JavaExecutionProcessorImpl(DBJavaMethod method) {
 		this.method = DBObjectRef.of(method);
 	}
 
@@ -125,7 +124,8 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		context.set(ExecutionStatus.EXECUTING, true);
 
 		try {
-			context.initWrapper(getMethod());
+			boolean useFriendlyNames = false;
+			context.initWrapper(getMethod(), useFriendlyNames);
 
 			initExecutionWrappers(context);
 			triggerExecution(context);
@@ -143,7 +143,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		}
 	}
 
-	private void initExecutionWrappers(JavaExecutionContext context) throws SQLException {
+	public void initExecutionWrappers(JavaExecutionContext context) throws SQLException {
 		// create java wrapper
 		setProgressDetail("Initializing java execution environment");
 		initCreateWrapperCommand(context);
@@ -278,8 +278,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 									end = ")";
 								}
 								if (e.isComplexType()) {
-									int typeIndex = wrapper.getSqlTypeIndex(e.getType(), e.getArrayDepth());
-									return setterMethod + ";" + DBN_TYPE_SUFFIX + typeIndex + "toJava( (java.sql.Struct) objArray[ " + e.getFieldIndex() + " ]" + ")" + ";" + end;
+									return setterMethod + ";" + e.getSqlType() + "toJava( (java.sql.Struct) objArray[ " + e.getFieldIndex() + " ]" + ")" + ";" + end;
 								}
 								return setterMethod + ";" + e.getTypeCastStart() + " objArray[ " + e.getFieldIndex() + " ]" + e.getTypeCastEnd() + ";" + end;
 							})
@@ -323,8 +322,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 								getterMethod += "()";
 							}
 							if (e.isComplexType()) {
-								int typeIndex = wrapper.getSqlTypeIndex(e.getType(), e.getArrayDepth());
-								return e.getFieldIndex() + ";" + getterMethod + ";" + DBN_TYPE_SUFFIX + typeIndex;
+								return e.getFieldIndex() + ";" + getterMethod + ";" + e.getSqlType();
 							}
 							return e.getFieldIndex() + ";" + getterMethod + ";" + " ";
 						})
@@ -347,6 +345,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		@NonNls
 		Properties properties = new Properties();
 
+		properties.setProperty("JAVA_WRAPPER_NAME", wrapper.getJavaWrapperClassName());
 		properties.setProperty("SQL_CONVERSION_METHOD", String.join("@", sqlMethods));
 		properties.setProperty("JAVA_CONVERSION_METHOD", String.join("@", javaMethods));
 
@@ -419,6 +418,8 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 	private String createSQLWrapper(Wrapper wrapper) {
 		@NonNls Properties properties = new Properties();
 		boolean isFunction = wrapper.getReturnType() != null && wrapper.getReturnType().getJavaTypeName() != null;
+		properties.setProperty("SQL_WRAPPER_NAME", wrapper.getSQLWrapperName());
+		properties.setProperty("JAVA_WRAPPER_NAME", wrapper.getJavaWrapperClassName());
 		properties.setProperty("TYPE", isFunction ? "FUNCTION" : "PROCEDURE");
 		properties.setProperty("METHOD", wrapper.getWrappedJavaMethodName());
 
@@ -484,6 +485,8 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 		String allTypes = String.join(",", addedTypes);
 		properties.setProperty("SQLTYPES", allTypes);
+		properties.setProperty("SQL_WRAPPER_NAME", wrapper.getSQLWrapperName());
+		properties.setProperty("JAVA_WRAPPER_NAME", wrapper.getJavaWrapperClassName());
 
 		String cleanup = generateCode("DBN - OJVM SQLCleanup.sql", properties);
 		DBNPreparedStatement<?> statement = conn.prepareCall(cleanup);

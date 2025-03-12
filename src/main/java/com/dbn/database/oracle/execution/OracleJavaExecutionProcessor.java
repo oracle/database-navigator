@@ -25,9 +25,9 @@ import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.common.execution.JavaExecutionProcessorImpl;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
+import com.dbn.execution.java.wrapper.JavaComplexType;
 import com.dbn.execution.java.wrapper.Wrapper;
 import com.dbn.execution.java.wrapper.Wrapper.MethodAttribute;
-import com.dbn.execution.java.wrapper.WrapperBuilder;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
@@ -83,9 +83,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		String returnArgument = getReturnArgument();
 		boolean isProcedure = returnArgument.equals("void");
 
-		String wrapperName = isProcedure ?
-				"DBN_OJVM_SQL_PROCEDURE_WRAPPER" :
-				"DBN_OJVM_SQL_FUNCTION_WRAPPER";
+		String wrapperName = wrapper.getSQLWrapperName();
 
 		List<DBJavaParameter> arguments = getArguments();
 
@@ -217,7 +215,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		ClassLoader cl =  conn.getInner().getClass().getClassLoader();
 		Class<?> structDescriptorClass = Class.forName("oracle.sql.StructDescriptor",true, cl);
 		Method createDescriptorMethod = structDescriptorClass.getMethod("createDescriptor", String.class, Connection.class);
-		Object structDescriptor =  createDescriptorMethod.invoke(null, objectName, conn.getInner());
+		Object structDescriptor =  createDescriptorMethod.invoke(null, objectName.toUpperCase(), conn.getInner());
 
 		Class<?> structClass = Class.forName("oracle.sql.STRUCT", true, cl);
 		Constructor<?> structCtr = structClass.getConstructor(structDescriptorClass, Connection.class, Object[].class);
@@ -284,13 +282,23 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 			//...
 			default:
 				if (field.isClass()) {
-					DBJavaClass javaClass = field.getJavaClass();
-					int typeIndex = wrapper.getSqlTypeIndex(javaClass.getCanonicalName(), field.getArrayDepth());
-					String innerObjectName = WrapperBuilder.DBN_TYPE_SUFFIX + typeIndex;
-					return getStructObject(executionInput, javaClass.getFields(), wrapper, innerObjectName, fieldPath);
+					String objectName = getTypeName(field, wrapper);
+					return getStructObject(executionInput, field.getJavaClass().getFields(), wrapper, objectName, fieldPath);
 				}
 				return fieldValue;
 		}
+	}
+
+	private String getTypeName(DBJavaField field, Wrapper wrapper){
+		DBJavaClass javaClass = field.getJavaClass();
+
+		for(JavaComplexType javaComplexType : wrapper.getArgumentJavaComplexTypes()){
+			if(javaComplexType.getJavaClassName().equals(javaClass.getCanonicalName())) {
+				return javaComplexType.getCorrespondingSqlType().getName();
+			}
+		}
+		// should never reach here
+		return null;
 	}
 
 	private int getSQLTypes(@NonNls String javaType) {

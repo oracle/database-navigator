@@ -44,7 +44,7 @@ import static com.dbn.object.type.DBJavaScalarType.isScalar;
  *
  * <p>This implementation uses a Singleton pattern and keeps
  * all per-parse mutable state in local variables inside
- * {@link #build(DBJavaMethod)} so that it is thread-safe
+ * {@link #build(DBJavaMethod, boolean)} so that it is thread-safe
  * if multiple threads call it simultaneously.</p>
  */
 @Slf4j
@@ -54,8 +54,6 @@ public final class WrapperBuilder {
 	 * The single, static instance of WrapperBuilder.
 	 */
 	private static final WrapperBuilder INSTANCE = new WrapperBuilder();
-
-	public static final String DBN_TYPE_SUFFIX = "DBN_OJVM_TYPE_";
 
 	/**
 	 * Private constructor to enforce Singleton usage.
@@ -76,12 +74,12 @@ public final class WrapperBuilder {
 	 * @return The fully-populated {@link Wrapper}.
 	 * @throws Exception if parsing fails or an unsupported cycle is detected.
 	 */
-	public Wrapper build(DBJavaMethod javaMethod) throws Exception {
+	public Wrapper build(DBJavaMethod javaMethod,boolean useFriendlyNames) throws Exception {
 		// Create data structures that are unique to *this* parse call.
 		WrapperBuilderContext context = new WrapperBuilderContext();
 
 		// Delegate to the internal parsing method.
-		return buildInternal(javaMethod, context);
+		return buildInternal(javaMethod, context, useFriendlyNames);
 	}
 
 	// -------------------------------------------------
@@ -100,9 +98,10 @@ public final class WrapperBuilder {
 	 */
 	private Wrapper buildInternal(
 			DBJavaMethod javaMethod,
-			WrapperBuilderContext context) {
+			WrapperBuilderContext context, boolean useFriendlyNames) {
 		// Create a fresh Wrapper for this invocation
 		Wrapper wrapper = new Wrapper();
+		wrapper.setUseFriendlyNames(useFriendlyNames);
 
 		setMethodMetadata(javaMethod, wrapper);
 		parseParameters(javaMethod, wrapper, context);
@@ -258,7 +257,7 @@ public final class WrapperBuilder {
 		JavaComplexType javaComplexType = buildComplexTypeShell(javaClassName, attributeDirection, (short) 0);
 		SqlComplexType sqlComplexType = new SqlComplexType();
 		sqlComplexType.setArray(false);
-
+		sqlComplexType.setName(wrapper.getSqlTypeName(javaClassName, (short) 0));
 
 		// Populate fields if we have a DBJavaClass
 		boolean complexType = !isScalar(javaClassName);
@@ -335,7 +334,7 @@ public final class WrapperBuilder {
 		}
 
 		sqlComplexType.setContainedTypeName(sqlTypeName);
-		sqlComplexType.setName(getSqlTypeName(javaClassName, arrayDepth, wrapper));
+		sqlComplexType.setName(wrapper.getSqlTypeName(javaClassName, arrayDepth));
 		javaComplexType.setCorrespondingSqlType(sqlComplexType);
 
 		wrapper.addArgumentJavaComplexType(javaComplexType);
@@ -450,9 +449,9 @@ public final class WrapperBuilder {
 			SqlComplexType sqlComplexType,
 			WrapperBuilderContext context,
 			Wrapper wrapper) {
-		String sqlTypeName = getSqlTypeName(
+		String sqlTypeName = wrapper.getSqlTypeName(
 				javaComplexType.getJavaClassName(),
-				javaComplexType.getArrayDepth(), wrapper);
+				javaComplexType.getArrayDepth());
 		sqlComplexType.setName(sqlTypeName);
 		javaComplexType.setCorrespondingSqlType(sqlComplexType);
 		wrapper.addArgumentJavaComplexType(javaComplexType);
@@ -530,7 +529,7 @@ public final class WrapperBuilder {
 		// If the underlying Java class is known
 		if (Strings.isEmpty(field.getSqlType())) {
 			// Re-use the same complexTypeConversion map.
-			field.setSqlType(getSqlTypeName(fieldJavaClassName, field.getArrayDepth(), wrapper));
+			field.setSqlType(wrapper.getSqlTypeName(fieldJavaClassName, field.getArrayDepth()));
 		}
 
 		return field;
@@ -569,21 +568,8 @@ public final class WrapperBuilder {
 					field.getName(),
 					fieldJavaComplexType.getCorrespondingSqlType().getName(),
 					field.getFieldIndex());
-			field.setSqlType(sqlComplexType.getName());
 		}
 	}
-
-	// -------------------------------------------------
-	// Type Utilities
-	// -------------------------------------------------
-
-	/**
-	 * Builds a new SQL type name, prepending a constant prefix plus an incrementing integer.
-	 */
-	private String getSqlTypeName(String className, short arrayDepth, Wrapper wrapper) {
-		return DBN_TYPE_SUFFIX + wrapper.getSqlTypeIndex(className, arrayDepth);
-	}
-
 
 	// -------------------------------------------------
 	// ComplexTypeKey
