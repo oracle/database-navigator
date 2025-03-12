@@ -297,7 +297,7 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
     }
 
     public void createDDLFile(@NotNull DBObjectRef<DBSchemaObject> objectRef) {
-        DDLFileNameProvider fileNameProvider = getDDLFileNameProvider(objectRef);
+        DDLFileNameProvider fileNameProvider = getDDLFileNameProvider(objectRef, true);
         Project project = getProject();
 
         if (fileNameProvider != null) {
@@ -375,8 +375,8 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
                 objectRef, true,
                 txt("prc.ddlFiles.title.AttachingDdlFiles"),
                 txt("prc.ddlFiles.text.AttachingDdlFiles", objectRef.getQualifiedNameWithType()), t -> {
-                    DDLFileNameProvider ddlFileNameProvider = getDDLFileNameProvider(objectRef);
-                    if (ddlFileNameProvider == null) return;
+                    DDLFileNameProvider fileNameProvider = getDDLFileNameProvider(objectRef, false);
+                    if (fileNameProvider == null) return;
 
                     List<VirtualFile> files = lookupDetachedDDLFiles(objectRef);
                     if (files.isEmpty()) {
@@ -463,7 +463,7 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
     }
 
     @Nullable
-    private DDLFileNameProvider getDDLFileNameProvider(DBObjectRef<DBSchemaObject> object) {
+    private DDLFileNameProvider getDDLFileNameProvider(DBObjectRef<DBSchemaObject> object, boolean create) {
         List<DDLFileNameProvider> nameProviders = getDDLFileNameProviders(object);
 
         if (nameProviders.isEmpty()) {
@@ -471,10 +471,10 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
             return null;
         }
 
-        return Dispatch.call(() -> openFileNameProvidersDialog(object, nameProviders));
+        return Dispatch.call(() -> openFileNameProvidersDialog(object, nameProviders, create));
     }
 
-    private DDLFileNameProvider openFileNameProvidersDialog(DBObjectRef<?> object, List<DDLFileNameProvider> providers) {
+    private DDLFileNameProvider openFileNameProvidersDialog(DBObjectRef<?> object, List<DDLFileNameProvider> providers, boolean create) {
         if (providers.size() == 1) return providers.get(0);
 
         DDLFileNameProvider preferredProvider = first(providers, p -> Objects.equals(preferences.get(p.getObjectType()), p.getExtension()));
@@ -486,7 +486,7 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
                 preferredProvider,
                 object);
 
-        fileTypeDialog.setSelectButtonText("Find DDL Files");
+        fileTypeDialog.setSelectButtonText(create ? "Create DDL Files" : "Find DDL Files");
         JBList<DDLFileNameProvider> selectionList = fileTypeDialog.getForm().getSelectionList();
 
         selectionList.setCellRenderer(new DDLFileNameListCellRenderer());

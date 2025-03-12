@@ -17,12 +17,10 @@
 package com.dbn.data.find.action;
 
 import com.dbn.common.ui.util.Keyboard;
-import com.dbn.common.util.Context;
 import com.dbn.data.find.DataSearchComponent;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CustomShortcutSet;
-import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.KeyboardShortcut;
 import com.intellij.openapi.actionSystem.Shortcut;
 import com.intellij.openapi.project.DumbAware;
@@ -43,10 +41,8 @@ public class CloseOnESCAction extends DataSearchHeaderAction implements DumbAwar
         if (Keyboard.isEmacsKeymap()) {
             shortcuts.add(new KeyboardShortcut(KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.CTRL_MASK), null));
             ActionListener actionListener = e -> {
-                DataContext dataContext = Context.getDataContext(searchComponent);
                 ActionManager actionManager = ActionManager.getInstance();
-                AnActionEvent actionEvent = new AnActionEvent(null, dataContext, "", getTemplatePresentation(), actionManager, 2);
-                CloseOnESCAction.this.actionPerformed(actionEvent);
+                actionManager.tryToExecute(this, null, component, null, true);
             };
             component.registerKeyboardAction(
                     actionListener,

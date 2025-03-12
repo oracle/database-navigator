@@ -26,7 +26,6 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.type.DBJavaValueType;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.core.CoreJavaCodeStyleManager;
 import com.intellij.openapi.project.Project;
@@ -36,12 +35,12 @@ import com.intellij.psi.codeStyle.VariableKind;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.object.common.property.DBObjectProperty.PRIMITIVE;
+import static com.dbn.object.common.property.DBObjectProperty.SCALAR;
 
 @Getter
 public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> implements DBJavaParameter {
@@ -74,6 +73,7 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 
 		String argumentClassName = metadata.getArgumentClassName();
 		set(PRIMITIVE, Java.isPrimitive(argumentClassName));
+		set(SCALAR, Java.isScalar(argumentClassName));
 
 		DBSchema schema = nd(parentObject.getSchema());
 		javaClass = new DBObjectRef<>(DBObjectRef.of(schema), DBObjectType.JAVA_CLASS, argumentClassName);
@@ -109,14 +109,8 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 	}
 
 	@Override
-	public boolean isPlainValue() {
-		return isPrimitive() || getValueType() != null;
-	}
-
-	@Nullable
-	@Override
-	public DBJavaValueType getValueType() {
-		return DBJavaValueType.forObjectName(javaClass.getObjectName());
+	public boolean isScalar() {
+		return is(SCALAR);
 	}
 
 	public DBJavaClass getJavaClass() {
@@ -126,11 +120,6 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 	@Override
 	public DBObjectRef<DBJavaClass> getJavaClassRef() {
 		return javaClass;
-	}
-
-	@Override
-	public String getJavaClassName() {
-		return javaClass.getObjectName();
 	}
 
 	@Override

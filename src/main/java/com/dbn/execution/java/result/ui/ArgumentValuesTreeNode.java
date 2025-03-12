@@ -21,6 +21,7 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.tree.TreeNode;
 import java.util.ArrayList;
@@ -32,18 +33,20 @@ import java.util.Objects;
 @Getter
 @Setter
 public class ArgumentValuesTreeNode implements TreeNode{
-    private final DBObjectRef object;
-    private Object userValue;
     private final ArgumentValuesTreeNode parent;
     private final List<ArgumentValuesTreeNode> children = new ArrayList<>();
+    private final DBObjectRef<?> object;
+    private final String name; // optional node name
+    private Object value;
 
-    protected ArgumentValuesTreeNode(ArgumentValuesTreeNode parent, DBObjectRef object, Object userValue) {
+    protected ArgumentValuesTreeNode(ArgumentValuesTreeNode parent, @Nullable String name, @Nullable DBObjectRef<?> object, Object value) {
         this.parent = parent;
         this.object = object;
+        this.name = name;
         if (parent != null) {
             parent.children.add(this);
         }
-        this.userValue = userValue;
+        this.value = value;
     }
 
 	public void dispose() {
@@ -58,22 +61,22 @@ public class ArgumentValuesTreeNode implements TreeNode{
                 return treeNode;
             }
         }
-        return new ArgumentValuesTreeNode(this, object.ref(), null);
+        return new ArgumentValuesTreeNode(this, null, object.ref(), null);
     }
 
     @Override
     public String toString() {
-        if (userValue instanceof ExecutionValue) {
-            ExecutionValue fieldValue = (ExecutionValue) userValue;
+        if (value instanceof ExecutionValue) {
+            ExecutionValue fieldValue = (ExecutionValue) value;
             return String.valueOf(fieldValue.getValue());
         }
 
-        if (userValue instanceof DBObject) {
-            DBObject object = (DBObject) userValue;
+        if (value instanceof DBObject) {
+            DBObject object = (DBObject) value;
             return object.getName();
         }
 
-        return userValue.toString();
+        return value == null ? null : value.toString();
     }
 
     /*********************************************************

@@ -16,6 +16,7 @@
 
 package com.dbn.common.thread;
 
+import com.dbn.common.util.Unsafe;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
@@ -97,5 +98,9 @@ public final class Threads {
 
     static void delay(Object sync) {
         LockSupport.parkNanos(sync, DELAY);
+    }
+
+    public static void sleep(long millis) {
+        Unsafe.silent(() -> Thread.sleep(millis));
     }
 }
