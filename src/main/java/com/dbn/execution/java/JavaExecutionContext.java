@@ -21,22 +21,37 @@ import com.dbn.connection.SchemaId;
 import com.dbn.execution.ExecutionContext;
 import com.dbn.execution.ExecutionOptions;
 import com.dbn.execution.java.wrapper.Wrapper;
-import com.dbn.execution.java.wrapper.WrapperBuilder;
+import com.dbn.execution.java.wrapper.WrapperStatementExecutor;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.lookup.DBObjectRef;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.sql.SQLException;
+
+import static com.dbn.common.dispose.Failsafe.nd;
+
 @Getter
 public class JavaExecutionContext extends ExecutionContext<JavaExecutionInput> {
+    private final WrapperStatementExecutor statementExecutor = new WrapperStatementExecutor();
     private Wrapper wrapper;
+
     public JavaExecutionContext(JavaExecutionInput input) {
         super(input);
     }
 
-    public void initWrapper(DBJavaMethod method, boolean useFriendlyNames) throws Exception {
-        wrapper = WrapperBuilder.getInstance().build(method, useFriendlyNames);
+    public void createExecutionWrappers(boolean useFriendlyNames) throws SQLException {
+        wrapper = statementExecutor.createExecutionWrappers(getMethod(), useFriendlyNames);
+    }
+
+    public void discardExecutionWrappers() throws SQLException {
+        statementExecutor.discardExecutionWrappers(getMethod(), wrapper);
+    }
+
+    @NotNull
+    private DBJavaMethod getMethod() {
+        return nd(getInput().getMethod());
     }
 
     @NotNull

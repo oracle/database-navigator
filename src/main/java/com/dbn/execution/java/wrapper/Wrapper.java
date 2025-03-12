@@ -22,23 +22,26 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Getter
 @Setter
 public class Wrapper {
-    private List<JavaComplexType> argumentJavaComplexTypes = new ArrayList<>();
-    private String wrappedJavaMethodName;
-
-    private String fullyQualifiedClassName;
-    private List<MethodAttribute> methodArguments = new ArrayList<>();
-    private MethodAttribute returnType;
-	private String javaMethodSignature;
-	private Map<WrapperBuilder.ComplexTypeKey, Integer> sqlTypeIndexes = new HashMap<>();
 	public static final String DBN_TYPE_SUFFIX = "DBN_OJVM_TYPE_";
+    private String wrappedJavaMethodName;
+	private String javaMethodSignature;
+	private String fullyQualifiedClassName;
+
+	private MethodAttribute returnType;
+	private List<JavaComplexType> argumentJavaComplexTypes = new ArrayList<>();
+	private List<MethodAttribute> methodArguments = new ArrayList<>();
+	private Map<WrapperBuilder.ComplexTypeKey, Integer> sqlTypeIndexes = new HashMap<>();
+	private Set<String> sqlTypeNames = new HashSet<>();
 
 	private boolean useFriendlyNames;
 

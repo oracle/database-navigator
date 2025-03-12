@@ -20,16 +20,7 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.SchemaId;
-import com.dbn.connection.SessionId;
-import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.common.execution.JavaExecutionProcessorImpl;
-import com.dbn.debugger.DBDebuggerType;
-import com.dbn.execution.ExecutionStatus;
-import com.dbn.execution.java.JavaExecutionContext;
-import com.dbn.execution.java.JavaExecutionInput;
-import com.dbn.execution.java.JavaExecutionManager;
-import com.dbn.execution.java.wrapper.Wrapper;
+import com.dbn.execution.java.wrapper.WrapperStatementExecutor;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.action.AnObjectAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -37,7 +28,6 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -50,46 +40,26 @@ public class JavaCreateWrapperAction extends AnObjectAction<DBJavaMethod> {
 
 	@Override
 	protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBJavaMethod method) {
-		method.getParameters();
-		JavaExecutionProcessorImpl executionProcessor = new JavaExecutionProcessorImpl(method) {
-			@Override
-			public String buildExecutionCommand(JavaExecutionInput executionInput, Wrapper wrapper) {
-				return "";
-			}
-		};
+		String methodSignature = method.getPresentableText();
 
-		JavaExecutionManager executionManager = JavaExecutionManager.getInstance(project);
-		JavaExecutionInput executionInput = executionManager.getExecutionInput(method);
-		ConnectionAction.invoke("The Method Execution", false, executionInput,
+		ConnectionAction.invoke("creation of execution wrappers", false, method,
 				action -> Progress.prompt(project, action, true,
-						"Loading method details",
-						"Loading details of " + method.getQualifiedNameWithType(),
+						"Creating Execution Wrappers",
+						"Creating execution wrappers for java method \"" + methodSignature + "\"",
 						progress -> {
 							ConnectionHandler connection = action.getConnection();
-							String methodIdentifier = method.ref().getPath();
 							if (connection.isValid()) {
-								// load the arguments while in background
-								executionInput.initDatabaseElements();
-								SessionId targetSessionId = executionInput.getTargetSessionId();
-								SchemaId targetSchemaId = executionInput.getTargetSchemaId();
-
-								JavaExecutionContext context = executionInput.initExecution(DBDebuggerType.NONE);
-								context.setDebuggerType(DBDebuggerType.NONE);
-								context.set(ExecutionStatus.EXECUTING, true);
 								try {
-									DBNConnection conn = connection.getConnection(targetSessionId, targetSchemaId);
-									context.setConnection(conn);
-
-									boolean useFriendlyNames = true;
-									context.initWrapper(method, useFriendlyNames);
-
-									executionProcessor.initExecutionWrappers(context);
+									WrapperStatementExecutor statementExecutor = new WrapperStatementExecutor();
+									statementExecutor.createExecutionWrappers(method, true);
 								} catch (Exception ex) {
+									Messages.showErrorDialog(project,
+											"Error creating execution wrappers for java method \"" + methodSignature + "\"\nCause: " + ex.getMessage());
 									conditionallyLog(ex);
 								}
 							} else {
 								String message =
-										"Can not execute method " + methodIdentifier + ".\n" +
+										"Can not create execution wrappers for java method \"" + methodSignature + "\".\n" +
 												"No connectivity to '" + connection.getName() + "'. " +
 												"Please check your connection settings and try again.";
 								Messages.showErrorDialog(project, message);
@@ -108,7 +78,7 @@ public class JavaCreateWrapperAction extends AnObjectAction<DBJavaMethod> {
 		if (listElement) {
 			super.update(e, presentation, project, target);
 		} else {
-			presentation.setText("Create Wrappers...");
+			presentation.setText("Create Execution Wrappers...");
 		}
 	}
 }

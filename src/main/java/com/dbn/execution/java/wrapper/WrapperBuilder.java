@@ -74,7 +74,7 @@ public final class WrapperBuilder {
 	 * @return The fully-populated {@link Wrapper}.
 	 * @throws Exception if parsing fails or an unsupported cycle is detected.
 	 */
-	public Wrapper build(DBJavaMethod javaMethod,boolean useFriendlyNames) throws Exception {
+	public Wrapper build(DBJavaMethod javaMethod,boolean useFriendlyNames) {
 		// Create data structures that are unique to *this* parse call.
 		WrapperBuilderContext context = new WrapperBuilderContext();
 
