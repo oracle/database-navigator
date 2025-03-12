@@ -94,7 +94,7 @@
 
     </driver-package>
 
-    <driver-package database-type="SQLite" id="sqllite-3.49.0" name="SQLite 3.49.0">
+    <driver-package database-type="SQLite" id="sqlite-3.49.0" name="SQLite 3.49.0">
 
         <library artifact-id="sqlite-jdbc" group-id="org.xerial" version="3.49.0.0">
             <license name="The Apache Software License, Version 2.0" url="https://www.apache.org/licenses/LICENSE-2.0.txt"/>
