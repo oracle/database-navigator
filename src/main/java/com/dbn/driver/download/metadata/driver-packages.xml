@@ -264,11 +264,11 @@
         <library artifact-id="servlet-api" group-id="javax.servlet" version="2.5"/>
     </driver-package>
 
-    <driver-package database-type="Oracle" id="ojdbc-azure-%s" name="Oracle %s + Azure auth %s">
+    <driver-package database-type="Oracle" id="ojdbc-%s-azure-%s" name="Oracle %s + Azure auth %s">
         <library artifact-id="ojdbc-provider-azure" group-id="com.oracle.database.jdbc" toResolve="true" type="jar"/>
     </driver-package>
 
-    <driver-package database-type="Oracle" id="ojdbc-oci-%s" name="Oracle %s + OCI auth %s">
+    <driver-package database-type="Oracle" id="ojdbc-%s-oci-%s" name="Oracle %s + OCI auth %s">
         <library artifact-id="ojdbc-provider-oci" group-id="com.oracle.database.jdbc" toResolve="true" type="jar"/>
     </driver-package>
 

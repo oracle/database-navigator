@@ -56,14 +56,21 @@ public class DriverMetadataDownloader {
         List<Library> libraries = element.getChildren("library").parallelStream()
                 .flatMap(libElement -> createLibrary(libElement, indicator).stream()) // Flatten lists of libraries
                 .collect(Collectors.toList());
-        if(id.contains("%s")) id = String.format(id, libraries.get(0).getVersion());
+        int placeholderCount = countPlaceholders(id);
+
+        id = getFormattedString(id, libraries, placeholderCount, true);
         indicator.setText("Downloaded Metadata for " + id);
         indicator.setFraction(indicator.getFraction() + chunk);
         // Pattern to find %s occurrences
-        int placeholderCount = countPlaceholders(name);
+        placeholderCount = countPlaceholders(name);
 
+        name = getFormattedString(name, libraries, placeholderCount, false);
+        return new DriverPackage(id, name, DatabaseType.resolve(databaseType), libraries);
+    }
+
+    private String getFormattedString(String s, List<Library> libraries, int placeholderCount, boolean abridged) {
         if (placeholderCount == 1) {
-            name = String.format(name, libraries.get(0).getVersion());
+             s = String.format(s, libraries.get(0).getVersion());
         } else if (placeholderCount == 2) {
             // Get the first matching "ojdbc[8|11|17]" library
             Library ojdbcLibrary = libraries.stream()
@@ -73,12 +80,13 @@ public class DriverMetadataDownloader {
 
             // Use the first available library for the second %s
             Library firstLibrary = libraries.get(0);
-
             if (ojdbcLibrary != null) {
-                name = String.format(name, ojdbcLibrary.getVersion(), firstLibrary.getVersion());
+                String ojdbcVersion = abridged?shortenVersion(ojdbcLibrary.getVersion()):ojdbcLibrary.getVersion();
+                String extensionVersion = firstLibrary.getVersion();
+                s = String.format(s, ojdbcVersion, extensionVersion);
             }
         }
-        return new DriverPackage(id, name, DatabaseType.resolve(databaseType), libraries);
+        return s;
     }
 
     private  int countPlaceholders(String str) {
@@ -89,7 +97,13 @@ public class DriverMetadataDownloader {
         }
         return count;
     }
-
+    public static String shortenVersion(String version) {
+        String[] splitVersion = version.split("\\.");
+        if (splitVersion.length <= 3) {
+            return version;
+        }
+        return String.join(".", java.util.Arrays.copyOfRange(splitVersion, 0, 3));
+    }
     @SneakyThrows
     private  List<Library> createLibrary(Element element, ProgressIndicator indicator) {
         String groupId = stringAttribute(element, "group-id");
