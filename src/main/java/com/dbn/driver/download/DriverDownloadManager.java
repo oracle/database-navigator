@@ -60,6 +60,7 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
     public static final String COMPONENT_NAME = "DBNavigator.Application.DriverDownloadManager";
 
     private final Map<String, DriverPackageStatus> packageDownloadStatuses = new ConcurrentHashMap<>();
+    private final Map<String, PackageChecksumData> packageChecksums = new ConcurrentHashMap<>();
 
     private final DriverPackageMetadata driverPackageMetadata = new DriverPackageMetadata();
 
@@ -117,7 +118,7 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
 
     @NotNull
     private DriverPackageStatus ensurePackageStatus(String packageId) {
-        return packageDownloadStatuses.computeIfAbsent(packageId, k -> createPackageStatus(packageId));
+        return packageDownloadStatuses.computeIfAbsent(packageId, k -> new DriverPackageStatus(packageId));
     }
 
     @Nullable
@@ -126,18 +127,22 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
         return packageStatus == null ? null : packageStatus.getDownloadPath() ;
     }
 
-    public void setPackageDownloadPath(String packageId, String path) {
+    public void setDownloadPath(String packageId, String path) {
         DriverPackageStatus packageStatus = ensurePackageStatus(packageId);
         packageStatus.setDownloadPath(path);
     }
-
 
     public Collection<DriverPackageStatus> getPackagesStatus() {
         return packageDownloadStatuses.values();
     }
 
-    private DriverPackageStatus createPackageStatus(String packageId) {
-        return new DriverPackageStatus(packageId);
+    @NotNull
+    public PackageChecksumData getChecksumData(String packageId) {
+        return packageChecksums.computeIfAbsent(packageId, p -> new PackageChecksumData(p));
+    }
+
+    public void setChecksumData(String packageId, PackageChecksumData checksumData) {
+        packageChecksums.put(packageId, checksumData);
     }
 
     /**
@@ -162,8 +167,19 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
     }
 
     public void cleanupPackage(String packageId) {
-        getPackageStatus(packageId).getLibraryStatuses().forEach(libraryStatus->libraryStatus.setDownloadStatus(NEW));
+        DriverPackageStatus packageStatus = getPackageStatus(packageId);
+        if (packageStatus == null) return;
+
+        packageStatus.getLibraryStatuses().forEach(libraryStatus->libraryStatus.setDownloadStatus(NEW));
    }
+
+    public List<DriverPackage> getDownloadedDriverPackages(DatabaseType databaseType) {
+        return driverPackageMetadata.getDriverPackages(p -> p.matches(databaseType) && isPackageDownloaded(p));
+    }
+
+    public List<DriverPackage> getDriverPackages(DatabaseType databaseType) {
+        return driverPackageMetadata.getDriverPackages(p -> p.matches(databaseType) && (!p.isObsolete() || isPackageDownloaded(p)));
+    }
 
     @Override
     public Element getComponentState() {
@@ -193,12 +209,4 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
         driverPackageMetadata.readState(metadataElement);
     }
 
-
-    public List<DriverPackage> getDownloadedDriverPackages(DatabaseType databaseType) {
-        return driverPackageMetadata.getDriverPackages(p -> p.matches(databaseType) && isPackageDownloaded(p));
-    }
-
-    public List<DriverPackage> getDriverPackages(DatabaseType databaseType) {
-        return driverPackageMetadata.getDriverPackages(p -> p.matches(databaseType));
-    }
 }

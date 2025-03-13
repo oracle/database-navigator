@@ -23,6 +23,7 @@ import com.dbn.driver.download.metadata.DriverPackage;
 import com.dbn.driver.download.metadata.Library;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.List;
@@ -33,8 +34,8 @@ public class DriverPackageDownloader {
 
     public void downloadDriverPackage(Project project, DriverPackage driverPackage, Consumer<String> updateUI) {
         this.updateUI = updateUI;
-        DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
-        
+        DriverDownloadManager downloadManager = getDownloadManager();
+
         Progress.modal(project, null, true,
                 "Downloading Drivers",
                 "Downloading driver packages for " + driverPackage.getName(),
@@ -61,8 +62,14 @@ public class DriverPackageDownloader {
         }
 
         awaitLatchCompletion(session, packageId);
+        writeChecksumData(packageId);
 
         handleCompletion(packageId, session);
+    }
+
+    private static void writeChecksumData(String packageId) {
+        PackageChecksumData checksumData = getDownloadManager().getChecksumData(packageId);
+        checksumData.writeChecksums();
     }
 
     private void downloadLibraryAsync(
@@ -86,7 +93,7 @@ public class DriverPackageDownloader {
     }
 
     private boolean isAlreadyDownloaded(String packageId, Library library) {
-        DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
+        DriverDownloadManager downloadManager = getDownloadManager();
         String libraryId = library.getLibraryId();
 
         DownloadStatus downloadStatus = downloadManager.getDownloadStatus(packageId, libraryId);
@@ -135,7 +142,7 @@ public class DriverPackageDownloader {
     }
 
     private void handleCompletion(String packageId, DownloadSession session) {
-        DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
+        DriverDownloadManager downloadManager = getDownloadManager();
         if (!session.getErrorMessages().isEmpty()) {
             session.addErrorMessage("One or more downloads failed. Cleaning up...");
             cleanupDownloadedJars(session);
@@ -165,5 +172,9 @@ public class DriverPackageDownloader {
                 System.out.println("Deleted file: " + jarFile.getAbsolutePath());
             }
         });
+    }
+
+    private static @NotNull DriverDownloadManager getDownloadManager() {
+        return DriverDownloadManager.getInstance();
     }
 }

@@ -16,23 +16,20 @@
 
 package com.dbn.driver.download.metadata;
 
-import com.dbn.common.checksum.Checksum;
-import com.dbn.common.checksum.ChecksumType;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.TimeUtil;
 import com.dbn.driver.download.DownloadSession;
 import com.dbn.driver.download.DownloadStatus;
 import com.dbn.driver.download.DriverDownloadManager;
+import com.dbn.driver.download.PackageChecksumData;
 import com.intellij.openapi.progress.ProgressIndicator;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +42,6 @@ import static com.dbn.common.options.setting.Settings.longAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setLongAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.driver.download.DriverDownloadManager.getDriverPackageChecksumsLocation;
 
 /**
  * DriverPackages holds metadata for supported database drivers.
@@ -85,7 +81,7 @@ public class DriverPackageMetadata implements PersistentStateElement {
         Set<String> packageIds = driverPackages.keySet();
 
         // mark packages obsolete all packages which are no longer part of the current "offering"
-        this.driverPackages.values().forEach(p -> p.setObsolete(packageIds.contains(p.getId())));
+        this.driverPackages.values().forEach(p -> p.setObsolete(!packageIds.contains(p.getId())));
         this.driverPackages.putAll(driverPackages);
 
         verifyDriverPackages();
@@ -124,58 +120,34 @@ public class DriverPackageMetadata implements PersistentStateElement {
         if (downloadManager.getPackagesStatus().isEmpty()) return;
 
         for (DriverPackage driverPackage : driverPackages.values()) {
-            String packageId = driverPackage.getId();
-            String downloadPath = downloadManager.getDownloadPath(packageId);
-
-            // If path is null, nothing to validate here
-            if (downloadPath == null) continue;
-
-            File packageDir = new File(downloadPath);
-            File checksumFile = new File(getDriverPackageChecksumsLocation(), packageId + ".txt");
-
-            // If no checksum file exists, all libraries are set to NEW
-            if (!checksumFile.exists()) {
-                for (Library library : driverPackage.getLibraries()) {
-                    String jarId = library.getArtifactId() + "-" + library.getVersion();
-                    downloadManager.setDownloadStatus(packageId, jarId, DownloadStatus.NEW);
-                }
-                continue;
-            }
-
-            // Verify each line (artifactId-version, expectedChecksum)
-            try (BufferedReader reader = new BufferedReader(new FileReader(checksumFile))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    String[] parts = line.split(" ");
-                    if (parts.length != 2) {
-                        continue;
-                    }
-
-                    String artifactIdVersion = parts[0]; // e.g., artifactId-version
-                    String expectedChecksum = parts[1];
-                    File jarFile = new File(packageDir, artifactIdVersion + ".jar");
-
-                    if (!jarFile.exists()
-                            || !verifyChecksum(jarFile, expectedChecksum, artifactIdVersion)) {
-                        // If something is wrong, clean up and move on
-                        downloadManager.cleanupPackage(packageId);
-                        break;
-                    }
-                }
-            }
+            verifyDriverPackage(driverPackage);
         }
     }
 
-    private boolean verifyChecksum(File outputFile, String expectedChecksum, String artifactIdAndVersion) {
-        // Compute actual SHA-1 checksum
-        String actualChecksum = Checksum.fromFileContent(outputFile, ChecksumType.SHA_1);
+    private void verifyDriverPackage(DriverPackage driverPackage) {
+        DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
+        String packageId = driverPackage.getId();
+        String downloadPath = downloadManager.getDownloadPath(packageId);
 
-        if (expectedChecksum.equalsIgnoreCase(actualChecksum)) {
-            return true;
+        // If path is null, nothing to validate here
+        if (downloadPath == null) return;
+
+        File packageDir = new File(downloadPath);
+        PackageChecksumData checksumData = downloadManager.getChecksumData(packageId);
+
+        // If no checksum file exists, all libraries are set to NEW
+        if (checksumData.fileExists()) {
+            checksumData.readChecksums();
+            boolean checksumsValid = checksumData.verifyChecksums(packageDir);
+            if (!checksumsValid) {
+                downloadManager.cleanupPackage(packageId);
+            }
         } else {
-            System.err.println("Checksum verification failed for " + artifactIdAndVersion +
-                    "! Expected: " + expectedChecksum + ", Actual: " + actualChecksum);
-            return false;
+            for (Library library : driverPackage.getLibraries()) {
+                String libraryId = library.getLibraryId();
+                downloadManager.setDownloadStatus(packageId, libraryId, DownloadStatus.NEW);
+            }
+
         }
     }
 

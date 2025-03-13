@@ -23,9 +23,7 @@ import com.dbn.driver.download.metadata.Library;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.util.io.FileUtil;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.UUID;
@@ -108,7 +106,7 @@ public class MavenArtifactDownloader {
             downloadManager.setDownloadStatus(packageId, artifactId + "-" + version, DownloadStatus.DONE);
 
             // Append checksum to file
-            appendChecksumToFile(packageId, groupId, artifactId, version, actualChecksum);
+            recordLibraryChecksum(packageId, groupId, artifactId, version, actualChecksum);
             return "";
         } else {
             System.err.println("Checksum verification failed! Expected: " + expectedChecksum + ", Actual: " + actualChecksum);
@@ -118,7 +116,12 @@ public class MavenArtifactDownloader {
         }
     }
 
-    private static void appendChecksumToFile(String packageId, String groupId, String artifactId, String version, String checksum) {
+    private static void recordLibraryChecksum(String packageId, String groupId, String artifactId, String version, String checksum) {
+        DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
+        PackageChecksumData checksumData = downloadManager.getChecksumData(packageId);
+        checksumData.addChecksum(artifactId + "-" + version, checksum);
+
+/*
         ensureChecksumsDirectoryExists();
 
         File checksumFile = new File(getDriverPackageChecksumsLocation(), packageId + ".txt");
@@ -132,6 +135,7 @@ public class MavenArtifactDownloader {
                 System.err.println("Failed to write checksum to file: " + e.getMessage());
             }
         }
+*/
     }
 
     private static void ensureChecksumsDirectoryExists() {

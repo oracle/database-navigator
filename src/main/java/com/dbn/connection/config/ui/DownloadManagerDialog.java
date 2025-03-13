@@ -76,7 +76,7 @@ public class DownloadManagerDialog extends DBNDialog<DownloadManagerForm> {
         String downloadPath = getSelectedDownloadPath();
 
         DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
-        downloadManager.setPackageDownloadPath(driverPackage.getId(), downloadPath);
+        downloadManager.setDownloadPath(driverPackage.getId(), downloadPath);
 
         DriverPackageDownloader downloader = new DriverPackageDownloader();
         downloader.downloadDriverPackage(getProject(), driverPackage, (String errorMessage) -> {
