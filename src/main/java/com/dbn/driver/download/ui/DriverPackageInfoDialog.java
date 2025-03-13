@@ -30,7 +30,6 @@ public class DriverPackageInfoDialog extends DBNDialog<DriverPackageInfoForm> {
     public DriverPackageInfoDialog(Project project, String title, boolean canBeParent, DriverPackage driverPackage) {
         super(project, title, canBeParent);
         this.driverPackage = driverPackage;
-        setResizable(false);
         setModal(true);
         init();
     }

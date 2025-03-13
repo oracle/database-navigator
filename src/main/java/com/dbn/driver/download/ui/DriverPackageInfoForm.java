@@ -17,6 +17,7 @@
 package com.dbn.driver.download.ui;
 
 import com.dbn.common.environment.EnvironmentType;
+import com.dbn.common.ui.Layouts;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.driver.download.metadata.DriverPackage;
@@ -26,10 +27,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -42,8 +41,8 @@ public class DriverPackageInfoForm extends DBNFormBase {
     public DriverPackageInfoForm(@Nullable Disposable parent, DriverPackage driverPackage) {
         super(parent);
 
-        initHeaderPanel(driverPackage.getId());
-        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        initHeaderPanel(driverPackage.getName());
+        Layouts.verticalBoxLayout(infoPanel);
         for (Library library : driverPackage.getLibraries()) {
             LibraryInfoForm libraryInfoForm = new LibraryInfoForm(library);
 
@@ -55,16 +54,12 @@ public class DriverPackageInfoForm extends DBNFormBase {
             infoPanel.add(Box.createVerticalStrut(5));
         }
         infoPanel.add(Box.createVerticalGlue());
-        JScrollPane scrollPane = new JScrollPane(infoPanel);
-        scrollPane.setPreferredSize(new Dimension(500, 400));
-
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
     }
 
     private void initHeaderPanel(String libraryName) {
         DBNHeaderForm headerForm = new DBNHeaderForm(this);
         headerForm.setTitle(libraryName);
-        headerForm.setBackground(EnvironmentType.DEVELOPMENT.getColor());
+        headerForm.setBackground(EnvironmentType.DEFAULT.getColor());
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
         headerPanel.setBorder(new EmptyBorder(0, 0, 10, 0));
 

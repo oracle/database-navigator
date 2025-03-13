@@ -18,11 +18,17 @@ package com.dbn.driver.download;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.component.PersistentState;
+import com.dbn.common.routine.Consumer;
+import com.dbn.common.util.Dialogs;
+import com.dbn.common.util.Messages;
 import com.dbn.connection.DatabaseType;
 import com.dbn.driver.download.metadata.DriverPackage;
 import com.dbn.driver.download.metadata.DriverPackageMetadata;
+import com.dbn.driver.download.ui.DriverDownloadDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.DialogWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
@@ -37,6 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Files.getPluginDeploymentRoot;
 import static com.dbn.driver.download.DownloadStatus.NEW;
 import static com.dbn.driver.download.DriverDownloadManager.COMPONENT_NAME;
@@ -179,6 +186,17 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
 
     public List<DriverPackage> getDriverPackages(DatabaseType databaseType) {
         return driverPackageMetadata.getDriverPackages(p -> p.matches(databaseType) && (!p.isObsolete() || isPackageDownloaded(p)));
+    }
+
+    public void openDownloadDialog(Project project, DatabaseType databaseType, Consumer<String> successCallback) {
+        try {
+            List<DriverPackage> driverPackages = getDriverPackages(databaseType);
+            Dialogs.show(() -> new DriverDownloadDialog(project, databaseType, driverPackages), (dialog, exitCode) -> {
+                when(exitCode == DialogWrapper.OK_EXIT_CODE, () -> successCallback.accept(dialog.getSelectedDownloadPath()));
+            });
+        } catch (Exception e) {
+            Messages.showErrorDialog(project, "Failed to download driver libraries metadata", e);
+        }
     }
 
     @Override

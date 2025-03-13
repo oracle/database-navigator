@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package com.dbn.connection.config.ui;
+package com.dbn.driver.download.ui;
 
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.DatabaseType;
 import com.dbn.driver.download.DriverDownloadManager;
 import com.dbn.driver.download.metadata.DriverPackage;
-import com.dbn.driver.download.ui.DriverPackageInfoDialog;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.ui.HyperlinkLabel;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -37,27 +36,22 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 
-public class DownloadManagerForm extends DBNFormBase {
+public class DriverDownloadForm extends DBNFormBase {
     private JPanel mainPanel;
     private JLabel libraryPackageLabel;
     JComboBox<DriverPackage> libraryPackageComboBox;
     private JLabel libraryPathLabel;
     TextFieldWithBrowseButton libraryPathTextField;
-    private HyperlinkLabel libraryInfoLink;
     JLabel errorHintLabel;
-    private final DatabaseType databaseType;
+    private JButton infoButton;
     private static final FileChooserDescriptor LIBRARY_FILE_DESCRIPTOR = new FileChooserDescriptor(false, true, false, false, false, false);
 
 
-    public DownloadManagerForm(@Nullable Disposable parent, DatabaseType databaseType, List<DriverPackage> driverPackages) {
+    public DriverDownloadForm(@Nullable Disposable parent, DatabaseType databaseType, List<DriverPackage> driverPackages) {
         super(parent);
-        this.databaseType = databaseType;
 
         populateDriverLibraryComboBox(driverPackages);
-        libraryInfoLink.setHyperlinkText(txt("cfg.connection.link.LibraryInfo"));
-        libraryInfoLink.addHyperlinkListener(e -> {
-            handleInfoButtonClick();
-        });
+        infoButton.addActionListener(e -> handleInfoButtonClick());
         errorHintLabel.setForeground(Color.RED);
         errorHintLabel.setVisible(false);
     }

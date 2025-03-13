@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.connection.config.ui;
+package com.dbn.driver.download.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.DatabaseType;
@@ -29,12 +29,12 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 
-public class DownloadManagerDialog extends DBNDialog<DownloadManagerForm> {
+public class DriverDownloadDialog extends DBNDialog<DriverDownloadForm> {
     private final DatabaseType databaseType;
     private final List<DriverPackage> driverPackages;
 
-    public DownloadManagerDialog(Project project, DatabaseType databaseType, List<DriverPackage> driverPackages) {
-        super(project, "Libraries Download Manager", true);
+    public DriverDownloadDialog(Project project, DatabaseType databaseType, List<DriverPackage> driverPackages) {
+        super(project, "Download Libraries", true);
         this.databaseType = databaseType;
         this.driverPackages = driverPackages;
         renameAction(getOKAction(), "Download");
@@ -45,8 +45,8 @@ public class DownloadManagerDialog extends DBNDialog<DownloadManagerForm> {
 
     @NotNull
     @Override
-    protected DownloadManagerForm createForm() {
-        return new DownloadManagerForm(this, databaseType, driverPackages);
+    protected DriverDownloadForm createForm() {
+        return new DriverDownloadForm(this, databaseType, driverPackages);
     }
 
     @NotNull
@@ -69,7 +69,7 @@ public class DownloadManagerDialog extends DBNDialog<DownloadManagerForm> {
     }
 
     private void handleDownloadButtonClick() {
-        DownloadManagerForm form = getForm();
+        DriverDownloadForm form = getForm();
         DriverPackage driverPackage = getSelection(form.libraryPackageComboBox);
         if (driverPackage == null) return;
 

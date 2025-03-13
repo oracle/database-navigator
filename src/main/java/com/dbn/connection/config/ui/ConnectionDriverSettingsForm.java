@@ -22,8 +22,6 @@ import com.dbn.common.message.AsyncMessageCollector;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Actions;
-import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.Timers;
 import com.dbn.connection.DatabaseType;
@@ -41,7 +39,6 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.JBColor;
@@ -64,7 +61,6 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
-import static com.dbn.common.util.Conditional.when;
 import static com.dbn.connection.DatabaseType.GENERIC;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -345,17 +341,11 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         indicator.setIndeterminate(false);
         indicator.setFraction(0.0);
 
-        DatabaseType databaseType = getDatabaseType();
         Project project = ensureProject();
-        try {
-            DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
-            List<DriverPackage> driverPackages = downloadManager.getDriverPackages(databaseType);
-            Dialogs.show(() -> new DownloadManagerDialog(project, databaseType, driverPackages), (dialog, exitCode) -> {
-                when(exitCode == DialogWrapper.OK_EXIT_CODE, () -> driverLibraryTextField.setText(dialog.getSelectedDownloadPath()));
-            });
-        } catch (Exception e) {
-            Messages.showErrorDialog(project, "Failed to download driver libraries metadata", e);
-        }
+        DatabaseType databaseType = getDatabaseType();
+
+        DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
+        downloadManager.openDownloadDialog(project, databaseType, p -> driverLibraryTextField.setText(p));
     }
 
 }
