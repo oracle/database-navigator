@@ -18,8 +18,11 @@ package com.dbn.driver.download;
 
 import com.dbn.common.state.PersistentStateElement;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -34,25 +37,34 @@ import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 @Getter
+@Setter
+@NoArgsConstructor
 public class DriverPackageStatus implements PersistentStateElement {
     private final Map<String, LibraryStatus> libraryStatuses = new ConcurrentHashMap<>();
-    private final String packageId;
+    private String packageId;
+    private String downloadPath;
 
     DriverPackageStatus(String packageId){
         this.packageId = packageId;
     }
 
+    @Nullable
     public LibraryStatus getLibraryStatus(String libraryId){
+        return libraryStatuses.get(libraryId);
+    }
+
+    @NotNull
+    public LibraryStatus ensureLibraryStatus(String libraryId){
         return libraryStatuses.computeIfAbsent(libraryId, n-> new LibraryStatus(libraryId));
     }
 
     public boolean isComplete(int packageCount){
-        return libraryStatuses.size()==packageCount && libraryStatuses.values().stream().allMatch(s->s.downloadStatus.equals(DownloadStatus.DONE));
+        return libraryStatuses.size() == packageCount && libraryStatuses.values().stream().allMatch(s -> s.downloadStatus.equals(DownloadStatus.DONE));
     }
 
     public void addLibraryStatus(Element element){
-
-        LibraryStatus libraryStatus = getLibraryStatus(stringAttribute(element, "library-id"));
+        String libraryId = stringAttribute(element, "id");
+        LibraryStatus libraryStatus = ensureLibraryStatus(libraryId);
         libraryStatus.readState(element);
     }
 
@@ -62,16 +74,19 @@ public class DriverPackageStatus implements PersistentStateElement {
 
     @Override
     public void readState(Element element) {
-        for (Element jarElement : element.getChildren("jar")) {
+        this.packageId = stringAttribute(element, "id");
+        this.downloadPath = stringAttribute(element, "download-path");
+        for (Element jarElement : element.getChildren("library")) {
             this.addLibraryStatus(jarElement);
         }}
 
     @Override
     public void writeState(Element element) {
-        element.setAttribute("id", packageId);
+        setStringAttribute(element, "id", packageId);
+        setStringAttribute(element, "download-path", this.downloadPath);
 
         for (DriverPackageStatus.LibraryStatus jarEntry : this.getLibraryStatuses()) {
-            Element jarElement = newElement(element, "jar");
+            Element jarElement = newElement(element, "library");
             jarEntry.writeState(jarElement);
         }
     }
@@ -95,7 +110,7 @@ public class DriverPackageStatus implements PersistentStateElement {
 
         @Override
         public void writeState(Element element) {
-            setStringAttribute(element, "library-id", this.libraryId);
+            setStringAttribute(element, "id", this.libraryId);
             setEnumAttribute(element, "download-status", this.downloadStatus);
             setLongAttribute(element, "download-timestamp", this.downloadTimestamp);
         }

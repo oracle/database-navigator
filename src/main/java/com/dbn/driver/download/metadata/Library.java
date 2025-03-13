@@ -26,7 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 /**
  * Library holds the metadata for a Maven dependency required by a driver package.
@@ -76,6 +78,10 @@ public class Library implements PersistentStateElement {
         return artifact.getArtifactId().equals(this.artifactId)
                 && artifact.getGroupId().equals(this.groupId)
                 && artifact.getVersion().equals(this.version);
+    }
+
+    public String getLibraryId() {
+        return artifactId + "-" + version;
     }
 
     @Override

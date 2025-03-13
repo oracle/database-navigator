@@ -18,7 +18,7 @@ package com.dbn.driver.download;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.component.PersistentState;
-import com.dbn.common.message.AsyncMessageCollector;
+import com.dbn.connection.DatabaseType;
 import com.dbn.driver.download.metadata.DriverPackage;
 import com.dbn.driver.download.metadata.DriverPackageMetadata;
 import com.intellij.openapi.components.State;
@@ -27,16 +27,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Files.getPluginDeploymentRoot;
+import static com.dbn.driver.download.DownloadStatus.NEW;
 import static com.dbn.driver.download.DriverDownloadManager.COMPONENT_NAME;
 
 /**
@@ -65,14 +67,9 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
         return applicationService(DriverDownloadManager.class);
     }
 
-    public static DriverPackageMetadata getDriverPackageMetadata() {
-        return getInstance().driverPackageMetadata;
-    }
-
     public DriverDownloadManager() {
         super(COMPONENT_NAME);
     }
-
 
     @NonNls
     public static String getDriverPackagesLocation() {
@@ -95,31 +92,45 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
      * @param packageId Unique ID of the driver package
      * @param jarId     Unique ID of the JAR (e.g., "artifactId-version")
      */
-    public DriverPackageStatus.LibraryStatus getJarDownloadStatus(String packageId, String jarId) {
-        return getPackageStatus(packageId)
-                .getLibraryStatus(jarId);
+    public DownloadStatus getDownloadStatus(String packageId, String jarId) {
+        DriverPackageStatus packageStatus = getPackageStatus(packageId);
+        if (packageStatus == null) return NEW;
+
+        DriverPackageStatus.LibraryStatus libraryStatus = packageStatus.getLibraryStatus(jarId);
+        if (libraryStatus == null) return NEW;
+
+        return libraryStatus.getDownloadStatus();
     }
 
-    public void updateJarDownloadStatus(String packageId, String jarId, DownloadStatus status) {
-        log.info("Download status for package {} JAR {}: {}", packageId, jarId, status);
+    public void setDownloadStatus(String packageId, String libraryId, DownloadStatus status) {
+        log.info("Download status for package {} JAR {}: {}", packageId, libraryId, status);
 
-        getPackageStatus(packageId)
-                .getLibraryStatus(jarId)
+        ensurePackageStatus(packageId)
+                .ensureLibraryStatus(libraryId)
                 .setDownloadStatus(status);
     }
 
+    @Nullable
     private DriverPackageStatus getPackageStatus(String packageId) {
-        AsyncMessageCollector messages = new AsyncMessageCollector();
-        return packageDownloadStatuses
-                .computeIfAbsent(packageId, k -> {
-                    try {
-                        return createPackageStatus(packageId);
-                    } catch (Exception e) {
-                        messages.addErrorMessage(e.getMessage());
-                        throw new RuntimeException(e.getMessage(), e);
-                    }
-                });
+        return packageDownloadStatuses.get(packageId);
     }
+
+    @NotNull
+    private DriverPackageStatus ensurePackageStatus(String packageId) {
+        return packageDownloadStatuses.computeIfAbsent(packageId, k -> createPackageStatus(packageId));
+    }
+
+    @Nullable
+    public String getDownloadPath(String packageId) {
+        DriverPackageStatus packageStatus = packageDownloadStatuses.get(packageId);
+        return packageStatus == null ? null : packageStatus.getDownloadPath() ;
+    }
+
+    public void setPackageDownloadPath(String packageId, String path) {
+        DriverPackageStatus packageStatus = ensurePackageStatus(packageId);
+        packageStatus.setDownloadPath(path);
+    }
+
 
     public Collection<DriverPackageStatus> getPackagesStatus() {
         return packageDownloadStatuses.values();
@@ -135,55 +146,59 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
      * @param packageId Unique ID of the driver package
      * @return True if all JARs in the package are verified, false otherwise
      */
-    public boolean isPackageDownloaded(String packageId, boolean isCached) {
-        DriverPackageStatus jarStatuses = getPackageStatus(packageId);
-        if (jarStatuses == null) {
-            return false;
-        }
-        DriverPackage dp = isCached?driverPackageMetadata.getCachedDriverPackage(packageId):driverPackageMetadata.getDriverPackage(packageId);
-        return jarStatuses.isComplete(dp.getLibraries().size());
+
+    public boolean isPackageDownloaded(String packageId) {
+        DriverPackage driverPackage = driverPackageMetadata.getDriverPackage(packageId);
+        return isPackageDownloaded(driverPackage);
+    }
+
+    public boolean isPackageDownloaded(DriverPackage driverPackage) {
+        if (driverPackage == null) return false;
+
+        DriverPackageStatus status = getPackageStatus(driverPackage.getId());
+        if (status == null) return false;
+
+        return status.isComplete(driverPackage.getLibraries().size());
     }
 
     public void cleanupPackage(String packageId) {
-        getPackageStatus(packageId).getLibraryStatuses().forEach(libraryStatus->libraryStatus.setDownloadStatus(DownloadStatus.NEW));
+        getPackageStatus(packageId).getLibraryStatuses().forEach(libraryStatus->libraryStatus.setDownloadStatus(NEW));
    }
 
     @Override
     public Element getComponentState() {
         Element element = new Element("state");
-        Element downloadsElement = newElement(element, "package-download-statuses");
+        Element downloadsElement = newElement(element, "package-downloads");
         Element metadataElement = newElement(element, "package-metadata");
-        for (Map.Entry<String, DriverPackageStatus> packageEntry : packageDownloadStatuses.entrySet()) {
+        for (DriverPackageStatus packageStatus : packageDownloadStatuses.values()) {
             Element packageElement = newElement(downloadsElement, "package");
-            packageEntry.getValue().writeState(packageElement);
+            packageStatus.writeState(packageElement);
         }
-        for (DriverPackage driverPackage : driverPackageMetadata.getDriverPackages()) {
-            if(isPackageDownloaded(driverPackage.getId(), false)){
-                Element packageElement = newElement(metadataElement, "package");
-                driverPackage.writeState(packageElement);
-            }
-        }
+
+        driverPackageMetadata.writeState(metadataElement);
         return element;
     }
 
     @Override
     public void loadComponentState(@NotNull Element element) {
-        Element downloadsElement = element.getChild("package-download-statuses");
+        Element downloadsElement = element.getChild("package-downloads");
         if (downloadsElement != null) {
             for (Element packageElement : downloadsElement.getChildren("package")) {
-                String packageId = packageElement.getAttributeValue("id");
-                DriverPackageStatus jarStatuses = getPackageStatus(packageId);
-                jarStatuses.readState(packageElement);
+                DriverPackageStatus packageStatus = new DriverPackageStatus();
+                packageStatus.readState(packageElement);
+                packageDownloadStatuses.put(packageStatus.getPackageId(), packageStatus);
             }
         }
         Element metadataElement = element.getChild("package-metadata");
-        if (metadataElement != null) {
-            for (Element packageElement : metadataElement.getChildren("package")) {
-                DriverPackage driverPackage = driverPackageMetadata.getCachedDriverPackage(stringAttribute(packageElement, "id"));
-                driverPackage.readState(packageElement);
-            }
-        }
+        driverPackageMetadata.readState(metadataElement);
     }
 
 
+    public List<DriverPackage> getDownloadedDriverPackages(DatabaseType databaseType) {
+        return driverPackageMetadata.getDriverPackages(p -> p.matches(databaseType) && isPackageDownloaded(p));
+    }
+
+    public List<DriverPackage> getDriverPackages(DatabaseType databaseType) {
+        return driverPackageMetadata.getDriverPackages(p -> p.matches(databaseType));
+    }
 }

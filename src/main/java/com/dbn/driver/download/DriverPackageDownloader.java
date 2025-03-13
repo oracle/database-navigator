@@ -33,12 +33,15 @@ public class DriverPackageDownloader {
 
     public void downloadDriverPackage(Project project, DriverPackage driverPackage, Consumer<String> updateUI) {
         this.updateUI = updateUI;
+        DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
+        
         Progress.modal(project, null, true,
                 "Downloading Drivers",
                 "Downloading driver packages for " + driverPackage.getName(),
                 indicator -> {
                     int downloadCount = driverPackage.getLibraries().size();
-                    String downloadPath = driverPackage.getPath();
+                    String packageId = driverPackage.getId();
+                    String downloadPath = downloadManager.getDownloadPath(packageId);
 
                     DownloadSession downloadSession = new DownloadSession(indicator)
                             .withDownloadSize(downloadCount)
@@ -59,7 +62,7 @@ public class DriverPackageDownloader {
 
         awaitLatchCompletion(session, packageId);
 
-        handleCompletion(packageId, session, libraryList);
+        handleCompletion(packageId, session);
     }
 
     private void downloadLibraryAsync(
@@ -83,9 +86,11 @@ public class DriverPackageDownloader {
     }
 
     private boolean isAlreadyDownloaded(String packageId, Library library) {
-        DriverPackageStatus.LibraryStatus status = DriverDownloadManager.getInstance()
-                .getJarDownloadStatus(packageId, library.getArtifactId() + "-" + library.getVersion());
-        return status.getDownloadStatus().equals(DownloadStatus.DONE);
+        DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
+        String libraryId = library.getLibraryId();
+
+        DownloadStatus downloadStatus = downloadManager.getDownloadStatus(packageId, libraryId);
+        return downloadStatus == DownloadStatus.DONE;
     }
 
     private void attemptDownload(DownloadSession session, String packageId, Library library) {
@@ -129,15 +134,16 @@ public class DriverPackageDownloader {
         }
     }
 
-    private void handleCompletion(String packageId, DownloadSession session, List<Library> libraries) {
+    private void handleCompletion(String packageId, DownloadSession session) {
+        DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
         if (!session.getErrorMessages().isEmpty()) {
             session.addErrorMessage("One or more downloads failed. Cleaning up...");
             cleanupDownloadedJars(session);
-            DriverDownloadManager.getInstance().cleanupPackage(packageId);
+            downloadManager.cleanupPackage(packageId);
             ApplicationManager.getApplication().invokeLater(()->{
                 updateUI.accept(toHtmlFormat(session.getErrorMessages().get(0).getText(), 50));
             });
-        } else if (DriverDownloadManager.getInstance().isPackageDownloaded(packageId, false)) {
+        } else if (downloadManager.isPackageDownloaded(packageId)) {
             System.out.println("All JARs for package " + packageId + " were successfully downloaded and verified.");
             ApplicationManager.getApplication().invokeLater(()->{
                 updateUI.accept("");
@@ -145,7 +151,7 @@ public class DriverPackageDownloader {
         } else {
             System.out.println("Download process cancelled for package: " + packageId);
             cleanupDownloadedJars(session);
-            DriverDownloadManager.getInstance().cleanupPackage(packageId);
+            downloadManager.cleanupPackage(packageId);
         }
     }
 

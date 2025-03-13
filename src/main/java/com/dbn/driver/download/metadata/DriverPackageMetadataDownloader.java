@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.dbn.driver.download;
+package com.dbn.driver.download.metadata;
 
 import com.dbn.common.download.Downloads;
+import com.dbn.common.util.XmlContents;
 import com.dbn.connection.DatabaseType;
-import com.dbn.driver.download.metadata.DriverPackage;
-import com.dbn.driver.download.metadata.Library;
+import com.dbn.driver.download.DependencyParser;
+import com.dbn.driver.download.DownloadSession;
 import com.intellij.openapi.progress.ProgressIndicator;
 import lombok.SneakyThrows;
 import org.jdom.Element;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -41,11 +43,20 @@ import java.util.stream.Collectors;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.thread.Progress.installThreadInterrupter;
+import static com.dbn.common.util.Lists.convertParallel;
 
-public class DriverMetadataDownloader {
-
+public class DriverPackageMetadataDownloader {
     @SneakyThrows
-    public DriverPackage createDriverPackage(Element element, DownloadSession session){
+    public Map<String, DriverPackage> createDriverPackages(DownloadSession session) {
+        Element element = XmlContents.fileToElement(getClass(), "driver-packages.xml");
+        List<Element> packageElements = element.getChildren("driver-package");
+        session.withDownloadSize(packageElements.size());
+
+        List<DriverPackage> driverPackages = convertParallel(packageElements, e -> createDriverPackage(e, session));
+        return driverPackages.stream().collect(Collectors.toMap(p -> p.getId(), p -> p));
+    }
+
+    private DriverPackage createDriverPackage(Element element, DownloadSession session){
         installThreadInterrupter(session);
 
         String id = stringAttribute(element, "id");

@@ -18,30 +18,34 @@ package com.dbn.driver.download.metadata;
 
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.checksum.ChecksumType;
-import com.dbn.common.message.AsyncMessageCollector;
-import com.dbn.common.util.XmlContents;
-import com.dbn.connection.DatabaseType;
+import com.dbn.common.load.ProgressMonitor;
+import com.dbn.common.state.PersistentStateElement;
+import com.dbn.common.util.TimeUtil;
 import com.dbn.driver.download.DownloadSession;
 import com.dbn.driver.download.DownloadStatus;
 import com.dbn.driver.download.DriverDownloadManager;
-import com.dbn.driver.download.DriverMetadataDownloader;
-import lombok.Getter;
+import com.intellij.openapi.progress.ProgressIndicator;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.dbn.common.util.Lists.convertParallel;
+import static com.dbn.common.options.setting.Settings.longAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setLongAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.driver.download.DriverDownloadManager.getDriverPackageChecksumsLocation;
-import static java.util.Collections.unmodifiableList;
 
 /**
  * DriverPackages holds metadata for supported database drivers.
@@ -65,157 +69,101 @@ import static java.util.Collections.unmodifiableList;
  *
  * @author Ayoub Aarrasse
  */
-public class DriverPackageMetadata {
-    @Getter
-    private List<DriverPackage> driverPackages = new ArrayList<>();
-    @Getter
-    private List<DriverPackage> cachedDriverPackages = new ArrayList<>();
+public class DriverPackageMetadata implements PersistentStateElement {
+    private long lastRefresh = 0;
+    private final Map<String, DriverPackage> driverPackages = new ConcurrentHashMap<>();
 
     @SneakyThrows
-    public void ensureDriverPackages(DownloadSession session) {
-        if(!driverPackages.isEmpty()) return;
-        Element element = XmlContents.fileToElement(getClass(), "driver-packages.xml");
-        List<Element> packageElements = element.getChildren("driver-package");
-        session.withDownloadSize(packageElements.size());
+    public synchronized void refreshDriverPackages() {
+        if (!isOutdated()) return;
 
+        ProgressIndicator indicator = ProgressMonitor.getProgressIndicator();
+        DownloadSession session = new DownloadSession(indicator);
 
-        Function<Element, DriverPackage> driverPackageFunction = e->
-                new DriverMetadataDownloader().createDriverPackage(e, session);
+        DriverPackageMetadataDownloader downloader = new DriverPackageMetadataDownloader();
+        Map<String, DriverPackage> driverPackages = downloader.createDriverPackages(session);
+        Set<String> packageIds = driverPackages.keySet();
 
-        List<DriverPackage> newlyLoadedPackages = convertParallel(packageElements, driverPackageFunction);
-        for (DriverPackage newPkg : newlyLoadedPackages) {
-            cachedDriverPackages.stream()
-                    .filter(cachedPkg -> cachedPkg.getId().equals(newPkg.getId()))
-                    .findFirst()
-                    .ifPresent(cachedPkg -> {
-                        newPkg.setPath(cachedPkg.getPath());
-                    });
-        }
-        for (DriverPackage cachedPkg : cachedDriverPackages) {
-            boolean exists = newlyLoadedPackages.stream()
-                    .anyMatch(dp -> dp.getId().equals(cachedPkg.getId()));
-            if (!exists) {
-                newlyLoadedPackages.add(cachedPkg);
-            }
-        }
-        // Finally, wrap in an unmodifiableList so no one can add/remove packages
-        driverPackages = unmodifiableList(newlyLoadedPackages);
+        // mark packages obsolete all packages which are no longer part of the current "offering"
+        this.driverPackages.values().forEach(p -> p.setObsolete(packageIds.contains(p.getId())));
+        this.driverPackages.putAll(driverPackages);
+
+        verifyDriverPackages();
+        lastRefresh = System.currentTimeMillis();
     }
 
-    public List<DriverPackage> loadAllDriverPackages(DownloadSession session, DatabaseType databaseType) {
-        ensureDriverPackages(session);
-        return driverPackages.stream().filter(dp -> dp.getDatabaseType() == databaseType || databaseType == DatabaseType.GENERIC)
-                .filter(dp -> !dp.isOld())
-                .collect(Collectors.toList());
+    public boolean isOutdated() {
+        return TimeUtil.isOlderThan(lastRefresh, 1, TimeUnit.HOURS);
     }
 
-    public List<DriverPackage> getDownloadedDriverPackage(AsyncMessageCollector messages, DatabaseType databaseType) {
-        try {
-                return verifyDriverPackages(driverPackages.isEmpty()?cachedDriverPackages:driverPackages).stream()
-                        .filter(dp -> dp.getDatabaseType() == databaseType || databaseType == DatabaseType.GENERIC)
-                        .filter(driverPackage -> DriverDownloadManager.getInstance().isPackageDownloaded(driverPackage.getId(), driverPackages.isEmpty()))
-                        .collect(Collectors.toList());
-
-        } catch (Exception e) {
-            messages.addErrorMessage(e.getMessage());
-            return new ArrayList<>();
-        }
+    public List<DriverPackage> getDriverPackages(Predicate<DriverPackage> predicate) {
+        refreshDriverPackages();
+        return driverPackages.values().stream().sorted().filter(predicate).collect(Collectors.toList());
     }
+
 
     @NotNull
+    public DriverPackage ensureDriverPackage(String packageId) {
+        return driverPackages.computeIfAbsent(packageId, id -> new DriverPackage(id));
+    }
+
+    @Nullable
     public DriverPackage getDriverPackage(String packageId) {
-        Optional<DriverPackage> driverPackage = driverPackages.stream()
-                .filter(p -> p.getId().equals(packageId))
-                .findFirst();
-
-        if (driverPackage.isPresent()) {
-            return driverPackage.get();
-        }
-
-        DriverPackage newPackage = new DriverPackage(packageId);
-        if (driverPackages == null) {
-            driverPackages = new ArrayList<>();
-        }
-        driverPackages.add(newPackage);
-
-        return newPackage;
-    }
-
-    @NotNull
-    public DriverPackage getCachedDriverPackage(String packageId) {
-        Optional<DriverPackage> driverPackage = cachedDriverPackages.stream()
-                .filter(p -> p.getId().equals(packageId))
-                .findFirst();
-
-        if (driverPackage.isPresent()) {
-            return driverPackage.get();
-        }
-
-        DriverPackage newPackage = new DriverPackage(packageId);
-        newPackage.setOld(true);
-        if (cachedDriverPackages == null) {
-            cachedDriverPackages = new ArrayList<>();
-        }
-        cachedDriverPackages.add(newPackage);
-
-        return newPackage;
+        return driverPackages.computeIfAbsent(packageId, id -> new DriverPackage(id));
     }
 
     /**
      * Verifies the checksums for the given list of DriverPackage objects.
      * Cleans up packages (via DriverDownloadManager) if checksums fail.
      *
-     * @param driverPackages The list of DriverPackage objects to verify.
-     * @return The same list of DriverPackage objects (for convenience).
      * @throws Exception If any I/O or related errors occur during verification.
      */
-    private List<DriverPackage> verifyDriverPackages(List<DriverPackage> driverPackages) throws Exception {
+    private void verifyDriverPackages() throws Exception {
         // Check if there's any package status to process
-        if (!DriverDownloadManager.getInstance().getPackagesStatus().isEmpty()) {
-            for (DriverPackage driverPackage : driverPackages) {
-                String packageId = driverPackage.getId();
-                // If path is null, nothing to validate here
-                if (driverPackage.getPath() == null) {
-                    continue;
+        DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
+        if (downloadManager.getPackagesStatus().isEmpty()) return;
+
+        for (DriverPackage driverPackage : driverPackages.values()) {
+            String packageId = driverPackage.getId();
+            String downloadPath = downloadManager.getDownloadPath(packageId);
+
+            // If path is null, nothing to validate here
+            if (downloadPath == null) continue;
+
+            File packageDir = new File(downloadPath);
+            File checksumFile = new File(getDriverPackageChecksumsLocation(), packageId + ".txt");
+
+            // If no checksum file exists, all libraries are set to NEW
+            if (!checksumFile.exists()) {
+                for (Library library : driverPackage.getLibraries()) {
+                    String jarId = library.getArtifactId() + "-" + library.getVersion();
+                    downloadManager.setDownloadStatus(packageId, jarId, DownloadStatus.NEW);
                 }
+                continue;
+            }
 
-                File packageDir = new File(driverPackage.getPath());
-                File checksumFile = new File(getDriverPackageChecksumsLocation(), packageId + ".txt");
-
-                // If no checksum file exists, all libraries are set to NEW
-                if (!checksumFile.exists()) {
-                    for (Library library : driverPackage.getLibraries()) {
-                        String jarId = library.getArtifactId() + "-" + library.getVersion();
-                        DriverDownloadManager.getInstance()
-                                .updateJarDownloadStatus(packageId, jarId, DownloadStatus.NEW);
+            // Verify each line (artifactId-version, expectedChecksum)
+            try (BufferedReader reader = new BufferedReader(new FileReader(checksumFile))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] parts = line.split(" ");
+                    if (parts.length != 2) {
+                        continue;
                     }
-                    continue;
-                }
 
-                // Verify each line (artifactId-version, expectedChecksum)
-                try (BufferedReader reader = new BufferedReader(new FileReader(checksumFile))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        String[] parts = line.split(" ");
-                        if (parts.length != 2) {
-                            continue;
-                        }
+                    String artifactIdVersion = parts[0]; // e.g., artifactId-version
+                    String expectedChecksum = parts[1];
+                    File jarFile = new File(packageDir, artifactIdVersion + ".jar");
 
-                        String artifactIdVersion = parts[0]; // e.g., artifactId-version
-                        String expectedChecksum = parts[1];
-                        File jarFile = new File(packageDir, artifactIdVersion + ".jar");
-
-                        if (!jarFile.exists()
-                                || !verifyChecksum(jarFile, expectedChecksum, artifactIdVersion)) {
-                            // If something is wrong, clean up and move on
-                            DriverDownloadManager.getInstance().cleanupPackage(packageId);
-                            break;
-                        }
+                    if (!jarFile.exists()
+                            || !verifyChecksum(jarFile, expectedChecksum, artifactIdVersion)) {
+                        // If something is wrong, clean up and move on
+                        downloadManager.cleanupPackage(packageId);
+                        break;
                     }
                 }
             }
         }
-        return driverPackages;
     }
 
     private boolean verifyChecksum(File outputFile, String expectedChecksum, String artifactIdAndVersion) {
@@ -228,6 +176,27 @@ public class DriverPackageMetadata {
             System.err.println("Checksum verification failed for " + artifactIdAndVersion +
                     "! Expected: " + expectedChecksum + ", Actual: " + actualChecksum);
             return false;
+        }
+    }
+
+    @Override
+    public void readState(Element element) {
+        lastRefresh = longAttribute(element, "last-refresh", lastRefresh);
+
+        for (Element packageElement : element.getChildren("package")) {
+            String packageId = stringAttribute(packageElement, "id");
+            DriverPackage driverPackage = ensureDriverPackage(packageId);
+            driverPackage.readState(packageElement);
+        }
+    }
+
+    @Override
+    public void writeState(Element element) {
+        setLongAttribute(element, "last-refresh", lastRefresh);
+
+        for (DriverPackage driverPackage : driverPackages.values()) {
+            Element packageElement = newElement(element, "package");
+            driverPackage.writeState(packageElement);
         }
     }
 }

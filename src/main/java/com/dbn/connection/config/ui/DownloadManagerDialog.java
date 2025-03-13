@@ -16,11 +16,11 @@
 
 package com.dbn.connection.config.ui;
 
-import com.dbn.common.message.AsyncMessageCollector;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.DatabaseType;
-import com.dbn.driver.download.metadata.DriverPackage;
+import com.dbn.driver.download.DriverDownloadManager;
 import com.dbn.driver.download.DriverPackageDownloader;
+import com.dbn.driver.download.metadata.DriverPackage;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,9 +31,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 
 public class DownloadManagerDialog extends DBNDialog<DownloadManagerForm> {
     private final DatabaseType databaseType;
-    DriverPackage selectedDriverPackage;
-    DownloadManagerForm downloadManagerForm;
-    List<DriverPackage> driverPackages;
+    private final List<DriverPackage> driverPackages;
 
     public DownloadManagerDialog(Project project, DatabaseType databaseType, List<DriverPackage> driverPackages) {
         super(project, "Libraries Download Manager", true);
@@ -48,8 +46,7 @@ public class DownloadManagerDialog extends DBNDialog<DownloadManagerForm> {
     @NotNull
     @Override
     protected DownloadManagerForm createForm() {
-        downloadManagerForm = new DownloadManagerForm(this, databaseType, driverPackages);
-        return downloadManagerForm;
+        return new DownloadManagerForm(this, databaseType, driverPackages);
     }
 
     @NotNull
@@ -64,7 +61,6 @@ public class DownloadManagerDialog extends DBNDialog<DownloadManagerForm> {
     @Override
     public void doOKAction() {
         handleDownloadButtonClick();
-
     }
 
     @Override
@@ -73,15 +69,26 @@ public class DownloadManagerDialog extends DBNDialog<DownloadManagerForm> {
     }
 
     private void handleDownloadButtonClick() {
-        selectedDriverPackage = getSelection(downloadManagerForm.libraryPackageComboBox);
-        selectedDriverPackage.setPath(downloadManagerForm.libraryPathTextField.getText());
+        DownloadManagerForm form = getForm();
+        DriverPackage driverPackage = getSelection(form.libraryPackageComboBox);
+        if (driverPackage == null) return;
+
+        String downloadPath = getSelectedDownloadPath();
+
+        DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
+        downloadManager.setPackageDownloadPath(driverPackage.getId(), downloadPath);
+
         DriverPackageDownloader downloader = new DriverPackageDownloader();
-        downloader.downloadDriverPackage(getProject(), selectedDriverPackage, (String errorMessage) -> {
+        downloader.downloadDriverPackage(getProject(), driverPackage, (String errorMessage) -> {
             if(errorMessage.isBlank()) this.close(0);
             else {
-                downloadManagerForm.errorHintLabel.setText(errorMessage);
-                downloadManagerForm.errorHintLabel.setVisible(true);
+                form.errorHintLabel.setText(errorMessage);
+                form.errorHintLabel.setVisible(true);
             }
         });
+    }
+
+    public String getSelectedDownloadPath() {
+        return getForm().libraryPathTextField.getText();
     }
 }

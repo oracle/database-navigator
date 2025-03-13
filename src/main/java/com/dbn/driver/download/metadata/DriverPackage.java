@@ -21,11 +21,16 @@ import com.dbn.connection.DatabaseType;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 /**
  * DriverPackage represents a set of Maven libraries required for a specific database driver.
@@ -44,15 +49,13 @@ import static com.dbn.common.options.setting.Settings.*;
  * @author Ayoub Aarrasse
  */
 @Getter
-public class DriverPackage implements PersistentStateElement {
-    private final String id;
+@Setter
+public class DriverPackage implements PersistentStateElement, Comparable<DriverPackage> {
+    private String id;
     private String name;
-    @Setter
-    private String path;
     private DatabaseType databaseType;
     private List<Library> libraries = new ArrayList<>();
-    @Setter
-    private boolean old;
+    private boolean obsolete;
 
     public DriverPackage(String id, String name, DatabaseType databaseType, List<Library> libraries) {
         this.id = id;
@@ -61,14 +64,19 @@ public class DriverPackage implements PersistentStateElement {
         this.libraries = libraries;
     }
 
-    public DriverPackage(String id){
-        this.id =id;
+    public DriverPackage(String id) {
+        this.id = id;
+    }
+
+    public boolean matches(DatabaseType databaseType) {
+        return this.databaseType == databaseType || databaseType == DatabaseType.GENERIC;
     }
 
     @Override
     public String toString() {
         return name;
     }
+
     public int size() {
         return libraries.size();
     }
@@ -76,7 +84,6 @@ public class DriverPackage implements PersistentStateElement {
     @Override
     public void readState(Element element) {
         this.name = stringAttribute(element, "name");
-        this.path = stringAttribute(element, "path");
         this.databaseType = enumAttribute(element, "database-type", DatabaseType.class);
         for (Element libElement : element.getChildren("library")) {
             Library library = new Library(
@@ -93,11 +100,15 @@ public class DriverPackage implements PersistentStateElement {
     public void writeState(Element element) {
         setStringAttribute(element, "id", id);
         setStringAttribute(element, "name", name);
-        setStringAttribute(element, "path", path);
         setEnumAttribute(element, "database-type", databaseType);
         for (Library library : libraries) {
             Element libElement = newElement(element, "library");
             library.writeState(libElement);
         }
+    }
+
+    @Override
+    public int compareTo(@NotNull DriverPackage o) {
+        return this.name.compareTo(o.name);
     }
 }
