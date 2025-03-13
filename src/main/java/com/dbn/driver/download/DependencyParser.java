@@ -64,7 +64,6 @@ public class DependencyParser {
 
     public static List<Library> resolveDependencies(Library library, String type) throws Exception {
         List<Library> libraries = new ArrayList<>();
-        // Run the network operation in a background thread
 
         RepositorySystem repositorySystem = newRepositorySystem();
 
@@ -95,13 +94,7 @@ public class DependencyParser {
 
     private static void traverse(DependencyNode node, List<Library> libraries) {
         if (node.getArtifact() != null) {
-            String artifactKey = node.getArtifact().getGroupId() + ":" + node.getArtifact().getArtifactId() + ":" + node.getArtifact().getVersion();
-
-            if (libraries.stream().noneMatch(lib -> lib.getArtifactId().equals(node.getArtifact().getArtifactId()))) {
-                // Retrieve metadata from the map
-                Pair<List<Developer>, List<License>> metadata = metadataMap.getOrDefault(artifactKey, Pair.of(Collections.emptyList(), Collections.emptyList()));
-                libraries.add(new Library(node, metadata.first(), metadata.second()));
-            }
+            doTraverse(node, libraries);
         }
         for (DependencyNode child : node.getChildren()) {
             traverse(child, libraries);
@@ -110,39 +103,34 @@ public class DependencyParser {
 
     private static void traverse(DependencyNode node, List<Library> libraries, Library rootLibrary) {
         if (node.getArtifact() != null && !rootLibrary.is(node.getArtifact())) {
-            String artifactKey = node.getArtifact().getGroupId() + ":" + node.getArtifact().getArtifactId() + ":" + node.getArtifact().getVersion();
-
-            if (libraries.stream().noneMatch(lib -> lib.getArtifactId().equals(node.getArtifact().getArtifactId()))) {
-                // Retrieve metadata from the map
-                Pair<List<Developer>, List<License>> metadata = metadataMap.getOrDefault(artifactKey, Pair.of(Collections.emptyList(), Collections.emptyList()));
-                libraries.add(new Library(node, metadata.first(), metadata.second()));
-            }
+            doTraverse(node, libraries);
         }
         for (DependencyNode child : node.getChildren()) {
             traverse(child, libraries);
         }
     }
 
+    private static void doTraverse(DependencyNode node, List<Library> libraries) {
+        String artifactKey = node.getArtifact().getGroupId() + ":" + node.getArtifact().getArtifactId() + ":" + node.getArtifact().getVersion();
+
+        if (libraries.stream().noneMatch(lib -> lib.getArtifactId().equals(node.getArtifact().getArtifactId()))) {
+            // Retrieve metadata from the map
+            Pair<List<Developer>, List<License>> metadata = metadataMap.getOrDefault(artifactKey, Pair.of(Collections.emptyList(), Collections.emptyList()));
+            libraries.add(new Library(node, metadata.first(), metadata.second()));
+        }
+    }
 
     private static RepositorySystem newRepositorySystem() {
         DefaultServiceLocator locator = MavenRepositorySystemUtils.newServiceLocator();
 
         // Add required services
-        locator.addService(TransporterFactory.class, CustomTransporterFactory.class);
         locator.addService(LocalRepositoryManagerFactory.class, org.eclipse.aether.internal.impl.SimpleLocalRepositoryManagerFactory.class);
         locator.addService(org.eclipse.aether.spi.connector.RepositoryConnectorFactory.class,
                 org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory.class);
         locator.setService(ArtifactResolver.class, CustomArtifactResolver.class);
-        locator.setErrorHandler(new DefaultServiceLocator.ErrorHandler() {
-            @Override
-            public void serviceCreationFailed(Class<?> type, Class<?> impl, Throwable exception) {
-                exception.printStackTrace();
-            }
-        });
 
         return locator.getService(RepositorySystem.class);
     }
-
 
     private static RepositorySystemSession newRepositorySystemSession(RepositorySystem system) {
         DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
@@ -152,63 +140,6 @@ public class DependencyParser {
 
         return session;
     }
-
-    // Custom Transporter
-    static class CustomTransporter implements Transporter {
-        @Override
-        public void close() {
-        }
-
-        @Override
-        public int classify(Throwable throwable) {
-            return 0;
-        }
-
-        @Override
-        public void peek(PeekTask peekTask) {
-
-        }
-
-        @Override
-        public void get(GetTask task) throws Exception {
-            try {
-                File targetFile = new File(task.getDataFile().getAbsolutePath());
-
-                String relativePath = task.getLocation().toString(); // Artifact path relative to the repository
-
-                String fullUrl = central_url.endsWith("/") ? central_url + relativePath : central_url + "/" + relativePath;
-
-                System.out.println("Downloading from: " + fullUrl); // Debug: Log the full URL
-
-                // Use DownloadUtil to download the artifact and ensure ideal
-                // handling of download ( taking proxy into consideration )
-                Downloads.downloadAtomically(null, fullUrl, targetFile);
-
-            } catch (Exception e) {
-                throw new Exception("Error during download", e);
-            }
-        }
-
-        @Override
-        public void put(PutTask task) throws Exception {
-            throw new UnsupportedOperationException("Uploads are not supported.");
-        }
-    }
-
-    // Factory for the custom transporter
-    static class CustomTransporterFactory implements TransporterFactory {
-
-        @Override
-        public Transporter newInstance(RepositorySystemSession repositorySystemSession, RemoteRepository remoteRepository) throws NoTransporterException {
-            return new CustomTransporter();
-        }
-
-        @Override
-        public float getPriority() {
-            return 100; // Higher priority
-        }
-    }
-
 
     static class CustomArtifactResolver extends DefaultArtifactResolver {
 

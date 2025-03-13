@@ -17,20 +17,16 @@
 package com.dbn.driver.download;
 
 import com.dbn.common.load.ProgressMonitor;
-import com.dbn.common.message.AsyncMessageCollector;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.util.Files;
 import com.dbn.driver.download.metadata.DriverPackage;
 import com.dbn.driver.download.metadata.Library;
-import com.github.weisj.jsvg.D;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 

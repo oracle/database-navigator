@@ -42,7 +42,7 @@ public class DriverPackageInfoForm extends DBNFormBase {
     public DriverPackageInfoForm(@Nullable Disposable parent, DriverPackage driverPackage) {
         super(parent);
 
-        initHeaderPanel(driverPackage.getId(), EnvironmentType.DEVELOPMENT);
+        initHeaderPanel(driverPackage.getId());
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         for (Library library : driverPackage.getLibraries()) {
             LibraryInfoForm libraryInfoForm = new LibraryInfoForm(library);
@@ -61,10 +61,10 @@ public class DriverPackageInfoForm extends DBNFormBase {
         mainPanel.add(scrollPane, BorderLayout.CENTER);
     }
 
-    private void initHeaderPanel(String libraryName, EnvironmentType environmentType) {
+    private void initHeaderPanel(String libraryName) {
         DBNHeaderForm headerForm = new DBNHeaderForm(this);
         headerForm.setTitle(libraryName);
-        headerForm.setBackground(environmentType.getColor());
+        headerForm.setBackground(EnvironmentType.DEVELOPMENT.getColor());
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
         headerPanel.setBorder(new EmptyBorder(0, 0, 10, 0));
 

@@ -33,7 +33,7 @@ import java.awt.Insets;
 import java.util.List;
 
 public class LibraryInfoForm extends DBNFormBase {
-    private Library library;
+    private final Library library;
     private JPanel libraryInfoPanel;
     public LibraryInfoForm(Library library){
         super(null);

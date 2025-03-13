@@ -37,6 +37,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Separator;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
@@ -139,7 +140,15 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             });
         });
         downloadButton.addActionListener(e -> {
-            showDownloadPopup(downloadButton, DriverDownloadManager.getDriverPackageMetadata().getDownloadedDriverPackage(messages, getDatabaseType()));
+            Progress.modal(ensureProject(),
+                    null, false,
+                    "Verifying downloaded packages", "",
+                     indicator -> {
+                         List<DriverPackage> driverPackages = DriverDownloadManager.getDriverPackageMetadata().getDownloadedDriverPackage(messages, getDatabaseType());
+                         ApplicationManager.getApplication().invokeLater(()->showDownloadPopup(downloadButton, driverPackages));
+                        }
+                    );
+
         });
     }
 

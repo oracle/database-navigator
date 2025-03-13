@@ -22,7 +22,6 @@ import com.dbn.common.message.MessageCollector;
 import com.intellij.openapi.progress.ProgressIndicator;
 import lombok.Getter;
 
-import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
