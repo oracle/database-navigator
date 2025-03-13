@@ -19,32 +19,90 @@ package com.dbn.driver.download;
 import com.dbn.common.message.AsyncMessageCollector;
 import com.dbn.common.message.Message;
 import com.dbn.common.message.MessageCollector;
+import com.dbn.common.progress.ProgressIndicatorDelegate;
 import com.intellij.openapi.progress.ProgressIndicator;
 import lombok.Getter;
+import lombok.SneakyThrows;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class DownloadSession {
+import static com.dbn.common.thread.Progress.progressOf;
+
+@Getter
+public class DownloadSession extends ProgressIndicatorDelegate {
     private final MessageCollector messages = new AsyncMessageCollector();
-    @Getter
-    private final String downloadPath;
-    @Getter
-    private final ProgressIndicator progressIndicator;
-    @Getter
-    private final CountDownLatch latch;
-    @Getter
+    private int downloadSize;
+    private String downloadPath;
+    private AtomicInteger outstandingSize;
+    private CountDownLatch countDownLatch;
+
     private final List<String> downloadedArtifacts = new CopyOnWriteArrayList<>();
 
-    public DownloadSession(ProgressIndicator progressIndicator, String path, int size) {
-        this.progressIndicator = progressIndicator;
-        this.downloadPath = path;
-        this.latch = new CountDownLatch(size);
+    public DownloadSession(ProgressIndicator progressIndicator) {
+        super(progressIndicator);
+        setIndeterminate(true);
+        setFraction(0.0);
+    }
+
+    public DownloadSession withDownloadSize(int downloadSize) {
+         this.downloadSize = downloadSize;
+         this.outstandingSize = new AtomicInteger(downloadSize);
+         return this;
+    }
+
+    public DownloadSession withDownloadPath(String downloadPath) {
+        this.downloadPath = downloadPath;
+        return this;
+    }
+
+    public DownloadSession withLatchControl() {
+        if (downloadSize == 0) throw new IllegalStateException("Download size must be set before latch control is enabled");
+        this.countDownLatch = new CountDownLatch(downloadSize);
+        return this;
     }
 
     public void countDown() {
-        latch.countDown();
+        outstandingSize.decrementAndGet();
+        if (countDownLatch != null) {
+            countDownLatch.countDown();
+        }
+    }
+
+    public void updateProgress(String text2) {
+        super.setFraction(getProgress());
+        super.setText2(text2);
+    }
+
+    @Override
+    public void setFraction(double fraction) {
+        // prevent updates from within com.intellij.platform.templates.github.DownloadUtil
+    }
+
+    @Override
+    public void setText2(String text) {
+        System.out.println();
+        // prevent updates from within com.intellij.platform.templates.github.DownloadUtil
+    }
+
+    public boolean isComplete() {
+        return outstandingSize.get() == 0;
+    }
+
+    @SneakyThrows
+    public boolean awaitCompletion() {
+        return countDownLatch.await(500, TimeUnit.MILLISECONDS);
+    }
+
+    public double getProgress() {
+        return progressOf(downloadSize - getOutstandingSize(), downloadSize);
+    }
+
+    public int getOutstandingSize() {
+        return outstandingSize.get();
     }
 
     public void addInfoMessage(String message) {

@@ -61,10 +61,10 @@ public class MavenArtifactDownloader {
         try {
             session.addDownloadedArtifacts(artifactId + "-" + version + ".jar");
 
-            Downloads.downloadAtomically(session.getProgressIndicator(), artifactUrl, outputFile);
+            Downloads.downloadAtomically(session, artifactUrl, outputFile);
             System.out.println("Artifact downloaded to: " + outputFile.getAbsolutePath());
 
-            String expectedChecksum = getLibraryChecksum(session.getProgressIndicator(), checksumUrl);
+            String expectedChecksum = getLibraryChecksum(session, checksumUrl);
             return verifyChecksum(expectedChecksum, outputFile, packageId, artifactId, version, groupId);
         } catch (IOException e) {
             deleteFile(outputFile);

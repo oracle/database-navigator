@@ -17,7 +17,6 @@
 package com.dbn.driver.download;
 
 import com.dbn.common.download.Downloads;
-import com.dbn.common.message.AsyncMessageCollector;
 import com.dbn.connection.DatabaseType;
 import com.dbn.driver.download.metadata.DriverPackage;
 import com.dbn.driver.download.metadata.Library;
@@ -44,31 +43,31 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.thread.Progress.installThreadInterrupter;
 
 public class DriverMetadataDownloader {
-    private AsyncMessageCollector messages;
 
     @SneakyThrows
-    public DriverPackage createDriverPackage(Element element, ProgressIndicator indicator, AsyncMessageCollector messages, float chunk){
-        installThreadInterrupter(indicator);
+    public DriverPackage createDriverPackage(Element element, DownloadSession session){
+        installThreadInterrupter(session);
 
-        this.messages = messages;
         String id = stringAttribute(element, "id");
         String name = stringAttribute(element, "name");
         String databaseType = stringAttribute(element, "database-type");
 
         // Collect libraries from each child "library" element
         List<Library> libraries = element.getChildren("library").parallelStream()
-                .flatMap(libElement -> createLibrary(libElement, indicator).stream()) // Flatten lists of libraries
+                .flatMap(libElement -> createLibrary(libElement, session).stream()) // Flatten lists of libraries
                 .collect(Collectors.toList());
         int placeholderCount = countPlaceholders(id);
 
         id = getFormattedString(id, libraries, placeholderCount, true);
-        indicator.setText("Downloaded Metadata for " + id);
-        indicator.setFraction(indicator.getFraction() + chunk);
         // Pattern to find %s occurrences
         placeholderCount = countPlaceholders(name);
 
         name = getFormattedString(name, libraries, placeholderCount, false);
-        return new DriverPackage(id, name, DatabaseType.resolve(databaseType), libraries);
+        DriverPackage driverPackage = new DriverPackage(id, name, DatabaseType.resolve(databaseType), libraries);
+
+        session.countDown();
+        session.updateProgress("Downloaded metadata for " + id);
+        return driverPackage;
     }
 
     private String getFormattedString(String s, List<Library> libraries, int placeholderCount, boolean abridged) {

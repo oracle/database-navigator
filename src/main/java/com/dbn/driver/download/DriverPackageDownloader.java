@@ -22,12 +22,10 @@ import com.dbn.common.thread.Progress;
 import com.dbn.driver.download.metadata.DriverPackage;
 import com.dbn.driver.download.metadata.Library;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class DriverPackageDownloader {
@@ -36,10 +34,16 @@ public class DriverPackageDownloader {
     public void downloadDriverPackage(Project project, DriverPackage driverPackage, Consumer<String> updateUI) {
         this.updateUI = updateUI;
         Progress.modal(project, null, true,
-                "Downloading Driver Package: " + driverPackage.getName(),
-                "",
+                "Downloading Drivers",
+                "Downloading driver packages for " + driverPackage.getName(),
                 indicator -> {
-                    DownloadSession downloadSession = new DownloadSession(indicator, driverPackage.getPath(), driverPackage.getLibraries().size());
+                    int downloadCount = driverPackage.getLibraries().size();
+                    String downloadPath = driverPackage.getPath();
+
+                    DownloadSession downloadSession = new DownloadSession(indicator)
+                            .withDownloadSize(downloadCount)
+                            .withDownloadPath(downloadPath)
+                            .withLatchControl();
                     runProgress(downloadSession, driverPackage);
                 });
     }
@@ -48,11 +52,9 @@ public class DriverPackageDownloader {
         String packageId = driverPackage.getId();
         List<Library> libraryList = driverPackage.getLibraries();
 
-        setupIndicator(session.getProgressIndicator());
-
         for (Library library : libraryList) {
             if(ProgressMonitor.isProgressCancelled()) break;
-            downloadLibraryAsync(session, packageId, library, driverPackage.size());
+            downloadLibraryAsync(session, packageId, library);
         }
 
         awaitLatchCompletion(session, packageId);
@@ -60,13 +62,10 @@ public class DriverPackageDownloader {
         handleCompletion(packageId, session, libraryList);
     }
 
-    private void setupIndicator(ProgressIndicator indicator) {
-        indicator.setIndeterminate(false);
-        indicator.setFraction(0.01);
-    }
-
-    private void downloadLibraryAsync(DownloadSession session, String packageId,
-                                             Library library, int fileCount) {
+    private void downloadLibraryAsync(
+            DownloadSession session,
+            String packageId,
+            Library library) {
         Background.run(() -> {
             if (!session.getErrorMessages().isEmpty()) {
                 session.countDown();
@@ -79,7 +78,7 @@ public class DriverPackageDownloader {
                 attemptDownload(session, packageId, library);
             }
 
-            updateProgress(session, currentFile, fileCount);
+            updateProgress(session, currentFile);
         });
     }
 
@@ -109,26 +108,24 @@ public class DriverPackageDownloader {
         return html.toString();
     }
 
-    private void updateProgress(DownloadSession session, String currentFile, int fileCount) {
+    private void updateProgress(DownloadSession session, String currentFile) {
         session.countDown();
-        session.getProgressIndicator().setText("Downloading " + currentFile);
-        session.getProgressIndicator().setFraction((double) (fileCount-session.getLatch().getCount()) / fileCount);
+        session.updateProgress("Downloading " + currentFile);
     }
 
     private void awaitLatchCompletion(DownloadSession session, String packageId) {
         try {
-            while (session.getLatch().getCount() > 0) {
+            while (!session.isComplete()) {
                 if (ProgressMonitor.isProgressCancelled()) {
                     session.addInfoMessage("Download process cancelled for package: " + packageId);
                     break;
                 }
-                if (session.getLatch().await(500, TimeUnit.MILLISECONDS)) {
+                if (session.awaitCompletion()) {
                     break;
                 }
             }
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             session.addErrorMessage("Download process interrupted for package: " + packageId);
-            Thread.currentThread().interrupt();
         }
     }
 

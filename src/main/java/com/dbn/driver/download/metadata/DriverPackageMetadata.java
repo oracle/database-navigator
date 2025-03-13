@@ -21,10 +21,10 @@ import com.dbn.common.checksum.ChecksumType;
 import com.dbn.common.message.AsyncMessageCollector;
 import com.dbn.common.util.XmlContents;
 import com.dbn.connection.DatabaseType;
+import com.dbn.driver.download.DownloadSession;
 import com.dbn.driver.download.DownloadStatus;
 import com.dbn.driver.download.DriverDownloadManager;
 import com.dbn.driver.download.DriverMetadataDownloader;
-import com.intellij.openapi.progress.ProgressIndicator;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jdom.Element;
@@ -72,12 +72,16 @@ public class DriverPackageMetadata {
     private List<DriverPackage> cachedDriverPackages = new ArrayList<>();
 
     @SneakyThrows
-    public void ensureDriverPackages(ProgressIndicator indicator, AsyncMessageCollector messages) {
+    public void ensureDriverPackages(DownloadSession session) {
         if(!driverPackages.isEmpty()) return;
         Element element = XmlContents.fileToElement(getClass(), "driver-packages.xml");
         List<Element> packageElements = element.getChildren("driver-package");
+        session.withDownloadSize(packageElements.size());
+
+
         Function<Element, DriverPackage> driverPackageFunction = e->
-                new DriverMetadataDownloader().createDriverPackage(e, indicator, messages,(float) 1 /packageElements.size());
+                new DriverMetadataDownloader().createDriverPackage(e, session);
+
         List<DriverPackage> newlyLoadedPackages = convertParallel(packageElements, driverPackageFunction);
         for (DriverPackage newPkg : newlyLoadedPackages) {
             cachedDriverPackages.stream()
@@ -98,8 +102,8 @@ public class DriverPackageMetadata {
         driverPackages = unmodifiableList(newlyLoadedPackages);
     }
 
-    public List<DriverPackage> getAllDriverPackages(DatabaseType databaseType, ProgressIndicator indicator, AsyncMessageCollector messages) {
-        ensureDriverPackages(indicator, messages);
+    public List<DriverPackage> loadAllDriverPackages(DownloadSession session, DatabaseType databaseType) {
+        ensureDriverPackages(session);
         return driverPackages.stream().filter(dp -> dp.getDatabaseType() == databaseType || databaseType == DatabaseType.GENERIC)
                 .filter(dp -> !dp.isOld())
                 .collect(Collectors.toList());

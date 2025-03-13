@@ -31,14 +31,16 @@ import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.driver.DatabaseDriverManager;
 import com.dbn.driver.DriverBundle;
 import com.dbn.driver.DriverSource;
+import com.dbn.driver.download.DownloadSession;
 import com.dbn.driver.download.DriverDownloadManager;
 import com.dbn.driver.download.metadata.DriverPackage;
+import com.dbn.driver.download.metadata.DriverPackageMetadata;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Separator;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -142,10 +144,12 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         downloadButton.addActionListener(e -> {
             Progress.modal(ensureProject(),
                     null, false,
-                    "Verifying downloaded packages", "",
+                    "Loading Drivers",
+                    "Loading driver package metadata...",
                      indicator -> {
-                         List<DriverPackage> driverPackages = DriverDownloadManager.getDriverPackageMetadata().getDownloadedDriverPackage(messages, getDatabaseType());
-                         ApplicationManager.getApplication().invokeLater(()->showDownloadPopup(downloadButton, driverPackages));
+                         DriverPackageMetadata packageMetadata = DriverDownloadManager.getDriverPackageMetadata();
+                         List<DriverPackage> driverPackages = packageMetadata.getDownloadedDriverPackage(messages, getDatabaseType());
+                         dispatch(()->showDownloadPopup(downloadButton, driverPackages));
                         }
                     );
 
@@ -194,8 +198,8 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                     try {
                         drivers = driverManager.loadDrivers(new File(driverLibrary), false);
                     } catch (Exception e) {
+                        error = e.getMessage();
                         conditionallyLog(e);
-                        Messages.showErrorDialog(getProject(), e.getMessage());
                     }
                     DriverOption selectedOption = getSelection(driverComboBox);
                     initComboBox(driverComboBox);
@@ -229,15 +233,15 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                 initComboBox(driverComboBox);
                 //driverComboBox.addItem("");
             }
+        }
 
-            if (error != null) {
-                driverErrorLabel.setIcon(Icons.COMMON_ERROR);
-                driverErrorLabel.setText(error);
-                driverErrorLabel.setVisible(true);
-            } else {
-                driverErrorLabel.setText("");
-                driverErrorLabel.setVisible(false);
-            }
+        if (error != null) {
+            driverErrorLabel.setIcon(Icons.COMMON_ERROR);
+            driverErrorLabel.setText(error);
+            driverErrorLabel.setVisible(true);
+        } else {
+            driverErrorLabel.setText("");
+            driverErrorLabel.setVisible(false);
         }
     }
 
@@ -317,31 +321,35 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             @Override
             public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
                 Project project = getProject();
-                DatabaseType databaseType = getDatabaseType();
                 Progress.modal(project, null, true,
-                        "Downloading libraries metadata",
-                        "",
-                        indicator -> {
-                            indicator.setIndeterminate(false);
-                            indicator.setFraction(0.01);
-                            try {
-                                driverPackages.clear();
-                                driverPackages.addAll(DriverDownloadManager.getDriverPackageMetadata().getAllDriverPackages(databaseType, indicator, messages));
-                                Dialogs.show(() -> new DownloadManagerDialog(project, databaseType, driverPackages), (dialog, exitCode) -> {
-                                    when(exitCode != DialogWrapper.CANCEL_EXIT_CODE, () -> driverLibraryTextField.setText(dialog.selectedDriverPackage.getPath()));
-                                });
-                            } catch (Exception e) {
-                                Messages.showErrorDialog(project, "Failed to download driver libraries metadata", e);
-                            }
-
-                        });
+                        "Loading Drivers",
+                        "Loading driver package metadata...",
+                        indicator -> initDownloadManagerDialog(indicator));
             }
         });
         popupBuilder(actions, button).
-                withTitle("Hidden Tabs").
+                withTitle("Driver Libraries").
                 withTitleVisible(false).
                 withSpeedSearch().
                 buildAndShow();
+    }
+
+    private void initDownloadManagerDialog(ProgressIndicator indicator) {
+        indicator.setIndeterminate(false);
+        indicator.setFraction(0.0);
+
+        DatabaseType databaseType = getDatabaseType();
+        Project project = ensureProject();
+        try {
+            DownloadSession session = new DownloadSession(indicator);
+            DriverPackageMetadata packageMetadata = DriverDownloadManager.getDriverPackageMetadata();
+            List<DriverPackage> driverPackages = packageMetadata.loadAllDriverPackages(session, databaseType);
+            Dialogs.show(() -> new DownloadManagerDialog(project, databaseType, driverPackages), (dialog, exitCode) -> {
+                when(exitCode != DialogWrapper.CANCEL_EXIT_CODE, () -> driverLibraryTextField.setText(dialog.selectedDriverPackage.getPath()));
+            });
+        } catch (Exception e) {
+            Messages.showErrorDialog(project, "Failed to download driver libraries metadata", e);
+        }
     }
 
 }
