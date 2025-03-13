@@ -39,8 +39,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.dbn.common.util.Files.getPluginDeploymentRoot;
 import static com.dbn.common.util.Lists.convertParallel;
+import static com.dbn.driver.download.DriverDownloadManager.getDriverPackageChecksumsLocation;
 import static java.util.Collections.unmodifiableList;
 
 /**
@@ -70,7 +70,6 @@ public class DriverPackageMetadata {
     private List<DriverPackage> driverPackages = new ArrayList<>();
     @Getter
     private List<DriverPackage> cachedDriverPackages = new ArrayList<>();
-    private final String DRIVER_PACKAGES_PATH = getPluginDeploymentRoot().getPath()+"/driver-packages/checksums";
 
     @SneakyThrows
     public void ensureDriverPackages(ProgressIndicator indicator, AsyncMessageCollector messages) {
@@ -177,7 +176,7 @@ public class DriverPackageMetadata {
                 }
 
                 File packageDir = new File(driverPackage.getPath());
-                File checksumFile = new File(DRIVER_PACKAGES_PATH, packageId + ".txt");
+                File checksumFile = new File(getDriverPackageChecksumsLocation(), packageId + ".txt");
 
                 // If no checksum file exists, all libraries are set to NEW
                 if (!checksumFile.exists()) {

@@ -25,8 +25,10 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,6 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Files.getPluginDeploymentRoot;
 import static com.dbn.driver.download.DriverDownloadManager.COMPONENT_NAME;
 
 /**
@@ -68,6 +71,22 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
 
     public DriverDownloadManager() {
         super(COMPONENT_NAME);
+    }
+
+
+    @NonNls
+    public static String getDriverPackagesLocation() {
+        return getPluginDeploymentRoot().getPath() + File.separator + "driver-packages";
+    }
+
+    @NonNls
+    public static String getDriverPackageLocation(String packageId) {
+        return getDriverPackagesLocation() + File.separator + packageId;
+    }
+
+    @NonNls
+    public static String getDriverPackageChecksumsLocation() {
+        return getDriverPackagesLocation() + File.separator + "checksums";
     }
 
     /**

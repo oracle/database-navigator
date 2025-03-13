@@ -30,13 +30,11 @@ import java.io.IOException;
 import java.util.Scanner;
 import java.util.UUID;
 
-import static com.dbn.common.util.Files.getPluginDeploymentRoot;
+import static com.dbn.driver.download.DriverDownloadManager.getDriverPackageChecksumsLocation;
 
 public class MavenArtifactDownloader {
 
     private static final String MAVEN_REPO_URL = "https://repo.maven.apache.org/maven2";
-    private static final String DRIVER_PACKAGES_PATH = getPluginDeploymentRoot().getPath()+"/driver-packages/checksums";
-
 
     public static String downloadArtifact(DownloadSession session, String packageId, Library library) {
         String groupId = library.getGroupId();
@@ -122,7 +120,7 @@ public class MavenArtifactDownloader {
     private static void appendChecksumToFile(String packageId, String groupId, String artifactId, String version, String checksum) {
         ensureChecksumsDirectoryExists();
 
-        File checksumFile = new File(DRIVER_PACKAGES_PATH, packageId + ".txt");
+        File checksumFile = new File(getDriverPackageChecksumsLocation(), packageId + ".txt");
         String entry = artifactId + "-" + version + " " + checksum;
 
         synchronized (MavenArtifactDownloader.class) { // Ensure thread safety
@@ -136,7 +134,7 @@ public class MavenArtifactDownloader {
     }
 
     private static void ensureChecksumsDirectoryExists() {
-        File checksumDirectory = new File(DRIVER_PACKAGES_PATH);
+        File checksumDirectory = new File(getDriverPackageChecksumsLocation());
         if (!checksumDirectory.exists() && !checksumDirectory.mkdirs()) {
             System.err.println("Failed to create checksums directory: " + checksumDirectory.getAbsolutePath());
         }

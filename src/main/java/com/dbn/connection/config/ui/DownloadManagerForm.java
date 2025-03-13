@@ -35,7 +35,7 @@ import java.awt.Color;
 import java.util.List;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
-import static com.dbn.common.util.Files.getPluginDeploymentRoot;
+import static com.dbn.driver.download.DriverDownloadManager.getDriverPackageLocation;
 
 public class DownloadManagerForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -78,10 +78,12 @@ public class DownloadManagerForm extends DBNFormBase {
                 txt("cfg.connection.title.SelectDriverLibrary"),
                 txt("cfg.connection.text.LibraryDriverClasses"),
                 null, LIBRARY_FILE_DESCRIPTOR);
-        libraryPathTextField.setText(getPluginDeploymentRoot().getPath()+"/driver-packages/"+getSelection(libraryPackageComboBox).getId());
-        libraryPackageComboBox.addActionListener(e -> {
-            libraryPathTextField.setText(getPluginDeploymentRoot().getPath()+"/driver-packages/"+getSelection(libraryPackageComboBox).getId());
-        });
+
+        String packageId = getSelection(libraryPackageComboBox).getId();
+
+        libraryPathTextField.setText(getDriverPackageLocation(packageId));
+        libraryPackageComboBox.addActionListener(e ->
+                libraryPathTextField.setText(getDriverPackageLocation(packageId)));
     }
 
     private void handleInfoButtonClick() {
