@@ -19,6 +19,7 @@ package com.dbn.connection.config.ui;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.DatabaseType;
+import com.dbn.driver.download.DriverDownloadManager;
 import com.dbn.driver.download.metadata.DriverPackage;
 import com.dbn.driver.download.ui.DriverPackageInfoDialog;
 import com.intellij.openapi.Disposable;
@@ -35,7 +36,6 @@ import java.awt.Color;
 import java.util.List;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
-import static com.dbn.driver.download.DriverDownloadManager.getDriverPackageLocation;
 
 public class DownloadManagerForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -79,11 +79,18 @@ public class DownloadManagerForm extends DBNFormBase {
                 txt("cfg.connection.text.LibraryDriverClasses"),
                 null, LIBRARY_FILE_DESCRIPTOR);
 
-        String packageId = getSelection(libraryPackageComboBox).getId();
-
-        libraryPathTextField.setText(getDriverPackageLocation(packageId));
+        libraryPathTextField.setText(getSelectedPackageLocation());
         libraryPackageComboBox.addActionListener(e ->
-                libraryPathTextField.setText(getDriverPackageLocation(packageId)));
+                libraryPathTextField.setText(getSelectedPackageLocation()));
+    }
+
+    private String getSelectedPackageLocation() {
+        return DriverDownloadManager.getDriverPackageLocation(getSelectedPackageId());
+    }
+
+    private String getSelectedPackageId() {
+        DriverPackage driverPackage = getSelection(libraryPackageComboBox);
+        return driverPackage == null ? "" : driverPackage.getId();
     }
 
     private void handleInfoButtonClick() {
