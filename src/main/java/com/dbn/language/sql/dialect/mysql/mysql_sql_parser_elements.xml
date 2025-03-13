@@ -482,7 +482,7 @@
                 </one-of>
             </sequence>
             <sequence id="00235">
-                <token id="00236" type-id="CHR_LEFT_CURLY_BRACKET" />
+                <token id="00236" type-id="CHR_LEFT_BRACE" />
                 <token id="00237" type-id="KW_OJ" />
                 <element ref-id="dataset_reference" />
                 <token id="00238" type-id="KW_LEFT" />
@@ -491,7 +491,7 @@
                 <element ref-id="dataset_reference" />
                 <token id="00241" type-id="KW_ON" />
                 <element original-name="conditional_expr" ref-id="condition" />
-                <token id="00242" type-id="CHR_RIGHT_CURLY_BRACKET" />
+                <token id="00242" type-id="CHR_RIGHT_BRACE" />
             </sequence>
         </one-of>
         <iteration id="00243" optional="true">
