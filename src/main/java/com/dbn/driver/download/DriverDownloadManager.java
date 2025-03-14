@@ -45,6 +45,7 @@ import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Files.getPluginDeploymentRoot;
+import static com.dbn.driver.download.DownloadStatus.DONE;
 import static com.dbn.driver.download.DownloadStatus.NEW;
 import static com.dbn.driver.download.DriverDownloadManager.COMPONENT_NAME;
 
@@ -113,9 +114,11 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
     public void setDownloadStatus(String packageId, String libraryId, DownloadStatus status) {
         log.info("Download status for package {} JAR {}: {}", packageId, libraryId, status);
 
-        ensurePackageStatus(packageId)
-                .ensureLibraryStatus(libraryId)
-                .setDownloadStatus(status);
+        DriverPackageStatus.LibraryStatus libraryStatus = ensurePackageStatus(packageId).ensureLibraryStatus(libraryId);
+        libraryStatus.setDownloadStatus(status);
+        if (status == DONE) {
+            libraryStatus.setDownloadTimestamp(System.currentTimeMillis());
+        }
     }
 
     @Nullable
@@ -226,5 +229,4 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
         Element metadataElement = element.getChild("package-metadata");
         driverPackageMetadata.readState(metadataElement);
     }
-
 }

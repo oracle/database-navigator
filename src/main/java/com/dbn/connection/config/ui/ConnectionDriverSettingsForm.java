@@ -55,6 +55,7 @@ import java.io.File;
 import java.sql.Driver;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.dbn.common.ui.util.ComboBoxes.getElements;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
@@ -166,16 +167,17 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
 
         String error = null;
         DriverSource selectedDriver = getDriverSource();
+        boolean externalDriver = selectedDriver == DriverSource.EXTERNAL;
 
-        driverLibraryLabel.setVisible(selectedDriver == DriverSource.EXTERNAL);
-        driverLibraryTextField.setVisible(selectedDriver == DriverSource.EXTERNAL);
-        driverLabel.setVisible(selectedDriver == DriverSource.EXTERNAL);
-        driverComboBox.setVisible(selectedDriver == DriverSource.EXTERNAL);
-        downloadButton.setVisible(selectedDriver == DriverSource.EXTERNAL);
+        driverLibraryLabel.setVisible(externalDriver);
+        driverLibraryTextField.setVisible(externalDriver);
+        driverLabel.setVisible(externalDriver);
+        driverComboBox.setVisible(externalDriver);
+        downloadButton.setVisible(externalDriver);
 
         updateDriverReloadLink();
 
-        if (selectedDriver == DriverSource.EXTERNAL) {
+        if (externalDriver) {
             String driverLibrary = getDriverLibrary();
 
             boolean fileExists = Strings.isNotEmpty(driverLibrary) && fileExists(driverLibrary);
@@ -345,7 +347,15 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         DatabaseType databaseType = getDatabaseType();
 
         DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
-        downloadManager.openDownloadDialog(project, databaseType, p -> driverLibraryTextField.setText(p));
+        downloadManager.openDownloadDialog(project, databaseType, path -> {
+            String currentPath = driverLibraryTextField.getText();
+            if (Objects.equals(currentPath, path)) {
+                // when download targets the already specified location (initially empty)
+                updateDriverFields();
+            } else {
+                driverLibraryTextField.setText(path);
+            }
+        });
     }
 
 }

@@ -60,6 +60,7 @@ public class PackageChecksumData {
 
     @SneakyThrows
     public void readChecksums() {
+        if (!file.exists()) return;
         checksums.clear();
         List<String> lines = FileUtil.loadLines(file);
         lines.stream()

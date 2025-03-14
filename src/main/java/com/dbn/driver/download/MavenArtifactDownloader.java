@@ -120,22 +120,6 @@ public class MavenArtifactDownloader {
         DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
         PackageChecksumData checksumData = downloadManager.getChecksumData(packageId);
         checksumData.addChecksum(artifactId + "-" + version, checksum);
-
-/*
-        ensureChecksumsDirectoryExists();
-
-        File checksumFile = new File(getDriverPackageChecksumsLocation(), packageId + ".txt");
-        String entry = artifactId + "-" + version + " " + checksum;
-
-        synchronized (MavenArtifactDownloader.class) { // Ensure thread safety
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(checksumFile, true))) {
-                writer.write(entry);
-                writer.newLine();
-            } catch (IOException e) {
-                System.err.println("Failed to write checksum to file: " + e.getMessage());
-            }
-        }
-*/
     }
 
     private static void ensureChecksumsDirectoryExists() {

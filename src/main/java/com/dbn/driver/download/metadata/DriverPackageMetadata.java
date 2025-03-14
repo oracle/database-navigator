@@ -24,6 +24,7 @@ import com.dbn.driver.download.DownloadStatus;
 import com.dbn.driver.download.DriverDownloadManager;
 import com.dbn.driver.download.PackageChecksumData;
 import com.intellij.openapi.progress.ProgressIndicator;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -38,9 +39,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.dbn.common.options.setting.Settings.longAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.setLongAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 /**
@@ -65,6 +64,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
  *
  * @author Ayoub Aarrasse
  */
+@Setter
 public class DriverPackageMetadata implements PersistentStateElement {
     private long lastRefresh = 0;
     private final Map<String, DriverPackage> driverPackages = new ConcurrentHashMap<>();
@@ -153,8 +153,6 @@ public class DriverPackageMetadata implements PersistentStateElement {
 
     @Override
     public void readState(Element element) {
-        lastRefresh = longAttribute(element, "last-refresh", lastRefresh);
-
         for (Element packageElement : element.getChildren("package")) {
             String packageId = stringAttribute(packageElement, "id");
             DriverPackage driverPackage = ensureDriverPackage(packageId);
@@ -164,8 +162,6 @@ public class DriverPackageMetadata implements PersistentStateElement {
 
     @Override
     public void writeState(Element element) {
-        setLongAttribute(element, "last-refresh", lastRefresh);
-
         for (DriverPackage driverPackage : driverPackages.values()) {
             Element packageElement = newElement(element, "package");
             driverPackage.writeState(packageElement);

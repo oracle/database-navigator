@@ -54,6 +54,9 @@ public class DriverPackageDownloader {
 
     private void runProgress(DownloadSession session, DriverPackage driverPackage) {
         String packageId = driverPackage.getId();
+        PackageChecksumData checksumData = getDownloadManager().getChecksumData(packageId);
+        checksumData.readChecksums();
+
         List<Library> libraryList = driverPackage.getLibraries();
 
         for (Library library : libraryList) {
@@ -62,14 +65,9 @@ public class DriverPackageDownloader {
         }
 
         awaitLatchCompletion(session, packageId);
-        writeChecksumData(packageId);
+        checksumData.writeChecksums();
 
         handleCompletion(packageId, session);
-    }
-
-    private static void writeChecksumData(String packageId) {
-        PackageChecksumData checksumData = getDownloadManager().getChecksumData(packageId);
-        checksumData.writeChecksums();
     }
 
     private void downloadLibraryAsync(
