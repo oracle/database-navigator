@@ -56,6 +56,7 @@ public enum DatabaseObjectTypeId {
     JAVA_CLASS,
     JAVA_PRIMITIVE,
     JAVA_OBJECT,
+    JSON_VIEW,
     LIBRARY,
     LOB,
     MATERIALIZED_VIEW,
