@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Files.normalizePath;
 import static java.lang.Character.isWhitespace;
 
 @NonNls
@@ -64,7 +65,10 @@ public class OracleScriptExecutionInput extends DatabaseScriptExecutionInput {
 
         boolean tnsConnection = databaseInfo.getUrlType() == DatabaseUrlType.TNS;
         if (tnsConnection) {
-            addEnvironmentVariable("TNS_ADMIN", nvl(databaseInfo.getTnsFolder(), ""));
+            String tnsAdmin = nvl(databaseInfo.getTnsFolder(), "");
+            tnsAdmin = normalizePath(tnsAdmin);
+
+            addEnvironmentVariable("TNS_ADMIN", tnsAdmin);
         }
 
         String executable = cmdLineInterface.getExecutablePath();
