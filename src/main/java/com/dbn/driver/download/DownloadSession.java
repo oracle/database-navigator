@@ -17,12 +17,12 @@
 package com.dbn.driver.download;
 
 import com.dbn.common.message.AsyncMessageCollector;
-import com.dbn.common.message.Message;
 import com.dbn.common.message.MessageCollector;
 import com.dbn.common.progress.ProgressIndicatorDelegate;
 import com.intellij.openapi.progress.ProgressIndicator;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import lombok.experimental.Delegate;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -34,6 +34,7 @@ import static com.dbn.common.thread.Progress.progressOf;
 
 @Getter
 public class DownloadSession extends ProgressIndicatorDelegate {
+    @Delegate
     private final MessageCollector messages = new AsyncMessageCollector();
     private int downloadSize;
     private String downloadPath;
@@ -84,7 +85,6 @@ public class DownloadSession extends ProgressIndicatorDelegate {
 
     @Override
     public void setText2(String text) {
-        System.out.println();
         // prevent updates from within com.intellij.platform.templates.github.DownloadUtil
     }
 
@@ -103,22 +103,6 @@ public class DownloadSession extends ProgressIndicatorDelegate {
 
     public int getOutstandingSize() {
         return outstandingSize.get();
-    }
-
-    public void addInfoMessage(String message) {
-        messages.addInfoMessage(message);
-    }
-
-    public void addErrorMessage(String message) {
-        messages.addErrorMessage(message);
-    }
-
-    public List<Message> getInfoMessages() {
-        return messages.getInfoMessages();
-    }
-
-    public List<Message> getErrorMessages() {
-        return messages.getErrorMessages();
     }
 
     public void addDownloadedArtifacts(String artifactId) {

@@ -24,6 +24,7 @@ import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.LightVirtualFile;
@@ -32,6 +33,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
 
 @NonNls
@@ -174,5 +176,15 @@ public final class Files {
                 visitRecursively(f, visitor);
             }
         }
+    }
+
+    public static File ensureDirectory(String path) throws IOException {
+        File directory = new File(path);
+        if (directory.exists() && directory.isDirectory()) return directory;
+
+        if (!FileUtil.createDirectory(directory)) {
+            throw new IOException("Failed to create directory '" + path + "'");
+        }
+        return directory;
     }
 }

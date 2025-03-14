@@ -16,15 +16,15 @@
 package com.dbn.driver.download;
 
 import com.dbn.common.Pair;
+import com.dbn.common.util.Measured;
 import com.dbn.driver.download.metadata.Developer;
 import com.dbn.driver.download.metadata.Library;
 import com.dbn.driver.download.metadata.License;
-import com.dbn.common.download.Downloads;
-import com.dbn.common.util.Measured;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
+import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
@@ -33,33 +33,29 @@ import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.collection.CollectResult;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.DependencyNode;
-
 import org.eclipse.aether.impl.ArtifactResolver;
+import org.eclipse.aether.impl.DefaultServiceLocator;
 import org.eclipse.aether.internal.impl.DefaultArtifactResolver;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.repository.RepositoryPolicy;
-import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
-import org.eclipse.aether.spi.connector.transport.PeekTask;
-import org.eclipse.aether.spi.connector.transport.Transporter;
-import org.eclipse.aether.spi.connector.transport.TransporterFactory;
-import org.eclipse.aether.spi.connector.transport.GetTask;
-import org.eclipse.aether.spi.connector.transport.PutTask;
 import org.eclipse.aether.spi.localrepo.LocalRepositoryManagerFactory;
-import org.eclipse.aether.transfer.NoTransporterException;
-import org.eclipse.aether.impl.DefaultServiceLocator;
 import org.xml.sax.InputSource;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class DependencyParser {
-    private static String central_url;
     private static final Map<String, Pair<List<Developer>, List<License>>> metadataMap = new HashMap<>();
 
     public static List<Library> resolveDependencies(Library library, String type) throws Exception {
@@ -74,7 +70,6 @@ public class DependencyParser {
         RemoteRepository central = new RemoteRepository.Builder("central", "default", "https://repo1.maven.org/maven2/")
                 .setPolicy(new RepositoryPolicy(true, RepositoryPolicy.UPDATE_POLICY_ALWAYS, RepositoryPolicy.CHECKSUM_POLICY_IGNORE))
                 .build();
-        central_url = central.getUrl();
 
         CollectRequest collectRequest = new CollectRequest();
         collectRequest.addDependency(new Dependency(artifact2, "compile"));
@@ -178,7 +173,7 @@ public class DependencyParser {
                 metadataMap.put(artifactKey, Pair.of(devs, lic));
 
             } catch (Exception e) {
-                System.err.println("Failed to parse POM: " + e.getMessage());
+                log.warn("Failed to parse pom file '{}'", pomFile, e);
             }
         }
 

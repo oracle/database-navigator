@@ -80,6 +80,10 @@ public class Library implements PersistentStateElement {
                 && artifact.getVersion().equals(this.version);
     }
 
+    public String getArtefactPath() {
+        return groupId.replace(".", "/") + "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + ".jar";
+    }
+
     public String getLibraryId() {
         return artifactId + "-" + version;
     }

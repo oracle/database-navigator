@@ -23,12 +23,16 @@ import com.dbn.driver.download.metadata.DriverPackage;
 import com.dbn.driver.download.metadata.Library;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.io.FileUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.List;
 import java.util.function.Consumer;
 
+import static com.dbn.driver.download.MavenArtifactDownloader.downloadArtifact;
+
+@Slf4j
 public class DriverPackageDownloader {
     private Consumer<String> updateUI;
 
@@ -48,20 +52,18 @@ public class DriverPackageDownloader {
                             .withDownloadSize(downloadCount)
                             .withDownloadPath(downloadPath)
                             .withLatchControl();
-                    runProgress(downloadSession, driverPackage);
+                    downloadDriverPackage(downloadSession, driverPackage);
                 });
     }
 
-    private void runProgress(DownloadSession session, DriverPackage driverPackage) {
+    private void downloadDriverPackage(DownloadSession session, DriverPackage driverPackage) {
         String packageId = driverPackage.getId();
         PackageChecksumData checksumData = getDownloadManager().getChecksumData(packageId);
         checksumData.readChecksums();
 
-        List<Library> libraryList = driverPackage.getLibraries();
-
-        for (Library library : libraryList) {
-            if(ProgressMonitor.isProgressCancelled()) break;
-            downloadLibraryAsync(session, packageId, library);
+        for (Library library : driverPackage.getLibraries()) {
+            if (ProgressMonitor.isProgressCancelled()) break;
+            downloadDriverLibrary(session, packageId, library);
         }
 
         awaitLatchCompletion(session, packageId);
@@ -70,20 +72,20 @@ public class DriverPackageDownloader {
         handleCompletion(packageId, session);
     }
 
-    private void downloadLibraryAsync(
+    private void downloadDriverLibrary(
             DownloadSession session,
             String packageId,
             Library library) {
         Background.run(() -> {
-            if (!session.getErrorMessages().isEmpty()) {
+            if (session.hasErrors()) {
                 session.countDown();
                 return;
             }
             String currentFile = library.getArtifactId() + "-" + library.getVersion() + ".jar";
             if (isAlreadyDownloaded(packageId, library)) {
-                System.out.println("Jar " + currentFile + " already downloaded.");
+                log.info("Library '{}' download skipped. Already downloaded.", currentFile);
             } else {
-                attemptDownload(session, packageId, library);
+                downloadArtifact(session, packageId, library);
             }
 
             updateProgress(session, currentFile);
@@ -96,13 +98,6 @@ public class DriverPackageDownloader {
 
         DownloadStatus downloadStatus = downloadManager.getDownloadStatus(packageId, libraryId);
         return downloadStatus == DownloadStatus.DONE;
-    }
-
-    private void attemptDownload(DownloadSession session, String packageId, Library library) {
-        String s = MavenArtifactDownloader.downloadArtifact(session, packageId, library);
-        if (!s.isEmpty()) {
-            session.addErrorMessage(s);
-        }
     }
 
     private String toHtmlFormat(String text, int maxLineLength) {
@@ -120,7 +115,7 @@ public class DriverPackageDownloader {
 
     private void updateProgress(DownloadSession session, String currentFile) {
         session.countDown();
-        session.updateProgress("Downloading " + currentFile);
+        session.updateProgress("Downloaded " + currentFile);
     }
 
     private void awaitLatchCompletion(DownloadSession session, String packageId) {
@@ -135,13 +130,15 @@ public class DriverPackageDownloader {
                 }
             }
         } catch (Exception e) {
+            log.warn("Error waiting on download completion for package: {}", packageId, e);
             session.addErrorMessage("Download process interrupted for package: " + packageId);
         }
     }
 
     private void handleCompletion(String packageId, DownloadSession session) {
         DriverDownloadManager downloadManager = getDownloadManager();
-        if (!session.getErrorMessages().isEmpty()) {
+        if (session.hasErrors()) {
+            log.warn("Package '{}' download and verification failed.", packageId);
             session.addErrorMessage("One or more downloads failed. Cleaning up...");
             cleanupDownloadedJars(session);
             downloadManager.cleanupPackage(packageId);
@@ -149,12 +146,12 @@ public class DriverPackageDownloader {
                 updateUI.accept(toHtmlFormat(session.getErrorMessages().get(0).getText(), 50));
             });
         } else if (downloadManager.isPackageDownloaded(packageId)) {
-            System.out.println("All JARs for package " + packageId + " were successfully downloaded and verified.");
+            log.info("Package '{}' download and verification successfully completed.", packageId);
             ApplicationManager.getApplication().invokeLater(()->{
                 updateUI.accept("");
             });
         } else {
-            System.out.println("Download process cancelled for package: " + packageId);
+            log.info("Package '{}' download cancelled.", packageId);
             cleanupDownloadedJars(session);
             downloadManager.cleanupPackage(packageId);
         }
@@ -162,12 +159,14 @@ public class DriverPackageDownloader {
 
     private void cleanupDownloadedJars(DownloadSession session) {
         session.getDownloadedArtifacts().forEach(library -> {
-            File jarFile = new File(session.getDownloadPath()+"/"+library);
+            File libraryFile = new File(session.getDownloadPath() + File.separator + library);
+            String filePath = libraryFile.getAbsolutePath();
 
-            if (jarFile.exists() && !jarFile.delete()) {
-                session.addErrorMessage("Failed to delete file: " + jarFile.getAbsolutePath());
+            if (FileUtil.delete(libraryFile)) {
+                log.info("Deleted library file '{}'", filePath);
             } else {
-                System.out.println("Deleted file: " + jarFile.getAbsolutePath());
+                log.warn("Failed to delete library file '{}'", filePath);
+                session.addErrorMessage("Failed to delete file: " + libraryFile.getAbsolutePath());
             }
         });
     }

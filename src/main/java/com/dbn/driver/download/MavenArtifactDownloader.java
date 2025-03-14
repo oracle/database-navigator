@@ -19,67 +19,59 @@ package com.dbn.driver.download;
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.checksum.ChecksumType;
 import com.dbn.common.download.Downloads;
+import com.dbn.common.util.Files;
 import com.dbn.driver.download.metadata.Library;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.util.io.FileUtil;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.UUID;
 
-import static com.dbn.driver.download.DriverDownloadManager.getDriverPackageChecksumsLocation;
-
+@Slf4j
 public class MavenArtifactDownloader {
 
     private static final String MAVEN_REPO_URL = "https://repo.maven.apache.org/maven2";
 
-    public static String downloadArtifact(DownloadSession session, String packageId, Library library) {
+    public static void downloadArtifact(DownloadSession session, String packageId, Library library) {
         String groupId = library.getGroupId();
         String artifactId = library.getArtifactId();
         String version = library.getVersion();
-        String artifactPath = groupId.replace(".", "/") + "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + ".jar";
+
+        String libraryId = library.getLibraryId();
+        String artifactPath = library.getArtefactPath();
         String artifactUrl = MAVEN_REPO_URL + "/" + artifactPath;
         String checksumUrl = artifactUrl + ".sha1";
+
         try {
-            DriverDownloadManager.getInstance().setDownloadStatus(packageId, artifactId + "-" + version, DownloadStatus.PENDING);
-            return downloadAndVerify(session, packageId, artifactUrl, checksumUrl, artifactId, version, groupId);
-        } catch (IOException e) {
-            session.addErrorMessage("Download failed for " + artifactId + "-" + version + ": " + e.getMessage());
-            return e.getMessage();
+            DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
+            downloadManager.setDownloadStatus(packageId, libraryId, DownloadStatus.PENDING);
+            downloadAndVerify(session, packageId, artifactUrl, checksumUrl, artifactId, version, groupId);
+
+        } catch (Exception e) {
+            log.warn("Failed to download artifact '{}'", libraryId, e);
+            session.addErrorMessage("Download failed for " + libraryId + ": " + e.getMessage());
         }
     }
 
-    private static String downloadAndVerify(DownloadSession session, String packageId, String artifactUrl, String checksumUrl, String artifactId, String version, String groupId) throws IOException {
-        File downloadDir = createPluginDirectory(session.getDownloadPath());
-        if (downloadDir == null) return "Couldn't create or access download directory";
-
+    private static void downloadAndVerify(DownloadSession session, String packageId, String artifactUrl, String checksumUrl, String artifactId, String version, String groupId) throws Exception {
+        File downloadDir = Files.ensureDirectory(session.getDownloadPath());
         File outputFile = new File(downloadDir, artifactId + "-" + version + ".jar");
 
         try {
             session.addDownloadedArtifacts(artifactId + "-" + version + ".jar");
 
             Downloads.downloadAtomically(session, artifactUrl, outputFile);
-            System.out.println("Artifact downloaded to: " + outputFile.getAbsolutePath());
+            log.info("Artifact '{}' downloaded to '{}'", artifactId + "-" + version, outputFile.getAbsolutePath());
 
             String expectedChecksum = getLibraryChecksum(session, checksumUrl);
-            return verifyChecksum(expectedChecksum, outputFile, packageId, artifactId, version, groupId);
+            verifyChecksum(expectedChecksum, outputFile, packageId, artifactId, version, groupId);
         } catch (IOException e) {
             deleteFile(outputFile);
             throw e;
         }
-    }
-
-    private static synchronized File createPluginDirectory(String pathLabel) {
-        File pluginDir = new File(pathLabel);
-        if (pluginDir.exists() && pluginDir.isDirectory()) return pluginDir;
-
-        if (!FileUtil.createDirectory(pluginDir)) {
-            System.err.println("Failed to create output directory: " + pluginDir.getAbsolutePath());
-            return null;
-        }
-        System.out.println("Created directory: " + pluginDir.getAbsolutePath());
-        return pluginDir;
     }
 
     private static String getLibraryChecksum(ProgressIndicator indicator, String checksumUrl) throws IOException {
@@ -97,41 +89,27 @@ public class MavenArtifactDownloader {
         }
     }
 
-    private static String verifyChecksum(String expectedChecksum, File outputFile, String packageId, String artifactId, String version, String groupId) throws IOException {
+    private static void verifyChecksum(String expectedChecksum, File outputFile, String packageId, String artifactId, String version, String groupId) throws IOException {
         String actualChecksum = Checksum.fromFileContent(outputFile, ChecksumType.SHA_1);
 
         DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
-        if (expectedChecksum.equalsIgnoreCase(actualChecksum)) {
+        if (expectedChecksum.equals(actualChecksum)) {
             // Update download status
             downloadManager.setDownloadStatus(packageId, artifactId + "-" + version, DownloadStatus.DONE);
 
             // Append checksum to file
-            recordLibraryChecksum(packageId, groupId, artifactId, version, actualChecksum);
-            return "";
+            PackageChecksumData checksumData = downloadManager.getChecksumData(packageId);
+            checksumData.addChecksum(artifactId + "-" + version, actualChecksum);
         } else {
-            System.err.println("Checksum verification failed! Expected: " + expectedChecksum + ", Actual: " + actualChecksum);
-            downloadManager.setDownloadStatus(packageId, artifactId + "-" + version, DownloadStatus.FAILED);
             deleteFile(outputFile);
-            return "Checksum verification failed for " + artifactId + "-" + version;
-        }
-    }
-
-    private static void recordLibraryChecksum(String packageId, String groupId, String artifactId, String version, String checksum) {
-        DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
-        PackageChecksumData checksumData = downloadManager.getChecksumData(packageId);
-        checksumData.addChecksum(artifactId + "-" + version, checksum);
-    }
-
-    private static void ensureChecksumsDirectoryExists() {
-        File checksumDirectory = new File(getDriverPackageChecksumsLocation());
-        if (!checksumDirectory.exists() && !checksumDirectory.mkdirs()) {
-            System.err.println("Failed to create checksums directory: " + checksumDirectory.getAbsolutePath());
+            downloadManager.setDownloadStatus(packageId, artifactId + "-" + version, DownloadStatus.FAILED);
+            throw new IOException("Checksum verification failed for " + artifactId + "-" + version);
         }
     }
 
     private static void deleteFile(File file) {
-        if (file.exists() && !file.delete()) {
-            System.err.println("Failed to delete file: " + file.getAbsolutePath());
+        if (!FileUtil.delete(file)) {
+            log.warn("Failed to delete file '{}'", file.getAbsolutePath());
         }
     }
 }
