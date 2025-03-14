@@ -42,6 +42,7 @@ public enum GenericDataType implements Presentable, Constant<GenericDataType> {
     ARRAY(txt("app.data.const.GenericDataType_ARRAY")),
     COLLECTION(txt("app.data.const.GenericDataType_COLLECTION")),
     XMLTYPE(txt("app.data.const.GenericDataType_XMLTYPE")),
+    JSON(txt("app.data.const.GenericDataType_JSON")),
     VECTOR(txt("app.data.const.GenericDataType_VECTOR")),
     PROPRIETARY(txt("app.data.const.GenericDataType_PROPRIETARY")),
     COMPLEX(txt("app.data.const.GenericDataType_COMPLEX")),

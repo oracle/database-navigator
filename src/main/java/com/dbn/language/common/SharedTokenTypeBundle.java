@@ -41,6 +41,8 @@ public class SharedTokenTypeBundle extends TokenTypeBundleBase {
     private final SimpleTokenType chrRightParenthesis;
     private final SimpleTokenType chrLeftBracket;
     private final SimpleTokenType chrRightBracket;
+    private final SimpleTokenType chrLeftBrace;
+    private final SimpleTokenType chrRightBrace;
 
     private final SimpleTokenType chrDot;
     private final SimpleTokenType chrComma;
@@ -72,6 +74,8 @@ public class SharedTokenTypeBundle extends TokenTypeBundleBase {
         chrRightParenthesis = getTokenType("CHR_RIGHT_PARENTHESIS");
         chrLeftBracket = getTokenType("CHR_LEFT_BRACKET");
         chrRightBracket = getTokenType("CHR_RIGHT_BRACKET");
+        chrLeftBrace = getTokenType("CHR_LEFT_BRACE");
+        chrRightBrace = getTokenType("CHR_RIGHT_BRACE");
 
         chrDot = getTokenType("CHR_DOT");
         chrComma = getTokenType("CHR_COMMA");

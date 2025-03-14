@@ -84,6 +84,7 @@ public class OracleNativeDataTypes extends DatabaseNativeDataTypes {
         createLargeValueDefinition("BLOB", Blob.class, OracleTypes.BLOB, GenericDataType.BLOB);
         createLargeValueDefinition("CLOB", Clob.class, OracleTypes.CLOB, GenericDataType.CLOB);
         createLargeValueDefinition("NCLOB", NClob.class, OracleTypes.NCLOB, GenericDataType.NCLOB);
+        createLargeValueDefinition("JSON", Clob.class, Types.VARCHAR, GenericDataType.JSON, true, "JSON");
         createLargeValueDefinition("XMLTYPE", Clob.class, Types.SQLXML, GenericDataType.XMLTYPE, true, "XML");
 
         createBasicDefinition("VECTOR", Float[].class, OracleTypes.ARRAY, GenericDataType.VECTOR);
