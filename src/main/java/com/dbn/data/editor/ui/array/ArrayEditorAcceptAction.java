@@ -17,9 +17,13 @@
 package com.dbn.data.editor.ui.array;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.common.util.Lists;
 import com.dbn.data.editor.ui.UserValueHolder;
+import com.dbn.data.value.VectorValue;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -37,7 +41,15 @@ class ArrayEditorAcceptAction extends ArrayEditorAction {
         ArrayEditorList list = form.getEditorList();
         list.stopCellEditing();
         UserValueHolder userValueHolder = form.getEditorComponent().getUserValueHolder();
-        userValueHolder.updateUserValue(list.getModel().getData(), false);
+        List<String> data = list.getModel().getData();
+
+        Object userValue = userValueHolder.getUserValue();
+        if (userValue instanceof VectorValue) {
+            List<Double> doubles = Lists.convert(data, s -> Double.valueOf(s));
+            userValueHolder.updateUserValue(doubles, false);
+        } else {
+            userValueHolder.updateUserValue(data, false);
+        }
 
 /*
         String text = editorTextArea.getText().trim();

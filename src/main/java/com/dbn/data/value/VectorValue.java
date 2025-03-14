@@ -17,6 +17,7 @@
 package com.dbn.data.value;
 
 import com.dbn.data.type.GenericDataType;
+import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.CallableStatement;
@@ -25,13 +26,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static java.util.Collections.emptyList;
 
+@Getter
 public class VectorValue extends ValueAdapter<List<Double>>{
     private List<Double> values;
 
@@ -49,7 +51,7 @@ public class VectorValue extends ValueAdapter<List<Double>>{
     }
 
     private static List<Double> toDoubleArray(String value) throws SQLException {
-        if (value == null || value.length() < 2) return Collections.emptyList();
+        if (value == null || value.length() < 2) return emptyList();
         return Arrays.stream(value.substring(1, value.length() - 2).split(",")).map(s -> Double.valueOf(s)).collect(Collectors.toList());
     }
 

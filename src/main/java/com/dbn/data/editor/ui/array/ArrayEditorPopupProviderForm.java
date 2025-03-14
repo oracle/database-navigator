@@ -31,6 +31,7 @@ import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dbn.data.editor.ui.UserValueHolder;
 import com.dbn.data.grid.color.DataGridTextAttributesKeys;
 import com.dbn.data.value.ArrayValue;
+import com.dbn.data.value.VectorValue;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.project.Project;
@@ -54,7 +55,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.dbn.common.util.Actions.createActionToolbar;
+import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Lists.convert;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static java.util.Collections.emptyList;
 
 public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
     private JPanel mainPanel;
@@ -125,11 +129,17 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
         Project project = getProject();
         try {
             Object userValue = userValueHolder.getUserValue();
-            ArrayValue array = (ArrayValue) userValue;
-            List<String> values = array == null ? null : array.read();
-            if (values != null) {
+            if (userValue instanceof ArrayValue) {
+                ArrayValue array = (ArrayValue) userValue;
+                List<String> values = nvl(array.read(), () -> emptyList());
                 stringValues.addAll(values);
+
+            } else if (userValue instanceof VectorValue) {
+                VectorValue vector = (VectorValue) userValue;
+                List<Double> values = vector.getValues();
+                stringValues.addAll(convert(values, d -> String.valueOf(d)));
             }
+
         } catch (SQLException e) {
             conditionallyLog(e);
             Messages.showErrorDialog(project, e.getLocalizedMessage(), e);
