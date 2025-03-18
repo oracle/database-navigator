@@ -97,6 +97,10 @@ public class VectorValue extends ValueAdapter<double[]>{
         return values.toString();
     }
 
+    public String[] getStringValues() {
+        return Arrays.stream(values).mapToObj(d -> Double.toString(d)).toArray(String[]::new);
+    }
+
     @Override
     public String toString() {
         return getDisplayValue();
