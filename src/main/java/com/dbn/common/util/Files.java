@@ -178,13 +178,27 @@ public final class Files {
         }
     }
 
+    /**
+     * Ensures creation of a directory while avoiding race conditions
+     */
     public static File ensureDirectory(String path) throws IOException {
         File directory = new File(path);
-        if (directory.exists() && directory.isDirectory()) return directory;
-
-        if (!FileUtil.createDirectory(directory)) {
-            throw new IOException("Failed to create directory '" + path + "'");
+        if (directory.exists() && directory.isDirectory()) {
+            return directory;
         }
-        return directory;
+        try {
+            String canonicalPath = directory.getCanonicalPath();
+            synchronized (canonicalPath.intern()) {
+                if (directory.exists() && directory.isDirectory()) {
+                    return directory;
+                }
+                if (!FileUtil.createDirectory(directory)) {
+                    throw new IOException("Failed to create directory '" + path + "'");
+                }
+                return directory;
+            }
+        } catch (IOException e) {
+            throw new IOException("Failed to get canonical path for directory '" + path + "'", e);
+        }
     }
 }

@@ -80,8 +80,12 @@ public class DriverDownloadDialog extends DBNDialog<DriverDownloadForm> {
 
         DriverPackageDownloader downloader = new DriverPackageDownloader();
         downloader.downloadDriverPackage(getProject(), driverPackage, (String errorMessage) -> {
-            if(errorMessage.isBlank()) this.close(0);
-            else {
+            if (errorMessage == null) { // When download is cancelled
+                form.errorHintLabel.setText("");
+                form.errorHintLabel.setVisible(false);
+            } else if (errorMessage.isBlank()) { // When download is completed
+                this.close(0);
+            } else { // When download has failed
                 form.errorHintLabel.setText(errorMessage);
                 form.errorHintLabel.setVisible(true);
             }

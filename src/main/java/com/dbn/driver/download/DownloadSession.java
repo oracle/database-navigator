@@ -21,6 +21,7 @@ import com.dbn.common.message.MessageCollector;
 import com.dbn.common.progress.ProgressIndicatorDelegate;
 import com.intellij.openapi.progress.ProgressIndicator;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.experimental.Delegate;
 
@@ -40,6 +41,8 @@ public class DownloadSession extends ProgressIndicatorDelegate {
     private String downloadPath;
     private AtomicInteger outstandingSize;
     private CountDownLatch countDownLatch;
+    @Setter
+    private boolean cancelled;
 
     private final List<String> downloadedArtifacts = new CopyOnWriteArrayList<>();
 

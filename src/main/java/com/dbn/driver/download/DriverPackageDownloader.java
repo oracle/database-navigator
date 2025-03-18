@@ -152,6 +152,9 @@ public class DriverPackageDownloader {
             });
         } else {
             log.info("Package '{}' download cancelled.", packageId);
+            ApplicationManager.getApplication().invokeLater(()->{
+                updateUI.accept(null);
+            });
             cleanupDownloadedJars(session);
             downloadManager.cleanupPackage(packageId);
         }

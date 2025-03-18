@@ -21,6 +21,7 @@ import com.dbn.common.checksum.ChecksumType;
 import com.dbn.common.download.Downloads;
 import com.dbn.common.util.Files;
 import com.dbn.driver.download.metadata.Library;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.util.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +51,9 @@ public class MavenArtifactDownloader {
             downloadManager.setDownloadStatus(packageId, libraryId, DownloadStatus.PENDING);
             downloadAndVerify(session, packageId, artifactUrl, checksumUrl, artifactId, version, groupId);
 
+        } catch (ProcessCanceledException ignored) {
+            session.addInfoMessage("Download process canceled for " + packageId);
+            session.setCancelled(true);
         } catch (Exception e) {
             log.warn("Failed to download artifact '{}'", libraryId, e);
             session.addErrorMessage("Download failed for " + libraryId + ": " + e.getMessage());
