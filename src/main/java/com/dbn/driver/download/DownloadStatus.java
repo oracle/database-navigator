@@ -14,23 +14,11 @@
  * limitations under the License.
  */
 
-package com.dbn.driver;
+package com.dbn.driver.download;
 
-import com.dbn.common.ui.Presentable;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-import static com.dbn.nls.NlsResources.txt;
-
-@Getter
-@AllArgsConstructor
-public enum DriverSource implements Presentable{
-    @Deprecated // replaced by BUNDLED
-    BUILTIN(txt("cfg.connection.const.DriverSource_BUILTIN")),
-
-    BUNDLED(txt("cfg.connection.const.DriverSource_BUNDLED")),
-    EXTERNAL(txt("cfg.connection.const.DriverSource_EXTERNAL")),
-    DOWNLOAD(txt("cfg.connection.const.DriverSource_DOWNLOAD"));
-
-    private final String name;
+public enum DownloadStatus {
+    NEW, // Download didn't start yet
+    PENDING, // Download is in progress
+    DONE, // Download completed
+    FAILED // Download failed
 }

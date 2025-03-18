@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package com.dbn.common.ui;
+package com.dbn.common.progress;
 
-import com.dbn.common.routine.Consumer;
-import lombok.Getter;
+import com.dbn.common.ref.WeakRef;
+import com.intellij.openapi.progress.ProgressIndicator;
+import lombok.experimental.Delegate;
 
-import javax.swing.Icon;
+public class ProgressIndicatorDelegate implements ProgressIndicator {
+    private final WeakRef<ProgressIndicator> delegate;
 
-@Getter
-public abstract class PresentableFactory<T extends Presentable> {
-    private final String actionName;
-
-    public PresentableFactory(String actionName) {
-        this.actionName = actionName;
+    public ProgressIndicatorDelegate(ProgressIndicator delegate) {
+        this.delegate = WeakRef.of(delegate);
     }
 
-    public Icon getIcon(){
-        return null;
+    @Delegate
+    public ProgressIndicator getDelegate() {
+        return delegate.ensure();
     }
-
-    public abstract void create(Consumer<T> consumer);
 }

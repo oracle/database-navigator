@@ -18,53 +18,47 @@ package com.dbn.common.message;
 
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Getter
-public class MessageBundle implements MessageCollector {
-    private List<Message> infoMessages;
-    private List<Message> warningMessages;
-    private List<Message> errorMessages;
+public class AsyncMessageCollector implements MessageCollector {
+
+    private final List<Message> infoMessages = new CopyOnWriteArrayList<>();
+    private final List<Message> warningMessages = new CopyOnWriteArrayList<>();
+    private final List<Message> errorMessages = new CopyOnWriteArrayList<>();
 
     @Override
     public void addMessage(Message message) {
         switch (message.getType()) {
-            case INFO: infoMessages = addMessage(message, infoMessages); break;
-            case WARNING: warningMessages = addMessage(message, warningMessages); break;
-            case ERROR: errorMessages = addMessage(message, errorMessages); break;
+            case INFO: infoMessages.add(message); break;
+            case WARNING: warningMessages.add(message); break;
+            case ERROR: errorMessages.add(message); break;
         }
     }
 
     @Override
     public void addInfoMessage(String message) {
-        addMessage(new Message(MessageType.INFO, message));
+        infoMessages.add(new Message(MessageType.INFO, message));
     }
 
     @Override
     public void addWarningMessage(String message) {
-        addMessage(new Message(MessageType.WARNING, message));
+        warningMessages.add(new Message(MessageType.WARNING, message));
     }
 
     @Override
     public void addErrorMessage(String message) {
-        addMessage(new Message(MessageType.ERROR, message));
-    }
-
-    private static List<Message> addMessage(Message message, List<Message> list) {
-        if (list == null) list = new ArrayList<>();
-        if (!list.contains(message)) list.add(message);
-        return list;
+        errorMessages.add(new Message(MessageType.ERROR, message));
     }
 
     @Override
     public boolean hasErrors() {
-        return errorMessages != null && !errorMessages.isEmpty();
+        return !errorMessages.isEmpty();
     }
 
     @Override
     public boolean hasWarnings() {
-        return warningMessages != null && !warningMessages.isEmpty();
+        return !warningMessages.isEmpty();
     }
-
 }

@@ -1,0 +1,275 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<driver-packages>
+
+    <driver-package database-type="Oracle" id="oracle-23.6" name="Oracle 23.6">
+
+        <library artifact-id="connector-api" group-id="javax.resource" version="1.5">
+            <license name="CDDL + GPLv2 with classpath exception" url="https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html"/>
+        </library>
+
+        <library artifact-id="javax.json-api" group-id="javax.json" version="1.1.4">
+            <license name="Dual license consisting of the CDDL v1.1 and GPL v2" url="https://oss.oracle.com/licenses/CDDL+GPL-1.1"/>
+        </library>
+
+        <library artifact-id="ojdbc8" group-id="com.oracle.database.jdbc" version="23.6.0.24.10">
+            <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
+            <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
+        </library>
+
+        <library artifact-id="orai18n" group-id="com.oracle.database.nls" version="23.6.0.24.10">
+            <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
+            <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
+        </library>
+
+        <library artifact-id="servlet-api" group-id="javax.servlet" version="2.5">
+            <license name="CDDL + GPLv2 with classpath exception" url="https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html"/>
+        </library>
+
+        <library artifact-id="xdb" group-id="com.oracle.database.xml" version="23.6.0.24.10">
+            <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
+            <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
+        </library>
+
+        <library artifact-id="xmlparserv2" group-id="com.oracle.database.xml" version="23.6.0.24.10">
+            <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
+            <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
+        </library>
+
+    </driver-package>
+
+    <driver-package database-type="MySQL" id="mysql-9.2.0" name="MySQL 9.2.0">
+
+        <library artifact-id="mysql-connector-j" group-id="com.mysql" version="9.2.0">
+            <license name="The GNU General Public License, v2 with Universal FOSS Exception, v1.0" url="Unknown"/>
+            <developer name="Oracle Corporation" url="https://www.oracle.com/"/>
+        </library>
+
+    </driver-package>
+
+    <driver-package database-type="PostgreSQL" id="postgresql-42.7.5" name="PostgreSQL 42.7.5">
+
+        <library artifact-id="org.osgi.dto" group-id="org.osgi" version="1.1.1">
+            <license name="Apache-2.0" url="https://www.apache.org/licenses/LICENSE-2.0"/>
+            <developer name="OSGi Alliance" url="https://www.osgi.org/"/>
+        </library>
+
+        <library artifact-id="org.osgi.framework" group-id="org.osgi" version="1.10.0">
+            <license name="Apache-2.0" url="https://www.apache.org/licenses/LICENSE-2.0"/>
+            <developer name="OSGi Alliance" url="https://www.osgi.org/"/>
+        </library>
+
+        <library artifact-id="org.osgi.resource" group-id="org.osgi" version="1.0.1">
+            <license name="Apache-2.0" url="https://www.apache.org/licenses/LICENSE-2.0"/>
+            <developer name="OSGi Alliance" url="https://www.osgi.org/"/>
+        </library>
+
+        <library artifact-id="org.osgi.service.jdbc" group-id="org.osgi" version="1.1.0">
+            <license name="Apache-2.0" url="https://opensource.org/licenses/Apache-2.0"/>
+            <developer name="Eclipse Foundation" url="https://www.osgi.org/"/>
+        </library>
+
+        <library artifact-id="postgresql" group-id="org.postgresql" version="42.7.5">
+            <license name="BSD-2-Clause" url="https://jdbc.postgresql.org/about/license.html"/>
+            <developer name="Dave Cramer"/>
+            <developer name="Kris Jurka"/>
+            <developer name="Oliver Jowett"/>
+            <developer name="Craig Ringer"/>
+            <developer name="Vladimir Sitnikov"/>
+            <developer name="Brett Okken"/>
+        </library>
+
+    </driver-package>
+
+    <driver-package database-type="SQLite" id="sqlite-3.49.0" name="SQLite 3.49.0">
+
+        <library artifact-id="sqlite-jdbc" group-id="org.xerial" version="3.49.0.0">
+            <license name="The Apache Software License, Version 2.0" url="https://www.apache.org/licenses/LICENSE-2.0.txt"/>
+            <developer name="Xerial Project"/>
+        </library>
+
+    </driver-package>
+
+    <driver-package database-type="Oracle" id="oracle-23.6-token" name="Oracle 23.6 + Token auth">
+
+        <library artifact-id="connector-api" group-id="javax.resource" version="1.5">
+            <license name="CDDL + GPLv2 with classpath exception" url="https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html"/>
+        </library>
+
+        <library artifact-id="hk2-api" group-id="org.glassfish.hk2" version="2.6.1">
+            <license name="EPL 2.0" url="http://www.eclipse.org/legal/epl-2.0"/>
+            <license name="GPL2 w/ CPE" url="	https://www.gnu.org/software/classpath/license.html"/>
+        </library>
+
+        <library artifact-id="hk2-locator" group-id="org.glassfish.hk2" version="2.6.1">
+            <license name="EPL 2.0" url="http://www.eclipse.org/legal/epl-2.0"/>
+            <license name="GPL2 w/ CPE" url="	https://www.gnu.org/software/classpath/license.html"/>
+        </library>
+
+        <library artifact-id="hk2-utils" group-id="org.glassfish.hk2" version="2.6.1">
+            <license name="EPL 2.0" url="http://www.eclipse.org/legal/epl-2.0"/>
+            <license name="GPL2 w/ CPE" url="	https://www.gnu.org/software/classpath/license.html"/>
+        </library>
+
+        <library artifact-id="jakarta.inject" group-id="org.glassfish.hk2.external" version="2.6.1">
+            <license name="EPL 2.0" url="http://www.eclipse.org/legal/epl-2.0"/>
+            <license name="GPL2 w/ CPE" url="	https://www.gnu.org/software/classpath/license.html"/>
+        </library>
+
+        <library artifact-id="jakarta.ws.rs-api" group-id="jakarta.ws.rs" version="2.1.6">
+            <license name="EPL 2.0" url="http://www.eclipse.org/legal/epl-2.0"/>
+            <license name="GPL2 w/ CPE" url="https://www.gnu.org/software/classpath/license.html"/>
+            <developer name="API Developers"/>
+        </library>
+
+        <library artifact-id="jackson-datatype-jsr310" group-id="com.fasterxml.jackson.datatype" version="2.17.1">
+            <developer name="Nick Williams"/>
+        </library>
+
+        <library artifact-id="jakarta.xml.bind-api" group-id="jakarta.xml.bind" version="2.3.3">
+            <license name="Eclipse Distribution License - v 1.0" url="http://www.eclipse.org/org/documents/edl-v10.php"/>
+        </library>
+
+        <library artifact-id="javax.json-api" group-id="javax.json" version="1.1.4">
+            <license name="Dual license consisting of the CDDL v1.1 and GPL v2" url="https://oss.oracle.com/licenses/CDDL+GPL-1.1"/>
+        </library>
+
+        <library artifact-id="jersey-client" group-id="org.glassfish.jersey.core" version="2.35">
+            <license name="EPL 2.0" url="http://www.eclipse.org/legal/epl-2.0"/>
+            <license name="GPL2 w/ CPE" url="https://www.gnu.org/software/classpath/license.html"/>
+        </library>
+
+        <library artifact-id="jersey-common" group-id="org.glassfish.jersey.core" version="2.35">
+            <license name="EPL 2.0" url="http://www.eclipse.org/legal/epl-2.0"/>
+            <license name="The GNU General Public License (GPL), Version 2, With Classpath Exception" url="https://www.gnu.org/software/classpath/license.html"/>
+            <license name="Apache License, 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.html"/>
+            <license name="Public Domain" url="https://creativecommons.org/publicdomain/zero/1.0/"/>
+        </library>
+
+        <library artifact-id="jersey-hk2" group-id="org.glassfish.jersey.inject" version="2.35">
+            <license name="EPL 2.0" url="http://www.eclipse.org/legal/epl-2.0"/>
+            <license name="GPL2 w/ CPE" url="https://www.gnu.org/software/classpath/license.html"/>
+        </library>
+
+        <library artifact-id="jersey-media-json-jackson" group-id="org.glassfish.jersey.media" version="2.35">
+            <license name="EPL 2.0" url="http://www.eclipse.org/legal/epl-2.0"/>
+            <license name="The GNU General Public License (GPL), Version 2, With Classpath Exception" url="https://www.gnu.org/software/classpath/license.html"/>
+            <license name="Apache License, 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.html"/>
+        </library>
+
+        <library artifact-id="oci-java-sdk-examples" group-id="com.oracle.oci.sdk" version="3.37.0">
+            <license name="The Universal Permissive License (UPL), Version 1.0" url="https://www.oracle.com/downloads/licenses/upl-license.html"/>
+            <license name="Apache License 2.0" url="	http://apache.org/licenses/LICENSE-2.0.html"/>
+        </library>
+
+        <library artifact-id="oci-java-sdk-common" group-id="com.oracle.oci.sdk" version="3.37.0">
+            <license name="The Universal Permissive License (UPL), Version 1.0" url="https://www.oracle.com/downloads/licenses/upl-license.html"/>
+            <license name="Apache License 2.0" url="	http://apache.org/licenses/LICENSE-2.0.html"/>
+        </library>
+
+        <library artifact-id="oci-java-sdk-common-httpclient" group-id="com.oracle.oci.sdk" version="3.37.0">
+            <license name="The Universal Permissive License (UPL), Version 1.0" url="https://www.oracle.com/downloads/licenses/upl-license.html"/>
+            <license name="Apache License 2.0" url="	http://apache.org/licenses/LICENSE-2.0.html"/>
+        </library>
+
+        <library artifact-id="oci-java-sdk-common-httpclient-jersey" group-id="com.oracle.oci.sdk" version="3.37.0">
+            <license name="The Universal Permissive License (UPL), Version 1.0" url="https://www.oracle.com/downloads/licenses/upl-license.html"/>
+            <license name="Apache License 2.0" url="	http://apache.org/licenses/LICENSE-2.0.html"/>
+        </library>
+
+        <library artifact-id="oci-java-sdk-identitydataplane" group-id="com.oracle.oci.sdk" version="3.37.0">
+            <license name="The Universal Permissive License (UPL), Version 1.0" url="https://www.oracle.com/downloads/licenses/upl-license.html"/>
+            <license name="Apache License 2.0" url="	http://apache.org/licenses/LICENSE-2.0.html"/>
+        </library>
+
+        <library artifact-id="ojdbc-provider-common" group-id="com.oracle.database.jdbc" version="1.0.1">
+            <license name="The Universal Permissive License (UPL), Version 1.0" url="https://www.oracle.com/downloads/licenses/upl-license.html"/>
+        </library>
+
+        <library artifact-id="ojdbc-provider-oci" group-id="com.oracle.database.jdbc" version="1.0.1">
+            <license name="The Universal Permissive License (UPL), Version 1.0" url="https://www.oracle.com/downloads/licenses/upl-license.html"/>
+        </library>
+
+        <library artifact-id="ojdbc8" group-id="com.oracle.database.jdbc" version="23.6.0.24.10">
+            <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
+            <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
+        </library>
+
+        <library artifact-id="orai18n" group-id="com.oracle.database.nls" version="23.6.0.24.10">
+            <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
+            <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
+        </library>
+
+        <library artifact-id="oraclepki" group-id="com.oracle.database.security" version="23.6.0.24.10">
+            <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
+            <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
+        </library>
+
+        <library artifact-id="resilience4j-circuitbreaker" group-id="io.github.resilience4j" version="1.7.1">
+            <license name="Apache-2.0" url="https://github.com/resilience4j/resilience4j/blob/master/LICENSE.txt"/>
+            <developer name="Robert Winkler"/>
+            <developer name="Bogdan Storozhuk"/>
+            <developer name="Mahmoud Romeh"/>
+            <developer name="Ingyu Hwhang"/>
+            <developer name="Tomasz Skowroński"/>
+            <developer name="Dan Maas"/>
+        </library>
+
+        <library artifact-id="resilience4j-core" group-id="io.github.resilience4j" version="1.7.1">
+            <license name="Apache-2.0" url="https://github.com/resilience4j/resilience4j/blob/master/LICENSE.txt"/>
+            <developer name="Robert Winkler"/>
+            <developer name="Bogdan Storozhuk"/>
+            <developer name="Mahmoud Romeh"/>
+            <developer name="Ingyu Hwhang"/>
+            <developer name="Tomasz Skowroński"/>
+            <developer name="Dan Maas"/>
+        </library>
+
+        <library artifact-id="servlet-api" group-id="javax.servlet" version="2.5">
+            <license name="CDDL + GPLv2 with classpath exception" url="https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html"/>
+        </library>
+
+        <library artifact-id="vavr" group-id="io.vavr" version="0.10.2">
+            <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt"/>
+        </library>
+
+        <library artifact-id="xdb" group-id="com.oracle.database.xml" version="23.6.0.24.10">
+            <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
+            <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
+        </library>
+
+        <library artifact-id="xmlparserv2" group-id="com.oracle.database.xml" version="23.6.0.24.10">
+            <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
+            <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
+        </library>
+    </driver-package>
+
+    <driver-package database-type="Oracle" id="oracle-%s" name="Oracle %s">
+        <library artifact-id="ojdbc8-production" group-id="com.oracle.database.jdbc" toResolve="true" type="pom"/>
+        <library artifact-id="connector-api" group-id="javax.resource" version="1.5"/>
+        <library artifact-id="javax.json-api" group-id="javax.json" version="1.1.4"/>
+        <library artifact-id="servlet-api" group-id="javax.servlet" version="2.5"/>
+    </driver-package>
+
+    <driver-package database-type="Oracle" id="ojdbc-%s-azure-%s" name="Oracle %s + Azure auth %s">
+        <library artifact-id="ojdbc-provider-azure" group-id="com.oracle.database.jdbc" toResolve="true" type="jar"/>
+    </driver-package>
+
+    <driver-package database-type="Oracle" id="ojdbc-%s-oci-%s" name="Oracle %s + OCI auth %s">
+        <library artifact-id="ojdbc-provider-oci" group-id="com.oracle.database.jdbc" toResolve="true" type="jar"/>
+    </driver-package>
+
+</driver-packages>

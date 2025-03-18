@@ -14,23 +14,27 @@
  * limitations under the License.
  */
 
-package com.dbn.driver;
+package com.dbn.common.checksum;
 
-import com.dbn.common.ui.Presentable;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import com.intellij.util.io.DigestUtil;
 
-import static com.dbn.nls.NlsResources.txt;
+import java.security.MessageDigest;
+import java.util.function.Supplier;
 
-@Getter
-@AllArgsConstructor
-public enum DriverSource implements Presentable{
-    @Deprecated // replaced by BUNDLED
-    BUILTIN(txt("cfg.connection.const.DriverSource_BUILTIN")),
+public enum ChecksumType {
+    MD_5(() -> DigestUtil.md5()),
+    SHA_1(() -> DigestUtil.sha1()),
+    SHA_256(() -> DigestUtil.sha256()),
+    //...
+    ;
 
-    BUNDLED(txt("cfg.connection.const.DriverSource_BUNDLED")),
-    EXTERNAL(txt("cfg.connection.const.DriverSource_EXTERNAL")),
-    DOWNLOAD(txt("cfg.connection.const.DriverSource_DOWNLOAD"));
+    private final Supplier<MessageDigest> messageDigest;
 
-    private final String name;
+    ChecksumType(Supplier<MessageDigest> messageDigest) {
+        this.messageDigest = messageDigest;
+    }
+
+    public MessageDigest getMessageDigest() {
+        return messageDigest.get();
+    }
 }

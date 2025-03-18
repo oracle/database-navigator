@@ -21,6 +21,7 @@ import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.misc.DBNComboBoxModel;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -86,6 +87,7 @@ public class ComboBoxes {
     }
 
 
+    @Nullable
     public static <T> T getSelection(JComboBox<T> comboBox) {
         return (T) comboBox.getSelectedItem();
     }
