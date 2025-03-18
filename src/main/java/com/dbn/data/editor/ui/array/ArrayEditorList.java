@@ -17,6 +17,7 @@
 package com.dbn.data.editor.ui.array;
 
 import com.dbn.common.ui.list.EditableStringList;
+import com.dbn.common.ui.list.ListProperty;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.table.TableCellEditor;
@@ -24,9 +25,10 @@ import java.awt.Component;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
+
 public class ArrayEditorList extends EditableStringList {
-    public ArrayEditorList(ArrayEditorPopupProviderForm parent) {
-        super(parent, false, true);
+    public ArrayEditorList(ArrayEditorPopupProviderForm parent, ListProperty ... properties) {
+        super(parent, properties);
         setAccessibleName(this, "Array Editor");
     }
 
@@ -36,7 +38,16 @@ public class ArrayEditorList extends EditableStringList {
     }
 
     @Override
+    public boolean isCellEditable(int row, int column) {
+        if (!isEditable()) return false;
+
+        return super.isCellEditable(row, column);
+    }
+
+    @Override
     public Component prepareEditor(TableCellEditor editor, int rowIndex, int columnIndex) {
+        if (!isEditable()) return null;
+
         Component component = super.prepareEditor(editor, rowIndex, columnIndex);
         component.addKeyListener(getParentComponent());
         return component;

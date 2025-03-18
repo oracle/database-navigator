@@ -27,6 +27,12 @@ public interface PropertyHolder<T extends Property> extends NlsSupport {
         return !is(property);
     };
 
+    default void set(T[] properties, boolean value) {
+        for (T property : properties) {
+            set(property, value);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     default boolean isOneOf(T... properties) {
         for (T property : properties) {

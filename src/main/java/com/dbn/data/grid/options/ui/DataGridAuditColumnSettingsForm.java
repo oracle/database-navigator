@@ -33,6 +33,9 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.util.List;
 
+import static com.dbn.common.ui.list.ListProperty.EDITABLE;
+import static com.dbn.common.ui.list.ListProperty.SORTED;
+
 public class DataGridAuditColumnSettingsForm extends ConfigurationEditorForm<DataGridAuditColumnSettings> {
     private JPanel mainPanel;
     private JCheckBox visibleCheckBox;
@@ -43,7 +46,7 @@ public class DataGridAuditColumnSettingsForm extends ConfigurationEditorForm<Dat
 
     public DataGridAuditColumnSettingsForm(DataGridAuditColumnSettings settings) {
         super(settings);
-        editableStringListForm = new EditableStringListForm(this, "Audit column names", true);
+        editableStringListForm = new EditableStringListForm(this, "Audit column names", SORTED, EDITABLE);
         JComponent listComponent = editableStringListForm.getComponent();
         columnNameListPanel.add(listComponent, BorderLayout.CENTER);
 

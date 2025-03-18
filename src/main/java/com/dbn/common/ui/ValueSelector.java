@@ -20,7 +20,6 @@ import com.dbn.common.action.BasicAction;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.property.PropertyHolder;
-import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.ui.panel.DBNButtonPanel;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Listeners;
@@ -53,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.dbn.common.property.PropertyHolderBase.intBase;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
 @Getter
@@ -60,12 +60,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 public abstract class ValueSelector<T extends Presentable> extends DBNButtonPanel {
 
     private final Listeners<ValueSelectorListener<T>> listeners = Listeners.create();
-    private final PropertyHolder<ValueSelectorOption> options = new PropertyHolderBase.IntStore<>() {
-        @Override
-        protected ValueSelectorOption[] properties() {
-            return ValueSelectorOption.VALUES;
-        }
-    };
+    private final PropertyHolder<ValueSelectorOption> options = intBase(ValueSelectorOption.VALUES);
 
     private final JLabel label;
     private final JPanel innerPanel;

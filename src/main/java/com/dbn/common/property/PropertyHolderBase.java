@@ -192,4 +192,23 @@ public abstract class PropertyHolderBase<T extends Property> implements Property
             super.reset();
         }
     }
+
+    public static <P extends Property.IntBase> PropertyHolder<P> intBase(P[] properties) {
+        return new IntStore<>() {
+            @Override
+            protected P[] properties() {
+                return properties;
+            }
+        };
+    }
+
+    public static <P extends Property.LongBase> PropertyHolder<P> longBase(P[] properties) {
+        return new LongStore<>() {
+            @Override
+            protected P[] properties() {
+                return properties;
+            }
+        };
+    }
+
 }
