@@ -49,6 +49,7 @@ public abstract class ValueAdapter<T> {
     public static final Map<GenericDataType, Class<? extends ValueAdapter<?>>> REGISTRY = new EnumMap<>(GenericDataType.class);
     static {
         REGISTRY.put(GenericDataType.ARRAY, ArrayValue.class);
+        REGISTRY.put(GenericDataType.VECTOR, VectorValue.class);
         REGISTRY.put(GenericDataType.BLOB, BlobValue.class);
         REGISTRY.put(GenericDataType.CLOB, ClobValue.class);
         REGISTRY.put(GenericDataType.NCLOB, NClobValue.class);
@@ -106,7 +107,7 @@ public abstract class ValueAdapter<T> {
         if (e instanceof SQLException) {
             throw (SQLException) e;
         } else {
-            log.error("Error creating value adapter for generic type " + genericDataType.name() + '.', e);
+            log.error("Error creating value adapter for generic type {}.", genericDataType.name(), e);
             throw new SQLException("Error creating value adapter for generic type " + genericDataType.name() + '.', e);
         }
     }

@@ -21,6 +21,9 @@ import com.dbn.data.editor.ui.UserValueHolder;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
+import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.nls.NlsResources.txt;
 
 class ArrayEditorAcceptAction extends ArrayEditorAction {
@@ -36,19 +39,11 @@ class ArrayEditorAcceptAction extends ArrayEditorAction {
 
         ArrayEditorList list = form.getEditorList();
         list.stopCellEditing();
-        UserValueHolder userValueHolder = form.getEditorComponent().getUserValueHolder();
-        userValueHolder.updateUserValue(list.getModel().getData(), false);
+        UserValueHolder<?> userValueHolder = form.getEditorComponent().getUserValueHolder();
 
-/*
-        String text = editorTextArea.getText().trim();
+        List<String> data = list.getModel().getData();
+        userValueHolder.updateUserValue(cast(data), false);
 
-        if (userValueHolder.getUserValue() instanceof String) {
-            JTextField textField = getTextField();
-            getEditorComponent().setEditable(text.indexOf('\n') == -1);
-
-            textField.setText(text);
-        }
-*/
         form.hidePopup();
     }
 

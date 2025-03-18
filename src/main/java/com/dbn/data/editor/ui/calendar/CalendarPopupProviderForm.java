@@ -184,6 +184,10 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
         ComponentPopupBuilder popupBuilder = JBPopupFactory.getInstance().createComponentPopupBuilder(component, daysTable);
         popupBuilder.setRequestFocus(true);
 
+        // TODO enable sticky popups
+        //popupBuilder.setCancelOnClickOutside(false);
+        //popupBuilder.setCancelOnWindowDeactivation(false);
+
         monthYearLabel.setText(tableModel.getCurrentMonthName() + " " + tableModel.getCurrentYear());
 
         timeTextField.setText(getFormatter().formatTime(date));

@@ -18,7 +18,7 @@ package com.dbn.connection.config;
 
 import com.dbn.common.options.CompositeProjectConfiguration;
 import com.dbn.common.options.Configuration;
-import com.dbn.common.property.PropertyHolderBase;
+import com.dbn.common.property.PropertyHolder;
 import com.dbn.common.util.Cloneable;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseInterfacesBundle;
@@ -40,6 +40,7 @@ import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.property.PropertyHolderBase.intBase;
 import static com.dbn.connection.config.ConnectionSettingsStatus.ACTIVE;
 import static com.dbn.connection.config.ConnectionSettingsStatus.NEW;
 import static com.dbn.connection.config.ConnectionSettingsStatus.SIGNED;
@@ -54,12 +55,7 @@ public class ConnectionSettings extends CompositeProjectConfiguration<Connection
     private String sourceId ="" ;
 
 
-    private final PropertyHolderBase<ConnectionSettingsStatus> status = new PropertyHolderBase.IntStore<>(ACTIVE, SIGNED) {
-        @Override
-        protected ConnectionSettingsStatus[] properties() {
-            return ConnectionSettingsStatus.VALUES;
-        }
-    };
+    private final PropertyHolder<ConnectionSettingsStatus> status = intBase(ConnectionSettingsStatus.VALUES);
 
     private final ConnectionDatabaseSettings databaseSettings;
     private final @Getter(lazy = true) ConnectionPropertiesSettings propertiesSettings = new ConnectionPropertiesSettings(this);
@@ -77,9 +73,9 @@ public class ConnectionSettings extends CompositeProjectConfiguration<Connection
         super(parent);
         databaseSettings = new ConnectionDatabaseSettings(this, databaseType, configType);
     }
-  public ConnectionSettings(ConnectionBundleSettings parent, DatabaseType databaseType, ConnectionConfigType configType,String dbOcid) {
+  public ConnectionSettings(ConnectionBundleSettings parent, DatabaseType databaseType, ConnectionConfigType configType, String sourceId) {
     super(parent);
-    this.sourceId = dbOcid;
+    this.sourceId = sourceId;
     databaseSettings = new ConnectionDatabaseSettings(this, databaseType, configType);
   }
 
