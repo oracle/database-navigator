@@ -26,6 +26,7 @@ import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JList;
+import javax.swing.MutableComboBoxModel;
 import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +46,14 @@ public class ComboBoxes {
     public static void addItems(DefaultComboBoxModel comboBox, Iterable items) {
         for (Object item : items) {
             comboBox.addElement(item);
+        }
+    }
+
+    public static <T extends Presentable> void initComboBox(JComboBox<T> comboBox, boolean withEmptyOption, T... options) {
+        initComboBox(comboBox, Arrays.asList(options));
+        if (withEmptyOption) {
+            MutableComboBoxModel<T> mutableModel = cast(comboBox.getModel());
+            mutableModel.insertElementAt(null, 0);
         }
     }
 

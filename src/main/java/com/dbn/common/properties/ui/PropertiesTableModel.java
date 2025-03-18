@@ -19,7 +19,8 @@ package com.dbn.common.properties.ui;
 import com.dbn.common.properties.KeyValueProperty;
 import com.dbn.common.ui.table.DBNEditableTableModel;
 import com.dbn.common.util.Commons;
-import com.dbn.common.util.Strings;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.val;
 
 import java.util.ArrayList;
@@ -27,8 +28,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.common.util.Strings.isEmptyOrSpaces;
+
+@Getter
+@Setter
 public class PropertiesTableModel extends DBNEditableTableModel {
     private final List<KeyValueProperty> properties = new ArrayList<>();
+
+    /**
+     * Determines whether the properties table model has predefined properties.
+     * This flag can be used to distinguish between user-defined properties
+     * and properties that are already part of the system's default configuration.
+     */
+    private boolean predefinedPropertySet;
 
     public PropertiesTableModel(Map<String, String> propertiesMap) {
         loadProperties(propertiesMap);
@@ -49,10 +61,11 @@ public class PropertiesTableModel extends DBNEditableTableModel {
 
         for (KeyValueProperty property : properties) {
             String key = property.getKey();
-            if (!Strings.isEmptyOrSpaces(key)) {
-                String value = Commons.nvl(property.getValue(), "");
-                propertiesMap.put(key, value);
-            }
+            String value = property.getValue();
+            if (isEmptyOrSpaces(key)) continue;
+            if (isEmptyOrSpaces(value)) continue;
+
+            propertiesMap.put(key.trim(), value.trim());
         }
         return propertiesMap;
     }
@@ -81,6 +94,9 @@ public class PropertiesTableModel extends DBNEditableTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
+        if (columnIndex == 0) {
+            return !predefinedPropertySet;
+        }
         return true;
     }
 
