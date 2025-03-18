@@ -19,16 +19,14 @@ package com.dbn.driver;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Driver;
-import java.util.List;
+import java.util.Set;
 
 public interface DriverClassLoader {
     File getLibrary();
 
-    default List<File> getJars() {
-        return null;
-    }
+    Set<File> getJars();
 
-    List<Class<Driver>> getDrivers();
+    Set<Class<Driver>> getDrivers();
 
     default void close() throws IOException {}
 }

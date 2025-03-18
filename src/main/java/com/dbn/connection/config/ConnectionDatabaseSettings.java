@@ -25,6 +25,7 @@ import com.dbn.common.util.Strings;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectivityStatus;
+import com.dbn.connection.DatabaseProtocol;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
@@ -45,6 +46,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +57,9 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setDouble;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setString;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 
 @Slf4j
 @Getter
@@ -189,7 +193,10 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                     databaseInfo.getDatabase(),
                     databaseInfo.getMainFilePath(),
                     databaseInfo.ensureTnsFolder(),
-                    databaseInfo.getTnsProfile());
+                    databaseInfo.getTnsProfile(),
+                    databaseInfo.getServerType(),
+                    databaseInfo.getParameters(),
+                    databaseInfo.getProtocol());
         }
     }
 
@@ -290,7 +297,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
 
         String url = getString(element, "url", databaseInfo.getUrl());
         DatabaseUrlType defaultUrlType =
-                Strings.isEmptyOrSpaces(url) ?
+                isEmptyOrSpaces(url) ?
                         databaseType.getDefaultUrlPattern().getUrlType() :
                         DatabaseUrlType.CUSTOM;
 
@@ -307,6 +314,20 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             databaseInfo.setDatabase(getString(element, "database", null));
             databaseInfo.setTnsFolder(getString(element, "tns-folder", null));
             databaseInfo.setTnsProfile(getString(element, "tns-profile", null));
+            databaseInfo.setServerType(getString(element, "server-type", "Default"));
+            databaseInfo.setProtocol(getEnum(element, "protocol", DatabaseProtocol.class));
+
+            Element paramsElement = element.getChild("url-parameters");
+            Map<String, String> parameters = new HashMap<>();
+            if (paramsElement != null) {
+                List<Element> paramElements = paramsElement.getChildren();
+                for (Element paramElement : paramElements) {
+                    String key = stringAttribute(paramElement,"key");
+                    String value = stringAttribute(paramElement, "value");
+                    parameters.put(key, value);
+                }
+            }
+            databaseInfo.setParameters(parameters);
 
             urlPattern = DatabaseUrlPattern.get(databaseType, urlType);
 
@@ -330,24 +351,13 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
         authenticationInfo.readConfiguration(element);
         sessionUser = getString(element, "session-user", sessionUser);
 
-
-        // TODO backward compatibility (to remove)
-        Element propertiesElement = element.getChild("properties");
-        if (propertiesElement != null) {
-            for (Element propertyElement : propertiesElement.getChildren()) {
-                Map<String, String> properties = getParent().getPropertiesSettings().getProperties();
-                properties.put(
-                        stringAttribute(propertyElement, "key"),
-                        stringAttribute(propertyElement, "value"));
-            }
-        }
         deriveDatabaseType();
         updateSignature();
     }
 
     @Nullable
     public File getDriverLibraryFile() {
-        return Strings.isEmptyOrSpaces(driverLibrary) ?  null : new File(driverLibrary);
+        return isEmptyOrSpaces(driverLibrary) ?  null : new File(driverLibrary);
     }
 
     @Override
@@ -376,6 +386,19 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             setString(element, "database", nvl(databaseInfo.getDatabase()));
             setString(element, "tns-folder", nvl(databaseInfo.getTnsFolder()));
             setString(element, "tns-profile", nvl(databaseInfo.getTnsProfile()));
+            setString(element, "server-type", nvl(databaseInfo.getServerType()));
+            setEnum(element, "protocol", databaseInfo.getProtocol());
+
+            Element paramsElement = newElement(element, "url-parameters");
+            databaseInfo.getParameters().forEach((key, value) -> {
+                if (isEmptyOrSpaces(key)) return;
+                if (isEmptyOrSpaces(value)) return;
+
+                Element paramElement = newElement(paramsElement, "parameter");
+                setStringAttribute(paramElement, "key", key);
+                setStringAttribute(paramElement, "value", value);
+            });
+
             DatabaseFileBundle fileBundle = databaseInfo.getFileBundle();
             if (fileBundle != null) {
                 Element filesElement = newElement(element, "files");

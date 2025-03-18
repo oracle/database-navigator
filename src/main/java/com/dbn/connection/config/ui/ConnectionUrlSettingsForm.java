@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,14 @@ import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Safe;
 import com.dbn.common.util.Strings;
+import com.dbn.connection.DatabaseProtocol;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.file.DatabaseFileBundle;
 import com.dbn.connection.config.file.ui.DatabaseFileSettingsForm;
+import com.dbn.connection.config.parameter.ui.UrlParameterInputDialog;
 import com.dbn.connection.config.tns.TnsAdmin;
 import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsNamesParser;
@@ -37,8 +39,11 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.components.fields.ExpandableTextField;
+import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -47,6 +52,7 @@ import java.awt.BorderLayout;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -63,8 +69,23 @@ import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.common.util.Strings.toLowerCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static java.util.Collections.unmodifiableMap;
 
 public class ConnectionUrlSettingsForm extends DBNFormBase {
+    public static final List<String> EASY_CONNECT_PARAMETER_NAMES = List.of(
+            "ENABLE",
+            "FAILOVER",
+            "LOAD_BALANCE",
+            "RECV_BUF_SIZE",
+            "SEND_BUF_SIZE",
+            "SDU",
+            "SOURCE_ROUTE",
+            "RETRY_COUNT",
+            "RETRY_DELAY",
+            "HTTPS_PROXY",
+            "HTTPS_PROXY_PORT",
+            "WALLET_LOCATION");
+
     private JLabel urlTypeLabel;
     private JLabel hostLabelField;
     private JLabel portLabelField;
@@ -73,8 +94,12 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private JLabel tnsProfileLabel;
     private JLabel databaseFilesLabel;
     private JLabel urlLabel;
+    private JLabel serverTypeLabel;
+    private JLabel protocolLabel;
     private JPanel databaseFilesPanel;
     private ComboBox<DatabaseUrlType> urlTypeComboBox;
+    private JComboBox<String> serverTypeComboBox;
+    private JComboBox<DatabaseProtocol> protocolComboBox;
     private DBNComboBox<Presentable> tnsProfileComboBox;
     private JTextField hostTextField;
     private JTextField portTextField;
@@ -82,9 +107,11 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private TextFieldWithBrowseButton tnsFolderTextField;
     private ExpandableTextField urlTextField;
     private JPanel mainPanel;
+    private JButton parametersButton;
 
     private final DatabaseFileSettingsForm databaseFileSettingsForm;
     private final Map<DatabaseType, DatabaseInfo> history = new HashMap<>();
+    private Map<String, String> parameters = new HashMap<>();
 
 
     public ConnectionUrlSettingsForm(ConnectionDatabaseSettingsForm parent, ConnectionDatabaseSettings configuration) {
@@ -93,6 +120,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         databaseFileSettingsForm = new DatabaseFileSettingsForm(this, configuration.getDatabaseInfo().getFileBundle());
         databaseFilesPanel.add(databaseFileSettingsForm.getComponent(), BorderLayout.CENTER);
         urlTypeComboBox.addActionListener(e -> updateFieldVisibility());
+        parametersButton.addActionListener(e -> openParametersDialog());
 
         updateTnsAdminField();
 
@@ -107,8 +135,29 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         onTextChange(tnsFolderTextField, e -> updateTnsProfilesField());
         onTextChange(tnsFolderTextField, e -> updateUrlField());
         tnsProfileComboBox.addActionListener(e -> updateUrlField());
+        serverTypeComboBox.addActionListener(e -> updateUrlField());
+        protocolComboBox.addActionListener(e -> updateUrlField());
 
         updateTnsProfilesField();
+    }
+
+    private void openParametersDialog() {
+        DatabaseType databaseType = getDatabaseType();
+        DatabaseUrlPattern urlPattern = databaseType.getUrlPattern(DatabaseUrlType.EZCONNECT);
+        if (urlPattern == null) return;
+
+        // ensure that we populate table with empty builtin keys even if the current url doesn't have them.
+        // (also retain logical order of the parameters)
+        Map<String, String> parameters = new LinkedHashMap<>();
+        EASY_CONNECT_PARAMETER_NAMES.forEach(key -> parameters.put(key, ""));
+
+        parameters.putAll(this.parameters);
+
+        UrlParameterInputDialog dialog = new UrlParameterInputDialog(getProject(), parameters);
+        if (dialog.showAndGet()) {
+            this.parameters = dialog.getParameters();
+            updateUrlField();
+        }
     }
 
     private void updateTnsAdminField() {
@@ -153,6 +202,10 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         return Safe.call(tnsProfileComboBox.getSelectedValue(), v -> v.getName());
     }
 
+    public String getServerType() {
+        return getSelection(serverTypeComboBox);
+    }
+
     public String getUrl() {
         return urlTextField.getText();
     }
@@ -178,8 +231,19 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
                 getDatabase(),
                 getMainFilePath() ,
                 getTnsAdmin(),
-                getTnsProfile());
+                getTnsProfile(),
+                getServerType(),
+                getParameters(),
+                getProtocol());
         urlTextField.setText(url);
+    }
+
+    public Map<String, String> getParameters() {
+        return unmodifiableMap(this.parameters);
+    }
+
+    public DatabaseProtocol getProtocol() {
+        return getSelection(this.protocolComboBox);
     }
 
     private String getMainFilePath() {
@@ -204,6 +268,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
         List<String> tnsEntries = getTnsEntries(tnsFile);
         tnsProfileComboBox.setValues(Presentable.basic(tnsEntries));
+
     }
 
     private String getTnsAdmin() {
@@ -228,14 +293,19 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     public void updateFieldVisibility() {
         DatabaseUrlType urlType = nvl(getUrlType(), DatabaseUrlType.CUSTOM);
 
+        boolean ezConnectVisible = urlType == DatabaseUrlType.EZCONNECT;
         boolean tnsVisible = urlType == DatabaseUrlType.TNS;
         boolean flsVisible = urlType == DatabaseUrlType.FILE;
         boolean hpdVisible = Constants.isOneOf(urlType,
                 DatabaseUrlType.SID,
                 DatabaseUrlType.SERVICE,
-                DatabaseUrlType.DATABASE);
+                DatabaseUrlType.DATABASE,
+                DatabaseUrlType.EZCONNECT);
 
-        urlTextField.setEnabled(urlType == DatabaseUrlType.CUSTOM);
+        urlTextField.setEditable(urlType == DatabaseUrlType.CUSTOM);
+        urlTextField.setForeground(urlTextField.isEditable() ?
+                UIUtil.getTextFieldForeground() :
+                UIUtil.getLabelDisabledForeground());
 
         // tns folder
         tnsFolderTextField.setVisible(tnsVisible);
@@ -244,12 +314,19 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         tnsProfileLabel.setVisible(tnsVisible);
 
         // classic service name or sid
+        databaseLabel.setText(urlType.databaseIdentifier());
         databaseLabel.setVisible(hpdVisible);
         databaseTextField.setVisible(hpdVisible);
         hostLabelField.setVisible(hpdVisible);
         hostTextField.setVisible(hpdVisible);
         portLabelField.setVisible(hpdVisible);
         portTextField.setVisible(hpdVisible);
+
+        serverTypeLabel.setVisible(ezConnectVisible);
+        serverTypeComboBox.setVisible(ezConnectVisible);
+        protocolLabel.setVisible(ezConnectVisible);
+        protocolComboBox.setVisible(ezConnectVisible);
+        parametersButton.setVisible(ezConnectVisible);
 
         // file based url
         databaseFilesLabel.setVisible(flsVisible);
@@ -301,8 +378,13 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         databaseInfo.setTnsProfile(getTnsProfile());
         databaseInfo.setUrlType(getUrlType());
         databaseInfo.setUrl(getUrl());
+        databaseInfo.setServerType(getServerType());
+        databaseInfo.setParameters(getParameters());
+        databaseInfo.setProtocol(getProtocol());
         return databaseInfo;
     }
+
+
 
     private void applyDatabaseInfo(DatabaseInfo databaseInfo) {
         databaseFileSettingsForm.setFileBundle(databaseInfo.getFileBundle());
@@ -310,6 +392,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         portTextField.setText(databaseInfo.getPort());
         databaseTextField.setText(databaseInfo.getDatabase());
         tnsFolderTextField.setText(databaseInfo.getTnsFolder());
+        parameters = databaseInfo.getParameters();
 
         String tnsProfile = databaseInfo.getTnsProfile();
         if (Strings.isNotEmpty(tnsProfile)) {
@@ -317,11 +400,16 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
             tnsProfileComboBox.setSelectedValue(presentable);
         }
 
-
         DatabaseType databaseType = getDatabaseType();
         DatabaseUrlType[] urlTypes = databaseType.getUrlTypes();
         initComboBox(urlTypeComboBox, urlTypes);
         setSelection(urlTypeComboBox, databaseInfo.getUrlType());
+
+        initComboBox(protocolComboBox, true, DatabaseProtocol.values());
+        setSelection(protocolComboBox, databaseInfo.getProtocol());
+
+        setSelection(serverTypeComboBox, databaseInfo.getServerType());
+
         urlTypeLabel.setVisible(urlTypes.length > 1);
         urlTypeComboBox.setVisible(urlTypes.length > 1);
         urlTextField.setText(databaseInfo.getUrl());
@@ -330,8 +418,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     @NotNull
     private ConnectionDatabaseSettings getDatabaseSettings() {
         ConnectionDatabaseSettingsForm parent = ensureParentComponent();
-        ConnectionDatabaseSettings configuration = parent.getConfiguration();
-        return configuration;
+        return parent.getConfiguration();
     }
 
     boolean settingsChanged() {

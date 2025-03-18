@@ -23,6 +23,7 @@ import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.util.Alarm;
 import lombok.experimental.UtilityClass;
@@ -84,11 +85,18 @@ public final class Dispatch {
         execute(modalityState, runnable);
     }
 
-    // fire and wait
+    // fire and wait (unless inside progress dialog)
     public static void execute(@Nullable ModalityState modalityState, Runnable runnable) {
         ThreadInfo invoker = ThreadInfo.copy();
-        modalityState = nvl(modalityState, () -> getCurrentModalityState());
-        getApplication().invokeAndWait(() -> ThreadMonitor.surround(invoker, null, () -> guarded(runnable, r -> r.run())), modalityState);
+        Application application = getApplication();
+        if (ThreadMonitor.isProgressProcess()) {
+            // release the progress
+            application.invokeLater(() -> ThreadMonitor.surround(invoker, null, () -> execute((ModalityState) null, runnable)));
+        } else {
+            modalityState = nvl(modalityState, () -> getCurrentModalityState());
+            application.invokeAndWait(() -> ThreadMonitor.surround(invoker, null, () -> guarded(runnable, r -> r.run())), modalityState);
+        }
+
     }
 
     public static <T, E extends Throwable> T call(boolean conditional, ThrowableCallable<T, E> callable) throws E{

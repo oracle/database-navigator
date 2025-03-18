@@ -18,19 +18,17 @@ package com.dbn.common.ui.form;
 
 import com.dbn.common.ref.WeakRefWrapper;
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.common.validation.ValidationException;
-import com.dbn.common.validation.Validator;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.DocumentAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
+import javax.swing.JTable;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.JTextComponent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,47 +38,69 @@ import java.util.function.Predicate;
 import static com.dbn.common.ui.util.ClientProperty.HAS_VALIDATION_LISTENERS;
 import static com.dbn.common.util.Commons.isEmpty;
 import static com.dbn.common.util.Commons.isOneOf;
-import static com.dbn.common.util.Commons.nvl;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implements DBNFormValidator {
-    private final List<DBNFormFieldValidator<?>> validators = new ArrayList<>();
+    private final List<WrappedValidator<?>> validators = new ArrayList<>();
 
     public DBNFormValidatorImpl(DBNDialog dialog) {
         super(dialog);
     }
 
     @Override
+    public <C extends JComponent> void addValidator(C component, Function<C, List<ValidationInfo>> validator) {
+        validators.add(new WrappedValidator<>(component, validator));
+        initEventValidation(component);
+    }
+
+    @Override
     public <C extends JComponent> void addValidation(C component, Predicate<C> validator, String message) {
-        validators.add(new DBNFormFieldValidator<>(component, target -> validateTarget(target, validator, message)));
+        addValidator(component, target -> validateTarget(target, validator, message));
     }
 
     @Override
     public <C extends JComponent> void addValidation(C component, Function<C, String> validator) {
-        validators.add(new DBNFormFieldValidator<>(component, c -> validateTarget(validator, c)));
+        addValidator(component, c -> validateTarget(validator, c));
     }
 
     @Override
     public void addTextValidation(JTextComponent textField, Function<JTextComponent, String> validator) {
         addValidation(textField, validator);
-        addValidationListeners(textField);
     }
 
     @Override
     public void addTextValidation(JTextComponent textField, Predicate<String> validator, String message) {
         addValidation(textField, f -> validator.test(f.getText()), message);
-        addValidationListeners(textField);
+    }
+
+    private <C extends JComponent> void initEventValidation(C component) {
+        if (component instanceof JTextComponent) {
+            JTextComponent textField = (JTextComponent) component;
+            addValidationListeners(textField);
+        } else if (component instanceof JTable) {
+            JTable table = (JTable) component;
+            addValidationListeners(table);
+        }
+        // ...
+    }
+
+    private void addValidationListeners(JTable table) {
+        table.getModel().addTableModelListener(e -> {
+            DBNDialog dialog = getTarget();
+            dialog.validateInput(table);
+        });
     }
 
     private void addValidationListeners(JTextComponent textField) {
         if (HAS_VALIDATION_LISTENERS.is(textField)) return;
         HAS_VALIDATION_LISTENERS.set(textField, true);
 
-        DBNDialog dialog = getTarget();
-
         // add document listener to perform validation on text change and enable / disable dialog button
         textField.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
+                DBNDialog dialog = getTarget();
                 dialog.validateInput(textField);
             }
         });
@@ -89,6 +109,7 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         textField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
+                DBNDialog dialog = getTarget();
                 dialog.validateInput(textField);
             }
         });
@@ -100,15 +121,21 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
 
     }
 
-    private static <C extends JComponent> void validateTarget(C target, Predicate<C> validator, String message) throws ValidationException {
+    private static <C extends JComponent> List<ValidationInfo> validateTarget(C target, Predicate<C> validator, String message) {
         boolean valid = validator.test(target);
-        if (!valid) throw new ValidationException(message);
+        if (valid) return emptyList();
+        
+        ValidationInfo info = new ValidationInfo(message, target);
+        return singletonList(info);
     }
 
 
-    private static <C extends JComponent> void validateTarget(Function<C, String> validator, C target) throws ValidationException {
+    private static <C extends JComponent> List<ValidationInfo> validateTarget(Function<C, String> validator, C target) {
         String error = validator.apply(target);
-        if (error != null) throw new ValidationException(error);
+        if (error == null) return emptyList();
+
+        ValidationInfo info = new ValidationInfo(error, target);
+        return singletonList(info);
     }
 
     /**
@@ -121,41 +148,38 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
      */
     @NotNull
     public List<ValidationInfo> buildValidationInfo(JComponent... components) {
-        List<ValidationInfo> result = null;
+        List<ValidationInfo> result = new ArrayList<>();
         Set<JComponent> invalidFields = new HashSet<>();
-        for (DBNFormFieldValidator<?> validator : validators) {
+        for (WrappedValidator<?> validator : validators) {
             JComponent target = validator.getTarget();
+
+            // prevent multiple validation issues on same field (e.g. "empty value" and "invalid value pattern")
             if (invalidFields.contains(target)) continue;
-            try {
-                if (isEmpty(components) || isOneOf(target, components)) {
-                    validator.validate();
-                }
 
-            } catch (ValidationException e) {
+            if (isEmpty(components) || isOneOf(target, components)) {
+                List<ValidationInfo> infos = validator.validate();
+                if (infos.isEmpty()) continue;
+
                 invalidFields.add(target);
-
-                String message = e.getMessage();
-                ValidationInfo validationInfo = new ValidationInfo(message, target);
-
-                result = nvl(result, () -> new ArrayList<>());
-                result.add(validationInfo);
+                result.addAll(infos);
             }
         }
 
-        return result == null ? Collections.emptyList() : result;
+        return result;
     }
 
-    private static class DBNFormFieldValidator<T extends JComponent> extends WeakRefWrapper<T> {
-        private final Validator<T> validator;
+    private static class WrappedValidator<T extends JComponent> extends WeakRefWrapper<T> {
+        private final Function<T, List<ValidationInfo>> validator;
 
-        public DBNFormFieldValidator(T component, Validator<T> validator) {
-            super(component);
+
+        WrappedValidator(@NotNull T target, Function<T, List<ValidationInfo>> validator) {
+            super(target);
             this.validator = validator;
         }
 
-        public void validate() throws ValidationException {
+        List<ValidationInfo> validate() {
             T target = getTarget();
-            validator.validate(target);
+            return validator.apply(target);
         }
     }
 }
