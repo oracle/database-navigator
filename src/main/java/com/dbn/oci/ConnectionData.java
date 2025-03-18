@@ -30,7 +30,7 @@ public class ConnectionData {
     ConnectionData connectionData = new ConnectionData(database);
     String compId = modelContext.getContextObject().getCompartmentId();
     String dbIdentifier = database.getDisplayName()+"_"+database.getId().substring(database.getId().length()-8);
-    String walletDefaultPath = "comp"+ compId.substring(compId.length()-8)+"/"+dbIdentifier;
+    String walletDefaultPath = database.getCompartmentName() + compId.substring(compId.length()-8)+"/"+dbIdentifier;
     connectionData.setParentCompartment(walletDefaultPath);
 
     connectionData.setDisplayName(database.getDisplayName());
