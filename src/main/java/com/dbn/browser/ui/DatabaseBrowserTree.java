@@ -55,6 +55,7 @@ import com.intellij.ide.IdeTooltip;
 import com.intellij.ide.IdeTooltipManager;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.ActionCallback;
 import com.intellij.util.ui.tree.TreeUtil;
 import lombok.Getter;
@@ -65,6 +66,7 @@ import javax.swing.JLabel;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
+import java.awt.Point;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -186,17 +188,19 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
     }
 
     private void selectPath(TreePath treePath) {
-        Dispatch.run(() -> {
+        Dispatch.execute(this, () -> {
             DatabaseBrowserTree tree = DatabaseBrowserTree.this;
             ActionCallback callback = TreeUtil.selectPath(tree, treePath, true);
-            if (callback == ActionCallback.REJECTED) {
-                Object target = treePath.getLastPathComponent();
-                if (target instanceof DBObject) {
-                    DBObject object = (DBObject) target;
-                    IdeTooltip tooltip = new IdeTooltip(tree, tree.getMousePosition(), new JLabel("Cannot navigate to " + object.getQualifiedNameWithType() + ". "));
-                    tooltip.setTextBackground(Colors.getWarningHintColor());
-                    IdeTooltipManager.getInstance().show(tooltip, true);
-                }
+            if (!callback.isRejected()) return;
+
+            Object target = treePath.getLastPathComponent();
+            if (target instanceof DBObject) {
+                DBObject object = (DBObject) target;
+                Point location = JBPopupFactory.getInstance().guessBestPopupLocation(tree).getPoint(tree);
+                location.y -= tree.getRowHeight() / 2; // show above selection row
+                IdeTooltip tooltip = new IdeTooltip(tree, location, new JLabel("Cannot navigate to " + object.getQualifiedNameWithType() + ". "));
+                tooltip.setTextBackground(Colors.getWarningHintColor());
+                IdeTooltipManager.getInstance().show(tooltip, true);
             }
         });
     }

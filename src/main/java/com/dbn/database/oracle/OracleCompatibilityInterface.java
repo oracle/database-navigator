@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static com.dbn.database.DatabaseFeature.AI_ASSISTANT;
 import static com.dbn.database.DatabaseFeature.AUTHID_METHOD_EXECUTION;
@@ -126,5 +127,12 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
     @Override
     public String getDatabaseLogName() {
         return txt("app.logging.label.LogName_ORACLE");
+    }
+
+    @Override
+    public Map<String, String> getImplicitConnectionProperties() {
+        return Map.of(
+                "oracle.jdbc.jsonDefaultGetObjectType", "java.lang.String",
+                "oracle.jdbc.vectorDefaultGetObjectType", "float[]");
     }
 }

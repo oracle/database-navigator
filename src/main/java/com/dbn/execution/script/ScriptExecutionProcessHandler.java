@@ -17,8 +17,8 @@
 package com.dbn.execution.script;
 
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.thread.Threads;
 import com.dbn.common.util.Chars;
-import com.dbn.common.util.Strings;
 import com.dbn.database.CmdLineExecutionInput;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.process.OSProcessHandler;
@@ -48,6 +48,7 @@ public final class ScriptExecutionProcessHandler extends OSProcessHandler {
     private Consumer<ProcessEvent> terminatedConsumer;
     private final BufferedWriter writer;
     private boolean authenticated;
+    private Runnable initializer;
 
     private ScriptExecutionProcessHandler(CmdLineExecutionInput input) throws ExecutionException {
         super(input.getCommand());
@@ -64,16 +65,13 @@ public final class ScriptExecutionProcessHandler extends OSProcessHandler {
         return new ProcessAdapter() {
             @Override
             public void onTextAvailable(@NotNull ProcessEvent event, @NotNull Key outputType) {
-                if (isPasswordEvent(event)) {
-                    sendPassword(event);
-                } else {
-                    consumeProcessOutput(event);
-                }
+                ensureInitialized();
+                consumeEvent(outputConsumer, event);
             }
 
             @Override
             public void startNotified(@NotNull ProcessEvent event) {
-                if (!authenticated) return;
+                initialize();
                 consumeEvent(notifiedConsumer, event);
             }
 
@@ -90,29 +88,31 @@ public final class ScriptExecutionProcessHandler extends OSProcessHandler {
         };
     }
 
-    private boolean isPasswordEvent(@NotNull ProcessEvent event) {
-        return !authenticated && Strings.containsIgnoreCase(event.getText(), "password");
-    }
+    private synchronized void initialize() {
+        if (authenticated) {
+            sendInputCommands();
+            return;
+        }
 
-    private void sendPassword(@NotNull ProcessEvent event) {
-        String password = Chars.toString(input.getPassword());
-        sendCommand(password);
         authenticated = true;
-
-        // delayed invocation of "notified" consumer
-        notifiedConsumer.accept(event);
+        sendPassword();
+        initializer = () -> sendInputCommands();
+        Threads.sleep(500);
     }
 
-    private void consumeProcessOutput(@NotNull ProcessEvent event) {
-        consumeEvent(outputConsumer, event);
+    private synchronized void ensureInitialized() {
+        if (initializer == null) return;
+        Runnable initializer = this.initializer;
+        this.initializer = null;
+        initializer.run();
     }
 
     private void consumeEvent(Consumer<ProcessEvent> consumer, @NotNull ProcessEvent event) {
         if (consumer != null) consumer.accept(event);
     }
 
-    public void whenNotified(Consumer<ProcessEvent> startConsumer) {
-        this.notifiedConsumer = startConsumer;
+    public void whenNotified(Consumer<ProcessEvent> notifiedConsumer) {
+        this.notifiedConsumer = notifiedConsumer;
     }
 
     public void whenTerminating(Consumer<ProcessEvent> terminatingConsumer) {
@@ -136,6 +136,15 @@ public final class ScriptExecutionProcessHandler extends OSProcessHandler {
             writer.newLine();
             writer.flush();
         });
+    }
+
+    private void sendPassword() {
+        String password = Chars.toString(input.getPassword());
+        sendCommand(password);
+    }
+
+    public void sendInputCommands() {
+        sendCommands(input.getStatements());
     }
 
     public void sendCommands(List<String> commands) {

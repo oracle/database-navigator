@@ -25,6 +25,7 @@ import java.util.Objects;
 public enum TokenPairTemplate {
     PARENTHESES("CHR_LEFT_PARENTHESIS", "CHR_RIGHT_PARENTHESIS", false),
     BRACKETS("CHR_LEFT_BRACKET", "CHR_RIGHT_BRACKET", false),
+    BRACES("CHR_LEFT_BRACE", "CHR_RIGHT_BRACE", false),
     BEGIN_END("KW_BEGIN", "KW_END", true);
 
     private final String beginToken;
