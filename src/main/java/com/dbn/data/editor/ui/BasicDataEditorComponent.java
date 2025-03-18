@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.swing.JTextField;
+import java.awt.Dimension;
 
 import static com.dbn.common.util.Unsafe.cast;
 
@@ -45,6 +46,11 @@ public class BasicDataEditorComponent extends JTextField implements DataEditorCo
 
     public <T> UserValueHolder<T> getUserValueHolder() {
         return cast(userValueHolder);
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(-1, -1);
     }
 
     /********************************************************

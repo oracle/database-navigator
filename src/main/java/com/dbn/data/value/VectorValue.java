@@ -25,14 +25,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Getter
 public class VectorValue extends ValueAdapter<double[]>{
-    private double[] values;
+    private double[] values = new double[0];
 
     public VectorValue() {
     }
@@ -50,7 +52,6 @@ public class VectorValue extends ValueAdapter<double[]>{
         return GenericDataType.VECTOR;
     }
 
-    @Nullable
     @Override
     public double[] read() throws SQLException {
         return values;
@@ -87,7 +88,13 @@ public class VectorValue extends ValueAdapter<double[]>{
 
     @Override
     public String getDisplayValue() {
-        return values == null ? "" : Arrays.toString(values);
+        List<String> values = new ArrayList<>();
+        int length = Math.min(this.values.length, 3);
+        for (int i = 0; i< length; i++) {
+            values.add(Double.toString(this.values[i]));
+        }
+        if (this.values.length > length) values.add("...");
+        return values.toString();
     }
 
     @Override
