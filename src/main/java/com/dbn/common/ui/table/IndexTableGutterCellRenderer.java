@@ -28,6 +28,7 @@ public class IndexTableGutterCellRenderer extends DBNTableGutterRendererBase {
         DBNTableGutter tableGutter = (DBNTableGutter) list;
         DBNTable table = tableGutter.getTable();
         boolean isCaretRow = table.getCellSelectionEnabled() && table.getSelectedRow() == index && table.getSelectedRowCount() == 1;
+        iconLabel.setVisible(false);
 
         mainPanel.setBackground(isSelected ?
                 Colors.getTableSelectionBackground(true) :

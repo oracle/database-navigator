@@ -18,7 +18,7 @@ package com.dbn.connection.config;
 
 import com.dbn.common.options.CompositeProjectConfiguration;
 import com.dbn.common.options.Configuration;
-import com.dbn.common.property.PropertyHolderBase;
+import com.dbn.common.property.PropertyHolder;
 import com.dbn.common.util.Cloneable;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseInterfacesBundle;
@@ -37,7 +37,10 @@ import java.util.Objects;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
-import static com.dbn.connection.config.ConnectionSettingsStatus.*;
+import static com.dbn.common.property.PropertyHolderBase.intBase;
+import static com.dbn.connection.config.ConnectionSettingsStatus.ACTIVE;
+import static com.dbn.connection.config.ConnectionSettingsStatus.NEW;
+import static com.dbn.connection.config.ConnectionSettingsStatus.SIGNED;
 
 @Getter
 @Setter
@@ -47,12 +50,7 @@ public class ConnectionSettings extends CompositeProjectConfiguration<Connection
 
     private ConnectionId connectionId;
 
-    private final PropertyHolderBase<ConnectionSettingsStatus> status = new PropertyHolderBase.IntStore<>(ACTIVE, SIGNED) {
-        @Override
-        protected ConnectionSettingsStatus[] properties() {
-            return ConnectionSettingsStatus.VALUES;
-        }
-    };
+    private final PropertyHolder<ConnectionSettingsStatus> status = intBase(ConnectionSettingsStatus.VALUES);
 
     private final ConnectionDatabaseSettings databaseSettings;
     private final @Getter(lazy = true) ConnectionPropertiesSettings propertiesSettings = new ConnectionPropertiesSettings(this);

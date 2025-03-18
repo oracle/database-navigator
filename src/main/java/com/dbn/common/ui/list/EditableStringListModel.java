@@ -31,17 +31,18 @@ public class EditableStringListModel extends DBNEditableTableModel {
     private final List<String> originalData;
     private final List<String> data;
 
-    public EditableStringListModel(Collection<String> data, boolean sorted) {
+    public EditableStringListModel() {
+        this(Collections.emptyList());
+    }
+    public EditableStringListModel(Collection<String> data) {
         this.originalData = new ArrayList<>(data);
         this.data = new ArrayList<>(data);
-        if (sorted) Collections.sort(this.data);
     }
 
     public boolean isChanged() {
         return !originalData.equals(data);
     }
 
-    @Override
     public int getRowCount() {
         return data.size();
     }
@@ -96,4 +97,5 @@ public class EditableStringListModel extends DBNEditableTableModel {
         data.remove(rowIndex);
         notifyListeners(rowIndex, data.size() + 1, -1);
     }
+
 }

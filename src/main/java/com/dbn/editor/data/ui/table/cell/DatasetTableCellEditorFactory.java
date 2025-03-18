@@ -67,9 +67,14 @@ public class DatasetTableCellEditorFactory implements Disposable {
             tableCellEditor.getEditorComponent().createCalendarPopup(false);
             return tableCellEditor;
         }
-        else if (genericDataType.isOneOf(ARRAY, VECTOR)) {
+        else if (genericDataType == ARRAY) {
             DatasetTableCellEditorWithPopup tableCellEditor = new DatasetTableCellEditorWithPopup(table);
             tableCellEditor.getEditorComponent().createArrayEditorPopup(false);
+            return tableCellEditor;
+        }
+        else if (genericDataType == VECTOR) {
+            DatasetTableCellEditorWithPopup tableCellEditor = new DatasetTableCellEditorWithPopup(table);
+            tableCellEditor.getEditorComponent().createArrayViewerPopup(false);
             return tableCellEditor;
         }
         else if (genericDataType == LITERAL) {

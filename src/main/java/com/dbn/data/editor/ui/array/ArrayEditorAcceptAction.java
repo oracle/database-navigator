@@ -17,14 +17,13 @@
 package com.dbn.data.editor.ui.array;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.util.Lists;
 import com.dbn.data.editor.ui.UserValueHolder;
-import com.dbn.data.value.VectorValue;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.nls.NlsResources.txt;
 
 class ArrayEditorAcceptAction extends ArrayEditorAction {
@@ -40,27 +39,11 @@ class ArrayEditorAcceptAction extends ArrayEditorAction {
 
         ArrayEditorList list = form.getEditorList();
         list.stopCellEditing();
-        UserValueHolder userValueHolder = form.getEditorComponent().getUserValueHolder();
+        UserValueHolder<?> userValueHolder = form.getEditorComponent().getUserValueHolder();
+
         List<String> data = list.getModel().getData();
+        userValueHolder.updateUserValue(cast(data), false);
 
-        Object userValue = userValueHolder.getUserValue();
-        if (userValue instanceof VectorValue) {
-            List<Double> doubles = Lists.convert(data, s -> Double.valueOf(s));
-            userValueHolder.updateUserValue(doubles, false);
-        } else {
-            userValueHolder.updateUserValue(data, false);
-        }
-
-/*
-        String text = editorTextArea.getText().trim();
-
-        if (userValueHolder.getUserValue() instanceof String) {
-            JTextField textField = getTextField();
-            getEditorComponent().setEditable(text.indexOf('\n') == -1);
-
-            textField.setText(text);
-        }
-*/
         form.hidePopup();
     }
 

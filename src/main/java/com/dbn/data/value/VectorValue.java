@@ -26,40 +26,24 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
-import static java.util.Collections.emptyList;
 
 @Getter
-public class VectorValue extends ValueAdapter<List<Double>>{
-    private List<Double> values;
+public class VectorValue extends ValueAdapter<double[]>{
+    private double[] values;
 
     public VectorValue() {
     }
 
     public VectorValue(CallableStatement callableStatement, int parameterIndex) throws SQLException {
-        String string = callableStatement.getString(parameterIndex);
-        values = toDoubleArray(string);
+        values = callableStatement.getObject(parameterIndex, double[].class);
     }
 
     public VectorValue(ResultSet resultSet, int columnIndex) throws SQLException {
-        String string = resultSet.getString(columnIndex);
-        values = toDoubleArray(string);
+        values = resultSet.getObject(columnIndex, double[].class);
     }
-
-    private static List<Double> toDoubleArray(String value) throws SQLException {
-        if (value == null || value.length() < 2) return emptyList();
-        return Arrays.stream(value.substring(1, value.length() - 2).split(",")).map(s -> Double.valueOf(s)).collect(Collectors.toList());
-    }
-
-    private static String toString(List<Double> values) {
-        if (values == null) return "[]";
-        return "[" + values.stream().map(d -> String.valueOf(d)).collect(Collectors.joining(",")) + "]";
-    }
-
 
     @Override
     public GenericDataType getGenericDataType() {
@@ -68,21 +52,21 @@ public class VectorValue extends ValueAdapter<List<Double>>{
 
     @Nullable
     @Override
-    public List<Double> read() throws SQLException {
+    public double[] read() throws SQLException {
         return values;
     }
 
     @Nullable
     @Override
     public String export() throws SQLException {
-        return values == null ? null : values.toString();
+        return values == null ? null : Arrays.toString(values);
     }
 
     @Override
-    public void write(Connection connection, PreparedStatement preparedStatement, int parameterIndex, @Nullable List<Double> values) throws SQLException {
+    public void write(Connection connection, PreparedStatement preparedStatement, int parameterIndex, double[] values) throws SQLException {
         try {
             this.values = values;
-            preparedStatement.setString(parameterIndex, toString(values));
+            preparedStatement.setObject(parameterIndex, values);
         } catch (Throwable e) {
             conditionallyLog(e);
             throw toSqlException(e, "Could not write array value. Your JDBC driver may not support this feature");
@@ -91,10 +75,10 @@ public class VectorValue extends ValueAdapter<List<Double>>{
     }
 
     @Override
-    public void write(Connection connection, ResultSet resultSet, int columnIndex, @Nullable List<Double> values) throws SQLException {
+    public void write(Connection connection, ResultSet resultSet, int columnIndex, double[] values) throws SQLException {
         try {
             this.values = values;
-            resultSet.updateString(columnIndex, toString(values));
+            resultSet.updateString(columnIndex, Arrays.toString(values));
         } catch (Throwable e) {
             conditionallyLog(e);
             throw toSqlException(e, "Could not write array value. Your JDBC driver may not support this feature");
@@ -103,7 +87,7 @@ public class VectorValue extends ValueAdapter<List<Double>>{
 
     @Override
     public String getDisplayValue() {
-        return values == null ? "" : values.toString();
+        return values == null ? "" : Arrays.toString(values);
     }
 
     @Override
