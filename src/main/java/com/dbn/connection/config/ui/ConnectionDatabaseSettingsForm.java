@@ -257,7 +257,16 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         databaseInfo.setUrlType(urlType);
         databaseInfo.setUrl(urlSettingsForm.getUrl());
 
-        if (urlType == DatabaseUrlType.TNS) {
+        if (urlType == DatabaseUrlType.EZCONNECT) {
+            databaseInfo.setServerType(urlSettingsForm.getServerType());
+            databaseInfo.setHost(urlSettingsForm.getHost());
+            databaseInfo.setPort(urlSettingsForm.getPort());
+            databaseInfo.setDatabase(urlSettingsForm.getDatabase());
+            databaseInfo.setProtocol(urlSettingsForm.getProtocol());
+            databaseInfo.setServerType(urlSettingsForm.getServerType());
+            databaseInfo.setParameters(urlSettingsForm.getParameters());
+        }
+        else if (urlType == DatabaseUrlType.TNS) {
         	databaseInfo.setTnsFolder(urlSettingsForm.getTnsFolder());
         	databaseInfo.setTnsProfile(urlSettingsForm.getTnsProfile());
         } else if (urlType == DatabaseUrlType.FILE){
@@ -334,7 +343,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
 
     @NotNull
     DatabaseType getSelectedDatabaseType() {
-        ConnectionDatabaseSettings configuration = getConfiguration();;
+        ConnectionDatabaseSettings configuration = getConfiguration();
         return Commons.nvl(getSelection(databaseTypeComboBox), configuration.getDatabaseType());
     }
 

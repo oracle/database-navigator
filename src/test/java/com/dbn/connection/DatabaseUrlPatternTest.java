@@ -20,20 +20,18 @@ import org.jetbrains.annotations.NonNls;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static com.dbn.connection.DatabaseUrlPattern.MYSQL_DB;
-import static com.dbn.connection.DatabaseUrlPattern.ORACLE_LDAP;
-import static com.dbn.connection.DatabaseUrlPattern.ORACLE_LDAPS;
-import static com.dbn.connection.DatabaseUrlPattern.ORACLE_SERVICE;
-import static com.dbn.connection.DatabaseUrlPattern.ORACLE_SID;
-import static com.dbn.connection.DatabaseUrlPattern.ORACLE_TNS;
-import static com.dbn.connection.DatabaseUrlPattern.POSTGRES_DB;
-import static com.dbn.connection.DatabaseUrlPattern.REDSHIFT_DB;
-import static com.dbn.connection.DatabaseUrlPattern.SQLITE_FILE;
+import static com.dbn.connection.DatabaseUrlPattern.*;
 
 public class DatabaseUrlPatternTest {
 
     @Test
     public void testPatterns() {
+        test(ORACLE_EZCONNECT,
+                "jdbc:oracle:thin:@tcps://host123:1234/SRV.AB",
+                "jdbc:oracle:thin:@tcps://host123:1234/SRV.AB:DEDICATED",
+                "jdbc:oracle:thin:@tcps://host123:1234/SRV.AB?SDU=11",
+                "jdbc:oracle:thin:@tcps://host123:1234/SRV.AB:SHARED?foo=bar"
+        );
         test(ORACLE_TNS,
                 "jdbc:oracle:thin:@PROFILE_ABC?TNS_ADMIN=C:\\Test\\TNS admin",
                 "jdbc:oracle:oci:@PROFILE_ABC?TNS_ADMIN=C:\\Test\\TNS admin",
