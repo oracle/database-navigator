@@ -36,6 +36,7 @@ import com.dbn.database.common.metadata.impl.DBJavaClassMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJavaFieldMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJavaMethodMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJavaParameterMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBJsonViewMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBMaterializedViewMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBNestedTableMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBObjectDependencyMetadataImpl;
@@ -108,6 +109,7 @@ public class DBObjectMetadataFactory {
             case PACKAGE_PROCEDURE:   return new DBProcedureMetadataImpl(resultSet);
             case DIMENSION:           return new DBDimensionMetadataImpl(resultSet);
             case VIEW:                return new DBViewMetadataImpl(resultSet);
+            case JSON_VIEW:           return new DBJsonViewMetadataImpl(resultSet);
             case TABLE:               return new DBTableMetadataImpl(resultSet);
             case NESTED_TABLE:        return new DBNestedTableMetadataImpl(resultSet);
             case MATERIALIZED_VIEW:   return new DBMaterializedViewMetadataImpl(resultSet);

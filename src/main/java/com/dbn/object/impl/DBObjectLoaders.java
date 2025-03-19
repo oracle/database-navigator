@@ -39,6 +39,7 @@ import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
 import com.dbn.database.common.metadata.def.DBJavaFieldMetadata;
 import com.dbn.database.common.metadata.def.DBJavaMethodMetadata;
 import com.dbn.database.common.metadata.def.DBJavaParameterMetadata;
+import com.dbn.database.common.metadata.def.DBJsonViewMetadata;
 import com.dbn.database.common.metadata.def.DBMaterializedViewMetadata;
 import com.dbn.database.common.metadata.def.DBNestedTableMetadata;
 import com.dbn.database.common.metadata.def.DBObjectDependencyMetadata;
@@ -76,6 +77,7 @@ import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
+import com.dbn.object.DBJsonView;
 import com.dbn.object.DBMaterializedView;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBNestedTable;
@@ -239,6 +241,11 @@ public class DBObjectLoaders {
                 "VIEWS", DBObjectType.SCHEMA, DBObjectType.VIEW, true, true,
                 (content, conn, mdi) -> mdi.loadViews(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBViewImpl(content.getParentEntity(), md));
+
+        DynamicContentResultSetLoader.<DBJsonView, DBJsonViewMetadata>create(
+                "JSON_VIEWS", DBObjectType.SCHEMA, DBObjectType.JSON_VIEW, true, true,
+                (content, conn, mdi) -> mdi.loadJsonViews(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> new DBJsonViewImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBMaterializedView, DBMaterializedViewMetadata>create(
                 "MATERIALIZED_VIEWS", DBObjectType.SCHEMA, DBObjectType.MATERIALIZED_VIEW, true, true,

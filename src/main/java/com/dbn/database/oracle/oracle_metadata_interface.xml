@@ -313,7 +313,40 @@
                 'N' as IS_SYSTEM_VIEW
             from [PREFIX]_VIEWS
             where OWNER = {0}
+              and DUALITY_VIEW != 'YES'
             order by VIEW_NAME asc
+        </statement>
+        <statement prefixes="DBA, ALL">
+            select
+                VIEW_NAME,
+                VIEW_TYPE_OWNER,
+                VIEW_TYPE,
+                'N' as IS_SYSTEM_VIEW
+            from [PREFIX]_VIEWS
+            where OWNER = {0}
+            order by VIEW_NAME asc
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="json-views" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL">
+            select
+                VIEW_NAME,
+                VIEW_TYPE_OWNER,
+                VIEW_TYPE,
+               'N' as IS_SYSTEM_VIEW
+            from [PREFIX]_VIEWS
+            where OWNER = {0}
+              and DUALITY_VIEW = 'YES'
+            order by VIEW_NAME asc
+        </statement>
+        <statement prefixes="DBA, ALL">
+            select
+                null as VIEW_NAME,
+                null as VIEW_TYPE_OWNER,
+                null as VIEW_TYPE,
+                'N' as IS_SYSTEM_VIEW
+            from DUAL
+            where 1 = 2
         </statement>
     </statement-execution-processor>
 

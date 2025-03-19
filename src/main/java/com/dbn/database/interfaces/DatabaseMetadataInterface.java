@@ -166,6 +166,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      */
     ResultSet loadMaterializedViews(String ownerName, DBNConnection connection) throws SQLException;
 
+    ResultSet loadJsonViews(String ownerName, DBNConnection connection) throws SQLException;
 
     /**
      * Loads the columns of the given dataset (can be a TABLE, VIEW or MATERIALIZED_VIEW)<br>

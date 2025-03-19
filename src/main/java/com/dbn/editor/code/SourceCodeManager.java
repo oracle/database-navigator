@@ -460,6 +460,12 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                         objectName,
                         connection);
 
+            case JSON_VIEW:
+                return metadata.loadViewSourceCode(
+                        schemaName,
+                        objectName,
+                        connection);
+
             case MATERIALIZED_VIEW:
                 return metadata.loadMaterializedViewSourceCode(
                         schemaName,

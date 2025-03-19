@@ -91,6 +91,7 @@ public enum DBContentType {
             case PACKAGE:
             case TYPE: return CODE_SPEC_AND_BODY;
             case VIEW:
+            case JSON_VIEW:
             case MATERIALIZED_VIEW: return CODE_AND_DATA;
             case TABLE: return DATA;
             default: return NONE;

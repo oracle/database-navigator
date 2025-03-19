@@ -88,7 +88,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     JAVA_METHOD(DatabaseObjectTypeId.JAVA_METHOD, "java method", "methods", Icons.DBO_JAVA_METHOD, null, Icons.DBO_JAVA_METHODS, false),
     JAVA_OBJECT(DatabaseObjectTypeId.JAVA_OBJECT, "java object", "objects", null, null, null, false),
     JAVA_PARAMETER(DatabaseObjectTypeId.JAVA_PARAMETER, "java parameter", "parameters", Icons.DBO_JAVA_PARAMETER, null, null, false),
-    JSON_VIEW(DatabaseObjectTypeId.JSON_VIEW, "json view", "json views", null, null, null, false),
+    JSON_VIEW(DatabaseObjectTypeId.JSON_VIEW, "json view", "json views", Icons.DBO_JSON_VIEW, null, Icons.DBO_JSON_VIEWS, false),
     LIBRARY(DatabaseObjectTypeId.LIBRARY, "library", "libraries", null, null, null, false),
     LOB(DatabaseObjectTypeId.LOB, "lob", "lobs", null, null, null, false),
     MATERIALIZED_VIEW(DatabaseObjectTypeId.MATERIALIZED_VIEW, "materialized view", "materialized views", Icons.DBO_MATERIALIZED_VIEW, null, Icons.DBO_MATERIALIZED_VIEWS, false),
@@ -346,6 +346,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TABLE.setInheritedType(DATASET);
         VIEW.setInheritedType(DATASET);
         CURSOR.setInheritedType(DATASET);
+        JSON_VIEW.setInheritedType(DATASET);
         MATERIALIZED_VIEW.setInheritedType(DATASET);
         PROCEDURE.setInheritedType(METHOD);
         FUNCTION.setInheritedType(METHOD);
@@ -398,6 +399,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         DIMENSION_HIERARCHY.addParent(DIMENSION);
         DIMENSION_LEVEL.addParent(DIMENSION);
         INDEX.addParent(SCHEMA);
+        JSON_VIEW.addParent(SCHEMA);
         MATERIALIZED_VIEW.addParent(SCHEMA);
         NESTED_TABLE.addParent(TABLE);
         NESTED_TABLE_COLUMN.addParent(NESTED_TABLE);
@@ -453,6 +455,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         PROCEDURE.contentType = DBContentType.CODE;
         TABLE.contentType = DBContentType.DATA;
         VIEW.contentType = DBContentType.CODE_AND_DATA;
+        JSON_VIEW.contentType = DBContentType.CODE_AND_DATA;
         MATERIALIZED_VIEW.contentType = DBContentType.CODE_AND_DATA;
         TYPE.contentType = DBContentType.CODE_SPEC_AND_BODY;
         PACKAGE.contentType = DBContentType.CODE_SPEC_AND_BODY;
@@ -464,6 +467,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
 
         // DDL file types
         VIEW.addDdlFileType(DBContentType.CODE, DDLFileTypeId.VIEW);
+        JSON_VIEW.addDdlFileType(DBContentType.CODE, DDLFileTypeId.VIEW);
         MATERIALIZED_VIEW.addDdlFileType(DBContentType.CODE, DDLFileTypeId.VIEW);
         TRIGGER.addDdlFileType(DBContentType.CODE, DDLFileTypeId.TRIGGER);
         DATASET_TRIGGER.addDdlFileType(DBContentType.CODE, DDLFileTypeId.TRIGGER);

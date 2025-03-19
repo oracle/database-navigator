@@ -125,6 +125,11 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
+    public ResultSet loadJsonViews(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "json-views", ownerName);
+    }
+
+    @Override
     public ResultSet loadMaterializedViews(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "materialized-views", ownerName);
     }
