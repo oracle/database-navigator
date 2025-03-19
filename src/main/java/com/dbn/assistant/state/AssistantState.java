@@ -17,6 +17,7 @@
 package com.dbn.assistant.state;
 
 import com.dbn.assistant.DatabaseAssistantType;
+import com.dbn.assistant.chat.PersistentChatConversation;
 import com.dbn.assistant.chat.message.PersistentChatMessage;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.common.feature.FeatureAcknowledgement;
@@ -62,7 +63,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   private ConnectionId connectionId;
   private DatabaseAssistantType assistantType = DatabaseAssistantType.GENERIC;
   private List<PersistentChatMessage> messages = new ArrayList<>();
-
+  private List<PersistentChatConversation> conversations = new ArrayList<>();
   private PromptAction selectedAction = PromptAction.SHOW_SQL;
   private String defaultProfileName;
   private String selectedProfileName;
@@ -113,6 +114,10 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     this.messages.addAll(messages);
   }
 
+  public void addConversations(List<PersistentChatConversation> conversations) {
+    this.conversations.addAll(conversations);
+  }
+
   public void clearMessages() {
     messages.clear();
   }
@@ -135,6 +140,14 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
       message.readState(messageElement);
       messages.add(message);
     }
+
+    Element conversationsElement = element.getChild("conversations");
+    List<Element> conversationElements = conversationsElement.getChildren();
+    for (Element conversationElement : conversationElements) {
+      PersistentChatConversation conversation = new PersistentChatConversation();
+      conversation.readState(conversationElement);
+      conversations.add(conversation);
+    }
   }
 
   @Override
@@ -152,6 +165,12 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     for (PersistentChatMessage message : messages) {
       Element messageElement = newElement(messagesElement, "message");
       message.writeState(messageElement);
+    }
+
+    Element conversationsElement = newElement(element, "conversations");
+    for (PersistentChatConversation conversation : conversations) {
+      Element conversationElement = newElement(conversationsElement, "conversation");
+      conversation.writeState(conversationElement);
     }
   }
 }
