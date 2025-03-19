@@ -57,6 +57,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
     private DBObjectRef<DBCredential> credential;
     private AIProvider provider;
     private AIModel model;
+    private boolean conversation;
     private double temperature;
     private List<DBObjectRef<?>> objects;
 
@@ -68,6 +69,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
             AIProvider provider,
             AIModel model,
             String objectList,
+            boolean conversation,
             double temperature,
             boolean enabled) throws SQLException {
         super(parent, new DBProfileMetadata.Record(
@@ -77,6 +79,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
                 model.getApiName(),
                 description,
                 objectList,
+                conversation,
                 temperature,
                 enabled));
     }
@@ -92,6 +95,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
         description = metadata.getDescription();
         provider = AIProvider.forId(metadata.getProvider());
         model = AIModel.forApiName(metadata.getModel());
+        conversation = metadata.isConversation();
         temperature = metadata.getTemperature();
         objects = jsonToObjectList(connection.getConnectionId(), metadata.getObjectList());
 
@@ -104,6 +108,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
                 "model", getModel().getApiName(),
                 "temperature", getTemperature(),
                 "credential_name", nvl(getCredentialName(), ""),
+                "conversation", isConversation()?"true":"false",
                 "object_list", convert(objects, o -> objectToAttributes(o))));
     }
 

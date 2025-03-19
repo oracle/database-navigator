@@ -184,6 +184,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
             editedProfile.getProvider(),
             editedProfile.getModel(),
             DBObjectUtil.objectListToJson(editedProfile.getObjectList()),
+            editedProfile.isConversation(),
             editedProfile.getTemperature(),
             editedProfile.isEnabled());
 

@@ -42,6 +42,7 @@ public class ProfileDetailsForm extends DBNFormBase {
     private JTable objectsTable;
     private JTextField profileNameTextField;
     private JCheckBox enabledCheckBox;
+    private JCheckBox conversationCheckBox;
 
     public ProfileDetailsForm(@NotNull ProfileManagementForm parent, DBAIProfile profile) {
         super(parent);
@@ -55,6 +56,7 @@ public class ProfileDetailsForm extends DBNFormBase {
         profileNameTextField.setText(profile.getName());
         modelTextField.setText(profile.getModel().getId());
         credentialTextField.setText(profile.getCredentialName());
+        conversationCheckBox.setSelected(profile.isConversation());
         providerTextField.setText(profile.getProvider().getName());
     }
 
