@@ -25,7 +25,8 @@
         <!ELEMENT statement (#PCDATA)>
         <!ATTLIST statement
                 comment CDATA #IMPLIED
-                prefixes CDATA #IMPLIED>
+                prefixes CDATA #IMPLIED
+                since-version CDATA #IMPLIED>
         ]>
 <data-dictionary>
     <statement-execution-processor id="users" is-query="true" is-prepared-statement="true">
@@ -305,7 +306,21 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="views" is-query="true" is-prepared-statement="true">
-        <statement prefixes="DBA, ALL">
+        <statement prefixes="DBA, ALL" since-version="23.0">
+            select
+                v.VIEW_NAME,
+                v.VIEW_TYPE_OWNER,
+                v.VIEW_TYPE,
+                'N' as IS_SYSTEM_VIEW
+            from [PREFIX]_VIEWS v
+                left join [PREFIX]_JSON_DUALITY_VIEWS jv
+                       on jv.VIEW_OWNER = v.OWNER
+                      and jv.VIEW_NAME = v.VIEW_NAME
+            where v.OWNER = {0}
+              and jv.VIEW_NAME is null
+            order by v.VIEW_NAME asc
+        </statement>
+        <statement prefixes="DBA, ALL" since-version="23.0">
             select
                 VIEW_NAME,
                 VIEW_TYPE_OWNER,
@@ -328,12 +343,22 @@
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="json-views" is-query="true" is-prepared-statement="true">
-        <statement prefixes="DBA, ALL">
+        <statement prefixes="DBA, ALL" since-version="23.0">
+            select
+                VIEW_NAME,
+                null as VIEW_TYPE_OWNER,
+                null as VIEW_TYPE,
+               'N' as IS_SYSTEM_VIEW
+            from [PREFIX]_JSON_DUALITY_VIEWS
+            where VIEW_OWNER = {0}
+            order by VIEW_NAME asc
+        </statement>
+        <statement prefixes="DBA, ALL" since-version="23.0">
             select
                 VIEW_NAME,
                 VIEW_TYPE_OWNER,
                 VIEW_TYPE,
-               'N' as IS_SYSTEM_VIEW
+                'N' as IS_SYSTEM_VIEW
             from [PREFIX]_VIEWS
             where OWNER = {0}
               and DUALITY_VIEW = 'YES'
