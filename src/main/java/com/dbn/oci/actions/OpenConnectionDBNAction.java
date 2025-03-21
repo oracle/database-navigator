@@ -18,13 +18,14 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.oracle.oci.intellij.api.ext.ContributeADBActions;
 
 import java.awt.event.ActionEvent;
+import java.util.Collections;
 
 import static com.dbn.nls.NlsResources.txt;
 
 public class OpenConnectionDBNAction extends ContributeADBActions.ExtensionContextAction{
   private ConnectionSettings connectionSettings;
   public OpenConnectionDBNAction(ConnectionSettings context, String title) {
-    super(title,ActionType.OPEN);
+    super(title, Collections.emptyList());
     this.connectionSettings = context;
   }
   @Override

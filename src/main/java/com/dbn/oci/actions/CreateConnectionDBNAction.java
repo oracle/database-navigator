@@ -10,11 +10,12 @@ import com.intellij.openapi.project.Project;
 import com.oracle.oci.intellij.api.ext.ContributeADBActions;
 
 import java.awt.event.ActionEvent;
+import java.util.Collections;
 
 public class CreateConnectionDBNAction extends ContributeADBActions.ExtensionContextAction {
   ConnectionData connectionData;
-  public CreateConnectionDBNAction(ConnectionData context, String title, ActionType actionType) {
-    super(title,actionType);
+  public CreateConnectionDBNAction(ConnectionData context, String title) {
+    super(title, Collections.emptyList());
     this.connectionData = context;
   }
 
