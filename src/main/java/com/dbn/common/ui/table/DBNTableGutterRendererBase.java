@@ -72,7 +72,7 @@ public abstract class DBNTableGutterRendererBase implements DBNTableGutterRender
         if (preferredSize.getWidth() != preferredWidth) {
             Dimension dimension = new Dimension(preferredWidth, -1);
             mainPanel.setPreferredSize(dimension);
-            Dispatch.run(() -> resize(list, preferredWidth));
+            Dispatch.run(mainPanel, () -> resize(list, preferredWidth));
         }
 
         setAccessibleName(mainPanel, "Row index " + (index + 1));
@@ -81,7 +81,10 @@ public abstract class DBNTableGutterRendererBase implements DBNTableGutterRender
 
     private void resize(JList list, int preferredWidth) {
         Failsafe.nd(list);
-        list.setPreferredSize(new Dimension(preferredWidth, (int) list.getPreferredSize().getHeight()));
+        int height = (int) list.getPreferredSize().getHeight();
+        list.setPreferredSize(new Dimension(preferredWidth, height));
+        list.revalidate();
+        list.repaint();
     }
 
     private int computeLabelWidth(int count) {

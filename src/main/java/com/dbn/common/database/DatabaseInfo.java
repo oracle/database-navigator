@@ -19,6 +19,7 @@ package com.dbn.common.database;
 
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Strings;
+import com.dbn.connection.DatabaseProtocol;
 import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.file.DatabaseFile;
@@ -32,7 +33,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.dbn.connection.DatabaseUrlType.CUSTOM;
 import static com.dbn.connection.DatabaseUrlType.DATABASE;
@@ -44,6 +47,8 @@ import static com.dbn.connection.DatabaseUrlType.SID;
 @Setter
 @EqualsAndHashCode
 public class DatabaseInfo implements Cloneable<DatabaseInfo> {
+
+
 
     public interface Default {
         DatabaseInfo ORACLE   = new DatabaseInfo("oracle", "localhost", "1521", "XE", SID);
@@ -58,10 +63,13 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
     private String port;
     private String database;
     private String url;
+    private DatabaseProtocol protocol;
     private DatabaseFileBundle fileBundle;
     private DatabaseUrlType urlType = DATABASE;
-	private String tnsFolder;
-	private String tnsProfile;
+    private String tnsFolder;
+    private String tnsProfile;
+    private String serverType;
+    private Map<String, String> parameters = new HashMap<>();
 
     public DatabaseInfo() {}
 
@@ -85,7 +93,9 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
                 Strings.isEmpty(database) &&
                 Strings.isEmpty(tnsFolder) &&
                 Strings.isEmpty(tnsProfile) &&
-                Strings.isEmpty(getFirstFilePath());
+                Strings.isEmpty(getFirstFilePath()) &&
+                Strings.isEmpty(serverType) &&
+                parameters.isEmpty();
     }
 
     public String ensureTnsFolder() {
@@ -100,6 +110,8 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         this.tnsProfile = null;
         this.fileBundle = null;
         this.url = null;
+        this.serverType = null;
+        this.parameters = new HashMap<>();
     }
 
     public void initializeUrl(DatabaseUrlPattern urlPattern) {
@@ -115,6 +127,11 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         this.database = pattern.resolveDatabase(url);
         this.tnsFolder = pattern.resolveTnsProfile(url);
         this.tnsProfile = pattern.resolveTnsFolder(url);
+        this.serverType = pattern.resolveServerType(url);
+        this.parameters = pattern.resolveParameters(url);
+        this.protocol = pattern.resolveProtocol(url);
+
+        // TODO: resolve serverType
         initializeFiles(pattern);
     }
 
@@ -155,7 +172,6 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         return fileBundle == null ? Collections.emptyList() : fileBundle.getAttachedFiles();
     }
 
-
     public boolean isCustomUrl() {
         return getUrlType() == CUSTOM;
     }
@@ -167,12 +183,14 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         clone.host = this.host;
         clone.port = this.port;
         clone.database = this.database;
+        clone.protocol = this.protocol;
         clone.url = this.url;
         clone.fileBundle = this.fileBundle == null ? null : this.fileBundle.clone();
         clone.urlType = this.urlType;
         clone.tnsFolder = this.tnsFolder;
         clone.tnsProfile = this.tnsProfile;
-
+        clone.serverType = this.serverType;
+        clone.parameters = new HashMap<>(this.parameters);
         return clone;
     }
 

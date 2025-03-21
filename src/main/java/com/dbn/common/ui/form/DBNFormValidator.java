@@ -16,8 +16,11 @@
 
 package com.dbn.common.ui.form;
 
+import com.intellij.openapi.ui.ValidationInfo;
+
 import javax.swing.JComponent;
 import javax.swing.text.JTextComponent;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -43,6 +46,14 @@ public interface DBNFormValidator {
     <C extends JComponent> void addValidation(C component, Predicate<C> validator, String message);
 
     <C extends JComponent> void addValidation(C component, Function<C, String> validator);
+
+    /**
+     * Add a raw validator to the component
+     * @param component the {@link JComponent} to add the validator for
+     * @param validator the validator returning a list of {@link ValidationInfo} elements
+     * @param <C> the type of component being validated
+     */
+    <C extends JComponent> void addValidator(C component, Function<C, List<ValidationInfo>> validator);
 
     /**
      * Adds a text validation rule to a specified JTextComponent. The validation rule

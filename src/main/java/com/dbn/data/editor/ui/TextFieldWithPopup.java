@@ -42,6 +42,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.List;
 
+import static com.dbn.common.ui.list.ListProperty.EDITABLE;
+import static com.dbn.common.ui.list.ListProperty.INDEXED;
+
 public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButtons {
     private final JPanel buttonsPanel;
 
@@ -116,7 +119,12 @@ public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButto
     }
 
     public void createArrayEditorPopup(boolean autoPopup) {
-        ArrayEditorPopupProviderForm popupProviderForm = new ArrayEditorPopupProviderForm(this, autoPopup);
+        ArrayEditorPopupProviderForm popupProviderForm = new ArrayEditorPopupProviderForm(this, autoPopup, INDEXED, EDITABLE);
+        addPopupProvider(popupProviderForm);
+    }
+
+    public void createArrayViewerPopup(boolean autoPopup) {
+        ArrayEditorPopupProviderForm popupProviderForm = new ArrayEditorPopupProviderForm(this, autoPopup, INDEXED);
         addPopupProvider(popupProviderForm);
     }
 

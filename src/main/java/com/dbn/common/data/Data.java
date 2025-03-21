@@ -21,6 +21,7 @@ import com.dbn.common.util.Unsafe;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -193,5 +194,23 @@ public final class Data {
         if (type == Double.class) return double.class;
 
         return null;
+    }
+
+    public static <S, T> T[] convert(S[] array, Class<T> type) {
+        T[] result = (T[]) Array.newInstance(type, array.length);
+        for (int i = 0; i < array.length; i++) {
+            Object o = array[i];
+            result[i] = cast(o, type);
+        }
+        return result;
+    }
+
+    public static <T> T[] convert(double[] array, Class<T> type) {
+        T[] result = (T[]) Array.newInstance(type, array.length);
+        for (int i = 0; i < array.length; i++) {
+            double d = array[i];
+            result[i] = cast(d, type);
+        }
+        return result;
     }
 }

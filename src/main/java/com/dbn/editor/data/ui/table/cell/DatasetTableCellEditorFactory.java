@@ -34,6 +34,12 @@ import javax.swing.table.TableCellEditor;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.dbn.data.type.GenericDataType.ARRAY;
+import static com.dbn.data.type.GenericDataType.DATE_TIME;
+import static com.dbn.data.type.GenericDataType.LITERAL;
+import static com.dbn.data.type.GenericDataType.NUMERIC;
+import static com.dbn.data.type.GenericDataType.VECTOR;
+
 public class DatasetTableCellEditorFactory implements Disposable {
     private final Map<ColumnInfo, TableCellEditor> cache = new HashMap<>();
 
@@ -53,20 +59,25 @@ public class DatasetTableCellEditorFactory implements Disposable {
         DataEditorSettings dataEditorSettings = DataEditorSettings.getInstance(table.getDatasetEditor().getProject());
         DBDataType dataType = columnInfo.getDataType();
         GenericDataType genericDataType = dataType.getGenericDataType();
-        if (genericDataType == GenericDataType.NUMERIC) {
+        if (genericDataType == NUMERIC) {
             return new DatasetTableCellEditor(table);
         }
-        else if (genericDataType == GenericDataType.DATE_TIME) {
+        else if (genericDataType == DATE_TIME) {
             DatasetTableCellEditorWithPopup tableCellEditor = new DatasetTableCellEditorWithPopup(table);
             tableCellEditor.getEditorComponent().createCalendarPopup(false);
             return tableCellEditor;
         }
-        else if (genericDataType == GenericDataType.ARRAY) {
+        else if (genericDataType == ARRAY) {
             DatasetTableCellEditorWithPopup tableCellEditor = new DatasetTableCellEditorWithPopup(table);
             tableCellEditor.getEditorComponent().createArrayEditorPopup(false);
             return tableCellEditor;
         }
-        else if (genericDataType == GenericDataType.LITERAL) {
+        else if (genericDataType == VECTOR) {
+            DatasetTableCellEditorWithPopup tableCellEditor = new DatasetTableCellEditorWithPopup(table);
+            tableCellEditor.getEditorComponent().createArrayViewerPopup(false);
+            return tableCellEditor;
+        }
+        else if (genericDataType == LITERAL) {
             long dataLength = dataType.getLength();
 
 

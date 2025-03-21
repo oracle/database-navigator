@@ -36,15 +36,15 @@ public class EditableStringListForm extends DBNFormBase {
 
     private final EditableStringList stringList;
 
-    public EditableStringListForm(DBNComponent parent, String title, boolean sorted) {
-        this(parent, title, new ArrayList<>(), sorted);
+    public EditableStringListForm(DBNComponent parent, String title, ListProperty ... properties) {
+        this(parent, title, new ArrayList<>(), properties);
     }
 
-    public EditableStringListForm(DBNComponent parent, String title, List<String> elements, boolean sorted) {
+    public EditableStringListForm(DBNComponent parent, String title, List<String> elements, ListProperty ... properties) {
         super(parent);
         titleLabel.setText(title);
 
-        stringList = new EditableStringList(this, elements, sorted, false);
+        stringList = new EditableStringList(this, elements, properties);
         listPanel.add(initListComponent());
     }
 

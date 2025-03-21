@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,25 +19,33 @@ package com.dbn.connection;
 import com.dbn.common.constant.Constants;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.database.DatabaseInfo.Default;
+import com.dbn.common.util.Parameters;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Parameters.toParameterString;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.database;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.file;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.folder;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.host;
+import static com.dbn.connection.DatabaseUrlPattern.Elements.parameters;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.port;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.profile;
+import static com.dbn.connection.DatabaseUrlPattern.Elements.protocol;
+import static com.dbn.connection.DatabaseUrlPattern.Elements.serverType;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.vendor;
 import static com.dbn.connection.DatabaseUrlType.CUSTOM;
 import static com.dbn.connection.DatabaseUrlType.DATABASE;
+import static com.dbn.connection.DatabaseUrlType.EZCONNECT;
 import static com.dbn.connection.DatabaseUrlType.FILE;
 import static com.dbn.connection.DatabaseUrlType.LDAP;
 import static com.dbn.connection.DatabaseUrlType.LDAPS;
@@ -52,6 +60,12 @@ import static java.util.regex.Pattern.compile;
 @Getter
 @NonNls
 public enum DatabaseUrlPattern {
+
+    ORACLE_EZCONNECT(
+            // temporary; pattern is much more complicated.
+            "jdbc:oracle:thin:@<PROTOCOL>//<HOST>:<PORT>/<DATABASE><SERVER_TYPE><PARAMETERS>",
+            compile("^jdbc:oracle:thin:@(" + protocol + ":)?//" + host + "(:" + port + ")?/" + database + serverType + parameters),
+            Default.ORACLE, DatabaseUrlType.EZCONNECT),
 
     ORACLE_TNS(
             "jdbc:oracle:thin:@<TNS_PROFILE>?TNS_ADMIN=\"<TNS_FOLDER>\"",
@@ -113,6 +127,9 @@ public enum DatabaseUrlPattern {
         String profile = "(?<PROFILE>[\\w\\-.]+)";
         String folder = "(?<FOLDER>([a-z]:)?([\\\\/][\\w\\s/_.\\-']+)+)";
         String file = "(?<FILE>([a-z]:)?([\\\\/][\\w\\s/_.\\-']+)+)";
+        String serverType = "(?<SERVERTYPE>:[\\w\\-.$#]+)?";
+        String parameters = "(?<PARAMETERS>\\?(.*))?";
+        String protocol = "(?<PROTOCOL>(tcp|tcps))";
     }
 
 
@@ -139,18 +156,25 @@ public enum DatabaseUrlPattern {
                 databaseInfo.getDatabase(),
                 databaseInfo.getMainFilePath(),
                 databaseInfo.ensureTnsFolder(),
-                databaseInfo.getTnsProfile());
+                databaseInfo.getTnsProfile(),
+                databaseInfo.getServerType(),
+                databaseInfo.getParameters(),
+                databaseInfo.getProtocol());
     }
 
-    public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile) {
+    public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile, String serverType, Map<String, String> parameters, DatabaseProtocol protocol) {
         return urlTemplate.
                 replace("<VENDOR>", nvl(vendor, "")).
                 replace("<HOST>", nvl(host, "")).
                 replace(":<PORT>", isEmpty(port) ? "" : ":" + port).
                 replace("<DATABASE>", nvl(database, "")).
+                replace("<PROTOCOL>", protocol == null ? "" : protocol + ":").
                 replace("<FILE>", nvl(file, "")).
                 replace("<TNS_FOLDER>", nvl(tnsFolder, "")).replaceAll("\\\\", "/").
-                replace("<TNS_PROFILE>", nvl(tnsProfile, ""));
+                replace("<TNS_PROFILE>", nvl(tnsProfile, "")).
+                replace("<SERVER_TYPE>", isEmpty(serverType) || "Default".equalsIgnoreCase(serverType) ? ""
+                        : ":" + nvl(serverType.toUpperCase(), "")).
+                replace("<PARAMETERS>", toParameterString(parameters));
     }
 
     public String getDefaultUrl() {
@@ -186,11 +210,29 @@ public enum DatabaseUrlPattern {
     }
 
     public String resolveTnsFolder(String url) {
-        return resolveGroup(url, "TNS_FOLDER", TNS);
+        return resolveGroup(url, "FOLDER", TNS);
     }
 
     public String resolveTnsProfile(String url) {
-        return resolveGroup(url, "TNS_PROFILE", TNS);
+        return resolveGroup(url, "PROFILE", TNS);
+    }
+
+    public String resolveServerType(String url) {
+        return resolveGroup(url, "SERVERTYPE", EZCONNECT);
+    }
+
+    public DatabaseProtocol resolveProtocol(String url) {
+        String protocol = resolveGroup(url, "PROTOCOL", EZCONNECT);
+        return DatabaseProtocol.get(protocol);
+    }
+
+    public Map<String,String> resolveParameters(String url) {
+        int qmarkIdx = url.indexOf('?');
+        if (qmarkIdx < 0 || qmarkIdx == url.length()-1) {
+            return Collections.emptyMap();
+        }
+        String paramsString = url.substring(qmarkIdx);
+        return Parameters.toParameterMap(paramsString);
     }
 
     public boolean isValid(String url) {

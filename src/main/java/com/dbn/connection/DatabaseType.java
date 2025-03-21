@@ -43,7 +43,7 @@ public enum DatabaseType implements Constant<DatabaseType>, Presentable{
             Icons.DB_ORACLE_LARGE,
             "oracle.jdbc.driver.OracleDriver",
             AuthenticationType.values(),
-            array(DatabaseUrlPattern.ORACLE_SERVICE, DatabaseUrlPattern.ORACLE_SID, DatabaseUrlPattern.ORACLE_TNS, DatabaseUrlPattern.GENERIC)),
+            array(DatabaseUrlPattern.ORACLE_SERVICE, DatabaseUrlPattern.ORACLE_SID, DatabaseUrlPattern.ORACLE_EZCONNECT, DatabaseUrlPattern.ORACLE_TNS, DatabaseUrlPattern.GENERIC)),
 
     MYSQL(
             "MySQL",

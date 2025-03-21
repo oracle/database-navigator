@@ -39,6 +39,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.ui.popup.ListPopup;
+import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -63,12 +64,8 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
     private PresentableFactory<T> valueFactory;
     private Loader<List<T>> valueLoader;
 
-    private final PropertyHolder<ValueSelectorOption> options = new PropertyHolderBase.IntStore<>() {
-        @Override
-        protected ValueSelectorOption[] properties() {
-            return ValueSelectorOption.VALUES;
-        }
-    };
+    @Delegate
+    private final PropertyHolder<ValueSelectorOption> options = PropertyHolderBase.intBase(ValueSelectorOption.VALUES);
 
     private final MouseListener mouseListener = Mouse.listener().onPress(e -> {
         if (DBNComboBox.this.isEnabled()) {
@@ -223,7 +220,7 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
 
     private class AddValueAction extends BasicAction {
         AddValueAction() {
-            super(valueFactory.getActionName(), null, Icons.ACTION_ADD);
+            super(valueFactory.getActionName(), null, valueFactory.getIcon()!=null?valueFactory.getIcon():Icons.ACTION_ADD);
         }
 
         @Override
@@ -349,15 +346,5 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
                 selectValue(previousValue);
             }
         }
-    }
-
-    @Override
-    public boolean set(ValueSelectorOption status, boolean value) {
-        return options.set(status, value);
-    }
-
-    @Override
-    public boolean is(ValueSelectorOption status) {
-        return options.is(status);
     }
 }

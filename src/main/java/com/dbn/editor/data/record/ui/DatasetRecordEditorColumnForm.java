@@ -33,7 +33,7 @@ import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.DBNativeDataType;
 import com.dbn.data.type.DataTypeDefinition;
 import com.dbn.data.type.GenericDataType;
-import com.dbn.data.value.LargeObjectValue;
+import com.dbn.data.value.ValueAdapter;
 import com.dbn.editor.data.model.DatasetEditorColumnInfo;
 import com.dbn.editor.data.model.DatasetEditorModelCell;
 import com.dbn.editor.data.model.DatasetEditorModelRow;
@@ -196,9 +196,10 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase implements Compon
             editorComponent.setText(userValue);
         } else {
             Object userValue = cell.getUserValue();
-            editable = editable && !(userValue instanceof LargeObjectValue);
-            editorComponent.setEditable(editable);
+            editable = editable && !(userValue instanceof ValueAdapter);
             String presentableValue = formatter.formatObject(userValue);
+
+            editorComponent.setEditable(editable);
             editorComponent.setText(presentableValue);
         }
         JTextField valueTextField = editorComponent.getTextField();

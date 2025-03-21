@@ -26,6 +26,7 @@ import static com.dbn.nls.NlsResources.txt;
 @Getter
 @AllArgsConstructor
 public enum DatabaseUrlType implements Presentable, Constant<DatabaseUrlType> {
+    EZCONNECT(txt("cfg.connection.const.DatabaseUrlType_EZCONNECT")),
     TNS(txt("cfg.connection.const.DatabaseUrlType_TNS")),
     SID(txt("cfg.connection.const.DatabaseUrlType_SID")),
     SERVICE(txt("cfg.connection.const.DatabaseUrlType_SERVICE")),
@@ -36,4 +37,15 @@ public enum DatabaseUrlType implements Presentable, Constant<DatabaseUrlType> {
     FILE(txt("cfg.connection.const.DatabaseUrlType_FILE"));
 
     private final String name;
+
+
+    public String databaseIdentifier() {
+        switch (this) {
+            case SERVICE:
+            case EZCONNECT: return txt("cfg.connection.label.ServiceName");
+            case SID: return txt("cfg.connection.label.SystemIdentifier");
+            default: return txt("cfg.connection.label.Database");
+        }
+    }
+
 }
