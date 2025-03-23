@@ -17,9 +17,11 @@
 package com.dbn.assistant.state;
 
 import com.dbn.assistant.DatabaseAssistantType;
+import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.PersistentChatConversation;
 import com.dbn.assistant.chat.message.PersistentChatMessage;
 import com.dbn.assistant.chat.window.PromptAction;
+import com.dbn.assistant.provider.AIModel;
 import com.dbn.common.feature.FeatureAcknowledgement;
 import com.dbn.common.feature.FeatureAvailability;
 import com.dbn.common.property.PropertyHolderBase;
@@ -35,9 +37,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -68,6 +72,9 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   private String defaultProfileName;
   private String selectedProfileName;
   private String selectedModelName;
+  private boolean listeningForContextChanges = true;
+  private boolean conversation;
+  private PersistentChatConversation currentConversation;
 
   public static final short MAX_CHAR_MESSAGE_COUNT = 100;
 
@@ -105,18 +112,32 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
 
   public void setSelectedProfile(@Nullable DBAIProfile profile) {
     selectedProfileName = profile == null ? null : profile.getName();
+    conversation = profile != null && profile.isConversation();
+  }
+  public void setSelectedModel(@Nullable AIModel model) {
+    selectedModelName = model == null ? null : model.getName();
   }
   public void setDefaultProfile(@Nullable DBAIProfile profile) {
     defaultProfileName = profile == null ? null : profile.getName();
   }
 
   public void addMessages(List<PersistentChatMessage> messages) {
-    this.messages.addAll(messages);
+    if(currentConversation != null){
+      this.currentConversation.addMessages(messages);
+    } else {
+      this.messages.addAll(messages);
+    }
   }
 
-  public void addConversations(List<PersistentChatConversation> conversations) {
-    this.conversations.addAll(conversations);
+  public ChatContext getChatContext() {
+    return new ChatContext(selectedProfileName, AIModel.forId(selectedModelName), selectedAction, conversation);
   }
+
+//  public void applyChatContext(ChatContext context) {
+//    setSelectedProfileName(context.getProfile());
+//    setSelectedModelName(context.getModel().getName());
+//    setSelectedAction(context.getAction());
+//  }
 
   public void clearMessages() {
     messages.clear();
@@ -128,6 +149,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     defaultProfileName = stringAttribute(element, "default-profile-name");
     selectedProfileName = stringAttribute(element, "selected-profile-name");
     selectedModelName = stringAttribute(element, "selected-model-name");
+    conversation = booleanAttribute(element, "is-conversation", false);
     assistantType = enumAttribute(element, "assistant-type", assistantType);
     selectedAction = enumAttribute(element, "selected-action", selectedAction);
     availability = enumAttribute(element, "availability", availability);
@@ -156,6 +178,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     setStringAttribute(element, "default-profile-name", defaultProfileName);
     setStringAttribute(element, "selected-profile-name", selectedProfileName);
     setStringAttribute(element, "selected-model-name", selectedModelName);
+    setBooleanAttribute(element, "is-conversation", conversation);
     setEnumAttribute(element, "assistant-type", assistantType);
     setEnumAttribute(element, "selected-action", selectedAction);
     setEnumAttribute(element, "availability", availability);

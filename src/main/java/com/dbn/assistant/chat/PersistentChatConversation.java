@@ -24,10 +24,11 @@ import lombok.Setter;
 import org.jdom.Element;
 
 import java.util.List;
+import java.util.Objects;
 
-import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.common.options.setting.Settings.longAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
+import static com.dbn.common.options.setting.Settings.setLongAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
@@ -45,14 +46,15 @@ public class PersistentChatConversation extends ChatConversation implements Pers
      *
      * @param context the context in which the chat conversation was produced
      */
-    public PersistentChatConversation(List<PersistentChatMessage> chatMessageList, ChatConversationContext context) {
-        super(chatMessageList, context);
+    public PersistentChatConversation(ChatContext context) {
+        super(context);
     }
 
     @Override
     public void readState(Element element) {
-        chatTitle = stringAttribute(element, "title");
-        active = booleanAttribute(element, "active", false);
+        id = stringAttribute(element, "id");
+        title = stringAttribute(element, "title");
+        timestamp = longAttribute(element, "timestamp", 0L);
         List<Element> messagesElements = element.getChild("messages").getChildren();
         for(Element msgElement : messagesElements){
             PersistentChatMessage chatMessage = new PersistentChatMessage();
@@ -60,15 +62,17 @@ public class PersistentChatConversation extends ChatConversation implements Pers
             messages.add(chatMessage);
         }
         Element contextElement = element.getChild("context");
-        context = new ChatConversationContext();
+        context = new ChatContext();
         context.readState(contextElement);
     }
 
     @Override
     public void writeState(Element element) {
-        setStringAttribute(element, "title", chatTitle);
-        setBooleanAttribute(element, "active", active);
+        setStringAttribute(element, "id", id);
+        setStringAttribute(element, "title", title);
+        setLongAttribute(element, "timestamp", timestamp);
         Element messagesElement = newElement("messages");
+        element.addContent(messagesElement);
         for(PersistentChatMessage msg : messages){
             Element msgElement = newElement("message");
             messagesElement.addContent(msgElement);

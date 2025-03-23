@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.chat;
 
+import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.common.state.PersistentStateElement;
 import com.google.gson.Gson;
@@ -27,24 +28,32 @@ import org.jdom.Element;
 
 import java.util.Map;
 
+import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 /**
- * Chat conversation context - preserving profile and model selection against a conversation
+ * Chat message context - preserving profile, model and action selection against an AI response message
+ *
+ * @author Dan Cioca (Oracle)
  */
 @Getter
 @Setter
 @NoArgsConstructor
-public class ChatConversationContext implements PersistentStateElement {
+public class ChatContext implements PersistentStateElement {
     private static final Gson GSON = new GsonBuilder().create();
 
     private String profile;
     private AIModel model;
+    private PromptAction action;
+    private boolean conversation;
 
-    public ChatConversationContext(String profile, AIModel model) {
+    public ChatContext(String profile, AIModel model, PromptAction action, boolean conversation) {
         this.profile = profile;
         this.model = model;
+        this.action = action;
+        this.conversation = conversation;
     }
 
     public String getAttributes() {
@@ -52,16 +61,25 @@ public class ChatConversationContext implements PersistentStateElement {
         return GSON.toJson(attributes);
     }
 
+    public boolean isConversationInterruption(ChatContext newContext) {
+        if(!isConversation()) return false;
+        if(!profile.equals(newContext.getProfile())) return true;
+        if(!model.equals(newContext.getModel())) return true;
+        if(action == PromptAction.CHAT) return newContext.action != PromptAction.CHAT;
+        return newContext.action == PromptAction.CHAT;
+    }
+
     @Override
     public void readState(Element element) {
         profile = stringAttribute(element, "profile");
-        model = AIModel.forId(stringAttribute(element, "model"));
+          model = AIModel.forId(stringAttribute(element, "model"));
+        action = enumAttribute(element, "action", PromptAction.class);
     }
 
     @Override
     public void writeState(Element element) {
         setStringAttribute(element, "profile", profile);
         setStringAttribute(element, "model", model.getId());
+        setEnumAttribute(element, "action", action);
     }
 }
-

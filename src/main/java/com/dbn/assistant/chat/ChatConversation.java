@@ -17,6 +17,7 @@
 package com.dbn.assistant.chat;
 
 import com.dbn.assistant.chat.message.PersistentChatMessage;
+import com.dbn.common.util.UUIDs;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,14 +29,18 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class ChatConversation {
+    protected String id = UUIDs.compact();
+    protected String title;
+    protected ChatContext context;
     protected List<PersistentChatMessage> messages = new ArrayList<>();
-    protected boolean active = true;
-    protected String chatTitle;
-    protected ChatConversationContext context;
+    protected long timestamp = System.currentTimeMillis();
 
-
-    public ChatConversation(List<PersistentChatMessage> chatMessageList, ChatConversationContext context) {
-        this.messages.addAll(chatMessageList);
+    public ChatConversation(ChatContext context) {
         this.context = context;
     }
+
+    public void addMessages(List<PersistentChatMessage> messages) {
+        this.messages.addAll(messages);
+    }
+
 }

@@ -19,7 +19,7 @@ package com.dbn.assistant;
 import com.dbn.DatabaseNavigator;
 import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessage;
-import com.dbn.assistant.chat.message.ChatMessageContext;
+import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.editor.action.ProfileSelectAction;
@@ -277,7 +277,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     }
   }
 
-  public String query(ConnectionId connectionId, String prompt, ChatMessageContext context) throws SQLException {
+  public String query(ConnectionId connectionId, String prompt, ChatContext context) throws SQLException {
     ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
 
     String profile = context.getProfile();
@@ -293,7 +293,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     return response.read();
   }
 
-  public void generate(ConnectionId connectionId, String text, ChatMessageContext context, Consumer<ChatMessage> consumer) {
+  public void generate(ConnectionId connectionId, String text, ChatContext context, Consumer<ChatMessage> consumer) {
     ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
     Project project = getProject();
 
@@ -434,6 +434,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     String modelName = assistantState.getSelectedModelName();
 
     AIModel model = provider.getModel(modelName);
+    assistantState.setSelectedModel(model);
     return model == null ? provider.getDefaultModel() : model;
   }
 

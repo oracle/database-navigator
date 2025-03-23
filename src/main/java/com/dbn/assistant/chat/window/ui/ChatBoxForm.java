@@ -16,8 +16,10 @@
 package com.dbn.assistant.chat.window.ui;
 
 import com.dbn.assistant.DatabaseAssistantManager;
+import com.dbn.assistant.chat.ChatConversation;
+import com.dbn.assistant.chat.PersistentChatConversation;
 import com.dbn.assistant.chat.message.AuthorType;
-import com.dbn.assistant.chat.message.ChatMessageContext;
+import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.message.PersistentChatMessage;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.chat.window.util.RollingMessageContainer;
@@ -31,11 +33,13 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Strings;
+import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +52,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
 import java.util.List;
+import java.util.Objects;
 
 import static com.dbn.assistant.state.AssistantStatus.INITIALIZING;
 import static com.dbn.assistant.state.AssistantStatus.QUERYING;
@@ -119,7 +124,7 @@ public class ChatBoxForm extends DBNFormBase {
     createInputField();
     configureConversationPanel();
     loadProfiles();
-    restoreMessages();
+    updateMessages();
   }
 
   private boolean hasUserEngaged() {
@@ -156,8 +161,10 @@ public class ChatBoxForm extends DBNFormBase {
     inputFieldPanel.add(inputField, BorderLayout.CENTER);
   }
 
-  private void restoreMessages() {
-    List<PersistentChatMessage> messages = getAssistantState().getMessages();
+  public void updateMessages() {
+    ChatConversation chatConversation = getAssistantState().getCurrentConversation();
+    List<PersistentChatMessage> messages = chatConversation!=null? chatConversation.getMessages() : getAssistantState().getMessages();
+    messageContainer.clear();
     messageContainer.addAll(messages, this);
     dispatch(() -> scrollConversationDown());
   }
@@ -198,18 +205,111 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   public void selectProfile(DBAIProfile profile) {
+    ChatContext oldContext = getAssistantState().getChatContext();
+
     DatabaseAssistantManager manager = getManager();
     ConnectionId connectionId = getConnectionId();
     manager.setSelectedProfile(connectionId, profile);
+
+    ChatContext newContext = getAssistantState().getChatContext();
+    triggerContextChangeEvent(oldContext, newContext);
   }
 
   public void selectModel(AIModel model) {
+    ChatContext oldContext = getAssistantState().getChatContext();
+
     AssistantState assistantState = getAssistantState();
     assistantState.setSelectedModelName(model == null ? null : model.getName());
+
+    ChatContext newContext = getAssistantState().getChatContext();
+    triggerContextChangeEvent(oldContext, newContext);
   }
 
   public void selectAction(PromptAction action) {
+    ChatContext oldContext = getAssistantState().getChatContext();
+
     getAssistantState().setSelectedAction(action);
+
+    ChatContext newContext = getAssistantState().getChatContext();
+    triggerContextChangeEvent(oldContext, newContext);
+  }
+
+  private void triggerContextChangeEvent(ChatContext oldContext, ChatContext newContext) {
+    if(oldContext.isConversationInterruption(newContext)) {
+      Messages.showInfoDialog(ensureProject(), "Conversation", "Would like to save the existing conversation", new String[]{"Cancel", "Discard", "Save"}, 2,
+              (Integer n) -> {
+                if(n == 0) {
+                    suppressContextChangeEvents(() -> restoreContext(oldContext));
+                    dispatch(this::updateActionToolbars);
+                }
+                if(n == 1) {
+                  if (newContext.isConversation()) {
+                    getAssistantState().setCurrentConversation(new PersistentChatConversation(newContext));
+                    updateMessages();
+                  } else {
+                    getAssistantState().setCurrentConversation(null);
+                    updateMessages();
+                  }
+                }
+                if(n == 2) {
+                  if (newContext.isConversation()) {
+                    getAssistantState().getConversations().add(getAssistantState().getCurrentConversation());
+                    getAssistantState().setCurrentConversation(new PersistentChatConversation(newContext));
+                    updateMessages();
+                  } else {
+                    getAssistantState().getConversations().add(getAssistantState().getCurrentConversation());
+                    getAssistantState().setCurrentConversation(null);
+                    updateMessages();
+                  }
+                }
+              });
+    } else {
+      if (newContext.isConversation()) {
+        getAssistantState().setCurrentConversation(new PersistentChatConversation(newContext));
+        getAssistantState().getConversations().add(getAssistantState().getCurrentConversation());
+        updateMessages();
+      }
+    }
+  }
+
+  /**
+   * Restores a previous chat context
+   */
+  private void restoreContext(ChatContext context) {
+    DatabaseAssistantManager manager = getManager();
+    ConnectionId connectionId = getConnectionId();
+
+    // Restore profile
+    if (context.getProfile() != null) {
+      DBAIProfile oldProfile = manager.getProfiles(connectionId).stream()
+              .filter(p -> Objects.equals(p.getName(), context.getProfile()))
+              .findFirst()
+              .orElse(null);
+      if (oldProfile != null) {
+        manager.setSelectedProfile(connectionId, oldProfile);
+      }
+    }
+
+    // Restore model
+    getAssistantState().setSelectedModelName(
+            context.getModel() == null ? null : context.getModel().getName());
+
+    // Restore action
+    getAssistantState().setSelectedAction(context.getAction());
+  }
+
+  /**
+   * Executes an operation while temporarily disabling context change events
+   */
+  private void suppressContextChangeEvents(Runnable operation) {
+    AssistantState state = getAssistantState();
+    boolean wasListening = state.isListeningForContextChanges();
+    try {
+      state.setListeningForContextChanges(false);
+      operation.run();
+    } finally {
+      state.setListeningForContextChanges(wasListening);
+    }
   }
 
   public void clearConversation() {
@@ -260,10 +360,10 @@ public class ChatBoxForm extends DBNFormBase {
 
     PromptAction actionType = state.getSelectedAction();
 
-    ChatMessageContext context = new ChatMessageContext(profile.getName(), model, actionType);
+    ChatContext context = new ChatContext(profile.getName(), model, actionType, false);
     PersistentChatMessage inputChatMessage = new PersistentChatMessage(MessageType.NEUTRAL, question, AuthorType.USER, context);
     inputChatMessage.setProgress(true);
-    appendMessageToChat(inputChatMessage);
+    appendMessage(inputChatMessage);
 
     if (actionType == PromptAction.CHAT) {
       question = question + " (please triple-quote all code-contents in your output, and qualify them with the programming-language identifier)";
@@ -273,14 +373,14 @@ public class ChatBoxForm extends DBNFormBase {
       String response = manager.query(connectionId, question, context);
       state.set(QUERYING, false);
       PersistentChatMessage outPutChatMessage = new PersistentChatMessage(MessageType.NEUTRAL, response, AuthorType.AGENT, context);
-      appendMessageToChat(outPutChatMessage);
+      appendMessage(outPutChatMessage);
       log.info("AI Query processed successfully.");
     } catch (Exception e) {
       state.set(QUERYING, false);
       log.warn("Error processing AI query", e);
       String message = manager.getPresentableMessage(connectionId, profile.getProvider(), e);
       PersistentChatMessage errorMessage = new PersistentChatMessage(MessageType.ERROR, message, AuthorType.SYSTEM, context);
-      appendMessageToChat(errorMessage);
+      appendMessage(errorMessage);
     }
   }
 
@@ -338,7 +438,20 @@ public class ChatBoxForm extends DBNFormBase {
     // TODO show error bar (similar to editor error headers)
   }
 
+  private void appendMessage(PersistentChatMessage message) {
+    if(Objects.requireNonNull(getSelectedProfile()).isConversation()) appendMessageToConversation(message);
+    else appendMessageToChat(message);
+  }
+
   private void appendMessageToChat(PersistentChatMessage message) {
+    List<PersistentChatMessage> messages = List.of(message);
+    getAssistantState().addMessages(messages);
+    dispatch(() -> messageContainer.addAll(messages, this));
+    dispatch(() -> scrollConversationDown());
+    updateActionToolbars();
+  }
+
+  private void appendMessageToConversation(PersistentChatMessage message) {
     List<PersistentChatMessage> messages = List.of(message);
     getAssistantState().addMessages(messages);
     dispatch(() -> messageContainer.addAll(messages, this));
