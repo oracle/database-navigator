@@ -22,6 +22,7 @@ public enum DBObjectProperty implements Property.LongBase {
     // generic
     TEMPORARY,
     NAVIGABLE,
+    READONLY,
     EDITABLE,
     COMPILABLE,
     DISABLEABLE,

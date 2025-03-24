@@ -16,6 +16,21 @@
 
 package com.dbn.database.common.metadata.def;
 
+import com.dbn.database.common.security.ObjectIdentifier;
+
+import java.sql.SQLException;
+
 public interface DBJsonViewMetadata extends DBViewMetadata {
+    boolean isValid() throws SQLException;
+
+    boolean isReadonly() throws SQLException;
+
+    @ObjectIdentifier
+    String getRootTableOwner() throws SQLException;
+
+    @ObjectIdentifier
+    String getRootTableName() throws SQLException;
+
+    String getJsonSchema() throws SQLException;
 
 }

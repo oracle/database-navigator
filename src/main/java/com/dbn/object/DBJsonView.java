@@ -17,4 +17,9 @@
 package com.dbn.object;
 
 public interface DBJsonView extends DBView{
+    boolean isReadonly();
+
+    DBTable getRootTable();
+
+    String getJsonSchema();
 }

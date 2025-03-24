@@ -22,17 +22,52 @@ import com.dbn.database.common.metadata.def.DBJsonViewMetadata;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.DBJsonView;
 import com.dbn.object.DBSchema;
+import com.dbn.object.DBTable;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectListContainer;
+import com.dbn.object.common.list.DBObjectNavigationList;
+import com.dbn.object.common.property.DBObjectProperty;
+import com.dbn.object.common.status.DBObjectStatus;
+import com.dbn.object.common.status.DBObjectStatusHolder;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
-class DBJsonViewImpl extends DBViewImpl implements DBJsonView {
+@Getter
+class DBJsonViewImpl extends DBViewImpl<DBJsonViewMetadata> implements DBJsonView {
+    private String jsonSchema;
+    private DBObjectRef<DBTable> rootTable;
+
     DBJsonViewImpl(DBSchema schema, DBJsonViewMetadata metadata) throws SQLException {
         super(schema, metadata);
+    }
+
+    @Override
+    protected String initObject(ConnectionHandler connection, DBObject parentObject, DBJsonViewMetadata metadata) throws SQLException {
+        String name = super.initObject(connection, parentObject, metadata);
+        set(DBObjectProperty.READONLY, metadata.isReadonly());
+        set(DBObjectProperty.INVALIDABLE, true);
+
+        jsonSchema = metadata.getJsonSchema();
+
+        DBObjectRef<DBSchema> rootTableSchema = new DBObjectRef<>(connection.getConnectionId(), DBObjectType.SCHEMA, metadata.getRootTableOwner());
+        rootTable = new DBObjectRef<>(rootTableSchema, DBObjectType.TABLE, metadata.getRootTableName());
+
+        return name;
+    }
+
+    @Override
+    public void initStatus(DBJsonViewMetadata metadata) throws SQLException {
+        boolean isValid = metadata.isValid();
+        DBObjectStatusHolder objectStatus = getStatus();
+        objectStatus.set(DBObjectStatus.VALID, isValid);
     }
 
     @Override
@@ -45,13 +80,37 @@ class DBJsonViewImpl extends DBViewImpl implements DBJsonView {
 
     @Override
     public boolean isEditable(DBContentType contentType) {
-        return contentType.isOneOf(DBContentType.CODE, DBContentType.JSON);
+        if (contentType == DBContentType.CODE) return true;
+        if (contentType == DBContentType.JSON) return !isReadonly();
+
+        return false;
+    }
+
+    @Override
+    public boolean isReadonly() {
+        return is(DBObjectProperty.READONLY);
     }
 
     @NotNull
     @Override
     public DBObjectType getObjectType() {
         return DBObjectType.JSON_VIEW;
+    }
+
+    @Nullable
+    public DBTable getRootTable() {
+        return DBObjectRef.get(rootTable);
+    }
+
+    @Override
+    protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
+        DBTable rootTable = getRootTable();
+        if (rootTable != null) {
+            List<DBObjectNavigationList> navigationLists = new LinkedList<>();
+            navigationLists.add(DBObjectNavigationList.create("Root Table", rootTable));
+            return navigationLists;
+        }
+        return null;
     }
 
     /*********************************************************

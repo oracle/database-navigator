@@ -19,10 +19,36 @@ package com.dbn.database.common.metadata.impl;
 import com.dbn.database.common.metadata.def.DBJsonViewMetadata;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class DBJsonViewMetadataImpl extends DBViewMetadataImpl implements DBJsonViewMetadata {
 
     public DBJsonViewMetadataImpl(ResultSet resultSet) {
         super(resultSet);
+    }
+
+    @Override
+    public boolean isValid() throws SQLException {
+        return isYesFlag("IS_VALID");
+    }
+
+    @Override
+    public boolean isReadonly() throws SQLException {
+        return isYesFlag("IS_READONLY");
+    }
+
+    @Override
+    public String getRootTableOwner() throws SQLException {
+        return getString("ROOT_TABLE_OWNER");
+    }
+
+    @Override
+    public String getRootTableName() throws SQLException {
+        return getString("ROOT_TABLE_NAME");
+    }
+
+    @Override
+    public String getJsonSchema() throws SQLException {
+        return getString("JSON_SCHEMA");
     }
 }
