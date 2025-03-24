@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.editor.data.model;
+package com.dbn.editor.json.model;
 
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.connection.Resources;
@@ -22,16 +22,17 @@ import com.dbn.connection.Savepoints;
 import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.data.type.DBDataType;
 import com.dbn.data.value.ValueAdapter;
+import com.dbn.editor.data.model.ResultSetAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class EditableResultSetAdapter extends ResultSetAdapter<DatasetEditorModel> {
+public class JsonDataResultSetAdapter extends ResultSetAdapter<JsonDataEditorModel>  {
     private DBNResultSet resultSet;
 
-    public EditableResultSetAdapter(DatasetEditorModel model, DBNResultSet resultSet) {
+    public JsonDataResultSetAdapter(JsonDataEditorModel model, DBNResultSet resultSet) {
         super(model);
         this.resultSet = resultSet;
     }

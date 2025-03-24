@@ -14,17 +14,26 @@
  * limitations under the License.
  */
 
-package com.dbn.editor.data.action;
+package com.dbn.vfs.file;
 
-import com.dbn.common.action.ContextAction;
-import com.dbn.editor.data.DatasetEditor;
-import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.dbn.connection.session.DatabaseSession;
+import com.dbn.editor.DBContentType;
+import com.dbn.object.DBJsonView;
 import org.jetbrains.annotations.NotNull;
 
-abstract class AbstractDataEditorAction extends ContextAction<DatasetEditor> {
+public class DBJsonDataVirtualFile extends DBContentVirtualFile {
+    DBJsonDataVirtualFile(DBEditableObjectVirtualFile databaseFile, DBContentType contentType) {
+        super(databaseFile, contentType);
+    }
 
     @Override
-    protected DatasetEditor getContext(@NotNull AnActionEvent e) {
-        return DatasetEditor.get(e);
+    @NotNull
+    public DBJsonView getObject() {
+        return (DBJsonView) super.getObject();
+    }
+
+    @Override
+    public DatabaseSession getSession() {
+        return this.getConnection().getSessionBundle().getMainSession();
     }
 }

@@ -14,28 +14,17 @@
  * limitations under the License.
  */
 
-package com.dbn.editor;
+package com.dbn.editor.json.action;
 
-public enum EditorProviderId {
-    CODE("0.CODE"),
-    CODE_SPEC("0.CODE_SPEC"),
-    CODE_BODY("1.CODE_BODY"),
-    DATA("1.DATA"),
-    DDL0("3.DDL"),
-    DDL1("4.DDL"),
-    DDL2("5.DDL"),
-    JSON("1.JSON"),
-    CONSOLE("0.CONSOLE"),
-    SESSION_BROWSER("0.SESSION_BROWSER"),
-    DBN_SQL("2.DBN_SQL");
+import com.dbn.common.action.ContextAction;
+import com.dbn.editor.json.JsonDataEditor;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import org.jetbrains.annotations.NotNull;
 
-    EditorProviderId(String id) {
-        this.id = id;
-    }
+abstract class AbstractJsonDataEditorAction extends ContextAction<JsonDataEditor> {
 
-    private final String id;
-
-    public String getId() {
-        return id;
+    @Override
+    protected JsonDataEditor getContext(@NotNull AnActionEvent e) {
+        return JsonDataEditor.get(e);
     }
 }

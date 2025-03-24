@@ -1,0 +1,643 @@
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.editor.json;
+
+import com.dbn.common.action.DataKeys;
+import com.dbn.common.action.Lookups;
+import com.dbn.common.dispose.DisposableUserDataHolderBase;
+import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.dispose.StatefulDisposable;
+import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.project.ProjectRef;
+import com.dbn.common.thread.Background;
+import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.util.UserInterface;
+import com.dbn.common.util.Editors;
+import com.dbn.common.util.Messages;
+import com.dbn.connection.ConnectionAction;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionRef;
+import com.dbn.connection.ConnectionStatusListener;
+import com.dbn.connection.SchemaId;
+import com.dbn.connection.SessionId;
+import com.dbn.connection.context.DatabaseContextBase;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.connection.session.DatabaseSession;
+import com.dbn.connection.transaction.TransactionAction;
+import com.dbn.connection.transaction.TransactionListener;
+import com.dbn.database.interfaces.DatabaseMessageParserInterface;
+import com.dbn.diagnostics.Diagnostics;
+import com.dbn.editor.data.DatasetEditorStatusHolder;
+import com.dbn.editor.data.DatasetLoadInstruction;
+import com.dbn.editor.data.DatasetLoadInstructions;
+import com.dbn.editor.data.DatasetLoadListener;
+import com.dbn.editor.data.filter.DatasetFilter;
+import com.dbn.editor.data.filter.DatasetFilterManager;
+import com.dbn.editor.data.filter.DatasetFilterType;
+import com.dbn.editor.json.model.JsonDataEditorModel;
+import com.dbn.editor.json.ui.JsonDataEditorForm;
+import com.dbn.editor.json.ui.table.JsonDataEditorTable;
+import com.dbn.object.DBDataset;
+import com.dbn.object.DBJsonView;
+import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.vfs.DatabaseFileSystem;
+import com.dbn.vfs.file.DBEditableObjectVirtualFile;
+import com.intellij.codeHighlighting.BackgroundEditorHighlighter;
+import com.intellij.ide.structureView.StructureViewBuilder;
+import com.intellij.ide.structureView.StructureViewModel;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DataProvider;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorLocation;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.FileEditorState;
+import com.intellij.openapi.fileEditor.FileEditorStateLevel;
+import com.intellij.openapi.progress.ProcessCanceledException;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.JComponent;
+import java.beans.PropertyChangeListener;
+import java.sql.SQLException;
+import java.sql.SQLRecoverableException;
+
+import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.editor.data.DatasetEditorStatus.CONNECTED;
+import static com.dbn.editor.data.DatasetEditorStatus.LOADED;
+import static com.dbn.editor.data.DatasetEditorStatus.LOADING;
+import static com.dbn.editor.data.filter.DatasetFilterManager.EMPTY_FILTER;
+import static com.dbn.editor.data.model.RecordStatus.INSERTING;
+import static com.dbn.nls.NlsResources.txt;
+
+@Slf4j
+@Getter
+public class JsonDataEditor extends DisposableUserDataHolderBase implements
+        FileEditor,
+        DatabaseContextBase,
+        DataProvider,
+        StatefulDisposable {
+
+    private static final DatasetLoadInstructions COL_VISIBILITY_STATUS_CHANGE_LOAD_INSTRUCTIONS = new DatasetLoadInstructions(DatasetLoadInstruction.USE_CURRENT_FILTER, DatasetLoadInstruction.PRESERVE_CHANGES, DatasetLoadInstruction.DELIBERATE_ACTION, DatasetLoadInstruction.REBUILD);
+    private static final DatasetLoadInstructions CON_STATUS_CHANGE_LOAD_INSTRUCTIONS = new DatasetLoadInstructions(DatasetLoadInstruction.USE_CURRENT_FILTER);
+
+    private final ProjectRef project;
+    private final DBObjectRef<DBJsonView> jsonView;
+    private final DBEditableObjectVirtualFile databaseFile;
+    private final DatasetEditorStatusHolder status;
+    private final ConnectionRef connection;
+    private JsonDataEditorForm editorForm;
+    private StructureViewModel structureViewModel;
+    private String dataLoadError;
+
+    private JsonDataEditorState editorState = new JsonDataEditorState();
+
+    public JsonDataEditor(@NotNull DBEditableObjectVirtualFile databaseFile, DBJsonView jsonView) {
+        Project project = jsonView.getProject();
+        this.project = ProjectRef.of(project);
+        this.databaseFile = databaseFile;
+        this.jsonView = DBObjectRef.of(jsonView);
+
+        connection = ConnectionRef.of(jsonView.getConnection());
+        status = new DatasetEditorStatusHolder();
+        status.set(CONNECTED, true);
+        editorForm = new JsonDataEditorForm(this);
+
+/*
+        if (!EditorUtil.hasEditingHistory(databaseFile, project)) {
+            load(true, true, false);
+        }
+*/
+        ProjectEvents.subscribe(project, this, TransactionListener.TOPIC, transactionListener);
+        ProjectEvents.subscribe(project, this, ConnectionStatusListener.TOPIC, connectionStatusListener);
+    }
+
+    @NotNull
+    public DBJsonView getJsonView() {
+        return jsonView.ensure();
+    }
+
+    @NotNull
+    public JsonDataEditorTable getEditorTable() {
+        return getEditorForm().getEditorTable();
+    }
+
+    @NotNull
+    public JsonDataEditorForm getEditorForm() {
+        return Failsafe.nn(editorForm);
+    }
+
+    public void showSearchHeader() {
+        getEditorForm().showSearchHeader();
+    }
+
+    @NotNull
+    public JsonDataEditorModel getTableModel() {
+        return getEditorTable().getModel();
+    }
+
+    @NotNull
+    public DBEditableObjectVirtualFile getDatabaseFile() {
+        return nd(databaseFile);
+    }
+
+    @Override
+    @Nullable
+    public SchemaId getSchemaId() {
+        return getJsonView().getSchemaId();
+    }
+
+    @NotNull
+    public Project getProject() {
+        return project.ensure();
+    }
+
+    @Override
+    @NotNull
+    public JComponent getComponent() {
+        return guarded(DISPOSED_COMPONENT, this, e -> getEditorForm().getComponent());
+    }
+
+    @Override
+    @Nullable
+    public JComponent getPreferredFocusedComponent() {
+        return guarded(null, this, e -> e.getEditorForm().getComponent());
+    }
+
+    @Override
+    @NonNls
+    @NotNull
+    public String getName() {
+        return "Json";
+    }
+
+    @Override
+    @NotNull
+    public FileEditorState getState(@NotNull FileEditorStateLevel level) {
+        return editorState.clone();
+    }
+
+    @Override
+    public void setState(@NotNull FileEditorState fileEditorState) {
+        if (fileEditorState instanceof JsonDataEditorState) {
+            editorState = (JsonDataEditorState) fileEditorState;
+        }
+    }
+
+    @Override
+    public boolean isModified() {
+        return getTableModel().isModified();
+    }
+
+    @Override
+    public boolean isValid() {
+        return !isDisposed();
+    }
+
+    @Override
+    public void selectNotify() {
+
+    }
+
+    @Override
+    public void deselectNotify() {
+
+    }
+
+    @Override
+    public void addPropertyChangeListener(@NotNull PropertyChangeListener listener) {
+    }
+
+    @Override
+    public void removePropertyChangeListener(@NotNull PropertyChangeListener listener) {
+    }
+
+    @Override
+    @Nullable
+    public BackgroundEditorHighlighter getBackgroundHighlighter() {
+        return null;
+    }
+
+    @Override
+    @Nullable
+    public FileEditorLocation getCurrentLocation() {
+        return null;
+    }
+
+    @Override
+    @Nullable
+    public StructureViewBuilder getStructureViewBuilder() {
+/*        return new TreeBasedStructureViewBuilder() {
+            @NotNull
+            @Override
+            public StructureViewModel createStructureViewModel(@Nullable Editor editor) {
+                return createStructureViewModel();
+            }
+
+            @NotNull
+            StructureViewModel createStructureViewModel() {
+                // Structure does not change. so it can be cached.
+                if (structureViewModel == null) {
+                    structureViewModel = new DatasetEditorStructureViewModel(JsonDataEditor.this);
+                }
+                return structureViewModel;
+            }
+        };*/
+
+        return null;
+    }
+
+    public static JsonDataEditor getSelected(Project project) {
+        if (project != null) {
+            FileEditor[] fileEditors = FileEditorManager.getInstance(project).getSelectedEditors();
+            for (FileEditor fileEditor : fileEditors) {
+                if (fileEditor instanceof JsonDataEditor) {
+                    return (JsonDataEditor) fileEditor;
+                }
+            }
+        }
+        return null;
+    }
+
+    /*******************************************************
+     *                   Model operations                  *
+     *******************************************************/
+    public void fetchNextRecords(int records) {
+        try {
+            JsonDataEditorModel model = getTableModel();
+            model.fetchNextRecords(records, false);
+            dataLoadError = null;
+        } catch (SQLException e) {
+            Diagnostics.conditionallyLog(e);
+            dataLoadError = e.getMessage();
+/*
+            String message = "Error loading data for " + getDataset().getQualifiedNameWithType() + ".\nCause: " + e.getMessage();
+            MessageUtil.showErrorDialog(message, e);
+*/
+        } finally {
+            Project project = getProject();
+            ProjectEvents.notify(project,
+                    DatasetLoadListener.TOPIC,
+                    (listener) -> listener.datasetLoaded(getDatabaseFile()));
+        }
+    }
+
+    public void loadData(final DatasetLoadInstructions instructions) {
+        if (status.is(LOADING)) return;
+
+        ConnectionAction.invoke(txt("msg.dataEditor.title.LoadingTableData"), false, this,
+                (action) -> {
+                    setLoading(true);
+                    Project project = getProject();
+                    ProjectEvents.notify(project,
+                            DatasetLoadListener.TOPIC,
+                            (listener) -> listener.datasetLoading(getDatabaseFile()));
+
+                    Background.run(() -> {
+                        JsonDataEditorForm editorForm = getEditorForm();
+                        try {
+                            editorForm.showLoadingHint();
+                            editorForm.getEditorTable().cancelEditing();
+                            JsonDataEditorTable oldEditorTable = instructions.isRebuild() ? editorForm.beforeRebuild() : null;
+                            try {
+                                JsonDataEditorModel tableModel = getTableModel();
+                                tableModel.load(instructions.isUseCurrentFilter(), instructions.isPreserveChanges());
+                                JsonDataEditorTable editorTable = getEditorTable();
+                                editorTable.clearSelection();
+                            } finally {
+                                editorForm.afterRebuild(oldEditorTable);
+                            }
+                            dataLoadError = null;
+                        } catch (ProcessCanceledException e) {
+                            Diagnostics.conditionallyLog(e);
+                        } catch (SQLException e) {
+                            Diagnostics.conditionallyLog(e);
+                            dataLoadError = e.getMessage();
+                            handleLoadError(e, instructions);
+                        } catch (Exception e) {
+                            Diagnostics.conditionallyLog(e);
+                            log.error("Error loading table data", e);
+                        } finally {
+                            status.set(LOADED, true);
+                            editorForm.hideLoadingHint();
+                            setLoading(false);
+                            ProjectEvents.notify(project,
+                                    DatasetLoadListener.TOPIC,
+                                    (listener) -> listener.datasetLoaded(getDatabaseFile()));
+                        }
+                    });
+                });
+
+    }
+
+    private void handleLoadError(SQLException e, DatasetLoadInstructions instr) {
+        Dispatch.run(() -> {
+            checkDisposed();
+            focusEditor();
+            ConnectionHandler connection = getConnection();
+            DatabaseMessageParserInterface messageParserInterface = connection.getMessageParserInterface();
+            Project project = getProject();
+            DatasetFilterManager filterManager = DatasetFilterManager.getInstance(project);
+
+            DBDataset dataset = getJsonView();
+            DatasetFilter filter = filterManager.getActiveFilter(dataset);
+            String datasetName = dataset.getQualifiedNameWithType();
+            if (connection.isValid()) {
+                boolean timeoutException = messageParserInterface.isTimeoutException(e);
+                if (filter == null || filter == EMPTY_FILTER || filter.getError() != null || e instanceof SQLRecoverableException) {
+                    if (instr.isDeliberateAction()) {
+                        String message = timeoutException ?
+                                txt("msg.dataEditor.error.DataLoadTimeout", datasetName) :
+                                txt("msg.dataEditor.error.DataLoadFailed", datasetName, e.getMessage());
+
+                        Messages.showErrorDialog(project, message);
+                    }
+                } else {
+                    String message = timeoutException ?
+                            txt("msg.dataEditor.error.DataLoadTimeout", datasetName) :
+                            txt("msg.dataEditor.error.DataLoadInvalidFilter", datasetName, e.getMessage());
+
+                    String[] options = {
+                            txt("msg.shared.button.Retry"),
+                            txt("msg.dataEditor.button.EditFilter"),
+                            txt("msg.dataEditor.button.RemoveFilter"),
+                            txt("msg.dataEditor.button.IgnoreFilter"),
+                            txt("msg.shared.button.Cancel")};
+
+                    Messages.showErrorDialog(project, txt("msg.shared.title.Error"), message, options, 0,
+                            (option) -> {
+                                DatasetLoadInstructions instructions = DatasetLoadInstructions.clone(instr);
+                                instructions.setDeliberateAction(true);
+
+                                if (option == 0) {
+                                    loadData(instructions);
+                                } else if (option == 1) {
+                                    filterManager.openFiltersDialog(dataset, false, false, DatasetFilterType.NONE, null);
+                                    instructions.setUseCurrentFilter(true);
+                                    loadData(instructions);
+                                } else if (option == 2) {
+                                    filterManager.setActiveFilter(dataset, null);
+                                    instructions.setUseCurrentFilter(true);
+                                    loadData(instructions);
+                                } else if (option == 3) {
+                                    filter.setError(e.getMessage());
+                                    instructions.setUseCurrentFilter(false);
+                                    loadData(instructions);
+                                }
+                            });
+                }
+            } else {
+                Messages.showErrorDialog(project,  txt("msg.dataEditor.error.DataLoadCannotConnect", datasetName, e.getMessage()));
+            }
+        });
+    }
+
+
+    private void focusEditor() {
+        Editors.openFileEditor(getProject(), getDatabaseFile(), true);
+    }
+
+    protected void setLoading(boolean loading) {
+        if (status.set(LOADING, loading)) {
+            JsonDataEditorTable editorTable = getEditorTable();
+            editorTable.setLoading(loading);
+            UserInterface.repaint(editorTable);
+        }
+
+    }
+
+    public void deleteRecords() {
+        JsonDataEditorTable editorTable = getEditorTable();
+        JsonDataEditorModel model = getTableModel();
+
+        int[] indexes = editorTable.getSelectedRows();
+        model.deleteRecords(indexes);
+    }
+
+    public void insertRecord() {
+        JsonDataEditorTable editorTable = getEditorTable();
+        JsonDataEditorModel model = getTableModel();
+
+        int[] indexes = editorTable.getSelectedRows();
+        int rowIndex = indexes.length > 0 && indexes[0] < model.getRowCount() ? indexes[0] : 0;
+        model.insertRecord(rowIndex);
+    }
+
+    public void duplicateRecord() {
+        JsonDataEditorTable editorTable = getEditorTable();
+        JsonDataEditorModel model = getTableModel();
+        int[] indexes = editorTable.getSelectedRows();
+        if (indexes.length == 1) {
+            model.duplicateRecord(indexes[0]);
+        }
+    }
+
+    public boolean isInserting() {
+        return getTableModel().is(INSERTING);
+    }
+
+    public boolean isLoading() {
+        return status.is(LOADING);
+    }
+
+    public boolean isLoaded() {
+        return status.is(LOADED);
+    }
+
+    public boolean isDirty() {
+        return getTableModel().isDirty();
+    }
+
+    /**
+     * The dataset is readonly. This can not be changed by the flag isReadonly
+     */
+    public boolean isReadonlyData() {
+        return getTableModel().isReadonly();
+    }
+
+    public boolean isReadonly() {
+        return editorState.isReadonly() || getTableModel().isEnvironmentReadonly();
+    }
+
+    public void setEnvironmentReadonly(boolean readonly) {
+        getTableModel().setEnvironmentReadonly(readonly);
+    }
+
+    public void setReadonly(boolean readonly) {
+        editorState.setReadonly(readonly);
+    }
+
+    public boolean isEditable() {
+        JsonDataEditorModel tableModel = getTableModel();
+        ConnectionHandler connection = tableModel.getConnection();
+        return tableModel.isEditable() && connection.isConnected(SessionId.MAIN);
+    }
+
+    public int getRowCount() {
+        return getEditorTable().getRowCount();
+    }
+
+
+    @Override
+    @NotNull
+    public ConnectionHandler getConnection() {
+        return connection.ensure();
+    }
+
+    @Nullable
+    @Override
+    public DatabaseSession getSession() {
+        return getConnection().getSessionBundle().getMainSession();
+    }
+
+    /*******************************************************
+     *                      Listeners                      *
+     *******************************************************/
+    private final ConnectionStatusListener connectionStatusListener = (connectionId, sessionId) -> {
+        ConnectionHandler connection = getConnection();
+        if (connection.getConnectionId() == connectionId && sessionId == SessionId.MAIN) {
+            boolean connected = connection.isConnected(SessionId.MAIN);
+            boolean statusChanged = getStatus().set(CONNECTED, connected);
+            if (!statusChanged) return;
+
+            Dispatch.run(() -> {
+                JsonDataEditorTable editorTable = getEditorTable();
+                if (connected) {
+                    editorTable.updateBackground(false);
+                    UserInterface.repaint(editorTable);
+                    if (!isReadonlyData()) {
+                        loadData(CON_STATUS_CHANGE_LOAD_INSTRUCTIONS);
+                    }
+                } else {
+                    editorTable.cancelEditing();
+                    editorTable.updateBackground(true);
+                    UserInterface.repaint(editorTable);
+                }
+            });
+        }
+    };
+
+    private final TransactionListener transactionListener = new TransactionListener() {
+        @Override
+        public void beforeAction(@NotNull ConnectionHandler connection, DBNConnection conn, TransactionAction action) {
+            if (connection != getConnection()) return;
+
+            JsonDataEditorModel model = getTableModel();
+            JsonDataEditorTable editorTable = getEditorTable();
+            if (action == TransactionAction.COMMIT) {
+                if (isInserting()) {
+                    try {
+                        model.postInsertRecord(true, false, true);
+                    } catch (SQLException e1) {
+                        Diagnostics.conditionallyLog(e1);
+                        Messages.showErrorDialog(getProject(), txt("msg.dataEditor.error.CannotCreateRow", getJsonView().getQualifiedNameWithType()), e1);
+                        model.cancelInsert(true);
+                    }
+                }
+            }
+
+            if (action == TransactionAction.ROLLBACK || action == TransactionAction.ROLLBACK_IDLE) {
+                if (editorTable.isEditing()) {
+                    editorTable.stopCellEditing();
+                }
+                if (isInserting()) {
+                    model.cancelInsert(true);
+                }
+            }
+        }
+
+        @Override
+        public void afterAction(@NotNull ConnectionHandler connection, DBNConnection conn, TransactionAction action, boolean succeeded) {
+            if (connection != getConnection()) return;
+
+            JsonDataEditorModel model = getTableModel();
+            JsonDataEditorTable editorTable = getEditorTable();
+            if (action == TransactionAction.COMMIT || action == TransactionAction.ROLLBACK) {
+                if (succeeded && isModified()) loadData(CON_STATUS_CHANGE_LOAD_INSTRUCTIONS);
+            }
+
+            if (action == TransactionAction.DISCONNECT) {
+                editorTable.stopCellEditing();
+                model.revertChanges();
+                UserInterface.repaint(editorTable);
+            }
+        }
+    };
+
+    String getDataLoadError() {
+        return dataLoadError;
+    }
+
+    @Nullable
+    @Override
+    public VirtualFile getFile() {
+        return databaseFile;
+    }
+
+    /*******************************************************
+     *                   Data Provider                     *
+     *******************************************************/
+    @Nullable
+    @Override
+    public Object getData(@NotNull String dataId) {
+        if (DataKeys.JSON_DATA_EDITOR.is(dataId)) return this;
+        return null;
+    }
+
+    @Nullable
+    public static JsonDataEditor get(DataContext dataContext) {
+        JsonDataEditor jsonDataEditor = DataKeys.JSON_DATA_EDITOR.getData(dataContext);
+        if (jsonDataEditor != null) return jsonDataEditor;
+
+        FileEditor fileEditor = Lookups.getFileEditor(dataContext);
+        if (fileEditor instanceof JsonDataEditor) {
+            return (JsonDataEditor) fileEditor;
+        }
+        return null;
+    }
+
+    @Nullable
+    public static JsonDataEditor get(AnActionEvent e) {
+        JsonDataEditor jsonDataEditor = e.getData((DataKeys.JSON_DATA_EDITOR));
+        if (jsonDataEditor != null) return jsonDataEditor;
+
+        FileEditor fileEditor = Lookups.getFileEditor(e);
+        if (fileEditor instanceof JsonDataEditor) {
+            return (JsonDataEditor) fileEditor;
+        }
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        DBEditableObjectVirtualFile databaseFile = this.databaseFile;
+        if (databaseFile == null) return DatabaseFileSystem.createObjectPath(jsonView);
+        return databaseFile.getPath();
+    }
+
+    @Override
+    public void disposeInner() {
+        super.disposeInner();
+        editorForm = null;
+    }
+}

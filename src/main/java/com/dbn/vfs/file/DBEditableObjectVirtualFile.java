@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,22 +103,26 @@ public class DBEditableObjectVirtualFile extends DBObjectVirtualFile<DBSchemaObj
         if (objectContentType.isBundle()) {
             DBContentType[] contentTypes = objectContentType.getSubContentTypes();
             for (DBContentType contentType : contentTypes) {
-                DBContentVirtualFile virtualFile =
-                        contentType.isCode() ? new DBSourceCodeVirtualFile(this, contentType) :
-                        contentType.isData() ? new DBDatasetVirtualFile(this, contentType) : null;
+                DBContentVirtualFile virtualFile = createContentFile(contentType);
                 if (virtualFile != null) {
                     contentFiles.add(virtualFile);
                 }
             }
         } else {
-            DBContentVirtualFile virtualFile =
-                    objectContentType.isCode() ? new DBSourceCodeVirtualFile(this, objectContentType) :
-                    objectContentType.isData() ? new DBDatasetVirtualFile(this, objectContentType) : null;
+            DBContentVirtualFile virtualFile = createContentFile(objectContentType);
             if (virtualFile != null) {
                 contentFiles.add(virtualFile);
             }
         }
         return contentFiles;
+    }
+
+    @Nullable
+    private DBContentVirtualFile createContentFile(DBContentType contentType) {
+        return
+            contentType.isCode() ? new DBSourceCodeVirtualFile(this, contentType) :
+            contentType.isData() ? new DBDatasetVirtualFile(this, contentType) :
+            contentType.isJson() ? new DBJsonDataVirtualFile(this, contentType) : null;
     }
 
     public boolean isContentLoaded() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package com.dbn.object.impl;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJsonViewMetadata;
+import com.dbn.editor.DBContentType;
 import com.dbn.object.DBJsonView;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.list.DBObjectListContainer;
@@ -40,6 +41,11 @@ class DBJsonViewImpl extends DBViewImpl implements DBJsonView {
         DBObjectListContainer childObjects = ensureChildObjects();
         //childObjects.createSubcontentObjectList(DBObjectType.INDEX, this, schema);
         //childObjects.createSubcontentObjectRelationList(DBObjectRelationType.INDEX_COLUMN, this, schema);
+    }
+
+    @Override
+    public boolean isEditable(DBContentType contentType) {
+        return contentType.isOneOf(DBContentType.CODE, DBContentType.JSON);
     }
 
     @NotNull
