@@ -40,6 +40,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.dbn.object.type.DBObjectRelationType.JSON_VIEW_TABLE;
+import static com.dbn.object.type.DBObjectType.TABLE;
+
 @Getter
 class DBJsonViewImpl extends DBViewImpl<DBJsonViewMetadata> implements DBJsonView {
     private String jsonSchema;
@@ -74,8 +77,8 @@ class DBJsonViewImpl extends DBViewImpl<DBJsonViewMetadata> implements DBJsonVie
     protected void initLists(ConnectionHandler connection) {
         DBSchema schema = getSchema();
         DBObjectListContainer childObjects = ensureChildObjects();
-        //childObjects.createSubcontentObjectList(DBObjectType.INDEX, this, schema);
-        //childObjects.createSubcontentObjectRelationList(DBObjectRelationType.INDEX_COLUMN, this, schema);
+        //childObjects.createSubcontentObjectRelationList(JSON_VIEW_TABLE, this, schema);
+        childObjects.createSubcontentObjectList(TABLE, this, schema, JSON_VIEW_TABLE);
     }
 
     @Override
@@ -97,6 +100,10 @@ class DBJsonViewImpl extends DBViewImpl<DBJsonViewMetadata> implements DBJsonVie
         return DBObjectType.JSON_VIEW;
     }
 
+    public List<DBTable> getTables() {
+        return getChildObjects(TABLE);
+    }
+
     @Nullable
     public DBTable getRootTable() {
         return DBObjectRef.get(rootTable);
@@ -104,12 +111,17 @@ class DBJsonViewImpl extends DBViewImpl<DBJsonViewMetadata> implements DBJsonVie
 
     @Override
     protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
+        List<DBObjectNavigationList> navigationLists = new LinkedList<>();
+
+        List<DBTable> tables = getTables();
+        navigationLists.add(DBObjectNavigationList.create("Tables", tables));
+
         DBTable rootTable = getRootTable();
         if (rootTable != null) {
-            List<DBObjectNavigationList> navigationLists = new LinkedList<>();
             navigationLists.add(DBObjectNavigationList.create("Root Table", rootTable));
             return navigationLists;
         }
+
         return null;
     }
 

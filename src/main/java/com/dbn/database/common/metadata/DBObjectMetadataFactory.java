@@ -37,6 +37,7 @@ import com.dbn.database.common.metadata.impl.DBJavaFieldMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJavaMethodMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJavaParameterMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJsonViewMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBJsonViewTableMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBMaterializedViewMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBNestedTableMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBObjectDependencyMetadataImpl;
@@ -137,6 +138,7 @@ public class DBObjectMetadataFactory {
         switch (relationType) {
             case INDEX_COLUMN:      return new DBIndexColumnMetadataImpl(resultSet);
             case CONSTRAINT_COLUMN: return new DBConstraintColumnMetadataImpl(resultSet);
+            case JSON_VIEW_TABLE:   return new DBJsonViewTableMetadataImpl(resultSet);
             case USER_ROLE:         return new DBGrantedRoleMetadataImpl(resultSet);
             case USER_PRIVILEGE:    return new DBGrantedPrivilegeMetadataImpl(resultSet);
             case ROLE_ROLE:         return new DBGrantedRoleMetadataImpl(resultSet);

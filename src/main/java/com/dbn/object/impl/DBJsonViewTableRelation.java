@@ -16,34 +16,30 @@
 
 package com.dbn.object.impl;
 
-import com.dbn.object.DBColumn;
-import com.dbn.object.DBConstraint;
-import com.dbn.object.common.DBObject;
+import com.dbn.object.DBJsonView;
+import com.dbn.object.DBTable;
 import com.dbn.object.common.list.DBObjectRelationImpl;
 import com.dbn.object.type.DBObjectRelationType;
 import lombok.Getter;
 
-import static com.dbn.common.util.Commons.nvl;
-
 @Getter
-class DBConstraintColumnRelation extends DBObjectRelationImpl<DBConstraint, DBColumn> {
+class DBJsonViewTableRelation extends DBObjectRelationImpl<DBJsonView, DBTable> {
     private final short position;
+    private final boolean root;
+    private final boolean readonly;
 
-    DBConstraintColumnRelation(DBConstraint constraint, DBColumn column, short position) {
-        super(DBObjectRelationType.CONSTRAINT_COLUMN, constraint, column);
+    DBJsonViewTableRelation(DBJsonView jsonView, DBTable table, short position, boolean root, boolean readonly) {
+        super(DBObjectRelationType.JSON_VIEW_TABLE, jsonView, table);
         this.position = position;
+        this.root = root;
+        this.readonly = readonly;
     }
 
-    @Override
-    public DBObject getRelationHolder() {
-        return nvl(getColumn().getParentObject(), getColumn());
-    }
-
-    public DBConstraint getConstraint() {
+    public DBJsonView getJsonView() {
         return getSourceObject();
     }
 
-    public DBColumn getColumn() {
+    public DBTable getTable() {
         return getTargetObject();
     }
 }

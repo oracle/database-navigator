@@ -63,7 +63,6 @@ import com.dbn.object.common.list.DBObjectListImpl;
 import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.impl.DBObjectLoaders;
 import com.dbn.object.status.ObjectStatusManager;
-import com.dbn.object.type.DBObjectRelationType;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.navigation.ItemPresentation;
@@ -693,18 +692,8 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
 
     @Override
     @Nullable
-    public DynamicContent<?> getDynamicContent(DynamicContentType<?> dynamicContentType) {
-        if(dynamicContentType instanceof DBObjectType) {
-            DBObjectType objectType = (DBObjectType) dynamicContentType;
-            return objectLists.getObjectList(objectType);
-        }
-
-        if (dynamicContentType instanceof DBObjectRelationType) {
-            DBObjectRelationType relationType = (DBObjectRelationType) dynamicContentType;
-            return objectLists.getRelations(relationType);
-        }
-
-        return null;
+    public DynamicContent<?> getDynamicContent(DynamicContentType<?> contentType) {
+        return objectLists.getDynamicContent(contentType);
     }
 
     @Override

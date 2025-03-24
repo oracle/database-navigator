@@ -1181,6 +1181,37 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="json-view-table-relations" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL" since-version="23.0">
+            select
+                VIEW_NAME as JSON_VIEW_NAME,
+                TABLE_OWNER as TABLE_OWNER_NAME,
+                TABLE_NAME as TABLE_NAME,
+                TABLE_NUMBER as POSITION,
+                DECODE(ROOT_TABLE, 'true', 'Y', 'N') AS IS_ROOT_TABLE,
+                DECODE(READ_ONLY, 'true', 'Y', 'N') AS IS_READONLY
+            from [PREFIX]_JSON_DUALITY_VIEW_TABS
+            where VIEW_OWNER = {0}
+              and VIEW_NAME = {1}
+            order by TABLE_NUMBER
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="all-json-view-table-relations" is-query="true" is-prepared-statement="true" timeout="90">
+        <statement prefixes="DBA, ALL" since-version="23.0">
+            select
+                VIEW_NAME as JSON_VIEW_NAME,
+                TABLE_OWNER as TABLE_OWNER_NAME,
+                TABLE_NAME as TABLE_NAME,
+                TABLE_NUMBER as POSITION,
+                DECODE(ROOT_TABLE, 'true', 'Y', 'N') AS IS_ROOT_TABLE,
+                DECODE(READ_ONLY, 'true', 'Y', 'N') AS IS_READONLY
+                from [PREFIX]_JSON_DUALITY_VIEW_TABS
+            where VIEW_OWNER  = {0}
+            order by VIEW_NAME, TABLE_NUMBER
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="all-nested-tables" is-query="true" is-prepared-statement="true" timeout="90">
         <statement prefixes="DBA, ALL">
             select

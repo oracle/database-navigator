@@ -195,6 +195,16 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
+    public ResultSet loadJsonViewTableRelations(@NotNull String ownerName, String jsonViewName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "json-view-table-relations", ownerName, jsonViewName);
+    }
+
+    @Override
+    public ResultSet loadAllJsonViewTableRelations(@NotNull String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "all-json-view-table-relations", ownerName);
+    }
+
+    @Override
     public ResultSet loadDatabaseTriggers(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "database-triggers", ownerName);
     }

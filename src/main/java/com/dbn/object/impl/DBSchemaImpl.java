@@ -94,6 +94,7 @@ import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_SCHEMA;
 import static com.dbn.object.common.property.DBObjectProperty.USER_SCHEMA;
 import static com.dbn.object.type.DBObjectRelationType.CONSTRAINT_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.INDEX_COLUMN;
+import static com.dbn.object.type.DBObjectRelationType.JSON_VIEW_TABLE;
 import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 import static com.dbn.object.type.DBObjectType.ANY;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
@@ -153,9 +154,9 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     protected void initLists(ConnectionHandler connection) {
         DBObjectListContainer childObjects = ensureChildObjects();
 
-        childObjects.createObjectList(TABLE,             this);
+        DBObjectList<DBObject> tables = childObjects.createObjectList(TABLE, this);
+        DBObjectList<DBObject> jsonViews = childObjects.createObjectList(JSON_VIEW, this);
         childObjects.createObjectList(VIEW,              this);
-        childObjects.createObjectList(JSON_VIEW,         this);
         childObjects.createObjectList(MATERIALIZED_VIEW, this);
         childObjects.createObjectList(SYNONYM,           this);
         childObjects.createObjectList(SEQUENCE,          this);
@@ -194,6 +195,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
 
         childObjects.createObjectRelationList(CONSTRAINT_COLUMN, this, constraints, columns, INTERNAL, GROUPED);
         childObjects.createObjectRelationList(INDEX_COLUMN, this, indexes, columns, INTERNAL, GROUPED);
+        childObjects.createObjectRelationList(JSON_VIEW_TABLE, this, jsonViews, tables, INTERNAL, GROUPED);
 
         this.primaryKeyColumns = Latent.mutable(
                 () -> nd(columns).getSignature(),

@@ -314,6 +314,10 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
     ResultSet loadAllNestedTables(String ownerName, DBNConnection connection) throws SQLException;
 
 
+    ResultSet loadJsonViewTableRelations(@NotNull String ownerName, String jsonViewName, DBNConnection connection) throws SQLException;
+
+    ResultSet loadAllJsonViewTableRelations(@NotNull String ownerName, DBNConnection connection) throws SQLException;
+
     /**
      * Loads the triggers of the given owner<br>
      * Column names of the returned ResultSet
@@ -540,7 +544,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      */
     ResultSet loadAllTypeAttributes(String ownerName, DBNConnection connection) throws SQLException;
 
-    public ResultSet loadProgramTypeAttributes(String ownerName, String programName, String typeName, DBNConnection connection) throws SQLException;    
+    ResultSet loadProgramTypeAttributes(String ownerName, String programName, String typeName, DBNConnection connection) throws SQLException;
 
     /**
      * Loads the function for the given type<br>

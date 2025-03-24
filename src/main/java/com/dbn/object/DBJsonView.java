@@ -16,8 +16,12 @@
 
 package com.dbn.object;
 
+import java.util.List;
+
 public interface DBJsonView extends DBView{
     boolean isReadonly();
+
+    List<DBTable> getTables();
 
     DBTable getRootTable();
 
