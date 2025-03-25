@@ -51,7 +51,7 @@ public class DBNTableColumnWidths {
         table.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                adjustColumnWidths();
+                table.adjustColumnWidths();
             }
         });
     }

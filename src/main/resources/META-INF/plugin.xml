@@ -22,6 +22,7 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
     <depends optional="true" config-file="dbn-java-support.xml">com.intellij.modules.java</depends>
+    <depends optional="true" config-file="dbn-json-support.xml">com.intellij.modules.json</depends>
     <depends optional="true" config-file="dbn-debugger-support.xml">com.intellij.modules.xdebugger</depends>
     <depends optional="true" config-file="dbn-copyright-support.xml">com.intellij.copyright</depends>
     <vendor email="dan.cioca@oracle.com" url="https://www.oracle.com">Dan Cioca (Oracle)</vendor>
@@ -178,6 +179,7 @@
         <projectService serviceImplementation="com.dbn.editor.data.state.DatasetEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.editor.data.statusbar.DatasetEditorStatusBarWidget"/>
         <projectService serviceImplementation="com.dbn.editor.json.JsonDataEditorManager"/>
+        <projectService serviceImplementation="com.dbn.editor.json.schema.JsonDataSchemaManager"/>
         <projectService serviceImplementation="com.dbn.editor.session.SessionBrowserManager"/>
         <projectService serviceImplementation="com.dbn.generator.statement.StatementGenerationManager"/>
         <projectService serviceImplementation="com.dbn.generator.code.CodeGeneratorManager"/>

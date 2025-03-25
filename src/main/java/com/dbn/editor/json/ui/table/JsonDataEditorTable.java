@@ -46,6 +46,7 @@ import com.dbn.editor.data.model.RecordStatus;
 import com.dbn.editor.json.JsonDataEditor;
 import com.dbn.editor.json.model.JsonDataEditorModel;
 import com.dbn.editor.json.model.JsonDataEditorModelCell;
+import com.dbn.editor.json.model.JsonDataEditorModelRow;
 import com.dbn.editor.json.ui.JsonDataEditorErrorForm;
 import com.dbn.editor.json.ui.table.listener.JsonDataEditorMouseListener;
 import com.dbn.object.DBColumn;
@@ -56,6 +57,7 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JTable;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.JTableHeader;
@@ -65,6 +67,7 @@ import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 import java.util.EventObject;
+import java.util.Objects;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
@@ -94,6 +97,8 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
         //tableHeader.setDefaultRenderer(new DatasetEditorTableHeaderRenderer());
         setName(jsonDataEditor.getJsonView().getName());
         this.jsonDataEditor = WeakRef.of(jsonDataEditor);
+        setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        setFillsViewportHeight(true);
 
         getSelectionModel().addListSelectionListener(getModel());
         addMouseListener(tableMouseListener);
@@ -115,6 +120,11 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
 
     private static JsonDataEditorModel createModel(JsonDataEditor jsonDataEditor) throws SQLException {
         return new JsonDataEditorModel(jsonDataEditor);
+    }
+
+    @Override
+    public void adjustColumnWidths() {
+        // auto-resize to full width (override default behavior)
     }
 
     @NotNull
@@ -426,6 +436,17 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
                         });
             }
         }
+
+        int selectedRow = getSelectedRow();
+        JsonDataEditorModelRow row = model.getRowAtIndex(selectedRow);
+        if (row == null) {
+            getJsonDataEditor().setJsonEditorContent("");
+        } else {
+            Object userValue = row.getCellAtIndex(0).getUserValue();
+            getJsonDataEditor().setJsonEditorContent(Objects.toString(userValue));
+        }
+
+
     }
 
     @Override

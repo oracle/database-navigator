@@ -37,6 +37,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.util.FileContentUtil;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
@@ -47,11 +48,13 @@ import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.util.GuardedBlocks.createGuardedBlock;
 import static com.dbn.common.util.GuardedBlocks.removeGuardedBlocks;
 import static com.dbn.common.util.Lists.forEach;
 import static com.dbn.common.util.TimeUtil.isOlderThan;
+import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
 import static com.intellij.openapi.fileEditor.impl.FileDocumentManagerImpl.HARD_REF_TO_DOCUMENT_KEY;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -150,7 +153,8 @@ public class Documents {
     public static VirtualFile getVirtualFile(Editor editor) {
         if (editor instanceof EditorEx) {
             EditorEx editorEx = (EditorEx) editor;
-            return editorEx.getVirtualFile();
+            VirtualFile virtualFile = editorEx.getVirtualFile();
+            if (virtualFile != null) return virtualFile;
         }
         Document document = editor.getDocument();
         return getVirtualFile(document);
@@ -205,21 +209,51 @@ public class Documents {
         });
     }
 
+    public static void setText(@NotNull Editor editor, CharSequence text, boolean format) {
+        Write.run(() -> {
+            Document document = editor.getDocument();
+            changeText(document, text);
+
+            Project project = nd(editor.getProject());
+            PsiDocumentManager documentManager = PsiDocumentManager.getInstance(project);
+            documentManager.commitDocument(document);
+
+            if (format) {
+                formatContent(editor);
+            }
+        });
+
+    }
+
+    public static void formatContent(@NotNull Editor editor) {
+        Project project = editor.getProject();
+        if (isNotValid(project)) return;
+
+        runWriteCommandAction(project, () -> {
+            PsiFile psiFile = getPsiFile(editor);
+            if (isNotValid(psiFile)) return;
+
+            CodeStyleManager codeStyleManager = CodeStyleManager.getInstance(project);
+            codeStyleManager.reformat(psiFile);
+        });
+    }
+
     public static void setText(@NotNull Document document, CharSequence text) {
         FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
         VirtualFile file = fileDocumentManager.getFile(document);
         if (isNotValid(file)) return;
 
-        Write.run(() -> {
-            boolean isReadonly = !document.isWritable();
-            try {
-                document.setReadOnly(false);
-                document.setText(text);
-            } finally {
-                document.setReadOnly(isReadonly);
-            }
+        Write.run(() -> changeText(document, text));
+    }
 
-        });
+    private static void changeText(Document document, CharSequence text) {
+        boolean isReadonly = !document.isWritable();
+        try {
+            document.setReadOnly(false);
+            document.setText(text);
+        } finally {
+            document.setReadOnly(isReadonly);
+        }
     }
 
     public static void saveDocument(@NotNull Document document) {

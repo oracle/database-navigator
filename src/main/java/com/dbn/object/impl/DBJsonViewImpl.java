@@ -140,4 +140,5 @@ class DBJsonViewImpl extends DBViewImpl<DBJsonViewMetadata> implements DBJsonVie
     public boolean hasVisibleTreeChildren() {
         return false;
     }
+
 }

@@ -640,4 +640,8 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
         super.disposeInner();
         editorForm = null;
     }
+
+    public void setJsonEditorContent(String content) {
+        getEditorForm().setJsonEditorContent(content);
+    }
 }

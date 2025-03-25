@@ -28,4 +28,5 @@ public interface DBJsonView extends DBView{
     String getJsonSchema();
 
     String getJsonColumnName();
+
 }

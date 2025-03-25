@@ -36,6 +36,8 @@ import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.dbn.vfs.file.DBDatasetFilterVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
+import com.dbn.vfs.file.DBJsonContentVirtualFile;
+import com.dbn.vfs.file.DBJsonSchemaVirtualFile;
 import com.dbn.vfs.file.DBLooseContentVirtualFile;
 import com.dbn.vfs.file.DBObjectFilterExpressionFile;
 import com.dbn.vfs.file.DBObjectListVirtualFile;
@@ -67,6 +69,8 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.vfs.DatabaseFileSystem.FilePathType.CONSOLES;
 import static com.dbn.vfs.DatabaseFileSystem.FilePathType.DATASET_FILTERS;
 import static com.dbn.vfs.DatabaseFileSystem.FilePathType.FILTER_EXPRESSIONS;
+import static com.dbn.vfs.DatabaseFileSystem.FilePathType.JSON_CONTENTS;
+import static com.dbn.vfs.DatabaseFileSystem.FilePathType.JSON_SCHEMAS;
 import static com.dbn.vfs.DatabaseFileSystem.FilePathType.LOOSE_CONTENTS;
 import static com.dbn.vfs.DatabaseFileSystem.FilePathType.OBJECTS;
 import static com.dbn.vfs.DatabaseFileSystem.FilePathType.OBJECT_CONTENTS;
@@ -91,6 +95,8 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
         SESSION_STATEMENTS("session_statements", "session statements"),
         FILTER_EXPRESSIONS("filter_expressions", "filter expressions"),
         DATASET_FILTERS("dataset_filters", "dataset filters"),
+        JSON_SCHEMAS("json_schemas", "json schemas"),
+        JSON_CONTENTS("json_contents", "json contents"),
         LOOSE_CONTENTS("loose_contents", "loose contents");
 
         private final String urlToken;
@@ -358,6 +364,16 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
             if (virtualFile instanceof DBDatasetFilterVirtualFile) {
                 DBDatasetFilterVirtualFile file = (DBDatasetFilterVirtualFile) virtualFile;
                 return connectionId + PSS + DATASET_FILTERS + file.getDataset().ref().serialize();
+            }
+
+            if (virtualFile instanceof DBJsonSchemaVirtualFile) {
+                DBJsonSchemaVirtualFile file = (DBJsonSchemaVirtualFile) virtualFile;
+                return connectionId + PSS + JSON_SCHEMAS + file.getJsonView().ref().serialize();
+            }
+
+            if (virtualFile instanceof DBJsonContentVirtualFile) {
+                DBJsonContentVirtualFile file = (DBJsonContentVirtualFile) virtualFile;
+                return connectionId + PSS + JSON_CONTENTS + file.getJsonView().ref().serialize();
             }
 
             if (virtualFile instanceof DBSessionBrowserVirtualFile) {

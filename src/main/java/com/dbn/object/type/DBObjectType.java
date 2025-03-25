@@ -167,6 +167,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     private final DatabaseObjectTypeId typeId;
     private final String name;
     private final String listName;
+    private final String pathListName;
     private final String presentableListName;
     private final Icon icon;
     private final Icon disabledIcon;
@@ -197,6 +198,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         this.listIcon = listIcon;
         this.disabledIcon = disabledIcon;
         this.generic = generic;
+        this.pathListName = listName == null ? null : listName.replace(' ', '_');
         this.presentableListName = listName == null ? null :
                 Characters.toUpperCase(listName.charAt(0)) + listName.substring(1).replace('_', ' ');
     }
@@ -561,7 +563,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
 
     public static DBObjectType forListName(String name, DBObjectType parent) {
         for (DBObjectType objectType : values()) {
-            if (Objects.equals(objectType.getListName(), name) && (parent == null || objectType.getParents().contains(parent))) {
+            if (matchesListName(name, objectType) && (parent == null || objectType.getParents().contains(parent))) {
                 return objectType;
             }
         }
@@ -571,6 +573,12 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
 
         log.warn("No ObjectType found for name '{}'", name, new IllegalArgumentException("Invalid object type"));
         return DBObjectType.UNKNOWN;
+    }
+
+    private static boolean matchesListName(String name, DBObjectType objectType) {
+        return
+            Objects.equals(objectType.getListName(), name) ||
+            Objects.equals(objectType.getPathListName(), name);
     }
 
     public boolean isSupported(@Nullable DatabaseContext connectionProvider) {

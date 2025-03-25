@@ -29,6 +29,8 @@ import com.dbn.common.ui.misc.DBNTableScrollPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
+import com.dbn.common.util.Documents;
+import com.dbn.common.util.Editors;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SessionId;
@@ -40,15 +42,23 @@ import com.dbn.editor.json.JsonDataEditor;
 import com.dbn.editor.json.ui.table.JsonDataEditorTable;
 import com.dbn.object.DBDataset;
 import com.dbn.object.DBJsonView;
+import com.dbn.vfs.file.DBJsonContentVirtualFile;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.EditorSettings;
+import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiFile;
 import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.text.JTextComponent;
 import java.awt.BorderLayout;
 import java.awt.DefaultFocusTraversalPolicy;
@@ -56,6 +66,7 @@ import java.sql.SQLException;
 
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.UserInterface.updateScrollPanes;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class JsonDataEditorForm extends DBNFormBase implements SearchableDataComponent {
@@ -66,13 +77,17 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
     private JPanel searchPanel;
     private JPanel loadingActionPanel;
     private JPanel loadingDataPanel;
-    private JPanel jsonDataTablePanel;
+    private JPanel tablePanel;
     private DBNTableScrollPane jsonDataTableScrollPane;
 
     private AutoCommitLabel autoCommitLabel;
     private JPanel toolbarPanel;
+    private JPanel editorPanel;
+    private JSplitPane editorSplitPanel;
     private JsonDataEditorTable datasetEditorTable;
     private final WeakRef<JsonDataEditor> jsonDataEditor;
+
+    private EditorEx editor;
 
     private final Latent<DataSearchComponent> dataSearchComponent = Latent.basic(() -> {
         DataSearchComponent dataSearchComponent = new DataSearchComponent(JsonDataEditorForm.this);
@@ -81,22 +96,22 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
         return dataSearchComponent;
     });
 
-
     public JsonDataEditorForm(JsonDataEditor jsonDataEditor) {
         super(jsonDataEditor, jsonDataEditor.getProject());
         this.jsonDataEditor = WeakRef.of(jsonDataEditor);
 
-        DBDataset dataset = getJsonView();
+        DBDataset jsonView = getJsonView();
         try {
-            this.toolbarPanel.setBorder(Borders.insetBorder(2));
+            toolbarPanel.setBorder(Borders.insetBorder(2));
 
-            jsonDataTablePanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
+            tablePanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
+            editorPanel.setBorder(Borders.tableBorder(0, 1, 0, 0));
             datasetEditorTable = new JsonDataEditorTable(this, jsonDataEditor);
             jsonDataTableScrollPane.setViewportView(datasetEditorTable);
             datasetEditorTable.initTableGutter();
 
             ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.JsonDataEditor");
-            setAccessibleName(actionToolbar, txt("app.dataEditor.aria.DatasetEditorActions"));
+            setAccessibleName(actionToolbar, txt("app.dataEditor.aria.JsonDataEditorActions"));
 
             actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
             loadingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
@@ -111,10 +126,10 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
             Messages.showErrorDialog(
                     getProject(),
                     txt("msg.dataEditor.title.FailedToOpenEditor"),
-                    txt("msg.dataEditor.error.FailedToOpenEditor", dataset.getQualifiedNameWithType(), e));
+                    txt("msg.dataEditor.error.FailedToOpenEditor", jsonView.getQualifiedNameWithType(), e));
         }
 
-        if (dataset.isEditable(DBContentType.DATA)) {
+        if (jsonView.isEditable(DBContentType.JSON_DATA)) {
             ConnectionHandler connection = getConnectionHandler();
             autoCommitLabel.init(getProject(), jsonDataEditor.getFile(), connection, SessionId.MAIN);
         }
@@ -125,7 +140,37 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
         mainPanel.setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
         mainPanel.setFocusTraversalPolicyProvider(true);
 
+        initJsonContentEditor();
         Disposer.register(jsonDataEditor, this);
+    }
+
+    private void initJsonContentEditor() {
+        Project project = ensureProject();
+        DBJsonView jsonView = getJsonView();
+
+        DBJsonContentVirtualFile jsonFile = DBJsonContentVirtualFile.get(jsonView);
+        PsiFile psiFile = jsonFile.getPsiFile();
+        Document document = Documents.ensureDocument(psiFile);
+        Documents.setText(document, "");
+
+        editor = Editors.createEditor(document, project, jsonFile, jsonFile.getFileType());
+
+        JScrollPane editorScrollPane = editor.getScrollPane();
+        editorScrollPane.setViewportBorder(Borders.insetBorder(4));
+
+        EditorSettings settings = editor.getSettings();
+        settings.setHighlightSelectionOccurrences(true);
+        settings.setLineNumbersShown(true);
+        settings.setFoldingOutlineShown(true);
+        settings.setLineMarkerAreaShown(true);
+        settings.setRightMarginShown(false);
+        settings.setDndEnabled(false);
+        settings.setUseTabCharacter(true);
+        settings.setCaretRowShown(false);
+
+
+        editorPanel.add(editor.getComponent());
+        updateScrollPanes(editorPanel);
     }
 
     public JsonDataEditorTable beforeRebuild() throws SQLException {
@@ -233,6 +278,10 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
     @Override
     public BasicTable<?> getTable() {
         return getEditorTable();
+    }
+
+    public void setJsonEditorContent(String content) {
+        Documents.setText(editor, content, true);
     }
 
     private class CancelLoadingAction extends BasicAction {
