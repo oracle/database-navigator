@@ -28,8 +28,7 @@ import com.dbn.editor.data.DatasetLoadInstructions;
 import com.dbn.editor.data.filter.DatasetFilterInput;
 import com.dbn.editor.data.filter.DatasetFilterManager;
 import com.dbn.object.DBDataset;
-import com.dbn.object.DBTable;
-import com.dbn.object.DBView;
+import com.dbn.object.DBJsonView;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.openapi.components.State;
@@ -83,13 +82,13 @@ public class JsonDataEditorManager extends ProjectComponentBase implements Persi
                 if (file instanceof DBEditableObjectVirtualFile) {
                     DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) file;
                     DBSchemaObject object = editableObjectFile.getObject();
-                    if (object instanceof DBDataset) {
+                    if (object instanceof DBJsonView) {
                         FileEditor[] fileEditors = source.getEditors(file);
                         for (FileEditor fileEditor : fileEditors) {
-                            if (fileEditor instanceof DatasetEditor) {
-                                DatasetEditor datasetEditor = (DatasetEditor) fileEditor;
-                                if (object instanceof DBTable || editableObjectFile.getSelectedEditorProviderId() == EditorProviderId.DATA) {
-                                    datasetEditor.loadData(INITIAL_LOAD_INSTRUCTIONS);
+                            if (fileEditor instanceof JsonDataEditor) {
+                                JsonDataEditor jsonDataEditor = (JsonDataEditor) fileEditor;
+                                if (editableObjectFile.getSelectedEditorProviderId() == EditorProviderId.JSON_DATA) {
+                                    jsonDataEditor.loadData(INITIAL_LOAD_INSTRUCTIONS);
                                 }
                             }
                         }
@@ -100,13 +99,10 @@ public class JsonDataEditorManager extends ProjectComponentBase implements Persi
             @Override
             public void whenSelectionChanged(@NotNull FileEditorManagerEvent event) {
                 FileEditor newEditor = event.getNewEditor();
-                if (newEditor instanceof DatasetEditor) {
-                    DatasetEditor datasetEditor = (DatasetEditor) newEditor;
-                    DBDataset dataset = datasetEditor.getDataset();
-                    if (dataset instanceof DBView) {
-                        if (!datasetEditor.isLoaded() && !datasetEditor.isLoading()) {
-                            datasetEditor.loadData(INITIAL_LOAD_INSTRUCTIONS);
-                        }
+                if (newEditor instanceof JsonDataEditor) {
+                    JsonDataEditor jsonDataEditor = (JsonDataEditor) newEditor;
+                    if (!jsonDataEditor.isLoaded() && !jsonDataEditor.isLoading()) {
+                        jsonDataEditor.loadData(INITIAL_LOAD_INSTRUCTIONS);
                     }
                 }
             }

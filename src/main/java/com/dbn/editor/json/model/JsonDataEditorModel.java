@@ -35,7 +35,6 @@ import com.dbn.database.DatabaseFeature;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.data.filter.DatasetFilter;
 import com.dbn.editor.data.filter.DatasetFilterManager;
-import com.dbn.editor.data.model.DatasetEditorModelHeader;
 import com.dbn.editor.data.model.ResultSetAdapter;
 import com.dbn.editor.data.options.DataEditorSettings;
 import com.dbn.editor.json.JsonDataEditor;
@@ -92,8 +91,9 @@ public class JsonDataEditorModel
         DBJsonView jsonView = jsonDataEditor.getJsonView();
         this.jsonView = DBObjectRef.of(jsonView);
         this.settings =  DataEditorSettings.getInstance(project);
-        //setHeader(new DatasetEditorModelHeader(datasetEditor, null));
         this.resultSetUpdatable = DatabaseFeature.UPDATABLE_RESULT_SETS.isSupported(getConnection());
+
+        setHeader(new JsonDataEditorModelHeader(jsonDataEditor, null));
 
         EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
         boolean readonly = environmentManager.isReadonly(jsonView, DBContentType.DATA);
@@ -305,8 +305,8 @@ public class JsonDataEditorModel
 
     @NotNull
     @Override
-    public DatasetEditorModelHeader getHeader() {
-        return (DatasetEditorModelHeader) super.getHeader();
+    public JsonDataEditorModelHeader getHeader() {
+        return (JsonDataEditorModelHeader) super.getHeader();
     }
 
     @Override

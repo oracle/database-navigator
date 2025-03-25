@@ -25,9 +25,7 @@ import com.dbn.data.model.resultSet.ResultSetColumnInfo;
 import com.dbn.data.model.resultSet.ResultSetDataModelRow;
 import com.dbn.editor.data.model.ResultSetAdapter;
 import com.dbn.editor.json.ui.JsonDataEditorError;
-import com.dbn.object.DBColumn;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -45,12 +43,6 @@ public class JsonDataEditorModelRow extends ResultSetDataModelRow<JsonDataEditor
     @Override
     public JsonDataEditorModel getModel() {
         return super.getModel();
-    }
-
-    @Nullable
-    JsonDataEditorModelCell getCellForColumn(DBColumn column) {
-        int columnIndex = getModel().getHeader().indexOfColumn(column);
-        return getCellAtIndex(columnIndex);
     }
 
     @NotNull

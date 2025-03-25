@@ -33,4 +33,6 @@ public interface DBJsonViewMetadata extends DBViewMetadata {
 
     String getJsonSchema() throws SQLException;
 
+    String getJsonColumnName() throws SQLException;
+
 }

@@ -51,4 +51,9 @@ public class DBJsonViewMetadataImpl extends DBViewMetadataImpl implements DBJson
     public String getJsonSchema() throws SQLException {
         return getString("JSON_SCHEMA");
     }
+
+    @Override
+    public String getJsonColumnName() throws SQLException {
+        return getString( "JSON_COLUMN_NAME");
+    }
 }

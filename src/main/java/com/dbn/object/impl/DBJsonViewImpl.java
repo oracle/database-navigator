@@ -46,6 +46,7 @@ import static com.dbn.object.type.DBObjectType.TABLE;
 @Getter
 class DBJsonViewImpl extends DBViewImpl<DBJsonViewMetadata> implements DBJsonView {
     private String jsonSchema;
+    private String jsonColumnName;
     private DBObjectRef<DBTable> rootTable;
 
     DBJsonViewImpl(DBSchema schema, DBJsonViewMetadata metadata) throws SQLException {
@@ -59,6 +60,7 @@ class DBJsonViewImpl extends DBViewImpl<DBJsonViewMetadata> implements DBJsonVie
         set(DBObjectProperty.INVALIDABLE, true);
 
         jsonSchema = metadata.getJsonSchema();
+        jsonColumnName = metadata.getJsonColumnName();
 
         DBObjectRef<DBSchema> rootTableSchema = new DBObjectRef<>(connection.getConnectionId(), DBObjectType.SCHEMA, metadata.getRootTableOwner());
         rootTable = new DBObjectRef<>(rootTableSchema, DBObjectType.TABLE, metadata.getRootTableName());
