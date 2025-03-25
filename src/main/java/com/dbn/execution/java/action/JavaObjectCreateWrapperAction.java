@@ -100,7 +100,7 @@ public class JavaObjectCreateWrapperAction extends BasicAction {
 					JBPopup popup = popupBuilder.createPopup();
 					showPopup(popup);
 				} else {
-					SelectionListDialog<DBJavaMethod> dialog = new SelectionListDialog<>(program.getProject(),"Select method to create wrapper", objects, null, null);
+					SelectionListDialog<DBJavaMethod> dialog = new SelectionListDialog<>(program.getProject(),"Select method to create wrapper", objects, null, program);
 					dialog.show();
 					List<DBJavaMethod> methods = dialog.getSelection();
 					ConnectionAction.invoke("Creation of Execution Wrappers", false, methods.get(0),
