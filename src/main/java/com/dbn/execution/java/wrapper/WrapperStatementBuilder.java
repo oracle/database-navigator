@@ -36,8 +36,6 @@ import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static com.dbn.execution.java.wrapper.TypeMappings.getSqlType;
-
 @Slf4j
 public final class WrapperStatementBuilder {
 	private final ProjectRef project;
@@ -179,7 +177,7 @@ public final class WrapperStatementBuilder {
 		if (wrapper.getWrapperJavaMethods().isEmpty()) return javaWrapperMethods;
 
 		for (WrapperJavaMethod method : wrapper.getWrapperJavaMethods()) {
-			String code = "";
+			String code;
 			String methodReturnType = resolveMethodReturnType(method);
 			String wrapperMethodName = method.getWrapperJavaMethodName();
 			String methodSignature = getJavaSignature(method, true);
