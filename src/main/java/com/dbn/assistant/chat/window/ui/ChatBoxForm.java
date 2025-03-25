@@ -21,6 +21,7 @@ import com.dbn.assistant.chat.PersistentChatConversation;
 import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.message.PersistentChatMessage;
+import com.dbn.assistant.chat.ui.SaveOrDiscardConversationDialog;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.chat.window.util.RollingMessageContainer;
 import com.dbn.assistant.init.ui.AssistantIntroductionForm;
@@ -32,14 +33,13 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.util.Actions;
+import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Strings;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
 import lombok.extern.slf4j.Slf4j;
@@ -235,34 +235,35 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   private void triggerContextChangeEvent(ChatContext oldContext, ChatContext newContext) {
-    if(oldContext.isConversationInterruption(newContext)) {
-      Messages.showInfoDialog(ensureProject(), "Conversation", "Would like to save the existing conversation", new String[]{"Cancel", "Discard", "Save"}, 2,
-              (Integer n) -> {
-                if(n == 0) {
-                    suppressContextChangeEvents(() -> restoreContext(oldContext));
-                    dispatch(this::updateActionToolbars);
-                }
-                if(n == 1) {
-                  if (newContext.isConversation()) {
-                    getAssistantState().setCurrentConversation(new PersistentChatConversation(newContext));
-                    updateMessages();
-                  } else {
-                    getAssistantState().setCurrentConversation(null);
-                    updateMessages();
-                  }
-                }
-                if(n == 2) {
-                  if (newContext.isConversation()) {
-                    getAssistantState().getConversations().add(getAssistantState().getCurrentConversation());
-                    getAssistantState().setCurrentConversation(new PersistentChatConversation(newContext));
-                    updateMessages();
-                  } else {
-                    getAssistantState().getConversations().add(getAssistantState().getCurrentConversation());
-                    getAssistantState().setCurrentConversation(null);
-                    updateMessages();
-                  }
-                }
-              });
+    String changedField = oldContext.isConversationInterruption(newContext);
+    if(!changedField.isEmpty()) {
+      Dialogs.show(() -> new SaveOrDiscardConversationDialog(ConnectionRef.get(connection).getProject(), changedField), (dialog, exitCode) -> {
+        if(exitCode == 0) {
+          suppressContextChangeEvents(() -> restoreContext(oldContext));
+          dispatch(this::updateActionToolbars);
+        }
+        if(exitCode == 1) {
+          if (newContext.isConversation()) {
+            getAssistantState().setCurrentConversation(new PersistentChatConversation(newContext));
+            updateMessages();
+          } else {
+            getAssistantState().setCurrentConversation(null);
+            updateMessages();
+          }
+        }
+        if(exitCode == 2) {
+          if (newContext.isConversation()) {
+            getAssistantState().getCurrentConversation().setTitle(dialog.getConversationTitle());
+            getAssistantState().getConversations().add(getAssistantState().getCurrentConversation());
+            getAssistantState().setCurrentConversation(new PersistentChatConversation(newContext));
+            updateMessages();
+          } else {
+            getAssistantState().getConversations().add(getAssistantState().getCurrentConversation());
+            getAssistantState().setCurrentConversation(null);
+            updateMessages();
+          }
+        }
+      });
     } else {
       if (newContext.isConversation()) {
         getAssistantState().setCurrentConversation(new PersistentChatConversation(newContext));

@@ -61,12 +61,18 @@ public class ChatContext implements PersistentStateElement {
         return GSON.toJson(attributes);
     }
 
-    public boolean isConversationInterruption(ChatContext newContext) {
-        if(!isConversation()) return false;
-        if(!profile.equals(newContext.getProfile())) return true;
-        if(!model.equals(newContext.getModel())) return true;
-        if(action == PromptAction.CHAT) return newContext.action != PromptAction.CHAT;
-        return newContext.action == PromptAction.CHAT;
+    public String isConversationInterruption(ChatContext newContext) {
+        if (!isConversation()) return "";
+        if (!profile.equals(newContext.getProfile())) return "profile";
+        if (!model.equals(newContext.getModel())) return "model";
+        if (action == PromptAction.CHAT && newContext.action != PromptAction.CHAT) {
+            return "conversation type";
+        }
+        if (action != PromptAction.CHAT && newContext.action == PromptAction.CHAT) {
+            return "conversation type";
+        }
+        // No interruption detected
+        return "";
     }
 
     @Override
