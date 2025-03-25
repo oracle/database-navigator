@@ -66,7 +66,7 @@ dependencies {
   implementation(project(":modules:dbn-api"))
   implementation(project(":modules:dbn-spi"))
 
-    compileOnly(files("ociToolkit.jar"))
+  compileOnly(files("ociToolkit.jar"))
 }
 
 licenseReport {

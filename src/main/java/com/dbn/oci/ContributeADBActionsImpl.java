@@ -24,9 +24,7 @@ import java.util.stream.Collectors;
 
 
 public class ContributeADBActionsImpl implements ContributeADBActions {
-
-
-
+  
   private @NotNull PluginDescriptor pluginDescriptor;
 
   @Override
@@ -36,7 +34,8 @@ public class ContributeADBActionsImpl implements ContributeADBActions {
 
   @Override
   public boolean isCompatible(Version frameworkVersion) {
-    return true;
+    // >= 1.2
+    return frameworkVersion.isOrGreaterThan(1,2);
   }
 
   @Override
