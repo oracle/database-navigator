@@ -49,8 +49,8 @@ public class JavaComplexType {
 
 	public void setCorrespondingSqlType(SqlComplexType correspondingSqlType) {
 		this.correspondingSqlType = correspondingSqlType;
-		this.javaToSqlConverterName = correspondingSqlType.getName()+"toSQL";
-		this.sqlToJavaConverterName = correspondingSqlType.getName()+"toJava";
+		this.javaToSqlConverterName = correspondingSqlType.getName()+"_TO_SQL";
+		this.sqlToJavaConverterName = correspondingSqlType.getName()+"_TO_JAVA";
 	}
 
 	public void setArrayType(ArrayType arrayType) {

@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.wrapper;
 
+import com.dbn.common.util.Naming;
 import com.dbn.common.util.Strings;
 import com.dbn.execution.java.wrapper.JavaComplexType.AttributeDirection;
 import com.dbn.object.DBJavaClass;
@@ -113,7 +114,7 @@ public final class WrapperBuilder {
 		Wrapper wrapper = new Wrapper();
 		wrapper.setUseFriendlyNames(useFriendlyNames);
 		DBObjectRef<DBJavaClass> ownerClass = javaMethods.get(0).getOwnerClassRef();
-		wrapper.setFullyQualifiedClassName(getCanonicalName(ownerClass));
+		wrapper.setClassName(getCanonicalName(ownerClass));
 
 
         for (DBJavaMethod javaMethod : javaMethods) {
@@ -121,11 +122,14 @@ public final class WrapperBuilder {
             setMethodMetadata(javaMethod, wrapperJavaMethod);
             parseParameters(javaMethod, wrapperJavaMethod, wrapper, context);
             parseReturnType(javaMethod,wrapperJavaMethod, wrapper, context);
-			wrapperJavaMethod.setWrapperJavaMethodName(
-					context.getAndAddWrapperMethodName(
-							wrapperJavaMethod.getOriginalJavaMethodName(),
-							wrapperJavaMethod.getJavaSignature(false))
-			);
+			String javaMethodName = context.getAndAddWrapperMethodName(
+					wrapperJavaMethod.getOriginalJavaMethodName(),
+					wrapperJavaMethod.getJavaSignature(false));
+
+			String sqlMethodName = Naming.toUpperSnakeCase(javaMethodName);
+
+			wrapperJavaMethod.setJavaMethodName(javaMethodName);
+			wrapperJavaMethod.setSqlMethodName(sqlMethodName);
 			wrapper.addJavaMethod(wrapperJavaMethod);
         }
 

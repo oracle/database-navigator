@@ -24,15 +24,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
-
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Properties;
-import java.util.Set;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -179,10 +178,10 @@ public final class WrapperStatementBuilder {
 		for (WrapperJavaMethod method : wrapper.getWrapperJavaMethods()) {
 			String code;
 			String methodReturnType = resolveMethodReturnType(method);
-			String wrapperMethodName = method.getWrapperJavaMethodName();
+			String wrapperMethodName = method.getJavaMethodName();
 			String methodSignature = getJavaSignature(method, true);
 			String argumentConversions = getArgumentConversionStatements(method);
-			String returnStatement = getReturnStatement(method, wrapper.getFullyQualifiedClassName());
+			String returnStatement = getReturnStatement(method, wrapper.getClassName());
 
 			Map<String, Object> context = new HashMap<>();
 			context.put("METHOD_RETURN_TYPE", methodReturnType);
@@ -211,9 +210,9 @@ public final class WrapperStatementBuilder {
 		context.put("SQL_CONVERSION_METHODS", sqlMethods);
 		context.put("JAVA_CONVERSION_METHODS", javaMethods);
 		context.put("JAVA_WRAPPER_METHODS", javaWrapperMethods);
-		context.put("FULLY_QUALIFIED_ORIGINAL_CLASSNAME",wrapper.getFullyQualifiedClassName());
+		context.put("FULLY_QUALIFIED_ORIGINAL_CLASSNAME",wrapper.getClassName());
 
-		context.put("JAVA_CLASS", wrapper.getFullyQualifiedClassName());
+		context.put("JAVA_CLASS", wrapper.getClassName());
 
 		context.put("WRAPPER_METHODS", wrapper.getWrapperJavaMethods());
 
@@ -229,7 +228,8 @@ public final class WrapperStatementBuilder {
 		List<Map<String, Object>> methodList = wrapper.getWrapperJavaMethods().stream()
 				.map(method -> {
 					Map<String, Object> m = new HashMap<>();
-					m.put("wrapperJavaMethodName", method.getWrapperJavaMethodName());
+					m.put("javaMethodName", method.getJavaMethodName());
+					m.put("sqlMethodName", method.getSqlMethodName());
 					// Precompute the SQL signature using your new getSqlSignature function.
 					m.put("sqlSignature", getSqlSignature(method));
 					// Precompute the Java signature (false indicates no argument names, per your original code).

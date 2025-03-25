@@ -29,7 +29,8 @@ import java.util.stream.Collectors;
 public class WrapperJavaMethod {
     private String originalJavaMethodName;
     // method signatures of wrapper java methods may be same even though original java methods with same name have different signatures
-    private String wrapperJavaMethodName;
+    private String javaMethodName;
+    private String sqlMethodName;
     private List<MethodAttribute> methodAttributes = new ArrayList<>();
     private MethodAttribute returnType;
     private String javaMethodSignature;

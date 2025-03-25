@@ -32,31 +32,41 @@ import java.util.Set;
 @Setter
 public class Wrapper {
 	public static final String DBN_TYPE_SUFFIX = "DBN_OJVM_TYPE_";
-	private String fullyQualifiedClassName;
-	private Set<String> sqlTypeNames = new HashSet<>();
 	private boolean useFriendlyNames;
+	private String className;
+	private Set<String> sqlTypeNames = new HashSet<>();
 	private List<WrapperJavaMethod> wrapperJavaMethods = new ArrayList<>();
     private List<JavaComplexType> javaComplexTypes = new ArrayList<>();
 	private Map<WrapperBuilder.ComplexTypeKey, Integer> sqlTypeIndexes = new HashMap<>();
 
 	public String getJavaWrapperClassName(){
-		if(useFriendlyNames) return "DBN_CLASS_NAME_WRAPPER";
+		if (useFriendlyNames) {
+			return toSqlTypeName(className) + "_WRAPPER";
+		}
 		return "DBN_OJVM_JAVA_WRAPPER";
 	}
 
 	public String getSQLWrapperName(){
-		if(useFriendlyNames) return "DBN_SQL_WRAPPER";
+		if(useFriendlyNames) {
+			return toSqlTypeName(className);
+		}
 		return "DBN_OJVM_SQL_WRAPPER";
 	}
 
 	public String getSqlTypeName(String className, short arrayDepth) {
-		String sqlName = "DBN_" + className.replace(".","_");
-		if(arrayDepth>0)
-			sqlName += arrayDepth;
-		if(useFriendlyNames) return sqlName;
+		if (useFriendlyNames) {
+			String sqlName = toSqlTypeName(className);
+			if (arrayDepth > 0) sqlName += arrayDepth;
+			return sqlName;
+		}
 
 		return DBN_TYPE_SUFFIX + getSqlTypeIndex(className, arrayDepth);
 	}
+
+	private static String toSqlTypeName(String className) {
+		return "OJVM_" + className.replace(".", "_").replace("$", "_").toUpperCase();
+	}
+
 
 	public void addJavaComplexType(JavaComplexType javaComplexType) {
         javaComplexTypes.add(javaComplexType);

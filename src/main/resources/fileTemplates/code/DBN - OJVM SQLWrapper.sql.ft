@@ -4,9 +4,9 @@ EXECUTE IMMEDIATE
 CREATE OR REPLACE PACKAGE ${SQL_WRAPPER_NAME} AS
 #foreach($method in $JAVA_METHODS)
     #if($method.isVoid)
-    PROCEDURE ${method.wrapperJavaMethodName}(${method.sqlSignature});
+    PROCEDURE ${method.sqlMethodName}(${method.sqlSignature});
     #else
-    FUNCTION ${method.wrapperJavaMethodName}(${method.sqlSignature}) RETURN ${method.sqlReturnType};
+    FUNCTION ${method.sqlMethodName}(${method.sqlSignature}) RETURN ${method.sqlReturnType};
     #end
 #end
 END ${SQL_WRAPPER_NAME};
@@ -17,11 +17,11 @@ EXECUTE IMMEDIATE
 CREATE OR REPLACE PACKAGE BODY ${SQL_WRAPPER_NAME} AS
 #foreach($method in $JAVA_METHODS)
     #if($method.isVoid)
-    PROCEDURE ${method.wrapperJavaMethodName}(${method.sqlSignature})
-    AS LANGUAGE JAVA NAME ''${JAVA_WRAPPER_NAME}.${method.wrapperJavaMethodName}(${method.javaSignature})'';
+    PROCEDURE ${method.sqlMethodName}(${method.sqlSignature})
+    AS LANGUAGE JAVA NAME ''${JAVA_WRAPPER_NAME}.${method.javaMethodName}(${method.javaSignature})'';
     #else
-    FUNCTION ${method.wrapperJavaMethodName}(${method.sqlSignature}) RETURN ${method.sqlReturnType}
-    AS LANGUAGE JAVA NAME ''${JAVA_WRAPPER_NAME}.${method.wrapperJavaMethodName}(${method.javaSignature}) return ${method.resolvedReturnType}'';
+    FUNCTION ${method.sqlMethodName}(${method.sqlSignature}) RETURN ${method.sqlReturnType}
+    AS LANGUAGE JAVA NAME ''${JAVA_WRAPPER_NAME}.${method.javaMethodName}(${method.javaSignature}) return ${method.resolvedReturnType}'';
     #end
 #end
 END ${SQL_WRAPPER_NAME};
@@ -34,10 +34,10 @@ EXECUTE IMMEDIATE
 #foreach($method in $JAVA_METHODS)
     #if($method.isVoid)
     CREATE OR REPLACE PROCEDURE ${SQL_WRAPPER_NAME}(${method.sqlSignature()})
-    AS LANGUAGE JAVA NAME ''${JAVA_WRAPPER_NAME}.${method.wrapperJavaMethodName}(${method.javaSignature})'';
+    AS LANGUAGE JAVA NAME ''${JAVA_WRAPPER_NAME}.${method.javaMethodName}(${method.javaSignature})'';
     #else
     CREATE OR REPLACE FUNCTION ${SQL_WRAPPER_NAME}(${method.sqlSignature}) RETURN ${method.sqlReturnType}
-    AS LANGUAGE JAVA NAME ''${JAVA_WRAPPER_NAME}.${method.wrapperJavaMethodName}(${method.javaSignature}) return ${method.resolvedReturnType}'';
+    AS LANGUAGE JAVA NAME ''${JAVA_WRAPPER_NAME}.${method.javaMethodName}(${method.javaSignature}) return ${method.resolvedReturnType}'';
     #end
 #end
 ';
