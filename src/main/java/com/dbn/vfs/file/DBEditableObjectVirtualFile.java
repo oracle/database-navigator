@@ -122,7 +122,7 @@ public class DBEditableObjectVirtualFile extends DBObjectVirtualFile<DBSchemaObj
         return
             contentType.isCode() ? new DBSourceCodeVirtualFile(this, contentType) :
             contentType.isData() ? new DBDatasetVirtualFile(this, contentType) :
-            contentType.isJson() ? new DBJsonDataVirtualFile(this, contentType) : null;
+            contentType.isJsonData() ? new DBJsonDataVirtualFile(this, contentType) : null;
     }
 
     public boolean isContentLoaded() {

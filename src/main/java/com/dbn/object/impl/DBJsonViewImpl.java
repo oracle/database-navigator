@@ -84,7 +84,7 @@ class DBJsonViewImpl extends DBViewImpl<DBJsonViewMetadata> implements DBJsonVie
     @Override
     public boolean isEditable(DBContentType contentType) {
         if (contentType == DBContentType.CODE) return true;
-        if (contentType == DBContentType.JSON) return !isReadonly();
+        if (contentType == DBContentType.JSON_DATA) return !isReadonly();
 
         return false;
     }

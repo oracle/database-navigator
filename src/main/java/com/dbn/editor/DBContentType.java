@@ -24,14 +24,14 @@ import lombok.Getter;
 public enum DBContentType {
     NONE("No Content"),
     DATA("Data", EditorProviderId.DATA),
-    JSON("Json", EditorProviderId.JSON),
+    JSON_DATA("Data", EditorProviderId.JSON_DATA),
 
     CODE("Code", EditorProviderId.CODE),
     CODE_SPEC("Spec", EditorProviderId.CODE_SPEC),
     CODE_BODY("Body", "BODY", EditorProviderId.CODE_BODY),
     CODE_SPEC_AND_BODY("Spec and Body", new DBContentType[]{CODE_SPEC, CODE_BODY}),
     CODE_AND_DATA("Code and Data", new DBContentType[]{CODE, DATA}),
-    CODE_AND_JSON("Code and Json", new DBContentType[]{CODE, JSON});
+    CODE_AND_JSON_DATA("Code and Json Data", new DBContentType[]{CODE, JSON_DATA});
 
     private DBContentType[] subContentTypes = new DBContentType[0];
     private final String description;
@@ -74,8 +74,8 @@ public enum DBContentType {
         return this == DATA; 
     }
 
-    public boolean isJson() {
-        return this == JSON;
+    public boolean isJsonData() {
+        return this == JSON_DATA;
     }
 
     public String toString() {

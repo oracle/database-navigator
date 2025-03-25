@@ -188,7 +188,7 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
     @NonNls
     @NotNull
     public String getName() {
-        return "Json";
+        return "Data";
     }
 
     @Override
