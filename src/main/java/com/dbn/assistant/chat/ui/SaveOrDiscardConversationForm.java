@@ -49,6 +49,7 @@ public class SaveOrDiscardConversationForm extends DBNFormBase {
     }
 
     private boolean isNotUsed(String name) {
+        //TODO
         return true;
     }
 

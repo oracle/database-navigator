@@ -191,6 +191,10 @@ public class ChatBoxForm extends DBNFormBase {
     return manager.getProfiles(connectionId);
   }
 
+  public List<PersistentChatConversation> getConversations() {
+    return getAssistantState().getConversations();
+  }
+
   @Nullable
   public DBAIProfile getSelectedProfile() {
     DatabaseAssistantManager manager = getManager();
@@ -235,8 +239,9 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   private void triggerContextChangeEvent(ChatContext oldContext, ChatContext newContext) {
+    if(getAssistantState().getCurrentConversation().getMessages().isEmpty()) return;
     String changedField = oldContext.isConversationInterruption(newContext);
-    if(!changedField.isEmpty()) {
+    if(!changedField.isEmpty()) { // old context is a conversation
       Dialogs.show(() -> new SaveOrDiscardConversationDialog(ConnectionRef.get(connection).getProject(), changedField), (dialog, exitCode) -> {
         if(exitCode == 0) {
           suppressContextChangeEvents(() -> restoreContext(oldContext));
@@ -264,7 +269,7 @@ public class ChatBoxForm extends DBNFormBase {
           }
         }
       });
-    } else {
+    } else { // old context is normal chat
       if (newContext.isConversation()) {
         getAssistantState().setCurrentConversation(new PersistentChatConversation(newContext));
         getAssistantState().getConversations().add(getAssistantState().getCurrentConversation());

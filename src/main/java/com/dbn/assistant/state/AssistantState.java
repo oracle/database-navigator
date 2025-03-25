@@ -110,6 +110,14 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
             isNot(AssistantStatus.QUERYING);
   }
 
+  public PersistentChatConversation getCurrentConversation() {
+    if (currentConversation == null && conversation) { // this condition is met only when we load the cache the first time.
+      ChatContext context = new ChatContext(selectedProfileName, AIModel.forId(selectedModelName), selectedAction, true);
+      currentConversation = new PersistentChatConversation(context);
+    }
+    return currentConversation;
+  }
+
   public void setSelectedProfile(@Nullable DBAIProfile profile) {
     selectedProfileName = profile == null ? null : profile.getName();
     conversation = profile != null && profile.isConversation();

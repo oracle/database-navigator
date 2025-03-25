@@ -18,6 +18,7 @@ package com.dbn.assistant.chat.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.intellij.openapi.project.Project;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.AbstractAction;
@@ -26,6 +27,8 @@ import java.awt.event.ActionEvent;
 
 public class SaveOrDiscardConversationDialog extends DBNDialog<SaveOrDiscardConversationForm> {
     private final String changedField;
+    @Getter
+    private String conversationTitle;
 
     public SaveOrDiscardConversationDialog(Project project, String changedField) {
         super(project, "Conversation", true);
@@ -52,10 +55,6 @@ public class SaveOrDiscardConversationDialog extends DBNDialog<SaveOrDiscardConv
         };
     }
 
-    public String getConversationTitle() {
-        return getForm().getConversationTitle();
-    }
-
     @Override
     public void doCancelAction() {
         close(0);
@@ -68,6 +67,7 @@ public class SaveOrDiscardConversationDialog extends DBNDialog<SaveOrDiscardConv
     };
     @Override
     protected void doOKAction() {
+        this.conversationTitle = getForm().getConversationTitle();
         close(2);
     }
 
