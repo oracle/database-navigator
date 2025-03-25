@@ -24,8 +24,12 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.SelectionListDialog;
+import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.execution.java.wrapper.WrapperStatementExecutor;
 import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -39,13 +43,16 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.util.Naming.capitalizeWords;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
 public class JavaObjectCreateWrapperAction extends BasicAction {
@@ -78,10 +85,11 @@ public class JavaObjectCreateWrapperAction extends BasicAction {
 	private void showObjectList(DataContext dataContext, ConnectionAction action) {
 		if (!action.isCancelled()) {
 			DBJavaClass program = (DBJavaClass) getSourceObject();
-			List<DBObject> objects = new ArrayList<>(program.getStaticMethods());
+			Project project = program.getProject();
+			List<DBJavaMethod> objects = new ArrayList<>(program.getStaticMethods());
 			if (action.isCancelled()) return;
 
-			Dispatch.run(() -> {
+			Dispatch.run(dataContext, true, () -> {
 				if (objects.isEmpty()) {
 					JLabel label = new JLabel("No public static method", Icons.EXEC_MESSAGES_INFO, SwingConstants.LEFT);
 					label.setBorder(JBUI.Borders.empty(8));
@@ -92,8 +100,34 @@ public class JavaObjectCreateWrapperAction extends BasicAction {
 					JBPopup popup = popupBuilder.createPopup();
 					showPopup(popup);
 				} else {
-					SelectionListDialog<DBObject> dialog = new SelectionListDialog<>(program.getProject(),"Select method to create wrapper", objects, null, null);
+					SelectionListDialog<DBJavaMethod> dialog = new SelectionListDialog<>(program.getProject(),"Select method to create wrapper", objects, null, null);
 					dialog.show();
+					List<DBJavaMethod> methods = dialog.getSelection();
+					ConnectionAction.invoke("Creation of Execution Wrappers", false, methods.get(0),
+							action2 -> Progress.prompt(project, action2, true,
+									"Creating execution wrappers",
+									"Creating execution wrappers for java methods selected ",
+									progress -> {
+										ConnectionHandler connection = action2.getConnection();
+										if (connection.isValid()) {
+											try {
+												WrapperStatementExecutor statementExecutor = new WrapperStatementExecutor();
+												statementExecutor.createExecutionWrappers(methods, true);
+											} catch (Exception ex) {
+												Messages.showErrorDialog(project,
+														"Error creating execution wrappers for java methods \nCause: " + ex.getMessage());
+												conditionallyLog(ex);
+											}
+										} else {
+											String message =
+													"Can not create execution wrappers for java methods.\n" +
+															"No connectivity to '" + connection.getName() + "'. " +
+															"Please check your connection settings and try again.";
+											Messages.showErrorDialog(project, message);
+										}
+									}
+							)
+					);
 				}
 			});
 		}

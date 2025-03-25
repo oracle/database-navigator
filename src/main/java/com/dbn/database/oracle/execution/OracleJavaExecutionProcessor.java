@@ -27,7 +27,8 @@ import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.java.wrapper.JavaComplexType;
 import com.dbn.execution.java.wrapper.Wrapper;
-import com.dbn.execution.java.wrapper.Wrapper.MethodAttribute;
+import com.dbn.execution.java.wrapper.WrapperJavaMethod;
+import com.dbn.execution.java.wrapper.WrapperJavaMethod.MethodAttribute;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
@@ -102,7 +103,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
 		buffer.append("declare\n");
 		if(!isProcedure){
-			MethodAttribute returnType = wrapper.getReturnType();
+			MethodAttribute returnType = wrapper.getWrapperJavaMethods().get(0).getReturnType();
 			buffer.append("output_arg ")
 					.append(returnType.getSqlTypeName())
 					.append(returnType.getSqlDeclarationSuffix())
@@ -140,16 +141,17 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement callableStatement, Wrapper wrapper) {
 		// bind input variables
 		int parameterIndex = 1;
+		WrapperJavaMethod wrapperJavaMethod = wrapper.getWrapperJavaMethods().get(0);
 		for (DBJavaParameter parameter : getArguments()) {
 
 			String parameterName = parameter.getName();
 			if (parameter.isArray()) {
-				String objectName = wrapper.getMethodArguments().get(parameterIndex - 1).getSqlTypeName();
+				String objectName = wrapperJavaMethod.getMethodAttributes().get(parameterIndex - 1).getSqlTypeName();
 				Array arrObj = getArrayObject(executionInput, parameter.getJavaClass().getFields(), wrapper, objectName, parameterName);
 				callableStatement.setArray(parameterIndex, arrObj);
 
 			} else if (!parameter.isScalar()) { // TODO support pseudo-primitives com.dbn.object.type.DBJavaValueType
-				String objectName = wrapper.getMethodArguments().get(parameterIndex - 1).getSqlTypeName();
+				String objectName = wrapperJavaMethod.getMethodAttributes().get(parameterIndex - 1).getSqlTypeName();
 				Object structObj = getStructObject(executionInput, parameter.getJavaClass().getFields(), wrapper, objectName, parameterName);
 				callableStatement.setObject(parameterIndex, structObj);
 
@@ -177,7 +179,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		if(!isProcedure) {
 			sqlType = getSQLTypes(returnArgument);
 			if(sqlType == Types.STRUCT) {
-				String returnTypeSQL = wrapper.getReturnType().getSqlTypeName();
+				String returnTypeSQL = wrapperJavaMethod.getReturnType().getSqlTypeName();
 				((CallableStatement) callableStatement).registerOutParameter(parameterIndex, sqlType, returnTypeSQL);
 			} else
 				((CallableStatement) callableStatement).registerOutParameter(parameterIndex, sqlType);
@@ -292,7 +294,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	private String getTypeName(DBJavaField field, Wrapper wrapper){
 		DBJavaClass javaClass = field.getJavaClass();
 
-		for(JavaComplexType javaComplexType : wrapper.getArgumentJavaComplexTypes()){
+		for(JavaComplexType javaComplexType : wrapper.getJavaComplexTypes()){
 			if(javaComplexType.getJavaClassName().equals(javaClass.getCanonicalName())) {
 				return javaComplexType.getCorrespondingSqlType().getName();
 			}

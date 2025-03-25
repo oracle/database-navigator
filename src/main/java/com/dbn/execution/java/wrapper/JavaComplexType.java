@@ -37,8 +37,20 @@ public class JavaComplexType {
 	private ArrayType arrayType;
 	private List<Field> fields = new ArrayList<>();
 
+	private String sqlToJavaConverterName="";
+	private String javaToSqlConverterName="";
+
+	private int containedJavaComplexTypeIndex = -1;
+
+
 	public boolean isArray() {
 		return arrayDepth > 0;
+	}
+
+	public void setCorrespondingSqlType(SqlComplexType correspondingSqlType) {
+		this.correspondingSqlType = correspondingSqlType;
+		this.javaToSqlConverterName = correspondingSqlType.getName()+"toSQL";
+		this.sqlToJavaConverterName = correspondingSqlType.getName()+"toJava";
 	}
 
 	public void setArrayType(ArrayType arrayType) {
@@ -61,6 +73,7 @@ public class JavaComplexType {
 		private String name;
 		private String type;
 		private boolean complexType = false;
+		private int complexTypeIndexInWrapper = -1;
 		private AccessModifier accessModifier = null;
 		private String setter;
 		private String getter;
@@ -104,5 +117,6 @@ public class JavaComplexType {
 					break;
 			}
 		}
+
 	}
 }

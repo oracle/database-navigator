@@ -26,24 +26,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+
 
 @Getter
 @Setter
 public class Wrapper {
 	public static final String DBN_TYPE_SUFFIX = "DBN_OJVM_TYPE_";
-    private String wrappedJavaMethodName;
-	private String javaMethodSignature;
 	private String fullyQualifiedClassName;
-
-	private MethodAttribute returnType;
-	private List<JavaComplexType> argumentJavaComplexTypes = new ArrayList<>();
-	private List<MethodAttribute> methodArguments = new ArrayList<>();
-	private Map<WrapperBuilder.ComplexTypeKey, Integer> sqlTypeIndexes = new HashMap<>();
 	private Set<String> sqlTypeNames = new HashSet<>();
-
 	private boolean useFriendlyNames;
+	private List<WrapperJavaMethod> wrapperJavaMethods = new ArrayList<>();
+    private List<JavaComplexType> javaComplexTypes = new ArrayList<>();
+	private Map<WrapperBuilder.ComplexTypeKey, Integer> sqlTypeIndexes = new HashMap<>();
 
 	public String getJavaWrapperClassName(){
 		if(useFriendlyNames) return "DBN_CLASS_NAME_WRAPPER";
@@ -51,45 +45,27 @@ public class Wrapper {
 	}
 
 	public String getSQLWrapperName(){
-		String type;
-		if(returnType == null || returnType.getJavaTypeName().equals("void")){
-			type = "PROCEDURE_";
-		} else {
-			type = "FUNCTION_";
-		}
-		if(useFriendlyNames) return "DBN_SQL_" + type + "WRAPPER";
-		return "DBN_OJVM_SQL_" + type + "WRAPPER";
+		if(useFriendlyNames) return "DBN_SQL_WRAPPER";
+		return "DBN_OJVM_SQL_WRAPPER";
 	}
 
 	public String getSqlTypeName(String className, short arrayDepth) {
-		if(useFriendlyNames) return "DBN_" + className.replace(".","_");
+		String sqlName = "DBN_" + className.replace(".","_");
+		if(arrayDepth>0)
+			sqlName += arrayDepth;
+		if(useFriendlyNames) return sqlName;
+
 		return DBN_TYPE_SUFFIX + getSqlTypeIndex(className, arrayDepth);
 	}
 
-	public void addArgumentJavaComplexType(JavaComplexType argumentJavaComplexType) {
-        argumentJavaComplexTypes.add(argumentJavaComplexType);
+	public void addJavaComplexType(JavaComplexType javaComplexType) {
+        javaComplexTypes.add(javaComplexType);
     }
 
-	public void addMethodArgument(MethodAttribute argumentParameterType) {
-        methodArguments.add(argumentParameterType);
-    }
+	public int getNumberOfJavaComplexTypes() {return javaComplexTypes.size();}
 
-    @Getter
-    @Setter
-    public static class MethodAttribute {
-		private String javaTypeName;         // Java type name
-		private String sqlTypeName;          // Java type name
-		private boolean complexType;
-        private short arrayDepth = 0;
-
-		public boolean isArray() {
-			return arrayDepth > 0;
-		}
-
-		public String getSqlDeclarationSuffix() {
-			SqlType sqlType = TypeMappings.getSqlType(javaTypeName);
-			return sqlType == null ? "" : sqlType.getDeclarationSuffix();
-		}
+	public void addJavaMethod(WrapperJavaMethod javaMethod) {
+		wrapperJavaMethods.add(javaMethod);
 	}
 
 	public int getSqlTypeIndex(String className, short arrayDepth){
@@ -98,16 +74,4 @@ public class Wrapper {
 		return sqlTypeIndexes.computeIfAbsent(key, k -> size + 1);
 	}
 
-
-	public String getJavaSignature(boolean includeArgumentNames){
-
-		AtomicInteger idx = new AtomicInteger(0);
-		return this.getMethodArguments()
-				.stream()
-				.map(e -> (
-						e.isArray() ? "java.sql.Array" : e.isComplexType() ? "java.sql.Struct" : e.getJavaTypeName())
-						+ (includeArgumentNames ? " arg" + idx.getAndIncrement(): "")
-				)
-				.collect(Collectors.joining(", "));
-	}
 }

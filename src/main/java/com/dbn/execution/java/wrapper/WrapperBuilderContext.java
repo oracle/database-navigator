@@ -18,6 +18,7 @@ package com.dbn.execution.java.wrapper;
 
 
 import com.dbn.execution.java.wrapper.WrapperBuilder.ComplexTypeKey;
+import com.dbn.execution.java.wrapper.WrapperBuilder.WrapperMethodKey;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -31,10 +32,10 @@ import java.util.Set;
 @Getter
 public class WrapperBuilderContext {
 
-    //methods for complexTypeMap
     private final Map<ComplexTypeKey, JavaComplexType> complexTypeMap;
-    //methods for complexTypeSet
     private final Set<ComplexTypeKey> complexTypeSet;
+    private final Map<WrapperMethodKey, Integer> wrapperMethodNames;
+    private final Map<ComplexTypeKey, Integer> complexTypeIndexes;
 
     /**
      * Instantiates a fresh context for each parse invocation.
@@ -42,6 +43,8 @@ public class WrapperBuilderContext {
     public WrapperBuilderContext() {
         this.complexTypeMap = new HashMap<>();
         this.complexTypeSet = new HashSet<>();
+        this.wrapperMethodNames = new HashMap<>();
+        this.complexTypeIndexes = new HashMap<>();
     }
 
 
@@ -67,5 +70,32 @@ public class WrapperBuilderContext {
     {
         complexTypeSet.remove(key);
     }
+
+    public void addToIndex(ComplexTypeKey key, int index){complexTypeIndexes.put(key, index);}
+
+    public int getComplexTypeIndex(ComplexTypeKey key){return complexTypeIndexes.get(key);}
+
+    public int getComplexTypeIndex(String className, short arrayLength){
+        ComplexTypeKey key = new ComplexTypeKey(className, arrayLength);
+        return complexTypeIndexes.get(key);
+    }
+
+    public String getAndAddWrapperMethodName(String originalMethodName, String methodSignature)
+    {
+        WrapperMethodKey key = new WrapperMethodKey(originalMethodName, methodSignature);
+        return getAndAddWrapperMethodName(key);
+    }
+
+    public String getAndAddWrapperMethodName(WrapperMethodKey key) {
+        if (wrapperMethodNames.containsKey(key)) {
+            int count = wrapperMethodNames.get(key) + 1;
+            wrapperMethodNames.put(key, count);
+            return key.getOriginalMethodName() +"_"+ count;
+        } else {
+            wrapperMethodNames.put(key, 0);
+            return key.getOriginalMethodName();
+        }
+    }
+
 }
 

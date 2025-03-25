@@ -27,6 +27,7 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.util.Lists.sortedCopy;
@@ -44,7 +45,7 @@ import static com.dbn.object.type.DBJavaScalarType.isScalar;
  *
  * <p>This implementation uses a Singleton pattern and keeps
  * all per-parse mutable state in local variables inside
- * {@link #build(DBJavaMethod, boolean)} so that it is thread-safe
+ *  so that it is thread-safe
  * if multiple threads call it simultaneously.</p>
  */
 @Slf4j
@@ -68,18 +69,25 @@ public final class WrapperBuilder {
 
 
 	/**
-	 * Entry point for parsing a {@link DBJavaMethod} into a {@link Wrapper}.
+	 * Entry point for parsing a {@link List<DBJavaMethod>} into a {@link Wrapper}.
 	 *
-	 * @param javaMethod The method definition to parse.
+	 * @param javaMethods The method definition to parse.
+	 * @param useFriendlyNames Boolean
 	 * @return The fully-populated {@link Wrapper}.
-	 * @throws Exception if parsing fails or an unsupported cycle is detected.
 	 */
-	public Wrapper build(DBJavaMethod javaMethod,boolean useFriendlyNames) {
+	public Wrapper build(List<DBJavaMethod> javaMethods,boolean useFriendlyNames) {
 		// Create data structures that are unique to *this* parse call.
 		WrapperBuilderContext context = new WrapperBuilderContext();
 
 		// Delegate to the internal parsing method.
-		return buildInternal(javaMethod, context, useFriendlyNames);
+		return buildInternal(javaMethods, context, useFriendlyNames);
+	}
+
+	public Wrapper build(DBJavaMethod javaMethod,boolean useFriendlyNames) {
+		ArrayList<DBJavaMethod> dbJavaMethodArrayList = new ArrayList<>();
+		dbJavaMethodArrayList.add(javaMethod);
+
+		return build(dbJavaMethodArrayList, useFriendlyNames);
 	}
 
 	// -------------------------------------------------
@@ -89,7 +97,7 @@ public final class WrapperBuilder {
 	/**
 	 * Internal method that actually performs the parsing to produce a {@link Wrapper}.
 	 *
-	 * @param javaMethod         The method definition to parse.
+	 * @param javaMethods         The method definition to parse.
 	 * @param context contains the following
 	 *  complexTypeConversion Mapping from className -> unique integer (for type naming).
 	 *  complexTypeMap        Cache of complex types created so far during this parse.
@@ -97,15 +105,29 @@ public final class WrapperBuilder {
 	 * @return The generated {@link Wrapper}.
 	 */
 	private Wrapper buildInternal(
-			DBJavaMethod javaMethod,
+			List<DBJavaMethod> javaMethods,
 			WrapperBuilderContext context, boolean useFriendlyNames) {
+		if(javaMethods.isEmpty())
+			return null;
 		// Create a fresh Wrapper for this invocation
 		Wrapper wrapper = new Wrapper();
 		wrapper.setUseFriendlyNames(useFriendlyNames);
+		DBObjectRef<DBJavaClass> ownerClass = javaMethods.get(0).getOwnerClassRef();
+		wrapper.setFullyQualifiedClassName(getCanonicalName(ownerClass));
 
-		setMethodMetadata(javaMethod, wrapper);
-		parseParameters(javaMethod, wrapper, context);
-		parseReturnType(javaMethod, wrapper, context);
+
+        for (DBJavaMethod javaMethod : javaMethods) {
+			WrapperJavaMethod wrapperJavaMethod = new WrapperJavaMethod();
+            setMethodMetadata(javaMethod, wrapperJavaMethod);
+            parseParameters(javaMethod, wrapperJavaMethod, wrapper, context);
+            parseReturnType(javaMethod,wrapperJavaMethod, wrapper, context);
+			wrapperJavaMethod.setWrapperJavaMethodName(
+					context.getAndAddWrapperMethodName(
+							wrapperJavaMethod.getOriginalJavaMethodName(),
+							wrapperJavaMethod.getJavaSignature(false))
+			);
+			wrapper.addJavaMethod(wrapperJavaMethod);
+        }
 
 		return wrapper;
 	}
@@ -113,15 +135,13 @@ public final class WrapperBuilder {
 	/**
 	 * Sets up the basic method metadata on the {@link Wrapper} object.
 	 */
-	private void setMethodMetadata(DBJavaMethod javaMethod, Wrapper wrapper) {
+	private void setMethodMetadata(DBJavaMethod javaMethod, WrapperJavaMethod wrapperJavaMethod) {
 		String methodName = javaMethod.getName().split("#")[0];
-		wrapper.setWrappedJavaMethodName(methodName);
-		DBObjectRef<DBJavaClass> ownerClass = javaMethod.getOwnerClassRef();
-		wrapper.setFullyQualifiedClassName(getCanonicalName(ownerClass));
-		// Replace "void" return in the signature with a more readable style, if present.
+		wrapperJavaMethod.setOriginalJavaMethodName(methodName);
 
+		// Replace "void" return in the signature with a more readable style, if present.
 		String javaMethodSignature = javaMethod.getSignature().replace(": void", "").replace(":", " return");
-		wrapper.setJavaMethodSignature(javaMethodSignature);
+		wrapperJavaMethod.setJavaMethodSignature(javaMethodSignature);
 	}
 
 	/**
@@ -129,6 +149,7 @@ public final class WrapperBuilder {
 	 */
 	private void parseParameters(
 			DBJavaMethod javaMethod,
+			WrapperJavaMethod wrapperJavaMethod,
 			Wrapper wrapper,
 			WrapperBuilderContext context) {
 		List<DBJavaParameter> parameters = javaMethod.getParameters();
@@ -141,13 +162,13 @@ public final class WrapperBuilder {
 
 		// Create a Wrapper.MethodAttribute for each parameter
 		for (DBJavaParameter parameter : parameters) {
-			Wrapper.MethodAttribute attr = createMethodAttribute(
+			WrapperJavaMethod.MethodAttribute attr = createMethodAttribute(
 					parameter.getJavaClassRef(),
 					parameter.getArrayDepth(),
 					AttributeDirection.ARGUMENT,
 					context,
 					wrapper);
-			wrapper.addMethodArgument(attr);
+			wrapperJavaMethod.addMethodAttribute(attr);
 		}
 	}
 
@@ -156,25 +177,26 @@ public final class WrapperBuilder {
 	 */
 	private void parseReturnType(
 			DBJavaMethod javaMethod,
+			WrapperJavaMethod wrapperJavaMethod,
 			Wrapper wrapper,
 			WrapperBuilderContext context) {
         if (javaMethod.isReturningVoid()) return;
 
 		DBObjectRef<DBJavaClass> returnClass = javaMethod.getReturnClassRef();
-        Wrapper.MethodAttribute returnAttr = createMethodAttribute(
+		WrapperJavaMethod.MethodAttribute returnAttr = createMethodAttribute(
                 returnClass,
                 javaMethod.getReturnArrayDepth(),
                 AttributeDirection.RETURN,
                 context,
                 wrapper);
-        wrapper.setReturnType(returnAttr);
+		wrapperJavaMethod.setReturnType(returnAttr);
     }
 
 	/**
-	 * Creates a {@link Wrapper.MethodAttribute} for the given DB elements, either
+	 * Creates a {@link WrapperJavaMethod.MethodAttribute} for the given DB elements, either
 	 * a simple attribute if primitive/supported, or a complex type otherwise.
 	 */
-	private Wrapper.MethodAttribute createMethodAttribute(
+	private WrapperJavaMethod.MethodAttribute createMethodAttribute(
 			DBObjectRef<DBJavaClass> javaClass,
 			short arrayDepth,
 			AttributeDirection attributeDirection,
@@ -198,14 +220,14 @@ public final class WrapperBuilder {
 		}
 
 		// Build a complex attribute
-		return buildComplexMethodAttribute(javaComplexType);
+		return buildComplexMethodAttribute(javaComplexType, attributeDirection);
 	}
 
 	/**
 	 * Builds a simple (non-complex) method attribute with a known SQL type mapping.
 	 */
-	private Wrapper.MethodAttribute buildSimpleMethodAttribute(String javaClassName) {
-		Wrapper.MethodAttribute methodAttribute = new Wrapper.MethodAttribute();
+	private WrapperJavaMethod.MethodAttribute buildSimpleMethodAttribute(String javaClassName) {
+		WrapperJavaMethod.MethodAttribute methodAttribute = new WrapperJavaMethod.MethodAttribute();
 		methodAttribute.setJavaTypeName(javaClassName);
 
 		String sqlTypeName = TypeMappings.getSqlTypeName(javaClassName);
@@ -217,14 +239,21 @@ public final class WrapperBuilder {
 	/**
 	 * Builds a method attribute that is backed by a {@link JavaComplexType}.
 	 */
-	private Wrapper.MethodAttribute buildComplexMethodAttribute(JavaComplexType javaComplexType) {
-		Wrapper.MethodAttribute methodAttribute = new Wrapper.MethodAttribute();
+	private WrapperJavaMethod.MethodAttribute
+	buildComplexMethodAttribute(JavaComplexType javaComplexType,
+								AttributeDirection attributeDirection) {
+		WrapperJavaMethod.MethodAttribute methodAttribute = new WrapperJavaMethod.MethodAttribute();
 		methodAttribute.setArrayDepth(javaComplexType.getArrayDepth());
 		methodAttribute.setJavaTypeName(javaComplexType.getJavaClassName());
 		methodAttribute.setComplexType(true);
 
 		SqlComplexType sqlType = javaComplexType.getCorrespondingSqlType();
 		methodAttribute.setSqlTypeName((sqlType == null) ? "" : sqlType.getName());
+		if(attributeDirection.equals(AttributeDirection.ARGUMENT))
+			methodAttribute.setConverterName(javaComplexType.getSqlToJavaConverterName());
+		else
+			methodAttribute.setConverterName(javaComplexType.getJavaToSqlConverterName());
+
 
 		return methodAttribute;
 	}
@@ -321,6 +350,9 @@ public final class WrapperBuilder {
 				containedJavaComplexType = createJavaComplexType(javaClass, attributeDirection, context, wrapper);
 				if (containedJavaComplexType != null) {
 					sqlTypeName = containedJavaComplexType.getCorrespondingSqlType().getName();
+					int containedTypeIndex = context.getComplexTypeIndex(containedJavaComplexType.getJavaClassName(),
+							containedJavaComplexType.getArrayDepth());
+					javaComplexType.setContainedJavaComplexTypeIndex(containedTypeIndex);
 				}
 			}
 		} else {
@@ -330,6 +362,9 @@ public final class WrapperBuilder {
 					context, wrapper);
 			if (containedJavaComplexType != null) {
 				sqlTypeName = containedJavaComplexType.getCorrespondingSqlType().getName();
+				int containedTypeIndex = context.getComplexTypeIndex(containedJavaComplexType.getJavaClassName(),
+						containedJavaComplexType.getArrayDepth());
+				javaComplexType.setContainedJavaComplexTypeIndex(containedTypeIndex);
 			}
 		}
 
@@ -337,7 +372,10 @@ public final class WrapperBuilder {
 		sqlComplexType.setName(wrapper.getSqlTypeName(javaClassName, arrayDepth));
 		javaComplexType.setCorrespondingSqlType(sqlComplexType);
 
-		wrapper.addArgumentJavaComplexType(javaComplexType);
+
+		wrapper.addJavaComplexType(javaComplexType);
+
+		context.addToIndex(key, wrapper.getNumberOfJavaComplexTypes()-1);
 		context.addMapEntry(key, javaComplexType);
 		context.removeFromSet(key);
 
@@ -405,8 +443,7 @@ public final class WrapperBuilder {
 			// For arrays, mark all corresponding array dimension entries + the base
 			for (short i = 1; i <= javaComplexType.getArrayDepth(); i++) {
 				ComplexTypeKey complexTypeKey = new ComplexTypeKey(
-						javaComplexType.getJavaClassName(),
-						javaComplexType.getArrayDepth());
+						javaComplexType.getJavaClassName(), i);
 				JavaComplexType mappedType = context.getJavaComplexType(complexTypeKey);
 				if (mappedType != null) {
 					mappedType.setAttributeDirection(AttributeDirection.BOTH);
@@ -454,8 +491,9 @@ public final class WrapperBuilder {
 				javaComplexType.getArrayDepth());
 		sqlComplexType.setName(sqlTypeName);
 		javaComplexType.setCorrespondingSqlType(sqlComplexType);
-		wrapper.addArgumentJavaComplexType(javaComplexType);
+		wrapper.addJavaComplexType(javaComplexType);
 
+		context.addToIndex(key, wrapper.getNumberOfJavaComplexTypes()-1);
 		context.addMapEntry(key, javaComplexType);
 		context.removeFromSet(key);
 	}
@@ -477,8 +515,8 @@ public final class WrapperBuilder {
 			Wrapper wrapper) {
 		List<DBJavaField> javaFields = javaClass.get().getFields();
 		for (DBJavaField javaField : javaFields) {
+
 			JavaComplexType.Field field = buildJavaComplexField(javaField, javaClass, wrapper);
-			javaComplexType.addField(field);
 
 			// If it's a primitive or directly supported type, add to the SQL type
 			SqlType sqlType = getSqlType(field.getType());
@@ -488,7 +526,9 @@ public final class WrapperBuilder {
 				// It's a nested complex field
 				handleNestedField(field, javaField, attributeDirection, sqlComplexType,
 						context, wrapper);
+				field.setComplexTypeIndexInWrapper(context.getComplexTypeIndex(field.getType(), field.getArrayDepth()));
 			}
+			javaComplexType.addField(field);
 		}
 	}
 
@@ -568,6 +608,7 @@ public final class WrapperBuilder {
 					field.getName(),
 					fieldJavaComplexType.getCorrespondingSqlType().getName(),
 					field.getFieldIndex());
+//			field.setSqlType(sqlComplexType.getName());
 		}
 	}
 
@@ -582,12 +623,24 @@ public final class WrapperBuilder {
 	 */
 	@Value // Required for proper usage in Maps/Sets
 	public static class ComplexTypeKey {
-		private final String className;
-		private final short arrayLength;
+		String className;
+		short arrayLength;
 
 		public ComplexTypeKey(String className, short arrayLength) {
 			this.className = className;
 			this.arrayLength = arrayLength;
 		}
+	}
+
+	@Value
+	public static class WrapperMethodKey {
+		String originalMethodName;
+		String methodSignature;
+
+		public WrapperMethodKey(String wrapperMethodName, String methodSignature) {
+			this.originalMethodName = wrapperMethodName;
+			this.methodSignature = methodSignature;
+		}
+
 	}
 }

@@ -24,6 +24,7 @@ import com.dbn.object.DBJavaMethod;
 import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public class WrapperStatementExecutor {
 
@@ -38,8 +39,31 @@ public class WrapperStatementExecutor {
 
         ConnectionId connectionId = method.getConnectionId();
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                "Creating Execution Wrappers",
+                "Creating execution wrappers",
                 "Creating java execution wrappers for " + method.getPresentableText(),
+                project,
+                connectionId, c -> {
+                    DBNPreparedStatement statement = c.prepareStatement(creationStatement);
+                    statement.execute();
+                });
+
+        return wrapper;
+    }
+
+    public Wrapper createExecutionWrappers(List<DBJavaMethod> methods, boolean useFriendlyNames) throws SQLException {
+        if(methods.isEmpty()) return null;
+        Project project = methods.get(0).getProject();
+
+        WrapperBuilder wrapperBuilder = WrapperBuilder.getInstance();
+        Wrapper wrapper = wrapperBuilder.build(methods, useFriendlyNames);
+
+        WrapperStatementBuilder statementBuilder = new WrapperStatementBuilder(project);
+        String creationStatement = statementBuilder.buildWrapperCreationStatement(wrapper);
+
+        ConnectionId connectionId = methods.get(0).getConnectionId();
+        DatabaseInterfaceInvoker.execute(Priority.HIGH,
+                "Creating execution wrappers",
+                "Creating java execution wrappers for selected method",
                 project,
                 connectionId, c -> {
                     DBNPreparedStatement statement = c.prepareStatement(creationStatement);
@@ -56,7 +80,7 @@ public class WrapperStatementExecutor {
 
         ConnectionId connectionId = method.getConnectionId();
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                "Removing Execution Wrappers",
+                "Removing execution wrappers",
                 "Removing java execution wrappers for " + method.getPresentableText(),
                 project,
                 connectionId, c -> {
