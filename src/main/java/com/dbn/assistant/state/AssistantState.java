@@ -73,7 +73,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   private String selectedProfileName;
   private String selectedModelName;
   private boolean listeningForContextChanges = true;
-  private boolean conversation;
+  private boolean conversation = true;
   private PersistentChatConversation currentConversation;
 
   public static final short MAX_CHAR_MESSAGE_COUNT = 100;
@@ -110,17 +110,13 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
             isNot(AssistantStatus.QUERYING);
   }
 
-  public PersistentChatConversation getCurrentConversation() {
-    if (currentConversation == null && conversation) { // this condition is met only when we load the cache the first time.
-      ChatContext context = new ChatContext(selectedProfileName, AIModel.forId(selectedModelName), selectedAction, true);
-      currentConversation = new PersistentChatConversation(context);
-    }
-    return currentConversation;
-  }
-
   public void setSelectedProfile(@Nullable DBAIProfile profile) {
     selectedProfileName = profile == null ? null : profile.getName();
     conversation = profile != null && profile.isConversation();
+    if(currentConversation == null && profile != null && profile.isConversation()) { // this condition is met only when we load the cache the first time.
+      ChatContext context = new ChatContext(selectedProfileName, AIModel.forId(selectedModelName), selectedAction, true);
+      currentConversation = new PersistentChatConversation(context);
+    }
   }
   public void setSelectedModel(@Nullable AIModel model) {
     selectedModelName = model == null ? null : model.getName();
@@ -157,7 +153,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     defaultProfileName = stringAttribute(element, "default-profile-name");
     selectedProfileName = stringAttribute(element, "selected-profile-name");
     selectedModelName = stringAttribute(element, "selected-model-name");
-    conversation = booleanAttribute(element, "is-conversation", false);
+    conversation = booleanAttribute(element, "is-conversation", true);
     assistantType = enumAttribute(element, "assistant-type", assistantType);
     selectedAction = enumAttribute(element, "selected-action", selectedAction);
     availability = enumAttribute(element, "availability", availability);

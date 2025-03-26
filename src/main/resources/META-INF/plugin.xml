@@ -259,6 +259,7 @@
             <action class="com.dbn.assistant.chat.window.action.ModelSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectModel"/>
             <action class="com.dbn.assistant.chat.window.action.ConversationSelectDropdownAction" text="Select Convo" id="DBNavigator.Actions.Assistant.SelectConvo"/>
             <action class="com.dbn.assistant.chat.window.action.ProfilesRefreshAction" text="Reload Profiles" id="DBNavigator.Actions.Assistant.RefreshProfiles" icon="AllIcons.Actions.Refresh"/>
+            <action class="com.dbn.assistant.chat.window.action.NewConversationAction" text="New Conversation" id="DBNavigator.Actions.Assistant.NewConversation" icon="AllIcons.Actions.AddList"/>
             <action class="com.dbn.assistant.chat.window.action.ConfigurationHelpAction" text="Help" id="DBNavigator.Actions.Assistant.ConfigurationHelp" icon="AllIcons.Actions.Help"/>
             <group id="DBNavigator.Actions.Assistant.OpenSettings" text="Options" icon="AllIcons.General.GearPlain" popup="true">
                 <action class="com.dbn.assistant.chat.window.action.AssistantSettingsAction" text="Settings..." id="DBNavigator.Actions.Assistant.AssistantSettings"/>

@@ -16,35 +16,31 @@
 
 package com.dbn.assistant.chat.window.action;
 
-import com.dbn.assistant.chat.PersistentChatConversation;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.common.util.Actions;
+import com.dbn.common.feature.FeatureAvailability;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Action for selecting one individual conversation
+ * Action for starting a new conversation
  */
-public class ConversationSelectAction extends AbstractChatBoxAction {
-    private final PersistentChatConversation conversation;
-    ConversationSelectAction(PersistentChatConversation conversation) {
-        this.conversation = conversation;
-    }
-
+public class NewConversationAction extends AbstractChatBoxAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
-
-        chatBox.triggerContextChangeEvent(chatBox.getAssistantState().getChatContext(), conversation.getContext());
-        chatBox.showConversation(conversation);
+        if(getAssistantState(e).getAvailability() == FeatureAvailability.UNAVAILABLE){
+            getAssistantState(e).setAvailability(FeatureAvailability.AVAILABLE);
+            getAssistantState(e).setCurrentConversation(null);
+            chatBox.updateMessages();
+        } else {
+            //TODO
+        }
+//        chatBox.reloadProfiles();
     }
 
-    @Override
-    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        Presentation presentation = e.getPresentation();
-        presentation.setText(Actions.adjustActionName(conversation.getTitle()));
-    }
+//    @Override
+//    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+//    }
 }

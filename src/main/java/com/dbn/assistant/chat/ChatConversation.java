@@ -43,4 +43,10 @@ public class ChatConversation {
         this.messages.addAll(messages);
     }
 
+    public void removeProgress() {
+        messages.forEach(message -> {
+            message.setProgress(false);
+        });
+    }
+
 }

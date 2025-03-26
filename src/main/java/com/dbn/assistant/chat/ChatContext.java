@@ -64,7 +64,7 @@ public class ChatContext implements PersistentStateElement {
     public String isConversationInterruption(ChatContext newContext) {
         if (!isConversation()) return "";
         if (!profile.equals(newContext.getProfile())) return "profile";
-        if (!model.equals(newContext.getModel())) return "model";
+        if (model != null && !model.equals(newContext.getModel())) return "model";
         if (action == PromptAction.CHAT && newContext.action != PromptAction.CHAT) {
             return "conversation type";
         }
