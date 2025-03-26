@@ -55,4 +55,10 @@ public interface PropertyHolder<T extends Property> extends NlsSupport {
             }
         }
     }
+
+    default PropertyHolder<T> with(T... properties) {
+        set(properties, true);
+        return this;
+    }
+
 }
