@@ -17,6 +17,8 @@
 package com.dbn.execution.java.wrapper;
 
 import com.dbn.execution.java.wrapper.WrapperBuilder.ComplexTypeKey;
+import com.dbn.execution.java.wrapper.model.ClassWrapper;
+import com.dbn.execution.java.wrapper.model.MethodWrapper;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -35,8 +37,8 @@ public class Wrapper {
 	private boolean useFriendlyNames;
 	private String className;
 	private Set<String> sqlTypeNames = new HashSet<>();
-	private List<WrapperJavaMethod> wrapperJavaMethods = new ArrayList<>();
-    private List<JavaComplexType> javaComplexTypes = new ArrayList<>();
+	private List<MethodWrapper> methods = new ArrayList<>();
+    private List<ClassWrapper> classes = new ArrayList<>();
 	private Map<WrapperBuilder.ComplexTypeKey, Integer> sqlTypeIndexes = new HashMap<>();
 
 	public String getJavaWrapperClassName(){
@@ -68,14 +70,14 @@ public class Wrapper {
 	}
 
 
-	public void addJavaComplexType(JavaComplexType javaComplexType) {
-        javaComplexTypes.add(javaComplexType);
+	public void addJavaComplexType(ClassWrapper classWrapper) {
+        classes.add(classWrapper);
     }
 
-	public int getNumberOfJavaComplexTypes() {return javaComplexTypes.size();}
+	public int getNumberOfJavaComplexTypes() {return classes.size();}
 
-	public void addJavaMethod(WrapperJavaMethod javaMethod) {
-		wrapperJavaMethods.add(javaMethod);
+	public void addJavaMethod(MethodWrapper javaMethod) {
+		methods.add(javaMethod);
 	}
 
 	public int getSqlTypeIndex(String className, short arrayDepth){

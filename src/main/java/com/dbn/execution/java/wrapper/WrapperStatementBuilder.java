@@ -19,6 +19,10 @@ package com.dbn.execution.java.wrapper;
 
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.template.TemplateUtilities;
+import com.dbn.execution.java.wrapper.model.ClassWrapper;
+import com.dbn.execution.java.wrapper.model.FieldWrapper;
+import com.dbn.execution.java.wrapper.model.MethodWrapper;
+import com.dbn.execution.java.wrapper.model.ParameterWrapper;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
@@ -55,8 +59,8 @@ public final class WrapperStatementBuilder {
 		Set<String> sqlTypeNames = wrapper.getSqlTypeNames();
 		sqlTypeNames.clear();
 
-		for (JavaComplexType jct : wrapper.getJavaComplexTypes()) {
-			SqlComplexType sct = jct.getCorrespondingSqlType();
+		for (ClassWrapper classWrapper : wrapper.getClasses()) {
+			SqlComplexType sct = classWrapper.getCorrespondingSqlType();
 			String sqlTypeName = sct.getName();
 
 			if (sqlTypeNames.contains(sqlTypeName)) continue;
@@ -84,23 +88,23 @@ public final class WrapperStatementBuilder {
 
 		String objArray ="objArray";
 		String javaObj = "javaObj";
-		for (JavaComplexType jct : wrapper.getJavaComplexTypes()) {
+		for (ClassWrapper classWrapper : wrapper.getClasses()) {
 			// Skip RETURN attributes and duplicates based on SQL type name.
-			if (jct.getAttributeDirection() == JavaComplexType.AttributeDirection.RETURN)
+			if (classWrapper.getAttributeDirection() == ClassWrapper.AttributeDirection.RETURN)
 				continue;
 
 			Map<String, Object> context = new HashMap<>();
-			context.put("JAVA_COMPLEX_TYPE", jct.getJavaClassName());
-			context.put("CONVERTER_METHOD_NAME", jct.getSqlToJavaConverterName());
+			context.put("JAVA_COMPLEX_TYPE", classWrapper.getJavaClassName());
+			context.put("CONVERTER_METHOD_NAME", classWrapper.getSqlToJavaConverterName());
 			context.put("OBJ_ARRAY",objArray);
 			context.put("JAVA_OBJECT",javaObj);
 
 			String code;
-			if (jct.isArray()) {
+			if (classWrapper.isArray()) {
 				// For arrays, set typecasting properties
-				String squareBrackets = String.join("", Collections.nCopies(jct.getArrayDepth() - 1, "[]"));
+				String squareBrackets = String.join("", Collections.nCopies(classWrapper.getArrayDepth() - 1, "[]"));
 				String iterator = "i";
-				String iterationCode = buildSqlArrayToJavaAssignmentLine(jct,javaObj,objArray,iterator,wrapper);
+				String iterationCode = buildSqlArrayToJavaAssignmentLine(classWrapper,javaObj,objArray,iterator,wrapper);
 
 				context.put("SQUARE_BRACKETS", squareBrackets);
 				context.put("ITERATOR",iterator);
@@ -110,9 +114,9 @@ public final class WrapperStatementBuilder {
 			}
 			else {
 				List<String> fieldAssignments = new ArrayList<>();
-				if (jct.getFields() != null && !jct.getFields().isEmpty()) {
-				  for (JavaComplexType.Field field : jct.getFields()) {
-					  String assignmentLine = buildSqlToJavaAssignmentLine(field, javaObj, objArray, wrapper);
+				if (classWrapper.getFields() != null && !classWrapper.getFields().isEmpty()) {
+				  for (FieldWrapper fieldWrapper : classWrapper.getFields()) {
+					  String assignmentLine = buildSqlToJavaAssignmentLine(fieldWrapper, javaObj, objArray, wrapper);
 					  fieldAssignments.add(assignmentLine);
 				  }
 				  context.put("FIELD_ASSIGNMENTS", fieldAssignments);
@@ -128,37 +132,37 @@ public final class WrapperStatementBuilder {
 
 	private List<String> createJavaToSQL(Wrapper wrapper) {
 		List<String> javaConverterMethods = new ArrayList<>();
-		if (wrapper.getWrapperJavaMethods().isEmpty()) return javaConverterMethods;
+		if (wrapper.getMethods().isEmpty()) return javaConverterMethods;
 
 		String objArray ="objArray";
 		String javaObj = "javaObj";
-		for (JavaComplexType jct : wrapper.getJavaComplexTypes()) {
-			if (jct.getAttributeDirection() == JavaComplexType.AttributeDirection.ARGUMENT) continue;
+		for (ClassWrapper classWrapper : wrapper.getClasses()) {
+			if (classWrapper.getAttributeDirection() == ClassWrapper.AttributeDirection.ARGUMENT) continue;
 
 			Map<String, Object> context = new HashMap<>();
 
-			context.put("JAVA_COMPLEX_TYPE", jct.getJavaClassName());
-			context.put("SQL_OBJECT_TYPE", jct.getCorrespondingSqlType().getName());
-			context.put("CONVERTER_METHOD_NAME", jct.getJavaToSqlConverterName());
+			context.put("JAVA_COMPLEX_TYPE", classWrapper.getJavaClassName());
+			context.put("SQL_OBJECT_TYPE", classWrapper.getCorrespondingSqlType().getName());
+			context.put("CONVERTER_METHOD_NAME", classWrapper.getJavaToSqlConverterName());
 			context.put("OBJ_ARRAY",objArray);
 			context.put("JAVA_OBJECT",javaObj);
 
 			String code;
-			if (jct.isArray()) {
-				String squareBrackets = String.join("", Collections.nCopies(jct.getArrayDepth() - 1, "[]"));
+			if (classWrapper.isArray()) {
+				String squareBrackets = String.join("", Collections.nCopies(classWrapper.getArrayDepth() - 1, "[]"));
 				String iterator = "i";
-				String iterationCode = buildJavaArrayToSqlAssignmentLine(jct,objArray,javaObj,iterator,wrapper);
+				String iterationCode = buildJavaArrayToSqlAssignmentLine(classWrapper,objArray,javaObj,iterator,wrapper);
 
 				context.put("SQUARE_BRACKETS", squareBrackets);
 				context.put("ITERATOR",iterator);
 				context.put("ITERATION_CODE",iterationCode);
 				code = generateCode("DBN - OJVM JavaArrayToSQL.java", context);
 			} else {
-				context.put("TOTAL_FIELDS", jct.getFields().size());
+				context.put("TOTAL_FIELDS", classWrapper.getFields().size());
 				List<String> fieldAssignments = new ArrayList<>();
-				if (jct.getFields() != null && !jct.getFields().isEmpty()) {
-					for (JavaComplexType.Field field : jct.getFields()) {
-						String assignmentLine = buildJavaToSqlAssignmentLine(field, objArray, javaObj, wrapper);
+				if (classWrapper.getFields() != null && !classWrapper.getFields().isEmpty()) {
+					for (FieldWrapper fieldWrapper : classWrapper.getFields()) {
+						String assignmentLine = buildJavaToSqlAssignmentLine(fieldWrapper, objArray, javaObj, wrapper);
 						fieldAssignments.add(assignmentLine);
 					}
 					context.put("FIELD_ASSIGNMENTS", fieldAssignments);
@@ -173,9 +177,9 @@ public final class WrapperStatementBuilder {
 
 	private List<String> createJavaWrapperMethods(Wrapper wrapper) {
 		List<String> javaWrapperMethods = new ArrayList<>();
-		if (wrapper.getWrapperJavaMethods().isEmpty()) return javaWrapperMethods;
+		if (wrapper.getMethods().isEmpty()) return javaWrapperMethods;
 
-		for (WrapperJavaMethod method : wrapper.getWrapperJavaMethods()) {
+		for (MethodWrapper method : wrapper.getMethods()) {
 			String code;
 			String methodReturnType = resolveMethodReturnType(method);
 			String wrapperMethodName = method.getJavaMethodName();
@@ -214,7 +218,7 @@ public final class WrapperStatementBuilder {
 
 		context.put("JAVA_CLASS", wrapper.getClassName());
 
-		context.put("WRAPPER_METHODS", wrapper.getWrapperJavaMethods());
+		context.put("WRAPPER_METHODS", wrapper.getMethods());
 
 		return generateCode("DBN - OJVM JavaWrapper.java", context);
 
@@ -225,7 +229,7 @@ public final class WrapperStatementBuilder {
 		context.put("SQL_WRAPPER_NAME", wrapper.getSQLWrapperName());
 		context.put("JAVA_WRAPPER_NAME", wrapper.getJavaWrapperClassName());
 		// Transform each WrapperJavaMethod into a map with precomputed values.
-		List<Map<String, Object>> methodList = wrapper.getWrapperJavaMethods().stream()
+		List<Map<String, Object>> methodList = wrapper.getMethods().stream()
 				.map(method -> {
 					Map<String, Object> m = new HashMap<>();
 					m.put("javaMethodName", method.getJavaMethodName());
@@ -244,8 +248,8 @@ public final class WrapperStatementBuilder {
 					m.put("isVoid", isVoid);
 
 					// For non-void methods, pass along the SQL return type from the original return type.
-					if (!isVoid && method.getReturnType() != null) {
-						m.put("sqlReturnType", method.getReturnType().getSqlTypeName());
+					if (!isVoid && method.getReturnParameter() != null) {
+						m.put("sqlReturnType", method.getReturnParameter().getSqlTypeName());
 					}
 					return m;
 				})
@@ -282,8 +286,8 @@ public final class WrapperStatementBuilder {
 	public String buildWrapperRemovalStatement(Wrapper wrapper) {
 		Properties properties = new Properties();
 
-		boolean isFunction = wrapper.getWrapperJavaMethods().get(0).getReturnType() != null
-				&& wrapper.getWrapperJavaMethods().get(0).getReturnType().getJavaTypeName() != null;
+		boolean isFunction = wrapper.getMethods().get(0).getReturnParameter() != null
+				&& wrapper.getMethods().get(0).getReturnParameter().getJavaTypeName() != null;
 		properties.setProperty("TYPE", isFunction ? "FUNCTION" : "PROCEDURE");
 
 		Set<String> sqlTypeNames = wrapper.getSqlTypeNames();
@@ -294,22 +298,22 @@ public final class WrapperStatementBuilder {
 		return generateCode("DBN - OJVM SQLCleanup.sql", properties);
 	}
 
-	public String buildSqlToJavaAssignmentLine(JavaComplexType.Field field,
+	public String buildSqlToJavaAssignmentLine(FieldWrapper fieldWrapper,
 											   String targetName, String arrayName,
 											   Wrapper wrapper) {
 		StringBuilder line = new StringBuilder();
 
 		// Determine assignment operator and line terminator based on access modifier.
-		String assignmentOperatorStart = "."+field.getName() +"=";
+		String assignmentOperatorStart = "."+ fieldWrapper.getName() +"=";
 		String assignmentOperatorEnd = "";
 		String lineTerminator = ";";
 
-		if(field.getAccessModifier() != JavaComplexType.Field.AccessModifier.PUBLIC) {
-			if(field.getSetter() == null || field.getSetter().isEmpty())
+		if(fieldWrapper.getAccessModifier() != FieldWrapper.AccessModifier.PUBLIC) {
+			if(fieldWrapper.getSetter() == null || fieldWrapper.getSetter().isEmpty())
 				targetName = "//" + targetName;
 			else
 			{
-				assignmentOperatorStart = "."+field.getSetter()+"(";
+				assignmentOperatorStart = "."+ fieldWrapper.getSetter()+"(";
 				assignmentOperatorEnd = ")";
 			}
 
@@ -318,23 +322,23 @@ public final class WrapperStatementBuilder {
 		// Build conversion expression.
 		String conversionPrefix = "";
 		String conversionSuffix = "";
-		if (field.isComplexType()) {
+		if (fieldWrapper.isComplexType()) {
 			// For complex types, wrap the SQL element with the proper converter.
-			String converterMethod = wrapper.getJavaComplexTypes()
-					.get(field.getComplexTypeIndexInWrapper())
+			String converterMethod = wrapper.getClasses()
+					.get(fieldWrapper.getComplexTypeIndexInWrapper())
 					.getSqlToJavaConverterName();
 			conversionPrefix = converterMethod + "(" +
-					(field.isArray() ? "(java.sql.Array)" : "(java.sql.Struct)") + "(";
+					(fieldWrapper.isArray() ? "(java.sql.Array)" : "(java.sql.Struct)") + "(";
 			conversionSuffix = "))";
 		}
 
-		String typeCastStart = (field.getTypeCastStart() != null) ? field.getTypeCastStart() : "";
-		String typeCastEnd = (field.getTypeCastEnd() != null) ? field.getTypeCastEnd() : "";
+		String typeCastStart = (fieldWrapper.getTypeCastStart() != null) ? fieldWrapper.getTypeCastStart() : "";
+		String typeCastEnd = (fieldWrapper.getTypeCastEnd() != null) ? fieldWrapper.getTypeCastEnd() : "";
 
 		// Build the value expression.
 		String valueExpression = (typeCastStart)
 				+ conversionPrefix
-				+ arrayName + "[" + field.getFieldIndex() + "]"
+				+ arrayName + "[" + fieldWrapper.getFieldIndex() + "]"
 				+ conversionSuffix
 				+ typeCastEnd;
 
@@ -349,30 +353,30 @@ public final class WrapperStatementBuilder {
 	}
 
 
-	public String buildJavaToSqlAssignmentLine(JavaComplexType.Field field,
+	public String buildJavaToSqlAssignmentLine(FieldWrapper fieldWrapper,
 											   String targetArray, String javaObj,
 											   Wrapper wrapper) {
 		StringBuilder line = new StringBuilder();
 
 		// Determine assignment operator and line terminator based on access modifier.
-		String assignmentOperator = "["+field.getFieldIndex() +"] =";
+		String assignmentOperator = "["+ fieldWrapper.getFieldIndex() +"] =";
 		String lineTerminator = ";";
-		String fieldAccessor = "."+field.getName();
+		String fieldAccessor = "."+ fieldWrapper.getName();
 
-		if(field.getAccessModifier() != JavaComplexType.Field.AccessModifier.PUBLIC) {
-			if(field.getGetter() == null || field.getGetter().isEmpty())
+		if(fieldWrapper.getAccessModifier() != FieldWrapper.AccessModifier.PUBLIC) {
+			if(fieldWrapper.getGetter() == null || fieldWrapper.getGetter().isEmpty())
 				targetArray = "//" + targetArray;
 			else
-				fieldAccessor = "."+field.getGetter()+"()";
+				fieldAccessor = "."+ fieldWrapper.getGetter()+"()";
 		}
 
 		String conversionStart = "";
 		String conversionEnd = "";
 
-		if(field.isArray() || field.isComplexType()) {
+		if(fieldWrapper.isArray() || fieldWrapper.isComplexType()) {
 			String converterName =
-					wrapper.getJavaComplexTypes()
-							.get(field.getComplexTypeIndexInWrapper())
+					wrapper.getClasses()
+							.get(fieldWrapper.getComplexTypeIndexInWrapper())
 							.getJavaToSqlConverterName();
 			conversionStart = converterName + "(";
 			conversionEnd = ")";
@@ -393,7 +397,7 @@ public final class WrapperStatementBuilder {
 		return line.toString();
 	}
 
-	public String buildSqlArrayToJavaAssignmentLine(JavaComplexType jct,
+	public String buildSqlArrayToJavaAssignmentLine(ClassWrapper classWrapper,
 													String targetName, String arrayName,
 													String iterator, Wrapper wrapper) {
 		StringBuilder line = new StringBuilder();
@@ -414,8 +418,8 @@ public final class WrapperStatementBuilder {
 		String getValueStart = "";
 		String getValueEnd = "";
 
-		if (jct.getArrayDepth() <= 1) {
-			SqlType sqlType = TypeMappings.getSqlType(jct.getJavaClassName());
+		if (classWrapper.getArrayDepth() <= 1) {
+			SqlType sqlType = TypeMappings.getSqlType(classWrapper.getJavaClassName());
 
 			if (sqlType != null) {
 				getValueStart = sqlType.getTransformerPrefix();
@@ -423,14 +427,14 @@ public final class WrapperStatementBuilder {
 			}
 			else
 			{
-				conversionPrefix = wrapper.getJavaComplexTypes().get(jct.getContainedJavaComplexTypeIndex())
+				conversionPrefix = wrapper.getClasses().get(classWrapper.getContainedJavaComplexTypeIndex())
 						.getSqlToJavaConverterName()+"((java.sql.Struct)(";
 				conversionSuffix = "))";
 			}
 		}
 		else {
 			// Multi-dimensional
-			conversionPrefix = wrapper.getJavaComplexTypes().get(jct.getContainedJavaComplexTypeIndex())
+			conversionPrefix = wrapper.getClasses().get(classWrapper.getContainedJavaComplexTypeIndex())
 					.getSqlToJavaConverterName()+"((java.sql.Array)(";
 			conversionSuffix = "))";
 		}
@@ -448,7 +452,7 @@ public final class WrapperStatementBuilder {
 		return line.toString();
 	}
 
-	public String buildJavaArrayToSqlAssignmentLine(JavaComplexType jct,
+	public String buildJavaArrayToSqlAssignmentLine(ClassWrapper classWrapper,
 													String targetSqlArray, String javaArrayName,
 													String iterator, Wrapper wrapper) {
 		StringBuilder line = new StringBuilder();
@@ -466,10 +470,10 @@ public final class WrapperStatementBuilder {
 		String conversionPrefix = "";
 		String conversionSuffix = "";
 
-		if (jct.getContainedJavaComplexTypeIndex() != -1) {
+		if (classWrapper.getContainedJavaComplexTypeIndex() != -1) {
 			String converterMethodName = wrapper
-					.getJavaComplexTypes()
-					.get(jct.getContainedJavaComplexTypeIndex())
+					.getClasses()
+					.get(classWrapper.getContainedJavaComplexTypeIndex())
 					.getJavaToSqlConverterName();
 			conversionPrefix = converterMethodName + "(";
 			conversionSuffix = ")";
@@ -488,18 +492,18 @@ public final class WrapperStatementBuilder {
 
 	//methods for supporting wrapper creation
 
-	public String getSqlSignature(WrapperJavaMethod method) {
+	public String getSqlSignature(MethodWrapper method) {
 		AtomicInteger idx = new AtomicInteger(0);
-		return method.getMethodAttributes()
+		return method.getParameters()
 				.stream()
 				.map(e -> "arg_" + idx.getAndIncrement() + " " + e.getSqlTypeName())
 				.collect(Collectors.joining(", "));
 	}
 
-	public String getJavaSignature(WrapperJavaMethod method, boolean includeArgumentNames){
+	public String getJavaSignature(MethodWrapper method, boolean includeArgumentNames){
 
 		AtomicInteger idx = new AtomicInteger(0);
-		return method.getMethodAttributes()
+		return method.getParameters()
 				.stream()
 				.map(e -> (
 						e.isArray() ? "java.sql.Array" : e.isComplexType() ? "java.sql.Struct" : e.getJavaTypeName())
@@ -508,9 +512,9 @@ public final class WrapperStatementBuilder {
 				.collect(Collectors.joining(", "));
 	}
 
-	public String getArgumentsInJavaCaller(WrapperJavaMethod method) {
+	public String getArgumentsInJavaCaller(MethodWrapper method) {
 		AtomicInteger idx = new AtomicInteger(0);
-		return method.getMethodAttributes()
+		return method.getParameters()
 				.stream()
 				.map(e -> " arg" + idx.getAndIncrement() +
 						((e.isArray() || e.isComplexType()) ? "Java" :""))
@@ -518,11 +522,11 @@ public final class WrapperStatementBuilder {
 	}
 
 
-	public String getArgumentConversionStatements(WrapperJavaMethod method) {
+	public String getArgumentConversionStatements(MethodWrapper method) {
 		StringBuilder statements = new StringBuilder();
-		List<WrapperJavaMethod.MethodAttribute> methodAttributes = method.getMethodAttributes();
+		List<ParameterWrapper> methodAttributes = method.getParameters();
 		for (int i = 0; i < methodAttributes.size(); i++) {
-			WrapperJavaMethod.MethodAttribute methodAttribute = methodAttributes.get(i);
+			ParameterWrapper methodAttribute = methodAttributes.get(i);
 			if (methodAttribute.isArray() || methodAttribute.isComplexType()) {
 				// Build the type string with array dimensions if applicable.
 				StringBuilder typeBuilder = new StringBuilder(methodAttribute.getJavaTypeName());
@@ -541,8 +545,8 @@ public final class WrapperStatementBuilder {
 	}
 
 
-	public String resolveMethodReturnType(WrapperJavaMethod method) {
-		WrapperJavaMethod.MethodAttribute returnType = method.getReturnType();
+	public String resolveMethodReturnType(MethodWrapper method) {
+		ParameterWrapper returnType = method.getReturnParameter();
 		if (returnType == null) {
 			return "void";
 		}
@@ -555,8 +559,8 @@ public final class WrapperStatementBuilder {
 		return returnType.getJavaTypeName();
 	}
 
-	public String getReturnStatement(WrapperJavaMethod method, String fullyQualifiedOriginalClassName) {
-		WrapperJavaMethod.MethodAttribute returnType = method.getReturnType();
+	public String getReturnStatement(MethodWrapper method, String fullyQualifiedOriginalClassName) {
+		ParameterWrapper returnType = method.getReturnParameter();
 		StringBuilder statement = new StringBuilder();
 		if(returnType != null){
 			statement.append("return ");

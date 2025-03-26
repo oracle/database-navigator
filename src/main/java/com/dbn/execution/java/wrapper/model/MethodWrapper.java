@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.execution.java.wrapper;
+package com.dbn.execution.java.wrapper.model;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,43 +26,23 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public class WrapperJavaMethod {
+public class MethodWrapper {
     private String originalJavaMethodName;
     // method signatures of wrapper java methods may be same even though original java methods with same name have different signatures
     private String javaMethodName;
     private String sqlMethodName;
-    private List<MethodAttribute> methodAttributes = new ArrayList<>();
-    private MethodAttribute returnType;
+    private List<ParameterWrapper> parameters = new ArrayList<>();
+    private ParameterWrapper returnParameter;
     private String javaMethodSignature;
 
-    public void addMethodAttribute(MethodAttribute methodAttribute) {
-        methodAttributes.add(methodAttribute);
-    }
-
-    @Getter
-    @Setter
-    public static class MethodAttribute {
-        private String javaTypeName;         // Java type name
-        private String sqlTypeName;          // Java type name
-        private String converterName;
-        private boolean complexType;
-        private short arrayDepth = 0;
-        private boolean sqlConversionPossible;
-
-        public boolean isArray() {
-            return arrayDepth > 0;
-        }
-
-        public String getSqlDeclarationSuffix() {
-            SqlType sqlType = TypeMappings.getSqlType(javaTypeName);
-            return sqlType == null ? "" : sqlType.getDeclarationSuffix();
-        }
+    public void addParameter(ParameterWrapper parameterWrapper) {
+        parameters.add(parameterWrapper);
     }
 
     public String getJavaSignature(boolean includeArgumentNames){
 
         AtomicInteger idx = new AtomicInteger(0);
-        return this.getMethodAttributes()
+        return this.getParameters()
                 .stream()
                 .map(e -> (
                         e.isArray() ? "java.sql.Array" : e.isComplexType() ? "java.sql.Struct" : e.getJavaTypeName())

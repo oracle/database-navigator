@@ -19,6 +19,7 @@ package com.dbn.execution.java.wrapper;
 
 import com.dbn.execution.java.wrapper.WrapperBuilder.ComplexTypeKey;
 import com.dbn.execution.java.wrapper.WrapperBuilder.WrapperMethodKey;
+import com.dbn.execution.java.wrapper.model.ClassWrapper;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -32,7 +33,7 @@ import java.util.Set;
 @Getter
 public class WrapperBuilderContext {
 
-    private final Map<ComplexTypeKey, JavaComplexType> complexTypeMap;
+    private final Map<ComplexTypeKey, ClassWrapper> classWrappers;
     private final Set<ComplexTypeKey> complexTypeSet;
     private final Map<WrapperMethodKey, Integer> wrapperMethodNames;
     private final Map<ComplexTypeKey, Integer> complexTypeIndexes;
@@ -41,19 +42,19 @@ public class WrapperBuilderContext {
      * Instantiates a fresh context for each parse invocation.
      */
     public WrapperBuilderContext() {
-        this.complexTypeMap = new HashMap<>();
+        this.classWrappers = new HashMap<>();
         this.complexTypeSet = new HashSet<>();
         this.wrapperMethodNames = new HashMap<>();
         this.complexTypeIndexes = new HashMap<>();
     }
 
 
-    public void addMapEntry(ComplexTypeKey key, JavaComplexType javaComplexType){
-        complexTypeMap.put(key, javaComplexType);
+    public void addClassWrapper(ComplexTypeKey key, ClassWrapper classWrapper){
+        classWrappers.put(key, classWrapper);
     }
 
-    public JavaComplexType getJavaComplexType(ComplexTypeKey key){
-        return complexTypeMap.get(key);
+    public ClassWrapper getClassWrapper(ComplexTypeKey key){
+        return classWrappers.get(key);
     }
 
 
