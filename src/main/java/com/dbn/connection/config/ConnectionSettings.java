@@ -55,7 +55,7 @@ public class ConnectionSettings extends CompositeProjectConfiguration<Connection
     private String sourceId ="" ;
 
 
-    private final PropertyHolder<ConnectionSettingsStatus> status = intBase(ConnectionSettingsStatus.VALUES);
+    private final PropertyHolder<ConnectionSettingsStatus> status = intBase(ConnectionSettingsStatus.VALUES).with(ACTIVE, SIGNED);
 
     private final ConnectionDatabaseSettings databaseSettings;
     private final @Getter(lazy = true) ConnectionPropertiesSettings propertiesSettings = new ConnectionPropertiesSettings(this);
