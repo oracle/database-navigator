@@ -16,74 +16,99 @@
 
 package com.dbn.execution.java.wrapper;
 
-import com.dbn.execution.java.wrapper.WrapperBuilder.ComplexTypeKey;
+import com.dbn.common.util.Lists;
 import com.dbn.execution.java.wrapper.model.ClassWrapper;
+import com.dbn.execution.java.wrapper.model.FieldWrapper;
 import com.dbn.execution.java.wrapper.model.MethodWrapper;
+import com.dbn.execution.java.wrapper.naming.WrapperNamingProvider;
+import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaMethod;
+import com.dbn.object.common.DBObject;
+import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+
+import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
 
 @Getter
 @Setter
 public class Wrapper {
-	public static final String DBN_TYPE_SUFFIX = "DBN_OJVM_TYPE_";
-	private boolean useFriendlyNames;
-	private String className;
+	private final DBObjectRef<?> sourceObject;
+	private final DBObjectRef<DBJavaClass> javaClass;
+	private String javaWrapperName;
+	private String sqlWrapperName;
+
 	private Set<String> sqlTypeNames = new HashSet<>();
 	private List<MethodWrapper> methods = new ArrayList<>();
     private List<ClassWrapper> classes = new ArrayList<>();
-	private Map<WrapperBuilder.ComplexTypeKey, Integer> sqlTypeIndexes = new HashMap<>();
 
-	public String getJavaWrapperClassName(){
-		if (useFriendlyNames) {
-			return toSqlTypeName(className) + "_WRAPPER";
-		}
-		return "DBN_OJVM_JAVA_WRAPPER";
+	public Wrapper(@NotNull DBJavaClass javaClass) {
+		this.sourceObject = DBObjectRef.of(javaClass);
+		this.javaClass = DBObjectRef.of(javaClass);
+		initWrapperNames(javaClass);
 	}
 
-	public String getSQLWrapperName(){
-		if(useFriendlyNames) {
-			return toSqlTypeName(className);
-		}
-		return "DBN_OJVM_SQL_WRAPPER";
+	public Wrapper(@NotNull DBJavaMethod javaMethod) {
+		this.sourceObject = DBObjectRef.of(javaMethod);
+		this.javaClass = javaMethod.getOwnerClassRef();
+		initWrapperNames(javaMethod);
 	}
 
-	public String getSqlTypeName(String className, short arrayDepth) {
-		if (useFriendlyNames) {
-			String sqlName = toSqlTypeName(className);
-			if (arrayDepth > 0) sqlName += arrayDepth;
-			return sqlName;
-		}
-
-		return DBN_TYPE_SUFFIX + getSqlTypeIndex(className, arrayDepth);
+	private void initWrapperNames(DBObject sourceObject) {
+		WrapperNamingProvider namingProvider = getNamingProvider();
+		this.javaWrapperName = namingProvider.getJavaWrapperName(sourceObject);
+		this.sqlWrapperName = namingProvider.getSqlWrapperName(sourceObject);;
 	}
 
-	private static String toSqlTypeName(String className) {
-		return "OJVM_" + className.replace(".", "_").replace("$", "_").toUpperCase();
+	public String getClassName() {
+		return getCanonicalName(javaClass);
 	}
 
+	public String getSqlTypeName(DBJavaClass javaClass, int arrayDepth) {
+		WrapperNamingProvider namingProvider = getNamingProvider();
+		return namingProvider.getSqlTypeName(javaClass, arrayDepth);
+	}
 
-	public void addJavaComplexType(ClassWrapper classWrapper) {
+	public void addClassWrapper(ClassWrapper classWrapper) {
         classes.add(classWrapper);
     }
 
-	public int getNumberOfJavaComplexTypes() {return classes.size();}
+	public ClassWrapper getClassWrapper(String className, int arrayDepth) {
+		return Lists.first(classes, c -> c.matches(className, arrayDepth));
+	}
+
+	public ClassWrapper getFieldClassWrapper(FieldWrapper fieldWrapper) {
+		String className = fieldWrapper.getTypeClassName();
+		int arrayDepth = fieldWrapper.getArrayDepth();
+		return getClassWrapper(className, arrayDepth);
+	}
 
 	public void addJavaMethod(MethodWrapper javaMethod) {
 		methods.add(javaMethod);
 	}
 
-	public int getSqlTypeIndex(String className, short arrayDepth){
-		ComplexTypeKey key = new ComplexTypeKey(className, arrayDepth);
-		int size = sqlTypeIndexes.size();
-		return sqlTypeIndexes.computeIfAbsent(key, k -> size + 1);
+	private static WrapperBuilderContext getContext() {
+		return WrapperBuilderContext.get();
+	}
+
+	private static WrapperNamingProvider getNamingProvider() {
+		return getContext().getNamingProvider();
+	}
+
+	private DBObject getSourceObject() {
+		return this.sourceObject.ensure();
+	}
+
+	public Object isClassWrapper() {
+		return sourceObject.getObjectType().matches(DBObjectType.JAVA_CLASS);
 	}
 
 }

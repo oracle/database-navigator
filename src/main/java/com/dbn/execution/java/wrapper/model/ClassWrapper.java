@@ -16,44 +16,80 @@
 
 package com.dbn.execution.java.wrapper.model;
 
-import com.dbn.execution.java.wrapper.SqlComplexType;
+import com.dbn.execution.java.wrapper.naming.WrapperNamingProvider;
+import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBSchema;
+import com.dbn.object.DBType;
+import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
 @Getter
 @Setter
-public class ClassWrapper {
+public class ClassWrapper extends EntityWrapper {
+	public enum ArgumentDirection {IN, OUT, IN_OUT}
 
-	public enum AttributeDirection {ARGUMENT, RETURN, BOTH}
+	private ClassWrapper containedClassWrapper;
+	private String containedSqlTypeName;
 
-	private String javaClassName;
-	private AttributeDirection attributeDirection;
-	private SqlComplexType correspondingSqlType;
-	private short arrayDepth = 0;
+	private final DBObjectRef<DBJavaClass> javaClass;
+	private final DBObjectRef<DBType> sqlType;
+	private final int arrayDepth;
+
+	private ArgumentDirection argumentDirection;
 	private List<FieldWrapper> fields = new ArrayList<>();
 
-	private String sqlToJavaConverterName="";
-	private String javaToSqlConverterName="";
+	public ClassWrapper(DBObjectRef<DBJavaClass> javaClass, int arrayDepth, ArgumentDirection argumentDirection) {
+		this.javaClass = javaClass;
+		this.arrayDepth = arrayDepth;
+		this.argumentDirection = argumentDirection;
 
-	private int containedJavaComplexTypeIndex = -1;
+		this.sqlType = initSqlType();
+	}
 
+	private DBObjectRef<DBType> initSqlType() {
+		DBJavaClass javaClass = getJavaClass().ensure();
+
+		WrapperNamingProvider namingProvider = getNamingProvider();
+		String typeName = namingProvider.getSqlTypeName(javaClass, arrayDepth);
+
+		DBObjectRef<DBSchema> schema = javaClass.getSchema().ref();
+		return new DBObjectRef<>(schema, DBObjectType.TYPE, typeName);
+	}
+
+	public boolean matches(String className, int arrayDepth) {
+		return Objects.equals(getClassName(), className) && this.arrayDepth == arrayDepth;
+	}
+
+	public String getClassName() {
+		return getCanonicalName(javaClass);
+	}
+
+	public String getSqlTypeName() {
+		return sqlType.getObjectName();
+	}
 
 	public boolean isArray() {
 		return arrayDepth > 0;
 	}
 
-	public void setCorrespondingSqlType(SqlComplexType correspondingSqlType) {
-		this.correspondingSqlType = correspondingSqlType;
-		this.javaToSqlConverterName = correspondingSqlType.getName()+"_TO_SQL";
-		this.sqlToJavaConverterName = correspondingSqlType.getName()+"_TO_JAVA";
+	public String getSqlToJavaConverterName() {
+		return getSqlTypeName() + "_TO_SQL";
+	}
+
+	public String getJavaToSqlConverterName() {
+		return getSqlTypeName() + "_TO_JAVA";
 	}
 
 	// Method to add field (only if not an array)
 	public void addField(FieldWrapper fieldWrapper) {
 		fields.add(fieldWrapper);
 	}
-
 }

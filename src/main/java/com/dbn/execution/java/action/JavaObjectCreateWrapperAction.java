@@ -60,7 +60,7 @@ public class JavaObjectCreateWrapperAction extends BasicAction {
 	private RelativePoint popupLocation;
 
 	public JavaObjectCreateWrapperAction(DBJavaClass sourceObject) {
-		super("Create Wrappers...");
+		super("Create Execution Wrappers...");
 		this.sourceObject = DBObjectRef.of(sourceObject);
 	}
 
@@ -83,55 +83,56 @@ public class JavaObjectCreateWrapperAction extends BasicAction {
 	}
 
 	private void showObjectList(DataContext dataContext, ConnectionAction action) {
-		if (!action.isCancelled()) {
-			DBJavaClass program = (DBJavaClass) getSourceObject();
-			Project project = program.getProject();
-			List<DBJavaMethod> objects = new ArrayList<>(program.getStaticMethods());
-			if (action.isCancelled()) return;
+        if (action.isCancelled()) return;
 
-			Dispatch.run(dataContext, true, () -> {
-				if (objects.isEmpty()) {
-					JLabel label = new JLabel("No public static method", Icons.EXEC_MESSAGES_INFO, SwingConstants.LEFT);
-					label.setBorder(JBUI.Borders.empty(8));
-					JPanel panel = new JPanel(new BorderLayout());
-					panel.add(label);
-					panel.setBackground(Colors.LIGHT_BLUE);
-					ComponentPopupBuilder popupBuilder = JBPopupFactory.getInstance().createComponentPopupBuilder(panel, null);
-					JBPopup popup = popupBuilder.createPopup();
-					showPopup(popup);
-				} else {
-					SelectionListDialog<DBJavaMethod> dialog = new SelectionListDialog<>(program.getProject(),"Select method to create wrapper", objects, null, program);
-					dialog.show();
-					List<DBJavaMethod> methods = dialog.getSelection();
-					ConnectionAction.invoke("Creation of Execution Wrappers", false, methods.get(0),
-							action2 -> Progress.prompt(project, action2, true,
-									"Creating execution wrappers",
-									"Creating execution wrappers for java methods selected ",
-									progress -> {
-										ConnectionHandler connection = action2.getConnection();
-										if (connection.isValid()) {
-											try {
-												WrapperStatementExecutor statementExecutor = new WrapperStatementExecutor();
-												statementExecutor.createExecutionWrappers(methods, true);
-											} catch (Exception ex) {
-												Messages.showErrorDialog(project,
-														"Error creating execution wrappers for java methods \nCause: " + ex.getMessage());
-												conditionallyLog(ex);
-											}
-										} else {
-											String message =
-													"Can not create execution wrappers for java methods.\n" +
-															"No connectivity to '" + connection.getName() + "'. " +
-															"Please check your connection settings and try again.";
-											Messages.showErrorDialog(project, message);
-										}
-									}
-							)
-					);
-				}
-			});
-		}
-	}
+        DBJavaClass javaClass = (DBJavaClass) getSourceObject();
+
+        List<DBJavaMethod> objects = new ArrayList<>(javaClass.getStaticMethods());
+        if (action.isCancelled()) return;
+
+        Dispatch.run(dataContext, true, () -> {
+            if (objects.isEmpty()) {
+                JLabel label = new JLabel("No public static method", Icons.EXEC_MESSAGES_INFO, SwingConstants.LEFT);
+                label.setBorder(JBUI.Borders.empty(8));
+                JPanel panel = new JPanel(new BorderLayout());
+                panel.add(label);
+                panel.setBackground(Colors.LIGHT_BLUE);
+                ComponentPopupBuilder popupBuilder = JBPopupFactory.getInstance().createComponentPopupBuilder(panel, null);
+                JBPopup popup = popupBuilder.createPopup();
+                showPopup(popup);
+            } else {
+				Project project = javaClass.getProject();
+				SelectionListDialog<DBJavaMethod> dialog = new SelectionListDialog<>(project,"Select method to create wrapper", objects, null, javaClass);
+                dialog.show();
+
+                List<DBJavaMethod> methods = dialog.getSelection();
+				if (methods == null || methods.isEmpty()) return;
+
+				Progress.prompt(project, javaClass, true,
+						"Creating execution wrappers",
+						"Creating execution wrappers for java methods selected ",
+						progress -> {
+							ConnectionHandler connection = javaClass.getConnection();
+							if (connection.isValid()) {
+								try {
+									WrapperStatementExecutor statementExecutor = new WrapperStatementExecutor();
+									statementExecutor.createExecutionWrappers(javaClass, methods, true);
+								} catch (Exception ex) {
+									Messages.showErrorDialog(project,
+											"Error creating execution wrappers for java methods \nCause: " + ex.getMessage());
+									conditionallyLog(ex);
+								}
+							} else {
+								String message =
+										"Can not create execution wrappers for java methods.\n" +
+												"No connectivity to '" + connection.getName() + "'. " +
+												"Please check your connection settings and try again.";
+								Messages.showErrorDialog(project, message);
+							}
+						});
+            }
+        });
+    }
 
 	private void showPopup(JBPopup popup) {
 		if (popupLocation == null) {

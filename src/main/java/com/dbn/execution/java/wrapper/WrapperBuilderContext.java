@@ -17,85 +17,63 @@
 package com.dbn.execution.java.wrapper;
 
 
-import com.dbn.execution.java.wrapper.WrapperBuilder.ComplexTypeKey;
-import com.dbn.execution.java.wrapper.WrapperBuilder.WrapperMethodKey;
+import com.dbn.common.Pair;
+import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.execution.java.wrapper.model.ClassWrapper;
+import com.dbn.execution.java.wrapper.naming.FriendlyWrapperNamingProvider;
+import com.dbn.execution.java.wrapper.naming.TransientWrapperNamingProvider;
+import com.dbn.execution.java.wrapper.naming.WrapperNamingProvider;
 import lombok.Getter;
+import lombok.Setter;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Holds all per-invocation data structures used by {@link WrapperBuilder}.
  */
 @Getter
+@Setter
 public class WrapperBuilderContext {
+    private static final ThreadLocal<WrapperBuilderContext> LOCAL = new ThreadLocal<>();
 
-    private final Map<ComplexTypeKey, ClassWrapper> classWrappers;
-    private final Set<ComplexTypeKey> complexTypeSet;
-    private final Map<WrapperMethodKey, Integer> wrapperMethodNames;
-    private final Map<ComplexTypeKey, Integer> complexTypeIndexes;
+    private Wrapper wrapper;
+    private final WrapperNamingProvider namingProvider;
+    private final Map<Pair<String, Integer>, ClassWrapper> classWrapperCache = new HashMap<>();
+
+
+    public void cacheClassWrapper(ClassWrapper classWrapper) {
+        var key = Pair.of(classWrapper.getClassName(), classWrapper.getArrayDepth());
+        classWrapperCache.put(key, classWrapper);
+    }
+
+    @Nullable
+    public ClassWrapper getCachedClassWrapper(String className, int arrayDepth) {
+        var key = Pair.of(className, arrayDepth);
+        return classWrapperCache.get(key);
+    }
 
     /**
      * Instantiates a fresh context for each parse invocation.
      */
-    public WrapperBuilderContext() {
-        this.classWrappers = new HashMap<>();
-        this.complexTypeSet = new HashSet<>();
-        this.wrapperMethodNames = new HashMap<>();
-        this.complexTypeIndexes = new HashMap<>();
+    public WrapperBuilderContext(boolean friendlyNames) {
+        namingProvider = friendlyNames ?
+                new FriendlyWrapperNamingProvider():
+                new TransientWrapperNamingProvider();
     }
 
-
-    public void addClassWrapper(ComplexTypeKey key, ClassWrapper classWrapper){
-        classWrappers.put(key, classWrapper);
-    }
-
-    public ClassWrapper getClassWrapper(ComplexTypeKey key){
-        return classWrappers.get(key);
-    }
-
-
-    public boolean detectRepetition(ComplexTypeKey key)
-    {
-        return complexTypeSet.contains(key);
-    }
-
-    public void addToSet(ComplexTypeKey key){
-        complexTypeSet.add(key);
-    }
-
-    public void removeFromSet(ComplexTypeKey key)
-    {
-        complexTypeSet.remove(key);
-    }
-
-    public void addToIndex(ComplexTypeKey key, int index){complexTypeIndexes.put(key, index);}
-
-    public int getComplexTypeIndex(ComplexTypeKey key){return complexTypeIndexes.get(key);}
-
-    public int getComplexTypeIndex(String className, short arrayLength){
-        ComplexTypeKey key = new ComplexTypeKey(className, arrayLength);
-        return complexTypeIndexes.get(key);
-    }
-
-    public String getAndAddWrapperMethodName(String originalMethodName, String methodSignature)
-    {
-        WrapperMethodKey key = new WrapperMethodKey(originalMethodName, methodSignature);
-        return getAndAddWrapperMethodName(key);
-    }
-
-    public String getAndAddWrapperMethodName(WrapperMethodKey key) {
-        if (wrapperMethodNames.containsKey(key)) {
-            int count = wrapperMethodNames.get(key) + 1;
-            wrapperMethodNames.put(key, count);
-            return key.getOriginalMethodName() +"_"+ count;
-        } else {
-            wrapperMethodNames.put(key, 0);
-            return key.getOriginalMethodName();
+    public <T, E extends Throwable> T surround(ThrowableCallable<T, E> runnable) throws E {
+        try {
+            LOCAL.set(this);
+            return runnable.call();
+        } finally {
+            LOCAL.remove();
         }
+    }
+
+    public static WrapperBuilderContext get() {
+        return LOCAL.get();
     }
 
 }

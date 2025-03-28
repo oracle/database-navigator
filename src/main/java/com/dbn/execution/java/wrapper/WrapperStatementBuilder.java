@@ -30,7 +30,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,22 +59,24 @@ public final class WrapperStatementBuilder {
 		sqlTypeNames.clear();
 
 		for (ClassWrapper classWrapper : wrapper.getClasses()) {
-			SqlComplexType sct = classWrapper.getCorrespondingSqlType();
-			String sqlTypeName = sct.getName();
+			String sqlTypeName = classWrapper.getSqlTypeName();
 
 			if (sqlTypeNames.contains(sqlTypeName)) continue;
 			sqlTypeNames.add(sqlTypeName);
 
-			String fields = sct.getFields().stream()
-					.sorted(Comparator.comparingInt(SqlComplexType.Field::getFieldIndex))
-					.map(e -> e.getName() + " " + e.getType())
-					.collect(Collectors.joining(",\n\t"));
+			String fields = classWrapper
+					.getFields()
+					.stream()
+					.map(f -> f.getSqlAttributeDeclaration())
+					.collect(Collectors.joining(",\n\t"));;
 
 			properties.setProperty("TYPENAME", sqlTypeName);
 			properties.setProperty("FIELDS", fields);
-			properties.setProperty("IS_ARRAY", String.valueOf(sct.isArray()));
-			if (sct.getContainedTypeName() != null)
-				properties.setProperty("ARRAY_TYPE", sct.getContainedTypeName());
+			properties.setProperty("IS_ARRAY", String.valueOf(classWrapper.isArray()));
+
+			String containedSqlTypeName = classWrapper.getContainedSqlTypeName();
+			if (containedSqlTypeName != null)
+				properties.setProperty("ARRAY_TYPE", containedSqlTypeName);
 
 			String code = generateCode("DBN - OJVM SQLType.sql", properties);
 			sqlTypes.add(code);
@@ -90,11 +91,11 @@ public final class WrapperStatementBuilder {
 		String javaObj = "javaObj";
 		for (ClassWrapper classWrapper : wrapper.getClasses()) {
 			// Skip RETURN attributes and duplicates based on SQL type name.
-			if (classWrapper.getAttributeDirection() == ClassWrapper.AttributeDirection.RETURN)
+			if (classWrapper.getArgumentDirection() == ClassWrapper.ArgumentDirection.OUT)
 				continue;
 
 			Map<String, Object> context = new HashMap<>();
-			context.put("JAVA_COMPLEX_TYPE", classWrapper.getJavaClassName());
+			context.put("JAVA_COMPLEX_TYPE", classWrapper.getClassName());
 			context.put("CONVERTER_METHOD_NAME", classWrapper.getSqlToJavaConverterName());
 			context.put("OBJ_ARRAY",objArray);
 			context.put("JAVA_OBJECT",javaObj);
@@ -137,12 +138,12 @@ public final class WrapperStatementBuilder {
 		String objArray ="objArray";
 		String javaObj = "javaObj";
 		for (ClassWrapper classWrapper : wrapper.getClasses()) {
-			if (classWrapper.getAttributeDirection() == ClassWrapper.AttributeDirection.ARGUMENT) continue;
+			if (classWrapper.getArgumentDirection() == ClassWrapper.ArgumentDirection.IN) continue;
 
 			Map<String, Object> context = new HashMap<>();
 
-			context.put("JAVA_COMPLEX_TYPE", classWrapper.getJavaClassName());
-			context.put("SQL_OBJECT_TYPE", classWrapper.getCorrespondingSqlType().getName());
+			context.put("JAVA_COMPLEX_TYPE", classWrapper.getClassName());
+			context.put("SQL_OBJECT_TYPE", classWrapper.getSqlTypeName());
 			context.put("CONVERTER_METHOD_NAME", classWrapper.getJavaToSqlConverterName());
 			context.put("OBJ_ARRAY",objArray);
 			context.put("JAVA_OBJECT",javaObj);
@@ -182,7 +183,7 @@ public final class WrapperStatementBuilder {
 		for (MethodWrapper method : wrapper.getMethods()) {
 			String code;
 			String methodReturnType = resolveMethodReturnType(method);
-			String wrapperMethodName = method.getJavaMethodName();
+			String wrapperMethodName = method.getSurrogateJavaMethodName();
 			String methodSignature = getJavaSignature(method, true);
 			String argumentConversions = getArgumentConversionStatements(method);
 			String returnStatement = getReturnStatement(method, wrapper.getClassName());
@@ -210,7 +211,7 @@ public final class WrapperStatementBuilder {
 
 		Map<String, Object> context = new HashMap<>();
 
-		context.put("JAVA_WRAPPER_NAME", wrapper.getJavaWrapperClassName());
+		context.put("JAVA_WRAPPER_NAME", wrapper.getJavaWrapperName());
 		context.put("SQL_CONVERSION_METHODS", sqlMethods);
 		context.put("JAVA_CONVERSION_METHODS", javaMethods);
 		context.put("JAVA_WRAPPER_METHODS", javaWrapperMethods);
@@ -226,13 +227,13 @@ public final class WrapperStatementBuilder {
 
 	private String createSQLWrapper(Wrapper wrapper) {
 		Map<String, Object> context = new HashMap<>();
-		context.put("SQL_WRAPPER_NAME", wrapper.getSQLWrapperName());
-		context.put("JAVA_WRAPPER_NAME", wrapper.getJavaWrapperClassName());
+		context.put("SQL_WRAPPER_NAME", wrapper.getSqlWrapperName());
+		context.put("JAVA_WRAPPER_NAME", wrapper.getJavaWrapperName());
 		// Transform each WrapperJavaMethod into a map with precomputed values.
 		List<Map<String, Object>> methodList = wrapper.getMethods().stream()
 				.map(method -> {
 					Map<String, Object> m = new HashMap<>();
-					m.put("javaMethodName", method.getJavaMethodName());
+					m.put("javaMethodName", method.getSurrogateJavaMethodName());
 					m.put("sqlMethodName", method.getSqlMethodName());
 					// Precompute the SQL signature using your new getSqlSignature function.
 					m.put("sqlSignature", getSqlSignature(method));
@@ -256,7 +257,7 @@ public final class WrapperStatementBuilder {
 				.collect(Collectors.toList());
 
 		context.put("JAVA_METHODS", methodList);
-		context.put("IS_PACKAGE_FORMAT", wrapper.isUseFriendlyNames());
+		context.put("IS_PACKAGE_FORMAT", wrapper.isClassWrapper());
 
         return generateCode("DBN - OJVM SQLWrapper.sql", context);
 	}
@@ -293,8 +294,8 @@ public final class WrapperStatementBuilder {
 		Set<String> sqlTypeNames = wrapper.getSqlTypeNames();
 		String allTypes = String.join(",", sqlTypeNames);
 		properties.setProperty("SQLTYPES", allTypes);
-		properties.setProperty("SQL_WRAPPER_NAME", wrapper.getSQLWrapperName());
-		properties.setProperty("JAVA_WRAPPER_NAME", wrapper.getJavaWrapperClassName());
+		properties.setProperty("SQL_WRAPPER_NAME", wrapper.getSqlWrapperName());
+		properties.setProperty("JAVA_WRAPPER_NAME", wrapper.getJavaWrapperName());
 		return generateCode("DBN - OJVM SQLCleanup.sql", properties);
 	}
 
@@ -308,12 +309,12 @@ public final class WrapperStatementBuilder {
 		String assignmentOperatorEnd = "";
 		String lineTerminator = ";";
 
-		if(fieldWrapper.getAccessModifier() != FieldWrapper.AccessModifier.PUBLIC) {
-			if(fieldWrapper.getSetter() == null || fieldWrapper.getSetter().isEmpty())
+		if(!fieldWrapper.isAccessible()) {
+			if(fieldWrapper.getSetterName() == null)
 				targetName = "//" + targetName;
 			else
 			{
-				assignmentOperatorStart = "."+ fieldWrapper.getSetter()+"(";
+				assignmentOperatorStart = "."+ fieldWrapper.getSetterName()+"(";
 				assignmentOperatorEnd = ")";
 			}
 
@@ -324,9 +325,9 @@ public final class WrapperStatementBuilder {
 		String conversionSuffix = "";
 		if (fieldWrapper.isComplexType()) {
 			// For complex types, wrap the SQL element with the proper converter.
-			String converterMethod = wrapper.getClasses()
-					.get(fieldWrapper.getComplexTypeIndexInWrapper())
-					.getSqlToJavaConverterName();
+			ClassWrapper classWrapper = wrapper.getFieldClassWrapper(fieldWrapper);
+			String converterMethod = classWrapper.getSqlToJavaConverterName();
+
 			conversionPrefix = converterMethod + "(" +
 					(fieldWrapper.isArray() ? "(java.sql.Array)" : "(java.sql.Struct)") + "(";
 			conversionSuffix = "))";
@@ -338,7 +339,7 @@ public final class WrapperStatementBuilder {
 		// Build the value expression.
 		String valueExpression = (typeCastStart)
 				+ conversionPrefix
-				+ arrayName + "[" + fieldWrapper.getFieldIndex() + "]"
+				+ arrayName + "[" + fieldWrapper.getIndex() + "]"
 				+ conversionSuffix
 				+ typeCastEnd;
 
@@ -359,25 +360,23 @@ public final class WrapperStatementBuilder {
 		StringBuilder line = new StringBuilder();
 
 		// Determine assignment operator and line terminator based on access modifier.
-		String assignmentOperator = "["+ fieldWrapper.getFieldIndex() +"] =";
+		String assignmentOperator = "["+ fieldWrapper.getIndex() +"] =";
 		String lineTerminator = ";";
 		String fieldAccessor = "."+ fieldWrapper.getName();
 
-		if(fieldWrapper.getAccessModifier() != FieldWrapper.AccessModifier.PUBLIC) {
-			if(fieldWrapper.getGetter() == null || fieldWrapper.getGetter().isEmpty())
+		if(!fieldWrapper.isAccessible()) {
+			if(fieldWrapper.getGetterName() == null)
 				targetArray = "//" + targetArray;
 			else
-				fieldAccessor = "."+ fieldWrapper.getGetter()+"()";
+				fieldAccessor = "."+ fieldWrapper.getGetterName()+"()";
 		}
 
 		String conversionStart = "";
 		String conversionEnd = "";
 
 		if(fieldWrapper.isArray() || fieldWrapper.isComplexType()) {
-			String converterName =
-					wrapper.getClasses()
-							.get(fieldWrapper.getComplexTypeIndexInWrapper())
-							.getJavaToSqlConverterName();
+			ClassWrapper classWrapper = wrapper.getFieldClassWrapper(fieldWrapper);
+			String converterName = classWrapper.getJavaToSqlConverterName();
 			conversionStart = converterName + "(";
 			conversionEnd = ")";
 		}
@@ -419,23 +418,19 @@ public final class WrapperStatementBuilder {
 		String getValueEnd = "";
 
 		if (classWrapper.getArrayDepth() <= 1) {
-			SqlType sqlType = TypeMappings.getSqlType(classWrapper.getJavaClassName());
+			SqlType sqlType = TypeMappings.getSqlType(classWrapper.getClassName());
 
 			if (sqlType != null) {
 				getValueStart = sqlType.getTransformerPrefix();
 				getValueEnd = sqlType.getTransformerSuffix();
-			}
-			else
-			{
-				conversionPrefix = wrapper.getClasses().get(classWrapper.getContainedJavaComplexTypeIndex())
-						.getSqlToJavaConverterName()+"((java.sql.Struct)(";
+			} else {
+				conversionPrefix = classWrapper.getContainedClassWrapper().getSqlToJavaConverterName() + "((java.sql.Struct)(";
 				conversionSuffix = "))";
 			}
 		}
 		else {
 			// Multi-dimensional
-			conversionPrefix = wrapper.getClasses().get(classWrapper.getContainedJavaComplexTypeIndex())
-					.getSqlToJavaConverterName()+"((java.sql.Array)(";
+			conversionPrefix = classWrapper.getContainedClassWrapper().getSqlToJavaConverterName()+"((java.sql.Array)(";
 			conversionSuffix = "))";
 		}
 
@@ -470,11 +465,9 @@ public final class WrapperStatementBuilder {
 		String conversionPrefix = "";
 		String conversionSuffix = "";
 
-		if (classWrapper.getContainedJavaComplexTypeIndex() != -1) {
-			String converterMethodName = wrapper
-					.getClasses()
-					.get(classWrapper.getContainedJavaComplexTypeIndex())
-					.getJavaToSqlConverterName();
+		ClassWrapper containedClassWrapper = classWrapper.getContainedClassWrapper();
+		if (containedClassWrapper != null) {
+			String converterMethodName = containedClassWrapper.getJavaToSqlConverterName();
 			conversionPrefix = converterMethodName + "(";
 			conversionSuffix = ")";
 		}
@@ -575,7 +568,7 @@ public final class WrapperStatementBuilder {
 
 		statement.append(converterMethodStart)
 				.append(fullyQualifiedOriginalClassName).append(".")
-				.append(method.getOriginalJavaMethodName())
+				.append(method.getJavaMethodName())
 				.append("(")
 				.append(getArgumentsInJavaCaller(method))
 				.append(")")

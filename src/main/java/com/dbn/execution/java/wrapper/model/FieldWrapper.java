@@ -16,62 +16,81 @@
 
 package com.dbn.execution.java.wrapper.model;
 
-import com.dbn.execution.java.wrapper.SqlType;
+import com.dbn.common.util.Naming;
+import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaField;
+import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBType;
+import com.dbn.object.DBTypeAttribute;
+import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBJavaAccessibility;
 import lombok.Getter;
 import lombok.Setter;
 
+import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
+
 @Getter
 @Setter
-public class FieldWrapper {
-    // Enum for access modifiers
-    public enum AccessModifier {PUBLIC, PROTECTED, PRIVATE, DEFAULT}
+public class FieldWrapper extends EntityWrapper {
+    private final ClassWrapper ownerClassWrapper;
+    private final DBObjectRef<DBJavaField> field;
+    private final DBObjectRef<DBJavaClass> typeClass;
+    private final DBObjectRef<DBJavaMethod> fieldGetter;
+    private final DBObjectRef<DBJavaMethod> fieldSetter;
 
-    private String name;
-    private String type;
+    private DBObjectRef<DBTypeAttribute> attribute;
+    private DBObjectRef<DBType> attributeType;
+
+    private final int index;
+    private final int arrayDepth;
+    private final boolean accessible;
+
     private boolean complexType = false;
-    private int complexTypeIndexInWrapper = -1;
-    private AccessModifier accessModifier = null;
-    private String setter;
-    private String getter;
-    private short arrayDepth = 0;
-    private short fieldIndex;
-    private String sqlType;
+    private String sqlTypeName;
     private String typeCastStart;
     private String typeCastEnd;
 
-    public void setType(String type, SqlType sqlTypeDetails) {
-        this.type = type;
-        if (sqlTypeDetails != null) {
-            sqlType = sqlTypeDetails.getSqlTypeName();
-            typeCastStart = sqlTypeDetails.getTransformerPrefix();
-            typeCastEnd = sqlTypeDetails.getTransformerSuffix();
-        }
+    public FieldWrapper(ClassWrapper parentClassWrapper, DBJavaField field) {
+        this.ownerClassWrapper = parentClassWrapper;
+
+        this.field = DBObjectRef.of(field);
+        this.index = field.getPosition();
+        this.arrayDepth = field.getArrayDepth();
+        this.accessible = field.getAccessibility() == DBJavaAccessibility.PUBLIC;
+        this.typeClass = field.getJavaClassRef();
+
+        // If the javaField is non-public, set up the getter/setter if present
+        fieldGetter = this.accessible ? null : DBObjectRef.of(field.findGetterMethod());
+        fieldSetter = this.accessible ? null : DBObjectRef.of(field.findSetterMethod());
+    }
+
+    public String getName() {
+        return field.getObjectName();
     }
 
     public boolean isArray() {
         return arrayDepth > 0;
     }
 
-    public void setAccessModifier(String accessModifier) {
-        if (accessModifier == null) {
-            this.accessModifier = AccessModifier.DEFAULT;
-            return;
-        }
-
-        switch (accessModifier.toLowerCase()) {
-            case "public":
-                this.accessModifier = AccessModifier.PUBLIC;
-                break;
-            case "protected":
-                this.accessModifier = AccessModifier.PROTECTED;
-                break;
-            case "private":
-                this.accessModifier = AccessModifier.PRIVATE;
-                break;
-            default:
-                // Do nothing if the string doesn't match any valid modifier
-                break;
-        }
+    public String getSqlName() {
+        return Naming.toUpperSnakeCase(getName());
     }
 
+    public String getTypeClassName() {
+        return getCanonicalName(typeClass);
+    }
+
+    public String getSqlAttributeDeclaration() {
+        return getSqlName() + " " + getSqlTypeName();
+    }
+
+    public String getGetterName() {
+        DBJavaMethod method = DBObjectRef.get(fieldGetter);
+        return method == null ? null : method.getSimpleName();
+    }
+
+    public String getSetterName() {
+        DBJavaMethod method = DBObjectRef.get(fieldSetter);
+        return method == null ? null : method.getSimpleName();
+    }
 }

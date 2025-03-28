@@ -20,19 +20,23 @@ import com.dbn.common.Priority;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
 import com.intellij.openapi.project.Project;
+import lombok.Getter;
 
 import java.sql.SQLException;
 import java.util.List;
 
+@Getter
 public class WrapperStatementExecutor {
+    private Wrapper wrapper;
 
-    public Wrapper createExecutionWrappers(DBJavaMethod method, boolean useFriendlyNames) throws SQLException {
+    public void createExecutionWrappers(DBJavaMethod method, boolean useFriendlyNames) throws SQLException {
         Project project = method.getProject();
 
         WrapperBuilder wrapperBuilder = WrapperBuilder.getInstance();
-        Wrapper wrapper = wrapperBuilder.build(method, useFriendlyNames);
+        wrapper = wrapperBuilder.build(method, useFriendlyNames);
 
         WrapperStatementBuilder statementBuilder = new WrapperStatementBuilder(project);
         String creationStatement = statementBuilder.buildWrapperCreationStatement(wrapper);
@@ -46,21 +50,20 @@ public class WrapperStatementExecutor {
                     DBNPreparedStatement statement = c.prepareStatement(creationStatement);
                     statement.execute();
                 });
-
-        return wrapper;
     }
 
-    public Wrapper createExecutionWrappers(List<DBJavaMethod> methods, boolean useFriendlyNames) throws SQLException {
-        if(methods.isEmpty()) return null;
-        Project project = methods.get(0).getProject();
+    public void createExecutionWrappers(DBJavaClass javaClass, List<DBJavaMethod> methods, boolean useFriendlyNames) throws SQLException {
+        if (methods.isEmpty()) return;
+
+        Project project = javaClass.getProject();
 
         WrapperBuilder wrapperBuilder = WrapperBuilder.getInstance();
-        Wrapper wrapper = wrapperBuilder.build(methods, useFriendlyNames);
+        Wrapper wrapper = wrapperBuilder.build(javaClass, methods, useFriendlyNames);
 
         WrapperStatementBuilder statementBuilder = new WrapperStatementBuilder(project);
         String creationStatement = statementBuilder.buildWrapperCreationStatement(wrapper);
 
-        ConnectionId connectionId = methods.get(0).getConnectionId();
+        ConnectionId connectionId = javaClass.getConnectionId();
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
                 "Creating execution wrappers",
                 "Creating java execution wrappers for selected method",
@@ -69,11 +72,9 @@ public class WrapperStatementExecutor {
                     DBNPreparedStatement statement = c.prepareStatement(creationStatement);
                     statement.execute();
                 });
-
-        return wrapper;
     }
 
-    public void discardExecutionWrappers(DBJavaMethod method, Wrapper wrapper) throws SQLException {
+    public void discardExecutionWrappers(DBJavaMethod method) throws SQLException {
         Project project = method.getProject();
         WrapperStatementBuilder statementBuilder = new WrapperStatementBuilder(project);
         String removalStatement = statementBuilder.buildWrapperRemovalStatement(wrapper);

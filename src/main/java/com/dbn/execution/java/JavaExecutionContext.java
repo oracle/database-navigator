@@ -35,18 +35,18 @@ import static com.dbn.common.dispose.Failsafe.nd;
 @Getter
 public class JavaExecutionContext extends ExecutionContext<JavaExecutionInput> {
     private final WrapperStatementExecutor statementExecutor = new WrapperStatementExecutor();
-    private Wrapper wrapper;
 
     public JavaExecutionContext(JavaExecutionInput input) {
         super(input);
     }
 
-    public void createExecutionWrappers(boolean useFriendlyNames) throws SQLException {
-        wrapper = statementExecutor.createExecutionWrappers(getMethod(), useFriendlyNames);
+    public void createExecutionWrappers() throws SQLException {
+        // use technical names during anonymous execution
+        statementExecutor.createExecutionWrappers(getMethod(), false);
     }
 
     public void discardExecutionWrappers() throws SQLException {
-        statementExecutor.discardExecutionWrappers(getMethod(), wrapper);
+        statementExecutor.discardExecutionWrappers(getMethod());
     }
 
     @NotNull
@@ -75,5 +75,9 @@ public class JavaExecutionContext extends ExecutionContext<JavaExecutionInput> {
 
     public ExecutionOptions getOptions() {
         return getInput().getOptions();
+    }
+
+    public Wrapper getWrapper() {
+        return statementExecutor.getWrapper();
     }
 }

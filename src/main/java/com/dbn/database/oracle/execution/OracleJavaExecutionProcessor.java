@@ -46,6 +46,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
+import java.util.Objects;
 
 import static com.dbn.common.data.Data.asBigDecimal;
 import static com.dbn.common.data.Data.asBigInteger;
@@ -84,7 +85,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		String returnArgument = getReturnArgument();
 		boolean isProcedure = returnArgument.equals("void");
 
-		String wrapperName = wrapper.getSQLWrapperName();
+		String wrapperName = wrapper.getSqlWrapperName();
 
 		List<DBJavaParameter> arguments = getArguments();
 
@@ -291,12 +292,12 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		}
 	}
 
-	private String getTypeName(DBJavaField field, Wrapper wrapper){
+	private String getTypeName(DBJavaField field, Wrapper wrapper) {
 		DBJavaClass javaClass = field.getJavaClass();
 
-		for(ClassWrapper classWrapper : wrapper.getClasses()){
-			if(classWrapper.getJavaClassName().equals(javaClass.getCanonicalName())) {
-				return classWrapper.getCorrespondingSqlType().getName();
+		for (ClassWrapper classWrapper : wrapper.getClasses()) {
+			if (Objects.equals(classWrapper.getClassName(), javaClass.getCanonicalName())) {
+				return classWrapper.getSqlTypeName();
 			}
 		}
 		// should never reach here

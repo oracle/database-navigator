@@ -128,7 +128,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 	public void initExecutionWrappers(JavaExecutionContext context) throws SQLException {
 		// create java wrapper
 		setProgressDetail("Initializing java execution environment");
-		context.createExecutionWrappers(false); // use technical names during anonymous execution
+		context.createExecutionWrappers();
 	}
 
 	private void triggerExecution(JavaExecutionContext context) throws SQLException {

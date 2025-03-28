@@ -16,39 +16,65 @@
 
 package com.dbn.execution.java.wrapper.model;
 
+import com.dbn.common.util.Naming;
+import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBMethod;
+import com.dbn.object.DBSchema;
+import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+
+import static com.dbn.common.dispose.Failsafe.nd;
 
 @Getter
 @Setter
-public class MethodWrapper {
-    private String originalJavaMethodName;
+public class MethodWrapper extends EntityWrapper {
+    private final DBObjectRef<DBJavaMethod> javaMethod;
+    private final DBObjectRef<DBMethod> sqlMethod;
+
     // method signatures of wrapper java methods may be same even though original java methods with same name have different signatures
-    private String javaMethodName;
-    private String sqlMethodName;
+    private final String surrogateJavaMethodName;
+
     private List<ParameterWrapper> parameters = new ArrayList<>();
     private ParameterWrapper returnParameter;
-    private String javaMethodSignature;
+
+    public MethodWrapper(DBJavaMethod javaMethod) {
+        this.javaMethod = DBObjectRef.of(javaMethod);
+        this.sqlMethod = initSqlMethod(javaMethod);
+        surrogateJavaMethodName = javaMethod.getName().replace("#", "_");
+    }
+
+    private DBObjectRef<DBMethod> initSqlMethod(DBJavaMethod javaMethod) {
+        String sqlMethodName = Naming.toUpperSnakeCase(javaMethod.getSimpleName());
+        DBObjectType sqlMethodType = javaMethod.isReturningVoid() ?
+                DBObjectType.PROCEDURE :
+                DBObjectType.FUNCTION;
+
+        // TODO resolve the actual parent of the method (can be a procedure in case of wrapping an entire class)
+        DBObjectRef<DBSchema> schema = nd(javaMethod.getSchema()).ref();
+        return new DBObjectRef<>(schema, sqlMethodType, sqlMethodName);
+    }
+
+    public String getJavaMethodName() {
+        return getJavaMethod().getSimpleName();
+    }
+
+    public String getSqlMethodName() {
+        return sqlMethod.getObjectName();
+    }
+
+    /**
+     * The original method of java class being wrapped
+     */
+    public DBJavaMethod getJavaMethod() {
+        return DBObjectRef.ensure(javaMethod);
+    }
 
     public void addParameter(ParameterWrapper parameterWrapper) {
         parameters.add(parameterWrapper);
     }
-
-    public String getJavaSignature(boolean includeArgumentNames){
-
-        AtomicInteger idx = new AtomicInteger(0);
-        return this.getParameters()
-                .stream()
-                .map(e -> (
-                        e.isArray() ? "java.sql.Array" : e.isComplexType() ? "java.sql.Struct" : e.getJavaTypeName())
-                        + (includeArgumentNames ? " arg" + idx.getAndIncrement(): "")
-                )
-                .collect(Collectors.joining(", "));
-    }
-
 }

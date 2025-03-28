@@ -23,13 +23,16 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ParameterWrapper {
+public class ParameterWrapper extends EntityWrapper {
     private String javaTypeName;         // Java type name
     private String sqlTypeName;          // Java type name
     private String converterName;
     private boolean complexType;
-    private short arrayDepth = 0;
+    private int arrayDepth = 0;
     private boolean sqlConversionPossible;
+
+    public ParameterWrapper() {
+    }
 
     public boolean isArray() {
         return arrayDepth > 0;
