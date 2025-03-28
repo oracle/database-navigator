@@ -94,4 +94,10 @@ public final class TypeMappings {
         SqlType sqlType = getSqlType(className);
         return sqlType == null ? null : sqlType.getSqlTypeName();
     }
+
+    @Nullable
+    public static String getSqlTypeDeclaration(String className){
+        SqlType sqlType = getSqlType(className);
+        return sqlType == null ? null : sqlType.getSqlTypeDeclaration();
+    }
 }

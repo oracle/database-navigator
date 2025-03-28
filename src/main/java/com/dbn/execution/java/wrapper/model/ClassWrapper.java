@@ -55,12 +55,12 @@ public class ClassWrapper extends EntityWrapper {
 	}
 
 	private DBObjectRef<DBType> initSqlType() {
-		DBJavaClass javaClass = getJavaClass().ensure();
+		DBObjectRef<DBJavaClass> javaClass = getJavaClass();
 
 		WrapperNamingProvider namingProvider = getNamingProvider();
-		String typeName = namingProvider.getSqlTypeName(javaClass, arrayDepth);
+		String typeName = namingProvider.getSqlTypeName(getClassName(), arrayDepth);
 
-		DBObjectRef<DBSchema> schema = javaClass.getSchema().ref();
+		DBObjectRef<DBSchema> schema = javaClass.getParentRef(DBObjectType.SCHEMA);
 		return new DBObjectRef<>(schema, DBObjectType.TYPE, typeName);
 	}
 

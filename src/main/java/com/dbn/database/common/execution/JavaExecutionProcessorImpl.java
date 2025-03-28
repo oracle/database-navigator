@@ -86,6 +86,9 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		return getCanonicalName(method.getReturnClassRef());
 	}
 
+	protected boolean isProcedure() {
+		return getMethod().isReturningVoid();
+	}
 
 	@Override
 	public void execute(JavaExecutionInput executionInput, DBDebuggerType debuggerType) throws SQLException {

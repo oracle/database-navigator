@@ -39,6 +39,7 @@ public class ParameterWrapper extends EntityWrapper {
     }
 
     public String getSqlDeclarationSuffix() {
+        if (arrayDepth > 0) return ""; // no declaration suffix for arrays. Only supported for scalars (e.g. VARCHAR2(3200))
         SqlType sqlType = TypeMappings.getSqlType(javaTypeName);
         return sqlType == null ? "" : sqlType.getDeclarationSuffix();
     }

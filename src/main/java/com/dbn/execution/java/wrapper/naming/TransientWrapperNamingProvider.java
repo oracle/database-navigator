@@ -53,7 +53,12 @@ public class TransientWrapperNamingProvider implements WrapperNamingProvider {
 
     @Override
     public String getSqlTypeName(DBJavaClass javaClass, int arrayDepth) {
-        var key = Pair.of(javaClass.getName(), arrayDepth);
+        return getSqlTypeName(javaClass.getCanonicalName(), arrayDepth);
+    }
+
+    @Override
+    public String getSqlTypeName(String javaClassName, int arrayDepth) {
+        var key = Pair.of(javaClassName, arrayDepth);
         int size = typeNames.size();
 
         return typeNames.computeIfAbsent(key, object -> NAME_PREFIX + "TYPE_" + size);

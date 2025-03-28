@@ -16,7 +16,6 @@
 
 package com.dbn.execution.java.wrapper;
 
-import com.dbn.common.util.Java;
 import com.dbn.execution.java.wrapper.model.ClassWrapper;
 import com.dbn.execution.java.wrapper.model.ClassWrapper.ArgumentDirection;
 import com.dbn.execution.java.wrapper.model.FieldWrapper;
@@ -42,6 +41,7 @@ import static com.dbn.execution.java.wrapper.model.ClassWrapper.ArgumentDirectio
 import static com.dbn.execution.java.wrapper.model.ClassWrapper.ArgumentDirection.OUT;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
+import static com.dbn.object.type.DBJavaScalarType.isScalar;
 
 /**
  * Parses {@link DBJavaMethod} instances into {@link Wrapper} objects,
@@ -254,19 +254,22 @@ public final class WrapperBuilder {
 	private ClassWrapper createClassWrapper(
 			DBObjectRef<DBJavaClass> javaClass,
 			ArgumentDirection direction) {
+
+		// do not create wrappers for non-array scalar classes
+		if (isScalar(javaClass)) return null;
+
 		// Create and cache a new plain class wrapper
 		String className = getCanonicalName(javaClass);
 		setProgressDetail("Creating database wrapper for class \"" + className + "\"");
+
 		ClassWrapper classWrapper = new ClassWrapper(javaClass, 0, direction);
 		getContext().cacheClassWrapper(classWrapper);
 
 		// Populate fields if we have a DBJavaClass
-		if (!Java.isScalar(className)) {
-			createFieldWrappers(
-					javaClass.ensure(),
-					direction,
-					classWrapper);
-		}
+		createFieldWrappers(
+				javaClass.ensure(),
+				direction,
+				classWrapper);
 
 		return classWrapper;
 	}
@@ -300,7 +303,7 @@ public final class WrapperBuilder {
 		String sqlTypeName = null;
 		if (arrayDepth <= 1) {
 			// Single-dimension vs multi-dimension array
-			sqlTypeName = TypeMappings.getSqlTypeName(className);
+			sqlTypeName = TypeMappings.getSqlTypeDeclaration(className);
 			if (sqlTypeName == null) {
 				// Possibly a nested complex type
 				ClassWrapper containedClassWrapper = createClassWrapper(javaClass, 0, direction);
@@ -405,8 +408,7 @@ public final class WrapperBuilder {
 
 			// If it's a primitive or directly supported type, add to the SQL type
 			if (sqlType != null && javaField.getArrayDepth() <= 0) {
-				String sqlTypeName = sqlType.getSqlTypeName();
-				fieldWrapper.setSqlTypeName(sqlTypeName + sqlType.getDeclarationSuffix());
+				fieldWrapper.setSqlTypeName(sqlType.getSqlTypeDeclaration());
 			} else {
 				// It's a nested complex field
 				handleNestedField(fieldWrapper, javaField, direction);

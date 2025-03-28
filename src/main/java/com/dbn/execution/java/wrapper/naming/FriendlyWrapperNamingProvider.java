@@ -19,6 +19,7 @@ package com.dbn.execution.java.wrapper.naming;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
+import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Naming.toUpperSnakeCase;
 
@@ -55,6 +56,13 @@ public class FriendlyWrapperNamingProvider implements WrapperNamingProvider {
     }
 
     @Override
+    public String getSqlTypeName(String javaClassName, int arrayDepth) {
+        String typeName = toSqlTypeName(javaClassName, "TYPE");
+        if (arrayDepth > 0) typeName += "_" + arrayDepth;
+        return typeName; // e.g. OJVM_TYPE_JAVA_LANG_STRING_1
+    }
+
+    @Override
     public String getSqlMethodName(DBJavaMethod javaMethod) {
         Exceptions.unsupported();
         return null;
@@ -63,6 +71,10 @@ public class FriendlyWrapperNamingProvider implements WrapperNamingProvider {
 
     private static String toSqlTypeName(DBJavaClass javaClass, String qualifier) {
         String className = javaClass.getCanonicalName();
+        return toSqlTypeName(className, qualifier);
+    }
+
+    private static @NotNull String toSqlTypeName(String className, String qualifier) {
         return "OJVM_" + qualifier + "_" + className.replace(".", "_").replace("$", "_").toUpperCase();
     }
 }

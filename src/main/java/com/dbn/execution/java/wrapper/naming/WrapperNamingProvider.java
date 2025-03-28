@@ -60,6 +60,7 @@ public interface WrapperNamingProvider {
     String getSqlWrapperName(DBJavaMethod javaMethod);
 
     String getSqlTypeName(DBJavaClass javaClass, int arrayDepth);
+    String getSqlTypeName(String javaClassName, int arrayDepth);
     String getSqlMethodName(DBJavaMethod javaMethod);
 
 
