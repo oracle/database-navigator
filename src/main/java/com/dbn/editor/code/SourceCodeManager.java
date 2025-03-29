@@ -59,7 +59,6 @@ import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.psql.PSQLFile;
 import com.dbn.object.DBDatasetTrigger;
-import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
@@ -150,10 +149,6 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     @NotNull
     private DataDefinitionChangeListener dataDefinitionChangeListener() {
         return new DataDefinitionChangeListener() {
-            @Override
-            public void dataDefinitionChanged(DBSchema schema, DBObjectType objectType) {
-            }
-
             @Override
             public void dataDefinitionChanged(@NotNull DBSchemaObject schemaObject) {
                 DBEditableObjectVirtualFile databaseFile = schemaObject.getCachedVirtualFile();

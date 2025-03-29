@@ -17,16 +17,24 @@
 package com.dbn.execution.java.wrapper;
 
 import com.dbn.common.Priority;
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
+import com.dbn.object.common.DBObject;
+import com.dbn.object.event.ObjectChangeAction;
+import com.dbn.object.event.ObjectChangeListener;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 
 import java.sql.SQLException;
 import java.util.List;
+
+import static com.dbn.object.event.ObjectChangeAction.CREATE;
 
 @Getter
 public class WrapperStatementExecutor {
@@ -50,13 +58,19 @@ public class WrapperStatementExecutor {
                     DBNPreparedStatement statement = c.prepareStatement(creationStatement);
                     statement.execute();
                 });
+
+        if (useFriendlyNames) {
+            notifyObjectChanges(method, DBObjectType.JAVA_CLASS, CREATE);
+            notifyObjectChanges(method, DBObjectType.FUNCTION, CREATE);
+            notifyObjectChanges(method, DBObjectType.PROCEDURE, CREATE);
+            notifyObjectChanges(method, DBObjectType.TYPE, CREATE);
+        }
     }
 
     public void createExecutionWrappers(DBJavaClass javaClass, List<DBJavaMethod> methods, boolean useFriendlyNames) throws SQLException {
         if (methods.isEmpty()) return;
 
         Project project = javaClass.getProject();
-
         WrapperBuilder wrapperBuilder = WrapperBuilder.getInstance();
         Wrapper wrapper = wrapperBuilder.build(javaClass, methods, useFriendlyNames);
 
@@ -72,6 +86,12 @@ public class WrapperStatementExecutor {
                     DBNPreparedStatement statement = c.prepareStatement(creationStatement);
                     statement.execute();
                 });
+
+        if (useFriendlyNames) {
+            notifyObjectChanges(javaClass, DBObjectType.JAVA_CLASS, CREATE);
+            notifyObjectChanges(javaClass, DBObjectType.PACKAGE, CREATE);
+            notifyObjectChanges(javaClass, DBObjectType.TYPE, CREATE);
+        }
     }
 
     public void discardExecutionWrappers(DBJavaMethod method) throws SQLException {
@@ -88,5 +108,12 @@ public class WrapperStatementExecutor {
                     DBNPreparedStatement statement = c.prepareStatement(removalStatement);
                     statement.execute();
                 });
+    }
+
+    public void notifyObjectChanges(DBObject sourceObject, DBObjectType objectType, ObjectChangeAction action) {
+        Project project = sourceObject.getProject();
+        ConnectionId connectionId = sourceObject.getConnectionId();
+        SchemaId schemaId = sourceObject.getSchemaId();
+        ProjectEvents.notify(project, ObjectChangeListener.TOPIC, l -> l.objectsChanged(connectionId, schemaId, objectType, action));
     }
 }
