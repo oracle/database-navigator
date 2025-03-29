@@ -26,6 +26,7 @@ import com.dbn.common.editor.document.OverrideReadonlyFragmentModificationHandle
 import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.exception.Exceptions;
+import com.dbn.common.file.FileTypes;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.navigation.NavigationInstructions;
@@ -65,7 +66,6 @@ import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
-import com.intellij.ide.highlighter.JavaClassFileType;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.editor.Document;
@@ -410,7 +410,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
             tempFile = FileUtil.createTempFile(objectName, ".class");
             Files.write(tempFile.toPath(), bytes);
 
-            BinaryFileDecompiler decompiler = BinaryFileTypeDecompilers.getInstance().forFileType(JavaClassFileType.INSTANCE);
+            BinaryFileDecompiler decompiler = BinaryFileTypeDecompilers.getInstance().forFileType(FileTypes.getClassFileType());
             VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(tempFile);
             if (virtualFile == null) return "";
 
