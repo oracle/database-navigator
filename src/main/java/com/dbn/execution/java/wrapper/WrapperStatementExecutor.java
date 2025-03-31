@@ -40,7 +40,7 @@ import static com.dbn.object.event.ObjectChangeAction.CREATE;
 public class WrapperStatementExecutor {
     private Wrapper wrapper;
 
-    public void createExecutionWrappers(DBJavaMethod method, boolean useFriendlyNames) throws SQLException {
+    public Wrapper createExecutionWrappers(DBJavaMethod method, boolean useFriendlyNames) throws SQLException {
         Project project = method.getProject();
 
         WrapperBuilder wrapperBuilder = WrapperBuilder.getInstance();
@@ -52,7 +52,7 @@ public class WrapperStatementExecutor {
         ConnectionId connectionId = method.getConnectionId();
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
                 "Creating execution wrappers",
-                "Creating java execution wrappers for " + method.getPresentableText(),
+                "Creating java execution wrappers for method \"" + method.getPresentableText() + "\"",
                 project,
                 connectionId, c -> {
                     DBNPreparedStatement statement = c.prepareStatement(creationStatement);
@@ -65,10 +65,12 @@ public class WrapperStatementExecutor {
             notifyObjectChanges(method, DBObjectType.PROCEDURE, CREATE);
             notifyObjectChanges(method, DBObjectType.TYPE, CREATE);
         }
+
+        return wrapper;
     }
 
-    public void createExecutionWrappers(DBJavaClass javaClass, List<DBJavaMethod> methods, boolean useFriendlyNames) throws SQLException {
-        if (methods.isEmpty()) return;
+    public Wrapper createExecutionWrappers(DBJavaClass javaClass, List<DBJavaMethod> methods, boolean useFriendlyNames) throws SQLException {
+        if (methods.isEmpty()) return null;
 
         Project project = javaClass.getProject();
         WrapperBuilder wrapperBuilder = WrapperBuilder.getInstance();
@@ -80,7 +82,7 @@ public class WrapperStatementExecutor {
         ConnectionId connectionId = javaClass.getConnectionId();
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
                 "Creating execution wrappers",
-                "Creating java execution wrappers for selected method",
+                "Creating java execution wrappers for java class \"" + javaClass.getCanonicalName() + "\"",
                 project,
                 connectionId, c -> {
                     DBNPreparedStatement statement = c.prepareStatement(creationStatement);
@@ -92,6 +94,8 @@ public class WrapperStatementExecutor {
             notifyObjectChanges(javaClass, DBObjectType.PACKAGE, CREATE);
             notifyObjectChanges(javaClass, DBObjectType.TYPE, CREATE);
         }
+
+        return wrapper;
     }
 
     public void discardExecutionWrappers(DBJavaMethod method) throws SQLException {

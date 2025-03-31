@@ -23,6 +23,8 @@ import com.dbn.execution.java.wrapper.model.MethodWrapper;
 import com.dbn.execution.java.wrapper.naming.WrapperNamingProvider;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBMethod;
+import com.dbn.object.DBPackage;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
@@ -43,8 +45,9 @@ import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 public class Wrapper {
 	private final DBObjectRef<?> sourceObject;
 	private final DBObjectRef<DBJavaClass> javaClass;
-	private String javaWrapperName;
-	private String sqlWrapperName;
+	private DBObjectRef<DBJavaClass> javaWrapperClass;
+	private DBObjectRef<DBPackage> sqlWrapperPackage;
+	private DBObjectRef<DBMethod> sqlWrapperMethod;
 
 	private Set<String> sqlTypeNames = new HashSet<>();
 	private List<MethodWrapper> methods = new ArrayList<>();
@@ -64,8 +67,22 @@ public class Wrapper {
 
 	private void initWrapperNames(DBObject sourceObject) {
 		WrapperNamingProvider namingProvider = getNamingProvider();
-		this.javaWrapperName = namingProvider.getJavaWrapperName(sourceObject);
-		this.sqlWrapperName = namingProvider.getSqlWrapperName(sourceObject);;
+		String javaWrapperName = namingProvider.getJavaWrapperName(sourceObject);
+		DBObjectRef<?> schemaRef = javaClass.getParentRef();
+
+		this.javaWrapperClass = new DBObjectRef<>(schemaRef, DBObjectType.JAVA_CLASS, javaWrapperName);
+
+		String sqlWrapperName = namingProvider.getSqlWrapperName(sourceObject);
+		if (sourceObject instanceof DBJavaClass) {
+			sqlWrapperPackage = new DBObjectRef<>(schemaRef, DBObjectType.PACKAGE, sqlWrapperName);
+		} else if (sourceObject instanceof DBJavaMethod) {
+			DBJavaMethod javaMethod = (DBJavaMethod) sourceObject;
+			DBObjectType methodType = javaMethod.isReturningVoid() ?
+					DBObjectType.PROCEDURE :
+					DBObjectType.FUNCTION;
+
+			sqlWrapperMethod = new DBObjectRef<>(schemaRef, methodType, sqlWrapperName);
+		}
 	}
 
 	public String getClassName() {
@@ -103,12 +120,32 @@ public class Wrapper {
 		return getContext().getNamingProvider();
 	}
 
-	private DBObject getSourceObject() {
+	public DBObject getSourceObject() {
 		return this.sourceObject.ensure();
+	}
+
+	public DBObjectRef getSourceObjectRef() {
+		return this.sourceObject;
 	}
 
 	public Object isClassWrapper() {
 		return sourceObject.getObjectType().matches(DBObjectType.JAVA_CLASS);
 	}
 
+	public String getJavaWrapperName() {
+		return javaWrapperClass.getObjectName();
+	}
+
+	public String getSqlWrapperName() {
+		return sqlWrapperMethod != null ? sqlWrapperMethod.getObjectName() : sqlWrapperPackage.getObjectName();
+	}
+
+	public List<DBObjectRef> getWrapperObjects() {
+		List<DBObjectRef> wrapperObjects = new ArrayList<>();
+		wrapperObjects.add(javaWrapperClass);
+		wrapperObjects.add(sqlWrapperMethod);
+		wrapperObjects.add(sqlWrapperPackage);
+		classes.forEach(c -> wrapperObjects.add(c.getSqlType()));
+		return Lists.filter(wrapperObjects, o -> o != null);
+	}
 }

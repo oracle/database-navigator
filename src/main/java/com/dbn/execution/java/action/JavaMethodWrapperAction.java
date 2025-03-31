@@ -17,10 +17,10 @@
 package com.dbn.execution.java.action;
 
 import com.dbn.common.thread.Progress;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.execution.java.wrapper.WrapperStatementExecutor;
+import com.dbn.execution.java.wrapper.JavaExecutionWrapperManager;
+import com.dbn.execution.java.wrapper.Wrapper;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.action.AnObjectAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -29,13 +29,12 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
-public class JavaCreateWrapperAction extends AnObjectAction<DBJavaMethod> {
-	private final boolean listElement;
-	public JavaCreateWrapperAction(DBJavaMethod method, boolean listElement) {
+public class JavaMethodWrapperAction extends AnObjectAction<DBJavaMethod> {
+	public JavaMethodWrapperAction(DBJavaMethod method) {
 		super(method);
-		this.listElement = listElement;
 	}
 
 	@Override
@@ -50,10 +49,11 @@ public class JavaCreateWrapperAction extends AnObjectAction<DBJavaMethod> {
 							ConnectionHandler connection = action.getConnection();
 							if (connection.isValid()) {
 								try {
-									WrapperStatementExecutor statementExecutor = new WrapperStatementExecutor();
-									statementExecutor.createExecutionWrappers(method, true);
+									JavaExecutionWrapperManager wrapperManager = JavaExecutionWrapperManager.getInstance(getProject());
+									Wrapper wrapper = wrapperManager.createExecutionWrappers(method, true);
+									wrapperManager.showWrapperResult(wrapper);
 								} catch (Exception ex) {
-									Messages.showErrorDialog(project,
+									showErrorDialog(project,
 											"Error creating execution wrappers for java method \"" + methodSignature + "\"\nCause: " + ex.getMessage());
 									conditionallyLog(ex);
 								}
@@ -62,7 +62,7 @@ public class JavaCreateWrapperAction extends AnObjectAction<DBJavaMethod> {
 										"Can not create execution wrappers for java method \"" + methodSignature + "\".\n" +
 												"No connectivity to '" + connection.getName() + "'. " +
 												"Please check your connection settings and try again.";
-								Messages.showErrorDialog(project, message);
+								showErrorDialog(project, message);
 							}
 						}
 				)
@@ -75,10 +75,6 @@ public class JavaCreateWrapperAction extends AnObjectAction<DBJavaMethod> {
 			@NotNull Presentation presentation,
 			@NotNull Project project,
 			@Nullable DBJavaMethod target) {
-		if (listElement) {
-			super.update(e, presentation, project, target);
-		} else {
-			presentation.setText("Create Execution Wrappers...");
-		}
+		presentation.setText("Create Execution Wrappers...");
 	}
 }
