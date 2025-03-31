@@ -46,6 +46,7 @@ import com.dbn.vfs.file.DBDatasetVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.ide.highlighter.HighlighterFactory;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -534,7 +535,7 @@ public class Editors {
         DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
         attachmentManager.warmUpAttachedDDLFiles(file);
 
-        Dispatch.run(() -> {
+        Dispatch.run(ModalityState.NON_MODAL, () -> {
             try {
                 markSkipBrowserAutoscroll(file);
                 FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
@@ -577,7 +578,7 @@ public class Editors {
         if (editorProviderId == null) return;
 
         FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
-        Dispatch.run(() -> fileEditorManager.setSelectedEditor(file, editorProviderId.getId()));
+        Dispatch.run(ModalityState.NON_MODAL, () -> fileEditorManager.setSelectedEditor(file, editorProviderId.getId()));
     }
 
     @Workaround
