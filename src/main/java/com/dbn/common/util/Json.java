@@ -16,13 +16,17 @@
 
 package com.dbn.common.util;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.lang.Language;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class Json {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static FileType resolveJsonFileType() {
         return resolveJsonLanguage().getAssociatedFileType();
@@ -34,5 +38,36 @@ public class Json {
                 () -> Language.findLanguageByID("JSON"),
                 () -> Language.findLanguageByID("JavaScript"),
                 () -> PlainTextLanguage.INSTANCE);
+    }
+
+    @SneakyThrows
+    public static String createJsonPreview(String json, int maxAttributes) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("{");
+        JsonNode rootNode = OBJECT_MAPPER.readTree(json);
+
+        int count = 0;
+        var fields = rootNode.fields();
+        while (count < maxAttributes && fields.hasNext()) {
+            var field = fields.next();
+
+            String key = field.getKey();
+            if (key.startsWith("_")) continue;
+
+            JsonNode valueNode = field.getValue();
+            if (valueNode.isValueNode()) {
+                if (count > 0) builder.append(",");
+                count++;
+
+                builder.append("\"");
+                builder.append(key);
+                builder.append("\": ");
+                if (valueNode.isTextual()) builder.append("\"");
+                builder.append(valueNode.asText());
+                if (valueNode.isTextual()) builder.append("\"");
+            }
+        }
+        builder.append("...}");
+        return builder.toString();
     }
 }
