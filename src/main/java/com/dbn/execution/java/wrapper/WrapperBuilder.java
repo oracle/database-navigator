@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.wrapper;
 
+import com.dbn.common.util.Lists;
 import com.dbn.execution.java.wrapper.model.ClassWrapper;
 import com.dbn.execution.java.wrapper.model.ClassWrapper.ArgumentDirection;
 import com.dbn.execution.java.wrapper.model.FieldWrapper;
@@ -399,7 +400,7 @@ public final class WrapperBuilder {
 			ClassWrapper classWrapper) {
 
 		List<DBJavaField> javaFields = javaClass.getFields();
-		for (DBJavaField javaField : javaFields) {
+		for (DBJavaField javaField : Lists.sortedCopy(javaFields, POSITION_COMPARATOR)) {
 
 			FieldWrapper fieldWrapper = createFieldWrapper(classWrapper, javaField);
 

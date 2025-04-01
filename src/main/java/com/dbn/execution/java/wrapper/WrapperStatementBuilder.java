@@ -68,7 +68,7 @@ public final class WrapperStatementBuilder {
 					.getFields()
 					.stream()
 					.map(f -> f.getSqlAttributeDeclaration())
-					.collect(Collectors.joining(",\n\t"));;
+					.collect(Collectors.joining(",\n\t"));
 
 			properties.setProperty("TYPENAME", sqlTypeName);
 			properties.setProperty("FIELDS", fields);

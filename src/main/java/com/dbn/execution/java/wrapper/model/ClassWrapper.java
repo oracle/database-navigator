@@ -81,11 +81,11 @@ public class ClassWrapper extends EntityWrapper {
 	}
 
 	public String getSqlToJavaConverterName() {
-		return getSqlTypeName() + "_TO_SQL";
+		return getSqlTypeName() + "_TO_JAVA";
 	}
 
 	public String getJavaToSqlConverterName() {
-		return getSqlTypeName() + "_TO_JAVA";
+		return getSqlTypeName() + "_TO_SQL";
 	}
 
 	// Method to add field (only if not an array)
