@@ -39,10 +39,10 @@ import com.dbn.data.find.SearchableDataComponent;
 import com.dbn.data.grid.ui.table.basic.BasicTable;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.json.JsonDataEditor;
+import com.dbn.editor.json.JsonFileCache;
 import com.dbn.editor.json.ui.table.JsonDataEditorTable;
 import com.dbn.object.DBDataset;
 import com.dbn.object.DBJsonView;
-import com.dbn.vfs.file.DBJsonContentVirtualFile;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -67,6 +67,7 @@ import java.sql.SQLException;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.UserInterface.updateScrollPanes;
+import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class JsonDataEditorForm extends DBNFormBase implements SearchableDataComponent {
@@ -106,6 +107,7 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
 
             tablePanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
             editorPanel.setBorder(Borders.tableBorder(0, 1, 0, 0));
+            editorPanel.setVisible(false);
             datasetEditorTable = new JsonDataEditorTable(this, jsonDataEditor);
             jsonDataTableScrollPane.setViewportView(datasetEditorTable);
             datasetEditorTable.initTableGutter();
@@ -148,12 +150,13 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
         Project project = ensureProject();
         DBJsonView jsonView = getJsonView();
 
-        DBJsonContentVirtualFile jsonFile = DBJsonContentVirtualFile.get(jsonView);
-        PsiFile psiFile = jsonFile.getPsiFile();
-        Document document = Documents.ensureDocument(psiFile);
+        PsiFile jsonFile = JsonFileCache.getJsonContentPsiFile(jsonView);
+        Document document = Documents.ensureDocument(jsonFile);
         Documents.setText(document, "");
 
-        editor = Editors.createEditor(document, project, jsonFile, jsonFile.getFileType());
+        editor = Editors.createEditor(document, project, jsonFile.getVirtualFile(), jsonFile.getFileType());
+        Disposer.register(this, editor);
+        editor.setEmbeddedIntoDialogWrapper(true);
 
         JScrollPane editorScrollPane = editor.getScrollPane();
         editorScrollPane.setViewportBorder(Borders.insetBorder(4));
@@ -167,6 +170,7 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
         settings.setDndEnabled(false);
         settings.setUseTabCharacter(true);
         settings.setCaretRowShown(false);
+        settings.setVirtualSpace(true);
 
 
         editorPanel.add(editor.getComponent());
@@ -281,6 +285,7 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
     }
 
     public void setJsonEditorContent(String content) {
+        editorPanel.setVisible(isNotEmpty(content));
         Documents.setText(editor, content, true);
     }
 
@@ -305,5 +310,12 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
     public Object getData(@NotNull String dataId) {
         if (DataKeys.DATASET_EDITOR.is(dataId)) return getJsonDataEditor();
         return null;
+    }
+
+    @Override
+    public void disposeInner() {
+        Editors.releaseEditor(editor);
+        editor = null;
+        super.disposeInner();
     }
 }

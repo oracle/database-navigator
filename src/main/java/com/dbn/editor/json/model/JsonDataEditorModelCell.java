@@ -21,6 +21,7 @@ import com.dbn.common.locale.Formatter;
 import com.dbn.common.ref.WeakRefCache;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Commons;
+import com.dbn.common.util.Json;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -198,6 +199,14 @@ public class JsonDataEditorModelCell
             return true;
         }
         return false;
+    }
+
+    @Override
+    protected String createPresentableValue() {
+        Object userValue = getUserValue();
+        if (userValue == null) return "";
+        String stringValue = Objects.toString(userValue);
+        return Json.createJsonPreview(stringValue, 2);
     }
 
     @NotNull

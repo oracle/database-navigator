@@ -18,15 +18,23 @@ package com.dbn.common.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.intellij.lang.Language;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 
+import static com.dbn.common.util.Strings.isEmpty;
+
+@Slf4j
 @UtilityClass
 public class Json {
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+            .enable(SerializationFeature.INDENT_OUTPUT);
 
     public static FileType resolveJsonFileType() {
         return resolveJsonLanguage().getAssociatedFileType();
@@ -40,8 +48,30 @@ public class Json {
                 () -> PlainTextLanguage.INSTANCE);
     }
 
-    @SneakyThrows
+    public static String formatJsonContent(String json) {
+        return Unsafe.logged(json, () -> doFormatJsonContent(json));
+    }
+
     public static String createJsonPreview(String json, int maxAttributes) {
+        return Unsafe.logged(json, () -> doCreateJsonPreview(json, maxAttributes));
+    }
+
+    public static String removeJsonAttributes(String json, @NonNls String... attributes) {
+        return Unsafe.logged(json, () -> doRemoveJsonAttributes(json, attributes));
+    }
+
+    @SneakyThrows
+    private static String doFormatJsonContent(String json) {
+        if (isEmpty(json)) return "";
+
+        Object jsonObject = OBJECT_MAPPER.readValue(json, Object.class);
+        return OBJECT_MAPPER.writeValueAsString(jsonObject);
+    }
+
+    @SneakyThrows
+    private static String doCreateJsonPreview(String json, int maxAttributes) {
+        if (isEmpty(json)) return "";
+
         StringBuilder builder = new StringBuilder();
         builder.append("{");
         JsonNode rootNode = OBJECT_MAPPER.readTree(json);
@@ -56,7 +86,7 @@ public class Json {
 
             JsonNode valueNode = field.getValue();
             if (valueNode.isValueNode()) {
-                if (count > 0) builder.append(",");
+                if (count > 0) builder.append(", ");
                 count++;
 
                 builder.append("\"");
@@ -69,5 +99,20 @@ public class Json {
         }
         builder.append("...}");
         return builder.toString();
+    }
+
+    @SneakyThrows
+    private static String doRemoveJsonAttributes(String json, @NonNls String... attributes) {
+        if (isEmpty(json)) return "";
+
+        JsonNode rootNode = OBJECT_MAPPER.readTree(json);
+        if (rootNode instanceof ObjectNode) {
+            ObjectNode objectNode = (ObjectNode) rootNode;
+            for (String attribute : attributes) {
+                objectNode.remove(attribute);
+            }
+            return objectNode.toString();
+        }
+        return json;
     }
 }

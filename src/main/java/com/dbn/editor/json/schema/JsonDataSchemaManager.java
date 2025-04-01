@@ -22,11 +22,10 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.util.Unsafe;
+import com.dbn.editor.json.JsonFileCache;
 import com.dbn.object.DBJsonView;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
-import com.dbn.vfs.file.DBJsonContentVirtualFile;
-import com.dbn.vfs.file.DBJsonSchemaVirtualFile;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -65,16 +64,14 @@ public class JsonDataSchemaManager extends ProjectComponentBase implements Persi
     }
 
     private static void cacheJsonSchema(DBJsonView jsonView) {
-        DBJsonContentVirtualFile jsonFile = DBJsonContentVirtualFile.get(jsonView);
-        PsiFile jsonPsiFile = jsonFile.getPsiFile();
-
-        CachedValuesManager.getCachedValue(jsonPsiFile, OBJECT_FOR_FILE_KEY, createValueProvider(jsonView, jsonFile));
+        PsiFile contentPsiFile = JsonFileCache.getJsonContentPsiFile(jsonView);
+        CachedValuesManager.getCachedValue(contentPsiFile, OBJECT_FOR_FILE_KEY, createValueProvider(jsonView));
     }
 
-    private static @NotNull CachedValueProvider<JsonSchemaObject> createValueProvider(DBJsonView jsonView, DBJsonContentVirtualFile jsonFile) {
+    private static @NotNull CachedValueProvider<JsonSchemaObject> createValueProvider(DBJsonView jsonView) {
         return () -> {
-            DBJsonSchemaVirtualFile schemaFile = DBJsonSchemaVirtualFile.get(jsonView);
-            JsonSchemaObject schemaObject = Unsafe.logged(null, () -> JsonSchemaReader.readFromFile(jsonFile.getProject(), schemaFile));
+            VirtualFile schemaFile = JsonFileCache.getJsonSchemaFile(jsonView);
+            JsonSchemaObject schemaObject = Unsafe.logged(null, () -> JsonSchemaReader.readFromFile(jsonView.getProject(), schemaFile));
             return schemaObject == null ? null : CachedValueProvider.Result.create(schemaObject, ModificationTracker.NEVER_CHANGED);
         };
     }

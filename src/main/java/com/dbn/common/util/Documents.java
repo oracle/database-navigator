@@ -120,7 +120,6 @@ public class Documents {
         return editorFactory.createDocument(text);
     }
 
-    @NotNull
     public static Document ensureDocument(@NotNull PsiFile file) {
         return nn(getDocument(file));
     }

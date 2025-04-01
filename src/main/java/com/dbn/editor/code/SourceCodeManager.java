@@ -66,7 +66,6 @@ import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
-import com.intellij.ide.highlighter.JavaClassFileType;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.editor.Document;
@@ -76,6 +75,7 @@ import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.fileTypes.BinaryFileDecompiler;
 import com.intellij.openapi.fileTypes.BinaryFileTypeDecompilers;
+import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -415,7 +415,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
             tempFile = FileUtil.createTempFile(objectName, ".class");
             Files.write(tempFile.toPath(), bytes);
 
-            BinaryFileDecompiler decompiler = BinaryFileTypeDecompilers.getInstance().forFileType(JavaClassFileType.INSTANCE);
+            BinaryFileDecompiler decompiler = BinaryFileTypeDecompilers.getInstance().forFileType(FileTypeManager.getInstance().getFileTypeByExtension("class"));
             VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(tempFile);
             if (virtualFile == null) return "";
 

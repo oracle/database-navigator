@@ -27,6 +27,7 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Editors;
+import com.dbn.common.util.Json;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
@@ -642,6 +643,7 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
     }
 
     public void setJsonEditorContent(String content) {
+        content = Json.removeJsonAttributes(content, "_metadata");
         getEditorForm().setJsonEditorContent(content);
     }
 }

@@ -58,7 +58,7 @@ public class JsonDataEditorTableCellRenderer extends BasicTableCellRenderer {
         boolean connected = Failsafe.nn(jsonDataEditorTable.getJsonDataEditor().getConnection()).isConnected();
 
         BasicTableTextAttributes attributes = (BasicTableTextAttributes) getAttributes();
-        SimpleTextAttributes textAttributes = attributes.getPlainData(modified, caretRow);
+        SimpleTextAttributes textAttributes = attributes.getReadonlyData(modified, caretRow);
 
         if (isSelected) {
             textAttributes = table.hasFocus() ?
@@ -92,7 +92,8 @@ public class JsonDataEditorTableCellRenderer extends BasicTableCellRenderer {
         setBorder(border);
         setBackground(background);
         setForeground(foreground);
-        writeUserValue(cell, textAttributes, attributes);
+
+        append(cell.getPresentableValue(), textAttributes);
     }
 
     @Override
