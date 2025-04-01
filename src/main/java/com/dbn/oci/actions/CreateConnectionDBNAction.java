@@ -15,7 +15,7 @@ import java.util.Collections;
 public class CreateConnectionDBNAction extends ContributeADBActions.ExtensionContextAction {
   ConnectionData connectionData;
   public CreateConnectionDBNAction(ConnectionData context, String title) {
-    super(title, Collections.emptyList());
+    super(title, Collections.emptyList(), false, true);
     this.connectionData = context;
   }
 

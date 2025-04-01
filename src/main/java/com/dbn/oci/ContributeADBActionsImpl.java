@@ -6,9 +6,13 @@ import com.dbn.oci.actions.DBNSubMenuAction;
 import com.dbn.oci.actions.OpenConnectionDBNAction;
 import com.dbn.options.ProjectSettingsManager;
 import com.intellij.ide.DataManager;
+import com.intellij.ide.plugins.IdeaPluginDescriptor;
+import com.intellij.ide.plugins.PluginManager;
+import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.extensions.PluginDescriptor;
+import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Version;
 import com.oracle.oci.intellij.api.ext.ContributeADBActions;
@@ -24,7 +28,10 @@ import java.util.stream.Collectors;
 
 
 public class ContributeADBActionsImpl implements ContributeADBActions {
-  
+
+  public static final String OCI_PLUGIN_ID = "com.oracle.ocidbtest";
+
+  private static final Version OCI_PLUGIN_MIN_VERSION = Version.parseVersion("1.2.0");
   private @NotNull PluginDescriptor pluginDescriptor;
 
   @Override
@@ -35,7 +42,7 @@ public class ContributeADBActionsImpl implements ContributeADBActions {
   @Override
   public boolean isCompatible(Version frameworkVersion) {
     // >= 1.2
-    return frameworkVersion.isOrGreaterThan(1,2);
+    return frameworkVersion.compareTo(OCI_PLUGIN_MIN_VERSION) >= 0;
   }
 
   @Override
@@ -45,8 +52,15 @@ public class ContributeADBActionsImpl implements ContributeADBActions {
 
   public List<ExtensionContextAction> getModelContextActions(final UIModelContext context) {
     List<ExtensionContextAction>  actions = new ArrayList<>();
-    ConnectionData connectionData = ConnectionData.toConnectionSettings(context);
-    addActions(connectionData,actions);
+    PluginId pluginId = PluginId.getId(OCI_PLUGIN_ID);
+    IdeaPluginDescriptor ociPluginDesc = PluginManagerCore.getPlugin(pluginId);
+    String versionStr = ociPluginDesc.getVersion();
+    Version version = Version.parseVersion(versionStr);
+    // ignore this extension if it's version is less than 1.2
+    if (version.compareTo(OCI_PLUGIN_MIN_VERSION) >= 0) {
+      ConnectionData connectionData = ConnectionData.toConnectionSettings(context);
+      addActions(connectionData, actions);
+    }
     return actions;
   }
 
