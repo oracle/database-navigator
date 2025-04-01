@@ -54,7 +54,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
 public abstract class DynamicContentBase<T extends DynamicContentElement>
-        extends PropertyHolderBase.IntStore<DynamicContentProperty>
+        extends PropertyHolderBase.ShortStore<DynamicContentProperty>
         implements DisposablePropertyHolder<DynamicContentProperty>,
                    DynamicContent<T>, NotificationSupport, NlsSupport {
 

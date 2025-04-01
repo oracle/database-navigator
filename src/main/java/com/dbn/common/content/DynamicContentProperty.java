@@ -18,7 +18,7 @@ package com.dbn.common.content;
 
 import com.dbn.common.property.Property;
 
-public enum DynamicContentProperty implements Property.IntBase {
+public enum DynamicContentProperty implements Property.ShortBase {
     MASTER,
     MUTABLE,
     VIRTUAL,
@@ -41,10 +41,10 @@ public enum DynamicContentProperty implements Property.IntBase {
 
     public static final DynamicContentProperty[] VALUES = values();
 
-    private final IntMasks masks = new IntMasks(this);
+    private final ShortMasks masks = new ShortMasks(this);
 
     @Override
-    public IntMasks masks() {
+    public ShortMasks masks() {
         return masks;
     }
 }
