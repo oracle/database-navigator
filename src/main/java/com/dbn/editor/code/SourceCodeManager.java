@@ -26,6 +26,7 @@ import com.dbn.common.editor.document.OverrideReadonlyFragmentModificationHandle
 import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.exception.Exceptions;
+import com.dbn.common.file.FileTypes;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.navigation.NavigationInstructions;
@@ -59,7 +60,6 @@ import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.psql.PSQLFile;
 import com.dbn.object.DBDatasetTrigger;
-import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
@@ -150,10 +150,6 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     @NotNull
     private DataDefinitionChangeListener dataDefinitionChangeListener() {
         return new DataDefinitionChangeListener() {
-            @Override
-            public void dataDefinitionChanged(DBSchema schema, DBObjectType objectType) {
-            }
-
             @Override
             public void dataDefinitionChanged(@NotNull DBSchemaObject schemaObject) {
                 DBEditableObjectVirtualFile databaseFile = schemaObject.getCachedVirtualFile();
@@ -415,7 +411,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
             tempFile = FileUtil.createTempFile(objectName, ".class");
             Files.write(tempFile.toPath(), bytes);
 
-            BinaryFileDecompiler decompiler = BinaryFileTypeDecompilers.getInstance().forFileType(FileTypeManager.getInstance().getFileTypeByExtension("class"));
+            BinaryFileDecompiler decompiler = BinaryFileTypeDecompilers.getInstance().forFileType(FileTypes.getClassFileType());
             VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(tempFile);
             if (virtualFile == null) return "";
 

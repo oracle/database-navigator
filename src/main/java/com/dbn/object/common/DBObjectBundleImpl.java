@@ -69,6 +69,7 @@ import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -97,6 +98,7 @@ import static com.dbn.object.type.DBObjectType.SYNONYM;
 import static com.dbn.object.type.DBObjectType.SYSTEM_PRIVILEGE;
 import static com.dbn.object.type.DBObjectType.USER;
 
+@Slf4j
 public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObjectBundle, NotificationSupport {
     static { DBObjectLoaders.initLoaders();}
 
@@ -162,22 +164,9 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
 
     @NotNull
     private DataDefinitionChangeListener dataDefinitionChangeListener() {
-        return new DataDefinitionChangeListener() {
-            @Override
-            public void dataDefinitionChanged(DBSchema schema, DBObjectType objectType) {
-                if (schema.getConnection() == DBObjectBundleImpl.this.getConnection()) {
-                    schema.refresh(objectType);
-                    for (DBObjectType childObjectType : objectType.getChildren()) {
-                        schema.refresh(childObjectType);
-                    }
-                }
-            }
-
-            @Override
-            public void dataDefinitionChanged(@NotNull DBSchemaObject schemaObject) {
-                if (schemaObject.getConnection() == DBObjectBundleImpl.this.getConnection()) {
-                    schemaObject.refresh();
-                }
+        return schemaObject -> {
+            if (schemaObject.getConnectionId() == getConnectionId()) {
+                schemaObject.refresh();
             }
         };
     }
@@ -205,22 +194,7 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
     }
 
     private ObjectChangeListener objectChangeListener() {
-        return (connectionId, ownerId, objectType) -> {
-            if (ownerId == null) {
-                DBObjectList<DBObject> objectList = getObjectLists().getObjectList(objectType);
-                if (objectList != null && objectList.isLoaded()) {
-                    objectList.reloadInBackground();
-                }
-            } else {
-                DBSchema schema = getSchema(ownerId.id());
-                if (schema != null) {
-                    DBObjectList<DBObject> objectList = schema.getChildObjectList(objectType);
-                    if (objectList != null && objectList.isLoaded()) {
-                        objectList.reloadInBackground();
-                    }
-                }
-            }
-        };
+        return new DBObjectBundleMonitor(this);
     }
 
     @Override

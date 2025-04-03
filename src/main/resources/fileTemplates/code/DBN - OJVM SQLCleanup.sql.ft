@@ -7,7 +7,7 @@ DECLARE
         dbms_output.put_line('SQLERRM: ' || SQLERRM);
     END;
 BEGIN
-    execute_immediate('DROP ${TYPE} DBN_OJVM_SQL_${TYPE}_WRAPPER');
+    execute_immediate('DROP ${TYPE} ${SQL_WRAPPER_NAME}');
 
 
     #if (${SQLTYPES} && ${SQLTYPES} != "")
@@ -18,5 +18,5 @@ BEGIN
         #end
     #end
 
-    execute_immediate('DROP JAVA SOURCE DBN_OJVM_JAVA_WRAPPER');
+    execute_immediate('DROP JAVA SOURCE ${JAVA_WRAPPER_NAME}');
 END;

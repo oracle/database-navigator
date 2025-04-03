@@ -27,7 +27,7 @@ public final class TypeMappings {
     @Getter
     private static final Map<String, SqlType> DATA_TYPES =
             Map.ofEntries(
-                Map.entry("java.lang.String", new SqlType("VARCHAR2", "String.valueOf(", ")", " (32000)")),
+                Map.entry("java.lang.String", new SqlType("VARCHAR2", "String.valueOf(", ")", "(32000)")),
                 // Java Primitive types
                 Map.entry("boolean", new SqlType("NUMBER", "", ".equals(\"1\")")),
                 Map.entry("byte", new SqlType("NUMBER", "Byte.parseByte(String.valueOf(", "))")),
@@ -93,5 +93,11 @@ public final class TypeMappings {
     public static String getSqlTypeName(String className){
         SqlType sqlType = getSqlType(className);
         return sqlType == null ? null : sqlType.getSqlTypeName();
+    }
+
+    @Nullable
+    public static String getSqlTypeDeclaration(String className){
+        SqlType sqlType = getSqlType(className);
+        return sqlType == null ? null : sqlType.getSqlTypeDeclaration();
     }
 }

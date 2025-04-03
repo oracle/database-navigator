@@ -50,9 +50,11 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Lists.sortedCopy;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
@@ -170,6 +172,11 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 		verticalBoxLayout(fieldsPanel);
 		List<DBJavaField> fields = javaClass == null ? emptyList() : javaClass.getFields();
 		fields = sortedCopy(fields, POSITION_COMPARATOR);
+
+		// prevent cascading endlessly if field type matches the parent field type
+		// (e.g. a "Node" class having itself reference to a parent of type "Node")
+		// TODO what about indirect reference chains? (e.g. Node references Path, while Path references Node)
+		fields = filter(fields, f -> !Objects.equals(f.getJavaClass(), javaClass));
 		fields.forEach(f -> addFieldPanel(f));
 	}
 

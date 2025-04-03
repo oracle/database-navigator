@@ -294,6 +294,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
             if (progress.isCanceled() || objects.size() == 0 /* may be disposed meanwhile*/) {
                 break;
             } else {
+                progress.setIndeterminate(true);
                 DBSchemaObject object = objects.get(i);
                 progress.setFraction(Progress.progressOf(i, count));
                 DBObjectStatusHolder objectStatus = object.getStatus();

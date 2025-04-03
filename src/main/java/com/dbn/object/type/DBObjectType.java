@@ -181,6 +181,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     private Set<DBObjectType> parents;
     private Set<DBObjectType> genericParents;
     private Set<DBObjectType> children;
+    private Set<DBObjectType> treeChildren;
     private Set<DBObjectType> genericChildren;
     private Set<DBObjectType> thisAsSet;
     private Set<DBObjectType> familyTypes;
@@ -212,6 +213,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         this.parents = emptySet();
         this.genericParents = emptySet();
         this.children = emptySet();
+        this.treeChildren = emptySet();
         this.genericChildren = emptySet();
         this.thisAsSet = EnumSet.of(this);
     }
@@ -344,7 +346,15 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
 
     static {
         Arrays.stream(DBObjectType.values()).forEach(ot -> ot.init());
-        // Generic type
+        initInheritanceRelations();
+        initParentRelations();
+        initContentTypes();
+        initDdlFileTypes();
+        initTreeChildRelations();
+        initMiscInformation();
+    }
+
+    private static void initInheritanceRelations() {
         TABLE.setInheritedType(DATASET);
         VIEW.setInheritedType(DATASET);
         CURSOR.setInheritedType(DATASET);
@@ -372,8 +382,9 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         OBJECT_PRIVILEGE.setInheritedType(PRIVILEGE);
         GRANTED_PRIVILEGE.setInheritedType(PRIVILEGE);
         GRANTED_ROLE.setInheritedType(ROLE);
+    }
 
-        // Parent relations
+    private static void initParentRelations() {
         AI_PROFILE.addParent(SCHEMA);
         ARGUMENT.addParent(FUNCTION);
         ARGUMENT.addParent(PROCEDURE);
@@ -442,17 +453,9 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         JAVA_FIELD.addParent(JAVA_CLASS);
         JAVA_METHOD.addParent(JAVA_CLASS);
         JAVA_PARAMETER.addParent(JAVA_METHOD);
+    }
 
-
-        PACKAGE.addIcon(DBContentType.CODE_SPEC, Icons.DBO_PACKAGE_SPEC);
-        PACKAGE.addIcon(DBContentType.CODE_BODY, Icons.DBO_PACKAGE_BODY);
-        TYPE.addIcon(DBContentType.CODE_SPEC, Icons.DBO_TYPE_SPEC);
-        TYPE.addIcon(DBContentType.CODE_BODY, Icons.DBO_TYPE_BODY);
-
-        //INCOMING_DEPENDENCY.setGenericType(ANY);
-        //OUTGOING_DEPENDENCY.setGenericType(ANY);
-
-        // Content types
+    private static void initContentTypes() {
         FUNCTION.contentType = DBContentType.CODE;
         PROCEDURE.contentType = DBContentType.CODE;
         TABLE.contentType = DBContentType.DATA;
@@ -465,9 +468,9 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         DATASET_TRIGGER.contentType = DBContentType.CODE;
         DATABASE_TRIGGER.contentType = DBContentType.CODE;
         JAVA_CLASS.contentType = DBContentType.CODE;
+    }
 
-
-        // DDL file types
+    private static void initDdlFileTypes() {
         VIEW.addDdlFileType(DBContentType.CODE, DDLFileTypeId.VIEW);
         JSON_VIEW.addDdlFileType(DBContentType.CODE, DDLFileTypeId.VIEW);
         MATERIALIZED_VIEW.addDdlFileType(DBContentType.CODE, DDLFileTypeId.VIEW);
@@ -486,7 +489,51 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         PACKAGE.addDdlFileType(DBContentType.CODE_BODY, DDLFileTypeId.PACKAGE_BODY);
 
         JAVA_CLASS.addDdlFileType(DBContentType.CODE, DDLFileTypeId.JAVA_SOURCE);
+    }
 
+    private static void initTreeChildRelations() {
+        TABLE.addTreeChild(COLUMN);
+        TABLE.addTreeChild(CONSTRAINT);
+        TABLE.addTreeChild(INDEX);
+        TABLE.addTreeChild(DATASET_TRIGGER);
+        TABLE.addTreeChild(NESTED_TABLE);
+
+        VIEW.addTreeChild(COLUMN);
+        VIEW.addTreeChild(CONSTRAINT);
+        VIEW.addTreeChild(DATASET_TRIGGER);
+
+        MATERIALIZED_VIEW.addTreeChild(COLUMN);
+        MATERIALIZED_VIEW.addTreeChild(CONSTRAINT);
+        MATERIALIZED_VIEW.addTreeChild(DATASET_TRIGGER);
+
+        PACKAGE.addTreeChild(PACKAGE_TYPE);
+        PACKAGE.addTreeChild(PACKAGE_FUNCTION);
+        PACKAGE.addTreeChild(PACKAGE_PROCEDURE);
+
+        TYPE.addTreeChild(TYPE_TYPE);
+        TYPE.addTreeChild(TYPE_ATTRIBUTE);
+        TYPE.addTreeChild(TYPE_FUNCTION);
+        TYPE.addTreeChild(TYPE_PROCEDURE);
+        FUNCTION.addTreeChild(ARGUMENT);
+        PROCEDURE.addTreeChild(ARGUMENT);
+        JAVA_CLASS.addTreeChild(JAVA_FIELD);
+        JAVA_CLASS.addTreeChild(JAVA_METHOD);
+        JAVA_CLASS.addTreeChild(JAVA_INNER_CLASS);
+
+        USER.addTreeChild(GRANTED_ROLE);
+        USER.addTreeChild(GRANTED_PRIVILEGE);
+        ROLE.addTreeChild(GRANTED_ROLE);
+        ROLE.addTreeChild(GRANTED_PRIVILEGE);
+    }
+
+    private static void initMiscInformation() {
+        PACKAGE.addIcon(DBContentType.CODE_SPEC, Icons.DBO_PACKAGE_SPEC);
+        PACKAGE.addIcon(DBContentType.CODE_BODY, Icons.DBO_PACKAGE_BODY);
+        TYPE.addIcon(DBContentType.CODE_SPEC, Icons.DBO_TYPE_SPEC);
+        TYPE.addIcon(DBContentType.CODE_BODY, Icons.DBO_TYPE_BODY);
+
+        //INCOMING_DEPENDENCY.setGenericType(ANY);
+        //OUTGOING_DEPENDENCY.setGenericType(ANY);
     }
 
     /*************************************************************************
@@ -617,6 +664,9 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         this.inheritedType.inheritingTypes.add(this);
     }
 
+    private void addTreeChild(DBObjectType child) {
+        treeChildren.add(child);
+    }
 
 
 }

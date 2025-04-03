@@ -1,5 +1,45 @@
+#if(${IS_PACKAGE_FORMAT} && ${IS_PACKAGE_FORMAT} == true)
 EXECUTE IMMEDIATE
 '
-CREATE OR REPLACE ${TYPE} DBN_OJVM_SQL_${TYPE}_WRAPPER #if($SQL_SIGNATURE) (${SQL_SIGNATURE}) #end #if($RETURN) RETURN ${RETURN} #end
-AS LANGUAGE JAVA NAME ''DBN_OJVM_JAVA_WRAPPER.${METHOD}(${JAVA_METHOD_ARGS}) #if($RETURN) return ${JAVA_METHOD_RETURN} #end'';
+CREATE OR REPLACE PACKAGE ${SQL_WRAPPER_NAME} AS
+#foreach($method in $JAVA_METHODS)
+    #if($method.isVoid)
+    PROCEDURE ${method.sqlMethodName}(${method.sqlSignature});
+    #else
+    FUNCTION ${method.sqlMethodName}(${method.sqlSignature}) RETURN ${method.sqlReturnType};
+    #end
+#end
+END ${SQL_WRAPPER_NAME};
 ';
+
+EXECUTE IMMEDIATE
+'
+CREATE OR REPLACE PACKAGE BODY ${SQL_WRAPPER_NAME} AS
+#foreach($method in $JAVA_METHODS)
+    #if($method.isVoid)
+    PROCEDURE ${method.sqlMethodName}(${method.sqlSignature})
+    AS LANGUAGE JAVA NAME ''${JAVA_WRAPPER_NAME}.${method.javaMethodName}(${method.javaSignature})'';
+    #else
+    FUNCTION ${method.sqlMethodName}(${method.sqlSignature}) RETURN ${method.sqlReturnType}
+    AS LANGUAGE JAVA NAME ''${JAVA_WRAPPER_NAME}.${method.javaMethodName}(${method.javaSignature}) return ${method.resolvedReturnType}'';
+    #end
+#end
+END ${SQL_WRAPPER_NAME};
+';
+
+#else
+
+EXECUTE IMMEDIATE
+'
+#foreach($method in $JAVA_METHODS)
+    #if($method.isVoid)
+    CREATE OR REPLACE PROCEDURE ${SQL_WRAPPER_NAME}(${method.sqlSignature})
+    AS LANGUAGE JAVA NAME ''${JAVA_WRAPPER_NAME}.${method.javaMethodName}(${method.javaSignature})'';
+    #else
+    CREATE OR REPLACE FUNCTION ${SQL_WRAPPER_NAME}(${method.sqlSignature}) RETURN ${method.sqlReturnType}
+    AS LANGUAGE JAVA NAME ''${JAVA_WRAPPER_NAME}.${method.javaMethodName}(${method.javaSignature}) return ${method.resolvedReturnType}'';
+    #end
+#end
+';
+
+#end

@@ -31,5 +31,6 @@ public interface ObjectChangeListener extends EventListener {
     void objectsChanged(
             @NotNull ConnectionId connectionId,
             @Nullable SchemaId ownerId,
-            @NotNull DBObjectType objectType);
+            @NotNull DBObjectType objectType,
+            @NotNull ObjectChangeAction action);
 }
