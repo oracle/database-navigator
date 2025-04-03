@@ -165,14 +165,13 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
                 (listener) -> listener.presentationChanged(name, icon, color, connectionId, databaseType));
     }
 
-    private static @NotNull Icon getIcon(ConnectionSettings connectionSettings, ConnectivityStatus connectivityStatus) {
+    private Icon getIcon(ConnectionSettings connectionSettings, ConnectivityStatus connectivityStatus) {
         ConnectionSettingsForm settingsEditor = connectionSettings.getSettingsEditor();
 
-        Icon icon = connectionSettings.isNew() ? Icons.CONNECTION_NEW :
-                settingsEditor != null && !settingsEditor.isConnectionActive() ? Icons.CONNECTION_DISABLED :
+        return connectionSettings.isNew() ? Icons.CONNECTION_NEW :
+                settingsEditor != null && !connectionSettings.isActive() ? Icons.CONNECTION_DISABLED :
                         connectivityStatus == ConnectivityStatus.VALID ? Icons.CONNECTION_CONNECTED :
                         connectivityStatus == ConnectivityStatus.INVALID ? Icons.CONNECTION_INVALID : Icons.CONNECTION_INACTIVE;
-        return icon;
     }
 
     //protected abstract ConnectionDatabaseSettings createConfig(ConnectionSettings configuration);

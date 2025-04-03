@@ -19,7 +19,6 @@ package com.dbn.connection.config;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectivityStatus;
 import com.dbn.connection.config.ui.ConnectionDatabaseSettingsForm;
-import com.dbn.connection.config.ui.ConnectionSettingsForm;
 import com.intellij.util.ui.UIUtil;
 
 import javax.swing.DefaultListCellRenderer;
@@ -41,14 +40,9 @@ public class ConnectionConfigListCellRenderer extends DefaultListCellRenderer{
 
         ConnectivityStatus connectivityStatus = databaseSettings.getConnectivityStatus();
 
-        ConnectionSettingsForm connectionSettingsForm = connectionSettings.getSettingsEditor();
-
-        boolean isActive = connectionSettingsForm == null ?
-                connectionSettings.isActive() :
-                connectionSettingsForm.isConnectionActive();
-
         Icon icon = Icons.CONNECTION_DISABLED;
         boolean isNew = connectionSettings.isNew();
+        boolean isActive = connectionSettings.isActive();
 
         if (isNew) {
             icon = connectivityStatus == ConnectivityStatus.VALID ? Icons.CONNECTION_CONNECTED_NEW : Icons.CONNECTION_NEW;

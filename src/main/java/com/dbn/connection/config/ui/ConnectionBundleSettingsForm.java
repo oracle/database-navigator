@@ -25,6 +25,7 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.CardLayouts;
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Naming;
@@ -69,6 +70,7 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
@@ -255,6 +257,37 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             conditionallyLog(e);
             Messages.showErrorDialog(getProject(), e.getMessage());
         }
+    }
+
+    public void changeSelectionEnabledStatus(boolean enabled) {
+        getConfiguration().setModified(true);
+        List<ConnectionSettings> selectedSettings = connectionsList.getSelectedValuesList();
+        for (ConnectionSettings connectionSettings : selectedSettings) {
+            connectionSettings.setActive(enabled);
+
+            ConnectionDatabaseSettingsForm settingsEditor = connectionSettings.getDatabaseSettings().getSettingsEditor();
+            if (settingsEditor != null) {
+                settingsEditor.notifyPresentationChanges();
+            }
+        }
+        UserInterface.repaint(connectionsList);
+    }
+
+    public boolean isSelectionDominantlyEnabled() {
+        List<ConnectionSettings> selectedSettings = connectionsList.getSelectedValuesList();
+        if (selectedSettings.isEmpty()) return true;
+        if (selectedSettings.size() == 1) return selectedSettings.get(0).isActive();
+
+        AtomicInteger activeCount = new AtomicInteger(0);
+        AtomicInteger inactiveCount = new AtomicInteger(0);
+        selectedSettings.forEach(c -> {
+            if (c.isActive()) {
+                activeCount.incrementAndGet();
+            } else {
+                inactiveCount.incrementAndGet();
+            }
+        });
+        return activeCount.get() >= inactiveCount.get();
     }
 
     public void removeSelectedConnections() {
