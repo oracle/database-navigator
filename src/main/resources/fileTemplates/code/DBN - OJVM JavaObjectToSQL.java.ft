@@ -1,21 +1,11 @@
-public static java.sql.Struct ${SQL_OBJECT_TYPE}toSQL(${JAVA_COMPLEX_TYPE} obj) {
-    if (obj == null)
+public static java.sql.Struct ${CONVERTER_METHOD_NAME}(${JAVA_COMPLEX_TYPE} ${JAVA_OBJECT}) {
+    if (${JAVA_OBJECT} == null)
         return null;
 
-    java.lang.Object[] objArray = new java.lang.Object[${TOTAL_FIELDS}];
-    #if (${FIELDS} && ${FIELDS} != "")
-        #set($csvProps = "${FIELDS}")
-        #set($props = $csvProps.split(","))
-        #foreach($prop in $props)
-            #set($tokens = $prop.split(";"))
-            #set($name = $tokens[0])
-            #set($value = $tokens[1])
-            #set($cast = $tokens[2])
-            #if($cast && $cast != " ")
-            objArray[${name}] = ${cast}toSQL(obj.${value});
-            #else
-            objArray[${name}] = obj.${value};
-            #end
+    java.lang.Object[] ${OBJ_ARRAY} = new java.lang.Object[${TOTAL_FIELDS}];
+    #if($FIELD_ASSIGNMENTS)
+        #foreach($assignment in $FIELD_ASSIGNMENTS)
+            $assignment
         #end
     #end
 
@@ -23,7 +13,7 @@ public static java.sql.Struct ${SQL_OBJECT_TYPE}toSQL(${JAVA_COMPLEX_TYPE} obj) 
     try {
         oracle.jdbc.driver.OracleDriver driverDef = new oracle.jdbc.driver.OracleDriver();
         java.sql.Connection conn = driverDef.defaultConnection();
-        returnObj = conn.createStruct("${SQL_OBJECT_TYPE}", objArray);
+        returnObj = conn.createStruct("${SQL_OBJECT_TYPE}", ${OBJ_ARRAY});
     } catch (java.sql.SQLException e) {
         return null;
     }

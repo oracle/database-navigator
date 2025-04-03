@@ -225,4 +225,10 @@ public class Naming {
     public static String getQualifiedObjectName(DBObjectType objectType, String objectName, @Nullable DBObject parentObject) {
         return objectType.getName() + " \"" + (parentObject == null ? "" : parentObject.ref().getPath()) + "." + objectName + "\"";
     }
+
+    public static String toUpperSnakeCase(String input) {
+        // Convert camelCase to words, then join with underscores and uppercase
+        String[] parts = input.split("(?<=\\w)(?=\\p{Lu})|(?<=\\p{L})(?=\\d)|(?<=\\d)(?=\\p{L})");
+        return String.join("_", parts).toUpperCase();
+    }
 }
