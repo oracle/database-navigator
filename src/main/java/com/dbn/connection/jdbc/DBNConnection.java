@@ -20,6 +20,7 @@ import com.dbn.common.compatibility.Exploitable;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.thread.Background;
 import com.dbn.common.util.TimeUtil;
 import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionHandler;
@@ -184,6 +185,7 @@ public class DBNConnection extends DBNConnectionBase {
         this.properties = new ConnectionProperties(connection);
 
         initIdentifierQuotes();
+        markInitialized();
     }
 
     public static DBNConnection wrap(Project project, Connection connection, DatabaseType databaseType, ConnectionType connectionType, ConnectionId id, String name, SessionId sessionId) throws SQLException {
@@ -330,6 +332,10 @@ public class DBNConnection extends DBNConnectionBase {
                 case VALID: connectionStatus.getValid().markDirty(); break;
                 case ACTIVE: connectionStatus.getActive().markDirty(); break;
             }
+
+            if (isInitialized() && status == VALID) {
+                notifyStatusChange();
+            }
         });
     }
 
@@ -443,9 +449,11 @@ public class DBNConnection extends DBNConnectionBase {
     }
 
     private void notifyStatusChange() {
-        ProjectEvents.notify(getProject(),
-                ConnectionStatusListener.TOPIC,
-                l -> l.statusChanged(getConnectionId(), sessionId));
+        Background.run(() ->  {
+            ProjectEvents.notify(getProject(),
+                    ConnectionStatusListener.TOPIC,
+                    l -> l.statusChanged(getConnectionId(), sessionId));
+        });
     }
 
     /********************************************************************

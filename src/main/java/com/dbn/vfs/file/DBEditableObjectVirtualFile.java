@@ -59,12 +59,12 @@ public class DBEditableObjectVirtualFile extends DBObjectVirtualFile<DBSchemaObj
     private static final List<DBContentVirtualFile> EMPTY_CONTENT_FILES = Collections.emptyList();
     private final Latent<List<DBContentVirtualFile>> contentFiles = Latent.basic(() -> computeContentFiles());
     private transient EditorProviderId selectedEditorProviderId;
-    private SessionId databaseSessionId;
+    private SessionId sessionId;
 
     public DBEditableObjectVirtualFile(Project project, DBObjectRef object) {
         super(project, object);
         if (object.getObjectType().isOneOf(TABLE, JSON_VIEW)) {
-            databaseSessionId = SessionId.MAIN;
+            sessionId = SessionId.MAIN;
         }
     }
 
@@ -88,9 +88,9 @@ public class DBEditableObjectVirtualFile extends DBObjectVirtualFile<DBSchemaObj
 
     @Override
     public DatabaseSession getSession() {
-        if (databaseSessionId != null) {
+        if (sessionId != null) {
             DatabaseSessionBundle sessionBundle = getConnection().getSessionBundle();
-            return sessionBundle.getSession(databaseSessionId);
+            return sessionBundle.getSession(sessionId);
         }
         return super.getSession();
     }

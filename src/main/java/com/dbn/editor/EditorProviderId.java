@@ -27,7 +27,7 @@ public enum EditorProviderId {
     DDL0("3.DDL"),
     DDL1("4.DDL"),
     DDL2("5.DDL"),
-    JSON_DATA("1.JSON_DATA"),
+    JSON("1.JSON_DATA"),
     CONSOLE("0.CONSOLE"),
     SESSION_BROWSER("0.SESSION_BROWSER"),
     DBN_SQL("2.DBN_SQL");

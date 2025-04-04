@@ -262,7 +262,7 @@ public class JsonDataEditorModel
     }
 
     public boolean isEditable() {
-        return getJsonView().isEditable(DBContentType.JSON_DATA);
+        return getJsonView().isEditable(DBContentType.JSON);
     }
 
     @NotNull

@@ -461,7 +461,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TABLE.contentType = DBContentType.DATA;
         VIEW.contentType = DBContentType.CODE_AND_DATA;
         MATERIALIZED_VIEW.contentType = DBContentType.CODE_AND_DATA;
-        JSON_VIEW.contentType = DBContentType.CODE_AND_JSON_DATA;
+        JSON_VIEW.contentType = DBContentType.CODE_AND_JSON;
         TYPE.contentType = DBContentType.CODE_SPEC_AND_BODY;
         PACKAGE.contentType = DBContentType.CODE_SPEC_AND_BODY;
         TRIGGER.contentType = DBContentType.CODE;

@@ -525,8 +525,8 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
             boolean statusChanged = getStatus().set(CONNECTED, connected);
             if (!statusChanged) return;
 
-            Dispatch.run(() -> {
-                JsonDataEditorTable editorTable = getEditorTable();
+            JsonDataEditorTable editorTable = getEditorTable();
+            Dispatch.run(editorTable, () -> {
                 if (connected) {
                     editorTable.updateBackground(false);
                     UserInterface.repaint(editorTable);
@@ -644,5 +644,9 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
     public void disposeInner() {
         super.disposeInner();
         editorForm = null;
+    }
+
+    public boolean isShowingContentEditor() {
+        return getEditorForm().isShowingContentEditor();
     }
 }

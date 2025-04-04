@@ -30,7 +30,7 @@ import javax.swing.Icon;
 import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
 import static com.dbn.editor.DBContentType.CODE;
 import static com.dbn.editor.DBContentType.CODE_AND_DATA;
-import static com.dbn.editor.DBContentType.CODE_AND_JSON_DATA;
+import static com.dbn.editor.DBContentType.CODE_AND_JSON;
 
 public class SourceCodeEditorProvider extends SourceCodeEditorProviderBase {
 
@@ -40,7 +40,7 @@ public class SourceCodeEditorProvider extends SourceCodeEditorProviderBase {
             DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) virtualFile;
 
             DBContentType contentType = databaseFile.getContentType();
-            return contentType.isOneOf(CODE, CODE_AND_DATA, CODE_AND_JSON_DATA) &&
+            return contentType.isOneOf(CODE, CODE_AND_DATA, CODE_AND_JSON) &&
                     OBJECT_SOURCE_EDITING.isSupported(databaseFile);
 
         }

@@ -92,7 +92,11 @@ public class JsonDataEditorTableCellRenderer extends BasicTableCellRenderer {
         setBackground(background);
         setForeground(foreground);
 
-        append(cell.getPresentableValue(), textAttributes);
+        boolean presentable = jsonDataEditorTable.getEditor().isShowingContentEditor();
+
+        append(presentable ?
+                cell.getPresentableValue() :
+                cell.getJsonContent(), textAttributes);
     }
 
     @Override

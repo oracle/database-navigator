@@ -58,6 +58,7 @@ import java.sql.SQLException;
 
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class JsonDataEditorForm extends DBNFormBase implements SearchableDataComponent {
@@ -120,7 +121,7 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
                     txt("msg.dataEditor.error.FailedToOpenEditor", jsonView.getQualifiedNameWithType(), e));
         }
 
-        if (jsonView.isEditable(DBContentType.JSON_DATA)) {
+        if (jsonView.isEditable(DBContentType.JSON)) {
             ConnectionHandler connection = getConnectionHandler();
             autoCommitLabel.init(getProject(), jsonDataEditor.getFile(), connection, SessionId.MAIN);
         }
@@ -134,6 +135,8 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
         JsonDataContentEditorForm contentEditorForm = new JsonDataContentEditorForm(this);
         editorPanel.add(contentEditorForm.getComponent());
         this.contentEditorForm = WeakRef.of(contentEditorForm);
+
+        setSplitPaneProportion(editorSplitPanel, 0.2);
     }
 
     public JsonDataEditorTable beforeRebuild() throws SQLException {
@@ -251,6 +254,10 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
     @Override
     public BasicTable<?> getTable() {
         return getEditorTable();
+    }
+
+    public boolean isShowingContentEditor() {
+        return editorPanel.isVisible();
     }
 
     private class CancelLoadingAction extends BasicAction {

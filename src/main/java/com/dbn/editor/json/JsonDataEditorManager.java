@@ -87,7 +87,7 @@ public class JsonDataEditorManager extends ProjectComponentBase implements Persi
                         for (FileEditor fileEditor : fileEditors) {
                             if (fileEditor instanceof JsonDataEditor) {
                                 JsonDataEditor jsonDataEditor = (JsonDataEditor) fileEditor;
-                                if (editableObjectFile.getSelectedEditorProviderId() == EditorProviderId.JSON_DATA) {
+                                if (editableObjectFile.getSelectedEditorProviderId() == EditorProviderId.JSON) {
                                     jsonDataEditor.loadData(INITIAL_LOAD_INSTRUCTIONS);
                                 }
                             }

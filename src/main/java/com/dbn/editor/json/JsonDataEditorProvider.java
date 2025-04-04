@@ -48,7 +48,7 @@ public class JsonDataEditorProvider implements FileEditorProvider, NamedComponen
         if (virtualFile instanceof DBEditableObjectVirtualFile) {
             DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) virtualFile;
             DBContentType contentType = databaseFile.getContentType();
-            return contentType == DBContentType.JSON_DATA || contentType == DBContentType.CODE_AND_JSON_DATA;
+            return contentType == DBContentType.JSON || contentType == DBContentType.CODE_AND_JSON;
 
         }
         return false;
@@ -58,7 +58,7 @@ public class JsonDataEditorProvider implements FileEditorProvider, NamedComponen
     @NotNull
     public FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile file) {
         DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) file;
-        DBJsonDataVirtualFile jsonViewFile = nn(databaseFile.getContentFile(DBContentType.JSON_DATA));
+        DBJsonDataVirtualFile jsonViewFile = nn(databaseFile.getContentFile(DBContentType.JSON));
         DBJsonView jsonView = jsonViewFile.getObject();
         return new JsonDataEditor(databaseFile, jsonView);
     }
@@ -97,7 +97,7 @@ public class JsonDataEditorProvider implements FileEditorProvider, NamedComponen
     @NotNull
     @NonNls
     public String getEditorTypeId() {
-        return EditorProviderId.JSON_DATA.getId();
+        return EditorProviderId.JSON.getId();
     }
 
     @Override

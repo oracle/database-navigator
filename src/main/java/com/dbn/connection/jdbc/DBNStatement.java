@@ -54,6 +54,7 @@ public class DBNStatement<T extends Statement> extends DBNResource<T> implements
     DBNStatement(T inner, DBNConnection connection) {
         super(inner, ResourceType.STATEMENT, connection.getConnectionId());
         this.connection = WeakRef.of(connection);
+        markInitialized();
     }
 
     @Nullable
