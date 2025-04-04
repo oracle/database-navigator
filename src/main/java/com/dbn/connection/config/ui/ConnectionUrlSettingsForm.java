@@ -56,6 +56,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
@@ -85,6 +86,10 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
             "HTTPS_PROXY",
             "HTTPS_PROXY_PORT",
             "WALLET_LOCATION");
+
+        public static final List<String> EASY_CONNECT_BOOLEAN_LIKE_STRING_VALUES = List.of(
+                "on", "off", "ON", "OFF", "true", "false", "TRUE", "FALSE", "yes", "no", "YES", "NO"
+        );
 
     private JLabel urlTypeLabel;
     private JLabel hostLabelField;
@@ -148,7 +153,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
         // ensure that we populate table with empty builtin keys even if the current url doesn't have them.
         // (also retain logical order of the parameters)
-        Map<String, String> parameters = new LinkedHashMap<>();
+        LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
         EASY_CONNECT_PARAMETER_NAMES.forEach(key -> parameters.put(key, ""));
 
         parameters.putAll(this.parameters);

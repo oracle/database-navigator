@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 
 public class RegexConstraintValidator extends PropertiesValidator {
 
-
     private final ValidationPattern validationPattern;
 
     public static class ValidationPattern {
