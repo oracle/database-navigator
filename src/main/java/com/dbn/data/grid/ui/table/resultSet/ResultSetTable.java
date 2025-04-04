@@ -40,10 +40,10 @@ public class ResultSetTable<T extends ResultSetDataModel<?, ?>> extends Sortable
     public ResultSetTable(DBNComponent parent, T dataModel, boolean enableSpeedSearch, RecordViewInfo recordViewInfo) {
         super(parent, dataModel, enableSpeedSearch);
         this.recordViewInfo = recordViewInfo;
-        Mouse.onMouseClick(this, BUTTON1, 2, e -> showRecordViewDialog());
+        Mouse.onMouseClick(this, BUTTON1, 2, e -> showRecordDetails());
     }
 
-    public void showRecordViewDialog() {
+    public void showRecordDetails() {
         Dialogs.show(() -> new ResultSetRecordViewerDialog(this, showRecordViewDataTypes()));
     }
 

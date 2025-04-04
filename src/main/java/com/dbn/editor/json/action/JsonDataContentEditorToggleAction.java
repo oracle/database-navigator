@@ -24,30 +24,25 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.nls.NlsResources.txt;
-
-public class JsonDataEditingLockToggleAction extends AbstractJsonDataEditorAction {
-    @Override
-    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull JsonDataEditor editor) {
-        boolean readonly = editor.isReadonly();
-        editor.setReadonly(!readonly);
-
-    }
+public class JsonDataContentEditorToggleAction extends AbstractJsonDataEditorAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable JsonDataEditor editor) {
         if (editor == null) {
             presentation.setEnabled(false);
-            presentation.setIcon(Icons.DATA_EDITOR_LOCKED);
-            presentation.setText(txt("app.dataEditor.action.LockUnlockEditing"));
+            presentation.setIcon(Icons.ACTION_LAYOUT_DATA_CONTENT);
+            presentation.setText("Show / Hide Content Editor");
         } else {
-            boolean isEnvironmentReadonlyData = editor.getJsonView().getEnvironmentType().isReadonlyData();
-            presentation.setVisible(!editor.isReadonlyData() && !isEnvironmentReadonlyData);
-            boolean selected = editor.isReadonly();
-            presentation.setText(selected ? txt("app.dataEditor.action.UnlockEditing") : txt("app.dataEditor.action.LockEditing"));
-            presentation.setIcon(selected ? Icons.DATA_EDITOR_LOCKED : Icons.DATA_EDITOR_UNLOCKED);
+            boolean visible = editor.isContentEditorVisible();
+            presentation.setText(visible ? "Hide Content Editor" : "Show Content Editor");
+            presentation.setIcon(visible ? Icons.ACTION_LAYOUT_DATA : Icons.ACTION_LAYOUT_DATA_CONTENT);
             boolean enabled = !editor.isInserting();
             presentation.setEnabled(enabled);
         }
+    }
+
+    @Override
+    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull JsonDataEditor editor) {
+        editor.toggleContentEditorVisible();
     }
 }

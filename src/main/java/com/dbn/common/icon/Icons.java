@@ -105,6 +105,9 @@ public class Icons {
     public static final Icon ACTION_KILL_SESSION              = load("/img/action/KillSession.png");
     public static final Icon ACTION_TOGGLE_LOGGING            = load("/img/action/ToggleLogging.svg");
 
+    public static final Icon ACTION_LAYOUT_DATA               = load("/img/action/LayoutDataOnly.svg");
+    public static final Icon ACTION_LAYOUT_DATA_CONTENT       = load("/img/action/LayoutDataAndContent.svg");
+
     public static final Icon FOLDER_CONNECTION_ASSOCIATION = load("/img/action/FolderConnectionLink.png");
     public static final Icon FOLDER_SCHEMA_ASSOCIATION = load("/img/action/FolderSchemaLink.png");
 

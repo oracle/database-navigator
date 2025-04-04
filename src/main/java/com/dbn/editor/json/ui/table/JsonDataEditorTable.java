@@ -16,9 +16,7 @@
 
 package com.dbn.editor.json.ui.table;
 
-import com.dbn.common.property.PropertyHolder;
 import com.dbn.common.ref.WeakRef;
-import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNForm;
@@ -40,7 +38,6 @@ import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.EditorProviderId;
 import com.dbn.editor.data.DatasetLoadInstructions;
 import com.dbn.editor.data.model.DatasetEditorModelCell;
-import com.dbn.editor.data.model.RecordStatus;
 import com.dbn.editor.json.JsonDataEditor;
 import com.dbn.editor.json.model.JsonDataEditorModel;
 import com.dbn.editor.json.model.JsonDataEditorModelCell;
@@ -54,7 +51,6 @@ import com.dbn.object.DBJsonView;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JTable;
 import javax.swing.event.ChangeEvent;
@@ -118,8 +114,10 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
     }
 
     @Override
-    public void showRecordViewDialog() {
-        // no record viewer for single column dataset
+    public void showRecordDetails() {
+        JsonDataEditor editor = getEditor();
+        boolean editorVisible = editor.isContentEditorVisible();
+        editor.setContentEditorVisible(!editorVisible);
     }
 
     @Override
@@ -152,36 +150,6 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
     @Override
     public void editingStopped(ChangeEvent e) {}
 
-    public void performUpdate(int rowIndex, int columnIndex, Runnable runnable) {
-        PropertyHolder<RecordStatus> scope = getUpdateScope(rowIndex, columnIndex);
-        if (scope != null) {
-            scope.set(UPDATING, true);
-            Background.run(() -> {
-                try {
-                    runnable.run();
-                } finally {
-                    scope.set(UPDATING, false);
-                    dispatch(() -> {
-                        DBNTableGutter tableGutter = getTableGutter();
-                        UserInterface.repaint(tableGutter);
-                        UserInterface.repaint(JsonDataEditorTable.this);
-                    });
-                }
-            });
-        }
-    }
-
-    @Nullable
-    private PropertyHolder<RecordStatus> getUpdateScope(int rowIndex, int columnIndex) {
-        JsonDataEditorModel model = getModel();
-        if (rowIndex != -1 && columnIndex != -1) {
-            return model.getCellAt(rowIndex, columnIndex);
-        } else if (rowIndex > -1) {
-            return model.getRowAtIndex(rowIndex);
-        }
-        return model;
-    }
-
     public void showErrorPopup(@NotNull JsonDataEditorModelCell cell) {
         dispatch(() -> {
             checkDisposed();
@@ -210,6 +178,10 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
 
     @Override
     public void removeEditor() {}
+
+    protected boolean isLargeValuePopupActive() {
+        return false;
+    }
 
     public void updateTableGutter() {
         Dispatch.run(true, () -> {

@@ -40,7 +40,7 @@ public class ResultSetTableGutter extends BasicTableGutter<ResultSetTable> {
     MouseListener mouseListener = Mouse.listener().onClick(e ->
             Conditional.when(
                     isMainDoubleClick(e),
-                    () -> getTable().showRecordViewDialog()));
+                    () -> getTable().showRecordDetails()));
 
     @Override
     public void disposeInner() {

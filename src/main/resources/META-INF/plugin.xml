@@ -381,7 +381,8 @@
             <action id="DBNavigator.Actions.SessionBrowser.OpenSettings" class="com.dbn.editor.session.action.SessionBrowserSettingsAction" text="Session Browser - Settings"/>
         </group>
         <group id="DBNavigator.ActionGroup.JsonDataEditor" text="JSON Data Editor Controls">
-            <action id="DBNavigator.Actions.JsonDataEditor.SwitchEditableStatus" class="com.dbn.editor.json.action.JsonDataEditingLockToggleAction" text="JSON Data Editor - Lock / Unlock Editing"/>
+            <action id="DBNavigator.Actions.JsonDataEditor.ToggleEditableStatus" class="com.dbn.editor.json.action.JsonDataEditingLockToggleAction" text="JSON Data Editor - Lock / Unlock Editing"/>
+            <action id="DBNavigator.Actions.JsonDataEditor.ToggleContentEditorVisibility" class="com.dbn.editor.json.action.JsonDataContentEditorToggleAction" text="JSON Data Editor - Show / Hide Content Editor"/>
             <separator/>
             <action id="DBNavigator.Actions.JsonDataEditor.FetchNextRecords" class="com.dbn.editor.json.action.JsonRecordsFetchNextAction" text="JSON Data Editor - Fetch Next Records" icon="com.dbn.common.icon.Icons.DATA_EDITOR_FETCH_NEXT_RECORDS"/>
             <action id="DBNavigator.Actions.JsonDataEditor.Reload" class="com.dbn.editor.json.action.JsonDataReloadAction" text="JSON Data Editor - Reload" icon="com.dbn.common.icon.Icons.DATA_EDITOR_RELOAD_DATA"/>

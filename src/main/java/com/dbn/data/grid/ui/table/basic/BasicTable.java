@@ -75,8 +75,7 @@ import java.awt.event.MouseMotionAdapter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import static com.dbn.common.ui.util.Mouse.isMainSingleClick;
-import static com.dbn.common.util.Conditional.when;
+import static java.awt.event.MouseEvent.BUTTON1;
 
 @Getter
 public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutter<T> implements EditorColorsListener, Disposable {
@@ -100,9 +99,9 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
         ApplicationEvents.subscribe(this, EditorColorsManager.TOPIC, this);
         Color bgColor = displayAttributes.getPlainData(false, false).getBgColor();
         setBackground(bgColor == null ? Colors.getTableBackground() : bgColor);
-        addMouseListener(Mouse.listener().onClick(
-                e -> when(isMainSingleClick(e) && valuePopup == null,
-                () -> showCellValuePopup())));
+
+
+        Mouse.onMouseClick(this, BUTTON1, 1, e -> showCellValuePopup());
 
         addPropertyChangeListener(e -> {
             Object newProperty = e.getNewValue();

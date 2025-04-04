@@ -646,7 +646,15 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
         editorForm = null;
     }
 
-    public boolean isShowingContentEditor() {
-        return getEditorForm().isShowingContentEditor();
+    public void toggleContentEditorVisible() {
+        setContentEditorVisible(!isContentEditorVisible());
+    }
+
+    public boolean isContentEditorVisible() {
+        return getEditorForm().isContentEditorVisible();
+    }
+
+    public void setContentEditorVisible(boolean visible) {
+        getEditorForm().setContentEditorVisible(visible);
     }
 }

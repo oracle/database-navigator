@@ -163,7 +163,6 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
     }
 
     public void selectRecord(JsonDataEditorModelCell cell) {
-        editorPanel.setVisible(cell != null);
         getContentEditorForm().selectRecord(cell);
     }
 
@@ -256,8 +255,12 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
         return getEditorTable();
     }
 
-    public boolean isShowingContentEditor() {
+    public boolean isContentEditorVisible() {
         return editorPanel.isVisible();
+    }
+
+    public void setContentEditorVisible(boolean visible) {
+        editorPanel.setVisible(visible);
     }
 
     private class CancelLoadingAction extends BasicAction {
