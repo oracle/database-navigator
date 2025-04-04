@@ -45,11 +45,13 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.table.TableCellEditor;
 import javax.swing.text.JTextComponent;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 
 public class SessionBrowserForm extends DBNFormBase implements SearchableDataComponent {
     private JPanel actionsPanel;
@@ -60,6 +62,7 @@ public class SessionBrowserForm extends DBNFormBase implements SearchableDataCom
     private JPanel editorPanel;
     private JLabel loadingLabel;
     private JLabel loadTimestampLabel;
+    private JSplitPane editorSplitPanel;
     private DBNScrollPane tableScrollPane;
     private SessionBrowserTable browserTable;
 
@@ -91,6 +94,8 @@ public class SessionBrowserForm extends DBNFormBase implements SearchableDataCom
 
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
         loadingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
+        setSplitPaneProportion(editorSplitPanel, 0.7);
+
         hideLoadingHint();
 
         DataProviders.register(actionsPanel, this);
