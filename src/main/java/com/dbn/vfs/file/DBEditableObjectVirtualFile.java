@@ -49,6 +49,8 @@ import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.dispose.Failsafe.nn;
+import static com.dbn.object.type.DBObjectType.JSON_VIEW;
+import static com.dbn.object.type.DBObjectType.TABLE;
 import static com.dbn.vfs.file.status.DBFileStatus.SAVING;
 
 @Getter
@@ -61,7 +63,7 @@ public class DBEditableObjectVirtualFile extends DBObjectVirtualFile<DBSchemaObj
 
     public DBEditableObjectVirtualFile(Project project, DBObjectRef object) {
         super(project, object);
-        if (object.getObjectType() == DBObjectType.TABLE) {
+        if (object.getObjectType().isOneOf(TABLE, JSON_VIEW)) {
             databaseSessionId = SessionId.MAIN;
         }
     }

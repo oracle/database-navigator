@@ -17,6 +17,7 @@
 package com.dbn.object.impl;
 
 import com.dbn.browser.model.BrowserTreeNode;
+import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJsonViewMetadata;
 import com.dbn.editor.DBContentType;
@@ -48,6 +49,7 @@ class DBJsonViewImpl extends DBViewImpl<DBJsonViewMetadata> implements DBJsonVie
     private String jsonSchema;
     private String jsonColumnName;
     private DBObjectRef<DBTable> rootTable;
+    private List<String> keyAttributeNames;
 
     DBJsonViewImpl(DBSchema schema, DBJsonViewMetadata metadata) throws SQLException {
         super(schema, metadata);
@@ -57,6 +59,10 @@ class DBJsonViewImpl extends DBViewImpl<DBJsonViewMetadata> implements DBJsonVie
     protected String initObject(ConnectionHandler connection, DBObject parentObject, DBJsonViewMetadata metadata) throws SQLException {
         String name = super.initObject(connection, parentObject, metadata);
         set(DBObjectProperty.READONLY, metadata.isReadonly());
+        set(DBObjectProperty.INSERT_ALLOWED, metadata.isInsertAllowed());
+        set(DBObjectProperty.UPDATE_ALLOWED, metadata.isUpdateAllowed());
+        set(DBObjectProperty.DELETE_ALLOWED, metadata.isDeleteAllowed());
+
         set(DBObjectProperty.INVALIDABLE, true);
 
         jsonSchema = metadata.getJsonSchema();
@@ -64,6 +70,8 @@ class DBJsonViewImpl extends DBViewImpl<DBJsonViewMetadata> implements DBJsonVie
 
         DBObjectRef<DBSchema> rootTableSchema = new DBObjectRef<>(connection.getConnectionId(), DBObjectType.SCHEMA, metadata.getRootTableOwner());
         rootTable = new DBObjectRef<>(rootTableSchema, DBObjectType.TABLE, metadata.getRootTableName());
+
+        keyAttributeNames = Lists.fromCsv(metadata.getKeyAttributeNames());
 
         return name;
     }
@@ -94,6 +102,21 @@ class DBJsonViewImpl extends DBViewImpl<DBJsonViewMetadata> implements DBJsonVie
     @Override
     public boolean isReadonly() {
         return is(DBObjectProperty.READONLY);
+    }
+
+    @Override
+    public boolean isInsertAllowed() {
+        return is(DBObjectProperty.INSERT_ALLOWED);
+    }
+
+    @Override
+    public boolean isUpdateAllowed() {
+        return is(DBObjectProperty.UPDATE_ALLOWED);
+    }
+
+    @Override
+    public boolean isDeleteAllowed() {
+        return is(DBObjectProperty.DELETE_ALLOWED);
     }
 
     @NotNull

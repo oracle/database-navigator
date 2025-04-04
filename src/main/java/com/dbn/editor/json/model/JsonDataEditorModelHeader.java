@@ -29,8 +29,8 @@ import java.sql.SQLException;
 public class JsonDataEditorModelHeader extends ResultSetDataModelHeader<ResultSetColumnInfo> {
     JsonDataEditorModelHeader(JsonDataEditor jsonDataEditor, @Nullable ResultSet resultSet) throws SQLException {
         DBJsonView jsonView = jsonDataEditor.getJsonView();
-        DBDataType dbDataType = DBDataType.get(jsonView.getConnection(), "VARCHAR", 4000, 0, 0, false);
-        ResultSetColumnInfo columnInfo = new ResultSetColumnInfo(jsonView.getJsonColumnName(), dbDataType, 1, 1);
+        DBDataType dbDataType = DBDataType.get(jsonView.getConnection(), "JSON", 4000, 0, 0, false);
+        ResultSetColumnInfo columnInfo = new ResultSetColumnInfo(jsonView.getJsonColumnName(), dbDataType, 0, 1);
         addColumnInfo(columnInfo);
     }
 }

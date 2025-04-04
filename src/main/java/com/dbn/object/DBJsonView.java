@@ -21,6 +21,12 @@ import java.util.List;
 public interface DBJsonView extends DBView{
     boolean isReadonly();
 
+    boolean isInsertAllowed();
+
+    boolean isUpdateAllowed();
+
+    boolean isDeleteAllowed();
+
     List<DBTable> getTables();
 
     DBTable getRootTable();
@@ -28,5 +34,7 @@ public interface DBJsonView extends DBView{
     String getJsonSchema();
 
     String getJsonColumnName();
+
+    List<String> getKeyAttributeNames();
 
 }

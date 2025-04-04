@@ -233,11 +233,9 @@ public class DatasetEditorModel
                 statement = conn.createStatement();
             }
         }
+        statement.setQueryTimeout(timeout);
         statementRef.set(statement);
         checkDisposed();
-        if (timeout != -1) {
-            statement.setQueryTimeout(timeout);
-        }
 
         statement.setFetchSize(getSettings().getGeneralSettings().getFetchBlockSize().value());
         return statement.executeQuery(selectStatement);

@@ -386,6 +386,9 @@
             <action id="DBNavigator.Actions.JsonDataEditor.FetchNextRecords" class="com.dbn.editor.json.action.JsonRecordsFetchNextAction" text="JSON Data Editor - Fetch Next Records" icon="com.dbn.common.icon.Icons.DATA_EDITOR_FETCH_NEXT_RECORDS"/>
             <action id="DBNavigator.Actions.JsonDataEditor.Reload" class="com.dbn.editor.json.action.JsonDataReloadAction" text="JSON Data Editor - Reload" icon="com.dbn.common.icon.Icons.DATA_EDITOR_RELOAD_DATA"/>
             <separator/>
+            <reference id="DBNavigator.Actions.Commit"/>
+            <reference id="DBNavigator.Actions.Rollback"/>
+            <separator/>
             <action id="DBNavigator.Actions.JsonDataEditor.Settings" class="com.dbn.editor.json.action.JsonDataEditorOptionsAction" text="JSON Data Editor - Settings"/>
         </group>
         <group id="DBNavigator.ActionGroup.DataEditor" text="Data Editor Controls">

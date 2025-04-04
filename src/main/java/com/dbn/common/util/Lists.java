@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -221,6 +222,10 @@ public class Lists {
             buffer.append(toString.apply(element));
         }
         return buffer.toString();
+    }
+
+    public static List<String> fromCsv(String csvString) {
+        return Arrays.stream(csvString.split(",")).map(s -> s.trim()).filter(s -> !s.isEmpty()).collect(Collectors.toList());
     }
 
     public static <T> int greatest(List<T> elements, Function<T, Integer> size) {

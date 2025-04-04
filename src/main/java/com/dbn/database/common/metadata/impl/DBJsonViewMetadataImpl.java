@@ -33,6 +33,21 @@ public class DBJsonViewMetadataImpl extends DBViewMetadataImpl implements DBJson
     }
 
     @Override
+    public boolean isInsertAllowed() throws SQLException {
+        return isYesFlag("IS_INSERT_ALLOWED");
+    }
+
+    @Override
+    public boolean isUpdateAllowed() throws SQLException {
+        return isYesFlag("IS_UPDATE_ALLOWED");
+    }
+
+    @Override
+    public boolean isDeleteAllowed() throws SQLException {
+        return isYesFlag("IS_DELETE_ALLOWED");
+    }
+
+    @Override
     public boolean isReadonly() throws SQLException {
         return isYesFlag("IS_READONLY");
     }
@@ -55,5 +70,10 @@ public class DBJsonViewMetadataImpl extends DBViewMetadataImpl implements DBJson
     @Override
     public String getJsonColumnName() throws SQLException {
         return getString( "JSON_COLUMN_NAME");
+    }
+
+    @Override
+    public String getKeyAttributeNames() throws SQLException {
+        return getString( "KEY_ATTRIBUTE_NAMES");
     }
 }

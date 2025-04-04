@@ -283,6 +283,7 @@ public class DBNStatement<T extends Statement> extends DBNResource<T> implements
 
     @Override
     public void setQueryTimeout(int seconds) throws SQLException {
+        if (seconds <= 0) return;
         try {
             seconds = Diagnostics.timeoutAdjustment(seconds);
             inner.setQueryTimeout(seconds);

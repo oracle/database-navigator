@@ -17,6 +17,8 @@
 package com.dbn.data.value;
 
 import com.dbn.data.type.GenericDataType;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.CallableStatement;
@@ -25,10 +27,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import static com.dbn.common.util.Commons.nvl;
+
+@Getter
+@NoArgsConstructor
 public class JsonValue extends LargeObjectValue{
     private String data;
 
-    public JsonValue() {
+    public JsonValue(String data) {
+        this.data = data;
     }
 
     public JsonValue(CallableStatement callableStatement, int parameterIndex) throws SQLException {
@@ -88,5 +95,10 @@ public class JsonValue extends LargeObjectValue{
     @Override
     public String getDisplayValue() {
         return "[JSON]";
+    }
+
+    @Override
+    public String toString() {
+        return nvl(data, "");
     }
 }

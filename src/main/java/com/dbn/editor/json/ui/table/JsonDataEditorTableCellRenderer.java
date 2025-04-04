@@ -16,7 +16,6 @@
 
 package com.dbn.editor.json.ui.table;
 
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Commons;
@@ -55,7 +54,7 @@ public class JsonDataEditorTableCellRenderer extends BasicTableCellRenderer {
         boolean deletedRow = row.is(DELETED);
         boolean insertRow = row.is(INSERTING);
         boolean caretRow = !insertRow && table.getCellSelectionEnabled() && table.getSelectedRow() == rowIndex && table.getSelectedRowCount() == 1;
-        boolean connected = Failsafe.nn(jsonDataEditorTable.getJsonDataEditor().getConnection()).isConnected();
+        boolean connected = jsonDataEditorTable.getEditor().getConnection().isConnected();
 
         BasicTableTextAttributes attributes = (BasicTableTextAttributes) getAttributes();
         SimpleTextAttributes textAttributes = attributes.getReadonlyData(modified, caretRow);

@@ -25,6 +25,12 @@ public interface DBJsonViewMetadata extends DBViewMetadata {
 
     boolean isReadonly() throws SQLException;
 
+    boolean isInsertAllowed() throws SQLException;
+
+    boolean isUpdateAllowed() throws SQLException;
+
+    boolean isDeleteAllowed() throws SQLException;
+
     @ObjectIdentifier
     String getRootTableOwner() throws SQLException;
 
@@ -35,4 +41,5 @@ public interface DBJsonViewMetadata extends DBViewMetadata {
 
     String getJsonColumnName() throws SQLException;
 
+    String getKeyAttributeNames() throws SQLException;
 }

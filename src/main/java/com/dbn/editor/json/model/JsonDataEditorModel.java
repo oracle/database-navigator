@@ -25,7 +25,6 @@ import com.dbn.common.thread.CancellableDatabaseCall;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionProperties;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNResultSet;
@@ -52,7 +51,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,8 +58,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
-import static com.dbn.connection.ConnectionProperty.RS_TYPE_FORWARD_ONLY;
-import static com.dbn.connection.ConnectionProperty.RS_TYPE_SCROLL_INSENSITIVE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.data.model.RecordStatus.DELETED;
 import static com.dbn.editor.data.model.RecordStatus.DIRTY;
@@ -189,45 +185,11 @@ public class JsonDataEditorModel
         }
 
         String selectStatement = filter.createSelectStatement(dataset, getState().getSortingState());
-        DBNStatement statement = null;
-        if (isReadonly()) {
-            statement = conn.createStatement();
-        } else {
-            // ensure we always get a statement,
-            ConnectionProperties properties = conn.getProperties();
-            if (properties.is(RS_TYPE_SCROLL_INSENSITIVE)) {
-                try {
-                    statement = conn.createStatement(
-                            ResultSet.TYPE_SCROLL_INSENSITIVE,
-                            ResultSet.CONCUR_UPDATABLE);
-
-                } catch (Throwable e) {
-                    conditionallyLog(e);
-                    log.warn("Failed to create SCROLL_INSENSITIVE statement: {}", e.getMessage());
-                }
-            }
-
-            if (statement == null && properties.is(RS_TYPE_FORWARD_ONLY)) {
-                try {
-                    statement = conn.createStatement(
-                            ResultSet.TYPE_FORWARD_ONLY,
-                            ResultSet.CONCUR_READ_ONLY);
-                } catch (Throwable e) {
-                    conditionallyLog(e);
-                    log.warn("Failed to create FORWARD_ONLY statement: {}", e.getMessage());
-                }
-            }
-
-            if (statement == null) {
-                // default statement creation
-                statement = conn.createStatement();
-            }
-        }
+        DBNStatement statement = conn.createStatement();
+        statement.setQueryTimeout(timeout);
         statementRef.set(statement);
+
         checkDisposed();
-        if (timeout != -1) {
-            statement.setQueryTimeout(timeout);
-        }
 
         statement.setFetchSize(getSettings().getGeneralSettings().getFetchBlockSize().value());
         return statement.executeQuery(selectStatement);
@@ -511,41 +473,7 @@ public class JsonDataEditorModel
 
     @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
-        JsonDataEditorModelCell cell = getCellAt(rowIndex, columnIndex);
-        if (cell == null) return;
-
-        cell.updateUserValue(value, false);
-    }
-
-    public void setValueAt(Object value, String errorMessage,  int rowIndex, int columnIndex) {
-        JsonDataEditorModelCell cell = getCellAt(rowIndex, columnIndex);
-        if (cell == null) return;
-
-        cell.updateUserValue(value, errorMessage);
-    }
-
-    @Override
-    public boolean isCellEditable(int rowIndex, int columnIndex) {
-/*        DatasetEditorTable editorTable = getEditorTable();
-        DatasetEditorState editorState = getState();
-        if (isReadonly() || isEnvironmentReadonly() || isDirty()) return false;
-        if (editorState.isReadonly()) return false;
-        if (editorTable.isLoading()) return false;
-        if (!editorTable.isEditingEnabled()) return false;
-        if (editorTable.getSelectedColumnCount() > 1 || editorTable.getSelectedRowCount() > 1) return false;
-        if (!getConnection().isConnected(SessionId.MAIN)) return false;
-
-        DatasetEditorModelRow row = getRowAtIndex(rowIndex);
-        if (row == null) return false;
-        if (row.is(DELETED)) return false;
-        if (row.is(UPDATING)) return false;
-        if (is(INSERTING)) return row.is(INSERTING);
-
-        DatasetEditorModelCell cell = row.getCellAtIndex(columnIndex);
-        if (cell == null) return false;
-        if (cell.is(UPDATING)) return false;*/
-
-        return false;
+        // json view model is not directly editable
     }
 
     /*********************************************************

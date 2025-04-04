@@ -27,7 +27,6 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Editors;
-import com.dbn.common.util.Json;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
@@ -50,6 +49,7 @@ import com.dbn.editor.data.filter.DatasetFilter;
 import com.dbn.editor.data.filter.DatasetFilterManager;
 import com.dbn.editor.data.filter.DatasetFilterType;
 import com.dbn.editor.json.model.JsonDataEditorModel;
+import com.dbn.editor.json.ui.JsonDataContentEditorForm;
 import com.dbn.editor.json.ui.JsonDataEditorForm;
 import com.dbn.editor.json.ui.table.JsonDataEditorTable;
 import com.dbn.object.DBDataset;
@@ -146,6 +146,10 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
     @NotNull
     public JsonDataEditorForm getEditorForm() {
         return Failsafe.nn(editorForm);
+    }
+
+    public JsonDataContentEditorForm getContentEditorForm() {
+        return getEditorForm().getContentEditorForm();
     }
 
     public void showSearchHeader() {
@@ -640,10 +644,5 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
     public void disposeInner() {
         super.disposeInner();
         editorForm = null;
-    }
-
-    public void setJsonEditorContent(String content) {
-        content = Json.removeJsonAttributes(content, "_metadata");
-        getEditorForm().setJsonEditorContent(content);
     }
 }

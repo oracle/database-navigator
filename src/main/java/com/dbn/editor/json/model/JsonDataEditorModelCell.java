@@ -17,7 +17,6 @@
 package com.dbn.editor.json.model;
 
 
-import com.dbn.common.locale.Formatter;
 import com.dbn.common.ref.WeakRefCache;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Commons;
@@ -27,7 +26,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.data.model.resultSet.ResultSetColumnInfo;
 import com.dbn.data.model.resultSet.ResultSetDataModelCell;
-import com.dbn.data.type.DBDataType;
+import com.dbn.data.value.JsonValue;
 import com.dbn.editor.data.model.RecordStatus;
 import com.dbn.editor.data.model.ResultSetAdapter;
 import com.dbn.editor.json.ui.JsonDataEditorError;
@@ -43,16 +42,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
 
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class JsonDataEditorModelCell
         extends ResultSetDataModelCell<JsonDataEditorModelRow, JsonDataEditorModel>
         implements ChangeListener {
 
-    private static final WeakRefCache<JsonDataEditorModelCell, Object> originalUserValues = WeakRefCache.weakKey();
+    private static final WeakRefCache<JsonDataEditorModelCell, JsonValue> originalUserValues = WeakRefCache.weakKey();
     private static final WeakRefCache<JsonDataEditorModelCell, String> temporaryUserValues = WeakRefCache.weakKey();
     private static final WeakRefCache<JsonDataEditorModelCell, JsonDataEditorError> errors = WeakRefCache.weakKey();
-    private static final Object NULL = new Object();
+
+    private static final JsonValue NULL = new JsonValue(); // surrogate value to store nulls as original value
 
     public JsonDataEditorModelCell(JsonDataEditorModelRow row, ResultSet resultSet, ResultSetColumnInfo columnInfo) throws SQLException {
         super(row, resultSet, columnInfo);
@@ -67,26 +68,24 @@ public class JsonDataEditorModelCell
     public void updateUserValue(Object newUserValue, boolean bulk) {
         try {
             set(RecordStatus.UPDATING, true);
-            updateValue(newUserValue, bulk);
+            updateValue((JsonValue) newUserValue);
         } finally {
             setTemporaryUserValue(null);
             set(RecordStatus.UPDATING, false);
         }
     }
 
-    private void updateValue(Object newUserValue, boolean bulk) {
+    @Override
+    public JsonValue getUserValue() {
+        return (JsonValue) super.getUserValue();
+    }
+
+    private void updateValue(JsonValue newUserValue) {
         ConnectionHandler connection = getConnection();
         connection.updateLastAccess();
 
-        boolean valueChanged = userValueChanged(newUserValue);
-        if (!valueChanged && !hasError()) return;
-
         initOriginalValue();
-        ResultSetColumnInfo columnInfo = getColumnInfo();
-
-        if (valueChanged) {
-            setUserValue(newUserValue);
-        }
+        setUserValue(newUserValue);
 
         Project project = getProject();
         JsonDataEditorModelRow row = getRow();
@@ -95,41 +94,20 @@ public class JsonDataEditorModelCell
             resultSetAdapter.scroll(row.getResultSetRowIndex());
         } catch (Exception e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(project, txt("msg.dataEditor.error.FailedToUpdateCell",  columnInfo.getName()), e);
+            Messages.showErrorDialog(project, "Failed to update JSON record", e);
             return;
         }
 
         try {
             clearError();
-            int columnIndex = columnInfo.getResultSetIndex();
-            DBDataType dataType = columnInfo.getDataType();
-            resultSetAdapter.setValue(columnIndex, dataType, newUserValue);
             resultSetAdapter.updateRow();
         } catch (Exception e) {
             conditionallyLog(e);
-            //try { Thread.sleep(6000); } catch (InterruptedException e1) { e1.printStackTrace(); }
-
             JsonDataEditorError error = new JsonDataEditorError(connection, e);
-
-            // error may affect other cells in the row (e.g. foreign key constraint for multiple primary key)
-            if (e instanceof SQLException) {
-                row.notifyError(error, false, !bulk);
-            }
-
-            // if error was not notified yet on row level, notify it on cell isolation level
-            if (!error.isNotified()) notifyError(error, !bulk);
+            notifyError(error, true);
         } finally {
-            if (valueChanged) {
-                DBNConnection conn = getResultConnection();
-                conn.notifyDataChanges(getJsonView().getVirtualFile());
-            }
-            try {
-                resultSetAdapter.refreshRow();
-            } catch (SQLException e) {
-                conditionallyLog(e);
-                JsonDataEditorError error = new JsonDataEditorError(connection, e);
-                row.notifyError(error, false, !bulk);
-            }
+            DBNConnection conn = getResultConnection();
+            conn.notifyDataChanges(getJsonView().getVirtualFile());
         }
 
         if (row.isNot(RecordStatus.INSERTING) && !connection.isAutoCommit()) {
@@ -145,49 +123,12 @@ public class JsonDataEditorModelCell
     private void initOriginalValue() {
         if (originalUserValues.contains(this)) return;
 
-        Object value = getUserValue();
+        JsonValue value = getUserValue();
         originalUserValues.set(this, value == null ? NULL : value);
     }
 
     protected DBJsonView getJsonView() {
         return getEditorModel().getJsonView();
-    }
-
-    private boolean userValueChanged(Object newUserValue) {
-        Object userValue = getUserValue();
-
-        if (userValue != null && newUserValue != null) {
-            if (userValue.equals(newUserValue)) {
-                return false;
-            }
-            // user input may not contain the entire precision (e.g. date time format)
-            Formatter formatter = getFormatter();
-            String formattedValue1 = formatter.formatObject(userValue);
-            String formattedValue2 = formatter.formatObject(newUserValue);
-            return !Objects.equals(formattedValue1, formattedValue2);
-        }
-        
-        return !Commons.match(userValue, newUserValue);
-    }
-
-    public void updateUserValue(Object userValue, String errorMessage) {
-        ConnectionHandler connection = getConnection();
-        connection.updateLastAccess();
-
-        if (!Commons.match(userValue, getUserValue()) || hasError()) {
-            JsonDataEditorModelRow row = getRow();
-            JsonDataEditorError error = new JsonDataEditorError(errorMessage, null);
-            getRow().notifyError(error, true, true);
-            setUserValue(userValue);
-            if (row.isNot(RecordStatus.INSERTING) && !connection.isAutoCommit()) {
-                reset();
-                setModified(true);
-
-                row.reset();
-                row.setModified(true);
-                row.getModel().setModified(true);
-            }
-        }
     }
 
     public boolean matches(JsonDataEditorModelCell remoteCell, boolean lenient) {
@@ -235,12 +176,12 @@ public class JsonDataEditorModelCell
         return super.getModel();
     }
 
-    public Object getOriginalUserValue() {
-        Object value = originalUserValues.get(this);
+    public JsonValue getOriginalUserValue() {
+        JsonValue value = originalUserValues.get(this);
         return value == NULL ? null : value;
     }
 
-    void setOriginalUserValue(Object value) {
+    void setOriginalUserValue(JsonValue value) {
         Object originalUserValue = getOriginalUserValue();
 
         if (originalUserValue == null) {
@@ -342,6 +283,16 @@ public class JsonDataEditorModelCell
         setModified(false);
     }
 
+    public String getJsonContent() {
+        return getUserValue().getData();
+    }
+
+    public String getOriginalJsonContent() {
+        JsonValue userValue = nvl(getOriginalUserValue(), getUserValue());
+        return userValue.getData();
+    }
+
+
     @Override
     public void disposeInner() {
         super.disposeInner();
@@ -349,4 +300,5 @@ public class JsonDataEditorModelCell
         originalUserValues.remove(this);
         errors.remove(this);
     }
+
 }

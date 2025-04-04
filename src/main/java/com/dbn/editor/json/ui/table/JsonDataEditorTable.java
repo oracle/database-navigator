@@ -23,8 +23,6 @@ import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.table.DBNTableGutter;
-import com.dbn.common.ui.util.Cursors;
-import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Messages;
 import com.dbn.data.grid.ui.table.basic.BasicTableCellRenderer;
@@ -48,6 +46,7 @@ import com.dbn.editor.json.model.JsonDataEditorModel;
 import com.dbn.editor.json.model.JsonDataEditorModelCell;
 import com.dbn.editor.json.model.JsonDataEditorModelRow;
 import com.dbn.editor.json.ui.JsonDataEditorErrorForm;
+import com.dbn.editor.json.ui.JsonDataEditorForm;
 import com.dbn.editor.json.ui.table.listener.JsonDataEditorMouseListener;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBDataset;
@@ -60,14 +59,12 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JTable;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 import java.util.EventObject;
-import java.util.Objects;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
@@ -82,21 +79,19 @@ import static com.dbn.nls.NlsResources.txt;
 @Setter
 public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
     private static final DatasetLoadInstructions SORT_LOAD_INSTRUCTIONS = new DatasetLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION);
-    private final WeakRef<JsonDataEditor> jsonDataEditor;
+    private final WeakRef<JsonDataEditor> editor;
 
     private final JsonDataEditorMouseListener tableMouseListener = new JsonDataEditorMouseListener(this);
 
     private boolean editingEnabled = true;
 
-    public JsonDataEditorTable(DBNForm parent, JsonDataEditor jsonDataEditor) throws SQLException {
-        super(parent, createModel(jsonDataEditor), false,
+    public JsonDataEditorTable(DBNForm parent, JsonDataEditor editor) throws SQLException {
+        super(parent, createModel(editor), false,
                 new RecordViewInfo(
-                    jsonDataEditor.getJsonView().getQualifiedName(),
-                    jsonDataEditor.getJsonView().getIcon()));
-        JTableHeader tableHeader = getTableHeader();
-        //tableHeader.setDefaultRenderer(new DatasetEditorTableHeaderRenderer());
-        setName(jsonDataEditor.getJsonView().getName());
-        this.jsonDataEditor = WeakRef.of(jsonDataEditor);
+                    editor.getJsonView().getQualifiedName(),
+                    editor.getJsonView().getIcon()));
+        setName(editor.getJsonView().getName());
+        this.editor = WeakRef.of(editor);
         setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         setFillsViewportHeight(true);
 
@@ -220,19 +215,7 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
 
     @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
-        int modelRowIndex = rowIndex;//convertRowIndexToModel(rowIndex);
-        int modelColumnIndex = convertColumnIndexToModel(columnIndex);
-        if (modelRowIndex > -1 && modelColumnIndex > -1) {
-            getModel().setValueAt(value, modelRowIndex, modelColumnIndex);
-        }
-    }
-
-    public void setValueAt(Object value, String errorMessage, int rowIndex, int columnIndex) {
-        int modelRowIndex = rowIndex;//convertRowIndexToModel(rowIndex);
-        int modelColumnIndex = convertColumnIndexToModel(columnIndex);
-        if (modelRowIndex > -1 && modelColumnIndex > -1) {
-            getModel().setValueAt(value, errorMessage, modelRowIndex, modelColumnIndex);
-        }
+        // table cells are not editable
     }
 
     @Override
@@ -266,7 +249,7 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
     }
 
     private boolean isReadonly() {
-        return jsonDataEditor != null && getJsonDataEditor().isReadonly();
+        return editor != null && getEditor().isReadonly();
     }
 
     @Override
@@ -349,7 +332,7 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
         if (!isLoading() && !model.is(UPDATING)) {
             super.sort();
             if (!model.isResultSetExhausted()) {
-                getJsonDataEditor().loadData(SORT_LOAD_INSTRUCTIONS);
+                getEditor().loadData(SORT_LOAD_INSTRUCTIONS);
             }
             resizeAndRepaint();
         }
@@ -365,7 +348,7 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
                 boolean sorted = super.sort(columnIndex, sortDirection, keepExisting);
 
                 if (sorted && !model.isResultSetExhausted()) {
-                    getJsonDataEditor().loadData(SORT_LOAD_INSTRUCTIONS);
+                    getEditor().loadData(SORT_LOAD_INSTRUCTIONS);
                 }
                 return sorted;
             }
@@ -374,41 +357,8 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
     }
 
     @NotNull
-    public JsonDataEditor getJsonDataEditor() {
-        return jsonDataEditor.ensure();
-    }
-
-    @Override
-    protected void processMouseEvent(MouseEvent e) {
-        if (e.isControlDown() && isNavigableCellAtMousePosition()) {
-            Mouse.processMouseEvent(e, tableMouseListener);
-        } else {
-            super.processMouseEvent(e);
-        }
-    }
-
-    @Override
-    protected void processMouseMotionEvent(MouseEvent e) {
-        if (e.isControlDown() && e.getID() != MouseEvent.MOUSE_DRAGGED && isNavigableCellAtMousePosition()) {
-            setCursor(Cursors.handCursor());
-            DatasetEditorModelCell cell = (DatasetEditorModelCell) getCellAtMouseLocation();
-            if (cell != null) {
-                DBColumn column = cell.getColumn();
-                DBColumn foreignKeyColumn = column.getForeignKeyColumn();
-                if (foreignKeyColumn != null) {
-                    setToolTipText("<html>Show referenced <b>" + foreignKeyColumn.getDataset().getQualifiedName() + "</b> record<html>");
-                }
-            }
-        } else {
-            super.processMouseMotionEvent(e);
-            setCursor(Cursors.defaultCursor());
-            setToolTipText(null);
-        }
-    }
-
-    private boolean isNavigableCellAtMousePosition() {
-        DatasetEditorModelCell cell = (DatasetEditorModelCell) getCellAtMouseLocation();
-        return cell != null && cell.isNavigable();
+    public JsonDataEditor getEditor() {
+        return editor.ensure();
     }
 
     /**********************************************************
@@ -439,11 +389,12 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
 
         int selectedRow = getSelectedRow();
         JsonDataEditorModelRow row = model.getRowAtIndex(selectedRow);
+        JsonDataEditorForm editorForm = getEditor().getEditorForm();
         if (row == null) {
-            getJsonDataEditor().setJsonEditorContent("");
+            editorForm.selectRecord(null);
         } else {
-            Object userValue = row.getCellAtIndex(0).getUserValue();
-            getJsonDataEditor().setJsonEditorContent(Objects.toString(userValue));
+            JsonDataEditorModelCell cell = row.getCellAtIndex(0);
+            editorForm.selectRecord(cell);
         }
 
 
@@ -451,13 +402,7 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
 
     @Override
     public void columnSelectionChanged(ListSelectionEvent e) {
-        JTableHeader tableHeader = getTableHeader();
-        if (tableHeader != null && tableHeader.getDraggedColumn() == null) {
-            super.columnSelectionChanged(e);
-            if (!e.getValueIsAdjusting()) {
-                // TODO populate JSON editor
-            }
-        }
+        // single column, should not happen
     }
 
     /********************************************************
