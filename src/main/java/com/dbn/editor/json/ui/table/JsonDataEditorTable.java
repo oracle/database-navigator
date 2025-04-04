@@ -118,6 +118,11 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
     }
 
     @Override
+    public void showRecordViewDialog() {
+        // no record viewer for single column dataset
+    }
+
+    @Override
     public void adjustColumnWidths() {
         // auto-resize to full width (override default behavior)
     }

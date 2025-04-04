@@ -31,8 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import static com.dbn.common.ui.util.Mouse.isMainDoubleClick;
-import static com.dbn.common.util.Conditional.when;
+import static java.awt.event.MouseEvent.BUTTON1;
 
 @Getter
 public class ResultSetTable<T extends ResultSetDataModel<?, ?>> extends SortableTable<T> implements Borderless {
@@ -41,9 +40,7 @@ public class ResultSetTable<T extends ResultSetDataModel<?, ?>> extends Sortable
     public ResultSetTable(DBNComponent parent, T dataModel, boolean enableSpeedSearch, RecordViewInfo recordViewInfo) {
         super(parent, dataModel, enableSpeedSearch);
         this.recordViewInfo = recordViewInfo;
-        addMouseListener(Mouse.listener().onClick(
-                e -> when(isMainDoubleClick(e),
-                () -> showRecordViewDialog())));
+        Mouse.onMouseClick(this, BUTTON1, 2, e -> showRecordViewDialog());
     }
 
     public void showRecordViewDialog() {
