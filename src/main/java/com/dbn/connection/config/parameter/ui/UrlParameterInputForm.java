@@ -53,5 +53,8 @@ public class UrlParameterInputForm extends PropertiesEditorForm {
         addValidator(new StringListConstraintValidator("ON", "OFF"), "SOURCE_ROUTE");
         addValidator(new IntegerConstraintValidator(0), "RETRY_COUNT");
         addValidator(new IntegerConstraintValidator(0), "RETRY_DELAY");
+
+        addValidator(new StringListConstraintValidator(
+                "ON", "OFF", "on", "off", "YES","NO","yes", "no", "TRUE", "FALSE", "true", "false"), "SSL_SERVER_DN_MATCH");
     }
 }
