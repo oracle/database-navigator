@@ -70,12 +70,12 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Splitters.makeRegular;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Lists.count;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -278,16 +278,9 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         if (selectedSettings.isEmpty()) return true;
         if (selectedSettings.size() == 1) return selectedSettings.get(0).isActive();
 
-        AtomicInteger activeCount = new AtomicInteger(0);
-        AtomicInteger inactiveCount = new AtomicInteger(0);
-        selectedSettings.forEach(c -> {
-            if (c.isActive()) {
-                activeCount.incrementAndGet();
-            } else {
-                inactiveCount.incrementAndGet();
-            }
-        });
-        return activeCount.get() >= inactiveCount.get();
+        int activeCount = count(selectedSettings, c -> c.isActive());
+        int inactiveCount = count(selectedSettings, c -> !c.isActive());
+        return activeCount >= inactiveCount;
     }
 
     public void removeSelectedConnections() {
