@@ -29,6 +29,8 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.integerAttribute;
+import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
+import static com.dbn.common.options.setting.Settings.setIntegerAttribute;
 
 @Getter
 @Setter
@@ -36,8 +38,9 @@ import static com.dbn.common.options.setting.Settings.integerAttribute;
 public class JsonDataEditorState extends SortableDataModelState implements FileEditorState, PersistentStateElement, Cloneable<JsonDataEditorState> {
     public static final JsonDataEditorState VOID = new JsonDataEditorState();
 
-    private boolean readonly;
     private int rowCount;
+    private boolean readonly;
+    private boolean editorVisible;
 
     @Override
     public boolean canBeMergedWith(@NotNull FileEditorState fileEditorState, @NotNull FileEditorStateLevel fileEditorStateLevel) {
@@ -46,21 +49,24 @@ public class JsonDataEditorState extends SortableDataModelState implements FileE
 
     @Override
     public void readState(@NotNull Element element) {
-        setRowCount(integerAttribute(element, "row-count", 100));
-        setReadonly(booleanAttribute(element, "readonly", false));
+        rowCount = integerAttribute(element, "row-count", 100);
+        readonly = booleanAttribute(element, "readonly", false);
+        editorVisible = booleanAttribute(element, "editor-visible", false);
     }
 
     @Override
     public void writeState(Element element) {
-        element.setAttribute("row-count", Integer.toString(getRowCount()));
-        element.setAttribute("readonly", Boolean.toString(isReadonly()));
+        setIntegerAttribute(element, "row-count", rowCount);
+        setBooleanAttribute(element, "readonly", readonly);
+        setBooleanAttribute(element, "editor-visible", editorVisible);
     }
 
     @Override
     public JsonDataEditorState clone() {
         JsonDataEditorState clone = new JsonDataEditorState();
-        clone.setReadonly(isReadonly());
-        clone.setRowCount(getRowCount());
+        clone.setReadonly(readonly);
+        clone.setEditorVisible(editorVisible);
+        clone.setRowCount(rowCount);
         return clone;
     }
 }

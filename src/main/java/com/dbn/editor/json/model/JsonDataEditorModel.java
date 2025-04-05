@@ -295,8 +295,6 @@ public class JsonDataEditorModel
      *                        Editor actions                        *
      ****************************************************************/
     public void deleteRecords(int[] rowIndexes) {
-        JsonDataEditorTable editorTable = getEditorTable();
-        editorTable.fireEditingCancel();
         DBDataset dataset = getJsonView();
         Progress.prompt(getProject(), dataset, true,
                 txt("prc.dataEditor.title.DeletingRecords"),
@@ -409,9 +407,7 @@ public class JsonDataEditorModel
 
     public void cancelInsert(boolean notifyListeners) {
         ResultSetAdapter resultSetAdapter = getResultSetAdapter();
-        JsonDataEditorTable editorTable = getEditorTable();
         try {
-            editorTable.fireEditingCancel();
             JsonDataEditorModelRow insertRow = getInsertRow();
             if (insertRow != null) {
                 int rowIndex = insertRow.getIndex();

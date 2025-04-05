@@ -206,6 +206,7 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
     public void setState(@NotNull FileEditorState fileEditorState) {
         if (fileEditorState instanceof JsonDataEditorState) {
             editorState = (JsonDataEditorState) fileEditorState;
+            setContentEditorVisible(editorState.isEditorVisible());
         }
     }
 
@@ -322,7 +323,6 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
                         JsonDataEditorForm editorForm = getEditorForm();
                         try {
                             editorForm.showLoadingHint();
-                            editorForm.getEditorTable().cancelEditing();
                             JsonDataEditorTable oldEditorTable = instructions.isRebuild() ? editorForm.beforeRebuild() : null;
                             try {
                                 JsonDataEditorModel tableModel = getTableModel();
@@ -534,7 +534,6 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
                         loadData(CON_STATUS_CHANGE_LOAD_INSTRUCTIONS);
                     }
                 } else {
-                    editorTable.cancelEditing();
                     editorTable.updateBackground(true);
                     UserInterface.repaint(editorTable);
                 }
@@ -655,6 +654,7 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
     }
 
     public void setContentEditorVisible(boolean visible) {
+        editorState.setEditorVisible(visible);
         getEditorForm().setContentEditorVisible(visible);
     }
 }

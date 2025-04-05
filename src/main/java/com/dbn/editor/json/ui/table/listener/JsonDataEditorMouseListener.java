@@ -51,7 +51,6 @@ public class JsonDataEditorMouseListener extends MouseAdapter {
             JsonDataEditorModelCell cell = (JsonDataEditorModelCell) table.getCellAtLocation(mousePoint);
             if (cell != null) {
                 if (table.getSelectedRowCount() <= 1 && table.getSelectedColumnCount() <= 1) {
-                    table.cancelEditing();
                     boolean oldEditingStatus = table.isEditingEnabled();
                     table.setEditingEnabled(false);
                     table.selectCell(table.rowAtPoint(mousePoint), table.columnAtPoint(mousePoint));

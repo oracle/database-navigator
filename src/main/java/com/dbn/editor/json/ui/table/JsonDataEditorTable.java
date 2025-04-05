@@ -28,7 +28,6 @@ import com.dbn.data.grid.ui.table.basic.BasicTableGutter;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.model.ColumnInfo;
 import com.dbn.data.model.DataModelCell;
-import com.dbn.data.preview.LargeValuePreviewPopup;
 import com.dbn.data.record.RecordViewInfo;
 import com.dbn.data.sorting.SortDirection;
 import com.dbn.data.value.ArrayValue;
@@ -212,21 +211,7 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
 
     @Override
     public TableCellEditor getDefaultEditor(Class<?> columnClass) {
-        return super.getDefaultEditor(columnClass);
-    }
-
-    @Override
-    protected void initLargeValuePopup(LargeValuePreviewPopup viewer) {
-        super.initLargeValuePopup(viewer);
-    }
-
-    @Override
-    public int getColumnWidthBuffer() {
-        return isReadonly() || getModel().isReadonly() ? 22 : 36;
-    }
-
-    private boolean isReadonly() {
-        return editor != null && getEditor().isReadonly();
+        return null;
     }
 
     @Override
@@ -282,25 +267,9 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
         return super.getToolTipText(e);
     }
 
-    public void fireEditingCancel() {
-        if (isEditing()) {
-            Dispatch.run(true, () -> cancelEditing());
-        }
-    }
-
-    public void cancelEditing() {
-        if (isEditing()) {
-            TableCellEditor cellEditor = getCellEditor();
-            if (cellEditor != null) {
-                cellEditor.cancelCellEditing();
-            }
-        }
-    }
-
     @Override
     protected void regionalSettingsChanged() {
-        cancelEditing();
-        super.regionalSettingsChanged();
+        // should not be affected by this event
     }
 
     @Override

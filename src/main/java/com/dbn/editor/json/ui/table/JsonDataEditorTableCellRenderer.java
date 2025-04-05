@@ -57,7 +57,7 @@ public class JsonDataEditorTableCellRenderer extends BasicTableCellRenderer {
         boolean connected = jsonDataEditorTable.getEditor().getConnection().isConnected();
 
         BasicTableTextAttributes attributes = (BasicTableTextAttributes) getAttributes();
-        SimpleTextAttributes textAttributes = attributes.getReadonlyData(modified, caretRow);
+        SimpleTextAttributes textAttributes = attributes.getPlainData(modified, caretRow);
 
         if (isSelected) {
             textAttributes = table.hasFocus() ?

@@ -211,7 +211,6 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
     @Override
     public void showSearchHeader() {
         JsonDataEditorTable editorTable = getEditorTable();
-        editorTable.cancelEditing();
         editorTable.clearSelection();
 
         DataSearchComponent dataSearchComponent = getSearchComponent();
@@ -241,7 +240,6 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
 
     @Override
     public void cancelEditActions() {
-        getEditorTable().cancelEditing();
     }
 
     @Override
