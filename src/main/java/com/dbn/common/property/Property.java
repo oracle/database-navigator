@@ -77,4 +77,30 @@ public interface Property {
            }
         }
     }
+
+    interface ShortBase extends Property{
+        int ordinal();
+
+        ShortMasks masks();
+
+        default short maskOn() {
+            return masks().on;
+        }
+
+        default short maskOff() {
+            return masks().off;
+        }
+
+        class ShortMasks {
+            private final short on;
+            private final short off;
+
+            public ShortMasks(ShortBase property) {
+                int shift = property.ordinal();
+                assert shift < 16;
+                this.on = (short) (1 << shift);
+                this.off = (short) (~this.on);
+            }
+        }
+    }
 }

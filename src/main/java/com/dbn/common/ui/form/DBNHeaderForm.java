@@ -18,6 +18,7 @@ package com.dbn.common.ui.form;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.ui.Layouts;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
@@ -29,6 +30,7 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -39,6 +41,7 @@ public class DBNHeaderForm extends DBNFormBase {
     public static final LineBorder BORDER = new LineBorder(Colors.getOutlineColor());
     private JLabel objectLabel;
     private JPanel mainPanel;
+    private JPanel buttonsPanel;
 
     public DBNHeaderForm(DBNForm parent) {
         super(parent);
@@ -55,6 +58,7 @@ public class DBNHeaderForm extends DBNFormBase {
         objectLabel.setText(title);
         objectLabel.setIcon(icon);
         mainPanel.setBackground(background);
+        Layouts.horizontalBoxLayout(buttonsPanel);
     }
 
     public DBNHeaderForm(DBNForm parent, @NotNull DBObject object) {
@@ -155,6 +159,11 @@ public class DBNHeaderForm extends DBNFormBase {
 
     public void setIcon(Icon icon) {
         objectLabel.setIcon(icon);
+    }
+
+    public void addButton(AbstractButton button) {
+        button.setOpaque(false);
+        buttonsPanel.add(button);
     }
 
     public DBNHeaderForm withEmptyBorder() {

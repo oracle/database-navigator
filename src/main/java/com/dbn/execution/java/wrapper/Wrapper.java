@@ -16,71 +16,136 @@
 
 package com.dbn.execution.java.wrapper;
 
-import com.dbn.execution.java.wrapper.WrapperBuilder.ComplexTypeKey;
+import com.dbn.common.util.Lists;
+import com.dbn.execution.java.wrapper.model.ClassWrapper;
+import com.dbn.execution.java.wrapper.model.FieldWrapper;
+import com.dbn.execution.java.wrapper.model.MethodWrapper;
+import com.dbn.execution.java.wrapper.naming.WrapperNamingProvider;
+import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBMethod;
+import com.dbn.object.DBPackage;
+import com.dbn.object.common.DBObject;
+import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+import java.util.Set;
+
+import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
+
 
 @Getter
 @Setter
 public class Wrapper {
-    private List<JavaComplexType> argumentJavaComplexTypes = new ArrayList<>();
-    private String wrappedJavaMethodName;
+	private final DBObjectRef<?> sourceObject;
+	private final DBObjectRef<DBJavaClass> javaClass;
+	private DBObjectRef<DBJavaClass> javaWrapperClass;
+	private DBObjectRef<DBPackage> sqlWrapperPackage;
+	private DBObjectRef<DBMethod> sqlWrapperMethod;
 
-    private String fullyQualifiedClassName;
-    private List<MethodAttribute> methodArguments = new ArrayList<>();
-    private MethodAttribute returnType;
-	private String javaMethodSignature;
-	private Map<WrapperBuilder.ComplexTypeKey, Integer> sqlTypeIndexes = new HashMap<>();
+	private Set<String> sqlTypeNames = new HashSet<>();
+	private List<MethodWrapper> methods = new ArrayList<>();
+    private List<ClassWrapper> classes = new ArrayList<>();
 
-	public void addArgumentJavaComplexType(JavaComplexType argumentJavaComplexType) {
-        argumentJavaComplexTypes.add(argumentJavaComplexType);
-    }
+	public Wrapper(@NotNull DBJavaClass javaClass) {
+		this.sourceObject = DBObjectRef.of(javaClass);
+		this.javaClass = DBObjectRef.of(javaClass);
+		initWrapperNames(javaClass);
+	}
 
-	public void addMethodArgument(MethodAttribute argumentParameterType) {
-        methodArguments.add(argumentParameterType);
-    }
+	public Wrapper(@NotNull DBJavaMethod javaMethod) {
+		this.sourceObject = DBObjectRef.of(javaMethod);
+		this.javaClass = javaMethod.getOwnerClassRef();
+		initWrapperNames(javaMethod);
+	}
 
-    @Getter
-    @Setter
-    public static class MethodAttribute {
-		private String javaTypeName;         // Java type name
-		private String sqlTypeName;          // Java type name
-		private boolean complexType;
-        private short arrayDepth = 0;
+	private void initWrapperNames(DBObject sourceObject) {
+		WrapperNamingProvider namingProvider = getNamingProvider();
+		String javaWrapperName = namingProvider.getJavaWrapperName(sourceObject);
+		DBObjectRef<?> schemaRef = javaClass.getParentRef();
 
-		public boolean isArray() {
-			return arrayDepth > 0;
-		}
+		this.javaWrapperClass = new DBObjectRef<>(schemaRef, DBObjectType.JAVA_CLASS, javaWrapperName);
 
-		public String getSqlDeclarationSuffix() {
-			SqlType sqlType = TypeMappings.getSqlType(javaTypeName);
-			return sqlType == null ? "" : sqlType.getDeclarationSuffix();
+		String sqlWrapperName = namingProvider.getSqlWrapperName(sourceObject);
+		if (sourceObject instanceof DBJavaClass) {
+			sqlWrapperPackage = new DBObjectRef<>(schemaRef, DBObjectType.PACKAGE, sqlWrapperName);
+		} else if (sourceObject instanceof DBJavaMethod) {
+			DBJavaMethod javaMethod = (DBJavaMethod) sourceObject;
+			DBObjectType methodType = javaMethod.isReturningVoid() ?
+					DBObjectType.PROCEDURE :
+					DBObjectType.FUNCTION;
+
+			sqlWrapperMethod = new DBObjectRef<>(schemaRef, methodType, sqlWrapperName);
 		}
 	}
 
-	public int getSqlTypeIndex(String className, short arrayDepth){
-		ComplexTypeKey key = new ComplexTypeKey(className, arrayDepth);
-		int size = sqlTypeIndexes.size();
-		return sqlTypeIndexes.computeIfAbsent(key, k -> size + 1);
+	public String getClassName() {
+		return getCanonicalName(javaClass);
 	}
 
+	public String getSqlTypeName(DBJavaClass javaClass, int arrayDepth) {
+		WrapperNamingProvider namingProvider = getNamingProvider();
+		return namingProvider.getSqlTypeName(javaClass, arrayDepth);
+	}
 
-	public String getJavaSignature(boolean includeArgumentNames){
+	public void addClassWrapper(ClassWrapper classWrapper) {
+        classes.add(classWrapper);
+    }
 
-		AtomicInteger idx = new AtomicInteger(0);
-		return this.getMethodArguments()
-				.stream()
-				.map(e -> (
-						e.isArray() ? "java.sql.Array" : e.isComplexType() ? "java.sql.Struct" : e.getJavaTypeName())
-						+ (includeArgumentNames ? " arg" + idx.getAndIncrement(): "")
-				)
-				.collect(Collectors.joining(", "));
+	public ClassWrapper getClassWrapper(String className, int arrayDepth) {
+		return Lists.first(classes, c -> c.matches(className, arrayDepth));
+	}
+
+	public ClassWrapper getFieldClassWrapper(FieldWrapper fieldWrapper) {
+		String className = fieldWrapper.getTypeClassName();
+		int arrayDepth = fieldWrapper.getArrayDepth();
+		return getClassWrapper(className, arrayDepth);
+	}
+
+	public void addJavaMethod(MethodWrapper javaMethod) {
+		methods.add(javaMethod);
+	}
+
+	private static WrapperBuilderContext getContext() {
+		return WrapperBuilderContext.get();
+	}
+
+	private static WrapperNamingProvider getNamingProvider() {
+		return getContext().getNamingProvider();
+	}
+
+	public DBObject getSourceObject() {
+		return this.sourceObject.ensure();
+	}
+
+	public DBObjectRef getSourceObjectRef() {
+		return this.sourceObject;
+	}
+
+	public Object isClassWrapper() {
+		return sourceObject.getObjectType().matches(DBObjectType.JAVA_CLASS);
+	}
+
+	public String getJavaWrapperName() {
+		return javaWrapperClass.getObjectName();
+	}
+
+	public String getSqlWrapperName() {
+		return sqlWrapperMethod != null ? sqlWrapperMethod.getObjectName() : sqlWrapperPackage.getObjectName();
+	}
+
+	public List<DBObjectRef> getWrapperObjects() {
+		List<DBObjectRef> wrapperObjects = new ArrayList<>();
+		wrapperObjects.add(javaWrapperClass);
+		wrapperObjects.add(sqlWrapperMethod);
+		wrapperObjects.add(sqlWrapperPackage);
+		classes.forEach(c -> wrapperObjects.add(c.getSqlType()));
+		return Lists.filter(wrapperObjects, o -> o != null);
 	}
 }

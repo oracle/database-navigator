@@ -25,6 +25,7 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.CardLayouts;
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Messages;
@@ -77,6 +78,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Splitters.makeRegular;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Lists.count;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -301,6 +303,30 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             conditionallyLog(e);
             Messages.showErrorDialog(getProject(), e.getMessage());
         }
+    }
+
+    public void changeSelectionEnabledStatus(boolean enabled) {
+        getConfiguration().setModified(true);
+        List<ConnectionSettings> selectedSettings = connectionsList.getSelectedValuesList();
+        for (ConnectionSettings connectionSettings : selectedSettings) {
+            connectionSettings.setActive(enabled);
+
+            ConnectionDatabaseSettingsForm settingsEditor = connectionSettings.getDatabaseSettings().getSettingsEditor();
+            if (settingsEditor != null) {
+                settingsEditor.notifyPresentationChanges();
+            }
+        }
+        UserInterface.repaint(connectionsList);
+    }
+
+    public boolean isSelectionDominantlyEnabled() {
+        List<ConnectionSettings> selectedSettings = connectionsList.getSelectedValuesList();
+        if (selectedSettings.isEmpty()) return true;
+        if (selectedSettings.size() == 1) return selectedSettings.get(0).isActive();
+
+        int activeCount = count(selectedSettings, c -> c.isActive());
+        int inactiveCount = count(selectedSettings, c -> !c.isActive());
+        return activeCount >= inactiveCount;
     }
 
     public void removeSelectedConnections() {
