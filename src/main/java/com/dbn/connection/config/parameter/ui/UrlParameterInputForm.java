@@ -18,15 +18,14 @@ package com.dbn.connection.config.parameter.ui;
 
 import com.dbn.common.properties.ui.PropertiesEditorForm;
 import com.dbn.common.properties.ui.PropertiesTableModel;
-import com.dbn.connection.config.parameter.IntegerConstraintValidator;
 import com.dbn.connection.config.parameter.RegexConstraintValidator;
 import com.dbn.connection.config.parameter.StringListConstraintValidator;
 import lombok.Getter;
 
 import java.awt.Dimension;
 import java.util.Map;
-import static com.dbn.connection.config.parameter.IntegerConstraintValidator.MUST_BE_ZERO_OR_MORE;
 
+import static com.dbn.connection.config.parameter.IntegerConstraintValidator.MUST_BE_ZERO_OR_MORE;
 import static com.dbn.connection.config.ui.ConnectionUrlSettingsForm.EASY_CONNECT_BOOLEAN_LIKE_STRING_VALUES;
 
 @Getter
@@ -61,5 +60,8 @@ public class UrlParameterInputForm extends PropertiesEditorForm {
         addValidator(new StringListConstraintValidator("on", "off", "yes", "no"), "SOURCE_ROUTE");
         addValidator(MUST_BE_ZERO_OR_MORE, "RETRY_COUNT");
         addValidator(RETRY_DELAY_VALIDATOR, "RETRY_DELAY");
+
+        addValidator(new StringListConstraintValidator(
+                "ON", "OFF", "on", "off", "YES","NO","yes", "no", "TRUE", "FALSE", "true", "false"), "SSL_SERVER_DN_MATCH");
     }
 }

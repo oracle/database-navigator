@@ -40,6 +40,7 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import com.intellij.util.ui.UIUtil;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
@@ -56,7 +57,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
@@ -73,6 +73,8 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.Collections.unmodifiableMap;
 
 public class ConnectionUrlSettingsForm extends DBNFormBase {
+
+    @NonNls
     public static final List<String> EASY_CONNECT_PARAMETER_NAMES = List.of(
             "ENABLE",
             "FAILOVER",
@@ -87,9 +89,14 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
             "HTTPS_PROXY_PORT",
             "WALLET_LOCATION");
 
-        public static final List<String> EASY_CONNECT_BOOLEAN_LIKE_STRING_VALUES = List.of(
-                "on", "off", "ON", "OFF", "true", "false", "TRUE", "FALSE", "yes", "no", "YES", "NO"
-        );
+    @NonNls
+    public static final List<String> EASY_CONNECT_TCPS_ONLY_PARAMETER_NAMES = List.of(
+            "SSL_SERVER_DN_MATCH",
+            "SSL_SERVER_CERT_DN");
+
+    @NonNls
+    public static final List<String> EASY_CONNECT_BOOLEAN_LIKE_STRING_VALUES = List.of(
+            "on", "off", "ON", "OFF", "true", "false", "TRUE", "FALSE", "yes", "no", "YES", "NO");
 
     private JLabel urlTypeLabel;
     private JLabel hostLabelField;
@@ -155,7 +162,9 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         // (also retain logical order of the parameters)
         LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
         EASY_CONNECT_PARAMETER_NAMES.forEach(key -> parameters.put(key, ""));
-
+        if (this.protocolComboBox.getSelectedItem() == DatabaseProtocol.TCPS) {
+            EASY_CONNECT_TCPS_ONLY_PARAMETER_NAMES.forEach(key -> parameters.put(key, ""));
+        }
         parameters.putAll(this.parameters);
 
         UrlParameterInputDialog dialog = new UrlParameterInputDialog(getProject(), parameters);
@@ -226,7 +235,10 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private void updateUrlField() {
         DatabaseUrlType urlType = getUrlType();
         if (urlType == DatabaseUrlType.CUSTOM) return;
-
+        // if Easy Connect and we have changed to a non-TCPS protocol, clear the related values
+        if (urlType == DatabaseUrlType.EZCONNECT && protocolComboBox.getSelectedItem() != DatabaseProtocol.TCPS) {
+            EASY_CONNECT_TCPS_ONLY_PARAMETER_NAMES.forEach(key -> this.parameters.remove(key));
+        }
         DatabaseType databaseType = getDatabaseType();
         DatabaseUrlPattern urlPattern = nvl(databaseType.getUrlPattern(urlType), DatabaseUrlPattern.GENERIC);
         String url = urlPattern.buildUrl(

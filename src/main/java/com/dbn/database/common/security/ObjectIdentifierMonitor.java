@@ -25,6 +25,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.function.Function;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 
@@ -41,6 +42,7 @@ public class ObjectIdentifierMonitor<T> implements InvocationHandler {
     private final T target;
     private final DBNConnection connection;
     private final DatabaseIdentifierCache identifierCache;
+    private final Function<String, String> identifierQuoter = s -> enquoteIdentifier(s);
 
     private ObjectIdentifierMonitor(T target, DBNConnection connection) {
         this.target = target;
@@ -87,7 +89,7 @@ public class ObjectIdentifierMonitor<T> implements InvocationHandler {
         if (annotation == null) return result;
 
         String identifier = (String) result;
-        identifierCache.registerIdentifier(identifier, i -> enquoteIdentifier(identifier));
+        identifierCache.registerIdentifier(identifier, identifierQuoter);
 
         return result;
     }

@@ -94,6 +94,7 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
             FileSearchRequest searchRequest = FileSearchRequest.forExtensions(extensions);
             VirtualFile[] files = VirtualFiles.findFiles(getProject(), searchRequest);
             ParserDiagnosticsResult result = new ParserDiagnosticsResult(getProject());
+            progress.setIndeterminate(false);
 
             for (int i = 0, filesLength = files.length; i < filesLength; i++) {
                 VirtualFile file = files[i];
@@ -128,6 +129,7 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
         VirtualFile[] files = VirtualFiles.findFiles(getProject(), searchRequest);
 
         DBLLanguageFileScrambler scrambler = new DBLLanguageFileScrambler();
+        progress.setIndeterminate(true);
 
         for (int i = 0, filesLength = files.length; i < filesLength; i++) {
             VirtualFile file = files[i];

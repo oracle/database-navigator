@@ -72,6 +72,7 @@ import java.util.Set;
 
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.object.DBSynonym.unwrap;
+import static com.dbn.object.type.DBObjectType.SYNONYM;
 
 public class CodeCompletionProvider extends CompletionProvider<CompletionParameters> {
     public static final CodeCompletionProvider INSTANCE = new CodeCompletionProvider();
@@ -270,6 +271,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
                 }
                 if (parentObject != null && (context.isLiveConnection() || parentObject instanceof DBVirtualObject)) {
                     context.queue(() -> parentObject.collectChildObjects(objectType, consumer));
+                    context.queue(() -> parentObject.collectChildObjects(SYNONYM, consumer));
                 }
             } else if (identifier.isDefinition()) {
                 if (identifier.isAlias()) {
