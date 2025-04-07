@@ -49,6 +49,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
 
+import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.registerDialog;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.releaseDialog;
 import static com.dbn.common.util.Classes.simpleClassName;
@@ -147,7 +148,8 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
 
     @Override
     public void show() {
-        AppIcon.getInstance().requestAttention(getProject(), true);
+        Project project = guarded(null, () -> getProject());
+        AppIcon.getInstance().requestAttention(project, true);
         registerDialog(this);
         super.show();
     }

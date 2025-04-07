@@ -23,6 +23,7 @@ public class IntegerConstraintValidator extends PropertiesValidator {
     private final int lowerBound;
     private final int upperBound;
 
+    public static final IntegerConstraintValidator MUST_BE_ZERO_OR_MORE = new IntegerConstraintValidator(0);
     public IntegerConstraintValidator(int lowerBound) {
         this(lowerBound, Integer.MAX_VALUE);
     }
