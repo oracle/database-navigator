@@ -27,7 +27,7 @@ public class DBDataTypeDefinition {
     private final String declaredTypeName;
     private final String declaredTypeOwner;
     private final String declaredTypeProgram;
-    private final long length;
+    private final int length;
     private final int precision;
     private final int scale;
     private final boolean set;
@@ -44,7 +44,7 @@ public class DBDataTypeDefinition {
         this.set = metadata.isSet();
     }
 
-    DBDataTypeDefinition(String dataTypeName, String declaredTypeName, String declaredTypeOwner, String declaredTypeProgram, long length, int precision, int scale, boolean set) {
+    DBDataTypeDefinition(String dataTypeName, String declaredTypeName, String declaredTypeOwner, String declaredTypeProgram, int length, int precision, int scale, boolean set) {
         this.dataTypeName = dataTypeName;
         this.declaredTypeName = declaredTypeName;
         this.declaredTypeOwner = declaredTypeOwner;
