@@ -333,7 +333,7 @@ public class DBNConnection extends DBNConnectionBase {
                 case ACTIVE: connectionStatus.getActive().markDirty(); break;
             }
 
-            if (isInitialized() && status == VALID) {
+            if (isInitialized() && status.isOneOf(VALID, CLOSED)) {
                 notifyStatusChange();
             }
         });
@@ -438,7 +438,6 @@ public class DBNConnection extends DBNConnectionBase {
         } finally {
             updateLastAccess();
             resetDataChanges();
-            notifyStatusChange();
         }
     }
 

@@ -551,26 +551,27 @@ public class DatasetEditor extends DisposableUserDataHolderBase implements
      *******************************************************/
     private final ConnectionStatusListener connectionStatusListener = (connectionId, sessionId) -> {
         ConnectionHandler connection = getConnection();
-        if (connection.getConnectionId() == connectionId && sessionId == SessionId.MAIN) {
-            boolean connected = connection.isConnected(SessionId.MAIN);
-            boolean statusChanged = getStatus().set(CONNECTED, connected);
-            if (!statusChanged) return;
+        if (connection.getConnectionId() != connectionId) return;
+        if (sessionId != SessionId.MAIN) return;
 
-            Dispatch.run(() -> {
-                DatasetEditorTable editorTable = getEditorTable();
-                if (connected) {
-                    editorTable.updateBackground(false);
-                    UserInterface.repaint(editorTable);
-                    if (!isReadonlyData()) {
-                        loadData(CON_STATUS_CHANGE_LOAD_INSTRUCTIONS);
-                    }
-                } else {
-                    editorTable.cancelEditing();
-                    editorTable.updateBackground(true);
-                    UserInterface.repaint(editorTable);
+        boolean connected = connection.isConnected(SessionId.MAIN);
+        boolean statusChanged = getStatus().set(CONNECTED, connected);
+        if (!statusChanged) return;
+
+        DatasetEditorTable editorTable = getEditorTable();
+        Dispatch.run(editorTable, () -> {
+            if (connected) {
+                editorTable.updateBackground(false);
+                if (!isReadonlyData()) {
+                    loadData(CON_STATUS_CHANGE_LOAD_INSTRUCTIONS);
                 }
-            });
-        }
+            } else {
+                editorTable.cancelEditing();
+                editorTable.updateBackground(true);
+            }
+            editorTable.revalidate();
+            editorTable.repaint();
+        });
     };
 
     private final TransactionListener transactionListener = new TransactionListener() {
