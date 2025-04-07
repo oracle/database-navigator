@@ -16,7 +16,6 @@
 
 package com.dbn.editor.data.ui.table.renderer;
 
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Commons;
@@ -61,7 +60,7 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
         boolean auditColumn = columnInfo != null && columnInfo.isAuditColumn();
         boolean primaryKey = columnInfo != null && columnInfo.isPrimaryKey();
         boolean foreignKey = columnInfo != null && columnInfo.isForeignKey();
-        boolean connected = Failsafe.nn(datasetEditorTable.getDatasetEditor().getConnection()).isConnected();
+        boolean connected = datasetEditorTable.getDatasetEditor().isConnected();
 
         BasicTableTextAttributes attributes = (BasicTableTextAttributes) getAttributes();
         SimpleTextAttributes textAttributes = attributes.getPlainData(modified, caretRow);

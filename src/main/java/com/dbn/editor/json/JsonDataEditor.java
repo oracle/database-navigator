@@ -41,6 +41,7 @@ import com.dbn.connection.transaction.TransactionAction;
 import com.dbn.connection.transaction.TransactionListener;
 import com.dbn.database.interfaces.DatabaseMessageParserInterface;
 import com.dbn.diagnostics.Diagnostics;
+import com.dbn.editor.data.DatasetEditorStatus;
 import com.dbn.editor.data.DatasetEditorStatusHolder;
 import com.dbn.editor.data.DatasetLoadInstruction;
 import com.dbn.editor.data.DatasetLoadInstructions;
@@ -65,7 +66,6 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorLocation;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import com.intellij.openapi.progress.ProcessCanceledException;
@@ -273,18 +273,6 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
         return null;
     }
 
-    public static JsonDataEditor getSelected(Project project) {
-        if (project != null) {
-            FileEditor[] fileEditors = FileEditorManager.getInstance(project).getSelectedEditors();
-            for (FileEditor fileEditor : fileEditors) {
-                if (fileEditor instanceof JsonDataEditor) {
-                    return (JsonDataEditor) fileEditor;
-                }
-            }
-        }
-        return null;
-    }
-
     /*******************************************************
      *                   Model operations                  *
      *******************************************************/
@@ -356,7 +344,7 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
     }
 
     private void handleLoadError(SQLException e, DatasetLoadInstructions instr) {
-        Dispatch.run(() -> {
+        Dispatch.run(getComponent(), () -> {
             checkDisposed();
             focusEditor();
             ConnectionHandler connection = getConnection();
@@ -509,6 +497,10 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
         return connection.ensure();
     }
 
+    public boolean isConnected() {
+        return getStatus().is(DatasetEditorStatus.CONNECTED);
+    }
+
     @Nullable
     @Override
     public DatabaseSession getSession() {
@@ -527,8 +519,8 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
         boolean statusChanged = getStatus().set(CONNECTED, connected);
         if (!statusChanged) return;
 
-        JsonDataEditorTable editorTable = getEditorTable();
-        Dispatch.run(editorTable, () -> {
+        Dispatch.run(getComponent(), () -> {
+            JsonDataEditorTable editorTable = getEditorTable();
             if (connected) {
                 editorTable.updateBackground(false);
                 if (!isReadonlyData()) {

@@ -334,9 +334,18 @@ public class DBNConnection extends DBNConnectionBase {
             }
 
             if (isInitialized() && status.isOneOf(VALID, CLOSED)) {
+                verifyAndRelease();
                 notifyStatusChange();
             }
         });
+    }
+
+    private void verifyAndRelease() {
+        if (is(VALID) && isNot(CLOSED)) return;
+
+        propagate(connection -> connection.getConnectionPool().release(this));
+        resetDataChanges();
+
     }
 
     public void updateLastAccess() {
@@ -493,9 +502,8 @@ public class DBNConnection extends DBNConnectionBase {
 
     @Override
     public boolean set(ResourceStatus status, boolean value) {
-        boolean changed;
         if (status == ACTIVE) {
-            changed = active.set(value);
+            return active.set(value);
 
         } else if (status == RESERVED) {
             if (value) {
@@ -505,14 +513,10 @@ public class DBNConnection extends DBNConnectionBase {
                     log.warn("Reserving already reserved connection");
                 }
             }
-            changed = reserved.set(value);
+            return reserved.set(value);
         } else {
-            changed = super.set(status, value);
-            if (changed) statusChanged(status);
+            return super.set(status, value);
         }
-
-
-        return changed;
     }
 
 

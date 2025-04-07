@@ -54,7 +54,7 @@ public class JsonDataEditorTableCellRenderer extends BasicTableCellRenderer {
         boolean deletedRow = row.is(DELETED);
         boolean insertRow = row.is(INSERTING);
         boolean caretRow = !insertRow && table.getCellSelectionEnabled() && table.getSelectedRow() == rowIndex && table.getSelectedRowCount() == 1;
-        boolean connected = jsonDataEditorTable.getEditor().getConnection().isConnected();
+        boolean connected = jsonDataEditorTable.getEditor().isConnected();
 
         BasicTableTextAttributes attributes = (BasicTableTextAttributes) getAttributes();
         SimpleTextAttributes textAttributes = attributes.getPlainData(modified, caretRow);

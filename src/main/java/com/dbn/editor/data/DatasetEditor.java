@@ -70,7 +70,6 @@ import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorLocation;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import com.intellij.openapi.progress.ProcessCanceledException;
@@ -275,18 +274,6 @@ public class DatasetEditor extends DisposableUserDataHolderBase implements
         };
     }
 
-    public static DatasetEditor getSelected(Project project) {
-        if (project != null) {
-            FileEditor[] fileEditors = FileEditorManager.getInstance(project).getSelectedEditors();
-            for (FileEditor fileEditor : fileEditors) {
-                if (fileEditor instanceof DatasetEditor) {
-                    return (DatasetEditor) fileEditor;
-                }
-            }
-        }
-        return null;
-    }
-
     /*******************************************************
      *                   Model operations                  *
      *******************************************************/
@@ -359,7 +346,7 @@ public class DatasetEditor extends DisposableUserDataHolderBase implements
     }
 
     private void handleLoadError(SQLException e, DatasetLoadInstructions instr) {
-        Dispatch.run(() -> {
+        Dispatch.run(getComponent(), () -> {
             checkDisposed();
             focusEditor();
             ConnectionHandler connection = getConnection();
@@ -529,6 +516,10 @@ public class DatasetEditor extends DisposableUserDataHolderBase implements
         return tableModel.isEditable() && connection.isConnected(SessionId.MAIN);
     }
 
+    public boolean isConnected() {
+        return getStatus().is(DatasetEditorStatus.CONNECTED);
+    }
+
     public int getRowCount() {
         return getEditorTable().getRowCount();
     }
@@ -558,8 +549,8 @@ public class DatasetEditor extends DisposableUserDataHolderBase implements
         boolean statusChanged = getStatus().set(CONNECTED, connected);
         if (!statusChanged) return;
 
-        DatasetEditorTable editorTable = getEditorTable();
-        Dispatch.run(editorTable, () -> {
+        Dispatch.run(getComponent(), () -> {
+            DatasetEditorTable editorTable = getEditorTable();
             if (connected) {
                 editorTable.updateBackground(false);
                 if (!isReadonlyData()) {

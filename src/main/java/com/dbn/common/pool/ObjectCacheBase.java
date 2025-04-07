@@ -86,6 +86,11 @@ public abstract class ObjectCacheBase<K, O, E extends Throwable> extends Statefu
         whenDropped(object);
     }
 
+    @Override
+    public void release(K key) {
+        data.remove(key);
+    }
+
     private void replace(O object) {
         whenDropped(object);
     }
