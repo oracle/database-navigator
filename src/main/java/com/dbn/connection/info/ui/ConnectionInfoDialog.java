@@ -23,18 +23,23 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.info.ConnectionInfo;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
+import java.sql.SQLException;
 
 public class ConnectionInfoDialog extends DBNDialog<ConnectionInfoForm> {
     private ConnectionRef connection;
     private ConnectionInfo connectionInfo;
+    private SQLException connectionError;
     private String connectionName;
     private EnvironmentType environmentType;
 
-    public ConnectionInfoDialog(@NotNull ConnectionHandler connection) {
+    public ConnectionInfoDialog(@NotNull ConnectionHandler connection, @Nullable ConnectionInfo connectionInfo, @Nullable SQLException connectionError) {
         super(connection.getProject(), "Connection information", true);
         this.connection = connection.ref();
+        this.connectionInfo = connectionInfo;
+        this.connectionError = connectionError;
         renameAction(getCancelAction(), "Close");
         setModal(true);
         init();
@@ -50,12 +55,17 @@ public class ConnectionInfoDialog extends DBNDialog<ConnectionInfoForm> {
         init();
     }
 
+    @Override
+    protected String getDimensionServiceKey() {
+        return null;
+    }
+
     @NotNull
     @Override
     protected ConnectionInfoForm createForm() {
         if (connection != null) {
             ConnectionHandler connection = this.connection.ensure();
-            return new ConnectionInfoForm(this, connection);
+            return new ConnectionInfoForm(this, connection, connectionInfo, connectionError);
         } else {
             return new ConnectionInfoForm(this, connectionInfo, connectionName, environmentType);
         }

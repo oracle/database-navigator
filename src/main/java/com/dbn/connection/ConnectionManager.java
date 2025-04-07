@@ -69,6 +69,8 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -276,7 +278,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                                     DBNConnection connection = ConnectionUtil.connect(connectionSettings, null, authenticationInfo, SessionId.TEST, false, null);
                                     ConnectionInfo connectionInfo = new ConnectionInfo(connection.getMetaData());
                                     Resources.close(connection);
-                                    showConnectionInfoDialog(connectionInfo, connectionName, environmentType);
+                                    showConnectionInfoDialog(project, connectionInfo, connectionName, environmentType);
                                 } catch (Exception e) {
                                     conditionallyLog(e);
                                     showErrorConnectionMessage(project, connectionName, e);
@@ -378,11 +380,25 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
     }
 
     public static void showConnectionInfoDialog(ConnectionHandler connection) {
-        Dialogs.show(() -> new ConnectionInfoDialog(connection));
+        ConnectionInfo connectionInfo = null;
+        SQLException connectionError = null;
+        try {
+            Connection conn = connection.getMainConnection();
+            connectionInfo = new ConnectionInfo(conn.getMetaData());
+        } catch (SQLException e) {
+            conditionallyLog(e);
+            connectionError = e;
+        }
+
+        showConnectionInfoDialog(connection, connectionInfo, connectionError);
     }
 
-    private static void showConnectionInfoDialog(ConnectionInfo connectionInfo, String connectionName, EnvironmentType environmentType) {
-        Dialogs.show(() -> new ConnectionInfoDialog(null, connectionInfo, connectionName, environmentType));
+    private static void showConnectionInfoDialog(ConnectionHandler connection, ConnectionInfo connectionInfo, SQLException connectionError) {
+        Dialogs.show(() -> new ConnectionInfoDialog(connection, connectionInfo, connectionError));
+    }
+
+    private static void showConnectionInfoDialog(Project project, ConnectionInfo connectionInfo, String connectionName, EnvironmentType environmentType) {
+        Dialogs.show(() -> new ConnectionInfoDialog(project, connectionInfo, connectionName, environmentType));
     }
 
     void promptAuthenticationDialog(
