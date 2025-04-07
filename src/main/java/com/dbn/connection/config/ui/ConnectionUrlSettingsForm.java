@@ -40,6 +40,7 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import com.intellij.util.ui.UIUtil;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
@@ -72,6 +73,8 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.Collections.unmodifiableMap;
 
 public class ConnectionUrlSettingsForm extends DBNFormBase {
+
+    @NonNls
     public static final List<String> EASY_CONNECT_PARAMETER_NAMES = List.of(
             "ENABLE",
             "FAILOVER",
@@ -85,10 +88,16 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
             "HTTPS_PROXY",
             "HTTPS_PROXY_PORT",
             "WALLET_LOCATION");
-     public static final List<String> EASY_CONNECT_TCPS_ONLY_PARAMETER_NAMES = List.of(
+
+    @NonNls
+    public static final List<String> EASY_CONNECT_TCPS_ONLY_PARAMETER_NAMES = List.of(
             "SSL_SERVER_DN_MATCH",
-            "SSL_SERVER_CERT_DN"
-     );
+            "SSL_SERVER_CERT_DN");
+
+    @NonNls
+    public static final List<String> EASY_CONNECT_BOOLEAN_LIKE_STRING_VALUES = List.of(
+            "on", "off", "ON", "OFF", "true", "false", "TRUE", "FALSE", "yes", "no", "YES", "NO");
+
     private JLabel urlTypeLabel;
     private JLabel hostLabelField;
     private JLabel portLabelField;
@@ -151,7 +160,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
         // ensure that we populate table with empty builtin keys even if the current url doesn't have them.
         // (also retain logical order of the parameters)
-        Map<String, String> parameters = new LinkedHashMap<>();
+        LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
         EASY_CONNECT_PARAMETER_NAMES.forEach(key -> parameters.put(key, ""));
         if (this.protocolComboBox.getSelectedItem() == DatabaseProtocol.TCPS) {
             EASY_CONNECT_TCPS_ONLY_PARAMETER_NAMES.forEach(key -> parameters.put(key, ""));
