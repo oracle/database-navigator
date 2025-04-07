@@ -39,6 +39,7 @@ import javax.swing.JScrollPane;
 
 import static com.dbn.common.ui.util.UserInterface.updateScrollPanes;
 import static com.dbn.common.util.Commons.nvl;
+import static com.intellij.openapi.editor.EditorModificationUtil.setReadOnlyHint;
 
 public class JsonDataContentEditorForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -109,6 +110,8 @@ public class JsonDataContentEditorForm extends DBNFormBase {
             Documents.setText(editor, originalContent, true);
             editor.getContentComponent().requestFocus();
         }
+
+        updateEditorState();
     }
 
     public boolean isEditorContentChanged() {
@@ -144,5 +147,15 @@ public class JsonDataContentEditorForm extends DBNFormBase {
         Editors.releaseEditor(editor);
         editor = null;
         super.disposeInner();
+    }
+
+    public void updateEditorState() {
+        boolean connected = getPrentForm().getJsonDataEditor().isConnected();
+        boolean selected = getSelectedCell() != null;
+        boolean readonly = !connected || !selected;
+        editor.setViewer(readonly);
+
+        String readonlyHint = readonly ? selected ? "Not connected to database" : "No content selected" : null;
+        setReadOnlyHint(editor, readonlyHint);
     }
 }

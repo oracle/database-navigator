@@ -529,10 +529,15 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
             } else {
                 editorTable.updateBackground(true);
             }
+            updateContentEditorState();
             editorTable.revalidate();
             editorTable.repaint();
         });
     };
+
+    private void updateContentEditorState() {
+        getContentEditorForm().updateEditorState();
+    }
 
     private final TransactionListener transactionListener = new TransactionListener() {
         @Override
