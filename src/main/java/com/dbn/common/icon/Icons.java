@@ -192,11 +192,11 @@ public class Icons {
     public static final Icon BROWSER_OBJECT_PROPERTIES = load("/img/tools/ObjectProperties.svg");
 
 
-    public static final Icon DATA_EDITOR_ROW_DEFAULT = load("/img/DefaultRow.png");
-    public static final Icon DATA_EDITOR_ROW_INSERT = load("/img/InsertRow.png");
-    public static final Icon DATA_EDITOR_ROW_INSERTED = load("/img/NewRow.png");
-    public static final Icon DATA_EDITOR_ROW_MODIFIED = load("/img/ModifiedRow.png");
-    public static final Icon DATA_EDITOR_ROW_DELETED = load("/img/DeletedRow.png");
+    public static final Icon DATA_EDITOR_ROW_DEFAULT = load("/img/data/DefaultRow.svg");
+    public static final Icon DATA_EDITOR_ROW_INSERT = load("/img/data/InsertRow.svg");
+    public static final Icon DATA_EDITOR_ROW_INSERTED = load("/img/data/NewRow.svg");
+    public static final Icon DATA_EDITOR_ROW_MODIFIED = load("/img/data/ModifiedRow.svg");
+    public static final Icon DATA_EDITOR_ROW_DELETED = load("/img/data/DeletedRow.svg");
 
     public static final Icon DATA_EDITOR_DUPLICATE_RECORD       = ACTION_COPY;
     public static final Icon DATA_EDITOR_INSERT_RECORD          = ACTION_ADD;
