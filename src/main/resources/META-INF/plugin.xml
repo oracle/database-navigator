@@ -156,6 +156,7 @@
         <projectService serviceImplementation="com.dbn.execution.compiler.DatabaseCompilerManager"/>
         <projectService serviceImplementation="com.dbn.execution.method.MethodExecutionManager"/>
         <projectService serviceImplementation="com.dbn.execution.java.JavaExecutionManager"/>
+        <projectService serviceImplementation="com.dbn.execution.java.wrapper.JavaExecutionWrapperManager"/>
         <projectService serviceImplementation="com.dbn.execution.explain.ExplainPlanManager"/>
         <projectService serviceImplementation="com.dbn.execution.logging.DatabaseLoggingManager"/>
         <projectService serviceImplementation="com.dbn.code.common.completion.CodeCompletionManager"/>

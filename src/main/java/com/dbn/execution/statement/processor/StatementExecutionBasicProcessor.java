@@ -77,6 +77,8 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
+import com.dbn.object.event.ObjectChangeAction;
+import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -613,13 +615,15 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
                     DataDefinitionChangeListener.TOPIC,
                     (listener) -> listener.dataDefinitionChanged(affectedObject));
         } else {
-            DBSchema affectedSchema = getAffectedSchema();
+            DBSchema schema = getAffectedSchema();
             IdentifierPsiElement subjectPsiElement = getSubjectPsiElement();
-            if (affectedSchema != null && subjectPsiElement != null) {
+            if (schema != null && subjectPsiElement != null) {
                 DBObjectType objectType = subjectPsiElement.getObjectType();
-                ProjectEvents.notify(project,
-                        DataDefinitionChangeListener.TOPIC,
-                        (listener) -> listener.dataDefinitionChanged(affectedSchema, objectType));
+                ConnectionId connectionId = schema.getConnectionId();
+                SchemaId schemaId = schema.getSchemaId();
+
+                ProjectEvents.notify(project, ObjectChangeListener.TOPIC,
+                        l -> l.objectsChanged(connectionId, schemaId, objectType, ObjectChangeAction.UNKNOWN));
             }
         }
     }

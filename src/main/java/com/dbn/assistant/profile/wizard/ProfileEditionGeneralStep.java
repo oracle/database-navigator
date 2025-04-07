@@ -94,7 +94,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
     addCredentialButton.addActionListener(e -> Dialogs.show(() -> new CredentialEditDialog(connection, null, Set.of())));
 
     Project project = connection.getProject();
-    ProjectEvents.subscribe(project, this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
+    ProjectEvents.subscribe(project, this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType, operation) -> {
       if (connectionId != connection.getConnectionId()) return;
       if (objectType != DBObjectType.CREDENTIAL) return;
       populateCredentials();

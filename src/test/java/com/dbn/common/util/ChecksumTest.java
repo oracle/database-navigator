@@ -24,10 +24,13 @@ import org.junit.Test;
 import java.io.File;
 import java.net.URL;
 
+import static org.junit.Assert.assertNotNull;
+
 public class ChecksumTest {
     @Test
     public void fromFileContentTest() throws Exception {
-        URL resource = getClass().getResource("checksum/T0001.txt");
+        URL resource = ChecksumTest.class.getResource("checksum/T0001.txt");
+        assertNotNull(resource);
         File file = new File(resource.getPath());
         String checksum = Checksum.fromFileContent(file, ChecksumType.SHA_256);
 
@@ -38,6 +41,7 @@ public class ChecksumTest {
     @Test
     public void fromFileAttributesTest() throws Exception {
         URL resource = getClass().getResource("checksum");
+        assertNotNull(resource);
         File file = new File(resource.getPath());
         String checksum = Checksum.fromFileAttributes(file, ChecksumType.SHA_256);
 
@@ -47,6 +51,7 @@ public class ChecksumTest {
     @Test
     public void fromFileContentsTest() throws Exception {
         URL resource = getClass().getResource("checksum");
+        assertNotNull(resource);
         File file = new File(resource.getPath());
         String checksum = Checksum.fromFileContents(file, ChecksumType.SHA_256);
 

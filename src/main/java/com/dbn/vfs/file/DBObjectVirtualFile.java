@@ -65,6 +65,7 @@ public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
         return virtualFileCache.get(objectRef, o -> new DBObjectVirtualFile(o.getProject(), o));
     }
 
+    @NotNull
     public DBObjectType getObjectType() {
         return object.getObjectType();
     }

@@ -21,16 +21,19 @@ import com.intellij.openapi.ui.ValidationInfo;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class StringListConstraintValidator extends PropertiesValidator {
 
     private final Set<String> allowedStrings = new HashSet<>();
     public StringListConstraintValidator(String...strList) {
-        super();
-        allowedStrings.addAll(Arrays.asList(strList));
+        this(Arrays.asList(strList));
     }
-
+    public StringListConstraintValidator(List<String> stringList) {
+        super();
+        allowedStrings.addAll(stringList);
+    }
     @Override
     public ValidationInfo validate(String keyName, Object value) {
         if (! (value instanceof String)) {
