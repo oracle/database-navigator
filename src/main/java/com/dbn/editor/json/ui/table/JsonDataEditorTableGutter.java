@@ -19,9 +19,13 @@ package com.dbn.editor.json.ui.table;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Conditional;
 import com.dbn.data.grid.ui.table.basic.BasicTableGutter;
+import com.dbn.editor.json.model.JsonDataEditorModel;
 
 import javax.swing.ListCellRenderer;
 import java.awt.event.MouseListener;
+
+import static com.dbn.editor.data.model.RecordStatus.INSERTING;
+import static com.dbn.editor.data.model.RecordStatus.MODIFIED;
 
 public class JsonDataEditorTableGutter extends BasicTableGutter<JsonDataEditorTable> {
     public JsonDataEditorTableGutter(JsonDataEditorTable table) {
@@ -32,6 +36,16 @@ public class JsonDataEditorTableGutter extends BasicTableGutter<JsonDataEditorTa
     @Override
     protected ListCellRenderer<?> createCellRenderer() {
         return new JsonDataEditorTableGutterRenderer();
+    }
+
+    @Override
+    protected int getAdditionalSpacing() {
+        JsonDataEditorModel model = getTableModel();
+        return model.isOneOf(MODIFIED, INSERTING) ? 16 : 0;
+    }
+
+    private JsonDataEditorModel getTableModel() {
+        return getTable().getModel();
     }
 
     MouseListener mouseListener = Mouse.listener().onClick(e ->

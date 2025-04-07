@@ -20,8 +20,6 @@ import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNForm;
-import com.dbn.common.ui.table.DBNTableGutter;
-import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Messages;
 import com.dbn.data.grid.ui.table.basic.BasicTableCellRenderer;
 import com.dbn.data.grid.ui.table.basic.BasicTableGutter;
@@ -180,13 +178,6 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
 
     protected boolean isLargeValuePopupActive() {
         return false;
-    }
-
-    public void updateTableGutter() {
-        Dispatch.run(true, () -> {
-            DBNTableGutter tableGutter = getTableGutter();
-            UserInterface.repaint(tableGutter);
-        });
     }
 
     @Override

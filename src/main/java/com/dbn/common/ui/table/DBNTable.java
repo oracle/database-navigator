@@ -20,7 +20,6 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.dispose.StatefulDisposable;
-import com.dbn.common.latent.Latent;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
@@ -79,7 +78,6 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
     private KeyFMap userData = KeyFMap.EMPTY_MAP;
 
     private Timer scrollTimer;
-    private final Latent<DBNTableGutter<?>> tableGutter = Latent.weak(() -> createTableGutter());
 
     @Getter
     @Delegate
@@ -303,29 +301,6 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
                 calculateScrollDistance();
             });
         }
-    }
-
-    protected DBNTableGutter<?> createTableGutter() {
-        return null; // do not create gutter by default
-    }
-
-    public final DBNTableGutter<?> getTableGutter() {
-        return tableGutter.get();
-    }
-
-    public final void initTableGutter() {
-        DBNTableGutter tableGutter = getTableGutter();
-        if (tableGutter == null) return;
-
-        JScrollPane scrollPane = UIUtil.getParentOfType(JScrollPane.class, this);
-        if (scrollPane == null) return;
-
-        scrollPane.setRowHeaderView(tableGutter);
-    }
-
-    protected void resetTableGutter() {
-        tableGutter.reset();
-        initTableGutter();
     }
 
     public void stopCellEditing() {

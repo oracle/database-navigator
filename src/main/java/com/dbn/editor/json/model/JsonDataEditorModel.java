@@ -105,6 +105,7 @@ public class JsonDataEditorModel
         ConnectionHandler connection = getConnection();
         DBNConnection conn = connection.getMainConnection();
 
+        boolean signatureValid = verifySignature(conn);
         loaderCall = new CancellableDatabaseCall<>(connection, conn, timeout, TimeUnit.SECONDS) {
             @Override
             public Object execute() throws Exception {
@@ -115,8 +116,11 @@ public class JsonDataEditorModel
 
                     setResultSet(newResultSet);
                     setResultSetExhausted(false);
-                    if (keepChanges) snapshotChanges();
-                    else clearChanges();
+                    if (keepChanges && signatureValid) {
+                        snapshotChanges();
+                    } else {
+                        clearChanges();
+                    }
 
                     int rowCount = computeRowCount();
 

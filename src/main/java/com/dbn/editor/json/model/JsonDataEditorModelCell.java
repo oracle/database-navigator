@@ -18,6 +18,7 @@ package com.dbn.editor.json.model;
 
 
 import com.dbn.common.ref.WeakRefCache;
+import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Json;
@@ -66,13 +67,16 @@ public class JsonDataEditorModelCell
 
     @Override
     public void updateUserValue(Object newUserValue, boolean bulk) {
-        try {
-            set(RecordStatus.UPDATING, true);
-            updateValue((JsonValue) newUserValue);
-        } finally {
-            setTemporaryUserValue(null);
-            set(RecordStatus.UPDATING, false);
-        }
+        Background.run(() -> {
+            try {
+                set(RecordStatus.UPDATING, true);
+                updateValue((JsonValue) newUserValue);
+                notifyCellUpdated();
+            } finally {
+                setTemporaryUserValue(null);
+                set(RecordStatus.UPDATING, false);
+            }
+        });
     }
 
     @Override
@@ -217,10 +221,6 @@ public class JsonDataEditorModelCell
         });
     }
 
-    public boolean isResultSetUpdatable() {
-        return getRow().isResultSetUpdatable();
-    }
-
     /*********************************************************
      *                    ChangeListener                     *
      *********************************************************/
@@ -279,7 +279,7 @@ public class JsonDataEditorModelCell
     public void revertChanges() {
         if (!isModified()) return;
 
-        updateUserValue(getOriginalUserValue(), false);
+        setUserValue(getOriginalUserValue());
         setModified(false);
     }
 

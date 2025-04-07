@@ -24,10 +24,8 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNForm;
-import com.dbn.common.ui.table.DBNTableGutter;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
-import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Messages;
 import com.dbn.data.grid.options.DataGridAuditColumnSettings;
@@ -218,21 +216,17 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
 
     public void performUpdate(int rowIndex, int columnIndex, Runnable runnable) {
         PropertyHolder<RecordStatus> scope = getUpdateScope(rowIndex, columnIndex);
-        if (scope != null) {
-            scope.set(UPDATING, true);
-            Background.run(() -> {
-                try {
-                    runnable.run();
-                } finally {
-                    scope.set(UPDATING, false);
-                    dispatch(() -> {
-                        DBNTableGutter tableGutter = getTableGutter();
-                        UserInterface.repaint(tableGutter);
-                        UserInterface.repaint(DatasetEditorTable.this);
-                    });
-                }
-            });
-        }
+        if (scope == null) return;
+
+        scope.set(UPDATING, true);
+        Background.run(() -> {
+            try {
+                runnable.run();
+            } finally {
+                scope.set(UPDATING, false);
+                refreshTableGutter();
+            }
+        });
     }
 
     @Nullable
@@ -276,13 +270,6 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
     @Override
     public void removeEditor() {
         Dispatch.run(true, () -> DatasetEditorTable.super.removeEditor());
-    }
-
-    public void updateTableGutter() {
-        Dispatch.run(true, () -> {
-            DBNTableGutter tableGutter = getTableGutter();
-            UserInterface.repaint(tableGutter);
-        });
     }
 
     @Override

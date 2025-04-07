@@ -16,12 +16,66 @@
 
 package com.dbn.common.ui.table;
 
+import com.dbn.common.dispose.Disposer;
+import com.dbn.common.latent.Latent;
 import com.dbn.common.ui.component.DBNComponent;
+import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.JScrollPane;
+import javax.swing.event.TableModelEvent;
 
 public class DBNTableWithGutter<T extends DBNTableWithGutterModel> extends DBNTable<T>{
     public DBNTableWithGutter(DBNComponent parent, T tableModel, boolean showHeader) {
         super(parent, tableModel, showHeader);
+    }
+
+    private final Latent<DBNTableGutter<?>> tableGutter = Latent.basic(() -> createTableGutter());
+
+
+    public void tableChanged(TableModelEvent e) {
+        super.tableChanged(e);
+        refreshTableGutter(e);
+    }
+
+    protected DBNTableGutter<?> createTableGutter() {
+        return null; // do not create gutter by default
+    }
+
+    @Nullable
+    public final DBNTableGutter<?> getTableGutter() {
+        return tableGutter == null ? null : tableGutter.get();
+    }
+
+    public final void initTableGutter() {
+        DBNTableGutter tableGutter = getTableGutter();
+        if (tableGutter == null) return;
+
+        JScrollPane scrollPane = UIUtil.getParentOfType(JScrollPane.class, this);
+        if (scrollPane == null) return;
+
+        scrollPane.setRowHeaderView(tableGutter);
+    }
+
+    public void refreshTableGutter() {
+        DBNTableGutter tableGutter = getTableGutter();
+        if (tableGutter == null) return;
+
+        tableGutter.refresh();
+    }
+
+    private void refreshTableGutter(TableModelEvent e) {
+        DBNTableGutter tableGutter = getTableGutter();
+        if (tableGutter == null) return;
+
+        if (e.getType() == TableModelEvent.UPDATE) {
+            tableGutter.refresh();
+        } else {
+            Disposer.dispose(tableGutter);
+            this.tableGutter.reset();
+            initTableGutter();
+        }
     }
 
     @NotNull

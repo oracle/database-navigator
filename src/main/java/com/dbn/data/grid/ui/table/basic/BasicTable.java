@@ -23,7 +23,6 @@ import com.dbn.common.locale.options.RegionalSettings;
 import com.dbn.common.locale.options.RegionalSettingsListener;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
-import com.dbn.common.ui.table.DBNTableGutter;
 import com.dbn.common.ui.table.DBNTableHeaderRenderer;
 import com.dbn.common.ui.table.DBNTableWithGutter;
 import com.dbn.common.ui.table.TableSelectionRestorer;
@@ -288,14 +287,7 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
 
         if (firstRow != lastRow) {
             adjustColumnWidths();
-            resetTableGutter();
         }
-
-        DBNTableGutter<?> tableGutter = getTableGutter();
-        if (tableGutter == null) return;
-
-        tableGutter.setFixedCellHeight(rowHeight);
-        tableGutter.setFixedCellWidth(getModel().getRowCount() == 0 ? 10 : -1);
     }
 
     @Nullable
