@@ -14,22 +14,14 @@
  * limitations under the License.
  */
 
-package com.dbn.editor.data;
+package com.dbn.editor.json.ui;
 
-import com.dbn.common.property.Property;
+import com.dbn.common.message.MessageType;
+import com.dbn.object.DBJsonView;
 
-public enum DatasetLoadInstruction implements Property.IntBase {
-    USE_CURRENT_FILTER,
-    PRESERVE_CHANGES,
-    DELIBERATE_ACTION,
-    REBUILD;
-
-    public static final DatasetLoadInstruction[] VALUES = values();
-
-    private final IntMasks masks = new IntMasks(this);
-
-    @Override
-    public IntMasks masks() {
-        return masks;
+public class JsonDataEditorLoadErrorNotificationPanel extends JsonDataEditorNotificationPanel {
+    public JsonDataEditorLoadErrorNotificationPanel(DBJsonView jsonView, String sourceLoadError) {
+        super(jsonView, MessageType.ERROR);
+        setText("Could not load data for " + jsonView.getQualifiedNameWithType() + ". Error details: " + sourceLoadError.replace("\n", " "));
     }
 }

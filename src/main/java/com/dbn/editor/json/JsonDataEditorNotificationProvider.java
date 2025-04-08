@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.dbn.editor.data;
+package com.dbn.editor.json;
 
 import com.dbn.common.editor.EditorNotificationProvider;
 import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Strings;
-import com.dbn.editor.data.ui.DatasetEditorLoadErrorNotificationPanel;
-import com.dbn.editor.data.ui.DatasetEditorNotificationPanel;
-import com.dbn.editor.data.ui.DatasetEditorReadonlyNotificationPanel;
-import com.dbn.object.DBTable;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.editor.data.DataLoadListener;
+import com.dbn.editor.json.ui.JsonDataEditorLoadErrorNotificationPanel;
+import com.dbn.editor.json.ui.JsonDataEditorNotificationPanel;
+import com.dbn.editor.json.ui.JsonDataEditorReadonlyNotificationPanel;
+import com.dbn.object.DBJsonView;
 import com.dbn.vfs.DBVirtualFile;
 import com.dbn.vfs.file.DBContentVirtualFile;
-import com.dbn.vfs.file.DBDatasetVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
+import com.dbn.vfs.file.DBJsonDataVirtualFile;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
@@ -38,16 +38,16 @@ import com.intellij.ui.EditorNotifications;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class DatasetEditorNotificationProvider extends EditorNotificationProvider<DatasetEditorNotificationPanel> {
-    private static final Key<DatasetEditorNotificationPanel> KEY = Key.create("DBNavigator.DatasetEditorNotificationPanel");
+public class JsonDataEditorNotificationProvider extends EditorNotificationProvider<JsonDataEditorNotificationPanel> {
+    private static final Key<JsonDataEditorNotificationPanel> KEY = Key.create("DBNavigator.JsonDataEditorNotificationPanel");
 
-    public DatasetEditorNotificationProvider() {
-        ProjectEvents.subscribe(DataLoadListener.TOPIC, datasetLoadListener());
+    public JsonDataEditorNotificationProvider() {
+        ProjectEvents.subscribe(DataLoadListener.TOPIC, dataLoadListener());
         ProjectEvents.subscribe(EnvironmentManagerListener.TOPIC, environmentManagerListener());
     }
 
     @NotNull
-    private static DataLoadListener datasetLoadListener() {
+    private static DataLoadListener dataLoadListener() {
         return new DataLoadListener() {
             @Override
             public void dataLoaded(@NotNull DBVirtualFile virtualFile) {
@@ -73,7 +73,7 @@ public class DatasetEditorNotificationProvider extends EditorNotificationProvide
 
             @Override
             public void editModeChanged(Project project, DBContentVirtualFile databaseContentFile) {
-                if (databaseContentFile instanceof DBDatasetVirtualFile) {
+                if (databaseContentFile instanceof DBJsonDataVirtualFile) {
                     updateEditorNotification(project, databaseContentFile);
                 }
             }
@@ -82,29 +82,29 @@ public class DatasetEditorNotificationProvider extends EditorNotificationProvide
 
     @NotNull
     @Override
-    public Key<DatasetEditorNotificationPanel> getKey() {
+    public Key<JsonDataEditorNotificationPanel> getKey() {
         return KEY;
     }
 
     @Nullable
     @Override
-    public DatasetEditorNotificationPanel createComponent(@NotNull VirtualFile virtualFile, @NotNull FileEditor fileEditor, @NotNull Project project) {
+    public JsonDataEditorNotificationPanel createComponent(@NotNull VirtualFile virtualFile, @NotNull FileEditor fileEditor, @NotNull Project project) {
         if (!(virtualFile instanceof DBEditableObjectVirtualFile)) return null;
-        if (!(fileEditor instanceof DatasetEditor)) return null;
+        if (!(fileEditor instanceof JsonDataEditor)) return null;
 
         DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) virtualFile;
-        DatasetEditor datasetEditor = (DatasetEditor) fileEditor;
+        JsonDataEditor jsonDataEditor = (JsonDataEditor) fileEditor;
 
-        DBSchemaObject editableObject = editableObjectFile.getObject();
-        if (!datasetEditor.isLoaded()) return null;
+        DBJsonView jsonView = (DBJsonView) editableObjectFile.getObject();
+        if (!jsonDataEditor.isLoaded()) return null;
 
-        String sourceLoadError = datasetEditor.getDataLoadError();
-        if (Strings.isNotEmpty(sourceLoadError)) {
-            return new DatasetEditorLoadErrorNotificationPanel(editableObject, sourceLoadError);
+        String dataLoadError = jsonDataEditor.getDataLoadError();
+        if (Strings.isNotEmpty(dataLoadError)) {
+            return new JsonDataEditorLoadErrorNotificationPanel(jsonView, dataLoadError);
         }
 
-        if (editableObject instanceof DBTable && editableObjectFile.getEnvironmentType().isReadonlyData()) {
-            return new DatasetEditorReadonlyNotificationPanel(editableObject);
+        if (editableObjectFile.getEnvironmentType().isReadonlyData()) {
+            return new JsonDataEditorReadonlyNotificationPanel(jsonView);
         }
 
         return null;

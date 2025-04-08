@@ -36,7 +36,6 @@ import com.dbn.data.grid.options.DataGridSettings;
 import com.dbn.data.model.ColumnInfo;
 import com.dbn.data.model.DataModelCell;
 import com.dbn.data.model.DataModelRow;
-import com.dbn.data.model.DataModelState;
 import com.dbn.data.model.basic.BasicDataModel;
 import com.dbn.data.model.basic.BasicDataModelCell;
 import com.dbn.data.preview.LargeValuePreviewPopup;
@@ -360,9 +359,7 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
         if (getSelectedColumnCount() != 1) return;
 
         T model = getModel();
-        DataModelState modelState = model.getState();
-        boolean isReadonly = model.isReadonly() || model.isEnvironmentReadonly() || modelState.isReadonly() ;
-        if (!isReadonly) return;
+        if (!model.isReadonly()) return;
 
         int rowIndex = getSelectedRow();
         int columnIndex = getSelectedColumn();

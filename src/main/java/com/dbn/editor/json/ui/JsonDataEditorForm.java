@@ -39,7 +39,6 @@ import com.dbn.editor.DBContentType;
 import com.dbn.editor.json.JsonDataEditor;
 import com.dbn.editor.json.model.JsonDataEditorModelCell;
 import com.dbn.editor.json.ui.table.JsonDataEditorTable;
-import com.dbn.object.DBDataset;
 import com.dbn.object.DBJsonView;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -76,7 +75,7 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
     private JPanel toolbarPanel;
     private JPanel editorPanel;
     private JSplitPane editorSplitPanel;
-    private JsonDataEditorTable datasetEditorTable;
+    private JsonDataEditorTable jsonDataEditorTable;
     private final WeakRef<JsonDataEditor> jsonDataEditor;
     private final WeakRef<JsonDataContentEditorForm> contentEditorForm;
 
@@ -91,16 +90,16 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
         super(jsonDataEditor, jsonDataEditor.getProject());
         this.jsonDataEditor = WeakRef.of(jsonDataEditor);
 
-        DBDataset jsonView = getJsonView();
+        DBJsonView jsonView = getJsonView();
         try {
             toolbarPanel.setBorder(Borders.insetBorder(2));
 
             tablePanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
             editorPanel.setBorder(Borders.tableBorder(0, 1, 0, 0));
             editorPanel.setVisible(false);
-            datasetEditorTable = new JsonDataEditorTable(this, jsonDataEditor);
-            jsonDataTableScrollPane.setViewportView(datasetEditorTable);
-            datasetEditorTable.initTableGutter();
+            jsonDataEditorTable = new JsonDataEditorTable(this, jsonDataEditor);
+            jsonDataTableScrollPane.setViewportView(jsonDataEditorTable);
+            jsonDataEditorTable.initTableGutter();
 
             ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.JsonDataEditor");
             setAccessibleName(actionToolbar, txt("app.dataEditor.aria.JsonDataEditorActions"));
@@ -126,7 +125,7 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
             autoCommitLabel.init(getProject(), jsonDataEditor.getFile(), connection, SessionId.MAIN);
         }
 
-        UserInterface.whenShown(mainPanel, () -> datasetEditorTable.requestFocus(), false);
+        UserInterface.whenShown(mainPanel, () -> jsonDataEditorTable.requestFocus(), false);
 
         mainPanel.setFocusCycleRoot(true);
         mainPanel.setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
@@ -141,9 +140,9 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
 
     public JsonDataEditorTable beforeRebuild() throws SQLException {
         JsonDataEditorTable oldEditorTable = getEditorTable();
-        JsonDataEditor datasetEditor = getJsonDataEditor();
+        JsonDataEditor dataEditor = getJsonDataEditor();
 
-        datasetEditorTable = new JsonDataEditorTable(this, datasetEditor);
+        jsonDataEditorTable = new JsonDataEditorTable(this, dataEditor);
         return oldEditorTable;
     }
 
@@ -198,7 +197,7 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
 
     @NotNull
     public JsonDataEditorTable getEditorTable() {
-        return nn(datasetEditorTable);
+        return nn(jsonDataEditorTable);
     }
 
     private ConnectionHandler getConnectionHandler() {
@@ -280,7 +279,7 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
     @Nullable
     @Override
     public Object getData(@NotNull String dataId) {
-        if (DataKeys.DATASET_EDITOR.is(dataId)) return getJsonDataEditor();
+        if (DataKeys.JSON_DATA_EDITOR.is(dataId)) return getJsonDataEditor();
         return null;
     }
 }

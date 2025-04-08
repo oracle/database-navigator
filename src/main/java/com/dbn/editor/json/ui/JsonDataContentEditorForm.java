@@ -17,6 +17,8 @@
 package com.dbn.editor.json.ui;
 
 import com.dbn.common.dispose.Disposer;
+import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
@@ -24,9 +26,11 @@ import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Json;
 import com.dbn.data.value.JsonValue;
+import com.dbn.editor.json.JsonDataEditor;
 import com.dbn.editor.json.JsonFileCache;
 import com.dbn.editor.json.model.JsonDataEditorModelCell;
 import com.dbn.object.DBJsonView;
+import com.dbn.vfs.file.DBContentVirtualFile;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
@@ -36,6 +40,7 @@ import com.intellij.psi.PsiFile;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.event.HyperlinkListener;
 
 import static com.dbn.common.ui.util.UserInterface.updateScrollPanes;
 import static com.dbn.common.util.Commons.nvl;
@@ -55,7 +60,22 @@ public class JsonDataContentEditorForm extends DBNFormBase {
     public JsonDataContentEditorForm(JsonDataEditorForm parent) {
         super(parent);
 
+        ProjectEvents.subscribe(EnvironmentManagerListener.TOPIC, environmentManagerListener());
         initJsonContentEditor();
+    }
+
+    private EnvironmentManagerListener environmentManagerListener() {
+        return new EnvironmentManagerListener() {
+            @Override
+            public void configurationChanged(Project project) {
+                updateEditorState();
+            }
+
+            @Override
+            public void editModeChanged(Project project, DBContentVirtualFile databaseContentFile) {
+                updateEditorState();
+            }
+        };
     }
 
     private JsonDataEditorForm getPrentForm() {
@@ -150,12 +170,27 @@ public class JsonDataContentEditorForm extends DBNFormBase {
     }
 
     public void updateEditorState() {
-        boolean connected = getPrentForm().getJsonDataEditor().isConnected();
+        JsonDataEditor jsonDataEditor = getPrentForm().getJsonDataEditor();
+        boolean connected = jsonDataEditor.isConnected();
+        boolean locked = jsonDataEditor.isEditingLocked();
+        boolean editable = !jsonDataEditor.isReadonly();
         boolean selected = getSelectedCell() != null;
-        boolean readonly = !connected || !selected;
+
+        String readonlyHint =
+                !selected ? "No content selected" :
+                //locked ? "<html>Editing is locked. <a href=''>Unlock</a></html>" :
+                locked ? "Editor is locked" :
+                !editable ? "View or database environment is readonly" :
+                !connected ? "Not connected to database" : null;
+
+        boolean readonly = !editable || !connected || !selected;
         editor.setViewer(readonly);
 
-        String readonlyHint = readonly ? selected ? "Not connected to database" : "No content selected" : null;
-        setReadOnlyHint(editor, readonlyHint);
+        HyperlinkListener unlockListener = null; /* locked ? e -> {
+            if (e.getEventType() != ACTIVATED) return;
+            jsonDataEditor.toggleEditingLock();
+        : null}*/;
+
+        setReadOnlyHint(editor, readonlyHint, unlockListener);
     }
 }

@@ -16,6 +16,7 @@
 
 package com.dbn.editor.json.action;
 
+import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.icon.Icons;
 import com.dbn.editor.json.JsonDataEditor;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -29,25 +30,41 @@ import static com.dbn.nls.NlsResources.txt;
 public class JsonDataEditingLockToggleAction extends AbstractJsonDataEditorAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull JsonDataEditor editor) {
-        boolean readonly = editor.isReadonly();
-        editor.setReadonly(!readonly);
-
+        editor.toggleEditingLock();
     }
 
     @Override
-    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable JsonDataEditor editor) {
-        if (editor == null) {
+    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable JsonDataEditor jsonDataEditor) {
+        if (jsonDataEditor == null) {
             presentation.setEnabled(false);
             presentation.setIcon(Icons.DATA_EDITOR_LOCKED);
             presentation.setText(txt("app.dataEditor.action.LockUnlockEditing"));
-        } else {
-            boolean isEnvironmentReadonlyData = editor.getJsonView().getEnvironmentType().isReadonlyData();
-            presentation.setVisible(!editor.isReadonlyData() && !isEnvironmentReadonlyData);
-            boolean selected = editor.isReadonly();
-            presentation.setText(selected ? txt("app.dataEditor.action.UnlockEditing") : txt("app.dataEditor.action.LockEditing"));
-            presentation.setIcon(selected ? Icons.DATA_EDITOR_LOCKED : Icons.DATA_EDITOR_UNLOCKED);
-            boolean enabled = !editor.isInserting();
-            presentation.setEnabled(enabled);
+            return;
         }
+
+        boolean visible = isVisible(jsonDataEditor);
+        boolean enabled = isEnabled(jsonDataEditor);
+        boolean locked = jsonDataEditor.isEditingLocked();
+
+        presentation.setText(locked ? txt("app.dataEditor.action.UnlockEditing") : txt("app.dataEditor.action.LockEditing"));
+        presentation.setIcon(locked ? Icons.DATA_EDITOR_LOCKED : Icons.DATA_EDITOR_UNLOCKED);
+        presentation.setVisible(visible);
+        presentation.setEnabled(enabled);
     }
+
+    private boolean isVisible(JsonDataEditor jsonDataEditor) {
+        if (jsonDataEditor.isReadonlyData()) return false;
+
+        EnvironmentType environmentType = jsonDataEditor.getDataset().getEnvironmentType();
+        if (environmentType.isReadonlyData()) return false;
+
+        return true;
+    }
+
+    private boolean isEnabled(JsonDataEditor jsonDataEditor) {
+        if (jsonDataEditor.isInserting()) return false;
+
+        return true;
+    }
+
 }

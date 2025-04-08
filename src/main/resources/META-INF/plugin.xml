@@ -712,6 +712,7 @@
         <editorNotificationProvider implementation="com.dbn.ddl.DDLMappedNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.editor.code.SourceCodeEditorNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.editor.data.DatasetEditorNotificationProvider"/>
+        <editorNotificationProvider implementation="com.dbn.editor.json.JsonDataEditorNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.editor.session.SessionBrowserNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.connection.mapping.FileConnectionContextNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.assistant.editor.notification.AssistantEditorNotificationProvider"/>

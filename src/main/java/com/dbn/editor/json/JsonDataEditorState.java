@@ -64,9 +64,9 @@ public class JsonDataEditorState extends SortableDataModelState implements FileE
     @Override
     public JsonDataEditorState clone() {
         JsonDataEditorState clone = new JsonDataEditorState();
+        clone.setRowCount(rowCount);
         clone.setReadonly(readonly);
         clone.setEditorVisible(editorVisible);
-        clone.setRowCount(rowCount);
         return clone;
     }
 }

@@ -19,7 +19,6 @@ package com.dbn.editor.json;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.EditorProviderId;
-import com.dbn.editor.data.state.DatasetEditorState;
 import com.dbn.object.DBJsonView;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
@@ -82,7 +81,7 @@ public class JsonDataEditorProvider implements FileEditorProvider, NamedComponen
 
             }
         }
-        return new DatasetEditorState();
+        return new JsonDataEditorState();
     }
 
     @Override

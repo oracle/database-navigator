@@ -33,8 +33,7 @@ import com.dbn.data.value.LargeObjectValue;
 import com.dbn.data.value.ValueAdapter;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.EditorProviderId;
-import com.dbn.editor.data.DatasetLoadInstructions;
-import com.dbn.editor.data.model.DatasetEditorModelCell;
+import com.dbn.editor.data.DataLoadInstructions;
 import com.dbn.editor.json.JsonDataEditor;
 import com.dbn.editor.json.model.JsonDataEditorModel;
 import com.dbn.editor.json.model.JsonDataEditorModelCell;
@@ -43,7 +42,6 @@ import com.dbn.editor.json.ui.JsonDataEditorErrorForm;
 import com.dbn.editor.json.ui.JsonDataEditorForm;
 import com.dbn.editor.json.ui.table.listener.JsonDataEditorMouseListener;
 import com.dbn.object.DBColumn;
-import com.dbn.object.DBDataset;
 import com.dbn.object.DBJsonView;
 import lombok.Getter;
 import lombok.Setter;
@@ -61,9 +59,9 @@ import java.util.EventObject;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
-import static com.dbn.editor.data.DatasetLoadInstruction.DELIBERATE_ACTION;
-import static com.dbn.editor.data.DatasetLoadInstruction.PRESERVE_CHANGES;
-import static com.dbn.editor.data.DatasetLoadInstruction.USE_CURRENT_FILTER;
+import static com.dbn.editor.data.DataLoadInstruction.DELIBERATE_ACTION;
+import static com.dbn.editor.data.DataLoadInstruction.PRESERVE_CHANGES;
+import static com.dbn.editor.data.DataLoadInstruction.USE_CURRENT_FILTER;
 import static com.dbn.editor.data.model.RecordStatus.INSERTING;
 import static com.dbn.editor.data.model.RecordStatus.UPDATING;
 import static com.dbn.nls.NlsResources.txt;
@@ -71,7 +69,7 @@ import static com.dbn.nls.NlsResources.txt;
 @Getter
 @Setter
 public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
-    private static final DatasetLoadInstructions SORT_LOAD_INSTRUCTIONS = new DatasetLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION);
+    private static final DataLoadInstructions SORT_LOAD_INSTRUCTIONS = new DataLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION);
     private final WeakRef<JsonDataEditor> editor;
 
     private final JsonDataEditorMouseListener tableMouseListener = new JsonDataEditorMouseListener(this);
@@ -91,11 +89,6 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
         getSelectionModel().addListSelectionListener(getModel());
         addMouseListener(tableMouseListener);
 
-        /*
-        DataProvider dataProvider = datasetEditor.getDataProvider();
-        ActionUtil.registerDataProvider(this, dataProvider, false);
-        ActionUtil.registerDataProvider(getTableHeader(), dataProvider, false);
-*/
         setAccessibleName(this, "Json Data Editor");
         setFocusable(true);
         setRequestFocusEnabled(true);
@@ -208,20 +201,8 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
     @Override
     public String getToolTipText(@NotNull MouseEvent e) {
         DataModelCell cell = getCellAtLocation(e.getPoint());
-        if (cell instanceof DatasetEditorModelCell) {
-            DatasetEditorModelCell editorTableCell = (DatasetEditorModelCell) cell;
-/*            if (event.isControlDown() && isNavigableCellAtMousePosition()) {
-                DBColumn column = editorTableCell.getColumnInfo().getColumn();
-                DBColumn foreignKeyColumn = column.getForeignKeyColumn();
-                if (foreignKeyColumn != null) {
-                    StringBuilder text = new StringBuilder("<html>");
-                    text.append("Show ");
-                    text.append(foreignKeyColumn.getDataset().getName());
-                    text.append(" record");
-                    text.append("</html>");
-                    return text.toString();
-                }
-            }*/
+        if (cell instanceof JsonDataEditorModelCell) {
+            JsonDataEditorModelCell editorTableCell = (JsonDataEditorModelCell) cell;
 
             if (editorTableCell.hasError()) {
                 StringBuilder text = new StringBuilder("<html>");
@@ -310,15 +291,15 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
         if (model.is(INSERTING)) {
             int insertRowIndex = getModel().getInsertRowIndex();
             if (insertRowIndex != -1 && (insertRowIndex == e.getFirstIndex() || insertRowIndex == e.getLastIndex()) && getSelectedRow() != insertRowIndex) {
-                DBDataset dataset = getJsonView();
-                Progress.prompt(getProject(), dataset, false,
+                DBJsonView jsonView = getJsonView();
+                Progress.prompt(getProject(), jsonView, false,
                         txt("prc.dataEditor.title.RefreshingData"),
-                        txt("prc.dataEditor.text.RefreshingDataFor", dataset.getQualifiedNameWithType()),
+                        txt("prc.dataEditor.text.RefreshingDataFor", jsonView.getQualifiedNameWithType()),
                         progress -> {
                             try {
                                 model.postInsertRecord(false, true, false);
                             } catch (SQLException e1) {
-                                Messages.showErrorDialog(getProject(), "Could not create row in " + dataset.getQualifiedNameWithType() + ".", e1);
+                                Messages.showErrorDialog(getProject(), "Could not create row in " + jsonView.getQualifiedNameWithType() + ".", e1);
                             }
                         });
             }
@@ -350,11 +331,11 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
             JsonDataEditorModelCell cell,
             ColumnInfo columnInfo) {
 
-        DBDataset dataset = getJsonView();
-        DBColumn column = dataset.getColumn(columnInfo.getName());
+        DBJsonView jsonView = getJsonView();
+        DBColumn column = jsonView.getColumn(columnInfo.getName());
         if (isNotValid(column)) return;
 
-        Progress.prompt(getProject(), dataset, true,
+        Progress.prompt(getProject(), jsonView, true,
                 txt("prc.dataEditor.title.LoadingColumnInformation"),
                 txt("prc.dataEditor.text.LoadingDetailsOf", column.getQualifiedNameWithType()),
                 progress -> {

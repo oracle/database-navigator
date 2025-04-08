@@ -35,6 +35,7 @@ import com.dbn.editor.EditorProviderId;
 import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.data.DatasetEditor;
 import com.dbn.editor.ddl.DDLFileEditor;
+import com.dbn.editor.json.JsonDataEditor;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.psi.PsiUtil;
@@ -44,6 +45,7 @@ import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.dbn.vfs.file.DBDatasetVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
+import com.dbn.vfs.file.DBJsonDataVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.ide.highlighter.HighlighterFactory;
 import com.intellij.openapi.application.ModalityState;
@@ -314,7 +316,15 @@ public class Editors {
             for (DatasetEditor datasetEditor : getFileEditors(project, DatasetEditor.class)) {
                 if (Objects.equals(datasetEditor.getDatabaseFile(), objectFile)) {
                     datasetEditor.getEditorTable().cancelEditing();
-                    datasetEditor.setEnvironmentReadonly(readonly);
+                }
+            }
+        } else if (contentFile instanceof DBJsonDataVirtualFile) {
+            DBJsonDataVirtualFile jsonDataFile = (DBJsonDataVirtualFile) contentFile;
+            DBEditableObjectVirtualFile objectFile = jsonDataFile.getMainDatabaseFile();
+            List<JsonDataEditor> jsonDataEditors = getFileEditors(project, JsonDataEditor.class);
+            for (JsonDataEditor jsonDataEditor : jsonDataEditors) {
+                if (Objects.equals(jsonDataEditor.getDatabaseFile(), objectFile)) {
+                    jsonDataEditor.updateContentEditorState();
                 }
             }
         }

@@ -19,7 +19,6 @@ package com.dbn.editor.json.model;
 import com.dbn.common.dispose.AlreadyDisposedException;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
-import com.dbn.common.environment.EnvironmentManager;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.CancellableDatabaseCall;
 import com.dbn.common.thread.Progress;
@@ -31,7 +30,6 @@ import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.database.DatabaseFeature;
-import com.dbn.editor.DBContentType;
 import com.dbn.editor.data.filter.DatasetFilter;
 import com.dbn.editor.data.filter.DatasetFilterManager;
 import com.dbn.editor.data.model.ResultSetAdapter;
@@ -58,7 +56,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.environment.EnvironmentManager.isTransientlyEditable;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.editor.DBContentType.JSON;
 import static com.dbn.editor.data.model.RecordStatus.DELETED;
 import static com.dbn.editor.data.model.RecordStatus.DIRTY;
 import static com.dbn.editor.data.model.RecordStatus.INSERTED;
@@ -90,10 +90,6 @@ public class JsonDataEditorModel
         this.resultSetUpdatable = DatabaseFeature.UPDATABLE_RESULT_SETS.isSupported(getConnection());
 
         setHeader(new JsonDataEditorModelHeader(jsonDataEditor, null));
-
-        EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
-        boolean readonly = environmentManager.isReadonly(jsonView, DBContentType.DATA);
-        setEnvironmentReadonly(readonly);
     }
 
     public void load(boolean useCurrentFilter, boolean keepChanges) throws SQLException {
@@ -262,11 +258,24 @@ public class JsonDataEditorModel
 
     @Override
     public boolean isReadonly() {
-        return !isEditable();
+        DBJsonView jsonView = getJsonView();
+
+        // non-editable views
+        boolean objectReadonly = !jsonView.isEditable(JSON);
+        if (objectReadonly) return true;
+
+        boolean environmentReadonly = jsonView.getEnvironmentType().isReadonlyData();
+        if (environmentReadonly) {
+            // user intentional override of environment settings
+            return !isTransientlyEditable(jsonView, JSON);
+        }
+
+        // get from model state
+        return getState().isReadonly();
     }
 
     public boolean isEditable() {
-        return getJsonView().isEditable(DBContentType.JSON);
+        return !isReadonly();
     }
 
     @NotNull

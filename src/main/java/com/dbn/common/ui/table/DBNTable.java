@@ -398,7 +398,7 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
      * @param runnable the runnable to be sent to dispatch thread
      */
     protected void dispatch(Runnable runnable) {
-        Dispatch.execute(this, runnable);
+        Dispatch.run(this, runnable);
     }
 
     /********************************************************

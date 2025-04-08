@@ -18,12 +18,12 @@ package com.dbn.editor.data;
 
 import com.dbn.common.property.Property;
 
-public enum DatasetEditorStatus implements Property.IntBase {
+public enum DataEditorStatus implements Property.IntBase {
     CONNECTED,
     LOADING,
     LOADED;
 
-    public static final DatasetEditorStatus[] VALUES = values();
+    public static final DataEditorStatus[] VALUES = values();
 
     private final IntMasks masks = new IntMasks(this);
 

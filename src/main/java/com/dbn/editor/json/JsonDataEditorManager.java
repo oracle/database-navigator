@@ -23,8 +23,7 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.EditorProviderId;
-import com.dbn.editor.data.DatasetEditor;
-import com.dbn.editor.data.DatasetLoadInstructions;
+import com.dbn.editor.data.DataLoadInstructions;
 import com.dbn.editor.data.filter.DatasetFilterInput;
 import com.dbn.editor.data.filter.DatasetFilterManager;
 import com.dbn.object.DBDataset;
@@ -47,10 +46,10 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newStateElement;
-import static com.dbn.editor.data.DatasetLoadInstruction.DELIBERATE_ACTION;
-import static com.dbn.editor.data.DatasetLoadInstruction.PRESERVE_CHANGES;
-import static com.dbn.editor.data.DatasetLoadInstruction.REBUILD;
-import static com.dbn.editor.data.DatasetLoadInstruction.USE_CURRENT_FILTER;
+import static com.dbn.editor.data.DataLoadInstruction.DELIBERATE_ACTION;
+import static com.dbn.editor.data.DataLoadInstruction.PRESERVE_CHANGES;
+import static com.dbn.editor.data.DataLoadInstruction.REBUILD;
+import static com.dbn.editor.data.DataLoadInstruction.USE_CURRENT_FILTER;
 
 @State(
     name = JsonDataEditorManager.COMPONENT_NAME,
@@ -61,8 +60,8 @@ import static com.dbn.editor.data.DatasetLoadInstruction.USE_CURRENT_FILTER;
 public class JsonDataEditorManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.JsonDataEditorManager";
 
-    private static final DatasetLoadInstructions INITIAL_LOAD_INSTRUCTIONS = new DatasetLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, REBUILD);
-    private static final DatasetLoadInstructions RELOAD_LOAD_INSTRUCTIONS = new DatasetLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION);
+    private static final DataLoadInstructions INITIAL_LOAD_INSTRUCTIONS = new DataLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, REBUILD);
+    private static final DataLoadInstructions RELOAD_LOAD_INSTRUCTIONS = new DataLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION);
 
 
     private JsonDataEditorManager(Project project) {
@@ -109,12 +108,12 @@ public class JsonDataEditorManager extends ProjectComponentBase implements Persi
         };
     }
 
-    public void reloadEditorData(DBDataset dataset) {
-        VirtualFile file = dataset.getVirtualFile();
+    public void reloadEditorData(DBJsonView jsonView) {
+        VirtualFile file = jsonView.getVirtualFile();
         FileEditor[] fileEditors = FileEditorManager.getInstance(getProject()).getEditors(file);
         for (FileEditor fileEditor : fileEditors) {
-            if (fileEditor instanceof DatasetEditor) {
-                DatasetEditor datasetEditor = (DatasetEditor) fileEditor;
+            if (fileEditor instanceof JsonDataEditor) {
+                JsonDataEditor datasetEditor = (JsonDataEditor) fileEditor;
                 datasetEditor.loadData(RELOAD_LOAD_INSTRUCTIONS);
                 break;
             }

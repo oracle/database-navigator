@@ -17,8 +17,8 @@
 package com.dbn.editor.data.action;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.editor.data.DataLoadInstructions;
 import com.dbn.editor.data.DatasetEditor;
-import com.dbn.editor.data.DatasetLoadInstructions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -26,14 +26,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isValid;
-import static com.dbn.editor.data.DatasetLoadInstruction.DELIBERATE_ACTION;
-import static com.dbn.editor.data.DatasetLoadInstruction.PRESERVE_CHANGES;
-import static com.dbn.editor.data.DatasetLoadInstruction.USE_CURRENT_FILTER;
+import static com.dbn.editor.data.DataLoadInstruction.DELIBERATE_ACTION;
+import static com.dbn.editor.data.DataLoadInstruction.PRESERVE_CHANGES;
+import static com.dbn.editor.data.DataLoadInstruction.USE_CURRENT_FILTER;
 import static com.dbn.nls.NlsResources.txt;
 
 public class DataReloadAction extends AbstractDataEditorAction {
 
-    private static final DatasetLoadInstructions LOAD_INSTRUCTIONS = new DatasetLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION);
+    private static final DataLoadInstructions LOAD_INSTRUCTIONS = new DataLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION);
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {

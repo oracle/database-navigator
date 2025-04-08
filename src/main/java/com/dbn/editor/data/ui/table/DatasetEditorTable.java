@@ -42,8 +42,8 @@ import com.dbn.data.value.LargeObjectValue;
 import com.dbn.data.value.ValueAdapter;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.EditorProviderId;
+import com.dbn.editor.data.DataLoadInstructions;
 import com.dbn.editor.data.DatasetEditor;
-import com.dbn.editor.data.DatasetLoadInstructions;
 import com.dbn.editor.data.action.DatasetEditorTableActionGroup;
 import com.dbn.editor.data.model.DatasetEditorModel;
 import com.dbn.editor.data.model.DatasetEditorModelCell;
@@ -84,15 +84,15 @@ import java.util.EventObject;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
-import static com.dbn.editor.data.DatasetLoadInstruction.DELIBERATE_ACTION;
-import static com.dbn.editor.data.DatasetLoadInstruction.PRESERVE_CHANGES;
-import static com.dbn.editor.data.DatasetLoadInstruction.USE_CURRENT_FILTER;
+import static com.dbn.editor.data.DataLoadInstruction.DELIBERATE_ACTION;
+import static com.dbn.editor.data.DataLoadInstruction.PRESERVE_CHANGES;
+import static com.dbn.editor.data.DataLoadInstruction.USE_CURRENT_FILTER;
 import static com.dbn.editor.data.model.RecordStatus.INSERTING;
 import static com.dbn.editor.data.model.RecordStatus.UPDATING;
 import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
-    private static final DatasetLoadInstructions SORT_LOAD_INSTRUCTIONS = new DatasetLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION);
+    private static final DataLoadInstructions SORT_LOAD_INSTRUCTIONS = new DataLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION);
     private final WeakRef<DatasetEditor> datasetEditor;
 
     private final DatasetTableCellEditorFactory cellEditorFactory = new DatasetTableCellEditorFactory();

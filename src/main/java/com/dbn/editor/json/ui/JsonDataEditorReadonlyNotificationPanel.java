@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.dbn.editor.data.ui;
+package com.dbn.editor.json.ui;
 
 import com.dbn.common.environment.EnvironmentManager;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.util.Messages;
 import com.dbn.editor.DBContentType;
+import com.dbn.object.DBJsonView;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettingsManager;
@@ -28,8 +29,8 @@ import com.intellij.openapi.project.Project;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.nls.NlsResources.txt;
 
-public class DatasetEditorReadonlyNotificationPanel extends DatasetEditorNotificationPanel{
-    public DatasetEditorReadonlyNotificationPanel(DBSchemaObject object) {
+public class JsonDataEditorReadonlyNotificationPanel extends JsonDataEditorNotificationPanel {
+    public JsonDataEditorReadonlyNotificationPanel(DBJsonView object) {
         super(object, isReadonly(object) ? MessageType.INFO : MessageType.WARNING);
         String environmentName = object.getEnvironmentType().getName();
         final Project project = object.getProject();
@@ -43,13 +44,13 @@ public class DatasetEditorReadonlyNotificationPanel extends DatasetEditorNotific
                             Messages.OPTIONS_YES_CANCEL, 0,
                             option -> when(option == 0, () -> {
                                 EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
-                                environmentManager.enableEditing(object, DBContentType.DATA);
+                                environmentManager.enableEditing(object, DBContentType.JSON);
                             })));
         } else {
             setText(txt("ntf.dataEditor.text.EditableData", environmentName));
             createActionLabel(txt("app.dataEditor.link.CancelEditing"), () -> {
                 EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
-                environmentManager.disableEditing(object, DBContentType.DATA);
+                environmentManager.disableEditing(object, DBContentType.JSON);
             });
         }
 
@@ -60,6 +61,6 @@ public class DatasetEditorReadonlyNotificationPanel extends DatasetEditorNotific
     }
 
     private static boolean isReadonly(DBSchemaObject schemaObject) {
-        return !EnvironmentManager.isTransientlyEditable(schemaObject, DBContentType.DATA);
+        return !EnvironmentManager.isTransientlyEditable(schemaObject, DBContentType.JSON);
     }
 }

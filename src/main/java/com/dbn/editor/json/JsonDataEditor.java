@@ -18,34 +18,24 @@ package com.dbn.editor.json;
 
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.Lookups;
-import com.dbn.common.dispose.DisposableUserDataHolderBase;
 import com.dbn.common.dispose.Failsafe;
-import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.project.ProjectRef;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.util.UserInterface;
-import com.dbn.common.util.Editors;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.ConnectionStatusListener;
-import com.dbn.connection.SchemaId;
 import com.dbn.connection.SessionId;
-import com.dbn.connection.context.DatabaseContextBase;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.connection.session.DatabaseSession;
 import com.dbn.connection.transaction.TransactionAction;
 import com.dbn.connection.transaction.TransactionListener;
 import com.dbn.database.interfaces.DatabaseMessageParserInterface;
 import com.dbn.diagnostics.Diagnostics;
-import com.dbn.editor.data.DatasetEditorStatus;
-import com.dbn.editor.data.DatasetEditorStatusHolder;
-import com.dbn.editor.data.DatasetLoadInstruction;
-import com.dbn.editor.data.DatasetLoadInstructions;
-import com.dbn.editor.data.DatasetLoadListener;
+import com.dbn.editor.data.DataEditorBase;
+import com.dbn.editor.data.DataLoadInstructions;
+import com.dbn.editor.data.DataLoadListener;
 import com.dbn.editor.data.filter.DatasetFilter;
 import com.dbn.editor.data.filter.DatasetFilterManager;
 import com.dbn.editor.data.filter.DatasetFilterType;
@@ -53,24 +43,17 @@ import com.dbn.editor.json.model.JsonDataEditorModel;
 import com.dbn.editor.json.ui.JsonDataContentEditorForm;
 import com.dbn.editor.json.ui.JsonDataEditorForm;
 import com.dbn.editor.json.ui.table.JsonDataEditorTable;
-import com.dbn.object.DBDataset;
 import com.dbn.object.DBJsonView;
-import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.vfs.DatabaseFileSystem;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
-import com.intellij.codeHighlighting.BackgroundEditorHighlighter;
 import com.intellij.ide.structureView.StructureViewBuilder;
 import com.intellij.ide.structureView.StructureViewModel;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorLocation;
 import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
@@ -78,64 +61,41 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
-import java.beans.PropertyChangeListener;
 import java.sql.SQLException;
 import java.sql.SQLRecoverableException;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
-import static com.dbn.common.dispose.Failsafe.nd;
-import static com.dbn.editor.data.DatasetEditorStatus.CONNECTED;
-import static com.dbn.editor.data.DatasetEditorStatus.LOADED;
-import static com.dbn.editor.data.DatasetEditorStatus.LOADING;
+import static com.dbn.editor.DBContentType.JSON;
+import static com.dbn.editor.data.DataEditorStatus.CONNECTED;
+import static com.dbn.editor.data.DataEditorStatus.LOADED;
+import static com.dbn.editor.data.DataEditorStatus.LOADING;
 import static com.dbn.editor.data.filter.DatasetFilterManager.EMPTY_FILTER;
 import static com.dbn.editor.data.model.RecordStatus.INSERTING;
 import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 @Getter
-public class JsonDataEditor extends DisposableUserDataHolderBase implements
-        FileEditor,
-        DatabaseContextBase,
-        DataProvider,
-        StatefulDisposable {
+public class JsonDataEditor extends DataEditorBase<DBJsonView> {
 
-    private static final DatasetLoadInstructions COL_VISIBILITY_STATUS_CHANGE_LOAD_INSTRUCTIONS = new DatasetLoadInstructions(DatasetLoadInstruction.USE_CURRENT_FILTER, DatasetLoadInstruction.PRESERVE_CHANGES, DatasetLoadInstruction.DELIBERATE_ACTION, DatasetLoadInstruction.REBUILD);
-    private static final DatasetLoadInstructions CON_STATUS_CHANGE_LOAD_INSTRUCTIONS = new DatasetLoadInstructions(DatasetLoadInstruction.USE_CURRENT_FILTER);
-
-    private final ProjectRef project;
-    private final DBObjectRef<DBJsonView> jsonView;
-    private final DBEditableObjectVirtualFile databaseFile;
-    private final DatasetEditorStatusHolder status;
-    private final ConnectionRef connection;
     private JsonDataEditorForm editorForm;
     private StructureViewModel structureViewModel;
-    private String dataLoadError;
 
     private JsonDataEditorState editorState = new JsonDataEditorState();
 
     public JsonDataEditor(@NotNull DBEditableObjectVirtualFile databaseFile, DBJsonView jsonView) {
+        super(databaseFile, jsonView);
+
+        this.editorForm = new JsonDataEditorForm(this);
+        updateContentEditorState();
+
         Project project = jsonView.getProject();
-        this.project = ProjectRef.of(project);
-        this.databaseFile = databaseFile;
-        this.jsonView = DBObjectRef.of(jsonView);
-
-        connection = ConnectionRef.of(jsonView.getConnection());
-        status = new DatasetEditorStatusHolder();
-        status.set(CONNECTED, true);
-        editorForm = new JsonDataEditorForm(this);
-
-/*
-        if (!EditorUtil.hasEditingHistory(databaseFile, project)) {
-            load(true, true, false);
-        }
-*/
         ProjectEvents.subscribe(project, this, TransactionListener.TOPIC, transactionListener);
         ProjectEvents.subscribe(project, this, ConnectionStatusListener.TOPIC, connectionStatusListener);
     }
 
     @NotNull
     public DBJsonView getJsonView() {
-        return jsonView.ensure();
+        return getDataset();
     }
 
     @NotNull
@@ -159,22 +119,6 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
     @NotNull
     public JsonDataEditorModel getTableModel() {
         return getEditorTable().getModel();
-    }
-
-    @NotNull
-    public DBEditableObjectVirtualFile getDatabaseFile() {
-        return nd(databaseFile);
-    }
-
-    @Override
-    @Nullable
-    public SchemaId getSchemaId() {
-        return getJsonView().getSchemaId();
-    }
-
-    @NotNull
-    public Project getProject() {
-        return project.ensure();
     }
 
     @Override
@@ -211,46 +155,6 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
     }
 
     @Override
-    public boolean isModified() {
-        return getTableModel().isModified();
-    }
-
-    @Override
-    public boolean isValid() {
-        return !isDisposed();
-    }
-
-    @Override
-    public void selectNotify() {
-
-    }
-
-    @Override
-    public void deselectNotify() {
-
-    }
-
-    @Override
-    public void addPropertyChangeListener(@NotNull PropertyChangeListener listener) {
-    }
-
-    @Override
-    public void removePropertyChangeListener(@NotNull PropertyChangeListener listener) {
-    }
-
-    @Override
-    @Nullable
-    public BackgroundEditorHighlighter getBackgroundHighlighter() {
-        return null;
-    }
-
-    @Override
-    @Nullable
-    public FileEditorLocation getCurrentLocation() {
-        return null;
-    }
-
-    @Override
     @Nullable
     public StructureViewBuilder getStructureViewBuilder() {
 /*        return new TreeBasedStructureViewBuilder() {
@@ -280,32 +184,28 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
         try {
             JsonDataEditorModel model = getTableModel();
             model.fetchNextRecords(records, false);
-            dataLoadError = null;
+            setDataLoadError(null);
         } catch (SQLException e) {
             Diagnostics.conditionallyLog(e);
-            dataLoadError = e.getMessage();
-/*
-            String message = "Error loading data for " + getDataset().getQualifiedNameWithType() + ".\nCause: " + e.getMessage();
-            MessageUtil.showErrorDialog(message, e);
-*/
+            setDataLoadError(e.getMessage());
         } finally {
             Project project = getProject();
             ProjectEvents.notify(project,
-                    DatasetLoadListener.TOPIC,
-                    (listener) -> listener.datasetLoaded(getDatabaseFile()));
+                    DataLoadListener.TOPIC,
+                    (listener) -> listener.dataLoaded(getDatabaseFile()));
         }
     }
 
-    public void loadData(final DatasetLoadInstructions instructions) {
-        if (status.is(LOADING)) return;
+    public void loadData(final DataLoadInstructions instructions) {
+        if (isLoading()) return;
 
         ConnectionAction.invoke(txt("msg.dataEditor.title.LoadingTableData"), false, this,
                 (action) -> {
                     setLoading(true);
                     Project project = getProject();
                     ProjectEvents.notify(project,
-                            DatasetLoadListener.TOPIC,
-                            (listener) -> listener.datasetLoading(getDatabaseFile()));
+                            DataLoadListener.TOPIC,
+                            (listener) -> listener.dataLoading(getDatabaseFile()));
 
                     Background.run(() -> {
                         JsonDataEditorForm editorForm = getEditorForm();
@@ -320,12 +220,12 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
                             } finally {
                                 editorForm.afterRebuild(oldEditorTable);
                             }
-                            dataLoadError = null;
+                            setDataLoadError(null);
                         } catch (ProcessCanceledException e) {
                             Diagnostics.conditionallyLog(e);
                         } catch (SQLException e) {
                             Diagnostics.conditionallyLog(e);
-                            dataLoadError = e.getMessage();
+                            setDataLoadError(e.getMessage());
                             handleLoadError(e, instructions);
                         } catch (Exception e) {
                             Diagnostics.conditionallyLog(e);
@@ -335,15 +235,15 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
                             editorForm.hideLoadingHint();
                             setLoading(false);
                             ProjectEvents.notify(project,
-                                    DatasetLoadListener.TOPIC,
-                                    (listener) -> listener.datasetLoaded(getDatabaseFile()));
+                                    DataLoadListener.TOPIC,
+                                    (listener) -> listener.dataLoaded(getDatabaseFile()));
                         }
                     });
                 });
 
     }
 
-    private void handleLoadError(SQLException e, DatasetLoadInstructions instr) {
+    private void handleLoadError(SQLException e, DataLoadInstructions instr) {
         Dispatch.run(getComponent(), () -> {
             checkDisposed();
             focusEditor();
@@ -352,9 +252,9 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
             Project project = getProject();
             DatasetFilterManager filterManager = DatasetFilterManager.getInstance(project);
 
-            DBDataset dataset = getJsonView();
-            DatasetFilter filter = filterManager.getActiveFilter(dataset);
-            String datasetName = dataset.getQualifiedNameWithType();
+            DBJsonView jsonView = getJsonView();
+            DatasetFilter filter = filterManager.getActiveFilter(jsonView);
+            String datasetName = jsonView.getQualifiedNameWithType();
             if (connection.isValid()) {
                 boolean timeoutException = messageParserInterface.isTimeoutException(e);
                 if (filter == null || filter == EMPTY_FILTER || filter.getError() != null || e instanceof SQLRecoverableException) {
@@ -379,17 +279,17 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
 
                     Messages.showErrorDialog(project, txt("msg.shared.title.Error"), message, options, 0,
                             (option) -> {
-                                DatasetLoadInstructions instructions = DatasetLoadInstructions.clone(instr);
+                                DataLoadInstructions instructions = DataLoadInstructions.clone(instr);
                                 instructions.setDeliberateAction(true);
 
                                 if (option == 0) {
                                     loadData(instructions);
                                 } else if (option == 1) {
-                                    filterManager.openFiltersDialog(dataset, false, false, DatasetFilterType.NONE, null);
+                                    filterManager.openFiltersDialog(jsonView, false, false, DatasetFilterType.NONE, null);
                                     instructions.setUseCurrentFilter(true);
                                     loadData(instructions);
                                 } else if (option == 2) {
-                                    filterManager.setActiveFilter(dataset, null);
+                                    filterManager.setActiveFilter(jsonView, null);
                                     instructions.setUseCurrentFilter(true);
                                     loadData(instructions);
                                 } else if (option == 3) {
@@ -405,10 +305,6 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
         });
     }
 
-
-    private void focusEditor() {
-        Editors.openFileEditor(getProject(), getDatabaseFile(), true);
-    }
 
     protected void setLoading(boolean loading) {
         if (status.set(LOADING, loading)) {
@@ -449,14 +345,6 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
         return getTableModel().is(INSERTING);
     }
 
-    public boolean isLoading() {
-        return status.is(LOADING);
-    }
-
-    public boolean isLoaded() {
-        return status.is(LOADED);
-    }
-
     public boolean isDirty() {
         return getTableModel().isDirty();
     }
@@ -465,47 +353,17 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
      * The dataset is readonly. This can not be changed by the flag isReadonly
      */
     public boolean isReadonlyData() {
-        return getTableModel().isReadonly();
+        return !getJsonView().isEditable(JSON);
     }
 
     public boolean isReadonly() {
-        return editorState.isReadonly() || getTableModel().isEnvironmentReadonly();
-    }
-
-    public void setEnvironmentReadonly(boolean readonly) {
-        getTableModel().setEnvironmentReadonly(readonly);
-    }
-
-    public void setReadonly(boolean readonly) {
-        editorState.setReadonly(readonly);
-    }
-
-    public boolean isEditable() {
-        JsonDataEditorModel tableModel = getTableModel();
-        ConnectionHandler connection = tableModel.getConnection();
-        return tableModel.isEditable() && connection.isConnected(SessionId.MAIN);
+        return editorState.isReadonly() || getTableModel().isReadonly();
     }
 
     public int getRowCount() {
         return getEditorTable().getRowCount();
     }
 
-
-    @Override
-    @NotNull
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
-    }
-
-    public boolean isConnected() {
-        return getStatus().is(DatasetEditorStatus.CONNECTED);
-    }
-
-    @Nullable
-    @Override
-    public DatabaseSession getSession() {
-        return getConnection().getSessionBundle().getMainSession();
-    }
 
     /*******************************************************
      *                      Listeners                      *
@@ -535,7 +393,7 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
         });
     };
 
-    private void updateContentEditorState() {
+    public void updateContentEditorState() {
         getContentEditorForm().updateEditorState();
     }
 
@@ -586,16 +444,6 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
         }
     };
 
-    String getDataLoadError() {
-        return dataLoadError;
-    }
-
-    @Nullable
-    @Override
-    public VirtualFile getFile() {
-        return databaseFile;
-    }
-
     /*******************************************************
      *                   Data Provider                     *
      *******************************************************/
@@ -631,13 +479,6 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
     }
 
     @Override
-    public String toString() {
-        DBEditableObjectVirtualFile databaseFile = this.databaseFile;
-        if (databaseFile == null) return DatabaseFileSystem.createObjectPath(jsonView);
-        return databaseFile.getPath();
-    }
-
-    @Override
     public void disposeInner() {
         super.disposeInner();
         editorForm = null;
@@ -654,5 +495,15 @@ public class JsonDataEditor extends DisposableUserDataHolderBase implements
     public void setContentEditorVisible(boolean visible) {
         editorState.setEditorVisible(visible);
         getEditorForm().setContentEditorVisible(visible);
+    }
+
+    public void toggleEditingLock() {
+        boolean readonly = editorState.isReadonly();
+        editorState.setReadonly(!readonly);
+        updateContentEditorState();
+    }
+
+    public boolean isEditingLocked() {
+        return editorState.isReadonly();
     }
 }

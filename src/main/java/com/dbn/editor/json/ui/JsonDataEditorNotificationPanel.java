@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.dbn.editor.data;
+package com.dbn.editor.json.ui;
 
-import com.dbn.common.property.PropertyHolderBase;
+import com.dbn.common.editor.EditorNotificationPanel;
+import com.dbn.common.message.MessageType;
+import com.dbn.object.DBJsonView;
 
-public class DatasetEditorStatusHolder extends PropertyHolderBase.IntStore<DatasetEditorStatus> {
-
-    @Override
-    protected DatasetEditorStatus[] properties() {
-        return DatasetEditorStatus.VALUES;
+public abstract class JsonDataEditorNotificationPanel extends EditorNotificationPanel {
+    public JsonDataEditorNotificationPanel(DBJsonView object, MessageType messageType) {
+        super(object.getProject(), object.getVirtualFile(), messageType);
     }
 }
