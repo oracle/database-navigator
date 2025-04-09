@@ -153,7 +153,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     defaultProfileName = stringAttribute(element, "default-profile-name");
     selectedProfileName = stringAttribute(element, "selected-profile-name");
     selectedModelName = stringAttribute(element, "selected-model-name");
-    conversation = booleanAttribute(element, "is-conversation", true);
+    conversation = booleanAttribute(element, "is-conversation", false);
     assistantType = enumAttribute(element, "assistant-type", assistantType);
     selectedAction = enumAttribute(element, "selected-action", selectedAction);
     availability = enumAttribute(element, "availability", availability);

@@ -32,7 +32,6 @@ public class NewConversationAction extends AbstractChatBoxAction {
         if (chatBox == null) return;
         if(getAssistantState(e).getAvailability() == FeatureAvailability.UNAVAILABLE){
             getAssistantState(e).setAvailability(FeatureAvailability.AVAILABLE);
-            getAssistantState(e).setCurrentConversation(null);
             chatBox.updateMessages();
         } else {
             //TODO

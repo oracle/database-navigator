@@ -16,22 +16,38 @@
 
 package com.dbn.assistant.chat.window.action;
 
+import com.dbn.assistant.chat.PersistentChatConversation;
+import com.dbn.assistant.chat.ui.ConversationHistoryDialog;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 /**
  * Action for showcasing the rest of the conversations
  */
 public class ConversationShowAllAction extends AbstractChatBoxAction {
+    private final List<PersistentChatConversation> conversations;
+
+    public ConversationShowAllAction(List<PersistentChatConversation> conversations) {
+        this.conversations = conversations;
+    }
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
-
-        //TODO
+        Consumer<PersistentChatConversation> openAction = (PersistentChatConversation conversation) -> {
+            chatBox.triggerContextChangeEvent(chatBox.getAssistantState().getChatContext(), conversation.getContext(), conversation);
+        };
+        Consumer<List<PersistentChatConversation>> deleteAction = (List<PersistentChatConversation> conversations) -> {
+            chatBox.getAssistantState().getConversations().removeAll(conversations);
+        };
+        Dialogs.show(()-> new ConversationHistoryDialog(project, conversations, openAction, deleteAction));
     }
 
     @Override

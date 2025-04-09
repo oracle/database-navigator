@@ -28,7 +28,9 @@ import org.jdom.Element;
 
 import java.util.Map;
 
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -61,8 +63,8 @@ public class ChatContext implements PersistentStateElement {
         return GSON.toJson(attributes);
     }
 
-    public String isConversationInterruption(ChatContext newContext) {
-        if (!isConversation()) return "";
+    public String isConversationInterruption(ChatContext newContext, PersistentChatConversation toShowConversation) {
+        if (toShowConversation != null) return "conversation history";
         if (!profile.equals(newContext.getProfile())) return "profile";
         if (model != null && !model.equals(newContext.getModel())) return "model";
         if (action == PromptAction.CHAT && newContext.action != PromptAction.CHAT) {
@@ -80,6 +82,7 @@ public class ChatContext implements PersistentStateElement {
         profile = stringAttribute(element, "profile");
           model = AIModel.forId(stringAttribute(element, "model"));
         action = enumAttribute(element, "action", PromptAction.class);
+        conversation = booleanAttribute(element, "conversation", true);
     }
 
     @Override
@@ -87,5 +90,6 @@ public class ChatContext implements PersistentStateElement {
         setStringAttribute(element, "profile", profile);
         setStringAttribute(element, "model", model.getId());
         setEnumAttribute(element, "action", action);
+        setBooleanAttribute(element, "conversation", conversation);
     }
 }

@@ -38,8 +38,7 @@ public class ConversationSelectAction extends AbstractChatBoxAction {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
-        chatBox.triggerContextChangeEvent(chatBox.getAssistantState().getChatContext(), conversation.getContext());
-        chatBox.showConversation(conversation);
+        chatBox.triggerContextChangeEvent(chatBox.getAssistantState().getChatContext(), conversation.getContext(), conversation);
     }
 
     @Override

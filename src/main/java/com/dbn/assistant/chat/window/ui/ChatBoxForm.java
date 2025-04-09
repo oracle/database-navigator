@@ -52,6 +52,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -125,7 +126,7 @@ public class ChatBoxForm extends DBNFormBase {
     createInputField();
     configureConversationPanel();
     loadProfiles();
-    updateMessages();
+    initMessages();
   }
 
   private boolean hasUserEngaged() {
@@ -160,6 +161,11 @@ public class ChatBoxForm extends DBNFormBase {
   private void createInputField() {
     inputField = new ChatBoxInputField(this);
     inputFieldPanel.add(inputField, BorderLayout.CENTER);
+  }
+
+  private void initMessages() {
+    if(getAssistantState().isConversation()) updateMessages(new ArrayList<>());
+    else updateMessages();
   }
 
   public void updateMessages() {
@@ -222,7 +228,7 @@ public class ChatBoxForm extends DBNFormBase {
     manager.setSelectedProfile(connectionId, profile);
 
     ChatContext newContext = getAssistantState().getChatContext();
-    triggerContextChangeEvent(oldContext, newContext);
+    triggerContextChangeEvent(oldContext, newContext, null);
   }
 
   public void selectModel(AIModel model) {
@@ -232,7 +238,7 @@ public class ChatBoxForm extends DBNFormBase {
     assistantState.setSelectedModelName(model == null ? null : model.getName());
 
     ChatContext newContext = getAssistantState().getChatContext();
-    triggerContextChangeEvent(oldContext, newContext);
+    triggerContextChangeEvent(oldContext, newContext, null);
   }
 
   public void selectAction(PromptAction action) {
@@ -241,32 +247,46 @@ public class ChatBoxForm extends DBNFormBase {
     getAssistantState().setSelectedAction(action);
 
     ChatContext newContext = getAssistantState().getChatContext();
-    triggerContextChangeEvent(oldContext, newContext);
+    triggerContextChangeEvent(oldContext, newContext, null);
   }
 
-  public void triggerContextChangeEvent(ChatContext oldContext, ChatContext newContext) {
-    String changedField = oldContext.isConversationInterruption(newContext);
+  public void triggerContextChangeEvent(ChatContext oldContext, ChatContext newContext, PersistentChatConversation toShowConversation) {
+    String changedField = oldContext.isConversationInterruption(newContext, toShowConversation);
+    boolean isOldContextConversation = oldContext.isConversation();
+
     ChatConversation oldConversation = getAssistantState().getCurrentConversation();
-    if(!changedField.isEmpty() && oldConversation!=null && !oldConversation.getMessages().isEmpty()) { // old context is a conversation
-      Dialogs.show(() -> new SaveOrDiscardConversationDialog(ConnectionRef.get(connection).getProject(), changedField), (dialog, exitCode) -> {
-        if(exitCode == 0) {
-          suppressContextChangeEvents(() -> restoreContext(oldContext));
-          dispatch(this::updateActionToolbars);
-        }
-        if(exitCode == 1) {
+    if(isOldContextConversation) { // old context is a conversation
+      if(!changedField.isEmpty() && oldConversation!=null && !oldConversation.getMessages().isEmpty()) { // old context had messages
+        Dialogs.show(() -> new SaveOrDiscardConversationDialog(ConnectionRef.get(connection).getProject(), changedField), (dialog, exitCode) -> {
+          if (exitCode == 0) {
+            suppressContextChangeEvents(() -> restoreContext(oldContext));
+            dispatch(this::updateActionToolbars);
+            updateMessages();
+            return;
+          }
+          if (exitCode == 1) {
             getAssistantState().setCurrentConversation(newContext.isConversation() ? new PersistentChatConversation(newContext) : null);
-        }
-        if(exitCode == 2) {
+            updateMessages();
+          }
+          if (exitCode == 2) {
             getAssistantState().getCurrentConversation().setTitle(dialog.getConversationTitle());
             getAssistantState().getCurrentConversation().removeProgress();
             getAssistantState().getConversations().add(getAssistantState().getCurrentConversation());
             getAssistantState().setCurrentConversation(newContext.isConversation() ? new PersistentChatConversation(newContext) : null);
-        }
+            updateMessages();
+          }
+        });
+      } else if(!changedField.isEmpty() && oldConversation != null) { // old context had no messages
+        getAssistantState().setCurrentConversation(newContext.isConversation() ? new PersistentChatConversation(newContext) : null);
         updateMessages();
-      });
+      };
     } else { // old context is normal chat
         getAssistantState().setCurrentConversation(newContext.isConversation() ? new PersistentChatConversation(newContext) : null);
       updateMessages();
+
+    }
+    if(toShowConversation != null) {
+      showConversation(toShowConversation);
     }
 
   }

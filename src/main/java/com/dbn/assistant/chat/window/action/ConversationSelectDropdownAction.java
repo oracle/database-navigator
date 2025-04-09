@@ -46,10 +46,10 @@ public class ConversationSelectDropdownAction extends ComboBoxAction implements 
         if (chatBox == null) return actionGroup;
 
         List<PersistentChatConversation> conversations = chatBox.getConversations();
-        conversations.forEach(c -> actionGroup.add(new ConversationSelectAction(c)));
+        conversations.stream().limit(3).forEach(c -> actionGroup.add(new ConversationSelectAction(c)));
         actionGroup.addSeparator();
 
-        actionGroup.add(new ConversationShowAllAction());
+        actionGroup.add(new ConversationShowAllAction(conversations));
         return actionGroup;
     }
 
