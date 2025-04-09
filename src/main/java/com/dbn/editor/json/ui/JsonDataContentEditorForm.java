@@ -198,7 +198,7 @@ public class JsonDataContentEditorForm extends DBNFormBase {
                 !connected ? "Not connected to database" : null;
 
         boolean readonly = !editable || !connected || !selected;
-        editor.setViewer(readonly);
+        Editors.setEditorReadonly(editor, readonly);
 
         HyperlinkListener unlockListener = null; /* locked ? e -> {
             if (e.getEventType() != ACTIVATED) return;

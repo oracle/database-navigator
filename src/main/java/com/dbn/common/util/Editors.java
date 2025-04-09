@@ -296,6 +296,9 @@ public class Editors {
 
                 editorEx.setBackgroundColor(background);
                 scheme.setColor(EditorColors.CARET_ROW_COLOR, caretRowBackground);
+                JComponent component = editorEx.getComponent();
+                component.revalidate();
+                component.repaint();
             });
         }
     }
