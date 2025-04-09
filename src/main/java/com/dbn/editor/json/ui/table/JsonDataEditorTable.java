@@ -106,8 +106,10 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
     @Override
     public void showRecordDetails() {
         JsonDataEditor editor = getEditor();
-        boolean editorVisible = editor.isContentEditorVisible();
-        editor.setContentEditorVisible(!editorVisible);
+        if (!editor.isContentEditorVisible())  {
+            editor.setContentEditorVisible(true);
+        }
+        editor.focusContentEditor();
     }
 
     @Override

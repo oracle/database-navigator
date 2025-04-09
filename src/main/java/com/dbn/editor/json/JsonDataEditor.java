@@ -497,6 +497,10 @@ public class JsonDataEditor extends DataEditorBase<DBJsonView> {
         getEditorForm().setContentEditorVisible(visible);
     }
 
+    public void focusContentEditor() {
+        getEditorForm().getContentEditorForm().focusEditor();
+    }
+
     public void toggleEditingLock() {
         boolean readonly = editorState.isReadonly();
         editorState.setReadonly(!readonly);

@@ -138,10 +138,14 @@ public class JsonDataContentEditorForm extends DBNFormBase {
             originalContent = Json.removeJsonProperties(userValue.getData(), "_metadata");
 
             Documents.setText(editor, originalContent, true);
-            editor.getContentComponent().requestFocus();
         }
 
         updateEditorState();
+    }
+
+    public void focusEditor() {
+        if (editor == null) return;
+        editor.getContentComponent().requestFocus();
     }
 
     public boolean isEditorContentChanged() {
