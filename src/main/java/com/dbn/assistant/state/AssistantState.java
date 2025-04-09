@@ -113,6 +113,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   public void setSelectedProfile(@Nullable DBAIProfile profile) {
     selectedProfileName = profile == null ? null : profile.getName();
     conversation = profile != null && profile.isConversation();
+    if(profile != null && selectedModelName.isEmpty()) setSelectedModel(profile.getModel()); //TODO this line is to not have empty model name at the start
     if(currentConversation == null && profile != null && profile.isConversation()) { // this condition is met only when we load the cache the first time.
       ChatContext context = new ChatContext(selectedProfileName, AIModel.forId(selectedModelName), selectedAction, true);
       currentConversation = new PersistentChatConversation(context);
