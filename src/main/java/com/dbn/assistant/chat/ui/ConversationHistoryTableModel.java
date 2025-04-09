@@ -17,25 +17,29 @@
 package com.dbn.assistant.chat.ui;
 
 import com.dbn.common.dispose.StatefulDisposableBase;
+import com.dbn.common.locale.Formatter;
 import com.dbn.common.ui.table.DBNReadonlyTableModel;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.assistant.chat.PersistentChatConversation;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ConversationHistoryTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel<PersistentChatConversation> {
     private List<PersistentChatConversation> conversations;
     private final Listeners<TableModelListener> listeners = Listeners.create(this);
     private String filterText = "";
-
-    public ConversationHistoryTableModel(List<PersistentChatConversation> conversations) {
+    private final Project project;
+    public ConversationHistoryTableModel(Project project, List<PersistentChatConversation> conversations) {
         super();
         this.conversations = new ArrayList<>(conversations);
+        this.project = project;
     }
 
     @Override
@@ -70,9 +74,12 @@ public class ConversationHistoryTableModel extends StatefulDisposableBase implem
 
     @Override
     public Object getValue(PersistentChatConversation conversation, int column) {
+        Formatter formatter = Formatter.getInstance(project);
+        Date date = new Date(conversation.getTimestamp());
+        String dateFormat = formatter.formatDateTime(date);
         switch (column) {
             case 0: return conversation.getTitle();
-            case 1: return conversation.getTimestamp();
+            case 1: return dateFormat;
             default: return "";
         }
     }
@@ -80,10 +87,12 @@ public class ConversationHistoryTableModel extends StatefulDisposableBase implem
     @Override
     public String getPresentableValue(PersistentChatConversation conversation, int column) {
         if (conversation == null) return "";
-
+        Formatter formatter = Formatter.getInstance(project);
+        Date date = new Date(conversation.getTimestamp());
+        String dateFormat = formatter.formatDateTime(date);
         switch (column) {
             case 0: return conversation.getTitle();
-            case 1: return "" + conversation.getTimestamp();
+            case 1: return dateFormat;
             default: return "";
         }
     }

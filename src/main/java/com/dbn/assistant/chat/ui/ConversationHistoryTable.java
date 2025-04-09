@@ -37,7 +37,7 @@ public class ConversationHistoryTable extends DBNTable<ConversationHistoryTableM
     private Runnable doubleClickAction;
 
     public ConversationHistoryTable(@NotNull DBNComponent parent, List<PersistentChatConversation> conversations) {
-        super(parent, new ConversationHistoryTableModel(conversations), true);
+        super(parent, new ConversationHistoryTableModel(parent.ensureProject(), conversations), true);
         setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         setDefaultRenderer(PersistentChatConversation.class, new CellRenderer());
         setTransferHandler(DBNTableTransferHandler.INSTANCE);
