@@ -21,6 +21,7 @@ import com.dbn.editor.DBContentType;
 import com.dbn.execution.compiler.action.CompileActionGroup;
 import com.dbn.execution.java.action.JavaClassWrapperAction;
 import com.dbn.execution.java.action.JavaMethodWrapperAction;
+import com.dbn.sync.java.action.JavaObjectDownloadAction;
 import com.dbn.execution.java.action.JavaObjectRunAction;
 import com.dbn.execution.java.action.JavaRunAction;
 import com.dbn.execution.method.action.MethodDebugAction;
@@ -150,6 +151,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         }
 
         if (object instanceof DBJavaClass) {
+            add(new JavaObjectDownloadAction((DBJavaClass) object));
             addSeparator();
             add(new JavaObjectRunAction((DBJavaClass) object));
             add(new JavaClassWrapperAction((DBJavaClass) object));

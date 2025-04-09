@@ -502,6 +502,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
 
     ResultSet loadAllJavaParameters(String ownerName, DBNConnection connection) throws SQLException;
 
+    ResultSet loadJavaObjectDependencies(String ownerName, String objectName, DBNConnection connection) throws SQLException;
+
     /*********************************************************
 	 *                        TYPES                          *
 	 *********************************************************/

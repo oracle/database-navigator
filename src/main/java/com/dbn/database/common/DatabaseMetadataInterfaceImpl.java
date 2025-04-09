@@ -298,6 +298,11 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
         return executeQuery(connection, "all-java-parameters", ownerName);
     }
 
+    @Override
+    public ResultSet loadJavaObjectDependencies(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "java-compile-time-dependency", ownerName, objectName);
+    }
+
     /*********************************************************
      *                        TYPES                          *
      *********************************************************/

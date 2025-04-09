@@ -605,6 +605,38 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="java-compile-time-dependency" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL">
+            select distinct
+                d.OBJECT_OWNER,
+                d.OBJECT_NAME,
+                d.OBJECT_TYPE,
+                case when s.OWNER is not null then 'Y' else 'N' end as HAS_SOURCE
+            from (
+                select
+                    REFERENCED_OWNER as OBJECT_OWNER,
+                    REFERENCED_NAME as OBJECT_NAME,
+                    decode(REFERENCED_TYPE, 'PACKAGE BODY', 'PACKAGE', 'TYPE BODY', 'TYPE', REFERENCED_TYPE) as OBJECT_TYPE
+                from
+                    [PREFIX]_DEPENDENCIES
+                where
+                    (OWNER != REFERENCED_OWNER or NAME != REFERENCED_NAME)
+                start with
+                    OWNER = {0} and NAME = {1}
+                connect by nocycle
+                prior REFERENCED_OWNER = OWNER and
+                prior REFERENCED_NAME = NAME
+            ) d
+            left join
+                [PREFIX]_SOURCE s
+            on
+                s.OWNER = d.OBJECT_OWNER and
+                s.NAME = d.OBJECT_NAME
+            order by
+                HAS_SOURCE desc, d.OBJECT_OWNER, d.OBJECT_TYPE, d.OBJECT_NAME
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="materialized-views" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select
