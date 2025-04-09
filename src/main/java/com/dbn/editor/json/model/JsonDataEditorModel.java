@@ -63,6 +63,7 @@ import static com.dbn.editor.data.model.RecordStatus.DELETED;
 import static com.dbn.editor.data.model.RecordStatus.DIRTY;
 import static com.dbn.editor.data.model.RecordStatus.INSERTED;
 import static com.dbn.editor.data.model.RecordStatus.INSERTING;
+import static com.dbn.editor.data.model.RecordStatus.MODIFIED;
 
 @Slf4j
 public class JsonDataEditorModel
@@ -211,14 +212,14 @@ public class JsonDataEditorModel
 
     private void snapshotChanges() {
         for (JsonDataEditorModelRow row : getRows()) {
-            if (row.is(DELETED) || row.isModified() || row.is(INSERTED)) {
+            if (row.isOneOf(DELETED, MODIFIED, INSERTED)) {
                 changedRows.add(row);
             }
         }
     }
 
     private void restoreChanges() {
-        if (!hasChanges()) return;
+        if (changedRows.isEmpty()) return;
 
         for (JsonDataEditorModelRow row : getRows()) {
             checkDisposed();
@@ -233,10 +234,11 @@ public class JsonDataEditorModel
 
     private JsonDataEditorModelRow lookupChangedRow(JsonDataEditorModelRow row) {
         for (JsonDataEditorModelRow changedRow : changedRows) {
-            if (changedRow.isNot(DELETED) && changedRow.matches(row, false)) {
-                changedRows.remove(changedRow);
-                return changedRow;
-            }
+            if (changedRow.is(DELETED)) continue;
+            if (!changedRow.matches(row)) continue;
+
+            changedRows.remove(changedRow);
+            return changedRow;
         }
         return null;
     }
@@ -245,10 +247,6 @@ public class JsonDataEditorModel
     @Override
     public JsonDataEditorState getState() {
         return guarded(JsonDataEditorState.VOID, this, m -> m.getJsonDataEditor().getEditorState());
-    }
-
-    private boolean hasChanges() {
-        return !changedRows.isEmpty();
     }
 
     private void clearChanges() {

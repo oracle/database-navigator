@@ -41,6 +41,8 @@ import javax.swing.event.ChangeListener;
 import java.awt.Rectangle;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static com.dbn.common.util.Commons.nvl;
@@ -51,7 +53,6 @@ public class JsonDataEditorModelCell
         implements ChangeListener {
 
     private static final WeakRefCache<JsonDataEditorModelCell, JsonValue> originalUserValues = WeakRefCache.weakKey();
-    private static final WeakRefCache<JsonDataEditorModelCell, String> temporaryUserValues = WeakRefCache.weakKey();
     private static final WeakRefCache<JsonDataEditorModelCell, JsonDataEditorError> errors = WeakRefCache.weakKey();
 
     private static final JsonValue NULL = new JsonValue(); // surrogate value to store nulls as original value
@@ -73,7 +74,6 @@ public class JsonDataEditorModelCell
                 updateValue((JsonValue) newUserValue);
                 notifyCellUpdated();
             } finally {
-                setTemporaryUserValue(null);
                 set(RecordStatus.UPDATING, false);
             }
         });
@@ -135,15 +135,16 @@ public class JsonDataEditorModelCell
         return getEditorModel().getJsonView();
     }
 
-    public boolean matches(JsonDataEditorModelCell remoteCell, boolean lenient) {
-        if (Commons.match(getUserValue(), remoteCell.getUserValue())){
-            return true;
-        }
-        JsonDataEditorModelRow row = getRow();
-        if (lenient && (row.is(RecordStatus.INSERTED) || row.isModified()) && getUserValue() == null && remoteCell.getUserValue() != null) {
-            return true;
-        }
-        return false;
+    public boolean matches(JsonDataEditorModelCell remoteCell) {
+        Map<String, Object> identityAttributes = getIdentityAttributes();
+        Map<String, Object> remoteIdentityAttributes = remoteCell.getIdentityAttributes();
+
+        return (Objects.equals(identityAttributes, remoteIdentityAttributes));
+    }
+
+    private Map<String, Object> getIdentityAttributes() {
+        List<String> keyAttributes = getJsonView().getKeyAttributeNames();
+        return Json.getJsonPropertyValues(getUserValue().getData(), keyAttributes);
     }
 
     @Override
@@ -195,16 +196,6 @@ public class JsonDataEditorModelCell
         }
 
         originalUserValues.set(this, value == null ? NULL : value);
-    }
-
-    public String getTemporaryUserValue() {
-        return temporaryUserValues.get(this);
-    }
-
-    public void setTemporaryUserValue(String temporaryUserValue) {
-        if (temporaryUserValue == null)
-            temporaryUserValues.remove(this); else
-            temporaryUserValues.set(this, temporaryUserValue);
     }
 
     private void notifyCellUpdated() {
@@ -296,7 +287,6 @@ public class JsonDataEditorModelCell
     @Override
     public void disposeInner() {
         super.disposeInner();
-        temporaryUserValues.remove(this);
         originalUserValues.remove(this);
         errors.remove(this);
     }

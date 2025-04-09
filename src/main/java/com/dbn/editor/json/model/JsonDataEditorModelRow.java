@@ -93,13 +93,13 @@ public class JsonDataEditorModelRow extends ResultSetDataModelRow<JsonDataEditor
         }
     }
 
-    public boolean matches(DataModelRow row, boolean lenient) {
+    public boolean matches(DataModelRow row) {
         // try fast match by primary key
         JsonDataEditorModelCell localCell = getCellAtIndex(0);
         JsonDataEditorModelCell remoteCell = (JsonDataEditorModelCell) row.getCellAtIndex(0);
         return localCell != null &&
                 remoteCell != null &&
-                localCell.matches(remoteCell, lenient);
+                localCell.matches(remoteCell);
     }
 
     public void notifyError(JsonDataEditorError error, boolean startEditing, boolean showPopup) {

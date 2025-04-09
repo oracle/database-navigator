@@ -63,6 +63,7 @@ public class JsonDataEditingLockToggleAction extends AbstractJsonDataEditorActio
 
     private boolean isEnabled(JsonDataEditor jsonDataEditor) {
         if (jsonDataEditor.isInserting()) return false;
+        if (jsonDataEditor.getTableModel().isModified()) return false;
 
         return true;
     }

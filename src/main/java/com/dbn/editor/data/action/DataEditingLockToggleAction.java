@@ -65,6 +65,7 @@ public class DataEditingLockToggleAction extends AbstractDataEditorAction {
 
     private boolean isEnabled(DatasetEditor datasetEditor) {
         if (datasetEditor.isInserting()) return false;
+        if (datasetEditor.getTableModel().isModified()) return false;
 
         return true;
     }

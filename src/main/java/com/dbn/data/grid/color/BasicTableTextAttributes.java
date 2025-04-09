@@ -49,6 +49,8 @@ public class BasicTableTextAttributes implements DataGridTextAttributes {
     private final SimpleTextAttributes readonlyDataAtCaretRowModified;
     private final SimpleTextAttributes loadingData;
     private final SimpleTextAttributes loadingDataAtCaretRow;
+    private final SimpleTextAttributes updatingData;
+    private final SimpleTextAttributes updatingDataAtCaretRow;
     private final SimpleTextAttributes primaryKey;
     private final SimpleTextAttributes primaryKeyModified;
     private final SimpleTextAttributes primaryKeyAtCaretRow;
@@ -114,6 +116,9 @@ public class BasicTableTextAttributes implements DataGridTextAttributes {
         loadingData = TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.LOADING_DATA);
         loadingDataAtCaretRow = new SimpleTextAttributes(caretRowBgColor, loadingData.getFgColor(), null, loadingData.getFontStyle());
 
+        updatingData = TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.UPDATING_DATA);
+        updatingDataAtCaretRow = new SimpleTextAttributes(caretRowBgColor, updatingData.getFgColor(), null, updatingData.getFontStyle());
+
         primaryKey= TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.PRIMARY_KEY);
         primaryKeyModified = new SimpleTextAttributes(
                 nvln(modifiedData.getBgColor(), primaryKey.getBgColor()),
@@ -172,6 +177,10 @@ public class BasicTableTextAttributes implements DataGridTextAttributes {
     @Override
     public SimpleTextAttributes getLoadingData(boolean atCaretRow) {
         return atCaretRow ? loadingDataAtCaretRow : loadingData;
+    }
+
+    public SimpleTextAttributes getUpdatingData(boolean atCaretRow) {
+        return atCaretRow ? updatingDataAtCaretRow : updatingData;
     }
 
     public SimpleTextAttributes getPrimaryKey(boolean modified, boolean atCaretRow) {

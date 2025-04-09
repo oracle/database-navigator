@@ -33,6 +33,7 @@ import com.dbn.data.editor.text.TextContentType;
 import com.dbn.ddl.DDLFileAttachmentManager;
 import com.dbn.editor.EditorProviderId;
 import com.dbn.editor.code.SourceCodeEditor;
+import com.dbn.editor.data.DataEditorBase;
 import com.dbn.editor.data.DatasetEditor;
 import com.dbn.editor.ddl.DDLFileEditor;
 import com.dbn.editor.json.JsonDataEditor;
@@ -453,10 +454,12 @@ public class Editors {
         FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
         FileEditor[] fileEditors = fileEditorManager.getSelectedEditors();
         if (fileEditors.length > 0) {
-            if (fileEditors[0] instanceof DatasetEditor) {
-                DatasetEditor datasetEditor = (DatasetEditor) fileEditors[0];
+            if (fileEditors[0] instanceof DataEditorBase) {
+                DataEditorBase datasetEditor = (DataEditorBase) fileEditors[0];
                 return datasetEditor.getDatabaseFile();
-            } else if (fileEditors[0] instanceof BasicTextEditor) {
+            }
+
+            if (fileEditors[0] instanceof BasicTextEditor) {
                 BasicTextEditor<?> basicTextEditor = (BasicTextEditor<?>) fileEditors[0];
                 return basicTextEditor.getVirtualFile();
             }

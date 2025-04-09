@@ -32,10 +32,13 @@ import com.dbn.editor.json.model.JsonDataEditorModelCell;
 import com.dbn.object.DBJsonView;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.editor.ex.FocusChangeListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -108,6 +111,13 @@ public class JsonDataContentEditorForm extends DBNFormBase {
         settings.setUseTabCharacter(true);
         settings.setCaretRowShown(false);
         settings.setVirtualSpace(true);
+
+        editor.addFocusListener(new FocusChangeListener() {
+            @Override
+            public void focusLost(@NotNull Editor editor) {
+                updateCellValue();
+            }
+        });
 
 
         editorPanel.add(editor.getComponent());

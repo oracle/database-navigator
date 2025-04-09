@@ -44,34 +44,9 @@ public class JsonDataEditorTableCellRenderer extends BasicTableCellRenderer {
 
         if (!allValid(cell, jsonDataEditorTable, jsonDataEditorTable.getProject())) return;
 
-        JsonDataEditorModelRow row = cell.getRow();
-        boolean dirty = jsonDataEditorTable.getModel().isDirty();
-        boolean loading = jsonDataEditorTable.isLoading();
-        boolean inserting = jsonDataEditorTable.isInserting();
-
-        boolean modified = cell.is(MODIFIED);
-        boolean updating = cell.is(UPDATING);
-        boolean deletedRow = row.is(DELETED);
-        boolean insertRow = row.is(INSERTING);
-        boolean caretRow = !insertRow && table.getCellSelectionEnabled() && table.getSelectedRow() == rowIndex && table.getSelectedRowCount() == 1;
         boolean connected = jsonDataEditorTable.getEditor().isConnected();
-
         BasicTableTextAttributes attributes = (BasicTableTextAttributes) getAttributes();
-        SimpleTextAttributes textAttributes = attributes.getPlainData(modified, caretRow);
-
-        if (isSelected) {
-            textAttributes = table.hasFocus() ?
-                    attributes.getSelection() :
-                    attributes.getCaretRow();
-        } else {
-            if (loading || dirty || !connected || updating) {
-                textAttributes = attributes.getLoadingData(caretRow);
-            } else if (deletedRow) {
-                textAttributes = attributes.getDeletedData();
-            } else if ((inserting && !insertRow)) {
-                textAttributes = attributes.getReadonlyData(modified, caretRow);
-            }
-        }
+        SimpleTextAttributes textAttributes = getTextArttributes(jsonDataEditorTable, cell, rowIndex, isSelected);
 
         Color background = Commons.nvl(textAttributes.getBgColor(), table.getBackground());
         Color foreground = Commons.nvl(textAttributes.getFgColor(), table.getForeground());
@@ -97,6 +72,36 @@ public class JsonDataEditorTableCellRenderer extends BasicTableCellRenderer {
         append(presentable ?
                 cell.getPresentableValue() :
                 cell.getJsonContent(), textAttributes);
+    }
+
+    private SimpleTextAttributes getTextArttributes(JsonDataEditorTable table, JsonDataEditorModelCell cell, int rowIndex, boolean selected) {
+        JsonDataEditorModelRow row = cell.getRow();
+        boolean dirty = table.getModel().isDirty();
+        boolean loading = table.isLoading();
+        boolean inserting = table.isInserting();
+
+        boolean modified = cell.is(MODIFIED);
+        boolean updating = cell.is(UPDATING);
+        boolean deletedRow = row.is(DELETED);
+        boolean insertRow = row.is(INSERTING);
+        boolean caretRow = !insertRow && table.getCellSelectionEnabled() && table.getSelectedRow() == rowIndex && table.getSelectedRowCount() == 1;
+        boolean connected = table.getEditor().isConnected();
+
+        BasicTableTextAttributes attributes = (BasicTableTextAttributes) getAttributes();
+
+        if (loading) return attributes.getLoadingData(caretRow);
+        if (selected) return table.hasFocus() ?
+                attributes.getSelection() :
+                attributes.getCaretRow();
+
+        if (dirty) return attributes.getLoadingData(caretRow);
+        if (!connected) return attributes.getLoadingData(caretRow);
+
+        if (updating) return attributes.getUpdatingData(caretRow);
+        if (deletedRow) return attributes.getDeletedData();
+        if (inserting && !insertRow) return attributes.getReadonlyData(modified, caretRow);
+
+        return attributes.getPlainData(modified, caretRow);
     }
 
     @Override
