@@ -30,15 +30,15 @@ public class NewConversationAction extends AbstractChatBoxAction {
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
-        if(getAssistantState(e).getAvailability() == FeatureAvailability.UNAVAILABLE){
+        if(getAssistantState(e).getAvailability() == FeatureAvailability.HISTORY_CONVERSATION){
             getAssistantState(e).setAvailability(FeatureAvailability.AVAILABLE);
             chatBox.updateMessages();
         } else {
-            //TODO
+            chatBox.triggerContextChangeEvent(chatBox.getAssistantState().getChatContext(), true);
         }
 //        chatBox.reloadProfiles();
     }
-
+    //TODO
 //    @Override
 //    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
 //    }

@@ -63,8 +63,9 @@ public class ChatContext implements PersistentStateElement {
         return GSON.toJson(attributes);
     }
 
-    public String isConversationInterruption(ChatContext newContext, PersistentChatConversation toShowConversation) {
+    public String isConversationInterruption(ChatContext newContext, PersistentChatConversation toShowConversation, boolean isNewConversation) {
         if (toShowConversation != null) return "conversation history";
+        if (isNewConversation) return "new conversation";
         if (!profile.equals(newContext.getProfile())) return "profile";
         if (model != null && !model.equals(newContext.getModel())) return "model";
         if (action == PromptAction.CHAT && newContext.action != PromptAction.CHAT) {

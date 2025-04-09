@@ -26,5 +26,6 @@ import com.dbn.common.constant.Constant;
 public enum FeatureAvailability implements Constant<FeatureAvailability> {
     AVAILABLE,   // feature is available
     UNAVAILABLE, // feature is unavailable
-    UNCERTAIN    // availability of the feature is not yet known and needs reevaluation
+    UNCERTAIN,    // availability of the feature is not yet known and needs reevaluation
+    HISTORY_CONVERSATION  // feature is showing old conversation
 }

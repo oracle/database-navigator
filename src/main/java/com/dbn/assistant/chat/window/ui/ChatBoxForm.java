@@ -228,7 +228,7 @@ public class ChatBoxForm extends DBNFormBase {
     manager.setSelectedProfile(connectionId, profile);
 
     ChatContext newContext = getAssistantState().getChatContext();
-    triggerContextChangeEvent(oldContext, newContext, null);
+    triggerContextChangeEvent(oldContext, newContext);
   }
 
   public void selectModel(AIModel model) {
@@ -238,7 +238,7 @@ public class ChatBoxForm extends DBNFormBase {
     assistantState.setSelectedModelName(model == null ? null : model.getName());
 
     ChatContext newContext = getAssistantState().getChatContext();
-    triggerContextChangeEvent(oldContext, newContext, null);
+    triggerContextChangeEvent(oldContext, newContext);
   }
 
   public void selectAction(PromptAction action) {
@@ -247,11 +247,21 @@ public class ChatBoxForm extends DBNFormBase {
     getAssistantState().setSelectedAction(action);
 
     ChatContext newContext = getAssistantState().getChatContext();
-    triggerContextChangeEvent(oldContext, newContext, null);
+    triggerContextChangeEvent(oldContext, newContext);
   }
 
+  public void triggerContextChangeEvent(ChatContext oldContext, ChatContext newContext) {
+    triggerContextChangeEvent(oldContext, newContext, null, false);
+  }
   public void triggerContextChangeEvent(ChatContext oldContext, ChatContext newContext, PersistentChatConversation toShowConversation) {
-    String changedField = oldContext.isConversationInterruption(newContext, toShowConversation);
+    triggerContextChangeEvent(oldContext, newContext, toShowConversation, false);
+  }
+  public void triggerContextChangeEvent(ChatContext context, boolean isNewConversation) {
+    triggerContextChangeEvent(context, context, null, isNewConversation);
+  }
+  public void triggerContextChangeEvent(ChatContext oldContext, ChatContext newContext, PersistentChatConversation toShowConversation, boolean isNewConversation) {
+    String changedField = oldContext.isConversationInterruption(newContext, toShowConversation, isNewConversation
+    );
     boolean isOldContextConversation = oldContext.isConversation();
 
     ChatConversation oldConversation = getAssistantState().getCurrentConversation();
@@ -332,7 +342,7 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   public void showConversation(PersistentChatConversation conversation) {
-    getAssistantState().setAvailability(FeatureAvailability.UNAVAILABLE);
+    getAssistantState().setAvailability(FeatureAvailability.HISTORY_CONVERSATION);
     updateMessages(conversation.getMessages());
   }
 
