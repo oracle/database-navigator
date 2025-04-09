@@ -76,6 +76,7 @@ public class MethodExecutionCursorResultForm extends DBNFormBase implements Sear
         resultPanel.setBorder(Borders.lineBorder(JBColor.border(), 1, 0, 1, 0));
         resultScrollPane.setViewportView(resultTable);
         resultTable.initTableGutter();
+        resultTable.installMathAddon();
 
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.MethodExecutionCursorResult");
         setAccessibleName(actionToolbar, txt("app.execution.aria.MethodExecutionCursorResultActions"));

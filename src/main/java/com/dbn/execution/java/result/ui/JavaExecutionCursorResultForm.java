@@ -74,6 +74,7 @@ public class JavaExecutionCursorResultForm extends DBNFormBase implements Search
         resultPanel.setBorder(Borders.lineBorder(JBColor.border(), 1, 0, 1, 0));
         resultScrollPane.setViewportView(resultTable);
         resultTable.initTableGutter();
+        resultTable.installMathAddon();
 
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.MethodExecutionCursorResult");
         actionsPanel.add(actionToolbar.getComponent());

@@ -125,6 +125,8 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
         setAccessibleName(this, "Dataset Editor");
         setFocusable(true);
         setRequestFocusEnabled(true);
+
+        installMathAddon();
     }
 
     @Override

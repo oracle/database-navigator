@@ -44,7 +44,8 @@ public enum ClientProperty {
     COMPONENT_GROUP_QUALIFIER,
     HAS_VALIDATION_LISTENERS,
     ACCESSIBLE_NAME,
-    ACCESSIBLE_DESCRIPTION;
+    ACCESSIBLE_DESCRIPTION,
+    SELECTION_MATH_ADDON;
 
 
     public boolean is(Component component) {

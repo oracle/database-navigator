@@ -65,6 +65,8 @@ public class SessionBrowserTable extends ResultSetTable<SessionBrowserModel> {
         ActionUtil.registerDataProvider(getTableHeader(), dataProvider, false);
 */
         setAccessibleName(this, "Session Browser");
+
+        installMathAddon();
     }
 
     @NotNull

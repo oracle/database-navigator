@@ -102,8 +102,9 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
             resultTable = Disposer.replace(resultTable, newResultSetTable);
             resultScrollPane.setViewportView(resultTable);
             resultTable.setBackground(Colors.getEditorBackground());
-            resultTable.initTableGutter();
             resultTable.setName(getExecutionResult().getName());
+            resultTable.initTableGutter();
+            resultTable.installMathAddon();
             horizontalScrollBar.setValue(horizontalScrolling);
         });
     }
