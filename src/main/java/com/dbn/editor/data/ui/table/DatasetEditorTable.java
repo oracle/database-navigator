@@ -34,7 +34,6 @@ import com.dbn.data.grid.ui.table.basic.BasicTableGutter;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.model.ColumnInfo;
 import com.dbn.data.model.DataModelCell;
-import com.dbn.data.preview.LargeValuePreviewPopup;
 import com.dbn.data.record.RecordViewInfo;
 import com.dbn.data.sorting.SortDirection;
 import com.dbn.data.value.ArrayValue;
@@ -127,6 +126,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
         setRequestFocusEnabled(true);
 
         installMathAddon();
+        installValuePopupAddon();
     }
 
     @Override
@@ -337,12 +337,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
     }
 
     @Override
-    protected void initLargeValuePopup(LargeValuePreviewPopup viewer) {
-        super.initLargeValuePopup(viewer);
-    }
-
-    @Override
-    protected boolean isLargeValuePopupActive() {
+    public boolean isLargeValuePopupActive() {
         DataEditorGeneralSettings generalSettings = getDatasetEditor().getSettings().getGeneralSettings();
         return generalSettings.getLargeValuePreviewActive().value();
     }

@@ -103,8 +103,11 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
             resultScrollPane.setViewportView(resultTable);
             resultTable.setBackground(Colors.getEditorBackground());
             resultTable.setName(getExecutionResult().getName());
+
             resultTable.initTableGutter();
             resultTable.installMathAddon();
+            resultTable.installValuePopupAddon();
+
             horizontalScrollBar.setValue(horizontalScrolling);
         });
     }

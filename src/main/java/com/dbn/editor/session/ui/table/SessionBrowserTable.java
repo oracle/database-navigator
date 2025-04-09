@@ -24,7 +24,6 @@ import com.dbn.data.grid.ui.table.basic.BasicTableGutter;
 import com.dbn.data.grid.ui.table.basic.BasicTableSelectionRestorer;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.grid.ui.table.sortable.SortableTableHeaderRenderer;
-import com.dbn.data.preview.LargeValuePreviewPopup;
 import com.dbn.data.record.RecordViewInfo;
 import com.dbn.editor.session.SessionBrowser;
 import com.dbn.editor.session.action.SessionBrowserTableActionGroup;
@@ -113,11 +112,6 @@ public class SessionBrowserTable extends ResultSetTable<SessionBrowserModel> {
     @Override
     public boolean editCellAt(int row, int column, EventObject e) {
         return super.editCellAt(row, column, e);
-    }
-
-    @Override
-    protected void initLargeValuePopup(LargeValuePreviewPopup viewer) {
-        super.initLargeValuePopup(viewer);
     }
 
     @Override

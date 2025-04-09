@@ -18,7 +18,6 @@ package com.dbn.data.grid.addon;
 
 import com.dbn.common.addon.ComponentAddonBase;
 import com.dbn.common.thread.Dispatch;
-import com.dbn.common.ui.util.ClientProperty;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.util.MathResult;
 import com.dbn.data.grid.ui.table.basic.BasicTable;
@@ -36,6 +35,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+
+import static com.dbn.common.ui.util.ClientProperty.SELECTION_MATH_ADDON;
 
 @Getter
 public class SelectionMathAddon extends ComponentAddonBase<BasicTable> {
@@ -137,16 +138,16 @@ public class SelectionMathAddon extends ComponentAddonBase<BasicTable> {
         if (addon != null) return;
 
         addon = new SelectionMathAddon(table);
-        ClientProperty.SELECTION_MATH_ADDON.set(table, addon);
+        SELECTION_MATH_ADDON.set(table, addon);
     }
 
     @Nullable
     public static SelectionMathAddon of(BasicTable table) {
-        return ClientProperty.SELECTION_MATH_ADDON.get(table);
+        return SELECTION_MATH_ADDON.get(table);
     }
 
     public static void uninstallFrom(BasicTable table) {
-        ClientProperty.SELECTION_MATH_ADDON.set(table, null);
+        SELECTION_MATH_ADDON.set(table, null);
     }
 
 

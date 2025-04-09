@@ -171,10 +171,6 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
     @Override
     public void removeEditor() {}
 
-    protected boolean isLargeValuePopupActive() {
-        return false;
-    }
-
     @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         // table cells are not editable

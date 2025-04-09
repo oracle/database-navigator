@@ -77,6 +77,7 @@ public class MethodExecutionCursorResultForm extends DBNFormBase implements Sear
         resultScrollPane.setViewportView(resultTable);
         resultTable.initTableGutter();
         resultTable.installMathAddon();
+        resultTable.installValuePopupAddon();
 
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.MethodExecutionCursorResult");
         setAccessibleName(actionToolbar, txt("app.execution.aria.MethodExecutionCursorResultActions"));

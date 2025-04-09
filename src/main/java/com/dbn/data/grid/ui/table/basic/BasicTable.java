@@ -25,27 +25,22 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNTableHeaderRenderer;
 import com.dbn.common.ui.table.DBNTableWithGutter;
 import com.dbn.common.ui.table.TableSelectionRestorer;
-import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.MathResult;
 import com.dbn.common.util.Safe;
 import com.dbn.data.grid.addon.SelectionMathAddon;
+import com.dbn.data.grid.addon.ValuePopupAddon;
 import com.dbn.data.grid.color.DataGridTextAttributes;
 import com.dbn.data.grid.options.DataGridSettings;
 import com.dbn.data.model.ColumnInfo;
 import com.dbn.data.model.DataModelCell;
 import com.dbn.data.model.DataModelRow;
 import com.dbn.data.model.basic.BasicDataModel;
-import com.dbn.data.preview.LargeValuePreviewPopup;
-import com.dbn.data.value.LargeObjectValue;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.colors.EditorColorsListener;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.JBPopup;
-import com.intellij.openapi.ui.popup.JBPopupListener;
-import com.intellij.openapi.ui.popup.LightweightWindowEvent;
 import com.intellij.ui.components.JBViewport;
 import com.intellij.util.ui.UIUtil;
 import lombok.Getter;
@@ -56,15 +51,11 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
-
-import static java.awt.event.MouseEvent.BUTTON1;
 
 @Getter
 public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutter<T> implements EditorColorsListener, Disposable {
@@ -72,7 +63,6 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
     private final RegionalSettings regionalSettings;
     private final DataGridSettings dataGridSettings;
     private final TableSelectionRestorer selectionRestorer = createSelectionRestorer();
-    private JBPopup valuePopup;
     private boolean loading;
 
     public BasicTable(DBNComponent parent, T dataModel) {
@@ -87,9 +77,6 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
         ApplicationEvents.subscribe(this, EditorColorsManager.TOPIC, this);
         Color bgColor = displayAttributes.getPlainData(false, false).getBgColor();
         setBackground(bgColor == null ? Colors.getTableBackground() : bgColor);
-
-
-        Mouse.onMouseClick(this, BUTTON1, 1, e -> showCellValuePopup());
 
         addPropertyChangeListener(e -> {
             Object newProperty = e.getNewValue();
@@ -117,6 +104,10 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
 
     public void installMathAddon() {
         SelectionMathAddon.installTo(this);
+    }
+
+    public void installValuePopupAddon() {
+        ValuePopupAddon.installTo(this);
     }
 
     private final RegionalSettingsListener regionalSettingsListener = () -> regionalSettingsChanged();
@@ -252,10 +243,10 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
     @Override
     public void valueChanged(ListSelectionEvent e) {
         super.valueChanged(e);
-        if (!e.getValueIsAdjusting()) {
-            if (hasFocus()) getTableGutter().clearSelection();
-            showCellValuePopup();
-        }
+        if (e.getValueIsAdjusting()) return;
+        if (!hasFocus()) return;
+
+        getTableGutter().clearSelection();
     }
 
     @Override
@@ -263,57 +254,10 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
         JTableHeader tableHeader = getTableHeader();
         if (tableHeader != null && tableHeader.getDraggedColumn() == null) {
             super.columnSelectionChanged(e);
-            if (!e.getValueIsAdjusting()) {
-                showCellValuePopup();
-            }
         }
     }
 
-    private void showCellValuePopup() {
-        if (valuePopup != null) {
-            valuePopup.cancel();
-            valuePopup = null;
-        }
-        if (!isLargeValuePopupActive()) return;
-        if (isRestoringSelection()) return;
-        if (!isShowing()) return;
-        if (getSelectedRowCount() != 1) return;
-        if (getSelectedColumnCount() != 1) return;
-
-        T model = getModel();
-        if (!model.isReadonly()) return;
-
-        int rowIndex = getSelectedRow();
-        int columnIndex = getSelectedColumn();
-        if (canDisplayCompleteValue(rowIndex, columnIndex)) return;
-
-        Rectangle cellRect = getCellRect(rowIndex, columnIndex, true);
-        DataModelCell<?, ?> cell = (DataModelCell<?, ?>) getValueAt(rowIndex, columnIndex);
-        TableColumn column = getColumnModel().getColumn(columnIndex);
-
-        int preferredWidth = column.getWidth();
-        LargeValuePreviewPopup viewer = new LargeValuePreviewPopup(getProject(), this, cell, preferredWidth);
-        initLargeValuePopup(viewer);
-        Point location = cellRect.getLocation();
-        location.setLocation(location.getX() + 4, location.getY() + 20);
-
-        valuePopup = viewer.show(this, location);
-        valuePopup.addListener(
-                new JBPopupListener() {
-                    @Override
-                    public void onClosed(@NotNull LightweightWindowEvent event) {
-                        valuePopup.cancel();
-                        valuePopup = null;
-                    }
-                }
-        );
-
-    }
-
-    protected void initLargeValuePopup(LargeValuePreviewPopup viewer) {
-    }
-
-    protected boolean isLargeValuePopupActive() {
+    public boolean isLargeValuePopupActive() {
         return true;
     }
 
@@ -323,32 +267,10 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
         return mathAddon == null ? null : mathAddon.getMathResult();
     }
 
-    private boolean canDisplayCompleteValue(int rowIndex, int columnIndex) {
-        DataModelCell<?, ?> cell = (DataModelCell<?, ?>) getValueAt(rowIndex, columnIndex);
-        if (cell != null) {
-            Object value = cell.getUserValue();
-            if (value instanceof LargeObjectValue) {
-                return false;
-            }
-            if (value != null) {
-                TableCellRenderer renderer = getCellRenderer(rowIndex, columnIndex);
-                Component component = renderer.getTableCellRendererComponent(this, cell, false, false, rowIndex, columnIndex);
-                TableColumn column = getColumnModel().getColumn(columnIndex);
-                return component.getPreferredSize().width <= column.getWidth();
-            }
-        }
-        return true;
-    }
-
     public Rectangle getCellRect(DataModelCell<?, ?> cell) {
         int rowIndex = convertRowIndexToView(cell.getRow().getIndex());
         int columnIndex = convertColumnIndexToView(cell.getIndex());
         return getCellRect(rowIndex, columnIndex, true);
-    }
-
-    public void scrollCellToVisible(DataModelCell<?, ?> cell) {
-        Rectangle cellRectangle = getCellRect(cell);
-        scrollRectToVisible(cellRectangle);
     }
 
     @NotNull
