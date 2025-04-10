@@ -142,6 +142,15 @@ withType<KotlinCompile> {
       into(layout.buildDirectory.dir("idea-sandbox/plugins/${project.name}/lib/ext"))
     }
   }
+  test {
+    // we are also excluding two ChecksumTest cases if we are on Linux
+    if (project.hasProperty("excludeTests")) {
+      var excludeTests: String = project.properties["excludeTests"] as String
+      excludeTests.replace("\\s", "").split("[,;]").forEach { excluded ->
+        exclude(excluded)
+      }
+    }
+  }
 
   signPlugin {
     certificateChain.set(System.getenv("CERTIFICATE_CHAIN"))
