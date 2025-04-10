@@ -265,7 +265,7 @@
             </group>
 
             <separator/>
-            <action class="com.dbn.assistant.chat.window.action.ConversationSelectDropdownAction" text="Select Convo" id="DBNavigator.Actions.Assistant.SelectConvo"/>
+            <group class="com.dbn.assistant.chat.window.action.ConversationSelectDropdownAction" text="Select Convo" id="DBNavigator.Actions.Assistant.SelectConvo" icon="AllIcons.Actions.ListFiles"/>
             <action class="com.dbn.assistant.chat.window.action.NewConversationAction" text="New Conversation" id="DBNavigator.Actions.Assistant.NewConversation" icon="AllIcons.Actions.AddList"/>
             <action class="com.dbn.assistant.chat.window.action.ConversationClearAction" text="Clear Conversation" id="DBNavigator.Actions.Assistant.ClearConversation" icon="AllIcons.Actions.GC"/>
         </group>

@@ -18,86 +18,49 @@ package com.dbn.assistant.chat.window.action;
 
 import com.dbn.assistant.chat.PersistentChatConversation;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.common.action.ComboBoxAction;
+import com.dbn.common.action.BasicActionGroup;
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.util.Actions;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.actionSystem.Separator;
 import com.intellij.openapi.project.DumbAware;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JComponent;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Action for selecting an old conversation
  */
-public class ConversationSelectDropdownAction extends ComboBoxAction implements DumbAware {
-
+public class ConversationSelectDropdownAction extends BasicActionGroup implements DumbAware {
     @Override
-    @NotNull
-    protected DefaultActionGroup createPopupActionGroup(JComponent component, DataContext dataContext) {
-        DefaultActionGroup actionGroup = new DefaultActionGroup();
-
-        ChatBoxForm chatBox = dataContext.getData(DataKeys.ASSISTANT_CHAT_BOX);
-        if (chatBox == null) return actionGroup;
+    protected @NotNull AnAction[] loadChildren(AnActionEvent e) {
+        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
+        if (chatBox == null) return new AnAction[0];
 
         List<PersistentChatConversation> conversations = chatBox.getConversations();
-        conversations.stream().limit(3).forEach(c -> actionGroup.add(new ConversationSelectAction(c)));
-        actionGroup.addSeparator();
+        if (conversations.isEmpty()) return new AnAction[0];
 
-        actionGroup.add(new ConversationShowAllAction(conversations));
-        return actionGroup;
+        List<AnAction> actionList = new ArrayList<>();
+
+        conversations.stream()
+                .limit(3)
+                .forEach(c -> actionList.add(new ConversationSelectAction(c)));
+
+        actionList.add(Separator.create());
+
+        actionList.add(new ConversationShowAllAction(conversations));
+
+        return actionList.toArray(new AnAction[0]);
     }
-
     @Override
     public void update(@NotNull AnActionEvent e) {
         ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
 
         Presentation presentation = e.getPresentation();
-        presentation.setText(getText(e));
         presentation.setDescription("Select a conversation");
         //TODO when will it be enabled
 //        presentation.setEnabled(enabled);
-    }
-
-    private String getText(@NotNull AnActionEvent e) {
-        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
-        if (chatBox == null) return "Conversation";
-
-        String text = getSelectedConversationName(e);
-        if (text != null){
-            if(text.isEmpty()) return "Default";
-            return text;
-        }
-
-        List<PersistentChatConversation> conversations = chatBox.getConversations();
-        if (!conversations.isEmpty()) return "Conversation";
-
-        return "Conversation";
-    }
-
-    @Nullable
-    private static String getSelectedConversationName(@NotNull AnActionEvent e) {
-        PersistentChatConversation conversation = getSelectedConversation(e);
-        if (conversation == null) return null;
-
-        return Actions.adjustActionName(conversation.getTitle());
-    }
-
-    @Nullable
-    private static PersistentChatConversation getSelectedConversation(@NotNull AnActionEvent e) {
-        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
-        if (chatBox == null) return null;
-
-        return chatBox.getConversations().isEmpty() ? null : chatBox.getConversations().get(0);
-    }
-
-    @Override
-    protected boolean shouldShowDisabledActions() {
-        return true;
     }
 }
