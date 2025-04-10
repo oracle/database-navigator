@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package com.dbn.object.factory;
+package com.dbn.execution.java.wrapper.model;
 
-import com.dbn.object.common.DBSchemaObject;
-import lombok.Getter;
+import com.dbn.execution.java.wrapper.WrapperBuilderContext;
+import com.dbn.execution.java.wrapper.naming.WrapperNamingProvider;
 
-@Getter
-public class ObjectFactoryEvent {
-    public static final int EVENT_TYPE_CREATE = 0;
-    public static final int EVENT_TYPE_DROP = 1;
+abstract class EntityWrapper {
 
-    private final DBSchemaObject object;
-    private final int eventType;
+    protected WrapperBuilderContext getContext() {
+        return WrapperBuilderContext.get();
+    }
 
-    public ObjectFactoryEvent(DBSchemaObject object, int eventType) {
-        this.object = object;
-        this.eventType = eventType;
+    protected WrapperNamingProvider getNamingProvider() {
+        return getContext().getNamingProvider();
     }
 }

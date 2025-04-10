@@ -17,8 +17,10 @@
 package com.dbn.object.common.status;
 
 import com.dbn.common.property.Property;
+import lombok.Getter;
 
-public enum DBObjectStatus implements Property.IntBase {
+@Getter
+public enum DBObjectStatus implements Property.ShortBase {
     PRESENT(false, true),
     ENABLED(true, true),
     EDITABLE(false, false),
@@ -28,7 +30,7 @@ public enum DBObjectStatus implements Property.IntBase {
 
     public static final DBObjectStatus[] VALUES = values();
 
-    private final IntMasks masks = new IntMasks(this);
+    private final ShortMasks masks = new ShortMasks(this);
     private final boolean propagable;
     private final boolean defaultValue;
 
@@ -38,12 +40,8 @@ public enum DBObjectStatus implements Property.IntBase {
     }
 
     @Override
-    public IntMasks masks() {
+    public ShortMasks masks() {
         return masks;
-    }
-
-    public boolean isPropagable() {
-        return propagable;
     }
 
     public boolean getDefaultValue() {

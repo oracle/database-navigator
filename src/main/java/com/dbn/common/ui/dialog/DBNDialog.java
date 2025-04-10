@@ -49,6 +49,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
 
+import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.registerDialog;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.releaseDialog;
 import static com.dbn.common.util.Classes.simpleClassName;
@@ -56,11 +57,13 @@ import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
+@Setter
 public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper implements DBNComponent, NlsSupport {
     private F form;
     private final ProjectRef project;
 
     private boolean rememberSelection;
+    private boolean autoSize;
     private Dimension defaultSize;
     private final DBNFormValidator formValidator = new DBNFormValidatorImpl(this);
 
@@ -80,6 +83,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         }
         super.init();
     }
+
 
     /**
      * Validates the input provided in the specified component and updates the validation state
@@ -130,6 +134,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     }
 
     public void setDefaultSize(int width, int height) {
+        this.autoSize = false;
         this.defaultSize = new JBDimension(width, height);
     }
 
@@ -143,7 +148,8 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
 
     @Override
     public void show() {
-        AppIcon.getInstance().requestAttention(getProject(), true);
+        Project project = guarded(null, () -> getProject());
+        AppIcon.getInstance().requestAttention(project, true);
         registerDialog(this);
         super.show();
     }
@@ -170,7 +176,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
 
     @Override
     protected String getDimensionServiceKey() {
-        return Diagnostics.isDialogSizingReset() ? null : "DBNavigator." + simpleClassName(this);
+        return autoSize || Diagnostics.isDialogSizingReset() ? null : "DBNavigator." + simpleClassName(this);
     }
 
     protected static void renameAction(@NotNull Action action, String name) {

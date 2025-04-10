@@ -82,7 +82,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
     }
 
     private ObjectChangeListener createObjectChangeListener() {
-        return (connectionId, ownerId, objectType) -> refreshState(connectionId);
+        return (c, o, t, a) -> refreshState(c);
     }
 
     private void refreshState(ConnectionId connectionId) {

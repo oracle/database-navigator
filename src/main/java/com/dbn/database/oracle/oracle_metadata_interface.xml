@@ -366,8 +366,8 @@
                  and apo.OBJECT_TYPE = 'JAVA CLASS'
             where j.OWNER = {0}
               and j.IS_INNER = 'NO'
-              and j.NAME not like '%$%'   -- TODO not all classes containing $ are INNER (!?)
-            order j.NAME
+              and j.NAME not like '%$%'   /*TODO not all classes containing $ are INNER (!?) */
+            order by j.NAME
         </statement>
     </statement-execution-processor>
 

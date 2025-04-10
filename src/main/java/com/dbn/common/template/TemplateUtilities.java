@@ -24,6 +24,7 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -50,5 +51,12 @@ public class TemplateUtilities {
 		FileTemplateManager templateManager = FileTemplateManager.getInstance(project);
 		FileTemplate template = templateManager.getCodeTemplate(templateName);
 		return template.getText(properties);
+	}
+
+	@SneakyThrows
+	public static String generateCode(@NotNull Project project, @NonNls String templateName, Map<String, Object> context){
+		FileTemplateManager templateManager = FileTemplateManager.getInstance(project);
+		FileTemplate template = templateManager.getCodeTemplate(templateName);
+		return template.getText(context);
 	}
 }
