@@ -16,7 +16,6 @@
 
 package com.dbn.editor.json.ui.table;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.table.DBNTableGutterRendererBase;
 import com.dbn.data.grid.ui.table.basic.BasicTableGutter;
@@ -25,7 +24,6 @@ import com.dbn.editor.json.model.JsonDataEditorModelRow;
 import javax.swing.Icon;
 import javax.swing.JList;
 import javax.swing.ListModel;
-import java.awt.Color;
 
 import static com.dbn.editor.data.model.RecordStatus.DELETED;
 import static com.dbn.editor.data.model.RecordStatus.INSERTED;
@@ -52,17 +50,5 @@ public class JsonDataEditorTableGutterRenderer extends DBNTableGutterRendererBas
                 iconLabel.setIcon(icon);
             }
         }
-
-        boolean isCaretRow = table.getCellSelectionEnabled() && table.getSelectedRow() == index && table.getSelectedRowCount() == 1;
-        Color background = isSelected ?
-                table.getSelectionBackground() :
-                isCaretRow ?
-                        Colors.getTableCaretRowColor() :
-                        table.getBackground();
-        mainPanel.setBackground(background);
-        iconLabel.setBackground(background);
-        textLabel.setForeground(isSelected ?
-                Colors.getTableSelectionForeground(cellHasFocus) :
-                Colors.getTableGutterForeground());
     }
 }

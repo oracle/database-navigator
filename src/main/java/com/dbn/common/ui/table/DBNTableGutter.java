@@ -56,8 +56,10 @@ public abstract class DBNTableGutter<T extends DBNTableWithGutter> extends JList
         setBackground(Colors.getPanelBackground());
         setBorder(Borders.EMPTY_BORDER);
         setFont(Fonts.editor(-2));
-        setFocusable(false);
-        setRequestFocusEnabled(false);
+
+        // TODO accessibility changes broke gutter selection logic
+        //setFocusable(false);
+        //setRequestFocusEnabled(false);
 
         setCellRenderer(createCellRenderer());
         adjustCellSize();

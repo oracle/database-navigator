@@ -39,6 +39,11 @@ public class DBNTableWithGutter<T extends DBNTableWithGutterModel> extends DBNTa
         refreshTableGutter(e);
     }
 
+    public boolean isGutterFocussed() {
+        DBNTableGutter<?>tableGutter = getTableGutter();
+        return tableGutter != null && tableGutter.hasFocus();
+    }
+
     protected DBNTableGutter<?> createTableGutter() {
         return null; // do not create gutter by default
     }

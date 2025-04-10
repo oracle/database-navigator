@@ -61,7 +61,6 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
         Color background = Commons.nvl(textAttributes.getBgColor(), table.getBackground());
         Color foreground = Commons.nvl(textAttributes.getFgColor(), table.getForeground());
 
-
         Border border = Borders.lineBorder(background);
 
         if (cell.hasError() && connected) {
@@ -105,7 +104,7 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
 
         if (loading) return attributes.getLoadingData(caretRow);
         if (selected) return
-                table.hasFocus() ?
+                table.isFocusOwner() || table.isGutterFocussed()?
                         attributes.getSelection() :
                         attributes.getCaretRow();
 

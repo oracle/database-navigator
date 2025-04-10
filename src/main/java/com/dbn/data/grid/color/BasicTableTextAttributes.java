@@ -20,8 +20,6 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.util.TextAttributes;
 import com.intellij.openapi.editor.colors.EditorColors;
-import com.intellij.openapi.editor.colors.EditorColorsManager;
-import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.ui.SimpleTextAttributes;
 import lombok.Getter;
 
@@ -63,14 +61,11 @@ public class BasicTableTextAttributes implements DataGridTextAttributes {
     private final SimpleTextAttributes caretRow;
     private final SimpleTextAttributes searchResult;
 
-    private final Color caretRowBgColor;
-
     private static final Latent<BasicTableTextAttributes> INSTANCE = Latent.laf(() -> new BasicTableTextAttributes());
 
     private BasicTableTextAttributes() {
-        EditorColorsScheme globalScheme = EditorColorsManager.getInstance().getGlobalScheme();
         caretRow = TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.CARET_ROW);
-        caretRowBgColor = globalScheme.getAttributes(DataGridTextAttributesKeys.CARET_ROW).getBackgroundColor();
+        Color caretRowBgColor = caretRow.getBgColor();
 
         deletedData = TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.DELETED_DATA);
         errorData = TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.ERROR_DATA);
@@ -212,10 +207,5 @@ public class BasicTableTextAttributes implements DataGridTextAttributes {
     @Override
     public SimpleTextAttributes getSearchResult() {
         return searchResult;
-    }
-
-    @Override
-    public Color getCaretRowBgColor() {
-        return caretRowBgColor;
     }
 }
