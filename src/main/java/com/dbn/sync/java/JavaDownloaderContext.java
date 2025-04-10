@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.dbn.common.outcome.OutcomeHandlersImpl;
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.connection.context.DatabaseContext;
+import com.dbn.sync.java.impl.JavaDownloaderImpl;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,14 +33,14 @@ import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 @Setter
-public class JavaDownloaderContext<I extends JavaDownloaderInput> {
+public class JavaDownloaderContext {
+	private final JavaDownloader downloader;
 	private final WeakRef<DatabaseContext> databaseContext;
-	private final JavaDownloader<I> downloader;
 	private final OutcomeHandlers outcomeHandlers = new OutcomeHandlersImpl();
-	private I input;
+	private JavaDownloaderInput input;
 
 	public JavaDownloaderContext(DatabaseContext databaseContext) {
-		this.downloader = JavaDownloaderRegistry.get();
+		this.downloader = new JavaDownloaderImpl();
 		this.databaseContext = WeakRef.of(databaseContext);
 	}
 

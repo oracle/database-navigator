@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,9 @@ package com.dbn.sync.java.impl;
 
 import com.dbn.common.thread.Write;
 import com.dbn.common.util.Messages;
-import com.dbn.connection.context.DatabaseContext;
-import com.dbn.generator.code.java.JavaCodeGeneratorInput;
 import com.dbn.object.DBJavaClass;
 import com.dbn.sync.java.JavaDownloaderInput;
 import com.dbn.sync.java.base.JavaDownloaderBase;
-import com.dbn.sync.java.ui.JavaDownloaderInputDialog;
-import com.dbn.sync.java.ui.JavaDownloaderInputForm;
-import com.dbn.sync.java.ui.JavaObjectDownloadInputForm;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -36,43 +31,33 @@ import lombok.SneakyThrows;
 import static com.dbn.common.options.Configs.fail;
 import static com.dbn.common.util.Strings.isEmpty;
 
-public class JavaDownloaderImpl<I extends JavaDownloaderInput> extends JavaDownloaderBase<I> {
+public class JavaDownloaderImpl extends JavaDownloaderBase {
 	@Override
-	protected boolean prepareDestination(Project project, DBJavaClass targetClass, I input) {
+	protected boolean prepareDestination(Project project, DBJavaClass targetClass, JavaDownloaderInput input) {
 		prepareDestinationFolder(input);
 		return handleDestinationOverwrite(project, targetClass, input);
 	}
 
 	@Override
-	public JavaDownloaderInput createInput(DatabaseContext databaseContext) {
-		JavaDownloaderInput input = new JavaDownloaderInput(databaseContext);
-		DBJavaClass targetClass = (DBJavaClass) databaseContext;
+	public JavaDownloaderInput createInput(DBJavaClass javaClass) {
+		JavaDownloaderInput input = new JavaDownloaderInput(javaClass);
 
-		int lastDotIndex = targetClass.getCanonicalName().lastIndexOf('.');
-		String packageName = (lastDotIndex != -1) ? targetClass.getCanonicalName().substring(0, lastDotIndex) : "";
-
-		String className = targetClass.getSimpleName();
+		int lastDotIndex = javaClass.getCanonicalName().lastIndexOf('.');
+		String packageName = (lastDotIndex != -1) ? javaClass.getCanonicalName().substring(0, lastDotIndex) : "";
 
 		input.setPackageName(packageName);
-		input.setClassName(className);
 		return input;
-	}
-
-	@Override
-	public JavaDownloaderInputForm<I> createInputForm(JavaDownloaderInputDialog dialog, I input) {
-		return new JavaObjectDownloadInputForm<>(dialog, input) ;
 	}
 
 	/**
 	 * Prepares the destination directory structure for a specified input, creating the necessary
 	 * package directories if they do not already exist.
-	 * (moved from {@link JavaCodeGeneratorInput})
 	 *
 	 * @param input the input object containing generator destination information, such as the module,
 	 *              content root, and package name required to determine and create the target directories
 	 */
 	@SneakyThrows
-	private void prepareDestinationFolder(I input) {
+	private void prepareDestinationFolder(JavaDownloaderInput input) {
 		Module module = input.findModule();
 		VirtualFile file = input.findContentRoot(module);
 		PsiDirectory directory = input.findContentRootDirectory(file);
@@ -93,7 +78,7 @@ public class JavaDownloaderImpl<I extends JavaDownloaderInput> extends JavaDownl
 	}
 
 	@SneakyThrows
-	private boolean handleDestinationOverwrite(Project project, DBJavaClass target, I input) {
+	private boolean handleDestinationOverwrite(Project project, DBJavaClass target, JavaDownloaderInput input) {
 		String className = target.getSimpleName();
 		String fileName = className + ".java";
 

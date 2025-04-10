@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,8 @@ import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.state.GenericStateHolder;
 import com.dbn.common.state.StateHolder;
 import com.dbn.common.util.Dialogs;
-import com.dbn.connection.context.DatabaseContext;
-import com.dbn.generator.code.CodeGeneratorCategory;
+import com.dbn.object.DBJavaClass;
 import com.dbn.sync.java.ui.JavaDownloaderInputDialog;
-import com.dbn.sync.java.ui.JavaDownloaderInputForm;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -39,17 +37,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
-import static com.dbn.common.options.setting.Settings.setEnumAttribute;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.sync.java.JavaDownloaderManager.COMPONENT_NAME;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 public class JavaDownloaderManager extends ProjectComponentBase implements PersistentState {
 	public static final String COMPONENT_NAME = "DBNavigator.Project.JavaDownloaderManager";
 
-	private final Map<CodeGeneratorCategory, GenericStateHolder> states = new ConcurrentHashMap<>();
+	private final Map<String, GenericStateHolder> states = new ConcurrentHashMap<>();
 
 	private JavaDownloaderManager(Project project) {
 		super(project, COMPONENT_NAME);
@@ -59,33 +57,27 @@ public class JavaDownloaderManager extends ProjectComponentBase implements Persi
 		return projectService(project, JavaDownloaderManager.class);
 	}
 
-	public void openCodeDownloader(DatabaseContext databaseContext) {
-		JavaDownloaderContext context = createContext(databaseContext);
+	public void openCodeDownloader(DBJavaClass javaClass) {
+		JavaDownloaderContext context = createContext(javaClass);
 		Dialogs.show(() -> new JavaDownloaderInputDialog(context));
 	}
 
 
 	@NotNull
-	private JavaDownloaderContext createContext(DatabaseContext databaseContext) {
+	private JavaDownloaderContext createContext(DBJavaClass javaClass) {
 		Project project = getProject();
 
 		// create and initialize context
-		JavaDownloaderContext context = new JavaDownloaderContext(databaseContext);
+		JavaDownloaderContext context = new JavaDownloaderContext(javaClass);
 		context.addOutcomeHandler(OutcomeType.FAILURE, MessageOutcomeHandler.get(project));
 		context.addOutcomeHandler(OutcomeType.SUCCESS, MessageOutcomeHandler.get(project));
 
 		// create empty input
 		JavaDownloader downloader = context.getDownloader();
-		JavaDownloaderInput input = downloader.createInput(databaseContext);
+		JavaDownloaderInput input = downloader.createInput(javaClass);
 		context.setInput(input);
 
 		return context;
-	}
-
-	public JavaDownloaderInputForm createInputForm(JavaDownloaderInputDialog dialog, JavaDownloaderContext context) {
-		JavaDownloaderInput input = context.getInput();
-		JavaDownloader downloader = context.getDownloader();
-		return downloader.createInputForm(dialog, input);
 	}
 
 	public void downloadCode(JavaDownloaderContext context) {
@@ -94,7 +86,7 @@ public class JavaDownloaderManager extends ProjectComponentBase implements Persi
 	}
 
 	@NotNull
-	public StateHolder getState(CodeGeneratorCategory category) {
+	public StateHolder getState(String category) {
 		return states.computeIfAbsent(category, k -> new GenericStateHolder());
 	}
 
@@ -105,10 +97,10 @@ public class JavaDownloaderManager extends ProjectComponentBase implements Persi
 	@Override
 	public Element getComponentState() {
 		Element element = newStateElement();
-		Element statesElement = newElement(element, "generator-states");
-		for (CodeGeneratorCategory category : states.keySet()) {
-			Element stateElement = newElement(statesElement, "generator-state");
-			setEnumAttribute(stateElement, "category", category);
+		Element statesElement = newElement(element, "downloader-states");
+		for (String category : states.keySet()) {
+			Element stateElement = newElement(statesElement, "state");
+			setStringAttribute(stateElement, "category", category);
 
 			GenericStateHolder state = states.get(category);
 			state.writeState(stateElement);
@@ -118,10 +110,10 @@ public class JavaDownloaderManager extends ProjectComponentBase implements Persi
 
 	@Override
 	public void loadComponentState(@NotNull Element element) {
-		Element statesElement = element.getChild("generator-states");
+		Element statesElement = element.getChild("downloader-states");
 		if (statesElement != null) {
-			for (Element stateElement : statesElement.getChildren("generator-state")) {
-				CodeGeneratorCategory category = enumAttribute(stateElement, "category", CodeGeneratorCategory.class);
+			for (Element stateElement : statesElement.getChildren("state")) {
+				String category = stringAttribute(stateElement, "category");
 				GenericStateHolder state = new GenericStateHolder();
 				state.readState(stateElement);
 				states.put(category, state);

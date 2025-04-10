@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,9 @@ import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBSchema;
+import com.dbn.sync.java.JavaDownloader;
 import com.dbn.sync.java.JavaDownloaderContext;
 import com.dbn.sync.java.JavaDownloaderInput;
-import com.dbn.sync.java.JavaDownloaderRegistry;
-import com.dbn.sync.java.JavaDownloader;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -40,18 +39,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
-public abstract class JavaDownloaderBase<I extends JavaDownloaderInput> implements JavaDownloader<I> {
-
-	public JavaDownloaderBase() {
-		JavaDownloaderRegistry.register(this);
-	}
+public abstract class JavaDownloaderBase implements JavaDownloader {
 
 	@Override
-	public final void downloadObject(JavaDownloaderContext<I> context) {
-		I input = context.getInput();
+	public final void downloadObject(JavaDownloaderContext context) {
+		JavaDownloaderInput input = context.getInput();
 
 		Project project = input.getProject();
-		DBJavaClass target = (DBJavaClass) input.getDatabaseContext();
+		DBJavaClass target = input.getJavaClass();
 		List<String> dependentObjects = input.getDependentObjects();
 
 		boolean destinationPrepared = prepareDestination(project, target, input);
@@ -85,7 +80,7 @@ public abstract class JavaDownloaderBase<I extends JavaDownloaderInput> implemen
 		}
 	}
 
-	private void downloadFileInTarget(I input, Project project, DBJavaClass target){
+	private void downloadFileInTarget(JavaDownloaderInput input, Project project, DBJavaClass target){
 		Progress.prompt(project, null, true,
 				"Downloading file",
 				"Downloading java file " + target.getName() + ".java",
@@ -139,5 +134,5 @@ public abstract class JavaDownloaderBase<I extends JavaDownloaderInput> implemen
 	 * @param input the input to prepare destination for
 	 * @return true if destination is prepared and code download can proceed, false otherwise
 	 */
-	protected abstract boolean prepareDestination(Project project, DBJavaClass targetClass, I input);
+	protected abstract boolean prepareDestination(Project project, DBJavaClass targetClass, JavaDownloaderInput input);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@
 package com.dbn.sync.java.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.ref.WeakRef;
-import com.dbn.connection.context.DatabaseContext;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.action.AnObjectAction;
 import com.dbn.sync.java.JavaDownloaderManager;
@@ -30,16 +28,14 @@ import org.jetbrains.annotations.Nullable;
 
 public class JavaObjectDownloadAction extends AnObjectAction<DBJavaClass> {
 
-	private final WeakRef<DatabaseContext> context;
-	public JavaObjectDownloadAction(DBJavaClass program) {
-		super(program);
-		this.context = WeakRef.of(program);
+	public JavaObjectDownloadAction(DBJavaClass javaClass) {
+		super(javaClass);
 	}
 
 	@Override
 	protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBJavaClass target) {
 		JavaDownloaderManager manager = JavaDownloaderManager.getInstance(project);
-		manager.openCodeDownloader(getContext());
+		manager.openCodeDownloader(getTarget());
 	}
 
 	@Override
@@ -50,10 +46,5 @@ public class JavaObjectDownloadAction extends AnObjectAction<DBJavaClass> {
 			@Nullable DBJavaClass target) {
 			presentation.setText("Download Source");
 			presentation.setIcon(Icons.ACTION_MOVE_DOWN);
-	}
-
-	@Nullable
-	private DatabaseContext getContext() {
-		return WeakRef.get(context);
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,14 @@
 package com.dbn.sync.java;
 
 import com.dbn.common.project.Modules;
+import com.dbn.common.project.ProjectRef;
 import com.dbn.common.thread.Read;
 import com.dbn.connection.context.DatabaseContext;
-import com.dbn.generator.code.shared.base.CodeGeneratorInputBase;
+import com.dbn.object.DBJavaClass;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
@@ -36,33 +39,47 @@ import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.options.Configs.fail;
-import static com.dbn.common.util.Java.isValidClassName;
 import static com.dbn.common.util.Java.isValidPackageName;
 import static com.dbn.common.util.Strings.isEmpty;
 
 @Getter
 @Setter
-public class JavaDownloaderInput extends CodeGeneratorInputBase {
+public class JavaDownloaderInput {
+
+    private DBObjectRef<DBJavaClass> javaClass;
+    private final ProjectRef project;
+
     private String moduleName;
     private String contentRoot;
     private String packageName;
     private String className;
+
     private List<String> dependentObjects;
 
-    public JavaDownloaderInput(DatabaseContext databaseContext) {
-        super(databaseContext);
+    public JavaDownloaderInput(DBJavaClass javaClass) {
+        this.javaClass = DBObjectRef.of(javaClass);
+        this.project = ProjectRef.of(javaClass.getProject());
+
+        this.packageName = javaClass.getPackageName();
+        this.className = javaClass.getCanonicalName();
+    }
+
+    public Project getProject() {
+        return ProjectRef.ensure(project);
+    }
+
+    public DatabaseContext getDatabaseContext() {
+        return javaClass;
+    }
+
+    public DBJavaClass getJavaClass() {
+        return DBObjectRef.ensure(javaClass);
     }
 
     public PsiDirectory getTargetDirectory() throws ConfigurationException {
         Module module = findModule();
         VirtualFile contentRoot = findContentRoot(module);
         return findPackageDirectory(contentRoot);
-    }
-
-    public String getClassName() throws ConfigurationException {
-        if (isEmpty(className)) fail("Class name is not specified");
-        if (!isValidClassName(className)) fail("Class name is invalid");
-        return className;
     }
 
     @NotNull
@@ -113,6 +130,5 @@ public class JavaDownloaderInput extends CodeGeneratorInputBase {
         }
         return nd(directory);
     }
-
 }
 

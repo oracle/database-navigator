@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,26 +17,16 @@
 package com.dbn.sync.java;
 
 import com.dbn.connection.context.DatabaseContext;
-import com.dbn.sync.java.ui.JavaDownloaderInputDialog;
-import com.dbn.sync.java.ui.JavaDownloaderInputForm;
+import com.dbn.object.DBJavaClass;
 
-public interface JavaDownloader<I extends JavaDownloaderInput> {
+public interface JavaDownloader {
 	/**
 	 * Creates an input for the code generator for a given database context
 	 *
-	 * @param databaseContext the {@link DatabaseContext} to create input for
+	 * @param javaClass the {@link DatabaseContext} to create input for
 	 * @return a {@link JavaDownloaderInput}
 	 */
-	JavaDownloaderInput createInput(DatabaseContext databaseContext);
-
-	/**
-	 * Creates an input form for the user to enter the details for the code generator
-	 *
-	 * @param dialog the dialog which will host the input form
-	 * @param input the input to be passed on to the form
-	 * @return a specific implementation of {@link JavaDownloaderInputForm}
-	 */
-	JavaDownloaderInputForm<I> createInputForm(JavaDownloaderInputDialog dialog, I input);
+	JavaDownloaderInput createInput(DBJavaClass javaClass);
 
 	/**
 	 * The main utility of the code generator, accepting a {@link JavaDownloaderContext}.
@@ -45,5 +35,5 @@ public interface JavaDownloader<I extends JavaDownloaderInput> {
 	 *
 	 * @param context the {@link JavaDownloaderContext} that contains all the information necessary for code generation
 	 */
-	void downloadObject(JavaDownloaderContext<I> context);
+	void downloadObject(JavaDownloaderContext context);
 }

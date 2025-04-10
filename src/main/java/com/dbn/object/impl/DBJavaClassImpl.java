@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -156,6 +156,14 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	@Override
 	public String getSimpleName() {
 		return DBJavaNameCache.getSimpleName(ref());
+	}
+
+	@Override
+	public String getPackageName() {
+		String canonicalName = getCanonicalName();
+		int lastDotIndex = canonicalName.lastIndexOf('.');
+		if (lastDotIndex == -1) return "";
+		return canonicalName.substring(0, lastDotIndex);
 	}
 
 	@Override
