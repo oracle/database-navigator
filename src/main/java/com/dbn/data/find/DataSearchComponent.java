@@ -52,6 +52,7 @@ import com.intellij.openapi.editor.event.SelectionListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.ui.LightColors;
+import com.intellij.ui.components.JBTextArea;
 import com.intellij.util.ArrayUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,7 +61,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
@@ -95,7 +95,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
     private boolean myListeningSelection = false;
     private ActionToolbar actionsToolbar;
     private final DataSearchResultController searchResultController;
-    private final SearchTextArea searchTextField = new SearchTextArea(new JTextArea(), true);
+    private final SearchTextArea searchTextField;
 
     public JTextComponent getSearchField() {
         return searchTextField.getTextArea();
@@ -103,6 +103,11 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
 
     private DataSearchComponent(@NotNull SearchableDataComponent searchableComponent) {
         super(searchableComponent);
+
+        JBTextArea textArea = new JBTextArea();
+        textArea.getEmptyText().setText("Search");
+        searchTextField = new SearchTextArea(textArea, true);
+
         searchFieldPanel.add(searchTextField, BorderLayout.CENTER);
         searchTextField.setExtraActions(createExtraActions());
         searchTextField.setMultilineEnabled(false);
@@ -253,7 +258,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         closeLabel.addMouseListener(Mouse.listener().onClick(e -> close()));
 
         closeLabel.setToolTipText("Close search bar (Escape)");
-        CompatibilityUtil.setSmallerFont(searchField);
+        //CompatibilityUtil.setSmallerFont(searchField);
 
         searchField.registerKeyboardAction(e -> {
             if (Strings.isEmptyOrSpaces(searchField.getText())) {

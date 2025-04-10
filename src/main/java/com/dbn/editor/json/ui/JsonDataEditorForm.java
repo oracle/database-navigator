@@ -121,6 +121,7 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
         mainPanel.setFocusCycleRoot(true);
         mainPanel.setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
         mainPanel.setFocusTraversalPolicyProvider(true);
+        searchPanel.setVisible(false);
 
         JsonDataContentEditorForm contentEditorForm = new JsonDataContentEditorForm(this);
         editorPanel.add(contentEditorForm.getComponent());
@@ -224,10 +225,11 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
 
     @Override
     public void hideSearchHeader() {
+        if (!searchPanel.isVisible()) return;
+
         getSearchComponent().resetFindModel();
         searchPanel.setVisible(false);
         JsonDataEditorTable editorTable = getEditorTable();
-
         UserInterface.repaintAndFocus(editorTable);
     }
 
