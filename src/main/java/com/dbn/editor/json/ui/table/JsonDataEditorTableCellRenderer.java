@@ -46,7 +46,7 @@ public class JsonDataEditorTableCellRenderer extends BasicTableCellRenderer {
 
         boolean connected = jsonDataEditorTable.getEditor().isConnected();
         BasicTableTextAttributes attributes = (BasicTableTextAttributes) getAttributes();
-        SimpleTextAttributes textAttributes = getTextArttributes(jsonDataEditorTable, cell, rowIndex, isSelected);
+        SimpleTextAttributes textAttributes = getTextAttributes(jsonDataEditorTable, cell, rowIndex, isSelected);
 
         Color background = Commons.nvl(textAttributes.getBgColor(), table.getBackground());
         Color foreground = Commons.nvl(textAttributes.getFgColor(), table.getForeground());
@@ -67,14 +67,10 @@ public class JsonDataEditorTableCellRenderer extends BasicTableCellRenderer {
         setBackground(background);
         setForeground(foreground);
 
-        boolean presentable = jsonDataEditorTable.getEditor().isContentEditorVisible();
-
-        append(presentable ?
-                cell.getPresentableValue() :
-                cell.getJsonContent(), textAttributes);
+        writeUserValue(cell, textAttributes, attributes);
     }
 
-    private SimpleTextAttributes getTextArttributes(JsonDataEditorTable table, JsonDataEditorModelCell cell, int rowIndex, boolean selected) {
+    private SimpleTextAttributes getTextAttributes(JsonDataEditorTable table, JsonDataEditorModelCell cell, int rowIndex, boolean selected) {
         JsonDataEditorModelRow row = cell.getRow();
         boolean dirty = table.getModel().isDirty();
         boolean loading = table.isLoading();

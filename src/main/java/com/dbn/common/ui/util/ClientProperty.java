@@ -21,6 +21,7 @@ import com.dbn.common.util.Unsafe;
 
 import javax.swing.JComponent;
 import java.awt.Component;
+import java.util.function.Supplier;
 
 public enum ClientProperty {
     REGULAR_SPLITTER,
@@ -47,7 +48,8 @@ public enum ClientProperty {
     ACCESSIBLE_DESCRIPTION,
 
     SELECTION_MATH_ADDON,
-    VALUE_POPUP_ADDON;
+    VALUE_POPUP_ADDON,
+    DATA_SEARCH_ADDON;
 
 
     public boolean is(Component component) {
@@ -70,6 +72,15 @@ public enum ClientProperty {
             return Unsafe.cast(prop);
         }
         return null;
+    }
+
+    public <T> T get(Component component, Supplier<T> supplier) {
+        T object = get(component);
+        if (object == null) {
+            object = supplier.get();
+            set(component, object);
+        }
+        return object;
     }
 
     public <T> void set(Component component, T value) {

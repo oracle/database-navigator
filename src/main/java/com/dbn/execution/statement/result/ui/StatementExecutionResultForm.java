@@ -17,11 +17,9 @@
 package com.dbn.execution.statement.result.ui;
 
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.action.DataProviders;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
-import com.dbn.common.latent.Latent;
 import com.dbn.common.ui.misc.DBNTableScrollPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
@@ -46,7 +44,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
-import java.awt.BorderLayout;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
@@ -61,13 +58,6 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
     private DBNTableScrollPane resultScrollPane;
     private final RecordViewInfo recordViewInfo;
     private final ActionToolbar actionToolbar;
-
-    private transient final Latent<DataSearchComponent> dataSearchComponent = Latent.basic(() -> {
-        DataSearchComponent dataSearchComponent = new DataSearchComponent(StatementExecutionResultForm.this);
-        searchPanel.add(dataSearchComponent.getComponent(), BorderLayout.CENTER);
-        DataProviders.register(dataSearchComponent.getSearchField(), this);
-        return dataSearchComponent;
-    });
 
     public StatementExecutionResultForm(@NotNull StatementExecutionCursorResult executionResult) {
         super(executionResult);
@@ -161,6 +151,12 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
     /*********************************************************
      *              SearchableDataComponent                  *
      *********************************************************/
+
+    @Override
+    public @NotNull JPanel getSearchPanel() {
+        return searchPanel;
+    }
+
     @Override
     public void showSearchHeader() {
         getResultTable().clearSelection();
@@ -174,10 +170,6 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
         }
         dataSearchComponent.getSearchField().requestFocus();
 
-    }
-
-    private DataSearchComponent getSearchComponent() {
-        return dataSearchComponent.get();
     }
 
     @Override

@@ -80,6 +80,15 @@ public class JsonDataEditorModelCell
     }
 
     @Override
+    public String getPresentableValue() {
+        boolean presentable = getEditorTable().getEditor().isContentEditorVisible();
+
+        return presentable ?
+                super.getPresentableValue() :
+                getJsonContent();
+    }
+
+    @Override
     public JsonValue getUserValue() {
         return (JsonValue) super.getUserValue();
     }

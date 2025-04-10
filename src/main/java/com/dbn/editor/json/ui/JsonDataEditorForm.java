@@ -18,10 +18,8 @@ package com.dbn.editor.json.ui;
 
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.action.DataProviders;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.latent.Latent;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.AutoCommitLabel;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -78,13 +76,6 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
     private JsonDataEditorTable jsonDataEditorTable;
     private final WeakRef<JsonDataEditor> jsonDataEditor;
     private final WeakRef<JsonDataContentEditorForm> contentEditorForm;
-
-    private final Latent<DataSearchComponent> dataSearchComponent = Latent.basic(() -> {
-        DataSearchComponent dataSearchComponent = new DataSearchComponent(JsonDataEditorForm.this);
-        searchPanel.add(dataSearchComponent.getComponent(), BorderLayout.CENTER);
-        DataProviders.register(dataSearchComponent.getSearchField(), this);
-        return dataSearchComponent;
-    });
 
     public JsonDataEditorForm(JsonDataEditor jsonDataEditor) {
         super(jsonDataEditor, jsonDataEditor.getProject());
@@ -207,8 +198,15 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
     /*********************************************************
      *              SearchableDataComponent                  *
      *********************************************************/
+
+    @Override
+    public @NotNull JPanel getSearchPanel() {
+        return searchPanel;
+    }
+
     @Override
     public void showSearchHeader() {
+        getJsonDataEditor().setContentEditorVisible(false);
         JsonDataEditorTable editorTable = getEditorTable();
         editorTable.clearSelection();
 
@@ -222,10 +220,6 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
             searchPanel.setVisible(true);    
         }
         dispatch(() -> searchField.requestFocus());
-    }
-
-    private DataSearchComponent getSearchComponent() {
-        return dataSearchComponent.get();
     }
 
     @Override
@@ -258,6 +252,7 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
 
     public void setContentEditorVisible(boolean visible) {
         editorPanel.setVisible(visible);
+        if (visible) hideSearchHeader();
     }
 
     private class CancelLoadingAction extends BasicAction {

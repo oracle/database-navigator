@@ -16,8 +16,10 @@
 
 package com.dbn.data.find;
 
+import com.dbn.common.action.DataProviders;
 import com.dbn.common.color.Colors;
 import com.dbn.common.compatibility.CompatibilityUtil;
+import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.ui.util.Keyboard;
@@ -57,6 +59,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
@@ -73,6 +76,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import static com.dbn.common.ui.util.ClientProperty.DATA_SEARCH_ADDON;
+import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -84,6 +89,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
     private JLabel matchesLabel;
     private JLabel closeLabel;
     private JPanel searchFieldPanel;
+    private JSplitPane searchSplitPane;
 
     private DataFindModel findModel;
     private boolean myListeningSelection = false;
@@ -95,11 +101,14 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         return searchTextField.getTextArea();
     }
 
-    public DataSearchComponent(@NotNull SearchableDataComponent searchableComponent) {
+    private DataSearchComponent(@NotNull SearchableDataComponent searchableComponent) {
         super(searchableComponent);
         searchFieldPanel.add(searchTextField, BorderLayout.CENTER);
         searchTextField.setExtraActions(createExtraActions());
         searchTextField.setMultilineEnabled(false);
+        mainPanel.setBackground(searchTextField.getBackground());
+
+        setSplitPaneProportion(searchSplitPane, 0.20);
         //searchTextField.setBorder(Borders.EMPTY_BORDER);
         //searchTextField.getTextArea().setBorder(Borders.EMPTY_BORDER);
         //searchTextField.setShowNewLineButton(false);
@@ -235,7 +244,9 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         actionsGroup.add(new PrevOccurrenceAction(this, searchField, true));
         actionsGroup.add(new NextOccurrenceAction(this, searchField, true));
         actionsToolbar = Actions.createActionToolbar(actionsPanel, true, actionsGroup);
-        actionsPanel.add(actionsToolbar.getComponent(), BorderLayout.CENTER);
+        JComponent actionsToolbarComponent = actionsToolbar.getComponent();
+        actionsToolbarComponent.setOpaque(false);
+        actionsPanel.add(actionsToolbarComponent);
 
 
         JLabel closeLabel = new JLabel(" ", AllIcons.Actions.Close, SwingConstants.RIGHT);
@@ -502,6 +513,24 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
 
     private DataSearchResult getSearchResult() {
         return getSearchableComponent().getTable().getModel().getSearchResult();
+    }
+
+    @NotNull
+    public static DataSearchComponent ensure(SearchableDataComponent form) {
+        JPanel searchPanel = form.getSearchPanel();
+        synchronized (searchPanel) {
+            DataSearchComponent searchComponent = DATA_SEARCH_ADDON.get(searchPanel);
+            if (searchComponent != null) return searchComponent;
+
+            searchComponent = new DataSearchComponent(form);
+            searchPanel.add(searchComponent.getComponent(), BorderLayout.CENTER);
+
+            DataProviders.register(searchComponent.getSearchField(), form);
+            Disposer.register(form, searchComponent);
+
+            DATA_SEARCH_ADDON.set(searchPanel, searchComponent);
+            return searchComponent;
+        }
     }
 
 }

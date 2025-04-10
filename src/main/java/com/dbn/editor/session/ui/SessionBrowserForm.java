@@ -21,7 +21,6 @@ import com.dbn.common.action.DataProviders;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
-import com.dbn.common.latent.Latent;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNScrollPane;
@@ -65,13 +64,6 @@ public class SessionBrowserForm extends DBNFormBase implements SearchableDataCom
     private JSplitPane editorSplitPanel;
     private DBNScrollPane tableScrollPane;
     private SessionBrowserTable browserTable;
-
-    private final Latent<DataSearchComponent> dataSearchComponent = Latent.basic(() -> {
-        DataSearchComponent dataSearchComponent = new DataSearchComponent(SessionBrowserForm.this);
-        searchPanel.add(dataSearchComponent.getComponent(), BorderLayout.CENTER);
-        DataProviders.register(dataSearchComponent.getSearchField(), this);
-        return dataSearchComponent;
-    });
 
     private final WeakRef<SessionBrowser> sessionBrowser;
     private final SessionBrowserDetailsForm detailsForm;
@@ -168,6 +160,11 @@ public class SessionBrowserForm extends DBNFormBase implements SearchableDataCom
      *              SearchableDataComponent                  *
      *********************************************************/
     @Override
+    public @NotNull JPanel getSearchPanel() {
+        return searchPanel;
+    }
+
+    @Override
     public void showSearchHeader() {
         getBrowserTable().clearSelection();
 
@@ -181,10 +178,6 @@ public class SessionBrowserForm extends DBNFormBase implements SearchableDataCom
         }
         searchField.requestFocus();
 
-    }
-
-    private DataSearchComponent getSearchComponent() {
-        return dataSearchComponent.get();
     }
 
     @Override

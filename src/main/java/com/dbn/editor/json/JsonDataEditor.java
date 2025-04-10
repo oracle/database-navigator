@@ -493,8 +493,9 @@ public class JsonDataEditor extends DataEditorBase<DBJsonView> {
     }
 
     public void setContentEditorVisible(boolean visible) {
+        JsonDataEditorForm editorForm = getEditorForm();
         editorState.setEditorVisible(visible);
-        getEditorForm().setContentEditorVisible(visible);
+        editorForm.setContentEditorVisible(visible);
     }
 
     public void focusContentEditor() {
