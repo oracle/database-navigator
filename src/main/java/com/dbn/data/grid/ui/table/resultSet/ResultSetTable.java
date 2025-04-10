@@ -18,10 +18,8 @@ package com.dbn.data.grid.ui.table.resultSet;
 
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.util.Borderless;
-import com.dbn.common.ui.util.Mouse;
-import com.dbn.common.util.Dialogs;
+import com.dbn.data.grid.addon.RecordViewerAddon;
 import com.dbn.data.grid.ui.table.basic.BasicTableGutter;
-import com.dbn.data.grid.ui.table.resultSet.record.ResultSetRecordViewerDialog;
 import com.dbn.data.grid.ui.table.sortable.SortableTable;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.data.record.RecordViewInfo;
@@ -31,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import static java.awt.event.MouseEvent.BUTTON1;
+import static com.dbn.common.ui.util.ClientProperty.DATA_TYPE_RELEVANT;
 
 @Getter
 public class ResultSetTable<T extends ResultSetDataModel<?, ?>> extends SortableTable<T> implements Borderless {
@@ -40,11 +38,7 @@ public class ResultSetTable<T extends ResultSetDataModel<?, ?>> extends Sortable
     public ResultSetTable(DBNComponent parent, T dataModel, boolean enableSpeedSearch, RecordViewInfo recordViewInfo) {
         super(parent, dataModel, enableSpeedSearch);
         this.recordViewInfo = recordViewInfo;
-        Mouse.onMouseClick(this, BUTTON1, 2, e -> showRecordDetails());
-    }
-
-    public void showRecordDetails() {
-        Dialogs.show(() -> new ResultSetRecordViewerDialog(this, showRecordViewDataTypes()));
+        DATA_TYPE_RELEVANT.set(this, true);
     }
 
     @Override
@@ -52,9 +46,15 @@ public class ResultSetTable<T extends ResultSetDataModel<?, ?>> extends Sortable
         return new ResultSetTableGutter(this);
     }
 
-    protected boolean showRecordViewDataTypes() {
-        return true;
+    public void installRecordViewerAddon() {
+        RecordViewerAddon.installTo(this);
     }
+
+    public void showRecordDetails() {
+        RecordViewerAddon viewerAddon = RecordViewerAddon.of(this);
+        if (viewerAddon != null) viewerAddon.showRecordDetails();
+    }
+
 
     @NotNull
     @Override

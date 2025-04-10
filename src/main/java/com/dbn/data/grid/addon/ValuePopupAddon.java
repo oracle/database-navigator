@@ -131,11 +131,7 @@ public class ValuePopupAddon extends ComponentAddonBase<BasicTable> {
     }
 
     public static void installTo(BasicTable table) {
-        ValuePopupAddon addon = of(table);
-        if (addon != null) return;
-
-        addon = new ValuePopupAddon(table);
-        VALUE_POPUP_ADDON.set(table, addon);
+        VALUE_POPUP_ADDON.get(table, () -> new ValuePopupAddon(table));
     }
 
     @Nullable

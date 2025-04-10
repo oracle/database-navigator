@@ -40,7 +40,6 @@ import com.dbn.editor.json.model.JsonDataEditorModelCell;
 import com.dbn.editor.json.model.JsonDataEditorModelRow;
 import com.dbn.editor.json.ui.JsonDataEditorErrorForm;
 import com.dbn.editor.json.ui.JsonDataEditorForm;
-import com.dbn.editor.json.ui.table.listener.JsonDataEditorMouseListener;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBJsonView;
 import lombok.Getter;
@@ -59,20 +58,21 @@ import java.util.EventObject;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Mouse.onMouseClick;
 import static com.dbn.editor.data.DataLoadInstruction.DELIBERATE_ACTION;
 import static com.dbn.editor.data.DataLoadInstruction.PRESERVE_CHANGES;
 import static com.dbn.editor.data.DataLoadInstruction.USE_CURRENT_FILTER;
 import static com.dbn.editor.data.model.RecordStatus.INSERTING;
 import static com.dbn.editor.data.model.RecordStatus.UPDATING;
 import static com.dbn.nls.NlsResources.txt;
+import static java.awt.event.MouseEvent.BUTTON1;
+import static java.awt.event.MouseEvent.BUTTON3;
 
 @Getter
 @Setter
 public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
     private static final DataLoadInstructions SORT_LOAD_INSTRUCTIONS = new DataLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION);
     private final WeakRef<JsonDataEditor> editor;
-
-    private final JsonDataEditorMouseListener tableMouseListener = new JsonDataEditorMouseListener(this);
 
     private boolean editingEnabled = true;
 
@@ -87,7 +87,9 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
         setFillsViewportHeight(true);
 
         getSelectionModel().addListSelectionListener(getModel());
-        addMouseListener(tableMouseListener);
+
+        onMouseClick(this, BUTTON1, 2, e -> showContentEditor());
+        onMouseClick(this, BUTTON3, 1, e -> selectCellAt(e.getPoint()));
 
         setAccessibleName(this, "Json Data Editor");
         setFocusable(true);
@@ -103,8 +105,7 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
         return new JsonDataEditorModel(jsonDataEditor);
     }
 
-    @Override
-    public void showRecordDetails() {
+    public void showContentEditor() {
         JsonDataEditor editor = getEditor();
         if (!editor.isContentEditorVisible())  {
             editor.setContentEditorVisible(true);

@@ -260,6 +260,16 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
         return MAX_COLUMN_WIDTH;
     }
 
+    protected void selectCellAt(Point point) {
+        int rowIndex = rowAtPoint(point);
+        int columnIndex = columnAtPoint(point);
+        if (rowIndex == -1) return;
+        if (columnIndex == -1) return;
+
+        selectCell(rowIndex, columnIndex);
+    }
+
+
     public void selectCell(int rowIndex, int columnIndex) {
         if (rowIndex > -1 && columnIndex > -1 && rowIndex < getRowCount() && columnIndex < getColumnCount()) {
             Rectangle cellRect = getCellRect(rowIndex, columnIndex, true);

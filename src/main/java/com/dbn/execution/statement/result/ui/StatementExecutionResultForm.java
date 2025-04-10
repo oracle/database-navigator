@@ -71,7 +71,7 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
         resultTable.setName(executionResult.getName());
 
         resultScrollPane.setViewportView(resultTable);
-        resultTable.initTableGutter();
+        initTableAddons(resultTable);
 
         Disposer.register(this, resultTable);
         Disposer.register(this, executionResult);
@@ -94,12 +94,16 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
             resultTable.setBackground(Colors.getEditorBackground());
             resultTable.setName(getExecutionResult().getName());
 
-            resultTable.initTableGutter();
-            resultTable.installMathAddon();
-            resultTable.installValuePopupAddon();
-
+            initTableAddons(resultTable);
             horizontalScrollBar.setValue(horizontalScrolling);
         });
+    }
+
+    private static void initTableAddons(ResultSetTable resultTable) {
+        resultTable.initTableGutter(); // TODO convert to addon
+        resultTable.installMathAddon();
+        resultTable.installValuePopupAddon();
+        resultTable.installRecordViewerAddon();
     }
 
     @NotNull

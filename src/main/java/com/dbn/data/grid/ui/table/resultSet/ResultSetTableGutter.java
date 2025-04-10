@@ -17,19 +17,18 @@
 package com.dbn.data.grid.ui.table.resultSet;
 
 import com.dbn.common.ui.util.Mouse;
-import com.dbn.common.util.Conditional;
 import com.dbn.data.grid.ui.table.basic.BasicTableGutter;
 import com.dbn.data.grid.ui.table.basic.BasicTableGutterCellRenderer;
 
 import javax.swing.ListCellRenderer;
-import java.awt.event.MouseListener;
 
-import static com.dbn.common.ui.util.Mouse.isMainDoubleClick;
+import static com.dbn.common.dispose.ComponentDisposer.removeListeners;
+import static java.awt.event.MouseEvent.BUTTON1;
 
 public class ResultSetTableGutter extends BasicTableGutter<ResultSetTable> {
     public ResultSetTableGutter(ResultSetTable table) {
         super(table);
-        addMouseListener(mouseListener);
+        Mouse.onMouseClick(this, BUTTON1, 2, e -> getTable().showRecordDetails());
     }
 
     @Override
@@ -37,15 +36,9 @@ public class ResultSetTableGutter extends BasicTableGutter<ResultSetTable> {
         return new BasicTableGutterCellRenderer();
     }
 
-    MouseListener mouseListener = Mouse.listener().onClick(e ->
-            Conditional.when(
-                    isMainDoubleClick(e),
-                    () -> getTable().showRecordDetails()));
-
     @Override
     public void disposeInner() {
-        removeMouseListener(mouseListener);
-        mouseListener = null;
+        removeListeners(this);
         super.disposeInner();
     }
 }

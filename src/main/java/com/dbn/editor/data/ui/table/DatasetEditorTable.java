@@ -125,7 +125,9 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
         setFocusable(true);
         setRequestFocusEnabled(true);
 
+        // addons
         installMathAddon();
+        installRecordViewerAddon();
         installValuePopupAddon();
     }
 

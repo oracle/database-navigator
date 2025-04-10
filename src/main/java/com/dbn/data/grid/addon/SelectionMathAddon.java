@@ -134,11 +134,7 @@ public class SelectionMathAddon extends ComponentAddonBase<BasicTable> {
     }
 
     public static void installTo(BasicTable table) {
-        SelectionMathAddon addon = of(table);
-        if (addon != null) return;
-
-        addon = new SelectionMathAddon(table);
-        SELECTION_MATH_ADDON.set(table, addon);
+        SELECTION_MATH_ADDON.get(table, () -> new SelectionMathAddon(table));
     }
 
     @Nullable
