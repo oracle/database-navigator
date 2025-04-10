@@ -6,7 +6,6 @@
 /dist/
 /out/
 /lib/
-/libs/
 /src/main/resources/lib/
 /modules/dbn-api/build/
 /modules/dbn-spi/build/
