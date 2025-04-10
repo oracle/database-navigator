@@ -56,6 +56,7 @@ public class ConversationHistoryTable extends DBNTable<ConversationHistoryTableM
         });
 
         setAccessibleName(this, "Chat Conversation History");
+        setProportionalColumnWidths(50, 15, 35);
     }
 
     public void setDoubleClickAction(Runnable action) {
@@ -66,19 +67,6 @@ public class ConversationHistoryTable extends DBNTable<ConversationHistoryTableM
     public void setModel(@NotNull TableModel dataModel) {
         super.setModel(dataModel);
         initTableSorter();
-    }
-
-    /**
-     * Adjusts the column widths to fit the content
-     */
-    public void adjustColumnWidths() {
-        if (getColumnCount() > 0) {
-            getColumnModel().getColumn(0).setPreferredWidth(350);
-        }
-
-        if (getColumnCount() > 1) {
-            getColumnModel().getColumn(1).setPreferredWidth(150);
-        }
     }
 
     private class CellRenderer extends DBNColoredTableCellRenderer {

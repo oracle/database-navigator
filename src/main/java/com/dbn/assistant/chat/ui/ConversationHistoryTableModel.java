@@ -49,7 +49,7 @@ public class ConversationHistoryTableModel extends StatefulDisposableBase implem
 
     @Override
     public int getColumnCount() {
-        return 2;
+        return 3;
     }
 
     @NonNls
@@ -57,7 +57,8 @@ public class ConversationHistoryTableModel extends StatefulDisposableBase implem
     public String getColumnName(int columnIndex) {
         switch (columnIndex) {
             case 0: return "Title";
-            case 1: return "Timestamp";
+            case 1: return "Profile";
+            case 2: return "Date";
             default: return "";
         }
     }
@@ -74,12 +75,11 @@ public class ConversationHistoryTableModel extends StatefulDisposableBase implem
 
     @Override
     public Object getValue(PersistentChatConversation conversation, int column) {
-        Formatter formatter = Formatter.getInstance(project);
-        Date date = new Date(conversation.getTimestamp());
-        String dateFormat = formatter.formatDateTime(date);
+
         switch (column) {
             case 0: return conversation.getTitle();
-            case 1: return dateFormat;
+            case 1: return conversation.getContext().getProfile();
+            case 2: return getPresentableDateFormat(conversation.getTimestamp());
             default: return "";
         }
     }
@@ -87,14 +87,18 @@ public class ConversationHistoryTableModel extends StatefulDisposableBase implem
     @Override
     public String getPresentableValue(PersistentChatConversation conversation, int column) {
         if (conversation == null) return "";
-        Formatter formatter = Formatter.getInstance(project);
-        Date date = new Date(conversation.getTimestamp());
-        String dateFormat = formatter.formatDateTime(date);
         switch (column) {
             case 0: return conversation.getTitle();
-            case 1: return dateFormat;
+            case 1: return conversation.getContext().getProfile();
+            case 2: return getPresentableDateFormat(conversation.getTimestamp());
             default: return "";
         }
+    }
+
+    public String getPresentableDateFormat(long timestamp) {
+        Formatter formatter = Formatter.getInstance(project);
+        Date date = new Date(timestamp);
+        return formatter.formatDateTime(date);
     }
 
     /**
