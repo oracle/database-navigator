@@ -146,7 +146,8 @@ withType<KotlinCompile> {
     // we are also excluding two ChecksumTest cases if we are on Linux
     if (project.hasProperty("excludeTests")) {
       var excludeTests: String = project.properties["excludeTests"] as String
-      excludeTests.replace("\\s", "").split("[,;]").forEach { excluded ->
+      excludeTests.replace("\\s", "").split(",", ";").forEach { excluded ->
+        System.out.println("Excluding testcase: "+excluded)
         exclude(excluded)
       }
     }
