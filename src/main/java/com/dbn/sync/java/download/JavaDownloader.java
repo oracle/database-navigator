@@ -73,18 +73,20 @@ public final class JavaDownloader extends JavaDownloaderBase {
 		String packageName = javaClass.getPackageName();
 
 		PsiDirectory rootDirectory = input.findContentRootDirectory();
-		PsiDirectory packageDirectory = input.findPackageDirectory(rootDirectory, packageName);;
+		PsiDirectory packageDirectory = input.findPackageDirectory(rootDirectory, packageName);
 
 		VirtualFile targetFolder = packageDirectory.getVirtualFile();
-		runWriteCommandAction(context.getProject(), () -> context.handled(() -> writeJavaFile(targetFolder, javaFileName, sourceCode)));
+		Project project = context.getProject();
+		runWriteCommandAction(project, () -> context.handled(() -> writeJavaFile(context, targetFolder, javaFileName, sourceCode)));
 	}
 
 	@SneakyThrows
-	private static void writeJavaFile(VirtualFile folder, String fileName, String sourceCode) {
+	private static void writeJavaFile(JavaDownloadContext context, VirtualFile folder, String fileName, String sourceCode) {
 		VirtualFile javaFile = folder.findChild(fileName);
 		if (javaFile == null) {
 			javaFile = folder.createChildData(null, fileName);
 		}
 		VfsUtil.saveText(javaFile, sourceCode);
+		context.addDownloadedFile(javaFile);
 	}
 }

@@ -25,10 +25,14 @@ import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.common.routine.ThrowableRunnable;
 import com.dbn.connection.context.DatabaseContext;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Unsafe.cast;
@@ -38,7 +42,9 @@ import static com.dbn.common.util.Unsafe.cast;
 public class JavaDownloadContext {
 	private final WeakRef<DatabaseContext> databaseContext;
 	private final JavaDownloadInput input;
-	private MessageCollector messages = new MessageBundle();
+	private final MessageCollector messages = new MessageBundle();
+	private final List<VirtualFile> downloadedFiles = new ArrayList<>();
+	private VirtualFile targetRootDirectory;
 
 	public JavaDownloadContext(JavaDownloadInput input) {
 		this.input = input;
@@ -79,5 +85,17 @@ public class JavaDownloadContext {
 
 	public boolean hasErrors() {
 		return messages.hasErrors();
+	}
+
+	public void addDownloadedFile(VirtualFile file) {
+		downloadedFiles.add(file);
+/*
+
+		Project project = getProject();
+		PsiFile psiFile = PsiUtil.getPsiFile(project, file);
+		if (psiFile != null) {
+			downloadedPsiFiles.add(psiFile);
+		}
+*/
 	}
 }

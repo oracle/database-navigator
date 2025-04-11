@@ -35,6 +35,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.sync.java.download.ui.JavaDownloadInputDialog;
+import com.dbn.sync.java.download.ui.JavaDownloadResultDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -134,14 +135,19 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 	}
 
 
-	public void performDownload(JavaDownloadContext context) {
+	public void startDownload(JavaDownloadContext context) {
 		JavaDownloadInput input = context.getInput();
 		DBJavaClass javaClass = input.getJavaClass();
 		Progress.prompt(getProject(), context.getDatabaseContext(), true,
 				"Downloading classes",
 				"Creating project classes and dependencies from java class \"" + javaClass.getCanonicalName() + "\"",
-				progress -> JavaDownloader.INSTANCE.downloadJavaClasses(context));
+				progress -> performDownload(context));
 
+	}
+
+	private void performDownload(JavaDownloadContext context) {
+		JavaDownloader.INSTANCE.downloadJavaClasses(context);
+		Dialogs.show(() -> new JavaDownloadResultDialog(getProject(), context));
 	}
 
 	@NotNull

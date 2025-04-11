@@ -32,6 +32,9 @@ import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAct
 abstract class JavaDownloaderBase {
 	protected void prepareDestinationFolders(JavaDownloadContext context) {
 		PsiDirectory rootDirectory = context.handled(() -> prepareRootDirectory(context));
+		if (rootDirectory == null) return;
+
+		context.setTargetRootDirectory(rootDirectory.getVirtualFile());
 
 		JavaDownloadInput input = context.getInput();
 		Set<JavaPackageNode> packageNodes = input.getTargetPackages();
