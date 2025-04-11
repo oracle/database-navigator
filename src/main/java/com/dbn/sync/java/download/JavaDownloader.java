@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.sync.java;
+package com.dbn.sync.java.download;
 
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.SourceCodeManager;
@@ -37,12 +37,12 @@ public final class JavaDownloader extends JavaDownloaderBase {
 
 	private JavaDownloader() {}
 
-	public void downloadJavaClasses(JavaDownloaderContext context) {
+	public void downloadJavaClasses(JavaDownloadContext context) {
 		prepareDestinationFolders(context);
 		if (context.hasErrors()) return;
 
 
-		JavaDownloaderInput input = context.getInput();
+		JavaDownloadInput input = context.getInput();
 		List<JavaDownloadElement> downloadElements = input.getSelectedDownloadElements();
 		for (JavaDownloadElement downloadElement : downloadElements) {
 			context.handled(() -> downloadJavaClass(context, downloadElement));
@@ -50,7 +50,7 @@ public final class JavaDownloader extends JavaDownloaderBase {
 	}
 
 	@SneakyThrows
-	private void downloadJavaClass(JavaDownloaderContext context, JavaDownloadElement downloadElement) {
+	private void downloadJavaClass(JavaDownloadContext context, JavaDownloadElement downloadElement) {
 		String className = downloadElement.getJavaClassName();
 		setProgressDetail("Loading sources of \"" + className + "\"");
 		Project project = context.getProject();
@@ -65,8 +65,8 @@ public final class JavaDownloader extends JavaDownloaderBase {
 	}
 
 	@SneakyThrows
-	private static void writeJavaFile(JavaDownloaderContext context, JavaDownloadElement downloadElement, String sourceCode) {
-		JavaDownloaderInput input = context.getInput();
+	private static void writeJavaFile(JavaDownloadContext context, JavaDownloadElement downloadElement, String sourceCode) {
+		JavaDownloadInput input = context.getInput();
 		DBJavaClass javaClass = downloadElement.getJavaClass();
 
 		String javaFileName = downloadElement.getJavaFileName();

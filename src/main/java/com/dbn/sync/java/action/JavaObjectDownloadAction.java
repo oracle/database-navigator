@@ -19,7 +19,7 @@ package com.dbn.sync.java.action;
 import com.dbn.common.icon.Icons;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.action.AnObjectAction;
-import com.dbn.sync.java.JavaDownloaderManager;
+import com.dbn.sync.java.download.JavaDownloadManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -34,7 +34,7 @@ public class JavaObjectDownloadAction extends AnObjectAction<DBJavaClass> {
 
 	@Override
 	protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBJavaClass target) {
-		JavaDownloaderManager manager = JavaDownloaderManager.getInstance(project);
+		JavaDownloadManager manager = JavaDownloadManager.getInstance(project);
 		manager.openCodeDownloader(getTarget());
 	}
 

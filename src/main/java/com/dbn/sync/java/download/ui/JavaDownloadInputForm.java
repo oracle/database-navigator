@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.sync.java.ui;
+package com.dbn.sync.java.download.ui;
 
 import com.dbn.common.file.VirtualFilePresentable;
 import com.dbn.common.project.ModulePresentable;
@@ -24,10 +24,10 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.object.DBJavaClass;
-import com.dbn.sync.java.JavaDownloadElement;
-import com.dbn.sync.java.JavaDownloaderContext;
-import com.dbn.sync.java.JavaDownloaderInput;
-import com.dbn.sync.java.JavaDownloaderManager;
+import com.dbn.sync.java.download.JavaDownloadContext;
+import com.dbn.sync.java.download.JavaDownloadElement;
+import com.dbn.sync.java.download.JavaDownloadInput;
+import com.dbn.sync.java.download.JavaDownloadManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
@@ -50,7 +50,7 @@ import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
 import static java.awt.event.ItemEvent.SELECTED;
 
-public class JavaDownloaderInputForm extends DBNFormBase {
+public class JavaDownloadInputForm extends DBNFormBase {
     private JPanel headerPanel;
     private JPanel mainPanel;
     private JPanel targetLocationPanel;
@@ -59,9 +59,9 @@ public class JavaDownloaderInputForm extends DBNFormBase {
     private JPanel dependentObjectPanel;
 
 
-    public JavaDownloaderInputForm(JavaDownloaderInputDialog dialog) {
+    public JavaDownloadInputForm(JavaDownloadInputDialog dialog) {
         super(dialog);
-        JavaDownloaderInput input = dialog.getContext().getInput();
+        JavaDownloadInput input = dialog.getContext().getInput();
 
         DBJavaClass javaClass = input.getJavaClass();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, javaClass);
@@ -80,8 +80,8 @@ public class JavaDownloaderInputForm extends DBNFormBase {
         }
     }
 
-    JavaDownloaderContext getContext() {
-        JavaDownloaderInputDialog dialog = ensureParentComponent();
+    JavaDownloadContext getContext() {
+        JavaDownloadInputDialog dialog = ensureParentComponent();
         return dialog.getContext();
     }
 
@@ -92,7 +92,7 @@ public class JavaDownloaderInputForm extends DBNFormBase {
 
     protected void initStatePersistence() {
         Project project = ensureProject();
-        JavaDownloaderManager javaDownloadManager = JavaDownloaderManager.getInstance(project);
+        JavaDownloadManager javaDownloadManager = JavaDownloadManager.getInstance(project);
 
         StateHolder state = javaDownloadManager.getState("DOWNLOAD");
 
@@ -124,7 +124,7 @@ public class JavaDownloaderInputForm extends DBNFormBase {
     }
 
     protected void applyUserInput() {
-        JavaDownloaderInput input = getContext().getInput();
+        JavaDownloadInput input = getContext().getInput();
         input.setModuleName(getSelectedModuleName());
         input.setContentRoot(getSelectedContentPath());
     }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.sync.java;
+package com.dbn.sync.java.download;
 
 import com.dbn.common.project.Modules;
 import com.dbn.common.project.ProjectRef;
@@ -47,7 +47,7 @@ import static com.dbn.common.util.Strings.isEmpty;
 
 @Getter
 @Setter
-public class JavaDownloaderInput {
+public class JavaDownloadInput {
 
     private DBObjectRef<DBJavaClass> javaClass;
     private final ProjectRef project;
@@ -59,7 +59,7 @@ public class JavaDownloaderInput {
 
     private final List<JavaDownloadElement> downloadElements = new ArrayList<>();
 
-    public JavaDownloaderInput(DBJavaClass javaClass, List<JavaDownloadElement> dependencies) {
+    public JavaDownloadInput(DBJavaClass javaClass, List<JavaDownloadElement> dependencies) {
         this.javaClass = DBObjectRef.of(javaClass);
         this.project = ProjectRef.of(javaClass.getProject());
 

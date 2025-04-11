@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.sync.java;
+package com.dbn.sync.java.download;
 
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
@@ -34,7 +34,7 @@ import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
-import com.dbn.sync.java.ui.JavaDownloaderInputDialog;
+import com.dbn.sync.java.download.ui.JavaDownloadInputDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -55,20 +55,20 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.sync.java.JavaDownloaderManager.COMPONENT_NAME;
+import static com.dbn.sync.java.download.JavaDownloadManager.COMPONENT_NAME;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
-public class JavaDownloaderManager extends ProjectComponentBase implements PersistentState {
+public class JavaDownloadManager extends ProjectComponentBase implements PersistentState {
 	public static final String COMPONENT_NAME = "DBNavigator.Project.JavaDownloaderManager";
 
 	private final Map<String, GenericStateHolder> states = new ConcurrentHashMap<>();
 
-	private JavaDownloaderManager(Project project) {
+	private JavaDownloadManager(Project project) {
 		super(project, COMPONENT_NAME);
 	}
 
-	public static JavaDownloaderManager getInstance(@NotNull Project project) {
-		return projectService(project, JavaDownloaderManager.class);
+	public static JavaDownloadManager getInstance(@NotNull Project project) {
+		return projectService(project, JavaDownloadManager.class);
 	}
 
 	public void openCodeDownloader(DBJavaClass javaClass) {
@@ -84,10 +84,10 @@ public class JavaDownloaderManager extends ProjectComponentBase implements Persi
 		try {
 			List<JavaDownloadElement> dependencies = loadDownloadDependencies(javaClass);
 
-			JavaDownloaderInput input = new JavaDownloaderInput(javaClass, dependencies);
-			JavaDownloaderContext context = new JavaDownloaderContext(input);
+			JavaDownloadInput input = new JavaDownloadInput(javaClass, dependencies);
+			JavaDownloadContext context = new JavaDownloadContext(input);
 
-			Dialogs.show(() -> new JavaDownloaderInputDialog(context));
+			Dialogs.show(() -> new JavaDownloadInputDialog(context));
 
 		} catch (SQLException e) {
 			Messages.showErrorDialog(getProject(),
@@ -134,8 +134,8 @@ public class JavaDownloaderManager extends ProjectComponentBase implements Persi
 	}
 
 
-	public void performDownload(JavaDownloaderContext context) {
-		JavaDownloaderInput input = context.getInput();
+	public void performDownload(JavaDownloadContext context) {
+		JavaDownloadInput input = context.getInput();
 		DBJavaClass javaClass = input.getJavaClass();
 		Progress.prompt(getProject(), context.getDatabaseContext(), true,
 				"Downloading classes",

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.sync.java;
+package com.dbn.sync.java.download;
 
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.lookup.DBJavaNameCache;
@@ -22,7 +22,7 @@ import com.dbn.object.lookup.DBObjectRef;
 import lombok.Data;
 
 @Data
-public class JavaDownloadElement {
+public class JavaDownloadElement{
     private DBObjectRef<DBJavaClass> javaClass;
     private boolean enabled;
     private boolean selected;

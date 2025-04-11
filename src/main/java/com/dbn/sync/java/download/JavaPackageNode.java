@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.sync.java;
+package com.dbn.sync.java.download;
 
 import lombok.Data;
 

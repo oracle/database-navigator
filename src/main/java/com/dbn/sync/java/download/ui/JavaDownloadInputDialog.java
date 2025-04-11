@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package com.dbn.sync.java.ui;
+package com.dbn.sync.java.download.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.sync.java.JavaDownloaderContext;
-import com.dbn.sync.java.JavaDownloaderManager;
+import com.dbn.sync.java.download.JavaDownloadContext;
+import com.dbn.sync.java.download.JavaDownloadManager;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
 @Getter
-public class JavaDownloaderInputDialog extends DBNDialog<JavaDownloaderInputForm> {
-    private final JavaDownloaderContext context;
+public class JavaDownloadInputDialog extends DBNDialog<JavaDownloadInputForm> {
+    private final JavaDownloadContext context;
 
-    public JavaDownloaderInputDialog(JavaDownloaderContext context) {
+    public JavaDownloadInputDialog(JavaDownloadContext context) {
         super(context.getProject(), "Download java file", false);
         this.context = context;
         init();
@@ -36,22 +36,22 @@ public class JavaDownloaderInputDialog extends DBNDialog<JavaDownloaderInputForm
 
     @NotNull
     @Override
-    protected JavaDownloaderInputForm createForm() {
-        return new JavaDownloaderInputForm(this);
+    protected JavaDownloadInputForm createForm() {
+        return new JavaDownloadInputForm(this);
     }
 
     private void downloadObject() {
         // apply the form field values to the input
-        JavaDownloaderInputForm inputForm = getForm();
+        JavaDownloadInputForm inputForm = getForm();
         inputForm.applyUserInput();
 
-        JavaDownloaderManager manager = getJavaDownloadManager();
+        JavaDownloadManager manager = getJavaDownloadManager();
         manager.performDownload(context);
     }
 
     @NotNull
-    private JavaDownloaderManager getJavaDownloadManager() {
-        return JavaDownloaderManager.getInstance(getProject());
+    private JavaDownloadManager getJavaDownloadManager() {
+        return JavaDownloadManager.getInstance(getProject());
     }
 
 

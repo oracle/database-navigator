@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.sync.java;
+package com.dbn.sync.java.download;
 
 import com.dbn.common.message.Message;
 import com.dbn.common.message.MessageBundle;
@@ -35,12 +35,12 @@ import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 @Setter
-public class JavaDownloaderContext {
+public class JavaDownloadContext {
 	private final WeakRef<DatabaseContext> databaseContext;
-	private final JavaDownloaderInput input;
+	private final JavaDownloadInput input;
 	private MessageCollector messages = new MessageBundle();
 
-	public JavaDownloaderContext(JavaDownloaderInput input) {
+	public JavaDownloadContext(JavaDownloadInput input) {
 		this.input = input;
 		this.databaseContext = WeakRef.of(input.getDatabaseContext());
 	}

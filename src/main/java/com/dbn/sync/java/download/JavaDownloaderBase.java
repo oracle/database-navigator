@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.sync.java;
+package com.dbn.sync.java.download;
 
 import com.dbn.common.thread.Read;
 import com.intellij.openapi.module.Module;
@@ -29,27 +29,25 @@ import java.util.Set;
 import static com.dbn.common.options.Configs.fail;
 import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
 
-public class JavaDownloaderBase {
-
-
-	protected void prepareDestinationFolders(JavaDownloaderContext context) {
+abstract class JavaDownloaderBase {
+	protected void prepareDestinationFolders(JavaDownloadContext context) {
 		PsiDirectory rootDirectory = context.handled(() -> prepareRootDirectory(context));
 
-		JavaDownloaderInput input = context.getInput();
+		JavaDownloadInput input = context.getInput();
 		Set<JavaPackageNode> packageNodes = input.getTargetPackages();
 		for (JavaPackageNode packageNode : packageNodes) {
 			context.handled(() -> prepareChildDirectory(context, packageNode, rootDirectory));
 		}
 	}
 
-	private PsiDirectory prepareRootDirectory(JavaDownloaderContext context) throws Exception{
-		JavaDownloaderInput input = context.getInput();
+	private PsiDirectory prepareRootDirectory(JavaDownloadContext context) throws Exception{
+		JavaDownloadInput input = context.getInput();
 		Module module = input.findModule();
 		VirtualFile file = input.findContentRoot(module);
 		return input.findContentRootDirectory(file);
 	}
 
-	private void prepareChildDirectory(JavaDownloaderContext context, JavaPackageNode packageNode, PsiDirectory parentDirectory) {
+	private void prepareChildDirectory(JavaDownloadContext context, JavaPackageNode packageNode, PsiDirectory parentDirectory) {
 		String directoryName = packageNode.getName();
 		PsiDirectory subdirectory = context.handled(() -> ensureChildDirectory(parentDirectory, directoryName));
 		if (subdirectory == null) return;
