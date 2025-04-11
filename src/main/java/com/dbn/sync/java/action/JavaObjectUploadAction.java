@@ -18,6 +18,7 @@ package com.dbn.sync.java.action;
 
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.message.Message;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.util.Messages;
@@ -83,5 +84,6 @@ public class JavaObjectUploadAction extends AbstractFolderContextAction {
 		}
 
 		presentation.setText(text);
+		presentation.setIcon(Icons.ACTION_UPLOAD);
 	}
 }

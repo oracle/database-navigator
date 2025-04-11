@@ -27,6 +27,7 @@ import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.editor.DBContentType;
+import com.dbn.nls.NlsResources;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
@@ -162,6 +163,16 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	@Override
 	public String getPackageName() {
 		return Java.getPackageName(getCanonicalName());
+	}
+
+	@Override
+	public String getQualifiedName() {
+		return getSchemaName() + "." + getCanonicalName();
+	}
+
+	@Override
+	public String getQualifiedNameWithType() {
+		return NlsResources.txt("app.object.label.QualifiedNameWithType", JAVA_CLASS.getName(), getQualifiedName());
 	}
 
 	@Override

@@ -32,6 +32,7 @@ import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBSchema;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.sync.java.download.ui.JavaDownloadInputDialog;
@@ -72,48 +73,56 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 		return projectService(project, JavaDownloadManager.class);
 	}
 
-	public void openCodeDownloader(DBJavaClass javaClass) {
-		ConnectionHandler connection = javaClass.getConnection();
+	public void openCodeDownloader(DBObject sourceObject) {
+		ConnectionHandler connection = sourceObject.getConnection();
 		Progress.prompt(getProject(), connection, true,
-				"Preparing class download",
-				"Loading dependencies of java class \"" + javaClass.getCanonicalName() + "\"",
-				progress -> prepareDownloadDialog(javaClass));
-
+				"Preparing Java Download",
+				"Loading dependencies for " + sourceObject.getQualifiedNameWithType() + "...",
+				progress -> prepareDownloadDialog(sourceObject));
 	}
 
-	private void prepareDownloadDialog(DBJavaClass javaClass) {
+	private void prepareDownloadDialog(DBObject sourceObject) {
 		try {
-			List<JavaDownloadElement> dependencies = loadDownloadDependencies(javaClass);
-
-			JavaDownloadInput input = new JavaDownloadInput(javaClass, dependencies);
+			List<JavaDownloadElement> dependencies = loadDownloadDependencies(sourceObject);
+			JavaDownloadInput input = new JavaDownloadInput(sourceObject, dependencies);
 			JavaDownloadContext context = new JavaDownloadContext(input);
 
 			Dialogs.show(() -> new JavaDownloadInputDialog(context));
-
 		} catch (SQLException e) {
 			Messages.showErrorDialog(getProject(),
-					"Error Loading Dependencies",
-					"Failed to load dependencies of class " + javaClass.getCanonicalName(), e);
+					"Error Loading Java Dependencies",
+					"Failed to load dependencies for " + sourceObject.getQualifiedNameWithType(), e);
 		}
 	}
 
-	private List<JavaDownloadElement> loadDownloadDependencies(DBJavaClass javaClass) throws SQLException {
-		ConnectionHandler connection = javaClass.getConnection();
+	private List<JavaDownloadElement> loadDownloadDependencies(DBObject sourceObject) throws SQLException {
+		ConnectionHandler connection = sourceObject.getConnection();
 		return DatabaseInterfaceInvoker.load(HIGH,
-				"Downloading dependencies",
-				"Downloading dependencies for object ",
+				"Loading Java Dependencies",
+				"Loading dependencies for " + sourceObject.getQualifiedNameWithType() + "...",
 				connection.getProject(),
 				connection.getConnectionId(),
-				c -> loadObjectDependencies(connection, javaClass, c));
+				c -> loadObjectDependencies(connection, sourceObject, c));
 	}
 
-	private List<JavaDownloadElement> loadObjectDependencies(ConnectionHandler connection, DBJavaClass javaClass, DBNConnection conn) throws SQLException {
+	private List<JavaDownloadElement> loadObjectDependencies(ConnectionHandler connection, DBObject sourceObject, DBNConnection conn) throws SQLException {
 		List<JavaDownloadElement> dependencies = new ArrayList<>();
 
 		ResultSet resultSet = null;
 		try {
 			DatabaseMetadataInterface metadata = connection.getMetadataInterface();
-			resultSet = metadata.loadJavaObjectDependencies(javaClass.getSchemaName(), javaClass.getName(), conn);
+			if (sourceObject instanceof DBSchema) {
+				DBSchema schema = (DBSchema) sourceObject;
+				String schemaName = schema.getName();
+				resultSet = metadata.loadAllJavaClassDependencies(schemaName, conn);
+
+			} else if (sourceObject instanceof DBJavaClass) {
+				DBJavaClass javaClass = (DBJavaClass) sourceObject;
+				String schemaName = javaClass.getSchemaName();
+				String className = javaClass.getName();
+				resultSet = metadata.loadJavaClassDependencies(schemaName, className, conn);
+			}
+
 			while (resultSet != null && resultSet.next()) {
 				String objectOwner = resultSet.getString("OBJECT_OWNER");
 				String objectName = resultSet.getString("OBJECT_NAME");
@@ -137,10 +146,10 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 
 	public void startDownload(JavaDownloadContext context) {
 		JavaDownloadInput input = context.getInput();
-		DBJavaClass javaClass = input.getJavaClass();
+		DBObject sourceObject = input.getSourceObject();
 		Progress.prompt(getProject(), context.getDatabaseContext(), true,
-				"Downloading classes",
-				"Creating project classes and dependencies from java class \"" + javaClass.getCanonicalName() + "\"",
+				"Downloading Java Classes",
+				"Downloading java classes and dependencies for " + sourceObject.getQualifiedNameWithType(),
 				progress -> performDownload(context));
 
 	}

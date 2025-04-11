@@ -45,7 +45,7 @@ public class JavaDownloadResultForm extends DBNFormBase {
     }
 
     private void initHeaderPanel(JavaDownloadContext context) {
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, context.getInput().getJavaClass());
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, context.getInput().getSourceObject());
         this.headerPanel.add(headerForm.getMainComponent());
     }
 

@@ -34,6 +34,10 @@ public class JavaDownloadElement implements Selectable<JavaDownloadElement>, Ena
     private boolean enabled;
     private boolean selected;
 
+    public JavaDownloadElement(DBJavaClass javaClass) {
+        this(DBObjectRef.of(javaClass));
+    }
+
     public JavaDownloadElement(DBObjectRef<DBJavaClass> javaClass) {
         this.javaClass = javaClass;
     }

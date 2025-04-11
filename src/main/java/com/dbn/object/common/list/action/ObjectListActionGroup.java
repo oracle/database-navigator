@@ -23,6 +23,7 @@ import com.dbn.object.action.ConsoleCreateAction;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.sync.java.action.JavaObjectDownloadAction;
 import com.dbn.vfs.DBConsoleType;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 
@@ -39,9 +40,15 @@ public class ObjectListActionGroup extends DefaultActionGroup {
         DatabaseEntity parentElement = objectList.getParentEntity();
         ConnectionHandler connection = objectList.getConnection();
         if(parentElement instanceof DBSchema) {
+            DBSchema schema = (DBSchema) parentElement;
             add (new ObjectListFilterAction(objectList));
             addSeparator();
+            if (objectType == DBObjectType.JAVA_CLASS) {
+                add(new JavaObjectDownloadAction(schema));
+            }
+
             add (new CreateObjectAction(objectList));
+
         } else if (parentElement instanceof DBObjectBundle) {
             if (objectType != DBObjectType.CONSOLE) {
                 add (new ObjectListFilterAction(objectList));
@@ -56,7 +63,7 @@ public class ObjectListActionGroup extends DefaultActionGroup {
                     add(new ConsoleCreateAction(connection, DBConsoleType.DEBUG));
                 }
             }
-        } else if (objectList.getObjectType() == DBObjectType.COLUMN) {
+        } else if (objectType == DBObjectType.COLUMN) {
             add(new HidePseudoColumnsToggleAction(connection));
             add(new HideAuditColumnsToggleAction(connection));
         }

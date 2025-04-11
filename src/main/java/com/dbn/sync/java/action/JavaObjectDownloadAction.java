@@ -17,8 +17,8 @@
 package com.dbn.sync.java.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.object.DBJavaClass;
 import com.dbn.object.action.AnObjectAction;
+import com.dbn.object.common.DBObject;
 import com.dbn.sync.java.download.JavaDownloadManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -26,14 +26,14 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class JavaObjectDownloadAction extends AnObjectAction<DBJavaClass> {
+public class JavaObjectDownloadAction extends AnObjectAction<DBObject> {
 
-	public JavaObjectDownloadAction(DBJavaClass javaClass) {
-		super(javaClass);
+	public JavaObjectDownloadAction(DBObject sourceObject) {
+		super(sourceObject);
 	}
 
 	@Override
-	protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBJavaClass target) {
+	protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBObject target) {
 		JavaDownloadManager manager = JavaDownloadManager.getInstance(project);
 		manager.openCodeDownloader(getTarget());
 	}
@@ -43,8 +43,8 @@ public class JavaObjectDownloadAction extends AnObjectAction<DBJavaClass> {
 			@NotNull AnActionEvent e,
 			@NotNull Presentation presentation,
 			@NotNull Project project,
-			@Nullable DBJavaClass target) {
-			presentation.setText("Download Source");
-			presentation.setIcon(Icons.ACTION_MOVE_DOWN);
+			@Nullable DBObject target) {
+			presentation.setText("Download To Project");
+			presentation.setIcon(Icons.ACTION_DOWNLOAD);
 	}
 }

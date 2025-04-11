@@ -299,8 +299,12 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
-    public ResultSet loadJavaObjectDependencies(String ownerName, String objectName, DBNConnection connection) throws SQLException {
-        return executeQuery(connection, "java-compile-time-dependency", ownerName, objectName);
+    public ResultSet loadJavaClassDependencies(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "java-class-dependencies", ownerName, objectName);
+    }
+
+    public ResultSet loadAllJavaClassDependencies(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "all-java-class-dependencies", ownerName);
     }
 
     /*********************************************************

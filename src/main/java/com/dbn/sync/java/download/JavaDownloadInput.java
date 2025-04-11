@@ -21,6 +21,7 @@ import com.dbn.common.project.ProjectRef;
 import com.dbn.common.thread.Read;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.object.DBJavaClass;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.ConfigurationException;
@@ -48,7 +49,7 @@ import static com.dbn.common.util.Strings.isEmpty;
 @Setter
 public class JavaDownloadInput {
 
-    private DBObjectRef<DBJavaClass> javaClass;
+    private DBObjectRef<?> sourceObject;
     private final ProjectRef project;
 
     private String moduleName;
@@ -56,15 +57,19 @@ public class JavaDownloadInput {
 
     private final List<JavaDownloadElement> downloadElements = new ArrayList<>();
 
-    public JavaDownloadInput(DBJavaClass javaClass, List<JavaDownloadElement> dependencies) {
-        this.javaClass = DBObjectRef.of(javaClass);
-        this.project = ProjectRef.of(javaClass.getProject());
+    public JavaDownloadInput(DBObject sourceObject, List<JavaDownloadElement> dependencies) {
+        this.sourceObject = DBObjectRef.of(sourceObject);
+        this.project = ProjectRef.of(sourceObject.getProject());
 
         // add self to download elements
-        JavaDownloadElement sourceElement = new JavaDownloadElement(this.javaClass);
-        sourceElement.setSelected(true);
-        sourceElement.setEnabled(false);
-        this.downloadElements.add(sourceElement);
+        if (sourceObject instanceof DBJavaClass) {
+            DBJavaClass javaClass = (DBJavaClass) sourceObject;
+            JavaDownloadElement sourceElement = new JavaDownloadElement(javaClass);
+            sourceElement.setSelected(true);
+            sourceElement.setEnabled(false);
+            this.downloadElements.add(sourceElement);
+        }
+
         this.downloadElements.addAll(dependencies);
     }
 
@@ -73,11 +78,11 @@ public class JavaDownloadInput {
     }
 
     public DatabaseContext getDatabaseContext() {
-        return javaClass;
+        return sourceObject;
     }
 
-    public DBJavaClass getJavaClass() {
-        return DBObjectRef.ensure(javaClass);
+    public DBObject getSourceObject() {
+        return DBObjectRef.ensure(sourceObject);
     }
 
     public PsiDirectory findContentRootDirectory() throws ConfigurationException {

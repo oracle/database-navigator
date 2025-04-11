@@ -23,7 +23,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.list.CheckBoxList;
 import com.dbn.common.ui.util.ComboBoxes;
-import com.dbn.object.DBJavaClass;
+import com.dbn.object.common.DBObject;
 import com.dbn.sync.java.download.JavaDownloadContext;
 import com.dbn.sync.java.download.JavaDownloadElement;
 import com.dbn.sync.java.download.JavaDownloadInput;
@@ -61,8 +61,8 @@ public class JavaDownloadInputForm extends DBNFormBase {
         super(dialog);
         JavaDownloadInput input = dialog.getContext().getInput();
 
-        DBJavaClass javaClass = input.getJavaClass();
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, javaClass);
+        DBObject sourceObject = input.getSourceObject();
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, sourceObject);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
         initSelectionListener(moduleComboBox, s -> initContentRoots());

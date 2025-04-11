@@ -94,7 +94,7 @@ public class DBNHeaderForm extends DBNFormBase {
         ConnectionHandler connection = object.getConnection();
 
         String connectionName = connection.getName();
-        objectLabel.setText("[" + connectionName + "] " + object.getQualifiedName());
+        objectLabel.setText(connectionName + " - " + object.getQualifiedName());
         objectLabel.setIcon(object.getIcon());
         updateBorderAndBackground((Presentable) object);
     }
@@ -103,7 +103,7 @@ public class DBNHeaderForm extends DBNFormBase {
         ConnectionHandler connection = objectRef.getConnection();
 
         String connectionName = connection == null ? "UNKNOWN" : connection.getName();
-        objectLabel.setText("[" + connectionName + "] " + objectRef.getQualifiedName());
+        objectLabel.setText(connectionName + " - " + objectRef.getQualifiedName());
         objectLabel.setIcon(objectRef.getObjectType().getIcon());
         updateBorderAndBackground(objectRef);
     }
