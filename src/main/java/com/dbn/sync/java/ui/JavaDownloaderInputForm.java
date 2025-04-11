@@ -19,16 +19,12 @@ package com.dbn.sync.java.ui;
 import com.dbn.common.file.VirtualFilePresentable;
 import com.dbn.common.project.ModulePresentable;
 import com.dbn.common.state.StateHolder;
+import com.dbn.common.ui.Layouts;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.util.ComboBoxes;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.Resources;
-import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.object.DBJavaClass;
-import com.dbn.object.DBSchema;
+import com.dbn.sync.java.JavaDownloadElement;
 import com.dbn.sync.java.JavaDownloaderContext;
 import com.dbn.sync.java.JavaDownloaderInput;
 import com.dbn.sync.java.JavaDownloaderManager;
@@ -38,29 +34,21 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBCheckBox;
-import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 
-import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
-import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static java.awt.event.ItemEvent.SELECTED;
 
 public class JavaDownloaderInputForm extends DBNFormBase {
     private JPanel headerPanel;
@@ -69,8 +57,6 @@ public class JavaDownloaderInputForm extends DBNFormBase {
     private JComboBox<ModulePresentable> moduleComboBox;
     private JComboBox<VirtualFilePresentable> contentRootComboBox;
     private JPanel dependentObjectPanel;
-    private JPanel loadingArgumentsIconPanel;
-    private JLabel loadingDependentsPanel;
 
 
     public JavaDownloaderInputForm(JavaDownloaderInputDialog dialog) {
@@ -84,21 +70,13 @@ public class JavaDownloaderInputForm extends DBNFormBase {
         initSelectionListener(moduleComboBox, s -> initContentRoots());
         initModules();
 
-        loadingDependentsPanel.setVisible(true);
-        loadingArgumentsIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
-
-        DBSchema schema = javaClass.getSchema();
-        String objectName = javaClass.getName();
-        ConnectionHandler connection = javaClass.getConnection();
-        try {
-            DatabaseInterfaceInvoker.execute(HIGH,
-                    "Downloading dependencies",
-                    "Downloading dependencies for object ",
-                    connection.getProject(),
-                    connection.getConnectionId(),
-                    c -> loadObjectDependencies(connection, schema, objectName, c));
-        } catch (SQLException e) {
-            conditionallyLog(e);
+        Layouts.verticalBoxLayout(dependentObjectPanel);
+        for (JavaDownloadElement element : input.getDownloadElements()) {
+            JBCheckBox checkBox = new JBCheckBox(element.getJavaClassName() + " (" + element.getSchemaName() + ")");
+            checkBox.setEnabled(element.isEnabled());
+            checkBox.setSelected(element.isSelected());
+            dependentObjectPanel.add(checkBox);
+            checkBox.addItemListener(e -> element.setSelected(e.getStateChange() == SELECTED));
         }
     }
 
@@ -149,7 +127,6 @@ public class JavaDownloaderInputForm extends DBNFormBase {
         JavaDownloaderInput input = getContext().getInput();
         input.setModuleName(getSelectedModuleName());
         input.setContentRoot(getSelectedContentPath());
-        input.setDependentObjects(getDependentObjects());
     }
 
     @Nullable
@@ -170,43 +147,8 @@ public class JavaDownloaderInputForm extends DBNFormBase {
         return presentable == null ? null : presentable.getFile();
     }
 
-    private List<String> getDependentObjects(){
-        List<String> selection = new ArrayList<>();
-        for(int i=0; i< dependentObjectPanel.getComponentCount(); i++){
-            JCheckBox checkBox = (JCheckBox) dependentObjectPanel.getComponent(i);
-            if(checkBox.isSelected()){
-                selection.add(checkBox.getText());
-            }
-        }
-        return selection;
-    }
-
     private String getSelectedContentPath() {
         VirtualFile selectedContentRoot = getSelectedContentRoot();
         return selectedContentRoot == null ? null : selectedContentRoot.getPath();
-    }
-
-    private void loadObjectDependencies(ConnectionHandler connection, DBSchema schema, String objectName, DBNConnection conn) throws SQLException {
-        ResultSet resultSet = null;
-        try {
-            DatabaseMetadataInterface metadata = connection.getMetadataInterface();
-            resultSet = metadata.loadJavaObjectDependencies(schema.getName(), objectName, conn);
-            dependentObjectPanel.removeAll();
-            dependentObjectPanel.setLayout(new BoxLayout(dependentObjectPanel, BoxLayout.Y_AXIS));
-            while (resultSet != null && resultSet.next()) {
-                String objectOwner = resultSet.getString("OBJECT_OWNER");
-                String objectName1 = resultSet.getString("OBJECT_NAME");
-                String hasSource = resultSet.getString("HAS_SOURCE");
-                JBCheckBox checkBox = new JBCheckBox(objectName1 + " (" + objectOwner + ")");
-                if(hasSource.equals("N")){
-                    checkBox.setEnabled(false);
-                }
-                dependentObjectPanel.add(checkBox);
-            }
-            dependentObjectPanel.revalidate();
-            dependentObjectPanel.repaint();
-        } finally {
-            Resources.close(resultSet);
-        }
     }
 }

@@ -16,24 +16,75 @@
 
 package com.dbn.sync.java;
 
-import com.dbn.connection.context.DatabaseContext;
+import com.dbn.editor.DBContentType;
+import com.dbn.editor.code.SourceCodeManager;
+import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.object.DBJavaClass;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDirectory;
+import lombok.SneakyThrows;
 
-public interface JavaDownloader {
-	/**
-	 * Creates an input for the code generator for a given database context
-	 *
-	 * @param javaClass the {@link DatabaseContext} to create input for
-	 * @return a {@link JavaDownloaderInput}
-	 */
-	JavaDownloaderInput createInput(DBJavaClass javaClass);
+import java.util.List;
 
-	/**
-	 * The main utility of the code generator, accepting a {@link JavaDownloaderContext}.
-	 * The context is expected to contain the {@link JavaDownloaderInput}
-	 * The outcomes are reported back to the outcome handlers registered to the context (see {@link JavaDownloaderContext#getOutcomeHandlers()})
-	 *
-	 * @param context the {@link JavaDownloaderContext} that contains all the information necessary for code generation
-	 */
-	void downloadObject(JavaDownloaderContext context);
+import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
+import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
+
+
+public final class JavaDownloader extends JavaDownloaderBase {
+	public static final JavaDownloader INSTANCE = new JavaDownloader();
+
+	private JavaDownloader() {}
+
+	public void downloadJavaClasses(JavaDownloaderContext context) {
+		prepareDestinationFolders(context);
+		if (context.hasErrors()) return;
+
+
+		JavaDownloaderInput input = context.getInput();
+		List<JavaDownloadElement> downloadElements = input.getSelectedDownloadElements();
+		for (JavaDownloadElement downloadElement : downloadElements) {
+			context.handled(() -> downloadJavaClass(context, downloadElement));
+		}
+	}
+
+	@SneakyThrows
+	private void downloadJavaClass(JavaDownloaderContext context, JavaDownloadElement downloadElement) {
+		String className = downloadElement.getJavaClassName();
+		setProgressDetail("Loading sources of \"" + className + "\"");
+		Project project = context.getProject();
+		SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
+
+		DBJavaClass javaClass = downloadElement.getJavaClass();
+		SourceCodeContent content = sourceCodeManager.loadSourceFromDatabase(javaClass, DBContentType.CODE);
+		String sourceCode = content.exportContent();
+
+		setProgressDetail("Writing project class \"" + className + "\"");
+		context.handled(() -> writeJavaFile(context, downloadElement, sourceCode));
+	}
+
+	@SneakyThrows
+	private static void writeJavaFile(JavaDownloaderContext context, JavaDownloadElement downloadElement, String sourceCode) {
+		JavaDownloaderInput input = context.getInput();
+		DBJavaClass javaClass = downloadElement.getJavaClass();
+
+		String javaFileName = downloadElement.getJavaFileName();
+		String packageName = javaClass.getPackageName();
+
+		PsiDirectory rootDirectory = input.findContentRootDirectory();
+		PsiDirectory packageDirectory = input.findPackageDirectory(rootDirectory, packageName);;
+
+		VirtualFile targetFolder = packageDirectory.getVirtualFile();
+		runWriteCommandAction(context.getProject(), () -> context.handled(() -> writeJavaFile(targetFolder, javaFileName, sourceCode)));
+	}
+
+	@SneakyThrows
+	private static void writeJavaFile(VirtualFile folder, String fileName, String sourceCode) {
+		VirtualFile javaFile = folder.findChild(fileName);
+		if (javaFile == null) {
+			javaFile = folder.createChildData(null, fileName);
+		}
+		VfsUtil.saveText(javaFile, sourceCode);
+	}
 }

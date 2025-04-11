@@ -32,14 +32,17 @@ import com.intellij.psi.PsiManager;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.options.Configs.fail;
 import static com.dbn.common.util.Java.isValidPackageName;
+import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Strings.isEmpty;
 
 @Getter
@@ -54,14 +57,21 @@ public class JavaDownloaderInput {
     private String packageName;
     private String className;
 
-    private List<String> dependentObjects;
+    private final List<JavaDownloadElement> downloadElements = new ArrayList<>();
 
-    public JavaDownloaderInput(DBJavaClass javaClass) {
+    public JavaDownloaderInput(DBJavaClass javaClass, List<JavaDownloadElement> dependencies) {
         this.javaClass = DBObjectRef.of(javaClass);
         this.project = ProjectRef.of(javaClass.getProject());
 
         this.packageName = javaClass.getPackageName();
         this.className = javaClass.getCanonicalName();
+
+        // add self to download elements
+        JavaDownloadElement sourceElement = new JavaDownloadElement(this.javaClass);
+        sourceElement.setSelected(true);
+        sourceElement.setEnabled(false);
+        this.downloadElements.add(sourceElement);
+        this.downloadElements.addAll(dependencies);
     }
 
     public Project getProject() {
@@ -74,6 +84,12 @@ public class JavaDownloaderInput {
 
     public DBJavaClass getJavaClass() {
         return DBObjectRef.ensure(javaClass);
+    }
+
+    public PsiDirectory findContentRootDirectory() throws ConfigurationException {
+        Module module = findModule();
+        VirtualFile contentRoot = findContentRoot(module);
+        return findContentRootDirectory(contentRoot);
     }
 
     public PsiDirectory getTargetDirectory() throws ConfigurationException {
@@ -110,7 +126,7 @@ public class JavaDownloaderInput {
         return findPackageDirectory(contentRootDirectory);
     }
 
-    @Nullable
+    @NotNull
     public PsiDirectory findContentRootDirectory(VirtualFile contentRootFile) throws ConfigurationException {
         PsiManager psiManager = PsiManager.getInstance(getProject());
         PsiDirectory contentRootDirectory = Read.call(() -> psiManager.findDirectory(contentRootFile));
@@ -119,7 +135,11 @@ public class JavaDownloaderInput {
     }
 
     @NotNull
-    PsiDirectory findPackageDirectory(PsiDirectory directory) throws ConfigurationException {
+    public PsiDirectory findPackageDirectory(PsiDirectory directory) throws ConfigurationException {
+        return findPackageDirectory(directory, packageName);
+    }
+
+    public PsiDirectory findPackageDirectory(PsiDirectory directory, String packageName) throws ConfigurationException {
         if (isEmpty(packageName)) return directory;
         if (!isValidPackageName(packageName)) fail("Package name is invalid");
 
@@ -129,6 +149,32 @@ public class JavaDownloaderInput {
             directory = Read.call(() -> dir.findSubdirectory(packageToken));
         }
         return nd(directory);
+    }
+
+    public List<String> getDownloadElementNames() {
+        return downloadElements
+                .stream()
+                .filter(d -> d.isSelected())
+                .map(d -> d.getJavaObjectName())
+                .collect(Collectors.toList());
+    }
+
+    public List<JavaDownloadElement> getSelectedDownloadElements() {
+        return filter(downloadElements, e -> e.isSelected());
+    }
+
+    public Set<JavaPackageNode> getTargetPackages() {
+        JavaPackageNode rootNode = new JavaPackageNode("ROOT");
+        for (JavaDownloadElement dependency : getSelectedDownloadElements()) {
+            JavaPackageNode currentNode = rootNode;
+
+            String[] tokens = dependency.getPackageNameTokens();
+            for (String token : tokens) {
+                currentNode = currentNode.ensureChild(token);
+            }
+        }
+        return rootNode.getChildren();
+
     }
 }
 

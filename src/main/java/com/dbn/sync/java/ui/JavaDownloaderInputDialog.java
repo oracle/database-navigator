@@ -46,7 +46,7 @@ public class JavaDownloaderInputDialog extends DBNDialog<JavaDownloaderInputForm
         inputForm.applyUserInput();
 
         JavaDownloaderManager manager = getJavaDownloadManager();
-        manager.downloadCode(context);
+        manager.performDownload(context);
     }
 
     @NotNull

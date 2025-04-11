@@ -16,17 +16,19 @@
 
 package com.dbn.sync.java;
 
-import com.dbn.common.outcome.OutcomeHandler;
-import com.dbn.common.outcome.OutcomeHandlers;
-import com.dbn.common.outcome.OutcomeHandlersImpl;
-import com.dbn.common.outcome.OutcomeType;
+import com.dbn.common.message.Message;
+import com.dbn.common.message.MessageBundle;
+import com.dbn.common.message.MessageCollector;
+import com.dbn.common.message.MessageType;
 import com.dbn.common.ref.WeakRef;
+import com.dbn.common.routine.ThrowableCallable;
+import com.dbn.common.routine.ThrowableRunnable;
 import com.dbn.connection.context.DatabaseContext;
-import com.dbn.sync.java.impl.JavaDownloaderImpl;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Unsafe.cast;
@@ -34,19 +36,13 @@ import static com.dbn.common.util.Unsafe.cast;
 @Getter
 @Setter
 public class JavaDownloaderContext {
-	private final JavaDownloader downloader;
 	private final WeakRef<DatabaseContext> databaseContext;
-	private final OutcomeHandlers outcomeHandlers = new OutcomeHandlersImpl();
-	private JavaDownloaderInput input;
+	private final JavaDownloaderInput input;
+	private MessageCollector messages = new MessageBundle();
 
-	public JavaDownloaderContext(DatabaseContext databaseContext) {
-		this.downloader = new JavaDownloaderImpl();
-		this.databaseContext = WeakRef.of(databaseContext);
-	}
-
-	public void addOutcomeHandler(OutcomeType outcomeType, OutcomeHandler handler) {
-		if (handler == null) return;
-		outcomeHandlers.addHandler(outcomeType, handler);
+	public JavaDownloaderContext(JavaDownloaderInput input) {
+		this.input = input;
+		this.databaseContext = WeakRef.of(input.getDatabaseContext());
 	}
 
 	@NotNull
@@ -59,4 +55,29 @@ public class JavaDownloaderContext {
 		return nd(getDatabaseContext().getProject());
 	}
 
+	public void handled(ThrowableRunnable<Exception> runnable) {
+		try {
+			runnable.run();
+		} catch (Throwable e) {
+			handle(e);
+		}
+	}
+
+	@Nullable
+	public <T> T handled(ThrowableCallable<T, Exception> runnable) {
+		try {
+			return runnable.call();
+		} catch (Throwable e) {
+			handle(e);
+			return null;
+		}
+	}
+
+	private void handle(Throwable e) {
+		messages.addMessage(new Message(MessageType.ERROR, e.getMessage()));
+	}
+
+	public boolean hasErrors() {
+		return messages.hasErrors();
+	}
 }

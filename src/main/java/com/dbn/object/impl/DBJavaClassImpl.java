@@ -19,6 +19,7 @@ package com.dbn.object.impl;
 import com.dbn.browser.DatabaseBrowserUtils;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.util.Java;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
@@ -160,10 +161,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 
 	@Override
 	public String getPackageName() {
-		String canonicalName = getCanonicalName();
-		int lastDotIndex = canonicalName.lastIndexOf('.');
-		if (lastDotIndex == -1) return "";
-		return canonicalName.substring(0, lastDotIndex);
+		return Java.getPackageName(getCanonicalName());
 	}
 
 	@Override
