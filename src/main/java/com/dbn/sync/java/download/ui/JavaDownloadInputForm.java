@@ -19,9 +19,9 @@ package com.dbn.sync.java.download.ui;
 import com.dbn.common.file.VirtualFilePresentable;
 import com.dbn.common.project.ModulePresentable;
 import com.dbn.common.state.StateHolder;
-import com.dbn.common.ui.Layouts;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.list.CheckBoxList;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.object.DBJavaClass;
 import com.dbn.sync.java.download.JavaDownloadContext;
@@ -33,7 +33,6 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.components.JBCheckBox;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 
@@ -48,7 +47,6 @@ import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
-import static java.awt.event.ItemEvent.SELECTED;
 
 public class JavaDownloadInputForm extends DBNFormBase {
     private JPanel headerPanel;
@@ -56,7 +54,7 @@ public class JavaDownloadInputForm extends DBNFormBase {
     private JPanel targetLocationPanel;
     private JComboBox<ModulePresentable> moduleComboBox;
     private JComboBox<VirtualFilePresentable> contentRootComboBox;
-    private JPanel dependentObjectPanel;
+    private CheckBoxList<JavaDownloadElement> dependenciesCheckBoxList;
 
 
     public JavaDownloadInputForm(JavaDownloadInputDialog dialog) {
@@ -70,14 +68,7 @@ public class JavaDownloadInputForm extends DBNFormBase {
         initSelectionListener(moduleComboBox, s -> initContentRoots());
         initModules();
 
-        Layouts.verticalBoxLayout(dependentObjectPanel);
-        for (JavaDownloadElement element : input.getDownloadElements()) {
-            JBCheckBox checkBox = new JBCheckBox(element.getJavaClassName() + " (" + element.getSchemaName() + ")");
-            checkBox.setEnabled(element.isEnabled());
-            checkBox.setSelected(element.isSelected());
-            dependentObjectPanel.add(checkBox);
-            checkBox.addItemListener(e -> element.setSelected(e.getStateChange() == SELECTED));
-        }
+        dependenciesCheckBoxList.setElements(input.getDownloadElements());
     }
 
     JavaDownloadContext getContext() {

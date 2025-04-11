@@ -16,15 +16,20 @@
 
 package com.dbn.sync.java.download;
 
+import com.dbn.common.icon.Icons;
+import com.dbn.common.ui.list.Enableable;
 import com.dbn.common.ui.list.Selectable;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.lookup.DBJavaNameCache;
 import com.dbn.object.lookup.DBObjectRef;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.Icon;
 
 @Data
-public class JavaDownloadElement implements Selectable<JavaDownloadElement> {
+public class JavaDownloadElement implements Selectable<JavaDownloadElement>, Enableable<JavaDownloadElement> {
     private DBObjectRef<DBJavaClass> javaClass;
     private boolean enabled;
     private boolean selected;
@@ -66,6 +71,11 @@ public class JavaDownloadElement implements Selectable<JavaDownloadElement> {
     @NotNull
     @Override
     public String getName() {
-        return getJavaClassName();
+        return getJavaClassName() + " (" + getSchemaName() + ")";
+    }
+
+    @Override
+    public @Nullable Icon getIcon() {
+        return isEnabled() ? getJavaClass().getIcon() : Icons.DBO_JAVA_CLASS;
     }
 }

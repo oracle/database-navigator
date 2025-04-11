@@ -29,8 +29,9 @@ public class JavaDownloadInputDialog extends DBNDialog<JavaDownloadInputForm> {
     private final JavaDownloadContext context;
 
     public JavaDownloadInputDialog(JavaDownloadContext context) {
-        super(context.getProject(), "Download java file", false);
+        super(context.getProject(), "Download Java Classes", false);
         this.context = context;
+        renameAction(getOKAction(), "Download");
         init();
     }
 
