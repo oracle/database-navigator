@@ -53,40 +53,49 @@ public final class JavaDownloader extends JavaDownloaderBase {
 	private void downloadJavaClass(JavaDownloadContext context, JavaDownloadElement downloadElement) {
 		String className = downloadElement.getJavaClassName();
 		setProgressDetail("Loading sources of \"" + className + "\"");
-		Project project = context.getProject();
-		SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
 
+		// create download task
+		JavaDownloadTask downloadTask = context.createDownloadTask(downloadElement);
+
+		// load source code content
+		Project project = context.getProject();
 		DBJavaClass javaClass = downloadElement.getJavaClass();
+		SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
 		SourceCodeContent content = sourceCodeManager.loadSourceFromDatabase(javaClass, DBContentType.CODE);
+
 		String sourceCode = content.exportContent();
+		downloadTask.setSourceCode(sourceCode);
 
 		setProgressDetail("Writing project class \"" + className + "\"");
-		context.handled(() -> writeJavaFile(context, downloadElement, sourceCode));
+		context.handled(() -> writeJavaFile(context, downloadTask));
 	}
 
 	@SneakyThrows
-	private static void writeJavaFile(JavaDownloadContext context, JavaDownloadElement downloadElement, String sourceCode) {
-		JavaDownloadInput input = context.getInput();
-		DBJavaClass javaClass = downloadElement.getJavaClass();
-
-		String javaFileName = downloadElement.getJavaFileName();
+	private static void writeJavaFile(JavaDownloadContext context, JavaDownloadTask downloadTask) {
+		DBJavaClass javaClass = downloadTask.getJavaClass();
 		String packageName = javaClass.getPackageName();
 
+		JavaDownloadInput input = context.getInput();
 		PsiDirectory rootDirectory = input.findContentRootDirectory();
-		PsiDirectory packageDirectory = input.findPackageDirectory(rootDirectory, packageName);
+		PsiDirectory targetDirectory = input.findPackageDirectory(rootDirectory, packageName);
+		downloadTask.setTargetFolder(targetDirectory.getVirtualFile());
 
-		VirtualFile targetFolder = packageDirectory.getVirtualFile();
 		Project project = context.getProject();
-		runWriteCommandAction(project, () -> context.handled(() -> writeJavaFile(context, targetFolder, javaFileName, sourceCode)));
+		runWriteCommandAction(project, () -> context.handled(() -> writeJavaFile(downloadTask)));
 	}
 
 	@SneakyThrows
-	private static void writeJavaFile(JavaDownloadContext context, VirtualFile folder, String fileName, String sourceCode) {
-		VirtualFile javaFile = folder.findChild(fileName);
-		if (javaFile == null) {
-			javaFile = folder.createChildData(null, fileName);
+	private static void writeJavaFile(JavaDownloadTask downloadTask) {
+		String fileName = downloadTask.getJavaFileName();
+
+		VirtualFile targetFolder = downloadTask.getTargetFolder();
+		VirtualFile targetFile = targetFolder.findChild(fileName);
+		if (targetFile == null) {
+			targetFile = targetFolder.createChildData(null, fileName);
 		}
-		VfsUtil.saveText(javaFile, sourceCode);
-		context.addDownloadedFile(javaFile);
+		downloadTask.setTargetFile(targetFile);
+
+		String sourceCode = downloadTask.getSourceCode();
+		VfsUtil.saveText(targetFile, sourceCode);
 	}
 }

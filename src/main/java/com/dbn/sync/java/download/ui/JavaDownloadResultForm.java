@@ -51,7 +51,7 @@ public class JavaDownloadResultForm extends DBNFormBase {
 
     private void initHintPanel(JavaDownloadContext context) {
         VirtualFile rootDirectory = context.getTargetRootDirectory();
-        TextContent hintText = TextContent.plain("The following classes were downloaded to your project under " + rootDirectory.getPath());
+        TextContent hintText = TextContent.plain("The following classes were created or updated in your project under " + rootDirectory.getPath());
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
     }

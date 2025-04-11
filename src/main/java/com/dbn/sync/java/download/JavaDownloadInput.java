@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.options.Configs.fail;
@@ -54,17 +53,12 @@ public class JavaDownloadInput {
 
     private String moduleName;
     private String contentRoot;
-    private String packageName;
-    private String className;
 
     private final List<JavaDownloadElement> downloadElements = new ArrayList<>();
 
     public JavaDownloadInput(DBJavaClass javaClass, List<JavaDownloadElement> dependencies) {
         this.javaClass = DBObjectRef.of(javaClass);
         this.project = ProjectRef.of(javaClass.getProject());
-
-        this.packageName = javaClass.getPackageName();
-        this.className = javaClass.getCanonicalName();
 
         // add self to download elements
         JavaDownloadElement sourceElement = new JavaDownloadElement(this.javaClass);
@@ -92,12 +86,6 @@ public class JavaDownloadInput {
         return findContentRootDirectory(contentRoot);
     }
 
-    public PsiDirectory getTargetDirectory() throws ConfigurationException {
-        Module module = findModule();
-        VirtualFile contentRoot = findContentRoot(module);
-        return findPackageDirectory(contentRoot);
-    }
-
     @NotNull
     public Module findModule() throws ConfigurationException {
         if (isEmpty(moduleName)) fail("Target module not specified");
@@ -121,22 +109,11 @@ public class JavaDownloadInput {
     }
 
     @NotNull
-    public PsiDirectory findPackageDirectory(VirtualFile contentRoot) throws ConfigurationException {
-        PsiDirectory contentRootDirectory = findContentRootDirectory(contentRoot);
-        return findPackageDirectory(contentRootDirectory);
-    }
-
-    @NotNull
     public PsiDirectory findContentRootDirectory(VirtualFile contentRootFile) throws ConfigurationException {
         PsiManager psiManager = PsiManager.getInstance(getProject());
         PsiDirectory contentRootDirectory = Read.call(() -> psiManager.findDirectory(contentRootFile));
         if (contentRootDirectory == null) fail("Cannot find content root for " + contentRootFile.getPresentableUrl());
         return contentRootDirectory;
-    }
-
-    @NotNull
-    public PsiDirectory findPackageDirectory(PsiDirectory directory) throws ConfigurationException {
-        return findPackageDirectory(directory, packageName);
     }
 
     public PsiDirectory findPackageDirectory(PsiDirectory directory, String packageName) throws ConfigurationException {
@@ -149,14 +126,6 @@ public class JavaDownloadInput {
             directory = Read.call(() -> dir.findSubdirectory(packageToken));
         }
         return nd(directory);
-    }
-
-    public List<String> getDownloadElementNames() {
-        return downloadElements
-                .stream()
-                .filter(d -> d.isSelected())
-                .map(d -> d.getJavaObjectName())
-                .collect(Collectors.toList());
     }
 
     public List<JavaDownloadElement> getSelectedDownloadElements() {

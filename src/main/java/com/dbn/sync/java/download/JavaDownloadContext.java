@@ -23,6 +23,7 @@ import com.dbn.common.message.MessageType;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.common.routine.ThrowableRunnable;
+import com.dbn.common.util.Lists;
 import com.dbn.connection.context.DatabaseContext;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -43,7 +44,7 @@ public class JavaDownloadContext {
 	private final WeakRef<DatabaseContext> databaseContext;
 	private final JavaDownloadInput input;
 	private final MessageCollector messages = new MessageBundle();
-	private final List<VirtualFile> downloadedFiles = new ArrayList<>();
+	private final List<JavaDownloadTask> downloadTasks = new ArrayList<>();
 	private VirtualFile targetRootDirectory;
 
 	public JavaDownloadContext(JavaDownloadInput input) {
@@ -87,8 +88,14 @@ public class JavaDownloadContext {
 		return messages.hasErrors();
 	}
 
-	public void addDownloadedFile(VirtualFile file) {
-		downloadedFiles.add(file);
+	public List<VirtualFile> getDownloadedFiles() {
+		return Lists.convert(downloadTasks, t -> t.getTargetFile());
+	}
+
+	public JavaDownloadTask createDownloadTask(JavaDownloadElement downloadElement) {
+		JavaDownloadTask downloadTask = new JavaDownloadTask(downloadElement);
+		downloadTasks.add(downloadTask);
+		return downloadTask;
 /*
 
 		Project project = getProject();

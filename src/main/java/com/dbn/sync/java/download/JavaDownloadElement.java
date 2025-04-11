@@ -42,14 +42,6 @@ public class JavaDownloadElement implements Selectable<JavaDownloadElement>, Ena
         return javaClass.ensure();
     }
 
-    /**
-     * Returns the object name of the java class as stored in the database (e.g. "com/util/List")
-     * @return the database object name of the java class
-     */
-    public String getJavaObjectName() {
-        return javaClass.getObjectName();
-    }
-
     public String getJavaClassName() {
         return DBJavaNameCache.getCanonicalName(javaClass);
     }
