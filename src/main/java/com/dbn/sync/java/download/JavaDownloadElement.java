@@ -16,13 +16,15 @@
 
 package com.dbn.sync.java.download;
 
+import com.dbn.common.ui.list.Selectable;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.lookup.DBJavaNameCache;
 import com.dbn.object.lookup.DBObjectRef;
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 
 @Data
-public class JavaDownloadElement{
+public class JavaDownloadElement implements Selectable<JavaDownloadElement> {
     private DBObjectRef<DBJavaClass> javaClass;
     private boolean enabled;
     private boolean selected;
@@ -58,5 +60,12 @@ public class JavaDownloadElement{
 
     public String getSchemaName() {
         return javaClass.getSchemaName();
+    }
+
+
+    @NotNull
+    @Override
+    public String getName() {
+        return getJavaClassName();
     }
 }

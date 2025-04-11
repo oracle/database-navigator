@@ -56,9 +56,4 @@ public class ObjectTypeFilterSetting implements Selectable<ObjectTypeFilterSetti
     public @NotNull String getName() {
         return cachedUpperCase(objectType.getName());
     }
-
-    @Override
-    public int compareTo(@NotNull ObjectTypeFilterSetting o) {
-        return 0;
-    }
 }

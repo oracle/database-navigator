@@ -59,7 +59,7 @@ import static com.dbn.sync.java.download.JavaDownloadManager.COMPONENT_NAME;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 public class JavaDownloadManager extends ProjectComponentBase implements PersistentState {
-	public static final String COMPONENT_NAME = "DBNavigator.Project.JavaDownloaderManager";
+	public static final String COMPONENT_NAME = "DBNavigator.Project.JavaDownloadManager";
 
 	private final Map<String, GenericStateHolder> states = new ConcurrentHashMap<>();
 

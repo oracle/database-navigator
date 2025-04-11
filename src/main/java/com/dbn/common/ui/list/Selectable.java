@@ -21,4 +21,9 @@ import com.dbn.common.ui.Presentable;
 public interface Selectable<T> extends Presentable, Comparable<T> {
     boolean isSelected();
     void setSelected(boolean selected);
+
+    @Override
+    default int compareTo(T o) {
+        return 0;
+    }
 }
