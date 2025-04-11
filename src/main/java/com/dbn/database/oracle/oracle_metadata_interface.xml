@@ -606,20 +606,18 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="java-compile-time-dependency" is-query="true" is-prepared-statement="true">
-        <statement prefixes="DBA, ALL">
-            select distinct
+        <statement prefixes="DBA, ALL, USER">
+            select
                 d.OBJECT_OWNER,
                 d.OBJECT_NAME,
-                d.OBJECT_TYPE,
                 case when s.OWNER is not null then 'Y' else 'N' end as HAS_SOURCE
             from (
-                select
+                select distinct
                     REFERENCED_OWNER as OBJECT_OWNER,
-                    REFERENCED_NAME as OBJECT_NAME,
-                    decode(REFERENCED_TYPE, 'PACKAGE BODY', 'PACKAGE', 'TYPE BODY', 'TYPE', REFERENCED_TYPE) as OBJECT_TYPE
-                from
-                    [PREFIX]_DEPENDENCIES
+                    REFERENCED_NAME as OBJECT_NAME
+                from [PREFIX]_DEPENDENCIES
                 where
+                    REFERENCED_TYPE = 'JAVA CLASS' and
                     (OWNER != REFERENCED_OWNER or NAME != REFERENCED_NAME)
                 start with
                     OWNER = {0} and NAME = {1}
@@ -627,13 +625,16 @@
                 prior REFERENCED_OWNER = OWNER and
                 prior REFERENCED_NAME = NAME
             ) d
-            left join
-                [PREFIX]_SOURCE s
-            on
-                s.OWNER = d.OBJECT_OWNER and
-                s.NAME = d.OBJECT_NAME
+            inner join [PREFIX]_JAVA_CLASSES c
+                    on c.OWNER = d.OBJECT_OWNER
+                   and c.NAME = d.OBJECT_NAME
+                   and c.IS_INNER = 'NO'
+            left join [PREFIX]_SOURCE s
+                   on s.OWNER = d.OBJECT_OWNER
+                  and s.NAME = d.OBJECT_NAME
+                  and s.LINE = 1
             order by
-                HAS_SOURCE desc, d.OBJECT_OWNER, d.OBJECT_TYPE, d.OBJECT_NAME
+                HAS_SOURCE desc, d.OBJECT_OWNER, d.OBJECT_NAME
         </statement>
     </statement-execution-processor>
 
