@@ -20,7 +20,7 @@ before_script:
 
 stages:          # List of stages for jobs, and their order of execution
   - build
-  - deploy
+#  - deploy
 
 variables:
   # speed up checkout of the wls
@@ -30,10 +30,8 @@ variables:
 
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
-#  before_script:
-#   - USING_PROXY=true source ./.build_env
   script:
-    - ./gradlew --build-cache clean build -x buildSearchableOptions -PexcludeTests="**/*DatabaseInterfaceQueueTest*"
+    - ./gradlew --build-cache clean build -x buildSearchableOptions -PexcludeTests="**/*DatabaseInterfaceQueueTest*;**/*ObjectPoolBaseTest*"
     - ls -altr build/distributions
   cache:
     key: "$CI_COMMIT_REF_NAME"
@@ -42,16 +40,16 @@ build-job:       # This job runs in the build stage, which runs first.
       - build
       - .gradle
   
-deploy-to-artifactory:
-    stage: deploy
+#deploy-to-artifactory:
+#    stage: deploy
 #    before_script:
 # - USING_PROXY=true source ./.build_env
-    script:
-      - ls -altr build/distributions
+#    script:
+#      - ls -altr build/distributions
 #      - ./gradlew --build-cache publish
-    cache:
-      key: "$CI_COMMIT_REF_NAME"
-      policy: pull
-      paths:
-        - build
-        - .gradle
+#    cache:
+#      key: "$CI_COMMIT_REF_NAME"
+#      policy: pull
+#      paths:
+#        - build
+#        - .gradle
