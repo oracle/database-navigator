@@ -66,6 +66,10 @@
         <statement>drop {0} {1}.{2}</statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="drop-constraint">
+        <statement>alter table {0}.{1} drop constraint {2}</statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="drop-object-body">
         <statement>drop {0} body {1}.{2}</statement>
     </statement-execution-processor>

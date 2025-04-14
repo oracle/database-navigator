@@ -35,12 +35,16 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
+
+import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 
 public class SessionBrowserDetailsForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel sessionDetailsTabsPanel;
     private JBScrollPane sessionDetailsTablePane;
+    private JSplitPane sessionDetailsSplitPanel;
     private final SessionDetailsTable sessionDetailsTable;
     private final DBNTabbedPane<DBNForm> detailsTabbedPane;
     private JPanel explainPlanPanel;
@@ -79,6 +83,8 @@ public class SessionBrowserDetailsForm extends DBNFormBase {
                 // TODO
             }
         });
+
+        setSplitPaneProportion(sessionDetailsSplitPanel, 0.2);
     }
 
     @NotNull

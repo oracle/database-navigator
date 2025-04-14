@@ -58,7 +58,7 @@ public enum GenericDataType implements Presentable, Constant<GenericDataType> {
     }
 
     public boolean isLOB() {
-        return is(BLOB, CLOB, NCLOB, XMLTYPE);
+        return is(BLOB, CLOB, NCLOB, XMLTYPE, JSON);
     }
 
 

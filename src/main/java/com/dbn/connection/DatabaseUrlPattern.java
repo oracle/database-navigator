@@ -157,7 +157,7 @@ public enum DatabaseUrlPattern {
                 databaseInfo.getMainFilePath(),
                 databaseInfo.ensureTnsFolder(),
                 databaseInfo.getTnsProfile(),
-                databaseInfo.getServerType(),
+                databaseInfo.getServerTypeToken(),
                 databaseInfo.getParameters(),
                 databaseInfo.getProtocol());
     }
@@ -172,8 +172,7 @@ public enum DatabaseUrlPattern {
                 replace("<FILE>", nvl(file, "")).
                 replace("<TNS_FOLDER>", nvl(tnsFolder, "")).replaceAll("\\\\", "/").
                 replace("<TNS_PROFILE>", nvl(tnsProfile, "")).
-                replace("<SERVER_TYPE>", isEmpty(serverType) || "Default".equalsIgnoreCase(serverType) ? ""
-                        : ":" + nvl(serverType.toUpperCase(), "")).
+                replace("<SERVER_TYPE>", serverType).
                 replace("<PARAMETERS>", toParameterString(parameters));
     }
 

@@ -60,7 +60,6 @@ public class BasicDataModel<
     private DataModelState state;
     private List<R> rows = new ArrayList<>();
     private Filter<R> filter;
-    private boolean environmentReadonly;
     private Latent<Formatter> formatter;
 
     private final Listeners<TableModelListener> tableModelListeners = Listeners.create(this);
@@ -92,14 +91,6 @@ public class BasicDataModel<
         return RecordStatus.VALUES;
     }
 
-    public boolean isEnvironmentReadonly() {
-        return environmentReadonly;
-    }
-
-    public void setEnvironmentReadonly(boolean environmentReadonly) {
-        this.environmentReadonly = environmentReadonly;
-    }
-
     @Override
     public ListModel getListModel() {
         return listModel.get();
@@ -112,7 +103,7 @@ public class BasicDataModel<
 
     @Override
     public boolean isReadonly() {
-        return true;
+        return state == null || state.isReadonly();
     }
 
     @Override

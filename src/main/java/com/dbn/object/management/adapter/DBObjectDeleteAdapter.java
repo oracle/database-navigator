@@ -16,8 +16,10 @@
 
 package com.dbn.object.management.adapter;
 
+import com.dbn.common.outcome.OutcomeType;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
+import com.dbn.object.event.ObjectListRefreshHandler;
 import org.jetbrains.annotations.Nls;
 
 import static com.intellij.openapi.util.NlsContexts.DialogMessage;
@@ -35,6 +37,7 @@ public final class DBObjectDeleteAdapter<T extends DBObject> extends ObjectManag
 
     public DBObjectDeleteAdapter(T object, InterfaceInvoker<T> invoker) {
         super(object, ObjectChangeAction.DELETE, invoker);
+        addOutcomeHandler(OutcomeType.SUCCESS, ObjectListRefreshHandler.create(object));
     }
 
     @Nls

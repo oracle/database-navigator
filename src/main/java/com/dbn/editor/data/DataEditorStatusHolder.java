@@ -16,20 +16,12 @@
 
 package com.dbn.editor.data;
 
-import com.dbn.common.property.Property;
+import com.dbn.common.property.PropertyHolderBase;
 
-public enum DatasetLoadInstruction implements Property.IntBase {
-    USE_CURRENT_FILTER,
-    PRESERVE_CHANGES,
-    DELIBERATE_ACTION,
-    REBUILD;
-
-    public static final DatasetLoadInstruction[] VALUES = values();
-
-    private final IntMasks masks = new IntMasks(this);
+public class DataEditorStatusHolder extends PropertyHolderBase.IntStore<DataEditorStatus> {
 
     @Override
-    public IntMasks masks() {
-        return masks;
+    protected DataEditorStatus[] properties() {
+        return DataEditorStatus.VALUES;
     }
 }

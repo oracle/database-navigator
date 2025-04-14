@@ -48,6 +48,7 @@ public abstract class ValueAdapter<T> {
 
     public static final Map<GenericDataType, Class<? extends ValueAdapter<?>>> REGISTRY = new EnumMap<>(GenericDataType.class);
     static {
+        REGISTRY.put(GenericDataType.JSON, JsonValue.class);
         REGISTRY.put(GenericDataType.ARRAY, ArrayValue.class);
         REGISTRY.put(GenericDataType.VECTOR, VectorValue.class);
         REGISTRY.put(GenericDataType.BLOB, BlobValue.class);

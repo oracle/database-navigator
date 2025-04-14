@@ -49,11 +49,11 @@ public abstract class CodeGeneratorBase<I extends CodeGeneratorInput, R extends 
     public final void generateCode(CodeGeneratorContext<I, R> context) {
         I input = context.getInput();
 
-        boolean destinationPrepared = prepareDestination(input);
-        if (!destinationPrepared) return; // do not continue with code generation
-
         OutcomeHandlers outcomeHandlers = context.getOutcomeHandlers();
         try {
+            boolean destinationPrepared = prepareDestination(input);
+            if (!destinationPrepared) return; // do not continue with code generation
+
             R result = Write.compute(() -> generateCode(input));
             if (result == null) {
                 // overwrite result with null in the context if set by previous attempts

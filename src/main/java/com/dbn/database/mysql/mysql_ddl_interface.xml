@@ -45,6 +45,23 @@
         <statement>drop {0} if exists {1}.{2}</statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="drop-primary-key-constraint">
+        <statement>alter table {0}.{1} drop primary key</statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="drop-foreign-key-constraint">
+        <statement>alter table {0}.{1} drop primary key {2}</statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="drop-index-constraint">
+        <statement>alter table {0}.{1} drop index {2}</statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="drop-check-constraint">
+        <statement>alter table {0}.{1} drop check {2}</statement>
+    </statement-execution-processor>
+
+
     <statement-execution-processor id="get-session-sql-mode" is-query="true">
         <statement>SELECT @@session.sql_mode</statement>
     </statement-execution-processor>

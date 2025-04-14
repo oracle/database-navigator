@@ -19,7 +19,7 @@ package com.dbn.database.common.statement;
 import com.dbn.common.compatibility.Exploitable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Compactables;
-import com.dbn.common.util.Strings;
+import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNCallableStatement;
@@ -45,6 +45,8 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.common.options.setting.Settings.doubleAttribute;
+import static com.dbn.common.options.setting.Settings.integerAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.diagnostics.Diagnostics.isDatabaseAccessDebug;
@@ -58,7 +60,7 @@ public class StatementExecutionProcessor {
     private final String id;
     private final boolean query;
     private final boolean prepared;
-    private int timeout = 30;
+    private int timeout;
     private List<StatementDefinition> statementDefinitions = new ArrayList<>();
 
 
@@ -67,43 +69,49 @@ public class StatementExecutionProcessor {
         this.id = stringAttribute(element, "id");
         this.query = booleanAttribute(element, "is-query", false);
         this.prepared = booleanAttribute(element, "is-prepared-statement", false);
-        String customTimeout = element.getAttributeValue("timeout");
-        if (Strings.isNotEmpty(customTimeout)) {
-            timeout = Integer.parseInt(customTimeout);
-        }
+        this.timeout =  integerAttribute(element, "timeout", 30);
 
         List<Element> children = element.getChildren();
         if (children.isEmpty()) {
             String statementText = element.getTextTrim();
-            readStatements(statementText, null);
+            readStatements(statementText, null, 0.0);
         } else {
             for (Element child : children) {
                 String statementText = child.getTextTrim();
-                String prefixes = child.getAttributeValue("prefixes");
-                readStatements(statementText, prefixes);
+                double sinceVersion = doubleAttribute(child, "since-version", 0.0);
+                String prefixes = stringAttribute(child, "prefixes");
+                readStatements(statementText, prefixes, sinceVersion);
             }
         }
         statementDefinitions = Compactables.compact(statementDefinitions);
     }
 
-    private void readStatements(String statementText, String prefixes) {
+    private void readStatements(String statementText, String prefixes, double sinceVersion) {
         if (prefixes == null) {
-            StatementDefinition statementDefinition = new StatementDefinition(statementText, null, prepared);
+            StatementDefinition statementDefinition = new StatementDefinition(statementText, null, sinceVersion, prepared);
             statementDefinitions.add(statementDefinition);
         } else {
             StringTokenizer tokenizer = new StringTokenizer(prefixes, ",");
             while (tokenizer.hasMoreTokens()) {
                 String prefix = tokenizer.nextToken().trim();
-                StatementDefinition statementDefinition = new StatementDefinition(statementText, prefix, prepared);
+                StatementDefinition statementDefinition = new StatementDefinition(statementText, prefix, sinceVersion, prepared);
                 statementDefinitions.add(statementDefinition);
             }
         }
     }
 
+    private List<StatementDefinition> getStatementDefinitions(DBNConnection connection) {
+        ConnectionHandler database = connection.getConnectionHandler();
+        if (database == null) return statementDefinitions;
+
+        double databaseVersion = database.getDatabaseVersion();
+        return Lists.filter(statementDefinitions, d -> d.supports(databaseVersion));
+    }
+
     public ResultSet executeQuery(DBNConnection connection, boolean forceExecution, Object... arguments) throws SQLException {
         StatementExecutorContext context = createContext(connection);
         SQLException exception = NO_STATEMENT_DEFINITION_EXCEPTION;
-        for (StatementDefinition statementDefinition : statementDefinitions) {
+        for (StatementDefinition statementDefinition : getStatementDefinitions(connection)) {
             try {
                 return executeQuery(statementDefinition, context, forceExecution, arguments);
             } catch (SQLRecoverableException e){

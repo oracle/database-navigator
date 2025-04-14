@@ -125,6 +125,11 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
+    public ResultSet loadJsonViews(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "json-views", ownerName);
+    }
+
+    @Override
     public ResultSet loadMaterializedViews(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "materialized-views", ownerName);
     }
@@ -187,6 +192,16 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     @Override
     public ResultSet loadAllNestedTables(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "all-nested-tables", ownerName);
+    }
+
+    @Override
+    public ResultSet loadJsonViewTableRelations(@NotNull String ownerName, String jsonViewName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "json-view-table-relations", ownerName, jsonViewName);
+    }
+
+    @Override
+    public ResultSet loadAllJsonViewTableRelations(@NotNull String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "all-json-view-table-relations", ownerName);
     }
 
     @Override
