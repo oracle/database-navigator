@@ -34,11 +34,6 @@ public interface DBVirtualFile extends /*VirtualFileWithId, */EnvironmentTypePro
 
     Icon getIcon();
 
-    void setCachedViewProvider(@Nullable DatabaseFileViewProvider viewProvider);
-
-    @Nullable
-    DatabaseFileViewProvider getCachedViewProvider();
-
     void invalidate();
 
     @Nullable
@@ -55,4 +50,15 @@ public interface DBVirtualFile extends /*VirtualFileWithId, */EnvironmentTypePro
     default DBObjectType getObjectType() {
         return null;
     }
+
+    default void setCachedViewProvider(@Nullable DatabaseFileViewProvider viewProvider) {
+        putUserData(DatabaseFileViewProvider.CACHED_VIEW_PROVIDER, viewProvider);
+    }
+
+    @Nullable
+    default DatabaseFileViewProvider getCachedViewProvider() {
+        return getUserData(DatabaseFileViewProvider.CACHED_VIEW_PROVIDER);
+    }
+
+
 }

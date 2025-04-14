@@ -63,11 +63,13 @@ public class DBNResultSet extends DBNResource<ResultSet> implements ResultSet, C
     public DBNResultSet(ResultSet inner, DBNConnection connection) {
         super(inner, ResourceType.RESULT_SET, connection.getConnectionId());
         this.connection = WeakRef.of(connection);
+        markInitialized();
     }
 
     public DBNResultSet(ResultSet inner, DBNStatement statement) {
         super(inner, ResourceType.RESULT_SET, statement.getConnectionId());
         this.statement = WeakRef.of(statement);
+        markInitialized();
     }
 
     public static String getIdentifier(ResultSet resultSet) {

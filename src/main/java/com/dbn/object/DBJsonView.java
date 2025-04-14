@@ -14,14 +14,27 @@
  * limitations under the License.
  */
 
-package com.dbn.editor.data;
+package com.dbn.object;
 
-import com.dbn.common.property.PropertyHolderBase;
+import java.util.List;
 
-public class DatasetEditorStatusHolder extends PropertyHolderBase.IntStore<DatasetEditorStatus> {
+public interface DBJsonView extends DBView{
+    boolean isReadonly();
 
-    @Override
-    protected DatasetEditorStatus[] properties() {
-        return DatasetEditorStatus.VALUES;
-    }
+    boolean isInsertAllowed();
+
+    boolean isUpdateAllowed();
+
+    boolean isDeleteAllowed();
+
+    List<DBTable> getTables();
+
+    DBTable getRootTable();
+
+    String getJsonSchema();
+
+    String getJsonColumnName();
+
+    List<String> getKeyAttributeNames();
+
 }

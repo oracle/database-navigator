@@ -31,6 +31,7 @@ import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.factory.ArgumentFactoryInput;
 import com.dbn.object.factory.MethodFactoryInput;
+import com.dbn.object.type.DBConstraintType;
 import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
@@ -161,6 +162,16 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
      *********************************************************/
     private void dropObjectIfExists(String objectType, String objectName, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "drop-object-if-exists", objectType, objectName);
+    }
+
+    @Override
+    public void dropConstraint(String ownerName, String tableName, String constraintName, DBConstraintType constraintType, DBNConnection connection) throws SQLException {
+        switch (constraintType) {
+            case PRIMARY_KEY: executeUpdate(connection, "drop-primary-key-constraint", ownerName, tableName); break;
+            case FOREIGN_KEY: executeUpdate(connection, "drop-foreign-key-constraint", ownerName, tableName, constraintName); break;
+            case UNIQUE_KEY: executeUpdate(connection, "drop-index-constraint", ownerName, tableName, constraintName); break;
+            case CHECK: executeUpdate(connection, "drop-check-constraint", ownerName, tableName, constraintName); break;
+        }
     }
 
     /*********************************************************

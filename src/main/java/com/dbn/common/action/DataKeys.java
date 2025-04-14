@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import com.dbn.data.editor.ui.calendar.CalendarPopupProviderForm;
 import com.dbn.data.editor.ui.text.TextEditorPopupProviderForm;
 import com.dbn.diagnostics.ui.ParserDiagnosticsForm;
 import com.dbn.editor.data.DatasetEditor;
+import com.dbn.editor.json.JsonDataEditor;
 import com.dbn.editor.session.SessionBrowser;
 import com.dbn.execution.common.message.ui.tree.MessagesTree;
 import com.dbn.execution.explain.result.ExplainPlanResult;
@@ -41,6 +42,7 @@ import com.intellij.openapi.actionSystem.DataKey;
 
 public interface DataKeys {
     DataKey<DatasetEditor> DATASET_EDITOR = DataKey.create("DBNavigator.DatasetEditor");
+    DataKey<JsonDataEditor> JSON_DATA_EDITOR = DataKey.create("DBNavigator.JsonDataEditor");
     DataKey<MessagesTree> MESSAGES_TREE = DataKey.create("DBNavigator.MessagesTree");
     DataKey<ConnectionBundleSettingsForm> CONNECTION_BUNDLE_SETTINGS = DataKey.create("DBNavigator.ConnectionSettingsEditor");
     DataKey<SessionBrowser> SESSION_BROWSER = DataKey.create("DBNavigator.SessionBrowser");

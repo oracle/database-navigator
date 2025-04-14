@@ -16,16 +16,18 @@
 
 package com.dbn.connection.jdbc;
 
+import com.dbn.common.constant.Constant;
 import com.dbn.common.property.Property;
 import lombok.Getter;
 
 @Getter
-public enum ResourceStatus implements Property.IntBase {
+public enum ResourceStatus implements Property.IntBase, Constant<ResourceStatus> {
     ACTIVE,
     VALID,
     CLOSED,
-    CANCELLED,
     RESERVED,
+    CANCELLED,
+    INITIALIZED,
     READ_ONLY,
     AUTO_COMMIT,
 

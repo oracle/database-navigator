@@ -133,6 +133,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
     public Map<String, String> getImplicitConnectionProperties() {
         return Map.of(
                 "oracle.jdbc.jsonDefaultGetObjectType", "java.lang.String",
-                "oracle.jdbc.vectorDefaultGetObjectType", "double[]");
+                "oracle.jdbc.vectorDefaultGetObjectType", "double[]",
+                "oracle.net.keepAlive", "true");
     }
 }
