@@ -51,6 +51,14 @@ public abstract class DatabaseCompatibilityInterfaceImpl implements DatabaseComp
     }
 
     @Override
+    public boolean supportsFeature(DatabaseFeature feature, DatabaseObjectTypeId objectTypeId) {
+        if (!supportsFeature(feature)) return false;
+        if (!supportsObjectType(objectTypeId)) return false;
+
+        return true;
+    }
+
+    @Override
     public QuotePair getDefaultIdentifierQuotes() {
         return getIdentifierQuotes().getDefaultQuotes();
     }
