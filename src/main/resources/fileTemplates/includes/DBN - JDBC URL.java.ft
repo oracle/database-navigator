@@ -4,6 +4,13 @@
         #set($tnsFolderUrl = $tnsFolder.replace("\", "/"))
         String tnsFolder = "${tnsFolderUrl}";
         String tnsProfile = "${TNS_PROFILE}";
+    #elseif(${JDBC_URL_TYPE} == 'EZCONNECT')
+        String host = "${HOST}";
+        String port = "${PORT}";
+        String database = "${DATABASE}";
+        String protocol = "${PROTOCOL}";
+        String serverType = "${SERVER_TYPE}";
+        String parameters = "${PARAMETERS}";
     #elseif(${JDBC_URL_TYPE} != 'CUSTOM')
         String host = "${HOST}";
         String port = "${PORT}";
@@ -11,6 +18,7 @@
     #end
         String jdbcUrl = #if (${JDBC_URL_TYPE} == 'SID')"jdbc:oracle:thin:@" + host + ":" + port + ":" + database;
     #elseif (${JDBC_URL_TYPE} == 'SERVICE')"jdbc:oracle:thin:@//" + host + ":" + port + "/" + database;
+    #elseif (${JDBC_URL_TYPE} == 'EZCONNECT')"jdbc:oracle:thin:@" + protocol + "//" + host + ":" + port + "/" + database + serverType + parameters;
     #elseif (${JDBC_URL_TYPE} == 'TNS')"jdbc:oracle:thin:@" + tnsProfile + "?TNS_ADMIN=\"" + tnsFolder + "\"";
     #elseif (${JDBC_URL_TYPE} == 'CUSTOM')"${JDBC_URL}";
     #end
