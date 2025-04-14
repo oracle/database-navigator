@@ -40,6 +40,8 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
 
     boolean supportsFeature(DatabaseFeature feature);
 
+    boolean supportsFeature(DatabaseFeature feature, DatabaseObjectTypeId objectTypeId);
+
     QuoteDefinition getIdentifierQuotes();
 
     QuotePair getDefaultIdentifierQuotes();

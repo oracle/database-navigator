@@ -18,6 +18,7 @@ package com.dbn.database;
 
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
+import com.dbn.object.common.DBObject;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
@@ -63,6 +64,13 @@ public enum DatabaseFeature {
         if (context == null) return false;
 
         DatabaseCompatibilityInterface compatibility = context.getCompatibilityInterface();
+        if (context instanceof DBObject) {
+            // qualified feature support lookup
+            DBObject object = (DBObject) context;
+            DatabaseObjectTypeId objectTypeId = object.getObjectType().getTypeId();
+            return compatibility.supportsFeature(this, objectTypeId);
+        }
+
         return compatibility.supportsFeature(this);
     }
 }

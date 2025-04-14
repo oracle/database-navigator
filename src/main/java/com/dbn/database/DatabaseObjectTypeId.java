@@ -17,9 +17,10 @@
 package com.dbn.database;
 
 
+import com.dbn.common.constant.Constant;
 import com.dbn.common.util.Enumerations;
 
-public enum DatabaseObjectTypeId {
+public enum DatabaseObjectTypeId implements Constant<DatabaseObjectTypeId> {
     AI_PROFILE,
     ATTRIBUTE,
     ARGUMENT,
