@@ -27,11 +27,13 @@ import com.dbn.common.ui.CardLayouts;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
+import com.dbn.common.util.Commons;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Naming;
 import com.dbn.common.util.XmlContents;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseType;
+import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.connection.config.ConnectionConfigListCellRenderer;
@@ -43,6 +45,7 @@ import com.dbn.connection.config.tns.TnsImportType;
 import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsProfile;
 import com.dbn.driver.DriverSource;
+import com.dbn.oci.OciConnectionData;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.options.ConfigurationException;
@@ -228,6 +231,49 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         return connectionSettings.getConnectionId();
     }
 
+    public ConnectionId createNewConnection(@NotNull DatabaseType databaseType, @NotNull ConnectionConfigType configType, OciConnectionData ociConnectionData) {
+        ConnectionBundleSettings connectionBundleSettings = getConfiguration();
+        ConnectionSettings connectionSettings = new ConnectionSettings(connectionBundleSettings, databaseType, configType, ociConnectionData.getOcid());
+        connectionSettings.setNew(true);
+        connectionSettings.generateNewId();
+        connectionBundleSettings.setModified(true);
+        connectionBundleSettings.getConnections().add(connectionSettings);
+
+        String name = ociConnectionData.getConnectionName() ;
+        ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
+        while (model.getConnectionConfig(name) != null) {
+            name = Naming.nextNumberedIdentifier(name, true);
+        }
+        ConnectionDatabaseSettings connectionConfig = connectionSettings.getDatabaseSettings();
+        connectionConfig.setName(name);
+        connectionConfig.setConfigType(configType);
+
+
+
+        DatabaseInfo databaseInfo = connectionConfig.getDatabaseInfo();
+        String dbUrl = getUrl(ociConnectionData);
+        databaseInfo.setUrl(dbUrl);
+        connectionConfig.getAuthenticationInfo().setTokenConfigFile(ociConnectionData.getConfigFile());
+        connectionConfig.getAuthenticationInfo().setTokenProfile(ociConnectionData.getConfigProfile());
+        databaseInfo.setUrlType(DatabaseUrlType.CUSTOM);
+        DatabaseUrlPattern urlPattern = Commons.nvl(databaseType.resolveUrlPattern(dbUrl), DatabaseUrlPattern.ORACLE_SERVICE);
+        databaseInfo.initializeDetails(urlPattern);
+        connectionConfig.setUrlPattern(urlPattern);
+
+        int index = connectionsList.getModel().getSize();
+        model.add(index, connectionSettings);
+        connectionsList.setSelectedIndex(index);
+        ConnectionId connectionId =  connectionSettings.getConnectionId();
+        ociConnectionData.setConnectionId(connectionId);
+        return connectionId;
+    }
+
+    private String  getUrl(OciConnectionData connectionData){
+        String urlPrefix = "jdbc:oracle:thin:@tcps://";
+        String connectionStringHigh = connectionData.getAllConnectionStrings().get("HIGH");
+      return urlPrefix + connectionStringHigh;
+    }
+
     public void duplicateSelectedConnection() {
         ConnectionSettings connectionSettings = connectionsList.getSelectedValue();
         if (connectionSettings == null) return;
@@ -379,8 +425,10 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             }
         }
     }
-
-    public void importTnsNames(TnsImportData importData) {
+    public void importTnsNames(TnsImportData importData){
+        importTnsNames(importData,null);
+    }
+    public void importTnsNames(TnsImportData importData, OciConnectionData ociConnectionData) {
         ConnectionBundleSettings connectionBundleSettings = getConfiguration();
         ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
         int index = connectionsList.getModel().getSize();
@@ -389,17 +437,22 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         TnsNames tnsNames = importData.getTnsNames();
         List<TnsProfile> tnsProfiles = importData.isSelectedOnly() ? tnsNames.getSelectedProfiles() : tnsNames.getProfiles();
         for (TnsProfile tnsProfile : tnsProfiles) {
-            ConnectionSettings connectionSettings = new ConnectionSettings(connectionBundleSettings, DatabaseType.ORACLE, ConnectionConfigType.BASIC);
-            connectionSettings.setNew(true);
-            connectionSettings.generateNewId();
+            ConnectionSettings connectionSettings = getConnectionSettings(ociConnectionData, connectionBundleSettings);
             connectionBundleSettings.setModified(true);
             connectionBundleSettings.getConnections().add(connectionSettings);
 
             ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
             DatabaseInfo databaseInfo = databaseSettings.getDatabaseInfo();
             importTnsData(databaseInfo, tnsProfile, tnsNames, importData.getImportType());
-
-            String name = tnsProfile.getProfile();
+            String name;
+            if (ociConnectionData != null) {
+                name = ociConnectionData.getConnectionName();
+                ociConnectionData.setConnectionId(databaseSettings.getConnectionId());
+                databaseSettings.getAuthenticationInfo().setTokenConfigFile(ociConnectionData.getConfigFile());
+                databaseSettings.getAuthenticationInfo().setTokenProfile(ociConnectionData.getConfigProfile());
+            }else {
+                name = tnsProfile.getProfile();
+            }
             while (model.getConnectionConfig(name) != null) {
                 name = Naming.nextNumberedIdentifier(name, true);
             }
@@ -412,7 +465,21 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             connectionBundleSettings.setModified(true);
             index++;
         }
+
         connectionsList.setSelectedIndices(selectedIndexes.stream().mapToInt(i -> i).toArray());
+    }
+
+    private static @NotNull ConnectionSettings getConnectionSettings(OciConnectionData ociConnectionData, ConnectionBundleSettings connectionBundleSettings) {
+        ConnectionSettings connectionSettings = null;
+        if (ociConnectionData == null) {
+            connectionSettings = new ConnectionSettings(connectionBundleSettings, DatabaseType.ORACLE, ConnectionConfigType.BASIC);
+        }else {
+            connectionSettings = new ConnectionSettings(connectionBundleSettings, DatabaseType.ORACLE, ConnectionConfigType.BASIC, ociConnectionData.getOcid());
+
+        }
+        connectionSettings.setNew(true);
+        connectionSettings.generateNewId();
+        return connectionSettings;
     }
 
     private static void importTnsData(DatabaseInfo databaseInfo, TnsProfile tnsName, TnsNames tnsNames, TnsImportType importType) {

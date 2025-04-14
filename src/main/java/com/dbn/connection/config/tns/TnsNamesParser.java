@@ -53,7 +53,7 @@ public class TnsNamesParser {
 
 
     @SneakyThrows
-    public static TnsNames parse(File file) {
+    public static TnsNames parse(File file) { // this is the function that converts a file to TnsNames
         List<TnsProfile> tnsProfiles = new ArrayList<>();
         Path filePath = Paths.get(file.getPath());
         String tnsContent = Files.readString(filePath);
