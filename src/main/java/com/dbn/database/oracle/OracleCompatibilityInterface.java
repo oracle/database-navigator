@@ -53,6 +53,9 @@ import static com.dbn.database.DatabaseFeature.SESSION_INTERRUPTION_TIMING;
 import static com.dbn.database.DatabaseFeature.SESSION_KILL;
 import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
 import static com.dbn.database.DatabaseFeature.USER_SCHEMA;
+import static com.dbn.database.DatabaseObjectTypeId.AI_PROFILE;
+import static com.dbn.database.DatabaseObjectTypeId.CREDENTIAL;
+import static com.dbn.database.DatabaseObjectTypeId.JAVA_CLASS;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -96,6 +99,17 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 CONSTRAINT_MANIPULATION,
                 READONLY_CONNECTIVITY,
                 AI_ASSISTANT);
+    }
+
+    @Override
+    public boolean supportsFeature(DatabaseFeature feature, DatabaseObjectTypeId objectTypeId) {
+        if (!super.supportsFeature(feature, objectTypeId)) return false;
+
+        if (feature == OBJECT_DDL_EXTRACTION) {
+            // TODO create generic object-type to feature mapping solution
+            return !objectTypeId.isOneOf(CREDENTIAL, AI_PROFILE, JAVA_CLASS);
+        }
+        return true;
     }
 
     @Override
