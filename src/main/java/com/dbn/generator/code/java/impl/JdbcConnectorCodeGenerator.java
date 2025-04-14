@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.util.Parameters.toParameterString;
 import static com.dbn.nls.NlsResources.txt;
 
 public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorCodeGeneratorInput, JdbcConnectorCodeGeneratorResult> {
@@ -129,6 +130,9 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         addProperty(properties, "HOST", databaseInfo.getHost());
         addProperty(properties, "PORT", databaseInfo.getPort());
         addProperty(properties, "DATABASE", databaseInfo.getDatabase());
+        addProperty(properties, "PROTOCOL", databaseInfo.getProtocol());
+        addProperty(properties, "SERVER_TYPE", databaseInfo.getServerTypeToken());
+        addProperty(properties, "PARAMETERS", toParameterString(databaseInfo.getParameters()));
         addProperty(properties, "TNS_FOLDER", databaseInfo.getTnsFolder());
         addProperty(properties, "TNS_PROFILE", databaseInfo.getTnsProfile());
 

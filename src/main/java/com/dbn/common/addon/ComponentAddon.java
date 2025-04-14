@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package com.dbn.editor.data;
+package com.dbn.common.addon;
 
-import com.dbn.common.property.Property;
+import org.jetbrains.annotations.NotNull;
 
-public enum DatasetEditorStatus implements Property.IntBase {
-    CONNECTED,
-    LOADING,
-    LOADED;
+/**
+ * Maker interface for component functionality extensions (addons)
+ * @param <T> the type of component this addon can be installed to
+ *
+ * @author Dan Cioca (Oracle)
+ */
+public interface ComponentAddon<T> {
 
-    public static final DatasetEditorStatus[] VALUES = values();
-
-    private final IntMasks masks = new IntMasks(this);
-
-    @Override
-    public IntMasks masks() {
-        return masks;
-    }
+    /**
+     * The component the addon is installed on
+     * @return a component of the given type <T>
+     */
+    @NotNull
+    T getComponent();
 }

@@ -26,6 +26,7 @@ public interface DBViewMetadata extends DBObjectMetadata {
     @ObjectIdentifier
     String getViewName() throws SQLException;
 
+    @ObjectIdentifier
     String getViewType() throws SQLException;
 
     @ObjectIdentifier

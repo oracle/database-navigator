@@ -28,6 +28,8 @@ public interface ObjectCache<K, V, E extends Throwable> {
 
     void drop(K key);
 
+    void release(K key);
+
     int size();
 
     default boolean isEmpty() {

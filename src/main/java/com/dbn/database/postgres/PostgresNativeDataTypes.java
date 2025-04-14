@@ -95,8 +95,8 @@ public class PostgresNativeDataTypes extends DatabaseNativeDataTypes {
         createBasicDefinition("PATH", Object.class, Types.OTHER, GenericDataType.OBJECT);
         createBasicDefinition("POLYGON", Object.class, Types.OTHER, GenericDataType.OBJECT);
         createBasicDefinition("CIRCLE", Object.class, Types.OTHER, GenericDataType.OBJECT);
-        createBasicDefinition("JSON", Object.class, Types.OTHER, GenericDataType.OBJECT);
-        createBasicDefinition("JSONB", Object.class, Types.OTHER, GenericDataType.OBJECT);
+        createBasicDefinition("JSON", String.class, Types.VARCHAR, GenericDataType.JSON);
+        createBasicDefinition("JSONB", String.class, Types.VARCHAR, GenericDataType.JSON);
         createBasicDefinition("ARRAY", Array.class, Types.ARRAY, GenericDataType.ARRAY);
 
         createBasicDefinition("INT2VECTOR", Array.class, Types.ARRAY, GenericDataType.ARRAY);

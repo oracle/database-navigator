@@ -9,7 +9,7 @@
  * To run this class you will need to integrate the JDBC Driver libraries in your project<br>
  *
  * <p><u>JDBC URL</u></p>
- * The connection is using a "${JDBC_URL_TYPE_NAME}" jdbc URL type<br>
+ * The connection is using a JDBC URL of type  "${JDBC_URL_TYPE_NAME}"<br>
  *
  * <p><u>AUTHENTICATION</u></p>
 #if (${AUTH_TYPE} == 'NONE')

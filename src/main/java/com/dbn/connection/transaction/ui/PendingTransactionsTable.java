@@ -53,6 +53,7 @@ public class PendingTransactionsTable extends DBNTable<PendingTransactionsTableM
         addMouseListener(Mouse.listener().onClick(e -> clickEvent(e)));
 
         setAccessibleName(this, "Pending Transactions");
+        setProportionalColumnWidths(15, 55, 30);
     }
 
     private void clickEvent(MouseEvent e) {

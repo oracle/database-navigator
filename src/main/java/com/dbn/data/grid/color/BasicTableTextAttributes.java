@@ -20,8 +20,6 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.util.TextAttributes;
 import com.intellij.openapi.editor.colors.EditorColors;
-import com.intellij.openapi.editor.colors.EditorColorsManager;
-import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.ui.SimpleTextAttributes;
 import lombok.Getter;
 
@@ -49,6 +47,8 @@ public class BasicTableTextAttributes implements DataGridTextAttributes {
     private final SimpleTextAttributes readonlyDataAtCaretRowModified;
     private final SimpleTextAttributes loadingData;
     private final SimpleTextAttributes loadingDataAtCaretRow;
+    private final SimpleTextAttributes updatingData;
+    private final SimpleTextAttributes updatingDataAtCaretRow;
     private final SimpleTextAttributes primaryKey;
     private final SimpleTextAttributes primaryKeyModified;
     private final SimpleTextAttributes primaryKeyAtCaretRow;
@@ -61,14 +61,11 @@ public class BasicTableTextAttributes implements DataGridTextAttributes {
     private final SimpleTextAttributes caretRow;
     private final SimpleTextAttributes searchResult;
 
-    private final Color caretRowBgColor;
-
     private static final Latent<BasicTableTextAttributes> INSTANCE = Latent.laf(() -> new BasicTableTextAttributes());
 
     private BasicTableTextAttributes() {
-        EditorColorsScheme globalScheme = EditorColorsManager.getInstance().getGlobalScheme();
         caretRow = TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.CARET_ROW);
-        caretRowBgColor = globalScheme.getAttributes(DataGridTextAttributesKeys.CARET_ROW).getBackgroundColor();
+        Color caretRowBgColor = caretRow.getBgColor();
 
         deletedData = TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.DELETED_DATA);
         errorData = TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.ERROR_DATA);
@@ -113,6 +110,9 @@ public class BasicTableTextAttributes implements DataGridTextAttributes {
 
         loadingData = TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.LOADING_DATA);
         loadingDataAtCaretRow = new SimpleTextAttributes(caretRowBgColor, loadingData.getFgColor(), null, loadingData.getFontStyle());
+
+        updatingData = TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.UPDATING_DATA);
+        updatingDataAtCaretRow = new SimpleTextAttributes(caretRowBgColor, updatingData.getFgColor(), null, updatingData.getFontStyle());
 
         primaryKey= TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.PRIMARY_KEY);
         primaryKeyModified = new SimpleTextAttributes(
@@ -174,6 +174,10 @@ public class BasicTableTextAttributes implements DataGridTextAttributes {
         return atCaretRow ? loadingDataAtCaretRow : loadingData;
     }
 
+    public SimpleTextAttributes getUpdatingData(boolean atCaretRow) {
+        return atCaretRow ? updatingDataAtCaretRow : updatingData;
+    }
+
     public SimpleTextAttributes getPrimaryKey(boolean modified, boolean atCaretRow) {
         return
             modified && atCaretRow ? primaryKeyAtCaretRowModified :
@@ -203,10 +207,5 @@ public class BasicTableTextAttributes implements DataGridTextAttributes {
     @Override
     public SimpleTextAttributes getSearchResult() {
         return searchResult;
-    }
-
-    @Override
-    public Color getCaretRowBgColor() {
-        return caretRowBgColor;
     }
 }

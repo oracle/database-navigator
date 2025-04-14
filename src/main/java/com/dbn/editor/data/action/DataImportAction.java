@@ -16,11 +16,10 @@
 
 package com.dbn.editor.data.action;
 
-import com.dbn.common.environment.EnvironmentManager;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Messages;
-import com.dbn.editor.DBContentType;
 import com.dbn.editor.data.DatasetEditor;
+import com.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -45,9 +44,11 @@ public class DataImportAction extends AbstractDataEditorAction {
         presentation.setIcon(Icons.DATA_IMPORT);
 
         if (isValid(datasetEditor)) {
-            EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
-            boolean isEnvironmentReadonlyData = environmentManager.isReadonly(datasetEditor.getDataset(), DBContentType.DATA);
-            presentation.setVisible(!isEnvironmentReadonlyData && !datasetEditor.isReadonlyData());
+            DBDataset dataset = datasetEditor.getDataset();
+            boolean environmentReadonlyData = dataset.getEnvironmentType().isReadonlyData();
+            boolean visible = !environmentReadonlyData && !datasetEditor.isReadonlyData();
+
+            presentation.setVisible(visible);
 /*
             boolean enabled =
                     datasetEditor.getConnectionHandler().isConnected() &&

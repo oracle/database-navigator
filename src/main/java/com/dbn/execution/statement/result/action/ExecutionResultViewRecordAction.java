@@ -35,7 +35,7 @@ public class ExecutionResultViewRecordAction extends AbstractExecutionResultActi
         ResultSetTable resultTable = executionResult.getResultTable();
         if (resultTable == null) return;
 
-        resultTable.showRecordViewDialog();
+        resultTable.showRecordDetails();
     }
 
     @Override

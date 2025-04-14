@@ -21,6 +21,7 @@ import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.object.factory.MethodFactoryInput;
+import com.dbn.object.type.DBConstraintType;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
 
@@ -63,6 +64,8 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
     *                   DROP statements                     *
     *********************************************************/
     void dropObject(String objectType, String ownerName, String objectName, DBNConnection connection) throws SQLException;
+
+    void dropConstraint(String ownerName, String tableName, String constraintName, DBConstraintType constraintType, DBNConnection connection) throws SQLException;
 
     void dropObjectBody(String objectType, String ownerName, String objectName, DBNConnection connection) throws SQLException;
 

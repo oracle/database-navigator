@@ -18,9 +18,12 @@ package com.dbn.object.impl;
 
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBConstraint;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectRelationImpl;
 import com.dbn.object.type.DBObjectRelationType;
 import lombok.Getter;
+
+import static com.dbn.common.util.Commons.nvl;
 
 @Getter
 class DBConstraintColumnRelation extends DBObjectRelationImpl<DBConstraint, DBColumn> {
@@ -29,6 +32,11 @@ class DBConstraintColumnRelation extends DBObjectRelationImpl<DBConstraint, DBCo
     DBConstraintColumnRelation(DBConstraint constraint, DBColumn column, short position) {
         super(DBObjectRelationType.CONSTRAINT_COLUMN, constraint, column);
         this.position = position;
+    }
+
+    @Override
+    public DBObject getRelationHolder() {
+        return nvl(getColumn().getParentObject(), getColumn());
     }
 
     public DBConstraint getConstraint() {

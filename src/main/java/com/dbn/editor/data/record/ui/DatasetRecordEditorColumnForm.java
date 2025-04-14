@@ -63,6 +63,14 @@ import java.text.ParseException;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.data.type.GenericDataType.ARRAY;
+import static com.dbn.data.type.GenericDataType.BLOB;
+import static com.dbn.data.type.GenericDataType.CLOB;
+import static com.dbn.data.type.GenericDataType.DATE_TIME;
+import static com.dbn.data.type.GenericDataType.JSON;
+import static com.dbn.data.type.GenericDataType.LITERAL;
+import static com.dbn.data.type.GenericDataType.VECTOR;
+import static com.dbn.data.type.GenericDataType.XMLTYPE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.data.model.RecordStatus.DELETED;
 
@@ -104,7 +112,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase implements Compon
 
             DataEditorSettings dataEditorSettings = DataEditorSettings.getInstance(project);
 
-            if (genericDataType.is(GenericDataType.DATE_TIME, GenericDataType.LITERAL, GenericDataType.ARRAY)) {
+            if (genericDataType.is(DATE_TIME, LITERAL, ARRAY, VECTOR)) {
                 TextFieldWithPopup textFieldWithPopup = new TextFieldWithPopup(project);
 
                 textFieldWithPopup.setPreferredSize(new Dimension(300, -1));
@@ -117,6 +125,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase implements Compon
                     switch (genericDataType) {
                         case DATE_TIME: textFieldWithPopup.createCalendarPopup(false); break;
                         case ARRAY: textFieldWithPopup.createArrayEditorPopup(false); break;
+                        case VECTOR: textFieldWithPopup.createArrayViewerPopup(false); break;
                         case LITERAL: {
                             long dataLength = dataType.getLength();
                             DataEditorValueListPopupSettings valueListPopupSettings = dataEditorSettings.getValueListPopupSettings();
@@ -138,7 +147,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase implements Compon
                     textFieldWithPopup.setEditable(false);
                 }
                 editorComponent = textFieldWithPopup;
-            } else if (genericDataType.is(GenericDataType.BLOB, GenericDataType.CLOB)) {
+            } else if (genericDataType.is(BLOB, CLOB, JSON, XMLTYPE)) {
                 editorComponent = new TextFieldWithTextEditor(project);
             } else {
                 editorComponent = new BasicDataEditorComponent();

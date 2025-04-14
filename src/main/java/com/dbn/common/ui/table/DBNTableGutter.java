@@ -22,18 +22,23 @@ import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.Fonts;
 import com.intellij.openapi.editor.colors.EditorColorsListener;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.MouseEvent;
+import java.awt.font.FontRenderContext;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
@@ -50,14 +55,45 @@ public abstract class DBNTableGutter<T extends DBNTableWithGutter> extends JList
         if (rowHeight != 0) setFixedCellHeight(rowHeight);
         setBackground(Colors.getPanelBackground());
         setBorder(Borders.EMPTY_BORDER);
-        setFocusable(false);
-        setRequestFocusEnabled(false);
+        setFont(Fonts.editor(-2));
+
+        // TODO accessibility changes broke gutter selection logic
+        //setFocusable(false);
+        //setRequestFocusEnabled(false);
 
         setCellRenderer(createCellRenderer());
+        adjustCellSize();
 
         ApplicationEvents.subscribe(this, EditorColorsManager.TOPIC, this);
         Disposer.register(table, this);
         setAccessibleName(this, "Table gutter");
+    }
+
+    private void adjustCellSize() {
+        T table = getTable();
+        int rowCount = table.getModel().getRowCount();
+
+        int digits = (int) Math.log10(rowCount) + 1;
+        String text = StringUtils.leftPad("", digits, "0");
+
+        Font font = getFont();
+        FontRenderContext fontRenderContext = this.getFontMetrics(font).getFontRenderContext();
+        int width = (int) font.getStringBounds(text, fontRenderContext).getWidth() + 16 + getAdditionalSpacing();
+
+        setFixedCellWidth(width);
+
+        int totalHeight = (int) getPreferredSize().getHeight();
+        setPreferredSize(new Dimension(width, totalHeight));
+        revalidate();
+        repaint();
+    }
+
+    protected int getAdditionalSpacing() {
+        return 0;
+    }
+
+    public void refresh() {
+        adjustCellSize();
     }
 
     @Override

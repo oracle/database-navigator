@@ -26,6 +26,7 @@ import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.message.MessageCallback;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Background;
@@ -50,13 +51,18 @@ import com.dbn.connection.transaction.TransactionAction;
 import com.dbn.connection.transaction.ui.IdleConnectionDialog;
 import com.dbn.connection.ui.ConnectionAuthenticationDialog;
 import com.dbn.credentials.Secret;
+import com.dbn.editor.DBContentType;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.method.MethodExecutionManager;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettingsManager;
 import com.dbn.vfs.DatabaseFileManager;
+import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
+import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
@@ -115,10 +121,40 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                 ConnectionConfigListener.TOPIC,
                 ConnectionConfigListener.whenChanged(id -> refreshObjects(id)));
 
+        ProjectEvents.subscribe(project, this,
+                FileEditorManagerListener.FILE_EDITOR_MANAGER,
+                verifyConnectionStatus());
+
         idleConnectionCleaner = new Timer("DBN - Idle Connection Cleaner");
         idleConnectionCleaner.schedule(new CloseIdleConnectionTask(), TimeUtil.Millis.ONE_MINUTE, TimeUtil.Millis.ONE_MINUTE);
 
         Disposer.register(this, connectionBundle);
+    }
+
+    private FileEditorManagerListener verifyConnectionStatus() {
+        return new DBNFileEditorManagerListener() {
+            @Override
+            public void whenSelectionChanged(FileEditorManagerEvent event) {
+                FileEditor editor = event.getNewEditor();
+                if (editor == null) return;
+
+                VirtualFile file = editor.getFile();
+                if (file instanceof DBEditableObjectVirtualFile) {
+                    DBEditableObjectVirtualFile objectVirtualFile = (DBEditableObjectVirtualFile) file;
+                    DBContentType contentType = objectVirtualFile.getContentType();
+                    if (contentType.has(DBContentType.DATA) || contentType.has(DBContentType.JSON)) {
+                        SessionId sessionId = objectVirtualFile.getSessionId();
+                        ConnectionPool connectionPool = objectVirtualFile.getConnection().getConnectionPool();
+                        DBNConnection connection = connectionPool.getSessionConnection(sessionId);
+                        if (connection == null) return;
+
+                        // keep connection alive
+                        connection.isValid();
+                    }
+                }
+
+            }
+        };
     }
 
     @Override
