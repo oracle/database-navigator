@@ -407,18 +407,18 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
     }
 
     public void fireEditingCancel() {
-        if (isEditing()) {
-            Dispatch.run(true, () -> cancelEditing());
-        }
+        if (!isEditing()) return;
+
+        Dispatch.run(true, () -> cancelEditing());
     }
 
     public void cancelEditing() {
-        if (isEditing()) {
-            TableCellEditor cellEditor = getCellEditor();
-            if (cellEditor != null) {
-                cellEditor.cancelCellEditing();
-            }
-        }
+        if (!isEditing()) return;
+
+        TableCellEditor cellEditor = getCellEditor();
+        if (cellEditor == null) return;
+
+        cellEditor.cancelCellEditing();
     }
 
     @Override
@@ -430,13 +430,14 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
     @Override
     public void sort() {
         DatasetEditorModel model = getModel();
-        if (!isLoading() && !model.is(UPDATING)) {
-            super.sort();
-            if (!model.isResultSetExhausted()) {
-                getDatasetEditor().loadData(SORT_LOAD_INSTRUCTIONS);
-            }
-            resizeAndRepaint();
+        if (isLoading() || model.is(UPDATING)) return;
+
+        super.sort();
+
+        if (!model.isResultSetExhausted()) {
+            getDatasetEditor().loadData(SORT_LOAD_INSTRUCTIONS);
         }
+        resizeAndRepaint();
     }
 
     @Override
@@ -444,17 +445,15 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
         int modelColumnIndex = convertColumnIndexToModel(columnIndex);
         DatasetEditorModel model = getModel();
         ColumnInfo columnInfo = model.getColumnInfo(modelColumnIndex);
-        if (columnInfo.isSortable()) {
-            if (!isLoading() && !model.is(UPDATING)) {
-                boolean sorted = super.sort(columnIndex, sortDirection, keepExisting);
+        if (!columnInfo.isSortable()) return false;
+        if (isLoading() || model.is(UPDATING)) return false;
 
-                if (sorted && !model.isResultSetExhausted()) {
-                    getDatasetEditor().loadData(SORT_LOAD_INSTRUCTIONS);
-                }
-                return sorted;
-            }
+        boolean sorted = super.sort(columnIndex, sortDirection, keepExisting);
+
+        if (sorted && !model.isResultSetExhausted()) {
+            getDatasetEditor().loadData(SORT_LOAD_INSTRUCTIONS);
         }
-        return false;
+        return sorted;
     }
 
     @NotNull

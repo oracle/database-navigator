@@ -387,6 +387,11 @@ public class DatasetEditor extends DataEditorBase<DBDataset> {
     public void toggleEditingLock() {
         boolean readonly = editorState.isReadonly();
         editorState.setReadonly(!readonly);
+
+        if (!readonly) {
+            // cancel editing if toggle is locking
+            getEditorTable().cancelEditing();
+        }
     }
 
     public boolean isEditingLocked() {
