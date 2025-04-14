@@ -19,11 +19,14 @@ package com.dbn.editor.data.ui.table;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Conditional;
 import com.dbn.data.grid.ui.table.basic.BasicTableGutter;
+import com.dbn.editor.data.model.DatasetEditorModel;
 import com.dbn.editor.data.ui.table.renderer.DatasetEditorTableGutterRenderer;
 
 import javax.swing.ListCellRenderer;
 import java.awt.event.MouseListener;
 
+import static com.dbn.editor.data.model.RecordStatus.INSERTING;
+import static com.dbn.editor.data.model.RecordStatus.MODIFIED;
 import static java.awt.event.MouseEvent.BUTTON1;
 
 public class DatasetEditorTableGutter extends BasicTableGutter<DatasetEditorTable> {
@@ -35,6 +38,16 @@ public class DatasetEditorTableGutter extends BasicTableGutter<DatasetEditorTabl
     @Override
     protected ListCellRenderer<?> createCellRenderer() {
         return new DatasetEditorTableGutterRenderer();
+    }
+
+    @Override
+    protected int getAdditionalSpacing() {
+        DatasetEditorModel model = getTableModel();
+        return model.isOneOf(MODIFIED, INSERTING) ? 16 : 0;
+    }
+
+    private DatasetEditorModel getTableModel() {
+        return getTable().getModel();
     }
 
     MouseListener mouseListener = Mouse.listener().onClick(e ->

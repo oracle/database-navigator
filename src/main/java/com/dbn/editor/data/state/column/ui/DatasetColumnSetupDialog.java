@@ -17,19 +17,19 @@
 package com.dbn.editor.data.state.column.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.editor.data.DataLoadInstructions;
 import com.dbn.editor.data.DatasetEditor;
-import com.dbn.editor.data.DatasetLoadInstructions;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
-import static com.dbn.editor.data.DatasetLoadInstruction.DELIBERATE_ACTION;
-import static com.dbn.editor.data.DatasetLoadInstruction.PRESERVE_CHANGES;
-import static com.dbn.editor.data.DatasetLoadInstruction.REBUILD;
-import static com.dbn.editor.data.DatasetLoadInstruction.USE_CURRENT_FILTER;
+import static com.dbn.editor.data.DataLoadInstruction.DELIBERATE_ACTION;
+import static com.dbn.editor.data.DataLoadInstruction.PRESERVE_CHANGES;
+import static com.dbn.editor.data.DataLoadInstruction.REBUILD;
+import static com.dbn.editor.data.DataLoadInstruction.USE_CURRENT_FILTER;
 
 public class DatasetColumnSetupDialog extends DBNDialog<DatasetColumnSetupForm> {
-    private static final DatasetLoadInstructions LOAD_INSTRUCTIONS = new DatasetLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION, REBUILD);
+    private static final DataLoadInstructions LOAD_INSTRUCTIONS = new DataLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION, REBUILD);
     private DatasetEditor datasetEditor;
 
     public DatasetColumnSetupDialog(@NotNull DatasetEditor datasetEditor) {

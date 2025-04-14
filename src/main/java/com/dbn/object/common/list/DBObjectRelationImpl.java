@@ -49,7 +49,10 @@ public abstract class DBObjectRelationImpl<S extends DBObject, T extends DBObjec
         this.targetObject = targetObject instanceof DBCastedObject ? targetObject : null;
     }
 
-
+    @Override
+    public DBObject getRelationHolder() {
+        return getSourceObject();
+    }
 
     public S getSourceObject() {
         // favor strong reference to source object if available

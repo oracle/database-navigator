@@ -115,12 +115,16 @@ public class BasicDataModelCell<
             }
         } else {
             if (presentableValue == null) {
-                Formatter formatter = getFormatter();
-                presentableValue = formatter.formatObject(userValue);
+                presentableValue = createPresentableValue();
             }
             return presentableValue;
         }
         return null;
+    }
+
+    protected String createPresentableValue() {
+        Formatter formatter = getFormatter();
+        return  formatter.formatObject(userValue);
     }
 
     @NotNull

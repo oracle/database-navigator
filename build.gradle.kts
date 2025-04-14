@@ -104,7 +104,7 @@ intellij {
   version.set("2024.3.3")
   type.set("IC") // Target IDE Platform
 
-  plugins.set(listOf("java", "copyright"))
+  plugins.set(listOf("java", "json", "copyright"))
 
 }
 

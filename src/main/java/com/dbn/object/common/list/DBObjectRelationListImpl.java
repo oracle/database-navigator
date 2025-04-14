@@ -24,7 +24,6 @@ import com.dbn.common.content.dependency.ContentDependencyAdapter;
 import com.dbn.common.content.loader.DynamicContentLoader;
 import com.dbn.common.content.loader.DynamicContentLoaderImpl;
 import com.dbn.common.range.Range;
-import com.dbn.common.util.Commons;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.database.common.metadata.DBObjectMetadata;
 import com.dbn.object.common.DBObject;
@@ -157,22 +156,20 @@ class DBObjectRelationListImpl<T extends DBObjectRelation> extends DynamicConten
 
             Map<DBObjectRef, Range> ranges = new HashMap<>();
 
-            DBObjectRef currentObject = null;
+            DBObjectRef groupObject = null;
             int rangeStart = 0;
             for (int i = 0; i < elements.size(); i++) {
                 T objectRelation = elements.get(i);
-                DBObject sourceObject = objectRelation.getSourceObject();
-                DBObject object = Commons.nvl(sourceObject.getParentObject(), sourceObject);
-                currentObject = Commons.nvl(currentObject, object.ref());
+                DBObjectRef relationHolder = DBObjectRef.of(objectRelation.getRelationHolder());
 
-                if (!Objects.equals(currentObject, object.ref())) {
-                    ranges.put(currentObject, new Range(rangeStart, i - 1));
-                    currentObject = object.ref();
+                if (!Objects.equals(groupObject, relationHolder)) {
+                    ranges.put(groupObject, new Range(rangeStart, i - 1));
+                    groupObject = relationHolder;
                     rangeStart = i;
                 }
 
                 if (i == elements.size() - 1) {
-                    ranges.put(currentObject, new Range(rangeStart, i));
+                    ranges.put(groupObject, new Range(rangeStart, i));
                 }
             }
 

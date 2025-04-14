@@ -24,7 +24,6 @@ import com.dbn.data.grid.ui.table.basic.BasicTableGutter;
 import com.dbn.data.grid.ui.table.basic.BasicTableSelectionRestorer;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.grid.ui.table.sortable.SortableTableHeaderRenderer;
-import com.dbn.data.preview.LargeValuePreviewPopup;
 import com.dbn.data.record.RecordViewInfo;
 import com.dbn.editor.session.SessionBrowser;
 import com.dbn.editor.session.action.SessionBrowserTableActionGroup;
@@ -47,6 +46,7 @@ import java.util.EventObject;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.ClientProperty.DATA_TYPE_RELEVANT;
 
 public class SessionBrowserTable extends ResultSetTable<SessionBrowserModel> {
     private final WeakRef<SessionBrowser> sessionBrowser;
@@ -59,12 +59,17 @@ public class SessionBrowserTable extends ResultSetTable<SessionBrowserModel> {
         getTableHeader().addMouseListener(new SessionBrowserTableHeaderMouseListener(this));
         addMouseListener(new SessionBrowserTableMouseListener(this));
         getSelectionModel().addListSelectionListener(listSelectionListener);
+        DATA_TYPE_RELEVANT.set(this, false);
 /*
         DataProvider dataProvider = sessionBrowser.getDataProvider();
         ActionUtil.registerDataProvider(this, dataProvider, false);
         ActionUtil.registerDataProvider(getTableHeader(), dataProvider, false);
 */
         setAccessibleName(this, "Session Browser");
+
+        // addons
+        installMathAddon();
+        installRecordViewerAddon();
     }
 
     @NotNull
@@ -114,11 +119,6 @@ public class SessionBrowserTable extends ResultSetTable<SessionBrowserModel> {
     }
 
     @Override
-    protected void initLargeValuePopup(LargeValuePreviewPopup viewer) {
-        super.initLargeValuePopup(viewer);
-    }
-
-    @Override
     public int getColumnWidthBuffer() {
         return 22;
     }
@@ -137,11 +137,6 @@ public class SessionBrowserTable extends ResultSetTable<SessionBrowserModel> {
             sessionBrowser.updateDetails();
         });
     };
-
-    @Override
-    protected boolean showRecordViewDataTypes() {
-        return false;
-    }
 
     private class SelectionRestorer extends BasicTableSelectionRestorer{
         private Object sessionId;

@@ -60,8 +60,6 @@ public class DatasetEditorReadonlyNotificationPanel extends DatasetEditorNotific
     }
 
     private static boolean isReadonly(DBSchemaObject schemaObject) {
-        Project project = schemaObject.getProject();
-        EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
-        return environmentManager.isReadonly(schemaObject, DBContentType.DATA);
+        return !EnvironmentManager.isTransientlyEditable(schemaObject, DBContentType.DATA);
     }
 }

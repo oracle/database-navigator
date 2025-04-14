@@ -16,7 +16,6 @@
 
 package com.dbn.editor.data.ui.table.renderer;
 
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Commons;
@@ -49,48 +48,18 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
 
         DatasetEditorModelRow row = cell.getRow();
         DatasetEditorColumnInfo columnInfo = cell.getColumnInfo();
-        boolean dirty = datasetEditorTable.getModel().isDirty();
-        boolean loading = datasetEditorTable.isLoading();
-        boolean inserting = datasetEditorTable.isInserting();
 
         boolean modified = cell.is(MODIFIED);
-        boolean updating = cell.is(UPDATING);
-        boolean deletedRow = row.is(DELETED);
         boolean insertRow = row.is(INSERTING);
         boolean caretRow = !insertRow && table.getCellSelectionEnabled() && table.getSelectedRow() == rowIndex && table.getSelectedRowCount() == 1;
         boolean auditColumn = columnInfo != null && columnInfo.isAuditColumn();
-        boolean primaryKey = columnInfo != null && columnInfo.isPrimaryKey();
-        boolean foreignKey = columnInfo != null && columnInfo.isForeignKey();
-        boolean connected = Failsafe.nn(datasetEditorTable.getDatasetEditor().getConnection()).isConnected();
+        boolean connected = datasetEditorTable.getDatasetEditor().isConnected();
 
         BasicTableTextAttributes attributes = (BasicTableTextAttributes) getAttributes();
-        SimpleTextAttributes textAttributes = attributes.getPlainData(modified, caretRow);
-
-        if (isSelected) {
-            textAttributes = table.hasFocus() ?
-                    attributes.getSelection() :
-                    attributes.getCaretRow();
-        } else {
-            if (loading || dirty || !connected || updating) {
-                textAttributes = attributes.getLoadingData(caretRow);
-            } else if (deletedRow) {
-                textAttributes = attributes.getDeletedData();
-            } else if ((inserting && !insertRow)) {
-                textAttributes = attributes.getReadonlyData(modified, caretRow);
-            } else if (primaryKey) {
-                textAttributes = attributes.getPrimaryKey(modified, caretRow);
-            } else if (foreignKey) {
-                textAttributes = attributes.getForeignKey(modified, caretRow);
-            } else if (cell.isLobValue() || cell.isArrayValue()) {
-                textAttributes = attributes.getReadonlyData(modified, caretRow);
-            } else if (auditColumn) {
-                textAttributes = attributes.getAuditData(modified, caretRow);
-            }
-        }
+        SimpleTextAttributes textAttributes = getTextAttributes(cell, datasetEditorTable, rowIndex, isSelected);
 
         Color background = Commons.nvl(textAttributes.getBgColor(), table.getBackground());
         Color foreground = Commons.nvl(textAttributes.getFgColor(), table.getForeground());
-
 
         Border border = Borders.lineBorder(background);
 
@@ -111,6 +80,48 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
         setBackground(background);
         setForeground(foreground);
         writeUserValue(cell, textAttributes, attributes);
+    }
+
+    private SimpleTextAttributes getTextAttributes(DatasetEditorModelCell cell, DatasetEditorTable table, int rowIndex, boolean selected) {
+        BasicTableTextAttributes attributes = (BasicTableTextAttributes) getAttributes();
+
+        DatasetEditorModelRow row = cell.getRow();
+        DatasetEditorColumnInfo columnInfo = cell.getColumnInfo();
+
+        boolean dirty = table.getModel().isDirty();
+        boolean loading = table.isLoading();
+        boolean inserting = table.isInserting();
+
+        boolean modified = cell.is(MODIFIED);
+        boolean updating = cell.is(UPDATING);
+        boolean deletedRow = row.is(DELETED);
+        boolean insertRow = row.is(INSERTING);
+        boolean caretRow = !insertRow && table.getCellSelectionEnabled() && table.getSelectedRow() == rowIndex && table.getSelectedRowCount() == 1;
+        boolean auditColumn = columnInfo != null && columnInfo.isAuditColumn();
+        boolean primaryKey = columnInfo != null && columnInfo.isPrimaryKey();
+        boolean foreignKey = columnInfo != null && columnInfo.isForeignKey();
+        boolean connected = table.getDatasetEditor().isConnected();
+
+        if (loading) return attributes.getLoadingData(caretRow);
+        if (selected) return
+                table.isFocusOwner() || table.isGutterFocussed()?
+                        attributes.getSelection() :
+                        attributes.getCaretRow();
+
+        if (dirty) return attributes.getLoadingData(caretRow);
+        if (!connected) return attributes.getLoadingData(caretRow);
+
+        if (updating) return attributes.getUpdatingData(caretRow);
+        if (deletedRow) return attributes.getDeletedData();
+        if (inserting && !insertRow) return attributes.getReadonlyData(modified, caretRow);
+        if (primaryKey) return attributes.getPrimaryKey(modified, caretRow);
+        if (foreignKey) return attributes.getForeignKey(modified, caretRow);
+
+        if (cell.isLobValue()) return attributes.getReadonlyData(modified, caretRow);
+        if (cell.isArrayValue()) return attributes.getReadonlyData(modified, caretRow);
+        if (auditColumn) return attributes.getAuditData(modified, caretRow);
+
+        return attributes.getPlainData(modified, caretRow);
     }
 
     @Override

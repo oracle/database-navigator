@@ -54,6 +54,7 @@ public class ResultSetDataModel<
     private boolean resultSetExhausted = false;
     private long executeDuration = -1; // execute duration, -1 unknown
     private long fetchDuration = -1;   // fetch duration, -1 unknown
+    private String signature;
 
     public ResultSetDataModel(@NotNull ConnectionHandler connection) {
         super(connection.getProject());
@@ -72,6 +73,13 @@ public class ResultSetDataModel<
         fetchNextRecords(maxRecords, false);
 
         Disposer.register(connection, this);
+    }
+
+    protected boolean verifySignature(DBNConnection conn) {
+        // model may be based on an old connection
+        boolean valid = signature == null || signature.equals(conn.getResourceId());
+        signature = conn.getResourceId();
+        return valid;
     }
 
     protected R createRow(int resultSetRowIndex) throws SQLException {

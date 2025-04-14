@@ -22,6 +22,7 @@ import com.dbn.common.notification.NotificationGroup;
 import com.dbn.common.pool.ObjectCacheBase;
 import com.dbn.common.thread.Background;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.ConnectionStatusListener;
 import com.dbn.connection.ConnectionUtil;
@@ -30,7 +31,6 @@ import com.dbn.connection.SessionId;
 import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
@@ -58,24 +58,31 @@ public class DBNConnectionCache extends ObjectCacheBase<SessionId, DBNConnection
 
     @NotNull
     @Override
-    @SneakyThrows
-    protected DBNConnection create(SessionId sessionId) {
+    protected DBNConnection create(SessionId sessionId) throws SQLException {
+        ConnectionHandler connection = getConnection();
+        DBNConnection conn = ConnectionUtil.connect(connection, sessionId);
+
+        Project project = connection.getProject();
+        String connectionName = connection.getConnectionName(conn);
+        sendInfoNotification(
+                project,
+                NotificationGroup.SESSION,
+                txt("ntf.connection.info.ConnectedToDatabase", connectionName));
+
+        return conn;
+    }
+
+    @Override
+    protected DBNConnection whenCreated(DBNConnection conn) {
         ConnectionHandler connection = getConnection();
         Project project = connection.getProject();
-        try {
-            DBNConnection conn = ConnectionUtil.connect(connection, sessionId);
-            String connectionName = connection.getConnectionName(conn);
-            sendInfoNotification(
-                    project,
-                    NotificationGroup.SESSION,
-                    txt("ntf.connection.info.ConnectedToDatabase", connectionName));
 
-            return conn;
-        } finally {
-            ProjectEvents.notify(project,
-                    ConnectionStatusListener.TOPIC,
-                    (listener) -> listener.statusChanged(connection.getConnectionId(), sessionId));
-        }
+        ConnectionId connectionId = connection.getConnectionId();
+        SessionId sessionId = conn.getSessionId();
+
+        ProjectEvents.notify(project, ConnectionStatusListener.TOPIC, l -> l.statusChanged(connectionId, sessionId));
+
+        return conn;
     }
 
     @Override
@@ -87,7 +94,7 @@ public class DBNConnectionCache extends ObjectCacheBase<SessionId, DBNConnection
     @Override
     protected DBNConnection whenReused(DBNConnection conn) {
         ConnectionHandler connection = getConnection();
-        //connection.updateLastAccess(); TODO
+        connection.updateLastAccess();
         return conn;
     }
 

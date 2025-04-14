@@ -93,6 +93,19 @@ public final class Unsafe {
         }
     }
 
+    public static <T> T logged(T defaultValue, ThrowableCallable<T, Throwable> callable) {
+        try {
+            return callable.call();
+        } catch (ProcessCanceledException e) {
+            conditionallyLog(e);
+        } catch (Throwable e) {
+            conditionallyLog(e);
+            String message = e.getMessage();
+            log.error(message == null ? simpleClassName(e) : message);
+        }
+        return defaultValue;
+    }
+
     /**
      * Executes the given runnable and logs any exceptions that occur at the "warn" level.
      * If a {@link ProcessCanceledException} is thrown, it logs the exception conditionally.

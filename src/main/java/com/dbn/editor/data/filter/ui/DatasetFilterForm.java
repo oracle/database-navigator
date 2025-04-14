@@ -41,11 +41,14 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Map;
+
+import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 
 public class DatasetFilterForm extends ConfigurationEditorForm<DatasetFilterGroup> implements ListSelectionListener {
     private final Map<String, ConfigurationEditorForm> filterDetailPanels = DisposableContainers.map(this);
@@ -55,6 +58,7 @@ public class DatasetFilterForm extends ConfigurationEditorForm<DatasetFilterGrou
     private JPanel filterDetailsPanel;
     private JPanel actionsPanel;
     private JPanel headerPanel;
+    private JSplitPane filtersSplitPane;
 
     public DatasetFilterForm(DatasetFilterGroup filterGroup, @NotNull DBDataset dataset) {
         super(filterGroup);
@@ -81,6 +85,8 @@ public class DatasetFilterForm extends ConfigurationEditorForm<DatasetFilterGrou
         valueChanged(null);
         filtersList.addListSelectionListener(this);
         Accessibility.setAccessibleName(filtersList, "Filters");
+
+        setSplitPaneProportion(filtersSplitPane, 0.3);
     }
 
     public DatasetFilterList getFilterList() {

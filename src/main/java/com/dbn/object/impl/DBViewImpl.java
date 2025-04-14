@@ -44,14 +44,14 @@ import java.util.List;
 
 import static com.dbn.common.Priority.HIGHEST;
 
-class DBViewImpl extends DBDatasetImpl<DBViewMetadata> implements DBView {
+class DBViewImpl<M extends DBViewMetadata> extends DBDatasetImpl<M> implements DBView {
     private DBObjectRef<DBType> type;
-    DBViewImpl(DBSchema schema, DBViewMetadata metadata) throws SQLException {
+    DBViewImpl(DBSchema schema, M metadata) throws SQLException {
         super(schema, metadata);
     }
 
     @Override
-    protected String initObject(ConnectionHandler connection, DBObject parentObject, DBViewMetadata metadata) throws SQLException {
+    protected String initObject(ConnectionHandler connection, DBObject parentObject, M metadata) throws SQLException {
         String name = metadata.getViewName();
         set(DBObjectProperty.SYSTEM_OBJECT, metadata.isSystemView());
         String typeOwner = metadata.getViewTypeOwner();

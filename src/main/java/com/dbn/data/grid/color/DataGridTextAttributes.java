@@ -18,14 +18,13 @@ package com.dbn.data.grid.color;
 
 import com.intellij.ui.SimpleTextAttributes;
 
-import java.awt.Color;
-
 public interface DataGridTextAttributes {
+
     SimpleTextAttributes getSelection();
 
-    SimpleTextAttributes getSearchResult();
+    SimpleTextAttributes getCaretRow();
 
-    Color getCaretRowBgColor();
+    SimpleTextAttributes getSearchResult();
 
     SimpleTextAttributes getPlainData(boolean modified, boolean atCaretRow);
 

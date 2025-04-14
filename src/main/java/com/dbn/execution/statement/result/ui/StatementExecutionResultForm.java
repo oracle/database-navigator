@@ -17,11 +17,9 @@
 package com.dbn.execution.statement.result.ui;
 
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.action.DataProviders;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
-import com.dbn.common.latent.Latent;
 import com.dbn.common.ui.misc.DBNTableScrollPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
@@ -46,7 +44,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
-import java.awt.BorderLayout;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
@@ -62,13 +59,6 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
     private final RecordViewInfo recordViewInfo;
     private final ActionToolbar actionToolbar;
 
-    private transient final Latent<DataSearchComponent> dataSearchComponent = Latent.basic(() -> {
-        DataSearchComponent dataSearchComponent = new DataSearchComponent(StatementExecutionResultForm.this);
-        searchPanel.add(dataSearchComponent.getComponent(), BorderLayout.CENTER);
-        DataProviders.register(dataSearchComponent.getSearchField(), this);
-        return dataSearchComponent;
-    });
-
     public StatementExecutionResultForm(@NotNull StatementExecutionCursorResult executionResult) {
         super(executionResult);
         actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.StatementExecutionResult");
@@ -81,7 +71,7 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
         resultTable.setName(executionResult.getName());
 
         resultScrollPane.setViewportView(resultTable);
-        resultTable.initTableGutter();
+        initTableAddons(resultTable);
 
         Disposer.register(this, resultTable);
         Disposer.register(this, executionResult);
@@ -102,10 +92,18 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
             resultTable = Disposer.replace(resultTable, newResultSetTable);
             resultScrollPane.setViewportView(resultTable);
             resultTable.setBackground(Colors.getEditorBackground());
-            resultTable.initTableGutter();
             resultTable.setName(getExecutionResult().getName());
+
+            initTableAddons(resultTable);
             horizontalScrollBar.setValue(horizontalScrolling);
         });
+    }
+
+    private static void initTableAddons(ResultSetTable resultTable) {
+        resultTable.initTableGutter(); // TODO convert to addon
+        resultTable.installMathAddon();
+        resultTable.installValuePopupAddon();
+        resultTable.installRecordViewerAddon();
     }
 
     @NotNull
@@ -157,6 +155,12 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
     /*********************************************************
      *              SearchableDataComponent                  *
      *********************************************************/
+
+    @Override
+    public @NotNull JPanel getSearchPanel() {
+        return searchPanel;
+    }
+
     @Override
     public void showSearchHeader() {
         getResultTable().clearSelection();
@@ -170,10 +174,6 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
         }
         dataSearchComponent.getSearchField().requestFocus();
 
-    }
-
-    private DataSearchComponent getSearchComponent() {
-        return dataSearchComponent.get();
     }
 
     @Override
