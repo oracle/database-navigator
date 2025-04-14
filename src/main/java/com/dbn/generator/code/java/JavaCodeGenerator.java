@@ -133,12 +133,16 @@ public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R exte
         for (String packageToken : packageTokens) {
             PsiDirectory subdirectory = directory.findSubdirectory(packageToken);
             if (subdirectory == null)  {
-                directory.createSubdirectory(packageToken);
-                subdirectory = directory.findSubdirectory(packageToken);
+                subdirectory = createSubdirectory(directory, packageToken);
                 if (subdirectory == null) fail("Cannot create package directory " + packageToken);
             }
             directory = subdirectory;
         }
+    }
+
+    @Nullable
+    private static PsiDirectory createSubdirectory(PsiDirectory directory, String packageToken) {
+        return Write.compute(() -> directory.createSubdirectory(packageToken));
     }
 
     @SneakyThrows
