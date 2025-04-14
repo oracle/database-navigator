@@ -1,6 +1,8 @@
 package com.dbn.oci.ui;
 
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.oci.util.WalletPathValidator;
+import com.dbn.oci.util.WalletPathValidator.WalletValidationResult;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.ComboBox;
@@ -18,10 +20,11 @@ import java.util.Arrays;
 import java.util.Objects;
 
 
-public class ConnectionConfigForm extends DBNFormBase {
-  public static String AUTHENTICATION_TYPE_MTLS = "Mutual TLS (Wallet Required)";
-  public static String AUTHENTICATION_TYPE_TLS = "TLS (Walletless)";
-  public static String WALLET_DEFAULT_LOCATION = System.getProperty("user.home") + "/.oci_toolkit/wallets";
+public class OciConnectionInputForm extends DBNFormBase {
+  public static final String AUTHENTICATION_TYPE_MTLS = "Mutual TLS (Wallet Required)";
+  public static final String AUTHENTICATION_TYPE_TLS = "TLS (Walletless)";
+  public static final String WALLET_DEFAULT_LOCATION = System.getProperty("user.home") + "/.oci_toolkit/wallets";
+
   private final String walletDefaultPath;
 
   private static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = new FileChooserDescriptor(false, true, false, false, false, false)
@@ -47,7 +50,7 @@ public class ConnectionConfigForm extends DBNFormBase {
   private boolean walletDownload; // indicator that wallet download is required
   String walletTooltip = "Please provide either an empty folder or a valid wallet location containing only the wallet files,<br> with no additional files or directories.";
 
-  public ConnectionConfigForm(@Nullable Disposable parent, boolean isMtlsRequired, String parentCompartment) {
+  public OciConnectionInputForm(@Nullable Disposable parent, boolean isMtlsRequired, String parentCompartment) {
     super(parent);
     this.walletDefaultPath = WALLET_DEFAULT_LOCATION+"/"+parentCompartment;
     initComboBox();
@@ -171,7 +174,7 @@ public class ConnectionConfigForm extends DBNFormBase {
   public boolean validateWalletPath(String walletPath) {
     if (isMTLS()) {
       walletPath = walletPath.trim(); // todo are we sure we want to trim here?
-      WalletPathValidator.WalletValidationResult validationResult = WalletPathValidator.validateWalletLocation(walletPath, walletDefaultPath);
+      WalletValidationResult validationResult = WalletPathValidator.validateWalletLocation(walletPath, walletDefaultPath);
 
       switch (validationResult) {
         case VALID_EMPTY_LOCATION:

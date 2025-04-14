@@ -6,8 +6,8 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-public class DBNSubMenuAction extends ContributeADBActions.ExtensionContextAction {
-    public DBNSubMenuAction(String displayName, @NotNull List<ContributeADBActions.ExtensionContextAction> subMenu) {
+public class OciConnectionActionGroup extends ContributeADBActions.ExtensionContextAction {
+    public OciConnectionActionGroup(String displayName, @NotNull List<ContributeADBActions.ExtensionContextAction> subMenu) {
         super(displayName, subMenu);
     }
 

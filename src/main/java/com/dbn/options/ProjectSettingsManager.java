@@ -46,7 +46,7 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.data.options.DataEditorSettings;
 import com.dbn.execution.common.options.ExecutionEngineSettings;
 import com.dbn.navigation.options.NavigationSettings;
-import com.dbn.oci.ConnectionData;
+import com.dbn.oci.OciConnectionData;
 import com.dbn.options.general.GeneralProjectSettings;
 import com.dbn.options.ui.ProjectSettingsDialog;
 import com.intellij.openapi.components.State;
@@ -156,12 +156,12 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
     }
 
     // opened from oci-toolkit
-    public void createConnection(DatabaseType databaseType, ConnectionConfigType connectionConfigType, ConnectionData connectionData, DialogCallback<ProjectSettingsDialog> callback) {
+    public void createConnection(DatabaseType databaseType, ConnectionConfigType connectionConfigType, OciConnectionData connectionData, DialogCallback<ProjectSettingsDialog> callback) {
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), databaseType, connectionConfigType, connectionData), callback);
     }
 
     // opened from oci-toolkit
-    public void createConnection(TnsImportData importData, ConnectionData connectionData, DialogCallback<ProjectSettingsDialog> callback) {
+    public void createConnection(TnsImportData importData, OciConnectionData connectionData, DialogCallback<ProjectSettingsDialog> callback) {
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), importData, connectionData), callback);
     }
 

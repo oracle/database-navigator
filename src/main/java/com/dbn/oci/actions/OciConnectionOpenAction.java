@@ -22,9 +22,9 @@ import java.util.Collections;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class OpenConnectionDBNAction extends ContributeADBActions.ExtensionContextAction{
+public class OciConnectionOpenAction extends ContributeADBActions.ExtensionContextAction{
   private ConnectionSettings connectionSettings;
-  public OpenConnectionDBNAction(ConnectionSettings context, String title) {
+  public OciConnectionOpenAction(ConnectionSettings context, String title) {
     super(title, Collections.emptyList());
     this.connectionSettings = context;
   }

@@ -24,7 +24,7 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.tns.TnsImportData;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
-import com.dbn.oci.ConnectionData;
+import com.dbn.oci.OciConnectionData;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.intellij.openapi.application.ModalityState;
@@ -32,7 +32,6 @@ import com.intellij.openapi.help.HelpManager;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.Alarm;
-
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,7 +65,7 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
         selectConnectionSettings(connectionId);
     }
 
-    public ProjectSettingsDialog(Project project, @NotNull DatabaseType databaseType, @NotNull ConnectionConfigType configType, ConnectionData connectionData) {
+    public ProjectSettingsDialog(Project project, @NotNull DatabaseType databaseType, @NotNull ConnectionConfigType configType, OciConnectionData connectionData) {
         this(project);
         ConnectionId connectionId = getConnectionSettingsEditor().createNewConnection(databaseType, configType, connectionData);
         selectConnectionSettings(connectionId);
@@ -77,7 +76,7 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
         getConnectionSettingsEditor().importTnsNames(importData);
         selectConnectionSettings(null);
     }
-    public ProjectSettingsDialog(Project project, @NotNull TnsImportData importData, ConnectionData connectionData) {
+    public ProjectSettingsDialog(Project project, @NotNull TnsImportData importData, OciConnectionData connectionData) {
         this(project);
         getConnectionSettingsEditor().importTnsNames(importData, connectionData);
         selectConnectionSettings(null);

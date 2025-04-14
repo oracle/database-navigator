@@ -9,7 +9,7 @@ import lombok.Setter;
 import java.util.Map;
 @Getter
 @Setter
-public class ConnectionData {
+public class OciConnectionData {
   private String displayName;
   private boolean mtlsConnectionRequired;
   private Map<String, String> allConnectionStrings;
@@ -21,13 +21,13 @@ public class ConnectionData {
   private ConnectionId connectionId;
   private final OCIDatabase database;
 
-  public ConnectionData(OCIDatabase database) {
+  public OciConnectionData(OCIDatabase database) {
     this.database = database;
   }
 
-  static ConnectionData toConnectionSettings(UIModelContext modelContext) {
+  static OciConnectionData toConnectionSettings(UIModelContext modelContext) {
     OCIDatabase database = (OCIDatabase) modelContext.getContextObject();
-    ConnectionData connectionData = new ConnectionData(database);
+    OciConnectionData connectionData = new OciConnectionData(database);
     String compId = modelContext.getContextObject().getCompartmentId();
     String dbIdentifier = database.getDisplayName()+"_"+database.getId().substring(database.getId().length()-8);
     String walletDefaultPath = database.getCompartmentName() + compId.substring(compId.length()-8)+"/"+dbIdentifier;

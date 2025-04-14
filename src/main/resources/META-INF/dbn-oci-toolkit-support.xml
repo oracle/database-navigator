@@ -16,6 +16,6 @@
 
 <idea-plugin>
     <extensions defaultExtensionNs="com.oracle.ocidbtest">
-        <contributeADBAction implementation="com.dbn.oci.ContributeADBActionsImpl" />
+        <contributeADBAction implementation="com.dbn.oci.OciConnectionActionContributor" />
     </extensions>
 </idea-plugin>
