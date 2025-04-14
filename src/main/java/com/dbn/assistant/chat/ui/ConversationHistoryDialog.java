@@ -38,9 +38,6 @@ public class ConversationHistoryDialog extends DBNDialog<ConversationHistoryForm
     private final Consumer<PersistentChatConversation> openAction;
     private final Consumer<List<PersistentChatConversation>> deleteAction;
 
-    @Getter
-    private final Action deleteButtonAction;
-
     public ConversationHistoryDialog(
             Project project,
             List<PersistentChatConversation> conversations,
@@ -51,18 +48,11 @@ public class ConversationHistoryDialog extends DBNDialog<ConversationHistoryForm
         this.openAction = openAction;
         this.deleteAction = deleteAction;
 
-        this.deleteButtonAction = new AbstractAction("Delete Conversations") {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                performDeleteAction();
-            }
-        };
-
         getOKAction().setEnabled(false);
-        deleteButtonAction.setEnabled(false);
-
+        setDefaultSize(600, 300);
         renameAction(getOKAction(), "Open Conversation");
         setModal(true);
+        setAutoSize(true);
         init();
     }
 
@@ -77,7 +67,6 @@ public class ConversationHistoryDialog extends DBNDialog<ConversationHistoryForm
     protected final Action @NotNull [] createActions() {
         return new Action[]{
                 getCancelAction(),
-                deleteButtonAction,
                 getOKAction()
         };
     }
@@ -108,7 +97,7 @@ public class ConversationHistoryDialog extends DBNDialog<ConversationHistoryForm
     /**
      * Handles the delete action by confirming with the user and then calling the delete consumer
      */
-    private void performDeleteAction() {
+    public void performDeleteAction() {
         Object[] selectedIds = getForm().getSelectedConversationIds();
 
         if (selectedIds != null && selectedIds.length > 0) {

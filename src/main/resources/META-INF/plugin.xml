@@ -271,6 +271,11 @@
             <action class="com.dbn.assistant.chat.window.action.NewConversationAction" text="New Conversation" id="DBNavigator.Actions.Assistant.NewConversation" icon="AllIcons.Actions.AddList"/>
             <action class="com.dbn.assistant.chat.window.action.ConversationClearAction" text="Clear Conversation" id="DBNavigator.Actions.Assistant.ClearConversation" icon="AllIcons.Actions.GC"/>
         </group>
+
+        <group id="DBNavigator.ActionGroup.ConversationHistory" text="Conversation History">
+            <action class="com.dbn.assistant.chat.action.ConversationDeleteAction" text="Delete Conversations" id="DBNavigator.Actions.Assistant.DeleteConversations"/>
+        </group>
+
 <!--
         <group id="DBNavigator.ActionGroup.AssistantChatBoxHelp" text="Assistant Chat-Box Help">
             <action class="com.dbn.assistant.chat.window.action.ConfigurationHelpAction" text="Profile Settings" id="DBNavigator.Actions.Assistant.ConfigurationHelp" icon="AllIcons.Actions.Help"/>

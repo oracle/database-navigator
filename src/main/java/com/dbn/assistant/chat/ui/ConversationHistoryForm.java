@@ -17,18 +17,27 @@
 package com.dbn.assistant.chat.ui;
 
 import com.dbn.assistant.chat.PersistentChatConversation;
+import com.dbn.common.action.DataKeys;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.TextFields;
+import com.dbn.common.util.Actions;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.awt.BorderLayout;
 import java.util.List;
+
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
 public class ConversationHistoryForm extends DBNFormBase {
     private JPanel mainPanel;
     private JBScrollPane tableScrollPane;
-    private JTextField filterTextField;
+    private JBTextField filterTextField;
+    private JPanel conversationActionsPanel;
     private ConversationHistoryTable conversationTable;
 
     public ConversationHistoryForm(@NotNull ConversationHistoryDialog parent, List<PersistentChatConversation> conversations) {
@@ -55,21 +64,17 @@ public class ConversationHistoryForm extends DBNFormBase {
 
         conversationTable.adjustColumnWidths();
         updateDialogButtonState(parent);
+
+        filterTextField.getEmptyText().setText("Filter");
+        createActionPanel();
     }
 
+    public int getSelectedRowCount() {
+        return conversationTable.getSelectedRowCount();
+    }
     private void updateDialogButtonState(ConversationHistoryDialog parent) {
-        int selectedRowCount = conversationTable.getSelectedRowCount();
-
-        if (selectedRowCount == 0) {
-            parent.getOKAction().setEnabled(false);
-            parent.getDeleteButtonAction().setEnabled(false);
-        } else if (selectedRowCount == 1) {
-            parent.getOKAction().setEnabled(true);
-            parent.getDeleteButtonAction().setEnabled(true);
-        } else {
-            parent.getOKAction().setEnabled(false);
-            parent.getDeleteButtonAction().setEnabled(true);
-        }
+        if (getSelectedRowCount() == 0) parent.getOKAction().setEnabled(false);
+        else parent.getOKAction().setEnabled(true);
     }
 
     public void setConversations(List<PersistentChatConversation> conversations) {
@@ -99,9 +104,22 @@ public class ConversationHistoryForm extends DBNFormBase {
         return null;
     }
 
+    private void createActionPanel(){
+        ActionToolbar conversationActions = Actions.createActionToolbar(conversationActionsPanel, true, "DBNavigator.ActionGroup.ConversationHistory");
+        setAccessibleName(conversationActions, "Conversation History");
+        this.conversationActionsPanel.add(conversationActions.getComponent(), BorderLayout.CENTER);
+    }
+
     @NotNull
     @Override
     public JPanel getMainComponent() {
         return mainPanel;
+    }
+
+    @Nullable
+    @Override
+    public Object getData(@NotNull String dataId) {
+        if (DataKeys.CONVERSATION_HISTORY.is(dataId)) return this;
+        return null;
     }
 }
