@@ -25,6 +25,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Commons.nvln;
 
 @Getter
 public abstract class DBObjectRelationImpl<S extends DBObject, T extends DBObject> extends StatefulDisposableBase implements DBObjectRelation<S, T> {
@@ -52,12 +53,12 @@ public abstract class DBObjectRelationImpl<S extends DBObject, T extends DBObjec
 
     public S getSourceObject() {
         // favor strong reference to source object if available
-        return nvl(sourceObject, () -> DBObjectRef.get(sourceObjectRef));
+        return nvln(sourceObject, () -> DBObjectRef.get(sourceObjectRef));
     }
 
     public T getTargetObject() {
         // favor strong reference to target object if available
-        return nvl(targetObject, () -> DBObjectRef.get(targetObjectRef));
+        return nvln(targetObject, () -> DBObjectRef.get(targetObjectRef));
     }
 
     public String toString() {
