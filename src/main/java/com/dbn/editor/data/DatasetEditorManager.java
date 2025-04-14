@@ -76,8 +76,8 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 public class DatasetEditorManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DataEditorManager";
 
-    private static final DatasetLoadInstructions INITIAL_LOAD_INSTRUCTIONS = new DatasetLoadInstructions(DatasetLoadInstruction.USE_CURRENT_FILTER, DatasetLoadInstruction.PRESERVE_CHANGES, DatasetLoadInstruction.REBUILD);
-    private static final DatasetLoadInstructions RELOAD_LOAD_INSTRUCTIONS = new DatasetLoadInstructions(DatasetLoadInstruction.USE_CURRENT_FILTER, DatasetLoadInstruction.PRESERVE_CHANGES, DatasetLoadInstruction.DELIBERATE_ACTION);
+    private static final DataLoadInstructions INITIAL_LOAD_INSTRUCTIONS = new DataLoadInstructions(DataLoadInstruction.USE_CURRENT_FILTER, DataLoadInstruction.PRESERVE_CHANGES, DataLoadInstruction.REBUILD);
+    private static final DataLoadInstructions RELOAD_LOAD_INSTRUCTIONS = new DataLoadInstructions(DataLoadInstruction.USE_CURRENT_FILTER, DataLoadInstruction.PRESERVE_CHANGES, DataLoadInstruction.DELIBERATE_ACTION);
 
     private ColumnSortingType recordViewColumnSortingType = ColumnSortingType.BY_INDEX;
     private boolean valuePreviewTextWrapping = true;

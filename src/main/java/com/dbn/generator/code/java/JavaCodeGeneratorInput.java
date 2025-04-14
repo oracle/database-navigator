@@ -29,7 +29,6 @@ import com.intellij.psi.PsiManager;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -91,7 +90,7 @@ public abstract class JavaCodeGeneratorInput extends CodeGeneratorInputBase {
         return findPackageDirectory(contentRootDirectory);
     }
 
-    @Nullable
+    @NotNull
     PsiDirectory findContentRootDirectory(VirtualFile contentRootFile) throws ConfigurationException {
         PsiManager psiManager = PsiManager.getInstance(getProject());
         PsiDirectory contentRootDirectory = Read.call(() -> psiManager.findDirectory(contentRootFile));

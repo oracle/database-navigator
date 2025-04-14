@@ -76,17 +76,18 @@ public class DBNEditableTable<T extends DBNEditableTableModel> extends DBNTableW
     }
 
     private void startCellEditing() {
-        if (getModel().getRowCount() > 0) {
-            int selectedRow = getSelectedRow();
-            int selectedColumn = getSelectedColumn();
+        if (getModel().getRowCount() <= 0) return;
 
-            if (selectedRow > -1 && selectedColumn > -1) {
-                TableCellEditor cellEditor = getCellEditor();
-                if (cellEditor == null) {
-                    editCellAt(selectedRow, selectedColumn);
-                }
-            }
-        }
+        int selectedRow = getSelectedRow();
+        int selectedColumn = getSelectedColumn();
+
+        if (selectedRow <= -1) return;
+        if (selectedColumn <= -1) return;
+
+        TableCellEditor cellEditor = getCellEditor();
+        if (cellEditor != null) return;
+
+        editCellAt(selectedRow, selectedColumn);
     }
 
     @Override

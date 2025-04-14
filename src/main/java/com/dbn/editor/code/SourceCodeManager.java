@@ -75,6 +75,7 @@ import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.fileTypes.BinaryFileDecompiler;
 import com.intellij.openapi.fileTypes.BinaryFileTypeDecompilers;
+import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -450,6 +451,12 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
         switch (objectType) {
             case VIEW:
+                return metadata.loadViewSourceCode(
+                        schemaName,
+                        objectName,
+                        connection);
+
+            case JSON_VIEW:
                 return metadata.loadViewSourceCode(
                         schemaName,
                         objectName,

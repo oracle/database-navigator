@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.SQLException;
 import java.util.List;
 
-class DBMaterializedViewImpl extends DBViewImpl implements DBMaterializedView {
+class DBMaterializedViewImpl extends DBViewImpl<DBMaterializedViewMetadata> implements DBMaterializedView {
     DBMaterializedViewImpl(DBSchema schema, DBMaterializedViewMetadata metadata) throws SQLException {
         super(schema, metadata);
     }

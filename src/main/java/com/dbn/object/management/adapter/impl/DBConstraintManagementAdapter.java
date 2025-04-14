@@ -45,10 +45,11 @@ public class DBConstraintManagementAdapter extends ObjectManagementAdapterFactor
     @Override
     protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBConstraint object) throws SQLException {
         DatabaseDataDefinitionInterface databaseInterface = connection.getDataDefinitionInterface();
-        databaseInterface.dropObject(
-                object.getTypeName(),
+        databaseInterface.dropConstraint(
                 object.getSchemaName(true),
+                object.getDataset().getName(true),
                 object.getName(true),
+                object.getConstraintType(),
                 conn);
     }
 

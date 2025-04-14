@@ -91,6 +91,8 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
         SESSION_STATEMENTS("session_statements", "session statements"),
         FILTER_EXPRESSIONS("filter_expressions", "filter expressions"),
         DATASET_FILTERS("dataset_filters", "dataset filters"),
+        JSON_SCHEMAS("json_schemas", "json schemas"),
+        JSON_CONTENTS("json_contents", "json contents"),
         LOOSE_CONTENTS("loose_contents", "loose contents");
 
         private final String urlToken;

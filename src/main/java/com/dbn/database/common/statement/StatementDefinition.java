@@ -35,12 +35,14 @@ import static com.dbn.common.util.Commons.nvl;
 public class StatementDefinition {
     private static final String DBN_PARAM_PLACEHOLDER = "DBN_PARAM_PLACEHOLDER";
     private final String statementText;
+    private final double sinceVersion;
     private final Integer[] placeholderIndexes;
 
     private final TransientId id = TransientId.create();
     private final boolean prepared;
 
-    StatementDefinition(String statementText, String prefix, boolean prepared) {
+    StatementDefinition(String statementText, String prefix, double sinceVersion, boolean prepared) {
+        this.sinceVersion = sinceVersion;
         this.prepared = prepared;
         statementText = statementText.replaceAll("\\s+", " ").trim();
         if (prefix != null) {
@@ -71,6 +73,11 @@ public class StatementDefinition {
         this.statementText = buffer.toString();
         this.placeholderIndexes = placeholders.toArray(new Integer[0]);
     }
+
+    public boolean supports(double databaseVersion) {
+        return databaseVersion >= sinceVersion;
+    }
+
 
     DBNPreparedStatement<?> prepareStatement(DBNConnection connection, Object[] arguments) throws SQLException {
         DBNPreparedStatement<?> preparedStatement = connection.prepareStatementCached(statementText);

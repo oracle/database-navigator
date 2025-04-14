@@ -48,13 +48,14 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import java.awt.BorderLayout;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.announceEvent;
 import static com.dbn.common.ui.util.Accessibility.attachSelectionAnnouncer;
+import static com.dbn.common.util.Lists.filter;
+import static com.dbn.common.util.Lists.sortedCopy;
 
 public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<DatasetBasicFilterCondition> {
 
@@ -161,11 +162,10 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
 
     @NotNull
     List<DBColumn> loadColumns() {
-        DBDataset dataset1 = dataset.get();
-        if (dataset1 != null) {
-            List<DBColumn> columns = new ArrayList<>(dataset1.getColumns());
-            Collections.sort(columns);
-            return columns;
+        DBDataset dataset = this.dataset.get();
+        if (dataset != null) {
+            List<DBColumn> columns = filter(dataset.getColumns(), c -> !c.isHidden());
+            return sortedCopy(columns);
         }
         return Collections.emptyList();
     }

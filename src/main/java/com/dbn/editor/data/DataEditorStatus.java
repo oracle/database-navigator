@@ -16,15 +16,19 @@
 
 package com.dbn.editor.data;
 
-import com.dbn.vfs.DBVirtualFile;
-import com.intellij.util.messages.Topic;
-import org.jetbrains.annotations.NotNull;
+import com.dbn.common.property.Property;
 
-import java.util.EventListener;
+public enum DataEditorStatus implements Property.IntBase {
+    CONNECTED,
+    LOADING,
+    LOADED;
 
-public interface DatasetLoadListener extends EventListener {
-    Topic<DatasetLoadListener> TOPIC = Topic.create("Dataset loaded", DatasetLoadListener.class);
+    public static final DataEditorStatus[] VALUES = values();
 
-    void datasetLoaded(@NotNull DBVirtualFile virtualFile);
-    void datasetLoading(@NotNull DBVirtualFile virtualFile);
+    private final IntMasks masks = new IntMasks(this);
+
+    @Override
+    public IntMasks masks() {
+        return masks;
+    }
 }

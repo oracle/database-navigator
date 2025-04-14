@@ -18,55 +18,61 @@ package com.dbn.editor.data;
 
 import com.dbn.common.property.PropertyHolderBase;
 
-public class DatasetLoadInstructions extends PropertyHolderBase.IntStore<DatasetLoadInstruction> {
+import static com.dbn.editor.data.DataLoadInstruction.DELIBERATE_ACTION;
+import static com.dbn.editor.data.DataLoadInstruction.PRESERVE_CHANGES;
+import static com.dbn.editor.data.DataLoadInstruction.REBUILD;
+import static com.dbn.editor.data.DataLoadInstruction.USE_CURRENT_FILTER;
+import static com.dbn.editor.data.DataLoadInstruction.VALUES;
+
+public class DataLoadInstructions extends PropertyHolderBase.IntStore<DataLoadInstruction> {
 
 
-    public DatasetLoadInstructions(DatasetLoadInstruction ... instructions) {
-        for (DatasetLoadInstruction instruction : instructions) {
+    public DataLoadInstructions(DataLoadInstruction... instructions) {
+        for (DataLoadInstruction instruction : instructions) {
             set(instruction, true);
         }
     }
 
-    public static DatasetLoadInstructions clone(DatasetLoadInstructions source) {
-        DatasetLoadInstructions instructions = new DatasetLoadInstructions();
+    public static DataLoadInstructions clone(DataLoadInstructions source) {
+        DataLoadInstructions instructions = new DataLoadInstructions();
         instructions.inherit(source);
         return instructions;
     }
 
     @Override
-    protected DatasetLoadInstruction[] properties() {
-        return DatasetLoadInstruction.VALUES;
+    protected DataLoadInstruction[] properties() {
+        return VALUES;
     }
 
     public boolean isUseCurrentFilter() {
-        return is(DatasetLoadInstruction.USE_CURRENT_FILTER);
+        return is(USE_CURRENT_FILTER);
     }
 
     public boolean isPreserveChanges() {
-        return is(DatasetLoadInstruction.PRESERVE_CHANGES);
+        return is(PRESERVE_CHANGES);
     }
 
     public boolean isDeliberateAction() {
-        return is(DatasetLoadInstruction.DELIBERATE_ACTION);
+        return is(DELIBERATE_ACTION);
     }
 
     public boolean isRebuild() {
-        return is(DatasetLoadInstruction.REBUILD);
+        return is(REBUILD);
     }
 
     public void setUseCurrentFilter(boolean value) {
-        set(DatasetLoadInstruction.USE_CURRENT_FILTER, value);
+        set(USE_CURRENT_FILTER, value);
     }
 
     public void setKeepChanges(boolean value) {
-        set(DatasetLoadInstruction.PRESERVE_CHANGES, value);
+        set(PRESERVE_CHANGES, value);
     }
 
     public void setDeliberateAction(boolean value) {
-        set(DatasetLoadInstruction.DELIBERATE_ACTION, value);
+        set(DELIBERATE_ACTION, value);
     }
 
     public void setRebuild(boolean value) {
-        set(DatasetLoadInstruction.REBUILD, value);
+        set(REBUILD, value);
     }
 }

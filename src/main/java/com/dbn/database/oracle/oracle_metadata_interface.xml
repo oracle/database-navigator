@@ -25,7 +25,8 @@
         <!ELEMENT statement (#PCDATA)>
         <!ATTLIST statement
                 comment CDATA #IMPLIED
-                prefixes CDATA #IMPLIED>
+                prefixes CDATA #IMPLIED
+                since-version CDATA #IMPLIED>
         ]>
 <data-dictionary>
     <statement-execution-processor id="users" is-query="true" is-prepared-statement="true">
@@ -305,6 +306,31 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="views" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL" since-version="23.0">
+            select
+                v.VIEW_NAME,
+                v.VIEW_TYPE_OWNER,
+                v.VIEW_TYPE,
+                'N' as IS_SYSTEM_VIEW
+            from [PREFIX]_VIEWS v
+                left join [PREFIX]_JSON_DUALITY_VIEWS jv
+                       on jv.VIEW_OWNER = v.OWNER
+                      and jv.VIEW_NAME = v.VIEW_NAME
+            where v.OWNER = {0}
+              and jv.VIEW_NAME is null
+            order by v.VIEW_NAME asc
+        </statement>
+        <statement prefixes="DBA, ALL" since-version="23.0">
+            select
+                VIEW_NAME,
+                VIEW_TYPE_OWNER,
+                VIEW_TYPE,
+                'N' as IS_SYSTEM_VIEW
+            from [PREFIX]_VIEWS
+            where OWNER = {0}
+              and DUALITY_VIEW != 'YES'
+            order by VIEW_NAME asc
+        </statement>
         <statement prefixes="DBA, ALL">
             select
                 VIEW_NAME,
@@ -314,6 +340,63 @@
             from [PREFIX]_VIEWS
             where OWNER = {0}
             order by VIEW_NAME asc
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="json-views" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL" since-version="23.0">
+            select
+                v.VIEW_NAME,
+                null as VIEW_TYPE_OWNER,
+                null as VIEW_TYPE,
+                v.ROOT_TABLE_OWNER,
+                v.ROOT_TABlE_NAME,
+                v.JSON_COLUMN_NAME,
+                'N' as IS_SYSTEM_VIEW,
+                DECODE(v.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
+                DECODE(v.READ_ONLY, 'true', 'Y', 'N') as IS_READONLY,
+                DECODE(v.ALLOW_INSERT, 'true', 'Y', 'N') as IS_INSERT_ALLOWED,
+                DECODE(v.ALLOW_UPDATE, 'true', 'Y', 'N') as IS_UPDATE_ALLOWED,
+                DECODE(v.ALLOW_DELETE, 'true', 'Y', 'N') as IS_DELETE_ALLOWED,
+                v.JSON_SCHEMA,
+                listagg(c.JSON_KEY_NAME, ', ') within group (order by c.PRIMARY_KEY_POS) as KEY_ATTRIBUTE_NAMES
+            from [PREFIX]_JSON_DUALITY_VIEWS v,
+                 [PREFIX]_JSON_DUALITY_VIEW_TAB_COLS c
+            where v.VIEW_OWNER = {0}
+              and c.VIEW_OWNER = v.VIEW_OWNER
+              and c.VIEW_NAME = v.VIEW_NAME
+              and c.root_table = 'true'
+              and c.PRIMARY_KEY_POS is not null
+            group by
+                v.VIEW_NAME,
+                v.ROOT_TABLE_OWNER,
+                v.ROOT_TABlE_NAME,
+                v.JSON_COLUMN_NAME,
+                v.STATUS,
+                v.READ_ONLY,
+                v.ALLOW_INSERT,
+                v.ALLOW_UPDATE,
+                v.ALLOW_DELETE,
+                v.JSON_SCHEMA
+            order by v.VIEW_NAME asc
+        </statement>
+        <statement>
+            select
+                null as VIEW_NAME,
+                null as VIEW_TYPE_OWNER,
+                null as VIEW_TYPE,
+                null as ROOT_TABLE_OWNER,
+                null as ROOT_TABlE_NAME,
+                null as JSON_COLUMN_NAME,
+                'N' as IS_SYSTEM_VIEW,
+                'Y' as IS_VALID,
+                'Y' as IS_READONLY,
+                'N' as IS_INSERT_ALLOWED,
+                'N' as IS_UPDATE_ALLOWED,
+                'N' as IS_DELETE_ALLOWED,
+                null as JSON_SCHEMA,
+                null as KEY_ATTRIBUTE_NAMES
+            from DUAL
+            where 1 = 2
         </statement>
     </statement-execution-processor>
 
@@ -1196,6 +1279,37 @@
             where
                 OWNER = {0} and
                 PARENT_TABLE_NAME = {1}
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="json-view-table-relations" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL" since-version="23.0">
+            select
+                VIEW_NAME as JSON_VIEW_NAME,
+                TABLE_OWNER as TABLE_OWNER_NAME,
+                TABLE_NAME as TABLE_NAME,
+                TABLE_NUMBER as POSITION,
+                DECODE(ROOT_TABLE, 'true', 'Y', 'N') AS IS_ROOT_TABLE,
+                DECODE(READ_ONLY, 'true', 'Y', 'N') AS IS_READONLY
+            from [PREFIX]_JSON_DUALITY_VIEW_TABS
+            where VIEW_OWNER = {0}
+              and VIEW_NAME = {1}
+            order by TABLE_NUMBER
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="all-json-view-table-relations" is-query="true" is-prepared-statement="true" timeout="90">
+        <statement prefixes="DBA, ALL" since-version="23.0">
+            select
+                VIEW_NAME as JSON_VIEW_NAME,
+                TABLE_OWNER as TABLE_OWNER_NAME,
+                TABLE_NAME as TABLE_NAME,
+                TABLE_NUMBER as POSITION,
+                DECODE(ROOT_TABLE, 'true', 'Y', 'N') AS IS_ROOT_TABLE,
+                DECODE(READ_ONLY, 'true', 'Y', 'N') AS IS_READONLY
+                from [PREFIX]_JSON_DUALITY_VIEW_TABS
+            where VIEW_OWNER  = {0}
+            order by VIEW_NAME, TABLE_NUMBER
         </statement>
     </statement-execution-processor>
 
