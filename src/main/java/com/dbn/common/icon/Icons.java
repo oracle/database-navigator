@@ -346,6 +346,7 @@ public class Icons {
 
 
     public static final Icon DBO_AI_PROFILE                      = load("/img/object/profile/AIProfile.png");
+    public static final Icon DBO_AI_PROFILE_CONVERSATION         = load("/img/object/profile/AIProfileConversation.png");
     public static final Icon DBO_AI_PROFILE_DISABLED             = load("/img/object/profile/AIProfileDisabled.png");
     public static final Icon DBO_AI_PROFILES                     = load("/img/object/profile/AIProfiles.png");
     public static final Icon DBO_ATTRIBUTE                       = load("/img/object/Attribute.png");

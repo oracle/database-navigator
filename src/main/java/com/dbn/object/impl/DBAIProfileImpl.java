@@ -19,6 +19,7 @@ package com.dbn.object.impl;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.browser.ui.HtmlToolTipBuilder;
+import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBProfileMetadata;
 import com.dbn.object.DBAIProfile;
@@ -37,6 +38,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Icon;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,6 +46,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.object.common.DBObjectUtil.jsonToObjectList;
 import static com.dbn.object.common.DBObjectUtil.objectToAttributes;
@@ -174,5 +177,15 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
     @Override
     public List<DBObject> getObjects() {
         return objects.stream().map(o -> o.get()).filter(o -> o != null).collect(Collectors.toList());
+    }
+
+    @Override
+    public @Nullable Icon getIcon() {
+        boolean disabled = isDisabled();
+        DBObjectType objectType = getObjectType();
+        Icon icon = disabled  ?
+                objectType.getDisabledIcon() :
+                conversation ? Icons.DBO_AI_PROFILE_CONVERSATION : objectType.getIcon();
+        return nvln(icon, objectType.getIcon());
     }
 }
