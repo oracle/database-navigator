@@ -118,6 +118,7 @@ public class JavaDownloadInputForm extends DBNFormBase {
         JavaDownloadInput input = getContext().getInput();
         input.setModuleName(getSelectedModuleName());
         input.setContentRoot(getSelectedContentPath());
+        dependenciesCheckBoxList.applyChanges();
     }
 
     @Nullable
