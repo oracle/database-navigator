@@ -28,6 +28,7 @@ import com.dbn.connection.DatabaseProtocol;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
+import com.dbn.connection.ServerType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.file.DatabaseFileBundle;
 import com.dbn.connection.config.file.ui.DatabaseFileSettingsForm;
@@ -110,7 +111,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private JLabel protocolLabel;
     private JPanel databaseFilesPanel;
     private ComboBox<DatabaseUrlType> urlTypeComboBox;
-    private JComboBox<String> serverTypeComboBox;
+    private JComboBox<ServerType> serverTypeComboBox;
     private JComboBox<DatabaseProtocol> protocolComboBox;
     private DBNComboBox<Presentable> tnsProfileComboBox;
     private JTextField hostTextField;
@@ -216,7 +217,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         return Safe.call(tnsProfileComboBox.getSelectedValue(), v -> v.getName());
     }
 
-    public String getServerType() {
+    public ServerType getServerType() {
         return getSelection(serverTypeComboBox);
     }
 
@@ -249,9 +250,9 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
                 getMainFilePath() ,
                 getTnsAdmin(),
                 getTnsProfile(),
+                getProtocol(),
                 getServerType(),
-                getParameters(),
-                getProtocol());
+                getParameters());
         urlTextField.setText(url);
     }
 
@@ -425,6 +426,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         initComboBox(protocolComboBox, true, DatabaseProtocol.values());
         setSelection(protocolComboBox, databaseInfo.getProtocol());
 
+        initComboBox(serverTypeComboBox, ServerType.values());
         setSelection(serverTypeComboBox, databaseInfo.getServerType());
 
         urlTypeLabel.setVisible(urlTypes.length > 1);
