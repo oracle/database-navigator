@@ -22,6 +22,7 @@ import com.dbn.common.message.AsyncMessageCollector;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Actions;
+import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.Timers;
 import com.dbn.connection.DatabaseType;
@@ -139,17 +140,23 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         });
         downloadButton.addActionListener(e -> {
             Progress.modal(ensureProject(),
-                    null, false,
+                    null, true,
                     "Loading Drivers",
                     "Loading driver package metadata...",
-                    indicator -> {
-                        DatabaseType databaseType = getDatabaseType();
-                        DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
-                        List<DriverPackage> driverPackages = downloadManager.getDownloadedDriverPackages(databaseType);
-                        dispatch(() -> showDownloadPopup(downloadButton, driverPackages));
-                    }
+                    indicator -> showDownloadPopup()
             );
         });
+    }
+
+    private void showDownloadPopup() {
+        try {
+            DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
+            List<DriverPackage> driverPackages = downloadManager.getDownloadedDriverPackages(getDatabaseType());
+            dispatch(() -> showDownloadPopup(downloadButton, driverPackages));
+        } catch (Exception e) {
+            conditionallyLog(e);
+            Messages.showErrorDialog(ensureProject(), "Failed to download driver libraries metadata", e);
+        }
     }
 
     public ConnectionDatabaseSettingsForm getParentForm() {

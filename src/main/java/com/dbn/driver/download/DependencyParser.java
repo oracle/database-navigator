@@ -21,6 +21,7 @@ import com.dbn.common.util.Measured;
 import com.dbn.driver.download.metadata.Developer;
 import com.dbn.driver.download.metadata.Library;
 import com.dbn.driver.download.metadata.License;
+import com.intellij.openapi.util.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -57,6 +58,7 @@ import org.xml.sax.InputSource;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -69,7 +71,7 @@ public class DependencyParser {
     private static final Map<String, Pair<List<Developer>, List<License>>> metadataMap = new HashMap<>();
     private static String central_url;
 
-    public static List<Library> resolveDependencies(Library library, String type) throws Exception {
+    public static List<Library> resolveDependencies(Library library, String type, DownloadSession downloadSession) throws Exception {
         List<Library> libraries = new ArrayList<>();
 
         RepositorySystem repositorySystem = newRepositorySystem();
@@ -86,9 +88,11 @@ public class DependencyParser {
         collectRequest.addDependency(new Dependency(artifact, "compile"));
         collectRequest.addRepository(central);
 
-        CollectResult collectResult = Measured.call(
-                "collecting dependencies for library " + library,
-                () -> repositorySystem.collectDependencies(session, collectRequest));
+        downloadSession.updateProgress(library.getLibraryId());
+
+        CollectResult collectResult = downloadSession.surround(() ->
+                Measured.call("collecting dependencies for library " + library,
+                () -> repositorySystem.collectDependencies(session, collectRequest)));
 
         DependencyNode root = collectResult.getRoot();
         if (type.equals("pom")) traverse(root.getChildren().get(0), libraries, library);
@@ -143,15 +147,20 @@ public class DependencyParser {
 
         @Override
         public void get(GetTask task) throws Exception {
-            try {
-                File targetFile = new File(task.getDataFile().getAbsolutePath());
-                String relativePath = task.getLocation().toString(); // Artifact path relative to the repository
+            File targetFile = new File(task.getDataFile().getAbsolutePath());
+            String relativePath = task.getLocation().toString();
 
-                String fullUrl = central_url.endsWith("/") ? central_url + relativePath : central_url + "/" + relativePath;
-                Downloads.downloadAtomically(null, fullUrl, targetFile);
-            } catch (Exception e) {
-                throw new Exception("Error during download", e);
-            }
+            int separatorIndex = relativePath.lastIndexOf("/");// Artifact path relative to the repository
+            String fileName = separatorIndex == -1 ? relativePath : relativePath.substring(separatorIndex + 1);
+            String fullUrl = central_url.endsWith("/") ? central_url + relativePath : central_url + "/" + relativePath;
+
+            DownloadSession downloadSession = DownloadSession.current();
+            downloadSession.updateProgress(fileName);
+            downloadSession = null;
+            if (downloadSession.isCanceled()) return;
+
+
+            Downloads.downloadAtomically(null, fullUrl, targetFile);
         }
 
         @Override
@@ -186,9 +195,13 @@ public class DependencyParser {
         return locator.getService(RepositorySystem.class);
     }
 
-    private static RepositorySystemSession newRepositorySystemSession(RepositorySystem system) {
+    private static RepositorySystemSession newRepositorySystemSession(RepositorySystem system) throws IOException {
+        String tempDirectory = FileUtil.getTempDirectory();
+        File localRepository = new File(tempDirectory, "dbn-local-repo");
+        FileUtil.createDirectory(localRepository);
+
         DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
-        LocalRepository localRepo = new LocalRepository("target/local-repo");
+        LocalRepository localRepo = new LocalRepository(localRepository);
         session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
         session.setSystemProperty("java.version", System.getProperty("java.version"));
 
@@ -196,8 +209,6 @@ public class DependencyParser {
     }
 
     static class CustomArtifactResolver extends DefaultArtifactResolver {
-
-
         @Override
         public ArtifactResult resolveArtifact(RepositorySystemSession session, ArtifactRequest request) throws ArtifactResolutionException {
             ArtifactResult result = super.resolveArtifact(session, request);
