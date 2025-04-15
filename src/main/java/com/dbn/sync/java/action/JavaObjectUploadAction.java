@@ -19,6 +19,7 @@ package com.dbn.sync.java.action;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.util.Java;
 import com.dbn.connection.context.action.AbstractFolderContextAction;
 import com.dbn.sync.java.upload.JavaUploadManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -62,7 +63,12 @@ public class JavaObjectUploadAction extends AbstractFolderContextAction {
 	}
 
 	private boolean isAvailableFor(VirtualFile virtualFile) {
-		return virtualFile != null && virtualFile.getExtension() != null && virtualFile.getExtension().equals("java");
+		if (virtualFile == null) return false;
+		if (virtualFile.getExtension() == null) return false;
+		if (!virtualFile.getExtension().equalsIgnoreCase("java")) return false;
+		if (!Java.isIdeSupportAvailable()) return false;
+
+		return true;
 	}
 
 	private boolean isPackage(VirtualFile virtualFile) {

@@ -20,8 +20,8 @@ import com.dbn.common.icon.Icons;
 import com.dbn.sync.common.impl.SyncElementBase;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiClassOwner;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -45,8 +45,8 @@ public class JavaUploadElement extends SyncElementBase {
 
 	public String getPackageName() {
 		PsiFile psiFile = PsiManager.getInstance(project).findFile(javaFile);
-		if (psiFile instanceof PsiJavaFile) {
-			return ((PsiJavaFile) psiFile).getPackageName();
+		if (psiFile instanceof PsiClassOwner) {
+			return ((PsiClassOwner) psiFile).getPackageName();
 		}
 		return null;
 	}

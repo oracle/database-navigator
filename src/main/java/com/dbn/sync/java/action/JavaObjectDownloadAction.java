@@ -17,6 +17,7 @@
 package com.dbn.sync.java.action;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.common.util.Java;
 import com.dbn.object.action.AnObjectAction;
 import com.dbn.object.common.DBObject;
 import com.dbn.sync.java.download.JavaDownloadManager;
@@ -44,7 +45,9 @@ public class JavaObjectDownloadAction extends AnObjectAction<DBObject> {
 			@NotNull Presentation presentation,
 			@NotNull Project project,
 			@Nullable DBObject target) {
+
 			presentation.setText("Download To Project");
 			presentation.setIcon(Icons.ACTION_DOWNLOAD);
+			presentation.setVisible(Java.isIdeSupportAvailable());
 	}
 }

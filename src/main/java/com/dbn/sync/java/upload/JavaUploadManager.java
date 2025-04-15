@@ -41,10 +41,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileSystem;
 import com.intellij.psi.JavaRecursiveElementWalkingVisitor;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiClassOwner;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaCodeReferenceElement;
-import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.PsiUtilCore;
 import org.jdom.Element;
@@ -146,9 +146,9 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 			Set<JavaUploadElement> resultList = new HashSet<>();
 
 			PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
-			if (!(psiFile instanceof PsiJavaFile)) return resultList;
+			if (!(psiFile instanceof PsiClassOwner)) return resultList;
 
-			PsiClass[] classes = ((PsiJavaFile) psiFile).getClasses();
+			PsiClass[] classes = ((PsiClassOwner) psiFile).getClasses();
 
 			for (PsiClass psiClass : classes) {
 				psiClass.accept(new JavaRecursiveElementWalkingVisitor() {

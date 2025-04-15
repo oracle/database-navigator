@@ -4,7 +4,6 @@ import com.dbn.connection.config.parameter.RegexConstraintValidator;
 import com.dbn.connection.config.parameter.ui.UrlParameterInputForm;
 import org.junit.Test;
 
-import static com.intellij.testFramework.UsefulTestCase.assertNotEmpty;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
