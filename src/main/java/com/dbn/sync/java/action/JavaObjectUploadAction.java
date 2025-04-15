@@ -19,10 +19,8 @@ package com.dbn.sync.java.action;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.message.Message;
-import com.dbn.common.message.MessageType;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.context.action.AbstractFolderContextAction;
+import com.dbn.sync.java.upload.JavaUploadManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -41,26 +39,24 @@ public class JavaObjectUploadAction extends AbstractFolderContextAction {
 
 		if(file == null) return;
 
+		JavaUploadManager manager = JavaUploadManager.getInstance(project);
 		if (isPackage(file)) {
-			List<String> javaFiles = new ArrayList<>();
+			List<VirtualFile> javaFiles = new ArrayList<>();
 			collectJavaFilesAndPackages(file, javaFiles);
-
-			String message = "Java Files:\n" + String.join("\n", javaFiles);
-
-			Messages.showMessageDialog(project, new Message(MessageType.WARNING, message));
+			manager.openCodeUploader(javaFiles);
 		} else {
-			Messages.showMessageDialog(project, new Message(MessageType.WARNING, "Right-click action triggered on: " + file.getName()));
+			manager.openCodeUploader(file);
 		}
 	}
 
-	private void collectJavaFilesAndPackages(VirtualFile directory, List<String> javaFiles) {
+	private void collectJavaFilesAndPackages(VirtualFile directory, List<VirtualFile> javaFiles) {
 		if (!directory.isDirectory()) return;
 
 		for (VirtualFile file : directory.getChildren()) {
 			if (file.isDirectory()) {
 				collectJavaFilesAndPackages(file, javaFiles);
 			} else {
-				javaFiles.add(directory.getCanonicalPath() + "/" + file.getName());
+				javaFiles.add(file);
 			}
 		}
 	}
