@@ -131,7 +131,7 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         addProperty(properties, "PORT", databaseInfo.getPort());
         addProperty(properties, "DATABASE", databaseInfo.getDatabase());
         addProperty(properties, "PROTOCOL", databaseInfo.getProtocol());
-        addProperty(properties, "SERVER_TYPE", databaseInfo.getServerTypeToken());
+        addProperty(properties, "SERVER_TYPE", databaseInfo.getServerType());
         addProperty(properties, "PARAMETERS", toParameterString(databaseInfo.getParameters()));
         addProperty(properties, "TNS_FOLDER", databaseInfo.getTnsFolder());
         addProperty(properties, "TNS_PROFILE", databaseInfo.getTnsProfile());
