@@ -81,10 +81,17 @@
             <include name="lib/*.jar"/>
         </fileset>
     </path>
+    <path id="classpath.runtime">
+        <fileset dir="${root.dir}">
+            <include name="libs/*.jar"/>
+        </fileset>
+    </path>
 
 
     <taskdef name="javac2" classname="com.intellij.ant.Javac2">
         <classpath refid="classpath.ide"/>
+        <classpath refid="classpath.project"/>
+        <classpath refid="classpath.runtime"/>
     </taskdef>
 
 
@@ -96,6 +103,7 @@
             <patternset refid="compiler.ignored.files"/>
             <classpath refid="classpath.ide"/>
             <classpath refid="classpath.project"/>
+            <classpath refid="classpath.runtime"/>
         </javac2>
 
         <javac2 srcdir="${source.dir}/../modules/dbn-spi/src/main/java"
@@ -104,6 +112,7 @@
             <patternset refid="compiler.ignored.files"/>
             <classpath refid="classpath.ide"/>
             <classpath refid="classpath.project"/>
+            <classpath refid="classpath.runtime"/>
         </javac2>
 
 
@@ -113,6 +122,7 @@
             <patternset refid="compiler.ignored.files"/>
             <classpath refid="classpath.ide"/>
             <classpath refid="classpath.project"/>
+            <classpath refid="classpath.runtime"/>
         </javac2>
 
         <copy todir="${compiler.output.dir}">
