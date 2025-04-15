@@ -150,6 +150,11 @@ class DBJsonViewImpl extends DBViewImpl<DBJsonViewMetadata> implements DBJsonVie
         return null;
     }
 
+    @Override
+    public String getCodeParseRootId(DBContentType contentType) {
+        return "select_json_statement";
+    }
+
     /*********************************************************
      *                     TreeElement                       *
      *********************************************************/
