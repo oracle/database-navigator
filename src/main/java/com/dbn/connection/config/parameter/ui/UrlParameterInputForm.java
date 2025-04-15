@@ -57,7 +57,7 @@ public class UrlParameterInputForm extends PropertiesEditorForm {
         addValidator(new StringListConstraintValidator(EASY_CONNECT_BOOLEAN_LIKE_STRING_VALUES), "FAILOVER");
         addValidator(new StringListConstraintValidator(EASY_CONNECT_BOOLEAN_LIKE_STRING_VALUES), "LOAD_BALANCE");
         addValidator(MUST_BE_ZERO_OR_MORE, "SDU");
-        addValidator(new StringListConstraintValidator("on", "off", "yes", "no"), "SOURCE_ROUTE");
+        addValidator(new StringListConstraintValidator("ON", "OFF", "on", "off", "YES", "NO", "yes", "no"), "SOURCE_ROUTE");
         addValidator(MUST_BE_ZERO_OR_MORE, "RETRY_COUNT");
         addValidator(RETRY_DELAY_VALIDATOR, "RETRY_DELAY");
 
