@@ -234,11 +234,12 @@ public class DatabaseBrowserManager extends ProjectComponentBase implements Pers
             }
 
             @Override
-            public void nameFiltersChanged(ConnectionId connectionId, @NotNull DBObjectType... objectTypes) {
+            public void nameFiltersChanged(ConnectionId connectionId, @NotNull DBObjectType objectType) {
                 ConnectionHandler connection = ConnectionHandler.get(connectionId);
-                if (toolWindowForm.loaded() && connection != null && objectTypes.length > 0) {
-                    connection.getObjectBundle().refreshTreeChildren(objectTypes);
-                }
+                if (connection == null) return;
+                if (!toolWindowForm.loaded()) return;
+
+                connection.getObjectBundle().refreshTreeChildren(objectType);
             }
         };
     }

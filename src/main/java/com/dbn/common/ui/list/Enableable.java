@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-package com.dbn.browser.options;
+package com.dbn.common.ui.list;
 
-import com.dbn.connection.ConnectionId;
-import com.dbn.object.type.DBObjectType;
-import com.intellij.util.messages.Topic;
+import com.dbn.common.ui.Presentable;
 
-import java.util.EventListener;
+public interface Enableable<T> extends Presentable {
+    boolean isEnabled();
 
-public interface ObjectFilterChangeListener extends EventListener {
-    Topic<ObjectFilterChangeListener> TOPIC = Topic.create("Object filter changed", ObjectFilterChangeListener.class);
-    void typeFiltersChanged(ConnectionId connectionId);
-
-    void nameFiltersChanged(ConnectionId connectionId, DBObjectType objectType);
+    void setEnabled(boolean enabled);
 }

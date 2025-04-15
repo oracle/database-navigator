@@ -34,31 +34,23 @@ public class ObjectListActionGroup extends DefaultActionGroup {
         DBObjectType objectType = objectList.getObjectType();
         if (objectType != DBObjectType.CONSOLE) {
             add(new ReloadObjectsAction(objectList));
+            add(new ObjectListFilterActionGroup(objectList));
         }
 
         DatabaseEntity parentElement = objectList.getParentEntity();
         ConnectionHandler connection = objectList.getConnection();
-        if(parentElement instanceof DBSchema) {
-            add (new ObjectListFilterAction(objectList));
-            addSeparator();
-            add (new CreateObjectAction(objectList));
-        } else if (parentElement instanceof DBObjectBundle) {
-            if (objectType != DBObjectType.CONSOLE) {
-                add (new ObjectListFilterAction(objectList));
-            }
 
-            if (objectType == DBObjectType.SCHEMA) {
-                add (new HideEmptySchemasToggleAction(connection));
-            } else if (objectType == DBObjectType.CONSOLE) {
+        if(parentElement instanceof DBSchema) {
+            addSeparator();
+            add(new CreateObjectAction(objectList));
+        } else if (parentElement instanceof DBObjectBundle) {
+            if (objectType == DBObjectType.CONSOLE) {
                 addSeparator();
                 add(new ConsoleCreateAction(connection, DBConsoleType.STANDARD));
                 if (DEBUGGING.isSupported(connection)) {
                     add(new ConsoleCreateAction(connection, DBConsoleType.DEBUG));
                 }
             }
-        } else if (objectList.getObjectType() == DBObjectType.COLUMN) {
-            add(new HidePseudoColumnsToggleAction(connection));
-            add(new HideAuditColumnsToggleAction(connection));
         }
     }
 }
