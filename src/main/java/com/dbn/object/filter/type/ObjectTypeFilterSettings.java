@@ -22,6 +22,7 @@ import com.dbn.common.filter.Filter;
 import com.dbn.common.options.BasicProjectConfiguration;
 import com.dbn.common.options.ProjectConfiguration;
 import com.dbn.common.options.setting.BooleanSetting;
+import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionId;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectList;
@@ -100,6 +101,30 @@ public class ObjectTypeFilterSettings extends BasicProjectConfiguration<ProjectC
         return connectionId == null;
     }
 
+    public boolean isUsingMasterSettings() {
+        return useMasterSettings.value();
+    }
+
+    public void hideObjectType(DBObjectType objectType) {
+        if (useMasterSettings.value()) {
+            // copy master settings and switch off
+            ObjectTypeFilterSettings masterSettings = getMasterSettings();
+            for (ObjectTypeFilterSetting setting : masterSettings.getSettings()) {
+                setObjectTypeVisible(setting.getObjectType(), setting.isSelected() );
+            }
+            useMasterSettings.setValue(false);
+        }
+
+        setObjectTypeVisible(objectType, false);
+    }
+
+    private void setObjectTypeVisible(DBObjectType objectType, boolean visible) {
+        ObjectTypeFilterSetting setting = Lists.first(settings, s -> s.getObjectType() == objectType);
+        if (setting == null) return;
+        setting.setSelected(visible);
+    }
+
+
     @NotNull
     @Override
     public ObjectTypeFilterSettingsForm createConfigurationEditor() {
@@ -133,7 +158,7 @@ public class ObjectTypeFilterSettings extends BasicProjectConfiguration<ProjectC
         ObjectTypeFilterSettings masterSettings = getMasterSettings();
         return useMasterSettings.value() ?
                 masterSettings.isSelected(objectType) :
-                masterSettings.isSelected(objectType) && isSelected(objectType);
+                isSelected(objectType);
     }
 
     private boolean isSelected(DBObjectType objectType) {
@@ -167,7 +192,6 @@ public class ObjectTypeFilterSettings extends BasicProjectConfiguration<ProjectC
         }
         return false;
     }
-
 
     @Override
     public String getConfigElementName() {

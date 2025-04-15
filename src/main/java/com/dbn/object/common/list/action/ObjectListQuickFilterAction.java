@@ -25,11 +25,11 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class ObjectListFilterAction extends BasicAction {
+public class ObjectListQuickFilterAction extends BasicAction {
 
     private DBObjectList objectList;
 
-    public ObjectListFilterAction(DBObjectList objectList) {
+    public ObjectListQuickFilterAction(DBObjectList objectList) {
         super(txt("app.objects.action.QuickFilter"));
         this.objectList = objectList;
     }
