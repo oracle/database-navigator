@@ -19,9 +19,9 @@ package com.dbn.driver.download;
 import com.dbn.common.message.AsyncMessageCollector;
 import com.dbn.common.message.MessageCollector;
 import com.dbn.common.progress.ProgressIndicatorDelegate;
+import com.dbn.common.routine.ThrowableCallable;
 import com.intellij.openapi.progress.ProgressIndicator;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.experimental.Delegate;
 
@@ -35,20 +35,20 @@ import static com.dbn.common.thread.Progress.progressOf;
 
 @Getter
 public class DownloadSession extends ProgressIndicatorDelegate {
+    private static final ThreadLocal<DownloadSession> LOCAL = new ThreadLocal<>();
+
     @Delegate
     private final MessageCollector messages = new AsyncMessageCollector();
     private int downloadSize;
     private String downloadPath;
     private AtomicInteger outstandingSize;
     private CountDownLatch countDownLatch;
-    @Setter
-    private boolean cancelled;
 
     private final List<String> downloadedArtifacts = new CopyOnWriteArrayList<>();
 
     public DownloadSession(ProgressIndicator progressIndicator) {
         super(progressIndicator);
-        setIndeterminate(true);
+        setIndeterminate(false);
         setFraction(0.0);
     }
 
@@ -74,6 +74,10 @@ public class DownloadSession extends ProgressIndicatorDelegate {
         if (countDownLatch != null) {
             countDownLatch.countDown();
         }
+    }
+
+    public void updateProgress() {
+        super.setFraction(getProgress());
     }
 
     public void updateProgress(String text2) {
@@ -110,5 +114,18 @@ public class DownloadSession extends ProgressIndicatorDelegate {
 
     public void addDownloadedArtifacts(String artifactId) {
         downloadedArtifacts.add(artifactId);
+    }
+
+    public static DownloadSession current() {
+        return LOCAL.get();
+    }
+
+    public <R, E extends Throwable> R surround(ThrowableCallable<R, E> callable) throws E {
+        LOCAL.set(this);
+        try {
+            return callable.call();
+        } finally {
+            LOCAL.remove();
+        }
     }
 }

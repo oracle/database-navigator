@@ -53,7 +53,6 @@ public class MavenArtifactDownloader {
 
         } catch (ProcessCanceledException ignored) {
             session.addInfoMessage("Download process canceled for " + packageId);
-            session.setCancelled(true);
         } catch (Exception e) {
             log.warn("Failed to download artifact '{}'", libraryId, e);
             session.addErrorMessage("Download failed for " + libraryId + ": " + e.getMessage());
