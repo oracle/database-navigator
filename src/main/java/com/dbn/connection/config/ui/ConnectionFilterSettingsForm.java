@@ -17,13 +17,11 @@
 package com.dbn.connection.config.ui;
 
 import com.dbn.browser.options.ObjectFilterChangeListener;
-import com.dbn.common.constant.Constant;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.CompositeConfigurationEditorForm;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionFilterSettings;
-import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +29,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+
+import static com.dbn.object.type.DBObjectType.COLUMN;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
 
 public class ConnectionFilterSettingsForm extends CompositeConfigurationEditorForm<ConnectionFilterSettings> {
     private JPanel mainPanel;
@@ -76,12 +77,12 @@ public class ConnectionFilterSettingsForm extends CompositeConfigurationEditorFo
             if (notifyFilterListenersSchemas) {
                 ProjectEvents.notify(project,
                         ObjectFilterChangeListener.TOPIC,
-                        (listener) -> listener.nameFiltersChanged(connectionId, Constant.array(DBObjectType.SCHEMA)));
+                        (listener) -> listener.nameFiltersChanged(connectionId, SCHEMA));
             }
             if (notifyFilterListenersColumns) {
                 ProjectEvents.notify(project,
                     ObjectFilterChangeListener.TOPIC,
-                    (listener) -> listener.nameFiltersChanged(connectionId, Constant.array(DBObjectType.COLUMN)));
+                    (listener) -> listener.nameFiltersChanged(connectionId, COLUMN));
             }
         });
     }

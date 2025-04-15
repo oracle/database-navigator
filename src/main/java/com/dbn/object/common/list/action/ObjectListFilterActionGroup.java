@@ -38,6 +38,7 @@ public class ObjectListFilterActionGroup extends DefaultActionGroup {
         }
         addSeparator();
         add(new ObjectListQuickFilterAction(objectList));
+        add(new ObjectListFilterAction(objectList));
     }
 
     @Override
