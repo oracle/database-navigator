@@ -36,6 +36,9 @@ import java.sql.Types;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.util.Strings.cachedUpperCase;
+import static com.dbn.object.type.DBObjectType.JSON_VIEW;
+import static com.dbn.object.type.DBObjectType.TRIGGER;
+import static com.dbn.object.type.DBObjectType.VIEW;
 
 @State(
         name = DDLManager.COMPONENT_NAME,
@@ -59,10 +62,7 @@ public class DDLManager extends ProjectComponentBase implements PersistentState 
         return PooledConnection.call(connection.createConnectionContext(), conn -> {
             DBNCallableStatement statement = null;
             try {
-                DBObjectType objectType = object.getObjectType();
-                DBObjectType genericType = objectType.getGenericType();
-                objectType = genericType == DBObjectType.TRIGGER ? genericType : objectType;
-                String objectTypeName = cachedUpperCase(objectType.getName());
+                String objectTypeName = getObjectTypeName(object);
 
                 statement = conn.prepareCall("{? = call DBMS_METADATA.GET_DDL(?, ?, ?)}");
                 statement.registerOutParameter(1, Types.CLOB);
@@ -77,6 +77,16 @@ public class DDLManager extends ProjectComponentBase implements PersistentState 
                 Resources.close(statement);
             }
         });
+    }
+
+    private static String getObjectTypeName(DBObject object) {
+        DBObjectType objectType = object.getObjectType();
+        if (objectType == JSON_VIEW) return cachedUpperCase(VIEW.getName());
+
+        DBObjectType genericType = objectType.getGenericType();
+        if (genericType == TRIGGER) return cachedUpperCase(TRIGGER.getName());
+
+        return cachedUpperCase(objectType.getName());
     }
 
     @Override
