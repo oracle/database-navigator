@@ -88,4 +88,12 @@ public class TnsImportService extends ApplicationComponentBase implements Persis
 
         importType = getEnum(optionsElement, "import-type", importType);
     }
+
+    public void importTnsNamesFromoci(Project project, Consumer<TnsImportData> consumer,String path) {
+        File file = new File(path);
+        Dialogs.show(() -> new TnsNamesImportDialog(project, file), (dialog, exitCode) -> {
+            if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
+            consumer.accept(dialog.getImportData());
+        });
+    }
 }
