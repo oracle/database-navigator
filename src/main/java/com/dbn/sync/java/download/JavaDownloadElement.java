@@ -17,22 +17,21 @@
 package com.dbn.sync.java.download;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.list.Enableable;
-import com.dbn.common.ui.list.Selectable;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.lookup.DBJavaNameCache;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.sync.common.impl.SyncElementBase;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
 @Data
-public class JavaDownloadElement implements Selectable<JavaDownloadElement>, Enableable<JavaDownloadElement> {
+@EqualsAndHashCode(callSuper = false)
+public class JavaDownloadElement extends SyncElementBase {
     private DBObjectRef<DBJavaClass> javaClass;
-    private boolean enabled;
-    private boolean selected;
 
     public JavaDownloadElement(DBJavaClass javaClass) {
         this(DBObjectRef.of(javaClass));

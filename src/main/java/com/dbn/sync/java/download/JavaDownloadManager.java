@@ -82,14 +82,15 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 	}
 
 	private void prepareDownloadDialog(DBObject sourceObject) {
+		Project project = getProject();
 		try {
 			List<JavaDownloadElement> dependencies = loadDownloadDependencies(sourceObject);
-			JavaDownloadInput input = new JavaDownloadInput(sourceObject, dependencies);
+			JavaDownloadInput input = new JavaDownloadInput(project, sourceObject, dependencies);
 			JavaDownloadContext context = new JavaDownloadContext(input);
 
 			Dialogs.show(() -> new JavaDownloadInputDialog(context));
 		} catch (SQLException e) {
-			Messages.showErrorDialog(getProject(),
+			Messages.showErrorDialog(project,
 					"Error Loading Java Dependencies",
 					"Failed to load dependencies for " + sourceObject.getQualifiedNameWithType(), e);
 		}

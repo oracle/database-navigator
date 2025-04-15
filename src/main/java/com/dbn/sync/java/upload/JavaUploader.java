@@ -17,15 +17,17 @@
 package com.dbn.sync.java.upload;
 
 import com.dbn.common.Priority;
+import com.dbn.common.thread.Read;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtilCore;
-import com.intellij.openapi.vfs.VirtualFile;
 import lombok.SneakyThrows;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
@@ -39,51 +41,58 @@ public final class JavaUploader extends JavaUploaderBase {
 		if (context.hasErrors()) return;
 
 		JavaUploadInput input = context.getInput();
-		List<JavaUploadElement> uploadElements = input.getSelectedUploadElements();
+		List<JavaUploadElement> uploadElements = input.getSelectedElements();
 		for (JavaUploadElement uploadElement : uploadElements) {
 			context.handled(() -> uploadJavaClass(context, uploadElement));
 		}
 	}
 
 	@SneakyThrows
-	private void uploadJavaClass(JavaUploadContext context, JavaUploadElement uploadElement) {
-		String className = uploadElement.getJavaClassName();
+	private void uploadJavaClass(JavaUploadContext context, JavaUploadElement element) {
+		String className = Read.call(() -> element.getJavaClassName());
 		setProgressDetail("Uploading sources of \"" + className + "\"");
 
-		Project project = context.getProject();
-		VirtualFile javaClass = uploadElement.getJavaClass();
-		String jarPath = uploadElement.getJarPath();
+		// create download task
+		JavaUploadTask uploadTask = context.createUploadTask(element);
+		String jarPath = element.getJarPath();
 
 		if(jarPath == null) {
-			byte[] content = VfsUtilCore.loadBytes(javaClass);
-			String fileContent =  new String(content, StandardCharsets.UTF_8);
-			String creationStatement = "BEGIN\n" +
-					"   BEGIN\n" +
-					"      EXECUTE IMMEDIATE 'DROP JAVA SOURCE \"" + uploadElement.getQualifiedName() + "\"';\n" +
-					"   EXCEPTION\n" +
-					"      WHEN OTHERS THEN\n" +
-					"         IF SQLCODE <> -4043 THEN\n" +
-					"            RAISE;\n" +
-					"         END IF;\n" +
-					"   END;\n" +
-					"\n" +
-					"   EXECUTE IMMEDIATE q'[\n" +
-					"CREATE OR REPLACE AND COMPILE JAVA SOURCE NAMED \"" + uploadElement.getQualifiedName() + "\" AS \n" +
-					fileContent +
-					"]';\n" +
-					"END;";
-
-			ConnectionId connectionId = context.getInput().getConnection().getConnectionId();
-			DatabaseInterfaceInvoker.execute(Priority.HIGH,
-					"Uploading Java File",
-					"Uploading java file \"" + javaClass.getPresentableName() + "\"",
-					project,
-					connectionId, c -> {
-						DBNPreparedStatement statement = c.prepareStatement(creationStatement);
-						statement.execute();
-					});
+			byte[] content = VfsUtilCore.loadBytes(element.getJavaFile());
+			uploadTask.setContent(new String(content, StandardCharsets.UTF_8));
+			uploadJavaClass(context, uploadTask, className);
 		} else {
 			// TODO upload jar file
 		}
+	}
+
+	private static void uploadJavaClass(JavaUploadContext context, JavaUploadTask task, String className) throws IOException, SQLException {
+		Project project = context.getProject();
+
+		String databaseObjectName = className.replace('.', '/');
+		String creationStatement = "BEGIN\n" +
+				"   BEGIN\n" +
+				"      EXECUTE IMMEDIATE 'DROP JAVA SOURCE \"" + databaseObjectName + "\"';\n" +
+				"   EXCEPTION\n" +
+				"      WHEN OTHERS THEN\n" +
+				"         IF SQLCODE <> -4043 THEN\n" +
+				"            RAISE;\n" +
+				"         END IF;\n" +
+				"   END;\n" +
+				"\n" +
+				"   EXECUTE IMMEDIATE q'[\n" +
+				"CREATE OR REPLACE AND COMPILE JAVA SOURCE NAMED \"" + databaseObjectName + "\" AS \n" +
+				task.getContent() +
+				"]';\n" +
+				"END;";
+
+		ConnectionId connectionId = context.getInput().getConnection().getConnectionId();
+		DatabaseInterfaceInvoker.execute(Priority.HIGH,
+				"Uploading Java Class",
+				"Uploading java class \"" + className + "\"",
+				project,
+				connectionId, c -> {
+					DBNPreparedStatement statement = c.prepareStatement(creationStatement);
+					statement.execute();
+				});
 	}
 }

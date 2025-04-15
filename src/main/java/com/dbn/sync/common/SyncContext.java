@@ -14,27 +14,14 @@
  * limitations under the License.
  */
 
-package com.dbn.sync.java.download;
+package com.dbn.sync.common;
 
-import com.dbn.sync.common.impl.SyncTaskBase;
-import com.intellij.openapi.vfs.VirtualFile;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Delegate;
+import com.intellij.openapi.project.Project;
 
-@Getter
-@Setter
-public class JavaDownloadTask extends SyncTaskBase<JavaDownloadElement> {
-    private VirtualFile targetFolder;
-    private VirtualFile targetFile;
+import java.util.List;
 
-    public JavaDownloadTask(JavaDownloadElement input) {
-        super(input);
-    }
-
-    @Override
-    @Delegate
-    public JavaDownloadElement getElement() {
-        return super.getElement();
-    }
+public interface SyncContext<I extends SyncInput, T extends SyncTask> {
+    Project getProject();
+    I getInput();
+    List<T> getTasks();
 }

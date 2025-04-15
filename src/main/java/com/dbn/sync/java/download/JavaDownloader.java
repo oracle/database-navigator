@@ -43,45 +43,45 @@ public final class JavaDownloader extends JavaDownloaderBase {
 
 
 		JavaDownloadInput input = context.getInput();
-		List<JavaDownloadElement> downloadElements = input.getSelectedDownloadElements();
-		for (JavaDownloadElement downloadElement : downloadElements) {
-			context.handled(() -> downloadJavaClass(context, downloadElement));
+		List<JavaDownloadElement> elements = input.getSelectedElements();
+		for (JavaDownloadElement element : elements) {
+			context.handled(() -> downloadJavaClass(context, element));
 		}
 	}
 
 	@SneakyThrows
-	private void downloadJavaClass(JavaDownloadContext context, JavaDownloadElement downloadElement) {
-		String className = downloadElement.getJavaClassName();
+	private void downloadJavaClass(JavaDownloadContext context, JavaDownloadElement element) {
+		String className = element.getJavaClassName();
 		setProgressDetail("Loading sources of \"" + className + "\"");
 
 		// create download task
-		JavaDownloadTask downloadTask = context.createDownloadTask(downloadElement);
+		JavaDownloadTask downloadTask = context.createDownloadTask(element);
 
 		// load source code content
 		Project project = context.getProject();
-		DBJavaClass javaClass = downloadElement.getJavaClass();
+		DBJavaClass javaClass = element.getJavaClass();
 		SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
 		SourceCodeContent content = sourceCodeManager.loadSourceFromDatabase(javaClass, DBContentType.CODE);
 
 		String sourceCode = content.exportContent();
-		downloadTask.setSourceCode(sourceCode);
+		downloadTask.setContent(sourceCode);
 
 		setProgressDetail("Writing project class \"" + className + "\"");
 		context.handled(() -> writeJavaFile(context, downloadTask));
 	}
 
 	@SneakyThrows
-	private static void writeJavaFile(JavaDownloadContext context, JavaDownloadTask downloadTask) {
-		DBJavaClass javaClass = downloadTask.getJavaClass();
+	private static void writeJavaFile(JavaDownloadContext context, JavaDownloadTask task) {
+		DBJavaClass javaClass = task.getJavaClass();
 		String packageName = javaClass.getPackageName();
 
 		JavaDownloadInput input = context.getInput();
 		PsiDirectory rootDirectory = input.findContentRootDirectory();
 		PsiDirectory targetDirectory = input.findPackageDirectory(rootDirectory, packageName);
-		downloadTask.setTargetFolder(targetDirectory.getVirtualFile());
+		task.setTargetFolder(targetDirectory.getVirtualFile());
 
 		Project project = context.getProject();
-		runWriteCommandAction(project, () -> context.handled(() -> writeJavaFile(downloadTask)));
+		runWriteCommandAction(project, () -> context.handled(() -> writeJavaFile(task)));
 	}
 
 	@SneakyThrows
@@ -95,7 +95,7 @@ public final class JavaDownloader extends JavaDownloaderBase {
 		}
 		downloadTask.setTargetFile(targetFile);
 
-		String sourceCode = downloadTask.getSourceCode();
+		String sourceCode = downloadTask.getContent();
 		VfsUtil.saveText(targetFile, sourceCode);
 	}
 }

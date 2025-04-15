@@ -43,7 +43,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
-import static com.dbn.common.ui.util.ComboBoxes.*;
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
+import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
 
 public class JavaUploadInputForm extends DBNFormBase {
     private JPanel headerPanel;
@@ -64,7 +66,7 @@ public class JavaUploadInputForm extends DBNFormBase {
         initSelectionListener(connectionComboBox, s -> initConnectionSchemas());
         initConnections();
 
-        dependenciesCheckBoxList.setElements(input.getUploadElements());
+        dependenciesCheckBoxList.setElements(input.getElements());
     }
 
     JavaUploadContext getContext() {

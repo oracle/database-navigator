@@ -24,6 +24,7 @@ import com.dbn.common.state.StateHolder;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
+import com.dbn.connection.context.DatabaseContext;
 import com.dbn.sync.java.upload.ui.JavaUploadResultDialog;
 import com.dbn.sync.java.upload.ui.JavaUploaderInputDialog;
 import com.intellij.openapi.application.ApplicationManager;
@@ -59,7 +60,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.sync.java.upload.JavaUploadManager.COMPONENT_NAME;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
@@ -114,6 +118,16 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 	}
 
 	public void uploadFile(JavaUploadContext context) {
+		JavaUploadInput input = context.getInput();
+		DatabaseContext databaseContext = input.getDatabaseContext();
+		Progress.prompt(getProject(), databaseContext, true,
+				"Uploading Java Classes",
+				"Uploading java classes and dependencies to " + databaseContext.getConnection().getName(),
+				progress -> performUpload(context));
+
+	}
+
+	private void performUpload(JavaUploadContext context) {
 		JavaUploader.INSTANCE.uploadJavaClasses(context);
 		Dialogs.show(() -> new JavaUploadResultDialog(getProject(), context));
 	}

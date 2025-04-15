@@ -17,12 +17,12 @@
 package com.dbn.sync.java.download;
 
 import com.dbn.common.project.Modules;
-import com.dbn.common.project.ProjectRef;
 import com.dbn.common.thread.Read;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.sync.common.impl.SyncInputBase;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -34,7 +34,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -42,24 +41,21 @@ import java.util.Set;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.options.Configs.fail;
 import static com.dbn.common.util.Java.isValidPackageName;
-import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Strings.isEmpty;
 
 @Getter
 @Setter
-public class JavaDownloadInput {
+public class JavaDownloadInput extends SyncInputBase<JavaDownloadElement> {
 
     private DBObjectRef<?> sourceObject;
-    private final ProjectRef project;
 
     private String moduleName;
     private String contentRoot;
 
-    private final List<JavaDownloadElement> downloadElements = new ArrayList<>();
 
-    public JavaDownloadInput(DBObject sourceObject, List<JavaDownloadElement> dependencies) {
+    public JavaDownloadInput(Project project, DBObject sourceObject, List<JavaDownloadElement> dependencies) {
+        super(project);
         this.sourceObject = DBObjectRef.of(sourceObject);
-        this.project = ProjectRef.of(sourceObject.getProject());
 
         // add self to download elements
         if (sourceObject instanceof DBJavaClass) {
@@ -67,14 +63,10 @@ public class JavaDownloadInput {
             JavaDownloadElement sourceElement = new JavaDownloadElement(javaClass);
             sourceElement.setSelected(true);
             sourceElement.setEnabled(false);
-            this.downloadElements.add(sourceElement);
+            addElement(sourceElement);
         }
 
-        this.downloadElements.addAll(dependencies);
-    }
-
-    public Project getProject() {
-        return ProjectRef.ensure(project);
+        addElements(dependencies);
     }
 
     public DatabaseContext getDatabaseContext() {
@@ -133,13 +125,9 @@ public class JavaDownloadInput {
         return nd(directory);
     }
 
-    public List<JavaDownloadElement> getSelectedDownloadElements() {
-        return filter(downloadElements, e -> e.isSelected());
-    }
-
     public Set<JavaPackageNode> getTargetPackages() {
         JavaPackageNode rootNode = new JavaPackageNode("ROOT");
-        for (JavaDownloadElement dependency : getSelectedDownloadElements()) {
+        for (JavaDownloadElement dependency : getSelectedElements()) {
             JavaPackageNode currentNode = rootNode;
 
             String[] tokens = dependency.getPackageNameTokens();

@@ -17,53 +17,42 @@
 package com.dbn.sync.java.upload;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.list.Enableable;
-import com.dbn.common.ui.list.Selectable;
+import com.dbn.sync.common.impl.SyncElementBase;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
-import java.util.Objects;
 
-@Getter
-@Setter
-public class JavaUploadElement implements Selectable<JavaUploadElement>, Enableable<JavaUploadElement> {
-	private VirtualFile javaClass;
+@Data
+@EqualsAndHashCode(callSuper = false)
+public class JavaUploadElement extends SyncElementBase {
+	private VirtualFile javaFile;
 	private final String jarPath;
-	private boolean enabled;
-	private boolean selected;
-	private Project project;
+	private transient Project project;
 
-	public JavaUploadElement(Project project, VirtualFile javaClass, String jarPath) {
-		this.javaClass = javaClass;
+	public JavaUploadElement(Project project, VirtualFile javaFile, String jarPath) {
+		this.javaFile = javaFile;
 		this.jarPath = jarPath;
-		this.enabled = true;
-		this.selected = true;
 		this.project = project;
 	}
 
 	public String getPackageName() {
-		PsiFile psiFile = PsiManager.getInstance(project).findFile(javaClass);
+		PsiFile psiFile = PsiManager.getInstance(project).findFile(javaFile);
 		if (psiFile instanceof PsiJavaFile) {
 			return ((PsiJavaFile) psiFile).getPackageName();
 		}
 		return null;
 	}
 
-	public String getQualifiedName(){
-		String packageName = getJavaClassName();
-		return packageName.replace(".", "/");
-	}
-
 	public String getJavaClassName() {
-		return getPackageName() + "." + javaClass.getNameWithoutExtension();
+		return getPackageName() + "." + javaFile.getNameWithoutExtension();
 	}
 
 	@NotNull
@@ -75,18 +64,5 @@ public class JavaUploadElement implements Selectable<JavaUploadElement>, Enablea
 	@Override
 	public @Nullable Icon getIcon() {
 		return Icons.DBO_JAVA_CLASS;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof JavaUploadElement)) return false;
-		JavaUploadElement that = (JavaUploadElement) o;
-		return Objects.equals(jarPath, that.jarPath) || Objects.equals(javaClass, that.javaClass);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(javaClass, jarPath);
 	}
 }

@@ -68,7 +68,7 @@ public class JavaDownloadInputForm extends DBNFormBase {
         initSelectionListener(moduleComboBox, s -> initContentRoots());
         initModules();
 
-        dependenciesCheckBoxList.setElements(input.getDownloadElements());
+        dependenciesCheckBoxList.setElements(input.getElements());
     }
 
     JavaDownloadContext getContext() {

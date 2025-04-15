@@ -16,93 +16,30 @@
 
 package com.dbn.sync.java.download;
 
-import com.dbn.common.message.Message;
-import com.dbn.common.message.MessageBundle;
-import com.dbn.common.message.MessageCollector;
-import com.dbn.common.message.MessageType;
-import com.dbn.common.ref.WeakRef;
-import com.dbn.common.routine.ThrowableCallable;
-import com.dbn.common.routine.ThrowableRunnable;
 import com.dbn.common.util.Lists;
-import com.dbn.connection.context.DatabaseContext;
-import com.intellij.openapi.project.Project;
+import com.dbn.sync.common.impl.SyncContextBase;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static com.dbn.common.dispose.Failsafe.nd;
-import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 @Setter
-public class JavaDownloadContext {
-	private final WeakRef<DatabaseContext> databaseContext;
-	private final JavaDownloadInput input;
-	private final MessageCollector messages = new MessageBundle();
-	private final List<JavaDownloadTask> downloadTasks = new ArrayList<>();
+public class JavaDownloadContext extends SyncContextBase<JavaDownloadInput, JavaDownloadTask> {
 	private VirtualFile targetRootDirectory;
 
 	public JavaDownloadContext(JavaDownloadInput input) {
-		this.input = input;
-		this.databaseContext = WeakRef.of(input.getDatabaseContext());
-	}
-
-	@NotNull
-	public <T extends DatabaseContext> T getDatabaseContext() {
-		return cast(WeakRef.ensure(databaseContext));
-	}
-
-	@NotNull
-	public Project getProject() {
-		return nd(getDatabaseContext().getProject());
-	}
-
-	public void handled(ThrowableRunnable<Exception> runnable) {
-		try {
-			runnable.run();
-		} catch (Throwable e) {
-			handle(e);
-		}
-	}
-
-	@Nullable
-	public <T> T handled(ThrowableCallable<T, Exception> runnable) {
-		try {
-			return runnable.call();
-		} catch (Throwable e) {
-			handle(e);
-			return null;
-		}
-	}
-
-	private void handle(Throwable e) {
-		messages.addMessage(new Message(MessageType.ERROR, e.getMessage()));
-	}
-
-	public boolean hasErrors() {
-		return messages.hasErrors();
+		super(input);
 	}
 
 	public List<VirtualFile> getDownloadedFiles() {
-		return Lists.convert(downloadTasks, t -> t.getTargetFile());
+		return Lists.convert(getTasks(), t -> t.getTargetFile());
 	}
 
 	public JavaDownloadTask createDownloadTask(JavaDownloadElement downloadElement) {
 		JavaDownloadTask downloadTask = new JavaDownloadTask(downloadElement);
-		downloadTasks.add(downloadTask);
+		addTask(downloadTask);
 		return downloadTask;
-/*
-
-		Project project = getProject();
-		PsiFile psiFile = PsiUtil.getPsiFile(project, file);
-		if (psiFile != null) {
-			downloadedPsiFiles.add(psiFile);
-		}
-*/
 	}
 }

@@ -74,12 +74,7 @@ public class JavaObjectUploadAction extends AbstractFolderContextAction {
 		Presentation presentation = e.getPresentation();
 		VirtualFile file = Lookups.getVirtualFile(e);
 		presentation.setVisible(isAvailableFor(file) || isPackage(file));
-		String text = "Upload Class";
-		if(isPackage(file)){
-			text = "Upload Package";
-		}
-
-		presentation.setText(text);
+		presentation.setText("Upload to Database");
 		presentation.setIcon(Icons.ACTION_UPLOAD);
 	}
 }

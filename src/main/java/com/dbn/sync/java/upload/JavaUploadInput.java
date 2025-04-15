@@ -16,48 +16,43 @@
 
 package com.dbn.sync.java.upload;
 
-import com.dbn.common.project.ProjectRef;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.context.DatabaseContext;
+import com.dbn.sync.common.impl.SyncInputBase;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.dbn.common.util.Lists.filter;
-
 @Getter
 @Setter
-public class JavaUploadInput {
+public class JavaUploadInput extends SyncInputBase<JavaUploadElement> {
 
     private VirtualFile javaClass;
-    private final ProjectRef project;
 
     private ConnectionHandler connection;
     private String schemaName;
 
     private List<String> dependentObjects;
-    private final List<JavaUploadElement> uploadElements = new ArrayList<>();
 
     public JavaUploadInput(Project project, VirtualFile javaClass, List<JavaUploadElement> dependencies) {
+        super(project);
         this.javaClass = javaClass;
-        this.project = ProjectRef.of(project);
 
         // add self
         JavaUploadElement sourceElement = new JavaUploadElement(project, javaClass, null);
 		sourceElement.setEnabled(false);
-		this.uploadElements.add(sourceElement);
-
-        this.uploadElements.addAll(dependencies);
+		addElement(sourceElement);
+        addElements(dependencies);
 	}
 
     public JavaUploadInput(Project project, List<VirtualFile> javaClass, List<JavaUploadElement> dependencies) {
+        super(project);
         this.javaClass = javaClass.get(0);
-        this.project = ProjectRef.of(project);
 
         Set<JavaUploadElement> uniqueClasses = new HashSet<>();
         // add self
@@ -70,19 +65,11 @@ public class JavaUploadInput {
         // Create set from dependencies to remove already existing class
         uniqueClasses.addAll(dependencies);
 
-        this.uploadElements.addAll(uniqueClasses);
+        addElements(uniqueClasses);
     }
 
-    public List<JavaUploadElement> getSelectedUploadElements() {
-        return filter(uploadElements, e -> e.isSelected());
-    }
-
-    public Project getProject() {
-        return ProjectRef.ensure(project);
-    }
-
-    public VirtualFile getDatabaseContext() {
-        return javaClass;
+    public DatabaseContext getDatabaseContext() {
+        return connection;
     }
 
 }

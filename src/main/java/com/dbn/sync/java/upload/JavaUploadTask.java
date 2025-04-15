@@ -16,17 +16,15 @@
 
 package com.dbn.sync.java.upload;
 
+import com.dbn.sync.common.impl.SyncTaskBase;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.Delegate;
 
 @Getter
 @Setter
-public class JavaUploadTask {
-	@Delegate
-	private final JavaUploadElement input;
+public class JavaUploadTask extends SyncTaskBase<JavaUploadElement> {
 
-	public JavaUploadTask(JavaUploadElement input) {
-		this.input = input;
+	public JavaUploadTask(JavaUploadElement element) {
+		super(element);
 	}
 }

@@ -16,65 +16,35 @@
 
 package com.dbn.sync.java.upload;
 
-import com.dbn.common.message.Message;
-import com.dbn.common.message.MessageBundle;
-import com.dbn.common.message.MessageCollector;
-import com.dbn.common.message.MessageType;
-import com.dbn.common.routine.ThrowableRunnable;
 import com.dbn.common.util.Lists;
-import com.intellij.openapi.project.Project;
+import com.dbn.sync.common.impl.SyncContextBase;
 import lombok.Getter;
 import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
-public class JavaUploadContext {
-	private final MessageCollector messages = new MessageBundle();
-	private JavaUploadInput input;
-	private final List<JavaUploadTask> uploadTasks = new ArrayList<>();
+public class JavaUploadContext extends SyncContextBase<JavaUploadInput, JavaUploadTask> {
 
 	public JavaUploadContext(JavaUploadInput input) {
-		this.input = input;
-	}
-
-	@NotNull
-	public Project getProject() {
-		return input.getProject();
-	}
-
-	public void handled(ThrowableRunnable<Exception> runnable) {
-		try {
-			runnable.run();
-		} catch (Throwable e) {
-			handle(e);
-		}
-	}
-
-	private void handle(Throwable e) {
-		messages.addMessage(new Message(MessageType.ERROR, e.getMessage()));
-	}
-
-	public boolean hasErrors() {
-		return messages.hasErrors();
+		super(input);
 	}
 
 	public List<String> getUploadedFiles() {
-		return Lists.convert(uploadTasks, t -> {
-			if(t.getInput().getJarPath() != null){
-				return t.getInput().getJarPath();
+		return Lists.convert(getTasks(), t -> {
+			JavaUploadElement uploadElement = t.getElement();
+			if(uploadElement.getJarPath() != null){
+				return uploadElement.getJarPath();
 			} else {
-				return t.getInput().getJavaClassName();
+				return uploadElement.getJavaClassName();
 			}
 		});
 	}
 
 	public JavaUploadTask createUploadTask(JavaUploadElement uploadElement) {
 		JavaUploadTask uploadTask = new JavaUploadTask(uploadElement);
-		uploadTasks.add(uploadTask);
+		addTask(uploadTask);
 		return uploadTask;
 	}
 }
