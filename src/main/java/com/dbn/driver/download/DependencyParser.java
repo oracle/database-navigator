@@ -156,7 +156,6 @@ public class DependencyParser {
 
             DownloadSession downloadSession = DownloadSession.current();
             downloadSession.updateProgress(fileName);
-            downloadSession = null;
             if (downloadSession.isCanceled()) return;
 
 
