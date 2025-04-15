@@ -18,26 +18,29 @@ package com.dbn.object.common.list.action;
 
 import com.dbn.common.action.BasicAction;
 import com.dbn.object.common.list.DBObjectList;
-import com.dbn.object.filter.ObjectFilterManager;
+import com.dbn.object.filter.quick.ObjectQuickFilterManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-public class ObjectListFilterAction extends BasicAction {
+import static com.dbn.nls.NlsResources.txt;
+
+public class ObjectListQuickFilterAction extends BasicAction {
 
     private DBObjectList objectList;
 
-    public ObjectListFilterAction(DBObjectList objectList) {
-        super("Global " +  objectList.getCapitalizedName() + " Filter...");
+    public ObjectListQuickFilterAction(DBObjectList objectList) {
+        super(txt("app.objects.action.QuickFilter"));
         this.objectList = objectList;
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
-        if (project == null) return;
+        if (project != null) {
+            ObjectQuickFilterManager quickFilterManager = ObjectQuickFilterManager.getInstance(project);
+            quickFilterManager.openFilterDialog(objectList);
+        }
 
-        ObjectFilterManager filterManager = ObjectFilterManager.getInstance(project);
-        filterManager.openObjectFilterDialog(objectList.getConnectionId(), objectList.getObjectType());
     }
 }

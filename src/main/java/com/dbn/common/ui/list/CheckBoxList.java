@@ -72,6 +72,17 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
         UserInterface.enableSelectOnFocus(this);
     }
 
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        ListModel<Entry<T>> model = getModel();
+        for (int i = 0; i< model.getSize(); i++) {
+            Entry<T> entry = model.getElementAt(i);
+            entry.checkBox.setEnabled(enabled && entry.isModifiable());
+        }
+        UserInterface.repaint(this);
+    }
+
     public void setElements(List<T> elements) {
         DefaultListModel<Entry<T>> model = new DefaultListModel<>();
         for (T element : elements) {
@@ -137,7 +148,7 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
         @Override
         public Component getListCellRendererComponent(JList<? extends Entry<T>> list, Entry<T> entry, int index, boolean isSelected, boolean cellHasFocus) {
             boolean hasFocus = cellHasFocus || (list.getSelectedIndices().length > 1 && UserInterface.hasChildComponent(entry, c -> hasFocus()));
-            boolean isEnabled = entry.getCheckBox().isEnabled();
+            boolean isEnabled = list.isEnabled() && entry.getCheckBox().isEnabled();
 
             Color foreground = isSelected ? UIUtil.getListSelectionForeground(hasFocus) : isEnabled ? UIUtil.getListForeground() : UIUtil.getLabelDisabledForeground();
             Color background = isSelected ? UIUtil.getListSelectionBackground(hasFocus) : UIUtil.getListBackground();
@@ -167,6 +178,8 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
     }
 
     public boolean applyChanges(){
+        if (!isEnabled()) return false;
+
         boolean changed = false;
         ListModel model = getModel();
         for (int i=0; i<model.getSize(); i++) {
@@ -217,8 +230,7 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
             this.selectable = selectable;
             checkBox = new JCheckBox("", selectable.isSelected());
             checkBox.setOpaque(false);
-            checkBox.setEnabled(isEnabled(selectable));
-
+            checkBox.setEnabled(list.isEnabled() && isModifiable());
             attachStateAnnouncer(checkBox, selectable.getAccessibleName());
 
             label = new JLabel(selectable.getName(), selectable.getIcon(), SwingConstants.LEFT);
@@ -229,14 +241,13 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
             initAccessibility();
         }
 
-        private boolean isEnabled(T selectable) {
+        private boolean isModifiable() {
             if (selectable instanceof Enableable) {
                 Enableable enableable = (Enableable) selectable;
                 return enableable.isEnabled();
             }
             return true;
         }
-
         private void initAccessibility() {
             setAccessibleName(this, createAccessibleName());
             checkBox.addActionListener(e -> setAccessibleName(this, createAccessibleName()));
