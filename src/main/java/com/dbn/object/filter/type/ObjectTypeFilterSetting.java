@@ -41,12 +41,6 @@ public class ObjectTypeFilterSetting implements Selectable<ObjectTypeFilterSetti
         this.objectType = objectType;
     }
 
-    ObjectTypeFilterSetting(ObjectTypeFilterSettings parent, DBObjectType objectType, boolean selected) {
-        this.parent = parent;
-        this.objectType = objectType;
-        this.selected = selected;
-    }
-
     @Override
     public Icon getIcon() {
         return objectType.getIcon();

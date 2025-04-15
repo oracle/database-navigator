@@ -37,6 +37,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -70,7 +72,6 @@ public class ObjectTypeFilterSettings extends BasicProjectConfiguration<ProjectC
             new ObjectTypeFilterSetting(this, DBObjectType.TYPE_ATTRIBUTE),
             new ObjectTypeFilterSetting(this, DBObjectType.ARGUMENT),
             new ObjectTypeFilterSetting(this, DBObjectType.JAVA_CLASS),
-            new ObjectTypeFilterSetting(this, DBObjectType.JAVA_INNER_CLASS),
             new ObjectTypeFilterSetting(this, DBObjectType.JAVA_FIELD),
             new ObjectTypeFilterSetting(this, DBObjectType.JAVA_METHOD),
             new ObjectTypeFilterSetting(this, DBObjectType.DIMENSION),
@@ -78,6 +79,8 @@ public class ObjectTypeFilterSettings extends BasicProjectConfiguration<ProjectC
             new ObjectTypeFilterSetting(this, DBObjectType.DBLINK),
             new ObjectTypeFilterSetting(this, DBObjectType.CREDENTIAL),
             new ObjectTypeFilterSetting(this, DBObjectType.AI_PROFILE));
+
+    private Map<DBObjectType, ObjectTypeFilterSetting> cache = new ConcurrentHashMap<>(settings.size());
 
     private final BooleanSetting useMasterSettings = new BooleanSetting("use-master-settings", true);
 
@@ -162,19 +165,27 @@ public class ObjectTypeFilterSettings extends BasicProjectConfiguration<ProjectC
     }
 
     private boolean isSelected(DBObjectType objectType) {
-        ObjectTypeFilterSetting objectTypeEntry = getObjectTypeEntry(objectType);
+        ObjectTypeFilterSetting objectTypeEntry = getSetting(objectType);
         return objectTypeEntry == null || objectTypeEntry.isSelected();
     }
 
+    public boolean isSelectable(DBObjectType objectType) {
+        ObjectTypeFilterSetting objectTypeEntry = getSetting(objectType);
+        return objectTypeEntry != null;
+    }
+
     private void setVisible(DBObjectType objectType, boolean visible) {
-        ObjectTypeFilterSetting objectTypeEntry = getObjectTypeEntry(objectType);
+        ObjectTypeFilterSetting objectTypeEntry = getSetting(objectType);
         if (objectTypeEntry != null) {
             objectTypeEntry.setSelected(visible);
         }
     }
 
+    private ObjectTypeFilterSetting getSetting(DBObjectType objectType) {
+        return cache.computeIfAbsent(objectType, k -> findSetting(k));
+    }
 
-    private ObjectTypeFilterSetting getObjectTypeEntry(DBObjectType objectType) {
+    private ObjectTypeFilterSetting findSetting(DBObjectType objectType) {
         for (ObjectTypeFilterSetting objectTypeEntry : getSettings()) {
             DBObjectType visibleObjectType = objectTypeEntry.getObjectType();
             if (visibleObjectType == objectType || objectType.isInheriting(visibleObjectType)) {
@@ -182,15 +193,6 @@ public class ObjectTypeFilterSettings extends BasicProjectConfiguration<ProjectC
             }
         }
         return null;
-    }
-
-    public boolean isSelected(ObjectTypeFilterSetting objectFilterEntry) {
-        for (ObjectTypeFilterSetting entry : getSettings()) {
-            if (entry.equals(objectFilterEntry)) {
-                return entry.isSelected();
-            }
-        }
-        return false;
     }
 
     @Override
