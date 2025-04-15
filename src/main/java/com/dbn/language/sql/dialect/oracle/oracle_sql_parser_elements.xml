@@ -5178,6 +5178,14 @@
                     <token type-id="CHR_COMMA" id="02966" />
                     <element ref-id="json_flex_clause" />
                 </sequence>
+                <sequence optional="true">
+                    <token type-id="KW_RETURNING" id="02966" />
+                    <one-of>
+                        <token type-id="KW_JSON" id="02966" flavor="datatype"/>
+                        <token type-id="DT_CLOB" id="02966"/>
+                        <token type-id="DT_VARCHAR2" id="02966"/>
+                    </one-of>
+                </sequence>
             </sequence>
         </wrapper>
     </element-def>
@@ -5271,7 +5279,7 @@
                 <object-ref attributes="SUBJECT" id="03010" referenceable="true" type="TABLE" original-name="root_table / child_table" />
             </variant>
         </qualified-identifier>
-        <alias-def id="03011" original-name="root_table_alias / child_table_alias" type="TABLE" />
+        <alias-def id="03011" original-name="root_table_alias / child_table_alias" type="TABLE" optional="true"/>
     </element-def>
 
     <element-def id="json_query_column_ref" description="JSON query column reference" custom="true">
