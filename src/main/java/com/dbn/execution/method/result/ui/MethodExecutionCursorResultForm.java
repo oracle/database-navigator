@@ -19,7 +19,6 @@ package com.dbn.execution.method.result.ui;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.DataProviders;
 import com.dbn.common.dispose.Failsafe;
-import com.dbn.common.latent.Latent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNTableScrollPane;
 import com.dbn.common.ui.util.Borders;
@@ -40,7 +39,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPanel;
 import javax.swing.text.JTextComponent;
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
@@ -54,13 +52,6 @@ public class MethodExecutionCursorResultForm extends DBNFormBase implements Sear
 
     private final DBObjectRef<DBArgument> argument;
     private final ResultSetTable<ResultSetDataModel<?, ?>> resultTable;
-
-    private final Latent<DataSearchComponent> dataSearchComponent = Latent.basic(() -> {
-        DataSearchComponent dataSearchComponent = new DataSearchComponent(MethodExecutionCursorResultForm.this);
-        searchPanel.add(dataSearchComponent.getComponent(), BorderLayout.CENTER);
-        DataProviders.register(dataSearchComponent.getSearchField(), this);
-        return dataSearchComponent;
-    });
 
     MethodExecutionCursorResultForm(MethodExecutionResultForm parent, MethodExecutionResult executionResult, DBArgument argument) {
         super(parent);
@@ -76,6 +67,11 @@ public class MethodExecutionCursorResultForm extends DBNFormBase implements Sear
         resultPanel.setBorder(Borders.lineBorder(JBColor.border(), 1, 0, 1, 0));
         resultScrollPane.setViewportView(resultTable);
         resultTable.initTableGutter();
+
+        // addons
+        resultTable.installMathAddon();
+        resultTable.installValuePopupAddon();
+        resultTable.installRecordViewerAddon();
 
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.MethodExecutionCursorResult");
         setAccessibleName(actionToolbar, txt("app.execution.aria.MethodExecutionCursorResultActions"));
@@ -97,6 +93,11 @@ public class MethodExecutionCursorResultForm extends DBNFormBase implements Sear
      *              SearchableDataComponent                  *
      *********************************************************/
     @Override
+    public @NotNull JPanel getSearchPanel() {
+        return searchPanel;
+    }
+
+    @Override
     public void showSearchHeader() {
         resultTable.clearSelection();
 
@@ -110,10 +111,6 @@ public class MethodExecutionCursorResultForm extends DBNFormBase implements Sear
         }
         searchField.requestFocus();
 
-    }
-
-    private DataSearchComponent getSearchComponent() {
-        return dataSearchComponent.get();
     }
 
     @Override

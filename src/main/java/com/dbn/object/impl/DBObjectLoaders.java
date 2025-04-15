@@ -39,6 +39,8 @@ import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
 import com.dbn.database.common.metadata.def.DBJavaFieldMetadata;
 import com.dbn.database.common.metadata.def.DBJavaMethodMetadata;
 import com.dbn.database.common.metadata.def.DBJavaParameterMetadata;
+import com.dbn.database.common.metadata.def.DBJsonViewMetadata;
+import com.dbn.database.common.metadata.def.DBJsonViewTableMetadata;
 import com.dbn.database.common.metadata.def.DBMaterializedViewMetadata;
 import com.dbn.database.common.metadata.def.DBNestedTableMetadata;
 import com.dbn.database.common.metadata.def.DBObjectDependencyMetadata;
@@ -76,6 +78,7 @@ import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
+import com.dbn.object.DBJsonView;
 import com.dbn.object.DBMaterializedView;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBNestedTable;
@@ -239,6 +242,11 @@ public class DBObjectLoaders {
                 "VIEWS", DBObjectType.SCHEMA, DBObjectType.VIEW, true, true,
                 (content, conn, mdi) -> mdi.loadViews(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBViewImpl(content.getParentEntity(), md));
+
+        DynamicContentResultSetLoader.<DBJsonView, DBJsonViewMetadata>create(
+                "JSON_VIEWS", DBObjectType.SCHEMA, DBObjectType.JSON_VIEW, true, true,
+                (content, conn, mdi) -> mdi.loadJsonViews(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> new DBJsonViewImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBMaterializedView, DBMaterializedViewMetadata>create(
                 "MATERIALIZED_VIEWS", DBObjectType.SCHEMA, DBObjectType.MATERIALIZED_VIEW, true, true,
@@ -505,6 +513,19 @@ public class DBObjectLoaders {
                     return new DBIndexColumnRelation(index, column);
                 });
 
+        DynamicContentResultSetLoader.<DBJsonViewTableRelation, DBJsonViewTableMetadata>create(
+                "ALL_JSON_VIEW_TABLES", DBObjectType.SCHEMA, DBObjectRelationType.JSON_VIEW_TABLE, true, false,
+                (content, conn, mdi) -> mdi.loadAllJsonViewTableRelations(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> {
+                    String jsonViewName = md.getJsonViewName();
+                    String tableName = md.getTableName();
+                    DBSchema tableSchema = content.ensureParentEntity();
+
+                    DBJsonView jsonView = valid(cache.get(jsonViewName, () -> ((DBSchema) content.ensureParentEntity()).getJsonView(jsonViewName)));
+                    DBTable table = valid(tableSchema.getTable(tableName));
+                    return new DBJsonViewTableRelation(jsonView, table, md.getPosition(), md.isRootTable(), md.isReadonly());
+                });
+
     }
 
     /* Loaders for table child objects (children of DBDataset) */
@@ -554,6 +575,18 @@ public class DBObjectLoaders {
                             DBConstraint constraint = valid(dataset.getConstraint(md.getConstraintName()));
                             return new DBConstraintColumnRelation(constraint, column, md.getPosition());
                         }));
+
+        DynamicSubcontentLoader.create("JSON_VIEW_TABLES", DBObjectType.JSON_VIEW, DBObjectRelationType.JSON_VIEW_TABLE,
+                DynamicContentResultSetLoader.<DBJsonViewTableRelation, DBJsonViewTableMetadata>create(
+                        "JSON_VIEW_TABLES", DBObjectType.JSON_VIEW, DBObjectRelationType.JSON_VIEW_TABLE, false, false,
+                        (content, conn, mdi) -> mdi.loadJsonViewTableRelations(content.getParentSchemaName(), content.getParentObjectName(), conn),
+                        (content, cache, md) -> {
+                            DBJsonView jsonView = valid(content.getParentEntity());
+                            DBSchema tableSchema = content.ensureParentEntity(); // TODO
+                            DBTable table = valid(tableSchema.getTable(md.getTableName()));
+                            return new DBJsonViewTableRelation(jsonView, table, md.getPosition(), md.isRootTable(), md.isReadonly());
+                        }));
+
 
         DynamicSubcontentLoader.create("NESTED_TABLES", DBObjectType.TABLE, DBObjectType.NESTED_TABLE,
                 DynamicContentResultSetLoader.<DBNestedTable, DBNestedTableMetadata>create(
@@ -703,6 +736,7 @@ public class DBObjectLoaders {
         DBObjectListFromRelationListLoader.create("ROLE_ROLES", DBObjectType.ROLE, DBObjectType.GRANTED_ROLE);
         DBObjectListFromRelationListLoader.create("USER_ROLES", DBObjectType.USER, DBObjectType.GRANTED_ROLE);
         DBObjectListFromRelationListLoader.create("USER_PRIVILEGES", DBObjectType.USER, DBObjectType.GRANTED_PRIVILEGE);
+        DBObjectListFromRelationListLoader.create("JSON_VIEW_TABLES", DBObjectType.JSON_VIEW, DBObjectType.TABLE);
     }
 
 

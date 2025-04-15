@@ -49,6 +49,7 @@ public class ObjectsLookupSettings extends BasicProjectConfiguration<NavigationS
         new ObjectTypeEntry(DBObjectType.CHARSET, false),
         new ObjectTypeEntry(DBObjectType.TABLE, true),
         new ObjectTypeEntry(DBObjectType.VIEW, true),
+        new ObjectTypeEntry(DBObjectType.JSON_VIEW, true),
         new ObjectTypeEntry(DBObjectType.MATERIALIZED_VIEW, true),
         //new ObjectTypeEntry(DBObjectType.NESTED_TABLE, false),
         //new ObjectTypeEntry(DBObjectType.COLUMN, false),

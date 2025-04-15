@@ -24,6 +24,7 @@ import com.dbn.object.type.DBObjectRelationType;
 
 public interface DBObjectRelation<S extends DBObject, T extends DBObject> extends DynamicContentElement, UnlistedDisposable {
     DBObjectRelationType getRelationType();
+    DBObject getRelationHolder();
     S getSourceObject();
     T getTargetObject();
 

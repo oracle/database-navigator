@@ -47,6 +47,10 @@
         <statement>drop {0} {1}.{2}</statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="drop-constraint">
+        <statement>alter table {0}.{1} drop constraint {2}</statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="drop-trigger">
         <statement>drop trigger {2} on {0}.{1}</statement>
     </statement-execution-processor>

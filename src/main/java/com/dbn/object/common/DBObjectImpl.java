@@ -57,7 +57,6 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.properties.ConnectionPresentableProperty;
 import com.dbn.object.properties.DBObjectPresentableProperty;
 import com.dbn.object.properties.PresentableProperty;
-import com.dbn.object.type.DBObjectRelationType;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBObjectVirtualFile;
 import com.intellij.navigation.ItemPresentation;
@@ -503,21 +502,9 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
 
     @Override
     @Nullable
-    public DynamicContent getDynamicContent(DynamicContentType dynamicContentType) {
+    public DynamicContent getDynamicContent(DynamicContentType contentType) {
         DBObjectListContainer objects = getChildObjects();
-        if (objects == null) return null;
-
-        if(dynamicContentType instanceof DBObjectType) {
-            DBObjectType objectType = (DBObjectType) dynamicContentType;
-            return objects.getObjectList(objectType);
-        }
-
-        else if (dynamicContentType instanceof DBObjectRelationType) {
-            DBObjectRelationType objectRelationType = (DBObjectRelationType) dynamicContentType;
-            return objects.getRelations(objectRelationType);
-        }
-
-        return null;
+        return objects == null ? null : objects.getDynamicContent(contentType);
     }
 
     @Override

@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.connection.DatabaseUrlType.CUSTOM;
 import static com.dbn.connection.DatabaseUrlType.DATABASE;
 import static com.dbn.connection.DatabaseUrlType.FILE;
@@ -170,6 +171,10 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
 
     public List<DatabaseFile> getAttachedFiles() {
         return fileBundle == null ? Collections.emptyList() : fileBundle.getAttachedFiles();
+    }
+
+    public String getServerTypeToken() {
+        return Strings.isEmpty(serverType) || "Default".equalsIgnoreCase(serverType) ? "" : ":" + nvl(serverType.toUpperCase(), "");
     }
 
     public boolean isCustomUrl() {

@@ -22,7 +22,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -223,6 +225,10 @@ public class Lists {
         return buffer.toString();
     }
 
+    public static List<String> fromCsv(String csvString) {
+        return Arrays.stream(csvString.split(",")).map(s -> s.trim()).filter(s -> !s.isEmpty()).collect(Collectors.toList());
+    }
+
     public static <T> int greatest(List<T> elements, Function<T, Integer> size) {
         int greatest = 0;
 
@@ -245,6 +251,12 @@ public class Lists {
     public static <T> List<T> sortedCopy(List<T> list, Comparator<? super T> comparator) {
         List<T> copy = new ArrayList<>(list);
         copy.sort(comparator);
+        return copy;
+    }
+
+    public static <T extends Comparable<T>> List<T> sortedCopy(List<T> list) {
+        List<T> copy = new ArrayList<>(list);
+        Collections.sort(copy);
         return copy;
     }
 }

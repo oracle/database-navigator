@@ -104,7 +104,7 @@ intellij {
   version.set("2024.3.3")
   type.set("IC") // Target IDE Platform
 
-  plugins.set(listOf("java", "copyright"))
+  plugins.set(listOf("java", "json", "copyright"))
 
 }
 
@@ -140,6 +140,16 @@ withType<KotlinCompile> {
       from("lib/ext")
       include("**/*.jar")
       into(layout.buildDirectory.dir("idea-sandbox/plugins/${project.name}/lib/ext"))
+    }
+  }
+  test {
+    // we are also excluding two ChecksumTest cases if we are on Linux
+    if (project.hasProperty("excludeTests")) {
+      var excludeTests: String = project.properties["excludeTests"] as String
+      excludeTests.replace("\\s", "").split(",", ";").forEach { excluded ->
+        System.out.println("Excluding testcase: "+excluded)
+        exclude(excluded)
+      }
     }
   }
 

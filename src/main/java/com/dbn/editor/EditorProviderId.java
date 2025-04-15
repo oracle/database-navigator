@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 package com.dbn.editor;
 
+import lombok.Getter;
+
+@Getter
 public enum EditorProviderId {
     CODE("0.CODE"),
     CODE_SPEC("0.CODE_SPEC"),
@@ -24,6 +27,7 @@ public enum EditorProviderId {
     DDL0("3.DDL"),
     DDL1("4.DDL"),
     DDL2("5.DDL"),
+    JSON("1.JSON_DATA"),
     CONSOLE("0.CONSOLE"),
     SESSION_BROWSER("0.SESSION_BROWSER"),
     DBN_SQL("2.DBN_SQL");
@@ -34,7 +38,4 @@ public enum EditorProviderId {
 
     private final String id;
 
-    public String getId() {
-        return id;
-    }
 }

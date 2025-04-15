@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,14 @@ import lombok.Getter;
 public enum DBContentType {
     NONE("No Content"),
     DATA("Data", EditorProviderId.DATA),
+    JSON("Data", EditorProviderId.JSON),
 
     CODE("Code", EditorProviderId.CODE),
     CODE_SPEC("Spec", EditorProviderId.CODE_SPEC),
     CODE_BODY("Body", "BODY", EditorProviderId.CODE_BODY),
     CODE_SPEC_AND_BODY("Spec and Body", new DBContentType[]{CODE_SPEC, CODE_BODY}),
-    CODE_AND_DATA("Code and Data", new DBContentType[]{CODE, DATA});
+    CODE_AND_DATA("Code and Data", new DBContentType[]{CODE, DATA}),
+    CODE_AND_JSON("Code and Json", new DBContentType[]{CODE, JSON});
 
     private DBContentType[] subContentTypes = new DBContentType[0];
     private final String description;
@@ -72,6 +74,10 @@ public enum DBContentType {
         return this == DATA; 
     }
 
+    public boolean isJsonData() {
+        return this == JSON;
+    }
+
     public String toString() {
         return description;
     }
@@ -91,6 +97,7 @@ public enum DBContentType {
             case PACKAGE:
             case TYPE: return CODE_SPEC_AND_BODY;
             case VIEW:
+            case JSON_VIEW:
             case MATERIALIZED_VIEW: return CODE_AND_DATA;
             case TABLE: return DATA;
             default: return NONE;
@@ -100,6 +107,7 @@ public enum DBContentType {
     public boolean has(DBContentType contentType) {
         switch (contentType) {
             case DATA: return this == DATA || this == CODE_AND_DATA;
+            case JSON: return this == JSON || this == CODE_AND_JSON;
             case CODE: return this == CODE || this == CODE_AND_DATA || this == CODE_SPEC_AND_BODY;
             default:   return false;
         }

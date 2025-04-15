@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     JAVA_METHOD(DatabaseObjectTypeId.JAVA_METHOD, "java method", "methods", Icons.DBO_JAVA_METHOD, null, Icons.DBO_JAVA_METHODS, false),
     JAVA_OBJECT(DatabaseObjectTypeId.JAVA_OBJECT, "java object", "objects", null, null, null, false),
     JAVA_PARAMETER(DatabaseObjectTypeId.JAVA_PARAMETER, "java parameter", "parameters", Icons.DBO_JAVA_PARAMETER, null, null, false),
-    JSON_VIEW(DatabaseObjectTypeId.JSON_VIEW, "json view", "json views", null, null, null, false),
+    JSON_VIEW(DatabaseObjectTypeId.JSON_VIEW, "json view", "json views", Icons.DBO_JSON_VIEW, null, Icons.DBO_JSON_VIEWS, false),
     LIBRARY(DatabaseObjectTypeId.LIBRARY, "library", "libraries", null, null, null, false),
     LOB(DatabaseObjectTypeId.LOB, "lob", "lobs", null, null, null, false),
     MATERIALIZED_VIEW(DatabaseObjectTypeId.MATERIALIZED_VIEW, "materialized view", "materialized views", Icons.DBO_MATERIALIZED_VIEW, null, Icons.DBO_MATERIALIZED_VIEWS, false),
@@ -167,6 +167,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     private final DatabaseObjectTypeId typeId;
     private final String name;
     private final String listName;
+    private final String pathListName;
     private final String presentableListName;
     private final Icon icon;
     private final Icon disabledIcon;
@@ -198,6 +199,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         this.listIcon = listIcon;
         this.disabledIcon = disabledIcon;
         this.generic = generic;
+        this.pathListName = listName == null ? null : listName.replace(' ', '_');
         this.presentableListName = listName == null ? null :
                 Characters.toUpperCase(listName.charAt(0)) + listName.substring(1).replace('_', ' ');
     }
@@ -356,6 +358,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TABLE.setInheritedType(DATASET);
         VIEW.setInheritedType(DATASET);
         CURSOR.setInheritedType(DATASET);
+        JSON_VIEW.setInheritedType(DATASET);
         MATERIALIZED_VIEW.setInheritedType(DATASET);
         PROCEDURE.setInheritedType(METHOD);
         FUNCTION.setInheritedType(METHOD);
@@ -409,6 +412,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         DIMENSION_HIERARCHY.addParent(DIMENSION);
         DIMENSION_LEVEL.addParent(DIMENSION);
         INDEX.addParent(SCHEMA);
+        JSON_VIEW.addParent(SCHEMA);
         MATERIALIZED_VIEW.addParent(SCHEMA);
         NESTED_TABLE.addParent(TABLE);
         NESTED_TABLE_COLUMN.addParent(NESTED_TABLE);
@@ -457,6 +461,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TABLE.contentType = DBContentType.DATA;
         VIEW.contentType = DBContentType.CODE_AND_DATA;
         MATERIALIZED_VIEW.contentType = DBContentType.CODE_AND_DATA;
+        JSON_VIEW.contentType = DBContentType.CODE_AND_JSON;
         TYPE.contentType = DBContentType.CODE_SPEC_AND_BODY;
         PACKAGE.contentType = DBContentType.CODE_SPEC_AND_BODY;
         TRIGGER.contentType = DBContentType.CODE;
@@ -467,6 +472,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
 
     private static void initDdlFileTypes() {
         VIEW.addDdlFileType(DBContentType.CODE, DDLFileTypeId.VIEW);
+        JSON_VIEW.addDdlFileType(DBContentType.CODE, DDLFileTypeId.VIEW);
         MATERIALIZED_VIEW.addDdlFileType(DBContentType.CODE, DDLFileTypeId.VIEW);
         TRIGGER.addDdlFileType(DBContentType.CODE, DDLFileTypeId.TRIGGER);
         DATASET_TRIGGER.addDdlFileType(DBContentType.CODE, DDLFileTypeId.TRIGGER);
@@ -604,7 +610,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
 
     public static DBObjectType forListName(String name, DBObjectType parent) {
         for (DBObjectType objectType : values()) {
-            if (Objects.equals(objectType.getListName(), name) && (parent == null || objectType.getParents().contains(parent))) {
+            if (matchesListName(name, objectType) && (parent == null || objectType.getParents().contains(parent))) {
                 return objectType;
             }
         }
@@ -614,6 +620,12 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
 
         log.warn("No ObjectType found for name '{}'", name, new IllegalArgumentException("Invalid object type"));
         return DBObjectType.UNKNOWN;
+    }
+
+    private static boolean matchesListName(String name, DBObjectType objectType) {
+        return
+            Objects.equals(objectType.getListName(), name) ||
+            Objects.equals(objectType.getPathListName(), name);
     }
 
     public boolean isSupported(@Nullable DatabaseContext connectionProvider) {

@@ -61,6 +61,12 @@
             <option name="BACKGROUND" value="F4F4F4"/>
         </value>
     </option>
+    <option name="DBNavigator.DefaultTextAttributes.DataEditor.UpdatingData">
+        <value>
+            <option name="FOREGROUND" value="7F7F7F"/>
+            <option name="FONT_TYPE" value="2"/>
+        </value>
+    </option>
     <option name="DBNavigator.DefaultTextAttributes.DataEditor.PrimaryKey">
         <value>
             <option name="FOREGROUND" value="4569A7"/>

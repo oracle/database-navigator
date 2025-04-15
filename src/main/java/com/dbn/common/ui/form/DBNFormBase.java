@@ -239,7 +239,7 @@ public abstract class DBNFormBase
     }
 
     @Override
-    public <F extends DBNForm> F getParentFrom(Class<F> formClass) {
+    public final <F extends DBNForm> F getParentFrom(Class<F> formClass) {
         DBNComponent parent = getParentComponent();
         if (parent == null) return null;
         if (formClass.isAssignableFrom(parent.getClass())) return cast(parent);

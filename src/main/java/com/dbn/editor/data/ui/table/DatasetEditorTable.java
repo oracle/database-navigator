@@ -24,10 +24,8 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNForm;
-import com.dbn.common.ui.table.DBNTableGutter;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
-import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Messages;
 import com.dbn.data.grid.options.DataGridAuditColumnSettings;
@@ -36,7 +34,6 @@ import com.dbn.data.grid.ui.table.basic.BasicTableGutter;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.model.ColumnInfo;
 import com.dbn.data.model.DataModelCell;
-import com.dbn.data.preview.LargeValuePreviewPopup;
 import com.dbn.data.record.RecordViewInfo;
 import com.dbn.data.sorting.SortDirection;
 import com.dbn.data.value.ArrayValue;
@@ -44,8 +41,8 @@ import com.dbn.data.value.LargeObjectValue;
 import com.dbn.data.value.ValueAdapter;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.EditorProviderId;
+import com.dbn.editor.data.DataLoadInstructions;
 import com.dbn.editor.data.DatasetEditor;
-import com.dbn.editor.data.DatasetLoadInstructions;
 import com.dbn.editor.data.action.DatasetEditorTableActionGroup;
 import com.dbn.editor.data.model.DatasetEditorModel;
 import com.dbn.editor.data.model.DatasetEditorModelCell;
@@ -86,15 +83,15 @@ import java.util.EventObject;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
-import static com.dbn.editor.data.DatasetLoadInstruction.DELIBERATE_ACTION;
-import static com.dbn.editor.data.DatasetLoadInstruction.PRESERVE_CHANGES;
-import static com.dbn.editor.data.DatasetLoadInstruction.USE_CURRENT_FILTER;
+import static com.dbn.editor.data.DataLoadInstruction.DELIBERATE_ACTION;
+import static com.dbn.editor.data.DataLoadInstruction.PRESERVE_CHANGES;
+import static com.dbn.editor.data.DataLoadInstruction.USE_CURRENT_FILTER;
 import static com.dbn.editor.data.model.RecordStatus.INSERTING;
 import static com.dbn.editor.data.model.RecordStatus.UPDATING;
 import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
-    private static final DatasetLoadInstructions SORT_LOAD_INSTRUCTIONS = new DatasetLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION);
+    private static final DataLoadInstructions SORT_LOAD_INSTRUCTIONS = new DataLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION);
     private final WeakRef<DatasetEditor> datasetEditor;
 
     private final DatasetTableCellEditorFactory cellEditorFactory = new DatasetTableCellEditorFactory();
@@ -127,6 +124,11 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
         setAccessibleName(this, "Dataset Editor");
         setFocusable(true);
         setRequestFocusEnabled(true);
+
+        // addons
+        installMathAddon();
+        installRecordViewerAddon();
+        installValuePopupAddon();
     }
 
     @Override
@@ -218,21 +220,17 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
 
     public void performUpdate(int rowIndex, int columnIndex, Runnable runnable) {
         PropertyHolder<RecordStatus> scope = getUpdateScope(rowIndex, columnIndex);
-        if (scope != null) {
-            scope.set(UPDATING, true);
-            Background.run(() -> {
-                try {
-                    runnable.run();
-                } finally {
-                    scope.set(UPDATING, false);
-                    dispatch(() -> {
-                        DBNTableGutter tableGutter = getTableGutter();
-                        UserInterface.repaint(tableGutter);
-                        UserInterface.repaint(DatasetEditorTable.this);
-                    });
-                }
-            });
-        }
+        if (scope == null) return;
+
+        scope.set(UPDATING, true);
+        Background.run(() -> {
+            try {
+                runnable.run();
+            } finally {
+                scope.set(UPDATING, false);
+                refreshTableGutter();
+            }
+        });
     }
 
     @Nullable
@@ -276,13 +274,6 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
     @Override
     public void removeEditor() {
         Dispatch.run(true, () -> DatasetEditorTable.super.removeEditor());
-    }
-
-    public void updateTableGutter() {
-        Dispatch.run(true, () -> {
-            DBNTableGutter tableGutter = getTableGutter();
-            UserInterface.repaint(tableGutter);
-        });
     }
 
     @Override
@@ -348,12 +339,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
     }
 
     @Override
-    protected void initLargeValuePopup(LargeValuePreviewPopup viewer) {
-        super.initLargeValuePopup(viewer);
-    }
-
-    @Override
-    protected boolean isLargeValuePopupActive() {
+    public boolean isLargeValuePopupActive() {
         DataEditorGeneralSettings generalSettings = getDatasetEditor().getSettings().getGeneralSettings();
         return generalSettings.getLargeValuePreviewActive().value();
     }
@@ -421,18 +407,18 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
     }
 
     public void fireEditingCancel() {
-        if (isEditing()) {
-            Dispatch.run(true, () -> cancelEditing());
-        }
+        if (!isEditing()) return;
+
+        Dispatch.run(true, () -> cancelEditing());
     }
 
     public void cancelEditing() {
-        if (isEditing()) {
-            TableCellEditor cellEditor = getCellEditor();
-            if (cellEditor != null) {
-                cellEditor.cancelCellEditing();
-            }
-        }
+        if (!isEditing()) return;
+
+        TableCellEditor cellEditor = getCellEditor();
+        if (cellEditor == null) return;
+
+        cellEditor.cancelCellEditing();
     }
 
     @Override
@@ -444,13 +430,14 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
     @Override
     public void sort() {
         DatasetEditorModel model = getModel();
-        if (!isLoading() && !model.is(UPDATING)) {
-            super.sort();
-            if (!model.isResultSetExhausted()) {
-                getDatasetEditor().loadData(SORT_LOAD_INSTRUCTIONS);
-            }
-            resizeAndRepaint();
+        if (isLoading() || model.is(UPDATING)) return;
+
+        super.sort();
+
+        if (!model.isResultSetExhausted()) {
+            getDatasetEditor().loadData(SORT_LOAD_INSTRUCTIONS);
         }
+        resizeAndRepaint();
     }
 
     @Override
@@ -458,17 +445,15 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
         int modelColumnIndex = convertColumnIndexToModel(columnIndex);
         DatasetEditorModel model = getModel();
         ColumnInfo columnInfo = model.getColumnInfo(modelColumnIndex);
-        if (columnInfo.isSortable()) {
-            if (!isLoading() && !model.is(UPDATING)) {
-                boolean sorted = super.sort(columnIndex, sortDirection, keepExisting);
+        if (!columnInfo.isSortable()) return false;
+        if (isLoading() || model.is(UPDATING)) return false;
 
-                if (sorted && !model.isResultSetExhausted()) {
-                    getDatasetEditor().loadData(SORT_LOAD_INSTRUCTIONS);
-                }
-                return sorted;
-            }
+        boolean sorted = super.sort(columnIndex, sortDirection, keepExisting);
+
+        if (sorted && !model.isResultSetExhausted()) {
+            getDatasetEditor().loadData(SORT_LOAD_INSTRUCTIONS);
         }
-        return false;
+        return sorted;
     }
 
     @NotNull

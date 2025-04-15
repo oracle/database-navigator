@@ -10,7 +10,7 @@
  * e.g. by using Maven Project Object Model (POM) <a href="https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.47.1.0/sqlite-jdbc-3.47.1.0.pom">sqlite-jdbc-3.47.1.0.pom</a><br>
  *
  * <p><u>JDBC URL</u></p>
- * The connection is using a "${JDBC_URL_TYPE_NAME}" jdbc URL type<br>
+ * The connection is using a JDBC URL of type "${JDBC_URL_TYPE_NAME}"<br>
  * URL pattern: "$urlPatternHtml"<br>
 #if (${JDBC_URL_TYPE} == 'FILE')
  * <ul>

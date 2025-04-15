@@ -16,6 +16,7 @@
 package com.dbn.driver.download;
 
 import com.dbn.common.Pair;
+import com.dbn.common.download.Downloads;
 import com.dbn.common.util.Measured;
 import com.dbn.driver.download.metadata.Developer;
 import com.dbn.driver.download.metadata.Library;
@@ -31,18 +32,27 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.collection.CollectResult;
+import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.impl.ArtifactResolver;
 import org.eclipse.aether.impl.DefaultServiceLocator;
 import org.eclipse.aether.internal.impl.DefaultArtifactResolver;
+import org.eclipse.aether.internal.impl.SimpleLocalRepositoryManagerFactory;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.repository.RepositoryPolicy;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
+import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
+import org.eclipse.aether.spi.connector.transport.GetTask;
+import org.eclipse.aether.spi.connector.transport.PeekTask;
+import org.eclipse.aether.spi.connector.transport.PutTask;
+import org.eclipse.aether.spi.connector.transport.Transporter;
+import org.eclipse.aether.spi.connector.transport.TransporterFactory;
 import org.eclipse.aether.spi.localrepo.LocalRepositoryManagerFactory;
+import org.eclipse.aether.transfer.NoTransporterException;
 import org.xml.sax.InputSource;
 
 import java.io.File;
@@ -57,22 +67,23 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DependencyParser {
     private static final Map<String, Pair<List<Developer>, List<License>>> metadataMap = new HashMap<>();
+    private static String central_url;
 
     public static List<Library> resolveDependencies(Library library, String type) throws Exception {
         List<Library> libraries = new ArrayList<>();
 
         RepositorySystem repositorySystem = newRepositorySystem();
-
         RepositorySystemSession session = newRepositorySystemSession(repositorySystem);
 
-        DefaultArtifact artifact2 = new DefaultArtifact(library.getGroupId() + ":" + library.getArtifactId() + ":" + library.getVersion());
+        DefaultArtifact artifact = new DefaultArtifact(library.getGroupId() + ":" + library.getArtifactId() + ":" + library.getVersion());
 
         RemoteRepository central = new RemoteRepository.Builder("central", "default", "https://repo1.maven.org/maven2/")
                 .setPolicy(new RepositoryPolicy(true, RepositoryPolicy.UPDATE_POLICY_ALWAYS, RepositoryPolicy.CHECKSUM_POLICY_IGNORE))
                 .build();
+        central_url = central.getUrl();
 
         CollectRequest collectRequest = new CollectRequest();
-        collectRequest.addDependency(new Dependency(artifact2, "compile"));
+        collectRequest.addDependency(new Dependency(artifact, "compile"));
         collectRequest.addRepository(central);
 
         CollectResult collectResult = Measured.call(
@@ -115,13 +126,61 @@ public class DependencyParser {
         }
     }
 
+    static class CustomTransporter implements Transporter {
+        @Override
+        public void close() {
+        }
+
+        @Override
+        public int classify(Throwable throwable) {
+            return 0;
+        }
+
+        @Override
+        public void peek(PeekTask peekTask) {
+
+        }
+
+        @Override
+        public void get(GetTask task) throws Exception {
+            try {
+                File targetFile = new File(task.getDataFile().getAbsolutePath());
+                String relativePath = task.getLocation().toString(); // Artifact path relative to the repository
+
+                String fullUrl = central_url.endsWith("/") ? central_url + relativePath : central_url + "/" + relativePath;
+                Downloads.downloadAtomically(null, fullUrl, targetFile);
+            } catch (Exception e) {
+                throw new Exception("Error during download", e);
+            }
+        }
+
+        @Override
+        public void put(PutTask task) throws Exception {
+            throw new UnsupportedOperationException("Uploads are not supported.");
+        }
+    }
+
+    // Factory for the custom transporter
+    static class CustomTransporterFactory implements TransporterFactory {
+
+        @Override
+        public Transporter newInstance(RepositorySystemSession repositorySystemSession, RemoteRepository remoteRepository) throws NoTransporterException {
+            return new CustomTransporter();
+        }
+
+        @Override
+        public float getPriority() {
+            return 100; // Higher priority
+        }
+    }
+
     private static RepositorySystem newRepositorySystem() {
         DefaultServiceLocator locator = MavenRepositorySystemUtils.newServiceLocator();
 
         // Add required services
-        locator.addService(LocalRepositoryManagerFactory.class, org.eclipse.aether.internal.impl.SimpleLocalRepositoryManagerFactory.class);
-        locator.addService(org.eclipse.aether.spi.connector.RepositoryConnectorFactory.class,
-                org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory.class);
+        locator.addService(TransporterFactory.class, CustomTransporterFactory.class);
+        locator.addService(LocalRepositoryManagerFactory.class, SimpleLocalRepositoryManagerFactory.class);
+        locator.addService(RepositoryConnectorFactory.class, BasicRepositoryConnectorFactory.class);
         locator.setService(ArtifactResolver.class, CustomArtifactResolver.class);
 
         return locator.getService(RepositorySystem.class);

@@ -220,6 +220,7 @@ public abstract class DynamicContentResultSetLoader<E extends DynamicContentElem
                     list.add(element);
 
                     if (count % 10 == 0) {
+                        ProgressMonitor.checkCancelled();
                         String description = element.getDescription();
                         if (description != null)
                             ProgressMonitor.setProgressDetail(description);
