@@ -182,6 +182,9 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
         adjustRowHeight(rowVerticalPadding);
     }
 
+    public int getDefaultAutoResizeMode() {
+        return AUTO_RESIZE_SUBSEQUENT_COLUMNS;
+    }
 
     @Override
     @NotNull

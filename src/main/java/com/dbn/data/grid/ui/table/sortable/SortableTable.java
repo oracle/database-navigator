@@ -49,6 +49,11 @@ public abstract class SortableTable<T extends SortableDataModel<?, ?>> extends B
         UserInterface.repaint(tableHeader);
     }
 
+    @Override
+    public int getDefaultAutoResizeMode() {
+        return AUTO_RESIZE_OFF;
+    }
+
     public boolean sort(int columnIndex, SortDirection sortDirection, boolean keepExisting) {
         SortableDataModel<?, ?> model = getModel();
         int modelColumnIndex = convertColumnIndexToModel(columnIndex);

@@ -31,9 +31,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.common.util.Commons.nvl;
 import static com.intellij.util.ui.JBUI.scale;
 import static javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS;
-import static javax.swing.JTable.AUTO_RESIZE_OFF;
 
 /**
  * Handler for table column widths, allowing to specify fixed and proportional column widths, but also supporting content driven width adjustments
@@ -89,22 +89,24 @@ public class DBNTableColumnWidths {
         DBNTable table = getTable();
         DBNTableModel model = table.getModel();
         int columnCount = model.getColumnCount();
-        List<Integer> largeColumnIndices = new ArrayList<>();
+        List<Integer> largeColumnIndices = null;
 
         for (int i = 0; i < columnCount; i++) {
             if (model.isLargeValue(i)) {
+                largeColumnIndices = nvl(largeColumnIndices, () -> new ArrayList<>());
                 largeColumnIndices.add(i);
             }
         }
 
-        if (largeColumnIndices.isEmpty()) {
-            table.setAutoResizeMode(AUTO_RESIZE_OFF);
+        if (largeColumnIndices == null) {
+            int autoResizeMode = table.getDefaultAutoResizeMode();
+            table.setAutoResizeMode(autoResizeMode);
         } else {
-            table.setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
             initLargeColumnProportion(table, largeColumnIndices, columnCount);
         }
-
     }
+
+
 
     private void initLargeColumnProportion(DBNTable table, List<Integer> largeColumnIndices, int columnCount) {
         table.setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
