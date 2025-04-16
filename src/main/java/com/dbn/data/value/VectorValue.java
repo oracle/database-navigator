@@ -30,11 +30,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.dbn.common.exception.Exceptions.toSqlException;
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Getter
 public class VectorValue extends ValueAdapter<double[]>{
-    private double[] values = new double[0];
+    public static final double[] EMPTY_DOUBLE_ARRAY = new double[0];
+    public static final String[] EMPTY_STRING_ARRAY = new String[0];
+
+    private double[] values = EMPTY_DOUBLE_ARRAY;
 
     public VectorValue() {
     }
@@ -54,7 +58,7 @@ public class VectorValue extends ValueAdapter<double[]>{
 
     @Override
     public double[] read() throws SQLException {
-        return values;
+        return nvl(values, EMPTY_DOUBLE_ARRAY);
     }
 
     @Nullable
@@ -88,6 +92,8 @@ public class VectorValue extends ValueAdapter<double[]>{
 
     @Override
     public String getDisplayValue() {
+        if (values == null) return "";
+
         List<String> values = new ArrayList<>();
         int length = Math.min(this.values.length, 3);
         for (int i = 0; i< length; i++) {
@@ -98,6 +104,8 @@ public class VectorValue extends ValueAdapter<double[]>{
     }
 
     public String[] getStringValues() {
+        if (values == null) return EMPTY_STRING_ARRAY;
+
         return Arrays.stream(values).mapToObj(d -> Double.toString(d)).toArray(String[]::new);
     }
 
