@@ -31,7 +31,7 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="change-view">
-        <statement>create or replace view {0} as {1}</statement>
+        <statement>create or replace view {0}.{1} as {2}</statement>
     </statement-execution-processor>
 
 

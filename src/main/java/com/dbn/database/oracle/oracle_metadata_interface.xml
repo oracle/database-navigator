@@ -311,8 +311,12 @@
                 v.VIEW_NAME,
                 v.VIEW_TYPE_OWNER,
                 v.VIEW_TYPE,
-                'N' as IS_SYSTEM_VIEW
+                'N' as IS_SYSTEM_VIEW,
+                o.EDITIONABLE as IS_EDITIONABLE
             from [PREFIX]_VIEWS v
+                inner join [PREFIX]_OBJECTS o
+                        on o.OWNER = v.OWNER
+                       and o.OBJECT_NAME = v.VIEW_NAME
                 left join [PREFIX]_JSON_DUALITY_VIEWS jv
                        on jv.VIEW_OWNER = v.OWNER
                       and jv.VIEW_NAME = v.VIEW_NAME
@@ -322,24 +326,32 @@
         </statement>
         <statement prefixes="DBA, ALL" since-version="23.0">
             select
-                VIEW_NAME,
-                VIEW_TYPE_OWNER,
-                VIEW_TYPE,
-                'N' as IS_SYSTEM_VIEW
-            from [PREFIX]_VIEWS
-            where OWNER = {0}
-              and DUALITY_VIEW != 'YES'
-            order by VIEW_NAME asc
+                v.VIEW_NAME,
+                v.VIEW_TYPE_OWNER,
+                v.VIEW_TYPE,
+                'N' as IS_SYSTEM_VIEW,
+                o.EDITIONABLE as IS_EDITIONABLE
+            from [PREFIX]_VIEWS v
+                inner join [PREFIX]_OBJECTS o
+                        on o.OWNER = v.OWNER
+                       and o.OBJECT_NAME = v.VIEW_NAME
+            where v.OWNER = {0}
+              and v.DUALITY_VIEW != 'YES'
+            order by v.VIEW_NAME asc
         </statement>
         <statement prefixes="DBA, ALL">
             select
-                VIEW_NAME,
-                VIEW_TYPE_OWNER,
-                VIEW_TYPE,
-                'N' as IS_SYSTEM_VIEW
-            from [PREFIX]_VIEWS
-            where OWNER = {0}
-            order by VIEW_NAME asc
+                v.VIEW_NAME,
+                v.VIEW_TYPE_OWNER,
+                v.VIEW_TYPE,
+                'N' as IS_SYSTEM_VIEW,
+                o.EDITIONABLE as IS_EDITIONABLE
+            from [PREFIX]_VIEWS v
+                inner join [PREFIX]_OBJECTS o
+                        on o.OWNER = v.OWNER
+                       and o.OBJECT_NAME = v.VIEW_NAME
+            where v.OWNER = {0}
+            order by v.VIEW_NAME asc
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="json-views" is-query="true" is-prepared-statement="true">
@@ -352,6 +364,7 @@
                 v.ROOT_TABlE_NAME,
                 v.JSON_COLUMN_NAME,
                 'N' as IS_SYSTEM_VIEW,
+                o.EDITIONABLE as IS_EDITIONABLE,
                 DECODE(v.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
                 DECODE(v.READ_ONLY, 'true', 'Y', 'N') as IS_READONLY,
                 DECODE(v.ALLOW_INSERT, 'true', 'Y', 'N') as IS_INSERT_ALLOWED,
@@ -360,12 +373,15 @@
                 v.JSON_SCHEMA,
                 listagg(c.JSON_KEY_NAME, ', ') within group (order by c.PRIMARY_KEY_POS) as KEY_ATTRIBUTE_NAMES
             from [PREFIX]_JSON_DUALITY_VIEWS v,
-                 [PREFIX]_JSON_DUALITY_VIEW_TAB_COLS c
+                 [PREFIX]_JSON_DUALITY_VIEW_TAB_COLS c,
+                 [PREFIX]_OBJECTS o
             where v.VIEW_OWNER = {0}
               and c.VIEW_OWNER = v.VIEW_OWNER
               and c.VIEW_NAME = v.VIEW_NAME
               and c.root_table = 'true'
               and c.PRIMARY_KEY_POS is not null
+              and o.OWNER = v.VIEW_OWNER
+              and o.OBJECT_NAME = v.VIEW_NAME
             group by
                 v.VIEW_NAME,
                 v.ROOT_TABLE_OWNER,
@@ -376,7 +392,8 @@
                 v.ALLOW_INSERT,
                 v.ALLOW_UPDATE,
                 v.ALLOW_DELETE,
-                v.JSON_SCHEMA
+                v.JSON_SCHEMA,
+                o.EDITIONABLE
             order by v.VIEW_NAME asc
         </statement>
         <statement>

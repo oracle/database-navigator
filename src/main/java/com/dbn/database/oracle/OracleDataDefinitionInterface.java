@@ -111,8 +111,13 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
      *                   CHANGE statements                   *
      *********************************************************/
     @Override
-    public void updateView(String viewName, String code, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "change-view", viewName, code);
+    public void updateView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "change-view", ownerName, viewName, code, editionable ? "editionable" : "noneditionable");
+    }
+
+    @Override
+    public void updateJsonView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "change-json-view", ownerName, viewName, code, editionable ? "editionable" : "noneditionable");
     }
 
     @Override
