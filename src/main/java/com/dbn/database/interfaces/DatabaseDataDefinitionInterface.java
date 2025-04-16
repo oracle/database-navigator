@@ -50,7 +50,9 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
     /*********************************************************
      *                   CHANGE statements                   *
      *********************************************************/
-    void updateView(String viewName, String code, DBNConnection connection) throws SQLException;
+    void updateView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException;
+
+    void updateJsonView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException;
 
     void updateTrigger(String tableOwner, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException;
 

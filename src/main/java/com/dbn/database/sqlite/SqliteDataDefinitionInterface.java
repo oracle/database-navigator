@@ -81,7 +81,7 @@ public class SqliteDataDefinitionInterface extends DatabaseDataDefinitionInterfa
      *                   CHANGE statements                   *
      *********************************************************/
     @Override
-    public void updateView(String viewName, String code, DBNConnection connection) throws SQLException {
+    public void updateView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException {
         // try instructions
         String objectType = "VIEW";
         String tempViewName = getTempObjectName(objectType);
