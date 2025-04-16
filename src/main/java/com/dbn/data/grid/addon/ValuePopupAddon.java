@@ -23,6 +23,7 @@ import com.dbn.data.model.DataModelCell;
 import com.dbn.data.model.basic.BasicDataModel;
 import com.dbn.data.preview.LargeValuePreviewPopup;
 import com.dbn.data.value.LargeObjectValue;
+import com.dbn.data.value.VectorValue;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupListener;
 import com.intellij.openapi.ui.popup.LightweightWindowEvent;
@@ -123,6 +124,7 @@ public class ValuePopupAddon extends ComponentAddonBase<BasicTable> {
         Object value = cell.getUserValue();
         if (value == null) return true;
         if (value instanceof LargeObjectValue) return false;
+        if (value instanceof VectorValue) return false;
 
         TableCellRenderer renderer = table.getCellRenderer(rowIndex, columnIndex);
         Component component = renderer.getTableCellRendererComponent(getTable(), cell, false, false, rowIndex, columnIndex);
