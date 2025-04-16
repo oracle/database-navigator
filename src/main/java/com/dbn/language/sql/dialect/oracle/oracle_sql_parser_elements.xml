@@ -4852,7 +4852,7 @@
         <token id="02803" type-id="KW_CREATE" />
         <element ref-id="create_index" />
     </element-def>
-    <element-def attributes="SPECIFIC" custom="true" description="CREATE INDEX statement" id="create_index">
+    <element-def attributes="DATA_DEFINITION, SPECIFIC" custom="true" description="CREATE INDEX statement" id="create_index">
         <one-of id="02804" optional="true" tokens="KW_UNIQUE, KW_BITMAP, KW_MULTIVALUE" />
         <token id="02805" type-id="KW_INDEX" />
         <qualified-identifier id="02806" separator="CHR_DOT">
@@ -5016,7 +5016,7 @@
         <token id="02881" optional="true" type-id="KW_PUBLIC" />
         <element ref-id="create_synonym" />
     </element-def>
-    <element-def attributes="SPECIFIC" description="CREATE SYNONYM statement" id="create_synonym">
+    <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE SYNONYM statement" id="create_synonym">
         <token id="02882" type-id="KW_SYNONYM" />
         <qualified-identifier id="02883" separator="CHR_DOT">
             <variant>
@@ -5040,7 +5040,7 @@
         <token id="02890" type-id="KW_CREATE" />
         <element ref-id="create_table" />
     </element-def>
-    <element-def attributes="SPECIFIC" description="CREATE TABLE statement" id="create_table">
+    <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE TABLE statement" id="create_table">
         <one-of optional="true" id="02891">
             <token id="02892" type-id="KW_SHARED" />
             <token id="02893" type-id="KW_DUPLICATED" />
@@ -5331,7 +5331,7 @@
         </one-of>
         <element ref-id="create_view" />
     </element-def>
-    <element-def attributes="SPECIFIC" description="CREATE VIEW statement" id="create_view">
+    <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE VIEW statement" id="create_view">
         <token id="03042" type-id="KW_VIEW" />
         <qualified-identifier id="03043" separator="CHR_DOT">
             <variant>
@@ -6341,7 +6341,7 @@
         </sequence>
         <element ref-id="create_directory" />
     </element-def>
-    <element-def attributes="SPECIFIC" description="CREATE DIRECTORY statement" id="create_directory">
+    <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE DIRECTORY statement" id="create_directory">
         <token id="03610" type-id="KW_DIRECTORY" />
         <object-def id="03611" type="DIRECTORY" />
         <element optional="true" ref-id="sharing_metadata_clause" />
@@ -6359,7 +6359,7 @@
         </sequence>
         <element ref-id="create_context" />
     </element-def>
-    <element-def attributes="SPECIFIC" description="CREATE CONTEXT statement" id="create_context">
+    <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE CONTEXT statement" id="create_context">
         <token id="03618" type-id="KW_CONTEXT" />
         <object-ref id="03619" original-name="namespace" type="CONTEXT" />
         <token id="03620" type-id="KW_USING" />
@@ -6405,7 +6405,7 @@
         </one-of>
         <element ref-id="create_library" />
     </element-def>
-    <element-def attributes="SPECIFIC" description="CREATE LIBRARY statement" id="create_library">
+    <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE LIBRARY statement" id="create_library">
         <token id="03645" type-id="KW_LIBRARY" />
         <element ref-id="plsql_library_source" />
     </element-def>
@@ -6455,7 +6455,7 @@
         <token id="03669" type-id="KW_CREATE" />
         <element ref-id="create_sequence" />
     </element-def>
-    <element-def attributes="SPECIFIC" description="CREATE SEQUENCE statement" id="create_sequence">
+    <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE SEQUENCE statement" id="create_sequence">
         <token id="03670" type-id="KW_SEQUENCE" />
         <qualified-identifier id="03671" separator="CHR_DOT">
             <variant>
@@ -6497,7 +6497,7 @@
         <token id="03695" type-id="KW_CREATE" />
         <element ref-id="create_user" />
     </element-def>
-    <element-def attributes="SPECIFIC" description="CREATE USER statement" id="create_user">
+    <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE USER statement" id="create_user">
         <token id="03696" type-id="KW_USER" />
         <object-def attributes="SUBJECT" id="03697" type="USER" />
         <one-of id="03698" optional="true">
@@ -6600,7 +6600,7 @@
         <token id="03759" type-id="KW_CREATE" />
         <element ref-id="create_role" />
     </element-def>
-    <element-def attributes="SPECIFIC" description="CREATE ROLE statement" id="create_role">
+    <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE ROLE statement" id="create_role">
         <token id="03760" type-id="KW_ROLE" />
         <object-def attributes="SUBJECT" id="03761" type="ROLE" />
         <one-of id="03762" optional="true">
