@@ -22,6 +22,8 @@ public class IndexTableGutterCellRenderer extends DBNTableGutterRendererBase {
 
     @Override
     protected void adjustListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        iconLabel.setVisible(false);
+        // todo cleanup - no longer required apparently
+        //iconLabel.setVisible(false);
+
     }
 }

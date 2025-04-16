@@ -94,7 +94,7 @@ public class JsonValue extends LargeObjectValue{
 
     @Override
     public String getDisplayValue() {
-        return "[JSON]";
+        return data;
     }
 
     @Override

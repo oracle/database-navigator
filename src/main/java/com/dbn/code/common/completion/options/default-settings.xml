@@ -40,6 +40,7 @@
         <sorting-element type="OBJECT" id="COLUMN"/>
         <sorting-element type="OBJECT" id="TABLE"/>
         <sorting-element type="OBJECT" id="VIEW"/>
+        <sorting-element type="OBJECT" id="JSON_VIEW"/>
         <sorting-element type="OBJECT" id="MATERIALIZED_VIEW"/>
         <sorting-element type="OBJECT" id="INDEX"/>
         <sorting-element type="OBJECT" id="CONSTRAINT"/>
@@ -73,6 +74,7 @@
             <user-schema>
                 <filter-element type="OBJECT" id="TABLE" selected="true"/>
                 <filter-element type="OBJECT" id="VIEW" selected="true"/>
+                <filter-element type="OBJECT" id="JSON_VIEW" selected="true"/>
                 <filter-element type="OBJECT" id="MATERIALIZED_VIEW" selected="true"/>
                 <filter-element type="OBJECT" id="INDEX" selected="true"/>
                 <filter-element type="OBJECT" id="CONSTRAINT" selected="true"/>
@@ -90,6 +92,7 @@
             <public-schema>
                 <filter-element type="OBJECT" id="TABLE" selected="false"/>
                 <filter-element type="OBJECT" id="VIEW" selected="false"/>
+                <filter-element type="OBJECT" id="JSON_VIEW" selected="false"/>
                 <filter-element type="OBJECT" id="MATERIALIZED_VIEW" selected="false"/>
                 <filter-element type="OBJECT" id="INDEX" selected="false"/>
                 <filter-element type="OBJECT" id="CONSTRAINT" selected="false"/>
@@ -107,6 +110,7 @@
             <any-schema>
                 <filter-element type="OBJECT" id="TABLE" selected="true"/>
                 <filter-element type="OBJECT" id="VIEW" selected="true"/>
+                <filter-element type="OBJECT" id="JSON_VIEW" selected="true"/>
                 <filter-element type="OBJECT" id="MATERIALIZED_VIEW" selected="true"/>
                 <filter-element type="OBJECT" id="INDEX" selected="true"/>
                 <filter-element type="OBJECT" id="CONSTRAINT" selected="true"/>
@@ -135,6 +139,7 @@
             <user-schema>
                 <filter-element type="OBJECT" id="TABLE" selected="true"/>
                 <filter-element type="OBJECT" id="VIEW" selected="true"/>
+                <filter-element type="OBJECT" id="JSON_VIEW" selected="true"/>
                 <filter-element type="OBJECT" id="MATERIALIZED_VIEW" selected="true"/>
                 <filter-element type="OBJECT" id="INDEX" selected="true"/>
                 <filter-element type="OBJECT" id="CONSTRAINT" selected="true"/>
@@ -152,6 +157,7 @@
             <public-schema>
                 <filter-element type="OBJECT" id="TABLE" selected="true"/>
                 <filter-element type="OBJECT" id="VIEW" selected="true"/>
+                <filter-element type="OBJECT" id="JSON_VIEW" selected="true"/>
                 <filter-element type="OBJECT" id="MATERIALIZED_VIEW" selected="true"/>
                 <filter-element type="OBJECT" id="INDEX" selected="true"/>
                 <filter-element type="OBJECT" id="CONSTRAINT" selected="true"/>
@@ -169,6 +175,7 @@
             <any-schema>
                 <filter-element type="OBJECT" id="TABLE" selected="true"/>
                 <filter-element type="OBJECT" id="VIEW" selected="true"/>
+                <filter-element type="OBJECT" id="JSON_VIEW" selected="true"/>
                 <filter-element type="OBJECT" id="MATERIALIZED_VIEW" selected="true"/>
                 <filter-element type="OBJECT" id="INDEX" selected="true"/>
                 <filter-element type="OBJECT" id="CONSTRAINT" selected="true"/>
