@@ -95,7 +95,7 @@ public class VectorValue extends ValueAdapter<double[]>{
         if (values == null) return "";
 
         List<String> values = new ArrayList<>();
-        int length = Math.min(this.values.length, 3);
+        int length = Math.min(this.values.length, 10);
         for (int i = 0; i< length; i++) {
             values.add(Double.toString(this.values[i]));
         }

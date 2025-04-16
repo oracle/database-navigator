@@ -44,6 +44,7 @@ import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.data.type.GenericDataType.JSON;
+import static com.dbn.data.type.GenericDataType.VECTOR;
 import static com.dbn.data.type.GenericDataType.XMLTYPE;
 
 @Getter
@@ -200,7 +201,7 @@ public class ResultSetDataModel<
     public boolean isLargeValue(int columnIndex) {
         ColumnInfo columnInfo = getColumnInfo(columnIndex);
         GenericDataType dataType = columnInfo.getDataType().getGenericDataType();
-        if (dataType.isOneOf(JSON, XMLTYPE)) {
+        if (dataType.isOneOf(JSON, VECTOR, XMLTYPE)) {
             return true;
         }
         return super.isLargeValue(columnIndex);
