@@ -5248,20 +5248,30 @@
 
     <element-def attributes="CLAUSE" id="table_tags_clause" description="Table Tags clause">
         <token id="03000" type-id="KW_WITH" />
-        <iteration id="03001">
-            <one-of id="03002">
-                <sequence id="03003">
-                    <one-of tokens="KW_CHECK, KW_NOCHECK" id="03004" />
-                    <token id="03005" type-id="KW_ETAG" optional="true" />
-                </sequence>
-                <token id="03006" type-id="KW_INSERT" />
-                <token id="03007" type-id="KW_NOINSERT" />
-                <token id="03008" type-id="KW_UPDATE" />
-                <token id="03009" type-id="KW_NOUPDATE" />
-                <token id="03010" type-id="KW_DELETE" />
-                <token id="03011" type-id="KW_NODELETE" />
-            </one-of>
-        </iteration>
+        <one-of>
+            <wrapper template="PARENTHESES">
+                <iteration id="03001" separator="CHR_COMMA">
+                    <element ref-id="table_tag_clause_instruction"/>
+                </iteration>
+            </wrapper>
+            <iteration id="03001">
+                <element ref-id="table_tag_clause_instruction"/>
+            </iteration>
+        </one-of>
+    </element-def>
+    <element-def id="table_tag_clause_instruction" description="Table Tags clause instruction" custom="true">
+        <one-of id="03002">
+            <sequence id="03003">
+                <one-of tokens="KW_CHECK, KW_NOCHECK" id="03004" />
+                <token id="03005" type-id="KW_ETAG" optional="true" />
+            </sequence>
+            <token id="03006" type-id="KW_INSERT" />
+            <token id="03007" type-id="KW_NOINSERT" />
+            <token id="03008" type-id="KW_UPDATE" />
+            <token id="03009" type-id="KW_NOUPDATE" />
+            <token id="03010" type-id="KW_DELETE" />
+            <token id="03011" type-id="KW_NODELETE" />
+        </one-of>
     </element-def>
 
     <element-def id="json_duality_view_subquery" original-name="duality_view_subquery" description="JSON Duality View subquery">
