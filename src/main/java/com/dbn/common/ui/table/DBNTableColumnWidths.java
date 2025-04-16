@@ -26,10 +26,14 @@ import javax.swing.table.TableColumnModel;
 import java.awt.Component;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.intellij.util.ui.JBUI.scale;
+import static javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS;
+import static javax.swing.JTable.AUTO_RESIZE_OFF;
 
 /**
  * Handler for table column widths, allowing to specify fixed and proportional column widths, but also supporting content driven width adjustments
@@ -81,6 +85,46 @@ public class DBNTableColumnWidths {
         }
     }
 
+    public void initColumnWidths() {
+        DBNTable table = getTable();
+        DBNTableModel model = table.getModel();
+        int columnCount = model.getColumnCount();
+        List<Integer> largeColumnIndices = new ArrayList<>();
+
+        for (int i = 0; i < columnCount; i++) {
+            if (model.isLargeValue(i)) {
+                largeColumnIndices.add(i);
+            }
+        }
+
+        if (largeColumnIndices.isEmpty()) {
+            table.setAutoResizeMode(AUTO_RESIZE_OFF);
+        } else {
+            table.setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
+            initLargeColumnProportion(table, largeColumnIndices, columnCount);
+        }
+
+    }
+
+    private void initLargeColumnProportion(DBNTable table, List<Integer> largeColumnIndices, int columnCount) {
+        table.setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
+
+        // Base-width proportions: large gets 90% per column, regular gets 10%
+        double baseLargeWidth = 0.9;
+        double baseRegularWidth = 0.1;
+
+        // Calculate total width points
+        int largeValueCount = largeColumnIndices.size();
+        int regularValueCount = columnCount - largeValueCount;
+        double totalWidthPoints = (largeValueCount * baseLargeWidth) + (regularValueCount * baseRegularWidth);
+
+        // Normalize to percentages for large columns
+        double largeWidthPercentage = (baseLargeWidth / totalWidthPoints) * 100;
+        for (Integer largeColumnIndex : largeColumnIndices) {
+            setProportionalColumnWidth(largeColumnIndex, (int) largeWidthPercentage);
+        }
+    }
+
     public void adjustColumnWidths() {
         DBNTable table = getTable();
         int buffer = table.getColumnWidthBuffer();
@@ -92,7 +136,8 @@ public class DBNTableColumnWidths {
     public void adjustColumnWidth(int columnIndex, int span) {
         DBNTable table = getTable();
         TableColumnModel columnModel = table.getColumnModel();
-        if (columnIndex >= columnModel.getColumnCount()) return;
+        int columnCount = columnModel.getColumnCount();
+        if (columnIndex >= columnCount) return;
 
         DBNTableModel model = table.getModel();
         TableColumn column = columnModel.getColumn(columnIndex);

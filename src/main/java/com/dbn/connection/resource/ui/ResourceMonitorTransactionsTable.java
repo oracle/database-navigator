@@ -41,7 +41,6 @@ public class ResourceMonitorTransactionsTable extends DBNTable<ResourceMonitorTr
         setDefaultRenderer(PendingTransaction.class, new CellRenderer());
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         setCellSelectionEnabled(true);
-        adjustColumnWidths();
         addMouseListener(Mouse.listener().onClick(e -> clickEvent(e)));
 
         setAccessibleName(this, "Resource Monitor Transactions");

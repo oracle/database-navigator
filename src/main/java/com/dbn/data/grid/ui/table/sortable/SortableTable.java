@@ -26,7 +26,6 @@ import com.dbn.data.model.sortable.SortableDataModel;
 import com.dbn.data.model.sortable.SortableTableHeaderMouseListener;
 import com.dbn.data.sorting.SortDirection;
 
-import javax.swing.JTable;
 import javax.swing.table.JTableHeader;
 
 public abstract class SortableTable<T extends SortableDataModel<?, ?>> extends BasicTable<T> {
@@ -38,9 +37,7 @@ public abstract class SortableTable<T extends SortableDataModel<?, ?>> extends B
         tableHeader.addMouseListener(new SortableTableHeaderMouseListener(this));
         tableHeader.setCursor(Cursors.handCursor());
 
-        setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         setCellSelectionEnabled(true);
-        adjustColumnWidths();
         if (enableSpeedSearch) {
             new BasicTableSpeedSearch(this);
         }
