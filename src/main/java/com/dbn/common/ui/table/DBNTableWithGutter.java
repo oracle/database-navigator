@@ -36,7 +36,7 @@ public class DBNTableWithGutter<T extends DBNTableWithGutterModel> extends DBNTa
 
     public void tableChanged(TableModelEvent e) {
         super.tableChanged(e);
-        refreshTableGutter(e);
+        refreshTableGutter();
     }
 
     public boolean isGutterFocussed() {
@@ -67,20 +67,15 @@ public class DBNTableWithGutter<T extends DBNTableWithGutterModel> extends DBNTa
         DBNTableGutter tableGutter = getTableGutter();
         if (tableGutter == null) return;
 
-        tableGutter.refresh();
-    }
+        JScrollPane scrollPane = UIUtil.getParentOfType(JScrollPane.class, this);
+        if (scrollPane == null) return;
 
-    private void refreshTableGutter(TableModelEvent e) {
-        DBNTableGutter tableGutter = getTableGutter();
-        if (tableGutter == null) return;
+        // scrolling glitch if gutter model size changes
+        Disposer.dispose(tableGutter);
+        this.tableGutter.reset();
+        initTableGutter();
 
-        if (e.getType() == TableModelEvent.UPDATE) {
-            tableGutter.refresh();
-        } else {
-            Disposer.dispose(tableGutter);
-            this.tableGutter.reset();
-            initTableGutter();
-        }
+        tableGutter.adjustCellSize();
     }
 
     @NotNull

@@ -21,7 +21,6 @@ import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.data.grid.color.BasicTableTextAttributes;
 import com.dbn.data.grid.color.DataGridTextAttributes;
-import com.dbn.data.grid.ui.table.basic.BasicTableGutter;
 import com.intellij.ui.SimpleTextAttributes;
 
 import javax.swing.JLabel;
@@ -54,7 +53,7 @@ public abstract class DBNTableGutterRendererBase implements DBNTableGutterRender
 
     @Override
     public final Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        BasicTableGutter tableGutter = (BasicTableGutter) list;
+        DBNTableGutter tableGutter = (DBNTableGutter) list;
 
         boolean isCaretRow = isCaretRow(index, tableGutter.getTable());
         boolean isFocusOwner = list.isFocusOwner();
