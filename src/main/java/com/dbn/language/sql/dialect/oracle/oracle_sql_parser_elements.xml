@@ -5112,7 +5112,7 @@
         <element ref-id="create_json_view" />
     </element-def>
 
-    <element-def attributes="SPECIFIC" description="CREATE JSON VIEW statement" id="create_json_view">
+    <element-def attributes="SPECIFIC, DATA_DEFINITION" description="CREATE JSON VIEW statement" id="create_json_view">
         <token id="02936" type-id="KW_JSON" />
         <token id="02937" type-id="KW_RELATIONAL" optional="true" />
         <token id="02938" type-id="KW_DUALITY" />
@@ -7047,6 +7047,10 @@
             <variant>
                 <object-ref id="03938" optional="true" type="SCHEMA" />
                 <object-ref attributes="SUBJECT" id="03939" type="VIEW" />
+            </variant>
+            <variant>
+                <object-ref id="03938" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="03939" type="JSON_VIEW" />
             </variant>
         </qualified-identifier>
         <sequence id="03940" optional="true">

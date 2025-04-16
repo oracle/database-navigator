@@ -22,7 +22,6 @@ import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.execution.explain.ExplainPlanManager;
-import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
 import com.intellij.openapi.actionSystem.DataContext;
@@ -78,7 +77,7 @@ public class ExplainPlanIntentionAction extends EditorIntentionAction {
         FileEditor fileEditor = Editors.getFileEditor(editor);
         if (isNotValid(fileEditor)) return false;
 
-        if (executable.is(ElementTypeAttribute.DATA_MANIPULATION)) {
+        if (executable.isDataManipulationStatement()) {
             ConnectionHandler activeConnection = executable.getConnection();
             return DatabaseFeature.EXPLAIN_PLAN.isSupported(activeConnection);
         }
