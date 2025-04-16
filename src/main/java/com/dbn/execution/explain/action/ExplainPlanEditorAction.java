@@ -26,7 +26,6 @@ import com.dbn.database.DatabaseFeature;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.execution.explain.ExplainPlanManager;
 import com.dbn.language.common.DBLanguagePsiFile;
-import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -38,7 +37,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
@@ -47,14 +46,17 @@ public class ExplainPlanEditorAction extends ProjectAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         Editor editor = Lookups.getEditor(e);
-        if (isValid(editor)) {
-            FileEditor fileEditor = Editors.getFileEditor(editor);
-            ExecutablePsiElement executable = PsiUtil.lookupExecutableAtCaret(editor, true);
-            if (fileEditor != null && executable != null && executable.is(ElementTypeAttribute.DATA_MANIPULATION)) {
-                ExplainPlanManager explainPlanManager = ExplainPlanManager.getInstance(project);
-                explainPlanManager.executeExplainPlan(executable, e.getDataContext(), null);
-            }
-        }
+        if (isNotValid(editor)) return;
+
+        FileEditor fileEditor = Editors.getFileEditor(editor);
+        if (fileEditor == null) return;
+
+        ExecutablePsiElement executable = PsiUtil.lookupExecutableAtCaret(editor, true);
+        if (executable == null) return;
+        if (!executable.isDataManipulationStatement()) return;
+
+        ExplainPlanManager explainPlanManager = ExplainPlanManager.getInstance(project);
+        explainPlanManager.executeExplainPlan(executable, e.getDataContext(), null);
     }
 
     @Override
@@ -77,7 +79,7 @@ public class ExplainPlanEditorAction extends ProjectAction {
 
                 if (visible) {
                     ExecutablePsiElement executable = PsiUtil.lookupExecutableAtCaret(editor, true);
-                    if (executable != null && executable.is(ElementTypeAttribute.DATA_MANIPULATION)) {
+                    if (executable != null && executable.isDataManipulationStatement()) {
                         enabled = true;
                     }
                 }

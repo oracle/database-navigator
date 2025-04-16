@@ -1,0 +1,63 @@
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.object.management.adapter.impl;
+
+import com.dbn.common.exception.Exceptions;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
+import com.dbn.object.DBJsonView;
+import com.dbn.object.management.ObjectManagementAdapterFactory;
+import com.dbn.object.management.ObjectManagementAdapterFactoryBase;
+
+import java.sql.SQLException;
+
+/**
+ * Implementation of {@link ObjectManagementAdapterFactory} for objects of type {@link DBJsonView}
+ * @author Dan Cioca (Oracle)
+ */
+public class DBJsonViewManagementAdapter extends ObjectManagementAdapterFactoryBase<DBJsonView> {
+    @Override
+    protected void createObject(ConnectionHandler connection, DBNConnection conn, DBJsonView object) throws SQLException {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    protected void updateObject(ConnectionHandler connection, DBNConnection conn, DBJsonView object) throws SQLException {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBJsonView object) throws SQLException {
+        DatabaseDataDefinitionInterface databaseInterface = connection.getDataDefinitionInterface();
+        databaseInterface.dropObject(
+                "VIEW",
+                object.getSchemaName(true),
+                object.getName(true),
+                conn);
+    }
+
+    @Override
+    protected void enableObject(ConnectionHandler connection, DBNConnection conn, DBJsonView object) throws SQLException {
+        Exceptions.unsupported();
+    }
+
+    @Override
+    protected void disableObject(ConnectionHandler connection, DBNConnection conn, DBJsonView object) throws SQLException {
+        Exceptions.unsupported();
+    }
+}
