@@ -104,24 +104,29 @@ public class SelectStatementGenerator extends StatementGenerator {
         boolean useAliases = datasets.size() > 1 || enforceAliasUsage;
 
         StringBuilder statement = new StringBuilder();
-        statement.append(kco.format("select\n"));
-        Iterator<DBColumn> columnIterator = columns.iterator();
-        while (columnIterator.hasNext()) {
-            DBColumn column = nd(columnIterator.next());
-            DBDataset dataset = nd(column.getDataset());
-            statement.append("    ");
-            if (useAliases) {
-                statement.append(aliases.getAlias(dataset));
-                statement.append(".");
+        if (columns.isEmpty()) {
+            statement.append(kco.format("select * from\n"));
+        } else {
+            statement.append(kco.format("select\n"));
+            Iterator<DBColumn> columnIterator = columns.iterator();
+            while (columnIterator.hasNext()) {
+                DBColumn column = nd(columnIterator.next());
+                DBDataset dataset = nd(column.getDataset());
+                statement.append("    ");
+                if (useAliases) {
+                    statement.append(aliases.getAlias(dataset));
+                    statement.append(".");
+                }
+                statement.append(oco.format(column.getName(true)));
+                if (columnIterator.hasNext()) {
+                    statement.append(",");
+                }
+                statement.append("\n");
             }
-            statement.append(oco.format(column.getName(true)));
-            if (columnIterator.hasNext()) {
-                statement.append(",");
-            }
-            statement.append("\n");
+
+            statement.append(kco.format("from\n"));
         }
 
-        statement.append(kco.format("from\n"));
         Iterator<DBDataset> datasetIterator = datasets.iterator();
         while (datasetIterator.hasNext()) {
             DBDataset dataset = datasetIterator.next();
