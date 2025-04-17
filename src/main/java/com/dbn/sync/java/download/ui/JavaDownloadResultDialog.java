@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.dbn.execution.java.wrapper.ui;
+package com.dbn.sync.java.download.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.execution.java.wrapper.Wrapper;
+import com.dbn.sync.java.download.JavaDownloadContext;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,16 +29,16 @@ import javax.swing.Action;
  *
  * @author Dan Cioca (Oracle)
  */
-public class WrapperResultDialog extends DBNDialog<WrapperResultForm> {
+public class JavaDownloadResultDialog extends DBNDialog<JavaDownloadResultForm> {
 
-  private final Wrapper wrapper;
+  private final JavaDownloadContext context;
 
-  public WrapperResultDialog(Project project, Wrapper wrapper) {
-    super(project, "Wrapper Result", false);
+  public JavaDownloadResultDialog(Project project, JavaDownloadContext context) {
+    super(project, "Java Download Result", false);
     //this.setDefaultSize(380, 420);
     this.setModal(true);
     this.setAutoSize(true);
-    this.wrapper = wrapper;
+    this.context = context;
     renameAction(getCancelAction(), "Close");
     init();
   }
@@ -50,7 +50,7 @@ public class WrapperResultDialog extends DBNDialog<WrapperResultForm> {
   }
 
   @Override
-  protected @NotNull WrapperResultForm createForm() {
-    return new WrapperResultForm(this, wrapper);
+  protected @NotNull JavaDownloadResultForm createForm() {
+    return new JavaDownloadResultForm(this, context);
   }
 }

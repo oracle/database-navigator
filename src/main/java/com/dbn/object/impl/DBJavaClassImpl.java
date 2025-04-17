@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package com.dbn.object.impl;
 import com.dbn.browser.DatabaseBrowserUtils;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.util.Java;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
@@ -26,6 +27,7 @@ import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.editor.DBContentType;
+import com.dbn.nls.NlsResources;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
@@ -156,6 +158,21 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	@Override
 	public String getSimpleName() {
 		return DBJavaNameCache.getSimpleName(ref());
+	}
+
+	@Override
+	public String getPackageName() {
+		return Java.getPackageName(getCanonicalName());
+	}
+
+	@Override
+	public String getQualifiedName() {
+		return getSchemaName() + "." + getCanonicalName();
+	}
+
+	@Override
+	public String getQualifiedNameWithType() {
+		return NlsResources.txt("app.object.label.QualifiedNameWithType", JAVA_CLASS.getName(), getQualifiedName());
 	}
 
 	@Override

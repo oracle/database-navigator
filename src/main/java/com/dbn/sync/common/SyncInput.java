@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.dbn.common.ui.list;
+package com.dbn.sync.common;
 
-import com.dbn.common.ui.Presentable;
+import com.dbn.connection.context.DatabaseContext;
+import com.intellij.openapi.project.Project;
 
-public interface Selectable<T> extends Presentable, Comparable<T> {
-    boolean isSelected();
-    void setSelected(boolean selected);
+import java.util.List;
 
-    @Override
-    default int compareTo(T o) {
-        return 0;
-    }
+public interface SyncInput<E extends SyncElement> {
+    Project getProject();
+    List<E> getElements();
+    DatabaseContext getDatabaseContext();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package com.dbn.common.ui.list;
+package com.dbn.sync.common.impl;
 
-import com.dbn.common.ui.Presentable;
+import com.dbn.sync.common.SyncElement;
+import lombok.Data;
 
-public interface Selectable<T> extends Presentable, Comparable<T> {
-    boolean isSelected();
-    void setSelected(boolean selected);
-
-    @Override
-    default int compareTo(T o) {
-        return 0;
-    }
+@Data
+public abstract class SyncElementBase implements SyncElement {
+    private transient boolean enabled = true;
+    private transient boolean selected = true;
 }

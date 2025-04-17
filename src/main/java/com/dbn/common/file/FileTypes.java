@@ -19,8 +19,9 @@ package com.dbn.common.file;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
+import com.intellij.openapi.fileTypes.UnknownFileType;
 import lombok.experimental.UtilityClass;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Commons.coalesce;
 
@@ -29,26 +30,28 @@ public class FileTypes {
 
     public static FileType getJavaFileType() {
         return coalesce(
-                () -> getFileTypeByExtension("java"),
+                () -> resolveFileType("java"),
                 () -> PlainTextFileType.INSTANCE);
     }
 
     public static FileType getClassFileType() {
         return coalesce(
-                () -> getFileTypeByExtension("class"),
+                () -> resolveFileType("class"),
                 () -> PlainTextFileType.INSTANCE);
     }
 
     public static FileType getJsonFileType() {
         return coalesce(
-                () -> getFileTypeByExtension("json"),
-                () -> getFileTypeByExtension("js"),
+                () -> resolveFileType("json"),
+                () -> resolveFileType("js"),
                 () -> PlainTextFileType.INSTANCE);
     }
 
-    @NotNull
-    private static FileType getFileTypeByExtension(String extension) {
+    @Nullable
+    private static FileType resolveFileType(String extension) {
         FileTypeManager fileTypeManager = FileTypeManager.getInstance();
-        return fileTypeManager.getFileTypeByExtension(extension);
+        FileType fileType = fileTypeManager.getFileTypeByExtension(extension);
+        if (fileType instanceof UnknownFileType) return null;
+        return fileType;
     }
 }

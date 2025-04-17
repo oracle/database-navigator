@@ -225,6 +225,8 @@
                 <action id="DBNavigator.Actions.ConnectionContext.LinkSchema" class="com.dbn.connection.context.action.FolderSchemaLinkAction" text="Connection Context - Associate Schema" icon="com.dbn.common.icon.Icons.FOLDER_SCHEMA_ASSOCIATION"/>
                 <separator/>
                 <action id="DBNavigator.Actions.ConnectionContext.UnlinkConnection" class="com.dbn.connection.context.action.FolderConnectionUnlinkAction" text="Connection Context - Remove Connection Association"/>
+                <separator/>
+                <action id="DBNavigator.Actions.JavaContext.Upload" class="com.dbn.sync.java.action.JavaObjectUploadAction" text="Upload" />
             </group>
             <add-to-group group-id="ProjectViewPopupMenu" relative-to-action="WeighingNewGroup" anchor="after"/>
         </group>

@@ -23,6 +23,7 @@ import com.dbn.object.action.ConsoleCreateAction;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.sync.java.action.JavaObjectDownloadAction;
 import com.dbn.vfs.DBConsoleType;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 
@@ -41,7 +42,12 @@ public class ObjectListActionGroup extends DefaultActionGroup {
         ConnectionHandler connection = objectList.getConnection();
 
         if(parentElement instanceof DBSchema) {
+            DBSchema schema = (DBSchema) parentElement;
             addSeparator();
+            if (objectType == DBObjectType.JAVA_CLASS) {
+                add(new JavaObjectDownloadAction(schema));
+            }
+
             add(new CreateObjectAction(objectList));
         } else if (parentElement instanceof DBObjectBundle) {
             if (objectType == DBObjectType.CONSOLE) {

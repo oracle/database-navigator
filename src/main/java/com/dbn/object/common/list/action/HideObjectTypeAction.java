@@ -43,12 +43,15 @@ public class HideObjectTypeAction extends ProjectAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setText("Hide " + objectList.getObjectType().getCapitalizedListName());
+
+        boolean visible = isVisible();
+        presentation.setVisible(visible);
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ConnectionHandler connection = objectList.getConnection();
-        ObjectTypeFilterSettings settings = connection.getSettings().getFilterSettings().getObjectTypeFilterSettings();
+        ObjectTypeFilterSettings settings = getTypeFilterSettings();
 
         DBObjectType objectType = objectList.getObjectType();
         String listName = objectType.getCapitalizedListName();
@@ -56,6 +59,7 @@ public class HideObjectTypeAction extends ProjectAction {
         String title = "Hide " + listName;
         String message = "Are you sure you want to hide the " + listName + " for the \"" + connection.getName() + "\" connection? " +
                 "(you can undo this by accessing the connection Filter settings)";
+
         Messages.showQuestionDialog(project, title, message,
                 Messages.options("Hide " + listName, "Cancel"), 0, o ->
                 Conditional.when(o == 0, () -> {
@@ -69,5 +73,15 @@ public class HideObjectTypeAction extends ProjectAction {
 
 
 
+    }
+
+    private ObjectTypeFilterSettings getTypeFilterSettings() {
+        ConnectionHandler connection = objectList.getConnection();
+        return connection.getSettings().getFilterSettings().getObjectTypeFilterSettings();
+    }
+
+    private boolean isVisible() {
+        ObjectTypeFilterSettings settings = getTypeFilterSettings();
+        return settings.isSelectable(objectList.getObjectType());
     }
 }

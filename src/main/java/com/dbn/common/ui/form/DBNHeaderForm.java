@@ -18,6 +18,7 @@ package com.dbn.common.ui.form;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.Layouts;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Commons;
@@ -28,6 +29,7 @@ import com.dbn.connection.context.DatabaseContext;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.AbstractButton;
@@ -87,6 +89,7 @@ public class DBNHeaderForm extends DBNFormBase {
         if (contextObject instanceof DBObjectRef) update((DBObjectRef) contextObject); else
         if (contextObject instanceof ConnectionHandler) update((ConnectionHandler) contextObject); else
         if (contextObject instanceof Presentable) update((Presentable) contextObject); else
+        if (contextObject instanceof VirtualFile) update((VirtualFile) contextObject); else
             throw new UnsupportedOperationException("Unsupported context object of type " + contextObject.getClass());
     }
 
@@ -94,7 +97,7 @@ public class DBNHeaderForm extends DBNFormBase {
         ConnectionHandler connection = object.getConnection();
 
         String connectionName = connection.getName();
-        objectLabel.setText("[" + connectionName + "] " + object.getQualifiedName());
+        objectLabel.setText(connectionName + " - " + object.getQualifiedName());
         objectLabel.setIcon(object.getIcon());
         updateBorderAndBackground((Presentable) object);
     }
@@ -103,7 +106,7 @@ public class DBNHeaderForm extends DBNFormBase {
         ConnectionHandler connection = objectRef.getConnection();
 
         String connectionName = connection == null ? "UNKNOWN" : connection.getName();
-        objectLabel.setText("[" + connectionName + "] " + objectRef.getQualifiedName());
+        objectLabel.setText(connectionName + " - " + objectRef.getQualifiedName());
         objectLabel.setIcon(objectRef.getObjectType().getIcon());
         updateBorderAndBackground(objectRef);
     }
@@ -112,6 +115,11 @@ public class DBNHeaderForm extends DBNFormBase {
         objectLabel.setText(presentable.getName());
         objectLabel.setIcon(presentable.getIcon());
         updateBorderAndBackground(presentable);
+    }
+
+    private void update(@NotNull VirtualFile presentable) {
+        objectLabel.setText(presentable.getName());
+        objectLabel.setIcon(Icons.DBO_JAVA_CLASS);
     }
 
     private void update(@NotNull ConnectionHandler connection) {
