@@ -78,7 +78,7 @@ public class ObjectFilterManager extends ProjectComponentBase implements Persist
 				filterSettings.getFilter(objectType),
 				() -> new ObjectFilter<>(filterSettings, objectType));
 
-		Dialogs.show(() -> new ObjectFilterDetailsDialog(filter, create),
+		Dialogs.show(() -> new ObjectFilterDetailsDialog(filter, create, true),
 				(dialog, exitCode) -> when(exitCode == 0, () -> updateFilter(filterSettings, filter)));
 
 	}
@@ -96,9 +96,21 @@ public class ObjectFilterManager extends ProjectComponentBase implements Persist
 		}
 		filterSettings.addFilter(filter);
 
-		ProjectEvents.notify(project, ObjectFilterChangeListener.TOPIC,
-				(listener) -> listener.nameFiltersChanged(connectionId, objectType));
+		notifyFilterChange(connectionId, objectType);
 
+	}
+
+	public void toggleFilter(ConnectionId connectionId, DBObjectType objectType) {
+		ObjectFilter objectFilter = getObjectFilter(connectionId, objectType);
+		if(objectFilter == null) return;
+
+		objectFilter.setActive(!objectFilter.isActive());
+		notifyFilterChange(connectionId, objectType);
+	}
+
+	private void notifyFilterChange(ConnectionId connectionId, DBObjectType objectType) {
+		ProjectEvents.notify(getProject(), ObjectFilterChangeListener.TOPIC,
+				(listener) -> listener.nameFiltersChanged(connectionId, objectType));
 	}
 
 	private ObjectFilterSettings getObjectFilterSettings(ConnectionId connectionId) {
