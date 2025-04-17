@@ -94,7 +94,8 @@
                 TABLE_NAME as VIEW_NAME,
                 null as VIEW_TYPE_OWNER,
                 null as VIEW_TYPE,
-                if (TABLE_TYPE = 'VIEW', 'N', 'Y') as IS_SYSTEM_VIEW
+                if (TABLE_TYPE = 'VIEW', 'N', 'Y') as IS_SYSTEM_VIEW,
+                'N' as IS_EDITIONABLE
             from information_schema.TABLES
             where
                 TABLE_SCHEMA = {0} and

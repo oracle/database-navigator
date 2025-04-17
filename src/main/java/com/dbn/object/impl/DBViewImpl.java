@@ -31,7 +31,6 @@ import com.dbn.object.DBView;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.list.DBObjectNavigationList;
-import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
@@ -43,6 +42,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGHEST;
+import static com.dbn.object.common.property.DBObjectProperty.EDITIONABLE;
+import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_OBJECT;
 
 class DBViewImpl<M extends DBViewMetadata> extends DBDatasetImpl<M> implements DBView {
     private DBObjectRef<DBType> type;
@@ -53,7 +54,8 @@ class DBViewImpl<M extends DBViewMetadata> extends DBDatasetImpl<M> implements D
     @Override
     protected String initObject(ConnectionHandler connection, DBObject parentObject, M metadata) throws SQLException {
         String name = metadata.getViewName();
-        set(DBObjectProperty.SYSTEM_OBJECT, metadata.isSystemView());
+        set(SYSTEM_OBJECT, metadata.isSystemView());
+        set(EDITIONABLE, metadata.isEditionable());
         String typeOwner = metadata.getViewTypeOwner();
         String typeName = metadata.getViewType();
         if (typeOwner != null && typeName != null) {
@@ -114,7 +116,12 @@ class DBViewImpl<M extends DBViewMetadata> extends DBDatasetImpl<M> implements D
 
     @Override
     public boolean isSystemView() {
-        return is(DBObjectProperty.SYSTEM_OBJECT);
+        return is(SYSTEM_OBJECT);
+    }
+
+    @Override
+    public boolean isEditionable() {
+        return is(EDITIONABLE);
     }
 
     /*********************************************************
@@ -123,7 +130,6 @@ class DBViewImpl<M extends DBViewMetadata> extends DBDatasetImpl<M> implements D
 
     @Override
     public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
-
         DatabaseInterfaceInvoker.execute(HIGHEST,
                 "Updating source code",
                 "Updating sources of " + getQualifiedNameWithType(),
@@ -133,8 +139,13 @@ class DBViewImpl<M extends DBViewMetadata> extends DBDatasetImpl<M> implements D
                 conn -> {
                     ConnectionHandler connection = getConnection();
                     DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
-                    dataDefinition.updateView(getName(true), newCode, conn);
-                });
+                    dataDefinition.updateView(
+                            getSchemaName(true),
+                            getName(true),
+                            newCode,
+                            isEditionable(),
+                            conn);
+        });
     }
 
     @Override

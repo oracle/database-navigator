@@ -17,6 +17,7 @@
 package com.dbn.driver.download.metadata;
 
 import com.dbn.common.download.Downloads;
+import com.dbn.common.exception.Exceptions;
 import com.dbn.common.util.XmlContents;
 import com.dbn.connection.DatabaseType;
 import com.dbn.driver.download.DependencyParser;
@@ -43,7 +44,6 @@ import java.util.stream.Collectors;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.thread.Progress.installThreadInterrupter;
-import static com.dbn.common.util.Lists.convertParallel;
 
 public class DriverPackageMetadataDownloader {
     @SneakyThrows
@@ -52,7 +52,10 @@ public class DriverPackageMetadataDownloader {
         List<Element> packageElements = element.getChildren("driver-package");
         session.withDownloadSize(packageElements.size());
 
-        List<DriverPackage> driverPackages = convertParallel(packageElements, e -> createDriverPackage(e, session));
+        List<DriverPackage> driverPackages = packageElements.parallelStream()
+                .map(e -> createDriverPackage(e, session))
+                .filter(p -> p != null)
+                .collect(Collectors.toList());
         return driverPackages.stream().collect(Collectors.toMap(p -> p.getId(), p -> p));
     }
 
@@ -68,6 +71,7 @@ public class DriverPackageMetadataDownloader {
                 .flatMap(libElement -> createLibrary(libElement, session).stream()) // Flatten lists of libraries
                 .collect(Collectors.toList());
         int placeholderCount = countPlaceholders(id);
+        if (libraries.isEmpty()) return null;
 
         id = getFormattedString(id, libraries, placeholderCount, true);
         // Pattern to find %s occurrences
@@ -76,8 +80,9 @@ public class DriverPackageMetadataDownloader {
         name = getFormattedString(name, libraries, placeholderCount, false);
         DriverPackage driverPackage = new DriverPackage(id, name, DatabaseType.resolve(databaseType), libraries);
 
+        session.setText("Downloading metadata for " + id + " ...");
         session.countDown();
-        session.updateProgress("Downloaded metadata for " + id);
+        session.updateProgress();
         return driverPackage;
     }
 
@@ -118,8 +123,8 @@ public class DriverPackageMetadataDownloader {
         return String.join(".", java.util.Arrays.copyOfRange(splitVersion, 0, 3));
     }
     @SneakyThrows
-    private  List<Library> createLibrary(Element element, ProgressIndicator indicator) {
-        installThreadInterrupter(indicator);
+    private  List<Library> createLibrary(Element element, DownloadSession session) {
+        installThreadInterrupter(session);
 
         String groupId = stringAttribute(element, "group-id");
         String artifactId = stringAttribute(element, "artifact-id");
@@ -128,27 +133,32 @@ public class DriverPackageMetadataDownloader {
         String type = stringAttribute(element, "type");
         if (type == null) type = "jar";
         // Resolve the version if not explicitly provided
-        version = ensureVersion(groupId, artifactId, version, indicator);
+        version = ensureVersion(groupId, artifactId, version, session);
 
+        Library library = new Library(groupId, artifactId, version);
         if (toResolve) {
             // Resolve dependencies for non-jar types
-            return DependencyParser.resolveDependencies(
-                    new Library(groupId, artifactId, version),
-                    type
-            ); // Return all resolved dependencies
+            try {
+                return DependencyParser.resolveDependencies(library, type, session); // Return all resolved dependencies
+            } catch (Throwable e) {
+                e = Exceptions.rootCauseOf(e);
+                session.addErrorMessage("Failed to download library " + library.getLibraryId() + ". Cause: " + e.getMessage());
+                return Collections.emptyList();
+            }
+
         } else {
             // For type "jar", return a single Library
-            return Collections.singletonList(new Library(groupId, artifactId, version));
+            return Collections.singletonList(library);
         }
     }
 
-    private  String ensureVersion(String groupId, String artifactId, String currentVersion, ProgressIndicator indicator) throws Exception{
+    private  String ensureVersion(String groupId, String artifactId, String currentVersion, DownloadSession session) throws Exception{
         if (currentVersion != null && isValidVersion(currentVersion)) {
             return currentVersion;
         }
 
         // Fetch all available versions
-        List<String> availableVersions = fetchAvailableVersions(groupId, artifactId, indicator);
+        List<String> availableVersions = fetchAvailableVersions(groupId, artifactId, session);
         if (currentVersion != null && currentVersion.contains("*")) {
             return resolveWildcardVersion(currentVersion, availableVersions);
         } else {

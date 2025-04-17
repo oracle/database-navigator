@@ -41,12 +41,6 @@ public class ObjectTypeFilterSetting implements Selectable<ObjectTypeFilterSetti
         this.objectType = objectType;
     }
 
-    ObjectTypeFilterSetting(ObjectTypeFilterSettings parent, DBObjectType objectType, boolean selected) {
-        this.parent = parent;
-        this.objectType = objectType;
-        this.selected = selected;
-    }
-
     @Override
     public Icon getIcon() {
         return objectType.getIcon();
@@ -55,10 +49,5 @@ public class ObjectTypeFilterSetting implements Selectable<ObjectTypeFilterSetti
     @Override
     public @NotNull String getName() {
         return cachedUpperCase(objectType.getName());
-    }
-
-    @Override
-    public int compareTo(@NotNull ObjectTypeFilterSetting o) {
-        return 0;
     }
 }

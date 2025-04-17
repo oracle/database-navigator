@@ -39,7 +39,6 @@ class ResourceMonitorSessionsTable extends DBNTable<ResourceMonitorSessionsTable
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         setCellSelectionEnabled(false);
         setRowSelectionAllowed(true);
-        adjustColumnWidths();
 
         setAccessibleName(this, "Resource Monitor Sessions");
     }
