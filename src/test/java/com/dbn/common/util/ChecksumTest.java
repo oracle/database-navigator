@@ -18,7 +18,6 @@ package com.dbn.common.util;
 
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.checksum.ChecksumType;
-import com.intellij.execution.Platform;
 import com.intellij.util.system.OS;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,7 +31,7 @@ import static org.junit.Assume.assumeFalse;
 public class ChecksumTest {
     @Test
     public void fromFileContentTest() throws Exception {
-        URL resource = ChecksumTest.class.getResource("checksum/T0001.txt");
+        URL resource = getClass().getClassLoader().getResource("checksum/T0001.txt");
         assertNotNull(resource);
         File file = new File(resource.getPath());
         String checksum = Checksum.fromFileContent(file, ChecksumType.SHA_256);
@@ -45,7 +44,7 @@ public class ChecksumTest {
     public void fromFileAttributesTest() throws Exception {
         // JDBC-4166 -- for some reason these currently fail on Linux
         assumeFalse(OS.CURRENT == OS.Linux);
-        URL resource = getClass().getResource("checksum");
+        URL resource = getClass().getClassLoader().getResource("checksum");
         assertNotNull(resource);
         File file = new File(resource.getPath());
         String checksum = Checksum.fromFileAttributes(file, ChecksumType.SHA_256);
@@ -57,7 +56,7 @@ public class ChecksumTest {
     public void fromFileContentsTest() throws Exception {
         // JDBC-4166 -- for some reason these currently fail on Linux
         assumeFalse(OS.CURRENT == OS.Linux);
-        URL resource = getClass().getResource("checksum");
+        URL resource = getClass().getClassLoader().getResource("checksum");
         assertNotNull(resource);
         File file = new File(resource.getPath());
         String checksum = Checksum.fromFileContents(file, ChecksumType.SHA_256);

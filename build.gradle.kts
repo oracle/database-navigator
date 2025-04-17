@@ -104,10 +104,6 @@ sourceSets{
               "**/*.template",
               "**/*.properties")
     }
-    resources {
-      srcDir("src/test/java")
-      include("**/*.txt")
-    }
   }
 }
 
