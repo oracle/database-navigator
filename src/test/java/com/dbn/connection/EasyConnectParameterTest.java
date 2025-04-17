@@ -24,10 +24,10 @@ public class EasyConnectParameterTest {
     @BeforeClass
     public static void testBefore() {
         ALL_TCPS_PARAMS = new HashMap<String, String>();
-        EasyConnectParameters.EASY_CONNECT_PARAMETER_NAMES.forEach(key -> {
+        EasyConnectParameters.PARAMETER_NAMES.forEach(key -> {
             ALL_TCPS_PARAMS.put(key, "");
         });
-        EasyConnectParameters.EASY_CONNECT_TCPS_ONLY_PARAMETER_NAMES.forEach(key -> {
+        EasyConnectParameters.TCPS_ONLY_PARAMETER_NAMES.forEach(key -> {
             ALL_TCPS_PARAMS.put(key, "");
         });
         ALL_TCPS_PARAMS = Map.copyOf(ALL_TCPS_PARAMS);

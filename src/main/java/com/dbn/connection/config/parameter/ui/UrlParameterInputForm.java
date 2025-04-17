@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.dbn.connection.config.EasyConnectParameters.EASY_CONNECT_BOOLEAN_LIKE_STRING_VALUES;
+import static com.dbn.connection.config.EasyConnectParameters.BOOLEAN_LIKE_STRING_VALUES;
 import static com.dbn.connection.config.EasyConnectParameters.NO_DQUOTES_ALLOWED_IN_PROPERTY;
 import static com.dbn.connection.config.EasyConnectParameters.RETRY_DELAY_VALIDATOR;
 import static com.dbn.connection.config.parameter.IntegerConstraintValidator.MUST_BE_ZERO_OR_MORE;
@@ -56,8 +56,8 @@ public class UrlParameterInputForm extends PropertiesEditorForm {
 
         addValidator(MUST_BE_ZERO_OR_MORE, "SEND_BUF_SIZE");
         addValidator(MUST_BE_ZERO_OR_MORE, "RECV_BUF_SIZE");
-        addValidator(new StringListConstraintValidator(EASY_CONNECT_BOOLEAN_LIKE_STRING_VALUES), "FAILOVER");
-        addValidator(new StringListConstraintValidator(EASY_CONNECT_BOOLEAN_LIKE_STRING_VALUES), "LOAD_BALANCE");
+        addValidator(new StringListConstraintValidator(BOOLEAN_LIKE_STRING_VALUES), "FAILOVER");
+        addValidator(new StringListConstraintValidator(BOOLEAN_LIKE_STRING_VALUES), "LOAD_BALANCE");
         addValidator(MUST_BE_ZERO_OR_MORE, "SDU");
         addValidator(new StringListConstraintValidator("ON", "OFF", "on", "off", "YES", "NO", "yes", "no"), "SOURCE_ROUTE");
         addValidator(MUST_BE_ZERO_OR_MORE, "RETRY_COUNT");
