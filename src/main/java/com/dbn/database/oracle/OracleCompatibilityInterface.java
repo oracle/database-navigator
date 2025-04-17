@@ -98,7 +98,9 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 USER_SCHEMA,
                 CONSTRAINT_MANIPULATION,
                 READONLY_CONNECTIVITY,
-                AI_ASSISTANT);
+                AI_ASSISTANT
+                //EMPTY_SCHEMA_EVALUATION // TODO disabled due to performance reasons
+                );
     }
 
     @Override

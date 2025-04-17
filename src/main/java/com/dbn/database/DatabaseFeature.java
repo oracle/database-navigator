@@ -16,8 +16,11 @@
 
 package com.dbn.database;
 
+import com.dbn.connection.DatabaseInterfacesBundle;
+import com.dbn.connection.DatabaseType;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
+import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.object.common.DBObject;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
@@ -48,6 +51,9 @@ public enum DatabaseFeature {
     CONSTRAINT_MANIPULATION("Constraint manipulation"),
     READONLY_CONNECTIVITY("Readonly connectivity"),
     AI_ASSISTANT("AI assistant"),
+
+    @Deprecated // temporary disabled feature because of performance issues with empty schema evaluations
+    EMPTY_SCHEMA_EVALUATION("Empty schema evaluation"),
     ;
 
     private final String description;
@@ -72,5 +78,11 @@ public enum DatabaseFeature {
         }
 
         return compatibility.supportsFeature(this);
+    }
+
+    public boolean isSupported(DatabaseType databaseType) {
+        DatabaseInterfaces databaseInterfaces = DatabaseInterfacesBundle.get(databaseType);
+        DatabaseCompatibilityInterface compatibility = databaseInterfaces.getCompatibilityInterface();
+        return compatibility != null && compatibility.supportsFeature(this);
     }
 }
