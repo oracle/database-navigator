@@ -18,22 +18,24 @@ package com.dbn.connection.config.parameter.ui;
 
 import com.dbn.common.properties.ui.PropertiesEditorForm;
 import com.dbn.common.properties.ui.PropertiesTableModel;
+import com.dbn.connection.config.parameter.CheckForInvalidCharactersValidator;
 import com.dbn.connection.config.parameter.RegexConstraintValidator;
 import com.dbn.connection.config.parameter.StringListConstraintValidator;
+import com.dbn.language.common.QuotePair;
 import lombok.Getter;
 
 import java.awt.Dimension;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
+import static com.dbn.connection.config.EasyConnectParameters.EASY_CONNECT_BOOLEAN_LIKE_STRING_VALUES;
+import static com.dbn.connection.config.EasyConnectParameters.NO_DQUOTES_ALLOWED_IN_PROPERTY;
+import static com.dbn.connection.config.EasyConnectParameters.RETRY_DELAY_VALIDATOR;
 import static com.dbn.connection.config.parameter.IntegerConstraintValidator.MUST_BE_ZERO_OR_MORE;
-import static com.dbn.connection.config.ui.ConnectionUrlSettingsForm.EASY_CONNECT_BOOLEAN_LIKE_STRING_VALUES;
 
 @Getter
 public class UrlParameterInputForm extends PropertiesEditorForm {
-    public static final String RETRY_DELAY_SHOULD_MATCH = "80, 80ms, 80sec, or 80min. Default is sec if unit is not specified";
-    public final static RegexConstraintValidator.ValidationPattern RETRY_DELAY_PATTERN =
-            new RegexConstraintValidator.ValidationPattern("\\d+( )?(ms|msec|sec|min)?", RETRY_DELAY_SHOULD_MATCH);
-    public final static RegexConstraintValidator RETRY_DELAY_VALIDATOR = new RegexConstraintValidator(RETRY_DELAY_PATTERN);
 
     public UrlParameterInputForm(UrlParameterInputDialog dialog, Map<String, String> parameters) {
         super(dialog, parameters, false, false);
@@ -63,5 +65,8 @@ public class UrlParameterInputForm extends PropertiesEditorForm {
 
         addValidator(new StringListConstraintValidator(
                 "ON", "OFF", "on", "off", "YES","NO","yes", "no", "TRUE", "FALSE", "true", "false"), "SSL_SERVER_DN_MATCH");
+        addValidator(NO_DQUOTES_ALLOWED_IN_PROPERTY,"SSL_SERVER_CERT_DN");
+        addValidator(NO_DQUOTES_ALLOWED_IN_PROPERTY, "WALLET_LOCATION");
+
     }
 }

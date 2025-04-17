@@ -32,7 +32,8 @@ public class DatabaseUrlPatternTest {
                 "jdbc:oracle:thin:@tcps://host123:1234/SRV.AB",
                 "jdbc:oracle:thin:@tcps://host123:1234/SRV.AB:DEDICATED",
                 "jdbc:oracle:thin:@tcps://host123:1234/SRV.AB?SDU=11",
-                "jdbc:oracle:thin:@tcps://host123:1234/SRV.AB:SHARED?foo=bar"
+                "jdbc:oracle:thin:@tcps://host123:1234/SRV.AB:SHARED?foo=bar",
+                "jdbc:oracle:thin:@tcps://host123:1522/SRV?foo=\"bar with spaces\""
         );
 
         test(ORACLE_TNS,
