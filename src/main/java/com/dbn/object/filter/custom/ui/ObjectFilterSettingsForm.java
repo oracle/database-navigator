@@ -106,7 +106,7 @@ public class ObjectFilterSettingsForm extends ConfigurationEditorForm<ObjectFilt
     }
 
     public void showFilterDetailsDialog(ObjectFilter<?> filter, boolean create, Runnable callback) {
-        Dialogs.show(() -> new ObjectFilterDetailsDialog(filter, create),
+        Dialogs.show(() -> new ObjectFilterDetailsDialog(filter, create, false),
                 (dialog, exitCode) -> when(exitCode == 0, callback));
     }
 
