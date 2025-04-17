@@ -105,7 +105,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
      *                   CHANGE statements                   *
      *********************************************************/
     @Override
-    public void updateView(String viewName, String code, DBNConnection connection) throws SQLException {
+    public void updateView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException {
         String sqlMode = getSessionSqlMode(connection);
         setSessionSqlMode("TRADITIONAL", connection);
         try {

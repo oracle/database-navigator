@@ -65,6 +65,7 @@ import static com.dbn.common.dispose.ComponentDisposer.removeListeners;
 import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.table.Tables.installFocusTraversal;
+import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> implements StatefulDisposable, UserDataHolder {
@@ -125,6 +126,9 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
 
         Disposer.register(parent, this);
         Disposer.register(this, tableModel);
+
+        initColumnWidths();
+        whenFirstShown(this, () -> adjustColumnWidths());
     }
 
     @Nullable
@@ -154,6 +158,11 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
     public void setModel(@NotNull TableModel dataModel) {
         dataModel = replace(super.getModel(), dataModel);
         super.setModel(dataModel);
+
+        if (getParent() != null) {
+            initColumnWidths();
+            adjustColumnWidths();
+        }
     }
 
     protected void initTableSorter() {
@@ -173,6 +182,9 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
         adjustRowHeight(rowVerticalPadding);
     }
 
+    public int getDefaultAutoResizeMode() {
+        return AUTO_RESIZE_SUBSEQUENT_COLUMNS;
+    }
 
     @Override
     @NotNull

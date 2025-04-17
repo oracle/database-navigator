@@ -30,6 +30,7 @@ import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.CancellableDatabaseCall;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Documents;
+import com.dbn.common.util.Naming;
 import com.dbn.common.util.Safe;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -609,22 +610,33 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         Project project = getProject();
         if (!isDataDefinitionStatement()) return;
 
+        DBObjectType objectType;
+        ConnectionId connectionId;
+        SchemaId schemaId;
+
+        // TODO check why this logic is schema centric (should consider non-schema objects like users and privileges)
         DBSchemaObject affectedObject = getAffectedObject();
         if (affectedObject != null) {
             ProjectEvents.notify(project,
                     DataDefinitionChangeListener.TOPIC,
                     (listener) -> listener.dataDefinitionChanged(affectedObject));
-        } else {
-            DBSchema schema = getAffectedSchema();
-            IdentifierPsiElement subjectPsiElement = getSubjectPsiElement();
-            if (schema != null && subjectPsiElement != null) {
-                DBObjectType objectType = subjectPsiElement.getObjectType();
-                ConnectionId connectionId = schema.getConnectionId();
-                SchemaId schemaId = schema.getSchemaId();
 
-                ProjectEvents.notify(project, ObjectChangeListener.TOPIC,
-                        l -> l.objectsChanged(connectionId, schemaId, objectType, ObjectChangeAction.UNKNOWN));
-            }
+            connectionId = affectedObject.getConnectionId();
+            schemaId = affectedObject.getSchemaId();
+            objectType = affectedObject.getObjectType();
+        } else {
+            IdentifierPsiElement subjectPsiElement = getSubjectPsiElement();
+
+            DBSchema schema = getAffectedSchema();
+            schemaId = schema == null ? null : schema.getSchemaId();
+            connectionId = schema == null ? null : schema.getConnectionId();
+            objectType = subjectPsiElement == null ? null : subjectPsiElement.getObjectType();
+        }
+
+        if (connectionId != null && objectType != null) {
+            ProjectEvents.notify(project, ObjectChangeListener.TOPIC,
+                    l -> l.objectsChanged(connectionId, schemaId, objectType, ObjectChangeAction.UNKNOWN));
+
         }
     }
 
@@ -658,9 +670,9 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         ConnectionHandler connection = executionInput.getConnection();
         if (isDdlStatement && DatabaseFeature.OBJECT_INVALIDATION.isSupported(connection)) {
             BasePsiElement compilablePsiElement = getCompilableBlockPsiElement();
-            if (compilablePsiElement == null)  return;
-
-            hasCompilerErrors = evaluateCompilerErrors(executionResult, compilablePsiElement, connection);
+            if (compilablePsiElement != null)   {
+                hasCompilerErrors = evaluateCompilerErrors(executionResult, compilablePsiElement, connection);
+            }
         }
 
         if (hasCompilerErrors) {
@@ -820,7 +832,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
      ********************************************************/
     private boolean isDataDefinitionStatement() {
         ExecutablePsiElement cachedExecutable = getCachedExecutable();
-        return cachedExecutable != null && cachedExecutable.is(ElementTypeAttribute.DATA_DEFINITION);
+        return cachedExecutable != null && cachedExecutable.isDataDefinitionStatement();
     }
 
     @Nullable
@@ -846,7 +858,8 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         DBObjectList objectList = childObjects.getObjectList(objectType);
         if (objectList == null) return null;
 
-        return (DBSchemaObject) objectList.getObject(subjectPsiElement.getText());
+        String objectName = Naming.unquote(subjectPsiElement.getText());
+        return (DBSchemaObject) objectList.getObject(objectName);
     }
 
     @Nullable

@@ -84,6 +84,7 @@ public abstract class DatabaseInterfaceBase implements DatabaseInterface{
         return result;
     }
 
+    @NonNls
     protected boolean executeStatement(@NotNull DBNConnection connection, @NonNls String loaderId, @Nullable Object... arguments) throws SQLException {
         StatementExecutionProcessor executionProcessor = getExecutionProcessor(loaderId);
         boolean result = executionProcessor.executeStatement(connection, arguments);
@@ -91,6 +92,7 @@ public abstract class DatabaseInterfaceBase implements DatabaseInterface{
         return result;
     }
 
+    @NonNls
     protected void executeUpdate(@NotNull DBNConnection connection, @NonNls String loaderId, @Nullable Object... arguments) throws SQLException {
         StatementExecutionProcessor executionProcessor = getExecutionProcessor(loaderId);
         executionProcessor.executeUpdate(connection, arguments);

@@ -43,7 +43,6 @@ public class DiagnosticsTable<T extends AbstractDiagnosticsTableModel> extends D
         setBackground(Colors.getEditorBackground());
         setCellSelectionEnabled(true);
         initTableSorter();
-        adjustColumnWidths();
 
         setAccessibleName(this, "Diagnostic Results");
     }

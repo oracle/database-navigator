@@ -100,7 +100,6 @@ public class SessionBrowserDetailsForm extends DBNFormBase {
     public void update(@Nullable final SessionBrowserModelRow selectedRow) {
         SessionDetailsTableModel model = new SessionDetailsTableModel(selectedRow);
         sessionDetailsTable.setModel(model);
-        sessionDetailsTable.adjustColumnWidths();
         currentSqlPanel.loadCurrentStatement();
     }
 
