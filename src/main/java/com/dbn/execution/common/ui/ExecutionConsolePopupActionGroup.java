@@ -17,6 +17,7 @@
 package com.dbn.execution.common.ui;
 
 import com.dbn.common.action.BasicAction;
+import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.tab.DBNTabbedPane;
@@ -26,7 +27,6 @@ import com.dbn.execution.statement.result.ui.RenameExecutionResultDialog;
 import com.dbn.execution.statement.result.ui.StatementExecutionResultForm;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Component;
