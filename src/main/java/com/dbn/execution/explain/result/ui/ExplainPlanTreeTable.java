@@ -63,12 +63,9 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-import java.awt.font.FontRenderContext;
-import java.awt.font.LineMetrics;
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -94,21 +91,17 @@ public class ExplainPlanTreeTable extends TreeTable implements StatefulDisposabl
         setTreeCellRenderer(treeCellRenderer);
         setDefaultRenderer(String.class, tableCellRenderer);
         setDefaultRenderer(BigDecimal.class, tableCellRenderer);
+
         JTableHeader tableHeader = getTableHeader();
         tableHeader.setDefaultRenderer(new BasicTableHeaderRenderer());
         tableHeader.setBorder(Borders.EMPTY_BORDER);
+
         setAutoResizeMode(AUTO_RESIZE_OFF);
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         SimpleTextAttributes plainDataAttributes = BasicTableTextAttributes.get().getPlainData(false, false);
         setBackground(plainDataAttributes.getBgColor());
 
-        Font font = getFont();
-        FontRenderContext fontRenderContext = getFontMetrics(font).getFontRenderContext();
-        LineMetrics lineMetrics = font.getLineMetrics("ABC", fontRenderContext);
-        int fontHeight = Math.round(lineMetrics.getHeight());
-        setRowHeight(fontHeight + 2);
-
-        final TreeTableTree tree = getTree();
+        TreeTableTree tree = getTree();
         tree.setOpaque(false);
         tree.setBackground(plainDataAttributes.getBgColor());
         tree.addTreeExpansionListener(new TreeExpansionListener() {

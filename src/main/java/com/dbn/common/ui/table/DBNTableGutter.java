@@ -16,7 +16,6 @@
 
 package com.dbn.common.ui.table;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.event.ApplicationEvents;
@@ -53,9 +52,13 @@ public abstract class DBNTableGutter<T extends DBNTableWithGutter> extends JList
         this.table = WeakRef.of(table);
         int rowHeight = table.getRowHeight();
         if (rowHeight != 0) setFixedCellHeight(rowHeight);
-        setBackground(Colors.getPanelBackground());
-        setBorder(Borders.EMPTY_BORDER);
+        setBackground(table.getBackground());
         setFont(Fonts.editor(-2));
+
+        //TODO try to add gutter line below the last table row
+        //setBorder(Borders.lineBorder(Colors.getTableGridColor(), 0,0,0,1));
+        setBorder(Borders.EMPTY_BORDER);
+
 
         // TODO accessibility changes broke gutter selection logic
         //setFocusable(false);
