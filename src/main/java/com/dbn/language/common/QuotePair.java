@@ -69,6 +69,37 @@ public class QuotePair {
         return beginQuote + identifier + endQuote;
     }
 
+    /**
+     * Quotes identifier with Java-escaped quotes.  Does
+     * not modify a string that is already escape-quoted
+     * but does add escaping if the value is normally quoted.
+     * @param identifier
+     * @return the quoted version of identifier
+     */
+    public String quoteWithJavaEscape(String identifier) {
+        if (!identifier.startsWith("\\"+beginQuote)) {
+           if (identifier.startsWith(beginQuote)) {
+                // already quoted without escape
+                identifier = "\\" + identifier;
+            }
+           else {
+               // not lead quoted at all
+               identifier = "\\\"" + identifier;
+           }
+        }
+
+        if (!identifier.endsWith("\\"+endQuote)) {
+            if (identifier.endsWith(endQuote)) {
+                // trailing unescaped quote so strip existing quote and add escaped.
+                identifier = identifier.substring(0, identifier.length()-1);
+                identifier += "\\\"";
+            }
+            else {
+                identifier += "\\\"";
+            }
+        }
+        return identifier;
+    }
     public String unquote(String identifier) {
         if (!isQuoted(identifier)) return identifier;
 
