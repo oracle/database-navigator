@@ -428,6 +428,7 @@ public class Icons {
     public static final Icon DBO_ROLE                            = load("/img/object/role/Role.svg");
     public static final Icon DBO_ROLES                           = load("/img/object/role/Roles.svg");
     public static final Icon DBO_SCHEMA                          = load("/img/object/schema/Schema.svg");
+    public static final Icon DBO_SCHEMA_DISABLED                 = load("/img/object/schema/SchemaDisabled.svg");
     public static final Icon DBO_SCHEMAS                         = load("/img/object/schema/Schemas.svg");
     public static final Icon DBO_SYNONYM                         = load("/img/object/synonym/Synonym.svg");
     public static final Icon DBO_SYNONYM_ERR                     = load("/img/object/synonym/SynonymErr.svg");

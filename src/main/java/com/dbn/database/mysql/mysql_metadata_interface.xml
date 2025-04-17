@@ -30,7 +30,7 @@
             select
                 SCHEMA_NAME,
                 'N' as IS_PUBLIC,
-                if(lower(SCHEMA_NAME)='information_schema', 'Y', 'N') as IS_SYSTEM,
+                if(lower(SCHEMA_NAME) in ('information_schema', 'performance_schema', 'sys'), 'Y', 'N') as IS_SYSTEM,
                 'N' as IS_EMPTY
             from information_schema.SCHEMATA
             order by SCHEMA_NAME asc

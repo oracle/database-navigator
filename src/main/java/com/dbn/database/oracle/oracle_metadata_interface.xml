@@ -130,7 +130,23 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="schemas" is-query="true" is-prepared-statement="true">
-        <statement prefixes="DBA, ALL">
+        <statement prefixes="DBA, ALL, USER">
+            select
+                u.USERNAME as SCHEMA_NAME,
+                'N' as IS_PUBLIC,
+                u.ORACLE_MAINTAINED as IS_SYSTEM,
+                'N' as IS_EMPTY
+            from
+                DBA_USERS u
+            union all
+            select
+                'PUBLIC',
+                'Y' as IS_PUBLIC,
+                'Y' as IS_SYSTEM,
+                'N' as IS_EMPTY
+            from DUAL
+        </statement>
+        <statement prefixes="DBA, ALL, USER">
             select
                 u.USERNAME as SCHEMA_NAME,
                 'N' as IS_PUBLIC,
