@@ -209,7 +209,7 @@ public class ResultSetDataModel<
         }
 
         if (genericDataType.is(LITERAL)) {
-            int length = dataType.getLength();
+            long length = dataType.getLength();
             if (length > 200) {
                 for (R row : getRows()) {
                     C cell = row.getCellAtIndex(columnIndex);

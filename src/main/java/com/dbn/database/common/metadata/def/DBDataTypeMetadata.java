@@ -34,7 +34,7 @@ public interface DBDataTypeMetadata {
     @ObjectIdentifier
     String getDeclaredTypeProgram() throws SQLException;
 
-    int getDataLength() throws SQLException;
+    long getDataLength() throws SQLException;
 
     int getDataPrecision() throws SQLException;
 

@@ -36,7 +36,7 @@ public class DBDataType {
     private DBObjectRef<DBType> declaredType;
     private String name;
     private String qualifiedName;
-    private int length;
+    private long length;
     private int precision;
     private int scale;
     private boolean set;
@@ -46,7 +46,7 @@ public class DBDataType {
         return connection.getObjectBundle().getDataTypes().getDataType(definition);
     }
 
-    public static DBDataType get(ConnectionHandler connection, String dataTypeName, int length, int precision, int scale, boolean set) {
+    public static DBDataType get(ConnectionHandler connection, String dataTypeName, long length, int precision, int scale, boolean set) {
         String declaredTypeName = null;
         String declaredTypeOwner = null;
         String declaredTypePackage = null;
