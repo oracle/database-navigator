@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -156,7 +157,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     acknowledgement = enumAttribute(element, "acknowledgement", acknowledgement);
 
     Element messagesElement = element.getChild("messages");
-    List<Element> messageElements = messagesElement.getChildren();
+    List<Element> messageElements = childrenOf(messagesElement);
     for (Element messageElement : messageElements) {
       PersistentChatMessage message = new PersistentChatMessage();
       message.readState(messageElement);
@@ -164,7 +165,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     }
 
     Element conversationsElement = element.getChild("conversations");
-    List<Element> conversationElements = conversationsElement.getChildren();
+    List<Element> conversationElements = childrenOf(conversationsElement);
     for (Element conversationElement : conversationElements) {
       PersistentChatConversation conversation = new PersistentChatConversation();
       conversation.readState(conversationElement);
