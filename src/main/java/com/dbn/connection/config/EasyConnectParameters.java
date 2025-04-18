@@ -21,7 +21,7 @@ public class EasyConnectParameters {
     /**
      * List of all general Easy Connect parameters that we support.
      */
-    public static final List<String> EASY_CONNECT_PARAMETER_NAMES = List.of(
+    public static final List<String> PARAMETER_NAMES = List.of(
             "ENABLE",
             "FAILOVER",
             "LOAD_BALANCE",
@@ -39,7 +39,7 @@ public class EasyConnectParameters {
      * Easy Connect Parameters only available when protocol is TCPS
      */
     @NonNls
-    public static final List<String> EASY_CONNECT_TCPS_ONLY_PARAMETER_NAMES = List.of(
+    public static final List<String> TCPS_ONLY_PARAMETER_NAMES = List.of(
             "SSL_SERVER_DN_MATCH",
             "SSL_SERVER_CERT_DN");
 
@@ -47,14 +47,14 @@ public class EasyConnectParameters {
      * List of property values that represent valid boolean type values.
      */
     @NonNls
-    public static final List<String> EASY_CONNECT_BOOLEAN_LIKE_STRING_VALUES = List.of(
+    public static final List<String> BOOLEAN_LIKE_STRING_VALUES = List.of(
             "on", "off", "ON", "OFF", "true", "false", "TRUE", "FALSE", "yes", "no", "YES", "NO");
 
     /**
      * List of parameters that must have their values quoted in the connect URL.
       */
     @NonNls
-    public static final List<String> EASY_CONNECT_PARAMETERS_THAT_NEED_QUOTING = List.of(
+    public static final List<String> PARAMETERS_THAT_NEED_QUOTING = List.of(
             "WALLET_LOCATION", "SSL_SERVER_CERT_DN");
     /**
      * Error message for RETRY_DELAY.
@@ -83,14 +83,14 @@ public class EasyConnectParameters {
      */
     public static LinkedHashMap<String, String> ensureParameters(Map<String, String> parameters, DatabaseProtocol protocol) {
         LinkedHashMap<String, String> copyOfParameters = new LinkedHashMap<>();
-        EASY_CONNECT_PARAMETER_NAMES.forEach(key -> copyOfParameters.put(key, ""));
+        PARAMETER_NAMES.forEach(key -> copyOfParameters.put(key, ""));
         if (protocol == DatabaseProtocol.TCPS) {
-            EASY_CONNECT_TCPS_ONLY_PARAMETER_NAMES.forEach(key -> copyOfParameters.put(key, ""));
+            TCPS_ONLY_PARAMETER_NAMES.forEach(key -> copyOfParameters.put(key, ""));
         }
         copyOfParameters.putAll(parameters);
         // if not TCPS, remove any key/value pairs that aren't appropriate in the copy.
         if (protocol!= DatabaseProtocol.TCPS) {
-            EASY_CONNECT_TCPS_ONLY_PARAMETER_NAMES.forEach((key) -> parameters.remove(key));
+            TCPS_ONLY_PARAMETER_NAMES.forEach((key) -> parameters.remove(key));
         }
         return copyOfParameters;
     }
@@ -120,7 +120,7 @@ public class EasyConnectParameters {
      * url removed.
      */
     public static Map<String, String> excludeInvalidInTCP(Map<String, String> parameters, DatabaseProtocol protocol) {
-        EASY_CONNECT_TCPS_ONLY_PARAMETER_NAMES.forEach(key -> {
+        TCPS_ONLY_PARAMETER_NAMES.forEach(key -> {
             if (protocol != DatabaseProtocol.TCPS && parameters.containsKey(key)) {
                 parameters.remove(key);
             }
@@ -136,7 +136,7 @@ public class EasyConnectParameters {
      * @return a possibly modified map with parameters double-quoted if necessary
      */
     public static Map<String, String> ensureQuoted(Map<String, String> parameters, boolean escapeQuotes) {
-        EASY_CONNECT_PARAMETERS_THAT_NEED_QUOTING.forEach(key -> {
+        PARAMETERS_THAT_NEED_QUOTING.forEach(key -> {
             if (parameters.containsKey(key)) {
                 String originalValue = parameters.get(key);
                 originalValue = originalValue.trim();
