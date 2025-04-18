@@ -16,6 +16,7 @@
 
 package com.dbn.object.action;
 
+import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.editor.DBContentType;
 import com.dbn.execution.compiler.action.CompileActionGroup;
@@ -47,7 +48,6 @@ import com.dbn.sync.java.action.JavaObjectDownloadAction;
 import com.dbn.vfs.DBConsoleType;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.DumbAware;
 
 import java.util.List;

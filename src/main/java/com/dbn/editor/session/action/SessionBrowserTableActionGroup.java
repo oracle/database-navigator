@@ -17,6 +17,7 @@
 package com.dbn.editor.session.action;
 
 import com.dbn.common.action.BasicAction;
+import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.util.Strings;
@@ -33,7 +34,6 @@ import com.dbn.editor.session.model.SessionBrowserModelRow;
 import com.dbn.editor.session.options.SessionBrowserSettings;
 import com.dbn.editor.session.ui.table.SessionBrowserTable;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

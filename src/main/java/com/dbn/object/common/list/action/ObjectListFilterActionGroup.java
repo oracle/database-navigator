@@ -16,11 +16,11 @@
 
 package com.dbn.object.common.list.action;
 
+import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import org.jetbrains.annotations.NotNull;
 
 public class ObjectListFilterActionGroup extends DefaultActionGroup {
