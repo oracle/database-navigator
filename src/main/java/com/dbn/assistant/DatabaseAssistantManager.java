@@ -43,6 +43,7 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionHandlerImpl;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -240,6 +241,10 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
       addCard(toolWindowPanel, chatBox, connectionId);
       return chatBox;
     });
+  }
+
+  public void interruptAssistantConnection(ConnectionHandler connection) throws SQLException {
+    ((ConnectionHandlerImpl) connection).getAssistantConnection().close();
   }
 
   public AssistantState getAssistantState(ConnectionId connectionId) {

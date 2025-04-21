@@ -31,10 +31,12 @@ import com.dbn.common.action.DataKeys;
 import com.dbn.common.feature.FeatureAvailability;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Background;
+import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Dialogs;
+import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -52,6 +54,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -276,6 +279,7 @@ public class ChatBoxForm extends DBNFormBase {
           }
           if (exitCode == 1) {
             getAssistantState().setCurrentConversation(newContext.isConversation() ? new PersistentChatConversation(newContext) : null);
+            if(isNewConversation) interruptCurrentConversation();
             updateMessages();
           }
           if (exitCode == 2) {
@@ -283,6 +287,7 @@ public class ChatBoxForm extends DBNFormBase {
             getAssistantState().getCurrentConversation().removeProgress();
             getAssistantState().getConversations().add(getAssistantState().getCurrentConversation());
             getAssistantState().setCurrentConversation(newContext.isConversation() ? new PersistentChatConversation(newContext) : null);
+            if(isNewConversation) interruptCurrentConversation();
             updateMessages();
           }
         });
@@ -497,6 +502,25 @@ public class ChatBoxForm extends DBNFormBase {
     chatScrollPane.validate();
     JScrollBar verticalBar = chatScrollPane.getVerticalScrollBar();
     verticalBar.setValue(verticalBar.getMaximum());
+  }
+
+  public void interruptCurrentConversation() {
+    try{
+      Progress.modal(getProject(), null, true,
+              "Interrupting current conversation",
+              "Interrupting current conversation",
+              indicator -> {
+                  try {
+                    getManager().interruptAssistantConnection(getConnection());
+                  } catch (SQLException e) {
+                    Messages.showErrorDialog(getProject(), "Error while interrupting current conversation");
+                  }
+              });
+
+    } catch (Exception e){
+//TODO
+    }
+
   }
 
   public ConnectionId getConnectionId() {

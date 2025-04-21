@@ -73,8 +73,9 @@ public class ConversationHistoryForm extends DBNFormBase {
         return conversationTable.getSelectedRowCount();
     }
     private void updateDialogButtonState(ConversationHistoryDialog parent) {
-        if (getSelectedRowCount() == 0) parent.getOKAction().setEnabled(false);
-        else parent.getOKAction().setEnabled(true);
+        int selectedRowCount = getSelectedRowCount();
+        if (selectedRowCount == 0) parent.getOKAction().setEnabled(false);
+        else parent.getOKAction().setEnabled(selectedRowCount == 1);
     }
 
     public void setConversations(List<PersistentChatConversation> conversations) {
