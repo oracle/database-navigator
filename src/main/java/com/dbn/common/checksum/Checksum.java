@@ -16,6 +16,7 @@
 
 package com.dbn.common.checksum;
 
+import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.util.Files;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -117,6 +118,7 @@ public class Checksum {
             byte[] bytes = new byte[1024];
             int length;
             while ((length = inputStream.read(bytes)) != -1) {
+                ProgressMonitor.checkCancelled();
                 digest.update(bytes, 0, length);
             }
         }

@@ -81,11 +81,6 @@ public class ColumnStateSelectable implements Selectable {
         state.setVisible(selected);
     }
 
-    @Override
-    public int compareTo(@NotNull Object o) {
-        return 0;
-    }
-
     public int getPosition() {
         return state.getPosition();
     }

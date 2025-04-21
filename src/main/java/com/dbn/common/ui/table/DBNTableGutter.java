@@ -69,7 +69,7 @@ public abstract class DBNTableGutter<T extends DBNTableWithGutter> extends JList
         setAccessibleName(this, "Table gutter");
     }
 
-    private void adjustCellSize() {
+    public void adjustCellSize() {
         T table = getTable();
         int rowCount = table.getModel().getRowCount();
 
@@ -90,10 +90,6 @@ public abstract class DBNTableGutter<T extends DBNTableWithGutter> extends JList
 
     protected int getAdditionalSpacing() {
         return 0;
-    }
-
-    public void refresh() {
-        adjustCellSize();
     }
 
     @Override

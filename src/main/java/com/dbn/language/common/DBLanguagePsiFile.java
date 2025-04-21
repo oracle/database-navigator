@@ -83,8 +83,10 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.file.util.VirtualFiles.getUnderlyingFile;
 import static com.dbn.common.util.Documents.getDocument;
 import static com.dbn.common.util.Documents.getEditors;
+import static com.dbn.vfs.DBParseableVirtualFile.PARSE_ROOT_ID_KEY;
 
 public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseContextBase, Presentable, StatefulDisposable, UnlistedDisposable {
     // TODO: check if any other visitor relevant
@@ -394,12 +396,14 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
         VirtualFile virtualFile = getVirtualFile();
         if (virtualFile == null) return null;
 
-        String parseRootId = virtualFile.getUserData(DBParseableVirtualFile.PARSE_ROOT_ID_KEY);
+        virtualFile = getUnderlyingFile(virtualFile);
+        String parseRootId = virtualFile.getUserData(PARSE_ROOT_ID_KEY);
+
         if (parseRootId == null && virtualFile instanceof DBSourceCodeVirtualFile) {
             DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) virtualFile;
             parseRootId = sourceCodeFile.getParseRootId();
             if (parseRootId != null) {
-                virtualFile.putUserData(DBParseableVirtualFile.PARSE_ROOT_ID_KEY, parseRootId);
+                virtualFile.putUserData(PARSE_ROOT_ID_KEY, parseRootId);
             }
         }
 

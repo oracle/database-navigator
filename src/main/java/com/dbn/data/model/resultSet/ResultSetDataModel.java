@@ -27,8 +27,10 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.connection.jdbc.ResourceStatus;
+import com.dbn.data.model.ColumnInfo;
 import com.dbn.data.model.sortable.SortableDataModel;
 import com.dbn.data.model.sortable.SortableDataModelState;
+import com.dbn.data.type.GenericDataType;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -41,6 +43,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.nn;
+import static com.dbn.data.type.GenericDataType.JSON;
+import static com.dbn.data.type.GenericDataType.XMLTYPE;
 
 @Getter
 @Setter
@@ -190,6 +194,16 @@ public class ResultSetDataModel<
     @Override
     public boolean isReadonly() {
         return true;
+    }
+
+    @Override
+    public boolean isLargeValue(int columnIndex) {
+        ColumnInfo columnInfo = getColumnInfo(columnIndex);
+        GenericDataType dataType = columnInfo.getDataType().getGenericDataType();
+        if (dataType.isOneOf(JSON, XMLTYPE)) {
+            return true;
+        }
+        return super.isLargeValue(columnIndex);
     }
 
     @Override

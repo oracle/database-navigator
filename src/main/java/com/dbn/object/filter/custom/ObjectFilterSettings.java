@@ -54,6 +54,10 @@ public class ObjectFilterSettings extends BasicProjectConfiguration<ConnectionFi
         return cast(filters.get(objectType));
     }
 
+    public boolean hasFilter(DBObjectType objectType) {
+        return filters.containsKey(objectType);
+    }
+
     public void addFilter(ObjectFilter<?> filter) {
         filters.put(filter.getObjectType(), filter);
     }

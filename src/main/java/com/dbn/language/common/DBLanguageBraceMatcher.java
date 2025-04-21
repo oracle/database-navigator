@@ -34,7 +34,9 @@ public abstract class DBLanguageBraceMatcher implements PairedBraceMatcher {
         SharedTokenTypeBundle tt = language.getSharedTokenTypes();
         bracePairs = new BracePair[]{
             new BracePair(tt.getChrLeftParenthesis(), tt.getChrRightParenthesis(), false),
-            new BracePair(tt.getChrLeftBracket(), tt.getChrRightBracket(), false)};
+            new BracePair(tt.getChrLeftBracket(), tt.getChrRightBracket(), false),
+            new BracePair(tt.getChrLeftBrace(), tt.getChrRightBrace(), false),
+        };
     }
 
     @NotNull

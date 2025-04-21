@@ -20,6 +20,8 @@ import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJsonViewMetadata;
+import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
+import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.DBJsonView;
 import com.dbn.object.DBSchema;
@@ -41,6 +43,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.object.type.DBObjectRelationType.JSON_VIEW_TABLE;
 import static com.dbn.object.type.DBObjectType.TABLE;
 
@@ -148,6 +151,35 @@ class DBJsonViewImpl extends DBViewImpl<DBJsonViewMetadata> implements DBJsonVie
         }
 
         return null;
+    }
+
+    /*********************************************************
+     *                  DBEditableCodeObject                 *
+     ********************************************************/
+
+    @Override
+    public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
+        DatabaseInterfaceInvoker.execute(HIGHEST,
+                "Updating source code",
+                "Updating source of " + getQualifiedNameWithType(),
+                getProject(),
+                getConnectionId(),
+                getSchemaId(),
+                conn -> {
+                    ConnectionHandler connection = getConnection();
+                    DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
+                    dataDefinition.updateJsonView(
+                            getSchemaName(true),
+                            getName(true),
+                            newCode,
+                            isEditionable(),
+                            conn);
+                });
+    }
+
+    @Override
+    public String getCodeParseRootId(DBContentType contentType) {
+        return "select_json_statement";
     }
 
     /*********************************************************

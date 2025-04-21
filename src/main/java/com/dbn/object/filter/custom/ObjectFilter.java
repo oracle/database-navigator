@@ -60,7 +60,12 @@ public class ObjectFilter<T extends DBObject> implements Filter<T>, PersistentCo
     private final transient WeakRef<ObjectFilterSettings> settings;
 
     public ObjectFilter(ObjectFilterSettings settings) {
+        this(settings, null);
+    }
+
+    public ObjectFilter(ObjectFilterSettings settings, DBObjectType objectType) {
         this.settings = WeakRef.of(settings);
+        this.objectType = objectType;
     }
 
     @NotNull

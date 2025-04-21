@@ -91,7 +91,20 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
         executeUpdate(connection, "create-java-class", fullyQualifiedClassName, code);
     }
 
-   /*********************************************************
+    /*********************************************************
+     *                   CHANGE statements                   *
+     *********************************************************/
+    @Override
+    public void updateView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "change-view", ownerName, viewName, code);
+    }
+
+    @Override
+    public void updateJsonView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "change-json-view", ownerName, viewName, code);
+    }
+
+    /*********************************************************
     *                   DROP statements                     *
     *********************************************************/
    @Override

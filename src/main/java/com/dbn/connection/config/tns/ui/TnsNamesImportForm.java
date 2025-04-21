@@ -101,16 +101,14 @@ public class TnsNamesImportForm extends DBNFormBase {
             String fileName = tnsNamesFileTextField.getTextField().getText();
             if (Strings.isNotEmpty(fileName)) {
                 fileName = Files.normalizePath(fileName);
-                tnsNames = TnsNamesParser.get(new File(fileName));
+                tnsNames = TnsNamesParser.get(new File(fileName)); // this is the parser that pasrses the tnsnames
                 tnsNamesTable.setModel(new TnsNamesTableModel(tnsNames));
-                tnsNamesTable.adjustColumnWidths();
                 filterTextField.setText(tnsNames.getFilter().getText());
             }
             errorLabel.setVisible(false);
         } catch (Exception e) {
             conditionallyLog(e);
             tnsNamesTable.setModel(new TnsNamesTableModel(new TnsNames()));
-            tnsNamesTable.adjustColumnWidths();
 
             errorLabel.setVisible(true);
             String message = e.getMessage();

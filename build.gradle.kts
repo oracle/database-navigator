@@ -32,8 +32,19 @@ group = "com.dbn"
 version = "3.5.3.0"
 
 repositories {
-  mavenCentral()
+  mavenCentral {
+    content {
+      excludeModule("com.oracle", "oci-intellij-plugin-api")
+    }
+  }
+  flatDir {
+    dirs("libs")
+    content {
+      includeModule("com.oracle", "oci-intellij-plugin-api")
+    }
+  }
 }
+
 dependencies {
   testImplementation("junit:junit:4.13.2")
 
@@ -65,6 +76,8 @@ dependencies {
 
   implementation(project(":modules:dbn-api"))
   implementation(project(":modules:dbn-spi"))
+
+  compileOnly("com.oracle:oci-intellij-plugin-api:"+project.properties["oci.ext.api.version"])
 }
 
 licenseReport {

@@ -36,7 +36,7 @@ public class WrapperResultDialog extends DBNDialog<WrapperResultForm> {
   public WrapperResultDialog(Project project, Wrapper wrapper) {
     super(project, "Wrapper Result", false);
     //this.setDefaultSize(380, 420);
-    this.setModal(false);
+    this.setModal(true);
     this.setAutoSize(true);
     this.wrapper = wrapper;
     renameAction(getCancelAction(), "Close");
