@@ -28,7 +28,7 @@ public class ChatContextTest {
         ChatContext oldContext = new ChatContext("profile1", AIModel.forId("GPT_4_O"), PromptAction.CHAT, true);
         ChatContext newContext = new ChatContext("profile2", AIModel.forId("GPT_4_O"), PromptAction.CHAT, true);
 
-        Assert.assertEquals("profile", oldContext.isConversationInterruption(newContext));
+        Assert.assertEquals("profile", oldContext.isConversationInterruption(newContext, null, false));
 
     }
     @Test
@@ -36,7 +36,7 @@ public class ChatContextTest {
         ChatContext oldContext = new ChatContext("profile1", AIModel.forId("GPT_4_O"), PromptAction.CHAT, false);
         ChatContext newContext = new ChatContext("profile2", AIModel.forId("GPT_4_O"), PromptAction.CHAT, true);
 
-        Assert.assertEquals("", oldContext.isConversationInterruption(newContext));
+        Assert.assertEquals("", oldContext.isConversationInterruption(newContext, null, false));
 
     }
     @Test
@@ -44,27 +44,27 @@ public class ChatContextTest {
         ChatContext oldContext = new ChatContext("profile1", AIModel.forId("GPT_4_O"), PromptAction.CHAT, true);
         ChatContext newContext = new ChatContext("profile1", AIModel.forId("GPT_4_O_MINI"), PromptAction.CHAT, true);
 
-        Assert.assertEquals("model", oldContext.isConversationInterruption(newContext));
+        Assert.assertEquals("model", oldContext.isConversationInterruption(newContext, null, false));
     }
     @Test
     public void isConversationInterruption_ActionSwitch1() {
         ChatContext oldContext = new ChatContext("profile1", AIModel.forId("GPT_4_O"), PromptAction.CHAT, true);
         ChatContext newContext = new ChatContext("profile1", AIModel.forId("GPT_4_O"), PromptAction.SHOW_SQL, true);
 
-        Assert.assertEquals("conversation type", oldContext.isConversationInterruption(newContext));
+        Assert.assertEquals("conversation type", oldContext.isConversationInterruption(newContext, null, false));
     }
     @Test
     public void isConversationInterruption_ActionSwitch2() {
         ChatContext oldContext = new ChatContext("profile1", AIModel.forId("GPT_4_O"), PromptAction.SHOW_SQL, true);
         ChatContext newContext = new ChatContext("profile1", AIModel.forId("GPT_4_O"), PromptAction.CHAT, true);
 
-        Assert.assertEquals("conversation type", oldContext.isConversationInterruption(newContext));
+        Assert.assertEquals("conversation type", oldContext.isConversationInterruption(newContext, null, false));
     }
     @Test
     public void isConversationInterruption_ActionSwitch3() {
         ChatContext oldContext = new ChatContext("profile1", AIModel.forId("GPT_4_O"), PromptAction.SHOW_SQL, true);
         ChatContext newContext = new ChatContext("profile1", AIModel.forId("GPT_4_O"), PromptAction.EXPLAIN_SQL, true);
 
-        Assert.assertEquals("", oldContext.isConversationInterruption(newContext));
+        Assert.assertEquals("", oldContext.isConversationInterruption(newContext, null, false));
     }
 }
