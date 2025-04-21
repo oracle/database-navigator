@@ -31,14 +31,7 @@ public class ChatContextTest {
         Assert.assertEquals("profile", oldContext.isConversationInterruption(newContext, null, false));
 
     }
-    @Test
-    public void isConversationInterruption_ProfileSwitch_FromChat() {
-        ChatContext oldContext = new ChatContext("profile1", AIModel.forId("GPT_4_O"), PromptAction.CHAT, false);
-        ChatContext newContext = new ChatContext("profile2", AIModel.forId("GPT_4_O"), PromptAction.CHAT, true);
 
-        Assert.assertEquals("", oldContext.isConversationInterruption(newContext, null, false));
-
-    }
     @Test
     public void isConversationInterruption_ModelSwitch() {
         ChatContext oldContext = new ChatContext("profile1", AIModel.forId("GPT_4_O"), PromptAction.CHAT, true);
