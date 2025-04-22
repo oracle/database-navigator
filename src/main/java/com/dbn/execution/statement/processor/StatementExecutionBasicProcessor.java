@@ -100,6 +100,7 @@ import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.navigation.NavigationInstruction.FOCUS;
 import static com.dbn.common.navigation.NavigationInstruction.SCROLL;
 import static com.dbn.common.navigation.NavigationInstruction.SELECT;
+import static com.dbn.common.util.Strings.removeTrailingContent;
 import static com.dbn.common.util.Strings.toUpperCase;
 import static com.dbn.connection.interceptor.DatabaseInterceptorType.STATEMENT_EXECUTION;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -165,8 +166,10 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         this.name = psiFile.getName();
         this.icon = psiFile.getIcon();
         this.index = index;
-        sqlStatement = sqlStatement.trim();
-        executionInput = new StatementExecutionInput(sqlStatement, sqlStatement, this);
+        String originalStatement = sqlStatement.trim();
+        String executableStatement = removeTrailingContent(originalStatement, ";");
+
+        executionInput = new StatementExecutionInput(originalStatement, executableStatement, this);
 
         initEditorProviderId(fileEditor);
     }
