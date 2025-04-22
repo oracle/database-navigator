@@ -30,7 +30,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.dbn.common.exception.Exceptions.toSqlException;
-import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Getter
@@ -58,7 +57,7 @@ public class VectorValue extends ValueAdapter<double[]>{
 
     @Override
     public double[] read() throws SQLException {
-        return nvl(values, EMPTY_DOUBLE_ARRAY);
+        return values;
     }
 
     @Nullable
@@ -83,7 +82,11 @@ public class VectorValue extends ValueAdapter<double[]>{
     public void write(Connection connection, ResultSet resultSet, int columnIndex, double[] values) throws SQLException {
         try {
             this.values = values;
-            resultSet.updateString(columnIndex, Arrays.toString(values));
+            if (values == null) {
+                resultSet.updateObject(columnIndex, null);
+            } else {
+                resultSet.updateString(columnIndex, Arrays.toString(values));
+            }
         } catch (Throwable e) {
             conditionallyLog(e);
             throw toSqlException(e, "Could not write array value. Your JDBC driver may not support this feature");
@@ -104,7 +107,7 @@ public class VectorValue extends ValueAdapter<double[]>{
     }
 
     public String[] getStringValues() {
-        if (values == null) return EMPTY_STRING_ARRAY;
+        if (values == null) return null;
 
         return Arrays.stream(values).mapToObj(d -> Double.toString(d)).toArray(String[]::new);
     }

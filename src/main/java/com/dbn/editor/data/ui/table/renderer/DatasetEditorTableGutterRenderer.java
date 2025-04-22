@@ -19,6 +19,7 @@ package com.dbn.editor.data.ui.table.renderer;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.table.DBNTableGutterRendererBase;
 import com.dbn.data.grid.ui.table.basic.BasicTableGutter;
+import com.dbn.editor.data.model.DatasetEditorModel;
 import com.dbn.editor.data.model.DatasetEditorModelRow;
 import com.dbn.editor.data.ui.table.DatasetEditorTable;
 
@@ -40,12 +41,13 @@ public class DatasetEditorTableGutterRenderer extends DBNTableGutterRendererBase
         DatasetEditorModelRow row = (DatasetEditorModelRow) model.getElementAt(index);
         DatasetEditorTable table = (DatasetEditorTable) tableGutter.getTable();
         if (row != null) {
+            DatasetEditorModel tableModel = table.getModel();
             Icon icon =
                     row.is(INSERTING) ? Icons.DATA_EDITOR_ROW_INSERT :
                     row.is(INSERTED) ? Icons.DATA_EDITOR_ROW_INSERTED :
                     row.is(DELETED) ? Icons.DATA_EDITOR_ROW_DELETED :
                     row.is(MODIFIED) ? Icons.DATA_EDITOR_ROW_MODIFIED :
-                    table.getModel().is(MODIFIED) ? Icons.DATA_EDITOR_ROW_DEFAULT : null;
+                    tableModel.is(MODIFIED) || tableModel.is(INSERTING) ? Icons.DATA_EDITOR_ROW_DEFAULT : null;
 
             if (icon == null || icon != iconLabel.getIcon()) {
                 iconLabel.setIcon(icon);

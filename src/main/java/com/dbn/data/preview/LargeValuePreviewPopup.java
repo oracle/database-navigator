@@ -178,7 +178,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
         } else if (userValue instanceof VectorValue) {
             VectorValue vectorValue = (VectorValue) userValue;
             String[] stringValues = vectorValue.getStringValues();
-            text = Arrays.stream(stringValues)
+            text = stringValues == null ? "" : Arrays.stream(stringValues)
                     .map(s -> s.startsWith("-") ? s : " " + s)
                     .reduce((a, b) -> a + "\n" + b)
                     .orElse("");
