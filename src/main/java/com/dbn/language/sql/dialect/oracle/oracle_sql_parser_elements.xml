@@ -3614,6 +3614,10 @@
                     <token id="02160" type-id="KW_TO" />
                     <object-def id="02161" type="TABLE" />
                 </sequence>
+                <sequence>
+                    <token id="02159" type-id="KW_READ" />
+                    <one-of tokens="KW_ONLY, KW_WRITE"/>
+                </sequence>
             </one-of>
         </iteration>
         <element optional="true" ref-id="alter_iot_clauses" />
@@ -5215,7 +5219,7 @@
                 <token type-id="IDENTIFIER" original-name="fragment_name" id="02984" />
             </sequence>
             <sequence original-name="field" id="02985">
-                <token type-id="IDENTIFIER" original-name="alias" id="02986" />
+                <token type-id="IDENTIFIER" original-name="alias" id="02986" flavor="literal"/>
                 <sequence optional="true" id="02987">
                     <token type-id="CHR_COLON" id="02988" />
                     <object-ref type="COLUMN" id="02989" />
