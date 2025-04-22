@@ -5170,7 +5170,7 @@
         </iteration>
     </element-def>
     <element-def description="Directive" id="graphql_directive" original-name="directive">
-        <token type-id="CHR_AT" id="02959" />
+        <token type-id="CHR_AT" id="02959" flavor="keyword"/>
         <one-of id="02960">
             <token type-id="KW_INSERT" id="02961" />
             <token type-id="KW_UPDATE" id="02962" />
