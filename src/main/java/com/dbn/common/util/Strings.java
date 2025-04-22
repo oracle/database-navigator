@@ -452,6 +452,8 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
      * @return the modified string with the specified trailing content removed
      */
     public static String removeTrailingContent(String text, String toRemove) {
+        if (isEmpty(toRemove)) return text;
+
         while (text.endsWith(toRemove)) {
             text = text.substring(0, text.length() - toRemove.length());
         }
