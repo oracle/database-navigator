@@ -21,6 +21,7 @@ import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
+import com.dbn.common.util.GuardedBlocks;
 import com.dbn.common.util.Strings;
 import com.dbn.editor.data.filter.DatasetCustomFilter;
 import com.dbn.language.sql.SQLFileType;
@@ -47,6 +48,7 @@ import java.util.Objects;
 import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
 import static com.dbn.common.ui.util.ClientProperty.NO_INDENT;
 import static com.dbn.common.ui.util.UserInterface.updateScrollPanes;
+import static com.dbn.editor.code.content.GuardedBlockType.READONLY_DOCUMENT_SECTION;
 
 public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCustomFilter> {
     private JPanel mainPanel;
@@ -71,7 +73,7 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
         initSelectStatement(dataset, filter);
         initErrorLabel(filter);
 
-        // delay the initialisation of filter editor to force psi write action in the dialog modality state
+        // delay the initialization of the filter editor to force psi write action in the dialog modality state
         whenShown(() -> initFilterEditor(dataset, filter) );
     }
 
@@ -80,8 +82,10 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
         StringBuilder selectStatement = new StringBuilder("select * from ");
         selectStatement.append(dataset.getSchemaName(true)).append('.');
         selectStatement.append(dataset.getName(true));
-        selectStatement.append(" where \n");
+        selectStatement.append(" where ");
         conditionOffset = selectStatement.length();
+
+        selectStatement.append("\n");
 
         String condition = filter.getCondition();
         boolean isValidCondition = Strings.isNotEmptyOrSpaces(condition);
@@ -101,7 +105,8 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
         PsiFile selectStatementFile = filterFile.initializePsiFile(viewProvider, SQLLanguage.INSTANCE);
 
         document = Documents.ensureDocument(selectStatementFile);
-        document.createGuardedBlock(0, conditionOffset);
+        GuardedBlocks.createGuardedBlock(document, READONLY_DOCUMENT_SECTION, 0, conditionOffset,
+                "This predefined part of the query cannot be modified. Please add your filter conditions after the 'WHERE' keyword.");
         editor = Editors.createEditor(document, project, filterFile, SQLFileType.INSTANCE);
         Editors.initEditorHighlighter(editor, SQLLanguage.INSTANCE, dataset);
 
@@ -120,6 +125,7 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
         EditorSettings settings = editor.getSettings();
         settings.setFoldingOutlineShown(false);
         settings.setLineMarkerAreaShown(false);
+        settings.setCaretRowShown(false);
         settings.setLineNumbersShown(false);
         settings.setVirtualSpace(false);
         settings.setDndEnabled(false);

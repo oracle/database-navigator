@@ -71,7 +71,7 @@ public abstract class DatabaseCompatibilityInterfaceImpl implements DatabaseComp
 
     @Override
     public String getOrderByClause(String columnName, SortDirection sortDirection, boolean nullsFirst) {
-        return columnName + " " + sortDirection.getSqlToken() + " nulls " + (nullsFirst ? " first" : " last");
+        return columnName + " " + sortDirection.getSqlToken() + " nulls" + (nullsFirst ? " first" : " last");
     }
 
     @Override
