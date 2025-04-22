@@ -5131,15 +5131,99 @@
         <element optional="true" ref-id="json_duality_view_replication_clause" />
         <element optional="true" ref-id="default_collation_clause" />
         <token id="02947" type-id="KW_AS" />
-        <one-of id="02948">
-            <token id="02949" original-name="graphql_query_for_DV" type-id="STRING" />
-            <element ref-id="select_json_statement" />
-        </one-of>
+        <element ref-id="json_view_definition"/>
     </element-def>
     <element-def attributes="CLAUSE" id="default_collation_clause" description="DEFAULT COLLATION clause">
         <token id="02950" type-id="KW_DEFAULT" />
         <token id="02951" type-id="KW_COLLATION" />
         <object-ref id="02952" type="COLLATION" />
+    </element-def>
+
+    <element-def description="JSON VIEW definition" id="json_view_definition">
+        <one-of id="02948">
+            <element ref-id="select_json_statement" />
+            <element ref-id="graphql_query_for_dv" />
+        </one-of>
+    </element-def>
+
+    <element-def description="GRAPHQL query for DV" id="graphql_query_for_dv">
+        <element ref-id="graphql_root_query_field"/>
+    </element-def>
+
+    <element-def description="Selection set" id="graphql_root_query_field" original-name="root_query_field">
+        <qualified-identifier id="02944" separator="CHR_DOT">
+            <variant>
+                <object-ref id="02945" optional="true" type="SCHEMA" />
+                <object-ref id="02946" type="TABLE" original-name="root_query_field_name"/>
+            </variant>
+        </qualified-identifier>
+        <element ref-id="graphql_directives" optional="true"/>
+        <element ref-id="graphql_selection_set"/>
+    </element-def>
+    <element-def description="Directives" id="graphql_directives" original-name="directives">
+        <iteration>
+            <element ref-id="graphql_directive"/>
+        </iteration>
+    </element-def>
+    <element-def description="Directive" id="graphql_directive" original-name="directive">
+        <token type-id="CHR_AT"/>
+        <one-of>
+            <token type-id="KW_INSERT"/>
+            <token type-id="KW_UPDATE"/>
+            <token type-id="KW_DELETE"/>
+            <token type-id="KW_CHECK"/>
+            <token type-id="KW_FLEX"/>
+            <token type-id="KW_NOINSERT"/>
+            <token type-id="KW_NOUPDATE"/>
+            <token type-id="KW_NODELETE"/>
+            <token type-id="KW_NOCHECK"/>
+        </one-of>
+        <wrapper template="PARENTHESES" optional="true" original-name="arguments">
+            <iteration>
+                <sequence  original-name="argument">
+                    <token type-id="IDENTIFIER" original-name="name"/>
+                    <token type-id="CHR_COLON"/>
+                    <token type-id="IDENTIFIER" original-name="value"/>
+                </sequence>
+            </iteration>
+        </wrapper>
+    </element-def>
+    <element-def description="Selection set" id="graphql_selection_set" original-name="selection_set">
+        <one-of>
+            <wrapper template="BRACKETS">
+                <wrapper template="BRACES">
+                    <element ref-id="graphql_selection_list"/>
+                </wrapper>
+            </wrapper>
+            <wrapper template="BRACES">
+                <element ref-id="graphql_selection_list"/>
+            </wrapper>
+        </one-of>
+    </element-def>
+    <element-def description="Selection list" id="graphql_selection_list" original-name="selection_list">
+        <iteration separator="CHR_COMMA">
+            <element ref-id="graphql_selection"/>
+        </iteration>
+    </element-def>
+    <element-def description="Selection" id="graphql_selection" original-name="selection">
+        <one-of>
+            <token type-id="CHR_STAR" original-name="fragment_spread"/>
+            <sequence original-name="fragment_spread">
+                <token type-id="CHR_DOT"/>
+                <token type-id="CHR_DOT"/>
+                <token type-id="CHR_DOT"/>
+                <token type-id="IDENTIFIER" original-name="fragment_name"/>
+            </sequence>
+            <sequence original-name="field">
+                <token type-id="IDENTIFIER" original-name="alias"/>
+                <sequence optional="true">
+                    <token type-id="CHR_COLON"/>
+                    <object-ref type="COLUMN"/>
+                    <element ref-id="graphql_directives" optional="true"/>
+                    <element ref-id="graphql_selection_set" optional="true"/>
+                </sequence>
+            </sequence>
+        </one-of>
     </element-def>
 
     <element-def attributes="SPECIFIC" description="SELECT JSON statement" id="select_json_statement" custom="true">
