@@ -31,6 +31,7 @@ public enum ClientProperty {
     NO_INDENT,
     RESIZING,
     REGISTERED,
+    VISITED,
     CACHED_VALUE,
     CLASSIFICATION,
     VISIBILITY_CONDITION,

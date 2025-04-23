@@ -29,12 +29,12 @@ import com.dbn.connection.ConnectionManager;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.filter.ConditionOperator;
 import com.dbn.object.filter.quick.ui.ObjectQuickFilterDialog;
+import com.dbn.options.ProjectSettings;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.val;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -89,6 +89,12 @@ public class ObjectQuickFilterManager extends ProjectComponentBase implements Pe
         objectList.setQuickFilter(cast(quickFilters.get(key)));
     }
 
+    public boolean isFeatureEnabled() {
+        ProjectSettings projectSettings = ProjectSettings.get(getProject());
+        return projectSettings.getBrowserSettings().getGeneralSettings().isEnableQuickFilters();
+    }
+
+
     /*********************************************
      *            PersistentStateComponent       *
      *********************************************/
@@ -100,7 +106,7 @@ public class ObjectQuickFilterManager extends ProjectComponentBase implements Pe
         Element filtersElement = newElement(element, "filters");
 
         ConnectionManager connectionManager = ConnectionManager.getInstance(getProject());
-        for (val entry : quickFilters.entrySet()) {
+        for (var entry : quickFilters.entrySet()) {
             ObjectQuickFilterKey key = entry.getKey();
             if (connectionManager.isValidConnectionId(key.getConnectionId())) {
                 ObjectQuickFilter<?> filter = entry.getValue();
@@ -116,8 +122,9 @@ public class ObjectQuickFilterManager extends ProjectComponentBase implements Pe
 
     @Override
     public void loadComponentState(@NotNull Element element) {
-        Element filtersElement = element.getChild("filters");
         lastUsedOperator = Settings.getEnum(element, "last-used-operator", lastUsedOperator);
+
+        Element filtersElement = element.getChild("filters");
         if (filtersElement != null) {
             for (Element child : filtersElement.getChildren()) {
                 ObjectQuickFilterKey key = new ObjectQuickFilterKey();
@@ -130,4 +137,5 @@ public class ObjectQuickFilterManager extends ProjectComponentBase implements Pe
             }
         }
     }
+
 }

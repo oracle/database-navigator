@@ -28,17 +28,21 @@ public class ObjectListFilterActionGroup extends DefaultActionGroup {
     public ObjectListFilterActionGroup(DBObjectList objectList) {
         ConnectionHandler connection = objectList.getConnection();
 
-        add(new HideObjectTypeAction(objectList));
         DBObjectType objectType = objectList.getObjectType();
+        add(new ObjectListQuickFilterAction(objectList));
+        addSeparator();
+        add(new ObjectListFilterEditAction(objectList));
+        add(new ObjectListFilterToggleAction(objectList));
+        add(new ObjectListFilterRemoveAction(objectList));
+        addSeparator();
+
+        add(new HideObjectTypeAction(objectList));
         if (objectType == DBObjectType.SCHEMA) {
             add (new HideEmptySchemasToggleAction(connection));
         } else if (objectType == DBObjectType.COLUMN) {
             add(new HidePseudoColumnsToggleAction(connection));
             add(new HideAuditColumnsToggleAction(connection));
         }
-        addSeparator();
-        add(new ObjectListQuickFilterAction(objectList));
-        add(new ObjectListFilterAction(objectList));
     }
 
     @Override

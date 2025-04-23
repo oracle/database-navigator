@@ -38,7 +38,7 @@ public class CreateObjectAction extends BasicAction {
     private final WeakRef<DBObjectList> objectList;
 
     CreateObjectAction(DBObjectList objectList) {
-        super(txt("app.objects.action.NewObject", objectList.getObjectType().getName()));
+        super(txt("app.objects.action.NewObject", objectList.getObjectType().getCapitalizedName()));
         this.objectList = WeakRef.of(objectList);
     }
 

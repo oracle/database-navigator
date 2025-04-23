@@ -82,7 +82,6 @@ import java.util.Set;
 
 import static com.dbn.browser.DatabaseBrowserUtils.treeVisibilityChanged;
 import static com.dbn.common.content.DynamicContentProperty.GROUPED;
-import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.object.type.DBObjectRelationType.ROLE_PRIVILEGE;
@@ -145,8 +144,8 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         this.objectLists.createObjectRelationList(ROLE_PRIVILEGE, this, roles, systemPrivileges, GROUPED);
 
         this.publicSchemas = Latent.mutable(
-                () -> nd(schemas).getSignature(),
-                () -> nvl(Lists.filter(getSchemas(), s -> s.isPublicSchema()), Collections.emptyList()));
+                () -> getObjectListSignature(SCHEMA),
+                () -> loadPublicSchemas());
 
         Project project = connection.getProject();
         ProjectEvents.subscribe(project, this, DataDefinitionChangeListener.TOPIC, dataDefinitionChangeListener());
@@ -155,6 +154,10 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         ProjectEvents.subscribe(project, this, ObjectChangeListener.TOPIC, objectChangeListener());
 
         Disposer.register(connection, this);
+    }
+
+    private @NotNull List<DBSchema> loadPublicSchemas() {
+        return nvl(Lists.filter(getSchemas(), s -> s.isPublicSchema()), Collections.emptyList());
     }
 
     private PsiFile createFakePsiFile() {
@@ -656,6 +659,11 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
     @Override
     public <T extends DBObject> DBObjectList<T> getObjectList(DBObjectType objectType) {
         return getObjectLists().getObjectList(objectType);
+    }
+
+    private Byte getObjectListSignature(DBObjectType objectType) {
+        DBObjectList<DBObject> objectList = getObjectList(objectType);
+        return objectList == null ? 0 : objectList.getSignature();
     }
 
     @Override
