@@ -20,17 +20,12 @@ import com.dbn.common.constant.Constants;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.database.DatabaseInfo.Default;
 import com.dbn.common.util.Parameters;
-import com.dbn.connection.config.ui.ConnectionUrlSettingsForm;
-import com.dbn.language.common.QuotePair;
-import static com.dbn.connection.config.EasyConnectParameters.excludeInvalidInTCP;
-import static com.dbn.connection.config.EasyConnectParameters.ensureQuoted;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,10 +52,10 @@ import static com.dbn.connection.DatabaseUrlType.LDAPS;
 import static com.dbn.connection.DatabaseUrlType.SERVICE;
 import static com.dbn.connection.DatabaseUrlType.SID;
 import static com.dbn.connection.DatabaseUrlType.TNS;
+import static com.dbn.connection.config.EasyConnectParameters.ensureParametersIfEasyConnect;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static java.util.regex.Pattern.compile;
-import static com.dbn.connection.config.EasyConnectParameters.ensureParametersIfEasyConnect;
 
 @Slf4j
 @Getter
@@ -274,7 +269,10 @@ public enum DatabaseUrlPattern {
             Matcher matcher = getMatcher(url);
             if (!matcher.matches()) return "";
 
-            return matcher.group(name).trim();
+            String group = matcher.group(name);
+            if (isEmpty(group)) return "";
+
+            return group.trim();
         } catch (Exception e) {
             conditionallyLog(e);
             log.warn("Failed to get group {} from database url", name);

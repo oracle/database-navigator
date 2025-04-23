@@ -63,7 +63,7 @@ public final class JavaDownloader extends JavaDownloaderBase {
 		SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
 		SourceCodeContent content = sourceCodeManager.loadSourceFromDatabase(javaClass, DBContentType.CODE);
 
-		String sourceCode = content.exportContent();
+		String sourceCode = content.getRawContent();
 		downloadTask.setContent(sourceCode);
 
 		setProgressDetail("Writing project class \"" + className + "\"");

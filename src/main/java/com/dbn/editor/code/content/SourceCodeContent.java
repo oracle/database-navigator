@@ -120,6 +120,10 @@ public class SourceCodeContent{
         setText(builder.toString());
     }
 
+    public String getRawContent() {
+        return text.toString();
+    }
+
     public String exportContent() {
         StringBuilder builder = new StringBuilder(text);
         List<GuardedBlockMarker> ranges = new ArrayList<>(getOffsets().getGuardedBlocks().getRanges());
