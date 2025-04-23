@@ -43,6 +43,7 @@ public class DatabaseBrowserGeneralSettingsForm extends ConfigurationEditorForm<
     private JTextField navigationHistorySizeTextField;
     private JCheckBox showObjectDetailsCheckBox;
     private JCheckBox stickyTreePathCheckBox;
+    private JCheckBox quickFiltersCheckBox;
     private JComboBox<BrowserDisplayMode> browserTypeComboBox;
 
 
@@ -83,6 +84,7 @@ public class DatabaseBrowserGeneralSettingsForm extends ConfigurationEditorForm<
         configuration.getNavigationHistorySize().to(navigationHistorySizeTextField);
         configuration.getShowObjectDetails().to(showObjectDetailsCheckBox);
         configuration.getEnableStickyPaths().to(stickyTreePathCheckBox);
+        configuration.getEnableQuickFilters().to(quickFiltersCheckBox);
 
         Project project = configuration.getProject();
         SettingsChangeNotifier.register(() -> {
@@ -107,6 +109,7 @@ public class DatabaseBrowserGeneralSettingsForm extends ConfigurationEditorForm<
         configuration.getNavigationHistorySize().from(navigationHistorySizeTextField);
         configuration.getShowObjectDetails().from(showObjectDetailsCheckBox);
         configuration.getEnableStickyPaths().from(stickyTreePathCheckBox);
+        configuration.getEnableQuickFilters().from(quickFiltersCheckBox);
     }
 
 }

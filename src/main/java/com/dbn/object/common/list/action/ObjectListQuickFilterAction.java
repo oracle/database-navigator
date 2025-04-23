@@ -20,9 +20,11 @@ import com.dbn.common.action.BasicAction;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.filter.quick.ObjectQuickFilterManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ObjectListQuickFilterAction extends BasicAction {
@@ -37,10 +39,24 @@ public class ObjectListQuickFilterAction extends BasicAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
-        if (project != null) {
-            ObjectQuickFilterManager quickFilterManager = ObjectQuickFilterManager.getInstance(project);
-            quickFilterManager.openFilterDialog(objectList);
-        }
+        if (isNotValid(project)) return;
 
+        ObjectQuickFilterManager quickFilterManager = ObjectQuickFilterManager.getInstance(project);
+        quickFilterManager.openFilterDialog(objectList);
+    }
+
+    @Override
+    public void update(@NotNull AnActionEvent e) {
+        boolean visible = isVisible(e);
+        Presentation presentation = e.getPresentation();
+        presentation.setVisible(visible);
+    }
+
+    private boolean isVisible(AnActionEvent e) {
+        Project project = e.getProject();
+        if (isNotValid(project)) return false;
+
+        ObjectQuickFilterManager quickFilterManager = ObjectQuickFilterManager.getInstance(project);
+        return quickFilterManager.isFeatureEnabled();
     }
 }
