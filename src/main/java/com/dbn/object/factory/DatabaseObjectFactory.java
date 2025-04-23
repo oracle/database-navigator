@@ -135,7 +135,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
     private void createJavaObject(JavaFactoryInput input) throws SQLException {
         DBObjectType objectType = JAVA_CLASS;
-        String objectName = input.getClassName();
+        String className = input.getClassName();
         String packageName = input.getPackageName();
         String classType = input.getTypeIdentifier();
         String extendsSuffix = input.getExtendsSuffix();
@@ -145,13 +145,13 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
         StringBuilder javaCode = new StringBuilder();
         if(!packageName.isEmpty()) {
-            fullyQualifiedClassName = packageName + "." + objectName;
+            fullyQualifiedClassName = packageName + "." + className;
             javaCode.append("package ").append(packageName).append(";").append("\n");
         } else {
-            fullyQualifiedClassName = objectName;
+            fullyQualifiedClassName = className;
         }
 
-        javaCode.append("public ").append(classType).append(" ").append(objectName).append(extendsSuffix)
+        javaCode.append("public ").append(classType).append(" ").append(className).append(extendsSuffix)
                 .append("{")
                 .append("\n")
                 .append("}");
@@ -169,12 +169,14 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                     dataDefinition.createJavaClass(fullyQualifiedClassName, javaCode.toString(), conn);
                 });
 
-        DBJavaClass javaClass = schema.getChildObject(objectType, fullyQualifiedClassName.replace(".","/"), false);
+        notifyObjectChanges(connectionId, schemaId, JAVA_CLASS, CREATE);
+
+        String objectName = fullyQualifiedClassName.replace(".", "/");
+        DBJavaClass javaClass = schema.getChildObject(objectType, objectName, false);
         if (javaClass == null) return;
 
         DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(getProject());
         editorManager.connectAndOpenEditor(javaClass, null, false, true);
-        notifyObjectChanges(connectionId, schemaId, JAVA_CLASS, CREATE);
     }
 
     public void dropObject(DBSchemaObject object) {
