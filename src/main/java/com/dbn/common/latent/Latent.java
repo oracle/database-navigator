@@ -47,8 +47,8 @@ public interface Latent<T> extends Supplier<T> {
         return new BasicLatent<>(loader);
     }
 
-    static <T, M> Latent<T> mutable(Loader<M> mutableLoader, Loader<T> loader) {
-        return new MutableLatent<>(mutableLoader, loader);
+    static <T, S> Latent<T> mutable(Loader<S> signatureLoader, Loader<T> valueLoader) {
+        return new MutableLatent<>(signatureLoader, valueLoader);
     }
 
     static <T> Latent<T> recursive(Loader<T> loader) {

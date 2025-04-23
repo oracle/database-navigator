@@ -29,6 +29,7 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.filter.custom.ObjectFilter;
 import com.dbn.object.filter.custom.ObjectFilterSettings;
 import com.dbn.object.filter.custom.ui.ObjectFilterDetailsDialog;
+import com.dbn.object.filter.quick.ObjectQuickFilterManager;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.options.ProjectSettings;
 import com.intellij.openapi.components.State;
@@ -62,6 +63,11 @@ public class ObjectFilterManager extends ProjectComponentBase implements Persist
 	public boolean hasObjectFilter(ConnectionId connectionId, DBObjectType objectType) {
 		ObjectFilterSettings objectFilterSettings = getObjectFilterSettings(connectionId);
 		return objectFilterSettings.hasFilter(objectType);
+	}
+
+	public boolean isQuickFilterFeatureActive() {
+		ObjectQuickFilterManager quickFilterManager = ObjectQuickFilterManager.getInstance(getProject());
+		return quickFilterManager.isFeatureEnabled();
 	}
 
 	@Nullable
@@ -105,6 +111,15 @@ public class ObjectFilterManager extends ProjectComponentBase implements Persist
 		if(objectFilter == null) return;
 
 		objectFilter.setActive(!objectFilter.isActive());
+		notifyFilterChange(connectionId, objectType);
+	}
+
+	public void removeFilter(ConnectionId connectionId, DBObjectType objectType) {
+		ObjectFilter objectFilter = getObjectFilter(connectionId, objectType);
+		if(objectFilter == null) return;
+
+		ObjectFilterSettings filterSettings = getObjectFilterSettings(connectionId);
+		filterSettings.deleteFilter(objectType);
 		notifyFilterChange(connectionId, objectType);
 	}
 

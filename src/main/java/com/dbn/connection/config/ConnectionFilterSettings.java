@@ -42,6 +42,8 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.object.type.DBObjectType.COLUMN;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
 
 @Getter
 @Setter
@@ -55,13 +57,17 @@ public class ConnectionFilterSettings extends CompositeProjectConfiguration<Conn
     private boolean hidePseudoColumns = false;
     private boolean hideAuditColumns = false;
 
-    private transient final Latent<Filter<DBSchema>> schemaFilter = Latent.basic(() -> loadSchemaFilter());
-    private transient final Latent<Filter<DBColumn>> columnFilter = Latent.basic(() -> loadColumnFilter());
+    private transient final Latent<Filter<DBSchema>> schemaFilter = Latent.mutable(
+            () -> getActiveFilterSignature(SCHEMA),
+            () -> loadSchemaFilter());
+
+    private transient final Latent<Filter<DBColumn>> columnFilter = Latent.mutable(
+            () -> getActiveFilterSignature(COLUMN),
+            () -> loadColumnFilter());
 
     @Nullable
     private Filter<DBSchema> loadSchemaFilter() {
-        ObjectFilterSettings objectFilterSettings = getObjectFilterSettings();
-        ObjectFilter<DBSchema> filter = objectFilterSettings.getFilter(DBObjectType.SCHEMA);
+        ObjectFilter<DBSchema> filter = getActiveFilter(SCHEMA);
         if (filter == null) {
             return hideEmptySchemas ? NonEmptySchemaFilter.INSTANCE : null;
         } else {
@@ -75,8 +81,7 @@ public class ConnectionFilterSettings extends CompositeProjectConfiguration<Conn
 
     @Nullable
     private Filter<DBColumn> loadColumnFilter() {
-        ObjectFilterSettings objectFilterSettings = getObjectFilterSettings();
-        ObjectFilter<DBColumn> filter = objectFilterSettings.getFilter(DBObjectType.COLUMN);
+        ObjectFilter<DBColumn> filter = getActiveFilter(COLUMN);
         Filter<DBColumn> featuredFilter = FeaturedColumnsFilter.get(hidePseudoColumns, hideAuditColumns);
         if (filter == null) {
             return featuredFilter;
@@ -87,6 +92,17 @@ public class ConnectionFilterSettings extends CompositeProjectConfiguration<Conn
                 return filter;
             }
         }
+    }
+
+    @Nullable
+    private <T extends DBObject> ObjectFilter<T> getActiveFilter(DBObjectType objectType) {
+        ObjectFilterSettings objectFilterSettings = getObjectFilterSettings();
+        return objectFilterSettings.getActiveFilter(objectType);
+    }
+
+    private Integer getActiveFilterSignature(DBObjectType objectType) {
+        ObjectFilter<DBObject> filter = getActiveFilter(objectType);
+        return filter == null ? 0 : filter.getSignature();
     }
 
     public void setHideEmptySchemas(boolean hideEmptySchemas) {
@@ -171,11 +187,11 @@ public class ConnectionFilterSettings extends CompositeProjectConfiguration<Conn
     }
 
     @Nullable
-    public <T extends DBObject> Filter<T> getNameFilter(DBObjectType objectType) {
+    public <T extends DBObject> Filter<T> getObjectFilter(DBObjectType objectType) {
         return
-            objectType == DBObjectType.SCHEMA ? cast(schemaFilter.get()) :
-            objectType == DBObjectType.COLUMN ? cast(columnFilter.get()):
-                cast(getObjectFilterSettings().getFilter(objectType));
+            objectType == SCHEMA ? cast(schemaFilter.get()) :
+            objectType == COLUMN ? cast(columnFilter.get()):
+                    getActiveFilter(objectType);
     }
 
     public ConnectionFilterSettings clone() {

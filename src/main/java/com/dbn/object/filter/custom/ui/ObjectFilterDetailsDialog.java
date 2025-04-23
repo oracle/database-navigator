@@ -56,6 +56,7 @@ public class ObjectFilterDetailsDialog extends DBNDialog<ObjectFilterDetailsForm
     protected Action @NotNull [] createActions() {
         return nonNulls(
                 getOKAction(),
+                getRemoveAction(),
                 getToggleAction(),
                 getCancelAction());
     }
@@ -88,12 +89,27 @@ public class ObjectFilterDetailsDialog extends DBNDialog<ObjectFilterDetailsForm
         String toggleName = filter.isActive() ?
                 txt("app.shared.action.Disable") :
                 txt("app.shared.action.Enable");
-        return createAction(toggleName, () -> disableFilter());
+        return createAction(toggleName, () -> toggleFilter());
     }
 
-    private void disableFilter() {
+    private AbstractAction getRemoveAction() {
+        if (create) return null;
+        if (!standalone) return null;
+
+        return createAction(txt("app.shared.action.Remove"), () -> removeFilter());
+    }
+
+    private void toggleFilter() {
         ObjectFilterManager instance = ObjectFilterManager.getInstance(getProject());
         instance.toggleFilter(
+                filter.getConnectionId(),
+                filter.getObjectType());
+        close(CLOSE_EXIT_CODE);
+    }
+
+    private void removeFilter() {
+        ObjectFilterManager instance = ObjectFilterManager.getInstance(getProject());
+        instance.removeFilter(
                 filter.getConnectionId(),
                 filter.getObjectType());
         close(CLOSE_EXIT_CODE);
