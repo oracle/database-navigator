@@ -101,7 +101,8 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         }
 
         // view source-code does not contain the view name, hence exempted from guarded-block logic
-        if (!objectTypeId.isOneOf(VIEW, JSON_VIEW, MATERIALIZED_VIEW)) {
+        // TODO add custom guarded block logic for java classes (excluded for now)
+        if (!objectTypeId.isOneOf(VIEW, JSON_VIEW, MATERIALIZED_VIEW, JAVA_CLASS)) {
             int nameIndex = Strings.indexOfIgnoreCase(sourceCode, objectName, 0);
             if (nameIndex > -1) {
                 int guardedBlockEndOffset = nameIndex + objectName.length();
