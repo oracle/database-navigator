@@ -36,6 +36,13 @@ import com.intellij.openapi.project.Project;
 import java.sql.SQLException;
 
 import static com.dbn.common.util.Strings.cachedLowerCase;
+import static com.dbn.database.DatabaseObjectTypeId.DATABASE_TRIGGER;
+import static com.dbn.database.DatabaseObjectTypeId.DATASET_TRIGGER;
+import static com.dbn.database.DatabaseObjectTypeId.JAVA_CLASS;
+import static com.dbn.database.DatabaseObjectTypeId.JSON_VIEW;
+import static com.dbn.database.DatabaseObjectTypeId.MATERIALIZED_VIEW;
+import static com.dbn.database.DatabaseObjectTypeId.TRIGGER;
+import static com.dbn.database.DatabaseObjectTypeId.VIEW;
 
 public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfaceImpl {
     public OracleDataDefinitionInterface(DatabaseInterfaces provider) {
@@ -52,11 +59,11 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         CodeStyleCaseOption kco = styleCaseSettings.getKeywordCaseOption();
         CodeStyleCaseOption oco = styleCaseSettings.getObjectCaseOption();
 
-        if (objectTypeId.isOneOf(DatabaseObjectTypeId.DATABASE_TRIGGER, DatabaseObjectTypeId.DATASET_TRIGGER)) {
-            objectTypeId = DatabaseObjectTypeId.TRIGGER;
+        if (objectTypeId.isOneOf(DATABASE_TRIGGER, DATASET_TRIGGER)) {
+            objectTypeId = TRIGGER;
         }
 
-        if(objectTypeId == DatabaseObjectTypeId.JAVA_CLASS){
+        if(objectTypeId == JAVA_CLASS){
             return kco.format("begin \n") +
                     kco.format("execute immediate \n") +
                     kco.format("' \n") +
@@ -65,7 +72,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
                     + kco.format(" as\n") +
                     code +
                     "';\n" + "end;\n/";
-        } else if (objectTypeId == DatabaseObjectTypeId.VIEW) {
+        } else if (objectTypeId == VIEW) {
             return kco.format("create" + (makeRerunnable ? " or replace" : "") + " view ") + oco.format((useQualified ? schemaName + "." : "") + objectName) + kco.format(" as\n") + code + "\n/";
         } else {
             String objectType = cachedLowerCase(objectTypeId.toString());
@@ -82,7 +89,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         String sourceCode = content.getText().toString();
         if (Strings.isEmpty(sourceCode)) return;
 
-        if (objectTypeId == DatabaseObjectTypeId.DATASET_TRIGGER || objectTypeId == DatabaseObjectTypeId.DATABASE_TRIGGER) {
+        if (objectTypeId.isOneOf(DATASET_TRIGGER, DATABASE_TRIGGER)) {
             if (!sourceCode.isEmpty()) {
                 int startIndex = Strings.indexOfIgnoreCase(sourceCode, objectName, 0) + objectName.length();
                 int headerEndOffset = Strings.indexOfIgnoreCase(sourceCode, "declare", startIndex);
@@ -93,7 +100,8 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
             }
         }
 
-        if (objectTypeId != DatabaseObjectTypeId.VIEW && objectTypeId != DatabaseObjectTypeId.MATERIALIZED_VIEW) {
+        // view source-code does not contain the view name, hence exempted from guarded-block logic
+        if (!objectTypeId.isOneOf(VIEW, JSON_VIEW, MATERIALIZED_VIEW)) {
             int nameIndex = Strings.indexOfIgnoreCase(sourceCode, objectName, 0);
             if (nameIndex > -1) {
                 int guardedBlockEndOffset = nameIndex + objectName.length();
