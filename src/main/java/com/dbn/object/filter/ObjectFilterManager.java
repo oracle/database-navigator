@@ -108,6 +108,15 @@ public class ObjectFilterManager extends ProjectComponentBase implements Persist
 		notifyFilterChange(connectionId, objectType);
 	}
 
+	public void removeFilter(ConnectionId connectionId, DBObjectType objectType) {
+		ObjectFilter objectFilter = getObjectFilter(connectionId, objectType);
+		if(objectFilter == null) return;
+
+		ObjectFilterSettings filterSettings = getObjectFilterSettings(connectionId);
+		filterSettings.deleteFilter(objectType);
+		notifyFilterChange(connectionId, objectType);
+	}
+
 	private void notifyFilterChange(ConnectionId connectionId, DBObjectType objectType) {
 		ProjectEvents.notify(getProject(), ObjectFilterChangeListener.TOPIC,
 				(listener) -> listener.nameFiltersChanged(connectionId, objectType));
