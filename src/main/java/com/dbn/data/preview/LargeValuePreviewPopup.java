@@ -89,6 +89,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
         super(null, project);
         this.table = WeakRef.of(table);
         this.userValueHolder = userValueHolder;
+        Object userValue = userValueHolder.getUserValue();
 
         loadContent(true);
         String value = valueTextArea.getText();
@@ -106,6 +107,8 @@ public class LargeValuePreviewPopup extends DBNFormBase {
                 JComponent toolbarComponent = actionToolbar.getComponent();
                 leftActionsPanel.add(toolbarComponent, BorderLayout.NORTH);
                 topActionsPanel.setVisible(false);
+            } else if (userValue instanceof VectorValue) {
+                //
             } else {
                 ActionToolbar actionToolbar = Actions.createActionToolbar(topActionsPanel, true,
                     /*new PinUnpinPopupAction(),
@@ -175,7 +178,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
         } else if (userValue instanceof VectorValue) {
             VectorValue vectorValue = (VectorValue) userValue;
             String[] stringValues = vectorValue.getStringValues();
-            text = Arrays.stream(stringValues)
+            text = stringValues == null ? "" : Arrays.stream(stringValues)
                     .map(s -> s.startsWith("-") ? s : " " + s)
                     .reduce((a, b) -> a + "\n" + b)
                     .orElse("");

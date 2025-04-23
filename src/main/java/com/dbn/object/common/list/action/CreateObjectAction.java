@@ -19,6 +19,7 @@ package com.dbn.object.common.list.action;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ref.WeakRef;
+import com.dbn.connection.DatabaseEntity;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.factory.DatabaseObjectFactory;
@@ -28,6 +29,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.type.DBObjectType.FUNCTION;
+import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
+import static com.dbn.object.type.DBObjectType.PROCEDURE;
 
 public class CreateObjectAction extends BasicAction {
 
@@ -49,8 +53,21 @@ public class CreateObjectAction extends BasicAction {
 
     @Override
     public void update(@NotNull AnActionEvent e) {
-        DBObjectType objectType = getObjectList().getObjectType();
-        e.getPresentation().setVisible(objectType.isOneOf(DBObjectType.FUNCTION, DBObjectType.PROCEDURE, DBObjectType.JAVA_CLASS));
+        e.getPresentation().setVisible(isVisible());
+    }
+
+    private boolean isVisible() {
+        DBObjectList objectList = getObjectList();
+        DatabaseEntity parentElement = objectList.getParentEntity();
+
+        if (parentElement instanceof DBSchema) {
+            DBSchema schema = (DBSchema) parentElement;
+            if (schema.isSystemSchema()) return false;
+
+            DBObjectType objectType = objectList.getObjectType();
+            return objectType.isOneOf(FUNCTION, PROCEDURE, JAVA_CLASS);
+        }
+        return false;
     }
 
     @NotNull

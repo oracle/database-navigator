@@ -25,7 +25,6 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNTableHeaderRenderer;
 import com.dbn.common.ui.table.DBNTableWithGutter;
 import com.dbn.common.ui.table.TableSelectionRestorer;
-import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.MathResult;
 import com.dbn.common.util.Safe;
 import com.dbn.data.grid.addon.SelectionMathAddon;
@@ -41,8 +40,6 @@ import com.intellij.openapi.editor.colors.EditorColorsListener;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.components.JBViewport;
-import com.intellij.util.ui.UIUtil;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -149,17 +146,11 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
 
     public void updateBackground(boolean readonly) {
         dispatch(() -> {
-            JBViewport viewport = UIUtil.getParentOfType(JBViewport.class, this);
             DataGridTextAttributes attributes = cellRenderer.getAttributes();
             Color background = readonly ?
                     attributes.getLoadingData(false).getBgColor() :
                     attributes.getPlainData(false, false).getBgColor();
-
-            if (viewport != null) {
-                viewport.setBackground(background);
-                viewport.getParent().setBackground(background);
-                UserInterface.repaint(viewport);
-            }
+            setBackground(background);
         });
 
     }

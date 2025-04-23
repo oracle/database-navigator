@@ -16,11 +16,11 @@
 
 package com.dbn.object.action;
 
+import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.list.ObjectListProvider;
 import com.dbn.object.lookup.DBObjectRef;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 
 import java.util.List;
 

@@ -17,7 +17,6 @@
 package com.dbn.execution.statement.result.ui;
 
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ui.misc.DBNTableScrollPane;
@@ -91,7 +90,6 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
             ResultSetTable<?> newResultSetTable = new ResultSetTable<>(this, executionResult.getTableModel(), true, recordViewInfo);
             resultTable = Disposer.replace(resultTable, newResultSetTable);
             resultScrollPane.setViewportView(resultTable);
-            resultTable.setBackground(Colors.getEditorBackground());
             resultTable.setName(getExecutionResult().getName());
 
             initTableAddons(resultTable);

@@ -20,12 +20,17 @@ import com.dbn.common.constant.Constants;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.database.DatabaseInfo.Default;
 import com.dbn.common.util.Parameters;
+import com.dbn.connection.config.ui.ConnectionUrlSettingsForm;
+import com.dbn.language.common.QuotePair;
+import static com.dbn.connection.config.EasyConnectParameters.excludeInvalidInTCP;
+import static com.dbn.connection.config.EasyConnectParameters.ensureQuoted;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -55,6 +60,7 @@ import static com.dbn.connection.DatabaseUrlType.TNS;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static java.util.regex.Pattern.compile;
+import static com.dbn.connection.config.EasyConnectParameters.ensureParametersIfEasyConnect;
 
 @Slf4j
 @Getter
@@ -164,6 +170,7 @@ public enum DatabaseUrlPattern {
     }
 
     public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile, DatabaseProtocol protocol, ServerType serverType, Map<String, String> parameters) {
+        // for building the url, copy the parameter
         return urlTemplate.
                 replace("<VENDOR>", nvl(vendor, "")).
                 replace("<HOST>", nvl(host, "")).
@@ -176,7 +183,8 @@ public enum DatabaseUrlPattern {
                 replace("<TNS_FOLDER>", nvl(tnsFolder, "")).replaceAll("\\\\", "/").
                 replace("<TNS_PROFILE>", nvl(tnsProfile, "")).
                 replace(":<SERVER_TYPE>", getServerTypeToken(serverType)).
-                replace("<PARAMETERS>", toParameterString(parameters));
+                replace("<PARAMETERS>",
+                            toParameterString(ensureParametersIfEasyConnect(parameters, protocol, this.urlType, false)));
     }
 
     private static String getPortToken(String port) {

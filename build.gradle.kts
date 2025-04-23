@@ -29,7 +29,7 @@ plugins {
 }
 
 group = "com.dbn"
-version = "3.5.3.0"
+version = "3.6.0.0"
 
 repositories {
   mavenCentral {
@@ -103,10 +103,6 @@ sourceSets{
               "**/*.html",
               "**/*.template",
               "**/*.properties")
-    }
-    resources {
-      srcDir("src/test/java")
-      include("**/*.txt")
     }
   }
 }

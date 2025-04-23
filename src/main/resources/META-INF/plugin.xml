@@ -17,7 +17,7 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator" require-restart="true">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>3.5.3.0</version>
+    <version>3.6.0.0</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -52,6 +52,16 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>3.6.0</b>
+            <ul>
+                <li>Oracle "Select-AI" conversation mode
+                <li>Oracle Connectivity - EasyConnect support
+                <li>Oracle OJVM support (project synchronization)
+                <li>Oracle JSON Duality Views support
+                <li>Vector data readonly support
+                <li>Oracle "OCI Toolkit" plugin integration
+                <li>Bug fixes
+            </ul>
             <li><b>3.5.3</b>
             <ul>
                 <li>Oracle "Select-AI" integration (Database Assistant - experimental)
@@ -734,6 +744,7 @@
         <additionalTextAttributes scheme="Default" file="textAttributes/DBNDefaultColors.xml" id="DBN-Default"/>
         <additionalTextAttributes scheme="Darcula" file="textAttributes/DBNDarculaColors.xml" id="DBN-Darcula"/>
         <additionalTextAttributes scheme="Dark" file="textAttributes/DBNDarkColors.xml" id="DBN-Dark"/>
+        <additionalTextAttributes scheme="Light" file="textAttributes/DBNLightColors.xml" id="DBN-Light"/>
         <additionalTextAttributes scheme="AllHallowsEve" file="textAttributes/DBNAllHallowsEveColors.xml" id="DBN-AllHallowsEve"/>
         <additionalTextAttributes scheme="Blackboard" file="textAttributes/DBNBlackboardColors.xml" id="DBN-Blackboard"/>
         <additionalTextAttributes scheme="Cobalt" file="textAttributes/DBNCobaltColors.xml" id="DBN-Cobalt"/>

@@ -37,13 +37,14 @@ public abstract class DBNTableGutterRendererBase implements DBNTableGutterRender
     protected JPanel mainPanel;
 
     public DBNTableGutterRendererBase() {
+        mainPanel.setOpaque(false);
+
         textLabel.setText("");
         iconLabel.setText("");
         textLabel.setFont(Fonts.editor(-2));
         textLabel.setForeground(Colors.getTableGutterForeground());
-        mainPanel.setBackground(Colors.getTableGutterBackground());
-        iconLabel.setBorder(Borders.insetBorder(4));
 
+        iconLabel.setBorder(Borders.insetBorder(4));
         mainPanel.setBorder(Borders.tableBorder(0, 0, 0, 1));
     }
 
@@ -59,7 +60,10 @@ public abstract class DBNTableGutterRendererBase implements DBNTableGutterRender
         boolean isFocusOwner = list.isFocusOwner();
 
         SimpleTextAttributes attributes = getAttributes(isSelected, isFocusOwner, isCaretRow);
-        mainPanel.setBackground(attributes.getBgColor());
+
+        boolean opaque = attributes != null;
+        mainPanel.setOpaque(opaque);
+        mainPanel.setBackground(opaque ? attributes.getBgColor() : null);
 
         textLabel.setForeground(isSelected ?
                 Colors.getTableSelectionForeground(cellHasFocus) :
@@ -81,9 +85,10 @@ public abstract class DBNTableGutterRendererBase implements DBNTableGutterRender
                     attributes.getSelection() :
                     attributes.getCaretRow();
         }
-        return caretRow ?
-                attributes.getCaretRow() :
-                attributes.getPlainData(false, false);
+        return caretRow ? attributes.getCaretRow() : null;
+
+        // return attributes.getPlainData(false, false);
+
     }
 
     protected static boolean isCaretRow(int index, DBNTableWithGutter table) {
