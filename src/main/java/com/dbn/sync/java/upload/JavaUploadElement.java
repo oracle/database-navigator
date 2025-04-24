@@ -41,6 +41,7 @@ public class JavaUploadElement extends SyncElementBase {
 		this.javaFile = javaFile;
 		this.jarPath = jarPath;
 		this.project = project;
+		setSelected(this.jarPath == null);
 	}
 
 	public String getPackageName() {

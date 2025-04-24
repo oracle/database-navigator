@@ -21,11 +21,11 @@ import com.dbn.common.thread.Read;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.sync.java.upload.jar.LoadJavaJar;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import lombok.SneakyThrows;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.List;
@@ -61,11 +61,11 @@ public final class JavaUploader extends JavaUploaderBase {
 			uploadTask.setContent(new String(content, StandardCharsets.UTF_8));
 			uploadJavaClass(context, uploadTask, className);
 		} else {
-			// TODO upload jar file
+			LoadJavaJar.loadJar(context, jarPath);
 		}
 	}
 
-	private static void uploadJavaClass(JavaUploadContext context, JavaUploadTask task, String className) throws IOException, SQLException {
+	private static void uploadJavaClass(JavaUploadContext context, JavaUploadTask task, String className) throws SQLException {
 		Project project = context.getProject();
 
 		String databaseObjectName = className.replace('.', '/');

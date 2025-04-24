@@ -27,6 +27,9 @@ import com.intellij.ui.components.JBList;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import java.util.List;
 
 public class JavaUploadResultForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -34,6 +37,8 @@ public class JavaUploadResultForm extends DBNFormBase {
     private JPanel hintPanel;
     private JPanel filesPanel;
     private JBList<String> fileList;
+    private JPanel errorsPanel;
+    private JTable errorsTable;
 
     public JavaUploadResultForm(JavaUploadResultDialog dialog, JavaUploadContext context) {
         super(dialog);
@@ -41,6 +46,7 @@ public class JavaUploadResultForm extends DBNFormBase {
         initHeaderPanel(context);
         initHintPanel(context);
         initObjectList(context);
+		initErrorsTable(context.getErrors());
     }
 
     private void initHeaderPanel(JavaUploadContext context) {
@@ -59,6 +65,26 @@ public class JavaUploadResultForm extends DBNFormBase {
 
     private void initObjectList(JavaUploadContext context) {
         fileList.setModel(new CollectionListModel<>(context.getUploadedFiles()));
+    }
+
+    private void initErrorsTable(List<List<String>> errors) {
+        if(errors.isEmpty()){
+            return;
+        }
+
+        Object[][] tableData = new Object[errors.size()][2];
+        for (int i = 0; i < errors.size(); i++) {
+            List<String> row = errors.get(i);
+            tableData[i][0] = row.get(0);
+            tableData[i][1] = row.get(1);
+        }
+
+        // Set column names
+        String[] columnNames = {"Class Name", "Error"};
+
+        // Set model
+        DefaultTableModel model = new DefaultTableModel(tableData, columnNames);
+        errorsTable.setModel(model);
     }
 
     @Override

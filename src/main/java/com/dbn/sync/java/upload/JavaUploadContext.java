@@ -21,6 +21,7 @@ import com.dbn.sync.common.impl.SyncContextBase;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -30,6 +31,8 @@ public class JavaUploadContext extends SyncContextBase<JavaUploadInput, JavaUplo
 	public JavaUploadContext(JavaUploadInput input) {
 		super(input);
 	}
+
+	private List<List<String>> errors = new ArrayList<>();
 
 	public List<String> getUploadedFiles() {
 		return Lists.convert(getTasks(), t -> {
@@ -46,5 +49,9 @@ public class JavaUploadContext extends SyncContextBase<JavaUploadInput, JavaUplo
 		JavaUploadTask uploadTask = new JavaUploadTask(uploadElement);
 		addTask(uploadTask);
 		return uploadTask;
+	}
+
+	public void addError(List<String> error){
+		errors.add(error);
 	}
 }
