@@ -17,6 +17,7 @@
 package com.dbn.assistant.chat;
 
 import com.dbn.assistant.chat.message.PersistentChatMessage;
+import com.dbn.assistant.provider.AIModel;
 import com.dbn.common.util.UUIDs;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,6 +38,22 @@ public class ChatConversation {
 
     public ChatConversation(ChatContext context) {
         this.context = context;
+    }
+
+    public boolean isInteractive() {
+        return context.isInteractive();
+    }
+
+    public void setProfile(String profile) {
+        context.setProfile(profile);
+    }
+
+    public void setModel(AIModel model) {
+        context.setModel(model);
+    }
+
+    public void addMessage(PersistentChatMessage message) {
+        messages.add(message);
     }
 
     public void addMessages(List<PersistentChatMessage> messages) {

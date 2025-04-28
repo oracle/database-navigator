@@ -32,7 +32,7 @@ public class NewConversationAction extends AbstractChatBoxAction {
         if (chatBox == null) return;
         if(getAssistantState(e).getAvailability() == FeatureAvailability.HISTORY_CONVERSATION){
             getAssistantState(e).setAvailability(FeatureAvailability.AVAILABLE);
-            chatBox.updateMessages();
+            chatBox.initMessages();
         } else {
             chatBox.triggerContextChangeEvent(chatBox.getAssistantState().getChatContext(), true);
         }

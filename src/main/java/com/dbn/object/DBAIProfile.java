@@ -39,7 +39,7 @@ public interface DBAIProfile extends DBSchemaObject {
 
     List<DBObject> getObjects();
 
-    boolean isConversation();
+    boolean isInteractive();
 
     String getAttributesJson();
 

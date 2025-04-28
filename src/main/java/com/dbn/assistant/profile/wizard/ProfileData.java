@@ -55,7 +55,7 @@ public class ProfileData {
         this.model = profile.getModel();
         this.credentialName = profile.getCredentialName();
         this.enabled = profile.isEnabled();
-        this.conversation = profile.isConversation();
+        this.conversation = profile.isInteractive();
         this.temperature = profile.getTemperature();
         this.objectList = DBObjectRef.from(profile.getObjects());
     }

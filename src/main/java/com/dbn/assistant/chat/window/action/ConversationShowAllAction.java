@@ -26,6 +26,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -44,8 +45,12 @@ public class ConversationShowAllAction extends AbstractChatBoxAction {
         Consumer<PersistentChatConversation> openAction = (PersistentChatConversation conversation) -> {
             chatBox.triggerContextChangeEvent(chatBox.getAssistantState().getChatContext(), conversation.getContext(), conversation);
         };
-        Consumer<List<PersistentChatConversation>> deleteAction = (List<PersistentChatConversation> conversations) -> {
-            chatBox.getAssistantState().getConversations().removeAll(conversations);
+        Consumer<List<PersistentChatConversation>> deleteAction = (List<PersistentChatConversation> conversationsToDelete) -> {
+            Map<String, PersistentChatConversation> conversations =  chatBox.getAssistantState().getConversations();
+            for(PersistentChatConversation conversation : conversationsToDelete){
+                conversations.remove(conversation.getId());
+            }
+
         };
         Dialogs.show(()-> new ConversationHistoryDialog(project, conversations, openAction, deleteAction));
     }

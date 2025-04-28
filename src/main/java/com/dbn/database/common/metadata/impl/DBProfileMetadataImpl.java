@@ -58,7 +58,7 @@ public class DBProfileMetadataImpl extends DBObjectMetadataBase implements DBPro
     }
 
     @Override
-    public boolean isConversation() throws SQLException {
+    public boolean isInteractive() throws SQLException {
        return isYesFlag("IS_CONVERSATION");
     }
 

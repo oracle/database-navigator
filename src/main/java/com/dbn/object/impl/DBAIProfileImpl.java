@@ -60,7 +60,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
     private DBObjectRef<DBCredential> credential;
     private AIProvider provider;
     private AIModel model;
-    private boolean conversation;
+    private boolean isInteractive;
     private double temperature;
     private List<DBObjectRef<?>> objects;
 
@@ -72,7 +72,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
             AIProvider provider,
             AIModel model,
             String objectList,
-            boolean conversation,
+            boolean isInteractive,
             double temperature,
             boolean enabled) throws SQLException {
         super(parent, new DBProfileMetadata.Record(
@@ -82,7 +82,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
                 model.getApiName(),
                 description,
                 objectList,
-                conversation,
+                isInteractive,
                 temperature,
                 enabled));
     }
@@ -98,7 +98,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
         description = metadata.getDescription();
         provider = AIProvider.forId(metadata.getProvider());
         model = AIModel.forApiName(metadata.getModel());
-        conversation = metadata.isConversation();
+        isInteractive = metadata.isInteractive();
         temperature = metadata.getTemperature();
         objects = jsonToObjectList(connection.getConnectionId(), metadata.getObjectList());
 
@@ -111,7 +111,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
                 "model", getModel().getApiName(),
                 "temperature", getTemperature(),
                 "credential_name", nvl(getCredentialName(), ""),
-                "conversation", isConversation()?"true":"false",
+                "conversation", isInteractive()?"true":"false",
                 "object_list", convert(objects, o -> objectToAttributes(o))));
     }
 
@@ -185,7 +185,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
         DBObjectType objectType = getObjectType();
         Icon icon = disabled  ?
                 objectType.getDisabledIcon() :
-                conversation ? Icons.DBO_AI_PROFILE_CONVERSATION : objectType.getIcon();
+                isInteractive ? Icons.DBO_AI_PROFILE_CONVERSATION : objectType.getIcon();
         return nvln(icon, objectType.getIcon());
     }
 }

@@ -17,7 +17,6 @@
 package com.dbn.assistant.state;
 
 import com.dbn.assistant.DatabaseAssistantType;
-import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.feature.FeatureAcknowledgement;
 import com.dbn.common.feature.FeatureAvailability;
@@ -63,33 +62,10 @@ public class AssistantStateDelegate extends AssistantState {
     }
 
     @Override
-    public void setSelectedAction(PromptAction selectedAction) {
-        if (getSelectedAction() == selectedAction) return;
-        super.setSelectedAction(selectedAction);
-        notifyStateListeners();
-    }
-
-    @Override
     public void setDefaultProfileName(String profileName) {
         if (Objects.equals(getDefaultProfileName(), profileName)) return;
 
         super.setDefaultProfileName(profileName);
-        notifyStateListeners();
-    }
-
-    @Override
-    public void setSelectedProfileName(String profileName) {
-        if (Objects.equals(getSelectedProfileName(), profileName)) return;
-
-        super.setSelectedProfileName(profileName);
-        notifyStateListeners();
-    }
-
-    @Override
-    public void setSelectedModelName(String modelName) {
-        if (Objects.equals(getSelectedModelName(), modelName)) return;
-
-        super.setSelectedModelName(modelName);
         notifyStateListeners();
     }
 

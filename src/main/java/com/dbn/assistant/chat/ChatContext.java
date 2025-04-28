@@ -48,14 +48,14 @@ public class ChatContext implements PersistentStateElement {
 
     private String profile;
     private AIModel model;
-    private PromptAction action;
-    private boolean conversation;
+    private PromptAction action = PromptAction.SHOW_SQL;
+    private boolean interactive;
 
-    public ChatContext(String profile, AIModel model, PromptAction action, boolean conversation) {
+    public ChatContext(String profile, AIModel model, PromptAction action, boolean interactive) {
         this.profile = profile;
         this.model = model;
         this.action = action;
-        this.conversation = conversation;
+        this.interactive = interactive;
     }
 
     public String getAttributes() {
@@ -81,9 +81,9 @@ public class ChatContext implements PersistentStateElement {
     @Override
     public void readState(Element element) {
         profile = stringAttribute(element, "profile");
-          model = AIModel.forId(stringAttribute(element, "model"));
+        model = AIModel.forId(stringAttribute(element, "model"));
         action = enumAttribute(element, "action", PromptAction.class);
-        conversation = booleanAttribute(element, "conversation", true);
+        interactive = booleanAttribute(element, "interactive", true);
     }
 
     @Override
@@ -91,6 +91,6 @@ public class ChatContext implements PersistentStateElement {
         setStringAttribute(element, "profile", profile);
         setStringAttribute(element, "model", model.getId());
         setEnumAttribute(element, "action", action);
-        setBooleanAttribute(element, "conversation", conversation);
+        setBooleanAttribute(element, "interactive", interactive);
     }
 }

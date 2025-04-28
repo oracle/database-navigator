@@ -384,9 +384,6 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     getAssistantState(connectionId).setDefaultProfile(profile);
   }
 
-  public void setSelectedProfile(ConnectionId connectionId, @Nullable DBAIProfile profile) {
-    getAssistantState(connectionId).setSelectedProfile(profile);
-  }
 
   public boolean isDefaultProfile(ConnectionId connectionId, DBAIProfile profile) {
     DBAIProfile defaultProfile = getDefaultProfile(connectionId);
@@ -414,7 +411,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     String profileName = assistantState.getSelectedProfileName();
 
     DBAIProfile profile = getProfile(connectionId, profileName);
-    assistantState.setSelectedProfile(profile);
+    if(profile!=null && assistantState.getCurrentConversation().getContext() == null) assistantState.getCurrentConversation().setContext(new ChatContext(profile.getName(), profile.getModel(), assistantState.getSelectedAction(), profile.isInteractive()));
     return profile;
   }
 
@@ -439,7 +436,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     String modelName = assistantState.getSelectedModelName();
 
     AIModel model = provider.getModel(modelName);
-    assistantState.setSelectedModel(model);
+//    assistantState.setSelectedModel(model);
     return model == null ? provider.getDefaultModel() : model;
   }
 
