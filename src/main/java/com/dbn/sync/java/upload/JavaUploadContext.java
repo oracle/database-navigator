@@ -37,11 +37,7 @@ public class JavaUploadContext extends SyncContextBase<JavaUploadInput, JavaUplo
 	public List<String> getUploadedFiles() {
 		return Lists.convert(getTasks(), t -> {
 			JavaUploadElement uploadElement = t.getElement();
-			if(uploadElement.getJarPath() != null){
-				return uploadElement.getJarPath();
-			} else {
-				return uploadElement.getJavaClassName();
-			}
+			return uploadElement.getFile().getPath();
 		});
 	}
 

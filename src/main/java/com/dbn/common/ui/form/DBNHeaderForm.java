@@ -18,7 +18,6 @@ package com.dbn.common.ui.form;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.Layouts;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Commons;
@@ -118,8 +117,8 @@ public class DBNHeaderForm extends DBNFormBase {
     }
 
     private void update(@NotNull VirtualFile presentable) {
-        objectLabel.setText(presentable.getName());
-        objectLabel.setIcon(Icons.DBO_JAVA_CLASS);
+        objectLabel.setText(presentable.getPath());
+        objectLabel.setIcon(presentable.getFileType().getIcon());
     }
 
     private void update(@NotNull ConnectionHandler connection) {

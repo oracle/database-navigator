@@ -77,7 +77,7 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 		ConnectionHandler connection = sourceObject.getConnection();
 		Progress.prompt(getProject(), connection, true,
 				"Preparing Java Download",
-				"Loading dependencies for " + sourceObject.getQualifiedNameWithType() + "...",
+				"Loading java dependencies for " + sourceObject.getQualifiedNameWithType() + "...",
 				progress -> prepareDownloadDialog(sourceObject));
 	}
 
@@ -100,7 +100,7 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 		ConnectionHandler connection = sourceObject.getConnection();
 		return DatabaseInterfaceInvoker.load(HIGH,
 				"Loading Java Dependencies",
-				"Loading dependencies for " + sourceObject.getQualifiedNameWithType() + "...",
+				"Loading java dependencies for " + sourceObject.getQualifiedNameWithType() + "...",
 				connection.getProject(),
 				connection.getConnectionId(),
 				c -> loadObjectDependencies(connection, sourceObject, c));

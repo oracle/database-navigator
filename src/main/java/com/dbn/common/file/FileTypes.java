@@ -54,4 +54,6 @@ public class FileTypes {
         if (fileType instanceof UnknownFileType) return null;
         return fileType;
     }
+
+
 }

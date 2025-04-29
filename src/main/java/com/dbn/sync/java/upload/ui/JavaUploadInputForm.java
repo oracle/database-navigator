@@ -17,9 +17,10 @@
 package com.dbn.sync.java.upload.ui;
 
 import com.dbn.common.state.StateHolder;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.list.CheckBoxList;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionBundle;
@@ -32,13 +33,11 @@ import com.dbn.sync.java.upload.JavaUploadElement;
 import com.dbn.sync.java.upload.JavaUploadInput;
 import com.dbn.sync.java.upload.JavaUploadManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,8 +47,9 @@ import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
 
 public class JavaUploadInputForm extends DBNFormBase {
-    private JPanel headerPanel;
     private JPanel mainPanel;
+    private JPanel headerPanel;
+    private JPanel hintPanel;
     private JPanel targetLocationPanel;
     private JComboBox<ConnectionHandler> connectionComboBox;
     private JComboBox<DBSchema> schemaComboBox;
@@ -59,14 +59,30 @@ public class JavaUploadInputForm extends DBNFormBase {
         super(dialog);
 		JavaUploadInput input = dialog.getContext().getInput();
 
-        VirtualFile javaClass = input.getJavaClass();
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, javaClass);
-        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+        initHeaderPanel(input);
+        initHintPanel();
 
         initSelectionListener(connectionComboBox, s -> initConnectionSchemas());
         initConnections();
 
         dependenciesCheckBoxList.setElements(input.getElements());
+    }
+
+    private void initHintPanel() {
+        TextContent hintText = TextContent.plain(
+                "Following java classes and resources will be uploaded to the database. " +
+                        "Please select the target connection and schema, as well as the resources to be uploaded.");
+        DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
+        hintPanel.add(hintForm.getComponent());
+    }
+
+    private void initHeaderPanel(JavaUploadInput input) {
+/*
+        // TODO no database context available yet (remove header ??)
+        VirtualFile rootFile = input.getRootFile();
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, rootFile);
+        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+*/
     }
 
     JavaUploadContext getContext() {

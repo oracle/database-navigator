@@ -19,8 +19,10 @@ package com.dbn.sync.java.download.ui;
 import com.dbn.common.file.VirtualFilePresentable;
 import com.dbn.common.project.ModulePresentable;
 import com.dbn.common.state.StateHolder;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.list.CheckBoxList;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.object.common.DBObject;
@@ -55,20 +57,34 @@ public class JavaDownloadInputForm extends DBNFormBase {
     private JComboBox<ModulePresentable> moduleComboBox;
     private JComboBox<VirtualFilePresentable> contentRootComboBox;
     private CheckBoxList<JavaDownloadElement> dependenciesCheckBoxList;
+    private JPanel hintPanel;
 
 
     public JavaDownloadInputForm(JavaDownloadInputDialog dialog) {
         super(dialog);
         JavaDownloadInput input = dialog.getContext().getInput();
 
-        DBObject sourceObject = input.getSourceObject();
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, sourceObject);
-        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+        initHeaderPanel(input);
+        initHintPanel();
 
         initSelectionListener(moduleComboBox, s -> initContentRoots());
         initModules();
 
         dependenciesCheckBoxList.setElements(input.getElements());
+    }
+
+    private void initHeaderPanel(JavaDownloadInput input) {
+        DBObject sourceObject = input.getSourceObject();
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, sourceObject);
+        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+    }
+
+    private void initHintPanel() {
+        TextContent hintText = TextContent.plain(
+                "Following java classes and resources will be downloaded to the project. " +
+                        "Please specify the target module and content root, as well as the resources to be downloaded.");
+        DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
+        hintPanel.add(hintForm.getComponent());
     }
 
     JavaDownloadContext getContext() {

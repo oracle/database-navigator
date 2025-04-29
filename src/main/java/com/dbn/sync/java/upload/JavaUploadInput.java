@@ -24,48 +24,23 @@ import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
 public class JavaUploadInput extends SyncInputBase<JavaUploadElement> {
 
-    private VirtualFile javaClass;
-
+    private VirtualFile rootFile;
     private ConnectionHandler connection;
     private String schemaName;
 
     private List<String> dependentObjects;
 
-    public JavaUploadInput(Project project, VirtualFile javaClass, List<JavaUploadElement> dependencies) {
+
+    public JavaUploadInput(Project project, VirtualFile rootFile, List<JavaUploadElement> elements) {
         super(project);
-        this.javaClass = javaClass;
-
-        // add self
-        JavaUploadElement sourceElement = new JavaUploadElement(project, javaClass, null);
-		sourceElement.setEnabled(false);
-		addElement(sourceElement);
-        addElements(dependencies);
-	}
-
-    public JavaUploadInput(Project project, List<VirtualFile> javaClass, List<JavaUploadElement> dependencies) {
-        super(project);
-        this.javaClass = javaClass.get(0);
-
-        Set<JavaUploadElement> uniqueClasses = new HashSet<>();
-        // add self
-        for(VirtualFile sourceClass : javaClass) {
-            JavaUploadElement sourceElement = new JavaUploadElement(project, sourceClass, null);
-            sourceElement.setEnabled(false);
-            uniqueClasses.add(sourceElement);
-        }
-
-        // Create set from dependencies to remove already existing class
-        uniqueClasses.addAll(dependencies);
-
-        addElements(uniqueClasses);
+        this.rootFile = rootFile;
+        addElements(elements);
     }
 
     public DatabaseContext getDatabaseContext() {

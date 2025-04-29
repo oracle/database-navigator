@@ -22,12 +22,12 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.state.GenericStateHolder;
 import com.dbn.common.state.StateHolder;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.thread.Read;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.sync.java.upload.ui.JavaUploadResultDialog;
 import com.dbn.sync.java.upload.ui.JavaUploaderInputDialog;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -36,13 +36,14 @@ import com.intellij.openapi.roots.LibraryOrderEntry;
 import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileSystem;
 import com.intellij.psi.JavaRecursiveElementWalkingVisitor;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiClassOwner;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaCodeReferenceElement;
 import com.intellij.psi.PsiManager;
@@ -58,6 +59,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -80,41 +82,46 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 		return projectService(project, JavaUploadManager.class);
 	}
 
-	public void openCodeUploader(List<VirtualFile> javaClass) {
-		Progress.prompt(getProject(), null, true, "Preparing Java Upload", "Loading dependencies for selected classes ...", progress -> prepareUploadDialog(javaClass));
+	public void openCodeUploader(VirtualFile file) {
+		Progress.prompt(getProject(), null, true, "Preparing Java Upload", "Loading java dependencies for " + file.getPresentableName() + "...", progress -> prepareUploadDialog(file));
 	}
 
 
-	public void openCodeUploader(VirtualFile javaClass) {
-		Progress.prompt(getProject(), null, true, "Preparing Java Upload", "Loading dependencies for " + javaClass.getPresentableName() + "...", progress -> prepareUploadDialog(javaClass));
-	}
-
-	private void prepareUploadDialog(VirtualFile sourceObject) {
+	private void prepareUploadDialog(VirtualFile rootFile) {
 		try {
-			List<JavaUploadElement> dependencies = loadUploadDependencies(sourceObject);
-			JavaUploadInput input = new JavaUploadInput(getProject(), sourceObject, dependencies);
-			JavaUploadContext context = new JavaUploadContext(input);
+			List<VirtualFile> files = new ArrayList<>();
+			collectFiles(rootFile, files);
 
-			Dialogs.show(() -> new JavaUploaderInputDialog(context));
-		} catch (SQLException e) {
-			Messages.showErrorDialog(getProject(), "Error Loading Java Dependencies", "Failed to load dependencies for " + sourceObject.getPresentableName(), e);
-		}
-	}
-
-	private void prepareUploadDialog(List<VirtualFile> sourceObject) {
-		try {
-			List<JavaUploadElement> dependencies = new ArrayList<>();
-			for (VirtualFile sourceFile : sourceObject) {
-				dependencies.addAll(loadUploadDependencies(sourceFile));
+			Set<VirtualFile> dependencies = new HashSet<>();
+			for (VirtualFile file : files) {
+				Set<VirtualFile> fileDependencies = resolveDependencies(file);
+				dependencies.addAll(fileDependencies);
 			}
 
-			JavaUploadInput input = new JavaUploadInput(getProject(), sourceObject, dependencies);
+			List<JavaUploadElement> uploadElements = dependencies.stream().map(f -> new JavaUploadElement(getProject(), f)).sorted().collect(Collectors.toList());
+
+			JavaUploadInput input = new JavaUploadInput(getProject(), rootFile, uploadElements);
 			JavaUploadContext context = new JavaUploadContext(input);
 
 			Dialogs.show(() -> new JavaUploaderInputDialog(context));
 		} catch (SQLException e) {
-			Messages.showErrorDialog(getProject(), "Error Loading Java Dependencies", "Failed to load dependencies", e);
+			Messages.showErrorDialog(getProject(), "Error Loading Java Dependencies", "Failed to load dependencies for " + rootFile.getPresentableName(), e);
 		}
+	}
+
+	private void collectFiles(VirtualFile rootFile, List<VirtualFile> files) {
+		if (rootFile.isDirectory()) {
+			for (VirtualFile file : rootFile.getChildren()) {
+				if (file.isDirectory()) {
+					collectFiles(file, files);
+				} else {
+					files.add(file);
+				}
+			}
+		} else {
+			files.add(rootFile);
+		}
+
 	}
 
 	public void uploadFile(JavaUploadContext context) {
@@ -137,63 +144,75 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 		return states.computeIfAbsent(category, k -> new GenericStateHolder());
 	}
 
-	private List<JavaUploadElement> loadUploadDependencies(VirtualFile virtualFile) throws SQLException {
+	private Set<VirtualFile> resolveDependencies(VirtualFile virtualFile) throws SQLException {
 		Project project = getProject();
+		PsiManager psiManager = PsiManager.getInstance(project);
 
-		ProjectFileIndex fileIndex = ProjectRootManager.getInstance(project).getFileIndex();
+		return Read.call(() -> {
+			Set<VirtualFile> dependencies = new HashSet<>();
+			dependencies.add(virtualFile);
 
-		Set<JavaUploadElement> results = ApplicationManager.getApplication().runReadAction((Computable<Set<JavaUploadElement>>) () -> {
-			Set<JavaUploadElement> resultList = new HashSet<>();
+			PsiFile psiFile = psiManager.findFile(virtualFile);
+            if (psiFile instanceof PsiClassOwner) {
+				PsiClassOwner classOwner = (PsiClassOwner) psiFile;
+				PsiClass[] classes = classOwner.getClasses();
 
-			PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
-			if (!(psiFile instanceof PsiClassOwner)) return resultList;
+                for (PsiClass psiClass : classes) {
+					PsiElementVisitor collector = createDependenciesCollector(dependencies);
+					psiClass.accept(collector);
+                }
+            }
+			return dependencies;
+        });
+	}
 
-			PsiClass[] classes = ((PsiClassOwner) psiFile).getClasses();
+	private PsiElementVisitor createDependenciesCollector(Set<VirtualFile> dependencies) {
+		return new JavaRecursiveElementWalkingVisitor() {
+			@Override
+			public void visitReferenceElement(@NotNull PsiJavaCodeReferenceElement reference) {
+				super.visitReferenceElement(reference);
 
-			for (PsiClass psiClass : classes) {
-				psiClass.accept(new JavaRecursiveElementWalkingVisitor() {
-					@Override
-					public void visitReferenceElement(@NotNull PsiJavaCodeReferenceElement reference) {
-						super.visitReferenceElement(reference);
+				PsiElement psiElement = reference.resolve();
+				if (psiElement instanceof PsiClass) {
+					PsiClass psiClass = (PsiClass) psiElement;
+					VirtualFile file = PsiUtilCore.getVirtualFile(psiClass);
+					if (file == null) return;
 
-						PsiElement resolved = reference.resolve();
-						if (resolved instanceof PsiClass) {
-							PsiClass referencedClass = (PsiClass) resolved;
-							VirtualFile refFile = PsiUtilCore.getVirtualFile(referencedClass);
+					List<OrderEntry> entries = getFileIndex().getOrderEntriesForFile(file);
+					for (OrderEntry entry : entries) {
+						if (entry instanceof JdkOrderEntry) return;
 
-							if (refFile == null) return;
-
-							List<OrderEntry> entries = fileIndex.getOrderEntriesForFile(refFile);
-							boolean isJdk = false;
-							String jarPath = null;
-							for (OrderEntry entry : entries) {
-								if (entry instanceof JdkOrderEntry) {
-									isJdk = true;
-									break;
-								}
-								if (entry instanceof LibraryOrderEntry) {
-									VirtualFile jarRoot = fileIndex.getClassRootForFile(refFile);
-									if (jarRoot != null) {
-										VirtualFileSystem fs = jarRoot.getFileSystem();
-										if ("jar".equals(fs.getProtocol())) {
-											String fullPath = jarRoot.getPath();
-											jarPath = fullPath.replaceAll("!/$", "");
-										}
-									}
-								}
-							}
-
-							if (!isJdk) {
-								resultList.add(new JavaUploadElement(getProject(), refFile, jarPath));
-							}
+						if (entry instanceof LibraryOrderEntry) {
+							file = getArchiveFile(file);
 						}
 					}
-				});
-			}
-			return resultList;
-		});
 
-		return new ArrayList<>(results);
+					if (file == null) return;
+					dependencies.add(file);
+				}
+			}
+		};
+	}
+
+	private ProjectFileIndex getFileIndex() {
+		Project project = getProject();
+		ProjectRootManager rootManager = ProjectRootManager.getInstance(project);
+		return rootManager.getFileIndex();
+	}
+
+	@Nullable
+	private VirtualFile getArchiveFile(VirtualFile file) {
+		ProjectFileIndex fileIndex = getFileIndex();
+		VirtualFile jarRoot = fileIndex.getClassRootForFile(file);
+		if (jarRoot == null) return null;
+
+		VirtualFileSystem fileSystem = jarRoot.getFileSystem();
+		if (fileSystem instanceof JarFileSystem) {
+			JarFileSystem jarFileSystem = (JarFileSystem) fileSystem;
+			return jarFileSystem.getLocalByEntry(jarRoot);
+		}
+
+		return null;
 	}
 
 	/****************************************

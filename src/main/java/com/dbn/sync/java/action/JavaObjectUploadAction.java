@@ -29,37 +29,15 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @BackgroundUpdate
 public class JavaObjectUploadAction extends AbstractFolderContextAction {
 	@Override
 	protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
 		VirtualFile file = e.getData(CommonDataKeys.VIRTUAL_FILE);
-
 		if(file == null) return;
 
 		JavaUploadManager manager = JavaUploadManager.getInstance(project);
-		if (isPackage(file)) {
-			List<VirtualFile> javaFiles = new ArrayList<>();
-			collectJavaFilesAndPackages(file, javaFiles);
-			manager.openCodeUploader(javaFiles);
-		} else {
-			manager.openCodeUploader(file);
-		}
-	}
-
-	private void collectJavaFilesAndPackages(VirtualFile directory, List<VirtualFile> javaFiles) {
-		if (!directory.isDirectory()) return;
-
-		for (VirtualFile file : directory.getChildren()) {
-			if (file.isDirectory()) {
-				collectJavaFilesAndPackages(file, javaFiles);
-			} else {
-				javaFiles.add(file);
-			}
-		}
+		manager.openCodeUploader(file);
 	}
 
 	private boolean isAvailableFor(VirtualFile virtualFile) {

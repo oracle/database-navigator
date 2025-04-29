@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.sync.java.upload.jar;
+package com.dbn.sync.java.upload;
 
 import com.dbn.common.Priority;
 import com.dbn.connection.ConnectionId;
@@ -23,7 +23,6 @@ import com.dbn.connection.jdbc.DBNCallableStatement;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.sync.java.upload.JavaUploadContext;
 import com.intellij.openapi.project.Project;
 
 import java.io.ByteArrayInputStream;
@@ -39,9 +38,10 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static com.dbn.common.load.ProgressMonitor.isProgressCancelled;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
-public class LoadJavaJar {
+public class JavaArchiveUploader {
 
 	private static final String LOB_TABLE = "CREATE$JAVA$LOB$TABLE";
 
@@ -67,6 +67,7 @@ public class LoadJavaJar {
 			ZipEntry entry;
 
 			while ((entry = zis.getNextEntry()) != null) {
+				if (isProgressCancelled()) return;
 				String name = entry.getName();
 
 				if (entry.isDirectory()) {

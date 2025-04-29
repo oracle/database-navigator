@@ -23,4 +23,9 @@ import lombok.Data;
 public abstract class SyncElementBase implements SyncElement {
     private transient boolean enabled = true;
     private transient boolean selected = true;
+
+    @Override
+    public int compareTo(SyncElement o) {
+        return getName().compareTo(o.getName());
+    }
 }

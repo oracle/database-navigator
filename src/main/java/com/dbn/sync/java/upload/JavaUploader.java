@@ -17,11 +17,9 @@
 package com.dbn.sync.java.upload;
 
 import com.dbn.common.Priority;
-import com.dbn.common.thread.Read;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.sync.java.upload.jar.LoadJavaJar;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import lombok.SneakyThrows;
@@ -49,19 +47,24 @@ public final class JavaUploader extends JavaUploaderBase {
 
 	@SneakyThrows
 	private void uploadJavaClass(JavaUploadContext context, JavaUploadElement element) {
-		String className = Read.call(() -> element.getJavaClassName());
-		setProgressDetail("Uploading sources of \"" + className + "\"");
+		String elementName = element.getName();
+		setProgressDetail("Uploading sources of \"" + elementName + "\"");
 
-		// create download task
+		// create upload task
 		JavaUploadTask uploadTask = context.createUploadTask(element);
-		String jarPath = element.getJarPath();
 
-		if(jarPath == null) {
-			byte[] content = VfsUtilCore.loadBytes(element.getJavaFile());
-			uploadTask.setContent(new String(content, StandardCharsets.UTF_8));
-			uploadJavaClass(context, uploadTask, className);
+		if (element.isArchive()) {
+			JavaArchiveUploader.loadJar(context, element.getFile().getPath());
 		} else {
-			LoadJavaJar.loadJar(context, jarPath);
+			byte[] content = VfsUtilCore.loadBytes(element.getFile());
+			uploadTask.setContent(new String(content, StandardCharsets.UTF_8));
+
+			if (element.isJavaClass()) {
+				uploadJavaClass(context, uploadTask, element.getJavaClassName());
+			} else {
+				// TODO upload resources
+				context.addError(List.of(elementName, "Uploading resources is not supported yet"));
+			}
 		}
 	}
 

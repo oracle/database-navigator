@@ -50,7 +50,7 @@ public class JavaUploadResultForm extends DBNFormBase {
     }
 
     private void initHeaderPanel(JavaUploadContext context) {
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, context.getInput().getJavaClass());
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, context.getInput().getRootFile());
         this.headerPanel.add(headerForm.getMainComponent());
     }
 

@@ -16,54 +16,65 @@
 
 package com.dbn.sync.java.upload;
 
-import com.dbn.common.icon.Icons;
+import com.dbn.common.file.FileTypes;
+import com.dbn.common.thread.Read;
+import com.dbn.common.util.Files;
+import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.sync.common.impl.SyncElementBase;
+import com.intellij.ide.highlighter.ArchiveFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClassOwner;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class JavaUploadElement extends SyncElementBase {
-	private VirtualFile javaFile;
-	private final String jarPath;
+	private final VirtualFile file;
+	private final PsiFile psiFile;
+	private final String name;
+	private final Icon icon;
 	private transient Project project;
 
-	public JavaUploadElement(Project project, VirtualFile javaFile, String jarPath) {
-		this.javaFile = javaFile;
-		this.jarPath = jarPath;
+	public JavaUploadElement(Project project, VirtualFile file) {
+		this.file = file;
+		this.psiFile = PsiUtil.getPsiFile(project, file);
 		this.project = project;
-		setSelected(this.jarPath == null);
+		this.name = resolveName();
+		this.icon = resolveIcon();
+		setSelected(file.getFileType() == FileTypes.getJavaFileType());
 	}
 
-	public String getPackageName() {
-		PsiFile psiFile = PsiManager.getInstance(project).findFile(javaFile);
-		if (psiFile instanceof PsiClassOwner) {
-			return ((PsiClassOwner) psiFile).getPackageName();
-		}
-		return null;
+	private String resolveName() {
+		return Files.convertToRelativePath(project, file.getPath());
+	}
+
+	private Icon resolveIcon() {
+		return psiFile == null ? file.getFileType().getIcon() : Read.call(psiFile, f -> f.getIcon(0));
+	}
+
+	public boolean isArchive() {
+		return file.getFileType() == ArchiveFileType.INSTANCE;
+	}
+
+	public boolean isJavaClass() {
+		return file.getFileType() == FileTypes.getJavaFileType();
 	}
 
 	public String getJavaClassName() {
-		return getPackageName() + "." + javaFile.getNameWithoutExtension();
-	}
+		if (!isJavaClass()) return null;
 
-	@NotNull
-	@Override
-	public String getName() {
-		return jarPath != null ? jarPath : getJavaClassName();
-	}
+		String packageName = null;
+		if (psiFile instanceof PsiClassOwner) {
+			PsiClassOwner classOwner = (PsiClassOwner) psiFile;
+			packageName = Read.call(classOwner, o-> o.getPackageName());
+		}
 
-	@Override
-	public @Nullable Icon getIcon() {
-		return Icons.DBO_JAVA_CLASS;
+		String packagePrefix = packageName == null ? "" : packageName + ".";
+		return packagePrefix + file.getNameWithoutExtension();
 	}
 }
