@@ -75,17 +75,6 @@ public class DBEditableObjectVirtualFile extends DBObjectVirtualFile<DBSchemaObj
         return null;
     }
 
-    public boolean isEditorReady() {
-        if (!getObjectRef().isLoaded()) return false;
-        return getObject().isEditorReady();
-    }
-
-    public void makeEditorReady() {
-        DBSchemaObject object = getObject();
-        object.makeEditorReady();
-    }
-
-
     @Override
     public DatabaseSession getSession() {
         if (sessionId != null) {
