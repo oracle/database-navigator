@@ -331,6 +331,10 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
         visit(o -> o.load(), false);
     }
 
+    public void loadObjectsInBackground() {
+        visit(o -> o.loadInBackground(), false);
+    }
+
     public void reloadObjects() {
         visit(o -> o.reload(), true);
     }

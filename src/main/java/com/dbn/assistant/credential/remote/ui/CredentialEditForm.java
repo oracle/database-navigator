@@ -47,6 +47,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 
@@ -178,7 +179,7 @@ public class CredentialEditForm extends DBNFormBase {
     if (localCredential == null) return true; // local credential has been chosen to fill the attributes
     return
         !Objects.equals(localCredential.getUser(), passwordCredentialUsernameField.getText()) ||
-        !Objects.equals(localCredential.getKey(), passwordCredentialPasswordField.getText());
+        !Arrays.equals(localCredential.getKey(), passwordCredentialPasswordField.getPassword());
   }
 
 
