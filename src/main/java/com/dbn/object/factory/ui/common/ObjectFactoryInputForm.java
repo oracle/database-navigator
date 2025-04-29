@@ -46,6 +46,8 @@ public abstract class ObjectFactoryInputForm<T extends ObjectFactoryInput> exten
     @Override
     public abstract JPanel getMainComponent();
 
+    public abstract String getObjectName();
+
     @NotNull
     public ConnectionHandler getConnection() {
         return connection.ensure();

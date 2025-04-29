@@ -50,6 +50,23 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
     }
 
     @Override
+    public boolean hasValidators() {
+        return !validators.isEmpty();
+    }
+
+    @Override
+    public <C extends JComponent> boolean hasValidators(C component) {
+        if (validators.isEmpty()) return false;
+        if (component == null) return true; // at least one validator given above
+
+        return validators.stream().anyMatch(v -> v.getTarget() == component);
+    }
+
+    public <C extends JComponent> void removeValidators(C component) {
+        validators.removeIf(v -> v.getTarget() == component);
+    }
+
+    @Override
     public <C extends JComponent> void addValidator(C component, Function<C, List<ValidationInfo>> validator) {
         validators.add(new WrappedValidator<>(component, validator));
         initEventValidation(component);

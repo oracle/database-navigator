@@ -85,8 +85,8 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
                 (int) defaultSize.getHeight());
         }
         super.init();
+        validateInput(null);
     }
-
 
     /**
      * Validates the input provided in the specified component and updates the validation state
@@ -95,7 +95,11 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
      *
      * @param component the UI component to validate; typically a part of the dialog form
      */
-    public void validateInput(JComponent component) {
+    public void validateInput(@Nullable JComponent component) {
+        if (isDisposed()) return;
+        if (!formValidator.hasValidators()) return;
+        if (!formValidator.hasValidators(component)) return;
+
         List<ValidationInfo> validationInfos = buildValidationInfos(component);
 
         setErrorInfoAll(validationInfos);
