@@ -256,7 +256,8 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     }
 
     public DriverSource getDriverSource() {
-        return getSelection(driverSourceComboBox);
+        JComboBox<DriverSource> driverSourceComboBox = this.driverSourceComboBox;
+        return driverSourceComboBox == null ? DriverSource.EXTERNAL : getSelection(driverSourceComboBox);
     }
 
     private boolean isBuiltInLibrarySupported(DatabaseType databaseType) {

@@ -343,9 +343,6 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
         }
 
         driverSource  = getEnum(element, "driver-source", driverSource);
-        // TODO temporary backward compatibility
-        if (driverSource == DriverSource.BUILTIN) driverSource = DriverSource.BUNDLED;
-
         driverLibrary = Files.convertToAbsolutePath(getProject(), getString(element, "driver-library", driverLibrary));
         driver = getString(element, "driver", driver);
 
