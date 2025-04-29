@@ -124,13 +124,13 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                     dataDefinition.createMethod(input, conn);
                 });
 
+        notifyObjectChanges(connectionId, schemaId, objectType, CREATE);
+
         DBMethod method = schema.getChildObject(objectType, objectName, false);
         if (method == null) return;
 
         DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(getProject());
         editorManager.connectAndOpenEditor(method, null, false, true);
-
-        notifyObjectChanges(connectionId, schemaId, objectType, CREATE);
     }
 
     private void createJavaObject(JavaFactoryInput input) throws SQLException {
