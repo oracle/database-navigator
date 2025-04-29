@@ -352,22 +352,6 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     }
 
     @Override
-    public boolean isEditorReady() {
-        DBObjectListContainer childObjects = getChildObjects();
-        if (childObjects == null) return false;
-        for (DBObjectList<?> list : childObjects.getObjects()) {
-            if (list != null && !list.isInternal() && !list.isLoaded()) return false;
-        }
-        return true;
-    }
-
-    @Override
-    public void makeEditorReady() {
-        DBObjectListContainer childObjects = getChildObjects();
-        if (childObjects != null) childObjects.loadObjects();
-    }
-
-    @Override
     public <T extends DBObject> T  getChildObject(DBObjectType type, String name, boolean lookupHidden) {
         return cast(getChildObject(type, name, (short) 0, lookupHidden));
     }

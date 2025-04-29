@@ -217,25 +217,25 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
 
     @Override
     public final void loadInBackground() {
-        if (shouldLoadInBackground()) {
-            set(DynamicContentProperty.LOADING_IN_BACKGROUND, true);
-            Background.run(() -> {
-                try {
-                    ensureLoaded(false);
-                } finally {
-                    set(DynamicContentProperty.LOADING_IN_BACKGROUND, false);
-                }
-            });
-        }
+        if (!shouldLoadInBackground()) return;
+
+        set(DynamicContentProperty.LOADING_IN_BACKGROUND, true);
+        Background.run(() -> {
+            try {
+                ensureLoaded(false);
+            } finally {
+                set(DynamicContentProperty.LOADING_IN_BACKGROUND, false);
+            }
+        });
     }
 
     @Override
     public final void reload() {
-        if (shouldReload()) {
-            markDirty();
-            ensureLoaded(true);
-            refreshElements();
-        }
+        if (!shouldReload()) return;
+
+        markDirty();
+        ensureLoaded(true);
+        refreshElements();
     }
 
     @Override
