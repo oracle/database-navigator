@@ -42,6 +42,7 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.database.DatabaseFeature.EMPTY_SCHEMA_EVALUATION;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 
@@ -68,6 +69,7 @@ public class ConnectionFilterSettings extends CompositeProjectConfiguration<Conn
     @Nullable
     private Filter<DBSchema> loadSchemaFilter() {
         ObjectFilter<DBSchema> filter = getActiveFilter(SCHEMA);
+        boolean hideEmptySchemas = this.hideEmptySchemas && hasEmptySchemaSupport();
         if (filter == null) {
             return hideEmptySchemas ? NonEmptySchemaFilter.INSTANCE : null;
         } else {
@@ -92,6 +94,10 @@ public class ConnectionFilterSettings extends CompositeProjectConfiguration<Conn
                 return filter;
             }
         }
+    }
+
+    private boolean hasEmptySchemaSupport() {
+        return EMPTY_SCHEMA_EVALUATION.isSupported(ensureParent().getDatabaseSettings().getDatabaseType());
     }
 
     @Nullable
