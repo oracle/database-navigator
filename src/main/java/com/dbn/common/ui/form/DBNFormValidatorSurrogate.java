@@ -35,6 +35,20 @@ import java.util.function.Predicate;
  */
 @Slf4j
 public class DBNFormValidatorSurrogate implements DBNFormValidator{
+    @Override
+    public boolean hasValidators() {
+        return false;
+    }
+
+    @Override
+    public <C extends JComponent> boolean hasValidators(C component) {
+        return false;
+    }
+
+    @Override
+    public <C extends JComponent> void removeValidators(C component) {
+        notSupported();
+    }
 
     @Override
     public <C extends JComponent> void addValidation(C component, Predicate<C> validator, String message) {

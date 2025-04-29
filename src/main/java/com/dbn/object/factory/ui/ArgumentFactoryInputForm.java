@@ -17,7 +17,6 @@
 package com.dbn.object.factory.ui;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.form.DBNForm;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.type.ui.DataTypeEditor;
 import com.dbn.object.factory.ArgumentFactoryInput;
@@ -25,6 +24,7 @@ import com.dbn.object.factory.ObjectFactoryInput;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
 import com.dbn.object.factory.ui.common.ObjectListForm.ObjectDetail;
 import com.dbn.object.type.DBObjectType;
+import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,19 +35,22 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Set;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
+import static com.dbn.common.util.Strings.isWord;
 
 public class ArgumentFactoryInputForm extends ObjectFactoryInputForm<ArgumentFactoryInput> {
     private JPanel mainPanel;
     private JLabel iconLabel;
-    private JTextField nameTextField;
+    private JBTextField nameTextField;
     private JCheckBox inCheckBox;
     private JCheckBox outCheckBox;
     private JPanel dataTypeEditor;
     private final boolean enforceInArgument;
 
-    ArgumentFactoryInputForm(DBNForm parent, ConnectionHandler connection, boolean enforceInArgument, int index, @Nullable ObjectDetail detail) {
+    ArgumentFactoryInputForm(ArgumentFactoryInputListForm parent, ConnectionHandler connection, boolean enforceInArgument, int index, @Nullable ObjectDetail detail) {
         super(parent, connection, DBObjectType.ARGUMENT, index);
         this.enforceInArgument = enforceInArgument;
         iconLabel.setText(null);
@@ -59,17 +62,42 @@ public class ArgumentFactoryInputForm extends ObjectFactoryInputForm<ArgumentFac
             inCheckBox.addActionListener(actionListener);
             outCheckBox.addActionListener(actionListener);
         }
+        nameTextField.getEmptyText().setText("Argument name");
         getDataTypeEditor().setText(detail == null ? "" : detail.getName());
     }
 
     @Override
+    protected void initValidation() {
+        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), "Please enter an argument name");
+        addTextValidation(nameTextField, n -> isWord(n), "Please enter a valid argument name");
+        addTextValidation(nameTextField, n -> isNotUsed(n), "Please enter a unique argument name");
+
+        addTextValidation(getTypeTextField(), t -> isNotEmptyOrSpaces(t), "Please enter the argument data type");
+    }
+
+    private boolean isNotUsed(String argumentName) {
+        ArgumentFactoryInputListForm parentComponent = ensureParentComponent();
+        Set<String> argumentNames = parentComponent.getObjectNames(this);
+        return !argumentNames.contains(argumentName);
+    }
+
+    @Override
     protected void initAccessibility() {
-        JTextField typeTextField = getDataTypeEditor().getTextField();
+        JTextField typeTextField = getTypeTextField();
 
         setAccessibleName(typeTextField, "Argument type");
         setAccessibleName(nameTextField, "Argument name");
         setAccessibleName(inCheckBox, "Is input argument");
         setAccessibleName(outCheckBox, "Is output argument");
+    }
+
+    private JBTextField getTypeTextField() {
+        return getDataTypeEditor().getTextField();
+    }
+
+    @Override
+    public String getObjectName() {
+        return nameTextField.getText().trim();
     }
 
     private final ActionListener actionListener = new ActionListener() {
@@ -114,5 +142,12 @@ public class ArgumentFactoryInputForm extends ObjectFactoryInputForm<ArgumentFac
 
     private void createUIComponents() {
         dataTypeEditor = new DataTypeEditor(getConnection());
+    }
+
+    @Override
+    public void disposeInner() {
+        removeValidators(nameTextField);
+        removeValidators(getTypeTextField());
+        super.disposeInner();
     }
 }
