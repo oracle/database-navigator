@@ -35,4 +35,5 @@ public enum NotificationGroup {
     METADATA,
     DATA,
     DDL,
+    DCN
 }

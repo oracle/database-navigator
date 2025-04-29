@@ -2817,6 +2817,12 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="data-event-registrations" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL,USER">
+            SELECT * from [PREFIX]_CHANGE_NOTIFICATION_REGS
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="session-sql" is-prepared-statement="true" timeout="10">
         <statement>
             select sql.SQL_FULLTEXT as sql_statement

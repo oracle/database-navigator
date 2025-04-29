@@ -26,13 +26,7 @@ import com.dbn.execution.method.action.MethodRunAction;
 import com.dbn.execution.method.action.ProgramMethodDebugAction;
 import com.dbn.execution.method.action.ProgramMethodRunAction;
 import com.dbn.generator.statement.action.GenerateStatementActionGroup;
-import com.dbn.object.DBColumn;
-import com.dbn.object.DBConsole;
-import com.dbn.object.DBJavaClass;
-import com.dbn.object.DBJavaMethod;
-import com.dbn.object.DBMethod;
-import com.dbn.object.DBProgram;
-import com.dbn.object.DBSchema;
+import com.dbn.object.*;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectNavigationList;
@@ -71,6 +65,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         addObjectManagementActions(object);
         addMethodActions(object);
         addProgramActions(object);
+        addTableActions(object);
         addJavaActions(object);
         addDependencyActions(object);
         addNavigationActions(object);
@@ -78,6 +73,15 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         addCodeGeneratorActions(object);
         addObjectListActions(object);
         addObjectPropertiesActions(object);
+    }
+
+    private void addTableActions(DBObject object) {
+        if (object instanceof DBTable) {
+            addSeparator();
+            //todo check of DCN already enabled
+            //todo check if DCN is supported .
+            add(new TableEnableDCNAction((DBTable) object));
+        }
     }
 
     private void addObjectManagementActions(DBObject object) {

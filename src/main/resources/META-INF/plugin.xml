@@ -170,6 +170,7 @@
         <projectService serviceImplementation="com.dbn.ddl.DDLFileManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileAttachmentManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseFileEditorManager"/>
+        <projectService serviceImplementation="com.dbn.events.EventNotificationManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.SourceCodeManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.diff.SourceCodeDiffManager"/>
@@ -334,6 +335,11 @@
                 <separator/>
                 <action id="DBNavigator.Actions.MainMenu.Options" class="com.dbn.menu.action.DiagnosticsSettingsOpenAction" text="Settings..."/>
             </group>
+            <group id="DBNavigator.ActionGroup.MonitorEvents" text="Events" popup="true">
+                <action id="DBNavigator.Actions.MainMenu.MonitorEventsOpenAction" class="com.dbn.menu.action.MonitorDataChangeOpenAction" text="Monitor Events..."/>
+            </group>
+
+
             <action id="DBNavigator.Actions.MainMenu.OpenSettings" class="com.dbn.menu.action.ProjectSettingsOpenAction" text="Settings"/>
             <action id="DBNavigator.Actions.MainMenu.OpenAbout" class="com.dbn.menu.action.AboutPageOpenAction" text="About"/>
             <add-to-group anchor="before" group-id="MainMenu" relative-to-action="HelpMenu"/>
@@ -584,6 +590,10 @@
         <listener topic="com.intellij.openapi.actionSystem.ex.AnActionListener" class="com.dbn.execution.statement.action.ExecuteStatementEditorAction$ShortcutInterceptor"/>
     </projectListeners>
     <extensions defaultExtensionNs="com.intellij">
+            <notificationGroup id="DCN notification"
+                               displayType="BALLOON"
+                               key="dcn.notifications"/>
+
         <notificationGroup id="DBNavigator.NotificationGroup" displayType="NONE" key="ntf.shared.title.DBNavigator"/>
         <postStartupActivity implementation="com.dbn.project.ProjectStartupActivity"/>
         <!--<postStartupActivity implementation="com.dbn.project.ProjectComponentsInitializer" order="last"/>-->
@@ -606,6 +616,9 @@
         <toolWindow id="DB Diagnostics" anchor="bottom" factoryClass="com.dbn.diagnostics.DiagnosticsToolWindowFactory" canCloseContents="true"/>
         <toolWindow id="DB Execution Console" anchor="bottom" factoryClass="com.dbn.execution.ExecutionConsoleToolWindowFactory" />
         <toolWindow id="DB Assistant" anchor="right" factoryClass="com.dbn.assistant.DatabaseAssistantToolWindowFactory"/>
+        <toolWindow id="DB Events" anchor="bottom" factoryClass="com.dbn.events.ui.EventsToolWindowFactory" canCloseContents="true"/>
+
+        <!--        new tool window-->
 
         <fileType name="DBN-SQL" language="DBN-SQL" implementationClass="com.dbn.language.sql.SQLFileType" fieldName="INSTANCE" extensions="sql;ddl;vw"/>
         <fileType name="DBN-PSQL" language="DBN-PSQL" implementationClass="com.dbn.language.psql.PSQLFileType" fieldName="INSTANCE" extensions="psql;plsql;trg;prc;fnc;pkg;pks;pkb;tpe;tps;tpb"/>

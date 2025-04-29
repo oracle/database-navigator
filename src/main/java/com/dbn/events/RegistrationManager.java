@@ -1,0 +1,271 @@
+package com.dbn.events;
+
+
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.events.model.DataChangeEvent;
+import com.intellij.openapi.project.Project;
+import lombok.SneakyThrows;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static com.dbn.common.Priority.HIGH;
+
+public class RegistrationManager {
+  // we need the key to be the table not the connection Id because one connection can have multiple registrations ...
+  private Map<String, Object> activeRegistrations = new ConcurrentHashMap<>();
+  private static RegistrationManager instance;
+  Project project;
+
+  // bundle the registrations we created .
+  public static synchronized RegistrationManager getInstance() {
+    if (instance == null) {
+      instance = new RegistrationManager();
+    }
+    return instance;
+  }
+
+
+
+  public void startListening(String tableName, ConnectionHandler handler) throws SQLException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, ClassNotFoundException {
+
+    DatabaseInterfaceInvoker.execute(HIGH,
+            "Registering Event Listener",
+            "Registering event listener for " + tableName,
+            handler.getProject(),
+            handler.getConnectionId(),
+            c -> {
+              try {
+                startListening(tableName, handler, c);
+              } catch (Exception e) {
+                throw new RuntimeException(e);
+              }
+            });
+  }
+
+  @SneakyThrows
+  public void startListening(String tableName,
+                             ConnectionHandler handler,
+                             DBNConnection dbnConnection) throws Exception {
+    handler.ensureConnection();
+    Connection raw = DBNConnection.getInner(dbnConnection);
+    ClassLoader drvCL = raw.getClass().getClassLoader();
+
+
+
+    // --- 1) Load the public interfaces ---
+    Class<?> oracleConnIfc = drvCL.loadClass("oracle.jdbc.OracleConnection");
+    Class<?> dcrIfc = drvCL.loadClass("oracle.jdbc.dcn.DatabaseChangeRegistration");
+    Class<?> listenerIfc = drvCL.loadClass("oracle.jdbc.dcn.DatabaseChangeListener");
+    Class<?> oraStmtIfc = drvCL.loadClass("oracle.jdbc.OracleStatement");
+
+    // --- 2) Build DCN properties via reflection of constants ---
+    Properties props = new Properties();
+
+    String notifyRowIdsKey = (String) oracleConnIfc.getField("DCN_NOTIFY_ROWIDS").get(null);
+    String clientInitKey = (String) oracleConnIfc.getField("DCN_CLIENT_INIT_CONNECTION").get(null);
+
+
+    props.setProperty(notifyRowIdsKey, "true");
+    props.setProperty(clientInitKey, "true");
+
+    // --- 3) registerDatabaseChangeNotification on the interface ---
+    Method regM = oracleConnIfc.getMethod(
+            "registerDatabaseChangeNotification", Properties.class);
+    Object dcr = regM.invoke(raw, props);
+
+    // --- 4) addListener via the public interface ---
+    Object listener = DcnListenerInvocationHandler
+            .createProxy(handler, drvCL);
+    Method addL = dcrIfc.getMethod("addListener", listenerIfc);
+    addL.invoke(dcr, listener);
+
+    // --- 5) Tie to table via OracleStatement interface ---
+    Method createStmt = oracleConnIfc.getMethod("createStatement");
+    Object stmtRaw = createStmt.invoke(raw);
+    Object stmtProxy = OracleStatementInvocationHandler
+            .createProxy((Statement) stmtRaw, dcr, drvCL);
+
+    Method execQ = oraStmtIfc.getMethod("executeQuery", String.class);
+    execQ.invoke(stmtProxy, "SELECT * FROM " + tableName + " WHERE 1=0");
+
+    Method closeStmt = oraStmtIfc.getMethod("close");
+    closeStmt.invoke(stmtProxy);
+
+    // Store for cleanup
+    activeRegistrations.put(tableName, dcr);
+    System.out.println("DCN registered reflectively on table: " + tableName);
+  }
+
+  // Stop listening for changes on a given table
+  public void stopListening(String tableName, ConnectionHandler connectionHandler) throws SQLException, ClassNotFoundException {
+//    DatabaseChangeRegistration dcr = activeRegistrations.remove(tableName);
+//    DBNConnection dbn = connectionHandler.getPoolConnection(false);
+//    oracle.jdbc.OracleConnection conn = (oracle.jdbc.OracleConnection) dbn.unwrap(Class.forName("oracle.jdbc.OracleConnection"));
+//    if (dcr != null) {
+//      //todo figure it out .
+//      conn.unregisterDatabaseChangeNotification(dcr);
+//      System.out.println("Stopped listening on table: " + tableName);
+//    }
+  }
+
+
+
+  static class DcnListenerInvocationHandler implements InvocationHandler {
+    private final ConnectionHandler handler;
+
+    private DcnListenerInvocationHandler(ConnectionHandler handler) {
+      this.handler = handler;
+    }
+
+    /**
+     * Creates a proxy instance implementing the driver’s
+     * oracle.jdbc.dcn.DatabaseChangeListener interface.
+     */
+    public static Object createProxy(ConnectionHandler handler, ClassLoader driverClassLoader) throws ClassNotFoundException {
+      Class<?> listenerIfc = driverClassLoader.loadClass("oracle.jdbc.dcn.DatabaseChangeListener");
+      return java.lang.reflect.Proxy.newProxyInstance(
+              driverClassLoader,
+              new Class<?>[]{listenerIfc},
+              new DcnListenerInvocationHandler(handler)
+      );
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+      String name = method.getName();
+
+      if ("onDatabaseChangeNotification".equals(name) && args != null && args.length == 1) {
+        // args[0] is the driver's DatabaseChangeEvent
+
+        Object rawEvent = args[0]; // the raw event
+        DataChangeEvent mappedEvent = toDataChangeEvent(rawEvent);  // Map to your DataChangeEvent class
+
+        // Dispatch the mapped event via your NotificationHandler
+        NotificationHandler.onChange(
+                handler.getProject(),
+                mappedEvent,  // Pass your custom DataChangeEvent
+                handler.getConnectionId()
+        );
+
+        return null; // No other return value expected
+      }
+
+      // No other methods expected
+      return null;
+    }
+
+    // Mapping method to convert DatabaseChangeEvent to DataChangeEvent
+    private DataChangeEvent toDataChangeEvent(Object rawEvent) {
+      AtomicReference<DataChangeEvent> dataChangeEvent = new AtomicReference<>();
+
+      try {
+        // Use reflection to get the TableChangeDescription array from the event getTableChangeDescription
+        Method getTableChangeDescription = rawEvent.getClass().getMethod("getTableChangeDescription");
+        getTableChangeDescription.setAccessible(true); // Allow access to private/package-private methods
+        Object[] tableChanges = (Object[]) getTableChangeDescription.invoke(rawEvent);
+
+        // Iterate through table descriptions
+        Arrays.stream(tableChanges).forEach(desc -> {
+          try {
+            // Use reflection to get the table name
+            Method getTableName = desc.getClass().getMethod("getTableName");
+            getTableName.setAccessible(true);
+            String tableName = (String) getTableName.invoke(desc);
+
+            // Check if the table name matches your condition
+            if (tableName.equalsIgnoreCase(tableName)) {
+              // Reflectively get the row change description array
+              Method getRowChangeDescription = desc.getClass().getMethod("getRowChangeDescription");
+              getRowChangeDescription.setAccessible(true);
+              Object[] rowChanges = (Object[]) getRowChangeDescription.invoke(desc);
+
+              // Iterate through row changes
+              Arrays.stream(rowChanges).forEach(row -> {
+
+                try {
+                  Method getRowId = row.getClass().getMethod("getRowid");
+                  getRowId.setAccessible(true); // Allow access to private/package-private methods
+                  String rowId = String.valueOf(getRowId.invoke(row));
+
+                  Method getRowOperations = row.getClass().getMethod("getRowOperations");
+                  getRowOperations.setAccessible(true); // Allow access to private/package-private methods
+                  String operation = String.valueOf(getRowOperations.invoke(row));
+
+                  // Use current timestamp (you can use the actual timestamp from the event, if available)
+                  String timestamp = LocalDateTime.now().toString();
+                  // Create and set the mapped DataChangeEvent
+                  dataChangeEvent.set(new DataChangeEvent(operation, tableName, rowId, timestamp));
+                } catch (Exception e) {
+                  e.printStackTrace(); // Handle potential reflection errors in row processing
+                }
+              });
+            }
+          } catch (Exception e) {
+            e.printStackTrace(); // Handle potential reflection errors in table processing
+          }
+        });
+      } catch (Exception e) {
+        e.printStackTrace(); // Handle general reflection errors
+      }
+
+      return dataChangeEvent.get();
+    }
+  }
+
+
+
+    static class OracleStatementInvocationHandler implements InvocationHandler {
+    private final Statement delegate;
+    private final Object dcr;
+
+    private OracleStatementInvocationHandler(Statement delegate, Object dcr) {
+      this.delegate = delegate;
+      this.dcr = dcr;
+    }
+
+    /**
+     * Creates a proxy for the driver’s OracleStatement interface.
+     */
+    public static Statement createProxy(Statement stmt, Object dcr, ClassLoader driverClassLoader) throws ClassNotFoundException {
+      Class<?> oraStmtIfc = driverClassLoader.loadClass("oracle.jdbc.OracleStatement");
+      return (Statement) java.lang.reflect.Proxy.newProxyInstance(
+              driverClassLoader,
+              new Class<?>[]{oraStmtIfc},
+              new OracleStatementInvocationHandler(stmt, dcr)
+      );
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+      String name = method.getName();
+      if (name.startsWith("execute")) {
+        // --- Begin change ---
+        // Fetch the public OracleStatement interface (not the impl class)
+        ClassLoader driverCL = delegate.getClass().getClassLoader();
+        Class<?> oraStmtIfc = driverCL.loadClass("oracle.jdbc.OracleStatement");
+        Class<?> dcrIfc = driverCL.loadClass("oracle.jdbc.dcn.DatabaseChangeRegistration");
+
+        // Look up the interface method
+        Method setReg = oraStmtIfc.getMethod("setDatabaseChangeRegistration", dcrIfc);
+        setReg.invoke(delegate, dcr);
+        // --- End change ---
+      }
+      // Forward all other calls
+      return method.invoke(delegate, args);
+    }
+  }
+}
+
