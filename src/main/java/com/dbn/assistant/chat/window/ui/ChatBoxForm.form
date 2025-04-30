@@ -106,7 +106,14 @@
             </constraints>
             <properties/>
             <border type="none"/>
-            <children/>
+            <children>
+              <grid id="afc23" binding="chatStatusPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+                <constraints border-constraint="West"/>
+                <properties/>
+                <border type="none"/>
+                <children/>
+              </grid>
+            </children>
           </grid>
           <grid id="28428" binding="inputFieldPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints>

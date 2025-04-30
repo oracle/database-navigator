@@ -21,6 +21,7 @@ import com.dbn.assistant.chat.PersistentChatConversation;
 import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.message.PersistentChatMessage;
+import com.dbn.assistant.chat.ui.ChatStatusLabel;
 import com.dbn.assistant.chat.ui.SaveOrDiscardConversationDialog;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.chat.window.util.RollingMessageContainer;
@@ -90,6 +91,8 @@ public class ChatBoxForm extends DBNFormBase {
   private JPanel initializingIconPanel;
   private JPanel initializingPanel;
   private JPanel helpActionPanel;
+  private JPanel chatStatusPanel;
+  ChatStatusLabel statusLabel = new ChatStatusLabel();
 
   private RollingMessageContainer messageContainer;
   private final ConnectionRef connection;
@@ -106,6 +109,8 @@ public class ChatBoxForm extends DBNFormBase {
     this.chatBoxPanel.setVisible(false);
     this.initializingPanel.setVisible(false);
 
+    statusLabel.update(getLabelStatus());
+    chatStatusPanel.add(statusLabel, BorderLayout.CENTER);
     initHeaderForm();
     initIntroForm();
     initChatBoxForm();
@@ -160,6 +165,12 @@ public class ChatBoxForm extends DBNFormBase {
     this.chatActionsPanel.add(chatActions.getComponent(), BorderLayout.CENTER);
   }
 
+  private int getLabelStatus() {
+    FeatureAvailability availability =  getAssistantState().getAvailability();
+    if(availability == FeatureAvailability.HISTORY_CONVERSATION) return 2;
+    if(getAssistantState().getCurrentConversation().isInteractive()) return 0;
+    else return 1;
+  }
   private void createInputField() {
     inputField = new ChatBoxInputField(this);
     inputFieldPanel.add(inputField, BorderLayout.CENTER);
@@ -175,6 +186,7 @@ public class ChatBoxForm extends DBNFormBase {
   private void updateMessages(List<PersistentChatMessage> messages) {
     messageContainer.clear();
     messageContainer.addAll(messages, this);
+    statusLabel.update(getLabelStatus());
     dispatch(() -> scrollConversationDown());
   }
 
