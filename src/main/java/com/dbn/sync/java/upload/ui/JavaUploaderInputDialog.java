@@ -29,7 +29,7 @@ public class JavaUploaderInputDialog extends DBNDialog<JavaUploadInputForm> {
     private final JavaUploadContext context;
 
     public JavaUploaderInputDialog(JavaUploadContext context) {
-        super(context.getProject(), "Upload Java Classes", false);
+        super(context.getProject(), "Upload Java Content", false);
         this.context = context;
         renameAction(getOKAction(), "Upload");
         init();
