@@ -37,14 +37,17 @@ import com.intellij.ui.AppIcon;
 import com.intellij.util.ui.JBDimension;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import java.awt.Dimension;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
@@ -179,7 +182,16 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         return autoSize || Diagnostics.isDialogSizingReset() ? null : "DBNavigator." + simpleClassName(this);
     }
 
-    protected static void renameAction(@NotNull Action action, String name) {
+    protected static AbstractAction createAction(@NotNull @Nls String name, @NotNull Runnable runnable) {
+        return new AbstractAction(name) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                runnable.run();
+            }
+        };
+    }
+
+    protected static void renameAction(@NotNull Action action, @Nls String name) {
         action.putValue(Action.NAME, name);
     }
 

@@ -36,6 +36,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.dbn.common.ui.util.ClientProperty.HAS_VALIDATION_LISTENERS;
+import static com.dbn.common.ui.util.ClientProperty.VISITED;
 import static com.dbn.common.util.Commons.isEmpty;
 import static com.dbn.common.util.Commons.isOneOf;
 import static java.util.Collections.emptyList;
@@ -109,6 +110,16 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         textField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
+                if (VISITED.isNot(textField)) {
+                    VISITED.set(textField, true);
+                } else {
+                    DBNDialog dialog = getTarget();
+                    dialog.validateInput(textField);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
                 DBNDialog dialog = getTarget();
                 dialog.validateInput(textField);
             }

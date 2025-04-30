@@ -19,6 +19,7 @@ package com.dbn.object.impl;
 import com.dbn.browser.DatabaseBrowserUtils;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.browser.ui.HtmlToolTipBuilder;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.util.Lists;
@@ -69,6 +70,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Icon;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -215,6 +217,16 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     @Override
     public DBUser getOwner() {
         return getObjectBundle().getUser(getName());
+    }
+
+    @Override
+    public DBSchema getSchema() {
+        return this;
+    }
+
+    @Override
+    public @Nullable Icon getIcon() {
+        return isSystemSchema() ? Icons.DBO_SCHEMA_DISABLED : Icons.DBO_SCHEMA;
     }
 
     @NotNull

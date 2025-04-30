@@ -29,6 +29,7 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.filter.custom.ObjectFilter;
 import com.dbn.object.filter.custom.ObjectFilterSettings;
 import com.dbn.object.filter.custom.ui.ObjectFilterDetailsDialog;
+import com.dbn.object.filter.quick.ObjectQuickFilterManager;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.options.ProjectSettings;
 import com.intellij.openapi.components.State;
@@ -64,6 +65,11 @@ public class ObjectFilterManager extends ProjectComponentBase implements Persist
 		return objectFilterSettings.hasFilter(objectType);
 	}
 
+	public boolean isQuickFilterFeatureActive() {
+		ObjectQuickFilterManager quickFilterManager = ObjectQuickFilterManager.getInstance(getProject());
+		return quickFilterManager.isFeatureEnabled();
+	}
+
 	@Nullable
 	public ObjectFilter getObjectFilter(ConnectionId connectionId, DBObjectType objectType) {
 		ObjectFilterSettings objectFilterSettings = getObjectFilterSettings(connectionId);
@@ -78,7 +84,7 @@ public class ObjectFilterManager extends ProjectComponentBase implements Persist
 				filterSettings.getFilter(objectType),
 				() -> new ObjectFilter<>(filterSettings, objectType));
 
-		Dialogs.show(() -> new ObjectFilterDetailsDialog(filter, create),
+		Dialogs.show(() -> new ObjectFilterDetailsDialog(filter, create, true),
 				(dialog, exitCode) -> when(exitCode == 0, () -> updateFilter(filterSettings, filter)));
 
 	}
@@ -96,9 +102,30 @@ public class ObjectFilterManager extends ProjectComponentBase implements Persist
 		}
 		filterSettings.addFilter(filter);
 
-		ProjectEvents.notify(project, ObjectFilterChangeListener.TOPIC,
-				(listener) -> listener.nameFiltersChanged(connectionId, objectType));
+		notifyFilterChange(connectionId, objectType);
 
+	}
+
+	public void toggleFilter(ConnectionId connectionId, DBObjectType objectType) {
+		ObjectFilter objectFilter = getObjectFilter(connectionId, objectType);
+		if(objectFilter == null) return;
+
+		objectFilter.setActive(!objectFilter.isActive());
+		notifyFilterChange(connectionId, objectType);
+	}
+
+	public void removeFilter(ConnectionId connectionId, DBObjectType objectType) {
+		ObjectFilter objectFilter = getObjectFilter(connectionId, objectType);
+		if(objectFilter == null) return;
+
+		ObjectFilterSettings filterSettings = getObjectFilterSettings(connectionId);
+		filterSettings.deleteFilter(objectType);
+		notifyFilterChange(connectionId, objectType);
+	}
+
+	private void notifyFilterChange(ConnectionId connectionId, DBObjectType objectType) {
+		ProjectEvents.notify(getProject(), ObjectFilterChangeListener.TOPIC,
+				(listener) -> listener.nameFiltersChanged(connectionId, objectType));
 	}
 
 	private ObjectFilterSettings getObjectFilterSettings(ConnectionId connectionId) {

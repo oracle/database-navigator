@@ -52,6 +52,7 @@ import static com.dbn.connection.DatabaseUrlType.LDAPS;
 import static com.dbn.connection.DatabaseUrlType.SERVICE;
 import static com.dbn.connection.DatabaseUrlType.SID;
 import static com.dbn.connection.DatabaseUrlType.TNS;
+import static com.dbn.connection.config.EasyConnectParameters.ensureParametersIfEasyConnect;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static java.util.regex.Pattern.compile;
@@ -164,6 +165,7 @@ public enum DatabaseUrlPattern {
     }
 
     public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile, DatabaseProtocol protocol, ServerType serverType, Map<String, String> parameters) {
+        // for building the url, copy the parameter
         return urlTemplate.
                 replace("<VENDOR>", nvl(vendor, "")).
                 replace("<HOST>", nvl(host, "")).
@@ -176,7 +178,8 @@ public enum DatabaseUrlPattern {
                 replace("<TNS_FOLDER>", nvl(tnsFolder, "")).replaceAll("\\\\", "/").
                 replace("<TNS_PROFILE>", nvl(tnsProfile, "")).
                 replace(":<SERVER_TYPE>", getServerTypeToken(serverType)).
-                replace("<PARAMETERS>", toParameterString(parameters));
+                replace("<PARAMETERS>",
+                            toParameterString(ensureParametersIfEasyConnect(parameters, protocol, this.urlType, false)));
     }
 
     private static String getPortToken(String port) {
@@ -266,7 +269,10 @@ public enum DatabaseUrlPattern {
             Matcher matcher = getMatcher(url);
             if (!matcher.matches()) return "";
 
-            return matcher.group(name).trim();
+            String group = matcher.group(name);
+            if (isEmpty(group)) return "";
+
+            return group.trim();
         } catch (Exception e) {
             conditionallyLog(e);
             log.warn("Failed to get group {} from database url", name);

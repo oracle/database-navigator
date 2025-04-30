@@ -29,8 +29,8 @@
         <statement>
             select
                 NSPNAME as SCHEMA_NAME,
-                case when lower(NSPNAME)='pg_catalog' then 'Y' else 'N' end as IS_PUBLIC,
-                case when lower(NSPNAME)='information_schema' then 'Y' else 'N' end as IS_SYSTEM,
+                case when lower(NSPNAME)='public' then 'Y' else 'N' end as IS_PUBLIC,
+                case when lower(NSPNAME) = 'information_schema' or lower(NSPNAME) like 'pg_%' then 'Y' else 'N' end as IS_SYSTEM,
                 'N' as IS_EMPTY
             from PG_CATALOG.PG_NAMESPACE
             order by NSPNAME asc

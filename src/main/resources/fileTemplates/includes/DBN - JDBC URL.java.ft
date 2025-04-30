@@ -8,7 +8,7 @@
         String host = "${HOST}";
         String port = "${PORT}";
         String serviceName = "${DATABASE}";
-        String protocol = "${PROTOCOL}";
+        String protocol = "${PROTOCOL}:";
         String serverType = #if (${SERVER_TYPE} && ${SERVER_TYPE} != 'DEFAULT') ":${SERVER_TYPE}" #else "" #end;
         String parameters = "${PARAMETERS}";
     #elseif(${JDBC_URL_TYPE} != 'CUSTOM')

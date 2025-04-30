@@ -51,16 +51,16 @@ public class GuardedBlocks {
     }
 
     public static void createGuardedBlock(Document document, GuardedBlockType type, int startOffset, int endOffset, String reason) {
-        if (startOffset != endOffset) {
-            int textLength = document.getTextLength();
-            if (endOffset <= textLength) {
-                RangeMarker rangeMarker = document.createGuardedBlock(startOffset, endOffset);
-                rangeMarker.setGreedyToLeft(startOffset == 0);
-                rangeMarker.setGreedyToRight(endOffset == textLength);
-                rangeMarker.putUserData(GuardedBlockType.KEY, type);
-                document.putUserData(UserDataKeys.GUARDED_BLOCK_REASON, reason);
-            }
-        }
+        int textLength = document.getTextLength();
+        endOffset = Math.min(endOffset, textLength);
+
+        if (startOffset >= endOffset) return;
+
+        RangeMarker rangeMarker = document.createGuardedBlock(startOffset, endOffset);
+        rangeMarker.setGreedyToLeft(startOffset == 0);
+        rangeMarker.setGreedyToRight(endOffset == textLength);
+        rangeMarker.putUserData(GuardedBlockType.KEY, type);
+        document.putUserData(UserDataKeys.GUARDED_BLOCK_REASON, reason);
     }
 
     public static void removeGuardedBlocks(Document document, GuardedBlockType type) {

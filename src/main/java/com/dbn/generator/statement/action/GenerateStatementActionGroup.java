@@ -17,6 +17,7 @@
 package com.dbn.generator.statement.action;
 
 import com.dbn.browser.DatabaseBrowserManager;
+import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBDataset;
@@ -24,7 +25,6 @@ import com.dbn.object.DBProgram;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 
 import java.util.List;
 

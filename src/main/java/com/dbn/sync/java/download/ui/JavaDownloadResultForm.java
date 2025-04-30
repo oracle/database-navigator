@@ -22,12 +22,22 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.util.Editors;
 import com.dbn.sync.java.download.JavaDownloadContext;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBList;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.util.List;
+
+import static com.dbn.common.ui.util.Keyboard.onKeyPress;
+import static com.dbn.common.ui.util.Lists.onSelectionChange;
+import static com.dbn.common.ui.util.Mouse.onMouseClick;
+import static java.awt.event.MouseEvent.BUTTON1;
 
 public class JavaDownloadResultForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -51,7 +61,9 @@ public class JavaDownloadResultForm extends DBNFormBase {
 
     private void initHintPanel(JavaDownloadContext context) {
         VirtualFile rootDirectory = context.getTargetRootDirectory();
-        TextContent hintText = TextContent.plain("The following classes were created or updated in your project under " + rootDirectory.getPath());
+        TextContent hintText = TextContent.plain(
+                "The following classes were created or updated in your project under " + rootDirectory.getPath() + "\n\n" +
+                        "(double click on the files, or press Enter to open them in the editor)");
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
     }
@@ -60,6 +72,41 @@ public class JavaDownloadResultForm extends DBNFormBase {
     private void initObjectList(JavaDownloadContext context) {
         fileList.setModel(VirtualFileListModel.create(this, context.getDownloadedFiles()));
         fileList.setCellRenderer(VirtualFileListCellRenderer.create());
+
+        onMouseClick(fileList, BUTTON1, 2, e -> openJavaEditor(e));
+        onKeyPress(fileList, KeyEvent.VK_ENTER, e -> openJavaEditors(true));
+        onSelectionChange(fileList, e -> updateDialogButtons());
+    }
+
+    private void updateDialogButtons() {
+        JavaDownloadResultDialog dialog = ensureParentComponent();
+        dialog.getOpenSelectedAction().setEnabled(fileList.getSelectedIndices().length > 0);
+    }
+
+    private void openJavaEditor(MouseEvent e) {
+        int rowNumber = fileList.locationToIndex(e.getPoint());
+        if (rowNumber < 0) return;
+
+        VirtualFile file = fileList.getModel().getElementAt(rowNumber);
+        if (file == null) return;
+
+        Project project = getProject();
+        Editors.openFileEditor(project, file, false);
+    }
+
+    protected void openJavaEditors(boolean selected) {
+        Project project = getProject();
+        List<VirtualFile> files = getJavaFiles(selected);
+        for (VirtualFile file : files) {
+            Editors.openFileEditor(project, file, false);
+        }
+    }
+
+    private List<VirtualFile> getJavaFiles(boolean selected) {
+        if (selected) return fileList.getSelectedValuesList();
+
+        VirtualFileListModel model = (VirtualFileListModel) fileList.getModel();
+        return model.getElements();
     }
 
     @Override

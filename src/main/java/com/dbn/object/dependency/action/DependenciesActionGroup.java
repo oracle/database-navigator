@@ -16,9 +16,9 @@
 
 package com.dbn.object.dependency.action;
 
+import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.util.Actions;
 import com.dbn.object.common.DBSchemaObject;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 
 import static com.dbn.nls.NlsResources.txt;
 

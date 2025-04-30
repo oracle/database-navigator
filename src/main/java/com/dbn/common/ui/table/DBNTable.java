@@ -49,7 +49,6 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.MouseInfo;
 import java.awt.Point;
@@ -65,6 +64,7 @@ import static com.dbn.common.dispose.ComponentDisposer.removeListeners;
 import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.table.Tables.installFocusTraversal;
+import static com.dbn.common.ui.table.Tables.installScrollPaneAdjuster;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -123,6 +123,7 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
         setSelectionBackground(Colors.getTableSelectionBackground(true));
         setSelectionForeground(Colors.getTableSelectionForeground(true));
         installFocusTraversal(this);
+        installScrollPaneAdjuster(this);
 
         Disposer.register(parent, this);
         Disposer.register(this, tableModel);
@@ -139,14 +140,6 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
     @Nullable
     public JScrollPane getScrollPane() {
         return UIUtil.getParentOfType(JScrollPane.class, this);
-    }
-
-    @Override
-    public void setBackground(Color bg) {
-        super.setBackground(bg);
-        JViewport viewport = getViewport();
-        if (viewport == null) return;
-        viewport.setBackground(bg);
     }
 
     @Override

@@ -165,8 +165,12 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         this.name = psiFile.getName();
         this.icon = psiFile.getIcon();
         this.index = index;
-        sqlStatement = sqlStatement.trim();
-        executionInput = new StatementExecutionInput(sqlStatement, sqlStatement, this);
+        String originalStatement = sqlStatement.trim();
+        String executableStatement = originalStatement;
+        // TODO psi introspection to determine if statement-end marker should be removed or not
+        // String executableStatement = removeTrailingContent(originalStatement, ";");
+
+        executionInput = new StatementExecutionInput(originalStatement, executableStatement, this);
 
         initEditorProviderId(fileEditor);
     }

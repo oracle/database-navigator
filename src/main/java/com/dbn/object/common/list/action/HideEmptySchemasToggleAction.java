@@ -24,6 +24,7 @@ import com.dbn.connection.action.AbstractConnectionToggleAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.database.DatabaseFeature.EMPTY_SCHEMA_EVALUATION;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 
@@ -49,5 +50,10 @@ public class HideEmptySchemasToggleAction extends AbstractConnectionToggleAction
                 ObjectFilterChangeListener.TOPIC,
                 (listener) -> listener.nameFiltersChanged(connectionId, SCHEMA));
 
+    }
+
+    @Override
+    public void update(@NotNull AnActionEvent e) {
+        e.getPresentation().setVisible(EMPTY_SCHEMA_EVALUATION.isSupported(getConnection()));
     }
 }

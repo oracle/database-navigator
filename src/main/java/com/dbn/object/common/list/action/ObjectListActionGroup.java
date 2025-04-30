@@ -16,6 +16,7 @@
 
 package com.dbn.object.common.list.action;
 
+import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.object.DBSchema;
@@ -25,23 +26,30 @@ import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.sync.java.action.JavaObjectDownloadAction;
 import com.dbn.vfs.DBConsoleType;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 
 public class ObjectListActionGroup extends DefaultActionGroup {
 
     public ObjectListActionGroup(DBObjectList objectList) {
+        addListActions(objectList);
+        addSchemaActions(objectList);
+        addRootActions(objectList);
+    }
+
+    private void addListActions(DBObjectList objectList) {
         DBObjectType objectType = objectList.getObjectType();
         if (objectType != DBObjectType.CONSOLE) {
             add(new ReloadObjectsAction(objectList));
             add(new ObjectListFilterActionGroup(objectList));
         }
+    }
 
+    private void addSchemaActions(DBObjectList objectList) {
+        DBObjectType objectType = objectList.getObjectType();
         DatabaseEntity parentElement = objectList.getParentEntity();
-        ConnectionHandler connection = objectList.getConnection();
 
-        if(parentElement instanceof DBSchema) {
+        if (parentElement instanceof DBSchema) {
             DBSchema schema = (DBSchema) parentElement;
             addSeparator();
             if (objectType == DBObjectType.JAVA_CLASS) {
@@ -49,8 +57,17 @@ public class ObjectListActionGroup extends DefaultActionGroup {
             }
 
             add(new CreateObjectAction(objectList));
-        } else if (parentElement instanceof DBObjectBundle) {
+        }
+
+    }
+
+    private void addRootActions(DBObjectList objectList) {
+        DBObjectType objectType = objectList.getObjectType();
+        DatabaseEntity parentElement = objectList.getParentEntity();
+
+        if (parentElement instanceof DBObjectBundle) {
             if (objectType == DBObjectType.CONSOLE) {
+                ConnectionHandler connection = objectList.getConnection();
                 addSeparator();
                 add(new ConsoleCreateAction(connection, DBConsoleType.STANDARD));
                 if (DEBUGGING.isSupported(connection)) {
@@ -58,5 +75,6 @@ public class ObjectListActionGroup extends DefaultActionGroup {
                 }
             }
         }
+
     }
 }

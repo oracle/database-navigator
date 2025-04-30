@@ -128,7 +128,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
             Project project = getProject();
             if (focusEditor) {
                 Progress.prompt(project, object, true,
-                        txt("prc.editor.title.OpeningObjectEditor", object.getTypeName()),
+                        txt("prc.editor.title.OpeningObjectEditor", object.getObjectType().getCapitalizedName()),
                         txt("prc.editor.text.OpeningObjectEditor", object.getQualifiedNameWithType()),
                         progress -> openEditor(object, editorProviderId, scrollBrowser, true));
             } else {

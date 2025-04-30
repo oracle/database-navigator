@@ -17,23 +17,27 @@
 package com.dbn.object.common.list.action;
 
 import com.dbn.common.action.BasicAction;
+import com.dbn.common.icon.Icons;
+import com.dbn.connection.ConnectionId;
 import com.dbn.object.common.list.DBObjectList;
-import com.dbn.object.filter.quick.ObjectQuickFilterManager;
+import com.dbn.object.filter.ObjectFilterManager;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
-import static com.dbn.nls.NlsResources.txt;
 
-public class ObjectListQuickFilterAction extends BasicAction {
+public class ObjectListFilterRemoveAction extends BasicAction {
 
-    private DBObjectList objectList;
+    private final ConnectionId connectionId;
+    private final DBObjectType objectType;
 
-    public ObjectListQuickFilterAction(DBObjectList objectList) {
-        super(txt("app.objects.action.QuickFilter"));
-        this.objectList = objectList;
+    public ObjectListFilterRemoveAction(DBObjectList objectList) {
+        super("Remove Filter", null, Icons.ACTION_DELETE);
+        this.connectionId = objectList.getConnectionId();
+        this.objectType = objectList.getObjectType();
     }
 
     @Override
@@ -41,22 +45,23 @@ public class ObjectListQuickFilterAction extends BasicAction {
         Project project = e.getProject();
         if (isNotValid(project)) return;
 
-        ObjectQuickFilterManager quickFilterManager = ObjectQuickFilterManager.getInstance(project);
-        quickFilterManager.openFilterDialog(objectList);
+        ObjectFilterManager filterManager = ObjectFilterManager.getInstance(project);
+        filterManager.removeFilter(connectionId, objectType);
     }
 
     @Override
     public void update(@NotNull AnActionEvent e) {
-        boolean visible = isVisible(e);
+        Project project = e.getProject();
+        if (isNotValid(project)) return;
+
+        ObjectFilterManager filterManager = ObjectFilterManager.getInstance(project);
+        boolean visible = filterManager.hasObjectFilter(connectionId, objectType);
+
         Presentation presentation = e.getPresentation();
         presentation.setVisible(visible);
-    }
 
-    private boolean isVisible(AnActionEvent e) {
-        Project project = e.getProject();
-        if (isNotValid(project)) return false;
-
-        ObjectQuickFilterManager quickFilterManager = ObjectQuickFilterManager.getInstance(project);
-        return quickFilterManager.isFeatureEnabled();
+        boolean quickFiltersActive = filterManager.isQuickFilterFeatureActive();
+        String text = quickFiltersActive ? "Remove Global Filter" : "Remove Filter";
+        presentation.setText(text);
     }
 }
