@@ -38,7 +38,7 @@ import java.util.List;
 public abstract class SyncContextBase<I extends SyncInput, T extends SyncTask> implements SyncContext<I, T> {
     private final I input;
     private final List<T> tasks = new ArrayList<>();
-    private final MessageCollector messages = new MessageBundle();
+    private final MessageBundle messages = new MessageCollector();
 
     public SyncContextBase(I input) {
         this.input = input;

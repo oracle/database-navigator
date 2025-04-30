@@ -49,6 +49,8 @@ public interface UserDataKeys {
     Key<VirtualFile> BREAKPOINT_FILE = Key.create("DBNavigator.BreakpointFile");
     Key<Boolean> SKIP_BROWSER_AUTOSCROLL = Key.create("DBNavigator.SkipEditorScroll");
     Key<Long> LAST_ANNOTATION_REFRESH = Key.create("DBNavigator.LastAnnotationRefresh");
+    Key<Object> MESSAGE_BUNDLE_CONTEXT = Key.create("DBNavigator.MessageBundleContext");
+    Key<String> MESSAGE_BUNDLE_HINT = Key.create("DBNavigator.MessageBundleHint");
 
 
     Key<MessageOutcomeHandler> MESSAGE_OUTCOME_HANDLER = Key.create("DBNavigator.MessageOutcomeHandler");

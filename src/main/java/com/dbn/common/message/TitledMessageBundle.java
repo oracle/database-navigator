@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,9 @@
  * limitations under the License.
  */
 
-package com.dbn.generator.statement;
+package com.dbn.common.message;
 
+import com.dbn.common.util.Titled;
 
-import com.dbn.common.message.MessageBundle;
-import com.dbn.common.message.MessageCollector;
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-public class StatementGeneratorResult {
-    private String statement;
-    private final MessageBundle messages = new MessageCollector();
-
+public interface TitledMessageBundle extends MessageBundle, Titled {
 }
