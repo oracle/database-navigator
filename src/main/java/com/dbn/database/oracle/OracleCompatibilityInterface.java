@@ -36,9 +36,9 @@ import static com.dbn.database.DatabaseFeature.CONSTRAINT_MANIPULATION;
 import static com.dbn.database.DatabaseFeature.CURRENT_SCHEMA;
 import static com.dbn.database.DatabaseFeature.DATABASE_LOGGING;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
+import static com.dbn.database.DatabaseFeature.EMBEDDED_JVM;
 import static com.dbn.database.DatabaseFeature.EXPLAIN_PLAN;
 import static com.dbn.database.DatabaseFeature.FUNCTION_OUT_ARGUMENTS;
-import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
 import static com.dbn.database.DatabaseFeature.OBJECT_CHANGE_MONITORING;
 import static com.dbn.database.DatabaseFeature.OBJECT_DDL_EXTRACTION;
 import static com.dbn.database.DatabaseFeature.OBJECT_DEPENDENCIES;
@@ -100,7 +100,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 CONSTRAINT_MANIPULATION,
                 READONLY_CONNECTIVITY,
                 AI_ASSISTANT,
-                JAVA_VIRTUAL_MACHINE
+                EMBEDDED_JVM
                 //EMPTY_SCHEMA_EVALUATION // TODO disabled due to performance reasons
                 );
     }

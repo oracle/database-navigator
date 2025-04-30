@@ -44,7 +44,7 @@ import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
-import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
+import static com.dbn.database.DatabaseFeature.EMBEDDED_JVM;
 
 public class JavaUploadInputForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -109,7 +109,7 @@ public class JavaUploadInputForm extends DBNFormBase {
     private void initConnections() {
         Project project = ensureProject();
 		ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-        List<ConnectionHandler> connections = connectionManager.getConnections(JAVA_VIRTUAL_MACHINE);
+        List<ConnectionHandler> connections = connectionManager.getConnections(EMBEDDED_JVM);
         initComboBox(connectionComboBox, connections);
     }
 
