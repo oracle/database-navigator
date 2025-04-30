@@ -23,7 +23,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.list.CheckBoxList;
 import com.dbn.common.ui.util.ComboBoxes;
-import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.SchemaId;
@@ -45,6 +44,7 @@ import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
+import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
 
 public class JavaUploadInputForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -109,8 +109,8 @@ public class JavaUploadInputForm extends DBNFormBase {
     private void initConnections() {
         Project project = ensureProject();
 		ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-        ConnectionBundle connectionBundle = connectionManager.getConnectionBundle();
-        initComboBox(connectionComboBox, connectionBundle.getConnections());
+        List<ConnectionHandler> connections = connectionManager.getConnections(JAVA_VIRTUAL_MACHINE);
+        initComboBox(connectionComboBox, connections);
     }
 
     private void initConnectionSchemas() {

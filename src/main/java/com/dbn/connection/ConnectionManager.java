@@ -51,6 +51,7 @@ import com.dbn.connection.transaction.TransactionAction;
 import com.dbn.connection.transaction.ui.IdleConnectionDialog;
 import com.dbn.connection.ui.ConnectionAuthenticationDialog;
 import com.dbn.credentials.Secret;
+import com.dbn.database.DatabaseFeature;
 import com.dbn.editor.DBContentType;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.method.MethodExecutionManager;
@@ -483,6 +484,15 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
      public List<ConnectionHandler> getConnections() {
          return getConnectionBundle().getConnections();
      }
+
+
+    public List<ConnectionHandler> getConnections(DatabaseType databaseType) {
+        return getConnections(c -> c.getDatabaseType() == databaseType);
+    }
+
+    public List<ConnectionHandler> getConnections(DatabaseFeature supportedFeature) {
+        return getConnections(c -> supportedFeature.isSupported(c));
+    }
 
      public ConnectionHandler getActiveConnection(Project project) {
          ConnectionHandler connection = null;
