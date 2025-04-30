@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package com.dbn.sync.common;
+package com.dbn.framework.batch.impl;
 
-import com.dbn.connection.context.DatabaseContext;
-import com.intellij.openapi.project.Project;
+import com.dbn.framework.batch.BatchElement;
+import com.dbn.framework.batch.BatchTask;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.List;
+@Getter
+@Setter
+public class BatchTaskBase<E extends BatchElement> implements BatchTask<E> {
+    private final E element;
+    private String content;
 
-public interface SyncInput<E extends SyncElement> {
-    Project getProject();
-    List<E> getElements();
-    DatabaseContext getDatabaseContext();
+    public BatchTaskBase(E element) {
+        this.element = element;
+    }
 }

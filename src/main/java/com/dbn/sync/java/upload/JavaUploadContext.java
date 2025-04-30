@@ -17,22 +17,25 @@
 package com.dbn.sync.java.upload;
 
 import com.dbn.common.util.Lists;
-import com.dbn.sync.common.impl.SyncContextBase;
+import com.dbn.framework.batch.BatchProducer;
+import com.dbn.framework.batch.impl.BatchContextBase;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
-public class JavaUploadContext extends SyncContextBase<JavaUploadInput, JavaUploadTask> {
+public class JavaUploadContext extends BatchContextBase<JavaUploadElement, JavaUploadInput, JavaUploadTask> {
 
 	public JavaUploadContext(JavaUploadInput input) {
 		super(input);
 	}
 
-	private List<List<String>> errors = new ArrayList<>();
+	@Override
+	public Object getContextObject() {
+		return getInput().getTargetConnection();
+	}
 
 	public List<String> getUploadedFiles() {
 		return Lists.convert(getTasks(), t -> {
@@ -41,13 +44,16 @@ public class JavaUploadContext extends SyncContextBase<JavaUploadInput, JavaUplo
 		});
 	}
 
-	public JavaUploadTask createUploadTask(JavaUploadElement uploadElement) {
-		JavaUploadTask uploadTask = new JavaUploadTask(uploadElement);
+	@Override
+	protected BatchProducer createMessageProducer() {
+		return new JavaUploadMessageProducer(this);
+	}
+
+	@Override
+	public JavaUploadTask createBatchTask(JavaUploadElement element) {
+		JavaUploadTask uploadTask = new JavaUploadTask(element);
 		addTask(uploadTask);
 		return uploadTask;
 	}
 
-	public void addError(List<String> error){
-		errors.add(error);
-	}
 }

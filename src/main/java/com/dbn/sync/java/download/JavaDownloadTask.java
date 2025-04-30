@@ -16,7 +16,7 @@
 
 package com.dbn.sync.java.download;
 
-import com.dbn.sync.common.impl.SyncTaskBase;
+import com.dbn.framework.batch.impl.BatchTaskBase;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,7 +24,7 @@ import lombok.experimental.Delegate;
 
 @Getter
 @Setter
-public class JavaDownloadTask extends SyncTaskBase<JavaDownloadElement> {
+public class JavaDownloadTask extends BatchTaskBase<JavaDownloadElement> {
     private VirtualFile targetFolder;
     private VirtualFile targetFile;
 

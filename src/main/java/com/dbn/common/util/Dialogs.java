@@ -52,6 +52,18 @@ public class Dialogs {
         });
     }
 
+    public static <T extends DBNDialog<?>> int prompt(@NotNull Supplier<T> builder) {
+        return Dispatch.call(() -> {
+            closeProgressDialogs();
+            T dialog = builder.get();
+
+            // ensure the dialog is modal so the thread waits for user input
+            dialog.setModal(true);
+            dialog.show();
+            return dialog.getExitCode();
+        });
+    }
+
     /**
      * Removes decorations from a given {@link DBNDialog} by disabling its default window decorations
      * and applying a custom border. Optionally enables rounded corners for the dialog.

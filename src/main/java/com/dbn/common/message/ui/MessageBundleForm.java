@@ -23,13 +23,12 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Strings;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.util.List;
 
-import static com.dbn.common.action.UserDataKeys.MESSAGE_BUNDLE_CONTEXT;
-import static com.dbn.common.action.UserDataKeys.MESSAGE_BUNDLE_HINT;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 
 public class MessageBundleForm extends DBNFormBase {
@@ -47,8 +46,7 @@ public class MessageBundleForm extends DBNFormBase {
     }
 
     private void initHeaderPanel() {
-        MessageBundle messageBundle = getMessageBundle();
-        Object contextObject = messageBundle.getUserData(MESSAGE_BUNDLE_CONTEXT);
+        Object contextObject = getDialog().getContextObject();
         if (contextObject == null) {
             headerPanel.setVisible(false);
         } else {
@@ -58,12 +56,11 @@ public class MessageBundleForm extends DBNFormBase {
     }
 
     private void initHintPanel() {
-        MessageBundle messageBundle = getMessageBundle();
-        String hintMessage = messageBundle.getUserData(MESSAGE_BUNDLE_HINT);
-        if (Strings.isEmptyOrSpaces(hintMessage)) {
+        String mainMessage = getDialog().getMainMessage();
+        if (Strings.isEmptyOrSpaces(mainMessage)) {
             hintPanel.setVisible(false);
         } else {
-            TextContent hintText = TextContent.plain(hintMessage);
+            TextContent hintText = TextContent.plain(mainMessage);
             DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
             hintPanel.add(hintForm.getMainComponent());
         }
@@ -80,8 +77,13 @@ public class MessageBundleForm extends DBNFormBase {
     }
 
     public MessageBundle getMessageBundle() {
-        MessageBundleDialog dialog = ensureParentComponent();
+        MessageBundleDialog dialog = getDialog();
         return dialog.getMessageBundle();
+    }
+
+    @NotNull
+    private MessageBundleDialog getDialog() {
+        return ensureParentComponent();
     }
 
     @Override

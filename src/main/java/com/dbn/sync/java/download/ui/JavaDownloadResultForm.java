@@ -18,6 +18,7 @@ package com.dbn.sync.java.download.ui;
 
 import com.dbn.common.file.ui.VirtualFileListCellRenderer;
 import com.dbn.common.file.ui.VirtualFileListModel;
+import com.dbn.common.presentation.Presentation;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -26,6 +27,7 @@ import com.dbn.common.util.Editors;
 import com.dbn.sync.java.download.JavaDownloadContext;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.ui.components.JBList;
 
 import javax.swing.JComponent;
@@ -60,9 +62,10 @@ public class JavaDownloadResultForm extends DBNFormBase {
     }
 
     private void initHintPanel(JavaDownloadContext context) {
-        VirtualFile rootDirectory = context.getTargetRootDirectory();
+        PsiDirectory rootDirectory = context.getTargetRootDirectory();
+        String rootDirectoryPath = Presentation.presentableName(rootDirectory);
         TextContent hintText = TextContent.plain(
-                "The following classes were created or updated in your project under " + rootDirectory.getPath() + "\n\n" +
+                "The following classes were created or updated in your project under \"" + rootDirectoryPath + "\"\n\n" +
                         "(double click on the files, or press Enter to open them in the editor)");
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());

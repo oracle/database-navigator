@@ -82,4 +82,8 @@ public final class ProgressMonitor {
     public static boolean isProgress() {
         return progress() != DevNullProgressIndicator.INSTANCE;
     }
+
+    public static void cancelProgress() {
+        progress().cancel();
+    }
 }

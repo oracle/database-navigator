@@ -24,6 +24,7 @@ import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.intellij.openapi.project.Project;
+import lombok.SneakyThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -39,27 +40,22 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static com.dbn.common.load.ProgressMonitor.isProgressCancelled;
-import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class JavaArchiveUploader {
 
 	private static final String LOB_TABLE = "CREATE$JAVA$LOB$TABLE";
 
+	@SneakyThrows
 	public static void loadJar(JavaUploadContext context, String jarPath) {
 		List<String> classesToCompile = new ArrayList<>();
 
-		try {
-			ensureLobTable(context);
+		ensureLobTable(context);
 
-			try (InputStream fis = Files.newInputStream(Paths.get(jarPath))) {
-				processArchive(fis, context, classesToCompile);
-			}
-
-			compileClasses(context, classesToCompile);
-
-		} catch (SQLException | IOException e) {
-			conditionallyLog(e);
+		try (InputStream fis = Files.newInputStream(Paths.get(jarPath))) {
+			processArchive(fis, context, classesToCompile);
 		}
+
+		compileClasses(context, classesToCompile);
 	}
 
 	private static void processArchive(InputStream in, JavaUploadContext context, List<String> classesToCompile) throws IOException, SQLException {
@@ -125,7 +121,7 @@ public class JavaArchiveUploader {
 				.map(s -> "'" + s + "'")
 				.collect(Collectors.joining(","));
 
-		ConnectionId connectionId = context.getInput().getConnection().getConnectionId();
+		ConnectionId connectionId = context.getInput().getTargetConnectionId();
 		Project project = context.getProject();
 		String errorQuery = "SELECT NVL(j.longname, e.name) AS error_name,\n" +
 				"       e.text\n" +
@@ -148,10 +144,9 @@ public class JavaArchiveUploader {
 						if(result) {
 							DBNResultSet resultSet = stmt.getResultSet();
 							while(resultSet.next()) {
-								List<String> error = new ArrayList<>();
-								error.add(resultSet.getString(1));
-								error.add(resultSet.getString(2));
-								context.addError(error);
+								String title = resultSet.getString(1);
+								String message = resultSet.getString(2);
+								context.addErrorMessage(title, message);
 							}
 						}
 					} finally {
@@ -175,7 +170,7 @@ public class JavaArchiveUploader {
 	}
 
 	private static void ensureLobTable(JavaUploadContext context) throws SQLException {
-		ConnectionId connectionId = context.getInput().getConnection().getConnectionId();
+		ConnectionId connectionId = context.getInput().getTargetConnectionId();
 		Project project = context.getProject();
 
 		DatabaseInterfaceInvoker.execute(
@@ -205,7 +200,7 @@ public class JavaArchiveUploader {
 
 	private static void insertLob(JavaUploadContext context, String key, byte[] data) throws SQLException {
 		String sql = "INSERT INTO \"" + LOB_TABLE + "\" (name, lob, loadtime) VALUES (?, ?, SYSDATE)";
-		ConnectionId connectionId = context.getInput().getConnection().getConnectionId();
+		ConnectionId connectionId = context.getInput().getTargetConnectionId();
 		Project project = context.getProject();
 
 		DatabaseInterfaceInvoker.execute(
@@ -228,7 +223,7 @@ public class JavaArchiveUploader {
 	}
 
 	private static void executeQuery(JavaUploadContext context, String query) throws SQLException {
-		ConnectionId connectionId = context.getInput().getConnection().getConnectionId();
+		ConnectionId connectionId = context.getInput().getTargetConnectionId();
 		Project project = context.getProject();
 
 		DatabaseInterfaceInvoker.execute(

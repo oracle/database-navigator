@@ -29,6 +29,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import java.util.Collections;
 import java.util.List;
 
 public class JavaUploadResultForm extends DBNFormBase {
@@ -46,7 +47,7 @@ public class JavaUploadResultForm extends DBNFormBase {
         initHeaderPanel(context);
         initHintPanel(context);
         initObjectList(context);
-		initErrorsTable(context.getErrors());
+		initErrorsTable(Collections.emptyList()); // TODO cleanup (errors moved to MessageBundleDialog)
     }
 
     private void initHeaderPanel(JavaUploadContext context) {
@@ -56,8 +57,8 @@ public class JavaUploadResultForm extends DBNFormBase {
 
     private void initHintPanel(JavaUploadContext context) {
         JavaUploadInput input = context.getInput();
-        TextContent hintText = TextContent.plain("The following classes were created or updated in your \n Connection " + input.getConnection().getName() +
-                " \n Schema " + input.getSchemaName());
+        TextContent hintText = TextContent.plain("The following classes were created or updated in your \n Connection " + input.getTargetConnection().getName() +
+                " \n Schema " + input.getTargetSchemaName());
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
     }

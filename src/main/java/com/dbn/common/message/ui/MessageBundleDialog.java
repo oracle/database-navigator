@@ -17,20 +17,25 @@
 package com.dbn.common.message.ui;
 
 import com.dbn.common.message.MessageBundle;
-import com.dbn.common.message.TitledMessageBundle;
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.intellij.openapi.project.Project;
 import lombok.Getter;
+import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.common.util.Commons.nvl;
+
 @Getter
 public class MessageBundleDialog extends DBNDialog<MessageBundleForm> {
+    @Delegate
+    private final MessageBundleDialogConfig config;
     private final MessageBundle messageBundle;
+    private final Action[] defaultActions = new Action[] {getCancelAction()}; // default actions
 
-    public MessageBundleDialog(Project project, TitledMessageBundle messageBundle) {
-        super(project, messageBundle.getTitle(), false);
+    public MessageBundleDialog(MessageBundleDialogConfig config, MessageBundle messageBundle) {
+        super(config.getProject(), config.getTitle(), false);
+        this.config = config;
         this.messageBundle = messageBundle;
 
         renameAction(getCancelAction(), "Close");
@@ -46,8 +51,7 @@ public class MessageBundleDialog extends DBNDialog<MessageBundleForm> {
 
 
     @Override
-    protected final Action @NotNull [] createActions() {
-        return new Action[]{
-                getCancelAction()};
+    protected final Action[] createActions() {
+        return nvl(config.getActions(), defaultActions);
     }
 }

@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-package com.dbn.sync.common.impl;
+package com.dbn.framework.batch;
 
-import com.dbn.sync.common.SyncElement;
-import lombok.Data;
+import com.dbn.common.ui.list.Enableable;
+import com.dbn.common.ui.list.Selectable;
 
-@Data
-public abstract class SyncElementBase implements SyncElement {
-    private transient boolean enabled = true;
-    private transient boolean selected = true;
-
-    @Override
-    public int compareTo(SyncElement o) {
-        return getName().compareTo(o.getName());
-    }
+public interface BatchElement extends Selectable<BatchElement>, Enableable<BatchElement> {
 }

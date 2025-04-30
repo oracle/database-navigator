@@ -19,8 +19,8 @@ package com.dbn.sync.java.upload;
 import com.dbn.common.file.FileTypes;
 import com.dbn.common.thread.Read;
 import com.dbn.common.util.Files;
+import com.dbn.framework.batch.impl.BatchElementBase;
 import com.dbn.language.common.psi.PsiUtil;
-import com.dbn.sync.common.impl.SyncElementBase;
 import com.intellij.ide.highlighter.ArchiveFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -31,9 +31,11 @@ import lombok.EqualsAndHashCode;
 
 import javax.swing.Icon;
 
+import static com.dbn.common.util.Commons.nvl;
+
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class JavaUploadElement extends SyncElementBase {
+public class JavaUploadElement extends BatchElementBase {
 	private final VirtualFile file;
 	private final PsiFile psiFile;
 	private final String name;
@@ -47,6 +49,11 @@ public class JavaUploadElement extends SyncElementBase {
 		this.name = resolveName();
 		this.icon = resolveIcon();
 		setSelected(file.getFileType() == FileTypes.getJavaFileType());
+	}
+
+	@Override
+	public Object getSubject() {
+		return nvl(psiFile, file);
 	}
 
 	private String resolveName() {

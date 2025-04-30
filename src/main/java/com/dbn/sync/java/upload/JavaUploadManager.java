@@ -124,7 +124,7 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 
 	}
 
-	public void uploadFile(JavaUploadContext context) {
+	public void startUpload(JavaUploadContext context) {
 		JavaUploadInput input = context.getInput();
 		DatabaseContext databaseContext = input.getDatabaseContext();
 		Progress.prompt(getProject(), databaseContext, true,
@@ -135,7 +135,7 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 	}
 
 	private void performUpload(JavaUploadContext context) {
-		JavaUploader.INSTANCE.uploadJavaClasses(context);
+		JavaUploader.INSTANCE.processBatch(context);
 		Dialogs.show(() -> new JavaUploadResultDialog(getProject(), context));
 	}
 

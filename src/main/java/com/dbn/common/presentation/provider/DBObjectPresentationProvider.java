@@ -14,14 +14,30 @@
  * limitations under the License.
  */
 
-package com.dbn.sync.common;
+package com.dbn.common.presentation.provider;
 
-import com.intellij.openapi.project.Project;
 
-import java.util.List;
+import com.dbn.object.common.DBObject;
 
-public interface SyncContext<I extends SyncInput, T extends SyncTask> {
-    Project getProject();
-    I getInput();
-    List<T> getTasks();
+import javax.swing.Icon;
+
+public class DBObjectPresentationProvider extends PresentationProviderBase<DBObject> {
+    public DBObjectPresentationProvider() {
+        super(DBObject.class);
+    }
+
+    @Override
+    public String getName(DBObject object) {
+        return object.getName();
+    }
+
+    @Override
+    public String getTypeName(DBObject object) {
+        return object.getTypeName();
+    }
+
+    @Override
+    public Icon getIcon(DBObject object) {
+        return object.getIcon();
+    }
 }

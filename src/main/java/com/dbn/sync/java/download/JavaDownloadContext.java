@@ -17,8 +17,10 @@
 package com.dbn.sync.java.download;
 
 import com.dbn.common.util.Lists;
-import com.dbn.sync.common.impl.SyncContextBase;
+import com.dbn.framework.batch.BatchProducer;
+import com.dbn.framework.batch.impl.BatchContextBase;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDirectory;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,18 +28,29 @@ import java.util.List;
 
 @Getter
 @Setter
-public class JavaDownloadContext extends SyncContextBase<JavaDownloadInput, JavaDownloadTask> {
-	private VirtualFile targetRootDirectory;
+public class JavaDownloadContext extends BatchContextBase<JavaDownloadElement, JavaDownloadInput, JavaDownloadTask> {
+	private PsiDirectory targetRootDirectory;
 
 	public JavaDownloadContext(JavaDownloadInput input) {
 		super(input);
+	}
+
+	@Override
+	public Object getContextObject() {
+		return getInput().getSourceObject();
 	}
 
 	public List<VirtualFile> getDownloadedFiles() {
 		return Lists.convert(getTasks(), t -> t.getTargetFile());
 	}
 
-	public JavaDownloadTask createDownloadTask(JavaDownloadElement downloadElement) {
+	@Override
+	protected BatchProducer createMessageProducer() {
+		return new JavaDownloadMessageProducer(this);
+	}
+
+	@Override
+	public JavaDownloadTask createBatchTask(JavaDownloadElement downloadElement) {
 		JavaDownloadTask downloadTask = new JavaDownloadTask(downloadElement);
 		addTask(downloadTask);
 		return downloadTask;

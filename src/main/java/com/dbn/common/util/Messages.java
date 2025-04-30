@@ -23,6 +23,7 @@ import com.dbn.common.message.MessageCallback;
 import com.dbn.common.message.TitledMessage;
 import com.dbn.common.message.TitledMessageBundle;
 import com.dbn.common.message.ui.MessageBundleDialog;
+import com.dbn.common.message.ui.MessageBundleDialogConfig;
 import com.dbn.common.option.DoNotAskOption;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.messages.DBNMessageDialog;
@@ -58,7 +59,8 @@ public class Messages {
     public static final String[] OPTIONS_CONTINUE_CANCEL = options(txt("msg.shared.button.Continue"), txt("msg.shared.button.Cancel"));
 
     public static void showMessagesDialog(@Nullable Project project, TitledMessageBundle messages) {
-        Dialogs.show(() -> new MessageBundleDialog(project, messages));
+        MessageBundleDialogConfig config = MessageBundleDialogConfig.create(project, messages.getTitle());
+        Dialogs.show(() -> new MessageBundleDialog(config, messages));
     }
 
     @Deprecated // use showMessageBundleDialog(Project project, TitledMessageBundle messages)

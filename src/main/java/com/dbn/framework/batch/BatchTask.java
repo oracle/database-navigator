@@ -14,20 +14,8 @@
  * limitations under the License.
  */
 
-package com.dbn.sync.common.impl;
+package com.dbn.framework.batch;
 
-import com.dbn.sync.common.SyncElement;
-import com.dbn.sync.common.SyncTask;
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-public class SyncTaskBase<E extends SyncElement> implements SyncTask<E> {
-    private final E element;
-    private String content;
-
-    public SyncTaskBase(E element) {
-        this.element = element;
-    }
+public interface BatchTask<E extends BatchElement> {
+    E getElement();
 }

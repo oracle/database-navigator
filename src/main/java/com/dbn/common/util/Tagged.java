@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package com.dbn.sync.common;
+package com.dbn.common.util;
 
-import com.dbn.common.ui.list.Enableable;
-import com.dbn.common.ui.list.Selectable;
-
-public interface SyncElement extends Selectable<SyncElement>, Enableable<SyncElement> {
+public interface Tagged<T> {
+    T getSubject();
 }

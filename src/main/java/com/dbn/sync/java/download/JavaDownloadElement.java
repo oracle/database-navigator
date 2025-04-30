@@ -17,10 +17,10 @@
 package com.dbn.sync.java.download;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.framework.batch.impl.BatchElementBase;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.lookup.DBJavaNameCache;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.sync.common.impl.SyncElementBase;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +30,7 @@ import javax.swing.Icon;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class JavaDownloadElement extends SyncElementBase {
+public class JavaDownloadElement extends BatchElementBase {
     private DBObjectRef<DBJavaClass> javaClass;
 
     public JavaDownloadElement(DBJavaClass javaClass) {
@@ -67,6 +67,11 @@ public class JavaDownloadElement extends SyncElementBase {
     @Override
     public String getName() {
         return getJavaClassName() + " (" + getSchemaName() + ")";
+    }
+
+    @Override
+    public Object getSubject() {
+        return getJavaClass();
     }
 
     @Override

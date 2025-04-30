@@ -16,13 +16,13 @@
 
 package com.dbn.sync.java.upload;
 
-import com.dbn.sync.common.impl.SyncTaskBase;
+import com.dbn.framework.batch.impl.BatchTaskBase;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class JavaUploadTask extends SyncTaskBase<JavaUploadElement> {
+public class JavaUploadTask extends BatchTaskBase<JavaUploadElement> {
 
 	public JavaUploadTask(JavaUploadElement element) {
 		super(element);

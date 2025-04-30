@@ -100,8 +100,27 @@ public class MessageCollector extends UserDataHolderBase implements MessageBundl
         return hasMessagesOfType(INFO);
     }
 
+    @Override
+    public int countErrors() {
+        return countMessagesOfType(ERROR);
+    }
+
+    @Override
+    public int countWarnings() {
+        return countMessagesOfType(WARNING);
+    }
+
+    @Override
+    public int countInfos() {
+        return countMessagesOfType(INFO);
+    }
+
     public boolean hasMessagesOfType(MessageType type) {
         return messages.stream().anyMatch(m -> m.getType() == type);
+    }
+
+    public int countMessagesOfType(MessageType type) {
+        return (int) messages.stream().filter(m -> m.getType() == type).count();
     }
 
     @Override

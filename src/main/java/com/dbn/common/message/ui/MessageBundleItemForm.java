@@ -18,6 +18,7 @@ package com.dbn.common.message.ui;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.message.Message;
+import com.dbn.common.message.TaggedMessage;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Titled;
 import org.jetbrains.annotations.Nullable;
@@ -28,6 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 
+import static com.dbn.common.presentation.Presentation.presentableName;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 
 public class MessageBundleItemForm extends DBNFormBase {
@@ -82,6 +84,12 @@ public class MessageBundleItemForm extends DBNFormBase {
         if (message instanceof Titled) {
             Titled titled = (Titled) message;
             return titled.getTitle();
+        }
+
+        if (message instanceof TaggedMessage) {
+            TaggedMessage taggedMessage = (TaggedMessage) message;
+            Object subject = taggedMessage.getSubject();
+            return presentableName(subject);
         }
         return null;
     }

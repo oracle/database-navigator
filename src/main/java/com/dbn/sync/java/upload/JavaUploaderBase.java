@@ -16,6 +16,8 @@
 
 package com.dbn.sync.java.upload;
 
-abstract class JavaUploaderBase {
+import com.dbn.framework.batch.impl.BatchProcessorBase;
+
+abstract class JavaUploaderBase extends BatchProcessorBase<JavaUploadContext> {
 
 }

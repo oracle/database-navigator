@@ -41,7 +41,7 @@ public class JavaDownloadInputDialog extends DBNDialog<JavaDownloadInputForm> {
         return new JavaDownloadInputForm(this);
     }
 
-    private void downloadObject() {
+    private void startDownload() {
         // apply the form field values to the input
         JavaDownloadInputForm inputForm = getForm();
         inputForm.applyUserInput();
@@ -65,7 +65,7 @@ public class JavaDownloadInputDialog extends DBNDialog<JavaDownloadInputForm> {
 
     @Override
     protected void doOKAction() {
-        downloadObject();
+        startDownload();
         super.doOKAction();
     }
 }

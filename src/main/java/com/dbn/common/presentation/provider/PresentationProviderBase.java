@@ -14,8 +14,21 @@
  * limitations under the License.
  */
 
-package com.dbn.sync.common;
+package com.dbn.common.presentation.provider;
 
-public interface SyncTask<E extends SyncElement> {
-    E getElement();
+import com.dbn.common.presentation.PresentationProvider;
+
+abstract class PresentationProviderBase<T> implements PresentationProvider<T> {
+    private final Class<T> objectType;
+
+    public PresentationProviderBase(Class<T> objectType) {
+        this.objectType = objectType;
+    }
+
+    @Override
+    public final boolean supports(Class objectType) {
+        return this.objectType.isAssignableFrom(objectType);
+    }
+
+
 }

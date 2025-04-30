@@ -19,10 +19,10 @@ package com.dbn.sync.java.download;
 import com.dbn.common.project.Modules;
 import com.dbn.common.thread.Read;
 import com.dbn.connection.context.DatabaseContext;
+import com.dbn.framework.batch.impl.BatchInputBase;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.sync.common.impl.SyncInputBase;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -45,7 +45,7 @@ import static com.dbn.common.util.Strings.isEmpty;
 
 @Getter
 @Setter
-public class JavaDownloadInput extends SyncInputBase<JavaDownloadElement> {
+public class JavaDownloadInput extends BatchInputBase<JavaDownloadElement> {
 
     private DBObjectRef<?> sourceObject;
 

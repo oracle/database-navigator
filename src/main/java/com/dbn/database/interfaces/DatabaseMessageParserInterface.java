@@ -37,5 +37,9 @@ public interface DatabaseMessageParserInterface extends DatabaseInterface{
 
     default DatabaseMessage parseExceptionMessage(SQLException exception) {
         return new DatabaseMessage(exception.getMessage(), null);
-    };
+    }
+
+    default String convertToPresentable(String message) {
+        return message;
+    }
 }

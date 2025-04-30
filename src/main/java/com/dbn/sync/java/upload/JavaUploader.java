@@ -17,6 +17,8 @@
 package com.dbn.sync.java.upload;
 
 import com.dbn.common.Priority;
+import com.dbn.common.message.MessageType;
+import com.dbn.common.message.TaggedMessage;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
@@ -35,23 +37,27 @@ public final class JavaUploader extends JavaUploaderBase {
 
 	private JavaUploader() {}
 
-	public void uploadJavaClasses(JavaUploadContext context) {
-		if (context.hasErrors()) return;
-
+	/**
+	 * Uploader tasks preparation method. Queues all tasks to be executed in context.
+	 * @param context the {@link JavaUploadContext} to be prepared
+	 */
+	public void prepareBatch(JavaUploadContext context) {
+		// schedule upload tasks in context
 		JavaUploadInput input = context.getInput();
-		List<JavaUploadElement> uploadElements = input.getSelectedElements();
-		for (JavaUploadElement uploadElement : uploadElements) {
-			context.handled(() -> uploadJavaClass(context, uploadElement));
+		List<JavaUploadElement> elements = input.getSelectedElements();
+		for (JavaUploadElement element : elements) {
+			Object subject = element.getSubject();
+			context.queueTask(subject, () -> performElementUpload(context, element));
 		}
 	}
 
 	@SneakyThrows
-	private void uploadJavaClass(JavaUploadContext context, JavaUploadElement element) {
+	private static void performElementUpload(JavaUploadContext context, JavaUploadElement element) {
 		String elementName = element.getName();
 		setProgressDetail("Uploading sources of \"" + elementName + "\"");
 
 		// create upload task
-		JavaUploadTask uploadTask = context.createUploadTask(element);
+		JavaUploadTask uploadTask = context.createBatchTask(element);
 
 		if (element.isArchive()) {
 			JavaArchiveUploader.loadJar(context, element.getFile().getPath());
@@ -63,18 +69,23 @@ public final class JavaUploader extends JavaUploaderBase {
 				uploadJavaClass(context, uploadTask, element.getJavaClassName());
 			} else {
 				// TODO upload resources
-				context.addError(List.of(elementName, "Uploading resources is not supported yet"));
+				context.addMessage(new TaggedMessage<>(MessageType.WARNING, "Uploading resources is not supported yet", element.getSubject()));
 			}
 		}
 	}
 
 	private static void uploadJavaClass(JavaUploadContext context, JavaUploadTask task, String className) throws SQLException {
 		Project project = context.getProject();
+		JavaUploadInput input = context.getInput();
 
-		String databaseObjectName = className.replace('.', '/');
+		String objectName = className.replace('.', '/');
+		String schemaName = input.getTargetSchemaName();
+		ConnectionId connectionId = input.getTargetConnectionId();
+
+		// TODO move to oracle-ddl-interface
 		String creationStatement = "BEGIN\n" +
 				"   BEGIN\n" +
-				"      EXECUTE IMMEDIATE 'DROP JAVA SOURCE \"" + databaseObjectName + "\"';\n" +
+				"      EXECUTE IMMEDIATE 'DROP JAVA SOURCE \"" + schemaName + "\".\"" + objectName + "\"';\n" +
 				"   EXCEPTION\n" +
 				"      WHEN OTHERS THEN\n" +
 				"         IF SQLCODE <> -4043 THEN\n" +
@@ -83,12 +94,11 @@ public final class JavaUploader extends JavaUploaderBase {
 				"   END;\n" +
 				"\n" +
 				"   EXECUTE IMMEDIATE q'[\n" +
-				"CREATE OR REPLACE AND COMPILE JAVA SOURCE NAMED \"" + databaseObjectName + "\" AS \n" +
+				"CREATE OR REPLACE AND COMPILE JAVA SOURCE NAMED \"" + schemaName + "\".\"" + objectName + "\" AS \n" +
 				task.getContent() +
 				"]';\n" +
 				"END;";
 
-		ConnectionId connectionId = context.getInput().getConnection().getConnectionId();
 		DatabaseInterfaceInvoker.execute(Priority.HIGH,
 				"Uploading Java Class",
 				"Uploading java class \"" + className + "\"",

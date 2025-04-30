@@ -134,8 +134,8 @@ public class JavaUploadInputForm extends DBNFormBase {
 
     protected void applyUserInput() {
         JavaUploadInput input = getContext().getInput();
-        input.setConnection(getSelectedConnection());
-        input.setSchemaName(getSelectedSchemaName());
+        input.setTargetConnection(getSelectedConnection());
+        input.setTargetSchema(getSelectedSchema());
         dependenciesCheckBoxList.applyChanges();
     }
 
@@ -148,10 +148,4 @@ public class JavaUploadInputForm extends DBNFormBase {
     private DBSchema getSelectedSchema() {
        return getSelection(schemaComboBox);
     }
-
-    private String getSelectedSchemaName() {
-        DBSchema selectedSchema = getSelectedSchema();
-        return selectedSchema == null ? null : selectedSchema.getSchemaName();
-    }
-
 }

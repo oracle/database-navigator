@@ -37,25 +37,31 @@ public final class JavaDownloader extends JavaDownloaderBase {
 
 	private JavaDownloader() {}
 
-	public void downloadJavaClasses(JavaDownloadContext context) {
-		prepareDestinationFolders(context);
-		if (context.hasErrors()) return;
+	/**
+	 * Downloader context preparation method. Queues all tasks to be executed in context.
+	 * @param context the {@link JavaDownloadContext} to be prepared
+	 */
+	@Override
+	protected void prepareBatch(JavaDownloadContext context) {
+		// schedule destination folders preparation task
+		context.queueTask(() -> prepareDestinationFolders(context));
 
-
+		// schedule download tasks in context
 		JavaDownloadInput input = context.getInput();
 		List<JavaDownloadElement> elements = input.getSelectedElements();
 		for (JavaDownloadElement element : elements) {
-			context.handled(() -> downloadJavaClass(context, element));
+			Object subject = element.getSubject();
+			context.queueTask(subject, () -> performDownload(context, element));
 		}
 	}
 
 	@SneakyThrows
-	private void downloadJavaClass(JavaDownloadContext context, JavaDownloadElement element) {
+	private static void performDownload(JavaDownloadContext context, JavaDownloadElement element) {
 		String className = element.getJavaClassName();
 		setProgressDetail("Loading sources of \"" + className + "\"");
 
-		// create download task
-		JavaDownloadTask downloadTask = context.createDownloadTask(element);
+		// create a download task
+		JavaDownloadTask task = context.createBatchTask(element);
 
 		// load source code content
 		Project project = context.getProject();
@@ -64,10 +70,10 @@ public final class JavaDownloader extends JavaDownloaderBase {
 		SourceCodeContent content = sourceCodeManager.loadSourceFromDatabase(javaClass, DBContentType.CODE);
 
 		String sourceCode = content.getRawContent();
-		downloadTask.setContent(sourceCode);
+		task.setContent(sourceCode);
 
 		setProgressDetail("Writing project class \"" + className + "\"");
-		context.handled(() -> writeJavaFile(context, downloadTask));
+		writeJavaFile(context, task);
 	}
 
 	@SneakyThrows
@@ -81,7 +87,7 @@ public final class JavaDownloader extends JavaDownloaderBase {
 		task.setTargetFolder(targetDirectory.getVirtualFile());
 
 		Project project = context.getProject();
-		runWriteCommandAction(project, () -> context.handled(() -> writeJavaFile(task)));
+		runWriteCommandAction(project, () -> writeJavaFile(task));
 	}
 
 	@SneakyThrows

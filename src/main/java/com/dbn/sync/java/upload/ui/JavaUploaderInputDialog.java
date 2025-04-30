@@ -41,13 +41,13 @@ public class JavaUploaderInputDialog extends DBNDialog<JavaUploadInputForm> {
         return new JavaUploadInputForm(this);
     }
 
-    private void uploadObject() {
+    private void startUpload() {
         // apply the form field values to the input
         JavaUploadInputForm inputForm = getForm();
         inputForm.applyUserInput();
 
         JavaUploadManager manager = getJavaUploadManager();
-        manager.uploadFile(context);
+        manager.startUpload(context);
     }
 
     @NotNull
@@ -65,7 +65,7 @@ public class JavaUploaderInputDialog extends DBNDialog<JavaUploadInputForm> {
 
     @Override
     protected void doOKAction() {
-        uploadObject();
+        startUpload();
         super.doOKAction();
     }
 }

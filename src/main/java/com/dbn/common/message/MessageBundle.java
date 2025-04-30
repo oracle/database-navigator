@@ -49,6 +49,12 @@ public interface MessageBundle extends UserDataHolder {
 
     boolean hasInfos();
 
+    int countErrors();
+
+    int countWarnings();
+
+    int countInfos();
+
     List<Message> getMessages();
 
     List<Message> getMessages(MessageType type);

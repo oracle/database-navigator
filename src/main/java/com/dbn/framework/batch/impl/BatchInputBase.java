@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.dbn.sync.common.impl;
+package com.dbn.framework.batch.impl;
 
 import com.dbn.common.project.ProjectRef;
-import com.dbn.sync.common.SyncElement;
-import com.dbn.sync.common.SyncInput;
+import com.dbn.framework.batch.BatchElement;
+import com.dbn.framework.batch.BatchInput;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 
@@ -29,11 +29,11 @@ import java.util.List;
 import static com.dbn.common.util.Lists.filter;
 
 @Getter
-public abstract class SyncInputBase<E extends SyncElement> implements SyncInput<E> {
+public abstract class BatchInputBase<E extends BatchElement> implements BatchInput<E> {
     private final ProjectRef project;
     private final List<E> elements = new ArrayList<>();
 
-    public SyncInputBase(Project project) {
+    public BatchInputBase(Project project) {
         this.project = ProjectRef.of(project);
     }
 
