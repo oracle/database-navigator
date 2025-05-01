@@ -40,25 +40,10 @@ public class NotificationHandler {
 //    });
     assert dataChangeEvent != null;
     showIntelliJNotification(dataChangeEvent.toString());
-    DataChangeEventBundle eventBundle = EventNotificationManager.getInstance(project).getEventBundle(connectionId);
-    eventBundle.addEvent(dataChangeEvent);
-    EventNotificationManager.getInstance(project).updateEventNotificationForm(connectionId);
-  }
-
-  private static DataChangeEvent toDataChangeEvent(DatabaseChangeEvent event) {
-    AtomicReference<DataChangeEvent> dataChangeEvent = new AtomicReference<>();
-    Arrays.stream(event.getTableChangeDescription()).forEach(desc -> {
-      String tableName = desc.getTableName();
-      if (desc.getTableName().equalsIgnoreCase(tableName)) {
-        Arrays.stream(desc.getRowChangeDescription()).forEach(row -> {
-          String rowId = row.getRowid().toString();
-          String operation = row.getRowOperations().toString();
-          String timestamp = LocalDateTime.now().toString();
-          dataChangeEvent.set(new DataChangeEvent(operation, tableName, rowId, timestamp));
-        });
-      }
-    });
-    return dataChangeEvent.get();
+    //todo we were updating the events data , and updating the ui of the dashboard .
+//    DataChangeEventBundle eventBundle = EventNotificationManager.getInstance(project).getEventBundle(connectionId);
+//    eventBundle.addEvent(dataChangeEvent);
+//    EventNotificationManager.getInstance(project).updateEventNotificationForm(connectionId);
   }
 
 }

@@ -94,10 +94,7 @@ public class EventsNotificationForm extends DBNFormBase {
     this.tabSelectionIndex = tabSelectionIndex;
   }
 
-  public void updateEvents(ConnectionId connectionId) {
-    EventsNotificationDetailsForm detailForm = resourceMonitorForms.get(connectionId);
-    detailForm.updateEvents(connectionId);
-  }
+
 
   private static class ConnectionListCellRenderer extends ColoredListCellRenderer<ConnectionHandler> {
 

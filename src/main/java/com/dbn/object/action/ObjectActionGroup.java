@@ -18,6 +18,7 @@ package com.dbn.object.action;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.editor.DBContentType;
+import com.dbn.events.RegistrationManager;
 import com.dbn.execution.compiler.action.CompileActionGroup;
 import com.dbn.execution.java.action.JavaObjectRunAction;
 import com.dbn.execution.java.action.JavaRunAction;
@@ -77,10 +78,17 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
 
     private void addTableActions(DBObject object) {
         if (object instanceof DBTable) {
+            //todo check if DCN is supported .
+
             addSeparator();
             //todo check of DCN already enabled
-            //todo check if DCN is supported .
-            add(new TableEnableDCNAction((DBTable) object));
+            String tableName = object.getQualifiedName();
+            if(RegistrationManager.getInstance().isListening(tableName)){
+                add(new TableDisableDCNAction((DBTable) object));
+            }else{
+                add(new TableEnableDCNAction((DBTable) object));
+            }
+
         }
     }
 

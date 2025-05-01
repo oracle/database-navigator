@@ -40,22 +40,16 @@ public class EventsNotificationDetailsForm extends DBNFormBase {
     diagnosticsTabsPanel.add(diagnosticsTabs, BorderLayout.CENTER);
     diagnosticsTabs.enableFocusInheritance();
 
-//    DBNTable dbnTable = new DBNTable()  ;
-    DataChangeEventBundle  model = (EventNotificationManager.getInstance(getProject()).getEventBundle(connection.getConnectionId()));
+    DataChangeEventBundle  model = new DataChangeEventBundle();
     eventsTable = new NotificationEventTable(this,model).getTable();
 
-//    AbstractDiagnosticsTableModel metadataTableModel = new MetadataDiagnosticsTableModel2(connection);
-//    metadataTable = new DiagnosticsTable<>(this, metadataTableModel);
-//    metadataTable.getRowSorter().toggleSortOrder(0);
+
     addTab(eventsTable, "Events");
-//
 
     DataChangeRegistrationBundle registrationModel = new DataChangeRegistrationBundle(connection);
     registrationsTable = new DBNTable<>(this,registrationModel,true);
-//    AbstractDiagnosticsTableModel connectivityTableModel = new ConnectivityDiagnosticsTableModel(connection);
-//    connectivityTable = new DiagnosticsTable<>(this, connectivityTableModel);
-//    connectivityTable.getRowSorter().toggleSortOrder(0);
     addTab(registrationsTable, "Registrations");
+    // todo put a listner for the actions refresh and filters...
 
 
     diagnosticsTabs.addTabSelectionListener(i -> {
@@ -84,9 +78,9 @@ public class EventsNotificationDetailsForm extends DBNFormBase {
   }
 
 
-  public void updateEvents(ConnectionId connectionId) {
-    DataChangeEventBundle  newModel = (EventNotificationManager.getInstance(getProject()).getEventBundle(connectionId));
-
-    eventsTable.setModel(newModel);
-  }
+//  public void updateEvents(ConnectionId connectionId) {
+//    DataChangeEventBundle  newModel = (EventNotificationManager.getInstance(getProject()).getEventBundle(connectionId));
+//
+//    eventsTable.setModel(newModel);
+//  }
 }

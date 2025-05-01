@@ -26,4 +26,15 @@ public class DCNConfigForm extends DBNFormBase {
   protected JComponent getMainComponent() {
     return mainPanel;
   }
+
+  public boolean isInsert() {
+    return insertCheckBox.isSelected();
+  }
+  public boolean isUpdate() {
+    return updateCheckBox.isSelected();
+  }
+
+  public boolean isDelete() {
+    return deleteCheckBox.isSelected();
+  }
 }

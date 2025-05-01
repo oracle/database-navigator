@@ -37,7 +37,7 @@ public class EventNotificationManager extends ProjectComponentBase {
   public static final String COMPONENT_NAME = "DBNavigator.Project.EventNotificationManager";
   public static final String TOOL_WINDOW_ID = "DB Events";
 
-  private final Map<ConnectionId, DataChangeEventBundle> eventBundles = new ConcurrentHashMap<>();
+//  private final Map<ConnectionId, DataChangeEventBundle> eventBundles = new ConcurrentHashMap<>();
 
 
   public EventNotificationManager(@NotNull Project project) {
@@ -52,9 +52,9 @@ public class EventNotificationManager extends ProjectComponentBase {
     return Components.projectService(project, EventNotificationManager.class);
   }
 
-  public DataChangeEventBundle getEventBundle(ConnectionId connectionId) {
-    return eventBundles.computeIfAbsent(connectionId, k -> new DataChangeEventBundle());
-  }
+//  public DataChangeEventBundle getEventBundle(ConnectionId connectionId) {
+//    return eventBundles.computeIfAbsent(connectionId, k -> new DataChangeEventBundle());
+//  }
   public void openEditorAndConfig(DBObjectRef<DBTable> object) {
     Dialogs.show(()->new DCNConfigDialog(getProject(),object.get()));
   }
@@ -104,12 +104,7 @@ public class EventNotificationManager extends ProjectComponentBase {
     return null;
   }
 
-  public void updateEventNotificationForm(ConnectionId connectionId) {
-    EventsNotificationForm eventsForm = getEventsForm();
-    if (eventsForm != null) {
-      eventsForm.updateEvents(connectionId);
-    }
-  }
+
 
   private Content getEventsContent() {
     ToolWindow toolWindow = getEventToolWindow();

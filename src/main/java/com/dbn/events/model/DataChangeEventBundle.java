@@ -1,6 +1,8 @@
 package com.dbn.events.model;
 
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.table.DBNMutableTableModel;
+import com.dbn.events.service.HistoryService;
 import lombok.Getter;
 
 import java.util.List;
@@ -18,8 +20,20 @@ public class DataChangeEventBundle    extends DBNMutableTableModel<DataChangeEve
             COLUMN_OPERATION, COLUMN_TABLE, COLUMN_ROWID, COLUMN_TIMESTAMP
     };
 
+  public DataChangeEventBundle() {
+    //intialise the model
+    List<DataChangeEvent> initialEvents = HistoryService.getInstance().getEventsByReg();
+    events.addAll(initialEvents);
 
-
+    // subscribe for new events
+    HistoryService.getInstance().registerListener(event -> {
+      Dispatch.run(true,()->{
+//        int row = events.size();
+//        events.add(event);
+        notifyRowChanges();
+      });
+    });
+  }
 
   @Override
   public int getRowCount() {

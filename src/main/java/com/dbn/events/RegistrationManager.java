@@ -1,12 +1,18 @@
 package com.dbn.events;
 
 
+import com.dbn.common.util.Titles;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.events.model.DataChangeEvent;
+import com.dbn.events.service.HistoryService;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.project.Project;
 import lombok.SneakyThrows;
+import oracle.jdbc.driver.OracleConnection;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -22,6 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.dbn.common.Priority.HIGH;
+import static com.dbn.common.notification.NotificationGroup.DCN;
+import static com.dbn.nls.NlsResources.txt;
 
 public class RegistrationManager {
   // we need the key to be the table not the connection Id because one connection can have multiple registrations ...
@@ -39,7 +47,7 @@ public class RegistrationManager {
 
 
 
-  public void startListening(String tableName, ConnectionHandler handler) throws SQLException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, ClassNotFoundException {
+  public void startListening(String tableName, ConnectionHandler handler,int mask) throws SQLException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, ClassNotFoundException {
 
     DatabaseInterfaceInvoker.execute(HIGH,
             "Registering Event Listener",
@@ -48,7 +56,17 @@ public class RegistrationManager {
             handler.getConnectionId(),
             c -> {
               try {
-                startListening(tableName, handler, c);
+                startListening(tableName, handler, c,mask);
+
+                Notification notification = new Notification(
+                        DCN.name(),            // Group ID
+                        Titles.signed(DCN.name()),         // Title
+                        txt("ntf.dataChangeRegistration.info.TableRegistered",tableName),                    // Message
+                        NotificationType.INFORMATION // Type
+                );
+
+                Notifications.Bus.notify(notification, project);
+//                NotificationSupport.sendInfoNotification(project,DCN, txt("ntf.dataChangeRegistration.info.TableRegistered",tableName));
               } catch (Exception e) {
                 throw new RuntimeException(e);
               }
@@ -58,7 +76,7 @@ public class RegistrationManager {
   @SneakyThrows
   public void startListening(String tableName,
                              ConnectionHandler handler,
-                             DBNConnection dbnConnection) throws Exception {
+                             DBNConnection dbnConnection, int mask) throws Exception {
     handler.ensureConnection();
     Connection raw = DBNConnection.getInner(dbnConnection);
     ClassLoader drvCL = raw.getClass().getClassLoader();
@@ -77,18 +95,30 @@ public class RegistrationManager {
     String notifyRowIdsKey = (String) oracleConnIfc.getField("DCN_NOTIFY_ROWIDS").get(null);
     String clientInitKey = (String) oracleConnIfc.getField("DCN_CLIENT_INIT_CONNECTION").get(null);
 
-
     props.setProperty(notifyRowIdsKey, "true");
     props.setProperty(clientInitKey, "true");
 
+    if ((mask & OracleConstants.DCN_NOTIFY_INSERTOP) == 0){
+      props.setProperty(OracleConnection.DCN_IGNORE_INSERTOP,"true");
+    }
+
+    if ((mask & OracleConstants.DCN_NOTIFY_UPDATEOP) == 0) {
+      props.setProperty(OracleConstants.DCN_IGNORE_UPDATEOP, "true");
+    }
+
+    if ((mask & OracleConstants.DCN_NOTIFY_DELETEOP) != 0) {
+      props.setProperty(OracleConstants.DCN_IGNORE_DELETEOP, "true");
+    }
     // --- 3) registerDatabaseChangeNotification on the interface ---
     Method regM = oracleConnIfc.getMethod(
             "registerDatabaseChangeNotification", Properties.class);
     Object dcr = regM.invoke(raw, props);
+    Method regIdMethod = oracleConnIfc.getMethod("getRegId");
+    Long regId = (Long) regIdMethod.invoke(dcr);
 
     // --- 4) addListener via the public interface ---
     Object listener = DcnListenerInvocationHandler
-            .createProxy(handler, drvCL);
+            .createProxy(handler, drvCL,regId);
     Method addL = dcrIfc.getMethod("addListener", listenerIfc);
     addL.invoke(dcr, listener);
 
@@ -109,37 +139,86 @@ public class RegistrationManager {
     System.out.println("DCN registered reflectively on table: " + tableName);
   }
 
-  // Stop listening for changes on a given table
-  public void stopListening(String tableName, ConnectionHandler connectionHandler) throws SQLException, ClassNotFoundException {
-//    DatabaseChangeRegistration dcr = activeRegistrations.remove(tableName);
-//    DBNConnection dbn = connectionHandler.getPoolConnection(false);
-//    oracle.jdbc.OracleConnection conn = (oracle.jdbc.OracleConnection) dbn.unwrap(Class.forName("oracle.jdbc.OracleConnection"));
-//    if (dcr != null) {
-//      //todo figure it out .
-//      conn.unregisterDatabaseChangeNotification(dcr);
-//      System.out.println("Stopped listening on table: " + tableName);
-//    }
+  public void stopListening(String tableName, ConnectionHandler handler) throws SQLException {
+    DatabaseInterfaceInvoker.execute(HIGH,
+            "Stopping Event Listener",
+            "Stopping event listener for " + tableName,
+            handler.getProject(),
+            handler.getConnectionId(),
+            c -> {
+              try {
+                stopListening(tableName, c);
+                Notification notification = new Notification(
+                        DCN.name(),            // Group ID
+                        Titles.signed(DCN.name()),         // Title
+                        txt("ntf.dataChangeRegistration.info.TableUnregistered",tableName),                    // Message
+                        NotificationType.INFORMATION // Type
+                );
+
+                Notifications.Bus.notify(notification, project);
+//                NotificationSupport.sendInfoNotification(project,DCN, txt("ntf.dataChangeRegistration.info.TableUnregistered", tableName));
+              } catch (Exception e) {
+                throw new RuntimeException(e);
+              }
+            });
   }
+
+  // Stop listening for changes on a given table
+  public void stopListening(String tableName,DBNConnection dbnConnection) throws SQLException, ClassNotFoundException {
+    //todo improve .
+    // Retrieve the registration object (dcr) for the given table
+    Object dcr = activeRegistrations.remove(tableName);
+
+    Connection raw = DBNConnection.getInner(dbnConnection);
+    ClassLoader drvCL = raw.getClass().getClassLoader();
+
+    // Get the DBNConnection from the connection handler
+
+    // Use reflection to unwrap the connection to the actual OracleConnection class dynamically
+    Class<?> oracleConnIfc = drvCL.loadClass("oracle.jdbc.OracleConnection");
+
+    if (dcr != null) {
+      try {
+        // Use reflection to get the unregisterDatabaseChangeNotification method
+        Method unregisterMethod = oracleConnIfc.getMethod("unregisterDatabaseChangeNotification", drvCL.loadClass("oracle.jdbc.dcn.DatabaseChangeRegistration"));
+
+        // Invoke the method to unregister the change notification listener
+        unregisterMethod.invoke(raw, dcr);
+
+        System.out.println("Stopped listening on table: " + tableName);
+      } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
+        // Handle exceptions related to reflection
+        e.printStackTrace();
+        throw new SQLException("Error while stopping DCN listener on table: " + tableName, e);
+      }
+    } else {
+      System.out.println("No registration found for table: " + tableName);
+    }
+  }
+
+
 
 
 
   static class DcnListenerInvocationHandler implements InvocationHandler {
     private final ConnectionHandler handler;
+    private final Long regId;
 
-    private DcnListenerInvocationHandler(ConnectionHandler handler) {
+    private DcnListenerInvocationHandler(ConnectionHandler handler, Long regId) {
       this.handler = handler;
+      this.regId = regId;
     }
 
     /**
      * Creates a proxy instance implementing the driver’s
      * oracle.jdbc.dcn.DatabaseChangeListener interface.
      */
-    public static Object createProxy(ConnectionHandler handler, ClassLoader driverClassLoader) throws ClassNotFoundException {
+    public static Object createProxy(ConnectionHandler handler, ClassLoader driverClassLoader,Long regId) throws ClassNotFoundException {
       Class<?> listenerIfc = driverClassLoader.loadClass("oracle.jdbc.dcn.DatabaseChangeListener");
       return java.lang.reflect.Proxy.newProxyInstance(
               driverClassLoader,
               new Class<?>[]{listenerIfc},
-              new DcnListenerInvocationHandler(handler)
+              new DcnListenerInvocationHandler(handler,regId)
       );
     }
 
@@ -208,6 +287,7 @@ public class RegistrationManager {
                   String timestamp = LocalDateTime.now().toString();
                   // Create and set the mapped DataChangeEvent
                   dataChangeEvent.set(new DataChangeEvent(operation, tableName, rowId, timestamp));
+                  HistoryService.getInstance().pushEvent(this.regId,dataChangeEvent.get());
                 } catch (Exception e) {
                   e.printStackTrace(); // Handle potential reflection errors in row processing
                 }
@@ -223,6 +303,7 @@ public class RegistrationManager {
 
       return dataChangeEvent.get();
     }
+
   }
 
 
@@ -266,6 +347,10 @@ public class RegistrationManager {
       // Forward all other calls
       return method.invoke(delegate, args);
     }
+  }
+
+  public boolean isListening (String tableName) {
+    return activeRegistrations.containsKey(tableName);
   }
 }
 
