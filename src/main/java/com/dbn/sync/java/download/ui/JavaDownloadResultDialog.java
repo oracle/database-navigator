@@ -21,6 +21,7 @@ import com.dbn.sync.java.download.JavaDownloadContext;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
@@ -52,11 +53,21 @@ public class JavaDownloadResultDialog extends DBNDialog<JavaDownloadResultForm> 
     @NotNull
     @Override
     protected Action[] createActions() {
-        return new Action[]{
+        return createActions(
+                createErrorAction(),
                 openAllAction,
                 openSelectedAction,
                 getCancelAction()
-        };
+        );
+    }
+
+    @Nullable
+    private Action createErrorAction() {
+        if (!context.hasErrors()) return null;
+
+        return createAction("Show Errors", () -> {
+            context.showErrorsDialog();
+        });
     }
 
     @Override

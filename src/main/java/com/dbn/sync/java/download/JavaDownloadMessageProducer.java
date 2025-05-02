@@ -29,28 +29,18 @@ public class JavaDownloadMessageProducer implements BatchMessageProducer {
 
     private final JavaDownloadContext context;
 
+    @Override
+    public String createErrorDialogTitle() {
+        return "Download Errors";
+    }
 
     @Override
-    public String createHeaderMessage() {
-        if (context.isComplete()) {
-            if (context.hasErrors()) {
-                return "Download process has failed";
-            } else {
-                return "Download process completed successfully";
-            }
-        } else {
-            if (context.hasErrors()) {
-                int errors = context.countErrors();
-                int infos = context.countInfos();
-                String infoHint = infos == 0 ? "No downloads have succeeded yet." : infos + "records have been successfully downloaded.";
-
-                return "Around " + errors + " errors have occurred during the download process so far. " + infoHint + " " +
-                        "Please verify the messages below and decide whether to continue or interrupt the download process";
-            } else {
-                // this should never really happen...
-                return "Download process successful";
-            }
-        }
+    public String createErrorResolutionMessage() {
+        int errors = context.countErrors();
+        int infos = context.countInfos();
+        String successHint = infos == 0 ? "No downloads have succeeded yet." : infos + "records have been successfully downloaded.";
+        return "Around " + errors + " errors have occurred during the download process so far. " + successHint + " " +
+                "Please verify the messages below and decide whether to continue or cancel the download process";
     }
 
     @Override

@@ -173,7 +173,7 @@ public abstract class BatchContextBase<E extends BatchElement, I extends BatchIn
                 if (errorsAcknowledged) return;
                 errorsAcknowledged = true;
 
-                int exitCode = Dialogs.prompt(() -> createErrorResolutionDialog());
+                int exitCode = Dialogs.prompt(() -> createErrorDialog());
                 if (exitCode == DialogWrapper.CANCEL_EXIT_CODE) {
                     ProgressMonitor.cancelProgress();
                 }
@@ -201,14 +201,24 @@ public abstract class BatchContextBase<E extends BatchElement, I extends BatchIn
         return input.getProject();
     }
 
-    private @NotNull MessageBundleDialog createErrorResolutionDialog() {
+    private MessageBundleDialog createErrorDialog() {
+        Project project = getProject();
+        Object contextObject = getContextObject();
+        String title = messageProducer.createErrorDialogTitle();
+        String headerMessage = isComplete() ? null : messageProducer.createErrorResolutionMessage();
+        Action[] actions = isComplete() ? null : createErrorResolutionActions();
+
         MessageBundleDialogConfig config = MessageBundleDialogConfig
-                .create(getProject(), "Processing Errors")
-                .withContextObject(getContextObject())
-                .withMainMessage(messageProducer.createHeaderMessage())
-                .withActions(createErrorResolutionActions());
+                .create(project, title)
+                .withContextObject(contextObject)
+                .withMainMessage(headerMessage)
+                .withActions(actions);
 
         return new MessageBundleDialog(config, this);
+    }
+
+    public void showErrorsDialog() {
+        Dialogs.show(() -> createErrorDialog());
     }
 
     protected abstract Action[] createErrorResolutionActions();

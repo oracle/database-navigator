@@ -20,6 +20,7 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.sync.java.upload.JavaUploadContext;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
@@ -38,7 +39,18 @@ public class JavaUploadResultDialog extends DBNDialog<JavaUploadResultForm> {
 
 	@Override
 	protected Action @NotNull [] createActions() {
-		return new Action[]{getCancelAction()};
+		return createActions(
+				getCancelAction(),
+				createErrorAction());
+	}
+
+	@Nullable
+	private Action createErrorAction() {
+		if (!context.hasErrors()) return null;
+
+		return createAction("Show Errors", () -> {
+			context.showErrorsDialog();
+		});
 	}
 
 	@Override

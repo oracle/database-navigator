@@ -29,27 +29,18 @@ public class JavaUploadMessageProducer implements BatchMessageProducer {
 
     private final JavaUploadContext context;
 
+    @Override
+    public String createErrorDialogTitle() {
+        return "Upload Errors";
+    }
 
     @Override
-    public String createHeaderMessage() {
-        if (context.isComplete()) {
-            if (context.hasErrors()) {
-                return "Upload process has failed";
-            } else {
-                return "Upload process completed successfully";
-            }
-        } else {
-            if (context.hasErrors()) {
-                int errors = context.countErrors();
-                int infos = context.countInfos();
-                String infoHint = infos == 0 ? "No uploads have succeeded yet." : infos + "records have been successfully uploaded.";
-                return "Around " + errors + " errors have occurred during the upload process so far. " + infoHint + " " +
-                        "Please verify the messages below and decide whether to continue or interrupt the upload process";
-            } else {
-                // this should never really happen...
-                return "Upload process successful";
-            }
-        }
+    public String createErrorResolutionMessage() {
+        int errors = context.countErrors();
+        int infos = context.countInfos();
+        String successHint = infos == 0 ? "No uploads have succeeded yet." : infos + "records have been successfully uploaded.";
+        return "Around " + errors + " errors have occurred during the upload process so far. " + successHint + " " +
+                "Please verify the messages below and decide whether to continue or cancel the upload process";
     }
 
     @Override
