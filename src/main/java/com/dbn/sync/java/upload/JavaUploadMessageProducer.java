@@ -18,11 +18,11 @@ package com.dbn.sync.java.upload;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseMessageParserInterface;
-import com.dbn.framework.batch.BatchProducer;
+import com.dbn.framework.batch.BatchMessageProducer;
 
 import static com.dbn.common.presentation.Presentation.presentableTypeName;
 
-public class JavaUploadMessageProducer implements BatchProducer {
+public class JavaUploadMessageProducer implements BatchMessageProducer {
     public JavaUploadMessageProducer(JavaUploadContext context) {
         this.context = context;
     }
@@ -54,20 +54,21 @@ public class JavaUploadMessageProducer implements BatchProducer {
 
     @Override
     public String createErrorMessage(Object subject, Exception exception) {
-        String typeName = presentableTypeName(subject);
-
+        String message = exception.getMessage();
         ConnectionHandler connection = context.getDatabaseContext().ensureConnection();
         DatabaseMessageParserInterface messageParserInterface = connection.getMessageParserInterface();
-
-        String message = exception.getMessage();
         message = messageParserInterface.convertToPresentable(message);
 
+        if (subject == null) return "Upload task failed.\nCause: " + message;
 
+        String typeName = presentableTypeName(subject);
         return "Failed to upload " + typeName + " to database.\nCause: " + message;
     }
 
     @Override
     public String createSuccessMessage(Object subject) {
+        if (subject == null) return "Upload task successfully completed.";
+
         String typeName = presentableTypeName(subject);
         return "Successfully uploaded " + typeName + " to database";
     }

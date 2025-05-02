@@ -23,6 +23,7 @@ import com.dbn.common.outcome.OutcomeHandlersImpl;
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.progress.ProcessCanceledException;
+import lombok.Getter;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -32,6 +33,9 @@ import static com.dbn.common.load.ProgressMonitor.isProgressCancelled;
 public class TaskQueue {
     private final Queue<Task> tasks = new LinkedList<>();
     private final OutcomeHandlers outcomeHandlers = new OutcomeHandlersImpl();
+
+    @Getter
+    private boolean cancelled = false;
 
     public void push(Object subject, Runnable runnable) {
         tasks.add(new Task(subject, runnable));
@@ -48,7 +52,10 @@ public class TaskQueue {
             Object subject = task.getSubject();
 
             try {
-                if (isProgressCancelled()) return;
+                if (cancelled || isProgressCancelled()) {
+                    cancelled = true;
+                    return;
+                }
 
                 task.getRunnable().run();
                 Outcome outcome = Outcome.
@@ -72,7 +79,11 @@ public class TaskQueue {
         }
     }
 
-    public boolean isEmpty() {
+    public void cancel() {
+        cancelled = true;
+    }
+
+    public boolean isComplete() {
         return tasks.isEmpty();
     }
 }

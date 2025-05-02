@@ -23,7 +23,7 @@ public abstract class BatchProcessorBase<C extends BatchContext> implements Batc
     @Override
     public final void processBatch(C context) {
         prepareBatch(context);
-        context.executeQueuedTasks();
+        context.executeBatch();
     }
 
     protected abstract void prepareBatch(C context);

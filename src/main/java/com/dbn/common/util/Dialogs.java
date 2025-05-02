@@ -54,7 +54,8 @@ public class Dialogs {
 
     public static <T extends DBNDialog<?>> int prompt(@NotNull Supplier<T> builder) {
         return Dispatch.call(() -> {
-            closeProgressDialogs();
+            // prompt dialogs should leave the progress dialogs in place
+            //closeProgressDialogs();
             T dialog = builder.get();
 
             // ensure the dialog is modal so the thread waits for user input

@@ -186,7 +186,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         return autoSize || Diagnostics.isDialogSizingReset() ? null : "DBNavigator." + simpleClassName(this);
     }
 
-    protected static AbstractAction createAction(@NotNull @Nls String name, @NotNull Runnable runnable) {
+    protected static Action createAction(@NotNull @Nls String name, @NotNull Runnable runnable) {
         return new AbstractAction(name) {
             @Override
             public void actionPerformed(ActionEvent e) {

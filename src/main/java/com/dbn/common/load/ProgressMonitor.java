@@ -37,6 +37,10 @@ public final class ProgressMonitor {
         return ProgressManager.getInstance().getProgressIndicator();
     }
 
+    public static ProgressIndicator getProgressIndicatorDelegate() {
+        return new ProgressIndicatorDelegate(getProgressIndicator());
+    }
+
     @NotNull
     public static ProgressIndicator ensureProgressIndicator() {
         return nvl(getProgressIndicator(), DevNullProgressIndicator.INSTANCE);

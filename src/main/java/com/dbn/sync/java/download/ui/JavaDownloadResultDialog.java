@@ -22,7 +22,6 @@ import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 /**
@@ -35,8 +34,8 @@ import javax.swing.Action;
 public class JavaDownloadResultDialog extends DBNDialog<JavaDownloadResultForm> {
 
     private final JavaDownloadContext context;
-    private final AbstractAction openAllAction = createAction("Open All", () -> openJavaEditors(false));
-    private final AbstractAction openSelectedAction = createAction("Open Selected", () -> openJavaEditors(true));
+    private final Action openAllAction = createAction("Open All", () -> openJavaEditors(false));
+    private final Action openSelectedAction = createAction("Open Selected", () -> openJavaEditors(true));
 
     public JavaDownloadResultDialog(Project project, JavaDownloadContext context) {
         super(project, "Java Download Result", false);

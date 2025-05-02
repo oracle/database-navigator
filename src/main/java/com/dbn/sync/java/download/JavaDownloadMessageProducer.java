@@ -18,11 +18,11 @@ package com.dbn.sync.java.download;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseMessageParserInterface;
-import com.dbn.framework.batch.BatchProducer;
+import com.dbn.framework.batch.BatchMessageProducer;
 
 import static com.dbn.common.presentation.Presentation.presentableTypeName;
 
-public class JavaDownloadMessageProducer implements BatchProducer {
+public class JavaDownloadMessageProducer implements BatchMessageProducer {
     public JavaDownloadMessageProducer(JavaDownloadContext context) {
         this.context = context;
     }
@@ -54,22 +54,23 @@ public class JavaDownloadMessageProducer implements BatchProducer {
     }
 
     @Override
-    public String createErrorMessage(Object data, Exception exception) {
-        String typeName = presentableTypeName(data);
-
+    public String createErrorMessage(Object subject, Exception exception) {
+        String message = exception.getMessage();
         ConnectionHandler connection = context.getDatabaseContext().ensureConnection();
         DatabaseMessageParserInterface messageParserInterface = connection.getMessageParserInterface();
-
-        String message = exception.getMessage();
         message = messageParserInterface.convertToPresentable(message);
 
+        if (subject == null) return "Download task failed.\nCause: " + message;
 
+        String typeName = presentableTypeName(subject);
         return "Failed to download " + typeName + " to project.\nCause: " + message;
     }
 
     @Override
-    public String createSuccessMessage(Object data) {
-        String typeName = presentableTypeName(data);
+    public String createSuccessMessage(Object subject) {
+        if (subject == null) return "Download task successfully completed.";
+
+        String typeName = presentableTypeName(subject);
         return "Successfully downloaded " + typeName + " to project";
     }
 }

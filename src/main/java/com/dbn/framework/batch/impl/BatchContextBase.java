@@ -27,36 +27,48 @@ import com.dbn.common.message.ui.MessageBundleDialog;
 import com.dbn.common.message.ui.MessageBundleDialogConfig;
 import com.dbn.common.outcome.Outcome;
 import com.dbn.common.outcome.OutcomeHandler;
+import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.framework.batch.BatchContext;
 import com.dbn.framework.batch.BatchElement;
 import com.dbn.framework.batch.BatchInput;
-import com.dbn.framework.batch.BatchProducer;
+import com.dbn.framework.batch.BatchMessageProducer;
 import com.dbn.framework.batch.BatchTask;
 import com.dbn.framework.task.TaskQueue;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Delegate;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JComponent;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.dbn.common.outcome.OutcomeType.FAILURE;
 import static com.dbn.common.outcome.OutcomeType.SUCCESS;
 
 @Getter
+@Setter
 public abstract class BatchContextBase<E extends BatchElement, I extends BatchInput<E>, T extends BatchTask> implements BatchContext<I, T>, MessageBundle {
     private final I input;
     private final List<T> tasks = new ArrayList<>();
     private final TaskQueue queue = new TaskQueue();
-    private final BatchProducer messageProducer;
+    private final BatchMessageProducer messageProducer;
+    private final ProgressIndicator progressIndicator;
 
     @Delegate
     private final MessageBundle messageBundle = new MessageCollector();
+    private boolean errorsAcknowledged;
 
     public BatchContextBase(I input) {
         this.input = input;
@@ -65,6 +77,7 @@ public abstract class BatchContextBase<E extends BatchElement, I extends BatchIn
         this.queue.addOutcomeHandler(FAILURE, createFailedProcessInterrupter());
 
         this.messageProducer = createMessageProducer();
+        this.progressIndicator = ProgressMonitor.getProgressIndicatorDelegate();
     }
 
     public void queueTask(Runnable runnable) {
@@ -75,19 +88,28 @@ public abstract class BatchContextBase<E extends BatchElement, I extends BatchIn
         queue.push(subject, runnable);
     }
 
-    public void executeQueuedTasks() {
+    public void executeBatch() {
         queue.execute();
     }
 
+    @Override
+    public void cancelBatchExecution() {
+        progressIndicator.cancel();
+    }
+
     public boolean isComplete() {
-        return queue.isEmpty();
+        return queue.isComplete();
+    }
+
+    public boolean isCancelled() {
+        return queue.isCancelled();
     }
 
     public int errorNotificationThreshold() {
         return 3;
     }
 
-    protected abstract BatchProducer createMessageProducer();
+    protected abstract BatchMessageProducer createMessageProducer();
 
     protected abstract T createBatchTask(E element);
 
@@ -145,12 +167,13 @@ public abstract class BatchContextBase<E extends BatchElement, I extends BatchIn
         return new OutcomeHandler() {
             @Override
             public void handle(Outcome outcome) {
-
                 // only prompt after more than 3 errors or if the outcome is terminal
                 if (!isComplete() && countErrors() < errorNotificationThreshold()) return;
 
-                int exitCode = Dialogs.prompt(() -> createMessageBundleDialog());
+                if (errorsAcknowledged) return;
+                errorsAcknowledged = true;
 
+                int exitCode = Dialogs.prompt(() -> createErrorResolutionDialog());
                 if (exitCode == DialogWrapper.CANCEL_EXIT_CODE) {
                     ProgressMonitor.cancelProgress();
                 }
@@ -178,15 +201,40 @@ public abstract class BatchContextBase<E extends BatchElement, I extends BatchIn
         return input.getProject();
     }
 
-    private @NotNull MessageBundleDialog createMessageBundleDialog() {
+    private @NotNull MessageBundleDialog createErrorResolutionDialog() {
         MessageBundleDialogConfig config = MessageBundleDialogConfig
                 .create(getProject(), "Processing Errors")
                 .withContextObject(getContextObject())
-                .withMainMessage(messageProducer.createHeaderMessage());
+                .withMainMessage(messageProducer.createHeaderMessage())
+                .withActions(createErrorResolutionActions());
 
         return new MessageBundleDialog(config, this);
     }
 
+    protected abstract Action[] createErrorResolutionActions();
+
+    protected static Action createAction(@NotNull @Nls String name, @NotNull Consumer<MessageBundleDialog> consumer) {
+        return new AbstractAction(name) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MessageBundleDialog dialog = getErrorResolutionDialog(e);
+                if (dialog == null) return;
+
+                consumer.accept(dialog);
+            }
+        };
+    }
+
+    @Nullable
+    private static MessageBundleDialog getErrorResolutionDialog(ActionEvent e) {
+        Object source = e.getSource();
+        if (source instanceof JComponent) {
+            JComponent component = (JComponent) source;
+            return UserInterface.getParentDialog(component);
+        }
+
+        return null;
+    }
 
     public boolean hasErrors() {
         return messageBundle.hasErrors();

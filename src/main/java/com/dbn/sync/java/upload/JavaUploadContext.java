@@ -17,11 +17,13 @@
 package com.dbn.sync.java.upload;
 
 import com.dbn.common.util.Lists;
-import com.dbn.framework.batch.BatchProducer;
+import com.dbn.framework.batch.BatchMessageProducer;
 import com.dbn.framework.batch.impl.BatchContextBase;
+import com.intellij.openapi.ui.DialogWrapper;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.swing.Action;
 import java.util.List;
 
 @Getter
@@ -45,8 +47,28 @@ public class JavaUploadContext extends BatchContextBase<JavaUploadElement, JavaU
 	}
 
 	@Override
-	protected BatchProducer createMessageProducer() {
+	protected BatchMessageProducer createMessageProducer() {
 		return new JavaUploadMessageProducer(this);
+	}
+
+	@Override
+	protected Action[] createErrorResolutionActions() {
+		if (isComplete()) return null; // do not overwrite the default "Close" action
+		return new Action[] {
+				createCancelAction(),
+				createContinueAction()};
+	}
+
+	private Action createCancelAction() {
+		return createAction("Cancel", dialog -> {
+			dialog.close(DialogWrapper.CANCEL_EXIT_CODE);
+		});
+	}
+
+	private Action createContinueAction() {
+		return createAction("Continue Upload", dialog -> {
+			dialog.close(DialogWrapper.OK_EXIT_CODE);
+		});
 	}
 
 	@Override

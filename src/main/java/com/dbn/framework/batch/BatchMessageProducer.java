@@ -16,7 +16,7 @@
 
 package com.dbn.framework.batch;
 
-public interface BatchProducer {
+public interface BatchMessageProducer {
     String createHeaderMessage();
     String createErrorMessage(Object subject, Exception exception);
     String createSuccessMessage(Object subject);

@@ -32,7 +32,7 @@ public class VirtualFilePresentationProvider extends PresentationProviderBase<Vi
 
     @Override
     public String getTypeName(VirtualFile object) {
-        return object.getFileType().getName() + " file";
+        return object.getFileType().getName().toLowerCase() + " file";
     }
 
     @Override

@@ -29,5 +29,7 @@ public interface BatchContext<I extends BatchInput, T extends BatchTask> {
 
     List<T> getTasks();
 
-    void executeQueuedTasks();
+    void executeBatch();
+
+    void cancelBatchExecution();
 }
