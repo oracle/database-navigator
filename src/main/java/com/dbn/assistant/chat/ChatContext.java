@@ -89,7 +89,7 @@ public class ChatContext implements PersistentStateElement {
     @Override
     public void writeState(Element element) {
         setStringAttribute(element, "profile", profile);
-        setStringAttribute(element, "model", model.getId());
+        setStringAttribute(element, "model", AIModel.getId(model));
         setEnumAttribute(element, "action", action);
         setBooleanAttribute(element, "interactive", interactive);
     }
