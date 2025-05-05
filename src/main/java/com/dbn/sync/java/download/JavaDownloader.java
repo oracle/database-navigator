@@ -16,6 +16,7 @@
 
 package com.dbn.sync.java.download;
 
+import com.dbn.common.util.Messages;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.editor.code.content.SourceCodeContent;
@@ -43,10 +44,19 @@ public final class JavaDownloader extends JavaDownloaderBase {
 	 */
 	@Override
 	protected void prepareBatch(JavaDownloadContext context) {
-		// schedule destination folders preparation task
-		context.queueTask(() -> prepareDestinationFolders(context));
+        try {
+			// prepare destination folders
+            prepareDestinationFolders(context);
+        } catch (Exception e) {
+			context.cancelBatchExecution();
+			Project project = context.getProject();
+			Messages.showErrorDialog(project,
+					"Download Failed",
+					"Failed to prepare destination folders", e);
+            return;
+        }
 
-		// schedule download tasks in context
+        // schedule download tasks in context
 		JavaDownloadInput input = context.getInput();
 		List<JavaDownloadElement> elements = input.getSelectedElements();
 		for (JavaDownloadElement element : elements) {

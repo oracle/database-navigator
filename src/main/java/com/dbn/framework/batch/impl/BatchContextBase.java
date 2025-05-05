@@ -54,6 +54,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static com.dbn.common.message.MessageType.ERROR;
+import static com.dbn.common.message.MessageType.INFO;
+import static com.dbn.common.message.MessageType.WARNING;
 import static com.dbn.common.outcome.OutcomeType.FAILURE;
 import static com.dbn.common.outcome.OutcomeType.SUCCESS;
 
@@ -102,7 +105,7 @@ public abstract class BatchContextBase<E extends BatchElement, I extends BatchIn
     }
 
     public boolean isCancelled() {
-        return queue.isCancelled();
+        return queue.isCancelled() || progressIndicator.isCanceled();
     }
 
     public int errorNotificationThreshold() {
@@ -117,7 +120,7 @@ public abstract class BatchContextBase<E extends BatchElement, I extends BatchIn
         return new OutcomeHandler() {
             @Override
             public void handle(Outcome outcome) {
-                MessageType messageType = MessageType.INFO;
+                MessageType messageType = INFO;
                 Object data = outcome.getData();
                 String messageText = messageProducer.createSuccessMessage(data);
 
@@ -142,7 +145,7 @@ public abstract class BatchContextBase<E extends BatchElement, I extends BatchIn
         return new OutcomeHandler() {
             @Override
             public void handle(Outcome outcome) {
-                MessageType messageType = MessageType.ERROR;
+                MessageType messageType = ERROR;
                 Object data = outcome.getData();
                 String messageText = messageProducer.createErrorMessage(data, outcome.getException());
 
@@ -212,7 +215,8 @@ public abstract class BatchContextBase<E extends BatchElement, I extends BatchIn
                 .create(project, title)
                 .withContextObject(contextObject)
                 .withMainMessage(headerMessage)
-                .withActions(actions);
+                .withActions(actions)
+                .withMessageTypes(ERROR, WARNING);
 
         return new MessageBundleDialog(config, this);
     }

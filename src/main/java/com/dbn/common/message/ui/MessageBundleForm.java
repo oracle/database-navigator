@@ -18,6 +18,7 @@ package com.dbn.common.message.ui;
 
 import com.dbn.common.message.Message;
 import com.dbn.common.message.MessageBundle;
+import com.dbn.common.message.MessageType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
@@ -70,10 +72,21 @@ public class MessageBundleForm extends DBNFormBase {
         verticalBoxLayout(messagesPanel);
         List<Message> messages = getMessageBundle().getMessages();
         for (Message message : messages) {
+            MessageType type = message.getType();
+            if (!isSupported(type)) continue;
+
             MessageBundleItemForm messageItemForm = new MessageBundleItemForm(this, message);
             messagesPanel.add(messageItemForm.getMainComponent());
         }
 
+    }
+
+    private boolean isSupported(MessageType type) {
+        MessageType[] messageTypes = getDialog().getMessageTypes();
+        if (messageTypes == null) return true;
+        if (messageTypes.length == 0) return true;
+
+        return Arrays.stream(messageTypes).anyMatch(t -> t == type);
     }
 
     public MessageBundle getMessageBundle() {

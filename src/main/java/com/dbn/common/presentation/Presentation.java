@@ -73,18 +73,22 @@ public class Presentation {
     }
 
     public static String presentableName(Object object) {
+        if (object == null) return "Undefined";
         return getProvider(object).getName(object);
     }
 
     public static String presentableTypeName(Object object) {
+        if (object == null) return "Undefined";
         return getProvider(object).getTypeName(object);
     }
 
     public static String presentableDescription(Object object) {
+        if (object == null) return null;
         return getProvider(object).getDescription(object);
     }
 
     public static Icon presentableIcon(Object object) {
+        if (object == null) return null;
         return getProvider(object).getIcon(object);
     }
 }

@@ -157,6 +157,8 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 
 	private void performDownload(JavaDownloadContext context) {
 		JavaDownloader.INSTANCE.processBatch(context);
+		if (context.isCancelled()) return;
+
 		Dialogs.show(() -> new JavaDownloadResultDialog(getProject(), context));
 	}
 

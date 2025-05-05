@@ -67,7 +67,7 @@ public class JavaDownloadContext extends BatchContextBase<JavaDownloadElement, J
 	}
 
 	private Action createContinueAction() {
-		return createAction("Continue Upload", dialog -> {
+		return createAction("Continue Download", dialog -> {
 			dialog.close(DialogWrapper.OK_EXIT_CODE);
 
 		});

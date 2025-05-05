@@ -16,6 +16,7 @@
 
 package com.dbn.common.message.ui;
 
+import com.dbn.common.message.MessageType;
 import com.dbn.common.project.ProjectRef;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -29,6 +30,7 @@ public class MessageBundleDialogConfig {
     private String mainMessage;
     private Object contextObject;
     private Action[] actions;
+    private MessageType[] messageTypes;
 
     private MessageBundleDialogConfig(Project project, String title) {
         this.project = ProjectRef.of(project);
@@ -55,6 +57,11 @@ public class MessageBundleDialogConfig {
 
     public MessageBundleDialogConfig withActions(Action... actions) {
         this.actions = actions;
+        return this;
+    }
+
+    public MessageBundleDialogConfig withMessageTypes(MessageType... messageTypes) {
+        this.messageTypes = messageTypes;
         return this;
     }
 }

@@ -70,7 +70,7 @@ import static com.dbn.sync.java.upload.JavaUploadManager.COMPONENT_NAME;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 public class JavaUploadManager extends ProjectComponentBase implements PersistentState {
-	public static final String COMPONENT_NAME = "DBNavigator.Project.JavaUploaderManager";
+	public static final String COMPONENT_NAME = "DBNavigator.Project.JavaUploadManager";
 
 	private final Map<String, GenericStateHolder> states = new ConcurrentHashMap<>();
 
@@ -136,6 +136,8 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 
 	private void performUpload(JavaUploadContext context) {
 		JavaUploader.INSTANCE.processBatch(context);
+		if (context.isCancelled()) return;
+
 		Dialogs.show(() -> new JavaUploadResultDialog(getProject(), context));
 	}
 

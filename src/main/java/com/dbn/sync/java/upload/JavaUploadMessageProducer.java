@@ -36,11 +36,11 @@ public class JavaUploadMessageProducer implements BatchMessageProducer {
 
     @Override
     public String createErrorResolutionMessage() {
-        int errors = context.countErrors();
-        int infos = context.countInfos();
-        String successHint = infos == 0 ? "No uploads have succeeded yet." : infos + "records have been successfully uploaded.";
-        return "Around " + errors + " errors have occurred during the upload process so far. " + successHint + " " +
-                "Please verify the messages below and decide whether to continue or cancel the upload process";
+        int errorCount = context.countErrors();
+        int successCount = context.countInfos();
+        String infoHint = successCount == 0 ? "No uploads have succeeded yet." : "Meanwhile " + successCount + " records have been successfully uploaded.";
+        return "Around " + errorCount + " errors have occurred during the upload process so far. " + infoHint + " " +
+                "Please verify the messages below and decide whether to continue or cancel the upload process.";
     }
 
     @Override

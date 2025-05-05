@@ -98,9 +98,9 @@ public class JavaUploadInputForm extends DBNFormBase {
 
     protected void initStatePersistence() {
         Project project = ensureProject();
-        JavaUploadManager javaDownloadManager = JavaUploadManager.getInstance(project);
+        JavaUploadManager uploadManager = JavaUploadManager.getInstance(project);
 
-        StateHolder state = javaDownloadManager.getState("UPLOAD");
+        StateHolder state = uploadManager.getState("UPLOAD");
 
         initPersistence(connectionComboBox, state, "connection-selection");
         initPersistence(schemaComboBox, state, "schema-selection");
