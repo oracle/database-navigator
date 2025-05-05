@@ -29,6 +29,7 @@ import com.dbn.common.outcome.Outcome;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Dialogs;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.framework.batch.BatchContext;
 import com.dbn.framework.batch.BatchElement;
@@ -106,6 +107,11 @@ public abstract class BatchContextBase<E extends BatchElement, I extends BatchIn
 
     public boolean isCancelled() {
         return queue.isCancelled() || progressIndicator.isCanceled();
+    }
+
+    public boolean isBatchFailure() {
+        // return true if the context does not have any success errors
+        return hasErrors() && !hasInfos();
     }
 
     public int errorNotificationThreshold() {
@@ -197,6 +203,14 @@ public abstract class BatchContextBase<E extends BatchElement, I extends BatchIn
     @NotNull
     public final DatabaseContext getDatabaseContext() {
         return input.getDatabaseContext();
+    }
+
+    public final ConnectionHandler getConnection() {
+        return getDatabaseContext().ensureConnection();
+    }
+
+    public final String getConnectionName() {
+        return getConnection().getName();
     }
 
     @Override

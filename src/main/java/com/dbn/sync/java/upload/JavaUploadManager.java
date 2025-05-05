@@ -25,7 +25,8 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.Read;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
-import com.dbn.connection.context.DatabaseContext;
+import com.dbn.connection.ConnectionAction;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.sync.java.upload.ui.JavaUploadResultDialog;
 import com.dbn.sync.java.upload.ui.JavaUploaderInputDialog;
 import com.intellij.openapi.components.State;
@@ -66,6 +67,8 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.options;
 import static com.dbn.sync.java.upload.JavaUploadManager.COMPONENT_NAME;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
@@ -83,7 +86,10 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 	}
 
 	public void openCodeUploader(VirtualFile file) {
-		Progress.prompt(getProject(), null, true, "Preparing Java Upload", "Loading java dependencies for " + file.getPresentableName() + "...", progress -> prepareUploadDialog(file));
+		Progress.prompt(getProject(), null, true,
+				"Preparing Java Upload",
+				"Loading java dependencies for " + file.getPresentableName() + "...",
+				progress -> prepareUploadDialog(file));
 	}
 
 
@@ -125,18 +131,29 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 	}
 
 	public void startUpload(JavaUploadContext context) {
-		JavaUploadInput input = context.getInput();
-		DatabaseContext databaseContext = input.getDatabaseContext();
-		Progress.prompt(getProject(), databaseContext, true,
-				"Uploading Java Classes",
-				"Uploading java classes and dependencies to " + databaseContext.getConnection().getName(),
-				progress -> performUpload(context));
-
+		ConnectionHandler connection = context.getConnection();
+		ConnectionAction.invoke(null, true, connection, a -> {
+			Progress.prompt(getProject(), context.getDatabaseContext(), true,
+					"Uploading Java Classes",
+					"Uploading java classes and dependencies to \"" + context.getConnectionName() + "\" database" ,
+					progress -> performUpload(context));
+		});
 	}
 
 	private void performUpload(JavaUploadContext context) {
 		JavaUploader.INSTANCE.processBatch(context);
 		if (context.isCancelled()) return;
+
+
+		Project project = getProject();
+		if (context.isBatchFailure()) {
+			Messages.showErrorDialog(project,
+					"Java Upload Failed",
+					"Failed to upload java classes to \"" + context.getConnectionName() + "\" database",
+					options("Show Errors", "Close"), 0,
+					o -> when(o == 0, () -> context.showErrorsDialog()));
+			return;
+		}
 
 		Dialogs.show(() -> new JavaUploadResultDialog(getProject(), context));
 	}

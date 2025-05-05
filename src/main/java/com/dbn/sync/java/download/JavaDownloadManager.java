@@ -25,6 +25,7 @@ import com.dbn.common.state.StateHolder;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
+import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -57,6 +58,8 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.options;
 import static com.dbn.sync.java.download.JavaDownloadManager.COMPONENT_NAME;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
@@ -75,10 +78,12 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 
 	public void openCodeDownloader(DBObject sourceObject) {
 		ConnectionHandler connection = sourceObject.getConnection();
-		Progress.prompt(getProject(), connection, true,
-				"Preparing Java Download",
-				"Loading java dependencies for " + sourceObject.getQualifiedNameWithType() + "...",
-				progress -> prepareDownloadDialog(sourceObject));
+		ConnectionAction.invoke(null, true, connection, a -> {
+			Progress.prompt(getProject(), connection, true,
+					"Preparing Java Download",
+					"Loading java dependencies for " + sourceObject.getQualifiedNameWithType() + "...",
+					progress -> prepareDownloadDialog(sourceObject));
+		});
 	}
 
 	private void prepareDownloadDialog(DBObject sourceObject) {
@@ -159,7 +164,17 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 		JavaDownloader.INSTANCE.processBatch(context);
 		if (context.isCancelled()) return;
 
-		Dialogs.show(() -> new JavaDownloadResultDialog(getProject(), context));
+		Project project = getProject();
+		if (context.isBatchFailure()) {
+			Messages.showErrorDialog(project,
+					"Download Failed",
+					"Failed to download java classes from \"" + context.getConnectionName() + "\" database",
+					options("Show Errors", "Close"), 0,
+					o -> when(o == 0, () -> context.showErrorsDialog()));
+			return;
+		}
+
+		Dialogs.show(() -> new JavaDownloadResultDialog(project, context));
 	}
 
 	@NotNull
