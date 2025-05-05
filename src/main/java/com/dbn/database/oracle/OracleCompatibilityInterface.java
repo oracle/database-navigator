@@ -150,6 +150,9 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
         return Map.of(
                 "oracle.jdbc.jsonDefaultGetObjectType", "java.lang.String",
                 "oracle.jdbc.vectorDefaultGetObjectType", "double[]",
-                "oracle.net.keepAlive", "true");
+                "oracle.net.keepAlive", "true",
+                "oracle.net.TCP_KEEPIDLE", "30",
+                "oracle.net.TCP_KEEPINTERVAL", "30",
+                "oracle.net.TCP_KEEPCOUNT", "5");
     }
 }
