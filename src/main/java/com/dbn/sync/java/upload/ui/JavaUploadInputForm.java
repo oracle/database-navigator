@@ -18,42 +18,43 @@ package com.dbn.sync.java.upload.ui;
 
 import com.dbn.common.state.StateHolder;
 import com.dbn.common.text.TextContent;
-import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.list.CheckBoxList;
-import com.dbn.common.ui.util.ComboBoxes;
+import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
-import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
 import com.dbn.sync.java.upload.JavaUploadContext;
 import com.dbn.sync.java.upload.JavaUploadElement;
 import com.dbn.sync.java.upload.JavaUploadInput;
 import com.dbn.sync.java.upload.JavaUploadManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
-import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
+import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.common.ui.util.ComboBoxes.setEmptyOptionsText;
 import static com.dbn.database.DatabaseFeature.EMBEDDED_JVM;
+import static java.util.Collections.emptyList;
 
 public class JavaUploadInputForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JPanel hintPanel;
     private JPanel targetLocationPanel;
-    private JComboBox<ConnectionHandler> connectionComboBox;
-    private JComboBox<DBSchema> schemaComboBox;
+    private DBNComboBox<ConnectionHandler> connectionComboBox;
+    private DBNComboBox<DBSchema> schemaComboBox;
     private CheckBoxList<JavaUploadElement> dependenciesCheckBoxList;
+    private JPanel schemaLoadPanel;
 
     public JavaUploadInputForm(JavaUploaderInputDialog dialog) {
         super(dialog);
@@ -62,10 +63,16 @@ public class JavaUploadInputForm extends DBNFormBase {
         initHeaderPanel(input);
         initHintPanel();
 
-        initSelectionListener(connectionComboBox, s -> initConnectionSchemas());
-        initConnections();
+        initConnectionSelector();
+        initSchemaSelectors();
 
         dependenciesCheckBoxList.setElements(input.getElements());
+    }
+
+    @Override
+    protected void initValidation() {
+        addSelectionValidation(connectionComboBox, "Please select the target connection");
+        addSelectionValidation(schemaComboBox, "Please select the target schema");
     }
 
     private void initHintPanel() {
@@ -106,30 +113,33 @@ public class JavaUploadInputForm extends DBNFormBase {
         initPersistence(schemaComboBox, state, "schema-selection");
     }
 
-    private void initConnections() {
+    private void initConnectionSelector() {
         Project project = ensureProject();
 		ConnectionManager connectionManager = ConnectionManager.getInstance(project);
         List<ConnectionHandler> connections = connectionManager.getConnections(EMBEDDED_JVM);
         initComboBox(connectionComboBox, connections);
     }
 
-    private void initConnectionSchemas() {
+    private void initSchemaSelectors() {
+        schemaLoadPanel.add(new AsyncProcessIcon("Loading schemas"));
+        schemaLoadPanel.setVisible(false);
+        setEmptyOptionsText(schemaComboBox, "Schemas not loaded");
+        //initLadingHint(schemaComboBox, "Loading schemas...");
+
+        whenShown(() -> {
+            schemaComboBox.setValueLoader(() -> loadSchemas());
+            onSelectionChange(connectionComboBox, s -> schemaComboBox.reloadValues());
+        });
+    }
+
+    private List<DBSchema> loadSchemas() {
         ConnectionHandler selectedConnection = getSelectedConnection();
-        if (selectedConnection == null) {
-            ComboBoxes.initComboBox(schemaComboBox);
-        } else {
-            Progress.prompt(getProject(), selectedConnection, true,
-                    "Loading Schemas",
-                    "Loading schemas for " + selectedConnection.getName(),
-                    progress -> {
-                        List<SchemaId> schemaIds = selectedConnection.getSchemaIds();
-                        List<DBSchema> schemas = new ArrayList<>();
-                        for(SchemaId id: schemaIds) {
-                            schemas.add(selectedConnection.getSchema(id));
-                        }
-                        ComboBoxes.initComboBox(schemaComboBox, schemas);
-                    });
-        }
+        if (selectedConnection == null) return emptyList();
+
+        // ensure connectivity
+        ConnectionAction.invoke(null, true, selectedConnection, a -> {});
+
+        return selectedConnection.getObjectBundle().getSchemas(true);
     }
 
     protected void applyUserInput() {

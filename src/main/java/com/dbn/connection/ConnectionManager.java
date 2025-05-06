@@ -442,11 +442,13 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
             @Nullable ConnectionHandler connection,
             @NotNull AuthenticationInfo authenticationInfo,
             @NotNull Consumer<AuthenticationInfo> consumer) {
-
         Dialogs.show(
                 () -> new ConnectionAuthenticationDialog(getProject(), connection, authenticationInfo),
                 (dialog, exitCode) -> {
-                    if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
+                    if (exitCode != DialogWrapper.OK_EXIT_CODE) {
+                        consumer.accept(null); // propagate cancel to consumer
+                        return;
+                    }
 
                     AuthenticationInfo newAuthenticationInfo = dialog.getAuthenticationInfo();
                     if (connection != null) {
