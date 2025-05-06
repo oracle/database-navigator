@@ -38,6 +38,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static com.dbn.common.load.ProgressMonitor.isProgressCancelled;
+import static com.dbn.sync.java.upload.JavaUploadUtils.LOB_TABLE;
+import static com.dbn.sync.java.upload.JavaUploadUtils.executeQuery;
+import static com.dbn.sync.java.upload.JavaUploadUtils.insertLob;
+import static com.dbn.sync.java.upload.JavaUploadUtils.readAllBytes;
 
 public class JavaArchiveUploader {
 
@@ -95,32 +99,34 @@ public class JavaArchiveUploader {
 	}
 
 	private static void loadClass(JavaUploadContext context, String className, byte[] classBytes, List<String> classesToCompile) throws SQLException {
+		ConnectionId connectionId = context.getInput().getTargetConnectionId();
+		Project project = context.getProject();
 
 		String key = String.valueOf(System.nanoTime());
-		insertLob(context, key, classBytes);
+		insertLob(project, connectionId, key, classBytes);
 
 		String ddlCreate = "CREATE OR REPLACE JAVA CLASS USING '" + key + "'";
-		executeQuery(context, ddlCreate);
+		executeQuery(project, connectionId, ddlCreate);
 
 		classesToCompile.add(className);
 
 		String ddlDelete = "DELETE FROM \"" + LOB_TABLE + "\" WHERE name = '" + key + "'";
-		executeQuery(context, ddlDelete);
+		executeQuery(project, connectionId, ddlDelete);
 	}
 
 	private static void compileClasses(JavaUploadContext context, List<String> classesToCompile) throws SQLException {
+		ConnectionId connectionId = context.getInput().getTargetConnectionId();
+		Project project = context.getProject();
 
 		for (String className : classesToCompile) {
 			String ddlCompile = "ALTER JAVA CLASS \"" + className + "\" COMPILE";
-			executeQuery(context, ddlCompile);
+			executeQuery(project, connectionId, ddlCompile);
 		}
 
 		String classList = classesToCompile.stream()
 				.map(s -> "'" + s + "'")
 				.collect(Collectors.joining(","));
 
-		ConnectionId connectionId = context.getInput().getTargetConnectionId();
-		Project project = context.getProject();
 		String errorQuery = "SELECT NVL(j.longname, e.name) AS error_name,\n" +
 				"       e.text\n" +
 				"  FROM user_errors e\n" +
@@ -176,7 +182,7 @@ public class JavaArchiveUploader {
 								+ " name VARCHAR2(700) PRIMARY KEY, "
 								+ " lob  BLOB, "
 								+ " loadtime DATE )";
-						executeQuery(context, ddl);
+						executeQuery(project, connectionId, ddl);
 					} finally {
 						Resources.close(stmt);
 					}
