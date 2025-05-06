@@ -1,7 +1,6 @@
 package com.dbn.object.common;
 
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.events.RegistrationManager;
 import com.dbn.object.DBTable;
 import com.dbn.object.lookup.DBObjectRef;

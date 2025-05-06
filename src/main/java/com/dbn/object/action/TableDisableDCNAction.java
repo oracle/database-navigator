@@ -2,7 +2,6 @@ package com.dbn.object.action;
 
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
-import com.dbn.events.EventNotificationManager;
 import com.dbn.events.RegistrationManager;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.DBSchemaObject;
@@ -47,7 +46,7 @@ public class TableDisableDCNAction extends ProjectAction {
 
     System.out.println("Disabling DCN");
     try {
-      RegistrationManager.getInstance().stopListening(object.getQualifiedName(), object.getConnection());
+      RegistrationManager.getInstance().unregisterTable(object.getQualifiedName(), object.getConnection());
     } catch (SQLException ex) {
       throw new RuntimeException(ex);
     }

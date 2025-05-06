@@ -3,11 +3,15 @@ package com.dbn.events.service;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.events.RegistrationManager;
 import com.dbn.events.model.DataChangeRegistration;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.events.model.DataChangeRegistrationBundle.*;
@@ -16,7 +20,7 @@ public class RegistrationService {
 
   private DataChangeRegistration mapRow(DBNResultSet rs) throws SQLException {
     return new DataChangeRegistration(
-            rs.getInt(COL_REGID),
+            rs.getLong(COL_REGID),
             rs.getInt(COL_REGFLAGS),
             rs.getString(COL_CALLBACK),
             rs.getInt(COL_OPERATIONS),
@@ -47,4 +51,6 @@ public class RegistrationService {
             }
     );
   }
+
+
 }

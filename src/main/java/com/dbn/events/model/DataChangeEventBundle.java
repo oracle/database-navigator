@@ -2,38 +2,52 @@ package com.dbn.events.model;
 
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.table.DBNMutableTableModel;
-import com.dbn.events.service.HistoryService;
+import com.dbn.events.service.EventHistoryService;
+import com.intellij.openapi.application.ApplicationManager;
+import lombok.Data;
 import lombok.Getter;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-@Getter
+@Data
 public class DataChangeEventBundle    extends DBNMutableTableModel<DataChangeEvent> {
   private final List<DataChangeEvent> events = new CopyOnWriteArrayList<>();
-    // Define the column names for the dashboard
-    private final String COLUMN_OPERATION = "Operation";
-    private final String COLUMN_TABLE = "Table";
-    private final String COLUMN_ROWID = "Row ID";
-    private final String COLUMN_TIMESTAMP = "Timestamp";
+  private final String connectionId  ;
+  // Define the column names for the dashboard
+  private final String COLUMN_OPERATION = "Operation";
+  private final String COLUMN_TABLE = "Table";
+  private final String COLUMN_ROWID = "Row ID";
+  private final String COLUMN_TIMESTAMP = "Timestamp";
     // List to hold the NotificationEvent objects
     private final String[] columnNames = {
             COLUMN_OPERATION, COLUMN_TABLE, COLUMN_ROWID, COLUMN_TIMESTAMP
     };
+  private String regStatusFilter = "All";
+  private String tableNameFilter = "All";
 
-  public DataChangeEventBundle() {
+  public DataChangeEventBundle(String connectionId) {
+    this.connectionId = connectionId;
     //intialise the model
-    List<DataChangeEvent> initialEvents = HistoryService.getInstance().getEventsByReg();
-    events.addAll(initialEvents);
-
     // subscribe for new events
-    HistoryService.getInstance().registerListener(event -> {
-      Dispatch.run(true,()->{
-//        int row = events.size();
-//        events.add(event);
-        notifyRowChanges();
-      });
+    EventHistoryService.getInstance().registerListener(connectionId,event -> {
+
+      List<DataChangeEvent> initialEventss = EventHistoryService.getInstance().getAllEventsForConnection(connectionId,tableNameFilter , regStatusFilter);
+      events.clear();
+      events.addAll(initialEventss);
+      ApplicationManager.getApplication().invokeLater(this::notifyRowChanges);
     });
+    loadEvents();
   }
+
+  public void loadEvents() {
+    List<DataChangeEvent> initialEvents = EventHistoryService.getInstance().getAllEventsForConnection(connectionId,tableNameFilter , regStatusFilter);
+    events.clear();
+    events.addAll(initialEvents);
+    ApplicationManager.getApplication().invokeLater(this::notifyRowChanges);
+
+
+  }
+
 
   @Override
   public int getRowCount() {
@@ -47,6 +61,7 @@ public class DataChangeEventBundle    extends DBNMutableTableModel<DataChangeEve
 
   @Override
   public Object getValueAt(int rowIndex, int columnIndex) {
+    if (events.isEmpty()) return null;
     DataChangeEvent event = events.get(rowIndex);
     switch (columnIndex) {
       case 0:
@@ -76,10 +91,6 @@ public class DataChangeEventBundle    extends DBNMutableTableModel<DataChangeEve
   @Override
   public void disposeInner() {
     // Clean up resources if needed.
-  }
-
-  public void addEvent(DataChangeEvent event) {
-    events.add(event);
   }
 
 

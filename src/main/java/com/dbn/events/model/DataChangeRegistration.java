@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @Data
 public class DataChangeRegistration {
-  private final int    regId;
+  private final Long    regId;
   private final int    regFlags;
   private final String callback;
   private final int    operationsFilter;
@@ -14,8 +14,9 @@ public class DataChangeRegistration {
   private final long   timeout;
   private final String tableName;
   private boolean active;
+  //todo maybe add cloumn for the option this registration is on.
 
-  public DataChangeRegistration(int regId, int regFlags, String callback,
+  public DataChangeRegistration(Long regId, int regFlags, String callback,
                                 int operationsFilter, int changeLag,
                                 long timeout, String tableName) {
     this.regId = regId;
@@ -26,5 +27,7 @@ public class DataChangeRegistration {
     this.timeout = timeout;
     this.tableName = tableName;
   }
+
+
 
 }
