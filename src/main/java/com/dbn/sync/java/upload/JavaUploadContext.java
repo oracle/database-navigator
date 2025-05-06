@@ -24,11 +24,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.swing.Action;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 public class JavaUploadContext extends BatchContextBase<JavaUploadElement, JavaUploadInput, JavaUploadTask> {
+	private final List<String> classesToCompile = new ArrayList<>();
 
 	public JavaUploadContext(JavaUploadInput input) {
 		super(input);

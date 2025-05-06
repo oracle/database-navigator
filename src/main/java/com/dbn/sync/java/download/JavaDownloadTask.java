@@ -27,6 +27,7 @@ import lombok.experimental.Delegate;
 public class JavaDownloadTask extends BatchTaskBase<JavaDownloadElement> {
     private VirtualFile targetFolder;
     private VirtualFile targetFile;
+    private String content;
 
     public JavaDownloadTask(JavaDownloadElement input) {
         super(input);

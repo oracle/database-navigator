@@ -30,6 +30,7 @@ import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.framework.batch.BatchContext;
 import com.dbn.framework.batch.BatchElement;
@@ -207,6 +208,10 @@ public abstract class BatchContextBase<E extends BatchElement, I extends BatchIn
 
     public final ConnectionHandler getConnection() {
         return getDatabaseContext().ensureConnection();
+    }
+
+    public final ConnectionId getConnectionId() {
+        return getConnection().getConnectionId();
     }
 
     public final String getConnectionName() {

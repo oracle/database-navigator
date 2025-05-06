@@ -16,23 +16,19 @@
 
 package com.dbn.sync.java.upload;
 
-import com.dbn.common.Priority;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.message.TaggedMessage;
-import com.dbn.connection.ConnectionId;
-import com.dbn.connection.jdbc.DBNPreparedStatement;
-import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.intellij.openapi.project.Project;
+import com.dbn.framework.batch.impl.BatchProcessorBase;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import lombok.SneakyThrows;
 
-import java.nio.charset.StandardCharsets;
-import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
+import static com.dbn.sync.java.upload.impl.JavaArchiveUploader.uploadJavaArchive;
+import static com.dbn.sync.java.upload.impl.JavaClassUploader.uploadJavaClass;
 
-public final class JavaUploader extends JavaUploaderBase {
+public final class JavaUploader extends BatchProcessorBase<JavaUploadContext> {
 	public static final JavaUploader INSTANCE = new JavaUploader();
 
 	private JavaUploader() {}
@@ -60,52 +56,15 @@ public final class JavaUploader extends JavaUploaderBase {
 		JavaUploadTask uploadTask = context.createBatchTask(element);
 
 		if (element.isArchive()) {
-			JavaArchiveUploader.loadJar(context, element.getFile().getPath());
+			uploadJavaArchive(context, element.getFile().getPath());
 		} else {
 			byte[] content = VfsUtilCore.loadBytes(element.getFile());
-			uploadTask.setContent(new String(content, StandardCharsets.UTF_8));
-
 			if (element.isJavaClass()) {
-				uploadJavaClass(context, uploadTask, element.getJavaClassName());
+				uploadJavaClass(context, element.getJavaClassName(), content);
 			} else {
 				// TODO upload resources
 				context.addMessage(new TaggedMessage<>(MessageType.WARNING, "Uploading resources is not supported yet", element.getSubject()));
 			}
 		}
-	}
-
-	private static void uploadJavaClass(JavaUploadContext context, JavaUploadTask task, String className) throws SQLException {
-		Project project = context.getProject();
-		JavaUploadInput input = context.getInput();
-
-		String objectName = className.replace('.', '/');
-		String schemaName = input.getTargetSchemaName();
-		ConnectionId connectionId = input.getTargetConnectionId();
-
-		// TODO move to oracle-ddl-interface
-		String creationStatement = "BEGIN\n" +
-				"   BEGIN\n" +
-				"      EXECUTE IMMEDIATE 'DROP JAVA SOURCE \"" + schemaName + "\".\"" + objectName + "\"';\n" +
-				"   EXCEPTION\n" +
-				"      WHEN OTHERS THEN\n" +
-				"         IF SQLCODE <> -4043 THEN\n" +
-				"            RAISE;\n" +
-				"         END IF;\n" +
-				"   END;\n" +
-				"\n" +
-				"   EXECUTE IMMEDIATE q'[\n" +
-				"CREATE OR REPLACE AND COMPILE JAVA SOURCE NAMED \"" + schemaName + "\".\"" + objectName + "\" AS \n" +
-				task.getContent() +
-				"]';\n" +
-				"END;";
-
-		DatabaseInterfaceInvoker.execute(Priority.HIGH,
-				"Uploading Java Class",
-				"Uploading java class \"" + className + "\"",
-				project,
-				connectionId, c -> {
-					DBNPreparedStatement statement = c.prepareStatement(creationStatement);
-					statement.execute();
-				});
 	}
 }

@@ -25,7 +25,6 @@ import lombok.Setter;
 @Setter
 public class BatchTaskBase<E extends BatchElement> implements BatchTask<E> {
     private final E element;
-    private String content;
 
     public BatchTaskBase(E element) {
         this.element = element;
