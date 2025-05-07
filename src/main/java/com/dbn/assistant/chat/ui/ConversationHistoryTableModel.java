@@ -30,6 +30,7 @@ import javax.swing.event.TableModelListener;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ConversationHistoryTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel<PersistentChatConversation> {
     private List<PersistentChatConversation> conversations;
@@ -38,7 +39,7 @@ public class ConversationHistoryTableModel extends StatefulDisposableBase implem
     private final Project project;
     public ConversationHistoryTableModel(Project project, List<PersistentChatConversation> conversations) {
         super();
-        this.conversations = new ArrayList<>(conversations);
+        this.conversations = conversations.stream().filter(conv -> conv.getTitle() != null && !conv.getTitle().isEmpty()).collect(Collectors.toList());
         this.project = project;
     }
 

@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Action for selecting an old conversation
@@ -39,7 +40,7 @@ public class ConversationSelectDropdownAction extends BasicActionGroup implement
         ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
         if (chatBox == null) return new AnAction[0];
 
-        List<PersistentChatConversation> conversations = chatBox.getConversations();
+        List<PersistentChatConversation> conversations = chatBox.getConversations().stream().filter(conv -> conv.getTitle() != null && !conv.getTitle().isEmpty()).collect(Collectors.toList());
         if (conversations.isEmpty()) return new AnAction[0];
 
         List<AnAction> actionList = new ArrayList<>();
@@ -61,6 +62,6 @@ public class ConversationSelectDropdownAction extends BasicActionGroup implement
         Presentation presentation = e.getPresentation();
         presentation.setDescription("Select a conversation");
         //TODO when will it be enabled
-//        presentation.setEnabled(enabled);
+        presentation.setEnabled(true);
     }
 }

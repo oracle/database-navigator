@@ -370,6 +370,12 @@ public class ChatBoxForm extends DBNFormBase {
       state.set(UNAVAILABLE, true);
       showErrorHeader(e);
     }
+    DBAIProfile profile = getSelectedProfile();
+    if(state.getCurrentConversation().getContext().getModel() == null && profile != null) {
+      String unwantedConvId = state.getCurrentConversation().getId();
+      state.setCurrentConversation(new ChatContext(profile.getName(), getSelectedModel(), state.getSelectedAction(), profile.isInteractive()));
+      state.getConversations().remove(unwantedConvId);
+    }
 
     getInputField().requestFocus();
     updateActionToolbars();
