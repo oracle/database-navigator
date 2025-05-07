@@ -18,7 +18,7 @@ package com.dbn.sync.java.upload;
 
 import com.dbn.common.file.FileTypes;
 import com.dbn.common.thread.Read;
-import com.dbn.common.util.Files;
+import com.dbn.common.util.Strings;
 import com.dbn.framework.batch.impl.BatchElementBase;
 import com.dbn.language.common.psi.PsiUtil;
 import com.intellij.ide.highlighter.ArchiveFileType;
@@ -31,6 +31,7 @@ import lombok.EqualsAndHashCode;
 
 import javax.swing.Icon;
 
+import static com.dbn.common.file.util.ProjectFiles.getProjectRelativePath;
 import static com.dbn.common.util.Commons.nvl;
 
 @Data
@@ -57,7 +58,7 @@ public class JavaUploadElement extends BatchElementBase {
 	}
 
 	private String resolveName() {
-		return Files.convertToRelativePath(project, file.getPath());
+		return getProjectRelativePath(getProject(), file);
 	}
 
 	private Icon resolveIcon() {
@@ -81,7 +82,7 @@ public class JavaUploadElement extends BatchElementBase {
 			packageName = Read.call(classOwner, o-> o.getPackageName());
 		}
 
-		String packagePrefix = packageName == null ? "" : packageName + ".";
+		String packagePrefix = Strings.isEmpty(packageName) ? "" : packageName + ".";
 		return packagePrefix + file.getNameWithoutExtension();
 	}
 }

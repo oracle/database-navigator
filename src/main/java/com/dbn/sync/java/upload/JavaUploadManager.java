@@ -63,6 +63,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.file.util.ProjectFiles.isProjectSourceFile;
+import static com.dbn.common.file.util.VirtualFiles.isArchive;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
@@ -121,13 +123,22 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 				if (file.isDirectory()) {
 					collectFiles(file, files);
 				} else {
-					files.add(file);
+					if (isUploadSupported(file)) {
+						files.add(file);
+					}
 				}
 			}
 		} else {
-			files.add(rootFile);
+			if (isUploadSupported(rootFile)) {
+				files.add(rootFile);
+			}
 		}
+	}
 
+	private boolean isUploadSupported(VirtualFile file) {
+		if (isArchive(file)) return true;
+		if (isProjectSourceFile(getProject(), file)) return true;
+		return false;
 	}
 
 	public void startUpload(JavaUploadContext context) {

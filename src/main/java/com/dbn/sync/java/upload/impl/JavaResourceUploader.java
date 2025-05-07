@@ -19,13 +19,24 @@ package com.dbn.sync.java.upload.impl;
 import com.dbn.common.Priority;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.sync.java.upload.JavaUploadContext;
+import com.dbn.sync.java.upload.JavaUploadInput;
 
 import java.sql.SQLException;
 
 public class JavaResourceUploader extends JavaUploaderBase {
 
 	public static void uploadJavaResource(JavaUploadContext context, String resourceName, byte[] resourceBytes) throws SQLException {
-		String key = String.valueOf(System.nanoTime());
+		String key = createLobKey();
+		JavaUploadInput input = context.getInput();
+
+		String schemaName = input.getTargetSchemaName();
+		String objectIdentifier = objectIdentifier(schemaName, resourceName);
+		String tableIdentifier = lobTableIdentifier(schemaName);
+
+		String creationStatement = "CREATE OR REPLACE JAVA RESOURCE NAMED " + objectIdentifier +
+				" USING blob LOB FROM " + tableIdentifier +
+				" WHERE name = '" + key + "'";
+
 		DatabaseInterfaceInvoker.execute(
 				Priority.HIGH,
 				"Uploading Java Resource",
@@ -34,12 +45,10 @@ public class JavaResourceUploader extends JavaUploaderBase {
 				context.getConnectionId(),
 				c -> {
 					try {
-						insertLobData(c, key, resourceBytes);
-						executeStatement(c, "CREATE OR REPLACE JAVA RESOURCE NAMED \"" + resourceName +
-								"\" USING blob LOB FROM " + LOB_TABLE +
-								" WHERE name = '" + key + "'");
+						insertLobData(c, schemaName, key, resourceBytes);
+						executeStatement(c, creationStatement);
 					} finally {
-						deleteLobData(c, key);
+						deleteLobData(c, schemaName, key);
 					}
 				});
 	}

@@ -19,7 +19,6 @@ package com.dbn.sync.java.action;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.util.Java;
 import com.dbn.connection.context.action.AbstractFolderContextAction;
 import com.dbn.sync.java.upload.JavaUploadManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -28,6 +27,10 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.common.file.util.ProjectFiles.isProjectSourceFile;
+import static com.dbn.common.file.util.VirtualFiles.isArchive;
+import static com.dbn.common.util.Java.isIdeSupportAvailable;
 
 @BackgroundUpdate
 public class JavaObjectUploadAction extends AbstractFolderContextAction {
@@ -40,24 +43,24 @@ public class JavaObjectUploadAction extends AbstractFolderContextAction {
 		manager.openCodeUploader(file);
 	}
 
-	private boolean isAvailableFor(VirtualFile virtualFile) {
-		if (virtualFile == null) return false;
-		if (virtualFile.getExtension() == null) return false;
-//		if (!virtualFile.getExtension().equalsIgnoreCase("java")) return false;
-		if (!Java.isIdeSupportAvailable()) return false;
+	private boolean isAvailableFor(Project project, VirtualFile file) {
+		if (file == null) return false;
+		if (file.isDirectory()) return true; // support action on any folder level
+		if (!isArchive(file)) return false;
+		if (!isProjectSourceFile(project, file)) return false;
+		if (!isIdeSupportAvailable()) return false;
 
 		return true;
 	}
 
-	private boolean isPackage(VirtualFile virtualFile) {
-		return virtualFile != null && virtualFile.isDirectory();
-	}
-
 	@Override
 	protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-		Presentation presentation = e.getPresentation();
 		VirtualFile file = Lookups.getVirtualFile(e);
-		presentation.setVisible(isAvailableFor(file) || isPackage(file));
+		boolean visible = isAvailableFor(project, file);
+
+
+		Presentation presentation = e.getPresentation();
+		presentation.setVisible(visible);
 		presentation.setText("Upload to Database");
 		presentation.setIcon(Icons.ACTION_UPLOAD);
 	}

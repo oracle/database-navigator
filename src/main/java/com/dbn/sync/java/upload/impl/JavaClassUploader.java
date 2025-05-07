@@ -17,7 +17,6 @@
 package com.dbn.sync.java.upload.impl;
 
 import com.dbn.common.Priority;
-import com.dbn.connection.ConnectionId;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.sync.java.upload.JavaUploadContext;
 import com.dbn.sync.java.upload.JavaUploadInput;
@@ -31,12 +30,12 @@ public class JavaClassUploader extends JavaUploaderBase {
 
 		String objectName = className.replace('.', '/');
 		String schemaName = input.getTargetSchemaName();
-		ConnectionId connectionId = input.getTargetConnectionId();
+		String objectIdentifier = objectIdentifier(schemaName, objectName);
 
 		// TODO move to oracle-ddl-interface
 		String creationStatement = "BEGIN\n" +
 				"   BEGIN\n" +
-				"      EXECUTE IMMEDIATE 'DROP JAVA SOURCE \"" + schemaName + "\".\"" + objectName + "\"';\n" +
+				"      EXECUTE IMMEDIATE 'DROP JAVA SOURCE " + objectIdentifier + "';\n" +
 				"   EXCEPTION\n" +
 				"      WHEN OTHERS THEN\n" +
 				"         IF SQLCODE <> -4043 THEN\n" +
@@ -45,7 +44,7 @@ public class JavaClassUploader extends JavaUploaderBase {
 				"   END;\n" +
 				"\n" +
 				"   EXECUTE IMMEDIATE q'[\n" +
-				"CREATE OR REPLACE AND COMPILE JAVA SOURCE NAMED \"" + schemaName + "\".\"" + objectName + "\" AS \n" +
+				"CREATE OR REPLACE AND COMPILE JAVA SOURCE NAMED " + objectIdentifier + " AS \n" +
 				new String(sourceContent, StandardCharsets.UTF_8) +
 				"]';\n" +
 				"END;";
@@ -54,11 +53,14 @@ public class JavaClassUploader extends JavaUploaderBase {
 				"Uploading Java Class",
 				"Uploading java class \"" + className + "\"",
 				context.getProject(),
-				connectionId, c -> executeStatement(c, creationStatement));
+				context.getConnectionId(),
+				c -> executeStatement(c, creationStatement));
 	}
 
 	public static void uploadJavaClass(JavaUploadContext context, String className, byte[] classBytes) throws SQLException {
-		String key = String.valueOf(System.nanoTime());
+		String key = createLobKey();
+		String schemaName = context.getInput().getTargetSchemaName();
+
 		DatabaseInterfaceInvoker.execute(
 				Priority.HIGH,
 				"Uploading Java Class",
@@ -67,11 +69,11 @@ public class JavaClassUploader extends JavaUploaderBase {
 				context.getConnectionId(),
 				c -> {
 					try {
-						insertLobData(c, key, classBytes);
+						insertLobData(c, schemaName, key, classBytes);
 						executeStatement(c, "CREATE OR REPLACE JAVA CLASS USING '" + key + "'");
 						context.getClassesToCompile().add(className);
 					} finally {
-						deleteLobData(c, key);
+						deleteLobData(c, schemaName, key);
 					}
 				});
 	}

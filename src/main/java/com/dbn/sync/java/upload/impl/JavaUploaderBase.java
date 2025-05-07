@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 
+import static com.dbn.language.common.QuotePair.DEFAULT_IDENTIFIER_QUOTE_PAIR;
+
 public class JavaUploaderBase {
 
 	public static final String LOB_TABLE = "CREATE$JAVA$LOB$TABLE";
@@ -43,8 +45,25 @@ public class JavaUploaderBase {
 		return buf.toByteArray();
 	}
 
+	protected static String createLobKey() {
+		return String.valueOf(System.nanoTime());
+	}
 
-	public static void executeStatement(DBNConnection c, String sql) throws SQLException {
+	protected static String quote(String identifier) {
+		// TODO this is only working for Oracle which uses double quoted identifiers (change if needed for other dbs)
+		return DEFAULT_IDENTIFIER_QUOTE_PAIR.quote(identifier);
+	}
+
+	protected static String objectIdentifier(String ownerName, String objectName) {
+		return quote(ownerName) + "." + quote(objectName);
+	}
+
+	protected static String lobTableIdentifier(String ownerName) {
+		return objectIdentifier(ownerName, LOB_TABLE);
+	}
+
+
+	protected static void executeStatement(DBNConnection c, String sql) throws SQLException {
 		DBNCallableStatement statement = null;
 		try {
 			statement = c.prepareCall(sql);
@@ -55,35 +74,36 @@ public class JavaUploaderBase {
 	}
 
 	protected static void ensureLobTable(JavaUploadContext context) throws SQLException {
+		String schemaName = context.getInput().getTargetSchemaName();
+
 		DatabaseInterfaceInvoker.execute(
 				Priority.HIGH,
 				"Creating Table",
 				"Creating table \"" + LOB_TABLE + "\"",
 				context.getProject(),
 				context.getConnectionId(),
-				c -> createLobTable(c));
+				c -> createLobTable(schemaName, c));
 	}
 
-	private static void createLobTable(DBNConnection connection) throws SQLException {
-		DBNCallableStatement statement = null;
+	private static void createLobTable(String ownerName, DBNConnection connection) throws SQLException {
+		String tableIdentifier = lobTableIdentifier(ownerName);
 		try {
 			// Try a simple count to see if it exists
-			executeStatement(connection, "SELECT 1 FROM \"" + LOB_TABLE + "\" WHERE 1 = 2");
+			executeStatement(connection, "SELECT 1 FROM " + tableIdentifier + " WHERE 1 = 2");
 		} catch (SQLException e) {
 			// Table missing: create it
-			executeStatement(connection, "CREATE TABLE \"" + LOB_TABLE + "\" ("
+			executeStatement(connection, "CREATE TABLE " + tableIdentifier + " ("
 					+ " name VARCHAR2(700) PRIMARY KEY, "
 					+ " lob  BLOB, "
 					+ " loadtime DATE )");
-		} finally {
-			Resources.close(statement);
 		}
 	}
 
-	public static void insertLobData(DBNConnection connection, String key, byte[] data) throws SQLException {
+	protected static void insertLobData(DBNConnection connection, String ownerName, String key, byte[] data) throws SQLException {
+		String tableIdentifier = lobTableIdentifier(ownerName);
 		DBNPreparedStatement statement = null;
 		try {
-			String sql = "INSERT INTO \"" + LOB_TABLE + "\" (name, lob, loadtime) VALUES (?, ?, SYSDATE)";
+			String sql = "INSERT INTO " + tableIdentifier + " (name, lob, loadtime) VALUES (?, ?, SYSDATE)";
 			statement = connection.prepareStatement(sql);
 			statement.setString(1, key);
 			statement.setBytes(2, data);
@@ -93,10 +113,11 @@ public class JavaUploaderBase {
 		}
 	}
 
-	public static void deleteLobData(DBNConnection connection, String key) throws SQLException {
+	protected static void deleteLobData(DBNConnection connection, String ownerName, String key) throws SQLException {
+		String tableIdentifier = lobTableIdentifier(ownerName);
 		DBNPreparedStatement statement = null;
 		try {
-			String sql = "DELETE FROM \"" + LOB_TABLE + "\" WHERE name = ?";
+			String sql = "DELETE FROM " + tableIdentifier + " WHERE name = ?";
 			statement = connection.prepareStatement(sql);
 			statement.setString(1, key);
 			statement.execute();
