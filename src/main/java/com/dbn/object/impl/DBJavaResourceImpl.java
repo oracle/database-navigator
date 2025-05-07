@@ -29,7 +29,6 @@ import com.dbn.object.common.DBSchemaObjectImpl;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.type.DBObjectType;
-//import com.dbn.sync.java.upload.JavaResourceUploader;
 import com.intellij.openapi.fileTypes.FileType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -82,8 +81,7 @@ public class DBJavaResourceImpl extends DBSchemaObjectImpl<DBJavaResourceMetadat
 	@Override
 	@Nullable
 	public Icon getIcon() {
-		FileType fileType = FileTypes.resolveFileType(getExtension(this.getName()));
-		if(fileType == null) return null;
+		FileType fileType = FileTypes.getFileType(getExtension(this.getName()));
 		return withErrorMarker(fileType.getIcon());
 	}
 

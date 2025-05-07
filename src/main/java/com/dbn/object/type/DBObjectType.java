@@ -82,7 +82,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     INDEX(DatabaseObjectTypeId.INDEX, "index", "indexes", Icons.DBO_INDEX, Icons.DBO_INDEX_DISABLED, Icons.DBO_INDEXES, false),
     INDEXTYPE(DatabaseObjectTypeId.INDEXTYPE, "indextype", "indextypes", null, null, null, false),
     JAVA_CLASS(DatabaseObjectTypeId.JAVA_CLASS, "java class", "java classes", Icons.DBO_JAVA_CLASS, null, Icons.DBO_JAVA_CLASSES, false),
-    JAVA_RESOURCE(DatabaseObjectTypeId.JAVA_RESOURCE, "java resource", "java resources", null, null, Icons.DBO_JAVA_RESOURCES, false),
+    JAVA_RESOURCE(DatabaseObjectTypeId.JAVA_RESOURCE, "java resource", "java resources", Icons.DBO_JAVA_RESOURCE, null, Icons.DBO_JAVA_RESOURCES, false),
     JAVA_PRIMITIVE(DatabaseObjectTypeId.JAVA_PRIMITIVE, "java primitive", "java primitive", null, null, null, false),
     JAVA_INNER_CLASS(DatabaseObjectTypeId.JAVA_INNER_CLASS, "inner class", "inner classes", Icons.DBO_JAVA_CLASS, null, Icons.DBO_JAVA_CLASSES, false),
     JAVA_FIELD(DatabaseObjectTypeId.JAVA_FIELD, "java field", "fields", Icons.DBO_JAVA_FIELD, null, Icons.DBO_JAVA_FIELDS, false),

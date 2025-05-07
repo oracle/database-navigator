@@ -405,9 +405,10 @@ public class Icons {
     public static final Icon DBO_JAVA_METHOD_ABSTRACT            = load("/img/object/java/JavaMethodAbstract.svg");
     public static final Icon DBO_JAVA_PARAMETER                  = load("/img/object/java/JavaParameter.svg");
     public static final Icon DBO_JAVA_RECORD                     = load("/img/object/java/JavaRecord.svg");
-    public static final Icon DBO_JAVA_RESOURCES                  = AllIcons.Nodes.ResourceBundle;
+    public static final Icon DBO_JAVA_RESOURCE                   = load("/img/object/java/JavaResource.svg");
+    public static final Icon DBO_JAVA_RESOURCES                  = load("/img/object/java/JavaResources.svg");
     public static final Icon DBO_JSON_VIEW                       = load("/img/object/view/JsonView.svg");
-    public static final Icon DBO_JSON_VIEWS                       = load("/img/object/view/JsonViews.svg");
+    public static final Icon DBO_JSON_VIEWS                      = load("/img/object/view/JsonViews.svg");
     public static final Icon DBO_MATERIALIZED_VIEW               = load("/img/object/view/MaterializedView.svg");
     public static final Icon DBO_MATERIALIZED_VIEWS              = load("/img/object/view/MaterializedViews.svg");
     public static final Icon DBO_METHOD                          = load("/img/object/Method.png");
