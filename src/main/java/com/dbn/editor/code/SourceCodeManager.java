@@ -43,6 +43,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.statement.ByteArray;
+import com.dbn.database.common.statement.ClobText;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
@@ -391,6 +392,12 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                 writable = false;
             }
 
+            if (buffer.length() == 0 && object.getObjectType() == DBObjectType.JAVA_RESOURCE) {
+                String code = loadJavaResourceCode(object, conn, metadata);
+                buffer.append(code);
+                writable = true;
+            }
+
             if (buffer.length() == 0 && !optionalContent) {
                 throw new SQLException("Source lookup returned empty");
             }
@@ -426,6 +433,20 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
             }
         }
     }
+
+    private static String loadJavaResourceCode(@NotNull DBSchemaObject object, DBNConnection conn, DatabaseMetadataInterface metadata) throws SQLException {
+        try {
+            String schemaName = object.getSchemaName();
+            String objectName = object.getName();
+            ClobText code = metadata.loadJavaResourceSourceCode(schemaName, objectName, conn);
+            List<String> lines = code.getValue();
+
+            return String.join("\n", lines);
+
+        } catch (Exception e) {
+            throw Exceptions.toSqlException(e);
+        }
+	}
 
     @NotNull
     private static String normalizeLine(String codeLine) {
@@ -575,6 +596,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     private static String getContentQualifier(DBObjectType objectType, DBContentType contentType) {
         switch (objectType) {
             case JAVA_CLASS:       return "JAVA SOURCE";
+            case JAVA_RESOURCE:    return "JAVA RESOURCE";
             case FUNCTION:         return "FUNCTION";
             case PROCEDURE:        return "PROCEDURE";
             case VIEW:             return "VIEW";
@@ -594,7 +616,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     }
 
     private boolean isValidObjectTypeAndName(@NotNull PsiFile psiFile, @NotNull DBSchemaObject object, DBContentType contentType) {
-        if (object.getObjectType() == DBObjectType.JAVA_CLASS) return true;
+        if (object.getObjectType() == DBObjectType.JAVA_CLASS || object.getObjectType() == DBObjectType.JAVA_RESOURCE) return true;
 
         ConnectionHandler connection = object.getConnection();
         DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();

@@ -48,7 +48,7 @@ public class FileTypes {
     }
 
     @Nullable
-    private static FileType resolveFileType(String extension) {
+    public static FileType resolveFileType(String extension) {
         FileTypeManager fileTypeManager = FileTypeManager.getInstance();
         FileType fileType = fileTypeManager.getFileTypeByExtension(extension);
         if (fileType instanceof UnknownFileType) return null;

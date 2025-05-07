@@ -82,6 +82,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     INDEX(DatabaseObjectTypeId.INDEX, "index", "indexes", Icons.DBO_INDEX, Icons.DBO_INDEX_DISABLED, Icons.DBO_INDEXES, false),
     INDEXTYPE(DatabaseObjectTypeId.INDEXTYPE, "indextype", "indextypes", null, null, null, false),
     JAVA_CLASS(DatabaseObjectTypeId.JAVA_CLASS, "java class", "java classes", Icons.DBO_JAVA_CLASS, null, Icons.DBO_JAVA_CLASSES, false),
+    JAVA_RESOURCE(DatabaseObjectTypeId.JAVA_RESOURCE, "java resource", "java resources", null, null, Icons.DBO_JAVA_RESOURCES, false),
     JAVA_PRIMITIVE(DatabaseObjectTypeId.JAVA_PRIMITIVE, "java primitive", "java primitive", null, null, null, false),
     JAVA_INNER_CLASS(DatabaseObjectTypeId.JAVA_INNER_CLASS, "inner class", "inner classes", Icons.DBO_JAVA_CLASS, null, Icons.DBO_JAVA_CLASSES, false),
     JAVA_FIELD(DatabaseObjectTypeId.JAVA_FIELD, "java field", "fields", Icons.DBO_JAVA_FIELD, null, Icons.DBO_JAVA_FIELDS, false),
@@ -453,6 +454,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         JAVA_FIELD.addParent(JAVA_CLASS);
         JAVA_METHOD.addParent(JAVA_CLASS);
         JAVA_PARAMETER.addParent(JAVA_METHOD);
+        JAVA_RESOURCE.addParent(SCHEMA);
     }
 
     private static void initContentTypes() {
@@ -468,6 +470,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         DATASET_TRIGGER.contentType = DBContentType.CODE;
         DATABASE_TRIGGER.contentType = DBContentType.CODE;
         JAVA_CLASS.contentType = DBContentType.CODE;
+        JAVA_RESOURCE.contentType = DBContentType.CODE;
     }
 
     private static void initDdlFileTypes() {
@@ -489,6 +492,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         PACKAGE.addDdlFileType(DBContentType.CODE_BODY, DDLFileTypeId.PACKAGE_BODY);
 
         JAVA_CLASS.addDdlFileType(DBContentType.CODE, DDLFileTypeId.JAVA_SOURCE);
+        JAVA_RESOURCE.addDdlFileType(DBContentType.CODE, DDLFileTypeId.JAVA_SOURCE);
     }
 
     private static void initTreeChildRelations() {

@@ -116,6 +116,7 @@ import static com.dbn.object.type.DBObjectType.JAVA_INNER_CLASS;
 import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
 import static com.dbn.object.type.DBObjectType.JAVA_PARAMETER;
 import static com.dbn.object.type.DBObjectType.JAVA_PRIMITIVE;
+import static com.dbn.object.type.DBObjectType.JAVA_RESOURCE;
 import static com.dbn.object.type.DBObjectType.JSON_VIEW;
 import static com.dbn.object.type.DBObjectType.MATERIALIZED_VIEW;
 import static com.dbn.object.type.DBObjectType.NESTED_TABLE;
@@ -169,6 +170,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(DATABASE_TRIGGER,  this);
         childObjects.createObjectList(JAVA_PRIMITIVE,    this);
         childObjects.createObjectList(JAVA_CLASS,        this);
+        childObjects.createObjectList(JAVA_RESOURCE,     this);
         childObjects.createObjectList(DIMENSION,         this);
         childObjects.createObjectList(CLUSTER,           this);
         childObjects.createObjectList(DBLINK,            this);
@@ -655,6 +657,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
                 getChildObjectList(TYPE),
                 getChildObjectList(DATABASE_TRIGGER),
                 getChildObjectList(JAVA_CLASS),
+                getChildObjectList(JAVA_RESOURCE),
                 getChildObjectList(DIMENSION),
                 getChildObjectList(CLUSTER),
                 getChildObjectList(DBLINK),
@@ -678,6 +681,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
             settings.isVisible(TYPE) ||
             settings.isVisible(DATABASE_TRIGGER) ||
             settings.isVisible(JAVA_CLASS) ||
+            settings.isVisible(JAVA_RESOURCE) ||
             settings.isVisible(DIMENSION) ||
             settings.isVisible(CLUSTER) ||
             settings.isVisible(DBLINK) ||
