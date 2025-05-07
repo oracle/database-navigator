@@ -26,7 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 public class JavaClassUploader extends JavaUploaderBase {
-	public static void uploadJavaClass(JavaUploadContext context, String className, byte[] classContent) throws SQLException {
+	public static void uploadJavaSource(JavaUploadContext context, String className, byte[] sourceContent) throws SQLException {
 		JavaUploadInput input = context.getInput();
 
 		String objectName = className.replace('.', '/');
@@ -46,7 +46,7 @@ public class JavaClassUploader extends JavaUploaderBase {
 				"\n" +
 				"   EXECUTE IMMEDIATE q'[\n" +
 				"CREATE OR REPLACE AND COMPILE JAVA SOURCE NAMED \"" + schemaName + "\".\"" + objectName + "\" AS \n" +
-				new String(classContent, StandardCharsets.UTF_8) +
+				new String(sourceContent, StandardCharsets.UTF_8) +
 				"]';\n" +
 				"END;";
 
@@ -55,5 +55,24 @@ public class JavaClassUploader extends JavaUploaderBase {
 				"Uploading java class \"" + className + "\"",
 				context.getProject(),
 				connectionId, c -> executeStatement(c, creationStatement));
+	}
+
+	public static void uploadJavaClass(JavaUploadContext context, String className, byte[] classBytes) throws SQLException {
+		String key = String.valueOf(System.nanoTime());
+		DatabaseInterfaceInvoker.execute(
+				Priority.HIGH,
+				"Uploading Java Class",
+				"Uploading java class \"" + className + "\"",
+				context.getProject(),
+				context.getConnectionId(),
+				c -> {
+					try {
+						insertLobData(c, key, classBytes);
+						executeStatement(c, "CREATE OR REPLACE JAVA CLASS USING '" + key + "'");
+						context.getClassesToCompile().add(className);
+					} finally {
+						deleteLobData(c, key);
+					}
+				});
 	}
 }

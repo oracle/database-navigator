@@ -26,7 +26,7 @@ import java.util.List;
 
 import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
 import static com.dbn.sync.java.upload.impl.JavaArchiveUploader.uploadJavaArchive;
-import static com.dbn.sync.java.upload.impl.JavaClassUploader.uploadJavaClass;
+import static com.dbn.sync.java.upload.impl.JavaClassUploader.uploadJavaSource;
 
 public final class JavaUploader extends BatchProcessorBase<JavaUploadContext> {
 	public static final JavaUploader INSTANCE = new JavaUploader();
@@ -60,7 +60,7 @@ public final class JavaUploader extends BatchProcessorBase<JavaUploadContext> {
 		} else {
 			byte[] content = VfsUtilCore.loadBytes(element.getFile());
 			if (element.isJavaClass()) {
-				uploadJavaClass(context, element.getJavaClassName(), content);
+				uploadJavaSource(context, element.getJavaClassName(), content);
 			} else {
 				// TODO upload resources
 				context.addMessage(new TaggedMessage<>(MessageType.WARNING, "Uploading resources is not supported yet", element.getSubject()));

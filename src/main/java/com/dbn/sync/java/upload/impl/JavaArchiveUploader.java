@@ -17,13 +17,11 @@
 package com.dbn.sync.java.upload.impl;
 
 import com.dbn.common.Priority;
-import com.dbn.connection.ConnectionId;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNCallableStatement;
 import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.sync.java.upload.JavaUploadContext;
-import com.intellij.openapi.project.Project;
 import lombok.SneakyThrows;
 
 import java.io.ByteArrayInputStream;
@@ -38,6 +36,7 @@ import java.util.zip.ZipInputStream;
 
 import static com.dbn.common.load.ProgressMonitor.isProgressCancelled;
 import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
+import static com.dbn.sync.java.upload.impl.JavaClassUploader.uploadJavaClass;
 import static com.dbn.sync.java.upload.impl.JavaResourceUploader.uploadJavaResource;
 
 public class JavaArchiveUploader extends JavaUploaderBase {
@@ -89,28 +88,6 @@ public class JavaArchiveUploader extends JavaUploaderBase {
 				zis.closeEntry();
 			}
 		}
-	}
-
-	private static void uploadJavaClass(JavaUploadContext context, String className, byte[] classBytes) throws SQLException {
-		ConnectionId connectionId = context.getConnectionId();
-		Project project = context.getProject();
-
-		String key = String.valueOf(System.nanoTime());
-		DatabaseInterfaceInvoker.execute(
-				Priority.HIGH,
-				"Uploading Java Class",
-				"Uploading java class \"" + className + "\"",
-				project,
-				connectionId,
-				c -> {
-					try {
-						insertLobData(c, key, classBytes);
-						executeStatement(c, "CREATE OR REPLACE JAVA CLASS USING '" + key + "'");
-						context.getClassesToCompile().add(className);
-					} finally {
-						deleteLobData(c, key);
-					}
-				});
 	}
 
 	private static void compileClasses(JavaUploadContext context) throws SQLException {
