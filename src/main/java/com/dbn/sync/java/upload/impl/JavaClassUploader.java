@@ -59,7 +59,17 @@ public class JavaClassUploader extends JavaUploaderBase {
 
 	public static void uploadJavaClass(JavaUploadContext context, String className, byte[] classBytes) throws SQLException {
 		String key = createLobKey();
-		String schemaName = context.getInput().getTargetSchemaName();
+		JavaUploadInput input = context.getInput();
+
+		String schemaName = input.getTargetSchemaName();
+		String tableIdentifier = lobTableIdentifier(schemaName);
+
+		// TODO cleanup? (try alternative statement with schema and staging table qualification)
+		//String creationStatement = "CREATE OR REPLACE JAVA CLASS USING '" + key + "'";
+
+		String creationStatement = "CREATE OR REPLACE JAVA CLASS SCHEMA " + quote(schemaName) +
+				" USING BLOB SELECT LOB FROM " + tableIdentifier +
+				" WHERE name = '" + key + "'";
 
 		DatabaseInterfaceInvoker.execute(
 				Priority.HIGH,
@@ -70,7 +80,7 @@ public class JavaClassUploader extends JavaUploaderBase {
 				c -> {
 					try {
 						insertLobData(c, schemaName, key, classBytes);
-						executeStatement(c, "CREATE OR REPLACE JAVA CLASS USING '" + key + "'");
+						executeStatement(c, creationStatement);
 						context.getClassesToCompile().add(className);
 					} finally {
 						deleteLobData(c, schemaName, key);
