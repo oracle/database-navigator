@@ -17,9 +17,12 @@
 package com.dbn.object;
 
 import com.dbn.object.common.DBSchemaObject;
+import com.intellij.openapi.fileTypes.FileType;
 import org.jetbrains.annotations.NotNull;
 
 public interface DBJavaResource extends DBSchemaObject {
 	@NotNull
 	String getName();
+
+	FileType getFileType();
 }

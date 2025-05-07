@@ -56,6 +56,7 @@ import static com.dbn.database.DatabaseFeature.USER_SCHEMA;
 import static com.dbn.database.DatabaseObjectTypeId.AI_PROFILE;
 import static com.dbn.database.DatabaseObjectTypeId.CREDENTIAL;
 import static com.dbn.database.DatabaseObjectTypeId.JAVA_CLASS;
+import static com.dbn.database.DatabaseObjectTypeId.JAVA_RESOURCE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -109,7 +110,11 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
 
         if (feature == OBJECT_DDL_EXTRACTION) {
             // TODO create generic object-type to feature mapping solution
-            return !objectTypeId.isOneOf(CREDENTIAL, AI_PROFILE, JAVA_CLASS);
+            return !objectTypeId.isOneOf(
+                    CREDENTIAL,
+                    AI_PROFILE,
+                    JAVA_CLASS,
+                    JAVA_RESOURCE);
         }
         return true;
     }

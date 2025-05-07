@@ -81,8 +81,20 @@ public class DBJavaResourceImpl extends DBSchemaObjectImpl<DBJavaResourceMetadat
 	@Override
 	@Nullable
 	public Icon getIcon() {
-		FileType fileType = FileTypes.getFileType(getExtension(this.getName()));
+		FileType fileType = getFileType();
 		return withErrorMarker(fileType.getIcon());
+	}
+
+	@NotNull
+	public FileType getFileType() {
+		return FileTypes.getFileType(getExtension(this.getName()));
+	}
+
+	@Override
+	public DBContentType getContentType() {
+		return getFileType().isBinary() ?
+				DBContentType.NONE :
+				super.getContentType();
 	}
 
 	private Icon withErrorMarker(Icon icon) {
@@ -92,6 +104,8 @@ public class DBJavaResourceImpl extends DBSchemaObjectImpl<DBJavaResourceMetadat
 	private boolean isInvalid() {
 		return getObjectStatus().isNot(DBObjectStatus.VALID);
 	}
+
+
 
 	/*********************************************************
 	 *                  DBEditableCodeObject                 *
