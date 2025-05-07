@@ -34,8 +34,12 @@ public class TnsProfilePattern {
     @NotNull
     private Pattern initPattern() {
         // TODO support full TNS syntax (https://docs.oracle.com/en/database/oracle/oracle-database/19/netrf/local-naming-parameters-in-tns-ora-file.html#GUID-7F967CE5-5498-427C-9390-4A5C6767ADAA)
-        String value = "[A-Z0-9._-]+";
-        String any =          keyValue("[_A-Z]+",      value);
+        // make sure the "-" is at the end of the character class lists so it isn't interpreted
+        // as a range operator.
+        String value =        "[A-Z0-9._-]+";
+        String value2 =       "[A-Z0-9/:._-]+";  // allows ":" and "/" for urls where supported
+        String any =          keyValue("[_A-Z]+", value);
+        String any2 =         keyValue("[_A-Z]+", value2);
 
         String community1 =   keyValue("COMMUNITY", group("community1", value));
         String protocol1 =    keyValue("PROTOCOL", group("protocol1", value) );
@@ -59,7 +63,7 @@ public class TnsProfilePattern {
 
         String retryCount =   keyValue("RETRY_COUNT", group("retrycount", value));
         String retryDelay =   keyValue("RETRY_DELAY", group("retrydelay", value));
-        String security =     keyValue("SECURITY",    iteration(block(any)));
+        String security =     keyValue("SECURITY",    iteration(block(any2)));
 
 
         String sid =          keyValue("SID",          group("sid", value));
