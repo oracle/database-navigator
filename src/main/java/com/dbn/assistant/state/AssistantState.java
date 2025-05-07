@@ -102,6 +102,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   public synchronized ChatConversation getCurrentConversation() {
     if(selectedConversationId == null || !conversations.containsKey(selectedConversationId)) {
       PersistentChatConversation currentConversation = new PersistentChatConversation();
+      currentConversation.setContext(new ChatContext());
       selectedConversationId = currentConversation.getId();
       conversations.put(selectedConversationId, currentConversation);
     }
@@ -136,7 +137,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
 
   public String getSelectedModelName() {
     ChatConversation currentConversation = getCurrentConversation();
-    if(currentConversation.getContext()!=null) {
+    if(currentConversation.getContext()!=null && currentConversation.getContext().getModel()!=null) {
       return currentConversation.getContext().getModel().getId();
     } else return null;
   }
