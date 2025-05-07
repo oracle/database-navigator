@@ -34,6 +34,9 @@ public enum AuthenticationTokenType implements Presentable {
     OCI_RESOURCE_PRINCIPAL("OCI Resource Principal"),
     OCI_DELEGATION_TOKEN("OCI Delegation Token"),
     OCI_INTERACTIVE("OCI Interactive"),
+
+    AZURE_SERVICE_PRINCIPAL("Azure Service Principal"),
+    AZURE_INTERACTIVE("Azure Interactive"),
     ;
     private final String name;
 }
