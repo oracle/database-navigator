@@ -16,9 +16,8 @@
 
 package com.dbn.sync.java.upload;
 
-import com.dbn.common.message.MessageType;
-import com.dbn.common.message.TaggedMessage;
 import com.dbn.framework.batch.impl.BatchProcessorBase;
+import com.dbn.sync.java.upload.impl.JavaResourceUploader;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import lombok.SneakyThrows;
 
@@ -62,8 +61,7 @@ public final class JavaUploader extends BatchProcessorBase<JavaUploadContext> {
 			if (element.isJavaClass()) {
 				uploadJavaSource(context, element.getJavaClassName(), content);
 			} else {
-				// TODO upload resources
-				context.addMessage(new TaggedMessage<>(MessageType.WARNING, "Uploading resources is not supported yet", element.getSubject()));
+				JavaResourceUploader.uploadJavaResource(context, elementName, content);
 			}
 		}
 	}

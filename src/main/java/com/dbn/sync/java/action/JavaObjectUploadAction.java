@@ -43,7 +43,7 @@ public class JavaObjectUploadAction extends AbstractFolderContextAction {
 	private boolean isAvailableFor(VirtualFile virtualFile) {
 		if (virtualFile == null) return false;
 		if (virtualFile.getExtension() == null) return false;
-		if (!virtualFile.getExtension().equalsIgnoreCase("java")) return false;
+//		if (!virtualFile.getExtension().equalsIgnoreCase("java")) return false;
 		if (!Java.isIdeSupportAvailable()) return false;
 
 		return true;
