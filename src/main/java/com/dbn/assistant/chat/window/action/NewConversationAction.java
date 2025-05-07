@@ -16,6 +16,8 @@
 
 package com.dbn.assistant.chat.window.action;
 
+import com.dbn.assistant.chat.ChatContext;
+import com.dbn.assistant.chat.window.ContextChangeEvent;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.feature.FeatureAvailability;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -30,16 +32,17 @@ public class NewConversationAction extends AbstractChatBoxAction {
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
-        if(getAssistantState(e).getAvailability() == FeatureAvailability.HISTORY_CONVERSATION){
+        if(!chatBox.getAssistantState().getCurrentConversation().getContext().isActive()){
             getAssistantState(e).setAvailability(FeatureAvailability.AVAILABLE);
-            chatBox.initMessages();
-        } else {
-            chatBox.triggerContextChangeEvent(chatBox.getAssistantState().getChatContext(), true);
         }
+        ChatContext oldContext = chatBox.getAssistantState().getChatContext();
+        ChatContext newContext = new ChatContext(oldContext.getProfile(), oldContext.getModel(), oldContext.getAction(), oldContext.isInteractive());
+        ContextChangeEvent contextChangeEvent = new ContextChangeEvent(newContext, newContext, null, true, chatBox);
+        contextChangeEvent.trigger();
 //        chatBox.reloadProfiles();
     }
     //TODO
-//    @Override
-//    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-//    }
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+    }
 }

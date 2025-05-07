@@ -50,6 +50,7 @@ public class ChatContext implements PersistentStateElement {
     private AIModel model;
     private PromptAction action = PromptAction.SHOW_SQL;
     private boolean interactive;
+    private boolean active = true; // whether conv is discontinued
 
     public ChatContext(String profile, AIModel model, PromptAction action, boolean interactive) {
         this.profile = profile;
@@ -63,27 +64,13 @@ public class ChatContext implements PersistentStateElement {
         return GSON.toJson(attributes);
     }
 
-    public String isConversationInterruption(ChatContext newContext, PersistentChatConversation toShowConversation, boolean isNewConversation) {
-        if (toShowConversation != null) return "conversation history";
-        if (isNewConversation) return "new conversation";
-        if (!profile.equals(newContext.getProfile())) return "profile";
-        if (model != null && !model.equals(newContext.getModel())) return "model";
-        if (action == PromptAction.CHAT && newContext.action != PromptAction.CHAT) {
-            return "conversation type";
-        }
-        if (action != PromptAction.CHAT && newContext.action == PromptAction.CHAT) {
-            return "conversation type";
-        }
-        // No interruption detected
-        return "";
-    }
-
     @Override
     public void readState(Element element) {
         profile = stringAttribute(element, "profile");
         model = AIModel.forId(stringAttribute(element, "model"));
         action = enumAttribute(element, "action", PromptAction.class);
         interactive = booleanAttribute(element, "interactive", true);
+        active = booleanAttribute(element, "active", true);
     }
 
     @Override
@@ -92,5 +79,6 @@ public class ChatContext implements PersistentStateElement {
         setStringAttribute(element, "model", AIModel.getId(model));
         setEnumAttribute(element, "action", action);
         setBooleanAttribute(element, "interactive", interactive);
+        setBooleanAttribute(element, "active", active);
     }
 }

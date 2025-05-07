@@ -17,6 +17,7 @@
 package com.dbn.assistant.chat.window.action;
 
 import com.dbn.assistant.chat.PersistentChatConversation;
+import com.dbn.assistant.chat.window.ContextChangeEvent;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.util.Actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -37,8 +38,8 @@ public class ConversationSelectAction extends AbstractChatBoxAction {
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
-
-        chatBox.triggerContextChangeEvent(chatBox.getAssistantState().getChatContext(), conversation.getContext(), conversation);
+        ContextChangeEvent contextChangeEvent = new ContextChangeEvent(chatBox.getAssistantState().getChatContext(), conversation.getContext(), conversation, false, chatBox);
+        contextChangeEvent.trigger();
     }
 
     @Override

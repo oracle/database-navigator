@@ -22,7 +22,7 @@ import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.message.PersistentChatMessage;
 import com.dbn.assistant.chat.ui.ChatStatusLabel;
-import com.dbn.assistant.chat.ui.SaveOrDiscardConversationDialog;
+import com.dbn.assistant.chat.window.ContextChangeEvent;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.chat.window.util.RollingMessageContainer;
 import com.dbn.assistant.init.ui.AssistantIntroductionForm;
@@ -36,7 +36,6 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.util.Actions;
-import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -44,6 +43,7 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
 import lombok.extern.slf4j.Slf4j;
@@ -92,7 +92,7 @@ public class ChatBoxForm extends DBNFormBase {
   private JPanel initializingPanel;
   private JPanel helpActionPanel;
   private JPanel chatStatusPanel;
-  ChatStatusLabel statusLabel = new ChatStatusLabel();
+  public ChatStatusLabel statusLabel = new ChatStatusLabel();
 
   private RollingMessageContainer messageContainer;
   private final ConnectionRef connection;
@@ -165,11 +165,11 @@ public class ChatBoxForm extends DBNFormBase {
     this.chatActionsPanel.add(chatActions.getComponent(), BorderLayout.CENTER);
   }
 
-  private int getLabelStatus() {
-    FeatureAvailability availability =  getAssistantState().getAvailability();
-    if(availability == FeatureAvailability.HISTORY_CONVERSATION) return 2;
-    if(getAssistantState().getCurrentConversation().isInteractive()) return 0;
-    else return 1;
+  public int getLabelStatus() {
+    ChatConversation chatConversation = getAssistantState().getCurrentConversation();
+    if(!chatConversation.isInteractive()) return 1;
+    if(!chatConversation.getContext().isActive()) return 2;
+    else return 0;
   }
   private void createInputField() {
     inputField = new ChatBoxInputField(this);
@@ -232,118 +232,28 @@ public class ChatBoxForm extends DBNFormBase {
   public void selectProfile(DBAIProfile profile) {
     ChatContext oldContext = getAssistantState().getChatContext();
     ChatContext newContext = new ChatContext(profile.getName(), profile.getModel(), getAssistantState().getSelectedAction(), profile.isInteractive());
-    triggerContextChangeEvent(oldContext, newContext);
+    ContextChangeEvent contextChangeEvent = new ContextChangeEvent(oldContext, newContext, null, false, this);
+    contextChangeEvent.trigger();
   }
 
   public void selectModel(AIModel model) {
     ChatContext oldContext = getAssistantState().getChatContext();
     ChatContext newContext = new ChatContext(oldContext.getProfile(), model, getAssistantState().getSelectedAction(), oldContext.isInteractive());
-    triggerContextChangeEvent(oldContext, newContext);
+    ContextChangeEvent contextChangeEvent = new ContextChangeEvent(oldContext, newContext, null, false, this);
+    contextChangeEvent.trigger();
   }
 
   public void selectAction(PromptAction action) {
     ChatContext oldContext = getAssistantState().getChatContext();
     ChatContext newContext = new ChatContext(oldContext.getProfile(), oldContext.getModel(), action, oldContext.isInteractive());
-    triggerContextChangeEvent(oldContext, newContext);
+    ContextChangeEvent contextChangeEvent = new ContextChangeEvent(oldContext, newContext, null, false, this);
+    contextChangeEvent.trigger();
   }
 
-  public void triggerContextChangeEvent(ChatContext oldContext, ChatContext newContext) {
-    triggerContextChangeEvent(oldContext, newContext, null, false);
-  }
-  public void triggerContextChangeEvent(ChatContext oldContext, ChatContext newContext, PersistentChatConversation toShowConversation) {
-    triggerContextChangeEvent(oldContext, newContext, toShowConversation, false);
-  }
-  public void triggerContextChangeEvent(ChatContext context, boolean isNewConversation) {
-    triggerContextChangeEvent(context, context, null, isNewConversation);
-  }
-  public void triggerContextChangeEvent(ChatContext oldContext, ChatContext newContext, PersistentChatConversation toShowConversation, boolean isNewConversation) {
-    String changedField = oldContext.isConversationInterruption(newContext, toShowConversation, isNewConversation
-    );
-    AssistantState state = getAssistantState();
-    boolean isOldConversationInteractional = oldContext.isInteractive();
-    boolean isNewConversationInteractional = newContext.isInteractive();
-
-    ChatConversation oldConversation = getAssistantState().getCurrentConversation();
-    if(isOldConversationInteractional && !oldConversation.getMessages().isEmpty()) { // old context is a conversation
-      if(!changedField.isEmpty()) {
-        Dialogs.show(() -> new SaveOrDiscardConversationDialog(ConnectionRef.get(connection).getProject(), changedField), (dialog, exitCode) -> {
-          if (exitCode == 0) {
-//            suppressContextChangeEvents(() -> restoreContext(oldContext));
-            dispatch(this::updateActionToolbars);
-//            initMessages();
-            return;
-          }
-          if (exitCode == 1) {
-            state.getConversations().remove(oldConversation.getId());
-            state.setCurrentConversation(newContext);
-            if (isNewConversation) interruptCurrentConversation();
-            initMessages();
-            if (toShowConversation != null) {
-              showConversation(toShowConversation);
-            }
-          }
-          if (exitCode == 2) {
-            state.getCurrentConversation().setTitle(dialog.getConversationTitle());
-            state.getCurrentConversation().removeProgress();
-            state.setCurrentConversation(newContext);
-            if (isNewConversation) interruptCurrentConversation();
-            initMessages();
-            if (toShowConversation != null) {
-              showConversation(toShowConversation);
-            }
-          }
-        });
-      } else {
-        state.getCurrentConversation().setContext(newContext);
-      }
-    }
-    else if(!isOldConversationInteractional && !oldConversation.getMessages().isEmpty()){
-      if(isNewConversationInteractional) {
-        Dialogs.show(() -> new SaveOrDiscardConversationDialog(ConnectionRef.get(connection).getProject(), "profile"), (dialog, exitCode) -> {
-          if (exitCode == 0) {
-            dispatch(this::updateActionToolbars);
-            return;
-          }
-          if (exitCode == 1) {
-            state.getConversations().remove(oldConversation.getId());
-            state.setCurrentConversation(newContext);
-            if (isNewConversation) interruptCurrentConversation();
-            initMessages();
-            if (toShowConversation != null) {
-              showConversation(toShowConversation);
-            }
-          }
-          if (exitCode == 2) {
-            state.getCurrentConversation().setTitle(dialog.getConversationTitle());
-            state.getCurrentConversation().removeProgress();
-            state.setCurrentConversation(newContext);
-            if (isNewConversation) interruptCurrentConversation();
-            initMessages();
-            if (toShowConversation != null) {
-              showConversation(toShowConversation);
-            }
-          }
-        });
-      } else {
-        state.getCurrentConversation().setContext(newContext);
-      }
-    }
-    else { // old context is normal chat
-      state.getConversations().remove(oldConversation.getId());
-      getAssistantState().setCurrentConversation(newContext);
-      initMessages();
-      if(toShowConversation != null) {
-        showConversation(toShowConversation);
-      }
-    }
-
-
-
-  }
 
 
   public void showConversation(PersistentChatConversation conversation) {
-    getAssistantState().setAvailability(FeatureAvailability.HISTORY_CONVERSATION);
+    getAssistantState().setAvailability(FeatureAvailability.UNAVAILABLE);
     updateMessages(conversation.getMessages());
   }
 
@@ -489,6 +399,12 @@ public class ChatBoxForm extends DBNFormBase {
     verticalBar.setValue(verticalBar.getMaximum());
   }
 
+  public void updateActionToolbars(){
+    //TODO can't working without invokeLater
+    ApplicationManager.getApplication().invokeLater(() -> {
+      dispatch(this::updateActionToolbars);
+    });
+  }
   public void interruptCurrentConversation() {
     try{
       Progress.modal(getProject(), null, true,

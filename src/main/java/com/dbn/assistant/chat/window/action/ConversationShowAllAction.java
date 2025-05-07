@@ -18,6 +18,7 @@ package com.dbn.assistant.chat.window.action;
 
 import com.dbn.assistant.chat.PersistentChatConversation;
 import com.dbn.assistant.chat.ui.ConversationHistoryDialog;
+import com.dbn.assistant.chat.window.ContextChangeEvent;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -43,7 +44,8 @@ public class ConversationShowAllAction extends AbstractChatBoxAction {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
         Consumer<PersistentChatConversation> openAction = (PersistentChatConversation conversation) -> {
-            chatBox.triggerContextChangeEvent(chatBox.getAssistantState().getChatContext(), conversation.getContext(), conversation);
+            ContextChangeEvent contextChangeEvent = new ContextChangeEvent(chatBox.getAssistantState().getChatContext(), conversation.getContext(), conversation, false, chatBox);
+            contextChangeEvent.trigger();
         };
         Consumer<List<PersistentChatConversation>> deleteAction = (List<PersistentChatConversation> conversationsToDelete) -> {
             Map<String, PersistentChatConversation> conversations =  chatBox.getAssistantState().getConversations();
