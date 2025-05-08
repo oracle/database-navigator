@@ -70,7 +70,7 @@ public class GeneralProjectSettings extends CompositeProjectConfiguration<Projec
     @Override
     @NotNull
     public GeneralProjectSettingsForm createConfigurationEditor() {
-        return new GeneralProjectSettingsForm(this);
+        return new GeneralProjectSettingsForm(this, getParent());
     }
 
     @Override
