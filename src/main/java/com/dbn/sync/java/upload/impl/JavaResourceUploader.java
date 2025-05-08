@@ -26,6 +26,29 @@ import java.sql.SQLException;
 public class JavaResourceUploader extends JavaUploaderBase {
 
 	public static void uploadJavaResource(JavaUploadContext context, String resourceName, byte[] resourceBytes) throws SQLException {
+		if (resourceBytes == null || resourceBytes.length == 0) {
+			uploadEmptyJavaResource(context, resourceName);
+		} else {
+			uploadLobJavaResource(context, resourceName, resourceBytes);
+		}
+	}
+
+	private static void uploadEmptyJavaResource(JavaUploadContext context, String resourceName) throws SQLException {
+		String objectId = objectIdentifier(context.getInput().getTargetSchemaName(), resourceName);
+		String creationStmt  = "CREATE OR REPLACE JAVA RESOURCE NAMED " + objectId +
+						" USING BLOB(SELECT EMPTY_BLOB() FROM DUAL)";
+
+		DatabaseInterfaceInvoker.execute(
+				Priority.HIGH,
+				"Uploading empty Java Resource",
+				"Creating empty java resource \"" + resourceName + "\"",
+				context.getProject(),
+				context.getConnectionId(),
+				c -> executeStatement(c, creationStmt)
+		);
+	}
+
+	public static void uploadLobJavaResource(JavaUploadContext context, String resourceName, byte[] resourceBytes) throws SQLException {
 		String key = createLobKey();
 		JavaUploadInput input = context.getInput();
 
