@@ -62,6 +62,17 @@
             end;
         </statement>
     </statement-execution-processor>
+
+    <statement-execution-processor id="change-java-resource">
+        <statement>
+            begin
+            execute immediate 'CREATE OR REPLACE JAVA RESOURCE NAMED "{1}"
+                USING blob LOB FROM CREATE$JAVA$LOB$TABLE
+                WHERE name = {0}';
+            execute immediate 'delete  from CREATE$JAVA$LOB$TABLE where name={0}';
+            end;
+        </statement>
+    </statement-execution-processor>
     
     <statement-execution-processor id="drop-object">
         <statement>drop {0} {1}.{2}</statement>

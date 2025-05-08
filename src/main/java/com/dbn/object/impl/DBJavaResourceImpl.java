@@ -20,6 +20,7 @@ import com.dbn.common.file.FileTypes;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaResourceMetadata;
+import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.DBJavaResource;
@@ -121,9 +122,9 @@ public class DBJavaResourceImpl extends DBSchemaObjectImpl<DBJavaResourceMetadat
 				getConnectionId(),
 				getSchemaId(),
 				conn -> {
-					byte[] resBytes = newCode.getBytes();
-					// TODO : enable this when master branch gets updated
-					// JavaResourceUploader.loadResource(getProject(), conn.getConnectionId(), getQualifiedNameWithType(), resBytes);
+					ConnectionHandler connection = getConnection();
+					DatabaseDataDefinitionInterface dataDefinitionInterface = connection.getDataDefinitionInterface();
+					dataDefinitionInterface.updateJavaResource(getName(), newCode, conn);
 				});
 	}
 }

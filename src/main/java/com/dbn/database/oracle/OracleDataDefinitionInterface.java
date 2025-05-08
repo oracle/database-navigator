@@ -21,7 +21,9 @@ import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
 import com.dbn.common.util.Strings;
+import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseDataDefinitionInterfaceImpl;
 import com.dbn.database.interfaces.DatabaseInterfaces;
@@ -142,6 +144,22 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
 
     public void updateJavaClass(String objectName, String code, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "change-java-object", objectName.replace(".","/"), code.replace("'","''"));
+    }
+
+    public void updateJavaResource(String objectName, String code, DBNConnection connection) throws SQLException {
+        String key = String.valueOf(System.nanoTime());
+        byte[] lob = code.getBytes();
+        DBNPreparedStatement statement = null;
+        try {
+            String sql = "INSERT INTO CREATE$JAVA$LOB$TABLE(name, lob, loadtime) VALUES (?, ?, SYSDATE)";
+            statement = connection.prepareStatement(sql);
+            statement.setString(1, key);
+            statement.setBytes(2, lob);
+            statement.execute();
+        } finally {
+            Resources.close(statement);
+        }
+        executeUpdate(connection, "change-java-resource", key, objectName);
     }
 
     /*********************************************************

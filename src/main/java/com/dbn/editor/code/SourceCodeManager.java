@@ -396,6 +396,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                 String code = loadJavaResourceCode(object, conn, metadata);
                 buffer.append(code);
                 writable = true;
+                optionalContent = true; // If the resource file is empty, dont throw the exception.
             }
 
             if (buffer.length() == 0 && !optionalContent) {

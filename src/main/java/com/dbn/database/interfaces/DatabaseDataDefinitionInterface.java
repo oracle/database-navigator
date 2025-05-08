@@ -62,6 +62,7 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
 
     default void updateJavaClass(String objectName, String newCode, DBNConnection connection) throws SQLException{};
 
+    default void updateJavaResource(String objectName, String newCode, DBNConnection connection) throws SQLException {}
    /*********************************************************
     *                   DROP statements                     *
     *********************************************************/
