@@ -25,6 +25,7 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -53,8 +54,8 @@ public class EnvironmentSettingsForm extends ConfigurationEditorForm<Environment
     private JLabel environmentColorsLabel;
     private EnvironmentTypesEditorTable environmentTypesTable;
 
-    public EnvironmentSettingsForm(EnvironmentSettings settings) {
-        super(settings);
+    public EnvironmentSettingsForm(EnvironmentSettings settings, @NotNull Disposable parent) {
+        super(settings, parent);
         environmentTypesTable = new EnvironmentTypesEditorTable(this, settings.getEnvironmentTypes());
         environmentTypesTablePanel.add(initTableComponent());
 

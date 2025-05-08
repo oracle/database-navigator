@@ -17,11 +17,18 @@
 package com.dbn.common.options.ui;
 
 import com.dbn.common.options.CompositeConfiguration;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.options.ConfigurationException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class CompositeConfigurationEditorForm<E extends CompositeConfiguration> extends ConfigurationEditorForm<E> {
+    protected CompositeConfigurationEditorForm(E configuration, @NotNull Disposable parent) {
+        super(configuration, parent);
+    }
+
     protected CompositeConfigurationEditorForm(E configuration) {
-        super(configuration);
+        super(configuration, null);
     }
 
     @Override
