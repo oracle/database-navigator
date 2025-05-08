@@ -22,10 +22,12 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.list.CheckBoxList;
 import com.dbn.common.ui.util.ClientProperty;
 import com.dbn.common.ui.util.TextFields;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.ui.DocumentAdapter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractButton;
 import javax.swing.JComboBox;
@@ -50,10 +52,13 @@ public abstract class ConfigurationEditorForm<E extends BasicConfiguration> exte
     private final E configuration;
 
     protected ConfigurationEditorForm(E configuration) {
-        super(null, configuration.resolveProject());
-        this.configuration = configuration;
+        this(configuration, null);
     }
 
+    protected ConfigurationEditorForm(E configuration, @Nullable Disposable parent) {
+        super(parent, configuration.resolveProject());
+        this.configuration = configuration;
+    }
     public final E getConfiguration() {
         return Failsafe.nn(configuration);
     }

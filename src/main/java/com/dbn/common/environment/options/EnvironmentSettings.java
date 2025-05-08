@@ -47,7 +47,7 @@ public class EnvironmentSettings extends BasicProjectConfiguration<GeneralProjec
     @NotNull
     @Override
     public ConfigurationEditorForm createConfigurationEditor() {
-        return new EnvironmentSettingsForm(this);
+        return new EnvironmentSettingsForm(this, getParent());
     }
 
     @NotNull
