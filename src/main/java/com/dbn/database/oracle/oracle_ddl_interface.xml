@@ -51,11 +51,11 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="change-object">
+    <statement-execution-processor id="update-object">
         <statement>create or replace {0}</statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="change-java-object">
+    <statement-execution-processor id="update-java-object">
         <statement>
             begin
                 execute immediate 'create or replace java source named {0} as {1}';
@@ -63,7 +63,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="change-java-resource">
+    <statement-execution-processor id="update-java-resource">
         <statement>
             begin
             execute immediate 'CREATE OR REPLACE JAVA RESOURCE NAMED "{1}"
