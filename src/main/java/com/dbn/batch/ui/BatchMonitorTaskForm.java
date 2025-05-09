@@ -21,14 +21,17 @@ import com.dbn.batch.BatchMessenger;
 import com.dbn.batch.BatchTask;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.intellij.ui.ColorUtil;
 import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.UIUtil;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+import java.awt.Color;
 
 public class BatchMonitorTaskForm extends DBNFormBase {
 
@@ -46,7 +49,7 @@ public class BatchMonitorTaskForm extends DBNFormBase {
 
         titleLabel.setText(task.getName());
         titleLabel.setIcon(task.getIcon());
-        messageTextPane.setForeground(UIUtil.getLabelDisabledForeground());
+        messageTextPane.setForeground(getMessageColor(false));
     }
 
     private Batch getBatch() {
@@ -83,9 +86,18 @@ public class BatchMonitorTaskForm extends DBNFormBase {
                 Icons.COMMON_STATUS_SUCCESS :
                 Icons.COMMON_STATUS_ERROR;
 
+        Color foreground = getMessageColor(exception != null);
+
         statusPanel.add(new JLabel(icon));
         messageTextPane.setText(message);
+        messageTextPane.setForeground(foreground);
 
+    }
+
+    private static @NotNull Color getMessageColor(boolean error) {
+        return error ?
+                ColorUtil.dimmer(UIUtil.getErrorForeground()) :
+                ColorUtil.faded(UIUtil.getLabelForeground());
     }
 
     @Override

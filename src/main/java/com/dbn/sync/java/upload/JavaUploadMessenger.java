@@ -16,9 +16,9 @@
 
 package com.dbn.sync.java.upload;
 
-import com.dbn.batch.BatchMessenger;
+import com.dbn.batch.impl.BatchMessengerBase;
 
-public class JavaUploadMessenger implements BatchMessenger<JavaUploadTask, JavaUploadInput, JavaUploadBatch> {
+public class JavaUploadMessenger extends BatchMessengerBase<JavaUploadTask, JavaUploadInput, JavaUploadBatch> {
     public static final JavaUploadMessenger INSTANCE = new JavaUploadMessenger();
 
     private JavaUploadMessenger() {}
@@ -48,6 +48,9 @@ public class JavaUploadMessenger implements BatchMessenger<JavaUploadTask, JavaU
 
     @Override
     public String createTaskErrorMessage(JavaUploadBatch batch, JavaUploadTask task, Exception e) {
-        return "Failed to upload java resource \nCause:" +  e.getMessage();
+        String message = e.getMessage();
+        message = cleanExceptionMessage(batch, message);
+
+        return "Failed to upload java resource \nCause:" + message;
     }
 }

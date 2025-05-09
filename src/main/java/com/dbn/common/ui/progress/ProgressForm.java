@@ -16,30 +16,32 @@
 
 package com.dbn.common.ui.progress;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.UserInterface;
-import com.dbn.common.util.Strings;
 import com.intellij.openapi.Disposable;
+import com.intellij.ui.ColorUtil;
+import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import java.awt.Color;
+
+import static com.dbn.common.util.Commons.nvl;
 
 public class ProgressForm extends DBNFormBase {
-    private JLabel progressTextLabel;
-    private JProgressBar progressBar;
-    private JLabel progressText2Label;
     private JPanel mainPanel;
+    private JProgressBar progressBar;
+    private JLabel progressTextLabel;
+    private JLabel progressText2Label;
 
     public ProgressForm(@Nullable Disposable parent) {
         super(parent);
         progressBar.setBorder(null);
-        Color lightForeground = Colors.lafBrighter(Colors.getLabelForeground(), 10);
-        progressText2Label.setForeground(lightForeground);
+        progressText2Label.setForeground(ColorUtil.faded(UIUtil.getLabelForeground()));
+        progressTextLabel.setText(" ");
+        progressText2Label.setText(" ");
     }
 
     @Override
@@ -52,13 +54,11 @@ public class ProgressForm extends DBNFormBase {
     }
 
     public void setText(String text) {
-        progressTextLabel.setText(text);
-        progressTextLabel.setVisible(Strings.isNotEmpty(text));
+        progressTextLabel.setText(nvl(text, " "));
     }
 
     public void setText2(String text2) {
-        progressText2Label.setText(text2);
-        progressText2Label.setVisible(Strings.isNotEmpty(text2));
+        progressText2Label.setText(nvl(text2, " "));
     }
 
     public boolean matchesText(String text, String text2) {

@@ -19,6 +19,7 @@ package com.dbn.batch;
 import com.dbn.batch.event.BatchEventListener;
 import com.dbn.batch.event.BatchEventType;
 import com.dbn.common.message.MessageBundle;
+import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,6 +30,8 @@ public interface Batch<I extends BatchInput<T>, T extends BatchTask> {
     I getInput();
 
     Project getProject();
+
+    ConnectionHandler getConnection();
 
     Object getContextObject();
 

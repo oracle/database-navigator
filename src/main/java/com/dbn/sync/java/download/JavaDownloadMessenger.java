@@ -16,9 +16,9 @@
 
 package com.dbn.sync.java.download;
 
-import com.dbn.batch.BatchMessenger;
+import com.dbn.batch.impl.BatchMessengerBase;
 
-public class JavaDownloadMessenger implements BatchMessenger<JavaDownloadTask, JavaDownloadInput, JavaDownloadBatch> {
+public class JavaDownloadMessenger extends BatchMessengerBase<JavaDownloadTask, JavaDownloadInput, JavaDownloadBatch> {
     public static final JavaDownloadMessenger INSTANCE = new JavaDownloadMessenger();
 
     private JavaDownloadMessenger() {}
@@ -45,6 +45,8 @@ public class JavaDownloadMessenger implements BatchMessenger<JavaDownloadTask, J
 
     @Override
     public String createTaskErrorMessage(JavaDownloadBatch batch, JavaDownloadTask task, Exception e) {
-        return "Failed to download java resource\nCause:" +  e.getMessage();
+        String message = e.getMessage();
+        message = cleanExceptionMessage(batch, message);
+        return "Failed to download java resource\nCause:" + message;
     }
 }
