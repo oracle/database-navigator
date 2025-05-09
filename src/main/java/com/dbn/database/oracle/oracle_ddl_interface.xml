@@ -58,7 +58,7 @@
     <statement-execution-processor id="update-java-object">
         <statement>
             begin
-                execute immediate 'create or replace java source named {0} as {1}';
+                execute immediate 'create or replace java source named {0}.{1} as {2}';
             end;
         </statement>
     </statement-execution-processor>
@@ -66,10 +66,12 @@
     <statement-execution-processor id="update-java-resource">
         <statement>
             begin
-            execute immediate 'CREATE OR REPLACE JAVA RESOURCE NAMED "{1}"
-                USING blob LOB FROM CREATE$JAVA$LOB$TABLE
-                WHERE name = {0}';
-            execute immediate 'delete  from CREATE$JAVA$LOB$TABLE where name={0}';
+                execute immediate 'CREATE OR REPLACE JAVA RESOURCE NAMED {0}.{1}
+                                   USING blob LOB FROM CREATE$JAVA$LOB$TABLE WHERE name = {2}';
+                execute immediate 'delete from CREATE$JAVA$LOB$TABLE where name={2}';
+            exception
+            when others then
+                execute immediate 'delete from CREATE$JAVA$LOB$TABLE where name={2}';
             end;
         </statement>
     </statement-execution-processor>

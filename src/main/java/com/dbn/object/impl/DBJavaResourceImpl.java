@@ -69,7 +69,7 @@ public class DBJavaResourceImpl extends DBSchemaObjectImpl<DBJavaResourceMetadat
 	public void initProperties() {
 		super.initProperties();
 		properties.set(INVALIDABLE, true);
-		properties.set(EDITABLE, true);
+		properties.set(EDITABLE, getContentType() != DBContentType.NONE);
 	}
 
 	public void initStatus(DBJavaResourceMetadata metadata) throws SQLException {
@@ -120,11 +120,14 @@ public class DBJavaResourceImpl extends DBSchemaObjectImpl<DBJavaResourceMetadat
 				"Updating sources of " + getQualifiedNameWithType(),
 				getProject(),
 				getConnectionId(),
-				getSchemaId(),
 				conn -> {
 					ConnectionHandler connection = getConnection();
 					DatabaseDataDefinitionInterface dataDefinitionInterface = connection.getDataDefinitionInterface();
-					dataDefinitionInterface.updateJavaResource(getName(), newCode, conn);
+					dataDefinitionInterface.updateJavaResource(
+							getSchemaName(true),
+							getName(true),
+							newCode,
+							conn);
 				});
 	}
 }

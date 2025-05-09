@@ -142,11 +142,11 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         executeUpdate(connection, "update-object", newCode);
     }
 
-    public void updateJavaClass(String objectName, String code, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "update-java-object", objectName.replace(".","/"), code.replace("'","''"));
+    public void updateJavaClass(String ownerName, String objectName, String code, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "update-java-object", ownerName, objectName, code.replace("'","''"));
     }
 
-    public void updateJavaResource(String objectName, String code, DBNConnection connection) throws SQLException {
+    public void updateJavaResource(String ownerName, String objectName, String code, DBNConnection connection) throws SQLException {
         String key = String.valueOf(System.nanoTime());
         byte[] lob = code.getBytes();
         DBNPreparedStatement statement = null;
@@ -159,7 +159,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         } finally {
             Resources.close(statement);
         }
-        executeUpdate(connection, "update-java-resource", key, objectName);
+        executeUpdate(connection, "update-java-resource", ownerName, objectName, key);
     }
 
     /*********************************************************
