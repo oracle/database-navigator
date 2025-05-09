@@ -16,12 +16,15 @@
 
 package com.dbn.batch.ui;
 
+import com.dbn.batch.Batch;
+import com.dbn.batch.BatchMessenger;
 import com.dbn.batch.BatchTask;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.UIUtil;
 
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -44,26 +47,45 @@ public class BatchMonitorTaskForm extends DBNFormBase {
         titleLabel.setText(task.getName());
         titleLabel.setIcon(task.getIcon());
         messageTextPane.setForeground(UIUtil.getLabelDisabledForeground());
-
-        markRunning();
     }
 
+    private Batch getBatch() {
+        BatchMonitorForm parentForm = ensureParentComponent();
+        return parentForm.getBatch();
+    }
 
-    public void markRunning() {
+    private BatchMessenger getMessenger() {
+        return getBatch().getMessenger();
+    }
+
+    public void initialize() {
         statusPanel.removeAll();
         statusPanel.add(new AsyncProcessIcon("Processing..."));
-    }
 
-    public void markSuccessful(String message) {
-        statusPanel.removeAll();
-        statusPanel.add(new JLabel(Icons.COMMON_STATUS_SUCCESS));
+        Batch batch = getBatch();
+        BatchMessenger messenger = getMessenger();
+        String message = messenger.createTaskInitMessage(batch, task);
         messageTextPane.setText(message);
     }
 
-    public void markErrored(String message) {
+    public void complete() {
         statusPanel.removeAll();
-        statusPanel.add(new JLabel(Icons.COMMON_STATUS_ERROR));
+        Exception exception = task.getException();
+
+        Batch batch = getBatch();
+        BatchMessenger messenger = getMessenger();
+        String message = exception == null ?
+                messenger.createTaskSuccessMessage(batch, task) :
+                messenger.createTaskErrorMessage(batch, task, exception);
+
+
+        Icon icon = exception == null ?
+                Icons.COMMON_STATUS_SUCCESS :
+                Icons.COMMON_STATUS_ERROR;
+
+        statusPanel.add(new JLabel(icon));
         messageTextPane.setText(message);
+
     }
 
     @Override

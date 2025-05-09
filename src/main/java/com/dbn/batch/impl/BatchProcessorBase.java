@@ -71,8 +71,6 @@ public abstract class BatchProcessorBase<
             batch.notifyEvent(STARTED, task);
             try {
                 processTask(batch, task);
-
-                task.markSuccessful("Successfully processed task");
                 batch.notifyEvent(FINISHED, task);
 
             } catch (ProcessCanceledException e) {
@@ -80,7 +78,8 @@ public abstract class BatchProcessorBase<
                 batch.notifyEvent(CANCELLED, task);
 
             } catch (Exception e) {
-                task.markErrored("Failed to process task.\nCause: " + e.getMessage());
+                conditionallyLog(e);
+                task.setException(e);
                 batch.notifyEvent(FINISHED, task);
             }
 

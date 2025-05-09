@@ -25,10 +25,10 @@ import static com.dbn.sync.java.upload.impl.JavaArchiveUploader.uploadJavaArchiv
 import static com.dbn.sync.java.upload.impl.JavaClassUploader.uploadJavaSource;
 import static com.dbn.sync.java.upload.impl.JavaResourceUploader.uploadJavaResource;
 
-public final class JavaUploader extends BatchProcessorBase<JavaUploadTask, JavaUploadInput, JavaUploadBatch> {
-	public static final JavaUploader INSTANCE = new JavaUploader();
+public final class JavaUploaderProcessor extends BatchProcessorBase<JavaUploadTask, JavaUploadInput, JavaUploadBatch> {
+	public static final JavaUploaderProcessor INSTANCE = new JavaUploaderProcessor();
 
-	private JavaUploader() {
+	private JavaUploaderProcessor() {
 		super("JAVA_UPLOADER");
 	}
 

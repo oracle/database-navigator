@@ -31,12 +31,17 @@ public class JavaUploadBatch extends BatchBase<JavaUploadTask, JavaUploadInput> 
 	private final List<String> classesToCompile = new ArrayList<>();
 
 	public JavaUploadBatch(JavaUploadInput input) {
-		super(input, JavaUploader.INSTANCE);
+		super(input);
 	}
 
 	@Override
-	public String getProcessTitle() {
-		return "Java Upload Process";
+	protected JavaUploadMessenger createMessenger() {
+		return JavaUploadMessenger.INSTANCE;
+	}
+
+	@Override
+	protected JavaUploaderProcessor createProcessor() {
+		return JavaUploaderProcessor.INSTANCE;
 	}
 
 	@Override

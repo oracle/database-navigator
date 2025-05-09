@@ -18,7 +18,6 @@ package com.dbn.batch.impl;
 
 import com.dbn.batch.BatchTask;
 import com.dbn.common.message.Message;
-import com.dbn.common.message.MessageType;
 import com.dbn.common.util.Tagged;
 import com.dbn.common.util.UUIDs;
 import lombok.Getter;
@@ -31,17 +30,8 @@ public abstract class BatchTaskBase implements BatchTask, Tagged<Object> {
 
     private boolean enabled = true;
     private boolean selected = true;
+    private Exception exception;
     private Message message;
-
-    @Override
-    public void markSuccessful(String message) {
-        this.message = new Message(MessageType.SUCCESS, message);
-    }
-
-    @Override
-    public void markErrored(String message) {
-        this.message = new Message(MessageType.ERROR, message);
-    }
 
     @Override
     public int compareTo(BatchTask o) {

@@ -46,7 +46,7 @@ public class JavaObjectUploadAction extends AbstractFolderContextAction {
 	private boolean isAvailableFor(Project project, VirtualFile file) {
 		if (file == null) return false;
 		if (file.isDirectory()) return true; // support action on any folder level
-		if (!isArchive(file)) return false;
+		if (isArchive(file)) return true;
 		if (!isProjectSourceFile(project, file)) return false;
 		if (!isIdeSupportAvailable()) return false;
 

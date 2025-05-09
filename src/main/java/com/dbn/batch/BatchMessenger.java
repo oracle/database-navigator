@@ -16,16 +16,18 @@
 
 package com.dbn.batch;
 
-import com.dbn.common.message.Message;
-import com.dbn.common.ui.list.Enableable;
-import com.dbn.common.ui.list.Selectable;
+public interface BatchMessenger<
+        T extends BatchTask,
+        I extends BatchInput<T>,
+        B extends Batch<I, T>>{
 
-public interface BatchTask extends Selectable<BatchTask>, Enableable<BatchTask> {
-    String getIdentifier();
+    String getBatchTitle(B batch);
 
-    Exception getException();
+    String getBatchProgressMessage(B batch);
 
-    void setException(Exception exception);
+    String createTaskInitMessage(B batch, T task);
 
-    Message getMessage();
+    String createTaskSuccessMessage(B batch, T task);
+
+    String createTaskErrorMessage(B batch, T task, Exception e);
 }

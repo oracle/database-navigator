@@ -17,20 +17,22 @@
 package com.dbn.batch.ui;
 
 import com.dbn.batch.Batch;
+import com.dbn.batch.BatchMessenger;
 import com.dbn.batch.BatchTask;
 import com.dbn.batch.event.BatchEvent;
 import com.dbn.batch.event.BatchEventListener;
 import com.dbn.batch.event.BatchEventType;
-import com.dbn.common.message.Message;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.progress.ProgressForm;
 import com.dbn.common.ui.util.UserInterface;
 import com.intellij.util.containers.ContainerUtil;
+import lombok.Getter;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import java.util.Map;
@@ -42,28 +44,42 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
     private JPanel headerPanel;
     private JPanel hintPanel;
     private JPanel tasksPanel;
-    private JProgressBar progressBar;
     private JScrollPane tasksScrollPanel;
+    private JPanel progressPanel;
 
+    private final ProgressForm progressForm = new ProgressForm(this);
     private final Map<String, BatchMonitorTaskForm> taskForms = ContainerUtil.createConcurrentWeakValueMap();
-    private final Batch batch;
+    private final @Getter Batch batch;
 
     public BatchMonitorForm(BatchMonitorDialog dialog) {
         super(dialog);
-        verticalBoxLayout(tasksPanel);
+        initTasksPanel();
 
         this.batch = dialog.getBatch();
         this.batch.addEventListener(this);
 
+        initHeaderPanel();
         initProgressBar();
         whenShown(() -> startProcess());
     }
 
+    private void initTasksPanel() {
+        verticalBoxLayout(tasksPanel);
+    }
+
+    private void initHeaderPanel() {
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, batch.getContextObject());
+        headerPanel.add(headerForm.getMainComponent());
+    }
+
     private void initProgressBar() {
-        progressBar.setVisible(false);
-        progressBar.setIndeterminate(false);
-        progressBar.setMaximum(batch.getInitialTaskCount());
-        progressBar.setValue(0);
+        progressPanel.setVisible(false);
+        progressPanel.add(progressForm.getComponent());
+        progressForm.setIndeterminate(false);
+        progressForm.setMaximum(batch.getInitialTaskCount());
+        progressForm.setValue(0);
+        progressForm.setText(null);
+        progressForm.setText2(null);
     }
 
     @Override
@@ -79,9 +95,9 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
 
     @Override
     public void eventOccurred(BatchEvent event) {
-        Dispatch.run(getMainComponent(), () -> {
+        Dispatch.run(mainPanel, () -> {
             processEvent(event);
-            UserInterface.repaint(getMainComponent());
+            UserInterface.repaint(mainPanel);
         });
     }
 
@@ -90,41 +106,44 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
         BatchTask task = event.getTask();
         if (task == null) {
             switch (type) {
-                case STARTED: progressBar.setVisible(true); break;
-                case FINISHED: progressBar.setVisible(false); break;
+                case STARTED: initBatch(); break;
+                case FINISHED: competeBatch(); break;
             }
         } else {
             switch (type) {
-                case STARTED: addTask(task); break;
-                case FINISHED: updateTask(task); break;
+                case STARTED: initTask(task); break;
+                case FINISHED: completeTask(task); break;
             }
         }
     }
 
-    private void updateTask(BatchTask task) {
-        Message message = task.getMessage();
+    private void competeBatch() {
+        progressPanel.setVisible(false);
+    }
+
+    private void initBatch() {
+        progressPanel.setVisible(true);
+
+        BatchMessenger messenger = batch.getMessenger();
+        progressForm.setText(messenger.getBatchProgressMessage(batch));
+    }
+
+    private void initTask(BatchTask task) {
+        BatchMonitorTaskForm taskForm = new BatchMonitorTaskForm(this, task);
+        taskForms.put(task.getIdentifier(), taskForm);
+        tasksPanel.add(taskForm.getComponent());
+
+        taskForm.initialize();
+        JScrollBar scrollBar = tasksScrollPanel.getVerticalScrollBar();
+        scrollBar.revalidate();
+        scrollBar.setValue(scrollBar.getMaximum());
+    }
+
+    private void completeTask(BatchTask task) {
         String identifier = task.getIdentifier();
         BatchMonitorTaskForm taskForm = taskForms.get(identifier);
-
-        if (message == null) {
-            taskForm.markSuccessful(null);
-        } else {
-            String messageText = message.getText();
-            if (message.isError()) {
-                taskForm.markErrored(messageText);
-            } else {
-                taskForm.markSuccessful(messageText);
-            }
-        }
-        progressBar.setValue(batch.getCompletedTaskCount());
+        taskForm.complete();
+        progressForm.setText2(task.getName());
+        progressForm.setValue(batch.getCompletedTaskCount());
     }
-
-    private void addTask(BatchTask task) {
-        BatchMonitorTaskForm form = new BatchMonitorTaskForm(this, task);
-        taskForms.put(task.getIdentifier(), form);
-        tasksPanel.add(form.getComponent());
-
-        JScrollBar scrollBar = tasksScrollPanel.getVerticalScrollBar();
-        scrollBar.setValue(scrollBar.getMaximum());
-   }
 }

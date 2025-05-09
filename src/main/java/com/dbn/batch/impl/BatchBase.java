@@ -18,6 +18,7 @@ package com.dbn.batch.impl;
 
 import com.dbn.batch.Batch;
 import com.dbn.batch.BatchInput;
+import com.dbn.batch.BatchMessenger;
 import com.dbn.batch.BatchProcessor;
 import com.dbn.batch.BatchStatus;
 import com.dbn.batch.BatchTask;
@@ -44,6 +45,7 @@ import static com.dbn.batch.BatchStatus.FINISHED;
 import static com.dbn.batch.BatchStatus.NEW;
 import static com.dbn.batch.BatchStatus.PAUSED;
 import static com.dbn.batch.BatchStatus.RUNNING;
+import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 @Setter
@@ -54,14 +56,17 @@ public abstract class BatchBase<
     private final I input;
     private final Queue<T> tasks;
     private final int initialTaskCount;
-    private final BatchProcessor<T, I, Batch<I, T>> processor;
+    private final BatchProcessor<T, I, ? extends Batch<I, T>> processor;
+    private final BatchMessenger<T, I, ? extends Batch<I, T>> messenger;
+
     private final MessageBundle messages = new MessageCollector();
     private final Listeners<BatchEventListener> listeners = Listeners.create();
     private BatchStatus status = NEW;
 
-    public BatchBase(I input, BatchProcessor processor) {
+    public BatchBase(I input) {
         this.input = input;
-        this.processor = processor;
+        this.messenger = createMessenger();
+        this.processor = createProcessor();
         this.tasks = new LinkedList<>(input.getSelectedTasks());
         this.initialTaskCount = tasks.size();
         addEventListener(createProcessStatusListener());
@@ -73,7 +78,7 @@ public abstract class BatchBase<
     }
 
     public void start() {
-        processor.process(this);
+        processor.process(cast(this));
     }
 
     @Override
@@ -85,6 +90,10 @@ public abstract class BatchBase<
     public void cancel() {
         status = CANCELLED;
     }
+
+    protected abstract BatchMessenger<T, I, ? extends Batch<I, T>> createMessenger();
+    protected abstract BatchProcessor<T, I, ? extends Batch<I, T>> createProcessor();
+
 
     private BatchEventListener createProcessStatusListener() {
         // update process status based on the process-level events

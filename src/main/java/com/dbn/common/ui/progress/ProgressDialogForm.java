@@ -16,7 +16,6 @@
 
 package com.dbn.common.ui.progress;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.listener.KeyAdapter;
@@ -27,36 +26,32 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import java.awt.event.KeyEvent;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.dbn.common.ui.util.UserInterface.matchesText;
 import static com.dbn.common.util.Dialogs.resizeToFitContent;
 
 public class ProgressDialogForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;
-    private JProgressBar progressBar;
-    private JLabel progressTextLabel;
-    private JLabel progressText2Label;
     private JButton backgroundButton;
     private JButton cancelButton;
+    private JPanel progressPanel;
 
     private final ProgressDialogHandler handler;
     private final Timer progressUpdater = new Timer("DBN - Progress Dialog Updater", true);
+    private final ProgressForm progressForm = new ProgressForm(this);
 
     public ProgressDialogForm(@NotNull ProgressDialogHandler handler) {
         super(null, handler.getProject());
         this.handler = handler;
 
         headerPanel.setVisible(false); // TODO support environment colored headers
-        progressBar.setIndeterminate(true);
-        progressBar.setVisible(true);
-        progressBar.setBorder(null);
+
+        progressForm.setIndeterminate(true);
+        progressPanel.add(progressForm.getComponent());
 
         KeyAdapter keyListener = createKeyListener();
         cancelButton.addKeyListener(keyListener);
@@ -64,7 +59,7 @@ public class ProgressDialogForm extends DBNFormBase {
 
         cancelButton.addActionListener(e -> handler.cancel());
         backgroundButton.addActionListener(e -> handler.release());
-        progressText2Label.setForeground(Colors.lafBrighter(Colors.getLabelForeground(), 10));
+
         progressUpdater.schedule(createProgressRefreshTask(), 100, 100);
         updateProgressLabels();
     }
@@ -87,12 +82,11 @@ public class ProgressDialogForm extends DBNFormBase {
 
         String text = handler.getText();
         String text2 = handler.getText2();
-        if (matchesText(progressTextLabel, text) &&
-                matchesText(progressText2Label, text2)) return;
+        if (progressForm.matchesText(text, text2)) return;
 
         Dispatch.run(mainPanel, () -> {
-            progressTextLabel.setText(text);
-            progressText2Label.setText(text2);
+            progressForm.setText(text);
+            progressForm.setText2(text2);
             resizeToFitContent(mainPanel);
         });
     }

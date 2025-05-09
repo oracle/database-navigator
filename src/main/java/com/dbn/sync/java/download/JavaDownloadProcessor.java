@@ -33,10 +33,10 @@ import static com.dbn.vfs.DBVirtualFile.EMPTY_CONTENT;
 import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
 
 
-public final class JavaDownloader extends JavaDownloaderBase {
-	public static final JavaDownloader INSTANCE = new JavaDownloader();
+public final class JavaDownloadProcessor extends JavaDownloaderBase {
+	public static final JavaDownloadProcessor INSTANCE = new JavaDownloadProcessor();
 
-	private JavaDownloader() {}
+	private JavaDownloadProcessor() {}
 
 
 

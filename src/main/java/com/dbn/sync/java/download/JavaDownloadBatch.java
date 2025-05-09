@@ -31,12 +31,17 @@ public class JavaDownloadBatch extends BatchBase<JavaDownloadTask, JavaDownloadI
 	private PsiDirectory targetRootDirectory;
 
 	public JavaDownloadBatch(JavaDownloadInput input) {
-		super(input, JavaDownloader.INSTANCE);
+		super(input);
 	}
 
 	@Override
-	public String getProcessTitle() {
-		return "Java Download Process";
+	protected JavaDownloadMessenger createMessenger() {
+		return JavaDownloadMessenger.INSTANCE;
+	}
+
+	@Override
+	protected JavaDownloadProcessor createProcessor() {
+		return JavaDownloadProcessor.INSTANCE;
 	}
 
 	@Override

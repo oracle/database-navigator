@@ -30,9 +30,12 @@ public interface Batch<I extends BatchInput<T>, T extends BatchTask> {
 
     Project getProject();
 
-    String getProcessTitle();
-
     Object getContextObject();
+
+    BatchProcessor<T, I, ? extends Batch<I, T>> getProcessor();
+
+    BatchMessenger<T, I, ? extends Batch<I, T>> getMessenger();
+
 
     int getInitialTaskCount();
 
