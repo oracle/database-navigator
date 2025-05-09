@@ -20,6 +20,7 @@ import com.dbn.batch.Batch;
 import com.dbn.batch.BatchInput;
 import com.dbn.batch.BatchProcessor;
 import com.dbn.batch.BatchTask;
+import com.dbn.common.thread.Background;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
@@ -28,6 +29,8 @@ import java.util.Queue;
 
 import static com.dbn.batch.event.BatchEventType.CANCELLED;
 import static com.dbn.batch.event.BatchEventType.FINISHED;
+import static com.dbn.batch.event.BatchEventType.PAUSED;
+import static com.dbn.batch.event.BatchEventType.RESUMED;
 import static com.dbn.batch.event.BatchEventType.STARTED;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -45,31 +48,55 @@ public abstract class BatchProcessorBase<
     }
 
     @Override
-    public final void process(B batch) {
+    public final void start(B batch) {
         prepareBatch(batch);
 
-        if (!batch.isCancelled()) {
-            executeBatch(batch);
-        }
+        batch.notifyEvent(STARTED);
+        Background.run(() -> processBatch(batch));
     }
 
+    @Override
+    public final void pause(B batch) {
+        if (batch.isPaused()) return;
+        if (batch.isFinished()) return;
+        if (batch.isCancelled()) return;
+
+        batch.notifyEvent(PAUSED);
+    }
+
+    public final void resume(B batch) {
+        if (batch.isRunning()) return;
+        if (batch.isFinished()) return;
+        if (batch.isCancelled()) return;
+
+        batch.notifyEvent(RESUMED);
+        Background.run(() -> processBatch(batch));
+    }
+
+    @Override
+    public void cancel(B batch) {
+        if (batch.isFinished()) return;
+        if (batch.isCancelled()) return;
+
+        batch.notifyEvent(CANCELLED);
+    }
+
+    protected abstract void processTask(B batch, T task);
+
+    @Deprecated // TODO execute before prompting the batch monitor
     protected void prepareBatch(B batch) {
         // no preparations needed by default
     }
 
-    private void executeBatch(B batch) {
+    private void processBatch(B batch) {
+        if (batch.isFinished()) return;
+        if (batch.isCancelled()) return;
+
         Queue<T> tasks = batch.getTasks();
-        batch.notifyEvent(STARTED);
-
-        if (tasks.isEmpty()) {
-            batch.notifyEvent(FINISHED);
-            return;
-        }
-
         while (!tasks.isEmpty()) {
             T task = tasks.poll();
-            batch.notifyEvent(STARTED, task);
             try {
+                batch.notifyEvent(STARTED, task);
                 processTask(batch, task);
                 batch.notifyEvent(FINISHED, task);
 
@@ -83,7 +110,9 @@ public abstract class BatchProcessorBase<
                 batch.notifyEvent(FINISHED, task);
             }
 
-            if (batch.isInterrupted()) return;
+            if (batch.isPaused()) return;
+            if (batch.isFinished()) return;
+            if (batch.isCancelled()) return;
         }
 
         // if reaching this point without being paused or canceled, it's safe to assume the process is finished

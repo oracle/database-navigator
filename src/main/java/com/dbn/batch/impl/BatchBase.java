@@ -34,6 +34,7 @@ import com.dbn.connection.context.DatabaseContext;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,17 +57,19 @@ public abstract class BatchBase<
     private final I input;
     private final Queue<T> tasks;
     private final int initialTaskCount;
-    private final BatchProcessor<T, I, ? extends Batch<I, T>> processor;
-    private final BatchMessenger<T, I, ? extends Batch<I, T>> messenger;
+    private final BatchProcessor<T, I, Batch<I, T>> processor;
+    private final BatchMessenger<T, I, Batch<I, T>> messenger;
 
     private final MessageBundle messages = new MessageCollector();
     private final Listeners<BatchEventListener> listeners = Listeners.create();
+
+    @Delegate
     private BatchStatus status = NEW;
 
     public BatchBase(I input) {
         this.input = input;
-        this.messenger = createMessenger();
-        this.processor = createProcessor();
+        this.messenger = cast(createMessenger());
+        this.processor = cast(createProcessor());
         this.tasks = new LinkedList<>(input.getSelectedTasks());
         this.initialTaskCount = tasks.size();
         addEventListener(createProcessStatusListener());
@@ -78,17 +81,22 @@ public abstract class BatchBase<
     }
 
     public void start() {
-        processor.process(cast(this));
+        processor.start(this);
     }
 
     @Override
     public void pause() {
-        status = PAUSED;
+        processor.pause(this);
+    }
+
+    @Override
+    public void resume() {
+        processor.resume(this);
     }
 
     @Override
     public void cancel() {
-        status = CANCELLED;
+        processor.cancel(this);
     }
 
     protected abstract BatchMessenger<T, I, ? extends Batch<I, T>> createMessenger();
@@ -103,9 +111,10 @@ public abstract class BatchBase<
             BatchEventType type = event.getType();
 
             switch (type) {
-                case STARTED: status = RUNNING; break;
-                case FINISHED: status = FINISHED; break;
+                case STARTED:
+                case RESUMED: status = RUNNING; break;
                 case PAUSED: status = PAUSED; break;
+                case FINISHED: status = FINISHED; break;
                 case CANCELLED: status = CANCELLED; break;
                 default:
             }
@@ -126,15 +135,6 @@ public abstract class BatchBase<
     @Override
     public void addEventListener(BatchEventListener listener) {
         listeners.add(listener);
-    }
-
-    public boolean isCancelled() {
-        return status == CANCELLED;
-    }
-
-    @Override
-    public boolean isInterrupted() {
-        return status == CANCELLED || status == PAUSED;
     }
 
     @NotNull

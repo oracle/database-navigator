@@ -23,4 +23,20 @@ public enum BatchStatus {
     FINISHED,
     CANCELLED,
     ;
+
+    public boolean isRunning() {
+        return this == RUNNING;
+    }
+
+    public boolean isPaused() {
+        return this == PAUSED;
+    }
+
+    public boolean isFinished() {
+        return this == FINISHED;
+    }
+
+    public boolean isCancelled() {
+        return this == CANCELLED;
+    }
 }

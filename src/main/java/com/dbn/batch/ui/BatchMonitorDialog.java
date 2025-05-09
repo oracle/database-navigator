@@ -17,7 +17,6 @@
 package com.dbn.batch.ui;
 
 import com.dbn.batch.Batch;
-import com.dbn.batch.BatchStatus;
 import com.dbn.batch.event.BatchEvent;
 import com.dbn.batch.event.BatchEventListener;
 import com.dbn.batch.event.BatchEventType;
@@ -37,6 +36,7 @@ public class BatchMonitorDialog extends DBNDialog<BatchMonitorForm> implements B
         this.batch = batch;
         this.batch.addEventListener(this);
         setDefaultSize(600, 600);
+        renameAction(getCancelAction(), "Close");
         init();
     }
 
@@ -48,23 +48,14 @@ public class BatchMonitorDialog extends DBNDialog<BatchMonitorForm> implements B
 
     @Override
     protected final Action @NotNull [] createActions() {
-        return new Action[]{ getCancelAction() };
-    }
-
-    @Override
-    protected void doOKAction() {
-        super.doOKAction();
+        return createActions(getCancelAction());
     }
 
     @Override
     public void doCancelAction() {
-        if (batch.getStatus() == BatchStatus.RUNNING) {
-            batch.cancel();
-            renameAction(getCancelAction(), "Close");
-        } else {
+        if (batch.isCancelled() || batch.isFinished()) {
             super.doCancelAction();
         }
-
     }
 
     @Override
@@ -72,12 +63,12 @@ public class BatchMonitorDialog extends DBNDialog<BatchMonitorForm> implements B
         if (event.getTask() != null) return;
 
         BatchEventType type = event.getType();
-        if (type == BatchEventType.STARTED) {
-            return;
-        }
+        Action cancelAction = getCancelAction();
 
-        if (type == BatchEventType.FINISHED) {
-            renameAction(getCancelAction(), "Close");
+        switch (type) {
+            case STARTED: cancelAction.setEnabled(false); break;
+            case FINISHED: cancelAction.setEnabled(true); break;
+            case CANCELLED: cancelAction.setEnabled(true); break;
         }
     }
 }

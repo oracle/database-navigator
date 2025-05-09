@@ -610,6 +610,12 @@
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl ENTER"/>
             </action>
         </group>
+        <group id="DBNavigator.ActionGroup.BatchMonitor.Controls" text="Batch Monitor Controls">
+            <action id="DBNavigator.Actions.BatchMonitor.Pause" class="com.dbn.batch.actions.BatchMonitorPauseAction" text="Batch Monitor - Pause"/>
+            <action id="DBNavigator.Actions.BatchMonitor.Resume" class="com.dbn.batch.actions.BatchMonitorResumeAction" text="Batch Monitor - Resume"/>
+            <action id="DBNavigator.Actions.BatchMonitor.Cancel" class="com.dbn.batch.actions.BatchMonitorStopAction" text="Batch Monitor - Stop"/>
+        </group>
+
     </actions>
     <projectListeners>
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener" class="com.dbn.editor.code.SourceCodeEditorListener"/>

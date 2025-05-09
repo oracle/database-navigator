@@ -26,7 +26,11 @@ public interface BatchProcessor<
     @NonNls
     String getIdentifier();
 
-    void process(B batch);
+    void start(B batch);
 
-    void processTask(B batch, T task);
+    void pause(B batch);
+
+    void resume(B batch);
+
+    void cancel(B batch);
 }

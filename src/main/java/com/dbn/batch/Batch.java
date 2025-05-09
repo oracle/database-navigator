@@ -50,16 +50,15 @@ public interface Batch<I extends BatchInput<T>, T extends BatchTask> {
 
     BatchStatus getStatus();
 
-
     void start();
-
     void pause();
-
+    void resume();
     void cancel();
 
+    boolean isRunning();
+    boolean isPaused();
+    boolean isFinished();
     boolean isCancelled();
-
-    boolean isInterrupted();
 
 
     void notifyEvent(@NotNull BatchEventType type);

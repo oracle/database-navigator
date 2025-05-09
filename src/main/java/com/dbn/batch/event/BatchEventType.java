@@ -20,6 +20,7 @@ public enum BatchEventType {
     STARTED,
     FINISHED,
     CANCELLED,
-    PAUSED
+    PAUSED,
+    RESUMED
     ;
 }
