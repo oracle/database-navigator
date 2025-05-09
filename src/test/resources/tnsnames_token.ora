@@ -1,0 +1,135 @@
+# No token parameters. Just connects to a database which has enabled token based
+# authentication for Azure.
+azure_db = (DESCRIPTION=
+  (ADDRESS=
+    (PROTOCOL=tcps)
+    (PORT=1522)
+    (HOST=adb.us-phoenix-1.oraclecloud.com))
+  (CONNECT_DATA=
+    (SERVICE_NAME=xxxxx_azuredb_medium.adb.oraclecloud.com))
+  (SECURITY=
+    (SSL_SERVER_DN_MATCH=yes)))
+
+# Parameters configure interactive authentication with Azure. All interaction
+# happens in a web browser.
+azure_interactive = (DESCRIPTION=
+  (ADDRESS=
+    (PROTOCOL=tcps)
+    (PORT=1522)
+    (HOST=adb.us-phoenix-1.oraclecloud.com))
+  (CONNECT_DATA=
+    (SERVICE_NAME=xxxxx_azuredb_medium.adb.oraclecloud.com))
+  (SECURITY=
+    (SSL_SERVER_DN_MATCH=yes)
+    (AZURE_DB_APP_ID_URI=https://oracledevelopment.onmicrosoft.com/123-456-abcd)
+    (TOKEN_AUTH=azure_interactive)))
+
+# Parameters configure device code authentication with Azure. A code is printed
+# to the standard output stream, along with a URL. Authentication happens by
+# visiting the URL on any device and entering the code.
+azure_device_code = (DESCRIPTION=
+  (ADDRESS=
+    (PROTOCOL=tcps)
+    (PORT=1522)
+    (HOST=adb.us-phoenix-1.oraclecloud.com))
+  (CONNECT_DATA=
+    (SERVICE_NAME=xxxxxxx_azuredb_medium.adb.oraclecloud.com))
+  (SECURITY=
+    (SSL_SERVER_DN_MATCH=yes)
+    (AZURE_DB_APP_ID_URI=https://oracledevelopment.onmicrosoft.com/134-456-qrst)
+    (TOKEN_AUTH=azure_device_code)))
+
+# Parameters configure service principal authentication with Azure.
+azure_service_principal = (DESCRIPTION=
+  (ADDRESS=
+    (PROTOCOL=tcps)
+    (PORT=1522)
+    (HOST=adb.us-phoenix-1.oraclecloud.com))
+  (CONNECT_DATA=
+    (SERVICE_NAME=xxxxxxx_azuredb_medium.adb.oraclecloud.com))
+  (SECURITY=
+    (SSL_SERVER_DN_MATCH=yes)
+    (AZURE_DB_APP_ID_URI=https://oracledevelopment.onmicrosoft.com/1234-5678-abced)
+    (TOKEN_AUTH=azure_service_principal)
+    (TENANT_ID=12345-33333-2211234-3)
+    (CLIENT_ID=44444-4444-a13ddf-3313-33333)
+    (CLIENT_CERTIFICATE=secret/azure_service_principal.pem)))
+
+# Parameters configure service principal authentication with Azure. The
+# oracle.jdbc.clientSecret property MUST be configured when using this
+# alias. There is no TNS descriptor parameter to configure the secret.
+azure_service_principal_secret = (DESCRIPTION=
+  (ADDRESS=
+    (PROTOCOL=tcps)
+    (PORT=1522)
+    (HOST=adb.us-phoenix-1.oraclecloud.com))
+  (CONNECT_DATA=
+    (SERVICE_NAME=zzzzzzzzz_azuredb_medium.adb.oraclecloud.com))
+  (SECURITY=
+    (SSL_SERVER_DN_MATCH=yes)
+    (AZURE_DB_APP_ID_URI=https://oracledevelopment.onmicrosoft.com/2456-131-34-abce)
+    (TOKEN_AUTH=azure_service_principal)
+    (TENANT_ID=456765-abvced)
+    (CLIENT_ID=qrstuvxy-132333-3131))))
+
+# Parameters configure service principal authentication with Azure. The
+# the client secret is read from an SSO wallet located by AZURE_CREDENTIALS.
+azure_service_principal_wallet = (DESCRIPTION=
+  (ADDRESS=
+    (PROTOCOL=tcps)
+    (PORT=1522)
+    (HOST=adb.us-phoenix-1.oraclecloud.com))
+  (CONNECT_DATA=
+    (SERVICE_NAME=xxxxxxxxx_azuredb_medium.adb.oraclecloud.com))
+  (SECURITY=
+    (SSL_SERVER_DN_MATCH=yes)
+    (AZURE_DB_APP_ID_URI=https://oracledevelopment.onmicrosoft.com/2a0698da-5691-4e06-83bf-fc74c700c04e)
+    (TOKEN_AUTH=azure_service_principal)
+    (TENANT_ID=abefef33-34abff-32114-1124)
+    (CLIENT_ID=abdfe-adb-1345)
+    (AZURE_CREDENTIALS=secret/azure_credentials.sso)))
+
+# No token parameters. Just connects to a database where token based
+# authentication is setup for OCI IAM.
+oci_db = (DESCRIPTION=
+  (ADDRESS=
+    (PROTOCOL=tcps)
+    (PORT=1522)
+    (HOST=adb.us-phoenix-1.oraclecloud.com))
+  (CONNECT_DATA=
+    (SERVICE_NAME=xxxxxxxxxx_test_medium.adb.oraclecloud.com))
+  (SECURITY=
+    (SSL_SERVER_DN_MATCH=yes)))
+
+# Parameters configure interactive authentication with OCI.
+oci_interactive = (DESCRIPTION=
+  (ADDRESS=
+    (PROTOCOL=tcps)
+    (PORT=1522)
+    (HOST=adb.us-phoenix-1.oraclecloud.com))
+  (CONNECT_DATA=
+    (SERVICE_NAME=zzzzzzzzz_test_medium.adb.oraclecloud.com))
+  (SECURITY=
+    (SSL_SERVER_DN_MATCH=yes)
+    (OCI_COMPARTMENT=ocid1.compartment.oc1..aaaaaaaa)
+    (OCI_DATABASE=ocid1.autonomousdatabase.oc1.phx.aaaaaaaaaa)
+    (TOKEN_AUTH=oci_interactive)))
+
+
+# Parameters configure API key (config file) authentication with OCI. The
+# OCI_CONFIG_FILE parameter locates a file in the root directory. But users will
+# typically have this file in $HOME/.oci/config. That is the default value of
+# OCI_CONFIG_FILE, so it does not need to be configured for the typical user.
+oci_api_key = (DESCRIPTION=
+  (ADDRESS=
+    (PROTOCOL=tcps)
+    (PORT=1522)
+    (HOST=adb.us-phoenix-1.oraclecloud.com))
+  (CONNECT_DATA=
+    (SERVICE_NAME=zzzzzzzzzz_test_medium.adb.oraclecloud.com))
+  (SECURITY=
+    (SSL_SERVER_DN_MATCH=yes)
+    (OCI_COMPARTMENT=ocid1.compartment.oc1..aaaaaaaa)
+    (OCI_DATABASE=ocid1.autonomousdatabase.oc1.phx.aaaaaaaaaaaa)
+    (TOKEN_AUTH=oci_api_key)
+    (OCI_CONFIG_FILE=oci_config)))

@@ -795,6 +795,20 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="java-resources" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL">
+            select
+                OBJECT_NAME,
+                decode(STATUS, 'VALID', 'Y', 'N') as IS_VALID
+            from
+                [PREFIX]_OBJECTS
+            where
+                OWNER = {0}
+                and OBJECT_TYPE = 'JAVA RESOURCE'
+            order by
+                OBJECT_NAME
+        </statement>
+    </statement-execution-processor>
 
     <statement-execution-processor id="materialized-views" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
@@ -2568,6 +2582,18 @@
                 NAME = {1} and
                 TYPE = {2}
             order by LINE asc
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="java-resource-source-code" timeout="30">
+        <statement prefixes="DBA, ALL">
+            declare
+                V_CLOB CLOB;
+            begin
+                DBMS_LOB.CREATETEMPORARY(V_CLOB, TRUE);
+                DBMS_JAVA.export_resource('{1}', '{0}', V_CLOB);
+                ? := V_CLOB;
+            end;
         </statement>
     </statement-execution-processor>
 

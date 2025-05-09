@@ -61,11 +61,10 @@ public abstract class DBContentVirtualFile extends DBVirtualFileBase implements 
         this.contentType = contentType;
 
         DBObjectRef<DBSchemaObject> objectRef = mainDatabaseFile.getObjectRef();
-        DBObjectType objectType = objectRef.getObjectType();
 
         Project project = getProject();
         DDLFileManager ddlFileManager = DDLFileManager.getInstance(project);
-        this.fileType = ddlFileManager.resolveFileType(objectType, contentType);
+        this.fileType = ddlFileManager.resolveFileType(objectRef, contentType);
     }
 
     @Override

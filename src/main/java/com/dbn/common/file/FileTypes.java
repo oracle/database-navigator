@@ -21,6 +21,7 @@ import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.fileTypes.UnknownFileType;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Commons.coalesce;
@@ -47,13 +48,20 @@ public class FileTypes {
                 () -> PlainTextFileType.INSTANCE);
     }
 
+    /**
+     * Custom internal utility to resolve file types to be used in a "coalesce" fallback
+     * (avoid internal fallback to {@link UnknownFileType})
+     */
     @Nullable
     private static FileType resolveFileType(String extension) {
-        FileTypeManager fileTypeManager = FileTypeManager.getInstance();
-        FileType fileType = fileTypeManager.getFileTypeByExtension(extension);
+        FileType fileType = getFileType(extension);
         if (fileType instanceof UnknownFileType) return null;
         return fileType;
     }
 
-
+    @NotNull
+    public static FileType getFileType(String extension) {
+        FileTypeManager fileTypeManager = FileTypeManager.getInstance();
+        return fileTypeManager.getFileTypeByExtension(extension);
+    }
 }

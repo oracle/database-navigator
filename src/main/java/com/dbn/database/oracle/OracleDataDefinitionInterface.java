@@ -136,12 +136,16 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
 
     @Override
     public void updateObject(String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
-        // code contains object type and name
-        executeUpdate(connection, "change-object", newCode);
+        // code assumed to contain object type and name
+        executeUpdate(connection, "update-object", newCode);
     }
 
-    public void updateJavaClass(String objectName, String code, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "change-java-object", objectName.replace(".","/"), code.replace("'","''"));
+    public void updateJavaClass(String ownerName, String objectName, String code, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "update-java-object", ownerName, objectName, code.replace("'","''"));
+    }
+
+    public void updateJavaResource(String ownerName, String objectName, String code, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "update-java-resource", ownerName, objectName, code.replace("'","''"));
     }
 
     /*********************************************************
