@@ -16,8 +16,8 @@
 
 package com.dbn.sync.java.download;
 
+import com.dbn.batch.impl.BatchProcessorBase;
 import com.dbn.common.thread.Read;
-import com.dbn.framework.batch.impl.BatchProcessorBase;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
@@ -31,28 +31,32 @@ import java.util.Set;
 import static com.dbn.common.options.Configs.fail;
 import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
 
-abstract class JavaDownloaderBase extends BatchProcessorBase<JavaDownloadContext> {
+abstract class JavaDownloaderBase extends BatchProcessorBase<JavaDownloadTask, JavaDownloadInput, JavaDownloadBatch> {
+
+	public JavaDownloaderBase() {
+		super("JAVA_DOWNLOADER");
+	}
 
 	@SneakyThrows
-	protected static void prepareDestinationFolders(JavaDownloadContext context) {
-		prepareRootDirectory(context);
+	protected static void prepareDestinationFolders(JavaDownloadBatch batch) {
+		prepareRootDirectory(batch);
 
-		JavaDownloadInput input = context.getInput();
+		JavaDownloadInput input = batch.getInput();
 		Set<JavaPackageNode> packageNodes = input.getTargetPackages();
 		for (JavaPackageNode packageNode : packageNodes) {
-			PsiDirectory rootDirectory = context.getTargetRootDirectory();
+			PsiDirectory rootDirectory = batch.getTargetRootDirectory();
 			prepareChildDirectory(packageNode, rootDirectory);
 		}
 	}
 
 	@SneakyThrows
-	private static void prepareRootDirectory(JavaDownloadContext context) {
-		JavaDownloadInput input = context.getInput();
+	private static void prepareRootDirectory(JavaDownloadBatch batch) {
+		JavaDownloadInput input = batch.getInput();
 		Module module = input.findModule();
 		VirtualFile file = input.findContentRoot(module);
 		PsiDirectory rootDirectory = input.findContentRootDirectory(file);
 
-		context.setTargetRootDirectory(rootDirectory);
+		batch.setTargetRootDirectory(rootDirectory);
 	}
 
 	@SneakyThrows

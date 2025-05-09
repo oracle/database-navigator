@@ -17,6 +17,7 @@
 package com.dbn.sync.java.upload;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.batch.BatchManager;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.state.GenericStateHolder;
@@ -25,8 +26,6 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.Read;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
-import com.dbn.connection.ConnectionAction;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.sync.java.upload.ui.JavaUploadResultDialog;
 import com.dbn.sync.java.upload.ui.JavaUploaderInputDialog;
 import com.intellij.openapi.components.State;
@@ -69,8 +68,6 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.common.util.Conditional.when;
-import static com.dbn.common.util.Messages.options;
 import static com.dbn.sync.java.upload.JavaUploadManager.COMPONENT_NAME;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
@@ -106,12 +103,12 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 				dependencies.addAll(fileDependencies);
 			}
 
-			List<JavaUploadElement> uploadElements = dependencies.stream().map(f -> new JavaUploadElement(getProject(), f)).sorted().collect(Collectors.toList());
+			List<JavaUploadTask> uploadElements = dependencies.stream().map(f -> new JavaUploadTask(getProject(), f)).sorted().collect(Collectors.toList());
 
 			JavaUploadInput input = new JavaUploadInput(getProject(), rootFile, uploadElements);
-			JavaUploadContext context = new JavaUploadContext(input);
+			JavaUploadBatch batch = new JavaUploadBatch(input);
 
-			Dialogs.show(() -> new JavaUploaderInputDialog(context));
+			Dialogs.show(() -> new JavaUploaderInputDialog(batch));
 		} catch (SQLException e) {
 			Messages.showErrorDialog(getProject(), "Error Loading Java Dependencies", "Failed to load dependencies for " + rootFile.getPresentableName(), e);
 		}
@@ -141,32 +138,13 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 		return false;
 	}
 
-	public void startUpload(JavaUploadContext context) {
-		ConnectionHandler connection = context.getConnection();
-		ConnectionAction.invoke(null, true, connection, a -> {
-			Progress.prompt(getProject(), context.getDatabaseContext(), true,
-					"Uploading Java Classes",
-					"Uploading java classes and dependencies to \"" + context.getConnectionName() + "\" database" ,
-					progress -> performUpload(context));
-		});
+	public void startUpload(JavaUploadBatch batch) {
+		BatchManager batchManager = BatchManager.getInstance(getProject());
+		batchManager.startBatchProcess(batch);
 	}
 
-	private void performUpload(JavaUploadContext context) {
-		JavaUploader.INSTANCE.processBatch(context);
-		if (context.isCancelled()) return;
-
-
-		Project project = getProject();
-		if (context.isBatchFailure()) {
-			Messages.showErrorDialog(project,
-					"Java Upload Failed",
-					"Failed to upload java classes to \"" + context.getConnectionName() + "\" database",
-					options("Show Errors", "Close"), 0,
-					o -> when(o == 0, () -> context.showErrorsDialog()));
-			return;
-		}
-
-		Dialogs.show(() -> new JavaUploadResultDialog(getProject(), context));
+	private void openBatchResult(JavaUploadBatch batch) {
+		Dialogs.show(() -> new JavaUploadResultDialog(batch));
 	}
 
 	@NotNull

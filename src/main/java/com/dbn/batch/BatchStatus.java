@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package com.dbn.framework.batch;
+package com.dbn.batch;
 
-import com.dbn.connection.context.DatabaseContext;
-import com.intellij.openapi.project.Project;
-
-import java.util.List;
-
-public interface BatchInput<E extends BatchElement> {
-    Project getProject();
-    List<E> getElements();
-    DatabaseContext getDatabaseContext();
+public enum BatchStatus {
+    NEW,
+    RUNNING,
+    PAUSED,
+    FINISHED,
+    CANCELLED,
+    ;
 }

@@ -16,11 +16,11 @@
 
 package com.dbn.sync.java.upload;
 
+import com.dbn.batch.impl.BatchInputBase;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.context.DatabaseContext;
-import com.dbn.framework.batch.impl.BatchInputBase;
 import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
@@ -33,7 +33,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class JavaUploadInput extends BatchInputBase<JavaUploadElement> {
+public class JavaUploadInput extends BatchInputBase<JavaUploadTask> {
 
     private VirtualFile rootFile;
     private ConnectionRef targetConnection;
@@ -42,10 +42,10 @@ public class JavaUploadInput extends BatchInputBase<JavaUploadElement> {
     private List<String> dependentObjects;
 
 
-    public JavaUploadInput(Project project, VirtualFile rootFile, List<JavaUploadElement> elements) {
+    public JavaUploadInput(Project project, VirtualFile rootFile, List<JavaUploadTask> tasks) {
         super(project);
         this.rootFile = rootFile;
-        addElements(elements);
+        addTasks(tasks);
     }
 
     @Nullable

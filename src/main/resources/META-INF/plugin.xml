@@ -156,6 +156,7 @@
         <projectService serviceImplementation="com.dbn.project.ProjectStateManager"/>
         <projectService serviceImplementation="com.dbn.diagnostics.DiagnosticsManager"/>
         <projectService serviceImplementation="com.dbn.diagnostics.ParserDiagnosticsManager"/>
+        <projectService serviceImplementation="com.dbn.batch.BatchManager"/>
         <projectService serviceImplementation="com.dbn.browser.DatabaseBrowserManager"/>
         <projectService serviceImplementation="com.dbn.common.environment.EnvironmentManager"/>
         <projectService serviceImplementation="com.dbn.common.expression.ExpressionEvaluationManager"/>

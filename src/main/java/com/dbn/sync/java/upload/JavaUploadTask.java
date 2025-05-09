@@ -16,15 +16,74 @@
 
 package com.dbn.sync.java.upload;
 
-import com.dbn.framework.batch.impl.BatchTaskBase;
+import com.dbn.batch.impl.BatchTaskBase;
+import com.dbn.common.file.FileTypes;
+import com.dbn.common.thread.Read;
+import com.dbn.common.util.Strings;
+import com.dbn.language.common.psi.PsiUtil;
+import com.intellij.ide.highlighter.ArchiveFileType;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiClassOwner;
+import com.intellij.psi.PsiFile;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.swing.Icon;
+
+import static com.dbn.common.file.util.ProjectFiles.getProjectRelativePath;
+import static com.dbn.common.util.Commons.nvl;
+
 @Getter
 @Setter
-public class JavaUploadTask extends BatchTaskBase<JavaUploadElement> {
+public class JavaUploadTask extends BatchTaskBase {
+	private final Project project;
+	private final VirtualFile file;
+	private final PsiFile psiFile;
+	private final String name;
+	private final Icon icon;
+	private byte[] content;
 
-	public JavaUploadTask(JavaUploadElement element) {
-		super(element);
+	public JavaUploadTask(Project project, VirtualFile file) {
+		this.file = file;
+		this.psiFile = PsiUtil.getPsiFile(project, file);
+		this.project = project;
+		this.name = resolveName();
+		this.icon = resolveIcon();
+		setSelected(file.getFileType() == FileTypes.getJavaFileType());
+	}
+
+	@Override
+	public Object getSubject() {
+		return nvl(psiFile, file);
+	}
+
+	private String resolveName() {
+		return getProjectRelativePath(getProject(), file);
+	}
+
+	private Icon resolveIcon() {
+		return psiFile == null ? file.getFileType().getIcon() : Read.call(psiFile, f -> f.getIcon(0));
+	}
+
+	public boolean isArchive() {
+		return file.getFileType() == ArchiveFileType.INSTANCE;
+	}
+
+	public boolean isJavaClass() {
+		return file.getFileType() == FileTypes.getJavaFileType();
+	}
+
+	public String getJavaClassName() {
+		if (!isJavaClass()) return null;
+
+		String packageName = null;
+		if (psiFile instanceof PsiClassOwner) {
+			PsiClassOwner classOwner = (PsiClassOwner) psiFile;
+			packageName = Read.call(classOwner, o-> o.getPackageName());
+		}
+
+		String packagePrefix = Strings.isEmpty(packageName) ? "" : packageName + ".";
+		return packagePrefix + file.getNameWithoutExtension();
 	}
 }

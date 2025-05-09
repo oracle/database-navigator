@@ -16,26 +16,70 @@
 
 package com.dbn.sync.java.download;
 
-import com.dbn.framework.batch.impl.BatchTaskBase;
+import com.dbn.batch.impl.BatchTaskBase;
+import com.dbn.common.icon.Icons;
+import com.dbn.object.DBJavaClass;
+import com.dbn.object.lookup.DBJavaNameCache;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.Delegate;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.Icon;
 
 @Getter
 @Setter
-public class JavaDownloadTask extends BatchTaskBase<JavaDownloadElement> {
+public class JavaDownloadTask extends BatchTaskBase {
+    private DBObjectRef<DBJavaClass> javaClass;
     private VirtualFile targetFolder;
     private VirtualFile targetFile;
-    private String content;
+    private byte[] content;
 
-    public JavaDownloadTask(JavaDownloadElement input) {
-        super(input);
+    public JavaDownloadTask(DBJavaClass javaClass) {
+        this(DBObjectRef.of(javaClass));
+    }
+
+    public JavaDownloadTask(DBObjectRef<DBJavaClass> javaClass) {
+        this.javaClass = javaClass;
+    }
+
+    public DBJavaClass getJavaClass() {
+        return javaClass.ensure();
+    }
+
+    public String getJavaClassName() {
+        return DBJavaNameCache.getCanonicalName(javaClass);
+    }
+
+    public String getJavaFileName() {
+        return DBJavaNameCache.getSimpleName(javaClass) + ".java";
+    }
+
+    public String[] getPackageNameTokens() {
+        String packageName = getJavaClass().getPackageName();
+        return packageName == null ? new String[0] : packageName.split("\\.");
+    }
+
+    public String getSchemaName() {
+        return javaClass.getSchemaName();
+    }
+
+
+    @NotNull
+    @Override
+    public String getName() {
+        return getJavaClassName() + " (" + getSchemaName() + ")";
     }
 
     @Override
-    @Delegate
-    public JavaDownloadElement getElement() {
-        return super.getElement();
+    public Object getSubject() {
+        return getJavaClass();
+    }
+
+    @Override
+    public @Nullable Icon getIcon() {
+        return isEnabled() ? getJavaClass().getIcon() : Icons.DBO_JAVA_CLASS;
     }
 }

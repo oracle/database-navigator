@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-package com.dbn.framework.batch;
+package com.dbn.batch.event;
 
-public interface BatchTask<E extends BatchElement> {
-    E getElement();
+public enum BatchEventType {
+    STARTED,
+    FINISHED,
+    CANCELLED,
+    PAUSED
+    ;
 }

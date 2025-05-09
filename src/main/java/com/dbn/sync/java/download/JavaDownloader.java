@@ -27,9 +27,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import lombok.SneakyThrows;
 
-import java.util.List;
-
 import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
+import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.vfs.DBVirtualFile.EMPTY_CONTENT;
 import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
 
 
@@ -38,65 +38,58 @@ public final class JavaDownloader extends JavaDownloaderBase {
 
 	private JavaDownloader() {}
 
+
+
 	/**
-	 * Downloader context preparation method. Queues all tasks to be executed in context.
-	 * @param context the {@link JavaDownloadContext} to be prepared
+	 * Downloader batch preparation method. Queues all tasks to be executed in this batch.
+	 * @param batch the {@link JavaDownloadBatch} to be prepared
 	 */
 	@Override
-	protected void prepareBatch(JavaDownloadContext context) {
+	protected void prepareBatch(JavaDownloadBatch batch) {
         try {
 			// prepare destination folders
-            prepareDestinationFolders(context);
+            prepareDestinationFolders(batch);
         } catch (Exception e) {
-			context.cancelBatchExecution();
-			Project project = context.getProject();
+			batch.cancel();
+			Project project = batch.getProject();
 			Messages.showErrorDialog(project,
 					"Download Failed",
 					"Failed to prepare destination folders", e);
-            return;
         }
-
-        // schedule download tasks in context
-		JavaDownloadInput input = context.getInput();
-		List<JavaDownloadElement> elements = input.getSelectedElements();
-		for (JavaDownloadElement element : elements) {
-			Object subject = element.getSubject();
-			context.queueTask(subject, () -> performDownload(context, element));
-		}
 	}
 
+	@Override
 	@SneakyThrows
-	private static void performDownload(JavaDownloadContext context, JavaDownloadElement element) {
-		String className = element.getJavaClassName();
+	public void processTask(JavaDownloadBatch batch, JavaDownloadTask task) {
+		String className = task.getJavaClassName();
 		setProgressDetail("Loading sources of \"" + className + "\"");
 
-		// create a download task
-		JavaDownloadTask task = context.createBatchTask(element);
 
 		// load source code content
-		Project project = context.getProject();
-		DBJavaClass javaClass = element.getJavaClass();
+		Project project = batch.getProject();
+		DBJavaClass javaClass = task.getJavaClass();
 		SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
 		SourceCodeContent content = sourceCodeManager.loadSourceFromDatabase(javaClass, DBContentType.CODE);
 
 		String sourceCode = content.getRawContent();
-		task.setContent(sourceCode);
+		task.setContent(sourceCode.getBytes());
+
 
 		setProgressDetail("Writing project class \"" + className + "\"");
-		writeJavaFile(context, task);
+		writeJavaFile(batch, task);
 	}
 
 	@SneakyThrows
-	private static void writeJavaFile(JavaDownloadContext context, JavaDownloadTask task) {
+	private static void writeJavaFile(JavaDownloadBatch batch, JavaDownloadTask task) {
 		DBJavaClass javaClass = task.getJavaClass();
 		String packageName = javaClass.getPackageName();
 
-		JavaDownloadInput input = context.getInput();
+		JavaDownloadInput input = batch.getInput();
 		PsiDirectory rootDirectory = input.findContentRootDirectory();
 		PsiDirectory targetDirectory = input.findPackageDirectory(rootDirectory, packageName);
 		task.setTargetFolder(targetDirectory.getVirtualFile());
 
-		Project project = context.getProject();
+		Project project = batch.getProject();
 		runWriteCommandAction(project, () -> writeJavaFile(task));
 	}
 
@@ -111,7 +104,7 @@ public final class JavaDownloader extends JavaDownloaderBase {
 		}
 		downloadTask.setTargetFile(targetFile);
 
-		String sourceCode = downloadTask.getContent();
+		String sourceCode = new String(nvl(downloadTask.getContent(), EMPTY_CONTENT));
 		VfsUtil.saveText(targetFile, sourceCode);
 	}
 }

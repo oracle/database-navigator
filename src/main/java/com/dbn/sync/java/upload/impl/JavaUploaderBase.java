@@ -22,7 +22,7 @@ import com.dbn.connection.jdbc.DBNCallableStatement;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.sync.java.upload.JavaUploadContext;
+import com.dbn.sync.java.upload.JavaUploadBatch;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -73,15 +73,15 @@ public class JavaUploaderBase {
 		}
 	}
 
-	protected static void ensureLobTable(JavaUploadContext context) throws SQLException {
-		String schemaName = context.getInput().getTargetSchemaName();
+	protected static void ensureLobTable(JavaUploadBatch batch) throws SQLException {
+		String schemaName = batch.getInput().getTargetSchemaName();
 
 		DatabaseInterfaceInvoker.execute(
 				Priority.HIGH,
 				"Creating Table",
 				"Creating table \"" + LOB_TABLE + "\"",
-				context.getProject(),
-				context.getConnectionId(),
+				batch.getProject(),
+				batch.getConnectionId(),
 				c -> createLobTable(schemaName, c));
 	}
 

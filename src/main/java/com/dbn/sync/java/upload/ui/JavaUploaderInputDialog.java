@@ -17,7 +17,7 @@
 package com.dbn.sync.java.upload.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.sync.java.upload.JavaUploadContext;
+import com.dbn.sync.java.upload.JavaUploadBatch;
 import com.dbn.sync.java.upload.JavaUploadManager;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -26,11 +26,11 @@ import javax.swing.Action;
 
 @Getter
 public class JavaUploaderInputDialog extends DBNDialog<JavaUploadInputForm> {
-    private final JavaUploadContext context;
+    private final JavaUploadBatch batch;
 
-    public JavaUploaderInputDialog(JavaUploadContext context) {
-        super(context.getProject(), "Upload Java Content", false);
-        this.context = context;
+    public JavaUploaderInputDialog(JavaUploadBatch batch) {
+        super(batch.getProject(), "Upload Java Content", false);
+        this.batch = batch;
         renameAction(getOKAction(), "Upload");
         init();
     }
@@ -47,7 +47,7 @@ public class JavaUploaderInputDialog extends DBNDialog<JavaUploadInputForm> {
         inputForm.applyUserInput();
 
         JavaUploadManager manager = getJavaUploadManager();
-        manager.startUpload(context);
+        manager.startUpload(batch);
     }
 
     @NotNull

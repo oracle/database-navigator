@@ -26,10 +26,10 @@ import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.list.CheckBoxList;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.object.common.DBObject;
-import com.dbn.sync.java.download.JavaDownloadContext;
-import com.dbn.sync.java.download.JavaDownloadElement;
+import com.dbn.sync.java.download.JavaDownloadBatch;
 import com.dbn.sync.java.download.JavaDownloadInput;
 import com.dbn.sync.java.download.JavaDownloadManager;
+import com.dbn.sync.java.download.JavaDownloadTask;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
@@ -56,13 +56,13 @@ public class JavaDownloadInputForm extends DBNFormBase {
     private JPanel targetLocationPanel;
     private JComboBox<ModulePresentable> moduleComboBox;
     private JComboBox<VirtualFilePresentable> contentRootComboBox;
-    private CheckBoxList<JavaDownloadElement> dependenciesCheckBoxList;
+    private CheckBoxList<JavaDownloadTask> dependenciesCheckBoxList;
     private JPanel hintPanel;
 
 
     public JavaDownloadInputForm(JavaDownloadInputDialog dialog) {
         super(dialog);
-        JavaDownloadInput input = dialog.getContext().getInput();
+        JavaDownloadInput input = dialog.getBatch().getInput();
 
         initHeaderPanel(input);
         initHintPanel();
@@ -70,7 +70,7 @@ public class JavaDownloadInputForm extends DBNFormBase {
         initSelectionListener(moduleComboBox, s -> initContentRoots());
         initModules();
 
-        dependenciesCheckBoxList.setElements(input.getElements());
+        dependenciesCheckBoxList.setElements(input.getTasks());
     }
 
     private void initHeaderPanel(JavaDownloadInput input) {
@@ -88,9 +88,9 @@ public class JavaDownloadInputForm extends DBNFormBase {
         hintPanel.add(hintForm.getComponent());
     }
 
-    JavaDownloadContext getContext() {
+    JavaDownloadBatch getBatch() {
         JavaDownloadInputDialog dialog = ensureParentComponent();
-        return dialog.getContext();
+        return dialog.getBatch();
     }
 
     @Override
@@ -132,7 +132,7 @@ public class JavaDownloadInputForm extends DBNFormBase {
     }
 
     protected void applyUserInput() {
-        JavaDownloadInput input = getContext().getInput();
+        JavaDownloadInput input = getBatch().getInput();
         input.setModuleName(getSelectedModuleName());
         input.setContentRoot(getSelectedContentPath());
         dependenciesCheckBoxList.applyChanges();

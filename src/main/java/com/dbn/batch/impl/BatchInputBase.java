@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.dbn.framework.batch.impl;
+package com.dbn.batch.impl;
 
+import com.dbn.batch.BatchInput;
+import com.dbn.batch.BatchTask;
 import com.dbn.common.project.ProjectRef;
-import com.dbn.framework.batch.BatchElement;
-import com.dbn.framework.batch.BatchInput;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 
@@ -29,24 +29,24 @@ import java.util.List;
 import static com.dbn.common.util.Lists.filter;
 
 @Getter
-public abstract class BatchInputBase<E extends BatchElement> implements BatchInput<E> {
+public abstract class BatchInputBase<T extends BatchTask> implements BatchInput<T> {
     private final ProjectRef project;
-    private final List<E> elements = new ArrayList<>();
+    private final List<T> tasks = new ArrayList<>();
 
     public BatchInputBase(Project project) {
         this.project = ProjectRef.of(project);
     }
 
-    protected void addElement(E element) {
-        elements.add(element);
+    protected void addTask(T task) {
+        tasks.add(task);
     }
 
-    protected void addElements(Collection<E> elements) {
-        this.elements.addAll(elements);
+    protected void addTasks(Collection<T> tasks) {
+        this.tasks.addAll(tasks);
     }
 
-    public final List<E> getSelectedElements() {
-        return filter(elements, e -> e.isSelected());
+    public final List<T> getSelectedTasks() {
+        return filter(tasks, t -> t.isSelected());
     }
 
     public final Project getProject() {

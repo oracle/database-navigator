@@ -26,10 +26,10 @@ import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.object.DBSchema;
-import com.dbn.sync.java.upload.JavaUploadContext;
-import com.dbn.sync.java.upload.JavaUploadElement;
+import com.dbn.sync.java.upload.JavaUploadBatch;
 import com.dbn.sync.java.upload.JavaUploadInput;
 import com.dbn.sync.java.upload.JavaUploadManager;
+import com.dbn.sync.java.upload.JavaUploadTask;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.Nullable;
@@ -53,12 +53,12 @@ public class JavaUploadInputForm extends DBNFormBase {
     private JPanel targetLocationPanel;
     private DBNComboBox<ConnectionHandler> connectionComboBox;
     private DBNComboBox<DBSchema> schemaComboBox;
-    private CheckBoxList<JavaUploadElement> dependenciesCheckBoxList;
+    private CheckBoxList<JavaUploadTask> dependenciesCheckBoxList;
     private JPanel schemaLoadPanel;
 
     public JavaUploadInputForm(JavaUploaderInputDialog dialog) {
         super(dialog);
-		JavaUploadInput input = dialog.getContext().getInput();
+		JavaUploadInput input = dialog.getBatch().getInput();
 
         initHeaderPanel(input);
         initHintPanel();
@@ -66,7 +66,7 @@ public class JavaUploadInputForm extends DBNFormBase {
         initConnectionSelector();
         initSchemaSelectors();
 
-        dependenciesCheckBoxList.setElements(input.getElements());
+        dependenciesCheckBoxList.setElements(input.getTasks());
     }
 
     @Override
@@ -93,9 +93,9 @@ public class JavaUploadInputForm extends DBNFormBase {
 */
     }
 
-    JavaUploadContext getContext() {
+    JavaUploadBatch getBatch() {
         JavaUploaderInputDialog dialog = ensureParentComponent();
-        return dialog.getContext();
+        return dialog.getBatch();
     }
 
     @Override
@@ -143,7 +143,7 @@ public class JavaUploadInputForm extends DBNFormBase {
     }
 
     protected void applyUserInput() {
-        JavaUploadInput input = getContext().getInput();
+        JavaUploadInput input = getBatch().getInput();
         input.setTargetConnection(getSelectedConnection());
         input.setTargetSchema(getSelectedSchema());
         dependenciesCheckBoxList.applyChanges();

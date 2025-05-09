@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package com.dbn.framework.task;
+package com.dbn.batch;
 
-import com.dbn.common.util.Tagged;
-import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
-@Getter
-class Task implements Tagged {
-    private final Object subject;
-    private final Runnable runnable;
+public interface BatchProcessor<
+        T extends BatchTask,
+        I extends BatchInput<T>,
+        B extends Batch<I, T>> {
 
-    public Task(Object subject, Runnable runnable) {
-        this.runnable = runnable;
-        this.subject = subject;
-    }
+    @NonNls
+    String getIdentifier();
+
+    void process(B batch);
+
+    void processTask(B batch, T task);
 }

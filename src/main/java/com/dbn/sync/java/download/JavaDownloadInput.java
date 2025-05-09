@@ -16,10 +16,10 @@
 
 package com.dbn.sync.java.download;
 
+import com.dbn.batch.impl.BatchInputBase;
 import com.dbn.common.project.Modules;
 import com.dbn.common.thread.Read;
 import com.dbn.connection.context.DatabaseContext;
-import com.dbn.framework.batch.impl.BatchInputBase;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
@@ -45,7 +45,7 @@ import static com.dbn.common.util.Strings.isEmpty;
 
 @Getter
 @Setter
-public class JavaDownloadInput extends BatchInputBase<JavaDownloadElement> {
+public class JavaDownloadInput extends BatchInputBase<JavaDownloadTask> {
 
     private DBObjectRef<?> sourceObject;
 
@@ -53,20 +53,20 @@ public class JavaDownloadInput extends BatchInputBase<JavaDownloadElement> {
     private String contentRoot;
 
 
-    public JavaDownloadInput(Project project, DBObject sourceObject, List<JavaDownloadElement> dependencies) {
+    public JavaDownloadInput(Project project, DBObject sourceObject, List<JavaDownloadTask> dependencies) {
         super(project);
         this.sourceObject = DBObjectRef.of(sourceObject);
 
-        // add self to download elements
+        // add self to download tasks
         if (sourceObject instanceof DBJavaClass) {
             DBJavaClass javaClass = (DBJavaClass) sourceObject;
-            JavaDownloadElement sourceElement = new JavaDownloadElement(javaClass);
-            sourceElement.setSelected(true);
-            sourceElement.setEnabled(false);
-            addElement(sourceElement);
+            JavaDownloadTask task = new JavaDownloadTask(javaClass);
+            task.setSelected(true);
+            task.setEnabled(false);
+            addTask(task);
         }
 
-        addElements(dependencies);
+        addTasks(dependencies);
     }
 
     public DatabaseContext getDatabaseContext() {
@@ -127,10 +127,10 @@ public class JavaDownloadInput extends BatchInputBase<JavaDownloadElement> {
 
     public Set<JavaPackageNode> getTargetPackages() {
         JavaPackageNode rootNode = new JavaPackageNode("ROOT");
-        for (JavaDownloadElement dependency : getSelectedElements()) {
+        for (JavaDownloadTask task : getSelectedTasks()) {
             JavaPackageNode currentNode = rootNode;
 
-            String[] tokens = dependency.getPackageNameTokens();
+            String[] tokens = task.getPackageNameTokens();
             for (String token : tokens) {
                 currentNode = currentNode.ensureChild(token);
             }

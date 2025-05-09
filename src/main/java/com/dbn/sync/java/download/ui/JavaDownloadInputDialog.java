@@ -17,7 +17,7 @@
 package com.dbn.sync.java.download.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.sync.java.download.JavaDownloadContext;
+import com.dbn.sync.java.download.JavaDownloadBatch;
 import com.dbn.sync.java.download.JavaDownloadManager;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -26,11 +26,11 @@ import javax.swing.Action;
 
 @Getter
 public class JavaDownloadInputDialog extends DBNDialog<JavaDownloadInputForm> {
-    private final JavaDownloadContext context;
+    private final JavaDownloadBatch batch;
 
-    public JavaDownloadInputDialog(JavaDownloadContext context) {
-        super(context.getProject(), "Download Java Content", false);
-        this.context = context;
+    public JavaDownloadInputDialog(JavaDownloadBatch batch) {
+        super(batch.getProject(), "Download Java Content", false);
+        this.batch = batch;
         renameAction(getOKAction(), "Download");
         init();
     }
@@ -47,7 +47,7 @@ public class JavaDownloadInputDialog extends DBNDialog<JavaDownloadInputForm> {
         inputForm.applyUserInput();
 
         JavaDownloadManager manager = getJavaDownloadManager();
-        manager.startDownload(context);
+        manager.startDownload(batch);
     }
 
     @NotNull

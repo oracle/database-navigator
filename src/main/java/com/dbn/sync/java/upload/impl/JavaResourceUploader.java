@@ -18,23 +18,23 @@ package com.dbn.sync.java.upload.impl;
 
 import com.dbn.common.Priority;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.sync.java.upload.JavaUploadContext;
+import com.dbn.sync.java.upload.JavaUploadBatch;
 import com.dbn.sync.java.upload.JavaUploadInput;
 
 import java.sql.SQLException;
 
 public class JavaResourceUploader extends JavaUploaderBase {
 
-	public static void uploadJavaResource(JavaUploadContext context, String resourceName, byte[] resourceBytes) throws SQLException {
+	public static void uploadJavaResource(JavaUploadBatch batch, String resourceName, byte[] resourceBytes) throws SQLException {
 		if (resourceBytes == null || resourceBytes.length == 0) {
-			uploadEmptyJavaResource(context, resourceName);
+			uploadEmptyJavaResource(batch, resourceName);
 		} else {
-			uploadLobJavaResource(context, resourceName, resourceBytes);
+			uploadLobJavaResource(batch, resourceName, resourceBytes);
 		}
 	}
 
-	private static void uploadEmptyJavaResource(JavaUploadContext context, String resourceName) throws SQLException {
-		String objectId = objectIdentifier(context.getInput().getTargetSchemaName(), resourceName);
+	private static void uploadEmptyJavaResource(JavaUploadBatch batch, String resourceName) throws SQLException {
+		String objectId = objectIdentifier(batch.getInput().getTargetSchemaName(), resourceName);
 		String creationStmt  = "CREATE OR REPLACE JAVA RESOURCE NAMED " + objectId +
 						" USING BLOB(SELECT EMPTY_BLOB() FROM DUAL)";
 
@@ -42,15 +42,15 @@ public class JavaResourceUploader extends JavaUploaderBase {
 				Priority.HIGH,
 				"Uploading empty Java Resource",
 				"Creating empty java resource \"" + resourceName + "\"",
-				context.getProject(),
-				context.getConnectionId(),
+				batch.getProject(),
+				batch.getConnectionId(),
 				c -> executeStatement(c, creationStmt)
 		);
 	}
 
-	public static void uploadLobJavaResource(JavaUploadContext context, String resourceName, byte[] resourceBytes) throws SQLException {
+	public static void uploadLobJavaResource(JavaUploadBatch batch, String resourceName, byte[] resourceBytes) throws SQLException {
 		String key = createLobKey();
-		JavaUploadInput input = context.getInput();
+		JavaUploadInput input = batch.getInput();
 
 		String schemaName = input.getTargetSchemaName();
 		String objectIdentifier = objectIdentifier(schemaName, resourceName);
@@ -64,8 +64,8 @@ public class JavaResourceUploader extends JavaUploaderBase {
 				Priority.HIGH,
 				"Uploading Java Resource",
 				"Uploading java resource \"" + resourceName + "\"",
-				context.getProject(),
-				context.getConnectionId(),
+				batch.getProject(),
+				batch.getConnectionId(),
 				c -> {
 					try {
 						insertLobData(c, schemaName, key, resourceBytes);

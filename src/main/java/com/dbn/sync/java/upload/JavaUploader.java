@@ -16,52 +16,37 @@
 
 package com.dbn.sync.java.upload;
 
-import com.dbn.framework.batch.impl.BatchProcessorBase;
-import com.dbn.sync.java.upload.impl.JavaResourceUploader;
+import com.dbn.batch.impl.BatchProcessorBase;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import lombok.SneakyThrows;
-
-import java.util.List;
 
 import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
 import static com.dbn.sync.java.upload.impl.JavaArchiveUploader.uploadJavaArchive;
 import static com.dbn.sync.java.upload.impl.JavaClassUploader.uploadJavaSource;
+import static com.dbn.sync.java.upload.impl.JavaResourceUploader.uploadJavaResource;
 
-public final class JavaUploader extends BatchProcessorBase<JavaUploadContext> {
+public final class JavaUploader extends BatchProcessorBase<JavaUploadTask, JavaUploadInput, JavaUploadBatch> {
 	public static final JavaUploader INSTANCE = new JavaUploader();
 
-	private JavaUploader() {}
-
-	/**
-	 * Uploader tasks preparation method. Queues all tasks to be executed in context.
-	 * @param context the {@link JavaUploadContext} to be prepared
-	 */
-	public void prepareBatch(JavaUploadContext context) {
-		// schedule upload tasks in context
-		JavaUploadInput input = context.getInput();
-		List<JavaUploadElement> elements = input.getSelectedElements();
-		for (JavaUploadElement element : elements) {
-			Object subject = element.getSubject();
-			context.queueTask(subject, () -> performElementUpload(context, element));
-		}
+	private JavaUploader() {
+		super("JAVA_UPLOADER");
 	}
 
+	@Override
 	@SneakyThrows
-	private static void performElementUpload(JavaUploadContext context, JavaUploadElement element) {
-		String elementName = element.getName();
-		setProgressDetail("Uploading sources of \"" + elementName + "\"");
+	public void processTask(JavaUploadBatch batch, JavaUploadTask task) {
+		String taskName = task.getName();
+		setProgressDetail("Uploading sources of \"" + taskName + "\"");
 
-		// create upload task
-		JavaUploadTask uploadTask = context.createBatchTask(element);
 
-		if (element.isArchive()) {
-			uploadJavaArchive(context, element.getFile().getPath());
+		if (task.isArchive()) {
+			uploadJavaArchive(batch, task.getFile().getPath());
 		} else {
-			byte[] content = VfsUtilCore.loadBytes(element.getFile());
-			if (element.isJavaClass()) {
-				uploadJavaSource(context, element.getJavaClassName(), content);
+			byte[] content = VfsUtilCore.loadBytes(task.getFile());
+			if (task.isJavaClass()) {
+				uploadJavaSource(batch, task.getJavaClassName(), content);
 			} else {
-				JavaResourceUploader.uploadJavaResource(context, elementName, content);
+				uploadJavaResource(batch, taskName, content);
 			}
 		}
 	}

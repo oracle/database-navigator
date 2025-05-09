@@ -18,15 +18,15 @@ package com.dbn.sync.java.upload.impl;
 
 import com.dbn.common.Priority;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.sync.java.upload.JavaUploadContext;
+import com.dbn.sync.java.upload.JavaUploadBatch;
 import com.dbn.sync.java.upload.JavaUploadInput;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 public class JavaClassUploader extends JavaUploaderBase {
-	public static void uploadJavaSource(JavaUploadContext context, String className, byte[] sourceContent) throws SQLException {
-		JavaUploadInput input = context.getInput();
+	public static void uploadJavaSource(JavaUploadBatch batch, String className, byte[] sourceContent) throws SQLException {
+		JavaUploadInput input = batch.getInput();
 
 		String objectName = className.replace('.', '/');
 		String schemaName = input.getTargetSchemaName();
@@ -52,14 +52,14 @@ public class JavaClassUploader extends JavaUploaderBase {
 		DatabaseInterfaceInvoker.execute(Priority.HIGH,
 				"Uploading Java Class",
 				"Uploading java class \"" + className + "\"",
-				context.getProject(),
-				context.getConnectionId(),
+				batch.getProject(),
+				batch.getConnectionId(),
 				c -> executeStatement(c, creationStatement));
 	}
 
-	public static void uploadJavaClass(JavaUploadContext context, String className, byte[] classBytes) throws SQLException {
+	public static void uploadJavaClass(JavaUploadBatch batch, String className, byte[] classBytes) throws SQLException {
 		String key = createLobKey();
-		JavaUploadInput input = context.getInput();
+		JavaUploadInput input = batch.getInput();
 
 		String schemaName = input.getTargetSchemaName();
 		String tableIdentifier = lobTableIdentifier(schemaName);
@@ -75,13 +75,13 @@ public class JavaClassUploader extends JavaUploaderBase {
 				Priority.HIGH,
 				"Uploading Java Class",
 				"Uploading java class \"" + className + "\"",
-				context.getProject(),
-				context.getConnectionId(),
+				batch.getProject(),
+				batch.getConnectionId(),
 				c -> {
 					try {
 						insertLobData(c, schemaName, key, classBytes);
 						executeStatement(c, creationStatement);
-						context.getClassesToCompile().add(className);
+						batch.getClassesToCompile().add(className);
 					} finally {
 						deleteLobData(c, schemaName, key);
 					}

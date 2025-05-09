@@ -17,6 +17,7 @@
 package com.dbn.sync.java.download;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.batch.BatchManager;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.data.Data;
@@ -58,8 +59,6 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.common.util.Conditional.when;
-import static com.dbn.common.util.Messages.options;
 import static com.dbn.sync.java.download.JavaDownloadManager.COMPONENT_NAME;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
@@ -89,11 +88,11 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 	private void prepareDownloadDialog(DBObject sourceObject) {
 		Project project = getProject();
 		try {
-			List<JavaDownloadElement> dependencies = loadDownloadDependencies(sourceObject);
+			List<JavaDownloadTask> dependencies = loadDownloadDependencies(sourceObject);
 			JavaDownloadInput input = new JavaDownloadInput(project, sourceObject, dependencies);
-			JavaDownloadContext context = new JavaDownloadContext(input);
+			JavaDownloadBatch batch = new JavaDownloadBatch(input);
 
-			Dialogs.show(() -> new JavaDownloadInputDialog(context));
+			Dialogs.show(() -> new JavaDownloadInputDialog(batch));
 		} catch (SQLException e) {
 			Messages.showErrorDialog(project,
 					"Error Loading Java Dependencies",
@@ -101,7 +100,7 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 		}
 	}
 
-	private List<JavaDownloadElement> loadDownloadDependencies(DBObject sourceObject) throws SQLException {
+	private List<JavaDownloadTask> loadDownloadDependencies(DBObject sourceObject) throws SQLException {
 		ConnectionHandler connection = sourceObject.getConnection();
 		return DatabaseInterfaceInvoker.load(HIGH,
 				"Loading Java Dependencies",
@@ -111,8 +110,8 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 				c -> loadObjectDependencies(connection, sourceObject, c));
 	}
 
-	private List<JavaDownloadElement> loadObjectDependencies(ConnectionHandler connection, DBObject sourceObject, DBNConnection conn) throws SQLException {
-		List<JavaDownloadElement> dependencies = new ArrayList<>();
+	private List<JavaDownloadTask> loadObjectDependencies(ConnectionHandler connection, DBObject sourceObject, DBNConnection conn) throws SQLException {
+		List<JavaDownloadTask> dependencies = new ArrayList<>();
 
 		ResultSet resultSet = null;
 		try {
@@ -137,7 +136,7 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 				DBSchema schema = connection.getObjectBundle().getSchema(objectOwner);
 				DBObjectRef<DBJavaClass> dependencyClass = new DBObjectRef<>(schema.ref(), DBObjectType.JAVA_CLASS, objectName);
 
-				JavaDownloadElement downloadElement = new JavaDownloadElement(dependencyClass);
+				JavaDownloadTask downloadElement = new JavaDownloadTask(dependencyClass);
 				downloadElement.setEnabled(hasSource);
 				downloadElement.setSelected(hasSource); // select by default if sources are available
 				dependencies.add(downloadElement);
@@ -150,31 +149,13 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 	}
 
 
-	public void startDownload(JavaDownloadContext context) {
-		JavaDownloadInput input = context.getInput();
-		DBObject sourceObject = input.getSourceObject();
-		Progress.prompt(getProject(), context.getDatabaseContext(), true,
-				"Downloading Java Classes",
-				"Downloading java classes and dependencies for " + sourceObject.getQualifiedNameWithType(),
-				progress -> performDownload(context));
-
+	public void startDownload(JavaDownloadBatch batch) {
+		BatchManager batchManager = BatchManager.getInstance(getProject());
+		batchManager.startBatchProcess(batch);
 	}
 
-	private void performDownload(JavaDownloadContext context) {
-		JavaDownloader.INSTANCE.processBatch(context);
-		if (context.isCancelled()) return;
-
-		Project project = getProject();
-		if (context.isBatchFailure()) {
-			Messages.showErrorDialog(project,
-					"Download Failed",
-					"Failed to download java classes from \"" + context.getConnectionName() + "\" database",
-					options("Show Errors", "Close"), 0,
-					o -> when(o == 0, () -> context.showErrorsDialog()));
-			return;
-		}
-
-		Dialogs.show(() -> new JavaDownloadResultDialog(project, context));
+	private void openBatchResult(JavaDownloadBatch batch) {
+		Dialogs.show(() -> new JavaDownloadResultDialog(batch));
 	}
 
 	@NotNull

@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-package com.dbn.framework.batch.impl;
+package com.dbn.batch.event;
 
-import com.dbn.framework.batch.BatchElement;
-import com.dbn.framework.batch.BatchTask;
+import com.dbn.batch.Batch;
+import com.dbn.batch.BatchTask;
 import lombok.Getter;
-import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
-@Setter
-public class BatchTaskBase<E extends BatchElement> implements BatchTask<E> {
-    private final E element;
+public class BatchEvent {
+    private final Batch batch;
+    private final BatchTask task;
+    private final BatchEventType type;
 
-    public BatchTaskBase(E element) {
-        this.element = element;
+    public BatchEvent(@NotNull BatchEventType type, @NotNull Batch batch, @Nullable BatchTask task) {
+        this.batch = batch;
+        this.task = task;
+        this.type = type;
     }
 }

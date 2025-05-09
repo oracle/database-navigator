@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package com.dbn.framework.batch.impl;
+package com.dbn.batch;
 
-import com.dbn.framework.batch.BatchContext;
-import com.dbn.framework.batch.BatchProcessor;
+import com.dbn.connection.context.DatabaseContext;
+import com.intellij.openapi.project.Project;
 
-public abstract class BatchProcessorBase<C extends BatchContext> implements BatchProcessor<C> {
-    @Override
-    public final void processBatch(C context) {
-        prepareBatch(context);
-        context.executeBatch();
-    }
+import java.util.List;
 
-    protected abstract void prepareBatch(C context);
+public interface BatchInput<T extends BatchTask> {
+    Project getProject();
+    List<T> getTasks();
+    List<T> getSelectedTasks();
+    DatabaseContext getDatabaseContext();
 }

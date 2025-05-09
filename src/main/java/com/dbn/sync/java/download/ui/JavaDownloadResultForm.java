@@ -24,7 +24,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Editors;
-import com.dbn.sync.java.download.JavaDownloadContext;
+import com.dbn.sync.java.download.JavaDownloadBatch;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
@@ -48,21 +48,21 @@ public class JavaDownloadResultForm extends DBNFormBase {
     private JPanel filesPanel;
     private JBList<VirtualFile> fileList;
 
-    public JavaDownloadResultForm(JavaDownloadResultDialog dialog, JavaDownloadContext context) {
+    public JavaDownloadResultForm(JavaDownloadResultDialog dialog, JavaDownloadBatch batch) {
         super(dialog);
 
-        initHeaderPanel(context);
-        initHintPanel(context);
-        initObjectList(context);
+        initHeaderPanel(batch);
+        initHintPanel(batch);
+        initObjectList(batch);
     }
 
-    private void initHeaderPanel(JavaDownloadContext context) {
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, context.getInput().getSourceObject());
+    private void initHeaderPanel(JavaDownloadBatch batch) {
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, batch.getInput().getSourceObject());
         this.headerPanel.add(headerForm.getMainComponent());
     }
 
-    private void initHintPanel(JavaDownloadContext context) {
-        PsiDirectory rootDirectory = context.getTargetRootDirectory();
+    private void initHintPanel(JavaDownloadBatch batch) {
+        PsiDirectory rootDirectory = batch.getTargetRootDirectory();
         String rootDirectoryPath = Presentation.presentableName(rootDirectory);
         TextContent hintText = TextContent.plain(
                 "The following classes were created or updated in your project under \"" + rootDirectoryPath + "\"\n\n" +
@@ -72,8 +72,8 @@ public class JavaDownloadResultForm extends DBNFormBase {
     }
 
 
-    private void initObjectList(JavaDownloadContext context) {
-        fileList.setModel(VirtualFileListModel.create(this, context.getDownloadedFiles()));
+    private void initObjectList(JavaDownloadBatch batch) {
+        fileList.setModel(VirtualFileListModel.create(this, batch.getDownloadedFiles()));
         fileList.setCellRenderer(VirtualFileListCellRenderer.create());
 
         onMouseClick(fileList, BUTTON1, 2, e -> openJavaEditor(e));

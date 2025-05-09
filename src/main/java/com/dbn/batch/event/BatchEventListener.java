@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package com.dbn.framework.batch;
+package com.dbn.batch.event;
 
-public interface BatchProcessor<C extends BatchContext> {
-    void processBatch(C context);
+import java.util.EventListener;
+
+public interface BatchEventListener extends EventListener {
+    void eventOccurred(BatchEvent event);
 }

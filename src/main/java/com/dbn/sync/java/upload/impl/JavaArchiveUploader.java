@@ -21,7 +21,7 @@ import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNCallableStatement;
 import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.sync.java.upload.JavaUploadContext;
+import com.dbn.sync.java.upload.JavaUploadBatch;
 import lombok.SneakyThrows;
 
 import java.io.ByteArrayInputStream;
@@ -42,18 +42,18 @@ import static com.dbn.sync.java.upload.impl.JavaResourceUploader.uploadJavaResou
 public class JavaArchiveUploader extends JavaUploaderBase {
 
 	@SneakyThrows
-	public static void uploadJavaArchive(JavaUploadContext context, String jarPath) {
-		ensureLobTable(context);
+	public static void uploadJavaArchive(JavaUploadBatch batch, String jarPath) {
+		ensureLobTable(batch);
 
 		try (InputStream fis = Files.newInputStream(Paths.get(jarPath))) {
-			processArchive(fis, context);
+			processArchive(fis, batch);
 		}
 
-		compileClasses(context);
-		loadCompilationErrors(context);
+		compileClasses(batch);
+		loadCompilationErrors(batch);
 	}
 
-	private static void processArchive(InputStream in, JavaUploadContext context) throws IOException, SQLException {
+	private static void processArchive(InputStream in, JavaUploadBatch batch) throws IOException, SQLException {
 		try (ZipInputStream zis = new ZipInputStream(in)) {
 			ZipEntry entry;
 
@@ -70,19 +70,19 @@ public class JavaArchiveUploader extends JavaUploaderBase {
 					// Nested archive: recurse
 					byte[] content = readAllBytes(zis);
 					try (InputStream bin = new ByteArrayInputStream(content)) {
-						processArchive(bin, context);
+						processArchive(bin, batch);
 					}
 
 				} else if (name.endsWith(".class")) {
 					// Class file: load and record for compile
 					byte[] content = readAllBytes(zis);
 					String className = name.substring(0, name.length() - 6);  // strip ".class"
-					uploadJavaClass(context, className, content);
+					uploadJavaClass(batch, className, content);
 
 				} else {
 					// Other resource: load as Java resource
 					byte[] content = readAllBytes(zis);
-					uploadJavaResource(context, name, content);
+					uploadJavaResource(batch, name, content);
 				}
 
 				zis.closeEntry();
@@ -90,26 +90,26 @@ public class JavaArchiveUploader extends JavaUploaderBase {
 		}
 	}
 
-	private static void compileClasses(JavaUploadContext context) throws SQLException {
+	private static void compileClasses(JavaUploadBatch batch) throws SQLException {
 		DatabaseInterfaceInvoker.execute(
 				Priority.HIGH,
 				"Compiling Java Classes",
 				"Compiling uploaded java classes",
-				context.getProject(),
-				context.getConnectionId(),
+				batch.getProject(),
+				batch.getConnectionId(),
 				c -> {
-					for (String className : context.getClassesToCompile()) {
+					for (String className : batch.getClassesToCompile()) {
                         executeStatement(c, "ALTER JAVA CLASS \"" + className + "\" COMPILE");
 						setProgressDetail(className);
                     }
 				});
 
 
-		loadCompilationErrors(context);
+		loadCompilationErrors(batch);
 	}
 
-	private static void loadCompilationErrors(JavaUploadContext context) throws SQLException {
-		String classList = context.getClassesToCompile().stream()
+	private static void loadCompilationErrors(JavaUploadBatch batch) throws SQLException {
+		String classList = batch.getClassesToCompile().stream()
 				.map(s -> "'" + s + "'")
 				.collect(Collectors.joining(","));
 
@@ -124,8 +124,8 @@ public class JavaArchiveUploader extends JavaUploaderBase {
 				Priority.HIGH,
 				"Load Compiler Result",
 				"Loading java class compilation errors",
-				context.getProject(),
-				context.getConnectionId(),
+				batch.getProject(),
+				batch.getConnectionId(),
 				c -> {
 					DBNCallableStatement stmt = null;
 					try {
@@ -136,7 +136,7 @@ public class JavaArchiveUploader extends JavaUploaderBase {
 							while(resultSet.next()) {
 								String title = resultSet.getString(1);
 								String message = resultSet.getString(2);
-								context.addErrorMessage(title, message);
+								batch.getMessages().addErrorMessage(title, message);
 							}
 						}
 					} finally {

@@ -23,7 +23,6 @@ import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.tree.TreeEventType;
@@ -52,6 +51,9 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.Priority.LOW;
+import static com.dbn.common.load.ProgressMonitor.setProgressFraction;
+import static com.dbn.common.load.ProgressMonitor.setProgressIndeterminate;
+import static com.dbn.common.load.ProgressMonitor.setProgressText;
 import static com.dbn.common.notification.NotificationGroup.BROWSER;
 import static com.dbn.database.DatabaseFeature.OBJECT_INVALIDATION;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -107,8 +109,9 @@ public class ObjectStatusManager extends ProjectComponentBase implements Persist
         int size = schemas.size();
         for (int i = 0; i < size; i++) {
             DBSchema schema = schemas.get(i);
-            ProgressMonitor.setProgressText(txt("prc.objects.text.RefreshingSchemaObjectsStatus", schema.getQualifiedNameWithType()));
-            ProgressMonitor.setProgressFraction(Progress.progressOf(i, size));
+            setProgressIndeterminate(false);
+            setProgressText(txt("prc.objects.text.RefreshingSchemaObjectsStatus", schema.getQualifiedNameWithType()));
+            setProgressFraction(Progress.progressOf(i, size));
             refreshObjectsStatus(schema, conn);
         }
     }

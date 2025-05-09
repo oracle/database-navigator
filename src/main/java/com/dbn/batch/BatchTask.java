@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 
-package com.dbn.framework.batch;
+package com.dbn.batch;
 
+import com.dbn.common.message.Message;
 import com.dbn.common.ui.list.Enableable;
 import com.dbn.common.ui.list.Selectable;
 
-public interface BatchElement extends Selectable<BatchElement>, Enableable<BatchElement> {
+public interface BatchTask extends Selectable<BatchTask>, Enableable<BatchTask> {
+    String getIdentifier();
+    Message getMessage();
+
+    void markSuccessful(String message);
+    void markErrored(String message);
 }

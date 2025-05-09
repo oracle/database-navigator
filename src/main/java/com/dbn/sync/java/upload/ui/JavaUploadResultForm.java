@@ -20,7 +20,7 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
-import com.dbn.sync.java.upload.JavaUploadContext;
+import com.dbn.sync.java.upload.JavaUploadBatch;
 import com.dbn.sync.java.upload.JavaUploadInput;
 import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.components.JBList;
@@ -35,21 +35,21 @@ public class JavaUploadResultForm extends DBNFormBase {
     private JPanel filesPanel;
     private JBList<String> fileList;
 
-    public JavaUploadResultForm(JavaUploadResultDialog dialog, JavaUploadContext context) {
+    public JavaUploadResultForm(JavaUploadResultDialog dialog, JavaUploadBatch batch) {
         super(dialog);
 
-        initHeaderPanel(context);
-        initHintPanel(context);
-        initObjectList(context);
+        initHeaderPanel(batch);
+        initHintPanel(batch);
+        initObjectList(batch);
     }
 
-    private void initHeaderPanel(JavaUploadContext context) {
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, context.getInput().getRootFile());
+    private void initHeaderPanel(JavaUploadBatch batch) {
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, batch.getInput().getRootFile());
         this.headerPanel.add(headerForm.getMainComponent());
     }
 
-    private void initHintPanel(JavaUploadContext context) {
-        JavaUploadInput input = context.getInput();
+    private void initHintPanel(JavaUploadBatch batch) {
+        JavaUploadInput input = batch.getInput();
         TextContent hintText = TextContent.plain("The following classes were created or updated in your \n Connection " + input.getTargetConnection().getName() +
                 " \n Schema " + input.getTargetSchemaName());
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
@@ -57,8 +57,8 @@ public class JavaUploadResultForm extends DBNFormBase {
     }
 
 
-    private void initObjectList(JavaUploadContext context) {
-        fileList.setModel(new CollectionListModel<>(context.getUploadedFiles()));
+    private void initObjectList(JavaUploadBatch batch) {
+        fileList.setModel(new CollectionListModel<>(batch.getUploadedFiles()));
     }
 
     @Override
