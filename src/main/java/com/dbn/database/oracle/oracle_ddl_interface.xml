@@ -65,13 +65,23 @@
 
     <statement-execution-processor id="update-java-resource">
         <statement>
+            declare
+                v_string_content VARCHAR2(32000) := '{2}';
+                v_binary_content BLOB;
             begin
-                execute immediate 'CREATE OR REPLACE JAVA RESOURCE NAMED {0}.{1}
-                                   USING blob LOB FROM CREATE$JAVA$LOB$TABLE WHERE name = {2}';
-                execute immediate 'delete from CREATE$JAVA$LOB$TABLE where name={2}';
+                dbms_lob.createtemporary(v_binary_content, TRUE);
+                dbms_lob.writeappend(
+                        v_binary_content,
+                        length(v_string_content),
+                        utl_raw.cast_to_raw(v_string_content));
+
+                execute immediate 'CREATE OR REPLACE JAVA RESOURCE NAMED {0}.{1} as :1' using v_binary_content;
+                dbms_lob.freetemporary(v_binary_content);
             exception
-            when others then
-                execute immediate 'delete from CREATE$JAVA$LOB$TABLE where name={2}';
+                when others then
+                    if dbms_lob.istemporary(v_binary_content) = 1 then
+                        dbms_lob.freetemporary(v_binary_content);
+                    end if;
             end;
         </statement>
     </statement-execution-processor>
