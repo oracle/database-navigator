@@ -51,14 +51,37 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="change-object">
+    <statement-execution-processor id="update-object">
         <statement>create or replace {0}</statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="change-java-object">
+    <statement-execution-processor id="update-java-object">
         <statement>
             begin
-                execute immediate 'create or replace java source named {0} as {1}';
+                execute immediate 'create or replace java source named {0}.{1} as {2}';
+            end;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="update-java-resource">
+        <statement>
+            declare
+                v_string_content VARCHAR2(32000) := '{2}';
+                v_binary_content BLOB;
+            begin
+                dbms_lob.createtemporary(v_binary_content, TRUE);
+                dbms_lob.writeappend(
+                        v_binary_content,
+                        length(v_string_content),
+                        utl_raw.cast_to_raw(v_string_content));
+
+                execute immediate 'CREATE OR REPLACE JAVA RESOURCE NAMED {0}.{1} as :1' using v_binary_content;
+                dbms_lob.freetemporary(v_binary_content);
+            exception
+                when others then
+                    if dbms_lob.istemporary(v_binary_content) = 1 then
+                        dbms_lob.freetemporary(v_binary_content);
+                    end if;
             end;
         </statement>
     </statement-execution-processor>

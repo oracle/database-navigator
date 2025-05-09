@@ -36,6 +36,7 @@ import com.dbn.database.common.metadata.impl.DBJavaClassMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJavaFieldMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJavaMethodMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJavaParameterMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBJavaResourceMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJsonViewMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJsonViewTableMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBMaterializedViewMetadataImpl;
@@ -128,6 +129,7 @@ public class DBObjectMetadataFactory {
             case JAVA_FIELD:          return new DBJavaFieldMetadataImpl(resultSet);
             case JAVA_METHOD:         return new DBJavaMethodMetadataImpl(resultSet);
             case JAVA_PARAMETER:      return new DBJavaParameterMetadataImpl(resultSet);
+            case JAVA_RESOURCE:       return new DBJavaResourceMetadataImpl(resultSet);
             case INCOMING_DEPENDENCY: return new DBObjectDependencyMetadataImpl(resultSet);
             case OUTGOING_DEPENDENCY: return new DBObjectDependencyMetadataImpl(resultSet);
         }
