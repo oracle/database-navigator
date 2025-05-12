@@ -108,17 +108,21 @@ public abstract class BatchBase<
         return event -> {
             if (event.getTask() != null) return; // ignore task-level events
 
-            BatchEventType type = event.getType();
-
-            switch (type) {
-                case STARTED:
-                case RESUMED: status = RUNNING; break;
-                case PAUSED: status = PAUSED; break;
-                case FINISHED: status = FINISHED; break;
-                case CANCELLED: status = CANCELLED; break;
-                default:
-            }
+            handleBatchLevelEvent(event);
         };
+    }
+
+    private void handleBatchLevelEvent(BatchEvent event) {
+        BatchEventType type = event.getType();
+
+        switch (type) {
+            case STARTED:
+            case RESUMED: status = RUNNING; break;
+            case PAUSED: status = PAUSED; break;
+            case FINISHED: status = FINISHED; break;
+            case CANCELLED: status = CANCELLED; break;
+            default:
+        }
     }
 
     @Override

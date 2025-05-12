@@ -21,7 +21,6 @@ import com.dbn.batch.BatchInput;
 import com.dbn.batch.BatchProcessor;
 import com.dbn.batch.BatchTask;
 import com.dbn.common.thread.Background;
-import com.intellij.openapi.progress.ProcessCanceledException;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 
@@ -94,28 +93,31 @@ public abstract class BatchProcessorBase<
 
         Queue<T> tasks = batch.getTasks();
         while (!tasks.isEmpty()) {
+            if (isInterrupted(batch)) return;
+
             T task = tasks.poll();
+            if (task == null) return;
+
             try {
                 batch.notifyEvent(STARTED, task);
                 processTask(batch, task);
-                batch.notifyEvent(FINISHED, task);
-
-            } catch (ProcessCanceledException e) {
-                conditionallyLog(e);
-                batch.notifyEvent(CANCELLED, task);
 
             } catch (Exception e) {
                 conditionallyLog(e);
                 task.setException(e);
+
+            } finally {
                 batch.notifyEvent(FINISHED, task);
             }
 
-            if (batch.isPaused()) return;
-            if (batch.isFinished()) return;
-            if (batch.isCancelled()) return;
+            if (isInterrupted(batch)) return;
         }
 
         // if reaching this point without being paused or canceled, it's safe to assume the process is finished
         batch.notifyEvent(FINISHED);
+    }
+
+    private boolean isInterrupted(B batch) {
+        return batch.isPaused() || batch.isCancelled() || batch.isFinished();
     }
 }

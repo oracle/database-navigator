@@ -29,16 +29,20 @@ public class JavaUploadMessenger extends BatchMessengerBase<JavaUploadTask, Java
     }
 
     @Override
-    public String getBatchProgressMessage(JavaUploadBatch batch) {
+    public String getBatchProgressTitle(JavaUploadBatch batch) {
         return "Uploading java resources...";
     }
 
+    @Override
+    public String getBatchProgressDetail(JavaUploadBatch batch) {
+        // TODO conditional progress detail (current state / counters)
+        return "";
+    }
 
     @Override
     public String createTaskInitMessage(JavaUploadBatch batch, JavaUploadTask task) {
         return "Uploading java resource...";
     }
-
 
     @Override
     public String createTaskSuccessMessage(JavaUploadBatch batch, JavaUploadTask task) {

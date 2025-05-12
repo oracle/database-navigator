@@ -23,7 +23,9 @@ public interface BatchMessenger<
 
     String getBatchTitle(B batch);
 
-    String getBatchProgressMessage(B batch);
+    String getBatchProgressTitle(B batch);
+
+    String getBatchProgressDetail(B batch);
 
     String createTaskInitMessage(B batch, T task);
 

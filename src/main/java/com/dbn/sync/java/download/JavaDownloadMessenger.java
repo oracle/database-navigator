@@ -29,8 +29,14 @@ public class JavaDownloadMessenger extends BatchMessengerBase<JavaDownloadTask, 
     }
 
     @Override
-    public String getBatchProgressMessage(JavaDownloadBatch batch) {
+    public String getBatchProgressTitle(JavaDownloadBatch batch) {
         return "Downloading java resources...";
+    }
+
+    @Override
+    public String getBatchProgressDetail(JavaDownloadBatch batch) {
+        // TODO conditional progress detail (current state / counters)
+        return "";
     }
 
     @Override

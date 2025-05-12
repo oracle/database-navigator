@@ -61,6 +61,10 @@ public class ProgressForm extends DBNFormBase {
         progressText2Label.setText(nvl(text2, " "));
     }
 
+    public void setEnabled(boolean enabled) {
+        progressBar.setEnabled(enabled);
+    }
+
     public boolean matchesText(String text, String text2) {
         return UserInterface.matchesText(progressTextLabel, text) &&
                 UserInterface.matchesText(progressText2Label, text2);
