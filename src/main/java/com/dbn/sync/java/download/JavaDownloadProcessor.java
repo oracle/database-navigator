@@ -21,6 +21,9 @@ import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaResource;
+import com.dbn.object.common.DBObject;
+import com.dbn.object.common.DBSchemaObject;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -67,9 +70,15 @@ public final class JavaDownloadProcessor extends JavaDownloaderBase {
 
 		// load source code content
 		Project project = batch.getProject();
-		DBJavaClass javaClass = task.getJavaClass();
+		DBObject object = task.getObject();
+		DBSchemaObject schemaObject;
+		if (object instanceof DBJavaClass) {
+			schemaObject = (DBJavaClass) object;
+		} else {
+			schemaObject = (DBJavaResource) object;
+		}
 		SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
-		SourceCodeContent content = sourceCodeManager.loadSourceFromDatabase(javaClass, DBContentType.CODE);
+		SourceCodeContent content = sourceCodeManager.loadSourceFromDatabase(schemaObject, DBContentType.CODE);
 
 		String sourceCode = content.getRawContent();
 		task.setContent(sourceCode.getBytes());
@@ -81,8 +90,15 @@ public final class JavaDownloadProcessor extends JavaDownloaderBase {
 
 	@SneakyThrows
 	private static void writeJavaFile(JavaDownloadBatch batch, JavaDownloadTask task) {
-		DBJavaClass javaClass = task.getJavaClass();
-		String packageName = javaClass.getPackageName();
+		DBObject object = task.getObject();
+		String packageName = "";
+		if (object instanceof DBJavaClass) {
+			DBJavaClass javaClass = (DBJavaClass) object;
+			packageName = javaClass.getPackageName();
+		} else if (object instanceof DBJavaResource) {
+			String[] packageNameTokens = task.getPackageNameTokens();
+			packageName = String.join(".", packageNameTokens);
+		}
 
 		JavaDownloadInput input = batch.getInput();
 		PsiDirectory rootDirectory = input.findContentRootDirectory();

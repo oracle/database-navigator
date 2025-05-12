@@ -19,8 +19,11 @@ package com.dbn.sync.java.download;
 import com.dbn.batch.impl.BatchTaskBase;
 import com.dbn.common.icon.Icons;
 import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaResource;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBJavaNameCache;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,6 +36,7 @@ import javax.swing.Icon;
 @Setter
 public class JavaDownloadTask extends BatchTaskBase {
     private DBObjectRef<DBJavaClass> javaClass;
+    private DBObjectRef<DBJavaResource> javaResource = null;
     private VirtualFile targetFolder;
     private VirtualFile targetFile;
     private byte[] content;
@@ -41,36 +45,72 @@ public class JavaDownloadTask extends BatchTaskBase {
         this(DBObjectRef.of(javaClass));
     }
 
-    public JavaDownloadTask(DBObjectRef<DBJavaClass> javaClass) {
-        this.javaClass = javaClass;
+    public JavaDownloadTask(DBObjectRef javaObject) {
+        if(javaObject.getObjectType() == DBObjectType.JAVA_CLASS)
+            this.javaClass = javaObject;
+        else
+            this.javaResource = javaObject;
     }
 
-    public DBJavaClass getJavaClass() {
-        return javaClass.ensure();
+    public JavaDownloadTask(DBJavaResource javaResource) {
+        this(DBObjectRef.of(javaResource));
+    }
+
+
+    public DBObject getObject() {
+        if(this.javaResource == null) return javaClass.ensure();
+        return javaResource.ensure();
     }
 
     public String getJavaClassName() {
-        return DBJavaNameCache.getCanonicalName(javaClass);
+        if(this.javaResource == null)
+            return DBJavaNameCache.getCanonicalName(javaClass);
+        return javaResource.getFileName();
     }
 
+    public String getJavaResourceName() {
+        return javaResource.getFileName();
+    }
+
+
     public String getJavaFileName() {
-        return DBJavaNameCache.getSimpleName(javaClass) + ".java";
+        if(this.javaResource == null)
+            return DBJavaNameCache.getSimpleName(javaClass) + ".java";
+        else {
+            String packageName = String.join("/", getPackageNameTokens());
+            if(packageName.isEmpty())
+                return javaResource.getFileName();
+            return javaResource.getFileName().substring(packageName.length() + 1); // last separator token
+        }
     }
 
     public String[] getPackageNameTokens() {
-        String packageName = getJavaClass().getPackageName();
-        return packageName == null ? new String[0] : packageName.split("\\.");
+        if(this.javaResource == null) {
+            String packageName = ((DBJavaClass) getObject()).getPackageName();
+            return packageName == null ? new String[0] : packageName.split("\\.");
+        } else {
+            String[] fileNameTokens = this.javaResource.getFileName().split("/");
+            String[] packageTokens = new String[fileNameTokens.length - 1];
+			System.arraycopy(fileNameTokens, 0, packageTokens, 0, fileNameTokens.length - 1);
+            return packageTokens;
+        }
     }
 
     public String getSchemaName() {
-        return javaClass.getSchemaName();
+        if( this.javaResource == null)
+            return javaClass.getSchemaName();
+        else
+            return javaResource.getSchemaName();
     }
 
 
     @NotNull
     @Override
     public String getName() {
-        return getJavaClassName() + " (" + getSchemaName() + ")";
+        if( this.javaResource == null)
+            return getJavaClassName() + " (" + getSchemaName() + ")";
+        else
+            return getJavaResourceName();
     }
 
     @Override
@@ -80,6 +120,10 @@ public class JavaDownloadTask extends BatchTaskBase {
 
     @Override
     public @Nullable Icon getIcon() {
-        return isEnabled() ? getJavaClass().getIcon() : Icons.DBO_JAVA_CLASS;
+
+        if(this.javaResource == null)
+            return isEnabled() ? getObject().getIcon() : Icons.DBO_JAVA_CLASS;
+        else
+            return ((DBJavaResource) getObject()).getFileType().getIcon();
     }
 }

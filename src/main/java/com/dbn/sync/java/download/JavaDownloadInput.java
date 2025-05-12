@@ -21,6 +21,7 @@ import com.dbn.common.project.Modules;
 import com.dbn.common.thread.Read;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaResource;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.module.Module;
@@ -61,6 +62,12 @@ public class JavaDownloadInput extends BatchInputBase<JavaDownloadTask> {
         if (sourceObject instanceof DBJavaClass) {
             DBJavaClass javaClass = (DBJavaClass) sourceObject;
             JavaDownloadTask task = new JavaDownloadTask(javaClass);
+            task.setSelected(true);
+            task.setEnabled(false);
+            addTask(task);
+        } else if (sourceObject instanceof DBJavaResource) {
+            DBJavaResource javaResource = (DBJavaResource) sourceObject;
+            JavaDownloadTask task = new JavaDownloadTask(javaResource);
             task.setSelected(true);
             task.setEnabled(false);
             addTask(task);
