@@ -13,7 +13,6 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import oracle.jdbc.driver.OracleConnection;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -134,7 +133,7 @@ public class RegistrationManager {
     props.setProperty(OracleConstants.DCN_CLIENT_INIT_CONNECTION, "true");
 
     if ((mask & OracleConstants.DCN_NOTIFY_INSERTOP) == 0){
-      props.setProperty(OracleConnection.DCN_IGNORE_INSERTOP,"true");
+      props.setProperty(OracleConstants.DCN_IGNORE_INSERTOP,"true");
     }
 
     if ((mask & OracleConstants.DCN_NOTIFY_UPDATEOP) == 0) {
