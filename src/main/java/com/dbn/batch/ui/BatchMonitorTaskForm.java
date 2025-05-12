@@ -19,9 +19,9 @@ package com.dbn.batch.ui;
 import com.dbn.batch.Batch;
 import com.dbn.batch.BatchMessenger;
 import com.dbn.batch.BatchTask;
+import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.intellij.ui.ColorUtil;
 import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
@@ -96,8 +96,8 @@ public class BatchMonitorTaskForm extends DBNFormBase {
 
     private static @NotNull Color getMessageColor(boolean error) {
         return error ?
-                ColorUtil.dimmer(UIUtil.getErrorForeground()) :
-                ColorUtil.faded(UIUtil.getLabelForeground());
+                Colors.dimmer(UIUtil.getErrorForeground()) :
+                Colors.faded(UIUtil.getLabelForeground());
     }
 
     @Override

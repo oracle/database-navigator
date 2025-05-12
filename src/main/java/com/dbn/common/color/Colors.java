@@ -29,6 +29,7 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.ColorChooserService;
+import com.intellij.ui.ColorUtil;
 import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
@@ -48,6 +49,7 @@ import static com.dbn.common.color.ColorCache.cached;
 import static com.dbn.common.color.ColorSchemes.background;
 import static com.dbn.common.color.ColorSchemes.foreground;
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.intellij.ui.ColorUtil.withAlpha;
 
 @UtilityClass
 public final class Colors {
@@ -265,6 +267,16 @@ public final class Colors {
     public static Color stronger(Color color, int tones) {
         return ColorAdjustmentCache.adjusted(color, ColorAdjustment.STRONGER, tones);
     }
+
+    @Compatibility
+    public static Color faded(Color color) {
+        return withAlpha(color, (double)0.45F);
+    }
+
+    public static Color dimmer(Color color) {
+        return ColorUtil.dimmer(color);
+    }
+
 
     public static Color delegate(Supplier<Color> supplier) {
         return new ColorDelegate(supplier);
