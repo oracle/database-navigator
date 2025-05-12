@@ -16,10 +16,10 @@
 
 package com.dbn.common.ui.progress;
 
+import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.UserInterface;
 import com.intellij.openapi.Disposable;
-import com.intellij.ui.ColorUtil;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,7 +39,7 @@ public class ProgressForm extends DBNFormBase {
     public ProgressForm(@Nullable Disposable parent) {
         super(parent);
         progressBar.setBorder(null);
-        progressText2Label.setForeground(ColorUtil.faded(UIUtil.getLabelForeground()));
+        progressText2Label.setForeground(Colors.faded(UIUtil.getLabelForeground()));
         progressTextLabel.setText(" ");
         progressText2Label.setText(" ");
     }
