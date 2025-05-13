@@ -6,12 +6,13 @@ import com.dbn.assistant.chat.PersistentChatConversation;
 import com.dbn.assistant.chat.ui.SaveOrDiscardConversationDialog;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.util.Dialogs;
-import com.dbn.connection.ConnectionRef;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Event that handles context changes in chat conversations
@@ -43,11 +44,12 @@ public class ContextChangeEvent {
         AssistantState state = chatBoxForm.getAssistantState();
         ChatConversation oldConversation = state.getCurrentConversation();
 
+        List<String> titles = chatBoxForm.getConversations().stream().map(PersistentChatConversation::getTitle).collect(Collectors.toList());
         if (isOldConversationInteractional && !oldConversation.getMessages().isEmpty()) {
             // Old context is an interactive conversation
             if (!changedField.isEmpty()) {
                 Dialogs.show(() -> new SaveOrDiscardConversationDialog(
-                                chatBoxForm.getConnection().getProject(), changedField),
+                                chatBoxForm.getConnection().getProject(), changedField, titles),
                         (dialog, exitCode) -> handleDialogResult(dialog, exitCode, oldConversation, state));
             } else {
                 state.getCurrentConversation().setContext(newContext);
@@ -57,7 +59,7 @@ public class ContextChangeEvent {
             // Old context is a non-interactive conversation with messages
             if (isNewConversationInteractional || isNewConversation) {
                 Dialogs.show(() -> new SaveOrDiscardConversationDialog(
-                                chatBoxForm.getConnection().getProject(), "profile"),
+                                chatBoxForm.getConnection().getProject(), "profile", titles),
                         (dialog, exitCode) -> handleDialogResult(dialog, exitCode, oldConversation, state));
             } else {
                 state.getCurrentConversation().setContext(newContext);

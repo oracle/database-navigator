@@ -24,15 +24,18 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 public class SaveOrDiscardConversationDialog extends DBNDialog<SaveOrDiscardConversationForm> {
     private final String changedField;
     @Getter
     private String conversationTitle;
+    private final List<String> titles;
 
-    public SaveOrDiscardConversationDialog(Project project, String changedField) {
+    public SaveOrDiscardConversationDialog(Project project, String changedField, List<String> titles) {
         super(project, "Conversation", true);
         this.changedField = changedField;
+        this.titles = titles;
         renameAction(getOKAction(), "Save");
         setModal(true);
         init();
@@ -41,7 +44,7 @@ public class SaveOrDiscardConversationDialog extends DBNDialog<SaveOrDiscardConv
     @NotNull
     @Override
     protected SaveOrDiscardConversationForm createForm() {
-        return new SaveOrDiscardConversationForm(this, changedField);
+        return new SaveOrDiscardConversationForm(this, changedField, titles);
     }
 
 

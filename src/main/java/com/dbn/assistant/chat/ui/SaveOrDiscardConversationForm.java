@@ -26,13 +26,15 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import java.util.List;
 
 public class SaveOrDiscardConversationForm extends DBNFormBase {
     private JPanel headerPanel;
     private JPanel mainPanel;
     private JTextField conversationTitleTextField;
+    private List<String> titles;
 
-    SaveOrDiscardConversationForm(SaveOrDiscardConversationDialog parent, String changedField) {
+    SaveOrDiscardConversationForm(SaveOrDiscardConversationDialog parent, String changedField, List<String> titles) {
         super(parent);
         JLabel warningLabel = new JLabel(
                 "<html>By changing the <b>" + changedField + "</b>, your current conversation will be interrupted. " +
@@ -40,6 +42,7 @@ public class SaveOrDiscardConversationForm extends DBNFormBase {
         );
         warningLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
         headerPanel.add(warningLabel);
+        this.titles = titles;
     }
 
     @Override
@@ -49,8 +52,7 @@ public class SaveOrDiscardConversationForm extends DBNFormBase {
     }
 
     private boolean isNotUsed(String name) {
-        //TODO
-        return true;
+        return !titles.contains(name);
     }
 
     public String getConversationTitle() {

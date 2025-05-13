@@ -57,11 +57,7 @@ public class ConversationSelectDropdownAction extends BasicActionGroup implement
     }
     @Override
     public void update(@NotNull AnActionEvent e) {
-        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
-
         Presentation presentation = e.getPresentation();
         presentation.setDescription("Select a conversation");
-        //TODO when will it be enabled
-        presentation.setEnabled(true);
     }
 }
