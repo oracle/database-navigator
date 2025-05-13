@@ -410,7 +410,6 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   public void interruptCurrentConversation() {
-    try{
       Progress.modal(getProject(), null, true,
               "Interrupting current conversation",
               "Interrupting current conversation",
@@ -421,11 +420,6 @@ public class ChatBoxForm extends DBNFormBase {
                     Messages.showErrorDialog(getProject(), "Error while interrupting current conversation");
                   }
               });
-
-    } catch (Exception e){
-//TODO
-    }
-
   }
 
   public ConnectionId getConnectionId() {
