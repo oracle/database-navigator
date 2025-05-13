@@ -1,7 +1,7 @@
 package com.dbn.object.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.events.listener.EventListenerManager;
+import com.dbn.event.listener.EventListenerManager;
 import com.dbn.object.DBTable;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;

@@ -18,7 +18,7 @@ package com.dbn.object.action;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.editor.DBContentType;
-import com.dbn.events.listener.EventListenerManager;
+import com.dbn.event.listener.EventListenerManager;
 import com.dbn.execution.compiler.action.CompileActionGroup;
 import com.dbn.execution.java.action.JavaObjectRunAction;
 import com.dbn.execution.java.action.JavaRunAction;

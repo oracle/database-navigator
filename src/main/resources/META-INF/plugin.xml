@@ -170,7 +170,7 @@
         <projectService serviceImplementation="com.dbn.ddl.DDLFileManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileAttachmentManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseFileEditorManager"/>
-        <projectService serviceImplementation="com.dbn.events.notification.EventNotificationManager"/>
+        <projectService serviceImplementation="com.dbn.event.notification.EventNotificationManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.SourceCodeManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.diff.SourceCodeDiffManager"/>
@@ -581,15 +581,15 @@
             </action>
         </group>
         <group id="DBNavigator.ActionGroup.EventListener.Controls" text="Database Event Listener Controls">
-            <action id="DBNavigator.Actions.EventListener.Reload" class="com.dbn.events.listener.action.EventListenersReloadAction" text="Event Listeners - Reload"/>
-            <action id="DBNavigator.Actions.EventListener.UserFilter" class="com.dbn.events.listener.action.EventListenerUserFilterAction" text="Event Listeners - User Filter"/>
-            <action id="DBNavigator.Actions.EventListener.TableFilter" class="com.dbn.events.listener.action.EventListenerTableFilterAction" text="Event Listeners - Table Filter"/>
-            <action id="DBNavigator.Actions.EventListener.StatusFilter" class="com.dbn.events.listener.action.EventListenerStatusFilterAction" text="Event Listeners - Status Filter"/>
+            <action id="DBNavigator.Actions.EventListener.Reload" class="com.dbn.event.listener.action.EventListenersReloadAction" text="Event Listeners - Reload"/>
+            <action id="DBNavigator.Actions.EventListener.UserFilter" class="com.dbn.event.listener.action.EventListenerUserFilterAction" text="Event Listeners - User Filter"/>
+            <action id="DBNavigator.Actions.EventListener.TableFilter" class="com.dbn.event.listener.action.EventListenerTableFilterAction" text="Event Listeners - Table Filter"/>
+            <action id="DBNavigator.Actions.EventListener.StatusFilter" class="com.dbn.event.listener.action.EventListenerStatusFilterAction" text="Event Listeners - Status Filter"/>
         </group>
         <group id="DBNavigator.ActionGroup.EventNotification.Controls" text="Database Event Notification Controls">
-            <action id="DBNavigator.Actions.EventNotification.Reload" class="com.dbn.events.notification.action.EventNotificationsReloadAction" text="Event Notifications - Reload"/>
-            <action id="DBNavigator.Actions.EventNotification.TableFilter" class="com.dbn.events.notification.action.EventNotificationTableFilterAction" text="Event Notifications - Table Filter"/>
-            <action id="DBNavigator.Actions.EventNotification.OperationFilter" class="com.dbn.events.notification.action.EventNotificationOperationFilterAction" text="Event Notifications - Operation Filter"/>
+            <action id="DBNavigator.Actions.EventNotification.Reload" class="com.dbn.event.notification.action.EventNotificationsReloadAction" text="Event Notifications - Reload"/>
+            <action id="DBNavigator.Actions.EventNotification.TableFilter" class="com.dbn.event.notification.action.EventNotificationTableFilterAction" text="Event Notifications - Table Filter"/>
+            <action id="DBNavigator.Actions.EventNotification.OperationFilter" class="com.dbn.event.notification.action.EventNotificationOperationFilterAction" text="Event Notifications - Operation Filter"/>
         </group>
     </actions>
     <projectListeners>
@@ -626,7 +626,7 @@
         <toolWindow id="DB Diagnostics" anchor="bottom" factoryClass="com.dbn.diagnostics.DiagnosticsToolWindowFactory" canCloseContents="true"/>
         <toolWindow id="DB Execution Console" anchor="bottom" factoryClass="com.dbn.execution.ExecutionConsoleToolWindowFactory" />
         <toolWindow id="DB Assistant" anchor="right" factoryClass="com.dbn.assistant.DatabaseAssistantToolWindowFactory"/>
-        <toolWindow id="DB Events" anchor="bottom" factoryClass="com.dbn.events.EventMonitorToolWindowFactory" canCloseContents="true"/>
+        <toolWindow id="DB Events" anchor="bottom" factoryClass="com.dbn.event.EventMonitorToolWindowFactory" canCloseContents="true"/>
 
         <!--        new tool window-->
 
