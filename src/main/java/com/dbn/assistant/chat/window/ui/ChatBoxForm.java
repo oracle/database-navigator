@@ -406,11 +406,9 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   public void updateActionToolbars(){
-    //TODO can't working without invokeLater
-    ApplicationManager.getApplication().invokeLater(() -> {
-      dispatch(this::updateActionToolbars);
-    });
+      dispatch(super::updateActionToolbars);
   }
+
   public void interruptCurrentConversation() {
     try{
       Progress.modal(getProject(), null, true,
