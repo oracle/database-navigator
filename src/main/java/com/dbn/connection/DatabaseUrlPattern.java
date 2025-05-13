@@ -52,6 +52,7 @@ import static com.dbn.connection.DatabaseUrlType.LDAPS;
 import static com.dbn.connection.DatabaseUrlType.SERVICE;
 import static com.dbn.connection.DatabaseUrlType.SID;
 import static com.dbn.connection.DatabaseUrlType.TNS;
+import static com.dbn.connection.config.EasyConnectParameters.ensureParametersIfEasyConnect;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static java.util.regex.Pattern.compile;
@@ -63,7 +64,7 @@ public enum DatabaseUrlPattern {
 
     ORACLE_EZCONNECT(
             // temporary; pattern is much more complicated.
-            "jdbc:oracle:thin:@<PROTOCOL>//<HOST>:<PORT>/<DATABASE><SERVER_TYPE><PARAMETERS>",
+            "jdbc:oracle:thin:@<PROTOCOL>//<HOST>:<PORT>/<SERVICE_NAME>:<SERVER_TYPE><PARAMETERS>",
             compile("^jdbc:oracle:thin:@(" + protocol + ":)?//" + host + "(:" + port + ")?/" + database + serverType + parameters),
             Default.ORACLE, DatabaseUrlType.EZCONNECT),
 
@@ -73,12 +74,12 @@ public enum DatabaseUrlPattern {
             Default.ORACLE, TNS),
 
     ORACLE_SID(
-            "jdbc:oracle:thin:@<HOST>:<PORT>:<DATABASE>",
+            "jdbc:oracle:thin:@<HOST>:<PORT>:<SID>",
             compile("^jdbc:oracle:(thin|oci):@" + host + "(:" + port + ")?(:" + database + ")$", CASE_INSENSITIVE),
             Default.ORACLE, SID),
 
     ORACLE_SERVICE(
-            "jdbc:oracle:thin:@//<HOST>:<PORT>/<DATABASE>",
+            "jdbc:oracle:thin:@//<HOST>:<PORT>/<SERVICE_NAME>",
             compile("^jdbc:oracle:(thin|oci):@//" + host + "(:" + port + ")?(/" + database + ")$", CASE_INSENSITIVE),
             Default.ORACLE, SERVICE),
 
@@ -157,24 +158,36 @@ public enum DatabaseUrlPattern {
                 databaseInfo.getMainFilePath(),
                 databaseInfo.ensureTnsFolder(),
                 databaseInfo.getTnsProfile(),
+                databaseInfo.getProtocol(),
                 databaseInfo.getServerType(),
-                databaseInfo.getParameters(),
-                databaseInfo.getProtocol());
+                databaseInfo.getParameters()
+        );
     }
 
-    public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile, String serverType, Map<String, String> parameters, DatabaseProtocol protocol) {
+    public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile, DatabaseProtocol protocol, ServerType serverType, Map<String, String> parameters) {
+        // for building the url, copy the parameter
         return urlTemplate.
                 replace("<VENDOR>", nvl(vendor, "")).
                 replace("<HOST>", nvl(host, "")).
-                replace(":<PORT>", isEmpty(port) ? "" : ":" + port).
+                replace(":<PORT>", getPortToken(port)).
+                replace("<SID>", nvl(database, "")).
+                replace("<SERVICE_NAME>", nvl(database, "")).
                 replace("<DATABASE>", nvl(database, "")).
                 replace("<PROTOCOL>", protocol == null ? "" : protocol + ":").
                 replace("<FILE>", nvl(file, "")).
                 replace("<TNS_FOLDER>", nvl(tnsFolder, "")).replaceAll("\\\\", "/").
                 replace("<TNS_PROFILE>", nvl(tnsProfile, "")).
-                replace("<SERVER_TYPE>", isEmpty(serverType) || "Default".equalsIgnoreCase(serverType) ? ""
-                        : ":" + nvl(serverType.toUpperCase(), "")).
-                replace("<PARAMETERS>", toParameterString(parameters));
+                replace(":<SERVER_TYPE>", getServerTypeToken(serverType)).
+                replace("<PARAMETERS>",
+                            toParameterString(ensureParametersIfEasyConnect(parameters, protocol, this.urlType, false)));
+    }
+
+    private static String getPortToken(String port) {
+        return isEmpty(port) ? "" : ":" + port;
+    }
+
+    private static String getServerTypeToken(ServerType serverType) {
+        return serverType == null || serverType == ServerType.DEFAULT ? "" : ":" + serverType;
     }
 
     public String getDefaultUrl() {
@@ -217,8 +230,9 @@ public enum DatabaseUrlPattern {
         return resolveGroup(url, "PROFILE", TNS);
     }
 
-    public String resolveServerType(String url) {
-        return resolveGroup(url, "SERVERTYPE", EZCONNECT);
+    public ServerType resolveServerType(String url) {
+        String serverType = resolveGroup(url, "SERVERTYPE", EZCONNECT);
+        return ServerType.get(serverType);
     }
 
     public DatabaseProtocol resolveProtocol(String url) {
@@ -255,7 +269,10 @@ public enum DatabaseUrlPattern {
             Matcher matcher = getMatcher(url);
             if (!matcher.matches()) return "";
 
-            return matcher.group(name).trim();
+            String group = matcher.group(name);
+            if (isEmpty(group)) return "";
+
+            return group.trim();
         } catch (Exception e) {
             conditionallyLog(e);
             log.warn("Failed to get group {} from database url", name);

@@ -36,6 +36,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.dbn.common.ui.util.ClientProperty.HAS_VALIDATION_LISTENERS;
+import static com.dbn.common.ui.util.ClientProperty.VISITED;
 import static com.dbn.common.util.Commons.isEmpty;
 import static com.dbn.common.util.Commons.isOneOf;
 import static java.util.Collections.emptyList;
@@ -46,6 +47,23 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
 
     public DBNFormValidatorImpl(DBNDialog dialog) {
         super(dialog);
+    }
+
+    @Override
+    public boolean hasValidators() {
+        return !validators.isEmpty();
+    }
+
+    @Override
+    public <C extends JComponent> boolean hasValidators(C component) {
+        if (validators.isEmpty()) return false;
+        if (component == null) return true; // at least one validator given above
+
+        return validators.stream().anyMatch(v -> v.getTarget() == component);
+    }
+
+    public <C extends JComponent> void removeValidators(C component) {
+        validators.removeIf(v -> v.getTarget() == component);
     }
 
     @Override
@@ -109,6 +127,16 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         textField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
+                if (VISITED.isNot(textField)) {
+                    VISITED.set(textField, true);
+                } else {
+                    DBNDialog dialog = getTarget();
+                    dialog.validateInput(textField);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
                 DBNDialog dialog = getTarget();
                 dialog.validateInput(textField);
             }

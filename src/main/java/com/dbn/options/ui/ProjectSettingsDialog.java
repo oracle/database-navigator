@@ -24,6 +24,7 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.tns.TnsImportData;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
+import com.dbn.oci.OciConnectionData;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.intellij.openapi.application.ModalityState;
@@ -64,9 +65,20 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
         selectConnectionSettings(connectionId);
     }
 
+    public ProjectSettingsDialog(Project project, @NotNull DatabaseType databaseType, @NotNull ConnectionConfigType configType, OciConnectionData connectionData) {
+        this(project);
+        ConnectionId connectionId = getConnectionSettingsEditor().createNewConnection(databaseType, configType, connectionData);
+        selectConnectionSettings(connectionId);
+    }
+
     public ProjectSettingsDialog(Project project, @NotNull TnsImportData importData) {
         this(project);
         getConnectionSettingsEditor().importTnsNames(importData);
+        selectConnectionSettings(null);
+    }
+    public ProjectSettingsDialog(Project project, @NotNull TnsImportData importData, OciConnectionData connectionData) {
+        this(project);
+        getConnectionSettingsEditor().importTnsNames(importData, connectionData);
         selectConnectionSettings(null);
     }
 

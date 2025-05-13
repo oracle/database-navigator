@@ -29,6 +29,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -50,8 +51,19 @@ public class ObjectFilterSettings extends BasicProjectConfiguration<ConnectionFi
         this.connectionId = connectionId;
     }
 
+    @Nullable
     public <T extends DBObject> ObjectFilter<T> getFilter(DBObjectType objectType) {
         return cast(filters.get(objectType));
+    }
+
+    @Nullable
+    public <T extends DBObject> ObjectFilter<T> getActiveFilter(DBObjectType objectType) {
+        ObjectFilter<T> filter = getFilter(objectType);
+        return filter == null || !filter.isActive() ? null : filter;
+    }
+
+    public boolean hasFilter(DBObjectType objectType) {
+        return filters.containsKey(objectType);
     }
 
     public void addFilter(ObjectFilter<?> filter) {

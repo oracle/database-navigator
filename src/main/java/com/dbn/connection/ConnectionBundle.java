@@ -136,6 +136,11 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
                 oldConnections.remove(connection);
             }
         }
+
+        listChanged = listChanged ||
+                sizeChanged(newConnections) ||
+                sortingChanged(newConnections);
+
         this.connections = newConnections;
 
         listChanged = listChanged || oldConnections.size() > 0;
@@ -155,8 +160,6 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
 
                 ConnectionManager connectionManager = ConnectionManager.getInstance(project);
                 connectionManager.disposeConnections(oldConnections);
-
-
             });
         }
 
@@ -164,6 +167,24 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
 
         // ensure console state loaded
         DatabaseConsoleManager.getInstance(getProject());
+    }
+
+    private boolean sizeChanged(FilteredList<ConnectionHandler> newConnections) {
+        return this.connections.size() != newConnections.size();
+    }
+
+    private boolean sortingChanged(FilteredList<ConnectionHandler> newConnections) {
+        if (this.connections.size() == newConnections.size()) {
+            for (int i = 0; i < this.connections.size(); i++) {
+                ConnectionHandler oldConnection = this.connections.get(i);
+                ConnectionHandler newConnection = newConnections.get(i);
+                if (!oldConnection.getConnectionId().equals(newConnection.getConnectionId())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private void rebuildIndex() {

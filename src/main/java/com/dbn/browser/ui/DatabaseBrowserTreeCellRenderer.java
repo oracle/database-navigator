@@ -40,6 +40,13 @@ import javax.swing.JTree;
 import javax.swing.tree.TreeCellRenderer;
 import java.awt.Component;
 
+import static com.intellij.ui.SimpleTextAttributes.GRAYED_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.GRAYED_BOLD_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
+
 public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
     private final DefaultTreeCellRenderer cellRenderer = new DefaultTreeCellRenderer();
     private final DatabaseBrowserSettings browserSettings;
@@ -59,7 +66,7 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
             if (value instanceof LoadInProgressTreeNode) {
                 LoadInProgressTreeNode loadInProgressTreeNode = (LoadInProgressTreeNode) value;
                 setIcon(loadInProgressTreeNode.getIcon(0));
-                append("Loading...", SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES);
+                append("Loading...", GRAY_ITALIC_ATTRIBUTES);
                 return;
             }
 
@@ -68,7 +75,7 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
             BrowserTreeNode treeNode = (BrowserTreeNode) value;
             setIcon(treeNode.getIcon(0));
 
-            boolean isDirty = false;
+            boolean dirty = false;
             String displayName;
             if (treeNode instanceof ConnectionBundle) {
                 displayName = "PROJECT";
@@ -78,12 +85,12 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
 
             if (treeNode instanceof DBObjectList) {
                 DBObjectList objectsList = (DBObjectList) treeNode;
-                boolean isEmpty = objectsList.getChildCount() == 0;
-                isDirty = /*objectsList.isDirty() ||*/ objectsList.isLoading() || (!objectsList.isLoaded() && !hasConnectivity(objectsList));
+                boolean empty = objectsList.getChildCount() == 0;
+                dirty = /*objectsList.isDirty() ||*/ objectsList.isLoading() || (!objectsList.isLoaded() && !hasConnectivity(objectsList));
                 SimpleTextAttributes textAttributes =
-                        isDirty ? SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES :
-                                isEmpty ? SimpleTextAttributes.REGULAR_ATTRIBUTES :
-                                        SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
+                        dirty ? GRAY_ITALIC_ATTRIBUTES :
+                        empty ? REGULAR_ATTRIBUTES :
+                                REGULAR_BOLD_ATTRIBUTES;
 
                 append(Commons.nvl(displayName, ""), textAttributes);
 
@@ -103,7 +110,6 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
             } else {
                 boolean showBold = false;
                 boolean showGrey = false;
-                boolean isDisposed = false;
                 if (treeNode instanceof DBObject) {
                     DBObject object = (DBObject) treeNode;
                     if (object instanceof DBSchema) {
@@ -119,7 +125,15 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
                         showGrey = schemaObject.isDisabled();
                     }
 
-                    isDisposed = object.isDisposed();
+                    dirty = object.isDisposed();
+
+                    if (!dirty) {
+                        BrowserTreeNode parent = object.getParent();
+                        if (parent instanceof DBObjectList) {
+                            DBObjectList objectList = (DBObjectList) parent;
+                            dirty = objectList.isLoading();
+                        }
+                    }
                 }
 
                 if (!showGrey && treeNode instanceof DBColumn) {
@@ -128,9 +142,9 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
                 }
 
                 SimpleTextAttributes textAttributes =
-                        isDisposed ? SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES :
-                                showBold ? (showGrey ? SimpleTextAttributes.GRAYED_BOLD_ATTRIBUTES : SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES) :
-                                        (showGrey ? SimpleTextAttributes.GRAYED_ATTRIBUTES : SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                        dirty ? GRAY_ITALIC_ATTRIBUTES :
+                        showBold ? (showGrey ? GRAYED_BOLD_ATTRIBUTES : REGULAR_BOLD_ATTRIBUTES) :
+                                   (showGrey ? GRAYED_ATTRIBUTES : REGULAR_ATTRIBUTES);
 
                 if (displayName == null) displayName = "displayName null!!";
 
@@ -140,14 +154,14 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
             }
             String displayDetails = treeNode.getPresentableTextDetails();
             if (!Strings.isEmptyOrSpaces(displayDetails)) {
-                append(" " + displayDetails, isDirty ? SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES : SimpleTextAttributes.GRAY_ATTRIBUTES);
+                append(" " + displayDetails, dirty ? GRAY_ITALIC_ATTRIBUTES : GRAY_ATTRIBUTES);
             }
 
 
             if (browserSettings.getGeneralSettings().isShowObjectDetails()) {
                 String conditionalDetails = treeNode.getPresentableTextConditionalDetails();
                 if (!Strings.isEmptyOrSpaces(conditionalDetails)) {
-                    append(" - " + conditionalDetails, SimpleTextAttributes.GRAY_ATTRIBUTES);
+                    append(" - " + conditionalDetails, GRAY_ATTRIBUTES);
                 }
 
             }

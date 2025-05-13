@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2024 Oracle and/or its affiliates
+  ~ Copyright 2025 Oracle and/or its affiliates
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -17,13 +17,15 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator" require-restart="true">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>3.5.3.0</version>
+    <version>3.6.0.0</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
     <depends optional="true" config-file="dbn-java-support.xml">com.intellij.modules.java</depends>
+    <depends optional="true" config-file="dbn-json-support.xml">com.intellij.modules.json</depends>
     <depends optional="true" config-file="dbn-debugger-support.xml">com.intellij.modules.xdebugger</depends>
     <depends optional="true" config-file="dbn-copyright-support.xml">com.intellij.copyright</depends>
+    <depends optional="true" config-file="dbn-oci-toolkit-support.xml">com.oracle.ocidbtest</depends>
     <vendor email="dan.cioca@oracle.com" url="https://www.oracle.com">Dan Cioca (Oracle)</vendor>
     <idea-version since-build="201.6668.113" until-build="253.*"/>
     <resource-bundle>messages.DBNResources</resource-bundle>
@@ -50,6 +52,16 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>3.6.0</b>
+            <ul>
+                <li>Oracle "Select-AI" conversation mode
+                <li>Oracle Connectivity - EasyConnect support
+                <li>Oracle OJVM support (project synchronization)
+                <li>Oracle JSON Duality Views support
+                <li>Vector data readonly support
+                <li>Oracle "OCI Toolkit" plugin integration
+                <li>Bug fixes
+            </ul>
             <li><b>3.5.3</b>
             <ul>
                 <li>Oracle "Select-AI" integration (Database Assistant - experimental)
@@ -156,6 +168,7 @@
         <projectService serviceImplementation="com.dbn.execution.compiler.DatabaseCompilerManager"/>
         <projectService serviceImplementation="com.dbn.execution.method.MethodExecutionManager"/>
         <projectService serviceImplementation="com.dbn.execution.java.JavaExecutionManager"/>
+        <projectService serviceImplementation="com.dbn.execution.java.wrapper.JavaExecutionWrapperManager"/>
         <projectService serviceImplementation="com.dbn.execution.explain.ExplainPlanManager"/>
         <projectService serviceImplementation="com.dbn.execution.logging.DatabaseLoggingManager"/>
         <projectService serviceImplementation="com.dbn.code.common.completion.CodeCompletionManager"/>
@@ -178,6 +191,8 @@
         <projectService serviceImplementation="com.dbn.editor.data.filter.DatasetFilterManager"/>
         <projectService serviceImplementation="com.dbn.editor.data.state.DatasetEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.editor.data.statusbar.DatasetEditorStatusBarWidget"/>
+        <projectService serviceImplementation="com.dbn.editor.json.JsonDataEditorManager"/>
+        <projectService serviceImplementation="com.dbn.editor.json.schema.JsonDataSchemaManager"/>
         <projectService serviceImplementation="com.dbn.editor.session.SessionBrowserManager"/>
         <projectService serviceImplementation="com.dbn.generator.statement.StatementGenerationManager"/>
         <projectService serviceImplementation="com.dbn.generator.code.CodeGeneratorManager"/>
@@ -185,6 +200,7 @@
         <projectService serviceImplementation="com.dbn.object.factory.DatabaseObjectFactory"/>
         <projectService serviceImplementation="com.dbn.object.factory.VirtualObjectFactory"/>
         <projectService serviceImplementation="com.dbn.object.factory.ObjectFactoryManager"/>
+        <projectService serviceImplementation="com.dbn.object.filter.ObjectFilterManager"/>
         <projectService serviceImplementation="com.dbn.object.filter.quick.ObjectQuickFilterManager"/>
         <projectService serviceImplementation="com.dbn.object.dependency.ObjectDependencyManager"/>
         <projectService serviceImplementation="com.dbn.object.status.ObjectStatusManager"/>
@@ -220,6 +236,8 @@
                 <action id="DBNavigator.Actions.ConnectionContext.LinkSchema" class="com.dbn.connection.context.action.FolderSchemaLinkAction" text="Connection Context - Associate Schema" icon="com.dbn.common.icon.Icons.FOLDER_SCHEMA_ASSOCIATION"/>
                 <separator/>
                 <action id="DBNavigator.Actions.ConnectionContext.UnlinkConnection" class="com.dbn.connection.context.action.FolderConnectionUnlinkAction" text="Connection Context - Remove Connection Association"/>
+                <separator/>
+                <action id="DBNavigator.Actions.JavaContext.Upload" class="com.dbn.sync.java.action.JavaObjectUploadAction" text="Upload" />
             </group>
             <add-to-group group-id="ProjectViewPopupMenu" relative-to-action="WeighingNewGroup" anchor="after"/>
         </group>
@@ -229,6 +247,7 @@
             <action id="DBNavigator.Actions.ConnectionSettings.MoveConnectionsUp" class="com.dbn.connection.config.action.ConnectionMoveUpAction" text="Connection Setup - Move Connections Up" icon="com.dbn.common.icon.Icons.ACTION_MOVE_UP"/>
             <action id="DBNavigator.Actions.ConnectionSettings.MoveConnectionsDown" class="com.dbn.connection.config.action.ConnectionMoveDownAction" text="Connection Setup - Move Connections Down" icon="com.dbn.common.icon.Icons.ACTION_MOVE_DOWN"/>
             <action id="DBNavigator.Actions.ConnectionSettings.DuplicateConnection" class="com.dbn.connection.config.action.ConnectionDuplicateAction" text="Connection Setup - Duplicate Connection" icon="AllIcons.Actions.Copy"/>
+            <action id="DBNavigator.Actions.ConnectionSettings.ToggleConnectionStatus" class="com.dbn.connection.config.action.ConnectionStatusToggleAction" text="Connection Setup - Activate / Deactivate Connection" icon="AllIcons.Diff.GutterCheckBoxSelected"/>
             <separator/>
             <action id="DBNavigator.Actions.ConnectionSettings.CopyConnections" class="com.dbn.connection.config.action.ConnectionsCopyAction" text="Connection Setup - Copy To Clipboard" icon="com.dbn.common.icon.Icons.CONNECTION_COPY"/>
             <action id="DBNavigator.Actions.ConnectionSettings.PasteConnections" class="com.dbn.connection.config.action.ConnectionPasteAction" text="Connection Setup - Paste From Clipboard" icon="com.dbn.common.icon.Icons.CONNECTION_PASTE"/>
@@ -380,6 +399,21 @@
             <action id="DBNavigator.Actions.SessionBrowser.KillSessions" class="com.dbn.editor.session.action.KillSessionsAction" text="Session Browser - Kill Sessions" icon="com.dbn.common.icon.Icons.ACTION_KILL_SESSION"/>
             <separator/>
             <action id="DBNavigator.Actions.SessionBrowser.OpenSettings" class="com.dbn.editor.session.action.SessionBrowserSettingsAction" text="Session Browser - Settings"/>
+        </group>
+        <group id="DBNavigator.ActionGroup.JsonDataEditor" text="JSON Data Editor Controls">
+            <action id="DBNavigator.Actions.JsonDataEditor.ToggleEditableStatus" class="com.dbn.editor.json.action.JsonDataEditingLockToggleAction" text="JSON Data Editor - Lock / Unlock Editing"/>
+            <action id="DBNavigator.Actions.JsonDataEditor.ToggleContentEditorVisibility" class="com.dbn.editor.json.action.JsonDataContentEditorToggleAction" text="JSON Data Editor - Show / Hide Content Editor"/>
+            <separator/>
+            <action id="DBNavigator.Actions.JsonDataEditor.FindData" class="com.dbn.editor.json.action.JsonDataFindAction" text="JSON Data Editor - Find..." icon="AllIcons.Actions.Find">
+                <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>
+            </action>
+            <action id="DBNavigator.Actions.JsonDataEditor.FetchNextRecords" class="com.dbn.editor.json.action.JsonRecordsFetchNextAction" text="JSON Data Editor - Fetch Next Records" icon="com.dbn.common.icon.Icons.DATA_EDITOR_FETCH_NEXT_RECORDS"/>
+            <action id="DBNavigator.Actions.JsonDataEditor.Reload" class="com.dbn.editor.json.action.JsonDataReloadAction" text="JSON Data Editor - Reload" icon="com.dbn.common.icon.Icons.DATA_EDITOR_RELOAD_DATA"/>
+            <separator/>
+            <reference id="DBNavigator.Actions.Commit"/>
+            <reference id="DBNavigator.Actions.Rollback"/>
+            <separator/>
+            <action id="DBNavigator.Actions.JsonDataEditor.Settings" class="com.dbn.editor.json.action.JsonDataEditorOptionsAction" text="JSON Data Editor - Settings"/>
         </group>
         <group id="DBNavigator.ActionGroup.DataEditor" text="Data Editor Controls">
             <action id="DBNavigator.Actions.DataEditor.SwitchEditableStatus" class="com.dbn.editor.data.action.DataEditingLockToggleAction" text="Data Editor - Lock / Unlock Editing"/>
@@ -709,6 +743,7 @@
         <fileEditorProvider implementation="com.dbn.editor.ddl.DDLFileEditorProvider1"/>
         <fileEditorProvider implementation="com.dbn.editor.ddl.DDLFileEditorProvider2"/>
         <fileEditorProvider implementation="com.dbn.editor.data.DatasetEditorProvider"/>
+        <fileEditorProvider implementation="com.dbn.editor.json.JsonDataEditorProvider"/>
         <fileEditorProvider implementation="com.dbn.editor.session.SessionBrowserEditorProvider"/>
         <fileEditorProvider implementation="com.dbn.editor.code.SourceCodeSpecEditorProvider"/>
         <fileEditorProvider implementation="com.dbn.editor.console.SQLConsoleEditorProvider"/>
@@ -717,6 +752,7 @@
         <editorNotificationProvider implementation="com.dbn.ddl.DDLMappedNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.editor.code.SourceCodeEditorNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.editor.data.DatasetEditorNotificationProvider"/>
+        <editorNotificationProvider implementation="com.dbn.editor.json.JsonDataEditorNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.editor.session.SessionBrowserNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.connection.mapping.FileConnectionContextNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.assistant.editor.notification.AssistantEditorNotificationProvider"/>
@@ -724,6 +760,7 @@
         <additionalTextAttributes scheme="Default" file="textAttributes/DBNDefaultColors.xml" id="DBN-Default"/>
         <additionalTextAttributes scheme="Darcula" file="textAttributes/DBNDarculaColors.xml" id="DBN-Darcula"/>
         <additionalTextAttributes scheme="Dark" file="textAttributes/DBNDarkColors.xml" id="DBN-Dark"/>
+        <additionalTextAttributes scheme="Light" file="textAttributes/DBNLightColors.xml" id="DBN-Light"/>
         <additionalTextAttributes scheme="AllHallowsEve" file="textAttributes/DBNAllHallowsEveColors.xml" id="DBN-AllHallowsEve"/>
         <additionalTextAttributes scheme="Blackboard" file="textAttributes/DBNBlackboardColors.xml" id="DBN-Blackboard"/>
         <additionalTextAttributes scheme="Cobalt" file="textAttributes/DBNCobaltColors.xml" id="DBN-Cobalt"/>

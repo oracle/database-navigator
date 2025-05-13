@@ -16,10 +16,12 @@
 package com.dbn.driver.download;
 
 import com.dbn.common.Pair;
+import com.dbn.common.download.Downloads;
 import com.dbn.common.util.Measured;
 import com.dbn.driver.download.metadata.Developer;
 import com.dbn.driver.download.metadata.Library;
 import com.dbn.driver.download.metadata.License;
+import com.intellij.openapi.util.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -31,22 +33,32 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.collection.CollectResult;
+import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.impl.ArtifactResolver;
 import org.eclipse.aether.impl.DefaultServiceLocator;
 import org.eclipse.aether.internal.impl.DefaultArtifactResolver;
+import org.eclipse.aether.internal.impl.SimpleLocalRepositoryManagerFactory;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.repository.RepositoryPolicy;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
+import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
+import org.eclipse.aether.spi.connector.transport.GetTask;
+import org.eclipse.aether.spi.connector.transport.PeekTask;
+import org.eclipse.aether.spi.connector.transport.PutTask;
+import org.eclipse.aether.spi.connector.transport.Transporter;
+import org.eclipse.aether.spi.connector.transport.TransporterFactory;
 import org.eclipse.aether.spi.localrepo.LocalRepositoryManagerFactory;
+import org.eclipse.aether.transfer.NoTransporterException;
 import org.xml.sax.InputSource;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -57,27 +69,30 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DependencyParser {
     private static final Map<String, Pair<List<Developer>, List<License>>> metadataMap = new HashMap<>();
+    private static String central_url;
 
-    public static List<Library> resolveDependencies(Library library, String type) throws Exception {
+    public static List<Library> resolveDependencies(Library library, String type, DownloadSession downloadSession) throws Exception {
         List<Library> libraries = new ArrayList<>();
 
         RepositorySystem repositorySystem = newRepositorySystem();
-
         RepositorySystemSession session = newRepositorySystemSession(repositorySystem);
 
-        DefaultArtifact artifact2 = new DefaultArtifact(library.getGroupId() + ":" + library.getArtifactId() + ":" + library.getVersion());
+        DefaultArtifact artifact = new DefaultArtifact(library.getGroupId() + ":" + library.getArtifactId() + ":" + library.getVersion());
 
         RemoteRepository central = new RemoteRepository.Builder("central", "default", "https://repo1.maven.org/maven2/")
                 .setPolicy(new RepositoryPolicy(true, RepositoryPolicy.UPDATE_POLICY_ALWAYS, RepositoryPolicy.CHECKSUM_POLICY_IGNORE))
                 .build();
+        central_url = central.getUrl();
 
         CollectRequest collectRequest = new CollectRequest();
-        collectRequest.addDependency(new Dependency(artifact2, "compile"));
+        collectRequest.addDependency(new Dependency(artifact, "compile"));
         collectRequest.addRepository(central);
 
-        CollectResult collectResult = Measured.call(
-                "collecting dependencies for library " + library,
-                () -> repositorySystem.collectDependencies(session, collectRequest));
+        downloadSession.updateProgress(library.getLibraryId());
+
+        CollectResult collectResult = downloadSession.surround(() ->
+                Measured.call("collecting dependencies for library " + library,
+                () -> repositorySystem.collectDependencies(session, collectRequest)));
 
         DependencyNode root = collectResult.getRoot();
         if (type.equals("pom")) traverse(root.getChildren().get(0), libraries, library);
@@ -115,21 +130,77 @@ public class DependencyParser {
         }
     }
 
+    static class CustomTransporter implements Transporter {
+        @Override
+        public void close() {
+        }
+
+        @Override
+        public int classify(Throwable throwable) {
+            return 0;
+        }
+
+        @Override
+        public void peek(PeekTask peekTask) {
+
+        }
+
+        @Override
+        public void get(GetTask task) throws Exception {
+            File targetFile = new File(task.getDataFile().getAbsolutePath());
+            String relativePath = task.getLocation().toString();
+
+            int separatorIndex = relativePath.lastIndexOf("/");// Artifact path relative to the repository
+            String fileName = separatorIndex == -1 ? relativePath : relativePath.substring(separatorIndex + 1);
+            String fullUrl = central_url.endsWith("/") ? central_url + relativePath : central_url + "/" + relativePath;
+
+            DownloadSession downloadSession = DownloadSession.current();
+            downloadSession.updateProgress(fileName);
+            if (downloadSession.isCanceled()) return;
+
+
+            Downloads.downloadAtomically(null, fullUrl, targetFile);
+        }
+
+        @Override
+        public void put(PutTask task) throws Exception {
+            throw new UnsupportedOperationException("Uploads are not supported.");
+        }
+    }
+
+    // Factory for the custom transporter
+    static class CustomTransporterFactory implements TransporterFactory {
+
+        @Override
+        public Transporter newInstance(RepositorySystemSession repositorySystemSession, RemoteRepository remoteRepository) throws NoTransporterException {
+            return new CustomTransporter();
+        }
+
+        @Override
+        public float getPriority() {
+            return 100; // Higher priority
+        }
+    }
+
     private static RepositorySystem newRepositorySystem() {
         DefaultServiceLocator locator = MavenRepositorySystemUtils.newServiceLocator();
 
         // Add required services
-        locator.addService(LocalRepositoryManagerFactory.class, org.eclipse.aether.internal.impl.SimpleLocalRepositoryManagerFactory.class);
-        locator.addService(org.eclipse.aether.spi.connector.RepositoryConnectorFactory.class,
-                org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory.class);
+        locator.addService(TransporterFactory.class, CustomTransporterFactory.class);
+        locator.addService(LocalRepositoryManagerFactory.class, SimpleLocalRepositoryManagerFactory.class);
+        locator.addService(RepositoryConnectorFactory.class, BasicRepositoryConnectorFactory.class);
         locator.setService(ArtifactResolver.class, CustomArtifactResolver.class);
 
         return locator.getService(RepositorySystem.class);
     }
 
-    private static RepositorySystemSession newRepositorySystemSession(RepositorySystem system) {
+    private static RepositorySystemSession newRepositorySystemSession(RepositorySystem system) throws IOException {
+        String tempDirectory = FileUtil.getTempDirectory();
+        File localRepository = new File(tempDirectory, "dbn-local-repo");
+        FileUtil.createDirectory(localRepository);
+
         DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
-        LocalRepository localRepo = new LocalRepository("target/local-repo");
+        LocalRepository localRepo = new LocalRepository(localRepository);
         session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
         session.setSystemProperty("java.version", System.getProperty("java.version"));
 
@@ -137,8 +208,6 @@ public class DependencyParser {
     }
 
     static class CustomArtifactResolver extends DefaultArtifactResolver {
-
-
         @Override
         public ArtifactResult resolveArtifact(RepositorySystemSession session, ArtifactRequest request) throws ArtifactResolutionException {
             ArtifactResult result = super.resolveArtifact(session, request);

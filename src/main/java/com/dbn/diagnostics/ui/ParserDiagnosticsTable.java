@@ -49,7 +49,6 @@ public class ParserDiagnosticsTable extends DBNTable<ParserDiagnosticsTableModel
         setBackground(Colors.getEditorBackground());
         initTableSorter();
         setCellSelectionEnabled(true);
-        adjustColumnWidths();
         addMouseListener(Mouse.listener().onClick(e -> clickEvent(e)));
         ClientProperty.BORDER.set(this, Borders.tableBorder(1, 0, 0, 0));
 

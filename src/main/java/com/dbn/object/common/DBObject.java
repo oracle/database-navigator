@@ -27,6 +27,7 @@ import com.dbn.common.property.PropertyHolder;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.Presentable;
 import com.dbn.connection.ConnectionContext;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.editor.DBContentType;
 import com.dbn.language.common.DBLanguage;
@@ -45,7 +46,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
+import java.nio.charset.Charset;
 import java.util.List;
+
+import static com.dbn.common.util.Commons.nvl;
 
 public interface DBObject extends
         PropertyHolder<DBObjectProperty>,
@@ -123,10 +127,6 @@ public interface DBObject extends
 
     List<DBObjectNavigationList> getNavigationLists();
 
-    boolean isEditorReady();
-
-    void makeEditorReady();
-
     @Nullable
     DBObjectListContainer getChildObjects();
 
@@ -158,6 +158,11 @@ public interface DBObject extends
     @Deprecated // do not use schema aware context
     default ConnectionContext createConnectionContext() {
         return new ConnectionContext(getProject(), getConnectionId(), getSchemaId());
+    }
+
+    default Charset getCharset() {
+        ConnectionHandler connection = getConnection();
+        return nvl(connection.getSettings().getDetailSettings().getCharset(), () -> Charset.defaultCharset());
     }
 
     default boolean matches(DBObjectType objectType) {

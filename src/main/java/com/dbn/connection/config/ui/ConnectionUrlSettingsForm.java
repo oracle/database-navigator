@@ -22,13 +22,16 @@ import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Commons;
+import com.dbn.common.util.Lists;
 import com.dbn.common.util.Safe;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseProtocol;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
+import com.dbn.connection.ServerType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dbn.connection.config.EasyConnectParameters;
 import com.dbn.connection.config.file.DatabaseFileBundle;
 import com.dbn.connection.config.file.ui.DatabaseFileSettingsForm;
 import com.dbn.connection.config.parameter.ui.UrlParameterInputDialog;
@@ -40,6 +43,7 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import com.intellij.util.ui.UIUtil;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
@@ -72,20 +76,6 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.Collections.unmodifiableMap;
 
 public class ConnectionUrlSettingsForm extends DBNFormBase {
-    public static final List<String> EASY_CONNECT_PARAMETER_NAMES = List.of(
-            "ENABLE",
-            "FAILOVER",
-            "LOAD_BALANCE",
-            "RECV_BUF_SIZE",
-            "SEND_BUF_SIZE",
-            "SDU",
-            "SOURCE_ROUTE",
-            "RETRY_COUNT",
-            "RETRY_DELAY",
-            "HTTPS_PROXY",
-            "HTTPS_PROXY_PORT",
-            "WALLET_LOCATION");
-
     private JLabel urlTypeLabel;
     private JLabel hostLabelField;
     private JLabel portLabelField;
@@ -98,7 +88,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private JLabel protocolLabel;
     private JPanel databaseFilesPanel;
     private ComboBox<DatabaseUrlType> urlTypeComboBox;
-    private JComboBox<String> serverTypeComboBox;
+    private JComboBox<ServerType> serverTypeComboBox;
     private JComboBox<DatabaseProtocol> protocolComboBox;
     private DBNComboBox<Presentable> tnsProfileComboBox;
     private JTextField hostTextField;
@@ -148,10 +138,8 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
         // ensure that we populate table with empty builtin keys even if the current url doesn't have them.
         // (also retain logical order of the parameters)
-        Map<String, String> parameters = new LinkedHashMap<>();
-        EASY_CONNECT_PARAMETER_NAMES.forEach(key -> parameters.put(key, ""));
-
-        parameters.putAll(this.parameters);
+        LinkedHashMap<String, String> parameters =
+                EasyConnectParameters.ensureParameters(this.parameters, (DatabaseProtocol) this.protocolComboBox.getSelectedItem());
 
         UrlParameterInputDialog dialog = new UrlParameterInputDialog(getProject(), parameters);
         if (dialog.showAndGet()) {
@@ -202,7 +190,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         return Safe.call(tnsProfileComboBox.getSelectedValue(), v -> v.getName());
     }
 
-    public String getServerType() {
+    public ServerType getServerType() {
         return getSelection(serverTypeComboBox);
     }
 
@@ -232,9 +220,9 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
                 getMainFilePath() ,
                 getTnsAdmin(),
                 getTnsProfile(),
+                getProtocol(),
                 getServerType(),
-                getParameters(),
-                getProtocol());
+                getParameters());
         urlTextField.setText(url);
     }
 
@@ -305,7 +293,9 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         urlTextField.setEditable(urlType == DatabaseUrlType.CUSTOM);
         urlTextField.setForeground(urlTextField.isEditable() ?
                 UIUtil.getTextFieldForeground() :
-                UIUtil.getLabelDisabledForeground());
+                // default disabled fg is very hard to read in default dark mode.
+                com.dbn.common.color.Colors.lafDarker(
+                        UIUtil.getLabelDisabledForeground(), 8));
 
         // tns folder
         tnsFolderTextField.setVisible(tnsVisible);
@@ -408,6 +398,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         initComboBox(protocolComboBox, true, DatabaseProtocol.values());
         setSelection(protocolComboBox, databaseInfo.getProtocol());
 
+        initComboBox(serverTypeComboBox, ServerType.values());
         setSelection(serverTypeComboBox, databaseInfo.getServerType());
 
         urlTypeLabel.setVisible(urlTypes.length > 1);

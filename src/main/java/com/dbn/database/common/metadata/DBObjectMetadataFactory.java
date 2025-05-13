@@ -36,6 +36,9 @@ import com.dbn.database.common.metadata.impl.DBJavaClassMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJavaFieldMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJavaMethodMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJavaParameterMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBJavaResourceMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBJsonViewMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBJsonViewTableMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBMaterializedViewMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBNestedTableMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBObjectDependencyMetadataImpl;
@@ -108,6 +111,7 @@ public class DBObjectMetadataFactory {
             case PACKAGE_PROCEDURE:   return new DBProcedureMetadataImpl(resultSet);
             case DIMENSION:           return new DBDimensionMetadataImpl(resultSet);
             case VIEW:                return new DBViewMetadataImpl(resultSet);
+            case JSON_VIEW:           return new DBJsonViewMetadataImpl(resultSet);
             case TABLE:               return new DBTableMetadataImpl(resultSet);
             case NESTED_TABLE:        return new DBNestedTableMetadataImpl(resultSet);
             case MATERIALIZED_VIEW:   return new DBMaterializedViewMetadataImpl(resultSet);
@@ -125,6 +129,7 @@ public class DBObjectMetadataFactory {
             case JAVA_FIELD:          return new DBJavaFieldMetadataImpl(resultSet);
             case JAVA_METHOD:         return new DBJavaMethodMetadataImpl(resultSet);
             case JAVA_PARAMETER:      return new DBJavaParameterMetadataImpl(resultSet);
+            case JAVA_RESOURCE:       return new DBJavaResourceMetadataImpl(resultSet);
             case INCOMING_DEPENDENCY: return new DBObjectDependencyMetadataImpl(resultSet);
             case OUTGOING_DEPENDENCY: return new DBObjectDependencyMetadataImpl(resultSet);
         }
@@ -135,6 +140,7 @@ public class DBObjectMetadataFactory {
         switch (relationType) {
             case INDEX_COLUMN:      return new DBIndexColumnMetadataImpl(resultSet);
             case CONSTRAINT_COLUMN: return new DBConstraintColumnMetadataImpl(resultSet);
+            case JSON_VIEW_TABLE:   return new DBJsonViewTableMetadataImpl(resultSet);
             case USER_ROLE:         return new DBGrantedRoleMetadataImpl(resultSet);
             case USER_PRIVILEGE:    return new DBGrantedPrivilegeMetadataImpl(resultSet);
             case ROLE_ROLE:         return new DBGrantedRoleMetadataImpl(resultSet);

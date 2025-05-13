@@ -61,13 +61,6 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
     /*********************************************************
      *                   CHANGE statements                   *
      *********************************************************/
-    /*********************************************************
-     *                   CHANGE statements                   *
-     *********************************************************/
-    @Override
-    public void updateView(String viewName, String code, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "change-view", viewName, code);
-    }
 
     @Override
     public void updateTrigger(String tableOwner, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
@@ -83,7 +76,7 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
 
     @Override
     public void updateObject(String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "change-object", newCode);
+        executeUpdate(connection, "update-object", newCode);
     }
 
     /*********************************************************

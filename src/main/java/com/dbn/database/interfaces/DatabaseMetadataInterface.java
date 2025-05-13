@@ -18,6 +18,7 @@ package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.statement.ByteArray;
+import com.dbn.database.common.statement.ClobText;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -157,6 +158,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      */
     ResultSet loadJavaClasses(String ownerName, DBNConnection connection) throws SQLException;
 
+    ResultSet loadJavaResources(String ownerName, DBNConnection connection) throws SQLException;
+
     ResultSet loadJavaPrimitives(String ownerName, DBNConnection connection) throws SQLException;
 
     /**
@@ -166,6 +169,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      */
     ResultSet loadMaterializedViews(String ownerName, DBNConnection connection) throws SQLException;
 
+    ResultSet loadJsonViews(String ownerName, DBNConnection connection) throws SQLException;
 
     /**
      * Loads the columns of the given dataset (can be a TABLE, VIEW or MATERIALIZED_VIEW)<br>
@@ -312,6 +316,10 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      */
     ResultSet loadAllNestedTables(String ownerName, DBNConnection connection) throws SQLException;
 
+
+    ResultSet loadJsonViewTableRelations(@NotNull String ownerName, String jsonViewName, DBNConnection connection) throws SQLException;
+
+    ResultSet loadAllJsonViewTableRelations(@NotNull String ownerName, DBNConnection connection) throws SQLException;
 
     /**
      * Loads the triggers of the given owner<br>
@@ -502,6 +510,10 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
 
     ResultSet loadAllJavaParameters(String ownerName, DBNConnection connection) throws SQLException;
 
+    ResultSet loadJavaClassDependencies(String ownerName, String objectName, DBNConnection connection) throws SQLException;
+
+    ResultSet loadAllJavaClassDependencies(String ownerName, DBNConnection connection) throws SQLException;
+
     /*********************************************************
 	 *                        TYPES                          *
 	 *********************************************************/
@@ -539,7 +551,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      */
     ResultSet loadAllTypeAttributes(String ownerName, DBNConnection connection) throws SQLException;
 
-    public ResultSet loadProgramTypeAttributes(String ownerName, String programName, String typeName, DBNConnection connection) throws SQLException;    
+    ResultSet loadProgramTypeAttributes(String ownerName, String programName, String typeName, DBNConnection connection) throws SQLException;
 
     /**
      * Loads the function for the given type<br>
@@ -673,6 +685,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
     ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException;
 
     ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, short overload, DBNConnection connection) throws SQLException;
+
+    ClobText loadJavaResourceSourceCode(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
     ByteArray loadJavaBinaryCode(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 

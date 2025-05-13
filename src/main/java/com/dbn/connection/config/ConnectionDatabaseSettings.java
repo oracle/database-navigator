@@ -29,6 +29,7 @@ import com.dbn.connection.DatabaseProtocol;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
+import com.dbn.connection.ServerType;
 import com.dbn.connection.config.file.DatabaseFileBundle;
 import com.dbn.connection.config.ui.ConnectionDatabaseSettingsForm;
 import com.dbn.driver.DatabaseDriverManager;
@@ -194,9 +195,9 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                     databaseInfo.getMainFilePath(),
                     databaseInfo.ensureTnsFolder(),
                     databaseInfo.getTnsProfile(),
+                    databaseInfo.getProtocol(),
                     databaseInfo.getServerType(),
-                    databaseInfo.getParameters(),
-                    databaseInfo.getProtocol());
+                    databaseInfo.getParameters());
         }
     }
 
@@ -314,7 +315,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             databaseInfo.setDatabase(getString(element, "database", null));
             databaseInfo.setTnsFolder(getString(element, "tns-folder", null));
             databaseInfo.setTnsProfile(getString(element, "tns-profile", null));
-            databaseInfo.setServerType(getString(element, "server-type", "Default"));
+            databaseInfo.setServerType(getEnum(element, "server-type", ServerType.class));
             databaseInfo.setProtocol(getEnum(element, "protocol", DatabaseProtocol.class));
 
             Element paramsElement = element.getChild("url-parameters");
@@ -342,9 +343,6 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
         }
 
         driverSource  = getEnum(element, "driver-source", driverSource);
-        // TODO temporary backward compatibility
-        if (driverSource == DriverSource.BUILTIN) driverSource = DriverSource.BUNDLED;
-
         driverLibrary = Files.convertToAbsolutePath(getProject(), getString(element, "driver-library", driverLibrary));
         driver = getString(element, "driver", driver);
 
@@ -386,7 +384,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             setString(element, "database", nvl(databaseInfo.getDatabase()));
             setString(element, "tns-folder", nvl(databaseInfo.getTnsFolder()));
             setString(element, "tns-profile", nvl(databaseInfo.getTnsProfile()));
-            setString(element, "server-type", nvl(databaseInfo.getServerType()));
+            setEnum(element, "server-type", databaseInfo.getServerType());
             setEnum(element, "protocol", databaseInfo.getProtocol());
 
             Element paramsElement = newElement(element, "url-parameters");

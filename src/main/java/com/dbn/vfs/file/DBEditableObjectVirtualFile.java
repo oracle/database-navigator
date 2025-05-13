@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,8 @@ import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.dispose.Failsafe.nn;
+import static com.dbn.object.type.DBObjectType.JSON_VIEW;
+import static com.dbn.object.type.DBObjectType.TABLE;
 import static com.dbn.vfs.file.status.DBFileStatus.SAVING;
 
 @Getter
@@ -57,12 +59,12 @@ public class DBEditableObjectVirtualFile extends DBObjectVirtualFile<DBSchemaObj
     private static final List<DBContentVirtualFile> EMPTY_CONTENT_FILES = Collections.emptyList();
     private final Latent<List<DBContentVirtualFile>> contentFiles = Latent.basic(() -> computeContentFiles());
     private transient EditorProviderId selectedEditorProviderId;
-    private SessionId databaseSessionId;
+    private SessionId sessionId;
 
     public DBEditableObjectVirtualFile(Project project, DBObjectRef object) {
         super(project, object);
-        if (object.getObjectType() == DBObjectType.TABLE) {
-            databaseSessionId = SessionId.MAIN;
+        if (object.getObjectType().isOneOf(TABLE, JSON_VIEW)) {
+            sessionId = SessionId.MAIN;
         }
     }
 
@@ -73,22 +75,11 @@ public class DBEditableObjectVirtualFile extends DBObjectVirtualFile<DBSchemaObj
         return null;
     }
 
-    public boolean isEditorReady() {
-        if (!getObjectRef().isLoaded()) return false;
-        return getObject().isEditorReady();
-    }
-
-    public void makeEditorReady() {
-        DBSchemaObject object = getObject();
-        object.makeEditorReady();
-    }
-
-
     @Override
     public DatabaseSession getSession() {
-        if (databaseSessionId != null) {
+        if (sessionId != null) {
             DatabaseSessionBundle sessionBundle = getConnection().getSessionBundle();
-            return sessionBundle.getSession(databaseSessionId);
+            return sessionBundle.getSession(sessionId);
         }
         return super.getSession();
     }
@@ -103,22 +94,26 @@ public class DBEditableObjectVirtualFile extends DBObjectVirtualFile<DBSchemaObj
         if (objectContentType.isBundle()) {
             DBContentType[] contentTypes = objectContentType.getSubContentTypes();
             for (DBContentType contentType : contentTypes) {
-                DBContentVirtualFile virtualFile =
-                        contentType.isCode() ? new DBSourceCodeVirtualFile(this, contentType) :
-                        contentType.isData() ? new DBDatasetVirtualFile(this, contentType) : null;
+                DBContentVirtualFile virtualFile = createContentFile(contentType);
                 if (virtualFile != null) {
                     contentFiles.add(virtualFile);
                 }
             }
         } else {
-            DBContentVirtualFile virtualFile =
-                    objectContentType.isCode() ? new DBSourceCodeVirtualFile(this, objectContentType) :
-                    objectContentType.isData() ? new DBDatasetVirtualFile(this, objectContentType) : null;
+            DBContentVirtualFile virtualFile = createContentFile(objectContentType);
             if (virtualFile != null) {
                 contentFiles.add(virtualFile);
             }
         }
         return contentFiles;
+    }
+
+    @Nullable
+    private DBContentVirtualFile createContentFile(DBContentType contentType) {
+        return
+            contentType.isCode() ? new DBSourceCodeVirtualFile(this, contentType) :
+            contentType.isData() ? new DBDatasetVirtualFile(this, contentType) :
+            contentType.isJsonData() ? new DBJsonDataVirtualFile(this, contentType) : null;
     }
 
     public boolean isContentLoaded() {
@@ -164,8 +159,9 @@ public class DBEditableObjectVirtualFile extends DBObjectVirtualFile<DBSchemaObj
     @NotNull
     public FileType getFileType() {
         return guarded(SQLFileType.INSTANCE, this, f -> {
+            DBObjectType objectType = getObjectType();
             DDLFileManager ddlFileManager = DDLFileManager.getInstance(getProject());
-            DDLFileType type = ddlFileManager.getDDLFileType(getObjectType(), f.getMainContentType());
+            DDLFileType type = ddlFileManager.getDDLFileType(objectType, f.getMainContentType());
             return type == null ? SQLFileType.INSTANCE : type.getLanguageFileType();
         });
     }

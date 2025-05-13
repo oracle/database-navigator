@@ -65,7 +65,6 @@ import java.awt.PointerInfo;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.InputEvent;
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
@@ -319,7 +318,6 @@ public class UserInterface {
         return isBorderless(component);
     }
 
-
     @Nullable
     public static <T extends JComponent> T getRootParentOfType(Component component, Class<T> type) {
         T root = null;
@@ -362,13 +360,16 @@ public class UserInterface {
     }
 
     public static void setBackgroundRecursive(JComponent component, Color color) {
+        if (component == null) return;
+
         component.setBackground(color);
         Component[] children = component.getComponents();
-        Arrays
-            .stream(children)
-            .filter(child -> child instanceof JComponent)
-            .map(child -> (JComponent) child)
-            .forEach(child -> setBackgroundRecursive(child, color));
+        for (Component child : children) {
+            if (child instanceof JComponent) {
+                JComponent jComponent = (JComponent) child;
+                setBackgroundRecursive(jComponent, color);
+            }
+        }
 
     }
 

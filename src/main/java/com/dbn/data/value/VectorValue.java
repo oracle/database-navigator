@@ -34,7 +34,10 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Getter
 public class VectorValue extends ValueAdapter<double[]>{
-    private double[] values = new double[0];
+    public static final double[] EMPTY_DOUBLE_ARRAY = new double[0];
+    public static final String[] EMPTY_STRING_ARRAY = new String[0];
+
+    private double[] values = EMPTY_DOUBLE_ARRAY;
 
     public VectorValue() {
     }
@@ -79,7 +82,11 @@ public class VectorValue extends ValueAdapter<double[]>{
     public void write(Connection connection, ResultSet resultSet, int columnIndex, double[] values) throws SQLException {
         try {
             this.values = values;
-            resultSet.updateString(columnIndex, Arrays.toString(values));
+            if (values == null) {
+                resultSet.updateObject(columnIndex, null);
+            } else {
+                resultSet.updateString(columnIndex, Arrays.toString(values));
+            }
         } catch (Throwable e) {
             conditionallyLog(e);
             throw toSqlException(e, "Could not write array value. Your JDBC driver may not support this feature");
@@ -88,6 +95,8 @@ public class VectorValue extends ValueAdapter<double[]>{
 
     @Override
     public String getDisplayValue() {
+        if (values == null) return "";
+
         List<String> values = new ArrayList<>();
         int length = Math.min(this.values.length, 3);
         for (int i = 0; i< length; i++) {
@@ -98,6 +107,8 @@ public class VectorValue extends ValueAdapter<double[]>{
     }
 
     public String[] getStringValues() {
+        if (values == null) return null;
+
         return Arrays.stream(values).mapToObj(d -> Double.toString(d)).toArray(String[]::new);
     }
 

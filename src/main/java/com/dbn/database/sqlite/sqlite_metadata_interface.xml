@@ -57,7 +57,8 @@
                 NAME as VIEW_NAME,
                 null as VIEW_TYPE_OWNER,
                 null as VIEW_TYPE,
-                'N' as IS_SYSTEM_VIEW
+                'N' as IS_SYSTEM_VIEW,
+                'N' as IS_EDITIONABLE
             from "{0}".SQLITE_MASTER
             where
                 TYPE = 'view'

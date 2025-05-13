@@ -26,6 +26,7 @@ import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.message.MessageCallback;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Background;
@@ -50,13 +51,18 @@ import com.dbn.connection.transaction.TransactionAction;
 import com.dbn.connection.transaction.ui.IdleConnectionDialog;
 import com.dbn.connection.ui.ConnectionAuthenticationDialog;
 import com.dbn.credentials.Secret;
+import com.dbn.editor.DBContentType;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.method.MethodExecutionManager;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettingsManager;
 import com.dbn.vfs.DatabaseFileManager;
+import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
+import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
@@ -69,6 +75,8 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -113,10 +121,40 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                 ConnectionConfigListener.TOPIC,
                 ConnectionConfigListener.whenChanged(id -> refreshObjects(id)));
 
+        ProjectEvents.subscribe(project, this,
+                FileEditorManagerListener.FILE_EDITOR_MANAGER,
+                verifyConnectionStatus());
+
         idleConnectionCleaner = new Timer("DBN - Idle Connection Cleaner");
         idleConnectionCleaner.schedule(new CloseIdleConnectionTask(), TimeUtil.Millis.ONE_MINUTE, TimeUtil.Millis.ONE_MINUTE);
 
         Disposer.register(this, connectionBundle);
+    }
+
+    private FileEditorManagerListener verifyConnectionStatus() {
+        return new DBNFileEditorManagerListener() {
+            @Override
+            public void whenSelectionChanged(FileEditorManagerEvent event) {
+                FileEditor editor = event.getNewEditor();
+                if (editor == null) return;
+
+                VirtualFile file = editor.getFile();
+                if (file instanceof DBEditableObjectVirtualFile) {
+                    DBEditableObjectVirtualFile objectVirtualFile = (DBEditableObjectVirtualFile) file;
+                    DBContentType contentType = objectVirtualFile.getContentType();
+                    if (contentType.has(DBContentType.DATA) || contentType.has(DBContentType.JSON)) {
+                        SessionId sessionId = objectVirtualFile.getSessionId();
+                        ConnectionPool connectionPool = objectVirtualFile.getConnection().getConnectionPool();
+                        DBNConnection connection = connectionPool.getSessionConnection(sessionId);
+                        if (connection == null) return;
+
+                        // keep connection alive
+                        connection.isValid();
+                    }
+                }
+
+            }
+        };
     }
 
     @Override
@@ -276,7 +314,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                                     DBNConnection connection = ConnectionUtil.connect(connectionSettings, null, authenticationInfo, SessionId.TEST, false, null);
                                     ConnectionInfo connectionInfo = new ConnectionInfo(connection.getMetaData());
                                     Resources.close(connection);
-                                    showConnectionInfoDialog(connectionInfo, connectionName, environmentType);
+                                    showConnectionInfoDialog(project, connectionInfo, connectionName, environmentType);
                                 } catch (Exception e) {
                                     conditionallyLog(e);
                                     showErrorConnectionMessage(project, connectionName, e);
@@ -378,11 +416,25 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
     }
 
     public static void showConnectionInfoDialog(ConnectionHandler connection) {
-        Dialogs.show(() -> new ConnectionInfoDialog(connection));
+        ConnectionInfo connectionInfo = null;
+        SQLException connectionError = null;
+        try {
+            Connection conn = connection.getMainConnection();
+            connectionInfo = new ConnectionInfo(conn.getMetaData());
+        } catch (SQLException e) {
+            conditionallyLog(e);
+            connectionError = e;
+        }
+
+        showConnectionInfoDialog(connection, connectionInfo, connectionError);
     }
 
-    private static void showConnectionInfoDialog(ConnectionInfo connectionInfo, String connectionName, EnvironmentType environmentType) {
-        Dialogs.show(() -> new ConnectionInfoDialog(null, connectionInfo, connectionName, environmentType));
+    private static void showConnectionInfoDialog(ConnectionHandler connection, ConnectionInfo connectionInfo, SQLException connectionError) {
+        Dialogs.show(() -> new ConnectionInfoDialog(connection, connectionInfo, connectionError));
+    }
+
+    private static void showConnectionInfoDialog(Project project, ConnectionInfo connectionInfo, String connectionName, EnvironmentType environmentType) {
+        Dialogs.show(() -> new ConnectionInfoDialog(project, connectionInfo, connectionName, environmentType));
     }
 
     void promptAuthenticationDialog(

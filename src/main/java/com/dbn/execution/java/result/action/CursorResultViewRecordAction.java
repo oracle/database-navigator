@@ -30,7 +30,7 @@ public class CursorResultViewRecordAction extends JavaExecutionCursorResultActio
         ResultSetTable resultSetTable = getResultSetTable(e);
         if (resultSetTable == null) return;
 
-        resultSetTable.showRecordViewDialog();
+        resultSetTable.showRecordDetails();
     }
 
     @Override

@@ -18,6 +18,7 @@ package com.dbn.language.common.psi;
 
 import com.dbn.common.consumer.SetCollector;
 import com.dbn.common.util.Naming;
+import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.impl.NamedElementType;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.lookup.PsiLookupAdapter;
@@ -55,6 +56,19 @@ public class NamedPsiElement extends SequencePsiElement<NamedElementType> {
             }
             child = child.getNextSibling();
         }
+        return false;
+    }
+
+    protected boolean hasAttribute(ElementTypeAttribute attribute) {
+        ElementType elementType = this.elementType;
+        if (elementType.is(attribute)) return true;
+
+        elementType = getSpecificElementType(false);
+        if (elementType.is(attribute)) return true;
+
+        elementType = getSpecificElementType(true);
+        if (elementType.is(attribute)) return true;
+
         return false;
     }
 

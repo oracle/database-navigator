@@ -20,6 +20,8 @@ import com.dbn.common.ui.form.DBNForm;
 import com.dbn.data.grid.ui.table.basic.BasicTable;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JPanel;
+
 public interface SearchableDataComponent extends DBNForm {
     void showSearchHeader();
     void hideSearchHeader();
@@ -28,4 +30,13 @@ public interface SearchableDataComponent extends DBNForm {
 
     @NotNull
     BasicTable<?> getTable();
+
+    @NotNull
+    JPanel getSearchPanel();
+
+    default DataSearchComponent getSearchComponent() {
+        return DataSearchComponent.ensure(this);
+    }
+
+
 }

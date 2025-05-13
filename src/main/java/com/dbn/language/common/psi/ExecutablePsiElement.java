@@ -40,6 +40,7 @@ import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.ACTION;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.COMPILABLE_BLOCK;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.DATA_DEFINITION;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.DATA_MANIPULATION;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.OBJECT_DECLARATION;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.QUERY;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.SCHEMA_CHANGE;
@@ -199,7 +200,7 @@ public class ExecutablePsiElement extends NamedPsiElement implements Cloneable<E
         String subject = null;
         String action = "";
         String subjectType = "";
-        if (is(DATA_DEFINITION)) {
+        if (isDataDefinitionStatement()) {
             IdentifierPsiElement subjectPsiElement = (IdentifierPsiElement) findFirstPsiElement(SUBJECT);
             if (subjectPsiElement != null) {
                 subject = subjectPsiElement.getUnquotedText().toString();
@@ -244,5 +245,28 @@ public class ExecutablePsiElement extends NamedPsiElement implements Cloneable<E
     @Nullable
     public TextAttributesKey getTextAttributesKey() {
         return null;
+    }
+
+
+    /**
+     * Determines if the executable element represents a data definition statement.
+     * Data definition statements typically include operations that modify the structure
+     * of the database, such as CREATE, ALTER, or DROP statements.
+     *
+     * @return true if the executable element is classified as a data definition statement, false otherwise.
+     */
+    public boolean isDataDefinitionStatement() {
+        return hasAttribute(DATA_DEFINITION);
+    }
+
+    /**
+     * Determines if the executable element represents a data manipulation statement.
+     * Data manipulation statements typically include operations such as INSERT, UPDATE, DELETE,
+     * or any other statement that modifies the data within the database.
+     *
+     * @return true if the executable element is classified as a data manipulation statement, false otherwise.
+     */
+    public boolean isDataManipulationStatement() {
+        return hasAttribute(DATA_MANIPULATION);
     }
 }

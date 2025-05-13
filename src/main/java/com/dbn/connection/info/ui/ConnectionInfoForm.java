@@ -36,13 +36,11 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
-import java.sql.Connection;
 import java.sql.SQLException;
-
-import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @SuppressWarnings("unused")
 public class ConnectionInfoForm extends DBNFormBase {
@@ -86,15 +84,17 @@ public class ConnectionInfoForm extends DBNFormBase {
     private JLabel infoJdbcTypeLabel;
     private JLabel infoConnectionUrlLabel;
     private JLabel infoUserNameLabel;
+    private JTextPane errorTextPane;
+    private JTextField infoDatabaseTypeValueTextField;
 
-    public ConnectionInfoForm(ConnectionInfoDialog parent, ConnectionHandler connection) {
+    public ConnectionInfoForm(ConnectionInfoDialog parent, ConnectionHandler connection, ConnectionInfo connectionInfo, SQLException exception) {
         super(parent);
         initHeaderPanel(connection);
         initSetupPanel(connection);
-        initInfoPanel(connection);
+        initInfoPanel(connection, connectionInfo, exception);
     }
 
-    public ConnectionInfoForm(@NotNull ConnectionInfoDialog parent, ConnectionInfo connectionInfo, String connectionName, EnvironmentType environmentType) {
+    public ConnectionInfoForm(ConnectionInfoDialog parent, ConnectionInfo connectionInfo, String connectionName, EnvironmentType environmentType) {
         super(parent);
         setupPanel.setVisible(false);
         initHeaderPanel(connectionName, environmentType);
@@ -114,36 +114,39 @@ public class ConnectionInfoForm extends DBNFormBase {
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
     }
 
-    private void initInfoPanel(ConnectionHandler connection) {
-        try {
-            Connection conn = connection.getMainConnection();
-            ConnectionInfo connectionInfo = new ConnectionInfo(conn.getMetaData());
-
+    private void initInfoPanel(ConnectionHandler connection, ConnectionInfo connectionInfo, SQLException exception) {
+        if (connectionInfo != null) {
             initInfoPanel(connectionInfo);
-        } catch (SQLException e) {
-            conditionallyLog(e);
-            DatabaseType databaseType = connection.getSettings().getDatabaseSettings().getDatabaseType();
-            infoDatabaseTypeValueLabel.setText(databaseType.getName());
-            infoDatabaseTypeValueLabel.setIcon(databaseType.getIcon());
-
-
-            initValueField(infoProductNameLabel, infoProductNameTextField, "-");
-            initValueField(infoProductVersionLabel, infoProductVersionTextField, "-");
-            initValueField(infoDriverNameLabel, infoDriverNameTextField, "-");
-            initValueField(infoDriverVersionLabel, infoDriverVersionTextField, "-");
-            initValueField(infoJdbcTypeLabel, infoJdbcTypeTextField, "-");
-            initValueField(infoConnectionUrlLabel, infoConnectionUrlTextField, "-");
-            initValueField(infoUserNameLabel, infoUserNameTextField, "-");
-            statusMessageLabel.setText(e.getMessage());
-            statusMessageLabel.setIcon(Icons.EXEC_MESSAGES_ERROR);
+        } else {
+            initErrorPanel(connection, exception);
         }
+    }
+
+    private void initErrorPanel(ConnectionHandler connection, SQLException e) {
+        DatabaseType databaseType = connection.getSettings().getDatabaseSettings().getDatabaseType();
+        infoDatabaseTypeValueLabel.setText("");
+        infoDatabaseTypeValueLabel.setIcon(databaseType.getIcon());
+
+        initValueField(infoDatabaseTypeValueLabel, infoDatabaseTypeValueTextField, databaseType.getName());
+        initValueField(infoProductNameLabel, infoProductNameTextField, "-");
+        initValueField(infoProductVersionLabel, infoProductVersionTextField, "-");
+        initValueField(infoDriverNameLabel, infoDriverNameTextField, "-");
+        initValueField(infoDriverVersionLabel, infoDriverVersionTextField, "-");
+        initValueField(infoJdbcTypeLabel, infoJdbcTypeTextField, "-");
+        initValueField(infoConnectionUrlLabel, infoConnectionUrlTextField, "-");
+        initValueField(infoUserNameLabel, infoUserNameTextField, "-");
+        statusMessageLabel.setText("");
+        statusMessageLabel.setIcon(Icons.EXEC_MESSAGES_ERROR);
+        errorTextPane.setText(e.getMessage());
+        errorTextPane.setVisible(true);
     }
 
     private void initInfoPanel(ConnectionInfo connectionInfo) {
         DatabaseType databaseType = connectionInfo.getDatabaseType();
-        infoDatabaseTypeValueLabel.setText(databaseType.getName());
+        infoDatabaseTypeValueLabel.setText("");
         infoDatabaseTypeValueLabel.setIcon(databaseType.getIcon());
 
+        initValueField(infoDatabaseTypeValueLabel, infoDatabaseTypeValueTextField, databaseType.getName());
         initValueField(infoProductNameLabel, infoProductNameTextField, connectionInfo.getProductName());
         initValueField(infoProductVersionLabel, infoProductVersionTextField, connectionInfo.getProductVersion());
         initValueField(infoDriverNameLabel, infoDriverNameTextField, connectionInfo.getDriverName());
@@ -154,6 +157,8 @@ public class ConnectionInfoForm extends DBNFormBase {
 
         statusMessageLabel.setText("Connection successful");
         statusMessageLabel.setIcon(Icons.COMMON_CHECK);
+        errorTextPane.setText("");
+        errorTextPane.setVisible(false);
     }
 
     private void initSetupPanel(ConnectionHandler connection) {

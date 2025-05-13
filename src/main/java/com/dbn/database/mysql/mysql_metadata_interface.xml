@@ -30,7 +30,7 @@
             select
                 SCHEMA_NAME,
                 'N' as IS_PUBLIC,
-                if(lower(SCHEMA_NAME)='information_schema', 'Y', 'N') as IS_SYSTEM,
+                if(lower(SCHEMA_NAME) in ('information_schema', 'performance_schema', 'sys'), 'Y', 'N') as IS_SYSTEM,
                 'N' as IS_EMPTY
             from information_schema.SCHEMATA
             order by SCHEMA_NAME asc
@@ -94,7 +94,8 @@
                 TABLE_NAME as VIEW_NAME,
                 null as VIEW_TYPE_OWNER,
                 null as VIEW_TYPE,
-                if (TABLE_TYPE = 'VIEW', 'N', 'Y') as IS_SYSTEM_VIEW
+                if (TABLE_TYPE = 'VIEW', 'N', 'Y') as IS_SYSTEM_VIEW,
+                'N' as IS_EDITIONABLE
             from information_schema.TABLES
             where
                 TABLE_SCHEMA = {0} and

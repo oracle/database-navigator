@@ -18,12 +18,20 @@ package com.dbn.object.impl;
 
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBIndex;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectRelationImpl;
 import com.dbn.object.type.DBObjectRelationType;
+
+import static com.dbn.common.util.Commons.nvl;
 
 class DBIndexColumnRelation extends DBObjectRelationImpl<DBIndex, DBColumn> {
     DBIndexColumnRelation(DBIndex index, DBColumn column) {
         super(DBObjectRelationType.INDEX_COLUMN, index, column);
+    }
+
+    @Override
+    public DBObject getRelationHolder() {
+        return nvl(getColumn().getParentObject(), getColumn());
     }
 
     public DBIndex getIndex() {

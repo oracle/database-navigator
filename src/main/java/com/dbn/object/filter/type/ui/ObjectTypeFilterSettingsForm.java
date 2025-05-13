@@ -34,7 +34,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import java.awt.Color;
 
 public class ObjectTypeFilterSettingsForm extends ConfigurationEditorForm<ObjectTypeFilterSettings> {
     private JPanel mainPanel;
@@ -51,25 +50,35 @@ public class ObjectTypeFilterSettingsForm extends ConfigurationEditorForm<Object
         if (masterSettingsAvailable) {
             visibleObjectTypesLabel.setVisible(false);
             useMasterSettingsCheckBox.addActionListener(e -> {
-                boolean enabled = !useMasterSettingsCheckBox.isSelected();
-                visibleObjectsList.setEnabled(enabled);
-                Color background = enabled ? UIUtil.getListBackground() : UIUtil.getComboBoxDisabledBackground();
-                visibleObjectsList.setBackground(background);
+                refreshObjectList();
                 visibleObjectsList.clearSelection();
-                visibleObjectsScrollPane.setVisible(enabled);
                 UserInterface.repaint(mainPanel);
             });
         } else {
             mainPanel.setBorder(null);
         }
         configuration.getUseMasterSettings().from(useMasterSettingsCheckBox);
-        boolean enabled = !masterSettingsAvailable || !useMasterSettingsCheckBox.isSelected();
-        visibleObjectsList.setEnabled(enabled);
-        visibleObjectsList.setBackground(enabled ? UIUtil.getListBackground() : UIUtil.getComboBoxDisabledBackground());
-        visibleObjectsList.setElements(configuration.getSettings());
-        visibleObjectsScrollPane.setVisible(enabled);
+        refreshObjectList();
 
         registerComponents(visibleObjectsList, useMasterSettingsCheckBox);
+    }
+
+    private void refreshObjectList() {
+        ObjectTypeFilterSettings configuration = getConfiguration();
+        ObjectTypeFilterSettings masterSettings = configuration.getMasterSettings();
+        boolean useMasterSettings = masterSettings != null && useMasterSettingsCheckBox.isSelected();
+
+        boolean enabled = isEnabled();
+        visibleObjectsList.setBackground(enabled ? UIUtil.getListBackground() : UIUtil.getComboBoxDisabledBackground());
+        visibleObjectsList.setElements(useMasterSettings ?
+                masterSettings.getSettings() :
+                configuration.getSettings());
+        visibleObjectsList.setEnabled(enabled);
+    }
+
+    private boolean isEnabled() {
+        boolean masterSettingsAvailable = getConfiguration().getMasterSettings() != null;
+        return !masterSettingsAvailable || !useMasterSettingsCheckBox.isSelected();
     }
 
 

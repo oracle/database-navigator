@@ -53,6 +53,10 @@ import static com.dbn.database.DatabaseFeature.SESSION_INTERRUPTION_TIMING;
 import static com.dbn.database.DatabaseFeature.SESSION_KILL;
 import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
 import static com.dbn.database.DatabaseFeature.USER_SCHEMA;
+import static com.dbn.database.DatabaseObjectTypeId.AI_PROFILE;
+import static com.dbn.database.DatabaseObjectTypeId.CREDENTIAL;
+import static com.dbn.database.DatabaseObjectTypeId.JAVA_CLASS;
+import static com.dbn.database.DatabaseObjectTypeId.JAVA_RESOURCE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -95,7 +99,24 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 USER_SCHEMA,
                 CONSTRAINT_MANIPULATION,
                 READONLY_CONNECTIVITY,
-                AI_ASSISTANT);
+                AI_ASSISTANT
+                //EMPTY_SCHEMA_EVALUATION // TODO disabled due to performance reasons
+                );
+    }
+
+    @Override
+    public boolean supportsFeature(DatabaseFeature feature, DatabaseObjectTypeId objectTypeId) {
+        if (!super.supportsFeature(feature, objectTypeId)) return false;
+
+        if (feature == OBJECT_DDL_EXTRACTION) {
+            // TODO create generic object-type to feature mapping solution
+            return !objectTypeId.isOneOf(
+                    CREDENTIAL,
+                    AI_PROFILE,
+                    JAVA_CLASS,
+                    JAVA_RESOURCE);
+        }
+        return true;
     }
 
     @Override
@@ -133,6 +154,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
     public Map<String, String> getImplicitConnectionProperties() {
         return Map.of(
                 "oracle.jdbc.jsonDefaultGetObjectType", "java.lang.String",
-                "oracle.jdbc.vectorDefaultGetObjectType", "double[]");
+                "oracle.jdbc.vectorDefaultGetObjectType", "double[]",
+                "oracle.net.keepAlive", "true");
     }
 }

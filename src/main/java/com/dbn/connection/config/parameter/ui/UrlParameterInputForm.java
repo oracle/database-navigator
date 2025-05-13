@@ -18,15 +18,25 @@ package com.dbn.connection.config.parameter.ui;
 
 import com.dbn.common.properties.ui.PropertiesEditorForm;
 import com.dbn.common.properties.ui.PropertiesTableModel;
-import com.dbn.connection.config.parameter.IntegerConstraintValidator;
+import com.dbn.connection.config.parameter.CheckForInvalidCharactersValidator;
+import com.dbn.connection.config.parameter.RegexConstraintValidator;
 import com.dbn.connection.config.parameter.StringListConstraintValidator;
+import com.dbn.language.common.QuotePair;
 import lombok.Getter;
 
 import java.awt.Dimension;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import static com.dbn.connection.config.EasyConnectParameters.BOOLEAN_LIKE_STRING_VALUES;
+import static com.dbn.connection.config.EasyConnectParameters.NO_DQUOTES_ALLOWED_IN_PROPERTY;
+import static com.dbn.connection.config.EasyConnectParameters.RETRY_DELAY_VALIDATOR;
+import static com.dbn.connection.config.parameter.IntegerConstraintValidator.MUST_BE_ZERO_OR_MORE;
 
 @Getter
 public class UrlParameterInputForm extends PropertiesEditorForm {
+
     public UrlParameterInputForm(UrlParameterInputDialog dialog, Map<String, String> parameters) {
         super(dialog, parameters, false, false);
         initPropertyTable();
@@ -44,14 +54,19 @@ public class UrlParameterInputForm extends PropertiesEditorForm {
     protected void initPropertyValidators() {
         // TODO make more generic to support url parameters for connections other than EZ_CONNECT
 
-        addValidator(new IntegerConstraintValidator(0), "SEND_BUF_SIZE");
-        addValidator(new IntegerConstraintValidator(0), "RECV_BUF_SIZE");
-        addValidator(new StringListConstraintValidator("ON", "OFF"), "FAILOVER");
-        addValidator(new StringListConstraintValidator("ON", "OFF"), "LOAD_BALANCE");
-        addValidator(new IntegerConstraintValidator(0), "SDU");
-        addValidator(new IntegerConstraintValidator(0), "SDU");
-        addValidator(new StringListConstraintValidator("ON", "OFF"), "SOURCE_ROUTE");
-        addValidator(new IntegerConstraintValidator(0), "RETRY_COUNT");
-        addValidator(new IntegerConstraintValidator(0), "RETRY_DELAY");
+        addValidator(MUST_BE_ZERO_OR_MORE, "SEND_BUF_SIZE");
+        addValidator(MUST_BE_ZERO_OR_MORE, "RECV_BUF_SIZE");
+        addValidator(new StringListConstraintValidator(BOOLEAN_LIKE_STRING_VALUES), "FAILOVER");
+        addValidator(new StringListConstraintValidator(BOOLEAN_LIKE_STRING_VALUES), "LOAD_BALANCE");
+        addValidator(MUST_BE_ZERO_OR_MORE, "SDU");
+        addValidator(new StringListConstraintValidator("ON", "OFF", "on", "off", "YES", "NO", "yes", "no"), "SOURCE_ROUTE");
+        addValidator(MUST_BE_ZERO_OR_MORE, "RETRY_COUNT");
+        addValidator(RETRY_DELAY_VALIDATOR, "RETRY_DELAY");
+
+        addValidator(new StringListConstraintValidator(
+                "ON", "OFF", "on", "off", "YES","NO","yes", "no", "TRUE", "FALSE", "true", "false"), "SSL_SERVER_DN_MATCH");
+        addValidator(NO_DQUOTES_ALLOWED_IN_PROPERTY,"SSL_SERVER_CERT_DN");
+        addValidator(NO_DQUOTES_ALLOWED_IN_PROPERTY, "WALLET_LOCATION");
+
     }
 }

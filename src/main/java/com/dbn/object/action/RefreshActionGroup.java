@@ -16,12 +16,12 @@
 
 package com.dbn.object.action;
 
+import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.icon.Icons;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 
 public class RefreshActionGroup  extends DefaultActionGroup {
     public RefreshActionGroup(DBObject object) {

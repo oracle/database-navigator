@@ -21,6 +21,7 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.file.FileTypeService;
+import com.dbn.common.file.FileTypes;
 import com.dbn.common.thread.Background;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
@@ -29,19 +30,20 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.language.common.DBLanguageFileType;
 import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
-import com.intellij.lang.Language;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.fileTypes.ExtensionFileNameMatcher;
 import com.intellij.openapi.fileTypes.FileNameMatcher;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeEvent;
 import com.intellij.openapi.fileTypes.FileTypeListener;
 import com.intellij.openapi.fileTypes.FileTypeManager;
-import com.intellij.openapi.fileTypes.LanguageFileType;
-import com.intellij.openapi.fileTypes.PlainTextLanguage;
+import com.intellij.openapi.fileTypes.UnknownFileType;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.PathUtil;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -54,9 +56,7 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.notification.NotificationGroup.DDL;
-import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.nls.NlsResources.txt;
-import static com.intellij.lang.Language.findLanguageByID;
 
 @State(
     name = DDLFileManager.COMPONENT_NAME,
@@ -169,17 +169,38 @@ public class DDLFileManager extends ProjectComponentBase implements PersistentSt
         }
     };
 
+    @Deprecated // use resolveFileType by object ref
     @Nullable
-    public LanguageFileType resolveFileType(DBObjectType objectType, DBContentType contentType) {
+    public FileType resolveFileType(DBObjectType objectType, DBContentType contentType) {
         if (objectType == DBObjectType.JAVA_CLASS) {
             // java module may not be present in the IDE (if not IntelliJ)
             // (fallback to plain text)
-            Language language = findLanguageByID("JAVA");
-            return nvl(language, PlainTextLanguage.INSTANCE).getAssociatedFileType();
+            return FileTypes.getJavaFileType();
         } else {
             DDLFileType ddlFileType = getDDLFileType(objectType, contentType);
             return ddlFileType == null ? null : ddlFileType.getLanguageFileType();
         }
+    }
+
+    public FileType resolveFileType(DBObjectRef object, DBContentType contentType) {
+        DBObjectType objectType = object.getObjectType();
+        if (objectType == DBObjectType.JAVA_CLASS) {
+            // java module may not be present in the IDE (if not IntelliJ)
+            // (fallback to plain text)
+            return FileTypes.getJavaFileType();
+        }
+
+        if (objectType == DBObjectType.JAVA_RESOURCE) {
+            String objectName = object.getObjectName();
+            String extension = PathUtil.getFileExtension(objectName);
+
+            return extension == null ?
+                    UnknownFileType.INSTANCE :
+                    FileTypes.getFileType(extension);
+        }
+
+        DDLFileType ddlFileType = getDDLFileType(objectType, contentType);
+        return ddlFileType == null ? null : ddlFileType.getLanguageFileType();
     }
 
 

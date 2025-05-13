@@ -47,6 +47,8 @@ import java.sql.SQLException;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.exception.Exceptions.unsupported;
+import static com.dbn.common.outcome.OutcomeType.FAILURE;
+import static com.dbn.common.outcome.OutcomeType.SUCCESS;
 
 /**
  * Abstract base implementation of an {@link ObjectManagementAdapter}
@@ -70,9 +72,9 @@ abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectW
         this.action = action;
         this.invoker = invoker;
 
-        outcomeHandlers.addHandler(OutcomeType.SUCCESS, ObjectChangeNotifier.create(getConnection(), getOwnerId(), objectType, action));
-        outcomeHandlers.addNotificationHandler(OutcomeType.SUCCESS, getProject(), NotificationGroup.DDL);
-        outcomeHandlers.addMessageHandler(OutcomeType.FAILURE, getProject());
+        outcomeHandlers.addHandler(SUCCESS, ObjectChangeNotifier.create(getConnection(), getOwnerId(), objectType, action));
+        outcomeHandlers.addNotificationHandler(SUCCESS, getProject(), NotificationGroup.DDL);
+        outcomeHandlers.addMessageHandler(FAILURE, getProject());
     }
 
     @Override

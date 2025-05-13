@@ -170,11 +170,10 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
     @Nullable
     public Filter<T> getConfigFilter() {
         ConnectionHandler connection = this.getConnection();
-        if (isLiveConnection(connection)) {
-            ConnectionFilterSettings filterSettings = connection.getSettings().getFilterSettings();
-            return filterSettings.getNameFilter(objectType);
-        }
-        return null;
+        if (!isLiveConnection(connection)) return null;
+
+        ConnectionFilterSettings filterSettings = connection.getSettings().getFilterSettings();
+        return filterSettings.getObjectFilter(objectType);
     }
 
     @Override

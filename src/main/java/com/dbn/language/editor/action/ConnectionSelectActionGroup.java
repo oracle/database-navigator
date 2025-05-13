@@ -16,12 +16,12 @@
 
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.intellij.openapi.actionSystem.Anchor;
 import com.intellij.openapi.actionSystem.Constraints;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 
 public class ConnectionSelectActionGroup extends DefaultActionGroup {

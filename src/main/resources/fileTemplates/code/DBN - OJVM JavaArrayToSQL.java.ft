@@ -1,16 +1,16 @@
-public static java.sql.Array ${SQL_OBJECT_TYPE}toSQL(${JAVA_COMPLEX_TYPE}[] obj) {
-    if (obj == null)
+public static java.sql.Array ${CONVERTER_METHOD_NAME}(${JAVA_COMPLEX_TYPE}[]${SQUARE_BRACKETS} ${JAVA_OBJECT}) {
+    if (${JAVA_OBJECT} == null)
         return null;
 
-    java.lang.Object[] objArray = new java.lang.Object[obj.length];
-    for(int i = 0; i < obj.length; i++)
-        objArray[i] = obj[i];
+    java.lang.Object[] ${OBJ_ARRAY} = new java.lang.Object[${JAVA_OBJECT}.length];
+    for(int ${ITERATOR} = 0; ${ITERATOR} < ${JAVA_OBJECT}.length; ${ITERATOR}++)
+        ${ITERATION_CODE};
 
     java.sql.Array returnArray;
     try {
         oracle.jdbc.driver.OracleDriver driverDef = new oracle.jdbc.driver.OracleDriver();
         java.sql.Connection conn = driverDef.defaultConnection();
-        returnArray = ((oracle.jdbc.OracleConnection)conn).createARRAY("${SQL_OBJECT_TYPE}",objArray);
+        returnArray = ((oracle.jdbc.OracleConnection)conn).createARRAY("${SQL_OBJECT_TYPE}",${OBJ_ARRAY});
     } catch (java.sql.SQLException e) {
         return null;
     }
