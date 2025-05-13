@@ -67,6 +67,7 @@ import static com.dbn.common.dispose.ComponentDisposer.removeListeners;
 import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.table.Tables.installFocusTraversal;
+import static com.dbn.common.ui.table.Tables.installScrollPaneAdjuster;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 

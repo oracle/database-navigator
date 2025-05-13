@@ -63,7 +63,7 @@ public class EventListenersForm extends DBNFormBase {
     }
 
     private void initActions() {
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.EventRegistration.Controls");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.EventListener.Controls");
         actionsPanel.add(actionToolbar.getComponent());
     }
 
