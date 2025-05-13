@@ -42,8 +42,8 @@ public class EventNotificationFilter implements Filter<DataChangeEvent> {
     }
 
     private boolean matchesOperation(DataChangeEvent event) {
-        return Strings.isEmpty(table) ||
-                equalsIgnoreCase(table, event.getOperation());
+        return Strings.isEmpty(operation) ||
+                equalsIgnoreCase(operation, event.getOperation());
     }
 
     @Nullable

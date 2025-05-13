@@ -18,20 +18,28 @@ package com.dbn.event.notification.model;
 
 import com.dbn.common.list.FilteredList;
 import com.dbn.common.ui.table.DBNMutableTableModel;
+import com.dbn.common.ui.table.DBNTableGutterModel;
+import com.dbn.common.ui.table.DBNTableWithGutterModel;
 import com.dbn.event.notification.filter.EventNotificationFilter;
 import com.dbn.event.notification.filter.EventNotificationFilterType;
 import com.dbn.event.service.EventHistoryService;
-import com.intellij.openapi.application.ApplicationManager;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.swing.ListModel;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Getter
 @Setter
-public class DataChangeEventBundle  extends DBNMutableTableModel<DataChangeEvent> {
+public class DataChangeEventBundle extends DBNMutableTableModel<DataChangeEvent> implements DBNTableWithGutterModel<DataChangeEvent> {
   private final EventNotificationFilter filter = new EventNotificationFilter();
-  private final List<DataChangeEvent> events = FilteredList.stateful(filter);
+  private List<DataChangeEvent> events = FilteredList.stateful(filter);
+
+  private final ListModel gutterModel = new DBNTableGutterModel<>(this);
+
+
   private final String connectionId  ;
   // Define the column names for the dashboard
   private final String COLUMN_OPERATION = "Operation";
@@ -42,32 +50,26 @@ public class DataChangeEventBundle  extends DBNMutableTableModel<DataChangeEvent
     private final String[] columnNames = {
             COLUMN_OPERATION, COLUMN_TABLE, COLUMN_ROWID, COLUMN_TIMESTAMP
     };
-  private String regStatusFilter = "All";
-  private String tableNameFilter = "All";
 
   public DataChangeEventBundle(String connectionId) {
     this.connectionId = connectionId;
     //intialise the model
     // subscribe for new events
+    // TODO the form should subscribe for new events?
+/*
     EventHistoryService.getInstance().registerListener(connectionId,event -> {
-
-      List<DataChangeEvent> initialEventss = EventHistoryService.getInstance().getAllEventsForConnection(connectionId,tableNameFilter , regStatusFilter);
-      events.clear();
-      events.addAll(initialEventss);
-      ApplicationManager.getApplication().invokeLater(this::notifyRowChanges);
+      load();
     });
-    loadEvents();
+*/
   }
 
-  public void loadEvents() {
-    List<DataChangeEvent> initialEvents = EventHistoryService.getInstance().getAllEventsForConnection(connectionId,tableNameFilter , regStatusFilter);
-    events.clear();
-    events.addAll(initialEvents);
-    ApplicationManager.getApplication().invokeLater(this::notifyRowChanges);
+  public void load() {
+    EventHistoryService eventHistoryService = EventHistoryService.getInstance();
+    List<DataChangeEvent> events = eventHistoryService.getAllEventsForConnection(connectionId);
+    this.events = FilteredList.stateful(filter, events);
 
-
+    notifyRowChanges();
   }
-
 
   @Override
   public int getRowCount() {
@@ -108,13 +110,31 @@ public class DataChangeEventBundle  extends DBNMutableTableModel<DataChangeEvent
     return String.class;
   }
 
+  private List<String> getTableNames() {
+    return FilteredList
+            .unwrap(events)
+            .stream()
+            .map(l -> l.getTableName())
+            .distinct()
+            .sorted()
+            .collect(Collectors.toList());
+  }
+
+  public List<String> getDistinctValues(EventNotificationFilterType filterType) {
+    switch (filterType) {
+      case TABLE: return getTableNames();
+      case OPERATION: return List.of("INSERT", "UPDATE", "DELETE");
+    }
+    return Collections.emptyList();
+  }
+
+  public ListModel getListModel() {
+    return gutterModel;
+  }
+
   @Override
   public void disposeInner() {
     // Clean up resources if needed.
   }
 
-
-  public List<String> getDistinctValues(EventNotificationFilterType filterType) {
-    return Collections.emptyList(); // TODO
-  }
 }

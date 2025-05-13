@@ -17,18 +17,25 @@
 package com.dbn.event.notification.ui;
 
 import com.dbn.common.action.DataKeys;
+import com.dbn.common.color.Colors;
+import com.dbn.common.thread.Background;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.table.DBNTable;
+import com.dbn.common.ui.table.DBNTableWithGutter;
+import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.dbn.event.notification.model.DataChangeEventBundle;
 import com.dbn.event.ui.EventMonitorDetailsForm;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.util.ui.AsyncProcessIcon;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import static com.dbn.common.ui.util.ClientProperty.NO_BORDER;
@@ -36,25 +43,65 @@ import static com.dbn.common.ui.util.ClientProperty.NO_BORDER;
 public class EventNotificationsForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel actionsPanel;
+    private JPanel controlPanel;
+    private JPanel loadingIconPanel;
+    private JLabel loadingLabel;
     private DBNScrollPane notificationsScrollPane;
 
     private @Getter DBNTable<DataChangeEventBundle> notificationsTable;
 
     public EventNotificationsForm(EventMonitorDetailsForm parent, DataChangeEventBundle events) {
         super(parent);
+        initActionToolbar();
+        initLoadIndicator();
         initTable(events);
-        initActions();
+
+        // start loading when the form is shown
+        whenShown(() -> load());
     }
 
-    private void initActions() {
+    private void initLoadIndicator() {
+        loadingIconPanel.add(new AsyncProcessIcon("Loading"));
+        loadingIconPanel.setVisible(false);
+        loadingLabel.setVisible(false);
+    }
+
+    private void initActionToolbar() {
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.EventNotification.Controls");
         actionsPanel.add(actionToolbar.getComponent());
+        controlPanel.setBorder(Borders.lineBorder(Colors.getTableGridColor(), 0, 0, 1, 0));
     }
 
     private void initTable(DataChangeEventBundle events) {
-        notificationsTable = new NotificationEventTable(this, events);
+        notificationsTable = new DBNTableWithGutter<>(this, events, true);
         notificationsScrollPane.setViewportView(notificationsTable);
         NO_BORDER.set(notificationsTable, true);
+    }
+
+    public void refresh() {
+        load();
+    }
+
+    private void load() {
+        markLoading(true);
+        Background.run(() -> {
+            try {
+                DataChangeEventBundle model = notificationsTable.getModel();
+                model.load();
+            } catch (Exception e) {
+                // TODO show load exception (maybe as a banner??)
+            } finally {
+                markLoading(false);
+            }
+        });
+    }
+
+    private void markLoading(boolean loading) {
+        Dispatch.run(mainPanel, () -> {
+            loadingIconPanel.setVisible(loading);
+            loadingLabel.setVisible(loading);
+            notificationsTable.setLoading(loading);
+        });
     }
 
     @Override
@@ -67,10 +114,6 @@ public class EventNotificationsForm extends DBNFormBase {
     public Object getData(@NotNull String dataId) {
         if (DataKeys.EVENT_NOTIFICATIONS_FORM.is(dataId)) return this;
         return null;
-    }
-
-    public void refresh() {
-
     }
 
     public boolean isLoading() {

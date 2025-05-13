@@ -20,6 +20,7 @@ import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.list.ColoredListCellRenderer;
+import com.dbn.common.ui.util.Splitters;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -34,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.ListModel;
 import java.awt.BorderLayout;
 import java.util.List;
@@ -45,6 +47,7 @@ public class EventMonitorForm extends DBNFormBase {
   private JPanel mainPanel;
   private JPanel detailsPanel;
   private JList<ConnectionHandler> connectionsList;
+  private JSplitPane splitPane;
   private int tabSelectionIndex;
 
   private final Map<ConnectionId, EventMonitorDetailsForm> resourceMonitorForms = DisposableContainers.map(this);
@@ -64,6 +67,8 @@ public class EventMonitorForm extends DBNFormBase {
     connectionsList.setModel(model);
     connectionsList.setSelectedIndex(0);
     markBorderless(connectionsList);
+
+    Splitters.setSplitPaneProportion(splitPane, 0.2);
 
     ProjectEvents.subscribe(project, this,
             ConnectionConfigListener.TOPIC,

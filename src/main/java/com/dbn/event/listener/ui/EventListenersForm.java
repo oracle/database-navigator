@@ -17,10 +17,12 @@
 package com.dbn.event.listener.ui;
 
 import com.dbn.common.action.DataKeys;
+import com.dbn.common.color.Colors;
 import com.dbn.common.thread.Background;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.table.DBNTableWithGutter;
+import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.dbn.event.listener.model.DataChangeListenerBundle;
 import com.dbn.event.ui.EventMonitorDetailsForm;
@@ -38,19 +40,19 @@ import static com.dbn.common.ui.util.ClientProperty.NO_BORDER;
 
 public class EventListenersForm extends DBNFormBase {
     private JPanel mainPanel;
+    private JPanel controlPanel;
     private JPanel actionsPanel;
-    private DBNScrollPane listenersScrollPane;
-    private JPanel loadingIconPanel;
     private JLabel loadingLabel;
+    private JPanel loadingIconPanel;
+    private DBNScrollPane listenersScrollPane;
 
     private @Getter DBNTableWithGutter<DataChangeListenerBundle> listenersTable;
 
-    public EventListenersForm(EventMonitorDetailsForm parent, DataChangeListenerBundle registrations) {
+    public EventListenersForm(EventMonitorDetailsForm parent, DataChangeListenerBundle listeners) {
         super(parent);
-
-        initTable(registrations);
-        initActions();
+        initActionToolbar();
         initLoadIndicator();
+        initTable(listeners);
 
         // start loading when the form is shown
         whenShown(() -> load());
@@ -62,13 +64,14 @@ public class EventListenersForm extends DBNFormBase {
         loadingLabel.setVisible(false);
     }
 
-    private void initActions() {
+    private void initActionToolbar() {
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.EventListener.Controls");
         actionsPanel.add(actionToolbar.getComponent());
+        controlPanel.setBorder(Borders.lineBorder(Colors.getTableGridColor(), 0, 0, 1, 0));
     }
 
-    private void initTable(DataChangeListenerBundle registrations) {
-        listenersTable = new DBNTableWithGutter<>(this, registrations, true);
+    private void initTable(DataChangeListenerBundle listeners) {
+        listenersTable = new DBNTableWithGutter<>(this, listeners, true);
         listenersScrollPane.setViewportView(listenersTable);
         NO_BORDER.set(listenersTable, true);
     }

@@ -16,6 +16,7 @@
 
 package com.dbn.common.util;
 
+import com.dbn.common.compatibility.Workaround;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPopupMenu;
@@ -45,7 +46,9 @@ public class Actions {
         ActionManager actionManager = ActionManager.getInstance();
         ActionGroup actionGroup = (ActionGroup) actionManager.getAction(name);
         ActionToolbar toolbar = actionManager.createActionToolbar(TOOLBAR, actionGroup, horizontal);
+
         linkActionToolbar(component, toolbar);
+        markImportantToolbar(toolbar);
         return toolbar;
     }
 
@@ -53,6 +56,7 @@ public class Actions {
         ActionManager actionManager = ActionManager.getInstance();
         ActionToolbar toolbar = actionManager.createActionToolbar(TOOLBAR, actionGroup, horizontal);
         linkActionToolbar(component, toolbar);
+        markImportantToolbar(toolbar);
         return toolbar;
     }
 
@@ -67,6 +71,7 @@ public class Actions {
 
         ActionToolbar toolbar = actionManager.createActionToolbar(TOOLBAR, actionGroup, horizontal);
         linkActionToolbar(component, toolbar);
+        markImportantToolbar(toolbar);
         return toolbar;
     }
 
@@ -74,6 +79,14 @@ public class Actions {
         ACTION_TOOLBAR.set(component, toolbar, true);
         toolbar.setTargetComponent(component);
     }
+
+    @Workaround
+    private static void markImportantToolbar(ActionToolbar toolbar) {
+        // ToolWindowImpl decides to recursively remove all toolbars under certain circumstances (this seems to solve the issue)
+        // TODO only happening for the new "DB Events" tool window. investigate why
+        toolbar.getComponent().putClientProperty("ActionToolbarImpl.importantToolbar", Boolean.TRUE);
+    }
+
 
     public static ActionPopupMenu createActionPopupMenu(@NotNull JComponent component, ActionGroup actionGroup){
         ActionManager actionManager = ActionManager.getInstance();
