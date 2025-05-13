@@ -170,7 +170,7 @@
         <projectService serviceImplementation="com.dbn.ddl.DDLFileManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileAttachmentManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseFileEditorManager"/>
-        <projectService serviceImplementation="com.dbn.events.EventNotificationManager"/>
+        <projectService serviceImplementation="com.dbn.events.notification.EventNotificationManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.SourceCodeManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.diff.SourceCodeDiffManager"/>
@@ -311,6 +311,7 @@
             <action class="com.dbn.menu.action.SessionBrowserOpenAction" text="Open Session Browser..." id="DBNavigator.Actions.MainMenu.OpenSessionBrowser" icon="com.dbn.common.icon.Icons.SESSION_BROWSER">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift S"/>
             </action>
+            <separator/>
             <action class="com.dbn.menu.action.MethodExecutionHistoryAction" text="Method Execution History" id="DBNavigator.Actions.MainMenu.MethodExecutionHistory">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift M"/>
             </action>
@@ -319,13 +320,15 @@
             </action>
             <action class="com.dbn.menu.action.FileConnectionMappingsOpenAction" text="File Connection Mappings" id="DBNavigator.Actions.MainMenu.FileConnectionMappings"/>
             <action class="com.dbn.menu.action.ResourceMonitorOpenAction" text="Resource Monitor" id="DBNavigator.Actions.MainMenu.ResourceMonitor"/>
+            <action id="DBNavigator.Actions.MainMenu.MonitorEventsOpenAction" class="com.dbn.menu.action.MonitorDataChangeOpenAction" text="Events Monitor"/>
             <!--<action class="com.dbn.action.menu.PendingTransactionsOpenAction" text="Open Transactions" id="DBNavigator.Actions.MainMenu.PendingTransactions"/>-->
+            <separator/>
+            <action id="DBNavigator.Actions.MainMenu.OpenSettings" class="com.dbn.menu.action.ProjectSettingsOpenAction" text="Settings"/>
             <group id="DBNavigator.ActionGroup.ImportExportSettings" text="Default Settings" popup="true">
                 <action id="DBNavigator.Actions.MainMenu.OpenDefaultSettings" class="com.dbn.menu.action.ProjectDefaultSettingsOpenAction" text="Open Default Settings..."/>
                 <action id="DBNavigator.Actions.MainMenu.LoadDefaultSettings" class="com.dbn.menu.action.ProjectDefaultSettingsImportAction" text="Import Settings..."/>
                 <action id="DBNavigator.Actions.MainMenu.SaveDefaultSettings" class="com.dbn.menu.action.ProjectSettingsExportAction" text="Export Settings..."/>
             </group>
-            <separator/>
             <group id="DBNavigator.ActionGroup.Diagnostics" text="Diagnostics" popup="true">
                 <action id="DBNavigator.Actions.MainMenu.EnableDeveloperMode" class="com.dbn.diagnostics.action.DeveloperModeAction" text="Developer Mode..."/>
                 <action id="DBNavigator.Actions.MainMenu.ParserDiagnostics" class="com.dbn.diagnostics.action.ParserDiagnosticsOpenAction" text="Parser Diagnostics..."/>
@@ -335,12 +338,8 @@
                 <separator/>
                 <action id="DBNavigator.Actions.MainMenu.Options" class="com.dbn.menu.action.DiagnosticsSettingsOpenAction" text="Settings..."/>
             </group>
-            <group id="DBNavigator.ActionGroup.MonitorEvents" text="Events" popup="true">
-                <action id="DBNavigator.Actions.MainMenu.MonitorEventsOpenAction" class="com.dbn.menu.action.MonitorDataChangeOpenAction" text="Monitor Events..."/>
-            </group>
 
 
-            <action id="DBNavigator.Actions.MainMenu.OpenSettings" class="com.dbn.menu.action.ProjectSettingsOpenAction" text="Settings"/>
             <action id="DBNavigator.Actions.MainMenu.OpenAbout" class="com.dbn.menu.action.AboutPageOpenAction" text="About"/>
             <add-to-group anchor="before" group-id="MainMenu" relative-to-action="HelpMenu"/>
         </group>
@@ -581,6 +580,17 @@
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl ENTER"/>
             </action>
         </group>
+        <group id="DBNavigator.ActionGroup.EventListener.Controls" text="Database Event Listener Controls">
+            <action id="DBNavigator.Actions.EventListener.Reload" class="com.dbn.events.listener.action.EventListenersReloadAction" text="Event Listeners - Reload"/>
+            <action id="DBNavigator.Actions.EventListener.UserFilter" class="com.dbn.events.listener.action.EventListenerUserFilterAction" text="Event Listeners - User Filter"/>
+            <action id="DBNavigator.Actions.EventListener.TableFilter" class="com.dbn.events.listener.action.EventListenerTableFilterAction" text="Event Listeners - Table Filter"/>
+            <action id="DBNavigator.Actions.EventListener.StatusFilter" class="com.dbn.events.listener.action.EventListenerStatusFilterAction" text="Event Listeners - Status Filter"/>
+        </group>
+        <group id="DBNavigator.ActionGroup.EventNotification.Controls" text="Database Event Notification Controls">
+            <action id="DBNavigator.Actions.EventNotification.Reload" class="com.dbn.events.notification.action.EventNotificationsReloadAction" text="Event Notifications - Reload"/>
+            <action id="DBNavigator.Actions.EventNotification.TableFilter" class="com.dbn.events.notification.action.EventNotificationTableFilterAction" text="Event Notifications - Table Filter"/>
+            <action id="DBNavigator.Actions.EventNotification.OperationFilter" class="com.dbn.events.notification.action.EventNotificationOperationFilterAction" text="Event Notifications - Operation Filter"/>
+        </group>
     </actions>
     <projectListeners>
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener" class="com.dbn.editor.code.SourceCodeEditorListener"/>
@@ -616,7 +626,7 @@
         <toolWindow id="DB Diagnostics" anchor="bottom" factoryClass="com.dbn.diagnostics.DiagnosticsToolWindowFactory" canCloseContents="true"/>
         <toolWindow id="DB Execution Console" anchor="bottom" factoryClass="com.dbn.execution.ExecutionConsoleToolWindowFactory" />
         <toolWindow id="DB Assistant" anchor="right" factoryClass="com.dbn.assistant.DatabaseAssistantToolWindowFactory"/>
-        <toolWindow id="DB Events" anchor="bottom" factoryClass="com.dbn.events.ui.EventsToolWindowFactory" canCloseContents="true"/>
+        <toolWindow id="DB Events" anchor="bottom" factoryClass="com.dbn.events.EventMonitorToolWindowFactory" canCloseContents="true"/>
 
         <!--        new tool window-->
 

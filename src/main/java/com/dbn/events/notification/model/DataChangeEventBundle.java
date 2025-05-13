@@ -1,17 +1,37 @@
-package com.dbn.events.model;
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import com.dbn.common.thread.Dispatch;
+package com.dbn.events.notification.model;
+
+import com.dbn.common.list.FilteredList;
 import com.dbn.common.ui.table.DBNMutableTableModel;
+import com.dbn.events.notification.filter.EventNotificationFilter;
+import com.dbn.events.notification.filter.EventNotificationFilterType;
 import com.dbn.events.service.EventHistoryService;
 import com.intellij.openapi.application.ApplicationManager;
-import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-@Data
-public class DataChangeEventBundle    extends DBNMutableTableModel<DataChangeEvent> {
-  private final List<DataChangeEvent> events = new CopyOnWriteArrayList<>();
+@Getter
+@Setter
+public class DataChangeEventBundle  extends DBNMutableTableModel<DataChangeEvent> {
+  private final EventNotificationFilter filter = new EventNotificationFilter();
+  private final List<DataChangeEvent> events = FilteredList.stateful(filter);
   private final String connectionId  ;
   // Define the column names for the dashboard
   private final String COLUMN_OPERATION = "Operation";
@@ -94,6 +114,7 @@ public class DataChangeEventBundle    extends DBNMutableTableModel<DataChangeEve
   }
 
 
-
-
+  public List<String> getDistinctValues(EventNotificationFilterType filterType) {
+    return Collections.emptyList(); // TODO
+  }
 }

@@ -2,7 +2,7 @@ package com.dbn.events.proxy;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.events.NotificationHandler;
-import com.dbn.events.model.DataChangeEvent;
+import com.dbn.events.notification.model.DataChangeEvent;
 import com.dbn.events.service.EventHistoryService;
 
 import java.lang.reflect.InvocationHandler;

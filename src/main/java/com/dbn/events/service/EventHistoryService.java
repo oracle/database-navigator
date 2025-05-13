@@ -1,7 +1,7 @@
 package com.dbn.events.service;
 
-import com.dbn.events.RegistrationManager;
-import com.dbn.events.model.DataChangeEvent;
+import com.dbn.events.listener.EventListenerManager;
+import com.dbn.events.notification.model.DataChangeEvent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -101,7 +101,7 @@ public class EventHistoryService {
     // This depends on how you define an active event in your system
     // For example, you could check if the registration ID is in the active registrations list
 //    return re.contains(event.getRegistrationId());
-    return RegistrationManager.getInstance().isActive(event.getRegID());
+    return EventListenerManager.getInstance().isActive(event.getRegID());
   }
 
   }

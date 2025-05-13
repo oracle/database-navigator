@@ -3,23 +3,27 @@ package com.dbn.events.service;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.events.RegistrationManager;
-import com.dbn.events.model.DataChangeRegistration;
+import com.dbn.events.listener.model.DataChangeListener;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static com.dbn.common.Priority.HIGH;
-import static com.dbn.events.model.DataChangeRegistrationBundle.*;
+import static com.dbn.events.listener.model.DataChangeListenerBundle.COL_CALLBACK;
+import static com.dbn.events.listener.model.DataChangeListenerBundle.COL_CHANGELAG;
+import static com.dbn.events.listener.model.DataChangeListenerBundle.COL_OPERATIONS;
+import static com.dbn.events.listener.model.DataChangeListenerBundle.COL_REGFLAGS;
+import static com.dbn.events.listener.model.DataChangeListenerBundle.COL_REGID;
+import static com.dbn.events.listener.model.DataChangeListenerBundle.COL_TABLE_NAME;
+import static com.dbn.events.listener.model.DataChangeListenerBundle.COL_TIMEOUT;
+import static com.dbn.events.listener.model.DataChangeListenerBundle.COL_USERNAME;
 
 public class RegistrationService {
 
-  private DataChangeRegistration mapRow(DBNResultSet rs) throws SQLException {
-    return new DataChangeRegistration(
+  private DataChangeListener mapRow(DBNResultSet rs) throws SQLException {
+    return new DataChangeListener(
+            rs.getString(COL_USERNAME),
             rs.getLong(COL_REGID),
             rs.getInt(COL_REGFLAGS),
             rs.getString(COL_CALLBACK),
@@ -30,7 +34,7 @@ public class RegistrationService {
     );
   }
 
-  public List<DataChangeRegistration> fetchRegistrations(ConnectionHandler connection)
+  public List<DataChangeListener> fetchRegistrations(ConnectionHandler connection)
           throws SQLException
   {
     return DatabaseInterfaceInvoker.load(
@@ -40,7 +44,7 @@ public class RegistrationService {
             connection.getProject(),
             connection.getConnectionId(),
             conn -> {
-              List<DataChangeRegistration> list = new ArrayList<>();
+              List<DataChangeListener> list = new ArrayList<>();
               try (DBNResultSet rs = (DBNResultSet)
                       connection.getMetadataInterface().loadDataEventRegistrations(conn)) {
                 while (rs.next()) {

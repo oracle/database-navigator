@@ -1,7 +1,7 @@
 package com.dbn.events;
 
 import com.dbn.connection.ConnectionId;
-import com.dbn.events.model.DataChangeEvent;
+import com.dbn.events.notification.model.DataChangeEvent;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;

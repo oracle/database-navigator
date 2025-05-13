@@ -18,7 +18,7 @@ package com.dbn.object.action;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.editor.DBContentType;
-import com.dbn.events.RegistrationManager;
+import com.dbn.events.listener.EventListenerManager;
 import com.dbn.execution.compiler.action.CompileActionGroup;
 import com.dbn.execution.java.action.JavaObjectRunAction;
 import com.dbn.execution.java.action.JavaRunAction;
@@ -27,7 +27,14 @@ import com.dbn.execution.method.action.MethodRunAction;
 import com.dbn.execution.method.action.ProgramMethodDebugAction;
 import com.dbn.execution.method.action.ProgramMethodRunAction;
 import com.dbn.generator.statement.action.GenerateStatementActionGroup;
-import com.dbn.object.*;
+import com.dbn.object.DBColumn;
+import com.dbn.object.DBConsole;
+import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBMethod;
+import com.dbn.object.DBProgram;
+import com.dbn.object.DBSchema;
+import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectNavigationList;
@@ -83,7 +90,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
             addSeparator();
             //todo check of DCN already enabled
             String tableName = object.getQualifiedName();
-            if(RegistrationManager.getInstance().isListening(tableName)){
+            if(EventListenerManager.getInstance().isListening(tableName)){
                 add(new TableDisableDCNAction((DBTable) object));
             }else{
                 add(new TableEnableDCNAction((DBTable) object));

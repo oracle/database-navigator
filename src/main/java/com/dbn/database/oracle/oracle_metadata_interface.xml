@@ -2818,8 +2818,11 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="data-event-registrations" is-query="true" is-prepared-statement="true">
-        <statement prefixes="DBA, ALL,USER">
-            SELECT * from [PREFIX]_CHANGE_NOTIFICATION_REGS
+        <statement>
+            select * from DBA_CHANGE_NOTIFICATION_REGS
+        </statement>
+        <statement>
+            select USER as USERNAME, cnr.* from USER_CHANGE_NOTIFICATION_REGS cnr
         </statement>
     </statement-execution-processor>
 

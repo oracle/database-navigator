@@ -5,33 +5,35 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.util.UserInterface;
-import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
+import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.components.JBList;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.awt.*;
-import java.sql.SQLException;
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.ListModel;
+import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.ui.util.Borderless.markBorderless;
 
-public class EventsNotificationForm extends DBNFormBase {
+public class EventMonitorForm extends DBNFormBase {
   private JPanel mainPanel;
   private JPanel detailsPanel;
   private JList<ConnectionHandler> connectionsList;
   private int tabSelectionIndex;
 
-  private final Map<ConnectionId, EventsNotificationDetailsForm> resourceMonitorForms = DisposableContainers.map(this);
+  private final Map<ConnectionId, EventMonitorDetailsForm> resourceMonitorForms = DisposableContainers.map(this);
 
-  public EventsNotificationForm(@NotNull Project project) {
+  public EventMonitorForm(@NotNull Project project) {
     super(null, project);
     if (connectionsList == null) {
       connectionsList = new JBList<>();
@@ -61,9 +63,7 @@ public class EventsNotificationForm extends DBNFormBase {
   private ListModel<ConnectionHandler> createModel() {
     DefaultListModel<ConnectionHandler> model = new DefaultListModel<>();
     ConnectionManager connectionManager = ConnectionManager.getInstance(ensureProject());
-    ConnectionBundle connectionBundle = connectionManager.getConnectionBundle();
-    //todo filter just the oracle dbs
-    List<ConnectionHandler> connections = connectionBundle.getConnections();
+    List<ConnectionHandler> connections = connectionManager.getConnections(c -> c.getDatabaseType() == DatabaseType.ORACLE);
     for (ConnectionHandler connection : connections) {
       model.addElement(connection);
     }
@@ -74,13 +74,9 @@ public class EventsNotificationForm extends DBNFormBase {
     detailsPanel.removeAll();
     if (connection != null) {
       ConnectionId connectionId = connection.getConnectionId();
-      EventsNotificationDetailsForm detailForm = resourceMonitorForms.get(connectionId);
+      EventMonitorDetailsForm detailForm = resourceMonitorForms.get(connectionId);
       if (detailForm == null) {
-        try {
-          detailForm = new EventsNotificationDetailsForm(this, connection);
-        } catch (SQLException e) {
-          throw new RuntimeException(e);
-        }
+        detailForm = new EventMonitorDetailsForm(this, connection);
         resourceMonitorForms.put(connectionId, detailForm);
       }
       detailsPanel.add(detailForm.getComponent(), BorderLayout.CENTER);

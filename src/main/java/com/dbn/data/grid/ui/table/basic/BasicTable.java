@@ -29,7 +29,6 @@ import com.dbn.common.ui.table.DBNTableWithGutter;
 import com.dbn.common.ui.table.TableSelectionRestorer;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.ui.util.Mouse;
-import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.MathResult;
 import com.dbn.common.util.Safe;
 import com.dbn.data.grid.color.DataGridTextAttributes;
@@ -52,9 +51,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupListener;
 import com.intellij.openapi.ui.popup.LightweightWindowEvent;
-import com.intellij.ui.components.JBViewport;
 import com.intellij.util.Alarm;
-import com.intellij.util.ui.UIUtil;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -86,7 +83,6 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
     private final TableSelectionRestorer selectionRestorer = createSelectionRestorer();
     private JBPopup valuePopup;
     private MathResult selectionMath;
-    private boolean loading;
 
     public BasicTable(DBNComponent parent, T dataModel) {
         super(parent, dataModel, true);
@@ -232,28 +228,6 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
         return new BasicTableCellRenderer();
     }
 
-    public void setLoading(boolean loading) {
-        this.loading = loading;
-        updateBackground(loading);
-    }
-
-    public void updateBackground(boolean readonly) {
-        dispatch(() -> {
-            JBViewport viewport = UIUtil.getParentOfType(JBViewport.class, this);
-            DataGridTextAttributes attributes = cellRenderer.getAttributes();
-            Color background = readonly ?
-                    attributes.getLoadingData(false).getBgColor() :
-                    attributes.getPlainData(false, false).getBgColor();
-
-            if (viewport != null) {
-                viewport.setBackground(background);
-                viewport.getParent().setBackground(background);
-                UserInterface.repaint(viewport);
-            }
-        });
-
-    }
-
     public void selectRow(int index) {
         T model = getModel();
         int rowCount = model.getRowCount();
@@ -325,7 +299,7 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
      *********************************************************/
     @Override
     public void globalSchemeChange(EditorColorsScheme scheme) {
-        updateBackground(loading);
+        updateBackground(isLoading());
         resizeAndRepaint();
 /*        JBScrollPane scrollPane = UIUtil.getParentOfType(JBScrollPane.class, this);
         if (scrollPane != null) {

@@ -76,7 +76,7 @@ class InterfaceTask<R> implements TimeAware {
             this.response = executor.call();
         } catch (Throwable e) {
             conditionallyLog(e);
-            this.exception = e;
+            this.exception = Exceptions.unwrap(e);
         } finally {
             status.change(FINISHED);
             LockSupport.unpark(source.getThread());

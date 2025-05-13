@@ -27,6 +27,8 @@ import com.dbn.data.editor.ui.text.TextEditorPopupProviderForm;
 import com.dbn.diagnostics.ui.ParserDiagnosticsForm;
 import com.dbn.editor.data.DatasetEditor;
 import com.dbn.editor.session.SessionBrowser;
+import com.dbn.events.listener.ui.EventListenersForm;
+import com.dbn.events.notification.ui.EventNotificationsForm;
 import com.dbn.execution.common.message.ui.tree.MessagesTree;
 import com.dbn.execution.explain.result.ExplainPlanResult;
 import com.dbn.execution.java.result.JavaExecutionResult;
@@ -58,6 +60,9 @@ public interface DataKeys {
     DataKey<CredentialManagementForm> CREDENTIAL_MANAGEMENT_FORM = DataKey.create("DBNavigator.CredentialManagementForm");
     DataKey<ProfileManagementForm> PROFILE_MANAGEMENT_FORM = DataKey.create("DBNavigator.ProfileManagementForm");
     DataKey<DBNTabbedPane> TABBED_PANE = DataKey.create("DBNavigator.TabbedPane");
+
+    DataKey<EventListenersForm> EVENT_LISTENERS_FORM = DataKey.create("DBNavigator.EventListenersForm");
+    DataKey<EventNotificationsForm> EVENT_NOTIFICATIONS_FORM = DataKey.create("DBNavigator.EventNotificationsForm");
 
     DataKey<CalendarPopupProviderForm> CALENDAR_POPUP_PROVIDER_FORM = DataKey.create("DBNavigator.CalendarPopupProviderForm");
     DataKey<ArrayEditorPopupProviderForm> ARRAY_EDITOR_POPUP_PROVIDER_FORM = DataKey.create("DBNavigator.ArrayEditorPopupProviderForm");

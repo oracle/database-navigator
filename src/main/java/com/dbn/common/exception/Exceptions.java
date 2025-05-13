@@ -19,9 +19,12 @@ package com.dbn.common.exception;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.sql.SQLNonTransientConnectionException;
 import java.sql.SQLTimeoutException;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -103,5 +106,26 @@ public class Exceptions {
 
     public static void illegalState(@NonNls String message) {
         throw new IllegalStateException(message);
+    }
+
+    public static Throwable unwrap(Throwable throwable) {
+        if (throwable instanceof InvocationTargetException) {
+            InvocationTargetException invocationTargetException = (InvocationTargetException) throwable;
+            return invocationTargetException.getTargetException();
+        }
+
+        if (throwable instanceof ExecutionException) {
+            ExecutionException executionException = (ExecutionException) throwable;
+            return causeOf(executionException);
+        }
+
+        if (throwable instanceof CompletionException) {
+            CompletionException completionException = (CompletionException) throwable;
+            return causeOf(completionException);
+        }
+
+        //...
+
+        return throwable;
     }
 }

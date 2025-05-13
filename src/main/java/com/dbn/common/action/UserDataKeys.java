@@ -45,6 +45,7 @@ public interface UserDataKeys {
     Key<String> GUARDED_BLOCK_REASON = Key.create("DBNavigator.GuardedBlockReason");
     Key<DiagnosticCategory> DIAGNOSTIC_CONTENT_CATEGORY = Key.create("DBNavigator.DiagnosticContentType");
     Key<DBNForm> DIAGNOSTIC_CONTENT_FORM = Key.create("DBNavigator.DiagnosticContentForm");
+    Key<DBNForm> EVENT_MONITOR_FORM = Key.create("DBNavigator.EventMonitorForm");
     Key<Integer> BREAKPOINT_ID = Key.create("DBNavigator.BreakpointId");
     Key<VirtualFile> BREAKPOINT_FILE = Key.create("DBNavigator.BreakpointFile");
     Key<Boolean> SKIP_BROWSER_AUTOSCROLL = Key.create("DBNavigator.SkipEditorScroll");

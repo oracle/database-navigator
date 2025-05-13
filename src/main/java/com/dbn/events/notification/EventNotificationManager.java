@@ -1,4 +1,20 @@
-package com.dbn.events;
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.events.notification;
 
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.Components;
@@ -6,12 +22,9 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.util.Dialogs;
-import com.dbn.connection.ConnectionId;
-import com.dbn.events.model.DataChangeEventBundle;
-import com.dbn.events.ui.EventsNotificationForm;
+import com.dbn.events.listener.ui.EventListenerRegistrationDialog;
+import com.dbn.events.ui.EventMonitorForm;
 import com.dbn.object.DBTable;
-import com.dbn.object.common.DCNConfigDialog;
-import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -23,10 +36,7 @@ import com.intellij.ui.content.ContentManager;
 import com.intellij.util.Producer;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static com.dbn.common.action.UserDataKeys.DIAGNOSTIC_CONTENT_FORM;
+import static com.dbn.common.action.UserDataKeys.EVENT_MONITOR_FORM;
 import static com.dbn.editor.DatabaseFileEditorManager.COMPONENT_NAME;
 
 @State(
@@ -55,8 +65,8 @@ public class EventNotificationManager extends ProjectComponentBase {
 //  public DataChangeEventBundle getEventBundle(ConnectionId connectionId) {
 //    return eventBundles.computeIfAbsent(connectionId, k -> new DataChangeEventBundle());
 //  }
-  public void openEditorAndConfig(DBObjectRef<DBTable> object) {
-    Dialogs.show(()->new DCNConfigDialog(getProject(),object.get()));
+  public void openEditorAndConfig(DBTable object) {
+    Dialogs.show(()->new EventListenerRegistrationDialog(getProject(),object));
   }
 
   public ToolWindow getEventToolWindow() {
@@ -64,8 +74,9 @@ public class EventNotificationManager extends ProjectComponentBase {
     ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
     return toolWindowManager.getToolWindow(TOOL_WINDOW_ID);
   }
+
   public void showEventNotificationConsole(){
-    showEventNotificationConsole(()-> new com.dbn.events.ui.EventsNotificationForm(getProject()));
+    showEventNotificationConsole(()-> new EventMonitorForm(getProject()));
   }
 
   public <T extends DBNForm> T showEventNotificationConsole(Producer<T> componentProducer) {
@@ -77,10 +88,10 @@ public class EventNotificationManager extends ProjectComponentBase {
       form = componentProducer.produce();
 
       ContentFactory contentFactory = contentManager.getFactory();
-      Content content = contentFactory.createContent(form.getComponent(),"Events Content " ,false);
+      Content content = contentFactory.createContent(form.getComponent(),null,false);
 //      content.putUserData(DIAGNOSTIC_CONTENT_CATEGORY, category);
-      content.putUserData(DIAGNOSTIC_CONTENT_FORM, form);
-      content.setCloseable(true);
+      content.putUserData(EVENT_MONITOR_FORM, form);
+      content.setCloseable(false);
       contentManager.addContent(content);
       Disposer.register(content, form);
     }
@@ -99,7 +110,7 @@ public class EventNotificationManager extends ProjectComponentBase {
   private <T extends DBNForm> T getEventsForm() {
     Content content = getEventsContent();
     if (content != null) {
-      return (T) content.getUserData(DIAGNOSTIC_CONTENT_FORM);
+      return (T) content.getUserData(EVENT_MONITOR_FORM);
     }
     return null;
   }

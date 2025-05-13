@@ -27,11 +27,15 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
+import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Strings;
+import com.dbn.data.grid.color.BasicTableTextAttributes;
+import com.dbn.data.grid.color.DataGridTextAttributes;
 import com.dbn.data.grid.ui.table.basic.BasicTableHeaderRenderer;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.UserDataHolder;
+import com.intellij.ui.components.JBViewport;
 import com.intellij.util.keyFMap.KeyFMap;
 import com.intellij.util.ui.UIUtil;
 import lombok.Getter;
@@ -80,6 +84,7 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
 
     private Timer scrollTimer;
     private final Latent<DBNTableGutter<?>> tableGutter = Latent.weak(() -> createTableGutter());
+    private @Getter @Setter boolean loading;
 
     @Getter
     @Delegate
@@ -137,6 +142,27 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
     @Nullable
     public JScrollPane getScrollPane() {
         return UIUtil.getParentOfType(JScrollPane.class, this);
+    }
+
+    public void setLoading(boolean loading) {
+        this.loading = loading;
+        updateBackground(loading);
+    }
+
+    public void updateBackground(boolean readonly) {
+        dispatch(() -> {
+            JBViewport viewport = UIUtil.getParentOfType(JBViewport.class, this);
+            DataGridTextAttributes attributes = BasicTableTextAttributes.get();
+            Color background = readonly ?
+                    attributes.getLoadingData(false).getBgColor() :
+                    attributes.getPlainData(false, false).getBgColor();
+
+            if (viewport != null) {
+                viewport.setBackground(background);
+                viewport.getParent().setBackground(background);
+                UserInterface.repaint(viewport);
+            }
+        });
     }
 
     @Override

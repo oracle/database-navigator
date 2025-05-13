@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,26 @@
  * limitations under the License.
  */
 
-package com.dbn.common.ui.table;
+package com.dbn.events.listener.filter;
 
-import javax.swing.ListModel;
+import com.dbn.common.icon.Icons;
+import lombok.Getter;
 
-public interface DBNTableWithGutterModel<R> extends DBNTableModel<R>{
-    ListModel getListModel();
+import javax.swing.Icon;
+
+@Getter
+public enum EventListenerFilterType {
+    USER("user", Icons.DBO_USER),
+    TABLE("table", Icons.DBO_TABLE),
+    STATUS("status", null),
+    //...
+    ;
+
+    private final String name;
+    private final Icon icon;
+
+    EventListenerFilterType(String name, Icon icon) {
+        this.name = name;
+        this.icon = icon;
+    }
 }
