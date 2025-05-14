@@ -48,8 +48,6 @@ public abstract class BatchProcessorBase<
 
     @Override
     public final void start(B batch) {
-        prepareBatch(batch);
-
         batch.notifyEvent(STARTED);
         Background.run(() -> processBatch(batch));
     }
@@ -81,11 +79,6 @@ public abstract class BatchProcessorBase<
     }
 
     protected abstract void processTask(B batch, T task);
-
-    @Deprecated // TODO execute before prompting the batch monitor
-    protected void prepareBatch(B batch) {
-        // no preparations needed by default
-    }
 
     private void processBatch(B batch) {
         if (batch.isFinished()) return;

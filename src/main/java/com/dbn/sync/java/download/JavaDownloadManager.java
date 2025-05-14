@@ -63,6 +63,7 @@ import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.sync.java.download.JavaDownloadManager.COMPONENT_NAME;
+import static com.dbn.sync.java.download.JavaDownloadUtil.prepareDestinationFolders;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 public class JavaDownloadManager extends ProjectComponentBase implements PersistentState {
@@ -194,8 +195,18 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 
 
 	public void startDownload(JavaDownloadBatch batch) {
-		BatchManager batchManager = BatchManager.getInstance(getProject());
-		batchManager.startBatchProcess(batch);
+		try {
+			// prepare destination folders
+			prepareDestinationFolders(batch);
+
+			BatchManager batchManager = BatchManager.getInstance(getProject());
+			batchManager.startBatchProcess(batch);
+		} catch (Exception e) {
+			Project project = batch.getProject();
+			Messages.showErrorDialog(project,
+					"Java Download Failed",
+					"Failed to prepare destination folders", e);
+		}
 	}
 
 	private void openBatchResult(JavaDownloadBatch batch) {

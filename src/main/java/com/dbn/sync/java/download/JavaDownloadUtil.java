@@ -16,7 +16,6 @@
 
 package com.dbn.sync.java.download;
 
-import com.dbn.batch.impl.BatchProcessorBase;
 import com.dbn.common.thread.Read;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -24,6 +23,7 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
 
 import java.io.File;
 import java.util.Set;
@@ -31,14 +31,11 @@ import java.util.Set;
 import static com.dbn.common.options.Configs.fail;
 import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
 
-abstract class JavaDownloaderBase extends BatchProcessorBase<JavaDownloadTask, JavaDownloadInput, JavaDownloadBatch> {
-
-	public JavaDownloaderBase() {
-		super("JAVA_DOWNLOADER");
-	}
+@UtilityClass
+public class JavaDownloadUtil {
 
 	@SneakyThrows
-	protected static void prepareDestinationFolders(JavaDownloadBatch batch) {
+	public static void prepareDestinationFolders(JavaDownloadBatch batch) {
 		prepareRootDirectory(batch);
 
 		JavaDownloadInput input = batch.getInput();

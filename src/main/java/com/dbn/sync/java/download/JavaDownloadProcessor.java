@@ -16,7 +16,7 @@
 
 package com.dbn.sync.java.download;
 
-import com.dbn.common.util.Messages;
+import com.dbn.batch.impl.BatchProcessorBase;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.editor.code.content.SourceCodeContent;
@@ -36,29 +36,11 @@ import static com.dbn.vfs.DBVirtualFile.EMPTY_CONTENT;
 import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
 
 
-public final class JavaDownloadProcessor extends JavaDownloaderBase {
+public final class JavaDownloadProcessor extends BatchProcessorBase<JavaDownloadTask, JavaDownloadInput, JavaDownloadBatch> {
 	public static final JavaDownloadProcessor INSTANCE = new JavaDownloadProcessor();
 
-	private JavaDownloadProcessor() {}
-
-
-
-	/**
-	 * Downloader batch preparation method. Queues all tasks to be executed in this batch.
-	 * @param batch the {@link JavaDownloadBatch} to be prepared
-	 */
-	@Override
-	protected void prepareBatch(JavaDownloadBatch batch) {
-        try {
-			// prepare destination folders
-            prepareDestinationFolders(batch);
-        } catch (Exception e) {
-			batch.cancel();
-			Project project = batch.getProject();
-			Messages.showErrorDialog(project,
-					"Download Failed",
-					"Failed to prepare destination folders", e);
-        }
+	private JavaDownloadProcessor() {
+		super("JAVA_DOWNLOADER");
 	}
 
 	@Override
