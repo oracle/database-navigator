@@ -16,6 +16,8 @@
 
 package com.dbn.batch;
 
+import org.jetbrains.annotations.Nullable;
+
 public interface BatchMessenger<
         T extends BatchTask,
         I extends BatchInput<T>,
@@ -25,7 +27,7 @@ public interface BatchMessenger<
 
     String getBatchProgressTitle(B batch);
 
-    String getBatchProgressDetail(B batch);
+    String getBatchProgressDetail(B batch, @Nullable T task);
 
     String createTaskInitMessage(B batch, T task);
 

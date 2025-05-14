@@ -82,7 +82,7 @@ public class JavaDownloadTask extends BatchTaskBase {
     @NotNull
     @Override
     public String getName() {
-        return getEntityName() + " (" + getSchemaName() + ")";
+        return getEntityName();
     }
 
     @Override

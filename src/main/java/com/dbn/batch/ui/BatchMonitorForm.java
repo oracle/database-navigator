@@ -26,6 +26,7 @@ import com.dbn.common.action.DataKeys;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.messages.DBNMessageForm;
 import com.dbn.common.ui.progress.ProgressForm;
 import com.dbn.common.ui.util.UserInterface;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -33,15 +34,19 @@ import com.intellij.util.containers.ContainerUtil;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import java.util.Map;
 
+import static com.dbn.common.icon.Icons.DIALOG_SUCCESS;
+import static com.dbn.common.icon.Icons.DIALOG_WARNING;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 import static com.dbn.common.util.Actions.createActionToolbar;
 
+@SuppressWarnings("unchecked")
 public class BatchMonitorForm extends DBNFormBase implements BatchEventListener {
     private JPanel mainPanel;
     private JPanel headerPanel;
@@ -50,6 +55,7 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
     private JScrollPane tasksScrollPanel;
     private JPanel progressPanel;
     private JPanel actionsPanel;
+    private JPanel messagePanel;
 
     private final ProgressForm progressForm = new ProgressForm(this);
     private final Map<String, BatchMonitorTaskForm> taskForms = ContainerUtil.createConcurrentWeakValueMap();
@@ -57,14 +63,14 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
 
     public BatchMonitorForm(BatchMonitorDialog dialog) {
         super(dialog);
-        initTasksPanel();
-
         this.batch = dialog.getBatch();
         this.batch.addEventListener(this);
 
         initHeaderPanel();
         initProgressBar();
         initProgressActions();
+        initMessagePanel();
+        initTasksPanel();
         whenShown(() -> batch.start());
     }
 
@@ -90,6 +96,29 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
     private void initProgressActions() {
         ActionToolbar actionToolbar = createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.BatchMonitor.Controls");
         actionsPanel.add(actionToolbar.getComponent());
+    }
+
+    private void initMessagePanel() {
+        messagePanel.setVisible(false);
+    }
+
+    private void showMessagePanel() {
+        BatchMessenger messenger = batch.getMessenger();
+        String title = messenger.getBatchProgressTitle(batch);
+        String message = messenger.getBatchProgressDetail(batch, null);
+
+        Icon icon = batch.isCancelled() ? DIALOG_WARNING : DIALOG_SUCCESS;
+
+
+        DBNMessageForm messageForm = new DBNMessageForm(this, icon, title, message);
+        messagePanel.add(messageForm.getComponent());
+        messagePanel.setVisible(true);
+    }
+
+    private void hideProgressPanel() {
+        progressForm.setText("");
+        progressForm.setText2("");
+        progressPanel.setVisible(false);
     }
 
     @Override
@@ -145,8 +174,9 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
     }
 
     private void onBatchPause() {
-        // todo use messenger to produce text2
-        progressForm.setText2("Paused " + getProgressText());
+        BatchMessenger messenger = batch.getMessenger();
+        progressForm.setText(messenger.getBatchProgressTitle(batch));
+        progressForm.setText2(messenger.getBatchProgressDetail(batch, null));
     }
 
     private void onBatchResume() {
@@ -154,33 +184,29 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
     }
 
     private void onBatchCancel() {
-        // todo use messenger to produce text2
-        progressForm.setText2("Cancelled " + getProgressText());
+        hideProgressPanel();
+        showMessagePanel();
     }
 
     private void onBatchCompletion() {
-        //progressPanel.setVisible(false);
-        actionsPanel.setVisible(false);
-        // todo use messenger to produce text2
-        progressForm.setText2("Completed " + getProgressText());
-        progressForm.setEnabled(false);
+        hideProgressPanel();
+        showMessagePanel();
     }
 
     private void onTaskStart(BatchTask task) {
+
         BatchMonitorTaskForm taskForm = new BatchMonitorTaskForm(this, task);
         taskForms.put(task.getIdentifier(), taskForm);
         tasksPanel.add(taskForm.getComponent());
-        progressForm.setText2(task.getName() + " " + getProgressText());
+
+        BatchMessenger messenger = batch.getMessenger();
+        String progressDetail = messenger.getBatchProgressDetail(batch, task);
+        progressForm.setText2(progressDetail);
 
         taskForm.initialize();
         JScrollBar scrollBar = tasksScrollPanel.getVerticalScrollBar();
         scrollBar.revalidate();
         scrollBar.setValue(scrollBar.getMaximum());
-    }
-
-    private String getProgressText() {
-        // todo move to BatchMessenger
-        return "(" + batch.getCompletedTaskCount() + " out of " + batch.getInitialTaskCount() + " completed)";
     }
 
     private void onTaskCompletion(BatchTask task) {

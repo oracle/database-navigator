@@ -17,6 +17,7 @@
 package com.dbn.sync.java.upload;
 
 import com.dbn.batch.impl.BatchMessengerBase;
+import org.jetbrains.annotations.Nullable;
 
 public class JavaUploadMessenger extends BatchMessengerBase<JavaUploadTask, JavaUploadInput, JavaUploadBatch> {
     public static final JavaUploadMessenger INSTANCE = new JavaUploadMessenger();
@@ -30,15 +31,29 @@ public class JavaUploadMessenger extends BatchMessengerBase<JavaUploadTask, Java
 
     @Override
     public String getBatchProgressTitle(JavaUploadBatch batch) {
-        return "Uploading java resources...";
+        if (batch.isRunning() || batch.isPaused()) return "Uploading java resources...";
+        if (batch.isCancelled()) return "Upload Cancelled";
+        if (batch.isFinished()) return "Upload Finished";
+
+        return "Java Upload";
     }
 
     @Override
-    public String getBatchProgressDetail(JavaUploadBatch batch) {
-        // TODO conditional progress detail (current state / counters)
+    public String getBatchProgressDetail(JavaUploadBatch batch, @Nullable JavaUploadTask task) {
+        String progressText = getProgressText(batch);
+        if (task != null) {
+            return "Uploading " + task.getName() + " " + progressText;
+        }
+
+        if (batch.isPaused()) return "Paused " + progressText;
+        if (batch.isCancelled()) return "Java resource upload cancelled\n" + progressText;
+        if (batch.isFinished()) return "Java resource upload finished\n" + progressText;
         return "";
     }
 
+    private String getProgressText(JavaUploadBatch batch) {
+        return "(" + batch.getCompletedTaskCount() + " out of " + batch.getInitialTaskCount() + " tasks completed)";
+    }
     @Override
     public String createTaskInitMessage(JavaUploadBatch batch, JavaUploadTask task) {
         return "Uploading java resource...";
