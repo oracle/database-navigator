@@ -22,6 +22,7 @@ import com.dbn.common.thread.Read;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -63,6 +64,14 @@ public class JavaDownloadInput extends BatchInputBase<JavaDownloadTask> {
 
     public DBObject getSourceObject() {
         return DBObjectRef.ensure(sourceObject);
+    }
+
+    public boolean hasJavaClasses() {
+        return getTasks().stream().anyMatch(t -> t.getEntityType() == DBObjectType.JAVA_CLASS);
+    }
+
+    public boolean hasJavaResources() {
+        return getTasks().stream().anyMatch(t -> t.getEntityType() == DBObjectType.JAVA_RESOURCE);
     }
 
     public PsiDirectory findContentRootDirectory() throws ConfigurationException {

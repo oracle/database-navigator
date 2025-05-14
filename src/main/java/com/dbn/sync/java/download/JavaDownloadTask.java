@@ -56,6 +56,11 @@ public class JavaDownloadTask extends BatchTaskBase {
         return entity.ensure();
     }
 
+    public DBObjectType getEntityType() {
+        return entity.getObjectType();
+    }
+
+
     public String getEntityName() {
         return entity.getFileName();
     }

@@ -36,12 +36,15 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.jps.model.java.JavaResourceRootType;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
+import org.jetbrains.jps.model.module.JpsModuleSourceRootType;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -49,6 +52,7 @@ import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
+import static com.dbn.common.util.Unsafe.cast;
 
 public class JavaDownloadInputForm extends DBNFormBase {
     private JPanel headerPanel;
@@ -123,12 +127,25 @@ public class JavaDownloadInputForm extends DBNFormBase {
             ComboBoxes.initComboBox(contentRootComboBox);
         } else {
             ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
-            Set<JavaSourceRootType> javaSourceRootTypes = Set.of(JavaSourceRootType.SOURCE, JavaSourceRootType.TEST_SOURCE);
-            List<VirtualFile> sourceRoots = moduleRootManager.getSourceRoots(javaSourceRootTypes);
+            Set<? extends JpsModuleSourceRootType<?>> rootTypes = cast(getSourceRootTypes());
+            List<VirtualFile> sourceRoots = moduleRootManager.getSourceRoots(rootTypes);
 
             List<VirtualFilePresentable> presentableFiles = VirtualFilePresentable.fromFiles(sourceRoots);
             ComboBoxes.initComboBox(contentRootComboBox, presentableFiles);
         }
+    }
+
+    public Set<JpsModuleSourceRootType> getSourceRootTypes() {
+        JavaDownloadInput input = getBatch().getInput();
+        Set<JpsModuleSourceRootType> rootTypes = new HashSet<>();
+        rootTypes.add(JavaSourceRootType.SOURCE);
+        rootTypes.add(JavaSourceRootType.TEST_SOURCE);
+        if (input.hasJavaResources()) {
+            rootTypes.add(JavaResourceRootType.RESOURCE);
+            rootTypes.add(JavaResourceRootType.TEST_RESOURCE);
+        }
+
+        return rootTypes;
     }
 
     protected void applyUserInput() {
