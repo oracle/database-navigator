@@ -20,8 +20,6 @@ import com.dbn.batch.impl.BatchInputBase;
 import com.dbn.common.project.Modules;
 import com.dbn.common.thread.Read;
 import com.dbn.connection.context.DatabaseContext;
-import com.dbn.object.DBJavaClass;
-import com.dbn.object.DBJavaResource;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.module.Module;
@@ -54,26 +52,9 @@ public class JavaDownloadInput extends BatchInputBase<JavaDownloadTask> {
     private String contentRoot;
 
 
-    public JavaDownloadInput(Project project, DBObject sourceObject, List<JavaDownloadTask> dependencies) {
-        super(project);
+    public JavaDownloadInput(Project project, DBObject sourceObject, List<JavaDownloadTask> tasks) {
+        super(project, tasks);
         this.sourceObject = DBObjectRef.of(sourceObject);
-
-        // add self to download tasks
-        if (sourceObject instanceof DBJavaClass) {
-            DBJavaClass javaClass = (DBJavaClass) sourceObject;
-            JavaDownloadTask task = new JavaDownloadTask(javaClass);
-            task.setSelected(true);
-            task.setEnabled(false);
-            addTask(task);
-        } else if (sourceObject instanceof DBJavaResource) {
-            DBJavaResource javaResource = (DBJavaResource) sourceObject;
-            JavaDownloadTask task = new JavaDownloadTask(javaResource);
-            task.setSelected(true);
-            task.setEnabled(false);
-            addTask(task);
-        }
-
-        addTasks(dependencies);
     }
 
     public DatabaseContext getDatabaseContext() {
@@ -137,7 +118,7 @@ public class JavaDownloadInput extends BatchInputBase<JavaDownloadTask> {
         for (JavaDownloadTask task : getSelectedTasks()) {
             JavaPackageNode currentNode = rootNode;
 
-            String[] tokens = task.getPackageNameTokens();
+            String[] tokens = task.getEntityPathTokens();
             for (String token : tokens) {
                 currentNode = currentNode.ensureChild(token);
             }

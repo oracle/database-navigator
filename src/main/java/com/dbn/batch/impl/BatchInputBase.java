@@ -23,7 +23,6 @@ import com.intellij.openapi.project.Project;
 import lombok.Getter;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import static com.dbn.common.util.Lists.filter;
@@ -31,18 +30,11 @@ import static com.dbn.common.util.Lists.filter;
 @Getter
 public abstract class BatchInputBase<T extends BatchTask> implements BatchInput<T> {
     private final ProjectRef project;
-    private final List<T> tasks = new ArrayList<>();
+    private final List<T> tasks;
 
-    public BatchInputBase(Project project) {
+    public BatchInputBase(Project project, List<T> tasks) {
         this.project = ProjectRef.of(project);
-    }
-
-    protected void addTask(T task) {
-        tasks.add(task);
-    }
-
-    protected void addTasks(Collection<T> tasks) {
-        this.tasks.addAll(tasks);
+        this.tasks = new ArrayList<>(tasks);
     }
 
     public final List<T> getSelectedTasks() {

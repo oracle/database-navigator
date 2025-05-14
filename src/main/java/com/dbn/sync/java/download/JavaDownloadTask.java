@@ -19,8 +19,8 @@ package com.dbn.sync.java.download;
 import com.dbn.batch.impl.BatchTaskBase;
 import com.dbn.common.icon.Icons;
 import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaEntity;
 import com.dbn.object.DBJavaResource;
-import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBJavaNameCache;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
@@ -35,8 +35,7 @@ import javax.swing.Icon;
 @Getter
 @Setter
 public class JavaDownloadTask extends BatchTaskBase {
-    private DBObjectRef<DBJavaClass> javaClass;
-    private DBObjectRef<DBJavaResource> javaResource = null;
+    private DBObjectRef<DBJavaEntity> entity;
     private VirtualFile targetFolder;
     private VirtualFile targetFile;
     private byte[] content;
@@ -45,85 +44,63 @@ public class JavaDownloadTask extends BatchTaskBase {
         this(DBObjectRef.of(javaClass));
     }
 
-    public JavaDownloadTask(DBObjectRef javaObject) {
-        if(javaObject.getObjectType() == DBObjectType.JAVA_CLASS)
-            this.javaClass = javaObject;
-        else
-            this.javaResource = javaObject;
-    }
-
     public JavaDownloadTask(DBJavaResource javaResource) {
         this(DBObjectRef.of(javaResource));
     }
 
-
-    public DBObject getObject() {
-        if(this.javaResource == null) return javaClass.ensure();
-        return javaResource.ensure();
+    public JavaDownloadTask(DBObjectRef<DBJavaEntity> javaEntity) {
+        this.entity = javaEntity;
     }
 
-    public String getJavaClassName() {
-        if(this.javaResource == null)
-            return DBJavaNameCache.getCanonicalName(javaClass);
-        return javaResource.getFileName();
+    public DBJavaEntity getEntity() {
+        return entity.ensure();
     }
 
-    public String getJavaResourceName() {
-        return javaResource.getFileName();
+    public String getEntityName() {
+        return entity.getFileName();
     }
 
-
-    public String getJavaFileName() {
-        if(this.javaResource == null)
-            return DBJavaNameCache.getSimpleName(javaClass) + ".java";
-        else {
-            String packageName = String.join("/", getPackageNameTokens());
-            if(packageName.isEmpty())
-                return javaResource.getFileName();
-            return javaResource.getFileName().substring(packageName.length() + 1); // last separator token
+    public String getEntityFileName() {
+        DBObjectType entityType = entity.getObjectType();
+        if (entityType == DBObjectType.JAVA_CLASS) {
+            return DBJavaNameCache.getSimpleName(entity) + ".java";
         }
+        return DBJavaNameCache.getSimpleName(entity);
     }
 
-    public String[] getPackageNameTokens() {
-        if(this.javaResource == null) {
-            String packageName = ((DBJavaClass) getObject()).getPackageName();
-            return packageName == null ? new String[0] : packageName.split("\\.");
-        } else {
-            String[] fileNameTokens = this.javaResource.getFileName().split("/");
-            String[] packageTokens = new String[fileNameTokens.length - 1];
-			System.arraycopy(fileNameTokens, 0, packageTokens, 0, fileNameTokens.length - 1);
-            return packageTokens;
-        }
+    public String[] getEntityPathTokens() {
+        String[] tokens = entity.getFileName().split("/");
+        String[] pathTokens = new String[tokens.length - 1];
+        System.arraycopy(tokens, 0, pathTokens, 0, tokens.length - 1);
+        return pathTokens;
     }
 
     public String getSchemaName() {
-        if( this.javaResource == null)
-            return javaClass.getSchemaName();
-        else
-            return javaResource.getSchemaName();
+        return entity.getSchemaName();
     }
-
 
     @NotNull
     @Override
     public String getName() {
-        if( this.javaResource == null)
-            return getJavaClassName() + " (" + getSchemaName() + ")";
-        else
-            return getJavaResourceName();
+        return getEntityName() + " (" + getSchemaName() + ")";
     }
 
     @Override
     public Object getSubject() {
-        return getJavaClass();
+        return getEntity();
     }
 
     @Override
     public @Nullable Icon getIcon() {
+        DBObjectType objectType = entity.getObjectType();
+        if(objectType == DBObjectType.JAVA_CLASS) {
+            return isEnabled() ? getEntity().getIcon() : Icons.DBO_JAVA_CLASS;
+        }
 
-        if(this.javaResource == null)
-            return isEnabled() ? getObject().getIcon() : Icons.DBO_JAVA_CLASS;
-        else
-            return ((DBJavaResource) getObject()).getFileType().getIcon();
+        if(objectType == DBObjectType.JAVA_RESOURCE) {
+            DBJavaResource resource = (DBJavaResource) getEntity();
+            return resource.getIcon();
+        }
+        return null;
     }
 }

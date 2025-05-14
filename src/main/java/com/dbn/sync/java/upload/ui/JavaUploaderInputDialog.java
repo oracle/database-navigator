@@ -32,6 +32,7 @@ public class JavaUploaderInputDialog extends DBNDialog<JavaUploadInputForm> {
         super(batch.getProject(), "Upload Java Content", false);
         this.batch = batch;
         renameAction(getOKAction(), "Upload");
+        setDefaultSize(600, 600);
         init();
     }
 

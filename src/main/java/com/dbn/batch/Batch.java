@@ -50,6 +50,7 @@ public interface Batch<I extends BatchInput<T>, T extends BatchTask> {
 
     BatchStatus getStatus();
 
+    void init();
     void start();
     void pause();
     void resume();

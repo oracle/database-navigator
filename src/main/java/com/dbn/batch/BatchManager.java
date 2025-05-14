@@ -65,6 +65,7 @@ public class BatchManager extends ProjectComponentBase implements PersistentStat
 
 
 	public void startBatchProcess(Batch<?, ?> batch) {
+		batch.init();
 		openBatchMonitor(batch);
 	}
 

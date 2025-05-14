@@ -55,13 +55,13 @@ public abstract class BatchBase<
         I extends BatchInput<T>> implements Batch<I, T> {
 
     private final I input;
-    private final Queue<T> tasks;
-    private final int initialTaskCount;
+    private final Queue<T> tasks = new LinkedList<>();
     private final BatchProcessor<T, I, Batch<I, T>> processor;
     private final BatchMessenger<T, I, Batch<I, T>> messenger;
 
     private final MessageBundle messages = new MessageCollector();
     private final Listeners<BatchEventListener> listeners = Listeners.create();
+    private int initialTaskCount;
 
     @Delegate
     private BatchStatus status = NEW;
@@ -70,8 +70,6 @@ public abstract class BatchBase<
         this.input = input;
         this.messenger = cast(createMessenger());
         this.processor = cast(createProcessor());
-        this.tasks = new LinkedList<>(input.getSelectedTasks());
-        this.initialTaskCount = tasks.size();
         addEventListener(createProcessStatusListener());
     }
 
@@ -80,22 +78,28 @@ public abstract class BatchBase<
         return initialTaskCount - tasks.size();
     }
 
-    public void start() {
+    @Override
+    public final void init() {
+        tasks.addAll(input.getSelectedTasks());
+        this.initialTaskCount = tasks.size();
+    }
+
+    public final void start() {
         processor.start(this);
     }
 
     @Override
-    public void pause() {
+    public final void pause() {
         processor.pause(this);
     }
 
     @Override
-    public void resume() {
+    public final void resume() {
         processor.resume(this);
     }
 
     @Override
-    public void cancel() {
+    public final void cancel() {
         processor.cancel(this);
     }
 

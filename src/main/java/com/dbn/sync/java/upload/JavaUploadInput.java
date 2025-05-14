@@ -43,9 +43,8 @@ public class JavaUploadInput extends BatchInputBase<JavaUploadTask> {
 
 
     public JavaUploadInput(Project project, VirtualFile rootFile, List<JavaUploadTask> tasks) {
-        super(project);
+        super(project, tasks);
         this.rootFile = rootFile;
-        addTasks(tasks);
     }
 
     @Nullable

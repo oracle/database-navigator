@@ -21,9 +21,9 @@ import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaEntity;
 import com.dbn.object.DBJavaResource;
 import com.dbn.object.common.DBObject;
-import com.dbn.object.common.DBSchemaObject;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -64,21 +64,15 @@ public final class JavaDownloadProcessor extends JavaDownloaderBase {
 	@Override
 	@SneakyThrows
 	public void processTask(JavaDownloadBatch batch, JavaDownloadTask task) {
-		String className = task.getJavaClassName();
+		String className = task.getEntityName();
 		setProgressDetail("Loading sources of \"" + className + "\"");
 
 
 		// load source code content
 		Project project = batch.getProject();
-		DBObject object = task.getObject();
-		DBSchemaObject schemaObject;
-		if (object instanceof DBJavaClass) {
-			schemaObject = (DBJavaClass) object;
-		} else {
-			schemaObject = (DBJavaResource) object;
-		}
+		DBJavaEntity javaEntity = task.getEntity();
 		SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
-		SourceCodeContent content = sourceCodeManager.loadSourceFromDatabase(schemaObject, DBContentType.CODE);
+		SourceCodeContent content = sourceCodeManager.loadSourceFromDatabase(javaEntity, DBContentType.CODE);
 
 		String sourceCode = content.getRawContent();
 		task.setContent(sourceCode.getBytes());
@@ -90,13 +84,13 @@ public final class JavaDownloadProcessor extends JavaDownloaderBase {
 
 	@SneakyThrows
 	private static void writeJavaFile(JavaDownloadBatch batch, JavaDownloadTask task) {
-		DBObject object = task.getObject();
+		DBObject object = task.getEntity();
 		String packageName = "";
 		if (object instanceof DBJavaClass) {
 			DBJavaClass javaClass = (DBJavaClass) object;
 			packageName = javaClass.getPackageName();
 		} else if (object instanceof DBJavaResource) {
-			String[] packageNameTokens = task.getPackageNameTokens();
+			String[] packageNameTokens = task.getEntityPathTokens();
 			packageName = String.join(".", packageNameTokens);
 		}
 
@@ -111,7 +105,7 @@ public final class JavaDownloadProcessor extends JavaDownloaderBase {
 
 	@SneakyThrows
 	private static void writeJavaFile(JavaDownloadTask downloadTask) {
-		String fileName = downloadTask.getJavaFileName();
+		String fileName = downloadTask.getEntityFileName();
 
 		VirtualFile targetFolder = downloadTask.getTargetFolder();
 		VirtualFile targetFile = targetFolder.findChild(fileName);

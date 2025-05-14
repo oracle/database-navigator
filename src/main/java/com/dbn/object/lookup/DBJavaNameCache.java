@@ -18,6 +18,7 @@ package com.dbn.object.lookup;
 
 import com.dbn.common.collections.ConcurrentStringInternMap;
 import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaEntity;
 import com.dbn.object.type.DBObjectType;
 import lombok.experimental.UtilityClass;
 
@@ -67,8 +68,8 @@ public class DBJavaNameCache {
         return canonicalNameCache.computeIfAbsent(objectName, n -> n.replace("/", "."));
     }
 
-    public static String getSimpleName(DBObjectRef<DBJavaClass> javaClass) {
-        return simpleNameCache.computeIfAbsent(javaClass.getObjectName(), n -> resolveSimpleName(javaClass));
+    public static String getSimpleName(DBObjectRef<DBJavaEntity> javaEntity) {
+        return simpleNameCache.computeIfAbsent(javaEntity.getObjectName(), n -> resolveSimpleName(javaEntity));
     }
 
     public static String getCanonicalName(DBObjectRef<DBJavaClass> javaClass) {
@@ -91,18 +92,22 @@ public class DBJavaNameCache {
         return className.replace("/", ".");
     }
 
-    private static String resolveSimpleName(DBObjectRef<DBJavaClass> javaClass) {
-        String className = javaClass.getObjectName();
-        Object parent = javaClass.getParent();
-        if (parent instanceof DBObjectRef) {
-            DBObjectRef<?> parentRef = (DBObjectRef) parent;
-            if (parentRef.getObjectType() == DBObjectType.JAVA_CLASS) {
-                DBObjectRef<DBJavaClass> parentClassRef = cast(parentRef);
-                String parenClassName = parentRef.getObjectName();
-                return className.substring(parenClassName.length() + 1);
+    private static String resolveSimpleName(DBObjectRef<DBJavaEntity> javaEntity) {
+        String entityName = javaEntity.getObjectName();
+        DBObjectType entityType = javaEntity.getObjectType();
+
+        if (entityType == DBObjectType.JAVA_CLASS) {
+            Object parent = javaEntity.getParent();
+            if (parent instanceof DBObjectRef) {
+                DBObjectRef<?> parentRef = (DBObjectRef) parent;
+                // inner class handling
+                if (parentRef.getObjectType() == DBObjectType.JAVA_CLASS) {
+                    String parenClassName = parentRef.getObjectName();
+                    return entityName.substring(parenClassName.length() + 1);
+                }
             }
         }
 
-        return className.substring(className.lastIndexOf("/") + 1);
+        return entityName.substring(entityName.lastIndexOf("/") + 1);
     }
 }
