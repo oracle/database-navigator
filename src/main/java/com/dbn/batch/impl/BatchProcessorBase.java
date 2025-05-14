@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NonNls;
 import java.util.Queue;
 
 import static com.dbn.batch.event.BatchEventType.CANCELLED;
+import static com.dbn.batch.event.BatchEventType.ERRORED;
 import static com.dbn.batch.event.BatchEventType.FINISHED;
 import static com.dbn.batch.event.BatchEventType.PAUSED;
 import static com.dbn.batch.event.BatchEventType.RESUMED;
@@ -95,12 +96,13 @@ public abstract class BatchProcessorBase<
                 batch.notifyEvent(STARTED, task);
                 processTask(batch, task);
 
+                batch.notifyEvent(FINISHED, task);
+
             } catch (Exception e) {
                 conditionallyLog(e);
                 task.setException(e);
 
-            } finally {
-                batch.notifyEvent(FINISHED, task);
+                batch.notifyEvent(ERRORED, task);
             }
 
             if (isInterrupted(batch)) return;

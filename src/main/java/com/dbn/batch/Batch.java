@@ -39,12 +39,9 @@ public interface Batch<I extends BatchInput<T>, T extends BatchTask> {
 
     BatchMessenger<T, I, ? extends Batch<I, T>> getMessenger();
 
-
-    int getInitialTaskCount();
-
-    int getCompletedTaskCount();
-
     Queue<T> getTasks();
+
+    BatchCounters getCounters();
 
     MessageBundle getMessages();
 

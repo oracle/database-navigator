@@ -19,6 +19,7 @@ package com.dbn.batch.event;
 public enum BatchEventType {
     STARTED,
     FINISHED,
+    ERRORED,
     CANCELLED,
     PAUSED,
     RESUMED

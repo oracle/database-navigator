@@ -17,6 +17,7 @@
 package com.dbn.batch.impl;
 
 import com.dbn.batch.Batch;
+import com.dbn.batch.BatchCounters;
 import com.dbn.batch.BatchInput;
 import com.dbn.batch.BatchMessenger;
 import com.dbn.batch.BatchProcessor;
@@ -59,9 +60,9 @@ public abstract class BatchBase<
     private final BatchProcessor<T, I, Batch<I, T>> processor;
     private final BatchMessenger<T, I, Batch<I, T>> messenger;
 
+    private final BatchCounters counters = new BatchCounters();
     private final MessageBundle messages = new MessageCollector();
     private final Listeners<BatchEventListener> listeners = Listeners.create();
-    private int initialTaskCount;
 
     @Delegate
     private BatchStatus status = NEW;
@@ -70,18 +71,16 @@ public abstract class BatchBase<
         this.input = input;
         this.messenger = cast(createMessenger());
         this.processor = cast(createProcessor());
-        addEventListener(createProcessStatusListener());
-    }
 
-    @Override
-    public int getCompletedTaskCount() {
-        return initialTaskCount - tasks.size();
+        // add batch itself as listeners
+        addEventListener(createProcessStatusListener());
+        addEventListener(createTaskStatusListener());
     }
 
     @Override
     public final void init() {
         tasks.addAll(input.getSelectedTasks());
-        this.initialTaskCount = tasks.size();
+        counters.queued().set(tasks.size());
     }
 
     public final void start() {
@@ -112,21 +111,30 @@ public abstract class BatchBase<
         return event -> {
             if (event.getTask() != null) return; // ignore task-level events
 
-            handleBatchLevelEvent(event);
+            BatchEventType type = event.getType();
+            switch (type) {
+                case STARTED:
+                case RESUMED: status = RUNNING; break;
+                case PAUSED: status = PAUSED; break;
+                case FINISHED: status = FINISHED; break;
+                case CANCELLED: status = CANCELLED; break;
+                default:
+            }
         };
     }
 
-    private void handleBatchLevelEvent(BatchEvent event) {
-        BatchEventType type = event.getType();
+    private BatchEventListener createTaskStatusListener() {
+        // update counters status based on the task-level events
+        return event -> {
+            if (event.getTask() == null) return; // ignore batch-level events
 
-        switch (type) {
-            case STARTED:
-            case RESUMED: status = RUNNING; break;
-            case PAUSED: status = PAUSED; break;
-            case FINISHED: status = FINISHED; break;
-            case CANCELLED: status = CANCELLED; break;
-            default:
-        }
+            BatchEventType type = event.getType();
+            switch (type) {
+                case FINISHED: counters.success().increment(); break;
+                case ERRORED: counters.failure().increment(); break;
+                default:
+            }
+        };
     }
 
     @Override

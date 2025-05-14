@@ -17,9 +17,11 @@
 package com.dbn.batch.impl;
 
 import com.dbn.batch.Batch;
+import com.dbn.batch.BatchCounters;
 import com.dbn.batch.BatchInput;
 import com.dbn.batch.BatchMessenger;
 import com.dbn.batch.BatchTask;
+import com.dbn.common.message.MessageType;
 import com.dbn.database.interfaces.DatabaseMessageParserInterface;
 
 public abstract class BatchMessengerBase<
@@ -32,4 +34,31 @@ public abstract class BatchMessengerBase<
         return messageParserInterface.convertToPresentable(message);
     }
 
+    @Override
+    public MessageType getProgressMessageType(B batch) {
+        if (batch.isRunning() || batch.isPaused()) return MessageType.NEUTRAL;
+        BatchCounters counters = batch.getCounters();
+
+        if (counters.successItems() == counters.queuedItems()) return MessageType.SUCCESS;
+        if (counters.failedItems() == counters.queuedItems()) return MessageType.ERROR;
+        return MessageType.WARNING;
+    }
+
+    protected String getProgressText(B batch) {
+        BatchCounters counters = batch.getCounters();
+        int queuedCount = counters.queuedItems();
+        int successCount = counters.successItems();
+        int errorCount = counters.failedItems();
+
+        String successSegment = successCount + " out of " + queuedCount + " tasks completed";
+        String errorSegment = errorCount == 0 ? "" : ", " + errorCount + " tasks have failed";
+
+        if (batch.isCancelled() || batch.isFinished())  {
+            int cancelCount = queuedCount - counters.processedItems();
+            String cancelSegment = cancelCount == 0 ? "" : ", " + cancelCount + " tasks were cancelled";
+            return "(" + successSegment + errorSegment + cancelSegment + ")";
+        } else {
+            return "(" + successSegment + errorSegment + ")";
+        }
+    }
 }

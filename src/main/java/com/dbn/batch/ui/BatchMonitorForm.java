@@ -23,6 +23,7 @@ import com.dbn.batch.event.BatchEvent;
 import com.dbn.batch.event.BatchEventListener;
 import com.dbn.batch.event.BatchEventType;
 import com.dbn.common.action.DataKeys;
+import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -41,6 +42,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import java.util.Map;
 
+import static com.dbn.common.icon.Icons.DIALOG_ERROR;
 import static com.dbn.common.icon.Icons.DIALOG_SUCCESS;
 import static com.dbn.common.icon.Icons.DIALOG_WARNING;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
@@ -87,7 +89,7 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
         progressPanel.setVisible(false);
         progressPanel.add(progressForm.getComponent());
         progressForm.setIndeterminate(false);
-        progressForm.setMaximum(batch.getInitialTaskCount());
+        progressForm.setMaximum(batch.getCounters().queuedItems());
         progressForm.setValue(0);
         progressForm.setText(null);
         progressForm.setText2(null);
@@ -104,11 +106,13 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
 
     private void showMessagePanel() {
         BatchMessenger messenger = batch.getMessenger();
-        String title = messenger.getBatchProgressTitle(batch);
-        String message = messenger.getBatchProgressDetail(batch, null);
+        String title = messenger.getProgressTitle(batch);
+        String message = messenger.getProgressMessage(batch, null);
 
-        Icon icon = batch.isCancelled() ? DIALOG_WARNING : DIALOG_SUCCESS;
-
+        MessageType messageType = messenger.getProgressMessageType(batch);
+        Icon icon = messageType == MessageType.SUCCESS ? DIALOG_SUCCESS :
+                    messageType == MessageType.WARNING ? DIALOG_WARNING :
+                    messageType == MessageType.ERROR ?  DIALOG_ERROR : null;
 
         DBNMessageForm messageForm = new DBNMessageForm(this, icon, title, message);
         messagePanel.add(messageForm.getComponent());
@@ -160,6 +164,7 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
         } else {
             switch (type) {
                 case STARTED: onTaskStart(task); break;
+                case ERRORED: onTaskCompletion(task); break;
                 case FINISHED: onTaskCompletion(task); break;
             }
         }
@@ -169,14 +174,14 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
         progressPanel.setVisible(true);
 
         BatchMessenger messenger = batch.getMessenger();
-        String progressTitle = messenger.getBatchProgressTitle(batch);
+        String progressTitle = messenger.getProgressTitle(batch);
         progressForm.setText(progressTitle);
     }
 
     private void onBatchPause() {
         BatchMessenger messenger = batch.getMessenger();
-        progressForm.setText(messenger.getBatchProgressTitle(batch));
-        progressForm.setText2(messenger.getBatchProgressDetail(batch, null));
+        progressForm.setText(messenger.getProgressTitle(batch));
+        progressForm.setText2(messenger.getProgressMessage(batch, null));
     }
 
     private void onBatchResume() {
@@ -200,7 +205,7 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
         tasksPanel.add(taskForm.getComponent());
 
         BatchMessenger messenger = batch.getMessenger();
-        String progressDetail = messenger.getBatchProgressDetail(batch, task);
+        String progressDetail = messenger.getProgressMessage(batch, task);
         progressForm.setText2(progressDetail);
 
         taskForm.initialize();
@@ -213,7 +218,7 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
         String identifier = task.getIdentifier();
         BatchMonitorTaskForm taskForm = taskForms.get(identifier);
         taskForm.complete();
-        progressForm.setValue(batch.getCompletedTaskCount());
+        progressForm.setValue(batch.getCounters().processedItems());
     }
 
     public Object getData(@NotNull String dataId) {

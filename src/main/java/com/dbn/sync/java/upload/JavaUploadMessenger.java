@@ -17,6 +17,7 @@
 package com.dbn.sync.java.upload;
 
 import com.dbn.batch.impl.BatchMessengerBase;
+import com.dbn.common.message.MessageType;
 import org.jetbrains.annotations.Nullable;
 
 public class JavaUploadMessenger extends BatchMessengerBase<JavaUploadTask, JavaUploadInput, JavaUploadBatch> {
@@ -30,42 +31,44 @@ public class JavaUploadMessenger extends BatchMessengerBase<JavaUploadTask, Java
     }
 
     @Override
-    public String getBatchProgressTitle(JavaUploadBatch batch) {
+    public String getProgressTitle(JavaUploadBatch batch) {
         if (batch.isRunning() || batch.isPaused()) return "Uploading java resources...";
         if (batch.isCancelled()) return "Upload Cancelled";
-        if (batch.isFinished()) return "Upload Finished";
+        if (batch.isFinished()) {
+            MessageType messageType = getProgressMessageType(batch);
+            switch (messageType) {
+                case SUCCESS: return "Upload Completed";
+                case WARNING: return "Upload Completed Partially";
+                case ERROR: return "Upload Failed";
+                default: return "Upload Finished";
+            }
+        }
 
         return "Java Upload";
     }
 
     @Override
-    public String getBatchProgressDetail(JavaUploadBatch batch, @Nullable JavaUploadTask task) {
+    public String getProgressMessage(JavaUploadBatch batch, @Nullable JavaUploadTask task) {
         String progressText = getProgressText(batch);
-        if (task != null) {
-            return "Uploading " + task.getName() + " " + progressText;
-        }
-
+        if (task != null) return "Uploading " + task.getName() + " " + progressText;
         if (batch.isPaused()) return "Paused " + progressText;
         if (batch.isCancelled()) return "Java resource upload cancelled\n" + progressText;
         if (batch.isFinished()) return "Java resource upload finished\n" + progressText;
         return "";
     }
 
-    private String getProgressText(JavaUploadBatch batch) {
-        return "(" + batch.getCompletedTaskCount() + " out of " + batch.getInitialTaskCount() + " tasks completed)";
-    }
     @Override
-    public String createTaskInitMessage(JavaUploadBatch batch, JavaUploadTask task) {
+    public String getTaskInitMessage(JavaUploadBatch batch, JavaUploadTask task) {
         return "Uploading java resource...";
     }
 
     @Override
-    public String createTaskSuccessMessage(JavaUploadBatch batch, JavaUploadTask task) {
+    public String getTaskSuccessMessage(JavaUploadBatch batch, JavaUploadTask task) {
         return "Java resource successfully uploaded (\"" + batch.getConnectionName() + "\" / \"" + batch.getInput().getTargetSchemaName() + "\")" ;
     }
 
     @Override
-    public String createTaskErrorMessage(JavaUploadBatch batch, JavaUploadTask task, Exception e) {
+    public String getTaskFailureMessage(JavaUploadBatch batch, JavaUploadTask task, Exception e) {
         String message = e.getMessage();
         message = cleanExceptionMessage(batch, message);
 

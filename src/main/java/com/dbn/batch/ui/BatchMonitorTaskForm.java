@@ -67,7 +67,7 @@ public class BatchMonitorTaskForm extends DBNFormBase {
 
         Batch batch = getBatch();
         BatchMessenger messenger = getMessenger();
-        String message = messenger.createTaskInitMessage(batch, task);
+        String message = messenger.getTaskInitMessage(batch, task);
         messageTextPane.setText(message);
     }
 
@@ -78,8 +78,8 @@ public class BatchMonitorTaskForm extends DBNFormBase {
         Batch batch = getBatch();
         BatchMessenger messenger = getMessenger();
         String message = exception == null ?
-                messenger.createTaskSuccessMessage(batch, task) :
-                messenger.createTaskErrorMessage(batch, task, exception);
+                messenger.getTaskSuccessMessage(batch, task) :
+                messenger.getTaskFailureMessage(batch, task, exception);
 
 
         Icon icon = exception == null ?

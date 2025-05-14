@@ -16,6 +16,7 @@
 
 package com.dbn.batch;
 
+import com.dbn.common.message.MessageType;
 import org.jetbrains.annotations.Nullable;
 
 public interface BatchMessenger<
@@ -25,13 +26,15 @@ public interface BatchMessenger<
 
     String getBatchTitle(B batch);
 
-    String getBatchProgressTitle(B batch);
+    String getProgressTitle(B batch);
 
-    String getBatchProgressDetail(B batch, @Nullable T task);
+    String getProgressMessage(B batch, @Nullable T task);
 
-    String createTaskInitMessage(B batch, T task);
+    MessageType getProgressMessageType(B batch);
 
-    String createTaskSuccessMessage(B batch, T task);
+    String getTaskInitMessage(B batch, T task);
 
-    String createTaskErrorMessage(B batch, T task, Exception e);
+    String getTaskSuccessMessage(B batch, T task);
+
+    String getTaskFailureMessage(B batch, T task, Exception e);
 }
