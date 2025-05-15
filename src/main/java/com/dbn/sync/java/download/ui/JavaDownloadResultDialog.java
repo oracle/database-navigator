@@ -16,13 +16,13 @@
 
 package com.dbn.sync.java.download.ui;
 
+import com.dbn.batch.BatchManager;
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.sync.java.download.JavaDownloadContext;
-import com.intellij.openapi.project.Project;
+import com.dbn.sync.java.download.JavaDownloadBatch;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 /**
@@ -34,35 +34,46 @@ import javax.swing.Action;
 @Getter
 public class JavaDownloadResultDialog extends DBNDialog<JavaDownloadResultForm> {
 
-    private final JavaDownloadContext context;
-    private final AbstractAction openAllAction = createAction("Open All", () -> openJavaEditors(false));
-    private final AbstractAction openSelectedAction = createAction("Open Selected", () -> openJavaEditors(true));
+    private final JavaDownloadBatch batch;
+    private final Action openAllAction = createAction("Open All", () -> openJavaEditors(false));
+    private final Action openSelectedAction = createAction("Open Selected", () -> openJavaEditors(true));
 
-    public JavaDownloadResultDialog(Project project, JavaDownloadContext context) {
-        super(project, "Java Download Result", false);
+    public JavaDownloadResultDialog(JavaDownloadBatch batch) {
+        super(batch.getProject(), "Java Download Result", false);
         //this.setDefaultSize(380, 420);
         this.setModal(false);  // non-modal: to allow opening the editors from the dialog
         this.setAutoSize(true);
-        this.context = context;
+        this.batch = batch;
         renameAction(getCancelAction(), "Close");
         openSelectedAction.setEnabled(false);
-        openAllAction.setEnabled(context.getDownloadedFiles().size() < 15);
+        openAllAction.setEnabled(batch.getDownloadedFiles().size() < 15);
         init();
     }
 
     @NotNull
     @Override
     protected Action[] createActions() {
-        return new Action[]{
+        return createActions(
+                createErrorAction(),
                 openAllAction,
                 openSelectedAction,
                 getCancelAction()
-        };
+        );
+    }
+
+    @Nullable
+    private Action createErrorAction() {
+        if (!batch.getMessages().hasErrors()) return null;
+
+        return createAction("Show Errors", () -> {
+            BatchManager batchManager = BatchManager.getInstance(getProject());
+            batchManager.showErrorDialog(batch);
+        });
     }
 
     @Override
     protected @NotNull JavaDownloadResultForm createForm() {
-        return new JavaDownloadResultForm(this, context);
+        return new JavaDownloadResultForm(this, batch);
     }
 
     private void openJavaEditors(boolean selected) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,55 +16,52 @@
 
 package com.dbn.common.message;
 
-import lombok.Getter;
+import com.intellij.openapi.util.UserDataHolder;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-public class MessageBundle implements MessageCollector {
-    private List<Message> infoMessages;
-    private List<Message> warningMessages;
-    private List<Message> errorMessages;
+/**
+ * The MessageBundle interface provides a contract for collecting and categorizing messages.
+ * It supports adding messages of various types (info, warning, error) and provides functionality
+ * to retrieve categorized messages or check if specific types of messages exist.
+ *
+ * @author Dan Cioca (Oracle)
+ */
+public interface MessageBundle extends UserDataHolder {
 
-    @Override
-    public void addMessage(Message message) {
-        switch (message.getType()) {
-            case INFO: infoMessages = addMessage(message, infoMessages); break;
-            case WARNING: warningMessages = addMessage(message, warningMessages); break;
-            case ERROR: errorMessages = addMessage(message, errorMessages); break;
-        }
-    }
+    void addMessage(Message message);
 
-    @Override
-    public void addInfoMessage(String message) {
-        addMessage(new Message(MessageType.INFO, message));
-    }
+    void addInfoMessage(String message);
 
-    @Override
-    public void addWarningMessage(String message) {
-        addMessage(new Message(MessageType.WARNING, message));
-    }
+    void addWarningMessage(String message);
 
-    @Override
-    public void addErrorMessage(String message) {
-        addMessage(new Message(MessageType.ERROR, message));
-    }
+    void addErrorMessage(String message);
 
-    private static List<Message> addMessage(Message message, List<Message> list) {
-        if (list == null) list = new ArrayList<>();
-        if (!list.contains(message)) list.add(message);
-        return list;
-    }
+    void addInfoMessage(String title, String message);
 
-    @Override
-    public boolean hasErrors() {
-        return errorMessages != null && !errorMessages.isEmpty();
-    }
+    void addWarningMessage(String title, String message);
 
-    @Override
-    public boolean hasWarnings() {
-        return warningMessages != null && !warningMessages.isEmpty();
-    }
+    void addErrorMessage(String title, String message);
 
+    boolean hasErrors();
+
+    boolean hasWarnings();
+
+    boolean hasInfos();
+
+    int countErrors();
+
+    int countWarnings();
+
+    int countInfos();
+
+    List<Message> getMessages();
+
+    List<Message> getMessages(MessageType type);
+
+    List<Message> getInfoMessages();
+
+    List<Message> getWarningMessages();
+
+    List<Message> getErrorMessages();
 }

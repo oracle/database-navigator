@@ -16,8 +16,11 @@
 
 package com.dbn.common.outcome;
 
+import com.dbn.common.util.Tagged;
+import com.dbn.common.util.Titled;
+import com.intellij.openapi.util.Key;
+import com.intellij.openapi.util.UserDataHolderBase;
 import lombok.Getter;
-import lombok.Setter;
 
 import static com.dbn.common.util.Unsafe.cast;
 
@@ -29,26 +32,64 @@ import static com.dbn.common.util.Unsafe.cast;
  * @author Dan Cioca (Oracle)
  */
 @Getter
-@Setter
-public class Outcome {
+public class Outcome extends UserDataHolderBase implements Titled, Tagged {
     private final OutcomeType type;
-    private final String title;
-    private final String message;
-    private final Exception exception;
+    private String title;
+    private String message;
+    private Exception exception;
     private Object data;
 
-    public Outcome(OutcomeType type, String title, String message) {
-        this(type, title, message, null);
+    private Outcome(OutcomeType type) {
+        this.type = type;
     }
 
-    public Outcome(OutcomeType type, String title, String message, Exception exception) {
-        this.type = type;
+    public static Outcome create(OutcomeType type) {
+        return new Outcome(type);
+    }
+
+    public static Outcome success() {
+        return new Outcome(OutcomeType.SUCCESS);
+    }
+
+    public static Outcome warning() {
+        return new Outcome(OutcomeType.WARNING);
+    }
+
+    public static Outcome failure() {
+        return new Outcome(OutcomeType.FAILURE);
+    }
+
+    public Outcome withTitle(String title) {
         this.title = title;
+        return this;
+    }
+
+    public Outcome withMessage(String message) {
         this.message = message;
+        return this;
+    }
+
+    public Outcome withException(Exception exception) {
         this.exception = exception;
+        return this;
+    }
+
+    public Outcome withData(Object data) {
+        this.data = data;
+        return this;
+    }
+
+    public <T> Outcome withUserData(Key<T> key, T value) {
+        putUserData(key, value);
+        return this;
     }
 
     public <T> T getData() {
         return cast(data);
+    }
+
+    @Override
+    public Object getSubject() {
+        return data;
     }
 }

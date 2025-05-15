@@ -22,7 +22,6 @@ import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.outcome.OutcomeHandlers;
 import com.dbn.common.outcome.OutcomeHandlersImpl;
 import com.dbn.common.outcome.OutcomeType;
-import com.dbn.common.outcome.Outcomes;
 import com.dbn.common.thread.InvocationType;
 import com.dbn.common.thread.Progress;
 import com.dbn.connection.ConnectionHandler;
@@ -47,6 +46,8 @@ import java.sql.SQLException;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.exception.Exceptions.unsupported;
+import static com.dbn.common.outcome.Outcome.failure;
+import static com.dbn.common.outcome.Outcome.success;
 import static com.dbn.common.outcome.OutcomeType.FAILURE;
 import static com.dbn.common.outcome.OutcomeType.SUCCESS;
 
@@ -138,12 +139,20 @@ abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectW
     }
 
     protected void handleSuccess(T object) {
-        Outcome outcome = Outcomes.success(getSuccessTitle(), getSuccessMessage());
+        Outcome outcome =
+                success().
+                withTitle(getSuccessTitle()).
+                withMessage(getSuccessMessage());
+
         outcomeHandlers.handle(outcome);
     }
 
     protected void handleFailure(T object, Exception e) {
-        Outcome outcome = Outcomes.failure(getFailureTitle(), getFailureMessage(), e);
+        Outcome outcome =
+                failure().
+                withTitle(getFailureTitle()).
+                withMessage(getFailureMessage()).
+                withException(e);
         outcomeHandlers.handle(outcome);
     }
 

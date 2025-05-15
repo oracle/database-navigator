@@ -16,33 +16,47 @@
 
 package com.dbn.sync.java.upload.ui;
 
+import com.dbn.batch.BatchManager;
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.sync.java.upload.JavaUploadContext;
-import com.intellij.openapi.project.Project;
+import com.dbn.sync.java.upload.JavaUploadBatch;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
 public class JavaUploadResultDialog extends DBNDialog<JavaUploadResultForm> {
-	private final JavaUploadContext context;
+	private final JavaUploadBatch batch;
 
-	public JavaUploadResultDialog(Project project, JavaUploadContext context) {
-		super(project, "Java Upload Result", false);
+	public JavaUploadResultDialog(JavaUploadBatch batch) {
+		super(batch.getProject(), "Java Upload Result", false);
 		//this.setDefaultSize(380, 420);
 		this.setModal(true);
 		this.setAutoSize(true);
-		this.context = context;
+		this.batch = batch;
 		renameAction(getCancelAction(), "Close");
 		init();
 	}
 
 	@Override
 	protected Action @NotNull [] createActions() {
-		return new Action[]{getCancelAction()};
+		return createActions(
+				getCancelAction(),
+				createErrorAction());
+	}
+
+	@Nullable
+	private Action createErrorAction() {
+		if (!batch.getMessages().hasErrors()) return null;
+
+		return createAction("Show Errors", () -> {
+			BatchManager batchManager = BatchManager.getInstance(getProject());
+			batchManager.showErrorDialog(batch);
+
+		});
 	}
 
 	@Override
 	protected @NotNull JavaUploadResultForm createForm() {
-		return new JavaUploadResultForm(this, context);
+		return new JavaUploadResultForm(this, batch);
 	}
 }

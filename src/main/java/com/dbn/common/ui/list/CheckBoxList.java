@@ -226,8 +226,9 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
         private Entry(T selectable, CheckBoxList list) {
             super(new BorderLayout(JBUIScale.scale(8), 0));
             this.list = WeakRef.of(list);
-            setBackground(Colors.getListBackground());
             this.selectable = selectable;
+            setOpaque(false);
+
             checkBox = new JCheckBox("", selectable.isSelected());
             checkBox.setOpaque(false);
             checkBox.setEnabled(list.isEnabled() && isModifiable());

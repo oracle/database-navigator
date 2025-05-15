@@ -131,8 +131,7 @@ public final class Dispatch {
     }
 
     public static <T, E extends Throwable> T call(ThrowableCallable<T, E> callable) throws E{
-        ThreadInfo invoker = ThreadInfo.copy();
-        ModalityState modalityState = ModalityState.defaultModalityState();
+        ModalityState modalityState = getCurrentModalityState();
         AtomicReference<T> resultRef = new AtomicReference<>();
         AtomicReference<E> exceptionRef = new AtomicReference<>();
         getApplication().invokeAndWait(() -> {

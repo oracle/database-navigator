@@ -17,6 +17,7 @@
 package com.dbn.object.filter.type.ui;
 
 import com.dbn.browser.options.ObjectFilterChangeListener;
+import com.dbn.common.color.Colors;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
@@ -69,7 +70,7 @@ public class ObjectTypeFilterSettingsForm extends ConfigurationEditorForm<Object
         boolean useMasterSettings = masterSettings != null && useMasterSettingsCheckBox.isSelected();
 
         boolean enabled = isEnabled();
-        visibleObjectsList.setBackground(enabled ? UIUtil.getListBackground() : UIUtil.getComboBoxDisabledBackground());
+        visibleObjectsList.setBackground(enabled ? Colors.getTextFieldBackground() : UIUtil.getComboBoxDisabledBackground());
         visibleObjectsList.setElements(useMasterSettings ?
                 masterSettings.getSettings() :
                 configuration.getSettings());

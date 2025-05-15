@@ -18,21 +18,14 @@ package com.dbn.generator.statement;
 
 
 import com.dbn.common.message.MessageBundle;
+import com.dbn.common.message.MessageCollector;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class StatementGeneratorResult {
     private String statement;
-    private MessageBundle messages = new MessageBundle();
+    private final MessageBundle messages = new MessageCollector();
 
-
-    public String getStatement() {
-        return statement;
-    }
-
-    public void setStatement(String statement) {
-        this.statement = statement;
-    }
-
-    public MessageBundle getMessages() {
-        return messages;
-    }
 }

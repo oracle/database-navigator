@@ -57,6 +57,9 @@ public class Icons {
     public static final Icon COMMON_TIMER         = load("/img/Timer.png");
     public static final Icon COMMON_DATA_GRID     = load("/img/common/DataGrid.png");
 
+    public static final Icon COMMON_STATUS_SUCCESS   = load("/img/common/StatusSuccess.svg");
+    public static final Icon COMMON_STATUS_ERROR     = load("/img/common/StatusError.svg");
+
     public static final Icon COMMON_FILTER_ACTIVE =    AllIcons.Actions.IntentionBulb;
     public static final Icon COMMON_FILTER_INACTIVE =  AllIcons.Actions.IntentionBulbGrey;
 
@@ -134,6 +137,7 @@ public class Icons {
     public static final Icon DIALOG_WARNING     = AllIcons.General.WarningDialog;
     public static final Icon DIALOG_ERROR       = AllIcons.General.ErrorDialog;
     public static final Icon DIALOG_QUESTION    = AllIcons.General.QuestionDialog;
+    public static final Icon DIALOG_SUCCESS     = AllIcons.General.SuccessDialog;
 
 
     public static final Icon METHOD_EXECUTION_RUN     = ACTION_EXECUTE;
@@ -262,6 +266,7 @@ public class Icons {
     public static final Icon EXEC_MESSAGES_INFO_INACTIVE    = AllIcons.General.Note;
     public static final Icon EXEC_MESSAGES_WARNING          = AllIcons.General.Warning;
     public static final Icon EXEC_MESSAGES_ERROR            = AllIcons.General.Error;
+    public static final Icon EXEC_MESSAGES_SUCCESS          = load("/img/common/Success.svg");
     public static final Icon EXEC_MESSAGES_WARNING_INACTIVE = load("/img/common/WarningInactive.svg");
     public static final Icon EXEC_MESSAGES_ERROR_INACTIVE   = load("/img/common/ErrorInactive.svg");
 

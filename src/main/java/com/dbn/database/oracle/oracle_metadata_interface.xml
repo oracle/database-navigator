@@ -734,6 +734,7 @@
                 from [PREFIX]_DEPENDENCIES
                 where
                     REFERENCED_TYPE = 'JAVA CLASS' and
+                    REFERENCED_OWNER != 'SYS' and
                     (OWNER != REFERENCED_OWNER or NAME != REFERENCED_NAME)
                 start with
                     OWNER = {0} and NAME = {1}
@@ -766,6 +767,7 @@
                 from [PREFIX]_DEPENDENCIES
                 where
                     REFERENCED_TYPE = 'JAVA CLASS' and
+                    REFERENCED_OWNER != 'SYS' and
                     (OWNER != REFERENCED_OWNER or NAME != REFERENCED_NAME)
                 start with OWNER = {0}
                     connect by nocycle

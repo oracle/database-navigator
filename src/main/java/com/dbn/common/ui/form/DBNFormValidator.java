@@ -19,6 +19,7 @@ package com.dbn.common.ui.form;
 import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.text.JTextComponent;
 import java.util.List;
@@ -95,6 +96,8 @@ public interface DBNFormValidator {
     void addTextValidation(JTextComponent textField, Predicate<String> validator, String message);
 
     void addTextValidation(JTextComponent textField, Function<JTextComponent, String> validator);
+
+    void addSelectionValidation(JComboBox comboBox, String message);
 
 
     default void validateInput() {

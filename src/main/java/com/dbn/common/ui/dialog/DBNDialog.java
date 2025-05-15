@@ -50,6 +50,7 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
@@ -186,13 +187,20 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         return autoSize || Diagnostics.isDialogSizingReset() ? null : "DBNavigator." + simpleClassName(this);
     }
 
-    protected static AbstractAction createAction(@NotNull @Nls String name, @NotNull Runnable runnable) {
+    protected static Action createAction(@NotNull @Nls String name, @NotNull Runnable runnable) {
         return new AbstractAction(name) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 runnable.run();
             }
         };
+    }
+
+    protected static Action[] createActions(Action ... actions) {
+        return Arrays.stream(actions)
+                .filter(value -> value != null)
+                .toArray(l -> new Action[l]);
+
     }
 
     protected static void renameAction(@NotNull Action action, @Nls String name) {
