@@ -209,7 +209,7 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 		}
 	}
 
-	private void openBatchResult(JavaDownloadBatch batch) {
+	public void openBatchResult(JavaDownloadBatch batch) {
 		Dialogs.show(() -> new JavaDownloadResultDialog(batch));
 	}
 

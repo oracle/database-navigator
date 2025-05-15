@@ -18,7 +18,6 @@ package com.dbn.sync.java.upload;
 
 import com.dbn.batch.impl.BatchInputBase;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.object.DBSchema;
@@ -53,9 +52,11 @@ public class JavaUploadInput extends BatchInputBase<JavaUploadTask> {
     }
 
     @Nullable
-    public ConnectionId getTargetConnectionId() {
-        return targetConnection == null ? null : targetConnection.getConnectionId();
+    public String getTargetConnectionName() {
+        return targetConnection == null ? null : targetConnection.ensure().getName();
     }
+
+
 
     @Nullable
     public DBSchema getTargetSchema() {

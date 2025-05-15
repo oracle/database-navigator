@@ -35,8 +35,11 @@ public class BatchMonitorDialog extends DBNDialog<BatchMonitorForm> implements B
         this.setModal(false);
         this.batch = batch;
         this.batch.addEventListener(this);
+
         setDefaultSize(600, 600);
         renameAction(getCancelAction(), "Close");
+        hideAction(getShowResultsAction());
+
         init();
     }
 
@@ -48,7 +51,9 @@ public class BatchMonitorDialog extends DBNDialog<BatchMonitorForm> implements B
 
     @Override
     protected final Action @NotNull [] createActions() {
-        return createActions(getCancelAction());
+        return createActions(
+                getShowResultsAction(),
+                getCancelAction());
     }
 
     @Override
@@ -57,6 +62,11 @@ public class BatchMonitorDialog extends DBNDialog<BatchMonitorForm> implements B
             super.doCancelAction();
         }
     }
+
+    private final Action showResultsAction = createAction("Show Results", () -> {
+        super.doOKAction();
+        getBatch().showResults();
+    });
 
     @Override
     public void eventOccurred(BatchEvent event) {
@@ -67,8 +77,14 @@ public class BatchMonitorDialog extends DBNDialog<BatchMonitorForm> implements B
 
         switch (type) {
             case STARTED: cancelAction.setEnabled(false); break;
-            case FINISHED: cancelAction.setEnabled(true); break;
-            case CANCELLED: cancelAction.setEnabled(true); break;
+            case FINISHED:
+            case CANCELLED: {
+                cancelAction.setEnabled(true);
+                if (batch.getCounters().successItems() > 0) {
+                    showAction(showResultsAction);
+                }
+                break;
+            }
         }
     }
 }

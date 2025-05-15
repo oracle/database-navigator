@@ -37,8 +37,8 @@ public class JavaDownloadMessenger extends BatchMessengerBase<JavaDownloadTask, 
         if (batch.isFinished()) {
             MessageType messageType = getProgressMessageType(batch);
             switch (messageType) {
-                case SUCCESS: return "Download Completed";
-                case WARNING: return "Download Completed Partially";
+                case SUCCESS: return "Download Complete";
+                case WARNING: return "Download Partially Complete";
                 case ERROR: return "Download Failed";
                 default: return "Download Finished";
             }

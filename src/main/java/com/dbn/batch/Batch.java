@@ -64,4 +64,6 @@ public interface Batch<I extends BatchInput<T>, T extends BatchTask> {
     void notifyEvent(@NotNull BatchEventType type, @Nullable BatchTask task);
 
     void addEventListener(BatchEventListener listener);
+
+    void showResults();
 }
