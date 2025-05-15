@@ -78,6 +78,15 @@ public class JavaUploadTask extends BatchTaskBase {
 				DBObjectType.JAVA_RESOURCE, this.name);
 	}
 
+
+	public DBObjectType getTargetEntityType() {
+		return targetEntity.getObjectType();
+	}
+
+	public String getTargetEntityName() {
+		return targetEntity.getObjectName();
+	}
+
 	public boolean isArchive() {
 		return file.getFileType() == ArchiveFileType.INSTANCE;
 	}

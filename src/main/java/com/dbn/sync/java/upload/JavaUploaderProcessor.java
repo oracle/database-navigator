@@ -17,10 +17,20 @@
 package com.dbn.sync.java.upload;
 
 import com.dbn.batch.impl.BatchProcessorBase;
+import com.dbn.common.event.ProjectEvents;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.SchemaId;
+import com.dbn.object.event.ObjectChangeListener;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import lombok.SneakyThrows;
 
-import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
+import java.util.List;
+
+import static com.dbn.common.dispose.Failsafe.nn;
+import static com.dbn.object.event.ObjectChangeAction.CREATE;
+import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
+import static com.dbn.object.type.DBObjectType.JAVA_RESOURCE;
 import static com.dbn.sync.java.upload.impl.JavaArchiveUploader.uploadJavaArchive;
 import static com.dbn.sync.java.upload.impl.JavaClassUploader.uploadJavaSource;
 import static com.dbn.sync.java.upload.impl.JavaResourceUploader.uploadJavaResource;
@@ -35,10 +45,6 @@ public final class JavaUploaderProcessor extends BatchProcessorBase<JavaUploadTa
 	@Override
 	@SneakyThrows
 	public void processTask(JavaUploadBatch batch, JavaUploadTask task) {
-		String taskName = task.getName();
-		setProgressDetail("Uploading sources of \"" + taskName + "\"");
-
-
 		if (task.isArchive()) {
 			uploadJavaArchive(batch, task.getFile().getPath());
 		} else {
@@ -46,8 +52,24 @@ public final class JavaUploaderProcessor extends BatchProcessorBase<JavaUploadTa
 			if (task.isJavaClass()) {
 				uploadJavaSource(batch, task.getJavaClassName(), content);
 			} else {
-				uploadJavaResource(batch, taskName, content);
+				uploadJavaResource(batch, task.getTargetEntityName(), content);
 			}
 		}
+	}
+
+	@Override
+	protected void postProcessBatch(JavaUploadBatch batch) {
+		// notify listeners
+		Project project = batch.getProject();
+		JavaUploadInput input = batch.getInput();
+		ConnectionId connectionId = nn(input.getTargetConnectionId());
+		SchemaId schemaId = nn(input.getTargetSchemaId());
+
+		List<JavaUploadTask> completedTasks = batch.getCompletedTasks();
+		boolean refreshJavaClasses = completedTasks.stream().anyMatch(t -> t.getTargetEntityType() == JAVA_CLASS);
+		boolean refreshJavaResources = completedTasks.stream().anyMatch(t -> t.getTargetEntityType() == JAVA_RESOURCE);
+
+		if (refreshJavaClasses) ProjectEvents.notify(project, ObjectChangeListener.TOPIC, l -> l.objectsChanged(connectionId, schemaId, JAVA_CLASS, CREATE));
+		if (refreshJavaResources) ProjectEvents.notify(project, ObjectChangeListener.TOPIC, l -> l.objectsChanged(connectionId, schemaId, JAVA_RESOURCE, CREATE));
 	}
 }
