@@ -49,6 +49,7 @@ public abstract class BatchProcessorBase<
 
     @Override
     public final void start(B batch) {
+        preProcessBatch(batch);
         batch.notifyEvent(STARTED);
         Background.run(() -> processBatch(batch));
     }
@@ -78,6 +79,9 @@ public abstract class BatchProcessorBase<
 
         batch.notifyEvent(CANCELLED);
     }
+
+    protected void preProcessBatch(B batch) {}
+    protected void postProcessBatch(B batch) {}
 
     protected abstract void processTask(B batch, T task);
 
@@ -110,6 +114,7 @@ public abstract class BatchProcessorBase<
 
         // if reaching this point without being paused or canceled, it's safe to assume the process is finished
         batch.notifyEvent(FINISHED);
+        postProcessBatch(batch);
     }
 
     private boolean isInterrupted(B batch) {

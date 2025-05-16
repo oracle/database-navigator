@@ -50,6 +50,12 @@ public class JavaDownloadBatch extends BatchBase<JavaDownloadTask, JavaDownloadI
 	}
 
 	public List<VirtualFile> getDownloadedFiles() {
-		return Lists.convert(getTasks(), t -> t.getTargetFile());
+		return Lists.convert(getCompletedTasks(), t -> t.getTargetFile());
+	}
+
+	@Override
+	public void showResults() {
+		JavaDownloadManager downloadManager = JavaDownloadManager.getInstance(getProject());
+		downloadManager.openBatchResult(this);
 	}
 }

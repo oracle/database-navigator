@@ -143,7 +143,7 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 		batchManager.startBatchProcess(batch);
 	}
 
-	private void openBatchResult(JavaUploadBatch batch) {
+	public void openBatchResult(JavaUploadBatch batch) {
 		Dialogs.show(() -> new JavaUploadResultDialog(batch));
 	}
 

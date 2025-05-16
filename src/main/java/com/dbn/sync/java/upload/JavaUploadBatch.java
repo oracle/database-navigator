@@ -17,6 +17,8 @@
 package com.dbn.sync.java.upload;
 
 import com.dbn.batch.impl.BatchBase;
+import com.dbn.object.DBJavaEntity;
+import com.dbn.object.lookup.DBObjectRef;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -49,7 +51,13 @@ public class JavaUploadBatch extends BatchBase<JavaUploadTask, JavaUploadInput> 
 		return getInput().getTargetConnection();
 	}
 
-	public List<String> getUploadedFiles() {
-		return convert(getTasks(), t -> t.getFile().getPath());
+	public List<DBObjectRef<DBJavaEntity>> getUploadedEntities() {
+		return convert(getCompletedTasks(), t -> t.getTargetEntity());
+	}
+
+	@Override
+	public void showResults() {
+		JavaUploadManager uploadManager = JavaUploadManager.getInstance(getProject());
+		uploadManager.openBatchResult(this);
 	}
 }

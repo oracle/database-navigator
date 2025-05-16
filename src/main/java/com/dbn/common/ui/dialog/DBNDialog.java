@@ -43,6 +43,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import java.awt.Dimension;
@@ -53,6 +54,7 @@ import java.awt.event.WindowEvent;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.dbn.common.data.Data.asBooleanPrimitive;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.registerDialog;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.releaseDialog;
@@ -63,6 +65,8 @@ import static com.dbn.common.util.Unsafe.cast;
 @Getter
 @Setter
 public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper implements DBNComponent, NlsSupport {
+    private static final String HIDDEN = "HIDDEN";
+
     private F form;
     private final ProjectRef project;
 
@@ -86,7 +90,15 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
                 (int) defaultSize.getHeight());
         }
         super.init();
+        initActions();
         validateInput(null);
+    }
+
+    private void initActions() {
+        for (Action action : getButtonMap().keySet()) {
+            boolean hidden = asBooleanPrimitive(action.getValue(HIDDEN));
+            if (hidden) hideAction(action);
+        }
     }
 
     /**
@@ -205,6 +217,24 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
 
     protected static void renameAction(@NotNull Action action, @Nls String name) {
         action.putValue(Action.NAME, name);
+    }
+
+    protected void showAction(@NotNull Action action) {
+        action.putValue(HIDDEN, false);
+
+        JButton button = getButton(action);
+        if (button == null) return;
+
+        button.setVisible(true);
+    }
+
+    protected void hideAction(@NotNull Action action) {
+        action.putValue(HIDDEN, true);
+
+        JButton button = getButton(action);
+        if (button == null) return;
+
+        button.setVisible(false);
     }
 
     protected static void makeDefaultAction(@NotNull Action action) {

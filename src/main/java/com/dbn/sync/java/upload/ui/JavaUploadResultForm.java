@@ -17,12 +17,17 @@
 package com.dbn.sync.java.upload.ui;
 
 import com.dbn.common.text.TextContent;
+import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.object.DBJavaEntity;
+import com.dbn.object.DBSchema;
+import com.dbn.object.common.ui.DBObjectRefListCellRenderer;
+import com.dbn.object.common.ui.DBObjectRefListModel;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.sync.java.upload.JavaUploadBatch;
 import com.dbn.sync.java.upload.JavaUploadInput;
-import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.components.JBList;
 
 import javax.swing.JComponent;
@@ -33,7 +38,7 @@ public class JavaUploadResultForm extends DBNFormBase {
     private JPanel headerPanel;
     private JPanel hintPanel;
     private JPanel filesPanel;
-    private JBList<String> fileList;
+    private JBList<DBObjectRef<DBJavaEntity>> fileList;
 
     public JavaUploadResultForm(JavaUploadResultDialog dialog, JavaUploadBatch batch) {
         super(dialog);
@@ -44,21 +49,27 @@ public class JavaUploadResultForm extends DBNFormBase {
     }
 
     private void initHeaderPanel(JavaUploadBatch batch) {
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, batch.getInput().getRootFile());
+        JavaUploadInput input = batch.getInput();
+        DBSchema targetSchema = input.getTargetSchema();
+        Presentable presentable = targetSchema == null ? input.getTargetConnection() : targetSchema;
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, presentable);
         this.headerPanel.add(headerForm.getMainComponent());
     }
 
     private void initHintPanel(JavaUploadBatch batch) {
         JavaUploadInput input = batch.getInput();
-        TextContent hintText = TextContent.plain("The following classes were created or updated in your \n Connection " + input.getTargetConnection().getName() +
-                " \n Schema " + input.getTargetSchemaName());
+        TextContent hintText = TextContent.plain(
+                "The following java classes and resources were created or updated " +
+                        "in your \"" + input.getTargetConnectionName() + "\" database, " +
+                    "under the user schema \"" + input.getTargetSchemaName() + "\".");
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
     }
 
 
     private void initObjectList(JavaUploadBatch batch) {
-        fileList.setModel(new CollectionListModel<>(batch.getUploadedFiles()));
+        fileList.setModel(DBObjectRefListModel.create(this, batch.getUploadedEntities()));
+        fileList.setCellRenderer(DBObjectRefListCellRenderer.create());
     }
 
     @Override

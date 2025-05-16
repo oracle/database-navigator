@@ -95,9 +95,13 @@ public class BatchMonitorTaskForm extends DBNFormBase {
     }
 
     private static @NotNull Color getMessageColor(boolean error) {
+/*
+        // TODO cleanup: ui is too colorful (errors already highlighted with appropriate icon)
         return error ?
                 Colors.dimmer(UIUtil.getErrorForeground()) :
                 Colors.faded(UIUtil.getLabelForeground());
+*/
+        return Colors.faded(UIUtil.getLabelForeground());
     }
 
     @Override

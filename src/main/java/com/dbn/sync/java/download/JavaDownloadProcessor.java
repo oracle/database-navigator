@@ -30,7 +30,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import lombok.SneakyThrows;
 
-import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.vfs.DBVirtualFile.EMPTY_CONTENT;
 import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
@@ -46,10 +45,6 @@ public final class JavaDownloadProcessor extends BatchProcessorBase<JavaDownload
 	@Override
 	@SneakyThrows
 	public void processTask(JavaDownloadBatch batch, JavaDownloadTask task) {
-		String className = task.getEntityName();
-		setProgressDetail("Loading sources of \"" + className + "\"");
-
-
 		// load source code content
 		Project project = batch.getProject();
 		DBJavaEntity javaEntity = task.getEntity();
@@ -59,13 +54,11 @@ public final class JavaDownloadProcessor extends BatchProcessorBase<JavaDownload
 		String sourceCode = content.getRawContent();
 		task.setContent(sourceCode.getBytes());
 
-
-		setProgressDetail("Writing project class \"" + className + "\"");
-		writeJavaFile(batch, task);
+		writeJavaEntity(batch, task);
 	}
 
 	@SneakyThrows
-	private static void writeJavaFile(JavaDownloadBatch batch, JavaDownloadTask task) {
+	private static void writeJavaEntity(JavaDownloadBatch batch, JavaDownloadTask task) {
 		DBObject object = task.getEntity();
 		String packageName = "";
 		if (object instanceof DBJavaClass) {
@@ -82,11 +75,11 @@ public final class JavaDownloadProcessor extends BatchProcessorBase<JavaDownload
 		task.setTargetFolder(targetDirectory.getVirtualFile());
 
 		Project project = batch.getProject();
-		runWriteCommandAction(project, () -> writeJavaFile(task));
+		runWriteCommandAction(project, () -> writeJavaEntity(task));
 	}
 
 	@SneakyThrows
-	private static void writeJavaFile(JavaDownloadTask downloadTask) {
+	private static void writeJavaEntity(JavaDownloadTask downloadTask) {
 		String fileName = downloadTask.getEntityFileName();
 
 		VirtualFile targetFolder = downloadTask.getTargetFolder();

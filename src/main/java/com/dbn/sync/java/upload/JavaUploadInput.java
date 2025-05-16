@@ -20,6 +20,7 @@ import com.dbn.batch.impl.BatchInputBase;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.connection.SchemaId;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
@@ -53,9 +54,21 @@ public class JavaUploadInput extends BatchInputBase<JavaUploadTask> {
     }
 
     @Nullable
+    public SchemaId getTargetSchemaId() {
+        return targetSchema == null ? null : targetSchema.getSchemaId();
+    }
+
+    @Nullable
+    public String getTargetConnectionName() {
+        return targetConnection == null ? null : targetConnection.ensure().getName();
+    }
+
+    @Nullable
     public ConnectionId getTargetConnectionId() {
         return targetConnection == null ? null : targetConnection.getConnectionId();
     }
+
+
 
     @Nullable
     public DBSchema getTargetSchema() {

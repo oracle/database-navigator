@@ -39,7 +39,9 @@ import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import static com.dbn.batch.BatchStatus.CANCELLED;
@@ -57,6 +59,7 @@ public abstract class BatchBase<
 
     private final I input;
     private final Queue<T> tasks = new LinkedList<>();
+    private final List<T> completedTasks = new ArrayList<>();
     private final BatchProcessor<T, I, Batch<I, T>> processor;
     private final BatchMessenger<T, I, Batch<I, T>> messenger;
 
@@ -126,12 +129,20 @@ public abstract class BatchBase<
     private BatchEventListener createTaskStatusListener() {
         // update counters status based on the task-level events
         return event -> {
-            if (event.getTask() == null) return; // ignore batch-level events
+            T task = cast(event.getTask());
+            if (task == null) return; // ignore batch-level events
 
             BatchEventType type = event.getType();
             switch (type) {
-                case FINISHED: counters.success().increment(); break;
-                case ERRORED: counters.failure().increment(); break;
+                case FINISHED: {
+                    counters.success().increment();
+                    completedTasks.add(task);
+                    break;
+                }
+                case ERRORED: {
+                    counters.failure().increment();
+                    break;
+                }
                 default:
             }
         };

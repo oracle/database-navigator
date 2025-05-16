@@ -21,6 +21,9 @@ import com.dbn.common.file.FileTypes;
 import com.dbn.common.thread.Read;
 import com.dbn.common.util.Strings;
 import com.dbn.language.common.psi.PsiUtil;
+import com.dbn.object.DBJavaEntity;
+import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.ide.highlighter.ArchiveFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -44,13 +47,16 @@ public class JavaUploadTask extends BatchTaskBase {
 	private final Icon icon;
 	private byte[] content;
 
+	private DBObjectRef<DBJavaEntity> targetEntity;
+
 	public JavaUploadTask(Project project, VirtualFile file) {
 		this.file = file;
 		this.psiFile = PsiUtil.getPsiFile(project, file);
 		this.project = project;
-		this.name = resolveName();
-		this.icon = resolveIcon();
-		setSelected(file.getFileType() == FileTypes.getJavaFileType());
+		this.name = initName();
+		this.icon = initIcon();
+		this.targetEntity = initTargetEntity();
+		setSelected(true);
 	}
 
 	@Override
@@ -58,12 +64,27 @@ public class JavaUploadTask extends BatchTaskBase {
 		return nvl(psiFile, file);
 	}
 
-	private String resolveName() {
+	private String initName() {
 		return getProjectRelativePath(getProject(), file);
 	}
 
-	private Icon resolveIcon() {
+	private Icon initIcon() {
 		return psiFile == null ? file.getFileType().getIcon() : Read.call(psiFile, f -> f.getIcon(0));
+	}
+
+	private DBObjectRef<DBJavaEntity> initTargetEntity() {
+		return new DBObjectRef<>((DBObjectRef) null, isJavaClass() ?
+				DBObjectType.JAVA_CLASS :
+				DBObjectType.JAVA_RESOURCE, this.name);
+	}
+
+
+	public DBObjectType getTargetEntityType() {
+		return targetEntity.getObjectType();
+	}
+
+	public String getTargetEntityName() {
+		return targetEntity.getObjectName();
 	}
 
 	public boolean isArchive() {
