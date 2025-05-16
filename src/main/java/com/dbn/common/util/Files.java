@@ -43,6 +43,8 @@ public final class Files {
     public static final String[] SQL_FILE_EXTENSIONS = {"sql", "ddl", "vw"};
     public static final String[] PSQL_FILE_EXTENSIONS = {"psql", "plsql", "trg", "prc", "fnc", "pkg", "pks", "pkb", "tpe", "tps", "tpb"};
 
+
+
     public static String toRegexFileNamePattern(String fileNamePattern) {
         return "^(?i)" + fileNamePattern.replaceAll("\\*", "[a-z0-9_-]*") + "$";
     }
@@ -74,7 +76,7 @@ public final class Files {
         if (baseDir == null) return path;
 
         File projectDir = new File(baseDir.getPath());
-        String relativePath = com.intellij.openapi.util.io.FileUtil.getRelativePath(projectDir, new File(path));
+        String relativePath = FileUtil.getRelativePath(projectDir, new File(path));
         if (relativePath == null) return path;
 
         if (relativePath.lastIndexOf(".." + File.separatorChar) < 1) {

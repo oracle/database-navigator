@@ -72,9 +72,14 @@ public abstract class CodeGeneratorBase<I extends CodeGeneratorInput, R extends 
     }
 
     private Outcome createOutcome(OutcomeType type, R result, Exception e) {
-        Outcome outcome = new Outcome(type, getTitle(type), getMessage(type), e);
-        outcome.setData(result);
-        return outcome;
+        String title = getTitle(type);
+        String message = getMessage(type);
+        return Outcome.
+                create(type).
+                withTitle(title).
+                withMessage(message).
+                withException(e).
+                withData(result);
     }
 
     /**

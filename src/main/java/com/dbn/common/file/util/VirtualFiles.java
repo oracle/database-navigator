@@ -23,6 +23,7 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.vfs.DBVirtualFileBase;
 import com.dbn.vfs.DatabaseFileSystem;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
+import com.intellij.ide.highlighter.ArchiveFileType;
 import com.intellij.injected.editor.VirtualFileWindow;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
@@ -80,6 +81,10 @@ public final class VirtualFiles {
     public static boolean isValidFile(String fileUrl) {
         VirtualFile file = findFileByUrl(fileUrl);
         return file != null;
+    }
+
+    public static boolean isArchive(@NotNull VirtualFile file) {
+        return file.getFileType() == ArchiveFileType.INSTANCE;
     }
 
     public static boolean isDatabaseFileSystem(@NotNull VirtualFile file) {

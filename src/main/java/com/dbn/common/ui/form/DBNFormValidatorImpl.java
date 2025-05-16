@@ -22,6 +22,7 @@ import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.DocumentAdapter;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.event.DocumentEvent;
@@ -50,6 +51,23 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
     }
 
     @Override
+    public boolean hasValidators() {
+        return !validators.isEmpty();
+    }
+
+    @Override
+    public <C extends JComponent> boolean hasValidators(C component) {
+        if (validators.isEmpty()) return false;
+        if (component == null) return true; // at least one validator given above
+
+        return validators.stream().anyMatch(v -> v.getTarget() == component);
+    }
+
+    public <C extends JComponent> void removeValidators(C component) {
+        validators.removeIf(v -> v.getTarget() == component);
+    }
+
+    @Override
     public <C extends JComponent> void addValidator(C component, Function<C, List<ValidationInfo>> validator) {
         validators.add(new WrappedValidator<>(component, validator));
         initEventValidation(component);
@@ -75,6 +93,11 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         addValidation(textField, f -> validator.test(f.getText()), message);
     }
 
+    @Override
+    public void addSelectionValidation(JComboBox comboBox, String message) {
+        addValidation(comboBox, c -> c.getSelectedItem() != null, message);
+    }
+
     private <C extends JComponent> void initEventValidation(C component) {
         if (component instanceof JTextComponent) {
             JTextComponent textField = (JTextComponent) component;
@@ -82,14 +105,16 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         } else if (component instanceof JTable) {
             JTable table = (JTable) component;
             addValidationListeners(table);
+        } else if (component instanceof JComboBox) {
+            JComboBox comboBox = (JComboBox) component;
+            addValidationListeners(comboBox);
         }
         // ...
     }
 
     private void addValidationListeners(JTable table) {
         table.getModel().addTableModelListener(e -> {
-            DBNDialog dialog = getTarget();
-            dialog.validateInput(table);
+            validateInput(table);
         });
     }
 
@@ -101,27 +126,42 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         textField.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
-                DBNDialog dialog = getTarget();
-                dialog.validateInput(textField);
+                validateInput(textField);
             }
         });
 
-        // add focus listener to perform validation on focus gained
-        textField.addFocusListener(new FocusAdapter() {
+        // add focus listener to perform validation when focus is gained or lost
+        addFocusValidationListeners(textField);
+    }
+
+    private void addValidationListeners(JComboBox comboBox) {
+        if (HAS_VALIDATION_LISTENERS.is(comboBox)) return;
+        HAS_VALIDATION_LISTENERS.set(comboBox, true);
+
+        // add action listener to perform validation on selection change
+        comboBox.addActionListener(e -> {
+            validateInput(comboBox);
+        });
+
+        // add focus listener to perform validation when focus is gained or lost
+        addFocusValidationListeners(comboBox);
+    }
+
+    private void addFocusValidationListeners(JComponent component) {
+        component.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-                if (VISITED.isNot(textField)) {
-                    VISITED.set(textField, true);
+                if (VISITED.isNot(component)) {
+                    VISITED.set(component, true);
                 } else {
-                    DBNDialog dialog = getTarget();
-                    dialog.validateInput(textField);
+                    validateInput(component);
                 }
             }
 
             @Override
             public void focusLost(FocusEvent e) {
-                DBNDialog dialog = getTarget();
-                dialog.validateInput(textField);
+                if (e.isTemporary()) return; // ignore temporary focus loss events (e.g. JCheckBox losing focus in favor of the popup)
+                validateInput(component);
             }
         });
     }

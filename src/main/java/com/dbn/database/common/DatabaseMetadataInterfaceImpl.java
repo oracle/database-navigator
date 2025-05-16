@@ -21,6 +21,7 @@ import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.logging.ExecutionLogOutput;
 import com.dbn.database.common.statement.ByteArray;
+import com.dbn.database.common.statement.ClobText;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import org.jetbrains.annotations.NotNull;
@@ -117,6 +118,11 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     @Override
     public ResultSet loadJavaClasses(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "java-classes", ownerName);
+    }
+
+    @Override
+    public ResultSet loadJavaResources(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "java-resources", ownerName);
     }
 
     @Override
@@ -474,6 +480,11 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     @Override
     public ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, short overload, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "object-source-code", ownerName, objectName, objectType, overload);
+    }
+
+    @Override
+    public ClobText loadJavaResourceSourceCode(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return executeCall(connection, new ClobText(), "java-resource-source-code", ownerName, objectName);
     }
 
     @Override

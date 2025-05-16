@@ -49,7 +49,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.content.DynamicContentProperty.LOADING;
-import static com.dbn.common.notification.NotificationGroup.METADATA;
+import static com.dbn.common.notification.NotificationCategory.METADATA;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -217,25 +217,25 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
 
     @Override
     public final void loadInBackground() {
-        if (shouldLoadInBackground()) {
-            set(DynamicContentProperty.LOADING_IN_BACKGROUND, true);
-            Background.run(() -> {
-                try {
-                    ensureLoaded(false);
-                } finally {
-                    set(DynamicContentProperty.LOADING_IN_BACKGROUND, false);
-                }
-            });
-        }
+        if (!shouldLoadInBackground()) return;
+
+        set(DynamicContentProperty.LOADING_IN_BACKGROUND, true);
+        Background.run(() -> {
+            try {
+                ensureLoaded(false);
+            } finally {
+                set(DynamicContentProperty.LOADING_IN_BACKGROUND, false);
+            }
+        });
     }
 
     @Override
     public final void reload() {
-        if (shouldReload()) {
-            markDirty();
-            ensureLoaded(true);
-            refreshElements();
-        }
+        if (!shouldReload()) return;
+
+        markDirty();
+        ensureLoaded(true);
+        refreshElements();
     }
 
     @Override
@@ -314,7 +314,9 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
             set(DynamicContentProperty.LOADED, true);
             set(DynamicContentProperty.ERROR, true);
             sendWarningNotification(METADATA,
-                    txt("ntf.metadata.error.FailedToLoadContent", getContentDescription(), e));
+                    txt("ntf.metadata.error.FailedToLoadContent",
+                            getContentDescription(),
+                            e.getMessage()));
 
         } catch (SQLException e) {
             conditionallyLog(e);

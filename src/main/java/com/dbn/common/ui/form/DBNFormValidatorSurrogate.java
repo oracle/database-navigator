@@ -19,6 +19,7 @@ package com.dbn.common.ui.form;
 import com.intellij.openapi.ui.ValidationInfo;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.text.JTextComponent;
 import java.util.List;
@@ -35,6 +36,20 @@ import java.util.function.Predicate;
  */
 @Slf4j
 public class DBNFormValidatorSurrogate implements DBNFormValidator{
+    @Override
+    public boolean hasValidators() {
+        return false;
+    }
+
+    @Override
+    public <C extends JComponent> boolean hasValidators(C component) {
+        return false;
+    }
+
+    @Override
+    public <C extends JComponent> void removeValidators(C component) {
+        notSupported();
+    }
 
     @Override
     public <C extends JComponent> void addValidation(C component, Predicate<C> validator, String message) {
@@ -53,6 +68,11 @@ public class DBNFormValidatorSurrogate implements DBNFormValidator{
 
     @Override
     public void addTextValidation(JTextComponent textField, Predicate<String> validator, String message) {
+        notSupported();
+    }
+
+    @Override
+    public void addSelectionValidation(JComboBox comboBox, String message) {
         notSupported();
     }
 

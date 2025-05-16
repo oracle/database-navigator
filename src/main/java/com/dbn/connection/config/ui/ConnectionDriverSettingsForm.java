@@ -18,7 +18,6 @@ package com.dbn.connection.config.ui;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.message.AsyncMessageCollector;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Actions;
@@ -80,7 +79,6 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     private JLabel reloadDriversCheckLabel;
     private JButton downloadButton;
     private JLabel driverErrorLabel;
-    AsyncMessageCollector messages = new AsyncMessageCollector();
 
     private static final FileChooserDescriptor LIBRARY_FILE_DESCRIPTOR = new FileChooserDescriptor(false, true, true, true, false, false);
 
@@ -256,7 +254,8 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     }
 
     public DriverSource getDriverSource() {
-        return getSelection(driverSourceComboBox);
+        JComboBox<DriverSource> driverSourceComboBox = this.driverSourceComboBox;
+        return driverSourceComboBox == null ? DriverSource.EXTERNAL : getSelection(driverSourceComboBox);
     }
 
     private boolean isBuiltInLibrarySupported(DatabaseType databaseType) {

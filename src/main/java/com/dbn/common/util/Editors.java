@@ -548,11 +548,15 @@ public class Editors {
 
     @ThreadPropertyGate(ThreadProperty.EDITOR_LOAD)
     public static void openFileEditor(Project project, VirtualFile file, boolean focus, @Nullable Consumer<FileEditor[]> callback) {
+        if (!file.exists()) return;
+
         DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
         attachmentManager.warmUpAttachedDDLFiles(file);
 
         Dispatch.run(ModalityState.NON_MODAL, () -> {
             try {
+                if (!file.exists()) return;
+
                 markSkipBrowserAutoscroll(file);
                 FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
                 boolean wasOpen = fileEditorManager.isFileOpen(file);

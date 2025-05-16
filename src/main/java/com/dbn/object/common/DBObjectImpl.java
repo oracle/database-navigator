@@ -130,7 +130,7 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     }
 
     @Override
-    public final DBContentType getContentType() {
+    public DBContentType getContentType() {
         return getObjectType().getContentType();
     }
 
@@ -349,22 +349,6 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
 
         if (DatabaseFeature.OBJECT_SOURCE_EDITING.isSupported(this)) return true;
         return false;
-    }
-
-    @Override
-    public boolean isEditorReady() {
-        DBObjectListContainer childObjects = getChildObjects();
-        if (childObjects == null) return false;
-        for (DBObjectList<?> list : childObjects.getObjects()) {
-            if (list != null && !list.isInternal() && !list.isLoaded()) return false;
-        }
-        return true;
-    }
-
-    @Override
-    public void makeEditorReady() {
-        DBObjectListContainer childObjects = getChildObjects();
-        if (childObjects != null) childObjects.loadObjects();
     }
 
     @Override

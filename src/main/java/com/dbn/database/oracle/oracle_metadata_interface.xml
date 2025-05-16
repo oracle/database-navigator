@@ -426,6 +426,7 @@
                 null as ROOT_TABlE_NAME,
                 null as JSON_COLUMN_NAME,
                 'N' as IS_SYSTEM_VIEW,
+                'N' as IS_EDITIONABLE,
                 'Y' as IS_VALID,
                 'Y' as IS_READONLY,
                 'N' as IS_INSERT_ALLOWED,
@@ -739,6 +740,7 @@
                 from [PREFIX]_DEPENDENCIES
                 where
                     REFERENCED_TYPE = 'JAVA CLASS' and
+                    REFERENCED_OWNER != 'SYS' and
                     (OWNER != REFERENCED_OWNER or NAME != REFERENCED_NAME)
                 start with
                     OWNER = {0} and NAME = {1}
@@ -771,6 +773,7 @@
                 from [PREFIX]_DEPENDENCIES
                 where
                     REFERENCED_TYPE = 'JAVA CLASS' and
+                    REFERENCED_OWNER != 'SYS' and
                     (OWNER != REFERENCED_OWNER or NAME != REFERENCED_NAME)
                 start with OWNER = {0}
                     connect by nocycle
@@ -800,6 +803,20 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="java-resources" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL">
+            select
+                OBJECT_NAME,
+                decode(STATUS, 'VALID', 'Y', 'N') as IS_VALID
+            from
+                [PREFIX]_OBJECTS
+            where
+                OWNER = {0}
+                and OBJECT_TYPE = 'JAVA RESOURCE'
+            order by
+                OBJECT_NAME
+        </statement>
+    </statement-execution-processor>
 
     <statement-execution-processor id="materialized-views" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
@@ -807,7 +824,8 @@
                 MVIEW_NAME as VIEW_NAME,
                 null as VIEW_TYPE_OWNER,
                 null as VIEW_TYPE,
-                'N' as IS_SYSTEM_VIEW
+                'N' as IS_SYSTEM_VIEW,
+                'N' as IS_EDITIONABLE
             from [PREFIX]_MVIEWS
             where OWNER = {0}
             order by MVIEW_NAME asc
@@ -1426,7 +1444,7 @@
                 SYS.ALL_PROBE_OBJECTS o
             where
                 t.TABLE_OWNER = {0} and
-                t.BASE_OBJECT_TYPE in ('TABLE', 'VIEW') and
+                trim(t.BASE_OBJECT_TYPE) in ('TABLE', 'VIEW') and
                 o.OWNER (+) = t.OWNER and
                 o.OBJECT_NAME (+) = t.TRIGGER_NAME and
                 o.OBJECT_TYPE (+) = 'TRIGGER'
@@ -1452,7 +1470,7 @@
                 o.OBJECT_NAME = t.TRIGGER_NAME and
                 o.OBJECT_TYPE = 'TRIGGER' and
                 t.TABLE_OWNER = {0} and
-                t.BASE_OBJECT_TYPE in ('TABLE', 'VIEW' )
+                trim(t.BASE_OBJECT_TYPE) in ('TABLE', 'VIEW') and
             order by
                 TABLE_NAME,
                 TRIGGER_NAME asc
@@ -1462,45 +1480,45 @@
     <statement-execution-processor id="database-triggers" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select distinct
-            t.TRIGGER_NAME,
-            t.TRIGGER_TYPE,
-            t.TRIGGERING_EVENT,
-            decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
-            decode(nvl(o.STATUS, 'VALID'), 'VALID', 'Y', 'N') as IS_VALID,
-            decode(nvl(o.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG,
-            case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
+                t.TRIGGER_NAME,
+                t.TRIGGER_TYPE,
+                t.TRIGGERING_EVENT,
+                decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(nvl(o.STATUS, 'VALID'), 'VALID', 'Y', 'N') as IS_VALID,
+                decode(nvl(o.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG,
+                case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
             from
-            [PREFIX]_TRIGGERS t,
-            SYS.ALL_PROBE_OBJECTS o
+                [PREFIX]_TRIGGERS t,
+                SYS.ALL_PROBE_OBJECTS o
             where
-            t.OWNER = {0} and
-            t.BASE_OBJECT_TYPE = 'DATABASE' and
-            o.OWNER (+) = t.OWNER and
-            o.OBJECT_NAME (+) = t.TRIGGER_NAME and
-            o.OBJECT_TYPE (+) = 'TRIGGER'
+                t.OWNER = {0} and
+                trim(t.BASE_OBJECT_TYPE) in ('DATABASE', 'SCHEMA') and
+                o.OWNER (+) = t.OWNER and
+                o.OBJECT_NAME (+) = t.TRIGGER_NAME and
+                o.OBJECT_TYPE (+) = 'TRIGGER'
             order by
-            t.TRIGGER_NAME asc
+                t.TRIGGER_NAME asc
         </statement>
         <statement prefixes="DBA, ALL">
             select distinct
-            t.TRIGGER_NAME,
-            t.TRIGGER_TYPE,
-            t.TRIGGERING_EVENT,
-            decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
-            decode(o.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
-            'N' as IS_DEBUG,
-            case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
+                t.TRIGGER_NAME,
+                t.TRIGGER_TYPE,
+                t.TRIGGERING_EVENT,
+                decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(o.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
+                'N' as IS_DEBUG,
+                case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
             from
-            [PREFIX]_TRIGGERS t,
-            [PREFIX]_OBJECTS o
+                [PREFIX]_TRIGGERS t,
+                [PREFIX]_OBJECTS o
             where
-            o.OWNER = t.OWNER and
-            o.OBJECT_NAME = t.TRIGGER_NAME and
-            o.OBJECT_TYPE = 'TRIGGER' and
-            t.OWNER = {0} and
-            t.BASE_OBJECT_TYPE = 'DATABASE'
+                o.OWNER = t.OWNER and
+                o.OBJECT_NAME = t.TRIGGER_NAME and
+                o.OBJECT_TYPE = 'TRIGGER' and
+                t.OWNER = {0} and
+                trim(t.BASE_OBJECT_TYPE) in ('DATABASE', 'SCHEMA') and
             order by
-            TRIGGER_NAME asc
+                TRIGGER_NAME asc
         </statement>
     </statement-execution-processor>
 
@@ -2571,8 +2589,30 @@
             where
                 OWNER = {0} and
                 NAME = {1} and
+                TYPE = {2} and
+                ORIGIN_CON_ID = SYS_CONTEXT('USERENV', 'CON_ID')
+            order by LINE asc
+        </statement>
+        <statement prefixes="DBA, ALL">
+            select TEXT as SOURCE_CODE
+            from [PREFIX]_SOURCE
+            where
+                OWNER = {0} and
+                NAME = {1} and
                 TYPE = {2}
             order by LINE asc
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="java-resource-source-code" timeout="30">
+        <statement prefixes="DBA, ALL">
+            declare
+                V_CLOB CLOB;
+            begin
+                DBMS_LOB.CREATETEMPORARY(V_CLOB, TRUE);
+                DBMS_JAVA.export_resource('{1}', '{0}', V_CLOB);
+                ? := V_CLOB;
+            end;
         </statement>
     </statement-execution-processor>
 

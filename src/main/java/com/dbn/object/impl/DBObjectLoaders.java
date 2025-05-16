@@ -39,6 +39,7 @@ import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
 import com.dbn.database.common.metadata.def.DBJavaFieldMetadata;
 import com.dbn.database.common.metadata.def.DBJavaMethodMetadata;
 import com.dbn.database.common.metadata.def.DBJavaParameterMetadata;
+import com.dbn.database.common.metadata.def.DBJavaResourceMetadata;
 import com.dbn.database.common.metadata.def.DBJsonViewMetadata;
 import com.dbn.database.common.metadata.def.DBJsonViewTableMetadata;
 import com.dbn.database.common.metadata.def.DBMaterializedViewMetadata;
@@ -78,6 +79,7 @@ import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
+import com.dbn.object.DBJavaResource;
 import com.dbn.object.DBJsonView;
 import com.dbn.object.DBMaterializedView;
 import com.dbn.object.DBMethod;
@@ -297,6 +299,11 @@ public class DBObjectLoaders {
                 "JAVA_CLASSES", DBObjectType.SCHEMA, DBObjectType.JAVA_CLASS, true, true,
                 (content, conn, mdi) -> mdi.loadJavaClasses(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBJavaClassImpl(content.getParentEntity(), md));
+
+        DynamicContentResultSetLoader.<DBJavaResource, DBJavaResourceMetadata>create(
+                "JAVA_RESOURCES", DBObjectType.SCHEMA, DBObjectType.JAVA_RESOURCE, true, true,
+                (content, conn, mdi) -> mdi.loadJavaResources(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> new DBJavaResourceImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBDimension, DBDimensionMetadata>create(
                 "DIMENSIONS", DBObjectType.SCHEMA, DBObjectType.DIMENSION, true, true,

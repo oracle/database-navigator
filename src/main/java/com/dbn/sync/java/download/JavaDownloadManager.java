@@ -17,6 +17,7 @@
 package com.dbn.sync.java.download;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.batch.BatchManager;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.data.Data;
@@ -25,14 +26,18 @@ import com.dbn.common.state.StateHolder;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
+import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaEntity;
+import com.dbn.object.DBJavaResource;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
+import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.sync.java.download.ui.JavaDownloadInputDialog;
@@ -58,6 +63,7 @@ import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.sync.java.download.JavaDownloadManager.COMPONENT_NAME;
+import static com.dbn.sync.java.download.JavaDownloadUtil.prepareDestinationFolders;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 public class JavaDownloadManager extends ProjectComponentBase implements PersistentState {
@@ -75,20 +81,32 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 
 	public void openCodeDownloader(DBObject sourceObject) {
 		ConnectionHandler connection = sourceObject.getConnection();
-		Progress.prompt(getProject(), connection, true,
-				"Preparing Java Download",
-				"Loading dependencies for " + sourceObject.getQualifiedNameWithType() + "...",
-				progress -> prepareDownloadDialog(sourceObject));
+		ConnectionAction.invoke(null, true, connection, a -> {
+			Progress.prompt(getProject(), connection, true,
+					"Preparing Java Download",
+					"Loading java dependencies for " + sourceObject.getQualifiedNameWithType() + "...",
+					progress -> prepareDownloadDialog(sourceObject, null));
+		});
 	}
 
-	private void prepareDownloadDialog(DBObject sourceObject) {
+	public void openResourceDownloader(DBObject sourceObject, DBObjectList sourceObjectList) {
+		ConnectionHandler connection = sourceObject.getConnection();
+		ConnectionAction.invoke(null, true, connection, a -> {
+			Progress.prompt(getProject(), connection, true,
+					"Preparing Java Resource Download",
+					null,
+					progress -> prepareDownloadDialog(sourceObject, sourceObjectList));
+		});
+	}
+
+	private void prepareDownloadDialog(DBObject sourceObject, DBObjectList sourceObjectList) {
 		Project project = getProject();
 		try {
-			List<JavaDownloadElement> dependencies = loadDownloadDependencies(sourceObject);
-			JavaDownloadInput input = new JavaDownloadInput(project, sourceObject, dependencies);
-			JavaDownloadContext context = new JavaDownloadContext(input);
+			List<JavaDownloadTask> tasks = createDownloadTasks(sourceObject, sourceObjectList);
+			JavaDownloadInput input = new JavaDownloadInput(project, sourceObject, tasks);
+			JavaDownloadBatch batch = new JavaDownloadBatch(input);
 
-			Dialogs.show(() -> new JavaDownloadInputDialog(context));
+			Dialogs.show(() -> new JavaDownloadInputDialog(batch));
 		} catch (SQLException e) {
 			Messages.showErrorDialog(project,
 					"Error Loading Java Dependencies",
@@ -96,68 +114,103 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 		}
 	}
 
-	private List<JavaDownloadElement> loadDownloadDependencies(DBObject sourceObject) throws SQLException {
+	private List<JavaDownloadTask> createDownloadTasks(DBObject sourceObject, DBObjectList sourceObjectList) throws SQLException {
 		ConnectionHandler connection = sourceObject.getConnection();
 		return DatabaseInterfaceInvoker.load(HIGH,
 				"Loading Java Dependencies",
-				"Loading dependencies for " + sourceObject.getQualifiedNameWithType() + "...",
+				"Loading java dependencies for " + sourceObject.getQualifiedNameWithType() + "...",
 				connection.getProject(),
 				connection.getConnectionId(),
-				c -> loadObjectDependencies(connection, sourceObject, c));
+				c -> createDownloadTasks(connection, sourceObject, sourceObjectList, c));
 	}
 
-	private List<JavaDownloadElement> loadObjectDependencies(ConnectionHandler connection, DBObject sourceObject, DBNConnection conn) throws SQLException {
-		List<JavaDownloadElement> dependencies = new ArrayList<>();
+	private List<JavaDownloadTask> createDownloadTasks(ConnectionHandler connection, DBObject sourceObject, DBObjectList sourceObjectList, DBNConnection conn) throws SQLException {
+		List<JavaDownloadTask> tasks = new ArrayList<>();
 
 		ResultSet resultSet = null;
 		try {
 			DatabaseMetadataInterface metadata = connection.getMetadataInterface();
 			if (sourceObject instanceof DBSchema) {
 				DBSchema schema = (DBSchema) sourceObject;
-				String schemaName = schema.getName();
-				resultSet = metadata.loadAllJavaClassDependencies(schemaName, conn);
+				if(sourceObjectList == null) {
+					String schemaName = schema.getName();
+					resultSet = metadata.loadAllJavaClassDependencies(schemaName, conn);
+				} else {
+					// java resource in the list
+					// TODO dangerous cast assumption
+					for(Object object : sourceObjectList.getObjects()) {
+						DBJavaResource javaResource = (DBJavaResource) object;
+						JavaDownloadTask downloadElement = new JavaDownloadTask(javaResource);
+						downloadElement.setEnabled(true);
+						downloadElement.setSelected(true); // select by default if sources are available
+						tasks.add(downloadElement);
+					}
+				}
 
 			} else if (sourceObject instanceof DBJavaClass) {
 				DBJavaClass javaClass = (DBJavaClass) sourceObject;
+				JavaDownloadTask task = new JavaDownloadTask(javaClass);
+				task.setEnabled(true);
+				task.setSelected(true);
+				tasks.add(task);
+
 				String schemaName = javaClass.getSchemaName();
 				String className = javaClass.getName();
 				resultSet = metadata.loadJavaClassDependencies(schemaName, className, conn);
+
+			} else if (sourceObject instanceof DBJavaResource) {
+				DBJavaResource javaResource = (DBJavaResource) sourceObject;
+				JavaDownloadTask task = new JavaDownloadTask(javaResource);
+				task.setEnabled(true);
+				task.setSelected(true);
+				tasks.add(task);
 			}
 
-			while (resultSet != null && resultSet.next()) {
-				String objectOwner = resultSet.getString("OBJECT_OWNER");
-				String objectName = resultSet.getString("OBJECT_NAME");
-				boolean hasSource = Data.asBooleanPrimitive(resultSet.getString("HAS_SOURCE"));
-
-				DBSchema schema = connection.getObjectBundle().getSchema(objectOwner);
-				DBObjectRef<DBJavaClass> dependencyClass = new DBObjectRef<>(schema.ref(), DBObjectType.JAVA_CLASS, objectName);
-
-				JavaDownloadElement downloadElement = new JavaDownloadElement(dependencyClass);
-				downloadElement.setEnabled(hasSource);
-				downloadElement.setSelected(hasSource); // select by default if sources are available
-				dependencies.add(downloadElement);
-			}
+			List<JavaDownloadTask> dependencyTasks = createDownloadDependencyTasks(connection, resultSet);
+			tasks.addAll(dependencyTasks);
 		} finally {
 			Resources.close(resultSet);
 		}
 
-		return dependencies;
+		return tasks;
+	}
+
+	private static List<JavaDownloadTask> createDownloadDependencyTasks(ConnectionHandler connection, ResultSet resultSet) throws SQLException {
+		List<JavaDownloadTask> tasks = new ArrayList<>();
+		while (resultSet != null && resultSet.next()) {
+			String objectOwner = resultSet.getString("OBJECT_OWNER");
+			String objectName = resultSet.getString("OBJECT_NAME");
+			boolean hasSource = Data.asBooleanPrimitive(resultSet.getString("HAS_SOURCE"));
+
+			DBSchema schema = connection.getObjectBundle().getSchema(objectOwner);
+			DBObjectRef<DBJavaEntity> dependencyClass = new DBObjectRef<>(schema.ref(), DBObjectType.JAVA_CLASS, objectName);
+
+			JavaDownloadTask task = new JavaDownloadTask(dependencyClass);
+			task.setEnabled(hasSource);
+			task.setSelected(hasSource);
+			tasks.add(task);
+		}
+		return tasks;
 	}
 
 
-	public void startDownload(JavaDownloadContext context) {
-		JavaDownloadInput input = context.getInput();
-		DBObject sourceObject = input.getSourceObject();
-		Progress.prompt(getProject(), context.getDatabaseContext(), true,
-				"Downloading Java Classes",
-				"Downloading java classes and dependencies for " + sourceObject.getQualifiedNameWithType(),
-				progress -> performDownload(context));
+	public void startDownload(JavaDownloadBatch batch) {
+		try {
+			// prepare destination folders
+			prepareDestinationFolders(batch);
 
+			BatchManager batchManager = BatchManager.getInstance(getProject());
+			batchManager.startBatchProcess(batch);
+		} catch (Exception e) {
+			Project project = batch.getProject();
+			Messages.showErrorDialog(project,
+					"Java Download Failed",
+					"Failed to prepare destination folders", e);
+		}
 	}
 
-	private void performDownload(JavaDownloadContext context) {
-		JavaDownloader.INSTANCE.downloadJavaClasses(context);
-		Dialogs.show(() -> new JavaDownloadResultDialog(getProject(), context));
+	public void openBatchResult(JavaDownloadBatch batch) {
+		Dialogs.show(() -> new JavaDownloadResultDialog(batch));
 	}
 
 	@NotNull

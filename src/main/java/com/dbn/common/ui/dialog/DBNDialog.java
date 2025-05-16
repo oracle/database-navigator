@@ -43,6 +43,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import java.awt.Dimension;
@@ -50,8 +51,10 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Arrays;
 import java.util.List;
 
+import static com.dbn.common.data.Data.asBooleanPrimitive;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.registerDialog;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.releaseDialog;
@@ -62,6 +65,8 @@ import static com.dbn.common.util.Unsafe.cast;
 @Getter
 @Setter
 public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper implements DBNComponent, NlsSupport {
+    private static final String HIDDEN = "HIDDEN";
+
     private F form;
     private final ProjectRef project;
 
@@ -85,8 +90,16 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
                 (int) defaultSize.getHeight());
         }
         super.init();
+        initActions();
+        validateInput(null);
     }
 
+    private void initActions() {
+        for (Action action : getButtonMap().keySet()) {
+            boolean hidden = asBooleanPrimitive(action.getValue(HIDDEN));
+            if (hidden) hideAction(action);
+        }
+    }
 
     /**
      * Validates the input provided in the specified component and updates the validation state
@@ -95,7 +108,11 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
      *
      * @param component the UI component to validate; typically a part of the dialog form
      */
-    public void validateInput(JComponent component) {
+    public void validateInput(@Nullable JComponent component) {
+        if (isDisposed()) return;
+        if (!formValidator.hasValidators()) return;
+        if (!formValidator.hasValidators(component)) return;
+
         List<ValidationInfo> validationInfos = buildValidationInfos(component);
 
         setErrorInfoAll(validationInfos);
@@ -182,7 +199,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         return autoSize || Diagnostics.isDialogSizingReset() ? null : "DBNavigator." + simpleClassName(this);
     }
 
-    protected static AbstractAction createAction(@NotNull @Nls String name, @NotNull Runnable runnable) {
+    protected static Action createAction(@NotNull @Nls String name, @NotNull Runnable runnable) {
         return new AbstractAction(name) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -191,8 +208,33 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         };
     }
 
+    protected static Action[] createActions(Action ... actions) {
+        return Arrays.stream(actions)
+                .filter(value -> value != null)
+                .toArray(l -> new Action[l]);
+
+    }
+
     protected static void renameAction(@NotNull Action action, @Nls String name) {
         action.putValue(Action.NAME, name);
+    }
+
+    protected void showAction(@NotNull Action action) {
+        action.putValue(HIDDEN, false);
+
+        JButton button = getButton(action);
+        if (button == null) return;
+
+        button.setVisible(true);
+    }
+
+    protected void hideAction(@NotNull Action action) {
+        action.putValue(HIDDEN, true);
+
+        JButton button = getButton(action);
+        if (button == null) return;
+
+        button.setVisible(false);
     }
 
     protected static void makeDefaultAction(@NotNull Action action) {

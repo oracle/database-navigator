@@ -25,6 +25,7 @@ import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.sync.java.action.JavaObjectDownloadAction;
+import com.dbn.sync.java.action.JavaResourceDownloadAction;
 import com.dbn.vfs.DBConsoleType;
 
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
@@ -54,6 +55,9 @@ public class ObjectListActionGroup extends DefaultActionGroup {
             addSeparator();
             if (objectType == DBObjectType.JAVA_CLASS) {
                 add(new JavaObjectDownloadAction(schema));
+            }
+            if(objectType == DBObjectType.JAVA_RESOURCE) {
+                add(new JavaResourceDownloadAction(schema, objectList));
             }
 
             add(new CreateObjectAction(objectList));

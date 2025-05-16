@@ -44,6 +44,7 @@ public class DataTypeEditor extends TextFieldWithPopup {
         }
         BasicListPopupValuesProvider valuesProvider = new BasicListPopupValuesProvider("Native Data Types", nativeDataTypeNames);
         createValuesListPopup(valuesProvider, null, true);
+        setEmptyText("Data type");
     }
 
 

@@ -18,6 +18,7 @@ package com.dbn.common.util;
 
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.checksum.ChecksumType;
+import com.dbn.test.util.FileUtil;
 import com.intellij.util.system.OS;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,9 +32,7 @@ import static org.junit.Assume.assumeFalse;
 public class ChecksumTest {
     @Test
     public void fromFileContentTest() throws Exception {
-        URL resource = getClass().getClassLoader().getResource("checksum/T0001.txt");
-        assertNotNull(resource);
-        File file = new File(resource.getPath());
+        File file = FileUtil.getFileFromClasspath(getClass(), "checksum/T0001.txt");
         String checksum = Checksum.fromFileContent(file, ChecksumType.SHA_256);
 
         Assert.assertEquals("5eaaa3637c055ff9b4a33bb25ad868d0486cf206f8077f5e30bf29a5f81bf103", checksum);
@@ -44,9 +43,7 @@ public class ChecksumTest {
     public void fromFileAttributesTest() throws Exception {
         // JDBC-4166 -- for some reason these currently fail on Linux
         assumeFalse(OS.CURRENT == OS.Linux);
-        URL resource = getClass().getClassLoader().getResource("checksum");
-        assertNotNull(resource);
-        File file = new File(resource.getPath());
+        File file = FileUtil.getFileFromClasspath(getClass(), "checksum");
         String checksum = Checksum.fromFileAttributes(file, ChecksumType.SHA_256);
 
         Assert.assertEquals("7f196cd5d143cadab0e61d98017e088f4088bf91e2da98c2b06d1fe3e9144106", checksum);
@@ -56,9 +53,7 @@ public class ChecksumTest {
     public void fromFileContentsTest() throws Exception {
         // JDBC-4166 -- for some reason these currently fail on Linux
         assumeFalse(OS.CURRENT == OS.Linux);
-        URL resource = getClass().getClassLoader().getResource("checksum");
-        assertNotNull(resource);
-        File file = new File(resource.getPath());
+        File file = FileUtil.getFileFromClasspath(getClass(), "checksum");
         String checksum = Checksum.fromFileContents(file, ChecksumType.SHA_256);
 
         Assert.assertEquals("d3d6a0e6bc321f42fca0ab97fd1c1ddde74c91026610653f4e6d2518ced18355", checksum);

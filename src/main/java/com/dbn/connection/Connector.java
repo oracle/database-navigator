@@ -49,7 +49,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import static com.dbn.common.exception.Exceptions.toSqlException;
-import static com.dbn.common.notification.NotificationGroup.CONNECTION;
+import static com.dbn.common.notification.NotificationCategory.CONNECTION;
 import static com.dbn.common.notification.NotificationSupport.sendErrorNotification;
 import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Commons.nvl;

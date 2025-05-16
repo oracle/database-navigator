@@ -32,6 +32,7 @@ public enum ClientProperty {
     RESIZING,
     REGISTERED,
     VISITED,
+    LOADING,
     CACHED_VALUE,
     CLASSIFICATION,
     VISIBILITY_CONDITION,
@@ -48,7 +49,9 @@ public enum ClientProperty {
     ACCESSIBLE_NAME,
     ACCESSIBLE_DESCRIPTION,
     DATA_TYPE_RELEVANT,
+    EMPTY_OPTIONS_TEXT,
 
+    // addons
     SELECTION_MATH_ADDON,
     VALUE_POPUP_ADDON,
     DATA_SEARCH_ADDON,

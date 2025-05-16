@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.ExecutorService;
 
-import static com.dbn.common.notification.NotificationGroup.DEBUGGER;
+import static com.dbn.common.notification.NotificationCategory.DEBUGGER;
 import static com.dbn.common.notification.NotificationSupport.sendErrorNotification;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
