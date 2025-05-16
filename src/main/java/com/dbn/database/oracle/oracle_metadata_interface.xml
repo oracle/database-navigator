@@ -1439,7 +1439,7 @@
                 SYS.ALL_PROBE_OBJECTS o
             where
                 t.TABLE_OWNER = {0} and
-                t.BASE_OBJECT_TYPE in ('TABLE', 'VIEW') and
+                trim(t.BASE_OBJECT_TYPE) in ('TABLE', 'VIEW') and
                 o.OWNER (+) = t.OWNER and
                 o.OBJECT_NAME (+) = t.TRIGGER_NAME and
                 o.OBJECT_TYPE (+) = 'TRIGGER'
@@ -1465,7 +1465,7 @@
                 o.OBJECT_NAME = t.TRIGGER_NAME and
                 o.OBJECT_TYPE = 'TRIGGER' and
                 t.TABLE_OWNER = {0} and
-                t.BASE_OBJECT_TYPE in ('TABLE', 'VIEW' )
+                trim(t.BASE_OBJECT_TYPE) in ('TABLE', 'VIEW') and
             order by
                 TABLE_NAME,
                 TRIGGER_NAME asc
@@ -1475,45 +1475,45 @@
     <statement-execution-processor id="database-triggers" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select distinct
-            t.TRIGGER_NAME,
-            t.TRIGGER_TYPE,
-            t.TRIGGERING_EVENT,
-            decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
-            decode(nvl(o.STATUS, 'VALID'), 'VALID', 'Y', 'N') as IS_VALID,
-            decode(nvl(o.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG,
-            case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
+                t.TRIGGER_NAME,
+                t.TRIGGER_TYPE,
+                t.TRIGGERING_EVENT,
+                decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(nvl(o.STATUS, 'VALID'), 'VALID', 'Y', 'N') as IS_VALID,
+                decode(nvl(o.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG,
+                case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
             from
-            [PREFIX]_TRIGGERS t,
-            SYS.ALL_PROBE_OBJECTS o
+                [PREFIX]_TRIGGERS t,
+                SYS.ALL_PROBE_OBJECTS o
             where
-            t.OWNER = {0} and
-            t.BASE_OBJECT_TYPE = 'DATABASE' and
-            o.OWNER (+) = t.OWNER and
-            o.OBJECT_NAME (+) = t.TRIGGER_NAME and
-            o.OBJECT_TYPE (+) = 'TRIGGER'
+                t.OWNER = {0} and
+                trim(t.BASE_OBJECT_TYPE) in ('DATABASE', 'SCHEMA') and
+                o.OWNER (+) = t.OWNER and
+                o.OBJECT_NAME (+) = t.TRIGGER_NAME and
+                o.OBJECT_TYPE (+) = 'TRIGGER'
             order by
-            t.TRIGGER_NAME asc
+                t.TRIGGER_NAME asc
         </statement>
         <statement prefixes="DBA, ALL">
             select distinct
-            t.TRIGGER_NAME,
-            t.TRIGGER_TYPE,
-            t.TRIGGERING_EVENT,
-            decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
-            decode(o.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
-            'N' as IS_DEBUG,
-            case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
+                t.TRIGGER_NAME,
+                t.TRIGGER_TYPE,
+                t.TRIGGERING_EVENT,
+                decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(o.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
+                'N' as IS_DEBUG,
+                case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
             from
-            [PREFIX]_TRIGGERS t,
-            [PREFIX]_OBJECTS o
+                [PREFIX]_TRIGGERS t,
+                [PREFIX]_OBJECTS o
             where
-            o.OWNER = t.OWNER and
-            o.OBJECT_NAME = t.TRIGGER_NAME and
-            o.OBJECT_TYPE = 'TRIGGER' and
-            t.OWNER = {0} and
-            t.BASE_OBJECT_TYPE = 'DATABASE'
+                o.OWNER = t.OWNER and
+                o.OBJECT_NAME = t.TRIGGER_NAME and
+                o.OBJECT_TYPE = 'TRIGGER' and
+                t.OWNER = {0} and
+                trim(t.BASE_OBJECT_TYPE) in ('DATABASE', 'SCHEMA') and
             order by
-            TRIGGER_NAME asc
+                TRIGGER_NAME asc
         </statement>
     </statement-execution-processor>
 
