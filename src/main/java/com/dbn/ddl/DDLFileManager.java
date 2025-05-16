@@ -55,7 +55,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.notification.NotificationGroup.DDL;
+import static com.dbn.common.notification.NotificationCategory.DDL;
 import static com.dbn.nls.NlsResources.txt;
 
 @State(

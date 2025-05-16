@@ -19,7 +19,7 @@ package com.dbn.data.export;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
-import com.dbn.common.notification.NotificationGroup;
+import com.dbn.common.notification.NotificationCategory;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.export.processor.CSVDataExportProcessor;
@@ -156,11 +156,11 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
                 } else {
                     if (warningsBlock == null) {
                         sendInfoNotification(
-                                NotificationGroup.DATA,
+                                NotificationCategory.DATA,
                                 txt("ntf.data.info.DataExportedToFile", filePath));
                     } else {
                         sendWarningNotification(
-                                NotificationGroup.DATA,
+                                NotificationCategory.DATA,
                                 txt("ntf.data.warning.DataExportedToFile", filePath, warningsBlock));
                     }
                 }

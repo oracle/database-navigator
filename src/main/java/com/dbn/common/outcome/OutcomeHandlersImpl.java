@@ -16,7 +16,7 @@
 
 package com.dbn.common.outcome;
 
-import com.dbn.common.notification.NotificationGroup;
+import com.dbn.common.notification.NotificationCategory;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
@@ -49,8 +49,8 @@ public final class OutcomeHandlersImpl implements OutcomeHandlers {
     }
 
     @Override
-    public void addNotificationHandler(OutcomeType type, Project project, NotificationGroup group) {
-        addHandler(type, NotificationOutcomeHandler.get(project, group));
+    public void addNotificationHandler(OutcomeType type, Project project, NotificationCategory category) {
+        addHandler(type, NotificationOutcomeHandler.get(project, category));
     }
 
     @Override

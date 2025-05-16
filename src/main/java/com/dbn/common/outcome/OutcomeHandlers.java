@@ -16,7 +16,7 @@
 
 package com.dbn.common.outcome;
 
-import com.dbn.common.notification.NotificationGroup;
+import com.dbn.common.notification.NotificationCategory;
 import com.intellij.openapi.project.Project;
 
 /**
@@ -58,5 +58,5 @@ public interface OutcomeHandlers {
      * @param type the type of outcome to be handled
      * @param project the project in which the outcome was issued
      */
-    void addNotificationHandler(OutcomeType type, Project project, NotificationGroup group);
+    void addNotificationHandler(OutcomeType type, Project project, NotificationCategory category);
 }

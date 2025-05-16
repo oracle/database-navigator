@@ -77,7 +77,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.dbn.common.notification.NotificationGroup.DEBUGGER;
+import static com.dbn.common.notification.NotificationCategory.DEBUGGER;
 import static com.dbn.common.thread.ThreadProperty.DEBUGGER_NAVIGATION;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.debugger.common.process.DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED;

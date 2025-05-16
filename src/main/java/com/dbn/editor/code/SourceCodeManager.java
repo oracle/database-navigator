@@ -106,7 +106,7 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.navigation.NavigationInstruction.FOCUS;
 import static com.dbn.common.navigation.NavigationInstruction.OPEN;
 import static com.dbn.common.navigation.NavigationInstruction.SCROLL;
-import static com.dbn.common.notification.NotificationGroup.SOURCE_CODE;
+import static com.dbn.common.notification.NotificationCategory.SOURCE_CODE;
 import static com.dbn.common.util.Commons.list;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Editors.getOpenFiles;
