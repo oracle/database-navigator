@@ -16,9 +16,12 @@
 
 package com.dbn.object.action;
 
+import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.editor.DBContentType;
 import com.dbn.execution.compiler.action.CompileActionGroup;
+import com.dbn.execution.java.action.JavaClassWrapperAction;
+import com.dbn.execution.java.action.JavaMethodWrapperAction;
 import com.dbn.execution.java.action.JavaObjectRunAction;
 import com.dbn.execution.java.action.JavaRunAction;
 import com.dbn.execution.method.action.MethodDebugAction;
@@ -30,6 +33,7 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBJavaResource;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBProgram;
 import com.dbn.object.DBSchema;
@@ -41,10 +45,11 @@ import com.dbn.object.common.list.action.HideEmptySchemasToggleAction;
 import com.dbn.object.common.list.action.HidePseudoColumnsToggleAction;
 import com.dbn.object.dependency.action.ObjectDependencyTreeAction;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.sync.java.action.JavaObjectDownloadAction;
+import com.dbn.sync.java.action.JavaResourceDownloadAction;
 import com.dbn.vfs.DBConsoleType;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.DumbAware;
 
 import java.util.List;
@@ -143,12 +148,19 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
             DBJavaMethod method = (DBJavaMethod) object;
             if (method.isExecutable()) {
                 add(new JavaRunAction(method, false));
+                add(new JavaMethodWrapperAction(method));
             }
         }
 
         if (object instanceof DBJavaClass) {
+            add(new JavaObjectDownloadAction(object));
             addSeparator();
             add(new JavaObjectRunAction((DBJavaClass) object));
+            add(new JavaClassWrapperAction((DBJavaClass) object));
+        }
+
+        if (object instanceof DBJavaResource) {
+            add(new JavaResourceDownloadAction(object, null));
         }
     }
 

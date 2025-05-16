@@ -19,9 +19,14 @@ package com.dbn.common.ui.table;
 import com.dbn.common.ui.Presentable;
 import org.jetbrains.annotations.Nls;
 
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JViewport;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.Rectangle;
+import java.awt.event.HierarchyEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.font.FontRenderContext;
@@ -30,6 +35,8 @@ import java.awt.font.LineMetrics;
 import static com.dbn.common.ui.util.Keyboard.insertKeyListener;
 import static com.dbn.common.ui.util.UserInterface.focusNextComponent;
 import static com.dbn.common.ui.util.UserInterface.focusPreviousComponent;
+import static com.dbn.common.ui.util.UserInterface.getParentOfType;
+import static com.dbn.common.ui.util.UserInterface.setBackgroundRecursive;
 
 public class Tables {
     private Tables() {}
@@ -101,6 +108,35 @@ public class Tables {
                 }
             }
         });
+    }
+
+    public static void installScrollPaneAdjuster(JTable table) {
+        table.addHierarchyListener(e -> {
+            if ((e.getChangeFlags() & HierarchyEvent.PARENT_CHANGED) == 0) return;
+
+            JScrollPane scrollPane = getParentOfType(table, JScrollPane.class);
+            if (scrollPane == null) return;
+
+            inheritChildBackground(scrollPane);
+            table.addPropertyChangeListener("background", pce -> {
+                inheritChildBackground(scrollPane);
+
+                scrollPane.revalidate();
+                scrollPane.repaint();
+            });
+        });
+    }
+
+    private static void inheritChildBackground(JScrollPane scrollPane) {
+        JViewport viewport = scrollPane.getViewport();
+        Component view = viewport.getView();
+        if (view == null) return;
+
+        Color background = view.getBackground();
+        viewport.setBackground(background);
+
+        JViewport rowHeader = scrollPane.getRowHeader();
+        setBackgroundRecursive(rowHeader, background);
     }
 
     private static boolean allowTabFocusTraversal(JTable table) {

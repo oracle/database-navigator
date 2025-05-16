@@ -33,10 +33,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -44,8 +46,8 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 @Getter
 class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader {
     private final DriverBundleMetadata metadata;
-    private final List<File> jars = new ArrayList<>();
-    private final List<Class<Driver>> drivers = new ArrayList<>();
+    private final Set<File> jars = new LinkedHashSet<>();
+    private final Set<Class<Driver>> drivers = new LinkedHashSet<>();
     private final Set<String> classNames = new HashSet<>();
     private final Map<String, Class> loadedClasses = new HashMap<>();
 
@@ -84,13 +86,11 @@ class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader 
         jars.add(jar);
 
         try {
-// TODO: I'm confused by this.  Can't we just do a lookup for the classnames
-     //  that DriverBundleMetadata  knows about rather than going class-by-class?
-            DriverBundleMetadata previousMetadata = getPreviousMetadata();
+            Set<String> classNames = nvl(
+                    getKnownDriverClassNames(),
+                    library.getClassNames());
 
-            for (String className : library.getClassNames()) {
-                if (previousMetadata != null && !previousMetadata.isDriverClass(className)) continue;
-
+            for (String className : classNames) {
                 try {
                     Class<?> clazz = loadClass(className);
                     if (Driver.class.isAssignableFrom(clazz)) {
@@ -110,6 +110,17 @@ class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader 
     }
 
     @Nullable
+    private Set<String> getKnownDriverClassNames() {
+        DriverBundleMetadata previousMetadata = getPreviousMetadata();
+        if (previousMetadata == null) return null;
+
+        Set<String> driverClassNames = previousMetadata.getDriverClassNames();
+        if (driverClassNames.isEmpty()) return null;
+
+        return driverClassNames;
+    }
+
+    @Nullable
     private DriverBundleMetadata getPreviousMetadata() {
         DatabaseDriverManager driverManager = DatabaseDriverManager.getInstance();
         DriverBundleMetadata previousMetadata = driverManager.getDriverMetadata(getLibrary());
@@ -125,29 +136,24 @@ class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader 
         return this.metadata.getLibrary();
     }
 
-
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException{
-        // TODO check if class level synchronization is needed - the access of the entire class-loader is synchronized while loading
-        //synchronized (getClassLoadingLock(name)) {
-
-        Class<?> clazz = loadedClasses.get(name);
-        if (clazz != null) return clazz;
-        if (classNames.contains(name)) {
-            try {
-                clazz = findClass(name);
-                if (clazz != null && resolve) resolveClass(clazz);
-            } catch (Throwable e) {
-                conditionallyLog(e);
+        synchronized(this.getClassLoadingLock(name)) {
+            Class<?> clazz = loadedClasses.get(name);
+            if (clazz != null) return clazz;
+            if (classNames.contains(name)) {
+                try {
+                    clazz = findClass(name);
+                    if (clazz != null && resolve) resolveClass(clazz);
+                } catch (Throwable e) {
+                    conditionallyLog(e);
+                }
             }
+            if (clazz == null) return super.loadClass(name, resolve);
+
+            loadedClasses.put(clazz.getName().intern(), clazz);
+            return clazz;
         }
-        if (clazz == null) return super.loadClass(name, resolve);
-
-        loadedClasses.put(clazz.getName().intern(), clazz);
-        return clazz;
-
-
-        //}
     }
 
     @Override

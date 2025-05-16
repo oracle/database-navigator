@@ -31,6 +31,8 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.ssh.SshTunnelConnector;
 import com.dbn.connection.ssh.SshTunnelManager;
 import com.dbn.connection.ssl.SslConnectionManager;
+import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
+import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -41,15 +43,17 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Driver;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import static com.dbn.common.exception.Exceptions.toSqlException;
-import static com.dbn.common.notification.NotificationGroup.CONNECTION;
+import static com.dbn.common.notification.NotificationCategory.CONNECTION;
 import static com.dbn.common.notification.NotificationSupport.sendErrorNotification;
 import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Maps.toProperties;
 import static com.dbn.connection.AuthenticationTokenType.OCI_API_KEY;
 import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -129,7 +133,15 @@ class Connector {
         //trace(this);
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
         try {
-            Properties properties = new Properties();
+            DatabaseType databaseType = databaseSettings.getDatabaseType();
+            if (databaseType == DatabaseType.GENERIC) {
+                databaseType = DatabaseType.resolve(databaseSettings.getDriver());
+            }
+            DatabaseInterfaces databaseInterfaces = DatabaseInterfacesBundle.get(databaseType);
+            DatabaseCompatibilityInterface compatibilityInterface = databaseInterfaces.getCompatibilityInterface();
+
+            Map<String, String> implicitProperties = compatibilityInterface.getImplicitConnectionProperties();
+            Map<String, String> properties = new HashMap<>(implicitProperties);
 
             // AUTHENTICATION
             AuthenticationInfo authenticationInfo = databaseSettings.getAuthenticationInfo();
@@ -151,7 +163,7 @@ class Connector {
                     }
                 }
             }
-            
+
             // Token Auth
             if (authenticationType == AuthenticationType.TOKEN) {
                 // TODO move this logic to "com.dbn.database.interfaces" - maybe a new DatabaseConnectivityInterface
@@ -166,11 +178,6 @@ class Connector {
                 } else {
                     //TODO...
                 }
-            }
-
-            DatabaseType databaseType = databaseSettings.getDatabaseType();
-            if (databaseType == DatabaseType.GENERIC) {
-                databaseType = DatabaseType.resolve(databaseSettings.getDriver());
             }
 
             // SESSION INFO
@@ -208,10 +215,10 @@ class Connector {
                 SslConnectionManager connectionManager = SslConnectionManager.getInstance();
                 connectionManager.ensureSslConnection(connectionSettings);
                 if (databaseType == DatabaseType.MYSQL) {
-                    properties.setProperty(Property.USE_SSL, "true");
-                    properties.setProperty(Property.REQUIRE_SSL, "true");
+                    properties.put(Property.USE_SSL, "true");
+                    properties.put(Property.REQUIRE_SSL, "true");
                 } else if (databaseType == DatabaseType.POSTGRES) {
-                    properties.setProperty(Property.SSL, "true");
+                    properties.put(Property.SSL, "true");
                 }
             }
 
@@ -230,7 +237,7 @@ class Connector {
             }
             Diagnostics.databaseLag(CONNECT);
 
-            Connection connection = connect(driver, connectionUrl, properties);
+            Connection connection = connect(driver, connectionUrl, toProperties(properties));
             if (connection == null) {
                 throw new SQLException("Driver failed to create connection. No failure information provided by jdbc vendor.");
             }

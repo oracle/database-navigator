@@ -51,6 +51,14 @@ public abstract class DatabaseCompatibilityInterfaceImpl implements DatabaseComp
     }
 
     @Override
+    public boolean supportsFeature(DatabaseFeature feature, DatabaseObjectTypeId objectTypeId) {
+        if (!supportsFeature(feature)) return false;
+        if (!supportsObjectType(objectTypeId)) return false;
+
+        return true;
+    }
+
+    @Override
     public QuotePair getDefaultIdentifierQuotes() {
         return getIdentifierQuotes().getDefaultQuotes();
     }
@@ -63,7 +71,7 @@ public abstract class DatabaseCompatibilityInterfaceImpl implements DatabaseComp
 
     @Override
     public String getOrderByClause(String columnName, SortDirection sortDirection, boolean nullsFirst) {
-        return columnName + " " + sortDirection.getSqlToken() + " nulls " + (nullsFirst ? " first" : " last");
+        return columnName + " " + sortDirection.getSqlToken() + " nulls" + (nullsFirst ? " first" : " last");
     }
 
     @Override

@@ -11,7 +11,7 @@
  * Additional features may require other libraries to be added to the runtime. Please read the MySQL JDBC documentation for additional details.
  *
  * <p><u>JDBC URL</u></p>
- * The connection is using a "${JDBC_URL_TYPE_NAME}" jdbc URL type<br>
+ * The connection is using a JDBC URL of type "${JDBC_URL_TYPE_NAME}"<br>
  * URL pattern: "$urlPatternHtml"<br>
 #if (${JDBC_URL_TYPE} == 'DATABASE')
  * <ul>

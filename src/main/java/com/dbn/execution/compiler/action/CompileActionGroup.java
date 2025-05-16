@@ -16,12 +16,12 @@
 
 package com.dbn.execution.compiler.action;
 
+import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.icon.Icons;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.editor.DBContentType;
 import com.dbn.execution.compiler.CompileType;
 import com.dbn.object.common.DBSchemaObject;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.DumbAware;
 
 import static com.dbn.nls.NlsResources.txt;

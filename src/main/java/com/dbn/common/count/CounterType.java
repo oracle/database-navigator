@@ -26,5 +26,9 @@ public enum CounterType {
     REJECTED,
     FINISHED,
 
+    TOTAL,
+    SUCCESS,
+    FAILURE,
+
     GENERIC
 }

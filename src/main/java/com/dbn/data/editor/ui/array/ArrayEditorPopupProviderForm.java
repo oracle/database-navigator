@@ -18,9 +18,10 @@ package com.dbn.data.editor.ui.array;
 
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
+import com.dbn.common.data.Data;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.ui.list.ListProperty;
 import com.dbn.common.ui.misc.DBNScrollPane;
-import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Messages;
@@ -31,6 +32,7 @@ import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dbn.data.editor.ui.UserValueHolder;
 import com.dbn.data.grid.color.DataGridTextAttributesKeys;
 import com.dbn.data.value.ArrayValue;
+import com.dbn.data.value.VectorValue;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.project.Project;
@@ -54,7 +56,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.dbn.common.util.Actions.createActionToolbar;
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static java.util.Collections.emptyList;
 
 public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
     private JPanel mainPanel;
@@ -62,10 +66,30 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
     private JPanel leftActionPanel;
     private DBNScrollPane listScrollPane;
 
-    private final ArrayEditorList list;
+    private ArrayEditorList list;
 
-    public ArrayEditorPopupProviderForm(TextFieldWithPopup<?> textField, boolean autoPopup) {
+    public ArrayEditorPopupProviderForm(TextFieldWithPopup<?> textField, boolean autoPopup, ListProperty ... properties) {
         super(textField, autoPopup, true);
+
+        mainPanel.addKeyListener(this);
+
+        initEditorList(properties);
+        initEditorToolbar();
+        updateComponentColors();
+        Colors.subscribe(this, () -> updateComponentColors());
+    }
+
+    private void initEditorList(ListProperty ... properties) {
+        list = new ArrayEditorList(this, properties);
+        list.addKeyListener(this);
+        list.setBackground(Colors.getEditorBackground());
+
+        listScrollPane.setViewportView(list);
+        list.initTableGutter();
+    }
+
+    private void initEditorToolbar() {
+        if (!list.isEditable()) return;
 
         ActionToolbar actionToolbarLeft = createActionToolbar(leftActionPanel, true, "DBNavigator.ActionGroup.Arrays.LeftControls");
         ActionToolbar actionToolbarRight = createActionToolbar(leftActionPanel, true, "DBNavigator.ActionGroup.Arrays.RightControls");
@@ -73,18 +97,6 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
 
         leftActionPanel.add(actionToolbarLeft.getComponent(), BorderLayout.WEST);
         rightActionPanel.add(actionToolbarRight.getComponent(), BorderLayout.EAST);
-        list = new ArrayEditorList(this);
-        list.initTableGutter();
-        list.addKeyListener(this);
-        list.setBackground(Colors.getEditorBackground());
-
-        listScrollPane.setViewportView(list);
-        listScrollPane.setBorder(Borders.COMPONENT_OUTLINE_BORDER);
-
-        mainPanel.addKeyListener(this);
-
-        updateComponentColors();
-        Colors.subscribe(this, () -> updateComponentColors());
     }
 
     private void updateComponentColors() {
@@ -125,11 +137,18 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
         Project project = getProject();
         try {
             Object userValue = userValueHolder.getUserValue();
-            ArrayValue array = (ArrayValue) userValue;
-            List<String> values = array == null ? null : array.read();
-            if (values != null) {
+            if (userValue instanceof ArrayValue) {
+                ArrayValue array = (ArrayValue) userValue;
+                List<String> values = nvl(array.read(), () -> emptyList());
                 stringValues.addAll(values);
+
+            } else if (userValue instanceof VectorValue) {
+                VectorValue vector = (VectorValue) userValue;
+                double[] doubles = vector.getValues();
+                String[] convert = Data.convert(doubles, String.class);
+                stringValues.addAll(Arrays.asList(convert));
             }
+
         } catch (SQLException e) {
             conditionallyLog(e);
             Messages.showErrorDialog(project, e.getLocalizedMessage(), e);
@@ -140,17 +159,17 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
             list.selectCell(0,0);
         }
 
-        //editorTextArea.setText(text);
-        //if (textField.isEditable()) editorTextArea.setCaretPosition(textField.getCaretPosition());
-        //editorTextArea.setSelectionStart(textField.getSelectionStart());
-        //editorTextArea.setSelectionEnd(textField.getSelectionEnd());
-        //editorTextArea.getDocument().addDocumentListener(new DocumentListener());
         JComponent component = getComponent();
         component.setPreferredSize(new Dimension(Math.max(200, textField.getWidth() + 32), 200));
 
         ComponentPopupBuilder popupBuilder = JBPopupFactory.getInstance().createComponentPopupBuilder(component, list);
         popupBuilder.setRequestFocus(true);
         popupBuilder.setResizable(true);
+
+        // TODO enable sticky popups
+        //popupBuilder.setCancelOnWindowDeactivation(false);
+        //popupBuilder.setCancelOnClickOutside(false);
+
         popupBuilder.setDimensionServiceKey(project, "ArrayEditor." + userValueHolder.getName(), false);
         return popupBuilder.createPopup();
     }

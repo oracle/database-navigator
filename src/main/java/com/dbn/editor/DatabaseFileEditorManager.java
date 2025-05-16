@@ -76,6 +76,7 @@ import static com.dbn.common.thread.ThreadProperty.DEBUGGER_NAVIGATION;
 import static com.dbn.common.thread.ThreadProperty.EDITOR_LOAD;
 import static com.dbn.common.thread.ThreadProperty.WORKSPACE_RESTORE;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.editor.DatabaseFileEditorInitializer.makeEditorReady;
 import static com.dbn.editor.DatabaseFileEditorManager.COMPONENT_NAME;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.vfs.DatabaseFileSystem.isFileOpened;
@@ -128,7 +129,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
             Project project = getProject();
             if (focusEditor) {
                 Progress.prompt(project, object, true,
-                        txt("prc.editor.title.OpeningObjectEditor", object.getTypeName()),
+                        txt("prc.editor.title.OpeningObjectEditor", object.getObjectType().getCapitalizedName()),
                         txt("prc.editor.text.OpeningObjectEditor", object.getQualifiedNameWithType()),
                         progress -> openEditor(object, editorProviderId, scrollBrowser, true));
             } else {
@@ -166,7 +167,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
 
     private void openSchemaObject(@NotNull DBFileOpenHandle handle) {
         DBSchemaObject object = handle.getObject();
-        object.makeEditorReady();
+        makeEditorReady(object);
 
         DBEditableObjectVirtualFile databaseFile = getFileSystem().findOrCreateDatabaseFile(object);
         if (isNotValid(databaseFile)) return;
@@ -189,7 +190,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
     private void openChildObject(DBFileOpenHandle handle) {
         DBObject object = handle.getObject();
         DBSchemaObject schemaObject = object.getParentObject();
-        schemaObject.makeEditorReady();
+        makeEditorReady(schemaObject);
 
         DBEditableObjectVirtualFile databaseFile = getFileSystem().findOrCreateDatabaseFile(schemaObject);
         if (isNotValid(databaseFile)) return;

@@ -86,7 +86,8 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
 
         DatabaseObjectFactory factory = DatabaseObjectFactory.getInstance(project);
         try {
-            factory.createObject(input);
+            boolean success = factory.createObject(input);
+            if (!success) return;
             if (progress.isCanceled()) return; // do not close the dialog if cancelled
 
             Dispatch.run(getComponent(), () -> super.doOKAction());

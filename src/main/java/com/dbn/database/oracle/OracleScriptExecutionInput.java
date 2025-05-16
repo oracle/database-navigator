@@ -29,14 +29,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Files.normalizePath;
 import static java.lang.Character.isWhitespace;
 
 @NonNls
 public class OracleScriptExecutionInput extends DatabaseScriptExecutionInput {
-    private static final String SQLPLUS_CONNECT_PATTERN_TNS= "[USER]@[TNS_PROFILE]";
-    private static final String SQLPLUS_CONNECT_PATTERN_SID = "[USER]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SID=[DATABASE])))\"";
-    private static final String SQLPLUS_CONNECT_PATTERN_SERVICE = "[USER]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SERVICE_NAME=[DATABASE])))\"";
-    private static final String SQLPLUS_CONNECT_PATTERN_BASIC = "[USER]@[HOST]:[PORT]/[DATABASE]";
+    public static final String SQLPLUS_CONNECT_PATTERN_TNS= "[USER]@[TNS_PROFILE]";
+    public static final String SQLPLUS_CONNECT_PATTERN_SID = "[USER]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SID=[DATABASE])))\"";
+    public static final String SQLPLUS_CONNECT_PATTERN_SERVICE = "[USER]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SERVICE_NAME=[DATABASE])))\"";
+    public static final String SQLPLUS_CONNECT_PATTERN_BASIC = "[USER]@[HOST]:[PORT]/[DATABASE]";
+    public static final String SQLPLUS_CONNECT_PATTERN_EZCONNECT = "[USER]@[HOST]:[PORT]/[DATABASE]"; // TODO
 
     public OracleScriptExecutionInput(
             @NotNull CmdLineInterface cmdLineInterface,
@@ -64,7 +66,10 @@ public class OracleScriptExecutionInput extends DatabaseScriptExecutionInput {
 
         boolean tnsConnection = databaseInfo.getUrlType() == DatabaseUrlType.TNS;
         if (tnsConnection) {
-            addEnvironmentVariable("TNS_ADMIN", nvl(databaseInfo.getTnsFolder(), ""));
+            String tnsAdmin = nvl(databaseInfo.getTnsFolder(), "");
+            tnsAdmin = normalizePath(tnsAdmin);
+
+            addEnvironmentVariable("TNS_ADMIN", tnsAdmin);
         }
 
         String executable = cmdLineInterface.getExecutablePath();
@@ -101,6 +106,7 @@ public class OracleScriptExecutionInput extends DatabaseScriptExecutionInput {
                 urlType == DatabaseUrlType.TNS ? SQLPLUS_CONNECT_PATTERN_TNS :
                 urlType == DatabaseUrlType.SID ? SQLPLUS_CONNECT_PATTERN_SID :
                 urlType == DatabaseUrlType.SERVICE ? SQLPLUS_CONNECT_PATTERN_SERVICE :
+                urlType == DatabaseUrlType.EZCONNECT ? SQLPLUS_CONNECT_PATTERN_EZCONNECT :
                                     SQLPLUS_CONNECT_PATTERN_BASIC;
 
         return connectPattern.

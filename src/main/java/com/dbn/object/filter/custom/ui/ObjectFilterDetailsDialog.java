@@ -17,19 +17,26 @@
 package com.dbn.object.filter.custom.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.object.filter.ObjectFilterManager;
 import com.dbn.object.filter.custom.ObjectFilter;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.common.util.Commons.nonNulls;
+
 @Getter
 public class ObjectFilterDetailsDialog extends DBNDialog<ObjectFilterDetailsForm> {
     private final ObjectFilter<?> filter;
+    private final boolean create;
+    private final boolean standalone;
 
-    public ObjectFilterDetailsDialog(ObjectFilter<?> filter, boolean create) {
+    public ObjectFilterDetailsDialog(ObjectFilter<?> filter, boolean create, boolean standalone) {
         super(filter.getProject(), getTitle(create), true);
         this.filter = filter;
+        this.create = create;
+        this.standalone = standalone;
 
         setModal(true);
         setResizable(true);
@@ -45,8 +52,16 @@ public class ObjectFilterDetailsDialog extends DBNDialog<ObjectFilterDetailsForm
         return new ObjectFilterDetailsForm(this);
     }
 
+    protected Action @NotNull [] createActions() {
+        return nonNulls(
+                getOKAction(),
+                getRemoveAction(),
+                getToggleAction(),
+                getCancelAction());
+    }
+
     private static String getTitle(boolean create) {
-        return create ? "Create filter" : "Edit filter";
+        return create ? "Create Filter" : "Edit Filter";
     }
 
     public void setActionEnabled(boolean enabled) {
@@ -64,5 +79,38 @@ public class ObjectFilterDetailsDialog extends DBNDialog<ObjectFilterDetailsForm
     @Override
     public void doCancelAction() {
         super.doCancelAction();
+    }
+
+    private Action getToggleAction() {
+        if (create) return null;
+        if (!standalone) return null;
+
+        String toggleName = filter.isActive() ?
+                txt("app.shared.action.Disable") :
+                txt("app.shared.action.Enable");
+        return createAction(toggleName, () -> toggleFilter());
+    }
+
+    private Action getRemoveAction() {
+        if (create) return null;
+        if (!standalone) return null;
+
+        return createAction(txt("app.shared.action.Remove"), () -> removeFilter());
+    }
+
+    private void toggleFilter() {
+        ObjectFilterManager instance = ObjectFilterManager.getInstance(getProject());
+        instance.toggleFilter(
+                filter.getConnectionId(),
+                filter.getObjectType());
+        close(CLOSE_EXIT_CODE);
+    }
+
+    private void removeFilter() {
+        ObjectFilterManager instance = ObjectFilterManager.getInstance(getProject());
+        instance.removeFilter(
+                filter.getConnectionId(),
+                filter.getObjectType());
+        close(CLOSE_EXIT_CODE);
     }
 }

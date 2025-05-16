@@ -16,18 +16,19 @@
 
 package com.dbn.editor.data.action;
 
-import com.dbn.common.dispose.Checks;
 import com.dbn.common.environment.EnvironmentManager;
 import com.dbn.common.icon.Icons;
-import com.dbn.editor.DBContentType;
 import com.dbn.editor.data.DatasetEditor;
 import com.dbn.editor.data.ui.table.DatasetEditorTable;
+import com.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.editor.DBContentType.DATA;
 import static com.dbn.nls.NlsResources.txt;
 
 public class RecordDuplicateAction extends AbstractDataEditorAction {
@@ -39,24 +40,43 @@ public class RecordDuplicateAction extends AbstractDataEditorAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
+        boolean enabled = isEnabled(datasetEditor);
+        boolean visible = isVisible(datasetEditor);
+
         presentation.setText(txt("app.dataEditor.action.DuplicateRecord"));
         presentation.setIcon(Icons.DATA_EDITOR_DUPLICATE_RECORD);
+        presentation.setVisible(visible);
+        presentation.setEnabled(enabled);
+    }
 
-        if (Checks.isValid(datasetEditor) && datasetEditor.getConnection().isConnected()) {
-            presentation.setEnabled(true);
-            EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
-            boolean isEnvironmentReadonlyData = environmentManager.isReadonly(datasetEditor.getDataset(), DBContentType.DATA);
+    private boolean isVisible(DatasetEditor datasetEditor) {
+        if (isNotValid(datasetEditor)) return false;
+        if (datasetEditor.isReadonlyData()) return false;
+        DBDataset dataset = datasetEditor.getDataset();
 
-            presentation.setVisible(!isEnvironmentReadonlyData && !datasetEditor.isReadonlyData());
-            if (datasetEditor.isInserting() || datasetEditor.isLoading() || datasetEditor.isDirty() || datasetEditor.isReadonly()) {
-                presentation.setEnabled(false);
-            } else {
-                DatasetEditorTable editorTable = datasetEditor.getEditorTable();
-                int[] selectedRows = editorTable.getSelectedRows();
-                presentation.setEnabled(selectedRows != null && selectedRows.length == 1 && selectedRows[0] < editorTable.getModel().getRowCount());
-            }
-        } else {
-            presentation.setEnabled(false);
+        if (dataset.getEnvironmentType().isReadonlyData()) {
+            return EnvironmentManager.isTransientlyEditable(dataset, DATA);
         }
+
+        return true;
+    }
+
+    private boolean isEnabled(DatasetEditor datasetEditor) {
+        if (isNotValid(datasetEditor)) return false;
+
+        if (datasetEditor.isDirty()) return false;
+        if (datasetEditor.isLoading()) return false;
+        if (datasetEditor.isInserting()) return false;
+        if (datasetEditor.isReadonly()) return false;
+        if (!datasetEditor.isConnected()) return false;
+
+        DatasetEditorTable editorTable = datasetEditor.getEditorTable();
+        int[] selectedRows = editorTable.getSelectedRows();
+        if (selectedRows == null) return false;
+        if (selectedRows.length != 1) return false;
+
+        int rowCount = editorTable.getModel().getRowCount();
+        if (selectedRows[0] >= rowCount) return false; // TODO check why this condition is needed
+        return true;
     }
 }

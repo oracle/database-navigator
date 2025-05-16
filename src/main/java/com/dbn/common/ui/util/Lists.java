@@ -20,8 +20,11 @@ import com.intellij.openapi.ui.SelectFromListDialog;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.swing.JList;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
+import javax.swing.event.ListSelectionEvent;
+import java.util.function.Consumer;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -47,4 +50,9 @@ public final class Lists {
 
     public static final SelectFromListDialog.ToStringAspect BASIC_TO_STRING_ASPECT = obj -> obj.toString();
 
+
+    public static void onSelectionChange(JList list, Consumer<ListSelectionEvent> eventConsumer) {
+        list.addListSelectionListener(e -> eventConsumer.accept(e));
+
+    }
 }

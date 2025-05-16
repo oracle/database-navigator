@@ -21,6 +21,7 @@ import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.logging.ExecutionLogOutput;
 import com.dbn.database.common.statement.ByteArray;
+import com.dbn.database.common.statement.ClobText;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import org.jetbrains.annotations.NotNull;
@@ -120,8 +121,18 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
+    public ResultSet loadJavaResources(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "java-resources", ownerName);
+    }
+
+    @Override
     public ResultSet loadJavaPrimitives(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "java-primitives", ownerName);
+    }
+
+    @Override
+    public ResultSet loadJsonViews(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "json-views", ownerName);
     }
 
     @Override
@@ -187,6 +198,16 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     @Override
     public ResultSet loadAllNestedTables(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "all-nested-tables", ownerName);
+    }
+
+    @Override
+    public ResultSet loadJsonViewTableRelations(@NotNull String ownerName, String jsonViewName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "json-view-table-relations", ownerName, jsonViewName);
+    }
+
+    @Override
+    public ResultSet loadAllJsonViewTableRelations(@NotNull String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "all-json-view-table-relations", ownerName);
     }
 
     @Override
@@ -296,6 +317,15 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     @Override
     public ResultSet loadAllJavaParameters(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "all-java-parameters", ownerName);
+    }
+
+    @Override
+    public ResultSet loadJavaClassDependencies(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "java-class-dependencies", ownerName, objectName);
+    }
+
+    public ResultSet loadAllJavaClassDependencies(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "all-java-class-dependencies", ownerName);
     }
 
     /*********************************************************
@@ -450,6 +480,11 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     @Override
     public ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, short overload, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "object-source-code", ownerName, objectName, objectType, overload);
+    }
+
+    @Override
+    public ClobText loadJavaResourceSourceCode(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return executeCall(connection, new ClobText(), "java-resource-source-code", ownerName, objectName);
     }
 
     @Override

@@ -36,6 +36,13 @@ import com.intellij.openapi.project.Project;
 import java.sql.SQLException;
 
 import static com.dbn.common.util.Strings.cachedLowerCase;
+import static com.dbn.database.DatabaseObjectTypeId.DATABASE_TRIGGER;
+import static com.dbn.database.DatabaseObjectTypeId.DATASET_TRIGGER;
+import static com.dbn.database.DatabaseObjectTypeId.JAVA_CLASS;
+import static com.dbn.database.DatabaseObjectTypeId.JSON_VIEW;
+import static com.dbn.database.DatabaseObjectTypeId.MATERIALIZED_VIEW;
+import static com.dbn.database.DatabaseObjectTypeId.TRIGGER;
+import static com.dbn.database.DatabaseObjectTypeId.VIEW;
 
 public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfaceImpl {
     public OracleDataDefinitionInterface(DatabaseInterfaces provider) {
@@ -52,11 +59,11 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         CodeStyleCaseOption kco = styleCaseSettings.getKeywordCaseOption();
         CodeStyleCaseOption oco = styleCaseSettings.getObjectCaseOption();
 
-        if (objectTypeId.isOneOf(DatabaseObjectTypeId.DATABASE_TRIGGER, DatabaseObjectTypeId.DATASET_TRIGGER)) {
-            objectTypeId = DatabaseObjectTypeId.TRIGGER;
+        if (objectTypeId.isOneOf(DATABASE_TRIGGER, DATASET_TRIGGER)) {
+            objectTypeId = TRIGGER;
         }
 
-        if(objectTypeId == DatabaseObjectTypeId.JAVA_CLASS){
+        if(objectTypeId == JAVA_CLASS){
             return kco.format("begin \n") +
                     kco.format("execute immediate \n") +
                     kco.format("' \n") +
@@ -65,7 +72,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
                     + kco.format(" as\n") +
                     code +
                     "';\n" + "end;\n/";
-        } else if (objectTypeId == DatabaseObjectTypeId.VIEW) {
+        } else if (objectTypeId == VIEW) {
             return kco.format("create" + (makeRerunnable ? " or replace" : "") + " view ") + oco.format((useQualified ? schemaName + "." : "") + objectName) + kco.format(" as\n") + code + "\n/";
         } else {
             String objectType = cachedLowerCase(objectTypeId.toString());
@@ -82,7 +89,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         String sourceCode = content.getText().toString();
         if (Strings.isEmpty(sourceCode)) return;
 
-        if (objectTypeId == DatabaseObjectTypeId.DATASET_TRIGGER || objectTypeId == DatabaseObjectTypeId.DATABASE_TRIGGER) {
+        if (objectTypeId.isOneOf(DATASET_TRIGGER, DATABASE_TRIGGER)) {
             if (!sourceCode.isEmpty()) {
                 int startIndex = Strings.indexOfIgnoreCase(sourceCode, objectName, 0) + objectName.length();
                 int headerEndOffset = Strings.indexOfIgnoreCase(sourceCode, "declare", startIndex);
@@ -93,7 +100,9 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
             }
         }
 
-        if (objectTypeId != DatabaseObjectTypeId.VIEW && objectTypeId != DatabaseObjectTypeId.MATERIALIZED_VIEW) {
+        // view source-code does not contain the view name, hence exempted from guarded-block logic
+        // TODO add custom guarded block logic for java classes (excluded for now)
+        if (!objectTypeId.isOneOf(VIEW, JSON_VIEW, MATERIALIZED_VIEW, JAVA_CLASS)) {
             int nameIndex = Strings.indexOfIgnoreCase(sourceCode, objectName, 0);
             if (nameIndex > -1) {
                 int guardedBlockEndOffset = nameIndex + objectName.length();
@@ -111,8 +120,13 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
      *                   CHANGE statements                   *
      *********************************************************/
     @Override
-    public void updateView(String viewName, String code, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "change-view", viewName, code);
+    public void updateView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "change-view", ownerName, viewName, code, editionable ? "editionable" : "noneditionable");
+    }
+
+    @Override
+    public void updateJsonView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "change-json-view", ownerName, viewName, code, editionable ? "editionable" : "noneditionable");
     }
 
     @Override
@@ -122,12 +136,16 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
 
     @Override
     public void updateObject(String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
-        // code contains object type and name
-        executeUpdate(connection, "change-object", newCode);
+        // code assumed to contain object type and name
+        executeUpdate(connection, "update-object", newCode);
     }
 
-    public void updateJavaClass(String objectName, String code, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "change-java-object", objectName.replace(".","/"), code.replace("'","''"));
+    public void updateJavaClass(String ownerName, String objectName, String code, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "update-java-object", ownerName, objectName, code.replace("'","''"));
+    }
+
+    public void updateJavaResource(String ownerName, String objectName, String code, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "update-java-resource", ownerName, objectName, code.replace("'","''"));
     }
 
     /*********************************************************

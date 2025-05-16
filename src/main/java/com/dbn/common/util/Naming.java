@@ -179,6 +179,30 @@ public class Naming {
         return result.toString();
     }
 
+
+    /**
+     * Converts a given string into a lowercase format, with modifications to introduce
+     * spacing between different types of character sequences. The method separates words
+     * based on transitions between lowercase and uppercase letters, uppercase sequences
+     * followed by lowercase letters, and transitions between letters and digits.
+     *
+     * @param string the input string to process; must not be null
+     * @return the processed string in lowercase with spaces added between distinct
+     *         character groups.
+     */
+    public static String lowerCaseWords(String string) {
+        String result = string
+                .replaceAll("[^a-zA-Z0-9]", " ")
+                .replaceAll("([a-z])([A-Z])", "$1 $2") // Lowercase to Uppercase
+                .replaceAll("([A-Z])([A-Z][a-z])", "$1 $2") // Uppercase to UppercaseLowercase
+                .replaceAll("([a-zA-Z])([0-9])", "$1 $2") // Letters to Numbers
+                .replaceAll("([0-9])([a-zA-Z])", "$1 $2"); // Numbers to Letters
+
+        // Convert the resulting string to a lower case
+        return result.toLowerCase();
+
+    }
+
     public static String singleQuoted(String string) {
         return quoted(string, '\'');
     }
@@ -224,5 +248,11 @@ public class Naming {
 
     public static String getQualifiedObjectName(DBObjectType objectType, String objectName, @Nullable DBObject parentObject) {
         return objectType.getName() + " \"" + (parentObject == null ? "" : parentObject.ref().getPath()) + "." + objectName + "\"";
+    }
+
+    public static String toUpperSnakeCase(String input) {
+        // Convert camelCase to words, then join with underscores and uppercase
+        String[] parts = input.split("(?<=\\w)(?=\\p{Lu})|(?<=\\p{L})(?=\\d)|(?<=\\d)(?=\\p{L})");
+        return String.join("_", parts).toUpperCase();
     }
 }

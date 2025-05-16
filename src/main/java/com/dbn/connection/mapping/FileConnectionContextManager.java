@@ -471,6 +471,7 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
         FileConnectionContextRegistry registry = this.registry;
         if (registry == null) return;
 
+        indicator.setIndeterminate(false);
         FileMappings<FileConnectionContext> mappings = registry.getMappings();
         List<Element> mappingElements = element.getChildren();
         int size = mappingElements.size();

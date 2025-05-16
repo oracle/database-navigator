@@ -25,11 +25,9 @@ import static com.dbn.nls.NlsResources.txt;
 @Getter
 @AllArgsConstructor
 public enum DriverSource implements Presentable{
-    @Deprecated // replaced by BUNDLED
-    BUILTIN(txt("cfg.connection.const.DriverSource_BUILTIN")),
-
     BUNDLED(txt("cfg.connection.const.DriverSource_BUNDLED")),
-    EXTERNAL(txt("cfg.connection.const.DriverSource_EXTERNAL"));
+    EXTERNAL(txt("cfg.connection.const.DriverSource_EXTERNAL")),
+    DOWNLOAD(txt("cfg.connection.const.DriverSource_DOWNLOAD"));
 
     private final String name;
 }

@@ -34,12 +34,17 @@ public class BasicLatent<T> implements Latent<T> {
         synchronized (this) {
             if (!shouldLoad()) return value;
 
-            beforeLoad();
-            T newValue = loader == null ? value : loader.load();
-            if (value != newValue) {
-                value = newValue;
+            T newValue = null;
+            try {
+                beforeLoad();
+                newValue = loader == null ? value : loader.load();
+                if (value != newValue) {
+                    value = newValue;
+                }
+                loaded = true;
+            } finally {
+                afterLoad(newValue);
             }
-            afterLoad(newValue);
         }
         return value;
     }
@@ -51,7 +56,6 @@ public class BasicLatent<T> implements Latent<T> {
     protected void beforeLoad() {};
 
     protected void afterLoad(T value) {
-        loaded = true;
     }
 
     public final void set(T value) {

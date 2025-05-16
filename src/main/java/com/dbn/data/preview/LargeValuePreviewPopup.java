@@ -33,6 +33,7 @@ import com.dbn.common.util.Strings;
 import com.dbn.data.editor.ui.UserValueHolder;
 import com.dbn.data.grid.ui.table.basic.BasicTable;
 import com.dbn.data.value.LargeObjectValue;
+import com.dbn.data.value.VectorValue;
 import com.dbn.editor.data.DatasetEditorManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -58,6 +59,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -87,6 +89,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
         super(null, project);
         this.table = WeakRef.of(table);
         this.userValueHolder = userValueHolder;
+        Object userValue = userValueHolder.getUserValue();
 
         loadContent(true);
         String value = valueTextArea.getText();
@@ -104,6 +107,8 @@ public class LargeValuePreviewPopup extends DBNFormBase {
                 JComponent toolbarComponent = actionToolbar.getComponent();
                 leftActionsPanel.add(toolbarComponent, BorderLayout.NORTH);
                 topActionsPanel.setVisible(false);
+            } else if (userValue instanceof VectorValue) {
+                //
             } else {
                 ActionToolbar actionToolbar = Actions.createActionToolbar(topActionsPanel, true,
                     /*new PinUnpinPopupAction(),
@@ -170,6 +175,14 @@ public class LargeValuePreviewPopup extends DBNFormBase {
                 contentInfoText = "Could not load " + largeObjectValue.getDisplayValue() + " content. Cause: " + e.getMessage();
                 loadContentCaption = "Reload content";
             }
+        } else if (userValue instanceof VectorValue) {
+            VectorValue vectorValue = (VectorValue) userValue;
+            String[] stringValues = vectorValue.getStringValues();
+            text = stringValues == null ? "" : Arrays.stream(stringValues)
+                    .map(s -> s.startsWith("-") ? s : " " + s)
+                    .reduce((a, b) -> a + "\n" + b)
+                    .orElse("");
+            loadContentVisible = false;
         } else {
             text = userValue == null ? "" : userValue.toString();
             contentInfoText = getNumberOfLines(text) + " lines, " + text.length() + " characters";

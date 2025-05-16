@@ -16,9 +16,9 @@
 
 package com.dbn.object.action;
 
+import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.util.Actions;
 import com.dbn.object.common.DBObject;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 
 import java.util.List;
 

@@ -57,7 +57,6 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.properties.ConnectionPresentableProperty;
 import com.dbn.object.properties.DBObjectPresentableProperty;
 import com.dbn.object.properties.PresentableProperty;
-import com.dbn.object.type.DBObjectRelationType;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBObjectVirtualFile;
 import com.intellij.navigation.ItemPresentation;
@@ -131,7 +130,7 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     }
 
     @Override
-    public final DBContentType getContentType() {
+    public DBContentType getContentType() {
         return getObjectType().getContentType();
     }
 
@@ -353,22 +352,6 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     }
 
     @Override
-    public boolean isEditorReady() {
-        DBObjectListContainer childObjects = getChildObjects();
-        if (childObjects == null) return false;
-        for (DBObjectList<?> list : childObjects.getObjects()) {
-            if (list != null && !list.isInternal() && !list.isLoaded()) return false;
-        }
-        return true;
-    }
-
-    @Override
-    public void makeEditorReady() {
-        DBObjectListContainer childObjects = getChildObjects();
-        if (childObjects != null) childObjects.loadObjects();
-    }
-
-    @Override
     public <T extends DBObject> T  getChildObject(DBObjectType type, String name, boolean lookupHidden) {
         return cast(getChildObject(type, name, (short) 0, lookupHidden));
     }
@@ -503,21 +486,9 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
 
     @Override
     @Nullable
-    public DynamicContent getDynamicContent(DynamicContentType dynamicContentType) {
+    public DynamicContent getDynamicContent(DynamicContentType contentType) {
         DBObjectListContainer objects = getChildObjects();
-        if (objects == null) return null;
-
-        if(dynamicContentType instanceof DBObjectType) {
-            DBObjectType objectType = (DBObjectType) dynamicContentType;
-            return objects.getObjectList(objectType);
-        }
-
-        else if (dynamicContentType instanceof DBObjectRelationType) {
-            DBObjectRelationType objectRelationType = (DBObjectRelationType) dynamicContentType;
-            return objects.getRelations(objectRelationType);
-        }
-
-        return null;
+        return objects == null ? null : objects.getDynamicContent(contentType);
     }
 
     @Override

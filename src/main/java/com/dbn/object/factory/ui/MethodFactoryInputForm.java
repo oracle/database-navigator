@@ -43,6 +43,8 @@ import java.awt.Color;
 
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
+import static com.dbn.common.util.Strings.isWord;
 import static com.dbn.common.util.Strings.toUpperCase;
 
 public abstract class MethodFactoryInputForm extends ObjectFactoryInputForm<MethodFactoryInput> {
@@ -91,7 +93,22 @@ public abstract class MethodFactoryInputForm extends ObjectFactoryInputForm<Meth
                 objectType == DBObjectType.PROCEDURE ? "Procedure name" : "Name");
 
         DBNHeaderForm headerForm = createHeaderForm(schema, objectType);
-        onTextChange(nameTextField, e -> headerForm.setTitle(getSchema().getName() + "." + toUpperCase(nameTextField.getText())));
+        onTextChange(nameTextField, e -> headerForm.setTitle(getSchema().getName() + "." + toUpperCase(getObjectName()))); // TODO support quoted names
+    }
+
+    @Override
+    protected void initValidation() {
+        String objectTypeName = getObjectType().getName();
+        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), "Please enter a " + objectTypeName + " name");
+        addTextValidation(nameTextField, n -> isWord(n), "Please enter a valid " + objectTypeName + " name");
+
+        if (hasReturnArgument()) {
+            addTextValidation(getDataTypeEditor().getTextField(), t -> isNotEmptyOrSpaces(t), "Please enter the return argument data type");
+        }
+    }
+
+    private DataTypeEditor getDataTypeEditor() {
+        return (DataTypeEditor) returnArgumentDataTypeEditor;
     }
 
     private DBNHeaderForm createHeaderForm(DBSchema schema, DBObjectType objectType) {
@@ -119,6 +136,11 @@ public abstract class MethodFactoryInputForm extends ObjectFactoryInputForm<Meth
 
     DBSchema getSchema() {
         return DBObjectRef.get(schema);
+    }
+
+    @Override
+    public String getObjectName() {
+        return nameTextField.getText().trim();
     }
 
     public abstract boolean hasReturnArgument();

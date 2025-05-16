@@ -30,9 +30,11 @@ public interface DBSchema extends DBRootObject, com.dbn.api.object.DBSchema {
     boolean isUserSchema();
     boolean isSystemSchema();
     boolean isEmptySchema();
+
     List<DBDataset> getDatasets();
     List<DBTable> getTables();
     List<DBView> getViews();
+    List<DBJsonView> getJsonViews();
     List<DBMaterializedView> getMaterializedViews();
     List<DBIndex> getIndexes();
     List<DBSynonym> getSynonyms();
@@ -57,6 +59,7 @@ public interface DBSchema extends DBRootObject, com.dbn.api.object.DBSchema {
     DBDataset getDataset(String name);
     DBTable getTable(String name);
     DBView getView(String name);
+    DBJsonView getJsonView(String name);
     DBMaterializedView getMaterializedView(String name);
     DBIndex getIndex(String name);
     DBType getType(String name);

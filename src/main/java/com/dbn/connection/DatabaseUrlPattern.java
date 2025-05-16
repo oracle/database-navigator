@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,31 +19,40 @@ package com.dbn.connection;
 import com.dbn.common.constant.Constants;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.database.DatabaseInfo.Default;
+import com.dbn.common.util.Parameters;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Parameters.toParameterString;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.database;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.file;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.folder;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.host;
+import static com.dbn.connection.DatabaseUrlPattern.Elements.parameters;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.port;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.profile;
+import static com.dbn.connection.DatabaseUrlPattern.Elements.protocol;
+import static com.dbn.connection.DatabaseUrlPattern.Elements.serverType;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.vendor;
 import static com.dbn.connection.DatabaseUrlType.CUSTOM;
 import static com.dbn.connection.DatabaseUrlType.DATABASE;
+import static com.dbn.connection.DatabaseUrlType.EZCONNECT;
 import static com.dbn.connection.DatabaseUrlType.FILE;
 import static com.dbn.connection.DatabaseUrlType.LDAP;
 import static com.dbn.connection.DatabaseUrlType.LDAPS;
 import static com.dbn.connection.DatabaseUrlType.SERVICE;
 import static com.dbn.connection.DatabaseUrlType.SID;
 import static com.dbn.connection.DatabaseUrlType.TNS;
+import static com.dbn.connection.config.EasyConnectParameters.ensureParametersIfEasyConnect;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static java.util.regex.Pattern.compile;
@@ -53,18 +62,24 @@ import static java.util.regex.Pattern.compile;
 @NonNls
 public enum DatabaseUrlPattern {
 
+    ORACLE_EZCONNECT(
+            // temporary; pattern is much more complicated.
+            "jdbc:oracle:thin:@<PROTOCOL>//<HOST>:<PORT>/<SERVICE_NAME>:<SERVER_TYPE><PARAMETERS>",
+            compile("^jdbc:oracle:thin:@(" + protocol + ":)?//" + host + "(:" + port + ")?/" + database + serverType + parameters),
+            Default.ORACLE, DatabaseUrlType.EZCONNECT),
+
     ORACLE_TNS(
             "jdbc:oracle:thin:@<TNS_PROFILE>?TNS_ADMIN=\"<TNS_FOLDER>\"",
             compile("^jdbc:oracle:(thin|oci):@" + profile + "\\?TNS_ADMIN=\"" + folder + "\"$", CASE_INSENSITIVE),
             Default.ORACLE, TNS),
 
     ORACLE_SID(
-            "jdbc:oracle:thin:@<HOST>:<PORT>:<DATABASE>",
+            "jdbc:oracle:thin:@<HOST>:<PORT>:<SID>",
             compile("^jdbc:oracle:(thin|oci):@" + host + "(:" + port + ")?(:" + database + ")$", CASE_INSENSITIVE),
             Default.ORACLE, SID),
 
     ORACLE_SERVICE(
-            "jdbc:oracle:thin:@//<HOST>:<PORT>/<DATABASE>",
+            "jdbc:oracle:thin:@//<HOST>:<PORT>/<SERVICE_NAME>",
             compile("^jdbc:oracle:(thin|oci):@//" + host + "(:" + port + ")?(/" + database + ")$", CASE_INSENSITIVE),
             Default.ORACLE, SERVICE),
 
@@ -113,6 +128,9 @@ public enum DatabaseUrlPattern {
         String profile = "(?<PROFILE>[\\w\\-.]+)";
         String folder = "(?<FOLDER>([a-z]:)?([\\\\/][\\w\\s/_.\\-']+)+)";
         String file = "(?<FILE>([a-z]:)?([\\\\/][\\w\\s/_.\\-']+)+)";
+        String serverType = "(?<SERVERTYPE>:[\\w\\-.$#]+)?";
+        String parameters = "(?<PARAMETERS>\\?(.*))?";
+        String protocol = "(?<PROTOCOL>(tcp|tcps))";
     }
 
 
@@ -139,18 +157,37 @@ public enum DatabaseUrlPattern {
                 databaseInfo.getDatabase(),
                 databaseInfo.getMainFilePath(),
                 databaseInfo.ensureTnsFolder(),
-                databaseInfo.getTnsProfile());
+                databaseInfo.getTnsProfile(),
+                databaseInfo.getProtocol(),
+                databaseInfo.getServerType(),
+                databaseInfo.getParameters()
+        );
     }
 
-    public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile) {
+    public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile, DatabaseProtocol protocol, ServerType serverType, Map<String, String> parameters) {
+        // for building the url, copy the parameter
         return urlTemplate.
                 replace("<VENDOR>", nvl(vendor, "")).
                 replace("<HOST>", nvl(host, "")).
-                replace(":<PORT>", isEmpty(port) ? "" : ":" + port).
+                replace(":<PORT>", getPortToken(port)).
+                replace("<SID>", nvl(database, "")).
+                replace("<SERVICE_NAME>", nvl(database, "")).
                 replace("<DATABASE>", nvl(database, "")).
+                replace("<PROTOCOL>", protocol == null ? "" : protocol + ":").
                 replace("<FILE>", nvl(file, "")).
                 replace("<TNS_FOLDER>", nvl(tnsFolder, "")).replaceAll("\\\\", "/").
-                replace("<TNS_PROFILE>", nvl(tnsProfile, ""));
+                replace("<TNS_PROFILE>", nvl(tnsProfile, "")).
+                replace(":<SERVER_TYPE>", getServerTypeToken(serverType)).
+                replace("<PARAMETERS>",
+                            toParameterString(ensureParametersIfEasyConnect(parameters, protocol, this.urlType, false)));
+    }
+
+    private static String getPortToken(String port) {
+        return isEmpty(port) ? "" : ":" + port;
+    }
+
+    private static String getServerTypeToken(ServerType serverType) {
+        return serverType == null || serverType == ServerType.DEFAULT ? "" : ":" + serverType;
     }
 
     public String getDefaultUrl() {
@@ -186,11 +223,30 @@ public enum DatabaseUrlPattern {
     }
 
     public String resolveTnsFolder(String url) {
-        return resolveGroup(url, "TNS_FOLDER", TNS);
+        return resolveGroup(url, "FOLDER", TNS);
     }
 
     public String resolveTnsProfile(String url) {
-        return resolveGroup(url, "TNS_PROFILE", TNS);
+        return resolveGroup(url, "PROFILE", TNS);
+    }
+
+    public ServerType resolveServerType(String url) {
+        String serverType = resolveGroup(url, "SERVERTYPE", EZCONNECT);
+        return ServerType.get(serverType);
+    }
+
+    public DatabaseProtocol resolveProtocol(String url) {
+        String protocol = resolveGroup(url, "PROTOCOL", EZCONNECT);
+        return DatabaseProtocol.get(protocol);
+    }
+
+    public Map<String,String> resolveParameters(String url) {
+        int qmarkIdx = url.indexOf('?');
+        if (qmarkIdx < 0 || qmarkIdx == url.length()-1) {
+            return Collections.emptyMap();
+        }
+        String paramsString = url.substring(qmarkIdx);
+        return Parameters.toParameterMap(paramsString);
     }
 
     public boolean isValid(String url) {
@@ -213,7 +269,10 @@ public enum DatabaseUrlPattern {
             Matcher matcher = getMatcher(url);
             if (!matcher.matches()) return "";
 
-            return matcher.group(name).trim();
+            String group = matcher.group(name);
+            if (isEmpty(group)) return "";
+
+            return group.trim();
         } catch (Exception e) {
             conditionallyLog(e);
             log.warn("Failed to get group {} from database url", name);

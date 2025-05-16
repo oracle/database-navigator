@@ -69,8 +69,8 @@ public class InsertStatementGenerator extends StatementGenerator {
         columnIterator = table.getColumns().iterator();
         while (columnIterator.hasNext()) {
             DBColumn column = columnIterator.next();
-            statement.append("    :");
-            statement.append(column.getName(true));
+            statement.append(oco.format("    :P_"));
+            statement.append(oco.format(column.getName(false)));
             if (columnIterator.hasNext()) {
                 statement.append(",\n");
             } else {

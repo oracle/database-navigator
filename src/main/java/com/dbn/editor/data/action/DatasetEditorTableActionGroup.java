@@ -17,6 +17,7 @@
 package com.dbn.editor.data.action;
 
 import com.dbn.common.action.BasicAction;
+import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
@@ -39,7 +40,6 @@ import com.dbn.object.action.NavigateToObjectAction;
 import com.dbn.object.action.ObjectNavigationListActionGroup;
 import com.dbn.object.common.list.DBObjectNavigationList;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.ide.CopyPasteManager;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;

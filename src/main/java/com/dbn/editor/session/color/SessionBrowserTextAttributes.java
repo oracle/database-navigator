@@ -21,8 +21,6 @@ import com.dbn.common.util.TextAttributes;
 import com.dbn.data.grid.color.DataGridTextAttributes;
 import com.dbn.data.grid.color.DataGridTextAttributesKeys;
 import com.intellij.openapi.editor.colors.EditorColors;
-import com.intellij.openapi.editor.colors.EditorColorsManager;
-import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.ui.SimpleTextAttributes;
 
 import java.awt.Color;
@@ -34,6 +32,7 @@ public class SessionBrowserTextAttributes implements DataGridTextAttributes {
     private final SimpleTextAttributes snipedSession;
     private final SimpleTextAttributes killedSession;
     private final SimpleTextAttributes selection;
+    private final SimpleTextAttributes caretRow;
     private final SimpleTextAttributes searchResult;
     private final SimpleTextAttributes activeSessionAtCaretRow;
     private final SimpleTextAttributes inactiveSessionAtCaretRow;
@@ -44,14 +43,11 @@ public class SessionBrowserTextAttributes implements DataGridTextAttributes {
     private final SimpleTextAttributes loadingData;
     private final SimpleTextAttributes loadingDataAtCaretRow;
 
-
-    private final Color caretRowBgColor;
-
     private static final Latent<SessionBrowserTextAttributes> INSTANCE = Latent.laf(() -> new SessionBrowserTextAttributes());
 
     private SessionBrowserTextAttributes() {
-        EditorColorsScheme globalScheme = EditorColorsManager.getInstance().getGlobalScheme();
-        caretRowBgColor = globalScheme.getAttributes(DataGridTextAttributesKeys.CARET_ROW).getBackgroundColor();
+        caretRow = TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.CARET_ROW);
+        Color caretRowBgColor = caretRow.getBgColor();
 
         activeSession = TextAttributes.getSimpleTextAttributes(SessionBrowserTextAttributesKeys.ACTIVE_SESSION);
         inactiveSession = TextAttributes.getSimpleTextAttributes(SessionBrowserTextAttributesKeys.INACTIVE_SESSION);
@@ -106,13 +102,13 @@ public class SessionBrowserTextAttributes implements DataGridTextAttributes {
     }
 
     @Override
-    public SimpleTextAttributes getSearchResult() {
-        return searchResult;
+    public SimpleTextAttributes getCaretRow() {
+        return caretRow;
     }
 
     @Override
-    public Color getCaretRowBgColor() {
-        return caretRowBgColor;
+    public SimpleTextAttributes getSearchResult() {
+        return searchResult;
     }
 
     @Override

@@ -34,6 +34,7 @@ public abstract class ColoredListCellRenderer<T> extends com.intellij.ui.Colored
 
     @Override
     protected final void customizeCellRenderer(@NotNull JList<? extends T> list, T value, int index, boolean selected, boolean hasFocus) {
+        hasFocus = hasFocus || list.hasFocus();
         if (selected) {
             setBackground(UIUtil.getListSelectionBackground(hasFocus));
             setForeground(UIUtil.getListSelectionForeground(hasFocus));
