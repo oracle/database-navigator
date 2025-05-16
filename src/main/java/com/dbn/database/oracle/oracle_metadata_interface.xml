@@ -2584,6 +2584,16 @@
             where
                 OWNER = {0} and
                 NAME = {1} and
+                TYPE = {2} and
+                ORIGIN_CON_ID = SYS_CONTEXT('USERENV', 'CON_ID')
+            order by LINE asc
+        </statement>
+        <statement prefixes="DBA, ALL">
+            select TEXT as SOURCE_CODE
+            from [PREFIX]_SOURCE
+            where
+                OWNER = {0} and
+                NAME = {1} and
                 TYPE = {2}
             order by LINE asc
         </statement>
