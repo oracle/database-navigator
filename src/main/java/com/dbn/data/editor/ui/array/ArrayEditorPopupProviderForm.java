@@ -145,7 +145,7 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
             } else if (userValue instanceof VectorValue) {
                 VectorValue vector = (VectorValue) userValue;
                 double[] doubles = vector.getValues();
-                String[] convert = Data.convert(doubles, String.class);
+                String[] convert = doubles == null ? new String[0] : Data.convert(doubles, String.class);
                 stringValues.addAll(Arrays.asList(convert));
             }
 
