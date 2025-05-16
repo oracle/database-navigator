@@ -21,6 +21,9 @@ import com.dbn.common.message.Message;
 import com.dbn.common.message.MessageBundle;
 import com.dbn.common.message.MessageCallback;
 import com.dbn.common.message.TitledMessage;
+import com.dbn.common.message.TitledMessageBundle;
+import com.dbn.common.message.ui.MessageBundleDialog;
+import com.dbn.common.message.ui.MessageBundleDialogConfig;
 import com.dbn.common.option.DoNotAskOption;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.messages.DBNMessageDialog;
@@ -55,6 +58,12 @@ public class Messages {
     public static final String[] OPTIONS_RETRY_CANCEL = options(txt("msg.shared.button.Retry"), txt("msg.shared.button.Cancel"));
     public static final String[] OPTIONS_CONTINUE_CANCEL = options(txt("msg.shared.button.Continue"), txt("msg.shared.button.Cancel"));
 
+    public static void showMessagesDialog(@Nullable Project project, TitledMessageBundle messages) {
+        MessageBundleDialogConfig config = MessageBundleDialogConfig.create(project, messages.getTitle());
+        Dialogs.show(() -> new MessageBundleDialog(config, messages));
+    }
+
+    @Deprecated // use showMessageBundleDialog(Project project, TitledMessageBundle messages)
     public static void showErrorDialog(@Nullable Project project,  @DialogTitle String title, MessageBundle messages) {
         StringBuilder buffer = new StringBuilder();
         for (Message message : messages.getErrorMessages()) {

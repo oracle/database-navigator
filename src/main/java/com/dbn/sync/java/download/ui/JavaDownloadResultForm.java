@@ -18,14 +18,16 @@ package com.dbn.sync.java.download.ui;
 
 import com.dbn.common.file.ui.VirtualFileListCellRenderer;
 import com.dbn.common.file.ui.VirtualFileListModel;
+import com.dbn.common.presentation.Presentation;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Editors;
-import com.dbn.sync.java.download.JavaDownloadContext;
+import com.dbn.sync.java.download.JavaDownloadBatch;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.ui.components.JBList;
 
 import javax.swing.JComponent;
@@ -46,31 +48,32 @@ public class JavaDownloadResultForm extends DBNFormBase {
     private JPanel filesPanel;
     private JBList<VirtualFile> fileList;
 
-    public JavaDownloadResultForm(JavaDownloadResultDialog dialog, JavaDownloadContext context) {
+    public JavaDownloadResultForm(JavaDownloadResultDialog dialog, JavaDownloadBatch batch) {
         super(dialog);
 
-        initHeaderPanel(context);
-        initHintPanel(context);
-        initObjectList(context);
+        initHeaderPanel(batch);
+        initHintPanel(batch);
+        initObjectList(batch);
     }
 
-    private void initHeaderPanel(JavaDownloadContext context) {
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, context.getInput().getSourceObject());
+    private void initHeaderPanel(JavaDownloadBatch batch) {
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, batch.getInput().getSourceObject());
         this.headerPanel.add(headerForm.getMainComponent());
     }
 
-    private void initHintPanel(JavaDownloadContext context) {
-        VirtualFile rootDirectory = context.getTargetRootDirectory();
+    private void initHintPanel(JavaDownloadBatch batch) {
+        PsiDirectory rootDirectory = batch.getTargetRootDirectory();
+        String rootDirectoryPath = Presentation.presentableName(rootDirectory);
         TextContent hintText = TextContent.plain(
-                "The following classes were created or updated in your project under " + rootDirectory.getPath() + "\n\n" +
+                "The following classes were created or updated in your project under \"" + rootDirectoryPath + "\"\n\n" +
                         "(double click on the files, or press Enter to open them in the editor)");
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
     }
 
 
-    private void initObjectList(JavaDownloadContext context) {
-        fileList.setModel(VirtualFileListModel.create(this, context.getDownloadedFiles()));
+    private void initObjectList(JavaDownloadBatch batch) {
+        fileList.setModel(VirtualFileListModel.create(this, batch.getDownloadedFiles()));
         fileList.setCellRenderer(VirtualFileListCellRenderer.create());
 
         onMouseClick(fileList, BUTTON1, 2, e -> openJavaEditor(e));

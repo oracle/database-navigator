@@ -19,6 +19,7 @@ package com.dbn.common.action;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.credential.remote.ui.CredentialManagementForm;
 import com.dbn.assistant.profile.ui.ProfileManagementForm;
+import com.dbn.batch.ui.BatchMonitorForm;
 import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
 import com.dbn.data.editor.ui.array.ArrayEditorPopupProviderForm;
@@ -61,6 +62,7 @@ public interface DataKeys {
     DataKey<ChatBoxForm> ASSISTANT_CHAT_BOX = DataKey.create("DBNavigator.AssistantChatBox");
     DataKey<CredentialManagementForm> CREDENTIAL_MANAGEMENT_FORM = DataKey.create("DBNavigator.CredentialManagementForm");
     DataKey<ProfileManagementForm> PROFILE_MANAGEMENT_FORM = DataKey.create("DBNavigator.ProfileManagementForm");
+    DataKey<BatchMonitorForm> BATCH_MONITOR_FORM = DataKey.create("DBNavigator.BATCH_MONITOR_FORM");
     DataKey<DBNTabbedPane> TABBED_PANE = DataKey.create("DBNavigator.TabbedPane");
 
     DataKey<EventListenersForm> EVENT_LISTENERS_FORM = DataKey.create("DBNavigator.EventListenersForm");

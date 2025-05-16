@@ -16,7 +16,7 @@
 
 package com.dbn.common.action;
 
-import com.dbn.common.notification.NotificationGroup;
+import com.dbn.common.notification.NotificationCategory;
 import com.dbn.common.outcome.MessageOutcomeHandler;
 import com.dbn.common.outcome.NotificationOutcomeHandler;
 import com.dbn.common.project.ModuleRef;
@@ -51,7 +51,6 @@ public interface UserDataKeys {
     Key<Boolean> SKIP_BROWSER_AUTOSCROLL = Key.create("DBNavigator.SkipEditorScroll");
     Key<Long> LAST_ANNOTATION_REFRESH = Key.create("DBNavigator.LastAnnotationRefresh");
 
-
     Key<MessageOutcomeHandler> MESSAGE_OUTCOME_HANDLER = Key.create("DBNavigator.MessageOutcomeHandler");
-    Key<Map<NotificationGroup, NotificationOutcomeHandler>> NOTIFICATION_OUTCOME_HANDLERS = Key.create("DBNavigator.NotificationOutcomeHandlers");
+    Key<Map<NotificationCategory, NotificationOutcomeHandler>> NOTIFICATION_OUTCOME_HANDLERS = Key.create("DBNavigator.NotificationOutcomeHandlers");
 }

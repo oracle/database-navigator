@@ -91,10 +91,13 @@ public class DBNTableColumnWidths {
         int columnCount = model.getColumnCount();
         List<Integer> largeColumnIndices = null;
 
-        for (int i = 0; i < columnCount; i++) {
-            if (model.isLargeValue(i)) {
-                largeColumnIndices = nvl(largeColumnIndices, () -> new ArrayList<>());
-                largeColumnIndices.add(i);
+        if (columnCount < 4) {
+            // only consider large-value adjustment for reduced number of overall columns (arbitrarily limited to 4)
+            for (int i = 0; i < columnCount; i++) {
+                if (model.isLargeValue(i)) {
+                    largeColumnIndices = nvl(largeColumnIndices, () -> new ArrayList<>());
+                    largeColumnIndices.add(i);
+                }
             }
         }
 

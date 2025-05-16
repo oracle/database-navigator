@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,20 @@
 
 package com.dbn.common.notification;
 
+import lombok.Getter;
+
+@Getter
 public enum NotificationGroup {
-    ASSISTANT,
-    REPORTING,
-    SOFTWARE,
-    TRANSACTION,
-    DEVELOPER,
-    DIAGNOSTICS,
-    SESSION,
-    SESSION_BROWSER,
-    CONNECTION,
-    SOURCE_CODE,
-    EXECUTION,
-    DEBUGGER,
-    COMPILER,
-    LOGGING,
-    BROWSER,
-    METADATA,
-    DATA,
-    DDL,
-    DCN
+    DEFAULT("DBNavigator.NotificationGroup.Default"),
+    BROWSER("DBNavigator.NotificationGroup.Browser"),
+    EXECUTION("DBNavigator.NotificationGroup.Execution"),
+    ASSISTANT("DBNavigator.NotificationGroup.Assistant"),
+    DIAGNOSTICS("DBNavigator.NotificationGroup.Diagnostics");
+    ;
+
+    private final String id;
+
+    NotificationGroup(String id) {
+        this.id = id;
+    }
 }

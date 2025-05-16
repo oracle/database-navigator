@@ -37,6 +37,7 @@ import java.util.List;
 
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.common.util.Strings.cachedUpperCase;
+import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 import static com.dbn.object.common.property.DBObjectProperty.DEBUGABLE;
 import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
@@ -86,19 +87,23 @@ abstract class DBTriggerImpl extends DBSchemaObjectImpl<DBTriggerMetadata> imple
 
         String triggeringEventString = metadata.getTriggeringEvent();
         List<DBTriggerEvent> eventList = new ArrayList<>();
-        if (triggeringEventString.contains("INSERT")) eventList.add(INSERT);
-        if (triggeringEventString.contains("UPDATE")) eventList.add(UPDATE);
-        if (triggeringEventString.contains("DELETE")) eventList.add(DELETE);
-        if (triggeringEventString.contains("TRUNCATE")) eventList.add(TRUNCATE);
-        if (triggeringEventString.contains("CREATE")) eventList.add(CREATE);
-        if (triggeringEventString.contains("ALTER")) eventList.add(ALTER);
-        if (triggeringEventString.contains("DROP")) eventList.add(DROP);
-        if (triggeringEventString.contains("RENAME")) eventList.add(RENAME);
-        if (triggeringEventString.contains("LOGON")) eventList.add(LOGON);
-        if (triggeringEventString.contains("DDL")) eventList.add(DDL);
-        if (eventList.size() == 0) eventList.add(DBTriggerEvent.UNKNOWN);
 
+        if (isNotEmpty(triggeringEventString)) {
+            if (triggeringEventString.contains("INSERT")) eventList.add(INSERT);
+            if (triggeringEventString.contains("UPDATE")) eventList.add(UPDATE);
+            if (triggeringEventString.contains("DELETE")) eventList.add(DELETE);
+            if (triggeringEventString.contains("TRUNCATE")) eventList.add(TRUNCATE);
+            if (triggeringEventString.contains("CREATE")) eventList.add(CREATE);
+            if (triggeringEventString.contains("ALTER")) eventList.add(ALTER);
+            if (triggeringEventString.contains("DROP")) eventList.add(DROP);
+            if (triggeringEventString.contains("RENAME")) eventList.add(RENAME);
+            if (triggeringEventString.contains("LOGON")) eventList.add(LOGON);
+            if (triggeringEventString.contains("DDL")) eventList.add(DDL);
+        }
+
+        if (eventList.isEmpty()) eventList.add(DBTriggerEvent.UNKNOWN);
         triggerEvents = eventList.toArray(new DBTriggerEvent[0]);
+
         return name;
     }
 

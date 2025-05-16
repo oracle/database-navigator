@@ -22,11 +22,11 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.latent.Loader;
 import com.dbn.common.property.PropertyHolder;
 import com.dbn.common.property.PropertyHolderBase;
+import com.dbn.common.thread.Background;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.PresentableFactory;
 import com.dbn.common.ui.ValueSelectorListener;
 import com.dbn.common.ui.ValueSelectorOption;
-import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.Popups;
@@ -34,6 +34,7 @@ import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
+import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -47,7 +48,6 @@ import javax.swing.ComboBoxEditor;
 import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.border.Border;
 import java.awt.Color;
 import java.awt.Component;
@@ -55,7 +55,17 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+
+import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
+import static com.dbn.common.ui.ValueSelectorOption.HIDE_ICON;
+import static com.dbn.common.ui.util.ClientProperty.LOADING;
+import static com.dbn.common.ui.util.ComboBoxes.getEmptyOptionsText;
+import static com.dbn.common.ui.util.ComboBoxes.initComboBoxRenderer;
+import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Lists.firstElement;
 
 public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements PropertyHolder<ValueSelectorOption> {
 
@@ -67,12 +77,6 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
     @Delegate
     private final PropertyHolder<ValueSelectorOption> options = PropertyHolderBase.intBase(ValueSelectorOption.VALUES);
 
-    private final MouseListener mouseListener = Mouse.listener().onPress(e -> {
-        if (DBNComboBox.this.isEnabled()) {
-            showPopup();
-        }
-    });
-
     public DBNComboBox(T ... values) {
         this();
         setValues(values);
@@ -82,23 +86,17 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
         super(new DBNComboBoxModel<>());
         Mouse.removeMouseListeners(this);
 
+        MouseListener mouseListener = Mouse
+                .listener()
+                .onPress(e -> when(isEnabled(), () -> showPopup()));
+
         addMouseListener(mouseListener);
         Color background = Colors.getTextFieldBackground();
         for (Component component : getComponents()) {
             component.addMouseListener(mouseListener);
         }
         setBackground(background);
-
-        setRenderer(new ColoredListCellRenderer<>() {
-            @Override
-            protected void customize(@NotNull JList<? extends T> list, T value, int index, boolean selected, boolean hasFocus) {
-                if (value != null) {
-                    append(DBNComboBox.this.getName(value));
-                    setIcon(value.getIcon());
-                }
-                setBackground(background);
-            }
-        });
+        initComboBoxRenderer(this);
     }
 
     @Override
@@ -128,14 +126,8 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
     }
 
     private void displayPopup() {
-        DefaultActionGroup actionGroup = new DefaultActionGroup();
-        for (T value : getModel().getItems()) {
-            actionGroup.add(new SelectValueAction(value));
-        }
-        if (valueFactory != null) {
-            actionGroup.add(Actions.SEPARATOR);
-            actionGroup.add(new AddValueAction());
-        }
+        ActionGroup actionGroup = createActionGroup();
+
         JLabel label = UserInterface.getComponentLabel(this);
         String title = label == null ? null : label.getText();
         popup = Popups.popupBuilder(actionGroup, this).
@@ -151,9 +143,33 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
         Popups.showUnderneathOf(popup, this, 3, 200);
     }
 
+    private ActionGroup createActionGroup() {
+        DefaultActionGroup actionGroup = new DefaultActionGroup();
+        List<T> values = getModel().getItems();
+        for (T value : values) {
+            actionGroup.add(new SelectValueAction(value));
+        }
+
+        if (valueFactory != null) {
+            actionGroup.add(Actions.SEPARATOR);
+            actionGroup.add(new AddValueAction());
+            return actionGroup;
+        }
+
+        if (values.isEmpty()) {
+            String emptyOptionsText = getEmptyOptionsText(this);
+            if (emptyOptionsText == null) return actionGroup;
+
+            actionGroup.add(new EmptyValuesAction(emptyOptionsText));
+        }
+
+        return actionGroup;
+
+    }
+
     private void disposePopup() {
         popup = null;
-        UserInterface.repaintAndFocus(DBNComboBox.this);
+        UserInterface.repaintAndFocus(this);
     }
 
     private boolean preselectAction(AnAction a) {
@@ -171,7 +187,7 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
 
     public void setValueLoader(Loader<List<T>> valueLoader) {
         this.valueLoader = valueLoader;
-        setValues(valueLoader.load());
+        loadValues();
     }
 
     public void addListener(ValueSelectorListener<T> listener) {
@@ -189,25 +205,66 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
     }
 
     public String getOptionDisplayName(T value) {
-        return getName(value);
+        return getValueName(value);
+    }
+
+    public void loadValues() {
+        setValues(new ArrayList<>());
+        setSelectedValue(null);
+
+        if (valueLoader == null) return;
+
+        Background.run(() -> {
+            boolean enabled = isEnabled();
+            try {
+                setEnabled(false);
+                LOADING.set(this, true);
+                List<T> values = valueLoader.load();
+                setValues(values);
+
+                T selectedValue = firstElement(values);
+                setSelectedValue(selectedValue);
+
+            } finally {
+                LOADING.set(this, false);
+                setEnabled(enabled);
+            }
+        });
     }
 
     public void reloadValues() {
-        setValues(valueLoader.load());
+        setValues(Collections.emptyList());
+        loadValues();
+    }
+
+    private static class EmptyValuesAction extends BasicAction {
+        public EmptyValuesAction(String emptyOptionsText) {
+            super(emptyOptionsText);
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            // just a placeholder, no action invocation
+        }
+
+        @Override
+        public void update(@NotNull AnActionEvent e) {
+            e.getPresentation().setEnabled(false);
+        }
     }
 
     public class SelectValueAction extends BasicAction {
         private final T value;
 
         SelectValueAction(T value) {
-            super(getOptionDisplayName(value), null, options != null && options.is(ValueSelectorOption.HIDE_ICON) ? null : value == null ? null : value.getIcon());
+            super(getOptionDisplayName(value), null, options != null && options.is(HIDE_ICON) ? null : value == null ? null : value.getIcon());
             this.value = value;
         }
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             selectValue(value);
-            DBNComboBox.this.requestFocus();
+            requestFocus();
         }
 
         @Override
@@ -220,7 +277,7 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
 
     private class AddValueAction extends BasicAction {
         AddValueAction() {
-            super(valueFactory.getActionName(), null, valueFactory.getIcon()!=null?valueFactory.getIcon():Icons.ACTION_ADD);
+            super(valueFactory.getActionName(), null, valueFactory.getIcon() != null ? valueFactory.getIcon() : Icons.ACTION_ADD);
         }
 
         @Override
@@ -240,14 +297,17 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
     }
 
     @NotNull
-    private String getName(T value) {
-        if (value != null) {
-            String description = value.getDescription();
-            String name = value.getName();
-            return options.is(ValueSelectorOption.HIDE_DESCRIPTION) || Strings.isEmpty(description) ? name : name + " (" + description + ")";
-        } else {
-            return "";
-        }
+    private String getValueName(T value) {
+        if (value == null) return "";
+
+        String name = value.getName();
+        String description = value.getDescription();
+
+        if (options.is(HIDE_DESCRIPTION)) return name;
+        if (Strings.isEmptyOrSpaces(description)) return name;
+        if (Objects.equals(name, description)) return name;
+
+        return name + " (" + description + ")";
     }
 
     public boolean isVisible(T value) {
@@ -262,15 +322,11 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
     @Nullable
     public String getSelectedValueName() {
         T value = getSelectedValue();
-        return value == null ? "" : getName(value);
+        return value == null ? "" : getValueName(value);
     }
 
     public void setSelectedValue(@Nullable T value) {
         selectValue(value);
-    }
-
-    protected java.util.List<T> loadValues() {
-        return new ArrayList<>();
     }
 
     public void setValues(T ... values) {

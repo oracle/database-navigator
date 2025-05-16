@@ -16,7 +16,7 @@
 
 package com.dbn.connection;
 
-import com.dbn.common.notification.NotificationGroup;
+import com.dbn.common.notification.NotificationCategory;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.routine.ThrowableRunnable;
 import com.dbn.common.util.UUIDs;
@@ -43,8 +43,8 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-import static com.dbn.common.notification.NotificationGroup.CONNECTION;
-import static com.dbn.common.notification.NotificationGroup.TRANSACTION;
+import static com.dbn.common.notification.NotificationCategory.CONNECTION;
+import static com.dbn.common.notification.NotificationCategory.TRANSACTION;
 import static com.dbn.common.util.Classes.className;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.connection.jdbc.ResourceStatus.ACTIVE;
@@ -291,7 +291,7 @@ public final class Resources implements NlsSupport {
         }
     }
 
-    private static void sentWarningNotification(NotificationGroup title, String messageKey, DBNConnection connection, Exception e) {
+    private static void sentWarningNotification(NotificationCategory title, String messageKey, DBNConnection connection, Exception e) {
         String error = nvl(e.getMessage(), className(e));
         if (connection.shouldNotify(error)) {
 

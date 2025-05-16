@@ -54,6 +54,7 @@ import java.util.List;
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.Priority.LOW;
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.thread.Progress.progressOf;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -294,9 +295,10 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
             if (progress.isCanceled() || objects.size() == 0 /* may be disposed meanwhile*/) {
                 break;
             } else {
-                progress.setIndeterminate(true);
+                progress.setIndeterminate(false);
+                progress.setFraction(progressOf(i, count));
+
                 DBSchemaObject object = objects.get(i);
-                progress.setFraction(Progress.progressOf(i, count));
                 DBObjectStatusHolder objectStatus = object.getStatus();
                 DBContentType objectContentType = object.getContentType();
                 if (objectContentType.isBundle()) {

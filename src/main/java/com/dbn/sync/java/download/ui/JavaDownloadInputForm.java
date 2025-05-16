@@ -19,27 +19,32 @@ package com.dbn.sync.java.download.ui;
 import com.dbn.common.file.VirtualFilePresentable;
 import com.dbn.common.project.ModulePresentable;
 import com.dbn.common.state.StateHolder;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.list.CheckBoxList;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.object.common.DBObject;
-import com.dbn.sync.java.download.JavaDownloadContext;
-import com.dbn.sync.java.download.JavaDownloadElement;
+import com.dbn.sync.java.download.JavaDownloadBatch;
 import com.dbn.sync.java.download.JavaDownloadInput;
 import com.dbn.sync.java.download.JavaDownloadManager;
+import com.dbn.sync.java.download.JavaDownloadTask;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.jps.model.java.JavaResourceRootType;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
+import org.jetbrains.jps.model.module.JpsModuleSourceRootType;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -47,6 +52,7 @@ import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
+import static com.dbn.common.util.Unsafe.cast;
 
 public class JavaDownloadInputForm extends DBNFormBase {
     private JPanel headerPanel;
@@ -54,26 +60,41 @@ public class JavaDownloadInputForm extends DBNFormBase {
     private JPanel targetLocationPanel;
     private JComboBox<ModulePresentable> moduleComboBox;
     private JComboBox<VirtualFilePresentable> contentRootComboBox;
-    private CheckBoxList<JavaDownloadElement> dependenciesCheckBoxList;
+    private CheckBoxList<JavaDownloadTask> dependenciesCheckBoxList;
+    private JPanel hintPanel;
 
 
     public JavaDownloadInputForm(JavaDownloadInputDialog dialog) {
         super(dialog);
-        JavaDownloadInput input = dialog.getContext().getInput();
+        JavaDownloadInput input = dialog.getBatch().getInput();
 
-        DBObject sourceObject = input.getSourceObject();
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, sourceObject);
-        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+        initHeaderPanel(input);
+        initHintPanel();
 
         initSelectionListener(moduleComboBox, s -> initContentRoots());
         initModules();
 
-        dependenciesCheckBoxList.setElements(input.getElements());
+        dependenciesCheckBoxList.setElements(input.getTasks());
     }
 
-    JavaDownloadContext getContext() {
+    private void initHeaderPanel(JavaDownloadInput input) {
+        DBObject sourceObject = input.getSourceObject();
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, sourceObject);
+        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+    }
+
+    private void initHintPanel() {
+        TextContent hintText = TextContent.plain(
+                "Following java classes and resources will be downloaded to the project. " +
+                        "Please specify the target module and content root, as well as the resources to be downloaded.\n\n" +
+                        "NOTE: Already existing java classes and resources in the selected destination will be overwritten.");
+        DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
+        hintPanel.add(hintForm.getComponent());
+    }
+
+    JavaDownloadBatch getBatch() {
         JavaDownloadInputDialog dialog = ensureParentComponent();
-        return dialog.getContext();
+        return dialog.getBatch();
     }
 
     @Override
@@ -106,16 +127,29 @@ public class JavaDownloadInputForm extends DBNFormBase {
             ComboBoxes.initComboBox(contentRootComboBox);
         } else {
             ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
-            Set<JavaSourceRootType> javaSourceRootTypes = Set.of(JavaSourceRootType.SOURCE, JavaSourceRootType.TEST_SOURCE);
-            List<VirtualFile> sourceRoots = moduleRootManager.getSourceRoots(javaSourceRootTypes);
+            Set<? extends JpsModuleSourceRootType<?>> rootTypes = cast(getSourceRootTypes());
+            List<VirtualFile> sourceRoots = moduleRootManager.getSourceRoots(rootTypes);
 
             List<VirtualFilePresentable> presentableFiles = VirtualFilePresentable.fromFiles(sourceRoots);
             ComboBoxes.initComboBox(contentRootComboBox, presentableFiles);
         }
     }
 
+    public Set<JpsModuleSourceRootType> getSourceRootTypes() {
+        JavaDownloadInput input = getBatch().getInput();
+        Set<JpsModuleSourceRootType> rootTypes = new HashSet<>();
+        rootTypes.add(JavaSourceRootType.SOURCE);
+        rootTypes.add(JavaSourceRootType.TEST_SOURCE);
+        if (input.hasJavaResources()) {
+            rootTypes.add(JavaResourceRootType.RESOURCE);
+            rootTypes.add(JavaResourceRootType.TEST_RESOURCE);
+        }
+
+        return rootTypes;
+    }
+
     protected void applyUserInput() {
-        JavaDownloadInput input = getContext().getInput();
+        JavaDownloadInput input = getBatch().getInput();
         input.setModuleName(getSelectedModuleName());
         input.setContentRoot(getSelectedContentPath());
         dependenciesCheckBoxList.applyChanges();

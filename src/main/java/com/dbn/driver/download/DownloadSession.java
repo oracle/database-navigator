@@ -16,7 +16,7 @@
 
 package com.dbn.driver.download;
 
-import com.dbn.common.message.AsyncMessageCollector;
+import com.dbn.common.message.MessageBundle;
 import com.dbn.common.message.MessageCollector;
 import com.dbn.common.progress.ProgressIndicatorDelegate;
 import com.dbn.common.routine.ThrowableCallable;
@@ -38,7 +38,7 @@ public class DownloadSession extends ProgressIndicatorDelegate {
     private static final ThreadLocal<DownloadSession> LOCAL = new ThreadLocal<>();
 
     @Delegate
-    private final MessageCollector messages = new AsyncMessageCollector();
+    private final MessageBundle messages = new MessageCollector(true);
     private int downloadSize;
     private String downloadPath;
     private AtomicInteger outstandingSize;
