@@ -49,28 +49,25 @@ class DBDatabaseTriggerImpl extends DBTriggerImpl implements DBDatabaseTrigger {
     @Override
     public Icon getIcon() {
         DBObjectStatusHolder objectStatus = getStatus();
-        if (objectStatus.is(DBObjectStatus.VALID)) {
-            if (objectStatus.is(DBObjectStatus.ENABLED)) {
-                if (objectStatus.is(DBObjectStatus.DEBUG)) {
-                    return Icons.DBO_DATABASE_TRIGGER_DEBUG;
-                } else {
-                    return Icons.DBO_DATABASE_TRIGGER;
-                }
-            } else {
-                if (objectStatus.is(DBObjectStatus.DEBUG)) {
-                    return Icons.DBO_DATABASE_TRIGGER_DISABLED_DEBUG;
-                } else {
-                    return Icons.DBO_DATABASE_TRIGGER_DISABLED;
-                }
-            }
-        } else {
-            if (objectStatus.is(DBObjectStatus.ENABLED)) {
-                return Icons.DBO_DATABASE_TRIGGER_ERR;
-            } else {
-                return Icons.DBO_DATABASE_TRIGGER_ERR_DISABLED;
-            }
+        boolean valid = objectStatus.is(DBObjectStatus.VALID);
+        boolean enabled = objectStatus.is(DBObjectStatus.ENABLED);
 
+        if (valid) {
+            boolean debug = objectStatus.is(DBObjectStatus.DEBUG);
+            if (enabled) {
+                return debug ?
+                        Icons.DBO_DATABASE_TRIGGER_DEBUG :
+                        Icons.DBO_DATABASE_TRIGGER;
+            } else {
+                return debug ?
+                        Icons.DBO_DATABASE_TRIGGER_DEBUG_DISABLED :
+                        Icons.DBO_DATABASE_TRIGGER_DISABLED;
+            }
         }
+
+        return enabled ?
+                Icons.DBO_DATABASE_TRIGGER_ERR :
+                Icons.DBO_DATABASE_TRIGGER_ERR_DISABLED;
     }
 
 
