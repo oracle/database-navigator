@@ -5473,7 +5473,7 @@
             <token id="03110" type-id="KW_CONTAINERS_DEFAULT" />
         </one-of>
     </element-def>
-    <element-def description="CREATE MATERIALIZED VIEW statement" id="create_materialized_view">
+    <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE MATERIALIZED VIEW statement" id="create_materialized_view">
         <token id="03111" type-id="KW_MATERIALIZED" />
         <token id="03112" type-id="KW_VIEW" />
         <one-of id="03113">
@@ -5556,7 +5556,7 @@
                     <token id="03157" type-id="KW_COLLATION" />
                     <object-ref id="03158" type="COLLATION" />
                 </sequence>
-                <one-of id="03159">
+                <one-of id="03159" optional="true">
                     <sequence id="03160">
                         <token id="03161" type-id="KW_ON" />
                         <token id="03162" type-id="KW_PREBUILT" />

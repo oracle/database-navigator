@@ -67,7 +67,7 @@ class DBDatasetTriggerImpl extends DBTriggerImpl implements DBDatasetTrigger {
                 }
             } else {
                 if (objectStatus.is(DBObjectStatus.DEBUG)) {
-                    return Icons.DBO_TRIGGER_DISABLED_DEBUG;
+                    return Icons.DBO_TRIGGER_DEBUG_DISABLED;
                 } else {
                     return Icons.DBO_TRIGGER_DISABLED;
                 }
