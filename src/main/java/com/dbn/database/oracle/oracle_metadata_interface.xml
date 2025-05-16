@@ -421,6 +421,7 @@
                 null as ROOT_TABlE_NAME,
                 null as JSON_COLUMN_NAME,
                 'N' as IS_SYSTEM_VIEW,
+                'N' as IS_EDITIONABLE,
                 'Y' as IS_VALID,
                 'Y' as IS_READONLY,
                 'N' as IS_INSERT_ALLOWED,
@@ -818,7 +819,8 @@
                 MVIEW_NAME as VIEW_NAME,
                 null as VIEW_TYPE_OWNER,
                 null as VIEW_TYPE,
-                'N' as IS_SYSTEM_VIEW
+                'N' as IS_SYSTEM_VIEW,
+                'N' as IS_EDITIONABLE
             from [PREFIX]_MVIEWS
             where OWNER = {0}
             order by MVIEW_NAME asc
