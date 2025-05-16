@@ -650,6 +650,7 @@
         <notificationGroup id="DBNavigator.NotificationGroup.Execution" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorExecution" toolWindowId="DB Execution Console"/>
         <notificationGroup id="DBNavigator.NotificationGroup.Assistant" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorAssistant" toolWindowId="DB Assistant"/>
         <notificationGroup id="DBNavigator.NotificationGroup.Diagnostics" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorDiagnostics" toolWindowId="DB Diagnostics"/>
+        <notificationGroup id="DBNavigator.NotificationGroup.Events" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorEvents" toolWindowId="DB Events"/>
         <postStartupActivity implementation="com.dbn.project.ProjectStartupActivity"/>
         <!--<postStartupActivity implementation="com.dbn.project.ProjectComponentsInitializer" order="last"/>-->
         <!--<applicationInitializedListener implementation="com.dbn.init.DatabaseNavigatorInitializer"/>-->
