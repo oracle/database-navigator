@@ -16,7 +16,7 @@
 
 package com.dbn.object.management.adapter;
 
-import com.dbn.common.notification.NotificationGroup;
+import com.dbn.common.notification.NotificationCategory;
 import com.dbn.common.outcome.Outcome;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.outcome.OutcomeHandlers;
@@ -74,7 +74,7 @@ abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectW
         this.invoker = invoker;
 
         outcomeHandlers.addHandler(SUCCESS, ObjectChangeNotifier.create(getConnection(), getOwnerId(), objectType, action));
-        outcomeHandlers.addNotificationHandler(SUCCESS, getProject(), NotificationGroup.DDL);
+        outcomeHandlers.addNotificationHandler(SUCCESS, getProject(), NotificationCategory.DDL);
         outcomeHandlers.addMessageHandler(FAILURE, getProject());
     }
 

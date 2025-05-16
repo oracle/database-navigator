@@ -17,7 +17,7 @@
 package com.dbn.connection.transaction;
 
 import com.dbn.common.constant.Constant;
-import com.dbn.common.notification.NotificationGroup;
+import com.dbn.common.notification.NotificationCategory;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -38,7 +38,7 @@ import static com.dbn.nls.NlsResources.txt;
 public enum TransactionAction implements Serializable, Constant<TransactionAction> {
     COMMIT(
             txt("app.transactions.action.Commit"),
-            NotificationGroup.TRANSACTION,
+            NotificationCategory.TRANSACTION,
             NotificationType.INFORMATION, "ntf.transactions.info.Commit",
             NotificationType.ERROR, "ntf.transactions.error.Commit",
             false,
@@ -46,7 +46,7 @@ public enum TransactionAction implements Serializable, Constant<TransactionActio
 
     ROLLBACK(
             txt("app.transactions.action.Rollback"),
-            NotificationGroup.TRANSACTION,
+            NotificationCategory.TRANSACTION,
             NotificationType.INFORMATION, "ntf.transactions.info.Rollback",
             NotificationType.ERROR, "ntf.transactions.error.Rollback",
             false,
@@ -54,7 +54,7 @@ public enum TransactionAction implements Serializable, Constant<TransactionActio
 
     ROLLBACK_IDLE(
             txt("app.transactions.action.IdleRollback"),
-            NotificationGroup.TRANSACTION,
+            NotificationCategory.TRANSACTION,
             NotificationType.INFORMATION, "ntf.transactions.info.Rollback",
             NotificationType.ERROR, "ntf.transactions.error.Rollback",
             false,
@@ -62,7 +62,7 @@ public enum TransactionAction implements Serializable, Constant<TransactionActio
 
     DISCONNECT(
             txt("app.transactions.action.Disconnect"),
-            NotificationGroup.SESSION,
+            NotificationCategory.SESSION,
             NotificationType.INFORMATION, "ntf.transactions.info.Disconnect",
             NotificationType.WARNING, "ntf.transactions.warning.Disconnect",
             true,
@@ -70,7 +70,7 @@ public enum TransactionAction implements Serializable, Constant<TransactionActio
 
     DISCONNECT_IDLE(
             txt("app.transactions.action.IdleDisconnect"),
-            NotificationGroup.SESSION,
+            NotificationCategory.SESSION,
             NotificationType.INFORMATION, "ntf.transactions.info.DisconnectIdle",
             NotificationType.WARNING, "ntf.transactions.warning.Disconnect",
             true,
@@ -78,7 +78,7 @@ public enum TransactionAction implements Serializable, Constant<TransactionActio
 
     KEEP_ALIVE(
             txt("app.transactions.action.KeepAlive"),
-            NotificationGroup.CONNECTION,
+            NotificationCategory.CONNECTION,
             null, null,
             NotificationType.ERROR, "ntf.transactions.error.KeepAlive",
             false,
@@ -86,7 +86,7 @@ public enum TransactionAction implements Serializable, Constant<TransactionActio
 
     TURN_AUTO_COMMIT_ON(
             txt("app.transactions.action.EnableAutoCommit"),
-            NotificationGroup.TRANSACTION,
+            NotificationCategory.TRANSACTION,
             NotificationType.WARNING, "ntf.transactions.warning.EnableAutoCommit",
             NotificationType.ERROR, "ntf.transactions.error.EnableAutoCommit",
             true,
@@ -94,14 +94,14 @@ public enum TransactionAction implements Serializable, Constant<TransactionActio
 
     TURN_AUTO_COMMIT_OFF(
             txt("app.transactions.action.DisableAutoCommit"),
-            NotificationGroup.TRANSACTION,
+            NotificationCategory.TRANSACTION,
             NotificationType.INFORMATION, "ntf.transactions.info.DisableAutoCommit",
             NotificationType.ERROR, "ntf.transactions.error.DisableAutoCommit",
             true,
             (connection, target) -> target.setAutoCommit(false));
 
 
-    private final NotificationGroup group;
+    private final NotificationCategory category;
     private final String name;
     private final String successNotificationMessage;
     private final String failureNotificationMessage;
@@ -112,15 +112,15 @@ public enum TransactionAction implements Serializable, Constant<TransactionActio
 
     TransactionAction(
             String name,
-            NotificationGroup group,
+            NotificationCategory category,
             NotificationType notificationType,
             @Nls String successNotificationMessage,
             NotificationType failureNotificationType,
             @Nls String failureNotificationMessage,
             boolean statusChange,
             Executor executor) {
-        this.group = group;
         this.name = name;
+        this.category = category;
         this.failureNotificationMessage = failureNotificationMessage;
         this.successNotificationMessage = successNotificationMessage;
         this.executor = executor;

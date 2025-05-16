@@ -54,7 +54,7 @@ import static com.dbn.common.Priority.LOW;
 import static com.dbn.common.load.ProgressMonitor.setProgressFraction;
 import static com.dbn.common.load.ProgressMonitor.setProgressIndeterminate;
 import static com.dbn.common.load.ProgressMonitor.setProgressText;
-import static com.dbn.common.notification.NotificationGroup.BROWSER;
+import static com.dbn.common.notification.NotificationCategory.BROWSER;
 import static com.dbn.database.DatabaseFeature.OBJECT_INVALIDATION;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;

@@ -74,7 +74,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.dbn.common.notification.NotificationGroup.TRANSACTION;
+import static com.dbn.common.notification.NotificationCategory.TRANSACTION;
 import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.common.util.TimeUtil.isOlderThan;
