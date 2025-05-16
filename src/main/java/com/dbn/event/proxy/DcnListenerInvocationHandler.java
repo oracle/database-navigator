@@ -113,7 +113,7 @@ public class DcnListenerInvocationHandler implements InvocationHandler {
                 // Use current timestamp (you can use the actual timestamp from the event, if available)
                 String timestamp = LocalDateTime.now().toString();
                 // Create and set the mapped DataChangeEvent
-                dataChangeEvent.set(new DataChangeEvent(operation, tableName, rowId, timestamp,regId, handler.getConnectionId().id()));
+                dataChangeEvent.set(new DataChangeEvent(operation, tableName, rowId, timestamp,regId, handler.getConnectionId()));
                 EventHistoryService.getInstance().pushEvent(handler.getConnectionId().id(),this.regId,dataChangeEvent.get());
               } catch (Exception e) {
                 e.printStackTrace(); // Handle potential reflection errors in row processing
