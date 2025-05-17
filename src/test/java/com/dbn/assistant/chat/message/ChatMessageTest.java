@@ -17,8 +17,8 @@
 package com.dbn.assistant.chat.message;
 
 import com.dbn.common.message.MessageType;
+import org.junit.Assert;
 import org.junit.Test;
-import org.locationtech.jts.util.Assert;
 
 import java.io.IOException;
 import java.net.URL;
@@ -31,13 +31,13 @@ public class ChatMessageTest {
     @Test
     public void testSample1() throws Exception{
         List<ChatMessageSection> sections = readMessageSections("/assistantChatMessages/md-sample-01.md");
-        Assert.equals(1, sections.size());
+        Assert.assertEquals(1, sections.size());
     }
 
     @Test
     public void testSample2() throws Exception{
         List<ChatMessageSection> sections = readMessageSections("/assistantChatMessages/md-sample-02.md");
-        Assert.equals(1, sections.size());
+        Assert.assertEquals(1, sections.size());
     }
 
     private static List<ChatMessageSection> readMessageSections(String resource) throws IOException {
