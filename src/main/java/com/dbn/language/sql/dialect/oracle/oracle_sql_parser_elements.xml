@@ -9340,6 +9340,7 @@
             <element ref-id="json_array_function" />
             <element ref-id="json_arrayagg_function" />
             <element ref-id="json_query_function" />
+            <element ref-id="json_serialize_function" />
             <element ref-id="xml_function" />
         </one-of>
     </element-def>
@@ -10378,6 +10379,20 @@
             </sequence>
         </wrapper>
     </element-def>
+    <element-def description="JSON_SERIALIZE function" id="json_serialize_function">
+        <token id="05664" type-id="FN_JSON_SERIALIZE" />
+        <wrapper id="05665" template="PARENTHESES">
+            <sequence id="05666">
+                <element original-name="expr" ref-id="expression" />
+                <element optional="true" ref-id="format_returning_clause" />
+                <token type-id="KW_PRETTY" optional="true"/>
+                <token type-id="FN_ASCII" optional="true" flavor="keyword"/>
+                <token type-id="KW_ORDERED" optional="true"/>
+                <token type-id="KW_TRUNCATE" optional="true"/>
+                <element ref-id="json_query_on_error_clause" optional="true"/>
+            </sequence>
+        </wrapper>
+    </element-def>
 
     <element-def attributes="CLAUSE" description="JSON ON NULL clause" id="json_on_null_clause">
         <one-of id="05669">
@@ -10534,8 +10549,7 @@
         <token id="05750" type-id="KW_ON" />
         <token id="05751" type-id="KW_ERROR" />
     </element-def>
-    <element-def attributes="CLAUSE" description="JSON QUERY ON ERROR clause" id="json_query_on_clause">
-
+    <element-def attributes="CLAUSE" description="JSON QUERY ON clause" id="json_query_on_clause">
         <one-of id="05752">
             <token id="05753" type-id="KW_ERROR" />
             <token id="05754" type-id="KW_NULL" />
@@ -10553,6 +10567,21 @@
             <token id="05763" type-id="KW_EMPTY" />
             <token id="05764" type-id="KW_MISMATCH" />
         </one-of>
+    </element-def>
+    <element-def attributes="CLAUSE" description="JSON QUERY ON ERROR clause" id="json_query_on_error_clause">
+        <one-of id="05752">
+            <token id="05753" type-id="KW_ERROR" />
+            <token id="05754" type-id="KW_NULL" />
+            <sequence id="05755">
+                <token id="05756" type-id="KW_EMPTY" />
+                <one-of id="05757" optional="true">
+                    <token id="05758" type-id="KW_ARRAY" />
+                    <token id="05759" type-id="KW_OBJECT" />
+                </one-of>
+            </sequence>
+        </one-of>
+        <token id="05760" type-id="KW_ON" />
+        <token id="05762" type-id="KW_ERROR" />
     </element-def>
     <element-def attributes="CLAUSE" description="JSON VALUE ON ERROR clause" id="json_value_on_error_clause">
         <one-of id="05765">
