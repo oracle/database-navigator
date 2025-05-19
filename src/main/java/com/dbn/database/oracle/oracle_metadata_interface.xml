@@ -47,7 +47,10 @@
     </statement-execution-processor>
     <statement-execution-processor id="roles" is-query="true" is-prepared-statement="true">
         <statement>
-            select distinct ROLE as ROLE_NAME from DBA_ROLES
+            select distinct ROLE as ROLE_NAME from DBA_ROLES order by ROLE
+        </statement>
+        <statement prefixes="DBA, USER">
+            select distinct GRANTED_ROLE as ROLE_NAME from [PREFIX]_ROLE_PRIVS order by GRANTED_ROLE
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="all-user-roles" is-query="true" is-prepared-statement="true">
@@ -83,8 +86,8 @@
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="system-privileges" is-query="true" is-prepared-statement="true">
-        <statement>
-            select distinct PRIVILEGE as PRIVILEGE_NAME from DBA_SYS_PRIVS
+        <statement prefixes="DBA, USER">
+            select distinct PRIVILEGE as PRIVILEGE_NAME from [PREFIX]_SYS_PRIVS
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="all-user-privileges" is-query="true" is-prepared-statement="true">
