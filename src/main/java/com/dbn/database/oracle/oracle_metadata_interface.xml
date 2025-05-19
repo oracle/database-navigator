@@ -618,7 +618,7 @@
                 decode(m.IS_STATIC,'YES','Y','N') as IS_STATIC,
                 decode(m.IS_FINAL,'YES','Y','N') as IS_FINAL,
                 decode(m.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
-                case when m.METHOD_NAME in (chr(60)||'init'||chr(62), chr(60)||'clinit'||chr(62)) then regexp_substr(m.NAME, '[^/]+$', 1, 1) else m.METHOD_NAME end || '('
+                case when m.METHOD_NAME = chr(60)||'init'||chr(62) then regexp_substr(m.NAME, '[^/]+$', 1, 1) else m.METHOD_NAME end || '('
                     || listagg(decode(a.ARGUMENT_CLASS, '-', a.BASE_TYPE, regexp_substr(a.ARGUMENT_CLASS, '[^/]+$', 1, 1))|| lpad('[]', a.ARRAY_DEPTH * 2, '[]'), ', ') within group (order by a.ARGUMENT_POSITION) || '): '
                     || decode(m.RETURN_CLASS, '-', m.BASE_TYPE, regexp_substr(m.RETURN_CLASS, '[^/]+$', 1, 1))
                     || lpad('[]', m.ARRAY_DEPTH * 2, '[]') as METHOD_SIGNATURE
@@ -630,7 +630,8 @@
             where
                 m.OWNER = {0} and
                 m.NAME = {1} and
-                m.METHOD_NAME != '-'
+                m.METHOD_NAME != '-' and
+                m.METHOD_NAME != chr(60)||'clinit'||chr(62)
             group by
                 m.NAME,
                 m.METHOD_NAME,
@@ -660,7 +661,7 @@
                 decode(m.IS_STATIC,'YES','Y','N') as IS_STATIC,
                 decode(m.IS_FINAL,'YES','Y','N') as IS_FINAL,
                 decode(m.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
-                case when m.METHOD_NAME in (chr(60)||'init'||chr(62), chr(60)||'clinit'||chr(62)) then regexp_substr(m.NAME, '[^/]+$', 1, 1) else m.METHOD_NAME end || '('
+                case when m.METHOD_NAME = chr(60)||'init'||chr(62) then regexp_substr(m.NAME, '[^/]+$', 1, 1) else m.METHOD_NAME end || '('
                     || listagg(decode(a.ARGUMENT_CLASS, '-', a.BASE_TYPE, regexp_substr(a.ARGUMENT_CLASS, '[^/]+$', 1, 1))|| lpad('[]', a.ARRAY_DEPTH * 2, '[]'), ', ') within group (order by a.ARGUMENT_POSITION) || '): '
                     || decode(m.RETURN_CLASS, '-', m.BASE_TYPE, regexp_substr(m.RETURN_CLASS, '[^/]+$', 1, 1))
                     || lpad('[]', m.ARRAY_DEPTH * 2, '[]') as METHOD_SIGNATURE
@@ -671,7 +672,8 @@
                     m.METHOD_INDEX = a.METHOD_INDEX
             where
                 m.OWNER = {0} and
-                m.METHOD_NAME != '-'
+                m.METHOD_NAME != '-' and
+                m.METHOD_NAME != chr(60)||'clinit'||chr(62)
             group by
                 m.NAME,
                 m.METHOD_NAME,
