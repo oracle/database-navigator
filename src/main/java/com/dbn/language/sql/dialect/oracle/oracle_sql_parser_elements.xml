@@ -5322,16 +5322,26 @@
 
     <element-def attributes="CLAUSE" id="column_tags_clause" description="Column Tags clause">
         <token id="03032" type-id="KW_WITH" />
-        <iteration id="03033">
-            <one-of id="03034">
-                <sequence id="03035">
-                    <one-of tokens="KW_CHECK, KW_NOCHECK" id="03036" />
-                    <token id="03037" type-id="KW_ETAG" optional="true" />
-                </sequence>
-                <token id="03038" type-id="KW_UPDATE" />
-                <token id="03039" type-id="KW_NOUPDATE" />
-            </one-of>
-        </iteration>
+        <one-of>
+            <wrapper template="PARENTHESES" id="03042">
+                <iteration id="03043" separator="CHR_COMMA">
+                    <element ref-id="column_tag_clause_instruction" />
+                </iteration>
+            </wrapper>
+            <iteration id="03044">
+                <element ref-id="column_tag_clause_instruction" />
+            </iteration>
+        </one-of>
+    </element-def>
+    <element-def id="column_tag_clause_instruction" description="Column Tags clause instruction" custom="true">
+        <one-of id="03034">
+            <sequence id="03035">
+                <one-of tokens="KW_CHECK, KW_NOCHECK" id="03036" />
+                <token id="03037" type-id="KW_ETAG" optional="true" />
+            </sequence>
+            <token id="03038" type-id="KW_UPDATE" />
+            <token id="03039" type-id="KW_NOUPDATE" />
+        </one-of>
     </element-def>
 
     <element-def attributes="CLAUSE" id="table_tags_clause" description="Table Tags clause">
