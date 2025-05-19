@@ -16,6 +16,7 @@
 
 package com.dbn.data.value;
 
+import com.dbn.common.data.Data;
 import com.dbn.data.type.GenericDataType;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
@@ -26,28 +27,32 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
+import static com.dbn.common.data.Data.asDoubleList;
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Getter
-public class VectorValue extends ValueAdapter<double[]>{
+public class VectorValue extends ValueAdapter<List<Double>>{
     public static final double[] EMPTY_DOUBLE_ARRAY = new double[0];
     public static final String[] EMPTY_STRING_ARRAY = new String[0];
 
-    private double[] values = EMPTY_DOUBLE_ARRAY;
+    private List<Double> values = Collections.emptyList();
 
     public VectorValue() {
     }
 
     public VectorValue(CallableStatement callableStatement, int parameterIndex) throws SQLException {
-        values = callableStatement.getObject(parameterIndex, double[].class);
+        double[] doubles = callableStatement.getObject(parameterIndex, double[].class);
+        values = asDoubleList(doubles);
     }
 
     public VectorValue(ResultSet resultSet, int columnIndex) throws SQLException {
-        values = resultSet.getObject(columnIndex, double[].class);
+        double[] doubles = resultSet.getObject(columnIndex, double[].class);
+        values = asDoubleList(doubles);
     }
 
     @Override
@@ -56,20 +61,20 @@ public class VectorValue extends ValueAdapter<double[]>{
     }
 
     @Override
-    public double[] read() throws SQLException {
+    public List<Double> read() throws SQLException {
         return values;
     }
 
     @Nullable
     @Override
     public String export() throws SQLException {
-        return values == null ? null : Arrays.toString(values);
+        return values == null ? null : Objects.toString(values);
     }
 
     @Override
-    public void write(Connection connection, PreparedStatement preparedStatement, int parameterIndex, double[] values) throws SQLException {
+    public void write(Connection connection, PreparedStatement preparedStatement, int parameterIndex, List<Double> values) throws SQLException {
         try {
-            this.values = values;
+            this.values = asDoubleList(values);
             preparedStatement.setObject(parameterIndex, values);
         } catch (Throwable e) {
             conditionallyLog(e);
@@ -79,13 +84,13 @@ public class VectorValue extends ValueAdapter<double[]>{
     }
 
     @Override
-    public void write(Connection connection, ResultSet resultSet, int columnIndex, double[] values) throws SQLException {
+    public void write(Connection connection, ResultSet resultSet, int columnIndex, List<Double> values) throws SQLException {
         try {
-            this.values = values;
+            this.values = asDoubleList(values);
             if (values == null) {
                 resultSet.updateObject(columnIndex, null);
             } else {
-                resultSet.updateString(columnIndex, Arrays.toString(values));
+                resultSet.updateString(columnIndex, Objects.toString(values));
             }
         } catch (Throwable e) {
             conditionallyLog(e);
@@ -98,18 +103,19 @@ public class VectorValue extends ValueAdapter<double[]>{
         if (values == null) return "";
 
         List<String> values = new ArrayList<>();
-        int length = Math.min(this.values.length, 3);
+        int size = this.values.size();
+        int length = Math.min(size, 3);
         for (int i = 0; i< length; i++) {
-            values.add(Double.toString(this.values[i]));
+            values.add(Data.asString(this.values.get(i)));
         }
-        if (this.values.length > length) values.add("...");
+        if (size > length) values.add("...");
         return values.toString();
     }
 
-    public String[] getStringValues() {
+    @Nullable
+    public List<String> getStringValues() {
         if (values == null) return null;
-
-        return Arrays.stream(values).mapToObj(d -> Double.toString(d)).toArray(String[]::new);
+        return Data.asStringList(values);
     }
 
     @Override

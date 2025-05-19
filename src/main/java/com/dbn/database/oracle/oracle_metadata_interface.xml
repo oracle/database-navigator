@@ -484,6 +484,9 @@
               and j.NAME not like '%$%'   /*TODO not all classes containing $ are INNER (!?) */
             order by j.NAME
         </statement>
+        <statement>
+            select 1 from dual where 1 = 2
+        </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="java-inner-classes" is-query="true" is-prepared-statement="true">

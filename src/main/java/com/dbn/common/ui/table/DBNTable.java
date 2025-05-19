@@ -276,18 +276,21 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
 
 
     public void selectCell(int rowIndex, int columnIndex) {
-        if (rowIndex > -1 && columnIndex > -1 && rowIndex < getRowCount() && columnIndex < getColumnCount()) {
-            Rectangle cellRect = getCellRect(rowIndex, columnIndex, true);
-            if (!getVisibleRect().contains(cellRect)) {
-                scrollRectToVisible(cellRect);
-            }
-            if (getSelectedRowCount() != 1 || getSelectedRow() != rowIndex) {
-                setRowSelectionInterval(rowIndex, rowIndex);
-            }
+        if (rowIndex <= -1) return;
+        if (rowIndex >= getRowCount()) return;
+        if (columnIndex <= -1) return;
+        if (columnIndex >= getColumnCount()) return;
 
-            if (getSelectedColumnCount() != 1 || getSelectedColumn() != columnIndex) {
-                setColumnSelectionInterval(columnIndex, columnIndex);
-            }
+        Rectangle cellRect = getCellRect(rowIndex, columnIndex, true);
+        if (!getVisibleRect().contains(cellRect)) {
+            scrollRectToVisible(cellRect);
+        }
+        if (getSelectedRowCount() != 1 || getSelectedRow() != rowIndex) {
+            setRowSelectionInterval(rowIndex, rowIndex);
+        }
+
+        if (getSelectedColumnCount() != 1 || getSelectedColumn() != columnIndex) {
+            setColumnSelectionInterval(columnIndex, columnIndex);
         }
 
     }

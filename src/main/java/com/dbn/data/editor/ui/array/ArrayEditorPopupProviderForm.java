@@ -18,7 +18,6 @@ package com.dbn.data.editor.ui.array;
 
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
-import com.dbn.common.data.Data;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.list.ListProperty;
 import com.dbn.common.ui.misc.DBNScrollPane;
@@ -144,9 +143,8 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
 
             } else if (userValue instanceof VectorValue) {
                 VectorValue vector = (VectorValue) userValue;
-                double[] doubles = vector.getValues();
-                String[] convert = doubles == null ? new String[0] : Data.convert(doubles, String.class);
-                stringValues.addAll(Arrays.asList(convert));
+                List<String> values = nvl(vector.getStringValues(), () -> emptyList());
+                stringValues.addAll(values);
             }
 
         } catch (SQLException e) {

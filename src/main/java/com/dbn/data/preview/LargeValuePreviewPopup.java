@@ -59,7 +59,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.List;
 
 import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -177,8 +177,9 @@ public class LargeValuePreviewPopup extends DBNFormBase {
             }
         } else if (userValue instanceof VectorValue) {
             VectorValue vectorValue = (VectorValue) userValue;
-            String[] stringValues = vectorValue.getStringValues();
-            text = stringValues == null ? "" : Arrays.stream(stringValues)
+            List<String> stringValues = vectorValue.getStringValues();
+            text = stringValues == null ? "" : stringValues
+                    .stream()
                     .map(s -> s.startsWith("-") ? s : " " + s)
                     .reduce((a, b) -> a + "\n" + b)
                     .orElse("");
