@@ -37,9 +37,6 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Getter
 public class VectorValue extends ValueAdapter<List<Double>>{
-    public static final double[] EMPTY_DOUBLE_ARRAY = new double[0];
-    public static final String[] EMPTY_STRING_ARRAY = new String[0];
-
     private List<Double> values = Collections.emptyList();
 
     public VectorValue() {
