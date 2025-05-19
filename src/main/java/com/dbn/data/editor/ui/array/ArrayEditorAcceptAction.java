@@ -17,6 +17,8 @@
 package com.dbn.data.editor.ui.array;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.common.util.Lists;
+import com.dbn.common.util.Strings;
 import com.dbn.data.editor.ui.UserValueHolder;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
@@ -42,6 +44,7 @@ class ArrayEditorAcceptAction extends ArrayEditorAction {
         UserValueHolder<?> userValueHolder = form.getEditorComponent().getUserValueHolder();
 
         List<String> data = list.getModel().getData();
+        data = Lists.convert(data, s -> Strings.isEmpty(s) ? null : s);
         userValueHolder.updateUserValue(cast(data), false);
 
         form.hidePopup();

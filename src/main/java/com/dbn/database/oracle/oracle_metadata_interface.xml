@@ -47,7 +47,10 @@
     </statement-execution-processor>
     <statement-execution-processor id="roles" is-query="true" is-prepared-statement="true">
         <statement>
-            select distinct ROLE as ROLE_NAME from DBA_ROLES
+            select distinct ROLE as ROLE_NAME from DBA_ROLES order by ROLE
+        </statement>
+        <statement prefixes="DBA, USER">
+            select distinct GRANTED_ROLE as ROLE_NAME from [PREFIX]_ROLE_PRIVS order by GRANTED_ROLE
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="all-user-roles" is-query="true" is-prepared-statement="true">
@@ -83,8 +86,8 @@
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="system-privileges" is-query="true" is-prepared-statement="true">
-        <statement>
-            select distinct PRIVILEGE as PRIVILEGE_NAME from DBA_SYS_PRIVS
+        <statement prefixes="DBA, USER">
+            select distinct PRIVILEGE as PRIVILEGE_NAME from [PREFIX]_SYS_PRIVS
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="all-user-privileges" is-query="true" is-prepared-statement="true">
@@ -481,6 +484,9 @@
               and j.NAME not like '%$%'   /*TODO not all classes containing $ are INNER (!?) */
             order by j.NAME
         </statement>
+        <statement>
+            select 1 from dual where 1 = 2
+        </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="java-inner-classes" is-query="true" is-prepared-statement="true">
@@ -851,7 +857,7 @@
                 col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,
                 null as DECL_TYPE_PROGRAM,
-                col.DATA_LENGTH,
+                decode(col.DATA_TYPE, 'VECTOR', col.CHAR_LENGTH, col.DATA_LENGTH) as DATA_LENGTH,
                 col.DATA_PRECISION,
                 col.DATA_SCALE,
                 'N' as IS_SET,
@@ -989,7 +995,7 @@
                 col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,
                 null as DECL_TYPE_PROGRAM,
-                col.DATA_LENGTH,
+                decode(col.DATA_TYPE, 'VECTOR', col.CHAR_LENGTH, col.DATA_LENGTH) as DATA_LENGTH,
                 col.DATA_PRECISION,
                 col.DATA_SCALE,
                 'N' as IS_SET,
@@ -2379,7 +2385,7 @@
                 TYPE_OWNER as DECL_TYPE_OWNER,
                 decode(TYPE_SUBNAME, null, null, TYPE_NAME) as DECL_TYPE_PROGRAM,
                 decode(TYPE_SUBNAME, null, nvl(TYPE_NAME, DATA_TYPE), TYPE_SUBNAME) as DECL_TYPE_NAME,
-                DATA_LENGTH,
+                decode(DATA_TYPE, 'VECTOR', CHAR_LENGTH, DATA_LENGTH) as DATA_LENGTH,
                 DATA_PRECISION,
                 DATA_SCALE,
                 'N' as IS_SET
@@ -2412,7 +2418,7 @@
                 TYPE_OWNER as DECL_TYPE_OWNER,
                 decode(TYPE_SUBNAME, null, null, TYPE_NAME) as DECL_TYPE_PROGRAM,
                 decode(TYPE_SUBNAME, null, nvl(TYPE_NAME, DATA_TYPE), TYPE_SUBNAME) as DECL_TYPE_NAME,
-                DATA_LENGTH,
+                decode(DATA_TYPE, 'VECTOR', CHAR_LENGTH, DATA_LENGTH) as DATA_LENGTH,
                 DATA_PRECISION,
                 DATA_SCALE,
                 'N' as IS_SET
