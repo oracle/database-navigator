@@ -87,7 +87,7 @@ public class VectorValue extends ValueAdapter<List<Double>>{
     public void write(Connection connection, ResultSet resultSet, int columnIndex, List<Double> values) throws SQLException {
         try {
             this.values = asDoubleList(values);
-            if (values == null) {
+            if (values == null || values.isEmpty()) {
                 resultSet.updateObject(columnIndex, null);
             } else {
                 resultSet.updateString(columnIndex, Objects.toString(values));
