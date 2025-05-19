@@ -5254,9 +5254,12 @@
         <one-of id="03000">
             <wrapper template="BRACES" id="03001">
                 <sequence id="03002">
-                    <iteration separator="CHR_COMMA" id="03003">
-                        <element ref-id="json_key_value_clause" />
-                    </iteration>
+                    <one-of>
+                        <iteration separator="CHR_COMMA" id="03003">
+                            <element ref-id="json_key_value_clause" />
+                        </iteration>
+                        <element ref-id="dataset_column_ref"/>
+                    </one-of>
                     <sequence optional="true" id="03004">
                         <token type-id="CHR_COMMA" id="03005" />
                         <element ref-id="json_flex_clause" />
@@ -5265,6 +5268,7 @@
                         <token type-id="KW_RETURNING" id="03007" />
                         <one-of id="03008">
                             <token type-id="KW_JSON" id="03009" flavor="datatype" />
+                            <token type-id="DT_BLOB" id="03010" />
                             <token type-id="DT_CLOB" id="03010" />
                             <token type-id="DT_VARCHAR2" id="03011" />
                         </one-of>
