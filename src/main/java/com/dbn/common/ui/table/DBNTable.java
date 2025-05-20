@@ -69,7 +69,6 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
 
     private final WeakRef<DBNComponent> parentComponent;
     private int rowVerticalPadding;
-    private @Getter @Setter boolean loading;
 
     @Getter
     private boolean loading;
