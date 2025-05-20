@@ -74,7 +74,14 @@ public class DatasetTableCellEditorFactory implements Disposable {
         }
         else if (genericDataType == VECTOR) {
             DatasetTableCellEditorWithPopup tableCellEditor = new DatasetTableCellEditorWithPopup(table);
-            tableCellEditor.getEditorComponent().createArrayViewerPopup(false);
+            TextFieldWithPopup<?> editorComponent = tableCellEditor.getEditorComponent();
+
+            // VECTOR arrays with length > 0 are expected to be fixed-length (non-editable)
+            boolean editable = dataType.getLength() == 0;
+            if (editable)
+                editorComponent.createArrayEditorPopup(false);  else
+                editorComponent.createArrayViewerPopup(true);
+
             return tableCellEditor;
         }
         else if (genericDataType == LITERAL) {

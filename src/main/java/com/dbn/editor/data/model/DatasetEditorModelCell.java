@@ -20,6 +20,7 @@ package com.dbn.editor.data.model;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.ref.WeakRefCache;
+import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Messages;
@@ -66,13 +67,15 @@ public class DatasetEditorModelCell
 
     @Override
     public void updateUserValue(Object newUserValue, boolean bulk) {
-        try {
-            set(RecordStatus.UPDATING, true);
-            updateValue(newUserValue, bulk);
-        } finally {
-            setTemporaryUserValue(null);
-            set(RecordStatus.UPDATING, false);
-        }
+        Background.run(() -> {
+            try {
+                set(RecordStatus.UPDATING, true);
+                updateValue(newUserValue, bulk);
+                notifyCellUpdated();
+            } finally {
+                set(RecordStatus.UPDATING, false);
+            }
+        });
     }
 
     private void updateValue(Object newUserValue, boolean bulk) {
