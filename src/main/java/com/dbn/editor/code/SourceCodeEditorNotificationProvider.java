@@ -16,7 +16,6 @@
 
 package com.dbn.editor.code;
 
-import com.dbn.common.dispose.Checks;
 import com.dbn.common.editor.EditorNotificationProvider;
 import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
@@ -42,6 +41,8 @@ import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.common.dispose.Checks.isNotValid;
 
 public class SourceCodeEditorNotificationProvider extends EditorNotificationProvider<SourceCodeEditorNotificationPanel> {
     private static final Key<SourceCodeEditorNotificationPanel> KEY = Key.create("DBNavigator.SourceCodeEditorNotificationPanel");
@@ -126,8 +127,9 @@ public class SourceCodeEditorNotificationProvider extends EditorNotificationProv
     @Nullable
     @Override
     public SourceCodeEditorNotificationPanel createComponent(@NotNull VirtualFile virtualFile, @NotNull FileEditor fileEditor, @NotNull Project project) {
-        if (!(virtualFile instanceof DBVirtualFile)) return null;
-        if (!(fileEditor instanceof SourceCodeEditor) || !Checks.isValid(fileEditor)) return null;
+        if (isNotValid(fileEditor)) return null;
+        if (!(virtualFile instanceof DBEditableObjectVirtualFile)) return null;
+        if (!(fileEditor instanceof SourceCodeEditor)) return null;
 
         DBVirtualFile databaseFile = (DBVirtualFile) virtualFile;
         DBObject object = databaseFile.getObject();
