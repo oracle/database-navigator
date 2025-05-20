@@ -79,6 +79,7 @@ public class DatabaseDriverManager extends ApplicationComponentBase implements P
     public DriverBundle loadDrivers(File libraryFile, boolean force) {
         try {
             if (force) {
+                this.driverMetadata.remove(libraryFile);
                 DriverBundle drivers = this.drivers.remove(libraryFile);
                 Disposer.dispose(drivers);
             }

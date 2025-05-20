@@ -61,9 +61,7 @@ class DBObjectBundleMonitor implements ObjectChangeListener {
         if (action.isOneOf(CREATE, DELETE, ObjectChangeAction.UNKNOWN)) {
             DBObjectBundle objectBundle = getObjectBundle();
             DBObjectList<DBObject> objectList = objectBundle.getObjectLists().getObjectList(objectType);
-            if (objectList != null && objectList.isLoaded()) {
-                objectList.markDirty();
-            }
+            markDirty(objectList);
         }
     }
 
@@ -73,20 +71,34 @@ class DBObjectBundleMonitor implements ObjectChangeListener {
         if (schema == null) return;
 
         if (action.isOneOf(CREATE, DELETE, ObjectChangeAction.UNKNOWN)) {
-            DBObjectList<DBObject> objectList = schema.getChildObjectList(objectType);
-            if (objectList != null && objectList.isLoaded()) {
-                objectList.markDirty();
-            }
+            refreshSchemaObjects(schema, objectType);
         }
 
         if (action.isOneOf(CREATE, UPDATE, DELETE, ObjectChangeAction.UNKNOWN)) {
             for (DBObjectType childObjectType : objectType.getTreeChildren()) {
-                DBObjectList<DBObject> childObjectList = schema.getChildObjectList(childObjectType);
-                if (childObjectList != null && childObjectList.isLoaded()) {
-                    childObjectList.markDirty();
-                }
+                refreshSchemaObjects(schema, childObjectType);
             }
         }
+    }
+
+    private static void refreshSchemaObjects(DBSchema schema, DBObjectType objectType) {
+        DBObjectList<DBObject> objectList = schema.getChildObjectList(objectType);
+        if (objectList != null) {
+            markDirty(objectList);
+            return;
+        }
+
+        objectType.getInheritingTypes()
+                .stream()
+                .map(t -> schema.getChildObjectList(t))
+                .forEach(l -> markDirty(l));
+    }
+
+    private static void markDirty(DBObjectList<DBObject> objectList) {
+        if (objectList == null) return;
+        if (!objectList.isLoaded()) return;
+
+        objectList.markDirty();
     }
 
     public DBObjectBundle getObjectBundle() {

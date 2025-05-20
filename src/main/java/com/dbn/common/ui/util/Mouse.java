@@ -61,7 +61,7 @@ public class Mouse {
         UserInterface.visitRecursively(root, component -> {
             MouseListener[] mouseListeners = component.getMouseListeners();
             for (MouseListener mouseListener : mouseListeners) {
-                root.removeMouseListener(mouseListener);
+                component.removeMouseListener(mouseListener);
             }
         });
     }

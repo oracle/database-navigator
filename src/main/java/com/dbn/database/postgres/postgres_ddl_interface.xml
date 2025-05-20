@@ -39,7 +39,7 @@
         <statement>create {0}</statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="change-object">
+    <statement-execution-processor id="update-object">
         <statement>create or replace {0}</statement>
     </statement-execution-processor>
 

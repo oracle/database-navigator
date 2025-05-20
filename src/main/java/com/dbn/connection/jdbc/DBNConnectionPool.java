@@ -18,7 +18,7 @@ package com.dbn.connection.jdbc;
 
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.exception.Exceptions;
-import com.dbn.common.notification.NotificationGroup;
+import com.dbn.common.notification.NotificationCategory;
 import com.dbn.common.pool.ObjectPoolBase;
 import com.dbn.common.thread.Background;
 import com.dbn.connection.ConnectionHandler;
@@ -102,7 +102,7 @@ public class DBNConnectionPool extends ObjectPoolBase<DBNConnection, SQLExceptio
             String connectionName = connection.getConnectionName(conn);
             sendInfoNotification(
                     connection.getProject(),
-                    NotificationGroup.SESSION,
+                    NotificationCategory.SESSION,
                     txt("ntf.connection.info.ConnectedToDatabase", connectionName));
         }
 

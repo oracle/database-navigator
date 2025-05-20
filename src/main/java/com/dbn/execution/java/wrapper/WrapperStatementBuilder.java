@@ -19,6 +19,7 @@ package com.dbn.execution.java.wrapper;
 
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.template.TemplateUtilities;
+import com.dbn.common.util.Java;
 import com.dbn.execution.java.wrapper.model.ClassWrapper;
 import com.dbn.execution.java.wrapper.model.FieldWrapper;
 import com.dbn.execution.java.wrapper.model.MethodWrapper;
@@ -181,21 +182,20 @@ public final class WrapperStatementBuilder {
 		if (wrapper.getMethods().isEmpty()) return javaWrapperMethods;
 
 		for (MethodWrapper method : wrapper.getMethods()) {
-			String code;
 			String methodReturnType = resolveMethodReturnType(method);
-			String wrapperMethodName = method.getSurrogateJavaMethodName();
-			String methodSignature = getJavaSignature(method, true);
+			String methodName = method.getSurrogateJavaMethodName();
+			String methodParameters = getJavaParameters(method, true);
 			String argumentConversions = getArgumentConversionStatements(method);
 			String returnStatement = getReturnStatement(method, wrapper.getClassName());
 
 			Map<String, Object> context = new HashMap<>();
+			context.put("METHOD_NAME", methodName);
+			context.put("METHOD_PARAMETERS", methodParameters);
 			context.put("METHOD_RETURN_TYPE", methodReturnType);
-			context.put("WRAPPER_METHOD_NAME", wrapperMethodName);
-			context.put("METHOD_SIGNATURE", methodSignature);
 			context.put("ARGUMENT_CONVERSIONS", argumentConversions);
 			context.put("RETURN_STATEMENT", returnStatement);
 
-			code = generateCode("DBN - OJVM JavaWrapperMethod.java", context);
+			String code = generateCode("DBN - OJVM JavaWrapperMethod.java", context);
 
 			javaWrapperMethods.add(code);
 		}
@@ -233,30 +233,30 @@ public final class WrapperStatementBuilder {
 		List<Map<String, Object>> methodList = wrapper.getMethods().stream()
 				.map(method -> {
 					Map<String, Object> m = new HashMap<>();
-					m.put("javaMethodName", method.getSurrogateJavaMethodName());
-					m.put("sqlMethodName", method.getSqlMethodName());
+					m.put("JAVA_METHOD_NAME", method.getSurrogateJavaMethodName());
+					m.put("SQL_METHOD_NAME", method.getSqlMethodName());
 					// Precompute the SQL signature using your new getSqlSignature function.
-					m.put("sqlSignature", getSqlSignature(method));
+					m.put("SQL_PARAMETERS", getSqlParameters(method));
 					// Precompute the Java signature (false indicates no argument names, per your original code).
-					m.put("javaSignature", getJavaSignature(method, false));
+					m.put("JAVA_PARAMETERS", getJavaParameters(method, false));
 
 					// Determine the resolved return type.
-					String resolvedReturnType = resolveMethodReturnType(method);
-					m.put("resolvedReturnType", resolvedReturnType);
+					String javaReturnType = resolveMethodReturnType(method);
+					m.put("JAVA_RETURN_TYPE", javaReturnType);
 
 					// Flag to simplify the template logic.
-					boolean isVoid = "void".equals(resolvedReturnType);
-					m.put("isVoid", isVoid);
+					boolean isProcedure = Java.isVoid(javaReturnType);
+					m.put("IS_PROCEDURE", isProcedure);
 
 					// For non-void methods, pass along the SQL return type from the original return type.
-					if (!isVoid && method.getReturnParameter() != null) {
-						m.put("sqlReturnType", method.getReturnParameter().getSqlTypeName());
+					if (!isProcedure && method.getReturnParameter() != null) {
+						m.put("SQL_RETURN_TYPE", method.getReturnParameter().getSqlTypeName());
 					}
 					return m;
 				})
 				.collect(Collectors.toList());
 
-		context.put("JAVA_METHODS", methodList);
+		context.put("WRAPPER_METHODS", methodList);
 		context.put("IS_PACKAGE_FORMAT", wrapper.isClassWrapper());
 
         return generateCode("DBN - OJVM SQLWrapper.sql", context);
@@ -485,24 +485,27 @@ public final class WrapperStatementBuilder {
 
 	//methods for supporting wrapper creation
 
-	public String getSqlSignature(MethodWrapper method) {
+	public String getSqlParameters(MethodWrapper method) {
+		List<ParameterWrapper> parameters = method.getParameters();
+		if (parameters.isEmpty()) return "";
+
 		AtomicInteger idx = new AtomicInteger(0);
-		return method.getParameters()
+		return "(" + parameters
 				.stream()
 				.map(e -> "arg_" + idx.getAndIncrement() + " " + e.getSqlTypeName())
-				.collect(Collectors.joining(", "));
+				.collect(Collectors.joining(", ")) + ")";
 	}
 
-	public String getJavaSignature(MethodWrapper method, boolean includeArgumentNames){
+	public String getJavaParameters(MethodWrapper method, boolean includeArgumentNames){
 
 		AtomicInteger idx = new AtomicInteger(0);
-		return method.getParameters()
+		return "(" + method.getParameters()
 				.stream()
 				.map(e -> (
 						e.isArray() ? "java.sql.Array" : e.isComplexType() ? "java.sql.Struct" : e.getJavaTypeName())
 						+ (includeArgumentNames ? " arg" + idx.getAndIncrement(): "")
 				)
-				.collect(Collectors.joining(", "));
+				.collect(Collectors.joining(", ")) + ")";
 	}
 
 	public String getArgumentsInJavaCaller(MethodWrapper method) {

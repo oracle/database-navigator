@@ -24,6 +24,8 @@ import com.dbn.common.util.Environment;
 import com.dbn.common.util.Strings;
 import com.intellij.ide.ui.UISettings;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.DialogWrapperDialog;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.ui.AncestorListenerAdapter;
@@ -45,6 +47,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.JViewport;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
@@ -62,6 +65,7 @@ import java.awt.LayoutManager;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
+import java.awt.Window;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.InputEvent;
@@ -556,5 +560,12 @@ public class UserInterface {
         });
     }
 
-
+    public static <D extends DialogWrapper> D getParentDialog(JComponent component) {
+        Window windowAncestor = SwingUtilities.getWindowAncestor(component);
+        if (windowAncestor instanceof DialogWrapperDialog) {
+            DialogWrapperDialog dialog = (DialogWrapperDialog) windowAncestor;
+            return cast(dialog.getDialogWrapper());
+        }
+        return null;
+    }
 }

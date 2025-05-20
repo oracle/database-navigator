@@ -130,7 +130,7 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     }
 
     @Override
-    public final DBContentType getContentType() {
+    public DBContentType getContentType() {
         return getObjectType().getContentType();
     }
 

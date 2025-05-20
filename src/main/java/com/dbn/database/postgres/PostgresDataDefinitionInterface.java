@@ -76,7 +76,7 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
 
     @Override
     public void updateObject(String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "change-object", newCode);
+        executeUpdate(connection, "update-object", newCode);
     }
 
     /*********************************************************

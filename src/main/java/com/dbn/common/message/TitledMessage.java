@@ -16,15 +16,19 @@
 
 package com.dbn.common.message;
 
+import com.dbn.common.util.Titled;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import lombok.Getter;
 
 @Getter
-public class TitledMessage extends Message {
+public class TitledMessage extends Message implements Titled {
     private final String title;
 
-    public TitledMessage(MessageType type, @DialogMessage String text, @DialogTitle String title) {
+    public TitledMessage(
+            MessageType type,
+            @DialogTitle String title,
+            @DialogMessage String text) {
         super(type, text);
         this.title = title;
     }

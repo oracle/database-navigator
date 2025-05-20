@@ -123,9 +123,19 @@ public class EditableStringList extends DBNEditableTable<EditableStringListModel
             int selectedRow = getSelectedRow();
             int keyCode = e.getKeyCode();
             if (keyCode == KeyEvent.VK_DOWN) {
+                e.consume();
                 if (selectedRow == getModel().getRowCount() - 1) {
-                    e.consume();
+
                     insertRow();
+                } else {
+                    stopCellEditing();
+                    selectCell(selectedRow + 1, 0);
+                }
+            } else if (keyCode == KeyEvent.VK_UP) {
+                e.consume();
+                if (selectedRow > 0) {
+                    stopCellEditing();
+                    selectCell(selectedRow - 1, 0);
                 }
             } else if (keyCode == KeyEvent.VK_ENTER && e.getModifiers() == 0) {
                 e.consume();

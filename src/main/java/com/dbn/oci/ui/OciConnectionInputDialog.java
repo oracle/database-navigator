@@ -1,6 +1,6 @@
 package com.dbn.oci.ui;
 
-import com.dbn.common.notification.NotificationGroup;
+import com.dbn.common.notification.NotificationCategory;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.DBNDialog;
@@ -142,7 +142,7 @@ public class OciConnectionInputDialog extends DBNDialog<OciConnectionInputForm> 
       DownloadWalletCommand command = new DownloadWalletCommand(database, walletLocation, walletType, password);
       command.execute();
       // soft non-intrusive notification
-      sendInfoNotification(NotificationGroup.CONNECTION, "The wallet for database \"" + displayName + "\" was downloaded successfully.");
+      sendInfoNotification(NotificationCategory.CONNECTION, "The wallet for database \"" + displayName + "\" was downloaded successfully.");
     } catch (Exception e) {
       // error prompt
       Messages.showErrorDialog(getProject(), "Wallet Download Failed", "Failed to download the wallet for database " + displayName + ".", e);

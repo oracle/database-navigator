@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2024 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,32 +16,131 @@
 
 package com.dbn.common.message;
 
+import com.intellij.openapi.util.UserDataHolderBase;
+import lombok.Getter;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * The MessageCollector interface provides a contract for collecting and categorizing messages.
- * It supports adding messages of various types (info, warning, error) and provides functionality
- * to retrieve categorized messages or check if specific types of messages exist.
- *
- * @author Dan Cioca (Oracle)
- */
-public interface MessageCollector {
+import static com.dbn.common.message.MessageType.ERROR;
+import static com.dbn.common.message.MessageType.INFO;
+import static com.dbn.common.message.MessageType.WARNING;
+import static com.dbn.common.util.Lists.filtered;
 
-    void addMessage(Message message);
+@Getter
+public class MessageCollector extends UserDataHolderBase implements MessageBundle {
+    private final List<Message> messages;
 
-    void addInfoMessage(String message);
+    public MessageCollector() {
+        this(false);
+    }
 
-    void addWarningMessage(String message);
+    public MessageCollector(boolean async) {
+        messages = async ?
+                new CopyOnWriteArrayList<>() :
+                new ArrayList<>();
+    }
 
-    void addErrorMessage(String message);
+    @Override
+    public void addMessage(Message message) {
+        messages.add(message);
+    }
 
-    boolean hasErrors();
+    public void addMessage(MessageType type, String message) {
+        addMessage(new Message(type, message));
+    }
 
-    boolean hasWarnings();
+    public void addMessage(MessageType type, String title, String message) {
+        addMessage(new TitledMessage(type, title, message));
+    }
 
-    List<Message> getInfoMessages();
+    @Override
+    public void addInfoMessage(String message) {
+        addMessage(INFO, message);
+    }
 
-    List<Message> getWarningMessages();
+    @Override
+    public void addWarningMessage(String message) {
+        addMessage(WARNING, message);
+    }
 
-    List<Message> getErrorMessages();
+    @Override
+    public void addErrorMessage(String message) {
+        addMessage(ERROR, message);
+    }
+
+    @Override
+    public void addInfoMessage(String title, String message) {
+        addMessage(INFO, title, message);
+    }
+
+    @Override
+    public void addWarningMessage(String title, String message) {
+        addMessage(WARNING, title, message);
+    }
+
+    @Override
+    public void addErrorMessage(String title, String message) {
+        addMessage(ERROR, title, message);
+    }
+
+    @Override
+    public boolean hasErrors() {
+        return hasMessagesOfType(ERROR);
+    }
+
+    @Override
+    public boolean hasWarnings() {
+        return hasMessagesOfType(WARNING);
+    }
+
+    @Override
+    public boolean hasInfos() {
+        return hasMessagesOfType(INFO);
+    }
+
+    @Override
+    public int countErrors() {
+        return countMessagesOfType(ERROR);
+    }
+
+    @Override
+    public int countWarnings() {
+        return countMessagesOfType(WARNING);
+    }
+
+    @Override
+    public int countInfos() {
+        return countMessagesOfType(INFO);
+    }
+
+    public boolean hasMessagesOfType(MessageType type) {
+        return messages.stream().anyMatch(m -> m.getType() == type);
+    }
+
+    public int countMessagesOfType(MessageType type) {
+        return (int) messages.stream().filter(m -> m.getType() == type).count();
+    }
+
+    @Override
+    public List<Message> getMessages(MessageType type) {
+        return filtered(messages, m -> m.getType() == type);
+    }
+
+
+    @Override
+    public List<Message> getInfoMessages() {
+        return getMessages(INFO);
+    }
+
+    @Override
+    public List<Message> getWarningMessages() {
+        return getMessages(WARNING);
+    }
+
+    @Override
+    public List<Message> getErrorMessages() {
+        return getMessages(ERROR);
+    }
 }

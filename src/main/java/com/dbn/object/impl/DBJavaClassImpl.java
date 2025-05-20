@@ -278,14 +278,20 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 				"Updating sources of " + getQualifiedNameWithType(),
 				getProject(),
 				getConnectionId(),
-				getSchemaId(),
 				conn -> {
 					ConnectionHandler connection = getConnection();
 					DatabaseDataDefinitionInterface dataDefinitionInterface = connection.getDataDefinitionInterface();
-					dataDefinitionInterface.updateJavaClass(getName(true), newCode, conn);
+					dataDefinitionInterface.updateJavaClass(
+							getSchemaName(true),
+							getName(true),
+							newCode,
+							conn);
 
 					DatabaseMetadataInterface metadataInterface = connection.getMetadataInterface();
-					metadataInterface.compileJavaClass(getSchemaName(true), getName(true), conn);
+					metadataInterface.compileJavaClass(
+							getSchemaName(true),
+							getName(true),
+							conn);
 				});
 	}
 

@@ -22,7 +22,6 @@ import com.dbn.object.filter.custom.ObjectFilter;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 import static com.dbn.common.util.Commons.nonNulls;
@@ -82,7 +81,7 @@ public class ObjectFilterDetailsDialog extends DBNDialog<ObjectFilterDetailsForm
         super.doCancelAction();
     }
 
-    private AbstractAction getToggleAction() {
+    private Action getToggleAction() {
         if (create) return null;
         if (!standalone) return null;
 
@@ -92,7 +91,7 @@ public class ObjectFilterDetailsDialog extends DBNDialog<ObjectFilterDetailsForm
         return createAction(toggleName, () -> toggleFilter());
     }
 
-    private AbstractAction getRemoveAction() {
+    private Action getRemoveAction() {
         if (create) return null;
         if (!standalone) return null;
 

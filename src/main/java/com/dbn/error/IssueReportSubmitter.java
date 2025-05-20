@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.Component;
 
-import static com.dbn.common.notification.NotificationGroup.REPORTING;
+import static com.dbn.common.notification.NotificationCategory.REPORTING;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.intellij.openapi.diagnostic.SubmittedReportInfo.SubmissionStatus.FAILED;

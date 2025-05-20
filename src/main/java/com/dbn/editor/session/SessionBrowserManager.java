@@ -67,7 +67,7 @@ import java.util.TimerTask;
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
-import static com.dbn.common.notification.NotificationGroup.SESSION_BROWSER;
+import static com.dbn.common.notification.NotificationCategory.SESSION_BROWSER;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.util.Commons.list;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;

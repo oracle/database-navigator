@@ -175,14 +175,14 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
             if (action.getNotificationType() != null) {
                 sendNotification(
                         action.getNotificationType(),
-                        action.getGroup(),
+                        action.getCategory(),
                         txt(action.getSuccessNotificationMessage(), connectionName));
             }
         } catch (SQLException e) {
             conditionallyLog(e);
             sendNotification(
                     action.getFailureNotificationType(),
-                    action.getGroup(),
+                    action.getCategory(),
                     txt(action.getFailureNotificationMessage(), connectionName, e));
             success.set(false);
         } finally {

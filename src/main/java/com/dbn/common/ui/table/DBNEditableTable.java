@@ -148,6 +148,13 @@ public class DBNEditableTable<T extends DBNEditableTableModel> extends DBNTableW
         return false;
     }
 
+    public void selectRow(int row) {
+        if (row < 0) return;
+        if (row >= getModel().getRowCount()) return;
+
+        getSelectionModel().setSelectionInterval(row, row);
+    }
+
     public void insertRow() {
         stopCellEditing();
         int rowIndex = getSelectedRow();
@@ -155,7 +162,8 @@ public class DBNEditableTable<T extends DBNEditableTableModel> extends DBNTableW
         rowIndex = model.getRowCount() == 0 ? 0 : rowIndex + 1;
         model.insertRow(rowIndex);
         resizeAndRepaint();
-        getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
+
+        selectRow(rowIndex);
     }
 
 
@@ -166,9 +174,7 @@ public class DBNEditableTable<T extends DBNEditableTableModel> extends DBNTableW
         model.removeRow(selectedRow);
         resizeAndRepaint();
 
-        if (model.getRowCount() == selectedRow && selectedRow > 0) {
-            getSelectionModel().setSelectionInterval(selectedRow -1, selectedRow -1);
-        }
+        selectRow(selectedRow -1);
     }
 
     public void moveRowUp() {
