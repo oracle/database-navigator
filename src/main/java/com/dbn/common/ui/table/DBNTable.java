@@ -26,6 +26,8 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.util.Strings;
+import com.dbn.data.grid.color.BasicTableTextAttributes;
+import com.dbn.data.grid.color.DataGridTextAttributes;
 import com.dbn.data.grid.ui.table.basic.BasicTableHeaderRenderer;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -34,6 +36,7 @@ import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.DefaultListSelectionModel;
+import javax.swing.JViewport;
 import javax.swing.event.EventListenerList;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.JTableHeader;
@@ -41,6 +44,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.MouseInfo;
 import java.awt.Point;
@@ -57,6 +61,7 @@ import static com.dbn.common.ui.table.Tables.installFocusTraversal;
 import static com.dbn.common.ui.table.Tables.installScrollPaneAdjuster;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.intellij.util.ui.UIUtil.getParentOfType;
 
 public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> implements StatefulDisposable {
     private static final int MAX_COLUMN_WIDTH = 300;
@@ -64,6 +69,9 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
 
     private final WeakRef<DBNComponent> parentComponent;
     private int rowVerticalPadding;
+
+    @Getter
+    private boolean loading;
 
     @Getter
     @Delegate
@@ -99,6 +107,32 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
 
         initColumnWidths();
         whenFirstShown(this, () -> adjustColumnWidths());
+    }
+
+    public void setLoading(boolean loading) {
+        this.loading = loading;
+        updateBackground(loading);
+    }
+
+    public void updateBackground(boolean readonly) {
+        dispatch(() -> {
+            DataGridTextAttributes attributes = BasicTableTextAttributes.get();
+            Color background = readonly ?
+                    attributes.getLoadingData(false).getBgColor() :
+                    attributes.getPlainData(false, false).getBgColor();
+            setBackground(background);
+        });
+
+    }
+
+    @Override
+    public void setBackground(Color bg) {
+        super.setBackground(bg);
+
+        JViewport viewport = getParentOfType(JViewport.class, this);
+        if (viewport == null) return;
+
+        viewport.setBackground(bg);
     }
 
     @Override
