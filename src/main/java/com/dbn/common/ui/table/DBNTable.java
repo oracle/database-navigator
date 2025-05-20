@@ -25,14 +25,12 @@ import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Cursors;
-import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Strings;
 import com.dbn.data.grid.ui.table.basic.BasicTableHeaderRenderer;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.UserDataHolder;
 import com.intellij.util.keyFMap.KeyFMap;
-import com.intellij.util.ui.UIUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Delegate;
@@ -40,8 +38,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.DefaultListSelectionModel;
-import javax.swing.JScrollPane;
-import javax.swing.JViewport;
 import javax.swing.event.EventListenerList;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.JTableHeader;
@@ -52,17 +48,15 @@ import javax.swing.table.TableModel;
 import java.awt.Dimension;
 import java.awt.MouseInfo;
 import java.awt.Point;
-import java.awt.PointerInfo;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static com.dbn.common.dispose.ComponentDisposer.removeListeners;
 import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.ui.table.Tables.installColumnDragScrollSupport;
 import static com.dbn.common.ui.table.Tables.installFocusTraversal;
 import static com.dbn.common.ui.table.Tables.installScrollPaneAdjuster;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
@@ -75,10 +69,8 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
     private final WeakRef<DBNComponent> parentComponent;
 
     private int rowVerticalPadding;
-    private double scrollDistance;
     private KeyFMap userData = KeyFMap.EMPTY_MAP;
 
-    private Timer scrollTimer;
 
     @Getter
     @Delegate
@@ -101,45 +93,19 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
             tableHeader.setBackground(Colors.getPanelBackground());
             tableHeader.setBorder(Borders.tableBorder(0, 0, 1, 0));
             tableHeader.setDefaultRenderer(new BasicTableHeaderRenderer());
-            tableHeader.addMouseMotionListener(Mouse.listener().onDrag(e -> {
-                JScrollPane scrollPane = getScrollPane();
-                if (scrollPane == null) return;
-
-                calculateScrollDistance();
-                if (scrollDistance != 0 && scrollTimer == null) {
-                    scrollTimer = new Timer();
-                    scrollTimer.schedule(new ScrollTask(), 100, 100);
-                }
-            }));
-
-            tableHeader.addMouseListener(Mouse.listener().onRelease(e -> {
-                if (scrollTimer == null) return;
-
-                Disposer.dispose(scrollTimer);
-                scrollTimer = null;
-            }));
         }
 
         setSelectionBackground(Colors.getTableSelectionBackground(true));
         setSelectionForeground(Colors.getTableSelectionForeground(true));
         installFocusTraversal(this);
         installScrollPaneAdjuster(this);
+        installColumnDragScrollSupport(this);
 
         Disposer.register(parent, this);
         Disposer.register(this, tableModel);
 
         initColumnWidths();
         whenFirstShown(this, () -> adjustColumnWidths());
-    }
-
-    @Nullable
-    public JViewport getViewport() {
-        return UIUtil.getParentOfType(JViewport.class, this);
-    }
-
-    @Nullable
-    public JScrollPane getScrollPane() {
-        return UIUtil.getParentOfType(JScrollPane.class, this);
     }
 
     @Override
@@ -183,33 +149,6 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
     @NotNull
     public T getModel() {
         return Failsafe.nn((T) super.getModel());
-    }
-
-    private void calculateScrollDistance() {
-        JViewport viewport = getViewport();
-        if (viewport == null) return;
-
-        PointerInfo pointerInfo = MouseInfo.getPointerInfo();
-        if (pointerInfo == null) return;
-
-        double mouseLocation = pointerInfo.getLocation().getX();
-        double viewportLocation = viewport.getLocationOnScreen().getX();
-
-        Point viewPosition = viewport.getViewPosition();
-        double contentLocation = viewport.getView().getLocationOnScreen().getX();
-
-        if (contentLocation < viewportLocation && mouseLocation < viewportLocation + 20) {
-            scrollDistance = - Math.min(viewPosition.x, (viewportLocation - mouseLocation));
-        } else {
-            int viewportWidth = viewport.getWidth();
-            int contentWidth = viewport.getView().getWidth();
-
-            if (contentLocation + contentWidth > viewportLocation + viewportWidth && mouseLocation > viewportLocation + viewportWidth - 20) {
-                scrollDistance = (mouseLocation - viewportLocation - viewportWidth);
-            } else {
-                scrollDistance = 0;
-            }
-        }
     }
 
     @NotNull
@@ -305,20 +244,6 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
             presentableValue = value == null ? null : value.toString();
         }
         return presentableValue;
-    }
-
-    private class ScrollTask extends TimerTask {
-        @Override
-        public void run() {
-            JViewport viewport = getViewport();
-            if (viewport == null || scrollDistance == 0) return;
-
-            Dispatch.run(viewport, () -> {
-                Point viewPosition = viewport.getViewPosition();
-                viewport.setViewPosition(new Point((int) (viewPosition.x + scrollDistance), viewPosition.y));
-                calculateScrollDistance();
-            });
-        }
     }
 
     public void stopCellEditing() {
