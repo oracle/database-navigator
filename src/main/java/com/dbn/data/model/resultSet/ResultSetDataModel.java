@@ -45,8 +45,11 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.dbn.common.dispose.Failsafe.nn;
+import static com.dbn.data.type.GenericDataType.BLOB;
+import static com.dbn.data.type.GenericDataType.CLOB;
 import static com.dbn.data.type.GenericDataType.JSON;
 import static com.dbn.data.type.GenericDataType.LITERAL;
+import static com.dbn.data.type.GenericDataType.NCLOB;
 import static com.dbn.data.type.GenericDataType.XMLTYPE;
 
 @Getter
@@ -204,26 +207,29 @@ public class ResultSetDataModel<
         ColumnInfo columnInfo = getColumnInfo(columnIndex);
         DBDataType dataType = columnInfo.getDataType();
         GenericDataType genericDataType = dataType.getGenericDataType();
-        if (genericDataType.isOneOf(JSON, XMLTYPE)) {
-            return true;
+        return genericDataType.isOneOf(JSON, XMLTYPE, CLOB, BLOB, NCLOB);
+    }
+
+    @Override
+    public boolean isPresentableLargeValue(int columnIndex) {
+        ColumnInfo columnInfo = getColumnInfo(columnIndex);
+        DBDataType dataType = columnInfo.getDataType();
+        GenericDataType genericDataType = dataType.getGenericDataType();
+        if (genericDataType == JSON) return true;
+        if (!genericDataType.is(LITERAL)) return false;
+
+        long length = dataType.getLength();
+        if (length <= 200) return false;
+
+        for (R row : getRows()) {
+            C cell = row.getCellAtIndex(columnIndex);
+            if (cell == null) continue;
+
+            Object userValue = cell.getUserValue();
+            if (Objects.toString(userValue).length() > 200) return true;
         }
 
-        if (genericDataType.is(LITERAL)) {
-            long length = dataType.getLength();
-            if (length > 200) {
-                for (R row : getRows()) {
-                    C cell = row.getCellAtIndex(columnIndex);
-                    if (cell == null) continue;
-
-                    Object userValue = cell.getUserValue();
-                    if (Objects.toString(userValue).length() > 200) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return super.isLargeValue(columnIndex);
+        return false;
     }
 
     @Override

@@ -18,6 +18,6 @@ package com.dbn.common.ui.table;
 
 import javax.swing.ListModel;
 
-public interface DBNTableWithGutterModel extends DBNTableModel{
+public interface DBNTableWithGutterModel<R> extends DBNTableModel<R>{
     ListModel getListModel();
 }

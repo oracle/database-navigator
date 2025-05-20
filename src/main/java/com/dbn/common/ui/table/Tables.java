@@ -17,6 +17,7 @@
 package com.dbn.common.ui.table;
 
 import com.dbn.common.ui.Presentable;
+import com.dbn.data.grid.addon.ColumnDragScrollAddon;
 import org.jetbrains.annotations.Nls;
 
 import javax.swing.JScrollPane;
@@ -85,6 +86,10 @@ public class Tables {
     public static boolean isLastCellSelected(JTable table) {
         return table.getSelectedRow() == table.getRowCount() - 1 &&
                 table.getSelectedColumn() == table.getColumnCount() - 1;
+    }
+
+    public static void installColumnDragScrollSupport(JTable table) {
+        ColumnDragScrollAddon.installTo(table);
     }
 
     public static void installFocusTraversal(JTable table) {
