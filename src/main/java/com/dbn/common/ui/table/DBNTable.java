@@ -36,6 +36,7 @@ import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.DefaultListSelectionModel;
+import javax.swing.JViewport;
 import javax.swing.event.EventListenerList;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.JTableHeader;
@@ -60,6 +61,7 @@ import static com.dbn.common.ui.table.Tables.installFocusTraversal;
 import static com.dbn.common.ui.table.Tables.installScrollPaneAdjuster;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.intellij.util.ui.UIUtil.getParentOfType;
 
 public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> implements StatefulDisposable {
     private static final int MAX_COLUMN_WIDTH = 300;
@@ -67,7 +69,6 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
 
     private final WeakRef<DBNComponent> parentComponent;
     private int rowVerticalPadding;
-    private double scrollDistance;
     private @Getter @Setter boolean loading;
 
     @Getter
@@ -125,8 +126,10 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
     @Override
     public void setBackground(Color bg) {
         super.setBackground(bg);
-        JViewport viewport = getViewport();
+
+        JViewport viewport = getParentOfType(JViewport.class, this);
         if (viewport == null) return;
+
         viewport.setBackground(bg);
     }
 
