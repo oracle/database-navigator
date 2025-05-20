@@ -62,6 +62,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
+import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.connection.DatabaseType.GENERIC;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -132,7 +133,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             reloadDriversCheckLabel.setVisible(true);
 
             Timers.executeLater("TemporaryLabelTimeout", 3, SECONDS, () -> {
-                updateDriverReloadLink();
+                updateReloadLink();
                 reloadDriversCheckLabel.setVisible(false);
             });
         });
@@ -170,7 +171,6 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             setSelection(driverSourceComboBox, DriverSource.EXTERNAL);
         }
 
-        String error = null;
         DriverSource selectedDriver = getDriverSource();
         boolean externalDriver = selectedDriver == DriverSource.EXTERNAL;
 
@@ -180,63 +180,93 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         driverComboBox.setVisible(externalDriver);
         downloadButton.setVisible(externalDriver);
 
-        updateDriverReloadLink();
+        updateErrorLabel(null);
+        updateReloadLink();
 
-        if (externalDriver) {
-            String driverLibrary = getDriverLibrary();
+        if (!externalDriver) return;
 
-            boolean fileExists = Strings.isNotEmpty(driverLibrary) && fileExists(driverLibrary);
-            JTextField libraryTextField = driverLibraryTextField.getTextField();
-            if (fileExists) {
-                libraryTextField.setForeground(Colors.getTextFieldForeground());
-                DatabaseType libraryDatabaseType = DatabaseType.resolve(driverLibrary);
-                if (isBuiltInLibrarySupported(databaseType) && libraryDatabaseType != getDatabaseType() && libraryDatabaseType != GENERIC) {
-                    error = txt("cfg.connection.error.DriverLibraryMismatch");
-                    initComboBox(driverComboBox);
-                    setSelection(driverComboBox, null);
-                } else {
-                    DatabaseDriverManager driverManager = DatabaseDriverManager.getInstance();
-                    DriverBundle drivers = null;
-                    try {
-                        drivers = driverManager.loadDrivers(new File(driverLibrary), false);
-                    } catch (Exception e) {
-                        error = e.getMessage();
-                        conditionallyLog(e);
-                    }
-                    DriverOption selectedOption = getSelection(driverComboBox);
-                    initComboBox(driverComboBox);
-                    //driverComboBox.addItem("");
-                    if (drivers != null && !drivers.isEmpty()) {
-                        List<DriverOption> driverOptions = new ArrayList<>();
-                        for (Class<Driver> driver : drivers.getDriverClasses()) {
-                            DriverOption driverOption = new DriverOption(driver);
-                            driverOptions.add(driverOption);
-                            if (selectedOption != null && selectedOption.getDriver().equals(driver)) {
-                                selectedOption = driverOption;
-                            }
-                        }
-                        initComboBox(driverComboBox, driverOptions);
+        String driverLibrary = getDriverLibrary();
+        JTextField libraryTextField = driverLibraryTextField.getTextField();
+        libraryTextField.setForeground(Colors.getTextFieldForeground());
 
-                        if (selectedOption == null && !driverOptions.isEmpty()) {
-                            selectedOption = driverOptions.get(0);
-                        }
-                    } else {
-                        error = txt("cfg.connection.error.InvalidDriverLibrary");
-                    }
-                    setSelection(driverComboBox, selectedOption);
-                }
-            } else {
-                libraryTextField.setForeground(JBColor.RED);
-                if (Strings.isEmpty(driverLibrary)) {
-                    error = txt("cfg.connection.error.DriverLibraryNotSpecified");
-                } else {
-                    error = txt("cfg.connection.error.CannotLocateDriverFile");
-                }
-                initComboBox(driverComboBox);
-                //driverComboBox.addItem("");
-            }
+
+        // 1. check library availability
+        boolean fileExists = Strings.isNotEmpty(driverLibrary) && fileExists(driverLibrary);
+        if (!fileExists) {
+            libraryTextField.setForeground(JBColor.RED);
+            String error = isEmpty(driverLibrary) ?
+                    txt("cfg.connection.error.DriverLibraryNotSpecified") :
+                    txt("cfg.connection.error.CannotLocateDriverFile");
+            updateDriversSelector(null);
+            updateErrorLabel(error);
+            return;
         }
 
+
+        // 2. verify database type compatibility
+        DatabaseType libraryDatabaseType = DatabaseType.resolve(driverLibrary);
+        if (isBuiltInLibrarySupported(databaseType) && libraryDatabaseType != getDatabaseType() && libraryDatabaseType != GENERIC) {
+            String error = txt("cfg.connection.error.DriverLibraryMismatch");
+            updateDriversSelector(null);
+            updateErrorLabel(error);
+            return;
+        }
+
+        // 3. load the drivers
+        Progress.modal(getProject(), null, true,
+                "Loading Drivers",
+                "Loading driver classes...",
+                indicator -> loadDrivers(driverLibrary));
+
+        ;
+    }
+
+    private void loadDrivers(String driverLibrary) {
+        try {
+            DatabaseDriverManager driverManager = DatabaseDriverManager.getInstance();
+            DriverBundle drivers = driverManager.loadDrivers(new File(driverLibrary), false);
+            updateDriversSelector(drivers);
+
+            if (drivers == null || drivers.isEmpty()) {
+                String error = txt("cfg.connection.error.InvalidDriverLibrary");
+                updateErrorLabel(error);
+            }
+        } catch (Exception e) {
+            conditionallyLog(e);
+
+            updateDriversSelector(null);
+            String error = e.getMessage();
+            updateErrorLabel(error);
+        }
+    }
+
+    private void updateDriversSelector(@Nullable DriverBundle drivers) {
+        if (drivers == null) {
+            initComboBox(driverComboBox);
+            setSelection(driverComboBox, null);
+            return;
+        }
+
+        DriverOption selectedOption = getSelection(driverComboBox);
+        initComboBox(driverComboBox);
+
+        List<DriverOption> driverOptions = new ArrayList<>();
+        for (Class<Driver> driver : drivers.getDriverClasses()) {
+            DriverOption driverOption = new DriverOption(driver);
+            driverOptions.add(driverOption);
+            if (selectedOption != null && selectedOption.getDriver().equals(driver)) {
+                selectedOption = driverOption;
+            }
+        }
+        initComboBox(driverComboBox, driverOptions);
+
+        if (selectedOption == null && !driverOptions.isEmpty()) {
+            selectedOption = driverOptions.get(0);
+        }
+        setSelection(driverComboBox, selectedOption);
+    }
+
+    private void updateErrorLabel(String error) {
         if (error != null) {
             driverErrorLabel.setIcon(Icons.COMMON_ERROR);
             driverErrorLabel.setText(error);
@@ -247,7 +277,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         }
     }
 
-    private void updateDriverReloadLink() {
+    private void updateReloadLink() {
         reloadDriversLink.setVisible(
                 getDriverSource() == DriverSource.EXTERNAL &&
                         isDriverLibraryAccessible());

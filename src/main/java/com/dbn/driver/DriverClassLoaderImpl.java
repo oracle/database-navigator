@@ -52,9 +52,22 @@ class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader 
     private final Map<String, Class> loadedClasses = new HashMap<>();
 
     public DriverClassLoaderImpl(DriverBundleMetadata metadata) {
-        super(getUrls(metadata.getLibrary()), DriverClassLoader.class.getClassLoader());
+        super(getUrls(metadata.getLibrary()), getParentClassLoader());
         this.metadata = metadata;
         load();
+    }
+
+    private static ClassLoader getParentClassLoader() {
+        // WORKING solution - ide dependencies are inherited in the driver package
+        return ClassLoader.getSystemClassLoader();
+
+        // TODO conclude and cleanup
+        //IDEAL solution - no dependencies injection (assuming driver library self-sufficiency)
+        // Fails with missing slf4j api classes
+        //return ClassLoader.getPlatformClassLoader();
+
+        // OLD implementation prior to JDBC-4347 changes
+        //return DriverClassLoader.class.getClassLoader()
     }
 
 
@@ -82,6 +95,7 @@ class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader 
     }
 
     private void load(DriverLibrary library) {
+        ProgressMonitor.setProgressDetail(library.getJar().getAbsolutePath());
         File jar = library.getJar();
         jars.add(jar);
 
