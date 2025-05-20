@@ -39,7 +39,11 @@ public interface DBNTableModel<R> extends TableModel, StatefulDisposable, NlsSup
         if (columnIndex < 0 || columnIndex >= getColumnCount()) throw new OutdatedContentException(this);
     }
 
-    default boolean isLargeValue(int i) {
+    default boolean isLargeValue(int columnIndex) {
+        return false;
+    }
+
+    default boolean isPresentableLargeValue(int columnIndex) {
         return false;
     }
 }

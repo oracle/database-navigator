@@ -52,6 +52,7 @@ public enum ClientProperty {
     EMPTY_OPTIONS_TEXT,
 
     // addons
+    COLUMN_DRAG_SCROLL_ADDON,
     SELECTION_MATH_ADDON,
     VALUE_POPUP_ADDON,
     DATA_SEARCH_ADDON,
