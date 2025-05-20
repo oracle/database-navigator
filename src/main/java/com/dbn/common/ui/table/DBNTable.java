@@ -28,14 +28,10 @@ import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.util.Strings;
 import com.dbn.data.grid.ui.table.basic.BasicTableHeaderRenderer;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Key;
-import com.intellij.openapi.util.UserDataHolder;
-import com.intellij.util.keyFMap.KeyFMap;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.event.EventListenerList;
@@ -62,15 +58,12 @@ import static com.dbn.common.ui.table.Tables.installScrollPaneAdjuster;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
-public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> implements StatefulDisposable, UserDataHolder {
+public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> implements StatefulDisposable {
     private static final int MAX_COLUMN_WIDTH = 300;
     private static final int MIN_COLUMN_WIDTH = 10;
 
     private final WeakRef<DBNComponent> parentComponent;
-
     private int rowVerticalPadding;
-    private KeyFMap userData = KeyFMap.EMPTY_MAP;
-
 
     @Getter
     @Delegate
@@ -309,23 +302,6 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
             columnModel.addColumn(newColumn);
         }
         setColumnModel(columnModel);
-    }
-
-    /********************************************************
-     *                    User Data                        *
-     ********************************************************/
-
-    @Nullable
-    @Override
-    public <V> V getUserData(@NotNull Key<V> key) {
-        return userData.get(key);
-    }
-
-    @Override
-    public <V> void putUserData(@NotNull Key<V> key, @Nullable V value) {
-        userData = value == null ?
-                userData.minus(key) :
-                userData.plus(key, value);
     }
 
     protected void checkRowBounds(int rowIndex) {
