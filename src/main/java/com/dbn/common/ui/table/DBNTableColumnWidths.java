@@ -55,6 +55,11 @@ public class DBNTableColumnWidths {
         table.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
+                JTableHeader tableHeader = table.getTableHeader();
+                if (tableHeader == null) return;
+                if (tableHeader.getResizingColumn() != null) return; // no adjustment when resizing columns
+                if (tableHeader.getDraggedColumn() != null) return; // no adjustment when moving column
+
                 table.adjustColumnWidths();
             }
         });
