@@ -72,6 +72,9 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
     private @Getter @Setter boolean loading;
 
     @Getter
+    private boolean loading;
+
+    @Getter
     @Delegate
     private final DBNTableColumnWidths columnWidths = new DBNTableColumnWidths(this);
 
