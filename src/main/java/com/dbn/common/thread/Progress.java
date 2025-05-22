@@ -33,6 +33,7 @@ import com.intellij.openapi.progress.util.ProgressIndicatorListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts.ProgressText;
 import com.intellij.openapi.util.NlsContexts.ProgressTitle;
+import com.intellij.openapi.wm.ex.ProgressIndicatorEx;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -151,14 +152,20 @@ public final class Progress {
         if (indicator == null) return;
         indicator.checkCanceled();
 
-        Thread curentThread = Thread.currentThread();
-        new ProgressIndicatorListener() {
-            @Override
-            public void cancelled() {
-                Unsafe.warned(() -> curentThread.interrupt());
-            }
+        if (indicator instanceof ProgressIndicatorEx) {
+            Thread curentThread = Thread.currentThread();
+            new ProgressIndicatorListener() {
+                @Override
+                public void cancelled() {
+                    Unsafe.warned(() -> curentThread.interrupt());
+                }
 
-        }.installToProgressIfPossible(indicator);
+                @Override
+                public void stopped() {
 
+                }
+
+            }.installToProgress((ProgressIndicatorEx) indicator);
+        }
     }
 }

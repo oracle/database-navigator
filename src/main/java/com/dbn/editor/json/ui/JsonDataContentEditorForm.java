@@ -116,6 +116,11 @@ public class JsonDataContentEditorForm extends DBNFormBase {
 
         editor.addFocusListener(new FocusChangeListener() {
             @Override
+            public void focusGained(@NotNull Editor editor) {
+
+            }
+
+            @Override
             public void focusLost(@NotNull Editor editor) {
                 updateCellValue();
             }

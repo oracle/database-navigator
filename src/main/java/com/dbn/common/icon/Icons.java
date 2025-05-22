@@ -137,7 +137,7 @@ public class Icons {
     public static final Icon DIALOG_WARNING     = AllIcons.General.WarningDialog;
     public static final Icon DIALOG_ERROR       = AllIcons.General.ErrorDialog;
     public static final Icon DIALOG_QUESTION    = AllIcons.General.QuestionDialog;
-    public static final Icon DIALOG_SUCCESS     = AllIcons.General.SuccessDialog;
+    public static final Icon DIALOG_SUCCESS     = AllIcons.General.InformationDialog; //AllIcons.General.SuccessDialog;
 
 
     public static final Icon METHOD_EXECUTION_RUN     = ACTION_EXECUTE;

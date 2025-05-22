@@ -16,6 +16,8 @@
 
 package com.dbn.common.ui.dialog;
 
+import com.dbn.common.compatibility.Compatibility;
+import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.project.ProjectRef;
@@ -27,6 +29,7 @@ import com.dbn.common.ui.form.DBNFormValidatorImpl;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Titles;
+import com.dbn.common.util.Unsafe;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.Disposable;
@@ -51,8 +54,11 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static com.dbn.common.data.Data.asBooleanPrimitive;
 import static com.dbn.common.dispose.Failsafe.guarded;
@@ -61,6 +67,7 @@ import static com.dbn.common.ui.dialog.DBNDialogMonitor.releaseDialog;
 import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.common.util.Unsafe.cast;
+import static java.util.Collections.emptyMap;
 
 @Getter
 @Setter
@@ -99,6 +106,24 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
             boolean hidden = asBooleanPrimitive(action.getValue(HIDDEN));
             if (hidden) hideAction(action);
         }
+    }
+
+    @Workaround
+    @Compatibility
+    private Map<Action, JButton> getButtonMap() {
+        return Unsafe.warned(Collections.emptyMap(), () -> {
+            Class<?> dialogClass = getClass();
+            while (dialogClass != null) {
+                if (dialogClass.equals(DialogWrapper.class)) break;
+                dialogClass = dialogClass.getSuperclass();
+            }
+            if (dialogClass == null) return emptyMap();
+
+            Field field = dialogClass.getDeclaredField("myButtonMap");
+            field.setAccessible(true);
+
+            return cast(field.get(this));
+        });
     }
 
     /**

@@ -46,8 +46,13 @@ public class ObjectListFilterActionGroup extends DefaultActionGroup {
     }
 
     @Override
+    public boolean isPopup() {
+        return true;
+    }
+
+    @Override
     public void update(@NotNull AnActionEvent e) {
         e.getPresentation().setText("Filters");
-        e.getPresentation().setPopupGroup(true);
+        //e.getPresentation().setPopupGroup(true);
     }
 }
