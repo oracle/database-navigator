@@ -29,7 +29,6 @@ import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.sql.SQLFileType;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.openapi.ide.CopyPasteManager;
@@ -39,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.datatransfer.StringSelection;
 
+import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.nls.NlsResources.txt;
 
 public abstract class GenerateStatementAction extends ProjectAction implements DatabaseContextBase {
@@ -62,7 +62,7 @@ public abstract class GenerateStatementAction extends ProjectAction implements D
 
 
     private void pasteStatement(StatementGeneratorResult result, Project project) {
-        Dispatch.run(ModalityState.nonModal(), () -> {
+        Dispatch.run(nonModal(), () -> {
             Editor editor = Editors.getSelectedEditor(project, SQLFileType.INSTANCE);
             if (editor != null) {
                 VirtualFile virtualFile = editor.getVirtualFile();
