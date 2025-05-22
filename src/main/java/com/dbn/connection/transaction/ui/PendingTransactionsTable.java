@@ -49,10 +49,10 @@ public class PendingTransactionsTable extends DBNTable<PendingTransactionsTableM
         setDefaultRenderer(PendingTransaction.class, cellRenderer);
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         setCellSelectionEnabled(true);
-        adjustColumnWidths();
         addMouseListener(Mouse.listener().onClick(e -> clickEvent(e)));
 
         setAccessibleName(this, "Pending Transactions");
+        setProportionalColumnWidths(15, 55, 30);
     }
 
     private void clickEvent(MouseEvent e) {

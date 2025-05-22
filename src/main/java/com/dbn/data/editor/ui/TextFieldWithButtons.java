@@ -42,7 +42,7 @@ import static com.dbn.common.util.Unsafe.cast;
 @Getter
 @Setter
 public abstract class TextFieldWithButtons extends DBNPanelImpl implements DataEditorComponent {
-    private final JTextField textField;
+    private final JBTextField textField;
     private final ProjectRef project;
     private UserValueHolder<?> userValueHolder;
 
@@ -91,6 +91,10 @@ public abstract class TextFieldWithButtons extends DBNPanelImpl implements DataE
 
     public void setBorder(Border border) {
         super.setBorder(border);
+    }
+
+    public void setEmptyText(String text) {
+        if (textField != null) textField.getEmptyText().setText(text);
     }
 
     @Override

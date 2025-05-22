@@ -28,9 +28,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.sql.Driver;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -97,11 +97,11 @@ public class DriverBundle implements Disposable {
         return classLoader.getLibrary();
     }
 
-    public List<Class<Driver>> getDriverClasses() {
+    public Set<Class<Driver>> getDriverClasses() {
         return classLoader.getDrivers();
     }
 
-    public List<File> getJars() {
+    public Set<File> getJars() {
         return classLoader.getJars();
     }
 

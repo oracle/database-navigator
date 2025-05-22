@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
@@ -50,15 +51,18 @@ public abstract class ObjectCacheBase<K, O, E extends Throwable> extends Statefu
     @Override
     public O ensure(K key) throws E {
         checkDisposed();
+        AtomicBoolean reuse = new AtomicBoolean();
         AtomicReference<Throwable> failure = new AtomicReference<>();
         O object = data.compute(key, (k, o) -> {
-            if (check(o)) return whenReused(o);
+            if (check(o)) {
+                reuse.set(true);
+                return o;
+            }
 
             if (o != null) replace(o);
 
             try {
-                o = create(k);
-                return whenCreated(o);
+                return create(k);
             } catch (Throwable e) {
                 conditionallyLog(e);
                 failure.set(e);
@@ -66,16 +70,25 @@ public abstract class ObjectCacheBase<K, O, E extends Throwable> extends Statefu
             }
         });
 
+        boolean reused = reuse.get();
         Throwable throwable = failure.get();
+
         if (throwable != null) return whenErrored(throwable);
         if (object == null) return whenNull();
-        return object;
+        if (reused) return whenReused(object);
+
+        return whenCreated(object);
     }
 
     @Override
     public void drop(K key) {
         O object = data.remove(key);
         whenDropped(object);
+    }
+
+    @Override
+    public void release(K key) {
+        data.remove(key);
     }
 
     private void replace(O object) {

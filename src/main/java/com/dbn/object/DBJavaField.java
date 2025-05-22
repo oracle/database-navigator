@@ -18,7 +18,6 @@ package com.dbn.object;
 
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaAccessibility;
-import com.dbn.object.type.DBJavaValueType;
 import org.jetbrains.annotations.Nullable;
 
 
@@ -29,9 +28,7 @@ public interface DBJavaField extends DBOrderedObject {
 
 	boolean isPrimitive();
 
-	boolean isPlainValue();
-
-	short getIndex();
+	boolean isScalar();
 
 	DBJavaAccessibility getAccessibility();
 
@@ -48,11 +45,6 @@ public interface DBJavaField extends DBOrderedObject {
 	String getJavaClassName();
 
 	DBJavaClass getOwnerClass();
-
-	String getOwnerClassName();
-
-	@Nullable
-	DBJavaValueType getValueType();
 
 	@Nullable
 	DBJavaMethod findGetterMethod();

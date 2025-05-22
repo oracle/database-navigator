@@ -1,0 +1,161 @@
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.sync.java.upload.ui;
+
+import com.dbn.common.state.StateHolder;
+import com.dbn.common.text.TextContent;
+import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.ui.list.CheckBoxList;
+import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.connection.ConnectionAction;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionManager;
+import com.dbn.object.DBSchema;
+import com.dbn.sync.java.upload.JavaUploadBatch;
+import com.dbn.sync.java.upload.JavaUploadInput;
+import com.dbn.sync.java.upload.JavaUploadManager;
+import com.dbn.sync.java.upload.JavaUploadTask;
+import com.intellij.openapi.project.Project;
+import com.intellij.util.ui.AsyncProcessIcon;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import java.util.List;
+
+import static com.dbn.common.ui.form.DBNFormState.initPersistence;
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
+import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.common.ui.util.ComboBoxes.setEmptyOptionsText;
+import static com.dbn.database.DatabaseFeature.EMBEDDED_JVM;
+import static java.util.Collections.emptyList;
+
+public class JavaUploadInputForm extends DBNFormBase {
+    private JPanel mainPanel;
+    private JPanel headerPanel;
+    private JPanel hintPanel;
+    private JPanel targetLocationPanel;
+    private DBNComboBox<ConnectionHandler> connectionComboBox;
+    private DBNComboBox<DBSchema> schemaComboBox;
+    private CheckBoxList<JavaUploadTask> dependenciesCheckBoxList;
+    private JPanel schemaLoadPanel;
+
+    public JavaUploadInputForm(JavaUploaderInputDialog dialog) {
+        super(dialog);
+		JavaUploadInput input = dialog.getBatch().getInput();
+
+        initHeaderPanel(input);
+        initHintPanel();
+
+        initConnectionSelector();
+        initSchemaSelectors();
+
+        dependenciesCheckBoxList.setElements(input.getTasks());
+    }
+
+    @Override
+    protected void initValidation() {
+        addSelectionValidation(connectionComboBox, "Please select the target connection");
+        addSelectionValidation(schemaComboBox, "Please select the target schema");
+    }
+
+    private void initHintPanel() {
+        TextContent hintText = TextContent.plain(
+                "Following java classes and resources will be uploaded to the database. " +
+                        "Please select the target connection and schema, as well as the resources to be uploaded.\n\n" +
+                        "NOTE: Already existing java classes and resources in the selected destination will be overwritten.");
+        DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
+        hintPanel.add(hintForm.getComponent());
+    }
+
+    private void initHeaderPanel(JavaUploadInput input) {
+/*
+        // TODO no database context available yet (remove header ??)
+        VirtualFile rootFile = input.getRootFile();
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, rootFile);
+        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+*/
+    }
+
+    JavaUploadBatch getBatch() {
+        JavaUploaderInputDialog dialog = ensureParentComponent();
+        return dialog.getBatch();
+    }
+
+    @Override
+    protected JComponent getMainComponent() {
+        return mainPanel;
+    }
+
+    protected void initStatePersistence() {
+        Project project = ensureProject();
+        JavaUploadManager uploadManager = JavaUploadManager.getInstance(project);
+
+        StateHolder state = uploadManager.getState("UPLOAD");
+
+        initPersistence(connectionComboBox, state, "connection-selection");
+        initPersistence(schemaComboBox, state, "schema-selection");
+    }
+
+    private void initConnectionSelector() {
+        Project project = ensureProject();
+		ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+        List<ConnectionHandler> connections = connectionManager.getConnections(EMBEDDED_JVM);
+        initComboBox(connectionComboBox, connections);
+    }
+
+    private void initSchemaSelectors() {
+        schemaLoadPanel.add(new AsyncProcessIcon("Loading schemas"));
+        schemaLoadPanel.setVisible(false);
+        setEmptyOptionsText(schemaComboBox, "Schemas not loaded");
+        //initLadingHint(schemaComboBox, "Loading schemas...");
+
+        whenShown(() -> {
+            schemaComboBox.setValueLoader(() -> loadSchemas());
+            onSelectionChange(connectionComboBox, s -> schemaComboBox.reloadValues());
+        });
+    }
+
+    private List<DBSchema> loadSchemas() {
+        ConnectionHandler selectedConnection = getSelectedConnection();
+        if (selectedConnection == null) return emptyList();
+
+        // ensure connectivity
+        ConnectionAction.invoke(null, true, selectedConnection, a -> {});
+
+        return selectedConnection.getObjectBundle().getSchemas(true);
+    }
+
+    protected void applyUserInput() {
+        JavaUploadInput input = getBatch().getInput();
+        input.setTargetConnection(getSelectedConnection());
+        input.setTargetSchema(getSelectedSchema());
+        dependenciesCheckBoxList.applyChanges();
+    }
+
+    @Nullable
+    private ConnectionHandler getSelectedConnection() {
+		return getSelection(connectionComboBox);
+    }
+
+    @Nullable
+    private DBSchema getSelectedSchema() {
+       return getSelection(schemaComboBox);
+    }
+}

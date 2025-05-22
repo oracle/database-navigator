@@ -17,15 +17,15 @@
 package com.dbn.common.ui.util;
 
 import com.dbn.common.ui.Presentable;
-import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.misc.DBNComboBoxModel;
-import org.jetbrains.annotations.NotNull;
+import com.dbn.common.ui.select.DBNComboBoxRenderer;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
-import javax.swing.JList;
+import javax.swing.MutableComboBoxModel;
 import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,23 +48,35 @@ public class ComboBoxes {
         }
     }
 
+    public static <T extends Presentable> void initComboBox(JComboBox<T> comboBox, boolean withEmptyOption, T... options) {
+        initComboBox(comboBox, Arrays.asList(options));
+        if (withEmptyOption) {
+            MutableComboBoxModel<T> mutableModel = cast(comboBox.getModel());
+            mutableModel.insertElementAt(null, 0);
+        }
+    }
+
     public static <T extends Presentable> void initComboBox(JComboBox<T> comboBox, T... options) {
         initComboBox(comboBox, Arrays.asList(options));
+    }
+
+    public static void setEmptyOptionsText(JComboBox comboBox, String text) {
+        ClientProperty.EMPTY_OPTIONS_TEXT.set(comboBox, text);
+    }
+
+    public static String getEmptyOptionsText(JComboBox comboBox) {
+        return ClientProperty.EMPTY_OPTIONS_TEXT.get(comboBox);
     }
 
     public static <T extends Presentable> void initComboBox(JComboBox<T> comboBox, Collection<T> options) {
         DBNComboBoxModel<T> model = new DBNComboBoxModel<>();
         model.getItems().addAll(options);
         comboBox.setModel(model);
-        comboBox.setRenderer(new ColoredListCellRenderer<T>() {
-            @Override
-            protected void customize(@NotNull JList<? extends T> list, T value, int index, boolean selected, boolean hasFocus) {
-                if (value != null) {
-                    append(value.getName());
-                    setIcon(value.getIcon());
-                }
-            }
-        });
+        initComboBoxRenderer(comboBox);
+    }
+
+    public static <T extends Presentable> void initComboBoxRenderer(JComboBox<T> comboBox) {
+        comboBox.setRenderer(new DBNComboBoxRenderer<T>(comboBox));
     }
 
     public static <T extends Presentable> void initSelectionListener(JComboBox<T> comboBox, Consumer<T> selectionConsumer) {
@@ -77,6 +89,7 @@ public class ComboBoxes {
     }
 
 
+    @Nullable
     public static <T> T getSelection(JComboBox<T> comboBox) {
         return (T) comboBox.getSelectedItem();
     }
@@ -120,4 +133,18 @@ public class ComboBoxes {
         });
     }
 
+    public static <T extends Presentable> void onSelectionChange(JComboBox<T> comboBox, Consumer<T> consumer) {
+        if (comboBox instanceof DBNComboBox) {
+            DBNComboBox<T> dbnComboBox = cast(comboBox);
+            onSelectionChange(dbnComboBox, consumer);
+            return;
+        }
+
+        comboBox.addItemListener(e -> {
+            if (e.getStateChange() != ItemEvent.SELECTED) return;
+            T newValue = cast(e.getItem());
+
+            consumer.accept(newValue);
+        });
+    }
 }

@@ -133,6 +133,11 @@ public final class Settings {
         return Strings.isEmptyOrSpaces(attributeValue) ? defaultValue : Boolean.parseBoolean(attributeValue);
     }
 
+    public static double doubleAttribute(Element element, @NonNls String attributeName, double defaultValue) {
+        String attributeValue = stringAttribute(element, attributeName);
+        return Strings.isEmptyOrSpaces(attributeValue) ? defaultValue : Double.parseDouble(attributeValue);
+    }
+
     public static short shortAttribute(Element element, @NonNls String attributeName, short defaultValue) {
         try {
             String attributeValue = stringAttribute(element, attributeName);

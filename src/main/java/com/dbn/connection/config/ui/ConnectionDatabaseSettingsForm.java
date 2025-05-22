@@ -165,14 +165,13 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
                 (listener) -> listener.presentationChanged(name, icon, color, connectionId, databaseType));
     }
 
-    private static @NotNull Icon getIcon(ConnectionSettings connectionSettings, ConnectivityStatus connectivityStatus) {
+    private Icon getIcon(ConnectionSettings connectionSettings, ConnectivityStatus connectivityStatus) {
         ConnectionSettingsForm settingsEditor = connectionSettings.getSettingsEditor();
 
-        Icon icon = connectionSettings.isNew() ? Icons.CONNECTION_NEW :
-                settingsEditor != null && !settingsEditor.isConnectionActive() ? Icons.CONNECTION_DISABLED :
+        return connectionSettings.isNew() ? Icons.CONNECTION_NEW :
+                settingsEditor != null && !connectionSettings.isActive() ? Icons.CONNECTION_DISABLED :
                         connectivityStatus == ConnectivityStatus.VALID ? Icons.CONNECTION_CONNECTED :
                         connectivityStatus == ConnectivityStatus.INVALID ? Icons.CONNECTION_INVALID : Icons.CONNECTION_INACTIVE;
-        return icon;
     }
 
     //protected abstract ConnectionDatabaseSettings createConfig(ConnectionSettings configuration);
@@ -257,7 +256,16 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         databaseInfo.setUrlType(urlType);
         databaseInfo.setUrl(urlSettingsForm.getUrl());
 
-        if (urlType == DatabaseUrlType.TNS) {
+        if (urlType == DatabaseUrlType.EZCONNECT) {
+            databaseInfo.setServerType(urlSettingsForm.getServerType());
+            databaseInfo.setHost(urlSettingsForm.getHost());
+            databaseInfo.setPort(urlSettingsForm.getPort());
+            databaseInfo.setDatabase(urlSettingsForm.getDatabase());
+            databaseInfo.setProtocol(urlSettingsForm.getProtocol());
+            databaseInfo.setServerType(urlSettingsForm.getServerType());
+            databaseInfo.setParameters(urlSettingsForm.getParameters());
+        }
+        else if (urlType == DatabaseUrlType.TNS) {
         	databaseInfo.setTnsFolder(urlSettingsForm.getTnsFolder());
         	databaseInfo.setTnsProfile(urlSettingsForm.getTnsProfile());
         } else if (urlType == DatabaseUrlType.FILE){
@@ -334,7 +342,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
 
     @NotNull
     DatabaseType getSelectedDatabaseType() {
-        ConnectionDatabaseSettings configuration = getConfiguration();;
+        ConnectionDatabaseSettings configuration = getConfiguration();
         return Commons.nvl(getSelection(databaseTypeComboBox), configuration.getDatabaseType());
     }
 

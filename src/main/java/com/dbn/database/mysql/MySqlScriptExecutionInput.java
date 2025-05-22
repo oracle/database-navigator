@@ -41,20 +41,19 @@ public final class MySqlScriptExecutionInput extends DatabaseScriptExecutionInpu
         String executable = cmdLineInterface.getExecutablePath();
         initCommand(executable);
 
-        addParameter("-u", authenticationInfo.getUser());
-        addParameter("-p"); // request password
-        addParameter("--verbose");
-        addParameter("-h", databaseInfo.getHost());
+        addKvParameter("--user", authenticationInfo.getUser());
+        addKvParameter("--host", databaseInfo.getHost());
 
-        addParameter("-P", databaseInfo.getPort());
-        addParameter(databaseInfo.getDatabase());
+        addKvParameter("--port", databaseInfo.getPort());
+        addKvParameter("--database", databaseInfo.getDatabase());
+        addParameter("--verbose");
     }
 
     @Override
     protected void initAuthentication(AuthenticationInfo authenticationInfo) {
         AuthenticationType authType = authenticationInfo.getType();
         if (authType == AuthenticationType.USER_PASSWORD) {
-            setPassword(authenticationInfo.getPassword());
+            addEnvironmentVariable("MYSQL_PWD", authenticationInfo.getPassword());
         }
     }
 
@@ -63,6 +62,7 @@ public final class MySqlScriptExecutionInput extends DatabaseScriptExecutionInpu
         if (schemaId != null) {
             addStatement("use " + schemaId + ";");
         }
+        filePath = filePath.replace("\\", "/"); // mysql does not seem to understand backslash path even on windows ()
         addStatement("source " + filePath + ";");
         addStatement("exit");
     }

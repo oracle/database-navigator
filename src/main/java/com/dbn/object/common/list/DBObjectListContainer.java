@@ -17,6 +17,7 @@
 package com.dbn.object.common.list;
 
 import com.dbn.common.Direction;
+import com.dbn.common.content.DynamicContent;
 import com.dbn.common.content.DynamicContentProperty;
 import com.dbn.common.content.DynamicContentType;
 import com.dbn.common.content.dependency.BasicDependencyAdapter;
@@ -36,7 +37,6 @@ import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.type.DBObjectRelationType;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -281,7 +281,9 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
 
         if (!isSupported(objectType) || sourceContentHolder == null) return null;
 
-        val dynamicContent = sourceContentHolder.getDynamicContent(sourceContentType);
+        var dynamicContent = sourceContentHolder == owner ?
+                this.getDynamicContent(sourceContentType) :
+                sourceContentHolder.getDynamicContent(sourceContentType);
         if (dynamicContent == null) return null;
 
         ContentDependencyAdapter dependencyAdapter = SubcontentDependencyAdapter.create(sourceContentHolder, sourceContentType);
@@ -297,7 +299,7 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
 
         if (!isSupported(objectType)) return null;
 
-        val dynamicContent = sourceContentHolder.getDynamicContent(objectType);
+        var dynamicContent = sourceContentHolder.getDynamicContent(objectType);
         if (dynamicContent == null) return null;
 
         ContentDependencyAdapter dependencyAdapter = SubcontentDependencyAdapter.create(sourceContentHolder, objectType);
@@ -327,6 +329,10 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
 
     public void loadObjects() {
         visit(o -> o.load(), false);
+    }
+
+    public void loadObjectsInBackground() {
+        visit(o -> o.loadInBackground(), false);
     }
 
     public void reloadObjects() {
@@ -449,6 +455,20 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
         if (isNotValid(objectList)) return null;
 
         return objectList;
+    }
+
+    public DynamicContent getDynamicContent(DynamicContentType contentType) {
+        if(contentType instanceof DBObjectType) {
+            DBObjectType objectType = (DBObjectType) contentType;
+            return getObjectList(objectType);
+        }
+
+        else if (contentType instanceof DBObjectRelationType) {
+            DBObjectRelationType objectRelationType = (DBObjectRelationType) contentType;
+            return getRelations(objectRelationType);
+        }
+
+        return null;
     }
 
     /**

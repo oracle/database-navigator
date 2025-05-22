@@ -26,6 +26,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.session.DatabaseSession;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.lookup.DBObjectRef;
@@ -44,6 +45,7 @@ import java.io.File;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
 public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
@@ -63,6 +65,7 @@ public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
         return virtualFileCache.get(objectRef, o -> new DBObjectVirtualFile(o.getProject(), o));
     }
 
+    @NotNull
     public DBObjectType getObjectType() {
         return object.getObjectType();
     }
@@ -122,7 +125,8 @@ public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
     @Override
     public @NotNull String getPresentableName() {
         if (getObjectType() == DBObjectType.JAVA_CLASS) {
-            return getCanonicalName(getName());
+            DBObjectRef<DBJavaClass> objectRef = cast(getObjectRef());
+            return getCanonicalName(objectRef);
         }
         return super.getPresentableName();
     }

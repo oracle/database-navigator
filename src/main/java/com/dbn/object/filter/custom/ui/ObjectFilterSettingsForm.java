@@ -26,6 +26,7 @@ import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Dialogs;
+import com.dbn.connection.ConnectionId;
 import com.dbn.object.filter.custom.ObjectFilter;
 import com.dbn.object.filter.custom.ObjectFilterSettings;
 import com.dbn.object.type.DBObjectType;
@@ -105,7 +106,7 @@ public class ObjectFilterSettingsForm extends ConfigurationEditorForm<ObjectFilt
     }
 
     public void showFilterDetailsDialog(ObjectFilter<?> filter, boolean create, Runnable callback) {
-        Dialogs.show(() -> new ObjectFilterDetailsDialog(filter, create),
+        Dialogs.show(() -> new ObjectFilterDetailsDialog(filter, create, false),
                 (dialog, exitCode) -> when(exitCode == 0, callback));
     }
 
@@ -179,8 +180,11 @@ public class ObjectFilterSettingsForm extends ConfigurationEditorForm<ObjectFilt
             if (!notifyFilterListeners) return;
 
             DBObjectType[] refreshObjectTypes = modifiedFilters.toArray(new DBObjectType[0]);
-            ProjectEvents.notify(project, ObjectFilterChangeListener.TOPIC,
-                    (listener) -> listener.nameFiltersChanged(configuration.getConnectionId(), refreshObjectTypes));
+            ConnectionId connectionId = configuration.getConnectionId();
+            for (DBObjectType objectType : refreshObjectTypes) {
+                ProjectEvents.notify(project, ObjectFilterChangeListener.TOPIC,
+                        (listener) -> listener.nameFiltersChanged(connectionId, objectType));
+            }
         });
     }
 

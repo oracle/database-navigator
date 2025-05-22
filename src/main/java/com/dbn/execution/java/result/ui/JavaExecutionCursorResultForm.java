@@ -19,7 +19,6 @@ package com.dbn.execution.java.result.ui;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.DataProviders;
 import com.dbn.common.dispose.Failsafe;
-import com.dbn.common.latent.Latent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNTableScrollPane;
 import com.dbn.common.ui.util.Borders;
@@ -40,7 +39,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPanel;
 import javax.swing.text.JTextComponent;
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 
 public class JavaExecutionCursorResultForm extends DBNFormBase implements SearchableDataComponent {
@@ -50,20 +48,13 @@ public class JavaExecutionCursorResultForm extends DBNFormBase implements Search
     private JPanel searchPanel;
     private DBNTableScrollPane resultScrollPane;
 
-    private final DBObjectRef<DBJavaParameter> argument;
+    private final DBObjectRef<DBJavaParameter> parameter;
     private final ResultSetTable<ResultSetDataModel<?, ?>> resultTable;
 
-    private final Latent<DataSearchComponent> dataSearchComponent = Latent.basic(() -> {
-        DataSearchComponent dataSearchComponent = new DataSearchComponent(JavaExecutionCursorResultForm.this);
-        searchPanel.add(dataSearchComponent.getComponent(), BorderLayout.CENTER);
-        DataProviders.register(dataSearchComponent.getSearchField(), this);
-        return dataSearchComponent;
-    });
-
-    JavaExecutionCursorResultForm(JavaExecutionResultForm parent, JavaExecutionResult executionResult, DBJavaParameter argument) {
+    JavaExecutionCursorResultForm(JavaExecutionResultForm parent, JavaExecutionResult executionResult, DBJavaParameter parameter) {
         super(parent);
-        this.argument = DBObjectRef.of(argument);
-        ResultSetDataModel<?, ?> dataModel = executionResult.getTableModel(argument);
+        this.parameter = DBObjectRef.of(parameter);
+        ResultSetDataModel<?, ?> dataModel = executionResult.getTableModel(parameter);
         RecordViewInfo recordViewInfo = new RecordViewInfo(
                 executionResult.getName(),
                 executionResult.getIcon());
@@ -75,13 +66,18 @@ public class JavaExecutionCursorResultForm extends DBNFormBase implements Search
         resultScrollPane.setViewportView(resultTable);
         resultTable.initTableGutter();
 
+        // addons
+        resultTable.installMathAddon();
+        resultTable.installRecordViewerAddon();
+        resultTable.installValuePopupAddon();
+
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.MethodExecutionCursorResult");
         actionsPanel.add(actionToolbar.getComponent());
         DataProviders.register(actionToolbar.getComponent(), this);
     }
 
-    public DBJavaParameter getArgument() {
-        return argument.get();
+    public DBJavaParameter getParameter() {
+        return parameter.get();
     }
 
     @NotNull
@@ -93,6 +89,12 @@ public class JavaExecutionCursorResultForm extends DBNFormBase implements Search
     /*********************************************************
      *              SearchableDataComponent                  *
      *********************************************************/
+    @NotNull
+    @Override
+    public JPanel getSearchPanel() {
+        return searchPanel;
+    }
+
     @Override
     public void showSearchHeader() {
         resultTable.clearSelection();
@@ -107,10 +109,6 @@ public class JavaExecutionCursorResultForm extends DBNFormBase implements Search
         }
         searchField.requestFocus();
 
-    }
-
-    private DataSearchComponent getSearchComponent() {
-        return dataSearchComponent.get();
     }
 
     @Override
@@ -146,7 +144,7 @@ public class JavaExecutionCursorResultForm extends DBNFormBase implements Search
             return JavaExecutionCursorResultForm.this;
         }
         if (DataKeys.JAVA_EXECUTION_ARGUMENT.is(dataId)) {
-            return DBObjectRef.get(argument);
+            return DBObjectRef.get(parameter);
         }
         return super.getData(dataId);
     }

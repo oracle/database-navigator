@@ -1,67 +1,26 @@
 EXECUTE IMMEDIATE
 '
-CREATE OR REPLACE AND COMPILE JAVA SOURCE NAMED "DBN_OJVM_JAVA_WRAPPER" AS
+CREATE OR REPLACE AND COMPILE JAVA SOURCE NAMED "${JAVA_WRAPPER_NAME}" AS
 
-public class DBN_OJVM_JAVA_WRAPPER {
+public class ${JAVA_WRAPPER_NAME} {
 
-    #if (${SQL_CONVERSION_METHOD} && ${SQL_CONVERSION_METHOD} != "")
-        #set($sqlMethods = "${SQL_CONVERSION_METHOD}")
-        #set($methods = $sqlMethods.split("@"))
-        #foreach($method in $methods)
-            $method
+    #if($JAVA_WRAPPER_METHODS)
+        #foreach($JAVA_WRAPPER_METHOD in $JAVA_WRAPPER_METHODS)
+            $JAVA_WRAPPER_METHOD
         #end
     #end
 
-    #if (${JAVA_CONVERSION_METHOD} && ${JAVA_CONVERSION_METHOD} != "")
-        #set($javaMethods = "${JAVA_CONVERSION_METHOD}")
-        #set($methods = $javaMethods.split("@"))
-        #foreach($method in $methods)
-            $method
+
+    #if($SQL_CONVERSION_METHODS)
+        #foreach($SQL_CONVERSION_METHOD in $SQL_CONVERSION_METHODS)
+            $SQL_CONVERSION_METHOD
         #end
     #end
 
-    #if (${METHOD_RETURN_TYPE} && ${METHOD_RETURN_TYPE} != "")
-        #set($returnType = "${METHOD_RETURN_TYPE}")
-    #else
-        #set($returnType = "void")
+    #if($JAVA_CONVERSION_METHODS)
+        #foreach($JAVA_CONVERSION_METHOD in $JAVA_CONVERSION_METHODS)
+            $JAVA_CONVERSION_METHOD
+        #end
     #end
-
-	public static ${returnType} ${JAVA_METHOD}(${WRAPPER_METHOD_SIGNATURE}) {
-	    #if (${CONVERT_OBJECTS} && ${CONVERT_OBJECTS} != "")
-            #set($csvProps = "${CONVERT_OBJECTS}")
-            #set($props = $csvProps.split(","))
-            #foreach($prop in $props)
-                #if($prop && $prop != "")
-                    #set($tokens = $prop.split(";"))
-                    #set($name = $tokens[0])
-                    #set($value = $tokens[1])
-                    #set($idx = $tokens[2])
-                    ${name} java_${idx} = ${value}toJava(${idx});
-                #end
-            #end
-        #end
-
-        #if($returnType != "void")
-            #set($return = "return")
-        #else
-            #set($return = "")
-        #end
-
-        #if(${IS_ARRAY_RETURN} == "true")
-            #set($cast = "${ARRAY_RETURN_JAVA_CONVERSION}toSQL")
-            #set($open = "(")
-            #set($close = ")")
-        #elseif(${RETURN_JAVA_CONVERSION} && ${RETURN_JAVA_CONVERSION} != "")
-            #set($cast = "${RETURN_JAVA_CONVERSION}toSQL")
-            #set($open = "(")
-            #set($close = ")")
-        #else
-            #set($cast = "")
-            #set($open = "")
-            #set($close = "")
-        #end
-
-		$return $cast$open ${JAVA_CLASS}.${JAVA_METHOD}(${CALL_ARGS}) $close;
-	}
 }
 ';

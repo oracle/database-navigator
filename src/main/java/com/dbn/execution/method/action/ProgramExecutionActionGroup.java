@@ -16,11 +16,11 @@
 
 package com.dbn.execution.method.action;
 
+import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBProgram;
 import com.dbn.object.common.DBSchemaObject;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 
 public class ProgramExecutionActionGroup extends DefaultActionGroup {
 

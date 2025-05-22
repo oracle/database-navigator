@@ -435,5 +435,30 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
     public interface CharPredicate {
         boolean test(char chr);
     }
+
+    public static Character firstCharacter(String string) {
+        if (string != null && !string.isEmpty()) {
+            return string.charAt(0);
+        }
+        return null;
+    }
+
+    /**
+     * Removes all occurrences of the specified trailing content from the provided string.
+     * The method iteratively removes the trailing content until the string no longer ends with it.
+     *
+     * @param text the input text from which the trailing content is to be removed
+     * @param toRemove the trailing content to be removed, which is matched iteratively from the end
+     * @return the modified string with the specified trailing content removed
+     */
+    public static String removeTrailingContent(String text, String toRemove) {
+        if (isEmpty(toRemove)) return text;
+
+        while (text.endsWith(toRemove)) {
+            text = text.substring(0, text.length() - toRemove.length());
+        }
+        return text;
+    }
+
 }
 

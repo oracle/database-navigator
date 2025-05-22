@@ -20,6 +20,13 @@ import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.collections.CompactArrayList;
 import com.dbn.common.filter.Filter;
+import com.dbn.common.util.Editors;
+import com.dbn.connection.ConnectionAction;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionManager;
+import com.dbn.connection.SessionId;
+import com.dbn.object.DBConsole;
 import com.dbn.object.common.DBObjectBundle;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
@@ -33,6 +40,7 @@ import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isTrue;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseBrowserUtils {
     @Nullable
@@ -103,5 +111,33 @@ public class DatabaseBrowserUtils {
 
     static boolean isSkipBrowserAutoscroll(VirtualFile file) {
         return isTrue(file.getUserData(UserDataKeys.SKIP_BROWSER_AUTOSCROLL));
+    }
+
+    /**
+     * Promotes a new database connection by initializing and focusing
+     * on the associated connection in the Database Browser, opening its default console,
+     * and initiating a test of the connection's connectivity.
+     *
+     * @param project      the current project in which the connection is being promoted
+     * @param connectionId the identifier of the connection to be promoted
+     */
+    public static void promoteNewConnection(Project project, ConnectionId connectionId) {
+        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+        ConnectionHandler connection = connectionManager.getConnection(connectionId);
+        if (connection == null) return; // connection creation was cancelled
+
+        // open tool window if it's not opened
+        DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
+        browserManager.showBrowserToolWindow();
+        browserManager.selectConnection(connectionId);
+
+        // open db default console
+        DBConsole console = connection.getConsoleBundle().getDefaultConsole();
+        Editors.openFileEditor(project, console.getVirtualFile(), true);
+
+        // connect ...
+        connection.getInstructions().setAllowAutoConnect(true);
+        ConnectionAction.invoke(txt("msg.connection.title.TestingConnectivity"), true, connection,
+                (action) -> connectionManager.testConnection(connection, null, SessionId.MAIN, false, true));
     }
 }

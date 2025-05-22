@@ -50,7 +50,12 @@ public class GenericDataDefinitionInterface extends DatabaseDataDefinitionInterf
      *                   CHANGE statements                   *
      *********************************************************/
     @Override
-    public void updateView(String viewName, String code, DBNConnection connection) throws SQLException {
+    public void updateView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public void updateJsonView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException {
         throw new UnsupportedOperationException("Not implemented");
     }
 

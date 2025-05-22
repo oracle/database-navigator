@@ -17,12 +17,14 @@
 package com.dbn.common.util;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.common.lookup.Visitor;
 import com.dbn.language.common.DBLanguageFileType;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.LightVirtualFile;
@@ -31,6 +33,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
 
 @NonNls
@@ -39,6 +42,8 @@ public final class Files {
     // keep in sync with file type definitions in  plugin.xml
     public static final String[] SQL_FILE_EXTENSIONS = {"sql", "ddl", "vw"};
     public static final String[] PSQL_FILE_EXTENSIONS = {"psql", "plsql", "trg", "prc", "fnc", "pkg", "pks", "pkb", "tpe", "tps", "tpb"};
+
+
 
     public static String toRegexFileNamePattern(String fileNamePattern) {
         return "^(?i)" + fileNamePattern.replaceAll("\\*", "[a-z0-9_-]*") + "$";
@@ -71,7 +76,7 @@ public final class Files {
         if (baseDir == null) return path;
 
         File projectDir = new File(baseDir.getPath());
-        String relativePath = com.intellij.openapi.util.io.FileUtil.getRelativePath(projectDir, new File(path));
+        String relativePath = FileUtil.getRelativePath(projectDir, new File(path));
         if (relativePath == null) return path;
 
         if (relativePath.lastIndexOf(".." + File.separatorChar) < 1) {
@@ -161,5 +166,41 @@ public final class Files {
         return path.
             replace("\\", File.separator).
             replace("/", File.separator);
+    }
+
+    public static void visitRecursively(File file, Visitor<File> visitor) {
+        visitor.visit(file);
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            if (files == null) return;
+
+            for (File f : files) {
+                visitRecursively(f, visitor);
+            }
+        }
+    }
+
+    /**
+     * Ensures creation of a directory while avoiding race conditions
+     */
+    public static File ensureDirectory(String path) throws IOException {
+        File directory = new File(path);
+        if (directory.exists() && directory.isDirectory()) {
+            return directory;
+        }
+        try {
+            String canonicalPath = directory.getCanonicalPath();
+            synchronized (canonicalPath.intern()) {
+                if (directory.exists() && directory.isDirectory()) {
+                    return directory;
+                }
+                if (!FileUtil.createDirectory(directory)) {
+                    throw new IOException("Failed to create directory '" + path + "'");
+                }
+                return directory;
+            }
+        } catch (IOException e) {
+            throw new IOException("Failed to get canonical path for directory '" + path + "'", e);
+        }
     }
 }

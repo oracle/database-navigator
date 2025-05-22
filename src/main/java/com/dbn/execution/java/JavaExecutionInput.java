@@ -48,6 +48,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -104,7 +105,7 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
 
         List<DBJavaParameter> parameters = method.getParameters();
         for (DBJavaParameter parameter : parameters) {
-            if (parameter.isPlainValue()) continue;
+            if (parameter.isScalar()) continue;
 
             DBJavaClass parameterClass = parameter.getJavaClass();
             initClass(parameterClass);
@@ -116,8 +117,13 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
 
         List<DBJavaField> fields = javaClass.getFields();
         for (DBJavaField field : fields) {
-            if (field.isPlainValue()) continue;
-            initClass(field.getJavaClass());
+            if (field.isScalar()) continue;
+            DBJavaClass fieldClass = field.getJavaClass();
+
+            // field class may match the parent class itself, causing endless recursive invocations
+            if (Objects.equals(fieldClass, javaClass)) continue;
+
+            initClass(fieldClass);
         }
     }
 

@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 public interface DatabaseCompatibilityInterface extends DatabaseInterface {
     List<DatabaseObjectTypeId> getSupportedObjectTypes();
@@ -38,6 +39,8 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
     boolean supportsObjectType(DatabaseObjectTypeId objectTypeId);
 
     boolean supportsFeature(DatabaseFeature feature);
+
+    boolean supportsFeature(DatabaseFeature feature, DatabaseObjectTypeId objectTypeId);
 
     QuoteDefinition getIdentifierQuotes();
 
@@ -64,11 +67,16 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
     @NonNls
     String getExplainPlanStatementPrefix();
 
-    @Nullable DatabaseAttachmentHandler getDatabaseAttachmentHandler();
+    @Nullable
+    DatabaseAttachmentHandler getDatabaseAttachmentHandler();
 
     <T> T attemptFeatureInvocation(JdbcProperty feature, Callable<T> invoker) throws SQLException;
 
     default boolean useMetadataIdentifierQuoting() {
         return false;
+    }
+
+    default Map<String, String> getImplicitConnectionProperties() {
+        return Map.of();
     }
 }

@@ -22,12 +22,14 @@ public enum DBObjectProperty implements Property.LongBase {
     // generic
     TEMPORARY,
     NAVIGABLE,
+    READONLY,
     EDITABLE,
     COMPILABLE,
     DISABLEABLE,
     DEBUGABLE,
     INVALIDABLE,
     REFERENCEABLE,
+    EDITIONABLE,
     ROOT_OBJECT,
     SCHEMA_OBJECT,
     SYSTEM_OBJECT,
@@ -69,7 +71,13 @@ public enum DBObjectProperty implements Property.LongBase {
     FINAL,
     STATIC,
     INNER,
+    SCALAR,
     PRIMITIVE,
+
+    // json duality views
+    INSERT_ALLOWED,
+    UPDATE_ALLOWED,
+    DELETE_ALLOWED,
 
     // other
 

@@ -38,6 +38,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFormBase {
     private JPanel mainPanel;
@@ -109,6 +111,7 @@ public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFo
         for (int i=0; i< inputForms.size(); i++) {
             inputForms.get(i).setIndex(i);
         }
+        validateInput();  // clear validation errors produced by this form
     }
 
     public List<T> createFactoryInputs(ObjectFactoryInput parent) {
@@ -127,5 +130,13 @@ public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFo
         public ObjectDetail(String name) {
             this.name = name;
         }
+    }
+
+    public Set<String> getObjectNames(ObjectFactoryInputForm excludedForm) {
+        return inputForms.
+                stream().
+                filter(f -> f != excludedForm).
+                map(f -> f.getObjectName()).
+                collect(Collectors.toSet());
     }
 }

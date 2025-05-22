@@ -18,7 +18,6 @@ package com.dbn.common.ui.dialog;
 
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.intellij.ui.SimpleListCellRenderer;
 import com.intellij.ui.components.JBList;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
@@ -53,7 +52,7 @@ public class SelectionListForm<T> extends DBNFormBase {
 
         selectionList.setModel(model);
         selectionList.setSelectedValue(selection == null ? elements.get(0) : selection, true);
-        selectionList.setCellRenderer(SimpleListCellRenderer.create("", o -> o.toString()));
+        selectionList.setCellRenderer(new SelectionListCellRenderer<>());
         selectionList.setBorder(null);
     }
 

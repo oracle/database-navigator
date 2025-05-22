@@ -20,28 +20,22 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.dispose.StatefulDisposable;
-import com.dbn.common.latent.Latent;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Cursors;
-import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Strings;
+import com.dbn.data.grid.color.BasicTableTextAttributes;
+import com.dbn.data.grid.color.DataGridTextAttributes;
 import com.dbn.data.grid.ui.table.basic.BasicTableHeaderRenderer;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Key;
-import com.intellij.openapi.util.UserDataHolder;
-import com.intellij.util.keyFMap.KeyFMap;
-import com.intellij.util.ui.UIUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.DefaultListSelectionModel;
-import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.event.EventListenerList;
 import javax.swing.table.DefaultTableColumnModel;
@@ -54,32 +48,30 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.MouseInfo;
 import java.awt.Point;
-import java.awt.PointerInfo;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static com.dbn.common.dispose.ComponentDisposer.removeListeners;
 import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.ui.table.Tables.installColumnDragScrollSupport;
 import static com.dbn.common.ui.table.Tables.installFocusTraversal;
+import static com.dbn.common.ui.table.Tables.installScrollPaneAdjuster;
+import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.intellij.util.ui.UIUtil.getParentOfType;
 
-public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> implements StatefulDisposable, UserDataHolder {
+public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> implements StatefulDisposable {
     private static final int MAX_COLUMN_WIDTH = 300;
     private static final int MIN_COLUMN_WIDTH = 10;
 
     private final WeakRef<DBNComponent> parentComponent;
-
     private int rowVerticalPadding;
-    private double scrollDistance;
-    private KeyFMap userData = KeyFMap.EMPTY_MAP;
 
-    private Timer scrollTimer;
-    private final Latent<DBNTableGutter<?>> tableGutter = Latent.weak(() -> createTableGutter());
+    @Getter
+    private boolean loading;
 
     @Getter
     @Delegate
@@ -102,48 +94,44 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
             tableHeader.setBackground(Colors.getPanelBackground());
             tableHeader.setBorder(Borders.tableBorder(0, 0, 1, 0));
             tableHeader.setDefaultRenderer(new BasicTableHeaderRenderer());
-            tableHeader.addMouseMotionListener(Mouse.listener().onDrag(e -> {
-                JScrollPane scrollPane = getScrollPane();
-                if (scrollPane == null) return;
-
-                calculateScrollDistance();
-                if (scrollDistance != 0 && scrollTimer == null) {
-                    scrollTimer = new Timer();
-                    scrollTimer.schedule(new ScrollTask(), 100, 100);
-                }
-            }));
-
-            tableHeader.addMouseListener(Mouse.listener().onRelease(e -> {
-                if (scrollTimer == null) return;
-
-                Disposer.dispose(scrollTimer);
-                scrollTimer = null;
-            }));
         }
 
         setSelectionBackground(Colors.getTableSelectionBackground(true));
         setSelectionForeground(Colors.getTableSelectionForeground(true));
         installFocusTraversal(this);
+        installScrollPaneAdjuster(this);
+        installColumnDragScrollSupport(this);
 
         Disposer.register(parent, this);
         Disposer.register(this, tableModel);
+
+        initColumnWidths();
+        whenFirstShown(this, () -> adjustColumnWidths());
     }
 
-    @Nullable
-    public JViewport getViewport() {
-        return UIUtil.getParentOfType(JViewport.class, this);
+    public void setLoading(boolean loading) {
+        this.loading = loading;
+        updateBackground(loading);
     }
 
-    @Nullable
-    public JScrollPane getScrollPane() {
-        return UIUtil.getParentOfType(JScrollPane.class, this);
+    public void updateBackground(boolean readonly) {
+        dispatch(() -> {
+            DataGridTextAttributes attributes = BasicTableTextAttributes.get();
+            Color background = readonly ?
+                    attributes.getLoadingData(false).getBgColor() :
+                    attributes.getPlainData(false, false).getBgColor();
+            setBackground(background);
+        });
+
     }
 
     @Override
     public void setBackground(Color bg) {
         super.setBackground(bg);
-        JViewport viewport = getViewport();
+
+        JViewport viewport = getParentOfType(JViewport.class, this);
         if (viewport == null) return;
+
         viewport.setBackground(bg);
     }
 
@@ -156,6 +144,11 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
     public void setModel(@NotNull TableModel dataModel) {
         dataModel = replace(super.getModel(), dataModel);
         super.setModel(dataModel);
+
+        if (getParent() != null) {
+            initColumnWidths();
+            adjustColumnWidths();
+        }
     }
 
     protected void initTableSorter() {
@@ -175,38 +168,14 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
         adjustRowHeight(rowVerticalPadding);
     }
 
+    public int getDefaultAutoResizeMode() {
+        return AUTO_RESIZE_SUBSEQUENT_COLUMNS;
+    }
 
     @Override
     @NotNull
     public T getModel() {
         return Failsafe.nn((T) super.getModel());
-    }
-
-    private void calculateScrollDistance() {
-        JViewport viewport = getViewport();
-        if (viewport == null) return;
-
-        PointerInfo pointerInfo = MouseInfo.getPointerInfo();
-        if (pointerInfo == null) return;
-
-        double mouseLocation = pointerInfo.getLocation().getX();
-        double viewportLocation = viewport.getLocationOnScreen().getX();
-
-        Point viewPosition = viewport.getViewPosition();
-        double contentLocation = viewport.getView().getLocationOnScreen().getX();
-
-        if (contentLocation < viewportLocation && mouseLocation < viewportLocation + 20) {
-            scrollDistance = - Math.min(viewPosition.x, (viewportLocation - mouseLocation));
-        } else {
-            int viewportWidth = viewport.getWidth();
-            int contentWidth = viewport.getView().getWidth();
-
-            if (contentLocation + contentWidth > viewportLocation + viewportWidth && mouseLocation > viewportLocation + viewportWidth - 20) {
-                scrollDistance = (mouseLocation - viewportLocation - viewportWidth);
-            } else {
-                scrollDistance = 0;
-            }
-        }
     }
 
     @NotNull
@@ -262,19 +231,32 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
         return MAX_COLUMN_WIDTH;
     }
 
-    public void selectCell(int rowIndex, int columnIndex) {
-        if (rowIndex > -1 && columnIndex > -1 && rowIndex < getRowCount() && columnIndex < getColumnCount()) {
-            Rectangle cellRect = getCellRect(rowIndex, columnIndex, true);
-            if (!getVisibleRect().contains(cellRect)) {
-                scrollRectToVisible(cellRect);
-            }
-            if (getSelectedRowCount() != 1 || getSelectedRow() != rowIndex) {
-                setRowSelectionInterval(rowIndex, rowIndex);
-            }
+    protected void selectCellAt(Point point) {
+        int rowIndex = rowAtPoint(point);
+        int columnIndex = columnAtPoint(point);
+        if (rowIndex == -1) return;
+        if (columnIndex == -1) return;
 
-            if (getSelectedColumnCount() != 1 || getSelectedColumn() != columnIndex) {
-                setColumnSelectionInterval(columnIndex, columnIndex);
-            }
+        selectCell(rowIndex, columnIndex);
+    }
+
+
+    public void selectCell(int rowIndex, int columnIndex) {
+        if (rowIndex <= -1) return;
+        if (rowIndex >= getRowCount()) return;
+        if (columnIndex <= -1) return;
+        if (columnIndex >= getColumnCount()) return;
+
+        Rectangle cellRect = getCellRect(rowIndex, columnIndex, true);
+        if (!getVisibleRect().contains(cellRect)) {
+            scrollRectToVisible(cellRect);
+        }
+        if (getSelectedRowCount() != 1 || getSelectedRow() != rowIndex) {
+            setRowSelectionInterval(rowIndex, rowIndex);
+        }
+
+        if (getSelectedColumnCount() != 1 || getSelectedColumn() != columnIndex) {
+            setColumnSelectionInterval(columnIndex, columnIndex);
         }
 
     }
@@ -289,43 +271,6 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
             presentableValue = value == null ? null : value.toString();
         }
         return presentableValue;
-    }
-
-    private class ScrollTask extends TimerTask {
-        @Override
-        public void run() {
-            JViewport viewport = getViewport();
-            if (viewport == null || scrollDistance == 0) return;
-
-            Dispatch.run(viewport, () -> {
-                Point viewPosition = viewport.getViewPosition();
-                viewport.setViewPosition(new Point((int) (viewPosition.x + scrollDistance), viewPosition.y));
-                calculateScrollDistance();
-            });
-        }
-    }
-
-    protected DBNTableGutter<?> createTableGutter() {
-        return null; // do not create gutter by default
-    }
-
-    public final DBNTableGutter<?> getTableGutter() {
-        return tableGutter.get();
-    }
-
-    public final void initTableGutter() {
-        DBNTableGutter tableGutter = getTableGutter();
-        if (tableGutter == null) return;
-
-        JScrollPane scrollPane = UIUtil.getParentOfType(JScrollPane.class, this);
-        if (scrollPane == null) return;
-
-        scrollPane.setRowHeaderView(tableGutter);
-    }
-
-    protected void resetTableGutter() {
-        tableGutter.reset();
-        initTableGutter();
     }
 
     public void stopCellEditing() {
@@ -393,23 +338,6 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
         setColumnModel(columnModel);
     }
 
-    /********************************************************
-     *                    User Data                        *
-     ********************************************************/
-
-    @Nullable
-    @Override
-    public <V> V getUserData(@NotNull Key<V> key) {
-        return userData.get(key);
-    }
-
-    @Override
-    public <V> void putUserData(@NotNull Key<V> key, @Nullable V value) {
-        userData = value == null ?
-                userData.minus(key) :
-                userData.plus(key, value);
-    }
-
     protected void checkRowBounds(int rowIndex) {
         getModel().checkRowBounds(rowIndex);
     }
@@ -423,7 +351,7 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
      * @param runnable the runnable to be sent to dispatch thread
      */
     protected void dispatch(Runnable runnable) {
-        Dispatch.execute(this, runnable);
+        Dispatch.run(this, runnable);
     }
 
     /********************************************************

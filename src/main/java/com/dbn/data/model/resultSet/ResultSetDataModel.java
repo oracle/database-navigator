@@ -27,8 +27,11 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.connection.jdbc.ResourceStatus;
+import com.dbn.data.model.ColumnInfo;
 import com.dbn.data.model.sortable.SortableDataModel;
 import com.dbn.data.model.sortable.SortableDataModelState;
+import com.dbn.data.type.DBDataType;
+import com.dbn.data.type.GenericDataType;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -39,8 +42,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static com.dbn.common.dispose.Failsafe.nn;
+import static com.dbn.data.type.GenericDataType.BLOB;
+import static com.dbn.data.type.GenericDataType.CLOB;
+import static com.dbn.data.type.GenericDataType.JSON;
+import static com.dbn.data.type.GenericDataType.LITERAL;
+import static com.dbn.data.type.GenericDataType.NCLOB;
+import static com.dbn.data.type.GenericDataType.XMLTYPE;
 
 @Getter
 @Setter
@@ -54,6 +64,7 @@ public class ResultSetDataModel<
     private boolean resultSetExhausted = false;
     private long executeDuration = -1; // execute duration, -1 unknown
     private long fetchDuration = -1;   // fetch duration, -1 unknown
+    private String signature;
 
     public ResultSetDataModel(@NotNull ConnectionHandler connection) {
         super(connection.getProject());
@@ -72,6 +83,13 @@ public class ResultSetDataModel<
         fetchNextRecords(maxRecords, false);
 
         Disposer.register(connection, this);
+    }
+
+    protected boolean verifySignature(DBNConnection conn) {
+        // model may be based on an old connection
+        boolean valid = signature == null || signature.equals(conn.getResourceId());
+        signature = conn.getResourceId();
+        return valid;
     }
 
     protected R createRow(int resultSetRowIndex) throws SQLException {
@@ -182,6 +200,36 @@ public class ResultSetDataModel<
     @Override
     public boolean isReadonly() {
         return true;
+    }
+
+    @Override
+    public boolean isLargeValue(int columnIndex) {
+        ColumnInfo columnInfo = getColumnInfo(columnIndex);
+        DBDataType dataType = columnInfo.getDataType();
+        GenericDataType genericDataType = dataType.getGenericDataType();
+        return genericDataType.isOneOf(JSON, XMLTYPE, CLOB, BLOB, NCLOB);
+    }
+
+    @Override
+    public boolean isPresentableLargeValue(int columnIndex) {
+        ColumnInfo columnInfo = getColumnInfo(columnIndex);
+        DBDataType dataType = columnInfo.getDataType();
+        GenericDataType genericDataType = dataType.getGenericDataType();
+        if (genericDataType == JSON) return true;
+        if (!genericDataType.is(LITERAL)) return false;
+
+        long length = dataType.getLength();
+        if (length <= 200) return false;
+
+        for (R row : getRows()) {
+            C cell = row.getCellAtIndex(columnIndex);
+            if (cell == null) continue;
+
+            Object userValue = cell.getUserValue();
+            if (Objects.toString(userValue).length() > 200) return true;
+        }
+
+        return false;
     }
 
     @Override

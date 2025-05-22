@@ -16,8 +16,13 @@
 
 package com.dbn.common.ui.form;
 
+import com.intellij.openapi.ui.ValidationInfo;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.text.JTextComponent;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -28,6 +33,32 @@ import java.util.function.Predicate;
  */
 public interface DBNFormValidator {
     DBNFormValidator SURROGATE = new DBNFormValidatorSurrogate();
+
+    /**
+     * Determines whether any component validators have been added to this form-validator.
+     *
+     * @return {@code true} if there are validators present, {@code false} otherwise
+     */
+    boolean hasValidators();
+
+    /**
+     * Determines whether the specified component has any validators defined in this form-validator.
+     *
+     * @param <C>       the type of the Swing component being checked, which must extend {@link JComponent}
+     * @param component the Swing component to check for validators
+     * @return {@code true} if the component has one or more validators, {@code false} otherwise
+     */
+    <C extends JComponent> boolean hasValidators(@Nullable C component);
+
+    /**
+     * Removes all validation rules associated with a given Swing component. This method clears
+     * any validators that were previously added to the component, effectively stopping it from
+     * performing validation checks.
+     *
+     * @param <C>       the type of the Swing component being modified, which must extend {@link JComponent}.
+     * @param component the Swing component from which the validation rules will be removed.
+     */
+    <C extends JComponent> void removeValidators(C component);
 
     /**
      * Adds a validation rule to a specified Swing component. The validation rule
@@ -45,6 +76,14 @@ public interface DBNFormValidator {
     <C extends JComponent> void addValidation(C component, Function<C, String> validator);
 
     /**
+     * Add a raw validator to the component
+     * @param component the {@link JComponent} to add the validator for
+     * @param validator the validator returning a list of {@link ValidationInfo} elements
+     * @param <C> the type of component being validated
+     */
+    <C extends JComponent> void addValidator(C component, Function<C, List<ValidationInfo>> validator);
+
+    /**
      * Adds a text validation rule to a specified JTextComponent. The validation rule
      * is defined by a predicate that evaluates the validity of the text input, along with
      * an associated error message to display if the validation fails.
@@ -58,5 +97,12 @@ public interface DBNFormValidator {
 
     void addTextValidation(JTextComponent textField, Function<JTextComponent, String> validator);
 
-    void validateInput(JComponent component);
+    void addSelectionValidation(JComboBox comboBox, String message);
+
+
+    default void validateInput() {
+        validateInput(null);
+    }
+
+    void validateInput(@Nullable JComponent component);
 }

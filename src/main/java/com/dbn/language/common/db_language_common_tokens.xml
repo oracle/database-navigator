@@ -30,14 +30,14 @@
         <token type="character" index="6"  id="CHR_GREATER"             value="&#62;" />
         <token type="character" index="7"  id="CHR_HASH"                value="#"/>
         <token type="character" index="8"  id="CHR_LEFT_BRACKET"        value="[" formatting-spacing-after="NO_SPACE"/>
-        <token type="character" index="9"  id="CHR_LEFT_CURLY_BRACKET"  value="{" formatting-spacing-after="NO_SPACE"/>
+        <token type="character" index="9"  id="CHR_LEFT_BRACE"          value="{" formatting-spacing-after="NO_SPACE"/>
         <token type="character" index="10" id="CHR_LEFT_PARENTHESIS"    value="(" formatting-spacing-after="NO_SPACE"/>
         <token type="character" index="11" id="CHR_LESS"                value="&#60;" />
         <token type="character" index="12" id="CHR_MINUS"               value="-"/>
         <token type="character" index="13" id="CHR_PERCENT"             value="%"/>
         <token type="character" index="14" id="CHR_PLUS"                value="+"/>
         <token type="character" index="15" id="CHR_RIGHT_BRACKET"       value="]" formatting-spacing-before="NO_SPACE"/>
-        <token type="character" index="16" id="CHR_RIGHT_CURLY_BRACKET" value="}" formatting-spacing-before="NO_SPACE"/>
+        <token type="character" index="16" id="CHR_RIGHT_BRACE"         value="}" formatting-spacing-before="NO_SPACE"/>
         <token type="character" index="17" id="CHR_RIGHT_PARENTHESIS"   value=")" formatting-spacing-before="NO_SPACE"/>
         <token type="character" index="18" id="CHR_SEMICOLON"           value=";" formatting-spacing-before="NO_SPACE"/>
         <token type="character" index="19" id="CHR_SLASH"               value="/" formatting-wrap="ALWAYS" formatting-indend="ABSOLUTE_NONE"/>
@@ -85,6 +85,7 @@
         <token-set id="WHITE_SPACES">WHITE_SPACE</token-set>
         <token-set id="PARENTHESES">CHR_LEFT_PARENTHESIS, CHR_RIGHT_PARENTHESIS</token-set>
         <token-set id="BRACKETS">CHR_LEFT_BRACKET, CHR_RIGHT_BRACKET</token-set>
+        <token-set id="BRACES">CHR_LEFT_BRACE, CHR_RIGHT_BRACE</token-set>
         <token-set id="COMMENTS">LINE_COMMENT, BLOCK_COMMENT</token-set>
         <token-set id="IDENTIFIERS">IDENTIFIER, QUOTED_IDENTIFIER</token-set>
         <token-set id="NUMBERS">INTEGER, NUMBER</token-set>

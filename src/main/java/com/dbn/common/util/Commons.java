@@ -27,9 +27,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 
@@ -159,5 +163,15 @@ public final class Commons {
         if (array == null) return null;
         if (array.length == 0) return null;
         return array[0];
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T[] nonNulls(T ... array) {
+        if (array == null) return null;
+        List<T> nonNulls = Arrays.stream(array).filter(Objects::nonNull).collect(Collectors.toList());
+
+        T[] result = (T[]) Array.newInstance(array.getClass().getComponentType(), nonNulls.size());
+        return nonNulls.toArray(result);
+
     }
 }

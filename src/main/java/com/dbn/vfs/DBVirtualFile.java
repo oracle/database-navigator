@@ -29,15 +29,12 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 
 public interface DBVirtualFile extends /*VirtualFileWithId, */EnvironmentTypeProvider, DatabaseContextBase, UserDataHolder {
+    byte[] EMPTY_CONTENT = new byte[0];
+
     @NotNull
     Project getProject();
 
     Icon getIcon();
-
-    void setCachedViewProvider(@Nullable DatabaseFileViewProvider viewProvider);
-
-    @Nullable
-    DatabaseFileViewProvider getCachedViewProvider();
 
     void invalidate();
 
@@ -55,4 +52,15 @@ public interface DBVirtualFile extends /*VirtualFileWithId, */EnvironmentTypePro
     default DBObjectType getObjectType() {
         return null;
     }
+
+    default void setCachedViewProvider(@Nullable DatabaseFileViewProvider viewProvider) {
+        putUserData(DatabaseFileViewProvider.CACHED_VIEW_PROVIDER, viewProvider);
+    }
+
+    @Nullable
+    default DatabaseFileViewProvider getCachedViewProvider() {
+        return getUserData(DatabaseFileViewProvider.CACHED_VIEW_PROVIDER);
+    }
+
+
 }

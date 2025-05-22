@@ -40,7 +40,7 @@ public class ArgumentFactoryInput extends ObjectFactoryInput{
     @Override
     public void validate(List<String> errors) {
         String objectName = getObjectName();
-        if (objectName.length() == 0) {
+        if (objectName.isEmpty()) {
             errors.add("argument name is not specified at index " + getIndex());
 
         } else if (!Strings.isWord(objectName)) {

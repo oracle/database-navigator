@@ -44,7 +44,7 @@ public class MethodFactoryInput extends SchemaObjectFactoryInput{
     @Override
     public void validate(List<String> errors) {
         String objectName = getObjectName();
-        if (objectName.length() == 0) {
+        if (objectName.isEmpty()) {
             String hint = getParent() == null ? "" : " at index " + getIndex();
             errors.add(getObjectType().getName() + " name is not specified" + hint);
             
@@ -54,7 +54,7 @@ public class MethodFactoryInput extends SchemaObjectFactoryInput{
 
 
         if (returnArgument != null) {
-            if (returnArgument.getDataType().length() == 0)
+            if (returnArgument.getDataType().isEmpty())
                 errors.add("missing data type for return argument");
         }
 
@@ -62,6 +62,8 @@ public class MethodFactoryInput extends SchemaObjectFactoryInput{
         for (ArgumentFactoryInput argument : arguments) {
             argument.validate(errors);
             String argumentName = argument.getObjectName();
+            if (Strings.isEmptyOrSpaces(argumentName)) continue; // already covered by field validator
+
             if (argumentNames.contains(argumentName)) {
                 String hint = getParent() == null ? "" : " for " + getObjectType().getName() + " \"" + objectName + "\"";
                 errors.add("duplicate argument name \"" + argumentName + "\"" + hint);

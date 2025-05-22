@@ -16,57 +16,57 @@
 
 package com.dbn.editor.data.action;
 
-import com.dbn.common.action.Lookups;
-import com.dbn.common.action.ToggleAction;
+import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.icon.Icons;
 import com.dbn.editor.data.DatasetEditor;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.nls.NlsResources.txt;
 
-public class DataEditingLockToggleAction extends ToggleAction implements DumbAware {
+public class DataEditingLockToggleAction extends AbstractDataEditorAction {
 
     @Override
-    public boolean isSelected(@NotNull AnActionEvent e) {
-        DatasetEditor datasetEditor = getDatasetEditor(e);
-        return datasetEditor != null && datasetEditor.isReadonly();
+    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
+        datasetEditor.toggleEditingLock();
     }
 
     @Override
-    public void setSelected(@NotNull AnActionEvent e, boolean selected) {
-        DatasetEditor datasetEditor = getDatasetEditor(e);
-        if (datasetEditor != null) datasetEditor.setReadonly(selected);
-    }
-
-    @Override
-    public void update(@NotNull AnActionEvent e) {
-        super.update(e);
-        DatasetEditor datasetEditor = getDatasetEditor(e);
-        Presentation presentation = e.getPresentation();
-        Project project = e.getProject();
-        if (project == null || datasetEditor == null) {
+    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
+        if (isNotValid(datasetEditor)) {
             presentation.setEnabled(false);
             presentation.setIcon(Icons.DATA_EDITOR_LOCKED);
             presentation.setText(txt("app.dataEditor.action.LockUnlockEditing"));
-        } else {
-            boolean isEnvironmentReadonlyData = datasetEditor.getDataset().getEnvironmentType().isReadonlyData();
-            presentation.setVisible(!datasetEditor.isReadonlyData() && !isEnvironmentReadonlyData);
-            boolean selected = isSelected(e);
-            presentation.setText(selected ? txt("app.dataEditor.action.UnlockEditing") : txt("app.dataEditor.action.LockEditing"));
-            presentation.setIcon(selected ? Icons.DATA_EDITOR_LOCKED : Icons.DATA_EDITOR_UNLOCKED);
-            boolean enabled = !datasetEditor.isInserting();
-            presentation.setEnabled(enabled);
+            return;
         }
 
+        boolean visible = isVisible(datasetEditor);
+        boolean enabled = isEnabled(datasetEditor);
+        boolean locked = datasetEditor.isEditingLocked();
+
+        presentation.setText(locked ? txt("app.dataEditor.action.UnlockEditing") : txt("app.dataEditor.action.LockEditing"));
+        presentation.setIcon(locked ? Icons.DATA_EDITOR_LOCKED : Icons.DATA_EDITOR_UNLOCKED);
+        presentation.setVisible(visible);
+        presentation.setEnabled(enabled);
     }
 
-    private static DatasetEditor getDatasetEditor(AnActionEvent e) {
-        FileEditor fileEditor = Lookups.getFileEditor(e);
-        return fileEditor instanceof DatasetEditor ? (DatasetEditor) fileEditor : null;
+    private boolean isVisible(DatasetEditor datasetEditor) {
+        if (datasetEditor.isReadonlyData()) return false;
+
+        EnvironmentType environmentType = datasetEditor.getDataset().getEnvironmentType();
+        if (environmentType.isReadonlyData()) return false;
+
+        return true;
+    }
+
+    private boolean isEnabled(DatasetEditor datasetEditor) {
+        if (datasetEditor.isInserting()) return false;
+        if (datasetEditor.getTableModel().isModified()) return false;
+
+        return true;
     }
 }

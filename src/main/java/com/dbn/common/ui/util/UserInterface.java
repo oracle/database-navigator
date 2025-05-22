@@ -24,6 +24,8 @@ import com.dbn.common.util.Environment;
 import com.dbn.common.util.Strings;
 import com.intellij.ide.ui.UISettings;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.DialogWrapperDialog;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.ui.AncestorListenerAdapter;
@@ -45,6 +47,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.JViewport;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
@@ -62,10 +65,10 @@ import java.awt.LayoutManager;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
+import java.awt.Window;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.InputEvent;
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
@@ -319,7 +322,6 @@ public class UserInterface {
         return isBorderless(component);
     }
 
-
     @Nullable
     public static <T extends JComponent> T getRootParentOfType(Component component, Class<T> type) {
         T root = null;
@@ -362,13 +364,16 @@ public class UserInterface {
     }
 
     public static void setBackgroundRecursive(JComponent component, Color color) {
+        if (component == null) return;
+
         component.setBackground(color);
         Component[] children = component.getComponents();
-        Arrays
-            .stream(children)
-            .filter(child -> child instanceof JComponent)
-            .map(child -> (JComponent) child)
-            .forEach(child -> setBackgroundRecursive(child, color));
+        for (Component child : children) {
+            if (child instanceof JComponent) {
+                JComponent jComponent = (JComponent) child;
+                setBackgroundRecursive(jComponent, color);
+            }
+        }
 
     }
 
@@ -555,5 +560,12 @@ public class UserInterface {
         });
     }
 
-
+    public static <D extends DialogWrapper> D getParentDialog(JComponent component) {
+        Window windowAncestor = SwingUtilities.getWindowAncestor(component);
+        if (windowAncestor instanceof DialogWrapperDialog) {
+            DialogWrapperDialog dialog = (DialogWrapperDialog) windowAncestor;
+            return cast(dialog.getDialogWrapper());
+        }
+        return null;
+    }
 }

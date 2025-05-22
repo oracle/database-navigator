@@ -21,6 +21,10 @@
 
         <programRunner implementation="com.dbn.debugger.jdwp.process.DBMethodJdwpRunner"/>
         <programRunner implementation="com.dbn.debugger.jdwp.process.DBStatementJdwpRunner"/>
+
+        <projectService serviceImplementation="com.dbn.sync.java.download.JavaDownloadManager"/>
+        <projectService serviceImplementation="com.dbn.sync.java.upload.JavaUploadManager"/>
+
     </extensions>
     <actions>
         <group id="DBNavigator.ActionGroup.ExtractJavaCode">

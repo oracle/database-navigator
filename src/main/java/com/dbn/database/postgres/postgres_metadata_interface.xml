@@ -29,8 +29,8 @@
         <statement>
             select
                 NSPNAME as SCHEMA_NAME,
-                case when lower(NSPNAME)='pg_catalog' then 'Y' else 'N' end as IS_PUBLIC,
-                case when lower(NSPNAME)='information_schema' then 'Y' else 'N' end as IS_SYSTEM,
+                case when lower(NSPNAME)='public' then 'Y' else 'N' end as IS_PUBLIC,
+                case when lower(NSPNAME) = 'information_schema' or lower(NSPNAME) like 'pg_%' then 'Y' else 'N' end as IS_SYSTEM,
                 'N' as IS_EMPTY
             from PG_CATALOG.PG_NAMESPACE
             order by NSPNAME asc
@@ -103,7 +103,8 @@
                 TABLE_NAME as VIEW_NAME,
                 null as VIEW_TYPE_OWNER,
                 null as VIEW_TYPE,
-                case when TABLE_TYPE = 'VIEW' then 'N' else 'Y' end as IS_SYSTEM_VIEW
+                case when TABLE_TYPE = 'VIEW' then 'N' else 'Y' end as IS_SYSTEM_VIEW,
+                'N' as IS_EDITIONABLE
             from INFORMATION_SCHEMA.TABLES
             where
                 TABLE_SCHEMA = {0} and

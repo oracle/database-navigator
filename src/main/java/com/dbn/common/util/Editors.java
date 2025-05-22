@@ -16,7 +16,9 @@
 
 package com.dbn.common.util;
 
+import com.dbn.common.Reflection;
 import com.dbn.common.color.Colors;
+import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.editor.BasicTextEditor;
@@ -33,8 +35,10 @@ import com.dbn.data.editor.text.TextContentType;
 import com.dbn.ddl.DDLFileAttachmentManager;
 import com.dbn.editor.EditorProviderId;
 import com.dbn.editor.code.SourceCodeEditor;
+import com.dbn.editor.data.DataEditorBase;
 import com.dbn.editor.data.DatasetEditor;
 import com.dbn.editor.ddl.DDLFileEditor;
+import com.dbn.editor.json.JsonDataEditor;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.psi.PsiUtil;
@@ -44,12 +48,15 @@ import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.dbn.vfs.file.DBDatasetVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
+import com.dbn.vfs.file.DBJsonDataVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.ide.highlighter.HighlighterFactory;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorKind;
+import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.ex.EditorEx;
@@ -292,6 +299,9 @@ public class Editors {
 
                 editorEx.setBackgroundColor(background);
                 scheme.setColor(EditorColors.CARET_ROW_COLOR, caretRowBackground);
+                JComponent component = editorEx.getComponent();
+                component.revalidate();
+                component.repaint();
             });
         }
     }
@@ -313,7 +323,15 @@ public class Editors {
             for (DatasetEditor datasetEditor : getFileEditors(project, DatasetEditor.class)) {
                 if (Objects.equals(datasetEditor.getDatabaseFile(), objectFile)) {
                     datasetEditor.getEditorTable().cancelEditing();
-                    datasetEditor.setEnvironmentReadonly(readonly);
+                }
+            }
+        } else if (contentFile instanceof DBJsonDataVirtualFile) {
+            DBJsonDataVirtualFile jsonDataFile = (DBJsonDataVirtualFile) contentFile;
+            DBEditableObjectVirtualFile objectFile = jsonDataFile.getMainDatabaseFile();
+            List<JsonDataEditor> jsonDataEditors = getFileEditors(project, JsonDataEditor.class);
+            for (JsonDataEditor jsonDataEditor : jsonDataEditors) {
+                if (Objects.equals(jsonDataEditor.getDatabaseFile(), objectFile)) {
+                    jsonDataEditor.updateContentEditorState();
                 }
             }
         }
@@ -442,10 +460,12 @@ public class Editors {
         FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
         FileEditor[] fileEditors = fileEditorManager.getSelectedEditors();
         if (fileEditors.length > 0) {
-            if (fileEditors[0] instanceof DatasetEditor) {
-                DatasetEditor datasetEditor = (DatasetEditor) fileEditors[0];
+            if (fileEditors[0] instanceof DataEditorBase) {
+                DataEditorBase datasetEditor = (DataEditorBase) fileEditors[0];
                 return datasetEditor.getDatabaseFile();
-            } else if (fileEditors[0] instanceof BasicTextEditor) {
+            }
+
+            if (fileEditors[0] instanceof BasicTextEditor) {
                 BasicTextEditor<?> basicTextEditor = (BasicTextEditor<?>) fileEditors[0];
                 return basicTextEditor.getVirtualFile();
             }
@@ -531,11 +551,15 @@ public class Editors {
 
     @ThreadPropertyGate(ThreadProperty.EDITOR_LOAD)
     public static void openFileEditor(Project project, VirtualFile file, boolean focus, @Nullable Consumer<FileEditor[]> callback) {
+        if (!file.exists()) return;
+
         DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
         attachmentManager.warmUpAttachedDDLFiles(file);
 
-        Dispatch.run(() -> {
+        Dispatch.run(ModalityState.NON_MODAL, () -> {
             try {
+                if (!file.exists()) return;
+
                 markSkipBrowserAutoscroll(file);
                 FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
                 boolean wasOpen = fileEditorManager.isFileOpen(file);
@@ -577,7 +601,7 @@ public class Editors {
         if (editorProviderId == null) return;
 
         FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
-        Dispatch.run(() -> fileEditorManager.setSelectedEditor(file, editorProviderId.getId()));
+        Dispatch.run(ModalityState.NON_MODAL, () -> fileEditorManager.setSelectedEditor(file, editorProviderId.getId()));
     }
 
     @Workaround
@@ -594,4 +618,14 @@ public class Editors {
         FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
         return fileEditorManager.getOpenFiles();
     }
+
+
+    @Workaround
+    @Compatibility
+    public static void enableSelectionOccurrenceHighlights(Editor editor) {
+        EditorSettings settings = editor.getSettings();
+        //settings.setHighlightSelectionOccurrences(true);
+        Reflection.invokeMethod(settings, "setHighlightSelectionOccurrences", true);
+    }
+
 }

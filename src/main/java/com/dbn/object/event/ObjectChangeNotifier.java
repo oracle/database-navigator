@@ -53,7 +53,7 @@ public class ObjectChangeNotifier extends ConnectionComponent implements Outcome
     }
 
     private void notify(ObjectChangeListener listener) {
-        listener.objectsChanged(getConnectionId(), ownerId, objectType);
+        listener.objectsChanged(getConnectionId(), ownerId, objectType, action);
     }
 
     @Override

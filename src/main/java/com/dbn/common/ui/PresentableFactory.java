@@ -19,12 +19,18 @@ package com.dbn.common.ui;
 import com.dbn.common.routine.Consumer;
 import lombok.Getter;
 
+import javax.swing.Icon;
+
 @Getter
 public abstract class PresentableFactory<T extends Presentable> {
     private final String actionName;
 
     public PresentableFactory(String actionName) {
         this.actionName = actionName;
+    }
+
+    public Icon getIcon(){
+        return null;
     }
 
     public abstract void create(Consumer<T> consumer);

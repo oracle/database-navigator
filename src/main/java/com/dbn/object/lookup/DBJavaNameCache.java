@@ -18,9 +18,12 @@ package com.dbn.object.lookup;
 
 import com.dbn.common.collections.ConcurrentStringInternMap;
 import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaEntity;
+import com.dbn.object.type.DBObjectType;
 import lombok.experimental.UtilityClass;
 
 import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.common.util.Unsafe.cast;
 
 /**
  * Utility class for managing transformations and caching of database-style Java class names.
@@ -40,6 +43,7 @@ public class DBJavaNameCache {
      *
      * @param objectName the database-style Java class name, where segments are separated by "/"
      * @return the simple name of the class, which is the part of the name after the last "/"
+     * @deprecated assumes $ are always inner class separators
      */
     public static String getSimpleName(String objectName) {
         if (isEmpty(objectName)) return "";
@@ -49,11 +53,6 @@ public class DBJavaNameCache {
                         n.lastIndexOf("$")) + 1)); // TODO $ is not a reliable indicator for inner class (can be part of the name of a real class)
     }
 
-    public static String getSimpleName(DBObjectRef<DBJavaClass> javaClass) {
-        return getSimpleName(javaClass.getObjectName());
-    }
-
-
     /**
      * Transforms a database representation of a Java class name into its canonical Java class name.
      * The method replaces all occurrences of "/" with "." in the input string.
@@ -62,13 +61,53 @@ public class DBJavaNameCache {
      * @param objectName the database representation of the Java class name, where parts of the name
      *                   are separated by "/" instead of "."
      * @return the canonical Java class name with parts of the name separated by "."
+     * @deprecated not properly supporting inner classes
      */
     public static String getCanonicalName(String objectName) {
         if (isEmpty(objectName)) return "";
         return canonicalNameCache.computeIfAbsent(objectName, n -> n.replace("/", "."));
     }
 
+    public static String getSimpleName(DBObjectRef<DBJavaEntity> javaEntity) {
+        return simpleNameCache.computeIfAbsent(javaEntity.getObjectName(), n -> resolveSimpleName(javaEntity));
+    }
+
     public static String getCanonicalName(DBObjectRef<DBJavaClass> javaClass) {
-        return getCanonicalName(javaClass.getObjectName());
+        String className = javaClass.getObjectName();
+        return canonicalNameCache.computeIfAbsent(className, n -> resolveCanonicalName(javaClass));
+    }
+
+    private static String resolveCanonicalName(DBObjectRef<DBJavaClass> javaClass) {
+        String className = javaClass.getObjectName();
+        Object parent = javaClass.getParent();
+        if (parent instanceof DBObjectRef) {
+            DBObjectRef<?> parentRef = (DBObjectRef) parent;
+            if (parentRef.getObjectType() == DBObjectType.JAVA_CLASS) {
+                DBObjectRef<DBJavaClass> parentClassRef = cast(parentRef);
+                String parenClassName = parentRef.getObjectName();
+                return getCanonicalName(parentClassRef) + "." + className.substring(parenClassName.length() + 1);
+            }
+        }
+
+        return className.replace("/", ".");
+    }
+
+    private static String resolveSimpleName(DBObjectRef<DBJavaEntity> javaEntity) {
+        String entityName = javaEntity.getObjectName();
+        DBObjectType entityType = javaEntity.getObjectType();
+
+        if (entityType == DBObjectType.JAVA_CLASS) {
+            Object parent = javaEntity.getParent();
+            if (parent instanceof DBObjectRef) {
+                DBObjectRef<?> parentRef = (DBObjectRef) parent;
+                // inner class handling
+                if (parentRef.getObjectType() == DBObjectType.JAVA_CLASS) {
+                    String parenClassName = parentRef.getObjectName();
+                    return entityName.substring(parenClassName.length() + 1);
+                }
+            }
+        }
+
+        return entityName.substring(entityName.lastIndexOf("/") + 1);
     }
 }

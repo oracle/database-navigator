@@ -99,12 +99,17 @@ public class DBJdwpDebugExecutionStack extends XExecutionStack {
 
                 List<DBJdwpDebugStackFrame> frames = new ArrayList<>();
                 for (XStackFrame underlyingFrame : stackFrames) {
-                    DBJdwpDebugStackFrame frame = getFrame((JavaStackFrame) underlyingFrame);
-                    XSourcePosition sourcePosition = frame.getSourcePosition();
-                    //VirtualFile virtualFile = DBDebugUtil.getSourceCodeFile(sourcePosition);
-                    //DBSchemaObject object = DBDebugUtil.getObject(sourcePosition);
-                    frames.add(frame);
-                    last = last || DBDebugUtil.getObject(sourcePosition) == null;
+                    if (underlyingFrame instanceof JavaStackFrame) {
+                        JavaStackFrame javaStackFrame = (JavaStackFrame) underlyingFrame;
+                        DBJdwpDebugStackFrame frame = getFrame(javaStackFrame);
+                        XSourcePosition sourcePosition = frame.getSourcePosition();
+                        //VirtualFile virtualFile = DBDebugUtil.getSourceCodeFile(sourcePosition);
+                        //DBSchemaObject object = DBDebugUtil.getObject(sourcePosition);
+                        frames.add(frame);
+                        last = last || DBDebugUtil.getObject(sourcePosition) == null;
+                    } else {
+                        last = true;
+                    }
                 }
 
                 container.addStackFrames(frames, last) ;

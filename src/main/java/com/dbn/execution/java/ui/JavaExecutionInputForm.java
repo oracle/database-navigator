@@ -144,7 +144,7 @@ public class JavaExecutionInputForm extends DBNFormBase implements ComponentAlig
     }
 
     private void createArgumentsPanel() {
-        List<DBJavaParameter> arguments = getMethodArguments();
+        List<DBJavaParameter> parameters = getMethodParameters();
         checkDisposed();
 
         loadingParamsPanel.setVisible(false);
@@ -152,8 +152,8 @@ public class JavaExecutionInputForm extends DBNFormBase implements ComponentAlig
         argumentsPanel.setLayout(new BoxLayout(argumentsPanel, BoxLayout.Y_AXIS));
 
         boolean noArguments = true;
-        for (DBJavaParameter argument: arguments) {
-            addArgumentPanel(argument);
+        for (DBJavaParameter parameter: parameters) {
+            addParameterPanel(parameter);
             noArguments = false;
         }
         emptyParamsLabel.setVisible(noArguments);
@@ -165,7 +165,7 @@ public class JavaExecutionInputForm extends DBNFormBase implements ComponentAlig
     }
 
 
-    private List<DBJavaParameter> getMethodArguments() {
+    private List<DBJavaParameter> getMethodParameters() {
         DBJavaMethod method = executionInput.getMethod();
         return method == null ? emptyList() : method.getParameters();
     }
@@ -180,8 +180,8 @@ public class JavaExecutionInputForm extends DBNFormBase implements ComponentAlig
         return parameterForms.stream().mapToInt(f -> f.countFields()).sum();
     }
 
-    private void addArgumentPanel(DBJavaParameter argument) {
-        JavaExecutionInputParameterForm argumentComponent = new JavaExecutionInputParameterForm(this, argument);
+    private void addParameterPanel(DBJavaParameter parameter) {
+        JavaExecutionInputParameterForm argumentComponent = new JavaExecutionInputParameterForm(this, parameter);
         argumentsPanel.add(argumentComponent.getComponent());
         parameterForms.add(argumentComponent);
    }

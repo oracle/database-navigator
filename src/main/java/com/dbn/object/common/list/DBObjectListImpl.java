@@ -170,11 +170,10 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
     @Nullable
     public Filter<T> getConfigFilter() {
         ConnectionHandler connection = this.getConnection();
-        if (isLiveConnection(connection)) {
-            ConnectionFilterSettings filterSettings = connection.getSettings().getFilterSettings();
-            return filterSettings.getNameFilter(objectType);
-        }
-        return null;
+        if (!isLiveConnection(connection)) return null;
+
+        ConnectionFilterSettings filterSettings = connection.getSettings().getFilterSettings();
+        return filterSettings.getObjectFilter(objectType);
     }
 
     @Override
@@ -397,16 +396,20 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
      *********************************************************/
     @Override
     public String getContentDescription() {
-        if (isDisposed()) {
-            return "disposed";
-        } else {
-            if (getParent() instanceof DBObject) {
-                DBObject object = (DBObject) getParent();
-                return getName() + " of " + object.getQualifiedNameWithType();
-            }
-            ConnectionHandler connection = this.getConnection();
-            return getName() + " from " + connection.getName();
+        if (isDisposed()) return "disposed";
+
+        BrowserTreeNode parent = getParent();
+        String contentName = getName();
+        String connectionName = getConnection().getName();
+
+        if (parent instanceof DBObject) {
+            DBObject object = (DBObject) parent;
+            return txt("app.object.label.SubContentDescription",
+                    contentName, object.getQualifiedNameWithType(),
+                    connectionName);
         }
+
+        return txt("app.object.label.RootContentDescription", contentName, connectionName);
     }
 
     /*********************************************************

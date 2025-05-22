@@ -21,6 +21,8 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.util.Modality.nonModal;
+
 class DevNullProgressIndicator implements ProgressIndicator {
     public static final DevNullProgressIndicator INSTANCE = new DevNullProgressIndicator();
 
@@ -98,7 +100,7 @@ class DevNullProgressIndicator implements ProgressIndicator {
 
     @Override
     public @NotNull ModalityState getModalityState() {
-        return ModalityState.NON_MODAL;
+        return nonModal();
     }
 
     @Override

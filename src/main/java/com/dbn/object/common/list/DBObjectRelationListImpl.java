@@ -16,6 +16,7 @@
 
 package com.dbn.object.common.list;
 
+import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.content.DynamicContentBase;
 import com.dbn.common.content.DynamicContentProperty;
 import com.dbn.common.content.DynamicContentType;
@@ -24,7 +25,6 @@ import com.dbn.common.content.dependency.ContentDependencyAdapter;
 import com.dbn.common.content.loader.DynamicContentLoader;
 import com.dbn.common.content.loader.DynamicContentLoaderImpl;
 import com.dbn.common.range.Range;
-import com.dbn.common.util.Commons;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.database.common.metadata.DBObjectMetadata;
 import com.dbn.object.common.DBObject;
@@ -127,12 +127,25 @@ class DBObjectRelationListImpl<T extends DBObjectRelation> extends DynamicConten
 
    @Override
    public String getContentDescription() {
-        if (getParentEntity() instanceof DBObject) {
-            DBObject object = getParentEntity();
-            return getName() + " of " + object.getQualifiedNameWithType();
-        }
-       return getName() + " from " + this.getConnection().getName() ;
-    }
+       if (isDisposed()) return "disposed";
+
+       BrowserTreeNode parent = getParentEntity();
+       String contentName = getName();
+       String connectionName = getConnection().getName();
+
+       if (parent instanceof DBObject) {
+           DBObject object = (DBObject) parent;
+           String parentName = object.getQualifiedNameWithType();
+           return txt("app.object.label.SubContentDescription",
+                   contentName,
+                   parentName,
+                   connectionName);
+       }
+
+       return txt("app.object.label.RootContentDescription",
+               contentName,
+               connectionName);
+   }
 
     @Override
     public void notifyChangeListeners() {}
@@ -157,22 +170,20 @@ class DBObjectRelationListImpl<T extends DBObjectRelation> extends DynamicConten
 
             Map<DBObjectRef, Range> ranges = new HashMap<>();
 
-            DBObjectRef currentObject = null;
+            DBObjectRef groupObject = null;
             int rangeStart = 0;
             for (int i = 0; i < elements.size(); i++) {
                 T objectRelation = elements.get(i);
-                DBObject sourceObject = objectRelation.getSourceObject();
-                DBObject object = Commons.nvl(sourceObject.getParentObject(), sourceObject);
-                currentObject = Commons.nvl(currentObject, object.ref());
+                DBObjectRef relationHolder = DBObjectRef.of(objectRelation.getRelationHolder());
 
-                if (!Objects.equals(currentObject, object.ref())) {
-                    ranges.put(currentObject, new Range(rangeStart, i - 1));
-                    currentObject = object.ref();
+                if (!Objects.equals(groupObject, relationHolder)) {
+                    ranges.put(groupObject, new Range(rangeStart, i - 1));
+                    groupObject = relationHolder;
                     rangeStart = i;
                 }
 
                 if (i == elements.size() - 1) {
-                    ranges.put(currentObject, new Range(rangeStart, i));
+                    ranges.put(groupObject, new Range(rangeStart, i));
                 }
             }
 

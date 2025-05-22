@@ -70,6 +70,7 @@ import java.util.Objects;
 
 import static com.dbn.browser.DatabaseBrowserUtils.isSkipBrowserAutoscroll;
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -134,8 +135,13 @@ public class DatabaseBrowserManager extends ProjectComponentBase implements Pers
     @NotNull
     public ToolWindow getBrowserToolWindow() {
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(getProject());
-        return toolWindowManager.getToolWindow(TOOL_WINDOW_ID);
+        return nd(toolWindowManager.getToolWindow(TOOL_WINDOW_ID));
     }
+
+    public void showBrowserToolWindow() {
+        getBrowserToolWindow().show(null);
+    }
+
 
     @NotNull
     public BrowserToolWindowForm getToolWindowForm() {
@@ -228,11 +234,12 @@ public class DatabaseBrowserManager extends ProjectComponentBase implements Pers
             }
 
             @Override
-            public void nameFiltersChanged(ConnectionId connectionId, @NotNull DBObjectType... objectTypes) {
+            public void nameFiltersChanged(ConnectionId connectionId, @NotNull DBObjectType objectType) {
                 ConnectionHandler connection = ConnectionHandler.get(connectionId);
-                if (toolWindowForm.loaded() && connection != null && objectTypes.length > 0) {
-                    connection.getObjectBundle().refreshTreeChildren(objectTypes);
-                }
+                if (connection == null) return;
+                if (!toolWindowForm.loaded()) return;
+
+                connection.getObjectBundle().refreshTreeChildren(objectType);
             }
         };
     }
