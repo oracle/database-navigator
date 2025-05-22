@@ -168,6 +168,11 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
         ComponentPopupBuilder popupBuilder = JBPopupFactory.getInstance().createComponentPopupBuilder(component, editorTextArea);
         popupBuilder.setRequestFocus(true);
         popupBuilder.setResizable(true);
+
+        // TODO enable sticky popups
+        //popupBuilder.setCancelOnClickOutside(false);
+        //popupBuilder.setCancelOnWindowDeactivation(false);
+
         popupBuilder.setDimensionServiceKey(getProject(), "TextEditor." + userValueHolder.getName(), false);
         return popupBuilder.createPopup();
     }

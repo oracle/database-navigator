@@ -26,41 +26,41 @@ import org.jetbrains.annotations.Nullable;
 
 public interface NotificationSupport extends ProjectSupplier {
 
-    default void sendNotification(NotificationType type, NotificationGroup group, String message) {
-        sendNotification(getProject(), type, group, message);
+    default void sendNotification(NotificationType type, NotificationCategory category, String message) {
+        sendNotification(getProject(), type, category, message);
     }
 
-    default void sendInfoNotification(NotificationGroup group, String message) {
-        sendInfoNotification(getProject(), group, message);
+    default void sendInfoNotification(NotificationCategory category, String message) {
+        sendInfoNotification(getProject(), category, message);
     }
 
-    default void sendWarningNotification(NotificationGroup group, String message) {
-        sendWarningNotification(getProject(), group, message);
+    default void sendWarningNotification(NotificationCategory category, String message) {
+        sendWarningNotification(getProject(), category, message);
     }
 
-    default void sendErrorNotification(NotificationGroup group, String message) {
-        sendErrorNotification(getProject(), group, message);
+    default void sendErrorNotification(NotificationCategory category, String message) {
+        sendErrorNotification(getProject(), category, message);
     }
 
 
-    static void sendInfoNotification(@Nullable Project project, NotificationGroup group, String message) {
-        sendNotification(project, NotificationType.INFORMATION, group, message);
+    static void sendInfoNotification(@Nullable Project project, NotificationCategory category, String message) {
+        sendNotification(project, NotificationType.INFORMATION, category, message);
     }
 
-    static void sendWarningNotification(@Nullable Project project, NotificationGroup group, String message) {
-        sendNotification(project, NotificationType.WARNING, group, message);
+    static void sendWarningNotification(@Nullable Project project, NotificationCategory category, String message) {
+        sendNotification(project, NotificationType.WARNING, category, message);
     }
 
-    static void sendErrorNotification(@Nullable Project project, NotificationGroup area, String message) {
-        sendNotification(project, NotificationType.ERROR, area, message);
+    static void sendErrorNotification(@Nullable Project project, NotificationCategory category, String message) {
+        sendNotification(project, NotificationType.ERROR, category, message);
     }
 
-    static void sendNotification(@Nullable Project project, NotificationType type, NotificationGroup group, String message) {
+    static void sendNotification(@Nullable Project project, NotificationType type, NotificationCategory category, String message) {
         if (project != null && project.isDisposed()) return;
 
         Notification notification = new Notification(
-                "DBNavigator.NotificationGroup",
-                Titles.signed(group.toString()), // TODO NLS
+                category.getGroup().getId(),
+                Titles.signed(category.toString()), // TODO NLS
                 message,
                 type);
         notification.setImportant(false);

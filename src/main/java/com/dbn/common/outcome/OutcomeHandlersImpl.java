@@ -16,17 +16,16 @@
 
 package com.dbn.common.outcome;
 
-import com.dbn.common.notification.NotificationGroup;
+import com.dbn.common.notification.NotificationCategory;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Standard implementation of an {@link OutcomeHandlers} bundle
@@ -41,7 +40,7 @@ public final class OutcomeHandlersImpl implements OutcomeHandlers {
 
     @Override
     public void addHandler(OutcomeType type, OutcomeHandler handler) {
-        handlers.computeIfAbsent(type, t -> new HashSet<>()).add(handler);
+        handlers.computeIfAbsent(type, t -> new TreeSet<>()).add(handler);
     }
 
     @Override
@@ -50,8 +49,8 @@ public final class OutcomeHandlersImpl implements OutcomeHandlers {
     }
 
     @Override
-    public void addNotificationHandler(OutcomeType type, Project project, NotificationGroup group) {
-        addHandler(type, NotificationOutcomeHandler.get(project, group));
+    public void addNotificationHandler(OutcomeType type, Project project, NotificationCategory category) {
+        addHandler(type, NotificationOutcomeHandler.get(project, category));
     }
 
     @Override
@@ -59,7 +58,7 @@ public final class OutcomeHandlersImpl implements OutcomeHandlers {
         Set<OutcomeHandler> handlers = getHandlers(outcome);
         if (handlers == null) return;
 
-        handlers.stream().sorted(Comparator.comparing(h -> h.getPriority())).forEach(handler -> handleSafe(outcome, handler));
+        handlers.forEach(handler -> handleSafe(outcome, handler));
     }
 
     private static void handleSafe(Outcome outcome, OutcomeHandler handler) {

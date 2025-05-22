@@ -46,6 +46,7 @@ public class Splitters {
         JComponent component1 = (JComponent) pane.getTopComponent();
         JComponent component2 = (JComponent) pane.getBottomComponent();
         int orientation = pane.getOrientation();
+        Double dividerProportion = ClientProperty.SPLITTER_PROPORTION.get(pane);
         double dividerLocation = JBUI.scale(pane.getDividerLocation());
         boolean vertical = orientation == VERTICAL_SPLIT;
         Splitter splitter = ClientProperty.REGULAR_SPLITTER.is(pane) ? new JBSplitter(vertical) : new OnePixelSplitter(vertical);
@@ -54,7 +55,7 @@ public class Splitters {
         splitter.setSecondComponent(component2);
         splitter.setShowDividerControls(pane.isOneTouchExpandable());
         splitter.setHonorComponentsMinimumSize(true);
-        splitter.setDividerPositionStrategy(dividerLocation > 0 ?
+        splitter.setDividerPositionStrategy(dividerProportion == null && dividerLocation > 0 ?
                 Splitter.DividerPositionStrategy.KEEP_FIRST_SIZE :
                 Splitter.DividerPositionStrategy.KEEP_PROPORTION);
 
@@ -72,18 +73,22 @@ public class Splitters {
         }
 
 
-        if (dividerLocation > 0) {
+        if (dividerLocation > 0 || dividerProportion != null) {
             whenFirstShown(splitter, () -> {
-                Dispatch.run(() -> {
+                Dispatch.run(parent, () -> {
                     double proportion;
-
-                    if (pane.getOrientation() == VERTICAL_SPLIT) {
-                        double height = (parent.getHeight() - pane.getDividerSize());
-                        proportion = height > 0 ? dividerLocation / height : 0;
+                    if (dividerProportion == null) {
+                        if (pane.getOrientation() == VERTICAL_SPLIT) {
+                            double height = (parent.getHeight() - pane.getDividerSize());
+                            proportion = height > 0 ? dividerLocation / height : 0;
+                        } else {
+                            double width = (parent.getWidth() - pane.getDividerSize());
+                            proportion = width > 0 ? dividerLocation / width : 0;
+                        }
                     } else {
-                        double width = (parent.getWidth() - pane.getDividerSize());
-                        proportion = width > 0 ? dividerLocation / width : 0;
+                        proportion = dividerProportion;
                     }
+
 
                     if (proportion > 0.0 && proportion < 1.0) {
                         splitter.setProportion((float) proportion);
@@ -92,5 +97,10 @@ public class Splitters {
 
             });
         }
+    }
+
+    public static void setSplitPaneProportion(JSplitPane pane, double proportion) {
+        assert proportion >= 0.0 && proportion <= 1.0;
+        ClientProperty.SPLITTER_PROPORTION.set(pane, proportion);
     }
 }

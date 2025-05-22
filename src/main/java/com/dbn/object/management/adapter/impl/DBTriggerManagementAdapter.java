@@ -45,7 +45,7 @@ public class DBTriggerManagementAdapter extends ObjectManagementAdapterFactoryBa
     protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBTrigger object) throws SQLException {
         DatabaseDataDefinitionInterface databaseInterface = connection.getDataDefinitionInterface();
         databaseInterface.dropObject(
-                object.getTypeName(),
+                "trigger",
                 object.getSchemaName(true),
                 object.getName(true),
                 conn);

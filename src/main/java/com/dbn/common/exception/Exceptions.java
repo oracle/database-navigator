@@ -16,7 +16,6 @@
 
 package com.dbn.common.exception;
 
-import com.dbn.common.util.Commons;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.dbn.common.util.Classes.simpleClassName;
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 
 public class Exceptions {
@@ -57,7 +57,7 @@ public class Exceptions {
 
     private static @NotNull String normalizeMessage(@NotNull Throwable e, String s) {
         // remove duplicate message content for nested exceptions propagating own message
-        String message = e.getMessage();
+        String message = nvl(e.getMessage(), "");
         s = s.replace(message, "");
         return s + "[" + simpleClassName(e) + "] " + message;
     }
@@ -70,7 +70,7 @@ public class Exceptions {
 
     @NotNull
     private static String throwableMessage(@NotNull Throwable e) {
-        return Commons.nvl(e.getMessage(), simpleClassName(e));
+        return nvl(e.getMessage(), simpleClassName(e));
     }
 
     public static <T> T unsupported() {
@@ -87,7 +87,7 @@ public class Exceptions {
     }
 
     public static Throwable causeOf(Throwable e) {
-        return Commons.nvl(e.getCause(), e);
+        return nvl(e.getCause(), e);
     }
 
     public static Throwable rootCauseOf(Throwable e) {

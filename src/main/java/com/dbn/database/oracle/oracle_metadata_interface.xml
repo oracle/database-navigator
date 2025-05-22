@@ -25,7 +25,8 @@
         <!ELEMENT statement (#PCDATA)>
         <!ATTLIST statement
                 comment CDATA #IMPLIED
-                prefixes CDATA #IMPLIED>
+                prefixes CDATA #IMPLIED
+                since-version CDATA #IMPLIED>
         ]>
 <data-dictionary>
     <statement-execution-processor id="users" is-query="true" is-prepared-statement="true">
@@ -46,7 +47,10 @@
     </statement-execution-processor>
     <statement-execution-processor id="roles" is-query="true" is-prepared-statement="true">
         <statement>
-            select distinct ROLE as ROLE_NAME from DBA_ROLES
+            select distinct ROLE as ROLE_NAME from DBA_ROLES order by ROLE
+        </statement>
+        <statement prefixes="DBA, USER">
+            select distinct GRANTED_ROLE as ROLE_NAME from [PREFIX]_ROLE_PRIVS order by GRANTED_ROLE
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="all-user-roles" is-query="true" is-prepared-statement="true">
@@ -82,8 +86,8 @@
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="system-privileges" is-query="true" is-prepared-statement="true">
-        <statement>
-            select distinct PRIVILEGE as PRIVILEGE_NAME from DBA_SYS_PRIVS
+        <statement prefixes="DBA, USER">
+            select distinct PRIVILEGE as PRIVILEGE_NAME from [PREFIX]_SYS_PRIVS
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="all-user-privileges" is-query="true" is-prepared-statement="true">
@@ -129,7 +133,23 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="schemas" is-query="true" is-prepared-statement="true">
-        <statement prefixes="DBA, ALL">
+        <statement prefixes="DBA, ALL, USER">
+            select
+                u.USERNAME as SCHEMA_NAME,
+                'N' as IS_PUBLIC,
+                u.ORACLE_MAINTAINED as IS_SYSTEM,
+                'N' as IS_EMPTY
+            from
+                DBA_USERS u
+            union all
+            select
+                'PUBLIC',
+                'Y' as IS_PUBLIC,
+                'Y' as IS_SYSTEM,
+                'N' as IS_EMPTY
+            from DUAL
+        </statement>
+        <statement prefixes="DBA, ALL, USER">
             select
                 u.USERNAME as SCHEMA_NAME,
                 'N' as IS_PUBLIC,
@@ -305,15 +325,115 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="views" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL" since-version="23.0">
+            select
+                v.VIEW_NAME,
+                v.VIEW_TYPE_OWNER,
+                v.VIEW_TYPE,
+                'N' as IS_SYSTEM_VIEW,
+                o.EDITIONABLE as IS_EDITIONABLE
+            from [PREFIX]_VIEWS v
+                inner join [PREFIX]_OBJECTS o
+                        on o.OWNER = v.OWNER
+                       and o.OBJECT_NAME = v.VIEW_NAME
+                left join [PREFIX]_JSON_DUALITY_VIEWS jv
+                       on jv.VIEW_OWNER = v.OWNER
+                      and jv.VIEW_NAME = v.VIEW_NAME
+            where v.OWNER = {0}
+              and jv.VIEW_NAME is null
+            order by v.VIEW_NAME asc
+        </statement>
+        <statement prefixes="DBA, ALL" since-version="23.0">
+            select
+                v.VIEW_NAME,
+                v.VIEW_TYPE_OWNER,
+                v.VIEW_TYPE,
+                'N' as IS_SYSTEM_VIEW,
+                o.EDITIONABLE as IS_EDITIONABLE
+            from [PREFIX]_VIEWS v
+                inner join [PREFIX]_OBJECTS o
+                        on o.OWNER = v.OWNER
+                       and o.OBJECT_NAME = v.VIEW_NAME
+            where v.OWNER = {0}
+              and v.DUALITY_VIEW != 'YES'
+            order by v.VIEW_NAME asc
+        </statement>
         <statement prefixes="DBA, ALL">
             select
-                VIEW_NAME,
-                VIEW_TYPE_OWNER,
-                VIEW_TYPE,
-                'N' as IS_SYSTEM_VIEW
-            from [PREFIX]_VIEWS
-            where OWNER = {0}
-            order by VIEW_NAME asc
+                v.VIEW_NAME,
+                v.VIEW_TYPE_OWNER,
+                v.VIEW_TYPE,
+                'N' as IS_SYSTEM_VIEW,
+                o.EDITIONABLE as IS_EDITIONABLE
+            from [PREFIX]_VIEWS v
+                inner join [PREFIX]_OBJECTS o
+                        on o.OWNER = v.OWNER
+                       and o.OBJECT_NAME = v.VIEW_NAME
+            where v.OWNER = {0}
+            order by v.VIEW_NAME asc
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="json-views" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL" since-version="23.0">
+            select
+                v.VIEW_NAME,
+                null as VIEW_TYPE_OWNER,
+                null as VIEW_TYPE,
+                v.ROOT_TABLE_OWNER,
+                v.ROOT_TABlE_NAME,
+                v.JSON_COLUMN_NAME,
+                'N' as IS_SYSTEM_VIEW,
+                o.EDITIONABLE as IS_EDITIONABLE,
+                DECODE(v.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
+                DECODE(v.READ_ONLY, 'true', 'Y', 'N') as IS_READONLY,
+                DECODE(v.ALLOW_INSERT, 'true', 'Y', 'N') as IS_INSERT_ALLOWED,
+                DECODE(v.ALLOW_UPDATE, 'true', 'Y', 'N') as IS_UPDATE_ALLOWED,
+                DECODE(v.ALLOW_DELETE, 'true', 'Y', 'N') as IS_DELETE_ALLOWED,
+                v.JSON_SCHEMA,
+                listagg(c.JSON_KEY_NAME, ', ') within group (order by c.PRIMARY_KEY_POS) as KEY_ATTRIBUTE_NAMES
+            from [PREFIX]_JSON_DUALITY_VIEWS v,
+                 [PREFIX]_JSON_DUALITY_VIEW_TAB_COLS c,
+                 [PREFIX]_OBJECTS o
+            where v.VIEW_OWNER = {0}
+              and c.VIEW_OWNER = v.VIEW_OWNER
+              and c.VIEW_NAME = v.VIEW_NAME
+              and c.root_table = 'true'
+              and c.PRIMARY_KEY_POS is not null
+              and o.OWNER = v.VIEW_OWNER
+              and o.OBJECT_NAME = v.VIEW_NAME
+            group by
+                v.VIEW_NAME,
+                v.ROOT_TABLE_OWNER,
+                v.ROOT_TABlE_NAME,
+                v.JSON_COLUMN_NAME,
+                v.STATUS,
+                v.READ_ONLY,
+                v.ALLOW_INSERT,
+                v.ALLOW_UPDATE,
+                v.ALLOW_DELETE,
+                v.JSON_SCHEMA,
+                o.EDITIONABLE
+            order by v.VIEW_NAME asc
+        </statement>
+        <statement>
+            select
+                null as VIEW_NAME,
+                null as VIEW_TYPE_OWNER,
+                null as VIEW_TYPE,
+                null as ROOT_TABLE_OWNER,
+                null as ROOT_TABlE_NAME,
+                null as JSON_COLUMN_NAME,
+                'N' as IS_SYSTEM_VIEW,
+                'N' as IS_EDITIONABLE,
+                'Y' as IS_VALID,
+                'Y' as IS_READONLY,
+                'N' as IS_INSERT_ALLOWED,
+                'N' as IS_UPDATE_ALLOWED,
+                'N' as IS_DELETE_ALLOWED,
+                null as JSON_SCHEMA,
+                null as KEY_ATTRIBUTE_NAMES
+            from DUAL
+            where 1 = 2
         </statement>
     </statement-execution-processor>
 
@@ -330,8 +450,8 @@
                 'N' as IS_INNER,
                 'N' as IS_STATIC,
                 'Y' as IS_VALID,
-                'N' as IS_DEBUG
-                'Y' as IS_PRIMITIVE,
+                'N' as IS_DEBUG,
+                'Y' as IS_PRIMITIVE
             from PRIMITIVES connect by level &lt;= regexp_count(CSV, ',') + 1
         </statement>
     </statement-execution-processor>
@@ -361,8 +481,11 @@
                  and apo.OBJECT_TYPE = 'JAVA CLASS'
             where j.OWNER = {0}
               and j.IS_INNER = 'NO'
-              and j.NAME not like '%$%'   -- TODO not all classes containing $ are INNER (!?)
-            order j.NAME
+              and j.NAME not like '%$%'   /*TODO not all classes containing $ are INNER (!?) */
+            order by j.NAME
+        </statement>
+        <statement>
+            select 1 from dual where 1 = 2
         </statement>
     </statement-execution-processor>
 
@@ -454,7 +577,8 @@
                 [PREFIX]_JAVA_FIELDS
             where
                 OWNER = {0} and
-                NAME = {1}
+                NAME = {1} and
+                BASE_TYPE is not null
             order by
                 FIELD_INDEX
         </statement>
@@ -474,7 +598,8 @@
             from
                 [PREFIX]_JAVA_FIELDS
             where
-                OWNER = {0}
+                OWNER = {0} and
+                BASE_TYPE is not null
             order by
                 NAME,
                 FIELD_INDEX
@@ -493,7 +618,7 @@
                 decode(m.IS_STATIC,'YES','Y','N') as IS_STATIC,
                 decode(m.IS_FINAL,'YES','Y','N') as IS_FINAL,
                 decode(m.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
-                case when m.METHOD_NAME in (chr(60)||'init'||chr(62), chr(60)||'clinit'||chr(62)) then regexp_substr(m.NAME, '[^/]+$', 1, 1) else m.METHOD_NAME end || '('
+                case when m.METHOD_NAME = chr(60)||'init'||chr(62) then regexp_substr(m.NAME, '[^/]+$', 1, 1) else m.METHOD_NAME end || '('
                     || listagg(decode(a.ARGUMENT_CLASS, '-', a.BASE_TYPE, regexp_substr(a.ARGUMENT_CLASS, '[^/]+$', 1, 1))|| lpad('[]', a.ARRAY_DEPTH * 2, '[]'), ', ') within group (order by a.ARGUMENT_POSITION) || '): '
                     || decode(m.RETURN_CLASS, '-', m.BASE_TYPE, regexp_substr(m.RETURN_CLASS, '[^/]+$', 1, 1))
                     || lpad('[]', m.ARRAY_DEPTH * 2, '[]') as METHOD_SIGNATURE
@@ -505,7 +630,8 @@
             where
                 m.OWNER = {0} and
                 m.NAME = {1} and
-                m.METHOD_NAME != '-'
+                m.METHOD_NAME != '-' and
+                m.METHOD_NAME != chr(60)||'clinit'||chr(62)
             group by
                 m.NAME,
                 m.METHOD_NAME,
@@ -535,7 +661,7 @@
                 decode(m.IS_STATIC,'YES','Y','N') as IS_STATIC,
                 decode(m.IS_FINAL,'YES','Y','N') as IS_FINAL,
                 decode(m.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
-                case when m.METHOD_NAME in (chr(60)||'init'||chr(62), chr(60)||'clinit'||chr(62)) then regexp_substr(m.NAME, '[^/]+$', 1, 1) else m.METHOD_NAME end || '('
+                case when m.METHOD_NAME = chr(60)||'init'||chr(62) then regexp_substr(m.NAME, '[^/]+$', 1, 1) else m.METHOD_NAME end || '('
                     || listagg(decode(a.ARGUMENT_CLASS, '-', a.BASE_TYPE, regexp_substr(a.ARGUMENT_CLASS, '[^/]+$', 1, 1))|| lpad('[]', a.ARRAY_DEPTH * 2, '[]'), ', ') within group (order by a.ARGUMENT_POSITION) || '): '
                     || decode(m.RETURN_CLASS, '-', m.BASE_TYPE, regexp_substr(m.RETURN_CLASS, '[^/]+$', 1, 1))
                     || lpad('[]', m.ARRAY_DEPTH * 2, '[]') as METHOD_SIGNATURE
@@ -546,7 +672,8 @@
                     m.METHOD_INDEX = a.METHOD_INDEX
             where
                 m.OWNER = {0} and
-                m.METHOD_NAME != '-'
+                m.METHOD_NAME != '-' and
+                m.METHOD_NAME != chr(60)||'clinit'||chr(62)
             group by
                 m.NAME,
                 m.METHOD_NAME,
@@ -603,13 +730,105 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="java-class-dependencies" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL, USER">
+            select
+                d.OBJECT_OWNER,
+                d.OBJECT_NAME,
+                case when s.OWNER is not null then 'Y' else 'N' end as HAS_SOURCE
+            from (
+                select distinct
+                    REFERENCED_OWNER as OBJECT_OWNER,
+                    REFERENCED_NAME as OBJECT_NAME
+                from [PREFIX]_DEPENDENCIES
+                where
+                    REFERENCED_TYPE = 'JAVA CLASS' and
+                    REFERENCED_OWNER != 'SYS' and
+                    (OWNER != REFERENCED_OWNER or NAME != REFERENCED_NAME)
+                start with
+                    OWNER = {0} and NAME = {1}
+                connect by nocycle
+                prior REFERENCED_OWNER = OWNER and
+                prior REFERENCED_NAME = NAME
+            ) d
+            inner join [PREFIX]_JAVA_CLASSES c
+                    on c.OWNER = d.OBJECT_OWNER
+                   and c.NAME = d.OBJECT_NAME
+                   and c.IS_INNER = 'NO'
+            left join [PREFIX]_SOURCE s
+                   on s.OWNER = d.OBJECT_OWNER
+                  and s.NAME = d.OBJECT_NAME
+                  and s.LINE = 1
+            order by
+                HAS_SOURCE desc, d.OBJECT_OWNER, d.OBJECT_NAME
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="all-java-class-dependencies" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL, USER">
+            select
+                d.OBJECT_OWNER,
+                d.OBJECT_NAME,
+                case when s.OWNER is not null then 'Y' else 'N' end as HAS_SOURCE
+            from (
+                select distinct
+                    REFERENCED_OWNER as OBJECT_OWNER,
+                    REFERENCED_NAME as OBJECT_NAME
+                from [PREFIX]_DEPENDENCIES
+                where
+                    REFERENCED_TYPE = 'JAVA CLASS' and
+                    REFERENCED_OWNER != 'SYS' and
+                    (OWNER != REFERENCED_OWNER or NAME != REFERENCED_NAME)
+                start with OWNER = {0}
+                    connect by nocycle
+                    prior REFERENCED_OWNER = OWNER and
+                    prior REFERENCED_NAME = NAME
+                union
+                select distinct
+                    OWNER as OBJECT_OWNER,
+                    NAME as OBJECT_NAME
+                from [PREFIX]_DEPENDENCIES
+                where
+                    owner = {0} and
+                    REFERENCED_TYPE = 'JAVA CLASS'
+            ) d
+            inner join [PREFIX]_JAVA_CLASSES c
+                    on c.OWNER = d.OBJECT_OWNER
+                   and c.NAME = d.OBJECT_NAME
+                   and c.IS_INNER = 'NO'
+                   and c.NAME not like 'OJVM_%'
+                   and c.NAME not like 'DBN_OJVM_%'
+            left join [PREFIX]_SOURCE s
+                   on s.OWNER = d.OBJECT_OWNER
+                  and s.NAME = d.OBJECT_NAME
+                  and s.LINE = 1
+            order by
+                HAS_SOURCE desc, d.OBJECT_OWNER, d.OBJECT_NAME
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="java-resources" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL">
+            select
+                OBJECT_NAME,
+                decode(STATUS, 'VALID', 'Y', 'N') as IS_VALID
+            from
+                [PREFIX]_OBJECTS
+            where
+                OWNER = {0}
+                and OBJECT_TYPE = 'JAVA RESOURCE'
+            order by
+                OBJECT_NAME
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="materialized-views" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select
                 MVIEW_NAME as VIEW_NAME,
                 null as VIEW_TYPE_OWNER,
                 null as VIEW_TYPE,
-                'N' as IS_SYSTEM_VIEW
+                'N' as IS_SYSTEM_VIEW,
+                'N' as IS_EDITIONABLE
             from [PREFIX]_MVIEWS
             where OWNER = {0}
             order by MVIEW_NAME asc
@@ -640,7 +859,7 @@
                 col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,
                 null as DECL_TYPE_PROGRAM,
-                col.DATA_LENGTH,
+                decode(col.DATA_TYPE, 'VECTOR', col.CHAR_LENGTH, col.DATA_LENGTH) as DATA_LENGTH,
                 col.DATA_PRECISION,
                 col.DATA_SCALE,
                 'N' as IS_SET,
@@ -778,7 +997,7 @@
                 col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,
                 null as DECL_TYPE_PROGRAM,
-                col.DATA_LENGTH,
+                decode(col.DATA_TYPE, 'VECTOR', col.CHAR_LENGTH, col.DATA_LENGTH) as DATA_LENGTH,
                 col.DATA_PRECISION,
                 col.DATA_SCALE,
                 'N' as IS_SET,
@@ -1122,6 +1341,37 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="json-view-table-relations" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL" since-version="23.0">
+            select
+                VIEW_NAME as JSON_VIEW_NAME,
+                TABLE_OWNER as TABLE_OWNER_NAME,
+                TABLE_NAME as TABLE_NAME,
+                TABLE_NUMBER as POSITION,
+                DECODE(ROOT_TABLE, 'true', 'Y', 'N') AS IS_ROOT_TABLE,
+                DECODE(READ_ONLY, 'true', 'Y', 'N') AS IS_READONLY
+            from [PREFIX]_JSON_DUALITY_VIEW_TABS
+            where VIEW_OWNER = {0}
+              and VIEW_NAME = {1}
+            order by TABLE_NUMBER
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="all-json-view-table-relations" is-query="true" is-prepared-statement="true" timeout="90">
+        <statement prefixes="DBA, ALL" since-version="23.0">
+            select
+                VIEW_NAME as JSON_VIEW_NAME,
+                TABLE_OWNER as TABLE_OWNER_NAME,
+                TABLE_NAME as TABLE_NAME,
+                TABLE_NUMBER as POSITION,
+                DECODE(ROOT_TABLE, 'true', 'Y', 'N') AS IS_ROOT_TABLE,
+                DECODE(READ_ONLY, 'true', 'Y', 'N') AS IS_READONLY
+                from [PREFIX]_JSON_DUALITY_VIEW_TABS
+            where VIEW_OWNER  = {0}
+            order by VIEW_NAME, TABLE_NUMBER
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="all-nested-tables" is-query="true" is-prepared-statement="true" timeout="90">
         <statement prefixes="DBA, ALL">
             select
@@ -1197,7 +1447,7 @@
                 SYS.ALL_PROBE_OBJECTS o
             where
                 t.TABLE_OWNER = {0} and
-                t.BASE_OBJECT_TYPE in ('TABLE', 'VIEW') and
+                trim(t.BASE_OBJECT_TYPE) in ('TABLE', 'VIEW') and
                 o.OWNER (+) = t.OWNER and
                 o.OBJECT_NAME (+) = t.TRIGGER_NAME and
                 o.OBJECT_TYPE (+) = 'TRIGGER'
@@ -1223,7 +1473,7 @@
                 o.OBJECT_NAME = t.TRIGGER_NAME and
                 o.OBJECT_TYPE = 'TRIGGER' and
                 t.TABLE_OWNER = {0} and
-                t.BASE_OBJECT_TYPE in ('TABLE', 'VIEW' )
+                trim(t.BASE_OBJECT_TYPE) in ('TABLE', 'VIEW') and
             order by
                 TABLE_NAME,
                 TRIGGER_NAME asc
@@ -1233,45 +1483,45 @@
     <statement-execution-processor id="database-triggers" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select distinct
-            t.TRIGGER_NAME,
-            t.TRIGGER_TYPE,
-            t.TRIGGERING_EVENT,
-            decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
-            decode(nvl(o.STATUS, 'VALID'), 'VALID', 'Y', 'N') as IS_VALID,
-            decode(nvl(o.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG,
-            case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
+                t.TRIGGER_NAME,
+                t.TRIGGER_TYPE,
+                t.TRIGGERING_EVENT,
+                decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(nvl(o.STATUS, 'VALID'), 'VALID', 'Y', 'N') as IS_VALID,
+                decode(nvl(o.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG,
+                case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
             from
-            [PREFIX]_TRIGGERS t,
-            SYS.ALL_PROBE_OBJECTS o
+                [PREFIX]_TRIGGERS t,
+                SYS.ALL_PROBE_OBJECTS o
             where
-            t.OWNER = {0} and
-            t.BASE_OBJECT_TYPE = 'DATABASE' and
-            o.OWNER (+) = t.OWNER and
-            o.OBJECT_NAME (+) = t.TRIGGER_NAME and
-            o.OBJECT_TYPE (+) = 'TRIGGER'
+                t.OWNER = {0} and
+                trim(t.BASE_OBJECT_TYPE) in ('DATABASE', 'SCHEMA') and
+                o.OWNER (+) = t.OWNER and
+                o.OBJECT_NAME (+) = t.TRIGGER_NAME and
+                o.OBJECT_TYPE (+) = 'TRIGGER'
             order by
-            t.TRIGGER_NAME asc
+                t.TRIGGER_NAME asc
         </statement>
         <statement prefixes="DBA, ALL">
             select distinct
-            t.TRIGGER_NAME,
-            t.TRIGGER_TYPE,
-            t.TRIGGERING_EVENT,
-            decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
-            decode(o.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
-            'N' as IS_DEBUG,
-            case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
+                t.TRIGGER_NAME,
+                t.TRIGGER_TYPE,
+                t.TRIGGERING_EVENT,
+                decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(o.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
+                'N' as IS_DEBUG,
+                case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
             from
-            [PREFIX]_TRIGGERS t,
-            [PREFIX]_OBJECTS o
+                [PREFIX]_TRIGGERS t,
+                [PREFIX]_OBJECTS o
             where
-            o.OWNER = t.OWNER and
-            o.OBJECT_NAME = t.TRIGGER_NAME and
-            o.OBJECT_TYPE = 'TRIGGER' and
-            t.OWNER = {0} and
-            t.BASE_OBJECT_TYPE = 'DATABASE'
+                o.OWNER = t.OWNER and
+                o.OBJECT_NAME = t.TRIGGER_NAME and
+                o.OBJECT_TYPE = 'TRIGGER' and
+                t.OWNER = {0} and
+                trim(t.BASE_OBJECT_TYPE) in ('DATABASE', 'SCHEMA') and
             order by
-            TRIGGER_NAME asc
+                TRIGGER_NAME asc
         </statement>
     </statement-execution-processor>
 
@@ -2137,7 +2387,7 @@
                 TYPE_OWNER as DECL_TYPE_OWNER,
                 decode(TYPE_SUBNAME, null, null, TYPE_NAME) as DECL_TYPE_PROGRAM,
                 decode(TYPE_SUBNAME, null, nvl(TYPE_NAME, DATA_TYPE), TYPE_SUBNAME) as DECL_TYPE_NAME,
-                DATA_LENGTH,
+                decode(DATA_TYPE, 'VECTOR', CHAR_LENGTH, DATA_LENGTH) as DATA_LENGTH,
                 DATA_PRECISION,
                 DATA_SCALE,
                 'N' as IS_SET
@@ -2170,7 +2420,7 @@
                 TYPE_OWNER as DECL_TYPE_OWNER,
                 decode(TYPE_SUBNAME, null, null, TYPE_NAME) as DECL_TYPE_PROGRAM,
                 decode(TYPE_SUBNAME, null, nvl(TYPE_NAME, DATA_TYPE), TYPE_SUBNAME) as DECL_TYPE_NAME,
-                DATA_LENGTH,
+                decode(DATA_TYPE, 'VECTOR', CHAR_LENGTH, DATA_LENGTH) as DATA_LENGTH,
                 DATA_PRECISION,
                 DATA_SCALE,
                 'N' as IS_SET
@@ -2342,8 +2592,30 @@
             where
                 OWNER = {0} and
                 NAME = {1} and
+                TYPE = {2} and
+                ORIGIN_CON_ID = SYS_CONTEXT('USERENV', 'CON_ID')
+            order by LINE asc
+        </statement>
+        <statement prefixes="DBA, ALL">
+            select TEXT as SOURCE_CODE
+            from [PREFIX]_SOURCE
+            where
+                OWNER = {0} and
+                NAME = {1} and
                 TYPE = {2}
             order by LINE asc
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="java-resource-source-code" timeout="30">
+        <statement prefixes="DBA, ALL">
+            declare
+                V_CLOB CLOB;
+            begin
+                DBMS_LOB.CREATETEMPORARY(V_CLOB, TRUE);
+                DBMS_JAVA.export_resource('{1}', '{0}', V_CLOB);
+                ? := V_CLOB;
+            end;
         </statement>
     </statement-execution-processor>
 

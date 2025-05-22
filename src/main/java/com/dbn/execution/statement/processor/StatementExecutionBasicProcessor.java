@@ -30,6 +30,7 @@ import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.CancellableDatabaseCall;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Documents;
+import com.dbn.common.util.Naming;
 import com.dbn.common.util.Safe;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -77,6 +78,8 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
+import com.dbn.object.event.ObjectChangeAction;
+import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -162,8 +165,12 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         this.name = psiFile.getName();
         this.icon = psiFile.getIcon();
         this.index = index;
-        sqlStatement = sqlStatement.trim();
-        executionInput = new StatementExecutionInput(sqlStatement, sqlStatement, this);
+        String originalStatement = sqlStatement.trim();
+        String executableStatement = originalStatement;
+        // TODO psi introspection to determine if statement-end marker should be removed or not
+        // String executableStatement = removeTrailingContent(originalStatement, ";");
+
+        executionInput = new StatementExecutionInput(originalStatement, executableStatement, this);
 
         initEditorProviderId(fileEditor);
     }
@@ -607,20 +614,33 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         Project project = getProject();
         if (!isDataDefinitionStatement()) return;
 
+        DBObjectType objectType;
+        ConnectionId connectionId;
+        SchemaId schemaId;
+
+        // TODO check why this logic is schema centric (should consider non-schema objects like users and privileges)
         DBSchemaObject affectedObject = getAffectedObject();
         if (affectedObject != null) {
             ProjectEvents.notify(project,
                     DataDefinitionChangeListener.TOPIC,
                     (listener) -> listener.dataDefinitionChanged(affectedObject));
+
+            connectionId = affectedObject.getConnectionId();
+            schemaId = affectedObject.getSchemaId();
+            objectType = affectedObject.getObjectType();
         } else {
-            DBSchema affectedSchema = getAffectedSchema();
             IdentifierPsiElement subjectPsiElement = getSubjectPsiElement();
-            if (affectedSchema != null && subjectPsiElement != null) {
-                DBObjectType objectType = subjectPsiElement.getObjectType();
-                ProjectEvents.notify(project,
-                        DataDefinitionChangeListener.TOPIC,
-                        (listener) -> listener.dataDefinitionChanged(affectedSchema, objectType));
-            }
+
+            DBSchema schema = getAffectedSchema();
+            schemaId = schema == null ? null : schema.getSchemaId();
+            connectionId = schema == null ? null : schema.getConnectionId();
+            objectType = subjectPsiElement == null ? null : subjectPsiElement.getObjectType();
+        }
+
+        if (connectionId != null && objectType != null) {
+            ProjectEvents.notify(project, ObjectChangeListener.TOPIC,
+                    l -> l.objectsChanged(connectionId, schemaId, objectType, ObjectChangeAction.UNKNOWN));
+
         }
     }
 
@@ -654,9 +674,9 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         ConnectionHandler connection = executionInput.getConnection();
         if (isDdlStatement && DatabaseFeature.OBJECT_INVALIDATION.isSupported(connection)) {
             BasePsiElement compilablePsiElement = getCompilableBlockPsiElement();
-            if (compilablePsiElement == null)  return;
-
-            hasCompilerErrors = evaluateCompilerErrors(executionResult, compilablePsiElement, connection);
+            if (compilablePsiElement != null)   {
+                hasCompilerErrors = evaluateCompilerErrors(executionResult, compilablePsiElement, connection);
+            }
         }
 
         if (hasCompilerErrors) {
@@ -816,7 +836,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
      ********************************************************/
     private boolean isDataDefinitionStatement() {
         ExecutablePsiElement cachedExecutable = getCachedExecutable();
-        return cachedExecutable != null && cachedExecutable.is(ElementTypeAttribute.DATA_DEFINITION);
+        return cachedExecutable != null && cachedExecutable.isDataDefinitionStatement();
     }
 
     @Nullable
@@ -842,7 +862,8 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         DBObjectList objectList = childObjects.getObjectList(objectType);
         if (objectList == null) return null;
 
-        return (DBSchemaObject) objectList.getObject(subjectPsiElement.getText());
+        String objectName = Naming.unquote(subjectPsiElement.getText());
+        return (DBSchemaObject) objectList.getObject(objectName);
     }
 
     @Nullable

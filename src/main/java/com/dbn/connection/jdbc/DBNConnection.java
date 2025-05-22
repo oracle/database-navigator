@@ -20,6 +20,7 @@ import com.dbn.common.compatibility.Exploitable;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.thread.Background;
 import com.dbn.common.util.TimeUtil;
 import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionHandler;
@@ -184,6 +185,7 @@ public class DBNConnection extends DBNConnectionBase {
         this.properties = new ConnectionProperties(connection);
 
         initIdentifierQuotes();
+        markInitialized();
     }
 
     public static DBNConnection wrap(Project project, Connection connection, DatabaseType databaseType, ConnectionType connectionType, ConnectionId id, String name, SessionId sessionId) throws SQLException {
@@ -330,7 +332,20 @@ public class DBNConnection extends DBNConnectionBase {
                 case VALID: connectionStatus.getValid().markDirty(); break;
                 case ACTIVE: connectionStatus.getActive().markDirty(); break;
             }
+
+            if (isInitialized() && status.isOneOf(VALID, CLOSED)) {
+                verifyAndRelease();
+                notifyStatusChange();
+            }
         });
+    }
+
+    private void verifyAndRelease() {
+        if (is(VALID) && isNot(CLOSED)) return;
+
+        propagate(connection -> connection.getConnectionPool().release(this));
+        resetDataChanges();
+
     }
 
     public void updateLastAccess() {
@@ -432,7 +447,6 @@ public class DBNConnection extends DBNConnectionBase {
         } finally {
             updateLastAccess();
             resetDataChanges();
-            notifyStatusChange();
         }
     }
 
@@ -443,9 +457,11 @@ public class DBNConnection extends DBNConnectionBase {
     }
 
     private void notifyStatusChange() {
-        ProjectEvents.notify(getProject(),
-                ConnectionStatusListener.TOPIC,
-                l -> l.statusChanged(getConnectionId(), sessionId));
+        Background.run(() ->  {
+            ProjectEvents.notify(getProject(),
+                    ConnectionStatusListener.TOPIC,
+                    l -> l.statusChanged(getConnectionId(), sessionId));
+        });
     }
 
     /********************************************************************
@@ -486,9 +502,8 @@ public class DBNConnection extends DBNConnectionBase {
 
     @Override
     public boolean set(ResourceStatus status, boolean value) {
-        boolean changed;
         if (status == ACTIVE) {
-            changed = active.set(value);
+            return active.set(value);
 
         } else if (status == RESERVED) {
             if (value) {
@@ -498,14 +513,10 @@ public class DBNConnection extends DBNConnectionBase {
                     log.warn("Reserving already reserved connection");
                 }
             }
-            changed = reserved.set(value);
+            return reserved.set(value);
         } else {
-            changed = super.set(status, value);
-            if (changed) statusChanged(status);
+            return super.set(status, value);
         }
-
-
-        return changed;
     }
 
 

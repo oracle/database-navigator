@@ -20,6 +20,7 @@ import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +31,7 @@ import java.awt.GridBagLayout;
 
 public abstract class ComboBoxAction
         extends com.intellij.openapi.actionSystem.ex.ComboBoxAction
-        implements BackgroundUpdateAware {
+        implements BackgroundUpdateAware, DumbAware {
 
     @NotNull
     @Override

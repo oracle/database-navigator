@@ -16,10 +16,15 @@
 
 package com.dbn.common.ui.list;
 
+import com.dbn.common.property.PropertyHolder;
+import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNEditableTable;
 import com.dbn.common.ui.table.DBNTableGutter;
 import com.dbn.common.ui.table.IndexTableGutter;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JTextField;
@@ -30,27 +35,44 @@ import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class EditableStringList extends DBNEditableTable<EditableStringListModel> {
-    private final boolean sorted;
-    private final boolean indexed;
+import static com.dbn.common.ui.list.ListProperty.EDITABLE;
+import static com.dbn.common.ui.list.ListProperty.INDEXED;
+import static com.dbn.common.ui.list.ListProperty.SORTED;
+import static java.util.Collections.emptyList;
 
-    public EditableStringList(@NotNull DBNComponent parent, boolean sorted, boolean indexed) {
-        this(parent, new ArrayList<>(), sorted, indexed);
+@Getter
+@Setter
+public class EditableStringList extends DBNEditableTable<EditableStringListModel> implements PropertyHolder<ListProperty> {
+    @Delegate
+    protected PropertyHolder<ListProperty> properties = PropertyHolderBase.intBase(ListProperty.VALUES);
+
+    public EditableStringList(@NotNull DBNComponent parent, ListProperty ... properties) {
+        this(parent, emptyList(), properties);
     }
 
-    public EditableStringList(@NotNull DBNComponent parent, List<String> elements, boolean sorted, boolean indexed) {
-        super(parent, new EditableStringListModel(elements, sorted), false);
+    public EditableStringList(@NotNull DBNComponent parent, List<String> elements, ListProperty ... properties) {
+        super(parent, new EditableStringListModel(), false);
+        this.properties.set(properties, true);
+
         setTableHeader(null);
-        this.sorted = sorted;
-        this.indexed = indexed;
+        setStringValues(elements);
         addKeyListener(keyListener);
+    }
+
+    public boolean isEditable() {
+        return is(EDITABLE);
+    }
+
+    public boolean isIndexed() {
+        return is(INDEXED);
     }
 
     @Override
     public DBNTableGutter<?> createTableGutter() {
-        return indexed ? new IndexTableGutter<>(this) : null;
+        return isIndexed() ? new IndexTableGutter<>(this) : null;
     }
 
     @Override
@@ -95,14 +117,25 @@ public class EditableStringList extends DBNEditableTable<EditableStringListModel
 
         @Override
         public void keyPressed(KeyEvent e) {
+            if (!isEditable()) return;
             if (e.isConsumed()) return;
 
             int selectedRow = getSelectedRow();
             int keyCode = e.getKeyCode();
             if (keyCode == KeyEvent.VK_DOWN) {
+                e.consume();
                 if (selectedRow == getModel().getRowCount() - 1) {
-                    e.consume();
+
                     insertRow();
+                } else {
+                    stopCellEditing();
+                    selectCell(selectedRow + 1, 0);
+                }
+            } else if (keyCode == KeyEvent.VK_UP) {
+                e.consume();
+                if (selectedRow > 0) {
+                    stopCellEditing();
+                    selectCell(selectedRow - 1, 0);
                 }
             } else if (keyCode == KeyEvent.VK_ENTER && e.getModifiers() == 0) {
                 e.consume();
@@ -143,7 +176,11 @@ public class EditableStringList extends DBNEditableTable<EditableStringListModel
     }
 
     public void setStringValues(List<String> stringValues) {
-        setModel(new EditableStringListModel(stringValues, sorted));
+        if (is(SORTED)) {
+            stringValues = new ArrayList<>(stringValues);
+            Collections.sort(stringValues);
+        }
+        setModel(new EditableStringListModel(stringValues));
     }
 
 

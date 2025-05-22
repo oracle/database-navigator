@@ -76,17 +76,18 @@ public class DBNEditableTable<T extends DBNEditableTableModel> extends DBNTableW
     }
 
     private void startCellEditing() {
-        if (getModel().getRowCount() > 0) {
-            int selectedRow = getSelectedRow();
-            int selectedColumn = getSelectedColumn();
+        if (getModel().getRowCount() <= 0) return;
 
-            if (selectedRow > -1 && selectedColumn > -1) {
-                TableCellEditor cellEditor = getCellEditor();
-                if (cellEditor == null) {
-                    editCellAt(selectedRow, selectedColumn);
-                }
-            }
-        }
+        int selectedRow = getSelectedRow();
+        int selectedColumn = getSelectedColumn();
+
+        if (selectedRow <= -1) return;
+        if (selectedColumn <= -1) return;
+
+        TableCellEditor cellEditor = getCellEditor();
+        if (cellEditor != null) return;
+
+        editCellAt(selectedRow, selectedColumn);
     }
 
     @Override
@@ -147,6 +148,13 @@ public class DBNEditableTable<T extends DBNEditableTableModel> extends DBNTableW
         return false;
     }
 
+    public void selectRow(int row) {
+        if (row < 0) return;
+        if (row >= getModel().getRowCount()) return;
+
+        getSelectionModel().setSelectionInterval(row, row);
+    }
+
     public void insertRow() {
         stopCellEditing();
         int rowIndex = getSelectedRow();
@@ -154,7 +162,8 @@ public class DBNEditableTable<T extends DBNEditableTableModel> extends DBNTableW
         rowIndex = model.getRowCount() == 0 ? 0 : rowIndex + 1;
         model.insertRow(rowIndex);
         resizeAndRepaint();
-        getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
+
+        selectRow(rowIndex);
     }
 
 
@@ -165,9 +174,7 @@ public class DBNEditableTable<T extends DBNEditableTableModel> extends DBNTableW
         model.removeRow(selectedRow);
         resizeAndRepaint();
 
-        if (model.getRowCount() == selectedRow && selectedRow > 0) {
-            getSelectionModel().setSelectionInterval(selectedRow -1, selectedRow -1);
-        }
+        selectRow(selectedRow -1);
     }
 
     public void moveRowUp() {

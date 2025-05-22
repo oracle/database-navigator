@@ -63,13 +63,13 @@ import com.dbn.object.common.list.DBObjectListImpl;
 import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.impl.DBObjectLoaders;
 import com.dbn.object.status.ObjectStatusManager;
-import com.dbn.object.type.DBObjectRelationType;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -82,7 +82,6 @@ import java.util.Set;
 
 import static com.dbn.browser.DatabaseBrowserUtils.treeVisibilityChanged;
 import static com.dbn.common.content.DynamicContentProperty.GROUPED;
-import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.object.type.DBObjectRelationType.ROLE_PRIVILEGE;
@@ -98,6 +97,7 @@ import static com.dbn.object.type.DBObjectType.SYNONYM;
 import static com.dbn.object.type.DBObjectType.SYSTEM_PRIVILEGE;
 import static com.dbn.object.type.DBObjectType.USER;
 
+@Slf4j
 public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObjectBundle, NotificationSupport {
     static { DBObjectLoaders.initLoaders();}
 
@@ -144,8 +144,8 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         this.objectLists.createObjectRelationList(ROLE_PRIVILEGE, this, roles, systemPrivileges, GROUPED);
 
         this.publicSchemas = Latent.mutable(
-                () -> nd(schemas).getSignature(),
-                () -> nvl(Lists.filter(getSchemas(), s -> s.isPublicSchema()), Collections.emptyList()));
+                () -> getObjectListSignature(SCHEMA),
+                () -> loadPublicSchemas());
 
         Project project = connection.getProject();
         ProjectEvents.subscribe(project, this, DataDefinitionChangeListener.TOPIC, dataDefinitionChangeListener());
@@ -156,6 +156,10 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         Disposer.register(connection, this);
     }
 
+    private @NotNull List<DBSchema> loadPublicSchemas() {
+        return nvl(Lists.filter(getSchemas(), s -> s.isPublicSchema()), Collections.emptyList());
+    }
+
     private PsiFile createFakePsiFile() {
         PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(getProject());
         return Read.call(psiFileFactory, f -> f.createFileFromText("object", SQLLanguage.INSTANCE, ""));
@@ -163,22 +167,9 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
 
     @NotNull
     private DataDefinitionChangeListener dataDefinitionChangeListener() {
-        return new DataDefinitionChangeListener() {
-            @Override
-            public void dataDefinitionChanged(DBSchema schema, DBObjectType objectType) {
-                if (schema.getConnection() == DBObjectBundleImpl.this.getConnection()) {
-                    schema.refresh(objectType);
-                    for (DBObjectType childObjectType : objectType.getChildren()) {
-                        schema.refresh(childObjectType);
-                    }
-                }
-            }
-
-            @Override
-            public void dataDefinitionChanged(@NotNull DBSchemaObject schemaObject) {
-                if (schemaObject.getConnection() == DBObjectBundleImpl.this.getConnection()) {
-                    schemaObject.refresh();
-                }
+        return schemaObject -> {
+            if (schemaObject.getConnectionId() == getConnectionId()) {
+                schemaObject.refresh();
             }
         };
     }
@@ -206,22 +197,7 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
     }
 
     private ObjectChangeListener objectChangeListener() {
-        return (connectionId, ownerId, objectType) -> {
-            if (ownerId == null) {
-                DBObjectList<DBObject> objectList = getObjectLists().getObjectList(objectType);
-                if (objectList != null && objectList.isLoaded()) {
-                    objectList.reloadInBackground();
-                }
-            } else {
-                DBSchema schema = getSchema(ownerId.id());
-                if (schema != null) {
-                    DBObjectList<DBObject> objectList = schema.getChildObjectList(objectType);
-                    if (objectList != null && objectList.isLoaded()) {
-                        objectList.reloadInBackground();
-                    }
-                }
-            }
-        };
+        return new DBObjectBundleMonitor(this);
     }
 
     @Override
@@ -685,6 +661,11 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         return getObjectLists().getObjectList(objectType);
     }
 
+    private Byte getObjectListSignature(DBObjectType objectType) {
+        DBObjectList<DBObject> objectList = getObjectList(objectType);
+        return objectList == null ? 0 : objectList.getSignature();
+    }
+
     @Override
     @NotNull
     public Project getProject() {
@@ -693,18 +674,8 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
 
     @Override
     @Nullable
-    public DynamicContent<?> getDynamicContent(DynamicContentType<?> dynamicContentType) {
-        if(dynamicContentType instanceof DBObjectType) {
-            DBObjectType objectType = (DBObjectType) dynamicContentType;
-            return objectLists.getObjectList(objectType);
-        }
-
-        if (dynamicContentType instanceof DBObjectRelationType) {
-            DBObjectRelationType relationType = (DBObjectRelationType) dynamicContentType;
-            return objectLists.getRelations(relationType);
-        }
-
-        return null;
+    public DynamicContent<?> getDynamicContent(DynamicContentType<?> contentType) {
+        return objectLists.getDynamicContent(contentType);
     }
 
     @Override

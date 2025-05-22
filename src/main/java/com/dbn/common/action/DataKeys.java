@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package com.dbn.common.action;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.credential.remote.ui.CredentialManagementForm;
 import com.dbn.assistant.profile.ui.ProfileManagementForm;
+import com.dbn.batch.ui.BatchMonitorForm;
 import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
 import com.dbn.data.editor.ui.array.ArrayEditorPopupProviderForm;
@@ -26,6 +27,7 @@ import com.dbn.data.editor.ui.calendar.CalendarPopupProviderForm;
 import com.dbn.data.editor.ui.text.TextEditorPopupProviderForm;
 import com.dbn.diagnostics.ui.ParserDiagnosticsForm;
 import com.dbn.editor.data.DatasetEditor;
+import com.dbn.editor.json.JsonDataEditor;
 import com.dbn.editor.session.SessionBrowser;
 import com.dbn.execution.common.message.ui.tree.MessagesTree;
 import com.dbn.execution.explain.result.ExplainPlanResult;
@@ -41,6 +43,7 @@ import com.intellij.openapi.actionSystem.DataKey;
 
 public interface DataKeys {
     DataKey<DatasetEditor> DATASET_EDITOR = DataKey.create("DBNavigator.DatasetEditor");
+    DataKey<JsonDataEditor> JSON_DATA_EDITOR = DataKey.create("DBNavigator.JsonDataEditor");
     DataKey<MessagesTree> MESSAGES_TREE = DataKey.create("DBNavigator.MessagesTree");
     DataKey<ConnectionBundleSettingsForm> CONNECTION_BUNDLE_SETTINGS = DataKey.create("DBNavigator.ConnectionSettingsEditor");
     DataKey<SessionBrowser> SESSION_BROWSER = DataKey.create("DBNavigator.SessionBrowser");
@@ -57,6 +60,7 @@ public interface DataKeys {
     DataKey<ChatBoxForm> ASSISTANT_CHAT_BOX = DataKey.create("DBNavigator.AssistantChatBox");
     DataKey<CredentialManagementForm> CREDENTIAL_MANAGEMENT_FORM = DataKey.create("DBNavigator.CredentialManagementForm");
     DataKey<ProfileManagementForm> PROFILE_MANAGEMENT_FORM = DataKey.create("DBNavigator.ProfileManagementForm");
+    DataKey<BatchMonitorForm> BATCH_MONITOR_FORM = DataKey.create("DBNavigator.BATCH_MONITOR_FORM");
     DataKey<DBNTabbedPane> TABBED_PANE = DataKey.create("DBNavigator.TabbedPane");
 
     DataKey<CalendarPopupProviderForm> CALENDAR_POPUP_PROVIDER_FORM = DataKey.create("DBNavigator.CalendarPopupProviderForm");

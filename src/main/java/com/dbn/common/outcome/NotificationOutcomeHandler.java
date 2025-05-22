@@ -18,7 +18,7 @@ package com.dbn.common.outcome;
 
 import com.dbn.common.Priority;
 import com.dbn.common.action.UserDataKeys;
-import com.dbn.common.notification.NotificationGroup;
+import com.dbn.common.notification.NotificationCategory;
 import com.dbn.common.util.UserDataHolders;
 import com.intellij.openapi.project.Project;
 
@@ -36,11 +36,11 @@ import static com.dbn.common.notification.NotificationSupport.sendWarningNotific
  * @author Dan Cioca (Oracle)
  */
 public final class NotificationOutcomeHandler extends ProjectOutcomeHandler  {
-    private final NotificationGroup group;
+    private final NotificationCategory category;
 
-    private NotificationOutcomeHandler(Project project, NotificationGroup group){
+    private NotificationOutcomeHandler(Project project, NotificationCategory category){
         super(project);
-        this.group = group;
+        this.category = category;
     }
 
     @Override
@@ -48,8 +48,8 @@ public final class NotificationOutcomeHandler extends ProjectOutcomeHandler  {
         return Priority.MEDIUM;
     }
 
-    public static OutcomeHandler get(Project project, NotificationGroup group) {
-        Map<NotificationGroup, NotificationOutcomeHandler> handlers = UserDataHolders.ensure(project, UserDataKeys.NOTIFICATION_OUTCOME_HANDLERS, () -> new ConcurrentHashMap<>());
+    public static OutcomeHandler get(Project project, NotificationCategory group) {
+        Map<NotificationCategory, NotificationOutcomeHandler> handlers = UserDataHolders.ensure(project, UserDataKeys.NOTIFICATION_OUTCOME_HANDLERS, () -> new ConcurrentHashMap<>());
         return handlers.computeIfAbsent(group, g -> new NotificationOutcomeHandler(project, g));
     }
 
@@ -59,9 +59,9 @@ public final class NotificationOutcomeHandler extends ProjectOutcomeHandler  {
         String message = outcome.getMessage();
 
         switch (outcome.getType()) {
-            case SUCCESS: sendInfoNotification(project, group, message); break;
-            case WARNING: sendWarningNotification(project, group, message); break;
-            case FAILURE: sendErrorNotification(project, group, message); break;
+            case SUCCESS: sendInfoNotification(project, category, message); break;
+            case WARNING: sendWarningNotification(project, category, message); break;
+            case FAILURE: sendErrorNotification(project, category, message); break;
         }
 
     }

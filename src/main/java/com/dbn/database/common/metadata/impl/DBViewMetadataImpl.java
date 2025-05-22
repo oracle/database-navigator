@@ -43,4 +43,9 @@ public class DBViewMetadataImpl extends DBObjectMetadataBase implements DBViewMe
     public boolean isSystemView() throws SQLException {
         return isYesFlag("IS_SYSTEM_VIEW");
     }
+
+    @Override
+    public boolean isEditionable() throws SQLException {
+        return isYesFlag("IS_EDITIONABLE");
+    }
 }

@@ -24,7 +24,6 @@ import com.dbn.browser.model.BrowserTreeModel;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.browser.model.ConnectionBrowserTreeModel;
 import com.dbn.browser.model.ConnectionBundleBrowserTreeModel;
-import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Checks;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.event.ProjectEvents;
@@ -51,18 +50,13 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.action.ObjectListActionGroup;
 import com.dbn.object.common.property.DBObjectProperty;
-import com.intellij.ide.IdeTooltip;
-import com.intellij.ide.IdeTooltipManager;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.util.ActionCallback;
 import com.intellij.util.ui.tree.TreeUtil;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JLabel;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
@@ -188,21 +182,7 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
     }
 
     private void selectPath(TreePath treePath) {
-        Dispatch.execute(this, () -> {
-            DatabaseBrowserTree tree = DatabaseBrowserTree.this;
-            ActionCallback callback = TreeUtil.selectPath(tree, treePath, true);
-            if (!callback.isRejected()) return;
-
-            Object target = treePath.getLastPathComponent();
-            if (target instanceof DBObject) {
-                DBObject object = (DBObject) target;
-                Point location = JBPopupFactory.getInstance().guessBestPopupLocation(tree).getPoint(tree);
-                location.y -= tree.getRowHeight() / 2; // show above selection row
-                IdeTooltip tooltip = new IdeTooltip(tree, location, new JLabel("Cannot navigate to " + object.getQualifiedNameWithType() + ". "));
-                tooltip.setTextBackground(Colors.getWarningHintColor());
-                IdeTooltipManager.getInstance().show(tooltip, true);
-            }
-        });
+        Dispatch.run(this, () -> TreeUtil.selectPath(this, treePath, true));
     }
 
 

@@ -1,0 +1,53 @@
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.connection.config.action;
+
+import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import static com.intellij.icons.AllIcons.Diff.GutterCheckBox;
+import static com.intellij.icons.AllIcons.Diff.GutterCheckBoxSelected;
+
+/**
+ * Toggle action for the connection management dialogs, allowing to quickly change the active status of a Connection
+ * @author Dan Cioca (Oracle)
+ */
+public class ConnectionStatusToggleAction extends ConnectionSettingsAction {
+
+    @Override
+    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ConnectionBundleSettingsForm target) {
+        boolean active = target.isSelectionDominantlyEnabled();
+        target.changeSelectionEnabledStatus(!active);
+    }
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionBundleSettingsForm target) {
+        boolean active = target != null && target.isSelectionDominantlyEnabled();
+        int size = target == null ? 0 : target.getSelectionSize();
+
+        presentation.setIcon(active ? GutterCheckBoxSelected: GutterCheckBox);
+        presentation.setText(active ?
+                (size == 1 ? "Disable Connection" : "Disable Connections") :
+                (size == 1 ? "Enable Connection" : "Enable Connections"));
+        presentation.setEnabled(size > 0);
+
+    }
+}

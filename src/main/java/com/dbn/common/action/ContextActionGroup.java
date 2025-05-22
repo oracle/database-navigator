@@ -17,11 +17,11 @@
 package com.dbn.common.action;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.project.DumbAware;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class ContextActionGroup<T> extends DefaultActionGroup implements BackgroundUpdateAware {
+public abstract class ContextActionGroup<T> extends DefaultActionGroup implements BackgroundUpdateAware, DumbAware {
     public ContextActionGroup(@Nullable String name, boolean popup) {
         super(name, popup);
     }

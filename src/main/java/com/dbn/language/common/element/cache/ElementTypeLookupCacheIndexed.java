@@ -39,7 +39,7 @@ public abstract class ElementTypeLookupCacheIndexed<T extends ElementTypeBase> e
     private final IndexContainer<TokenType> allPossibleTokens = new IndexContainer<>();
     private final IndexContainer<TokenType> firstPossibleTokens = new IndexContainer<>();
     private final IndexContainer<TokenType> firstRequiredTokens = new IndexContainer<>();
-    private final Latent<Boolean> startsWithIdentifier = Latent.basic(() -> checkStartsWithIdentifier() ? Boolean.TRUE : Boolean.FALSE);
+    private final Latent<Boolean> startsWithIdentifier = Latent.recursive(() -> loadStartsWithIdentifier());
 
     ElementTypeLookupCacheIndexed(T elementType) {
         super(elementType);
@@ -176,6 +176,10 @@ public abstract class ElementTypeLookupCacheIndexed<T extends ElementTypeBase> e
     @Override
     public boolean startsWithIdentifier() {
         return startsWithIdentifier.get() == Boolean.TRUE;
+    }
+
+    private Boolean loadStartsWithIdentifier() {
+        return checkStartsWithIdentifier() ? Boolean.TRUE : Boolean.FALSE;
     }
 
     protected abstract boolean checkStartsWithIdentifier();

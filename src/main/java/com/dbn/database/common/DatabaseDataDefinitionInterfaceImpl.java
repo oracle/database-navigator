@@ -26,6 +26,7 @@ import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.editor.code.content.GuardedBlockMarker;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.common.QuotePair;
+import com.dbn.object.type.DBConstraintType;
 import org.jetbrains.annotations.NonNls;
 
 import java.sql.ResultSet;
@@ -90,13 +91,31 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
         executeUpdate(connection, "create-java-class", fullyQualifiedClassName, code);
     }
 
-   /*********************************************************
+    /*********************************************************
+     *                   CHANGE statements                   *
+     *********************************************************/
+    @Override
+    public void updateView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "change-view", ownerName, viewName, code);
+    }
+
+    @Override
+    public void updateJsonView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "change-json-view", ownerName, viewName, code);
+    }
+
+    /*********************************************************
     *                   DROP statements                     *
     *********************************************************/
    @Override
    public void dropObject(String objectType, String ownerName, String objectName, DBNConnection connection) throws SQLException {
        executeUpdate(connection, "drop-object", objectType, ownerName, objectName);
    }
+
+    @Override
+    public void dropConstraint(String ownerName, String tableName, String constraintName, DBConstraintType constraintType, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "drop-constraint", ownerName, tableName, constraintName);
+    }
 
    @Override
    public void dropObjectBody(String objectType, String ownerName, String objectName, DBNConnection connection) throws SQLException {

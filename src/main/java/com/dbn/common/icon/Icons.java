@@ -57,6 +57,9 @@ public class Icons {
     public static final Icon COMMON_TIMER         = load("/img/Timer.png");
     public static final Icon COMMON_DATA_GRID     = load("/img/common/DataGrid.png");
 
+    public static final Icon COMMON_STATUS_SUCCESS   = load("/img/common/StatusSuccess.svg");
+    public static final Icon COMMON_STATUS_ERROR     = load("/img/common/StatusError.svg");
+
     public static final Icon COMMON_FILTER_ACTIVE =    AllIcons.Actions.IntentionBulb;
     public static final Icon COMMON_FILTER_INACTIVE =  AllIcons.Actions.IntentionBulbGrey;
 
@@ -72,6 +75,8 @@ public class Icons {
     public static final Icon ACTION_ADD_SPECIAL               = load("/img/action/AddSpecial.png");
     public static final Icon ACTION_MOVE_UP                   = load("/img/action/MoveUp.svg");
     public static final Icon ACTION_MOVE_DOWN                 = load("/img/action/MoveDown.svg");
+    public static final Icon ACTION_DOWNLOAD                  = AllIcons.Actions.Download;
+    public static final Icon ACTION_UPLOAD                  = AllIcons.Actions.Upload;
     public static final Icon ACTION_EDIT                      = AllIcons.Actions.EditSource; //load("/img/action/EditSource.svg");
     public static final Icon ACTION_COLLAPSE_ALL              = AllIcons.Actions.Collapseall;
     public static final Icon ACTION_EXPAND_ALL                = AllIcons.Actions.Expandall;
@@ -105,6 +110,9 @@ public class Icons {
     public static final Icon ACTION_KILL_SESSION              = load("/img/action/KillSession.png");
     public static final Icon ACTION_TOGGLE_LOGGING            = load("/img/action/ToggleLogging.svg");
 
+    public static final Icon ACTION_LAYOUT_DATA               = load("/img/action/LayoutDataOnly.svg");
+    public static final Icon ACTION_LAYOUT_DATA_CONTENT       = load("/img/action/LayoutDataAndContent.svg");
+
     public static final Icon FOLDER_CONNECTION_ASSOCIATION = load("/img/action/FolderConnectionLink.png");
     public static final Icon FOLDER_SCHEMA_ASSOCIATION = load("/img/action/FolderSchemaLink.png");
 
@@ -129,6 +137,7 @@ public class Icons {
     public static final Icon DIALOG_WARNING     = AllIcons.General.WarningDialog;
     public static final Icon DIALOG_ERROR       = AllIcons.General.ErrorDialog;
     public static final Icon DIALOG_QUESTION    = AllIcons.General.QuestionDialog;
+    public static final Icon DIALOG_SUCCESS     = AllIcons.General.SuccessDialog;
 
 
     public static final Icon METHOD_EXECUTION_RUN     = ACTION_EXECUTE;
@@ -189,11 +198,11 @@ public class Icons {
     public static final Icon BROWSER_OBJECT_PROPERTIES = load("/img/tools/ObjectProperties.svg");
 
 
-    public static final Icon DATA_EDITOR_ROW_DEFAULT = load("/img/DefaultRow.png");
-    public static final Icon DATA_EDITOR_ROW_INSERT = load("/img/InsertRow.png");
-    public static final Icon DATA_EDITOR_ROW_INSERTED = load("/img/NewRow.png");
-    public static final Icon DATA_EDITOR_ROW_MODIFIED = load("/img/ModifiedRow.png");
-    public static final Icon DATA_EDITOR_ROW_DELETED = load("/img/DeletedRow.png");
+    public static final Icon DATA_EDITOR_ROW_DEFAULT = load("/img/data/DefaultRow.svg");
+    public static final Icon DATA_EDITOR_ROW_INSERT = load("/img/data/InsertRow.svg");
+    public static final Icon DATA_EDITOR_ROW_INSERTED = load("/img/data/NewRow.svg");
+    public static final Icon DATA_EDITOR_ROW_MODIFIED = load("/img/data/ModifiedRow.svg");
+    public static final Icon DATA_EDITOR_ROW_DELETED = load("/img/data/DeletedRow.svg");
 
     public static final Icon DATA_EDITOR_DUPLICATE_RECORD       = ACTION_COPY;
     public static final Icon DATA_EDITOR_INSERT_RECORD          = ACTION_ADD;
@@ -257,6 +266,7 @@ public class Icons {
     public static final Icon EXEC_MESSAGES_INFO_INACTIVE    = AllIcons.General.Note;
     public static final Icon EXEC_MESSAGES_WARNING          = AllIcons.General.Warning;
     public static final Icon EXEC_MESSAGES_ERROR            = AllIcons.General.Error;
+    public static final Icon EXEC_MESSAGES_SUCCESS          = load("/img/common/Success.svg");
     public static final Icon EXEC_MESSAGES_WARNING_INACTIVE = load("/img/common/WarningInactive.svg");
     public static final Icon EXEC_MESSAGES_ERROR_INACTIVE   = load("/img/common/ErrorInactive.svg");
 
@@ -400,6 +410,10 @@ public class Icons {
     public static final Icon DBO_JAVA_METHOD_ABSTRACT            = load("/img/object/java/JavaMethodAbstract.svg");
     public static final Icon DBO_JAVA_PARAMETER                  = load("/img/object/java/JavaParameter.svg");
     public static final Icon DBO_JAVA_RECORD                     = load("/img/object/java/JavaRecord.svg");
+    public static final Icon DBO_JAVA_RESOURCE                   = load("/img/object/java/JavaResource.svg");
+    public static final Icon DBO_JAVA_RESOURCES                  = load("/img/object/java/JavaResources.svg");
+    public static final Icon DBO_JSON_VIEW                       = load("/img/object/view/JsonView.svg");
+    public static final Icon DBO_JSON_VIEWS                      = load("/img/object/view/JsonViews.svg");
     public static final Icon DBO_MATERIALIZED_VIEW               = load("/img/object/view/MaterializedView.svg");
     public static final Icon DBO_MATERIALIZED_VIEWS              = load("/img/object/view/MaterializedViews.svg");
     public static final Icon DBO_METHOD                          = load("/img/object/Method.png");
@@ -421,6 +435,7 @@ public class Icons {
     public static final Icon DBO_ROLE                            = load("/img/object/role/Role.svg");
     public static final Icon DBO_ROLES                           = load("/img/object/role/Roles.svg");
     public static final Icon DBO_SCHEMA                          = load("/img/object/schema/Schema.svg");
+    public static final Icon DBO_SCHEMA_DISABLED                 = load("/img/object/schema/SchemaDisabled.svg");
     public static final Icon DBO_SCHEMAS                         = load("/img/object/schema/Schemas.svg");
     public static final Icon DBO_SYNONYM                         = load("/img/object/synonym/Synonym.svg");
     public static final Icon DBO_SYNONYM_ERR                     = load("/img/object/synonym/SynonymErr.svg");
@@ -432,19 +447,19 @@ public class Icons {
     public static final Icon DBO_TABLE                           = load("/img/object/table/Table.svg");
     public static final Icon DBO_TABLES                          = load("/img/object/table/Tables.svg");
     public static final Icon DBO_TRIGGER                         = load("/img/object/trigger/Trigger.svg", "DBO_TRIGGER");
-    public static final Icon DBO_TRIGGER_ERR                     = load("/img/object/trigger/TriggerErr.svg");
-    public static final Icon DBO_TRIGGER_DEBUG                   = load("/img/object/trigger/TriggerDebug.svg");
-    public static final Icon DBO_TRIGGER_ERR_DISABLED            = load("/img/object/trigger/TriggerErrDisabled.svg");
     public static final Icon DBO_TRIGGER_DISABLED                = load("/img/object/trigger/TriggerDisabled.svg");
-    public static final Icon DBO_TRIGGER_DISABLED_DEBUG          = load("/img/object/trigger/TriggerDisabledDebug.svg");
+    public static final Icon DBO_TRIGGER_ERR                     = load("/img/object/trigger/TriggerErr.svg");
+    public static final Icon DBO_TRIGGER_ERR_DISABLED            = load("/img/object/trigger/TriggerErrDisabled.svg");
+    public static final Icon DBO_TRIGGER_DEBUG                   = load("/img/object/trigger/TriggerDebug.svg");
+    public static final Icon DBO_TRIGGER_DEBUG_DISABLED          = load("/img/object/trigger/TriggerDebugDisabled.svg");
     public static final Icon DBO_TRIGGERS                        = load("/img/object/trigger/Triggers.svg");
-    public static final Icon DBO_DATABASE_TRIGGER                = load("/img/object/DatabaseTrigger.png", "DBO_DATABASE_TRIGGER");
-    public static final Icon DBO_DATABASE_TRIGGER_ERR            = load("/img/object/DatabaseTriggerErr.png");
-    public static final Icon DBO_DATABASE_TRIGGER_DEBUG          = load("/img/object/DatabaseTriggerDebug.png");
-    public static final Icon DBO_DATABASE_TRIGGER_ERR_DISABLED   = load("/img/object/DatabaseTriggerErrDisabled.png");
-    public static final Icon DBO_DATABASE_TRIGGER_DISABLED       = load("/img/object/DatabaseTriggerDisabled.png");
-    public static final Icon DBO_DATABASE_TRIGGER_DISABLED_DEBUG = load("/img/object/DatabaseTriggerDisabledDebug.png");
-    public static final Icon DBO_DATABASE_TRIGGERS               = load("/img/object/DatabaseTriggers.png");
+    public static final Icon DBO_DATABASE_TRIGGER                = load("/img/object/trigger/DatabaseTrigger.svg", "DBO_DATABASE_TRIGGER");
+    public static final Icon DBO_DATABASE_TRIGGER_DISABLED       = load("/img/object/trigger/DatabaseTriggerDisabled.svg");
+    public static final Icon DBO_DATABASE_TRIGGER_ERR            = load("/img/object/trigger/DatabaseTriggerErr.svg");
+    public static final Icon DBO_DATABASE_TRIGGER_ERR_DISABLED   = load("/img/object/trigger/DatabaseTriggerErrDisabled.svg");
+    public static final Icon DBO_DATABASE_TRIGGER_DEBUG          = load("/img/object/trigger/DatabaseTriggerDebug.svg");
+    public static final Icon DBO_DATABASE_TRIGGER_DEBUG_DISABLED = load("/img/object/trigger/DatabaseTriggerDebugDisabled.svg");
+    public static final Icon DBO_DATABASE_TRIGGERS               = load("/img/object/trigger/DatabaseTriggers.svg");
     public static final Icon DBO_TYPE                            = load("/img/object/type/Type.svg");
     public static final Icon DBO_TYPE_COLLECTION                 = load("/img/object/type/TypeCollection.svg");
     public static final Icon DBO_TYPE_COLLECTION_ERR             = load("/img/object/type/TypeCollectionErr.svg");

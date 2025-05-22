@@ -59,6 +59,7 @@ import static com.dbn.common.navigation.NavigationInstruction.SELECT;
 import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setBoolean;
+import static com.dbn.common.util.Modality.nonModal;
 
 @State(
     name = ExecutionManager.COMPONENT_NAME,
@@ -150,7 +151,7 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
     }
 
     public void addExecutionResult(@NotNull StatementExecutionResult executionResult, NavigationInstructions instructions) {
-        Dispatch.run(() -> {
+        Dispatch.run(nonModal(), () -> {
             showExecutionConsole();
             ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
             if (executionResult.isLoggingActive()) {

@@ -18,7 +18,9 @@ package com.dbn.connection.config.ui;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.util.Actions;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.Timers;
@@ -27,13 +29,24 @@ import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.driver.DatabaseDriverManager;
 import com.dbn.driver.DriverBundle;
 import com.dbn.driver.DriverSource;
+import com.dbn.driver.download.DriverDownloadManager;
+import com.dbn.driver.download.metadata.DriverPackage;
+import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Separator;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.DumbAwareAction;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.JBColor;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -42,11 +55,15 @@ import java.io.File;
 import java.sql.Driver;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.dbn.common.ui.util.ComboBoxes.getElements;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.Popups.popupBuilder;
+import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.connection.DatabaseType.GENERIC;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -56,14 +73,14 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     private JPanel mainPanel;
     private JComboBox<DriverSource> driverSourceComboBox;
     private @Getter JComboBox<DriverOption> driverComboBox;
-    private JLabel driverErrorLabel;
     private JLabel driverLabel;
     private JLabel driverLibraryLabel;
     private JLabel driverSourceLabel;
     private HyperlinkLabel reloadDriversLink;
     private JLabel reloadDriversCheckLabel;
+    private JButton downloadButton;
+    private JLabel driverErrorLabel;
 
-    /** allow select a single jar file or a directory */
     private static final FileChooserDescriptor LIBRARY_FILE_DESCRIPTOR = new FileChooserDescriptor(false, true, true, true, false, false);
 
     ConnectionDriverSettingsForm(@NotNull ConnectionDatabaseSettingsForm parent) {
@@ -73,9 +90,10 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         driverSourceComboBox.addActionListener(e -> {
             DriverSource selection = getSelection(driverSourceComboBox);
 
-            boolean isExternalLibrary = selection == DriverSource.EXTERNAL;
-            driverLibraryTextField.setEnabled(isExternalLibrary);
-            driverComboBox.setEnabled(isExternalLibrary);
+            driverLibraryTextField.setEnabled(selection == DriverSource.EXTERNAL);
+            driverComboBox.setEnabled(selection == DriverSource.EXTERNAL);
+
+
             updateDriverFields();
             //driverSetupPanel.setVisible(isExternalLibrary);
         });
@@ -85,6 +103,9 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                 txt("cfg.connection.title.SelectDriverLibrary"),
                 txt("cfg.connection.text.LibraryDriverClasses"),
                 null, LIBRARY_FILE_DESCRIPTOR);
+
+        driverErrorLabel.setText("");
+        driverErrorLabel.setVisible(false);
 
         reloadDriversCheckLabel.setText("");
         reloadDriversCheckLabel.setIcon(Icons.COMMON_CHECK);
@@ -112,10 +133,29 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             reloadDriversCheckLabel.setVisible(true);
 
             Timers.executeLater("TemporaryLabelTimeout", 3, SECONDS, () -> {
-                updateDriverReloadLink();
+                updateReloadLink();
                 reloadDriversCheckLabel.setVisible(false);
             });
         });
+        downloadButton.addActionListener(e -> {
+            Progress.modal(ensureProject(),
+                    null, true,
+                    "Loading Drivers",
+                    "Loading driver package metadata...",
+                    indicator -> showDownloadPopup()
+            );
+        });
+    }
+
+    private void showDownloadPopup() {
+        try {
+            DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
+            List<DriverPackage> driverPackages = downloadManager.getDownloadedDriverPackages(getDatabaseType());
+            dispatch(() -> showDownloadPopup(downloadButton, driverPackages));
+        } catch (Exception e) {
+            conditionallyLog(e);
+            Messages.showErrorDialog(ensureProject(), "Failed to download driver libraries metadata", e);
+        }
     }
 
     public ConnectionDatabaseSettingsForm getParentForm() {
@@ -131,70 +171,102 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             setSelection(driverSourceComboBox, DriverSource.EXTERNAL);
         }
 
-        String error = null;
-        boolean externalDriver = getDriverSource() == DriverSource.EXTERNAL;
+        DriverSource selectedDriver = getDriverSource();
+        boolean externalDriver = selectedDriver == DriverSource.EXTERNAL;
+
         driverLibraryLabel.setVisible(externalDriver);
         driverLibraryTextField.setVisible(externalDriver);
         driverLabel.setVisible(externalDriver);
         driverComboBox.setVisible(externalDriver);
-        updateDriverReloadLink();
+        downloadButton.setVisible(externalDriver);
 
-        if (externalDriver) {
-            String driverLibrary = getDriverLibrary();
+        updateErrorLabel(null);
+        updateReloadLink();
 
-            boolean fileExists = Strings.isNotEmpty(driverLibrary) && fileExists(driverLibrary);
-            JTextField libraryTextField = driverLibraryTextField.getTextField();
-            if (fileExists) {
-                libraryTextField.setForeground(Colors.getTextFieldForeground());
-                DatabaseType libraryDatabaseType = DatabaseType.resolve(driverLibrary);
-                if (isBuiltInLibrarySupported(databaseType) && libraryDatabaseType != getDatabaseType()) {
-                    error = txt("cfg.connection.error.DriverLibraryMismatch");
-                    initComboBox(driverComboBox);
-                    setSelection(driverComboBox, null);
-                } else {
-                    DatabaseDriverManager driverManager = DatabaseDriverManager.getInstance();
-                    DriverBundle drivers = null;
-                    try {
-                        drivers = driverManager.loadDrivers(new File(driverLibrary), false);
-                    } catch (Exception e) {
-                        conditionallyLog(e);
-                        Messages.showErrorDialog(getProject(), e.getMessage());
-                    }
-                    DriverOption selectedOption = getSelection(driverComboBox);
-                    initComboBox(driverComboBox);
-                    //driverComboBox.addItem("");
-                    if (drivers != null && !drivers.isEmpty()) {
-                        List<DriverOption> driverOptions = new ArrayList<>();
-                        for (Class<Driver> driver : drivers.getDriverClasses()) {
-                            DriverOption driverOption = new DriverOption(driver);
-                            driverOptions.add(driverOption);
-                            if (selectedOption != null && selectedOption.getDriver().equals(driver)) {
-                                selectedOption = driverOption;
-                            }
-                        }
+        if (!externalDriver) return;
 
-                        initComboBox(driverComboBox, driverOptions);
+        String driverLibrary = getDriverLibrary();
+        JTextField libraryTextField = driverLibraryTextField.getTextField();
+        libraryTextField.setForeground(Colors.getTextFieldForeground());
 
-                        if (selectedOption == null && !driverOptions.isEmpty()) {
-                            selectedOption = driverOptions.get(0);
-                        }
-                    } else {
-                        error = txt("cfg.connection.error.InvalidDriverLibrary");
-                    }
-                    setSelection(driverComboBox, selectedOption);
-                }
-            } else {
-                libraryTextField.setForeground(JBColor.RED);
-                if (Strings.isEmpty(driverLibrary)) {
-                    error = txt("cfg.connection.error.DriverLibraryNotSpecified");
-                } else {
-                    error = txt("cfg.connection.error.CannotLocateDriverFile");
-                }
-                initComboBox(driverComboBox);
-                //driverComboBox.addItem("");
-            }
+
+        // 1. check library availability
+        boolean fileExists = Strings.isNotEmpty(driverLibrary) && fileExists(driverLibrary);
+        if (!fileExists) {
+            libraryTextField.setForeground(JBColor.RED);
+            String error = isEmpty(driverLibrary) ?
+                    txt("cfg.connection.error.DriverLibraryNotSpecified") :
+                    txt("cfg.connection.error.CannotLocateDriverFile");
+            updateDriversSelector(null);
+            updateErrorLabel(error);
+            return;
         }
 
+
+        // 2. verify database type compatibility
+        DatabaseType libraryDatabaseType = DatabaseType.resolve(driverLibrary);
+        if (isBuiltInLibrarySupported(databaseType) && libraryDatabaseType != getDatabaseType() && libraryDatabaseType != GENERIC) {
+            String error = txt("cfg.connection.error.DriverLibraryMismatch");
+            updateDriversSelector(null);
+            updateErrorLabel(error);
+            return;
+        }
+
+        // 3. load the drivers
+        Progress.modal(getProject(), null, true,
+                "Loading Drivers",
+                "Loading driver classes...",
+                indicator -> loadDrivers(driverLibrary));
+
+        ;
+    }
+
+    private void loadDrivers(String driverLibrary) {
+        try {
+            DatabaseDriverManager driverManager = DatabaseDriverManager.getInstance();
+            DriverBundle drivers = driverManager.loadDrivers(new File(driverLibrary), false);
+            updateDriversSelector(drivers);
+
+            if (drivers == null || drivers.isEmpty()) {
+                String error = txt("cfg.connection.error.InvalidDriverLibrary");
+                updateErrorLabel(error);
+            }
+        } catch (Exception e) {
+            conditionallyLog(e);
+
+            updateDriversSelector(null);
+            String error = e.getMessage();
+            updateErrorLabel(error);
+        }
+    }
+
+    private void updateDriversSelector(@Nullable DriverBundle drivers) {
+        if (drivers == null) {
+            initComboBox(driverComboBox);
+            setSelection(driverComboBox, null);
+            return;
+        }
+
+        DriverOption selectedOption = getSelection(driverComboBox);
+        initComboBox(driverComboBox);
+
+        List<DriverOption> driverOptions = new ArrayList<>();
+        for (Class<Driver> driver : drivers.getDriverClasses()) {
+            DriverOption driverOption = new DriverOption(driver);
+            driverOptions.add(driverOption);
+            if (selectedOption != null && selectedOption.getDriver().equals(driver)) {
+                selectedOption = driverOption;
+            }
+        }
+        initComboBox(driverComboBox, driverOptions);
+
+        if (selectedOption == null && !driverOptions.isEmpty()) {
+            selectedOption = driverOptions.get(0);
+        }
+        setSelection(driverComboBox, selectedOption);
+    }
+
+    private void updateErrorLabel(String error) {
         if (error != null) {
             driverErrorLabel.setIcon(Icons.COMMON_ERROR);
             driverErrorLabel.setText(error);
@@ -205,20 +277,19 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         }
     }
 
-    private void updateDriverReloadLink() {
+    private void updateReloadLink() {
         reloadDriversLink.setVisible(
                 getDriverSource() == DriverSource.EXTERNAL &&
                         isDriverLibraryAccessible());
     }
 
     public DriverSource getDriverSource() {
-        DatabaseType databaseType = getDatabaseType();
-        boolean allowBuiltInLibrary = isBuiltInLibrarySupported(databaseType);
-        return allowBuiltInLibrary ? getSelection(driverSourceComboBox) : DriverSource.EXTERNAL;
+        JComboBox<DriverSource> driverSourceComboBox = this.driverSourceComboBox;
+        return driverSourceComboBox == null ? DriverSource.EXTERNAL : getSelection(driverSourceComboBox);
     }
 
     private boolean isBuiltInLibrarySupported(DatabaseType databaseType) {
-        return databaseType != DatabaseType.GENERIC;
+        return databaseType != GENERIC;
     }
 
     private boolean isDriverLibraryAccessible() {
@@ -265,5 +336,65 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         List<DriverOption> driverOptions = getElements(driverComboBox);
         setSelection(driverComboBox, DriverOption.get(driverOptions, configuration.getDriver()));
     }
+
+    private void showDownloadPopup(JButton button, List<DriverPackage> driverPackages) {
+        List<AnAction> actions = new ArrayList<>();
+        for (DriverPackage driverPackage : driverPackages) {
+                String title = Actions.adjustActionName(driverPackage.getName());
+                actions.add(new DumbAwareAction(title, null, null) {
+                    @Override
+                    public void actionPerformed(@NotNull AnActionEvent e) {
+                        String downloadPath = getDownloadPath(driverPackage);
+                        driverLibraryTextField.setText(downloadPath);
+                    }
+                });
+        }
+        actions.add(Separator.create());
+        actions.add(new DumbAwareAction("Download Libraries...", null, AllIcons.Actions.Download) {
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
+                Project project = getProject();
+                Progress.modal(project, null, true,
+                        "Loading Drivers",
+                        "Loading driver package metadata...",
+                        indicator -> initDownloadManagerDialog(indicator));
+            }
+        });
+        popupBuilder(actions, button).
+                withTitle("Driver Libraries").
+                withTitleVisible(false).
+                withSpeedSearch().
+                buildAndShow();
+    }
+
+    @Nullable
+    private static String getDownloadPath(DriverPackage driverPackage) {
+        if (driverPackage == null) return null;
+
+        DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
+        return downloadManager.getDownloadPath(driverPackage.getId());
+    }
+
+    private void initDownloadManagerDialog(ProgressIndicator indicator) {
+        indicator.setIndeterminate(false);
+        indicator.setFraction(0.0);
+
+        Project project = ensureProject();
+        DatabaseType databaseType = getDatabaseType();
+
+        DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
+        downloadManager.openDownloadDialog(project, databaseType, path -> {
+            String currentPath = driverLibraryTextField.getText();
+            if (Objects.equals(currentPath, path)) {
+                // when download targets the already specified location (initially empty)
+                updateDriverFields();
+            } else {
+                driverLibraryTextField.setText(path);
+            }
+        });
+    }
+
 }
+
+
 

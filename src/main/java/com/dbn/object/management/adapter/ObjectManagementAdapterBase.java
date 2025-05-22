@@ -16,13 +16,12 @@
 
 package com.dbn.object.management.adapter;
 
-import com.dbn.common.notification.NotificationGroup;
+import com.dbn.common.notification.NotificationCategory;
 import com.dbn.common.outcome.Outcome;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.outcome.OutcomeHandlers;
 import com.dbn.common.outcome.OutcomeHandlersImpl;
 import com.dbn.common.outcome.OutcomeType;
-import com.dbn.common.outcome.Outcomes;
 import com.dbn.common.thread.InvocationType;
 import com.dbn.common.thread.Progress;
 import com.dbn.connection.ConnectionHandler;
@@ -47,6 +46,10 @@ import java.sql.SQLException;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.exception.Exceptions.unsupported;
+import static com.dbn.common.outcome.Outcome.failure;
+import static com.dbn.common.outcome.Outcome.success;
+import static com.dbn.common.outcome.OutcomeType.FAILURE;
+import static com.dbn.common.outcome.OutcomeType.SUCCESS;
 
 /**
  * Abstract base implementation of an {@link ObjectManagementAdapter}
@@ -70,9 +73,9 @@ abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectW
         this.action = action;
         this.invoker = invoker;
 
-        outcomeHandlers.addHandler(OutcomeType.SUCCESS, ObjectChangeNotifier.create(getConnection(), getOwnerId(), objectType, action));
-        outcomeHandlers.addNotificationHandler(OutcomeType.SUCCESS, getProject(), NotificationGroup.DDL);
-        outcomeHandlers.addMessageHandler(OutcomeType.FAILURE, getProject());
+        outcomeHandlers.addHandler(SUCCESS, ObjectChangeNotifier.create(getConnection(), getOwnerId(), objectType, action));
+        outcomeHandlers.addNotificationHandler(SUCCESS, getProject(), NotificationCategory.DDL);
+        outcomeHandlers.addMessageHandler(FAILURE, getProject());
     }
 
     @Override
@@ -136,12 +139,20 @@ abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectW
     }
 
     protected void handleSuccess(T object) {
-        Outcome outcome = Outcomes.success(getSuccessTitle(), getSuccessMessage());
+        Outcome outcome =
+                success().
+                withTitle(getSuccessTitle()).
+                withMessage(getSuccessMessage());
+
         outcomeHandlers.handle(outcome);
     }
 
     protected void handleFailure(T object, Exception e) {
-        Outcome outcome = Outcomes.failure(getFailureTitle(), getFailureMessage(), e);
+        Outcome outcome =
+                failure().
+                withTitle(getFailureTitle()).
+                withMessage(getFailureMessage()).
+                withException(e);
         outcomeHandlers.handle(outcome);
     }
 

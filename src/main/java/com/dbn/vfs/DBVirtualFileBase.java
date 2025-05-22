@@ -36,7 +36,6 @@ import com.intellij.util.LocalTimeCounter;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.io.IOException;
@@ -48,7 +47,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Getter
 @Setter
 public abstract class DBVirtualFileBase extends VirtualFile implements DBVirtualFile, Presentable, VirtualFilePathWrapper {
-    private static final byte[] EMPTY_CONTENT = new byte[0];
     private static final AtomicInteger ID_STORE = new AtomicInteger(1000);
     private final int id;
     private final ProjectRef project;
@@ -183,17 +181,6 @@ public abstract class DBVirtualFileBase extends VirtualFile implements DBVirtual
     @Override
     public void delete(Object requestor) throws IOException {
         throw DatabaseFileSystem.READONLY_FILE_SYSTEM;
-    }
-
-    @Override
-    public void setCachedViewProvider(@Nullable DatabaseFileViewProvider viewProvider) {
-        putUserData(DatabaseFileViewProvider.CACHED_VIEW_PROVIDER, viewProvider);
-    }
-
-    @Override
-    @Nullable
-    public DatabaseFileViewProvider getCachedViewProvider() {
-        return getUserData(DatabaseFileViewProvider.CACHED_VIEW_PROVIDER);
     }
 
     @Override

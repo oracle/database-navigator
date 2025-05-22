@@ -23,6 +23,8 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.SchemaId;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.editor.DBContentType;
@@ -31,9 +33,10 @@ import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBSchemaObject;
-import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
+import com.dbn.object.event.ObjectChangeAction;
+import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputDialog;
 import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.type.DBObjectType;
@@ -47,10 +50,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.Priority.HIGHEST;
-import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.event.ObjectChangeAction.CREATE;
+import static com.dbn.object.event.ObjectChangeAction.DELETE;
+import static com.dbn.object.type.DBObjectType.FUNCTION;
+import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
+import static com.dbn.object.type.DBObjectType.PROCEDURE;
 
 public class DatabaseObjectFactory extends ProjectComponentBase {
 
@@ -64,26 +71,9 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         return Components.projectService(project, DatabaseObjectFactory.class);
     }
 
-    private void notifyFactoryEvent(ObjectFactoryEvent event) {
-        DBSchemaObject object = event.getObject();
-        int eventType = event.getEventType();
-        Project project = getProject();
-        if (eventType == ObjectFactoryEvent.EVENT_TYPE_CREATE) {
-            ProjectEvents.notify(project,
-                    ObjectFactoryListener.TOPIC,
-                    (listener) -> listener.objectCreated(object));
-
-        } else if (eventType == ObjectFactoryEvent.EVENT_TYPE_DROP) {
-            ProjectEvents.notify(project,
-                    ObjectFactoryListener.TOPIC,
-                    (listener) -> listener.objectDropped(object));
-        }
-    }
-
-
     public void openFactoryInputDialog(DBSchema schema, DBObjectType objectType) {
         Project project = getProject();
-        if (objectType.isOneOf(DBObjectType.FUNCTION, DBObjectType.PROCEDURE, DBObjectType.JAVA_CLASS)) {
+        if (objectType.isOneOf(FUNCTION, PROCEDURE, JAVA_CLASS)) {
             Dialogs.show(() -> new ObjectFactoryInputDialog(project, schema, objectType));
         } else {
             Messages.showErrorDialog(project,
@@ -92,7 +82,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         }
     }
 
-    public void createObject(ObjectFactoryInput factoryInput) throws SQLException {
+    public boolean createObject(ObjectFactoryInput factoryInput) throws SQLException {
         Project project = getProject();
         List<String> errors = new ArrayList<>();
         factoryInput.validate(errors);
@@ -100,52 +90,56 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
             String objectType = factoryInput.getObjectType().getName();
             String objectErrors = errors.stream().map(error -> " - " + error + "\n").collect(Collectors.joining());
             Messages.showErrorDialog(project, txt("msg.objects.error.ObjectCreationError", objectType, objectErrors));
-            return;
+            return false;
         }
 
         if (factoryInput instanceof MethodFactoryInput) {
             MethodFactoryInput methodFactoryInput = (MethodFactoryInput) factoryInput;
             createMethod(methodFactoryInput);
+            return true;
         }
 
         if (factoryInput instanceof JavaFactoryInput) {
             JavaFactoryInput javaFactoryInput = (JavaFactoryInput) factoryInput;
             createJavaObject(javaFactoryInput);
+            return true;
         }
         // TODO other factory inputs
+
+        return false;
     }
 
     private void createMethod(MethodFactoryInput input) throws SQLException {
-        DBObjectType objectType = input.isFunction() ? DBObjectType.FUNCTION : DBObjectType.PROCEDURE;
+        DBObjectType objectType = input.isFunction() ? FUNCTION : PROCEDURE;
         String objectName = input.getObjectName();
         DBSchema schema = input.getSchema();
 
+        ConnectionId connectionId = schema.getConnectionId();
+        SchemaId schemaId = schema.getSchemaId();
+
         DatabaseInterfaceInvoker.execute(HIGHEST,
-                "Creating " + input.getObjectTypeName(),
+                "Creating " + input.getObjectType().getCapitalizedName(),
                 "Creating " + input.getObjectDescription(),
                 schema.getProject(),
-                schema.getConnectionId(),
-                schema.getSchemaId(),
+                connectionId,
+                schemaId,
                 conn -> {
                     DatabaseDataDefinitionInterface dataDefinition = schema.getDataDefinitionInterface();
                     dataDefinition.createMethod(input, conn);
                 });
 
-        nn(schema.getChildObjectList(objectType)).reload();
+        notifyObjectChanges(connectionId, schemaId, objectType, CREATE);
 
         DBMethod method = schema.getChildObject(objectType, objectName, false);
         if (method == null) return;
 
-        nn(method.getChildObjectList(DBObjectType.ARGUMENT)).reload();
-
         DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(getProject());
         editorManager.connectAndOpenEditor(method, null, false, true);
-        notifyFactoryEvent(new ObjectFactoryEvent(method, ObjectFactoryEvent.EVENT_TYPE_CREATE));
     }
 
     private void createJavaObject(JavaFactoryInput input) throws SQLException {
-        DBObjectType objectType = DBObjectType.JAVA_CLASS;
-        String objectName = input.getClassName();
+        DBObjectType objectType = JAVA_CLASS;
+        String className = input.getClassName();
         String packageName = input.getPackageName();
         String classType = input.getTypeIdentifier();
         String extendsSuffix = input.getExtendsSuffix();
@@ -155,46 +149,49 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
         StringBuilder javaCode = new StringBuilder();
         if(!packageName.isEmpty()) {
-            fullyQualifiedClassName = packageName + "." + objectName;
+            fullyQualifiedClassName = packageName + "." + className;
             javaCode.append("package ").append(packageName).append(";").append("\n");
         } else {
-            fullyQualifiedClassName = objectName;
+            fullyQualifiedClassName = className;
         }
 
-        javaCode.append("public ").append(classType).append(" ").append(objectName).append(extendsSuffix)
+        javaCode.append("public ").append(classType).append(" ").append(className).append(extendsSuffix)
                 .append("{")
                 .append("\n")
                 .append("}");
 
+        ConnectionId connectionId = schema.getConnectionId();
+        SchemaId schemaId = schema.getSchemaId();
+
         DatabaseInterfaceInvoker.execute(HIGHEST,
-                "Creating " + input.getObjectTypeName(),
+                "Creating " + input.getObjectType().getCapitalizedName(),
                 "Creating " + input.getObjectDescription(),
                 schema.getProject(),
-                schema.getConnectionId(),
+                connectionId,
                 conn -> {
                     DatabaseDataDefinitionInterface dataDefinition = schema.getDataDefinitionInterface();
                     dataDefinition.createJavaClass(fullyQualifiedClassName, javaCode.toString(), conn);
                 });
 
-        nn(schema.getChildObjectList(objectType)).reload();
+        notifyObjectChanges(connectionId, schemaId, JAVA_CLASS, CREATE);
 
-        DBJavaClass javaClass = schema.getChildObject(objectType, fullyQualifiedClassName.replace(".","/"), false);
+        String objectName = fullyQualifiedClassName.replace(".", "/");
+        DBJavaClass javaClass = schema.getChildObject(objectType, objectName, false);
         if (javaClass == null) return;
 
         DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(getProject());
         editorManager.connectAndOpenEditor(javaClass, null, false, true);
-        notifyFactoryEvent(new ObjectFactoryEvent(javaClass, ObjectFactoryEvent.EVENT_TYPE_CREATE));
     }
 
     public void dropObject(DBSchemaObject object) {
+        Project project = getProject();
         Messages.showQuestionDialog(
-                getProject(),
+                project,
                 txt("msg.objects.title.DropObject"),
                 txt("msg.objects.question.DropObject", object.getQualifiedNameWithType()),
                 Messages.OPTIONS_YES_NO, 0,
                 option -> when(option == 0, () ->
                         ConnectionAction.invoke(txt("msg.objects.title.DroppingObject"), false, object, action -> {
-                            Project project = getProject();
                             DatabaseFileManager databaseFileManager = DatabaseFileManager.getInstance(project);
                             databaseFileManager.closeFile(object);
 
@@ -215,12 +212,15 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
     @Deprecated // TODO old implementation (implement appropriate ObjectManagementServices and cleanup)
     private void doDropObject(DBSchemaObject object) {
+        Project project = getProject();
         try {
+            ConnectionId connectionId = object.getConnectionId();
+            SchemaId schemaId = object.getSchemaId();
             DatabaseInterfaceInvoker.execute(HIGHEST,
                     txt("prc.objects.title.DroppingObject"),
                     txt("prc.objects.text.DroppingObject", object.getQualifiedNameWithType()),
-                    object.getProject(),
-                    object.getConnectionId(),
+                    project,
+                    connectionId,
                     conn -> {
                         DBContentType contentType = object.getContentType();
 
@@ -229,7 +229,6 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
                         String objectTypeName = object.getTypeName();
                         DatabaseDataDefinitionInterface dataDefinition = object.getDataDefinitionInterface();
-                        DBObjectList<?> objectList = (DBObjectList<?>) object.getParent();
                         if (contentType == DBContentType.CODE_SPEC_AND_BODY) {
                             DBObjectStatusHolder objectStatus = object.getStatus();
                             if (objectStatus.is(DBContentType.CODE_BODY, DBObjectStatus.PRESENT)) {
@@ -239,20 +238,25 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                             if (objectStatus.is(DBContentType.CODE_SPEC, DBObjectStatus.PRESENT)) {
                                 dataDefinition.dropObject(objectTypeName, schemaName, objectName, conn);
                             }
-                        } else if(object.getObjectType() == DBObjectType.JAVA_CLASS) {
-                            dataDefinition.dropJavaClass(schemaName, objectName, conn);
                         } else {
-                            dataDefinition.dropObject(objectTypeName, schemaName, objectName, conn);
+                            if(object.getObjectType() == JAVA_CLASS) {
+                                dataDefinition.dropJavaClass(schemaName, objectName, conn);
+                            } else {
+                                dataDefinition.dropObject(objectTypeName, schemaName, objectName, conn);
+
+                            }
                         }
 
-                        objectList.reload();
-                        notifyFactoryEvent(new ObjectFactoryEvent(object, ObjectFactoryEvent.EVENT_TYPE_DROP));
+                        notifyObjectChanges(connectionId, schemaId, object.getObjectType(), DELETE);
                     });
         } catch (SQLException e) {
             conditionallyLog(e);
             String message = "Could not drop " + object.getQualifiedNameWithType() + ".";
-            Project project = getProject();
             Messages.showErrorDialog(project, message, e);
         }
+    }
+
+    public void notifyObjectChanges(ConnectionId connectionId, SchemaId schemaId, DBObjectType objectType, ObjectChangeAction action) {
+        ProjectEvents.notify(getProject(), ObjectChangeListener.TOPIC, l -> l.objectsChanged(connectionId, schemaId, objectType, action));
     }
 }

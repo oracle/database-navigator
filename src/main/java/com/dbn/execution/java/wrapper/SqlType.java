@@ -41,4 +41,9 @@ public class SqlType {
         this.declarationSuffix = declarationSuffix;
     }
 
+    public String getSqlTypeDeclaration() {
+        return sqlTypeName + declarationSuffix;
+    }
+
+
 }

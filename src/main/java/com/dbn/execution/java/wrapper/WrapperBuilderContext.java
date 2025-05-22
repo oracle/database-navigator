@@ -17,55 +17,64 @@
 package com.dbn.execution.java.wrapper;
 
 
-import com.dbn.execution.java.wrapper.WrapperBuilder.ComplexTypeKey;
+import com.dbn.common.Pair;
+import com.dbn.common.routine.ThrowableCallable;
+import com.dbn.execution.java.wrapper.model.ClassWrapper;
+import com.dbn.execution.java.wrapper.naming.FriendlyWrapperNamingProvider;
+import com.dbn.execution.java.wrapper.naming.TransientWrapperNamingProvider;
+import com.dbn.execution.java.wrapper.naming.WrapperNamingProvider;
 import lombok.Getter;
+import lombok.Setter;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Holds all per-invocation data structures used by {@link WrapperBuilder}.
  */
 @Getter
+@Setter
 public class WrapperBuilderContext {
+    private static final ThreadLocal<WrapperBuilderContext> LOCAL = new ThreadLocal<>();
 
-    //methods for complexTypeMap
-    private final Map<ComplexTypeKey, JavaComplexType> complexTypeMap;
-    //methods for complexTypeSet
-    private final Set<ComplexTypeKey> complexTypeSet;
+    private Wrapper wrapper;
+    private final WrapperNamingProvider namingProvider;
+    private final Map<Pair<String, Integer>, ClassWrapper> classWrapperCache = new HashMap<>();
+
+
+    public void cacheClassWrapper(ClassWrapper classWrapper) {
+        var key = Pair.of(classWrapper.getClassName(), classWrapper.getArrayDepth());
+        classWrapperCache.put(key, classWrapper);
+    }
+
+    @Nullable
+    public ClassWrapper getCachedClassWrapper(String className, int arrayDepth) {
+        var key = Pair.of(className, arrayDepth);
+        return classWrapperCache.get(key);
+    }
 
     /**
      * Instantiates a fresh context for each parse invocation.
      */
-    public WrapperBuilderContext() {
-        this.complexTypeMap = new HashMap<>();
-        this.complexTypeSet = new HashSet<>();
+    public WrapperBuilderContext(boolean friendlyNames) {
+        namingProvider = friendlyNames ?
+                new FriendlyWrapperNamingProvider():
+                new TransientWrapperNamingProvider();
     }
 
-
-    public void addMapEntry(ComplexTypeKey key, JavaComplexType javaComplexType){
-        complexTypeMap.put(key, javaComplexType);
+    public <T, E extends Throwable> T surround(ThrowableCallable<T, E> runnable) throws E {
+        try {
+            LOCAL.set(this);
+            return runnable.call();
+        } finally {
+            LOCAL.remove();
+        }
     }
 
-    public JavaComplexType getJavaComplexType(ComplexTypeKey key){
-        return complexTypeMap.get(key);
+    public static WrapperBuilderContext get() {
+        return LOCAL.get();
     }
 
-
-    public boolean detectRepetition(ComplexTypeKey key)
-    {
-        return complexTypeSet.contains(key);
-    }
-
-    public void addToSet(ComplexTypeKey key){
-        complexTypeSet.add(key);
-    }
-
-    public void removeFromSet(ComplexTypeKey key)
-    {
-        complexTypeSet.remove(key);
-    }
 }
 

@@ -180,7 +180,7 @@ public final class ConnectionPool extends ConnectionComponentBase implements Not
     public boolean isConnected(SessionId sessionId) {
 
         if (sessionId == SessionId.POOL) {
-            return getConnectionPool().size() > 0;
+            return !getConnectionPool().isEmpty();
         }
 
         if (sessionId != null) {
@@ -188,6 +188,14 @@ public final class ConnectionPool extends ConnectionComponentBase implements Not
             return connection != null && !connection.isClosed() && connection.isValid();
         }
         return false;
+    }
+
+    public void release(DBNConnection connection) {
+        if (connection.isPoolConnection()) {
+            getConnectionPool().release(connection);
+        } else {
+            getConnectionCache().release(connection.getSessionId());
+        }
     }
 
     void clean() {

@@ -1,0 +1,73 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.driver.download.ui;
+
+import com.dbn.common.environment.EnvironmentType;
+import com.dbn.common.ui.Layouts;
+import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.driver.download.metadata.DriverPackage;
+import com.dbn.driver.download.metadata.Library;
+import com.intellij.openapi.Disposable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.Box;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+
+public class DriverPackageInfoForm extends DBNFormBase {
+    private JPanel headerPanel;
+    private JPanel mainPanel;
+    private JPanel infoPanel;
+
+    public DriverPackageInfoForm(@Nullable Disposable parent, DriverPackage driverPackage) {
+        super(parent);
+
+        initHeaderPanel(driverPackage.getName());
+        Layouts.verticalBoxLayout(infoPanel);
+        for (Library library : driverPackage.getLibraries()) {
+            LibraryInfoForm libraryInfoForm = new LibraryInfoForm(library);
+
+            JComponent mainComponent = libraryInfoForm.getMainComponent();
+            Dimension preferredSize = mainComponent.getPreferredSize();
+            mainComponent.setMaximumSize(new Dimension(Integer.MAX_VALUE, preferredSize.height));
+
+            infoPanel.add(mainComponent);
+            infoPanel.add(Box.createVerticalStrut(5));
+        }
+        infoPanel.add(Box.createVerticalGlue());
+    }
+
+    private void initHeaderPanel(String libraryName) {
+        DBNHeaderForm headerForm = new DBNHeaderForm(this);
+        headerForm.setTitle(libraryName);
+        headerForm.setBackground(EnvironmentType.DEFAULT.getColor());
+        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+        headerPanel.setBorder(new EmptyBorder(0, 0, 10, 0));
+
+    }
+
+    @NotNull
+    @Override
+    public JPanel getMainComponent() {
+        return mainPanel;
+    }
+}

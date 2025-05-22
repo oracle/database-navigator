@@ -16,6 +16,8 @@
 
 package com.dbn.common.util;
 
+import com.dbn.object.type.DBJavaScalarType;
+import com.intellij.ide.plugins.PluginManager;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
@@ -27,6 +29,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.util.Strings.isEmpty;
+import static com.intellij.ide.plugins.PluginManagerCore.JAVA_PLUGIN_ID;
 
 /**
  * Utility class providing methods related to Java package and class names validations.
@@ -110,8 +113,30 @@ public class Java {
     }
 
     @NonNls
+    public static boolean isScalar(String className) {
+        return DBJavaScalarType.isScalar(className);
+    }
+
+    @NonNls
     public static boolean isVoid(String className) {
         return Objects.equals(className, "void");
     }
 
+    /**
+     * Extracts the package name from a fully qualified class name.
+     * If the class name does not contain a period ('.'), returns {@code null}.
+     *
+     * @param className the fully qualified class name; must not be null
+     * @return the package name, or {@code null} if the class name does not contain a period
+     */
+    @Nullable
+    public static String getPackageName(String className) {
+        int lastDotIndex = className.lastIndexOf('.');
+        if (lastDotIndex == -1) return null;
+        return className.substring(0, lastDotIndex);
+    }
+
+    public static boolean isIdeSupportAvailable() {
+        return PluginManager.isPluginInstalled(JAVA_PLUGIN_ID);
+    }
 }

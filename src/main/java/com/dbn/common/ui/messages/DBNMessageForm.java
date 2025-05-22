@@ -16,10 +16,12 @@
 
 package com.dbn.common.ui.messages;
 
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Fonts;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import com.intellij.ui.MouseDragHelper;
@@ -53,8 +55,8 @@ public class DBNMessageForm extends DBNFormBase {
     private final String title;
     private final String message;
 
-    public DBNMessageForm(@NotNull DBNMessageDialog dialog, Icon icon, @DialogTitle String title, @DialogMessage String message) {
-        super(dialog);
+    public DBNMessageForm(@NotNull DBNComponent parent, Icon icon, @DialogTitle String title, @DialogMessage String message) {
+        super(parent);
         this.icon = icon;
         this.title = title;
         this.message = message;
@@ -104,14 +106,12 @@ public class DBNMessageForm extends DBNFormBase {
     }
 
     private void initDragging() {
-        DBNMessageDialog dialog = getDialog();
-        DragHelper dragHelper = new DragHelper(dialog, this);
-        dragHelper.start();
-    }
-
-    @NotNull
-    private DBNMessageDialog getDialog() {
-        return ensureParentComponent();
+        Disposable parentComponent = getParentComponent();
+        if (parentComponent instanceof DBNMessageDialog) {
+            DBNMessageDialog dialog = (DBNMessageDialog) parentComponent;
+            DragHelper dragHelper = new DragHelper(dialog, this);
+            dragHelper.start();
+        }
     }
 
     @Override

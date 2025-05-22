@@ -34,7 +34,6 @@ import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.database.DatabaseFeature;
-import com.dbn.editor.DBContentType;
 import com.dbn.editor.data.DatasetEditor;
 import com.dbn.editor.data.DatasetEditorError;
 import com.dbn.editor.data.filter.DatasetFilter;
@@ -67,6 +66,7 @@ import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.connection.ConnectionProperty.RS_TYPE_FORWARD_ONLY;
 import static com.dbn.connection.ConnectionProperty.RS_TYPE_SCROLL_INSENSITIVE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.editor.DBContentType.DATA;
 import static com.dbn.editor.data.model.RecordStatus.DELETED;
 import static com.dbn.editor.data.model.RecordStatus.DIRTY;
 import static com.dbn.editor.data.model.RecordStatus.INSERTED;
@@ -98,10 +98,6 @@ public class DatasetEditorModel
         this.settings =  DataEditorSettings.getInstance(project);
         setHeader(new DatasetEditorModelHeader(datasetEditor, null));
         this.isResultSetUpdatable = DatabaseFeature.UPDATABLE_RESULT_SETS.isSupported(getConnection());
-
-        EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
-        boolean readonly = environmentManager.isReadonly(dataset, DBContentType.DATA);
-        setEnvironmentReadonly(readonly);
     }
 
     public void load(final boolean useCurrentFilter, final boolean keepChanges) throws SQLException {
@@ -112,6 +108,8 @@ public class DatasetEditorModel
         AtomicReference<DBNStatement> statementRef = new AtomicReference<>();
         ConnectionHandler connection = getConnection();
         DBNConnection conn = connection.getMainConnection();
+
+        boolean signatureValid = verifySignature(conn);
 
         loaderCall = new CancellableDatabaseCall<>(connection, conn, timeout, TimeUnit.SECONDS) {
             @Override
@@ -124,8 +122,11 @@ public class DatasetEditorModel
 
                     setResultSet(newResultSet);
                     setResultSetExhausted(false);
-                    if (keepChanges) snapshotChanges();
-                    else clearChanges();
+                    if (keepChanges && signatureValid) {
+                        snapshotChanges();
+                    } else {
+                        clearChanges();
+                    }
 
                     int rowCount = computeRowCount();
 
@@ -233,11 +234,9 @@ public class DatasetEditorModel
                 statement = conn.createStatement();
             }
         }
+        statement.setQueryTimeout(timeout);
         statementRef.set(statement);
         checkDisposed();
-        if (timeout != -1) {
-            statement.setQueryTimeout(timeout);
-        }
 
         statement.setFetchSize(getSettings().getGeneralSettings().getFetchBlockSize().value());
         return statement.executeQuery(selectStatement);
@@ -306,11 +305,24 @@ public class DatasetEditorModel
 
     @Override
     public boolean isReadonly() {
-        return !isEditable();
+        DBDataset dataset = getDataset();
+
+        // non-editable views
+        boolean objectReadonly = !dataset.isEditable(DATA);
+        if (objectReadonly) return true;
+
+        boolean environmentReadonly = dataset.getEnvironmentType().isReadonlyData();
+        if (environmentReadonly) {
+            // user intentional override of environment settings
+            return !EnvironmentManager.isTransientlyEditable(dataset, DATA);
+        }
+
+        // get from model state
+        return getState().isReadonly();
     }
 
     public boolean isEditable() {
-        return getDataset().isEditable(DBContentType.DATA);
+        return !isReadonly();
     }
 
     @NotNull
@@ -570,10 +582,10 @@ public class DatasetEditorModel
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
+        if (isDirty()) return false;
+        if (isReadonly()) return false;
+
         DatasetEditorTable editorTable = getEditorTable();
-        DatasetEditorState editorState = getState();
-        if (isReadonly() || isEnvironmentReadonly() || isDirty()) return false;
-        if (editorState.isReadonly()) return false;
         if (editorTable.isLoading()) return false;
         if (!editorTable.isEditingEnabled()) return false;
         if (editorTable.getSelectedColumnCount() > 1 || editorTable.getSelectedRowCount() > 1) return false;

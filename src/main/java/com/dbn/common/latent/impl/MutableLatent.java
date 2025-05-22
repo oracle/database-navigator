@@ -23,28 +23,31 @@ import com.dbn.common.util.Safe;
 
 import java.util.Objects;
 
-public class MutableLatent<T, M> extends BasicLatent<T> implements Latent<T> {
-    private M mutable;
-    private final Loader<M> mutableLoader;
+public class MutableLatent<T, S> extends BasicLatent<T> implements Latent<T> {
+    private S signature;
+    private final Loader<S> signatureLoader;
 
-    public MutableLatent(Loader<M> mutableLoader, Loader<T> loader) {
-        super(loader);
-        this.mutableLoader = mutableLoader;
+    public MutableLatent(Loader<S> signatureLoader, Loader<T> valueLoader) {
+        super(valueLoader);
+        this.signatureLoader = signatureLoader;
     }
 
     @Override
     protected boolean shouldLoad(){
         if (super.shouldLoad()) return true;
 
-        return mutable != null && !Objects.equals(mutable, loadMutable());
+        S currentSignature = loadSignature();
+        return signature == null ?
+                currentSignature != null :
+                !Objects.equals(signature, currentSignature);
     }
 
     @Override
     protected void beforeLoad() {
-        mutable = loadMutable();
+        signature = loadSignature();
     }
 
-    private M loadMutable() {
-        return Safe.call(mutableLoader, ml -> ml.load());
+    private S loadSignature() {
+        return Safe.call(signatureLoader, ml -> ml.load());
     }
 }

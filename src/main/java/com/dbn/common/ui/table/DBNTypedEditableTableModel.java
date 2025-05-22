@@ -46,7 +46,7 @@ public abstract class DBNTypedEditableTableModel<T extends Cloneable<T>> extends
 
     protected DBNTypedEditableTableModel(Class<T> entityType, List<T> elements) {
         this.entityType = entityType;
-        this.elements = new ArrayList<>(elements);
+        this.elements = new ArrayList<>();
         cloneElements(elements, this.elements);
     }
 

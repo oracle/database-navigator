@@ -20,6 +20,7 @@ package com.dbn.common.latent;
 import com.dbn.common.color.Colors;
 import com.dbn.common.latent.impl.BasicLatent;
 import com.dbn.common.latent.impl.MutableLatent;
+import com.dbn.common.latent.impl.RecursiveLatent;
 import com.dbn.common.latent.impl.ReloadableLatent;
 import com.dbn.common.latent.impl.ThreadLocalLatent;
 import com.dbn.common.latent.impl.WeakRefLatent;
@@ -46,8 +47,12 @@ public interface Latent<T> extends Supplier<T> {
         return new BasicLatent<>(loader);
     }
 
-    static <T, M> Latent<T> mutable(Loader<M> mutableLoader, Loader<T> loader) {
-        return new MutableLatent<>(mutableLoader, loader);
+    static <T, S> Latent<T> mutable(Loader<S> signatureLoader, Loader<T> valueLoader) {
+        return new MutableLatent<>(signatureLoader, valueLoader);
+    }
+
+    static <T> Latent<T> recursive(Loader<T> loader) {
+        return new RecursiveLatent<>(loader);
     }
 
     static <P, T> Latent<T> reloadable(long interval, TimeUnit intervalUnit, P param, ParametricCallable<P, T, RuntimeException> callable) {

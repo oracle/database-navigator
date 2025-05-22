@@ -26,11 +26,8 @@ import com.dbn.database.common.execution.MethodExecutionProcessor;
 import com.dbn.execution.script.CmdLineInterface;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
-import com.intellij.execution.configurations.GeneralCommandLine;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import static com.dbn.common.util.Naming.doubleQuoted;
 
 class SqliteExecutionInterface extends DatabaseExecutionInterfaceImpl {
 
@@ -56,18 +53,12 @@ class SqliteExecutionInterface extends DatabaseExecutionInterfaceImpl {
             @NotNull DatabaseInfo databaseInfo,
             @NotNull AuthenticationInfo authenticationInfo) {
 
-        CmdLineExecutionInput executionInput = new CmdLineExecutionInput(content);
-
-        GeneralCommandLine command = executionInput.getCommand();
-
-        String executable = cmdLineInterface.getExecutablePath();
-        command.setWorkDirectory(executable);
-
-        String mainFilePath = databaseInfo.getMainFilePath();
-
-        command.addParameter(doubleQuoted(mainFilePath));
-        command.addParameter("< " + doubleQuoted(filePath));
-
-        return executionInput;
+        return new SqliteScriptExecutionInput(
+                cmdLineInterface,
+                filePath,
+                content,
+                schemaId,
+                databaseInfo,
+                authenticationInfo);
     }
 }

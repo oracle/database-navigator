@@ -39,6 +39,7 @@ public class DatabaseBrowserGeneralSettings
     private final IntegerSetting navigationHistorySize = new IntegerSetting("navigation-history-size", 100);
     private final BooleanSetting showObjectDetails = new BooleanSetting("show-object-details", false);
     private final BooleanSetting enableStickyPaths = new BooleanSetting("enable-sticky-paths", true);
+    private final BooleanSetting enableQuickFilters = new BooleanSetting("enable-quick-filters", false);
 
     public boolean isShowObjectDetails() {
         return showObjectDetails.getValue();
@@ -46,6 +47,10 @@ public class DatabaseBrowserGeneralSettings
 
     public boolean isEnableStickyPaths() {
         return enableStickyPaths.getValue();
+    }
+
+    public boolean isEnableQuickFilters() {
+        return enableQuickFilters.getValue();
     }
 
     DatabaseBrowserGeneralSettings(DatabaseBrowserSettings parent) {
@@ -69,6 +74,7 @@ public class DatabaseBrowserGeneralSettings
         navigationHistorySize.readConfiguration(element);
         showObjectDetails.readConfiguration(element);
         enableStickyPaths.readConfiguration(element);
+        enableQuickFilters.readConfiguration(element);
     }
 
     @Override
@@ -77,6 +83,7 @@ public class DatabaseBrowserGeneralSettings
         navigationHistorySize.writeConfiguration(element);
         showObjectDetails.writeConfiguration(element);
         enableStickyPaths.writeConfiguration(element);
+        enableQuickFilters.writeConfiguration(element);
     }
 
 }

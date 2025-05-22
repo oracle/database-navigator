@@ -45,6 +45,7 @@ public interface DBSchemaObject extends DBObject {
     @NonNls
     String getCodeParseRootId(DBContentType contentType);
 
+    @Deprecated // TODO move implementations to com.dbn.object.management.ObjectManagementService
     void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException;
 
     DBObjectStatusHolder getStatus();

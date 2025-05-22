@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.dbn.connection.jdbc.ResourceStatus.INITIALIZED;
 import static com.dbn.diagnostics.Diagnostics.isDatabaseResourceDebug;
 
 @Getter
@@ -101,6 +102,14 @@ public abstract class DBNResource<T> extends ResourceStatusHolder implements Res
         }
 
         if (isDatabaseResourceDebug()) log.info("[DBN] Created " + this);
+    }
+
+    protected void markInitialized() {
+        set(INITIALIZED, true);
+    }
+
+    protected boolean isInitialized() {
+        return is(INITIALIZED);
     }
 
     @Override

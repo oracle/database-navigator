@@ -23,47 +23,68 @@ import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.common.execution.JavaExecutionProcessorImpl;
+import com.dbn.database.oracle.OracleTypes;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.java.wrapper.Wrapper;
-import com.dbn.execution.java.wrapper.Wrapper.MethodAttribute;
-import com.dbn.execution.java.wrapper.WrapperBuilder;
+import com.dbn.execution.java.wrapper.model.ClassWrapper;
+import com.dbn.execution.java.wrapper.model.MethodWrapper;
+import com.dbn.execution.java.wrapper.model.ParameterWrapper;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.sql.Array;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Comparator;
+import java.sql.Types;
 import java.util.List;
+import java.util.Objects;
+
+import static com.dbn.common.data.Data.asBigDecimal;
+import static com.dbn.common.data.Data.asBigInteger;
+import static com.dbn.common.data.Data.asBoolean;
+import static com.dbn.common.data.Data.asBooleanPrimitive;
+import static com.dbn.common.data.Data.asByte;
+import static com.dbn.common.data.Data.asBytePrimitive;
+import static com.dbn.common.data.Data.asCharacter;
+import static com.dbn.common.data.Data.asCharacterPrimitive;
+import static com.dbn.common.data.Data.asDouble;
+import static com.dbn.common.data.Data.asDoublePrimitive;
+import static com.dbn.common.data.Data.asFloat;
+import static com.dbn.common.data.Data.asFloatPrimitive;
+import static com.dbn.common.data.Data.asInteger;
+import static com.dbn.common.data.Data.asIntegerPrimitive;
+import static com.dbn.common.data.Data.asLong;
+import static com.dbn.common.data.Data.asLongPrimitive;
+import static com.dbn.common.data.Data.asShort;
+import static com.dbn.common.data.Data.asShortPrimitive;
+import static com.dbn.common.util.Lists.sortedCopy;
+import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
+import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
 public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
-
+	private int sqlType = 0;
 	public OracleJavaExecutionProcessor(DBJavaMethod method) {
 		super(method);
 	}
 
-	protected void preHookExecutionCommand(StringBuilder buffer) {}
-	protected void postHookExecutionCommand(StringBuilder buffer) {}
-
 	@Override
 	public String buildExecutionCommand(JavaExecutionInput executionInput, Wrapper wrapper) {
-		String wrapperName = "DBN_OJVM_SQL_WRAPPER";
-
-		String returnArgument = getReturnArgument();
+		boolean procedure = isProcedure();
+		String wrapperName = wrapper.getSqlWrapperName();
 		List<DBJavaParameter> arguments = getArguments();
 
-		boolean isProcedure = returnArgument.equals("void");
 		StringBuilder buffer = new StringBuilder();
-
 		StringBuilder methodCallPrepare = new StringBuilder();
 
 		for (DBJavaParameter argument : arguments) {
@@ -76,20 +97,19 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		}
 
 		buffer.append("declare\n");
-		if(!isProcedure){
-			MethodAttribute returnType = wrapper.getReturnType();
+
+		if (!procedure) {
+			ParameterWrapper returnParameter = wrapper.getMethods().get(0).getReturnParameter();
 			buffer.append("output_arg ")
-					.append(returnType.getSqlTypeName())
-					.append(returnType.getSqlDeclarationSuffix())
+					.append(returnParameter.getSqlTypeName())
+					.append(returnParameter.getSqlDeclarationSuffix())
 					.append(";")
 					.append("\n");
 		}
 		buffer.append("begin \n");
 		buffer.append("dbms_java.set_output(100000);\n");
 
-		preHookExecutionCommand(buffer);
-
-		if(isProcedure){
+		if(procedure){
 			buffer.append(wrapperName);
 			if(!methodCallPrepare.toString().isEmpty()) {
 				buffer.append("(")
@@ -103,54 +123,76 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 					.append("(")
 					.append(methodCallPrepare)
 					.append(");\n");
+			buffer.append("? := output_arg ;\n");
 		}
-		postHookExecutionCommand(buffer);
 		buffer.append("end;\n");
 		return buffer.toString();
 	}
 
 	@SneakyThrows
 	@Override
-	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement callableStatement, Wrapper wrapper) {
+	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement statement, Wrapper wrapper) {
 		// bind input variables
 		int parameterIndex = 1;
+		MethodWrapper methodWrapper = wrapper.getMethods().get(0);
 		for (DBJavaParameter parameter : getArguments()) {
 
 			String parameterName = parameter.getName();
 			if (parameter.isArray()) {
-				String objectName = wrapper.getMethodArguments().get(parameterIndex - 1).getSqlTypeName();
+				String objectName = methodWrapper.getParameters().get(parameterIndex - 1).getSqlTypeName();
 				Array arrObj = getArrayObject(executionInput, parameter.getJavaClass().getFields(), wrapper, objectName, parameterName);
-				callableStatement.setArray(parameterIndex, arrObj);
+				statement.setArray(parameterIndex, arrObj);
 
-			} else if (!parameter.isPlainValue()) { // TODO support pseudo-primitives com.dbn.object.type.DBJavaValueType
-				String objectName = wrapper.getMethodArguments().get(parameterIndex - 1).getSqlTypeName();
+			} else if (!parameter.isScalar()) { // TODO support pseudo-primitives com.dbn.object.type.DBJavaValueType
+				String objectName = methodWrapper.getParameters().get(parameterIndex - 1).getSqlTypeName();
 				Object structObj = getStructObject(executionInput, parameter.getJavaClass().getFields(), wrapper, objectName, parameterName);
-				callableStatement.setObject(parameterIndex, structObj);
+				statement.setObject(parameterIndex, structObj);
 
 			} else {
-				String clazz = parameter.getJavaClassName();
+				String clazz = parameter.getJavaClassRef().getObjectName();
 				String value = executionInput.getInputValue(parameterName);
-				if (value == null) callableStatement.setObject(parameterIndex, null);
-				else if (clazz.equals("String")) callableStatement.setString(parameterIndex, value);
-				else if (clazz.equals("byte")) callableStatement.setByte(parameterIndex, Byte.parseByte(value));
-				else if (clazz.equals("short")) callableStatement.setShort(parameterIndex, Short.parseShort(value));
-				else if (clazz.equals("int")) callableStatement.setInt(parameterIndex, Integer.parseInt(value));
-				else if (clazz.equals("long")) callableStatement.setLong(parameterIndex, Long.parseLong(value));
-				else if (clazz.equals("float")) callableStatement.setFloat(parameterIndex, Float.parseFloat(value));
-				else if (clazz.equals("double")) callableStatement.setDouble(parameterIndex, Double.parseDouble(value));
+				if (value == null) statement.setObject(parameterIndex, null);
+				else if (clazz.equals("String")) statement.setString(parameterIndex, value);
+				else if (clazz.equals("byte")) statement.setByte(parameterIndex, Byte.parseByte(value));
+				else if (clazz.equals("short")) statement.setShort(parameterIndex, Short.parseShort(value));
+				else if (clazz.equals("int")) statement.setInt(parameterIndex, Integer.parseInt(value));
+				else if (clazz.equals("long")) statement.setLong(parameterIndex, Long.parseLong(value));
+				else if (clazz.equals("float")) statement.setFloat(parameterIndex, Float.parseFloat(value));
+				else if (clazz.equals("double")) statement.setDouble(parameterIndex, Double.parseDouble(value));
 				else if (clazz.equals("boolean"))
-					callableStatement.setBoolean(parameterIndex, Boolean.getBoolean(value));
+					statement.setBoolean(parameterIndex, Boolean.getBoolean(value));
 				else
-					callableStatement.setObject(parameterIndex, value);
+					statement.setObject(parameterIndex, value);
 
 			}
 			parameterIndex++;
 		}
-	}
+		String returnArgument = getReturnArgument();
+        if (!isProcedure()) {
+            if (methodWrapper.getReturnParameter().isArray()) {
+                sqlType = OracleTypes.ARRAY;
+            } else {
+                sqlType = getSQLTypes(returnArgument);
+            }
+
+            CallableStatement callableStatement = (CallableStatement) statement;
+            if (sqlType == Types.STRUCT || sqlType == OracleTypes.ARRAY) {
+                String returnTypeSQL = methodWrapper.getReturnParameter().getSqlTypeName();
+                callableStatement.registerOutParameter(parameterIndex, sqlType, returnTypeSQL);
+            } else
+                callableStatement.registerOutParameter(parameterIndex, sqlType);
+        }
+
+    }
 
 	@Override
 	public void loadValues(JavaExecutionResult executionResult, DBNPreparedStatement<?> preparedStatement) throws SQLException {
-
+		if (preparedStatement instanceof CallableStatement) {
+			int outputIndex = getArgumentsCount() + 1;
+			CallableStatement callableStatement = (CallableStatement) preparedStatement;
+			Object result = getResult(callableStatement, outputIndex);
+			executionResult.addArgumentValue("return", result);
+		}
 	}
 
 	@SneakyThrows
@@ -160,7 +202,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		SchemaId targetSchemaId = executionInput.getTargetSchemaId();
 		DBNConnection conn = connection.getConnection(targetSessionId, targetSchemaId);
 
-		fields.sort(Comparator.comparingInt(DBJavaField::getIndex));
+		fields = sortedCopy(fields, POSITION_COMPARATOR);
 		Object[] customTypeAttributes = new Object[fields.size()];
 		int i = 0;
 		for (DBJavaField field : fields) {
@@ -174,7 +216,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		ClassLoader cl =  conn.getInner().getClass().getClassLoader();
 		Class<?> structDescriptorClass = Class.forName("oracle.sql.StructDescriptor",true, cl);
 		Method createDescriptorMethod = structDescriptorClass.getMethod("createDescriptor", String.class, Connection.class);
-		Object structDescriptor =  createDescriptorMethod.invoke(null, objectName, conn.getInner());
+		Object structDescriptor =  createDescriptorMethod.invoke(null, objectName.toUpperCase(), conn.getInner());
 
 		Class<?> structClass = Class.forName("oracle.sql.STRUCT", true, cl);
 		Constructor<?> structCtr = structClass.getConstructor(structDescriptorClass, Connection.class, Object[].class);
@@ -189,7 +231,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		SchemaId targetSchemaId = executionInput.getTargetSchemaId();
 		DBNConnection conn = connection.getConnection(targetSessionId, targetSchemaId);
 
-		fields.sort(Comparator.comparingInt(DBJavaField::getIndex));
+		fields = sortedCopy(fields, POSITION_COMPARATOR);
 		Object[] customTypeAttributes = new Object[fields.size()];
 		int i = 0;
 		for (DBJavaField field : fields) {
@@ -211,22 +253,92 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
 	@Nullable
 	private Object parseValue(JavaExecutionInput executionInput, Wrapper wrapper, DBJavaField field, String fieldPath, String fieldValue) {
-		if (fieldValue == null) return null;
+		if (field == null) return null;
 
-		switch(field.getJavaClassName()){
-			case "int": return Integer.parseInt(fieldValue);
-			case "float": return Float.parseFloat(fieldValue);
-			case "double": return Double.parseDouble(fieldValue);
-			case "byte": return Byte.parseByte(fieldValue);
-			case "short": return Short.parseShort(fieldValue);
-			case "long": return Long.parseLong(fieldValue);
-			case "boolean": return Boolean.parseBoolean(fieldValue);
-			case "class":
-				DBJavaClass javaClass = field.getJavaClass();
-				int typeIndex = wrapper.getSqlTypeIndex(javaClass.getCanonicalName(), field.getArrayDepth());
-				String innerObjectName = WrapperBuilder.DBN_TYPE_SUFFIX + typeIndex;
-				return getStructObject(executionInput, javaClass.getFields(), wrapper, innerObjectName, fieldPath);
-			default:return fieldValue;
+		@NonNls
+		String className = getCanonicalName(field.getJavaClassRef());
+		switch (className) {
+			// primitives
+			case "boolean": return asBooleanPrimitive(fieldValue);
+			case "byte": return asBytePrimitive(fieldValue);
+			case "char": return asCharacterPrimitive(fieldValue);
+			case "double": return asDoublePrimitive(fieldValue);
+			case "float": return asFloatPrimitive(fieldValue);
+			case "int": return asIntegerPrimitive(fieldValue);
+			case "long": return asLongPrimitive(fieldValue);
+			case "short": return asShortPrimitive(fieldValue);
+
+			// pseudo-primitives (prevent expensive class-details load from SYS schema)
+			case "java.lang.Boolean": return asBoolean(fieldValue);
+			case "java.lang.Byte": return asByte(fieldValue);
+			case "java.lang.Character": asCharacter(fieldValue);
+			case "java.lang.Double": return asDouble(fieldValue);
+			case "java.lang.Float": return asFloat(fieldValue);
+			case "java.lang.Integer": return asInteger(fieldValue);
+			case "java.lang.Long": return asLong(fieldValue);
+			case "java.lang.Short": return asShort(fieldValue);
+			case "java.lang.String": return fieldValue;
+			case "java.math.BigDecimal": return asBigDecimal(fieldValue);
+			case "java.math.BigInteger": return asBigInteger(fieldValue);
+			//...
+			default:
+				if (field.isClass()) {
+					String objectName = getTypeName(field, wrapper);
+					return getStructObject(executionInput, field.getJavaClass().getFields(), wrapper, objectName, fieldPath);
+				}
+				return fieldValue;
+		}
+	}
+
+	private String getTypeName(DBJavaField field, Wrapper wrapper) {
+		DBJavaClass javaClass = field.getJavaClass();
+
+		for (ClassWrapper classWrapper : wrapper.getClasses()) {
+			if (Objects.equals(classWrapper.getClassName(), javaClass.getCanonicalName())) {
+				return classWrapper.getSqlTypeName();
+			}
+		}
+		// should never reach here
+		return null;
+	}
+
+	private int getSQLTypes(@NonNls String javaType) {
+		switch (javaType) {
+			case "int" : return Types.INTEGER;
+			case "float" : return Types.FLOAT;
+			case "double": return Types.DOUBLE;
+			case "boolean": return Types.BIT;
+			case "byte": return Types.TINYINT;
+			case "short": return Types.SMALLINT;
+			case "long": return Types.BIGINT;
+			case "char": return Types.CHAR;
+			case "java.lang.String": return Types.VARCHAR;
+			case "java.lang.Character": return Types.CHAR;
+			case "java.math.BigDecimal": return Types.DECIMAL;
+			case "java.math.BigInteger": return Types.BIGINT;
+			case "java.lang.Integer": return Types.INTEGER;
+			case "java.lang.Long": return Types.BIGINT;
+			case "java.lang.Double": return Types.DOUBLE;
+			case "java.lang.Short": return Types.SMALLINT;
+			case "java.lang.Float": return Types.FLOAT;
+			case "java.lang.Byte": return Types.TINYINT;
+			default: return Types.STRUCT;
+		}
+	}
+
+	private Object getResult(CallableStatement callableStatement, int outputIndex) throws SQLException {
+		switch (sqlType) {
+			case Types.INTEGER: return callableStatement.getInt(outputIndex);
+			case Types.FLOAT: return callableStatement.getFloat(outputIndex);
+			case Types.DOUBLE: return callableStatement.getDouble(outputIndex);
+			case Types.BIT: return callableStatement.getBoolean(outputIndex);
+			case Types.TINYINT: return callableStatement.getByte(outputIndex);
+			case Types.SMALLINT: return callableStatement.getShort(outputIndex);
+			case Types.BIGINT: return callableStatement.getLong(outputIndex);
+			case Types.CHAR: return callableStatement.getString(outputIndex).charAt(0);
+			case Types.VARCHAR: return callableStatement.getString(outputIndex);
+			case Types.DECIMAL: return callableStatement.getBigDecimal(outputIndex);
+			default: return callableStatement.getObject(outputIndex);
 		}
 	}
 }

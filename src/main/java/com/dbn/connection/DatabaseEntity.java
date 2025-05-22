@@ -60,7 +60,7 @@ public interface DatabaseEntity extends DatabaseContextBase, StatefulDisposable,
     }
 
     @Nullable
-    default DynamicContent<?> getDynamicContent(DynamicContentType<?> dynamicContentType) {
+    default DynamicContent<?> getDynamicContent(DynamicContentType<?> contentType) {
         return null;
     }
 

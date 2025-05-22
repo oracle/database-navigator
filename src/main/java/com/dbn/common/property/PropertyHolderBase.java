@@ -127,6 +127,39 @@ public abstract class PropertyHolderBase<T extends Property> implements Property
         return builder.toString();
     }
 
+    public abstract static class ShortStore<T extends Property.ShortBase> extends PropertyHolderBase<T> {
+        private volatile short computed;
+
+        @SafeVarargs
+        public ShortStore(T ... properties) {
+            super(properties);
+        }
+
+        public void inherit(ShortStore<T> source) {
+            this.computed = source.computed;
+        }
+
+        public final boolean is(T property) {
+            synchronized (this) {
+                return (computed & property.maskOn()) != 0;
+            }
+        }
+
+        protected void change(T property, boolean value) {
+            synchronized (this) {
+                this.computed = value ?
+                        (short) (this.computed | property.maskOn()):
+                        (short) (this.computed & property.maskOff());
+            }
+            changed(property, value);
+        }
+
+        public void reset() {
+            computed = 0;
+            super.reset();
+        }
+    }
+
     public abstract static class IntStore<T extends Property.IntBase> extends PropertyHolderBase<T> {
         private volatile int computed;
 
@@ -192,4 +225,23 @@ public abstract class PropertyHolderBase<T extends Property> implements Property
             super.reset();
         }
     }
+
+    public static <P extends Property.IntBase> PropertyHolder<P> intBase(P[] properties) {
+        return new IntStore<>() {
+            @Override
+            protected P[] properties() {
+                return properties;
+            }
+        };
+    }
+
+    public static <P extends Property.LongBase> PropertyHolder<P> longBase(P[] properties) {
+        return new LongStore<>() {
+            @Override
+            protected P[] properties() {
+                return properties;
+            }
+        };
+    }
+
 }

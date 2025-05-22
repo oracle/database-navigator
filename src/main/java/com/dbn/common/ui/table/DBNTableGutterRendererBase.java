@@ -17,23 +17,18 @@
 package com.dbn.common.ui.table;
 
 import com.dbn.common.color.Colors;
-import com.dbn.common.dispose.Failsafe;
-import com.dbn.common.latent.Latent;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Fonts;
-import org.apache.commons.lang3.StringUtils;
+import com.dbn.data.grid.color.BasicTableTextAttributes;
+import com.dbn.data.grid.color.DataGridTextAttributes;
+import com.intellij.ui.SimpleTextAttributes;
 
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.font.FontRenderContext;
-import java.util.HashMap;
-import java.util.Map;
 
+import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
 public abstract class DBNTableGutterRendererBase implements DBNTableGutterRenderer{
@@ -41,58 +36,66 @@ public abstract class DBNTableGutterRendererBase implements DBNTableGutterRender
     protected JLabel iconLabel;
     protected JPanel mainPanel;
 
-    private final Latent<Map<Integer, Integer>> indexWidth = Latent.mutable(
-            () -> textLabel.getFont(),
-            () -> new HashMap<>());
-
     public DBNTableGutterRendererBase() {
+        mainPanel.setOpaque(false);
+
         textLabel.setText("");
         iconLabel.setText("");
         textLabel.setFont(Fonts.editor(-2));
         textLabel.setForeground(Colors.getTableGutterForeground());
-        mainPanel.setBackground(Colors.getTableGutterBackground());
-        mainPanel.setPreferredSize(new Dimension(40, -1));
-        iconLabel.setBorder(Borders.insetBorder(4));
 
+        iconLabel.setBorder(Borders.insetBorder(4));
         mainPanel.setBorder(Borders.tableBorder(0, 0, 0, 1));
+    }
+
+    protected static DataGridTextAttributes getAttributes() {
+        return BasicTableTextAttributes.get();
     }
 
     @Override
     public final Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        adjustListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        DBNTableGutter tableGutter = (DBNTableGutter) list;
+
+        boolean isCaretRow = isCaretRow(index, tableGutter.getTable());
+        boolean isFocusOwner = list.isFocusOwner();
+
+        SimpleTextAttributes attributes = getAttributes(isSelected, isFocusOwner, isCaretRow);
+
+        boolean opaque = attributes != null;
+        mainPanel.setOpaque(opaque);
+        mainPanel.setBackground(opaque ? attributes.getBgColor() : null);
+
+        textLabel.setForeground(isSelected ?
+                Colors.getTableSelectionForeground(cellHasFocus) :
+                Colors.getTableGutterForeground());
 
         textLabel.setText(Integer.toString(index + 1));
-        int textWidth = computeLabelWidth(list.getModel().getSize());
-        int iconWidth = iconLabel.getIcon() == null ? 0 : 16;
-        //iconLabel.setVisible(iconLabel.getIcon() == null);
-
-        int preferredWidth = textWidth + iconWidth + 16;
-
-        Dimension preferredSize = mainPanel.getPreferredSize();
-        if (preferredSize.getWidth() != preferredWidth) {
-            Dimension dimension = new Dimension(preferredWidth, -1);
-            mainPanel.setPreferredSize(dimension);
-            Dispatch.run(() -> resize(list, preferredWidth));
-        }
-
         setAccessibleName(mainPanel, "Row index " + (index + 1));
+
+        adjustListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         return mainPanel;
     }
 
-    private void resize(JList list, int preferredWidth) {
-        Failsafe.nd(list);
-        list.setPreferredSize(new Dimension(preferredWidth, (int) list.getPreferredSize().getHeight()));
-    }
-
-    private int computeLabelWidth(int count) {
-        return indexWidth.get().computeIfAbsent(count, c -> {
-            int digits = (int) Math.log10(c) + 1;
-            String text = StringUtils.leftPad("", digits, "0");
-            Font font = textLabel.getFont();
-            FontRenderContext fontRenderContext = textLabel.getFontMetrics(font).getFontRenderContext();
-            return (int) font.getStringBounds(text, fontRenderContext).getWidth();
-        });
-    }
-
     protected abstract void adjustListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus);
+
+    protected SimpleTextAttributes getAttributes(boolean selected, boolean focussed, boolean caretRow) {
+        DataGridTextAttributes attributes = getAttributes();
+        if (selected) {
+            return focussed ?
+                    attributes.getSelection() :
+                    attributes.getCaretRow();
+        }
+        return caretRow ? attributes.getCaretRow() : null;
+
+        // return attributes.getPlainData(false, false);
+
+    }
+
+    protected static boolean isCaretRow(int index, DBNTableWithGutter table) {
+        return isValid(table) &&
+                table.getCellSelectionEnabled() &&
+                table.getSelectedRow() == index &&
+                table.getSelectedRowCount() == 1;
+    }
+
 }

@@ -115,7 +115,7 @@ public class DBObjectStatusHolder {
     }
 
     @Getter
-    private static class Entry extends PropertyHolderBase.IntStore<DBObjectStatus> {
+    private static class Entry extends PropertyHolderBase.ShortStore<DBObjectStatus> {
         private final DBContentType contentType;
 
         @Override

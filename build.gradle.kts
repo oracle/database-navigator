@@ -29,11 +29,22 @@ plugins {
 }
 
 group = "com.dbn"
-version = "3.5.3.0"
+version = "3.6.0.0"
 
 repositories {
-  mavenCentral()
+  mavenCentral {
+    content {
+      excludeModule("com.oracle", "oci-intellij-plugin-api")
+    }
+  }
+  flatDir {
+    dirs("libs")
+    content {
+      includeModule("com.oracle", "oci-intellij-plugin-api")
+    }
+  }
 }
+
 dependencies {
   testImplementation("junit:junit:4.13.2")
 
@@ -53,12 +64,20 @@ dependencies {
   implementation("org.apache.commons:commons-collections4:4.4")
   implementation("org.apache.commons:commons-lang3:3.17.0")
   implementation("org.apache.logging.log4j:log4j-api:2.24.1")
+  implementation("org.apache.xmlbeans:xmlbeans:5.2.1")
+
+  // ssh tunnel libraries
   implementation("org.apache.sshd:sshd-common:2.13.2")
   implementation("org.apache.sshd:sshd-core:2.13.2")
-  implementation("org.apache.xmlbeans:xmlbeans:5.2.1")
+
+  // driver download libraries
+  implementation("org.apache.maven.resolver:maven-resolver-connector-basic:1.9.22")
+  implementation("org.apache.maven:maven-resolver-provider:3.9.9")
 
   implementation(project(":modules:dbn-api"))
   implementation(project(":modules:dbn-spi"))
+
+  compileOnly("com.oracle:oci-intellij-plugin-api:"+project.properties["oci.ext.api.version"])
 }
 
 licenseReport {
@@ -94,7 +113,7 @@ intellij {
   version.set("2024.3.3")
   type.set("IC") // Target IDE Platform
 
-  plugins.set(listOf("java", "copyright"))
+  plugins.set(listOf("java", "json", "copyright"))
 
 }
 
@@ -130,6 +149,16 @@ withType<KotlinCompile> {
       from("lib/ext")
       include("**/*.jar")
       into(layout.buildDirectory.dir("idea-sandbox/plugins/${project.name}/lib/ext"))
+    }
+  }
+  test {
+    // we are also excluding two ChecksumTest cases if we are on Linux
+    if (project.hasProperty("excludeTests")) {
+      var excludeTests: String = project.properties["excludeTests"] as String
+      excludeTests.replace("\\s", "").split(",", ";").forEach { excluded ->
+        System.out.println("Excluding testcase: "+excluded)
+        exclude(excluded)
+      }
     }
   }
 

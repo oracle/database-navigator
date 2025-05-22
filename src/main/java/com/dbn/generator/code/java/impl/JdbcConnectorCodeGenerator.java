@@ -24,6 +24,7 @@ import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
+import com.dbn.connection.config.EasyConnectParameters;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.CodeGeneratorType;
 import com.dbn.generator.code.java.JavaCodeGenerator;
@@ -44,6 +45,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.util.Parameters.toParameterString;
 import static com.dbn.nls.NlsResources.txt;
 
 public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorCodeGeneratorInput, JdbcConnectorCodeGeneratorResult> {
@@ -129,6 +131,13 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         addProperty(properties, "HOST", databaseInfo.getHost());
         addProperty(properties, "PORT", databaseInfo.getPort());
         addProperty(properties, "DATABASE", databaseInfo.getDatabase());
+        addProperty(properties, "PROTOCOL", databaseInfo.getProtocol());
+        addProperty(properties, "SERVER_TYPE", databaseInfo.getServerType());
+        // ensure the quoted parameters are jave-escaped  because
+        // they will be added to Java code.
+        addProperty(properties, "PARAMETERS",
+                toParameterString(EasyConnectParameters.ensureParametersIfEasyConnect(
+                        databaseInfo.getParameters(), databaseInfo, true)));
         addProperty(properties, "TNS_FOLDER", databaseInfo.getTnsFolder());
         addProperty(properties, "TNS_PROFILE", databaseInfo.getTnsProfile());
 

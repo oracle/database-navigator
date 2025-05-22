@@ -18,10 +18,8 @@ package com.dbn.editor.data.ui;
 
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.action.DataProviders;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.latent.Latent;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.AutoCommitLabel;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -81,14 +79,6 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
     private JPanel toolbarPanel;
     private DatasetEditorTable datasetEditorTable;
     private final WeakRef<DatasetEditor> datasetEditor;
-
-    private final Latent<DataSearchComponent> dataSearchComponent = Latent.basic(() -> {
-        DataSearchComponent dataSearchComponent = new DataSearchComponent(DatasetEditorForm.this);
-        searchPanel.add(dataSearchComponent.getComponent(), BorderLayout.CENTER);
-        DataProviders.register(dataSearchComponent.getSearchField(), this);
-        return dataSearchComponent;
-    });
-
 
     public DatasetEditorForm(DatasetEditor datasetEditor) {
         super(datasetEditor, datasetEditor.getProject());
@@ -224,6 +214,12 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
     /*********************************************************
      *              SearchableDataComponent                  *
      *********************************************************/
+    @NotNull
+    @Override
+    public JPanel getSearchPanel() {
+        return searchPanel;
+    }
+
     @Override
     public void showSearchHeader() {
         DatasetEditorTable editorTable = getEditorTable();
@@ -240,10 +236,6 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
             searchPanel.setVisible(true);    
         }
         dispatch(() -> searchField.requestFocus());
-    }
-
-    private DataSearchComponent getSearchComponent() {
-        return dataSearchComponent.get();
     }
 
     @Override

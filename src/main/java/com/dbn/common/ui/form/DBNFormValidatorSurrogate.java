@@ -16,14 +16,15 @@
 
 package com.dbn.common.ui.form;
 
+import com.intellij.openapi.ui.ValidationInfo;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.text.JTextComponent;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import static com.dbn.common.exception.Exceptions.illegalState;
 
 /**
  * The DBNFormValidatorSurrogate class is an implementation of the DBNFormValidator interface.
@@ -35,6 +36,20 @@ import static com.dbn.common.exception.Exceptions.illegalState;
  */
 @Slf4j
 public class DBNFormValidatorSurrogate implements DBNFormValidator{
+    @Override
+    public boolean hasValidators() {
+        return false;
+    }
+
+    @Override
+    public <C extends JComponent> boolean hasValidators(C component) {
+        return false;
+    }
+
+    @Override
+    public <C extends JComponent> void removeValidators(C component) {
+        notSupported();
+    }
 
     @Override
     public <C extends JComponent> void addValidation(C component, Predicate<C> validator, String message) {
@@ -47,7 +62,17 @@ public class DBNFormValidatorSurrogate implements DBNFormValidator{
     }
 
     @Override
+    public <C extends JComponent> void addValidator(C component, Function<C, List<ValidationInfo>> validator) {
+        notSupported();
+    }
+
+    @Override
     public void addTextValidation(JTextComponent textField, Predicate<String> validator, String message) {
+        notSupported();
+    }
+
+    @Override
+    public void addSelectionValidation(JComboBox comboBox, String message) {
         notSupported();
     }
 
@@ -60,6 +85,6 @@ public class DBNFormValidatorSurrogate implements DBNFormValidator{
     public void validateInput(JComponent component) {}
 
     private static void notSupported() {
-        illegalState("Form validator not bound to dialog. Validation not supported.");
+        log.error("Failed to initialize validator", new IllegalStateException("Form validator not bound to dialog. Validation not supported."));
     }
 }

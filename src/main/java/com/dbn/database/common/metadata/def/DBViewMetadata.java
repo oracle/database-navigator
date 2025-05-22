@@ -26,10 +26,13 @@ public interface DBViewMetadata extends DBObjectMetadata {
     @ObjectIdentifier
     String getViewName() throws SQLException;
 
+    @ObjectIdentifier
     String getViewType() throws SQLException;
 
     @ObjectIdentifier
     String getViewTypeOwner() throws SQLException;
 
     boolean isSystemView() throws SQLException;
+
+    boolean isEditionable() throws SQLException;
 }

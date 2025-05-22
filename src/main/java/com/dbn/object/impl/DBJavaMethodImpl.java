@@ -18,6 +18,7 @@ package com.dbn.object.impl;
 
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.util.Java;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaMethodMetadata;
 import com.dbn.object.DBJavaClass;
@@ -131,17 +132,12 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 
 	@Override
 	public DBJavaClass getReturnClass() {
-		return returnClass == null ? null : returnClass.get();
+		return returnClass.get();
 	}
 
 	@Override
 	public DBObjectRef<DBJavaClass> getReturnClassRef() {
 		return returnClass;
-	}
-
-	@Override
-	public String getReturnClassName() {
-		return returnClass == null ? null : returnClass.getObjectName();
 	}
 
 	@Override
@@ -160,8 +156,8 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	}
 
 	@Override
-	public String getOwnerClassName() {
-		return getOwnerClass().getName();
+	public DBObjectRef<DBJavaClass> getOwnerClassRef() {
+		return getParentObjectRef();
 	}
 
 	@Override
@@ -185,12 +181,18 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	}
 
 	@Override
+	public boolean isReturningVoid() {
+		return Java.isVoid(returnClass.getObjectName());
+	}
+
+	@Override
 	protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
 		List<DBObjectNavigationList> navigationLists = new LinkedList<>();
 		DBObjectList<DBJavaParameter> parameterList = initParameterList();
 		if (parameterList != null) {
 			if (parameterList.isLoaded()) {
-                navigationLists.add(DBObjectNavigationList.create("Parameters", getParameters()));
+				List<DBJavaParameter> parameters = getParameters();
+				if (!parameters.isEmpty()) navigationLists.add(DBObjectNavigationList.create("Parameters", parameters));
             } else {
 				ObjectListProvider<DBJavaParameter> provider = () -> getParameters();
 				navigationLists.add(DBObjectNavigationList.create("Parameters", provider)); // lazy
@@ -198,14 +200,18 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 		}
 
 		if (returnClass != null) {
-			if (returnClass.isLoaded()) {
-                navigationLists.add(DBObjectNavigationList.create("Return Type", getReturnClass()));
-            } else {
-				ObjectListProvider<DBJavaClass> provider = () -> {
-					DBJavaClass returnClass = getReturnClass();
-					return returnClass == null ? Collections.emptyList() : List.of(returnClass);
-				};
-				navigationLists.add(DBObjectNavigationList.create("Return Type", provider));
+			String returnClassName = returnClass.getObjectName();
+			if (!Java.isScalar(returnClassName) &&
+					!Java.isVoid(returnClassName)) {
+				if (returnClass.isLoaded()) {
+					navigationLists.add(DBObjectNavigationList.create("Return Type", getReturnClass()));
+				} else {
+					ObjectListProvider<DBJavaClass> provider = () -> {
+						DBJavaClass returnClass = getReturnClass();
+						return returnClass == null ? Collections.emptyList() : List.of(returnClass);
+					};
+					navigationLists.add(DBObjectNavigationList.create("Return Type", provider));
+				}
 			}
 		}
 

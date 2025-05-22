@@ -54,6 +54,7 @@ public class DBNStatement<T extends Statement> extends DBNResource<T> implements
     DBNStatement(T inner, DBNConnection connection) {
         super(inner, ResourceType.STATEMENT, connection.getConnectionId());
         this.connection = WeakRef.of(connection);
+        markInitialized();
     }
 
     @Nullable
@@ -283,6 +284,7 @@ public class DBNStatement<T extends Statement> extends DBNResource<T> implements
 
     @Override
     public void setQueryTimeout(int seconds) throws SQLException {
+        if (seconds <= 0) return;
         try {
             seconds = Diagnostics.timeoutAdjustment(seconds);
             inner.setQueryTimeout(seconds);

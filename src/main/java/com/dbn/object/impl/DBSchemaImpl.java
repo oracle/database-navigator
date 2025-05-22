@@ -19,6 +19,7 @@ package com.dbn.object.impl;
 import com.dbn.browser.DatabaseBrowserUtils;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.browser.ui.HtmlToolTipBuilder;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.util.Lists;
@@ -41,6 +42,7 @@ import com.dbn.object.DBFunction;
 import com.dbn.object.DBIndex;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBJsonView;
 import com.dbn.object.DBMaterializedView;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBPackage;
@@ -68,6 +70,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Icon;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -93,6 +96,7 @@ import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_SCHEMA;
 import static com.dbn.object.common.property.DBObjectProperty.USER_SCHEMA;
 import static com.dbn.object.type.DBObjectRelationType.CONSTRAINT_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.INDEX_COLUMN;
+import static com.dbn.object.type.DBObjectRelationType.JSON_VIEW_TABLE;
 import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 import static com.dbn.object.type.DBObjectType.ANY;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
@@ -112,6 +116,8 @@ import static com.dbn.object.type.DBObjectType.JAVA_INNER_CLASS;
 import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
 import static com.dbn.object.type.DBObjectType.JAVA_PARAMETER;
 import static com.dbn.object.type.DBObjectType.JAVA_PRIMITIVE;
+import static com.dbn.object.type.DBObjectType.JAVA_RESOURCE;
+import static com.dbn.object.type.DBObjectType.JSON_VIEW;
 import static com.dbn.object.type.DBObjectType.MATERIALIZED_VIEW;
 import static com.dbn.object.type.DBObjectType.NESTED_TABLE;
 import static com.dbn.object.type.DBObjectType.PACKAGE;
@@ -151,7 +157,8 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     protected void initLists(ConnectionHandler connection) {
         DBObjectListContainer childObjects = ensureChildObjects();
 
-        childObjects.createObjectList(TABLE,             this);
+        DBObjectList<DBObject> tables = childObjects.createObjectList(TABLE, this);
+        DBObjectList<DBObject> jsonViews = childObjects.createObjectList(JSON_VIEW, this);
         childObjects.createObjectList(VIEW,              this);
         childObjects.createObjectList(MATERIALIZED_VIEW, this);
         childObjects.createObjectList(SYNONYM,           this);
@@ -163,6 +170,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(DATABASE_TRIGGER,  this);
         childObjects.createObjectList(JAVA_PRIMITIVE,    this);
         childObjects.createObjectList(JAVA_CLASS,        this);
+        childObjects.createObjectList(JAVA_RESOURCE,     this);
         childObjects.createObjectList(DIMENSION,         this);
         childObjects.createObjectList(CLUSTER,           this);
         childObjects.createObjectList(DBLINK,            this);
@@ -181,16 +189,17 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(TYPE_ATTRIBUTE,    this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(TYPE_FUNCTION,     this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(TYPE_PROCEDURE,    this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(JAVA_INNER_CLASS,  this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(JAVA_FIELD,        this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(JAVA_METHOD,       this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(JAVA_PARAMETER,    this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(JAVA_INNER_CLASS,  this, INTERNAL, GROUPED);
         childObjects.createObjectList(ARGUMENT,          this, INTERNAL, GROUPED, HIDDEN);
 
         //ol.createHiddenObjectList(DBObjectType.TYPE_METHOD, this, TYPE_METHODS_LOADER);
 
         childObjects.createObjectRelationList(CONSTRAINT_COLUMN, this, constraints, columns, INTERNAL, GROUPED);
         childObjects.createObjectRelationList(INDEX_COLUMN, this, indexes, columns, INTERNAL, GROUPED);
+        childObjects.createObjectRelationList(JSON_VIEW_TABLE, this, jsonViews, tables, INTERNAL, GROUPED);
 
         this.primaryKeyColumns = Latent.mutable(
                 () -> nd(columns).getSignature(),
@@ -210,6 +219,16 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     @Override
     public DBUser getOwner() {
         return getObjectBundle().getUser(getName());
+    }
+
+    @Override
+    public DBSchema getSchema() {
+        return this;
+    }
+
+    @Override
+    public @Nullable Icon getIcon() {
+        return isSystemSchema() ? Icons.DBO_SCHEMA_DISABLED : Icons.DBO_SCHEMA;
     }
 
     @NotNull
@@ -248,10 +267,16 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     public <T extends DBObject> T  getChildObject(DBObjectType type, String name, short overload, boolean lookupHidden) {
         if (type != ANY && !type.isSchemaObject()) return null;
 
-        DBObject object = super.getChildObject(type, name, overload, lookupHidden);
-        if (object == null && type == JAVA_CLASS) {
-            object = super.getChildObject(JAVA_INNER_CLASS, name, overload, lookupHidden);
+        DBObject object;
+        if (type == JAVA_CLASS) {
+            object = coalesce(
+                    () -> super.getChildObject(JAVA_CLASS, name, overload, lookupHidden),
+                    () -> super.getChildObject(JAVA_PRIMITIVE, name, overload, lookupHidden),
+                    () -> super.getChildObject(JAVA_INNER_CLASS, name, overload, lookupHidden));
+        } else {
+            object = super.getChildObject(type, name, overload, lookupHidden);
         }
+
         if (object == null && type != SYNONYM) {
             DBSynonym synonym = super.getChildObject(SYNONYM, name, overload, lookupHidden);
             if (synonym != null) {
@@ -289,6 +314,11 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     @Override
     public List<DBMaterializedView> getMaterializedViews() {
         return getChildObjects(MATERIALIZED_VIEW);
+    }
+
+    @Override
+    public List<DBJsonView> getJsonViews() {
+        return getChildObjects(JSON_VIEW);
     }
 
     @Override
@@ -395,6 +425,11 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
+    public DBJsonView getJsonView(String name) {
+        return getChildObject(JSON_VIEW, name);
+    }
+
+    @Override
     public DBMaterializedView getMaterializedView(String name) {
         return getChildObject(MATERIALIZED_VIEW, name);
     }
@@ -457,8 +492,17 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         dataset = getView(name);
         if (dataset != null) return dataset;
 
-        if (!MATERIALIZED_VIEW.isSupported(this)) return null;
-        dataset = getMaterializedView(name);
+
+        if (JSON_VIEW.isSupported(this)) {
+            dataset = getJsonView(name);
+            if (dataset != null) return dataset;
+        }
+
+        if (MATERIALIZED_VIEW.isSupported(this)) {
+            dataset = getMaterializedView(name);
+            if (dataset != null) return dataset;
+        }
+
         return dataset;
     }
 
@@ -603,6 +647,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         return DatabaseBrowserUtils.createList(
                 getChildObjectList(TABLE),
                 getChildObjectList(VIEW),
+                getChildObjectList(JSON_VIEW),
                 getChildObjectList(MATERIALIZED_VIEW),
                 getChildObjectList(SYNONYM),
                 getChildObjectList(SEQUENCE),
@@ -612,6 +657,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
                 getChildObjectList(TYPE),
                 getChildObjectList(DATABASE_TRIGGER),
                 getChildObjectList(JAVA_CLASS),
+                getChildObjectList(JAVA_RESOURCE),
                 getChildObjectList(DIMENSION),
                 getChildObjectList(CLUSTER),
                 getChildObjectList(DBLINK),
@@ -625,6 +671,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         return
             settings.isVisible(TABLE) ||
             settings.isVisible(VIEW) ||
+            settings.isVisible(JSON_VIEW) ||
             settings.isVisible(MATERIALIZED_VIEW) ||
             settings.isVisible(SYNONYM) ||
             settings.isVisible(SEQUENCE) ||
@@ -634,6 +681,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
             settings.isVisible(TYPE) ||
             settings.isVisible(DATABASE_TRIGGER) ||
             settings.isVisible(JAVA_CLASS) ||
+            settings.isVisible(JAVA_RESOURCE) ||
             settings.isVisible(DIMENSION) ||
             settings.isVisible(CLUSTER) ||
             settings.isVisible(DBLINK) ||

@@ -81,7 +81,6 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
         initTableSorter();
         setCellSelectionEnabled(true);
         getRowSorter().toggleSortOrder(0);
-        adjustColumnWidths();
 
         Keyboard.onKeyPress(this, KeyEvent.VK_SPACE, e -> showSelector());
         Mouse.onMouseClick(this, MouseEvent.BUTTON1, 1, e -> showSelector());

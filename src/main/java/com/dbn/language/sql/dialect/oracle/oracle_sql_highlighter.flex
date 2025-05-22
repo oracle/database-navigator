@@ -69,6 +69,9 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
     ")"                   { return stt.getChrRightParenthesis(); }
     "["                   { return stt.getChrLeftBracket(); }
     "]"                   { return stt.getChrRightBracket(); }
+    "{"                   { return stt.getChrLeftBrace(); }
+    "}"                   { return stt.getChrRightBrace(); }
+
 
     {WHITE_SPACE}         { return stt.getWhiteSpace(); }
     .                     { return stt.getIdentifier(); }
@@ -100,6 +103,8 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
     ")"                   { return stt.getChrRightParenthesis(); }
     "["                   { return stt.getChrLeftBracket(); }
     "]"                   { return stt.getChrRightBracket(); }
+    "{"                   { return stt.getChrLeftBrace(); }
+    "}"                   { return stt.getChrRightBrace(); }
 
     {WHITE_SPACE}         { return stt.getWhiteSpace(); }
     .                     { return stt.getIdentifier(); }
