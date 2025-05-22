@@ -45,7 +45,7 @@ public class OciConnectionInputDialog extends DBNDialog<OciConnectionInputForm> 
   }
 
   @Override
-  protected Action @NotNull [] createActions() {
+  protected Action[] createActions() {
     renameAction(getOKAction(), "Create Connection");
     return super.createActions();
   }
