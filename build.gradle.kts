@@ -113,7 +113,7 @@ intellij {
   version.set("2020.1.1")
   type.set("IC") // Target IDE Platform
 
-  plugins.set(listOf("java", "json", "copyright"))
+  plugins.set(listOf("java", /*"json", */"copyright"))
 
 }
 
