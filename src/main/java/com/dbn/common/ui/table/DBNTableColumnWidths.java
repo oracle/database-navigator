@@ -55,6 +55,11 @@ public class DBNTableColumnWidths {
         table.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
+                JTableHeader tableHeader = table.getTableHeader();
+                if (tableHeader == null) return;
+                if (tableHeader.getResizingColumn() != null) return; // no adjustment when resizing columns
+                if (tableHeader.getDraggedColumn() != null) return; // no adjustment when moving column
+
                 table.adjustColumnWidths();
             }
         });
@@ -92,9 +97,9 @@ public class DBNTableColumnWidths {
         List<Integer> largeColumnIndices = null;
 
         if (columnCount < 4) {
-            // only consider large-value adjustment for reduced number of overall columns (arbitrarily limited to 4)
+            // only consider large-value adjustment for a reduced number of columns (arbitrarily limited to 4)
             for (int i = 0; i < columnCount; i++) {
-                if (model.isLargeValue(i)) {
+                if (model.isPresentableLargeValue(i)) {
                     largeColumnIndices = nvl(largeColumnIndices, () -> new ArrayList<>());
                     largeColumnIndices.add(i);
                 }

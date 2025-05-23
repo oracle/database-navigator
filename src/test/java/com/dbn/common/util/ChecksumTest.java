@@ -19,14 +19,12 @@ package com.dbn.common.util;
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.checksum.ChecksumType;
 import com.dbn.test.util.FileUtil;
-import com.intellij.util.system.OS;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
-import java.net.URL;
 
-import static org.junit.Assert.assertNotNull;
+import static com.dbn.common.util.Commons.nvl;
 import static org.junit.Assume.assumeFalse;
 
 public class ChecksumTest {
@@ -42,7 +40,7 @@ public class ChecksumTest {
     @Test
     public void fromFileAttributesTest() throws Exception {
         // JDBC-4166 -- for some reason these currently fail on Linux
-        assumeFalse(OS.CURRENT == OS.Linux);
+        assumeFalse(isLinux());
         File file = FileUtil.getFileFromClasspath(getClass(), "checksum");
         String checksum = Checksum.fromFileAttributes(file, ChecksumType.SHA_256);
 
@@ -52,11 +50,16 @@ public class ChecksumTest {
     @Test
     public void fromFileContentsTest() throws Exception {
         // JDBC-4166 -- for some reason these currently fail on Linux
-        assumeFalse(OS.CURRENT == OS.Linux);
+        assumeFalse(isLinux());
         File file = FileUtil.getFileFromClasspath(getClass(), "checksum");
         String checksum = Checksum.fromFileContents(file, ChecksumType.SHA_256);
 
         Assert.assertEquals("d3d6a0e6bc321f42fca0ab97fd1c1ddde74c91026610653f4e6d2518ced18355", checksum);
     }
 
+
+    private static boolean isLinux() {
+        String osName = nvl(System.getProperty("os.name"), "unknown");
+        return Strings.containsIgnoreCase(osName, "linux");
+    }
 }

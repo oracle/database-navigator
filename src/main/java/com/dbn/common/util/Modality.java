@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,18 @@
  * limitations under the License.
  */
 
-package com.dbn.common.ui.table;
+package com.dbn.common.util;
 
-import javax.swing.ListModel;
+import com.dbn.common.compatibility.Compatibility;
+import com.intellij.openapi.application.ModalityState;
+import lombok.experimental.UtilityClass;
 
-public interface DBNTableWithGutterModel<R> extends DBNTableModel<R>{
-    ListModel getListModel();
+@UtilityClass
+public class Modality {
+
+    @Compatibility
+    public static ModalityState nonModal() {
+        //return ModalityState.nonModal();
+        return ModalityState.NON_MODAL;
+    }
 }

@@ -60,7 +60,6 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
     private final RegionalSettings regionalSettings;
     private final DataGridSettings dataGridSettings;
     private final TableSelectionRestorer selectionRestorer = createSelectionRestorer();
-    private boolean loading;
 
     public BasicTable(DBNComponent parent, T dataModel) {
         super(parent, dataModel, true);
@@ -139,22 +138,6 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
         return new BasicTableCellRenderer();
     }
 
-    public void setLoading(boolean loading) {
-        this.loading = loading;
-        updateBackground(loading);
-    }
-
-    public void updateBackground(boolean readonly) {
-        dispatch(() -> {
-            DataGridTextAttributes attributes = cellRenderer.getAttributes();
-            Color background = readonly ?
-                    attributes.getLoadingData(false).getBgColor() :
-                    attributes.getPlainData(false, false).getBgColor();
-            setBackground(background);
-        });
-
-    }
-
     public void selectRow(int index) {
         T model = getModel();
         int rowCount = model.getRowCount();
@@ -219,7 +202,7 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
      *********************************************************/
     @Override
     public void globalSchemeChange(EditorColorsScheme scheme) {
-        updateBackground(loading);
+        updateBackground(isLoading());
         resizeAndRepaint();
 /*        JBScrollPane scrollPane = UIUtil.getParentOfType(JBScrollPane.class, this);
         if (scrollPane != null) {

@@ -38,7 +38,7 @@ public class JavaUploadResultDialog extends DBNDialog<JavaUploadResultForm> {
 	}
 
 	@Override
-	protected Action @NotNull [] createActions() {
+	protected Action[] createActions() {
 		return createActions(
 				getCancelAction(),
 				createErrorAction());

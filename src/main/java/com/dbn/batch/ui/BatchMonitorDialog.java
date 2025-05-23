@@ -50,7 +50,7 @@ public class BatchMonitorDialog extends DBNDialog<BatchMonitorForm> implements B
     }
 
     @Override
-    protected final Action @NotNull [] createActions() {
+    protected final Action[] createActions() {
         return createActions(
                 getShowResultsAction(),
                 getCancelAction());

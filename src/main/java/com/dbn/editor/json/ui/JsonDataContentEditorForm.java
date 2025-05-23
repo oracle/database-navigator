@@ -47,6 +47,7 @@ import javax.swing.event.HyperlinkListener;
 
 import static com.dbn.common.ui.util.UserInterface.updateScrollPanes;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Editors.enableSelectionOccurrenceHighlights;
 import static com.intellij.openapi.editor.EditorModificationUtil.setReadOnlyHint;
 
 public class JsonDataContentEditorForm extends DBNFormBase {
@@ -102,7 +103,8 @@ public class JsonDataContentEditorForm extends DBNFormBase {
         editorScrollPane.setViewportBorder(Borders.insetBorder(4));
 
         EditorSettings settings = editor.getSettings();
-        settings.setHighlightSelectionOccurrences(true);
+        enableSelectionOccurrenceHighlights(editor);
+        //settings.setHighlightSelectionOccurrences(true);
         settings.setLineNumbersShown(true);
         settings.setFoldingOutlineShown(true);
         settings.setLineMarkerAreaShown(true);

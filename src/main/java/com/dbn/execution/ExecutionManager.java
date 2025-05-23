@@ -59,7 +59,7 @@ import static com.dbn.common.navigation.NavigationInstruction.SELECT;
 import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setBoolean;
-import static com.intellij.openapi.application.ModalityState.nonModal;
+import static com.dbn.common.util.Modality.nonModal;
 
 @State(
     name = ExecutionManager.COMPONENT_NAME,

@@ -52,7 +52,8 @@ public class ObjectFilterDetailsDialog extends DBNDialog<ObjectFilterDetailsForm
         return new ObjectFilterDetailsForm(this);
     }
 
-    protected Action @NotNull [] createActions() {
+    @Override
+    protected Action[] createActions() {
         return nonNulls(
                 getOKAction(),
                 getRemoveAction(),
