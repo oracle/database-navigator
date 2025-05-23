@@ -46,6 +46,17 @@ public class DataChangeListener {
     this.tableName = tableName;
   }
 
+  public String getOperationsDescription() {
+    if (operationsFilter == 0) {
+      return "ALL OPERATIONS";
+    }
+    StringBuilder sb = new StringBuilder();
+    if ((operationsFilter & 0x2) != 0) sb.append("INSERT, ");
+    if ((operationsFilter & 0x4) != 0) sb.append("UPDATE, ");
+    if ((operationsFilter & 0x8) != 0) sb.append("DELETE, ");
+    if (sb.length() > 0) sb.setLength(sb.length() - 2); // Remove trailing comma and space
+    return sb.toString();
+  }
 
 
 }

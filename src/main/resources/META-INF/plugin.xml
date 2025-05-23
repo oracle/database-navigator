@@ -615,10 +615,14 @@
             </action>
         </group>
         <group id="DBNavigator.ActionGroup.EventListener.Controls" text="Database Event Listener Controls">
+            <action id="DBNavigator.Actions.EventListener.Find" class="com.dbn.event.listener.action.EventListenerFindAction" text="Event Listeners - Find..." icon="AllIcons.Actions.Find">
+                <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>
+            </action>
             <action id="DBNavigator.Actions.EventListener.Reload" class="com.dbn.event.listener.action.EventListenersReloadAction" text="Event Listeners - Reload"/>
             <action id="DBNavigator.Actions.EventListener.UserFilter" class="com.dbn.event.listener.action.EventListenerUserFilterAction" text="Event Listeners - User Filter"/>
             <action id="DBNavigator.Actions.EventListener.TableFilter" class="com.dbn.event.listener.action.EventListenerTableFilterAction" text="Event Listeners - Table Filter"/>
             <action id="DBNavigator.Actions.EventListener.StatusFilter" class="com.dbn.event.listener.action.EventListenerStatusFilterAction" text="Event Listeners - Status Filter"/>
+            <action id="DBNavigator.Actions.EventListener.Delete" class="com.dbn.event.listener.action.EventListenerDeleteAction" text="Event Listeners - Delete Listener"/>
         </group>
         <group id="DBNavigator.ActionGroup.EventNotification.Controls" text="Database Event Notification Controls">
             <action id="DBNavigator.Actions.EventNotification.Reload" class="com.dbn.event.notification.action.EventNotificationsReloadAction" text="Event Notifications - Reload"/>

@@ -24,6 +24,8 @@ import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.table.DBNTableWithGutter;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
+import com.dbn.event.listener.EventListenerManager;
+import com.dbn.event.listener.model.DataChangeListener;
 import com.dbn.event.listener.model.DataChangeListenerBundle;
 import com.dbn.event.ui.EventMonitorDetailsForm;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -44,6 +46,7 @@ public class EventListenersForm extends DBNFormBase {
     private JPanel actionsPanel;
     private JLabel loadingLabel;
     private JPanel loadingIconPanel;
+    private JPanel searchPanel;
     private DBNScrollPane listenersScrollPane;
 
     private @Getter DBNTableWithGutter<DataChangeListenerBundle> listenersTable;
@@ -102,6 +105,20 @@ public class EventListenersForm extends DBNFormBase {
         });
     }
 
+    public void  deleteSelectedRegistrations(){
+
+        DataChangeListenerBundle listenersTableModel = listenersTable.getModel();
+        int [] selectedRows = listenersTable.getSelectedRows();
+        if(selectedRows.length > 0){
+            for (int i = 0; i < selectedRows.length; i++) {
+                DataChangeListener dataChangeListener = listenersTableModel.getListeners().get(selectedRows[i]);
+                Long regId = dataChangeListener.getRegId();
+                EventListenerManager.getInstance().unregisterListenerByRegId(regId,listenersTableModel.getConnection(),dataChangeListener.getTableName(),this::refresh);
+            }
+        }
+
+    }
+
     @Override
     protected JComponent getMainComponent() {
         return mainPanel;
@@ -116,5 +133,9 @@ public class EventListenersForm extends DBNFormBase {
 
     public boolean isLoading() {
         return listenersTable.isLoading();
+    }
+
+    public void showSearchHeader(){
+
     }
 }

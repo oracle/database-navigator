@@ -16,14 +16,20 @@
 
 package com.dbn.event.listener.ui;
 
+import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.connection.ConnectionAction;
+import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.event.listener.EventListenerManager;
+import com.dbn.event.service.RegistrationService;
 import com.dbn.object.DBTable;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.common.util.Unsafe.cast;
 
 public class EventListenerRegistrationDialog extends DBNDialog<EventListenerRegistrationForm> {
   private final DBObjectRef<DBTable> table;

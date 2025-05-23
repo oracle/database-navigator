@@ -129,6 +129,25 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="check_execute_and_change_notification_privileges" is-query="true" is-prepared-statement="true">
+        <statement prefixes="USER">
+            select
+            nvl(sum(case when privilege = 'EXECUTE' and table_name = 'DBMS_CHANGE_NOTIFICATION' then 1 else 0 end), 0) as has_execute,
+            nvl(sum(case when privilege = 'CHANGE NOTIFICATION' then 1 else 0 end), 0) as has_change_notification
+            from (
+            select privilege, table_name
+            from USER_TAB_PRIVS
+            where table_name = 'DBMS_CHANGE_NOTIFICATION'
+            and privilege = 'EXECUTE'
+            union all
+            select privilege, null as table_name
+            from USER_SYS_PRIVS
+            where privilege = 'CHANGE NOTIFICATION'
+            )
+        </statement>
+
+    </statement-execution-processor>
+
     <statement-execution-processor id="schemas" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL, USER">
             select
@@ -3062,6 +3081,15 @@
                       vs.type != 'BACKGROUND'
                   ORDER BY 1) sub1
             ORDER BY 9 ASC
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="data-event-registrations" is-query="true" is-prepared-statement="true">
+        <statement>
+            select * from DBA_CHANGE_NOTIFICATION_REGS
+        </statement>
+        <statement>
+            select USER as USERNAME, cnr.* from USER_CHANGE_NOTIFICATION_REGS cnr
         </statement>
     </statement-execution-processor>
 

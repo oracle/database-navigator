@@ -1,7 +1,11 @@
 package com.dbn.object.action;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.common.thread.Progress;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.event.notification.EventNotificationManager;
+import com.dbn.event.service.RegistrationService;
 import com.dbn.object.DBTable;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -9,10 +13,17 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
+import static com.dbn.common.Priority.HIGH;
+import static com.dbn.common.notification.NotificationGroup.DCN;
+import static com.dbn.common.notification.NotificationSupport.sendErrorNotification;
+import static com.dbn.common.notification.NotificationSupport.sendInfoNotification;
+import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.nls.NlsResources.txt;
 
 public class TableEnableDCNAction extends AnObjectAction<DBTable> {
-
+  private RegistrationService registrationService = new RegistrationService();
   public TableEnableDCNAction(DBTable table) {
     super(table);
   }
@@ -26,9 +37,39 @@ public class TableEnableDCNAction extends AnObjectAction<DBTable> {
 
   @Override
   protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBTable target) {
-    System.out.println("enabling DCN");
-    EventNotificationManager eventNotificationManager = EventNotificationManager.getInstance(project);
-    eventNotificationManager.openEditorAndConfig(getTarget());
+    DBTable table = target;
+    ConnectionHandler connection = table.getConnection();
+
+    String processTitle = "Checking privileges";
+    String processText = "Checking Privileges for " + connection.getUserName();
+
+    Progress.prompt(project, table, false, processTitle, processText, progress -> {
+      try {
+
+        DatabaseInterfaceInvoker.execute(HIGH,
+                processTitle,
+                processText,
+                project,
+                connection.getConnectionId(),
+                c -> {
+                  List<String> missingPrivileges = registrationService.getMissingDcnPrivileges(c);
+                  if (missingPrivileges != null && !missingPrivileges.isEmpty()) {
+                    showWarningDialog(
+                            project,
+                            txt("msg.debugger.title.InsufficientPrivileges"),
+                            txt("msg.events.error.InsufficientPrivileges", connection.getUserName(), missingPrivileges));
+                  } else {
+                    System.out.println("enabling DCN");
+                    EventNotificationManager eventNotificationManager = EventNotificationManager.getInstance(project);
+                    eventNotificationManager.openEditorAndConfig(getTarget());
+
+                  }
+
+                });
+      } catch (Exception ex) {
+//        sendErrorNotification(project, DCN, txt("ntf.events.warning.ListenerRegistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
+      }
+    });
   }
 
 }

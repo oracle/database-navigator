@@ -25,7 +25,7 @@ import javax.swing.Icon;
 public enum EventListenerFilterType {
     USER("user", Icons.DBO_USER),
     TABLE("table", Icons.DBO_TABLE),
-    STATUS("status", null),
+    STATUS("listening", null),
     //...
     ;
 

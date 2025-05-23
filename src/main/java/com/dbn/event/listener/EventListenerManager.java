@@ -18,12 +18,16 @@ package com.dbn.event.listener;
 
 
 import com.dbn.common.thread.Progress;
+import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.event.NotificationHandler;
 import com.dbn.event.OracleConstants;
 import com.dbn.event.proxy.DcnListenerInvocationHandler;
 import com.dbn.event.proxy.OracleStatementInvocationHandler;
+import com.dbn.event.service.RegistrationService;
 import com.dbn.object.DBTable;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -51,6 +55,7 @@ public class EventListenerManager {
   private static EventListenerManager instance;
   Project project;
   private  ClassLoader classLoader;
+  private RegistrationService registrationService = new RegistrationService();
 
 
 
@@ -75,7 +80,7 @@ public class EventListenerManager {
 
     Progress.prompt(project, table, false, processTitle, processText, progress -> {
       try {
-        String tableName = table.getQualifiedName(true);
+        String tableName = table.getQualifiedName();
         DatabaseInterfaceInvoker.execute(HIGH,
                 processTitle,
                 processText,
@@ -83,7 +88,7 @@ public class EventListenerManager {
                 connection.getConnectionId(),
                 c -> registerTable(tableName, connection, c, mask));
 
-        sendInfoNotification(project, DCN, txt("ntf.events.info.ListenerRegisteredFor", qualifiedTableName, connectionName));
+        NotificationHandler.showIntelliJNotification( txt("ntf.events.info.ListenerRegisteredFor", qualifiedTableName, connectionName));
 
       } catch (Exception e) {
         sendErrorNotification(project, DCN, txt("ntf.events.warning.ListenerRegistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
@@ -95,8 +100,12 @@ public class EventListenerManager {
   public void registerTable(String tableName,
                             ConnectionHandler handler,
                             DBNConnection dbnConnection, int mask) {
+
     handler.ensureConnection();
     Connection raw = DBNConnection.getInner(dbnConnection);
+//    performPrivilegesCheck(dbnConnection);
+
+
     this.classLoader = raw.getClass().getClassLoader();
 
 
@@ -126,6 +135,11 @@ public class EventListenerManager {
     System.out.println("DCN registered reflectively on table: " + tableName);
   }
 
+//  private void performPrivilegesCheck(DBNConnection connection) throws SQLException {
+//
+//    registrationService.getMissingDcnPrivileges(connection);
+//  }
+
   private void tieTableToRegistration(String tableName, Class<?> oracleConnIfc, Connection raw, Object dcr, Class<?> oraStmtIfc) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
     Object stmtRaw = oracleConnIfc.getMethod("createStatement").invoke(raw);
     Object stmtProxy = OracleStatementInvocationHandler
@@ -151,15 +165,15 @@ public class EventListenerManager {
     props.setProperty(OracleConstants.DCN_NOTIFY_ROWIDS, "true");
     props.setProperty(OracleConstants.DCN_CLIENT_INIT_CONNECTION, "true");
 
-    if ((mask & OracleConstants.DCN_NOTIFY_INSERTOP) == 0){
-      props.setProperty(OracleConstants.DCN_IGNORE_INSERTOP,"true");
+    if ((mask & OracleConstants.DCN_NOTIFY_INSERTOP) == 0) {
+      props.setProperty(OracleConstants.DCN_IGNORE_INSERTOP, "true");
     }
 
     if ((mask & OracleConstants.DCN_NOTIFY_UPDATEOP) == 0) {
       props.setProperty(OracleConstants.DCN_IGNORE_UPDATEOP, "true");
     }
 
-    if ((mask & OracleConstants.DCN_NOTIFY_DELETEOP) != 0) {
+    if ((mask & OracleConstants.DCN_NOTIFY_DELETEOP) == 0) {  // <-- changed from != 0 to == 0
       props.setProperty(OracleConstants.DCN_IGNORE_DELETEOP, "true");
     }
 
@@ -177,7 +191,7 @@ public class EventListenerManager {
 
     Progress.prompt(project, table, false, processTitle, processText, progress -> {
       try {
-        String tableName = table.getQualifiedName(true);
+        String tableName = table.getQualifiedName();
         DatabaseInterfaceInvoker.execute(HIGH,
                 processTitle,
                 processText,
@@ -191,6 +205,44 @@ public class EventListenerManager {
         sendErrorNotification(project, DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
       }
     });
+  }
+
+  public void unregisterListenerByRegId(Long regId, ConnectionHandler connection, String qualifiedTableName, Runnable callback) {
+    Project project = connection.getProject();
+    String connectionName = connection.getName();
+
+    String processTitle = "Stopping Event Listener";
+    String processText = "Stopping event listener for " + qualifiedTableName;
+
+    Progress.prompt(project, connection, false, processTitle, processText, progress -> {
+      try {
+        DatabaseInterfaceInvoker.execute(HIGH,
+                processTitle,
+                processText,
+                project,
+                connection.getConnectionId(),
+                c -> unregisterListenerByRegIdInternal(regId, c,qualifiedTableName,callback));
+
+        NotificationHandler.showIntelliJNotification( txt("ntf.events.info.ListenerDeregisteredFor", qualifiedTableName, connectionName));
+
+      } catch (Exception e) {
+        sendErrorNotification(project, DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
+      }
+    });
+  }
+
+  @SneakyThrows
+  private void unregisterListenerByRegIdInternal(Long regId, DBNConnection dbnConnection, String qualifiedTableName, Runnable callback) {
+    //todo improve .  we make sure this method is transactional
+    Object dcr = activeRegistrations.remove(qualifiedTableName);
+    String creationStatement ="{ call DBMS_CHANGE_NOTIFICATION.deregister(?) }";
+    ;
+
+    DBNPreparedStatement statement = dbnConnection.prepareStatement(creationStatement);
+    statement.setLong(1, regId);
+    statement.execute();
+    callback.run();
+
   }
 
   // Stop listening for changes on a given table

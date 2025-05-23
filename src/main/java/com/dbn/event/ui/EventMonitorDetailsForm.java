@@ -52,7 +52,7 @@ public class EventMonitorDetailsForm extends DBNFormBase {
 
     // Initialize tables
     EventListenersForm listenersForm = new EventListenersForm(this, registrationModel);
-    contentTabs.addTab("Listeners", listenersForm.getComponent(), listenersForm);
+    contentTabs.addTab("Registrations", listenersForm.getComponent(), listenersForm);
 
     EventNotificationsForm notificationsForm = new EventNotificationsForm(this, eventModel);
     contentTabs.addTab("Notifications", notificationsForm.getComponent(), notificationsForm);

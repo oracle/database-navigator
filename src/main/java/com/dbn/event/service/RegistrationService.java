@@ -17,10 +17,13 @@
 package com.dbn.event.service;
 
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNResultSet;
+import com.dbn.database.interfaces.DatabaseInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.event.listener.model.DataChangeListener;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +74,30 @@ public class RegistrationService {
             }
     );
   }
+
+    public List<String> getMissingDcnPrivileges(DBNConnection connection) throws SQLException {
+        ConnectionHandler connectionHandler = connection.getConnectionHandler();
+        ResultSet rs = connectionHandler.getMetadataInterface().checkUserPrivilegesOnNotification(connection);
+        List<String> missingPrivileges = new ArrayList<>();
+
+        if (rs.next()) {
+            int hasExecute = rs.getInt("has_execute");
+            int hasChangeNotification = rs.getInt("has_change_notification");
+
+            if (hasExecute == 0) {
+                missingPrivileges.add("EXECUTE ON DBMS_CHANGE_NOTIFICATION");
+            }
+            if (hasChangeNotification == 0) {
+                missingPrivileges.add("CHANGE NOTIFICATION");
+            }
+        } else {
+            // If no row returned, consider both missing (or handle as needed)
+            missingPrivileges.add("EXECUTE ON DBMS_CHANGE_NOTIFICATION");
+            missingPrivileges.add("CHANGE NOTIFICATION");
+        }
+        return missingPrivileges;
+    }
+
 
 
 }

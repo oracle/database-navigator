@@ -732,6 +732,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
     void disableConstraint(String ownerName, String tableName, String constraintName, DBNConnection connection) throws SQLException;
 
     ResultSet loadDataEventRegistrations(DBNConnection connection) throws SQLException;
+    ResultSet checkUserPrivilegesOnNotification(DBNConnection connection) throws SQLException;
 
     ResultSet loadSessions(DBNConnection connection) throws SQLException;
 

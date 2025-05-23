@@ -52,13 +52,14 @@ public class DataChangeListenerBundle extends DBNMutableTableModel<DataChangeLis
   public static final String COL_CHANGELAG        = "CHANGELAG";
   public static final String COL_TIMEOUT          = "TIMEOUT";
   public static final String COL_TABLE_NAME       = "TABLE_NAME";
+  public static final String COL_OPERATION_TYPES = "OPERATIONS";
 
   private static final String[] COLUMN_NAMES = {
           COL_USERNAME,
           COL_REGID,
           COL_REGFLAGS,
           COL_CALLBACK,
-          COL_OPERATIONS,
+          COL_OPERATION_TYPES,
           COL_CHANGELAG,
           COL_TIMEOUT,
           COL_TABLE_NAME
@@ -68,7 +69,7 @@ public class DataChangeListenerBundle extends DBNMutableTableModel<DataChangeLis
     this.connection = ConnectionRef.of(connection);
   }
 
-  ConnectionHandler getConnection() {
+  public ConnectionHandler getConnection() {
     return ConnectionRef.ensure(connection);
   }
 
@@ -90,10 +91,11 @@ public class DataChangeListenerBundle extends DBNMutableTableModel<DataChangeLis
       case 1: return reg.getRegId();
       case 2: return reg.getRegFlags();
       case 3: return reg.getCallback();
-      case 4: return reg.getOperationsFilter();
-      case 5: return reg.getChangeLag();
-      case 6: return reg.getTimeout();
-      case 7: return reg.getTableName();
+      case 4: return reg.getOperationsFilter();       // numeric
+      case 5: return reg.getOperationsDescription();  // human-readable
+      case 6: return reg.getChangeLag();
+      case 7: return reg.getTimeout();
+      case 8: return reg.getTableName();
       default: return "";
     }
   }
@@ -183,7 +185,7 @@ public class DataChangeListenerBundle extends DBNMutableTableModel<DataChangeLis
     switch (filterType) {
       case USER: return getUserNames();
       case TABLE: return getTableNames();
-      case STATUS: return List.of("Active", "Inactive");
+      case STATUS: return List.of("On", "Off");
     }
     return Collections.emptyList();
   }
