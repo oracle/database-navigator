@@ -19,7 +19,7 @@ package com.dbn.assistant.chat.window.action;
 import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.window.ContextChangeEvent;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.common.feature.FeatureAvailability;
+import com.dbn.assistant.state.AssistantStatus;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -33,13 +33,12 @@ public class NewConversationAction extends AbstractChatBoxAction {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
         if(!chatBox.getAssistantState().getCurrentConversation().getContext().isActive()){
-            getAssistantState(e).setAvailability(FeatureAvailability.AVAILABLE);
+            getAssistantState(e).set(AssistantStatus.UNAVAILABLE, false);
         }
         ChatContext oldContext = chatBox.getAssistantState().getChatContext();
         ChatContext newContext = new ChatContext(oldContext.getProfile(), oldContext.getModel(), oldContext.getAction(), oldContext.isInteractive());
         ContextChangeEvent contextChangeEvent = new ContextChangeEvent(newContext, newContext, null, true, chatBox);
         contextChangeEvent.trigger();
-//        chatBox.reloadProfiles();
     }
     //TODO
     @Override

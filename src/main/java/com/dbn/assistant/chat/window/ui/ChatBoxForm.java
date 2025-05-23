@@ -29,7 +29,6 @@ import com.dbn.assistant.init.ui.AssistantIntroductionForm;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.feature.FeatureAvailability;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Progress;
@@ -43,7 +42,6 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
 import lombok.extern.slf4j.Slf4j;
@@ -253,7 +251,7 @@ public class ChatBoxForm extends DBNFormBase {
 
 
   public void showConversation(PersistentChatConversation conversation) {
-    getAssistantState().setAvailability(FeatureAvailability.UNAVAILABLE);
+    getAssistantState().set(UNAVAILABLE, true);
     updateMessages(conversation.getMessages());
   }
 
@@ -372,9 +370,10 @@ public class ChatBoxForm extends DBNFormBase {
     }
     DBAIProfile profile = getSelectedProfile();
     if(state.getCurrentConversation().getContext().getModel() == null && profile != null) {
-      String unwantedConvId = state.getCurrentConversation().getId();
-      state.setCurrentConversation(new ChatContext(profile.getName(), getSelectedModel(), state.getSelectedAction(), profile.isInteractive()));
-      state.getConversations().remove(unwantedConvId);
+      ChatConversation unwantedConv = state.getCurrentConversation();
+      state.setCurrentConversation(new ChatContext(profile.getName(), getSelectedModel(), state.getSelectedAction(), profile.isInteractive())).addMessages(unwantedConv.getMessages());
+
+      state.getConversations().remove(unwantedConv.getId());
     }
 
     getInputField().requestFocus();
