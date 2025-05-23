@@ -43,7 +43,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGH;
-import static com.dbn.common.notification.NotificationGroup.COMPILER;
+import static com.dbn.common.notification.NotificationCategory.COMPILER;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Getter

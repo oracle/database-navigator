@@ -16,25 +16,96 @@
 
 package com.dbn.sync.java.download;
 
-import com.dbn.sync.common.impl.SyncTaskBase;
+import com.dbn.batch.impl.BatchTaskBase;
+import com.dbn.common.icon.Icons;
+import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaEntity;
+import com.dbn.object.DBJavaResource;
+import com.dbn.object.lookup.DBJavaNameCache;
+import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.Delegate;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.Icon;
 
 @Getter
 @Setter
-public class JavaDownloadTask extends SyncTaskBase<JavaDownloadElement> {
+public class JavaDownloadTask extends BatchTaskBase {
+    private DBObjectRef<DBJavaEntity> entity;
     private VirtualFile targetFolder;
     private VirtualFile targetFile;
+    private byte[] content;
 
-    public JavaDownloadTask(JavaDownloadElement input) {
-        super(input);
+    public JavaDownloadTask(DBJavaClass javaClass) {
+        this(DBObjectRef.of(javaClass));
+    }
+
+    public JavaDownloadTask(DBJavaResource javaResource) {
+        this(DBObjectRef.of(javaResource));
+    }
+
+    public JavaDownloadTask(DBObjectRef<DBJavaEntity> javaEntity) {
+        this.entity = javaEntity;
+    }
+
+    public DBJavaEntity getEntity() {
+        return entity.ensure();
+    }
+
+    public DBObjectType getEntityType() {
+        return entity.getObjectType();
+    }
+
+
+    public String getEntityName() {
+        return entity.getFileName();
+    }
+
+    public String getEntityFileName() {
+        DBObjectType entityType = entity.getObjectType();
+        if (entityType == DBObjectType.JAVA_CLASS) {
+            return DBJavaNameCache.getSimpleName(entity) + ".java";
+        }
+        return DBJavaNameCache.getSimpleName(entity);
+    }
+
+    public String[] getEntityPathTokens() {
+        String[] tokens = entity.getFileName().split("/");
+        String[] pathTokens = new String[tokens.length - 1];
+        System.arraycopy(tokens, 0, pathTokens, 0, tokens.length - 1);
+        return pathTokens;
+    }
+
+    public String getSchemaName() {
+        return entity.getSchemaName();
+    }
+
+    @NotNull
+    @Override
+    public String getName() {
+        return getEntityName();
     }
 
     @Override
-    @Delegate
-    public JavaDownloadElement getElement() {
-        return super.getElement();
+    public Object getSubject() {
+        return getEntity();
+    }
+
+    @Override
+    public @Nullable Icon getIcon() {
+        DBObjectType objectType = entity.getObjectType();
+        if(objectType == DBObjectType.JAVA_CLASS) {
+            return isEnabled() ? getEntity().getIcon() : Icons.DBO_JAVA_CLASS;
+        }
+
+        if(objectType == DBObjectType.JAVA_RESOURCE) {
+            DBJavaResource resource = (DBJavaResource) getEntity();
+            return resource.getIcon();
+        }
+        return null;
     }
 }

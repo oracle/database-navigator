@@ -62,7 +62,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.dbn.common.notification.NotificationGroup.DEBUGGER;
+import static com.dbn.common.notification.NotificationCategory.DEBUGGER;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showWarningDialog;

@@ -26,7 +26,8 @@ import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.mapping.FileConnectionContextManager;
-import com.dbn.language.sql.SQLFileType;
+import com.dbn.language.common.DBLanguageFileType;
+import com.dbn.vfs.file.DBContentVirtualFile;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
@@ -56,8 +57,10 @@ public class AssistantEditorNotificationProvider extends EditorNotificationProvi
 
     @Override
     public AssistantEditorNotificationPanel createComponent(@NotNull VirtualFile file, @NotNull FileEditor fileEditor, @NotNull Project project) {
+        if (fileEditor instanceof DBContentVirtualFile) return null;
+
         FileType fileType = file.getFileType();
-        if (fileType != SQLFileType.INSTANCE) return null;
+        if (!(fileType instanceof DBLanguageFileType)) return null;
 
         FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
         ConnectionHandler connection = contextManager.getConnection(file);

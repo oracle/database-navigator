@@ -16,6 +16,7 @@
 
 package com.dbn.database.oracle;
 
+import com.dbn.common.util.Strings;
 import com.dbn.database.DatabaseMessage;
 import com.dbn.database.DatabaseObjectIdentifier;
 import com.dbn.database.common.DatabaseObjectIdentifierImpl;
@@ -26,6 +27,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 public class OracleMessageParserInterface implements DatabaseMessageParserInterface {
@@ -127,5 +130,28 @@ public class OracleMessageParserInterface implements DatabaseMessageParserInterf
 
 
         return new DatabaseMessage(title, detail);
+    }
+
+    @Override
+    public String convertToPresentable(String message) {
+        if (message == null) return null;
+
+        String[] lines = message.trim().split("\\n");
+
+        // Prepare a list to hold filtered lines
+        List<String> filteredLines = new ArrayList<>();
+
+        // Filter out empty lines and lines containing "ORA-<number> at line <number>"
+        for (String line : lines) {
+            line = line.trim();
+
+            if (Strings.isEmptyOrSpaces(line)) continue;
+            if (line.matches("^ORA-\\d+: at line \\d+$")) continue;
+
+            filteredLines.add(line);
+        }
+
+        // Join the filtered lines back into a single string
+        return String.join("\n", filteredLines);
     }
 }

@@ -156,6 +156,7 @@
         <projectService serviceImplementation="com.dbn.project.ProjectStateManager"/>
         <projectService serviceImplementation="com.dbn.diagnostics.DiagnosticsManager"/>
         <projectService serviceImplementation="com.dbn.diagnostics.ParserDiagnosticsManager"/>
+        <projectService serviceImplementation="com.dbn.batch.BatchManager"/>
         <projectService serviceImplementation="com.dbn.browser.DatabaseBrowserManager"/>
         <projectService serviceImplementation="com.dbn.common.environment.EnvironmentManager"/>
         <projectService serviceImplementation="com.dbn.common.expression.ExpressionEvaluationManager"/>
@@ -614,6 +615,12 @@
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl ENTER"/>
             </action>
         </group>
+        <group id="DBNavigator.ActionGroup.BatchMonitor.Controls" text="Batch Monitor Controls">
+            <action id="DBNavigator.Actions.BatchMonitor.Pause" class="com.dbn.batch.actions.BatchMonitorPauseAction" text="Batch Monitor - Pause"/>
+            <action id="DBNavigator.Actions.BatchMonitor.Resume" class="com.dbn.batch.actions.BatchMonitorResumeAction" text="Batch Monitor - Resume"/>
+            <action id="DBNavigator.Actions.BatchMonitor.Cancel" class="com.dbn.batch.actions.BatchMonitorStopAction" text="Batch Monitor - Stop"/>
+        </group>
+
         <group id="DBNavigator.ActionGroup.EventListener.Controls" text="Database Event Listener Controls">
             <action id="DBNavigator.Actions.EventListener.Find" class="com.dbn.event.listener.action.EventListenerFindAction" text="Event Listeners - Find..." icon="AllIcons.Actions.Find">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>
@@ -638,11 +645,12 @@
         <listener topic="com.intellij.openapi.actionSystem.ex.AnActionListener" class="com.dbn.execution.statement.action.ExecuteStatementEditorAction$ShortcutInterceptor"/>
     </projectListeners>
     <extensions defaultExtensionNs="com.intellij">
-            <notificationGroup id="DCN notification"
-                               displayType="BALLOON"
-                               key="dcn.notifications"/>
-
-        <notificationGroup id="DBNavigator.NotificationGroup" displayType="NONE" key="ntf.shared.title.DBNavigator"/>
+        <notificationGroup id="DBNavigator.NotificationGroup.Default" displayType="BALLOON" key="ntf.shared.title.DBNavigator"/>
+        <notificationGroup id="DBNavigator.NotificationGroup.Browser" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorBrowser" toolWindowId="DB Browser"/>
+        <notificationGroup id="DBNavigator.NotificationGroup.Execution" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorExecution" toolWindowId="DB Execution Console"/>
+        <notificationGroup id="DBNavigator.NotificationGroup.Assistant" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorAssistant" toolWindowId="DB Assistant"/>
+        <notificationGroup id="DBNavigator.NotificationGroup.Diagnostics" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorDiagnostics" toolWindowId="DB Diagnostics"/>
+        <notificationGroup id="DBNavigator.NotificationGroup.Events" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorEvents" toolWindowId="DB Events"/>
         <postStartupActivity implementation="com.dbn.project.ProjectStartupActivity"/>
         <!--<postStartupActivity implementation="com.dbn.project.ProjectComponentsInitializer" order="last"/>-->
         <!--<applicationInitializedListener implementation="com.dbn.init.DatabaseNavigatorInitializer"/>-->

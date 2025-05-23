@@ -17,7 +17,7 @@
 package com.dbn.sync.java.upload.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.sync.java.upload.JavaUploadContext;
+import com.dbn.sync.java.upload.JavaUploadBatch;
 import com.dbn.sync.java.upload.JavaUploadManager;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -26,12 +26,13 @@ import javax.swing.Action;
 
 @Getter
 public class JavaUploaderInputDialog extends DBNDialog<JavaUploadInputForm> {
-    private final JavaUploadContext context;
+    private final JavaUploadBatch batch;
 
-    public JavaUploaderInputDialog(JavaUploadContext context) {
-        super(context.getProject(), "Upload Java Classes", false);
-        this.context = context;
+    public JavaUploaderInputDialog(JavaUploadBatch batch) {
+        super(batch.getProject(), "Upload Java Content", false);
+        this.batch = batch;
         renameAction(getOKAction(), "Upload");
+        setDefaultSize(600, 600);
         init();
     }
 
@@ -41,13 +42,13 @@ public class JavaUploaderInputDialog extends DBNDialog<JavaUploadInputForm> {
         return new JavaUploadInputForm(this);
     }
 
-    private void uploadObject() {
+    private void startUpload() {
         // apply the form field values to the input
         JavaUploadInputForm inputForm = getForm();
         inputForm.applyUserInput();
 
         JavaUploadManager manager = getJavaUploadManager();
-        manager.uploadFile(context);
+        manager.startUpload(batch);
     }
 
     @NotNull
@@ -57,7 +58,7 @@ public class JavaUploaderInputDialog extends DBNDialog<JavaUploadInputForm> {
 
 
     @Override
-    protected final Action @NotNull [] createActions() {
+    protected final Action[] createActions() {
         return new Action[]{
                 getOKAction(),
                 getCancelAction()};
@@ -65,7 +66,7 @@ public class JavaUploaderInputDialog extends DBNDialog<JavaUploadInputForm> {
 
     @Override
     protected void doOKAction() {
-        uploadObject();
+        startUpload();
         super.doOKAction();
     }
 }

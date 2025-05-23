@@ -76,7 +76,7 @@ public final class Files {
         if (baseDir == null) return path;
 
         File projectDir = new File(baseDir.getPath());
-        String relativePath = com.intellij.openapi.util.io.FileUtil.getRelativePath(projectDir, new File(path));
+        String relativePath = FileUtil.getRelativePath(projectDir, new File(path));
         if (relativePath == null) return path;
 
         if (relativePath.lastIndexOf(".." + File.separatorChar) < 1) {

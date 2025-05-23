@@ -26,7 +26,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
-import static com.dbn.common.notification.NotificationGroup.DIAGNOSTICS;
+import static com.dbn.common.notification.NotificationCategory.DIAGNOSTICS;
 import static com.dbn.common.notification.NotificationSupport.sendInfoNotification;
 import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.getInteger;

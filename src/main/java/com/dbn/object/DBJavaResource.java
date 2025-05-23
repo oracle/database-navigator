@@ -16,11 +16,10 @@
 
 package com.dbn.object;
 
-import com.dbn.object.common.DBSchemaObject;
 import com.intellij.openapi.fileTypes.FileType;
 import org.jetbrains.annotations.NotNull;
 
-public interface DBJavaResource extends DBSchemaObject {
+public interface DBJavaResource extends DBJavaEntity {
 	@NotNull
 	String getName();
 

@@ -16,6 +16,7 @@
 
 package com.dbn.event;
 
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.event.notification.model.DataChangeEvent;
 import com.intellij.notification.Notification;
@@ -25,8 +26,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.notification.NotificationCategory.DCN;
+import static com.dbn.common.notification.NotificationSupport.sendInfoNotification;
+import static com.dbn.nls.NlsResources.txt;
+
 public class NotificationHandler {
 
+  @Deprecated // TODO replaced with shared NotificationSupport framework
   public static void showIntelliJNotification(String message) {
     Notification notification = NotificationGroupManager.getInstance()
             .getNotificationGroup("DCN notification")
@@ -48,8 +54,17 @@ public class NotificationHandler {
 //        });
 //      }
 //    });
-    assert dataChangeEvent != null;
-    showIntelliJNotification(dataChangeEvent.toString());
+
+    ConnectionHandler connection = ConnectionHandler.get(connectionId);
+    String connectionName = connection == null ? "UNKNOWN" : connection.getName();
+
+    sendInfoNotification(project, DCN, txt("ntf.events.info.DataEventOccurred",
+            dataChangeEvent.getOperation(),
+            dataChangeEvent.getTableName(),
+            connectionName,
+            dataChangeEvent.getRegID())); // TODO link to open "events" tool-window
+
+    //showIntelliJNotification(dataChangeEvent.toString());
     //todo we were updating the events data , and updating the ui of the dashboard .
 //    DataChangeEventBundle eventBundle = EventNotificationManager.getInstance(project).getEventBundle(connectionId);
 //    eventBundle.addEvent(dataChangeEvent);

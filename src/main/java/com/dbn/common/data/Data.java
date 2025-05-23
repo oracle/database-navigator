@@ -24,8 +24,12 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 import static com.dbn.common.util.Strings.firstCharacter;
+import static java.util.Collections.singletonList;
 
 /**
  * Utility class for type conversion and type casting operations. It provides a
@@ -69,6 +73,11 @@ public final class Data {
     public static String asString(@Nullable Object object) {
         if (object == null) return null;
         return object.toString();
+    }
+
+
+    public static List<String> asStringList(@Nullable Object object) {
+        return asList(object, o -> asString(o));
     }
 
     public static Character asCharacter(@Nullable Object object) {
@@ -139,6 +148,10 @@ public final class Data {
         return Double.valueOf(object.toString());
     }
 
+    public static List<Double> asDoubleList(@Nullable Object object) {
+        return asList(object, o -> asDouble(o));
+    }
+
     public static double asDoublePrimitive(@Nullable Object object) {
         Double doubleVal = asDouble(object);
         return doubleVal == null ? 0 : doubleVal;
@@ -194,6 +207,28 @@ public final class Data {
         if (type == Double.class) return double.class;
 
         return null;
+    }
+
+
+    private static <T> List<T> asList(@Nullable Object object, Function<Object, T> converter) {
+        if (object == null) return null;
+        if (object instanceof Iterable) {
+            List<T> list = new ArrayList<>();
+            Iterable<?> iterable = (Iterable) object;
+            iterable.forEach(o -> list.add(converter.apply(o)));
+            return list;
+        }
+        if (object.getClass().isArray()) {
+            int length = Array.getLength(object);
+            List<T> list = new ArrayList<>(length);
+
+            for (int i = 0; i < length; i++) {
+                Object element = Array.get(object, i);
+                list.add(converter.apply(element));
+            }
+            return list;
+        }
+        return singletonList(converter.apply(object));
     }
 
     public static <S, T> T[] convert(S[] array, Class<T> type) {

@@ -37,7 +37,8 @@ public class Icons {
     public static final Latent<Icon> WINDOW_DATABASE_BROWSER     = Latent.basic(()-> init("/img/window/DatabaseBrowser.svg"));
     public static final Latent<Icon> WINDOW_EXECUTION_CONSOLE    = Latent.basic(()-> init("/img/window/ExecutionConsole.svg"));
     public static final Latent<Icon> WINDOW_DATABASE_DIAGNOSTICS = Latent.basic(()-> init("/img/window/DatabaseDiagnostics.svg"));
-    public static final Latent<Icon> WINDOW_DATABASE_ASSISTANT = Latent.basic(()-> init("/img/window/DatabaseAssistant.svg"));
+    public static final Latent<Icon> WINDOW_DATABASE_ASSISTANT   = Latent.basic(()-> init("/img/window/DatabaseAssistant.svg"));
+    public static final Latent<Icon> WINDOW_DATABASE_EVENTS      = Latent.basic(()-> init("/img/window/DatabaseEvents.svg"));
 
 
     public static final Icon DBN_SPLASH = load("/img/DBN.png");
@@ -56,6 +57,9 @@ public class Icons {
     public static final Icon COMMON_ARROW_DOWN    = load("/img/ComboBoxArrow.png");
     public static final Icon COMMON_TIMER         = load("/img/Timer.png");
     public static final Icon COMMON_DATA_GRID     = load("/img/common/DataGrid.png");
+
+    public static final Icon COMMON_STATUS_SUCCESS   = load("/img/common/StatusSuccess.svg");
+    public static final Icon COMMON_STATUS_ERROR     = load("/img/common/StatusError.svg");
 
     public static final Icon COMMON_FILTER_ACTIVE =    AllIcons.Actions.IntentionBulb;
     public static final Icon COMMON_FILTER_INACTIVE =  AllIcons.Actions.IntentionBulbGrey;
@@ -134,6 +138,7 @@ public class Icons {
     public static final Icon DIALOG_WARNING     = AllIcons.General.WarningDialog;
     public static final Icon DIALOG_ERROR       = AllIcons.General.ErrorDialog;
     public static final Icon DIALOG_QUESTION    = AllIcons.General.QuestionDialog;
+    public static final Icon DIALOG_SUCCESS     = AllIcons.General.SuccessDialog;
 
 
     public static final Icon METHOD_EXECUTION_RUN     = ACTION_EXECUTE;
@@ -262,6 +267,7 @@ public class Icons {
     public static final Icon EXEC_MESSAGES_INFO_INACTIVE    = AllIcons.General.Note;
     public static final Icon EXEC_MESSAGES_WARNING          = AllIcons.General.Warning;
     public static final Icon EXEC_MESSAGES_ERROR            = AllIcons.General.Error;
+    public static final Icon EXEC_MESSAGES_SUCCESS          = load("/img/common/Success.svg");
     public static final Icon EXEC_MESSAGES_WARNING_INACTIVE = load("/img/common/WarningInactive.svg");
     public static final Icon EXEC_MESSAGES_ERROR_INACTIVE   = load("/img/common/ErrorInactive.svg");
 
@@ -445,19 +451,19 @@ public class Icons {
     public static final Icon DBO_TABLE                           = load("/img/object/table/Table.svg");
     public static final Icon DBO_TABLES                          = load("/img/object/table/Tables.svg");
     public static final Icon DBO_TRIGGER                         = load("/img/object/trigger/Trigger.svg", "DBO_TRIGGER");
-    public static final Icon DBO_TRIGGER_ERR                     = load("/img/object/trigger/TriggerErr.svg");
-    public static final Icon DBO_TRIGGER_DEBUG                   = load("/img/object/trigger/TriggerDebug.svg");
-    public static final Icon DBO_TRIGGER_ERR_DISABLED            = load("/img/object/trigger/TriggerErrDisabled.svg");
     public static final Icon DBO_TRIGGER_DISABLED                = load("/img/object/trigger/TriggerDisabled.svg");
-    public static final Icon DBO_TRIGGER_DISABLED_DEBUG          = load("/img/object/trigger/TriggerDisabledDebug.svg");
+    public static final Icon DBO_TRIGGER_ERR                     = load("/img/object/trigger/TriggerErr.svg");
+    public static final Icon DBO_TRIGGER_ERR_DISABLED            = load("/img/object/trigger/TriggerErrDisabled.svg");
+    public static final Icon DBO_TRIGGER_DEBUG                   = load("/img/object/trigger/TriggerDebug.svg");
+    public static final Icon DBO_TRIGGER_DEBUG_DISABLED          = load("/img/object/trigger/TriggerDebugDisabled.svg");
     public static final Icon DBO_TRIGGERS                        = load("/img/object/trigger/Triggers.svg");
-    public static final Icon DBO_DATABASE_TRIGGER                = load("/img/object/DatabaseTrigger.png", "DBO_DATABASE_TRIGGER");
-    public static final Icon DBO_DATABASE_TRIGGER_ERR            = load("/img/object/DatabaseTriggerErr.png");
-    public static final Icon DBO_DATABASE_TRIGGER_DEBUG          = load("/img/object/DatabaseTriggerDebug.png");
-    public static final Icon DBO_DATABASE_TRIGGER_ERR_DISABLED   = load("/img/object/DatabaseTriggerErrDisabled.png");
-    public static final Icon DBO_DATABASE_TRIGGER_DISABLED       = load("/img/object/DatabaseTriggerDisabled.png");
-    public static final Icon DBO_DATABASE_TRIGGER_DISABLED_DEBUG = load("/img/object/DatabaseTriggerDisabledDebug.png");
-    public static final Icon DBO_DATABASE_TRIGGERS               = load("/img/object/DatabaseTriggers.png");
+    public static final Icon DBO_DATABASE_TRIGGER                = load("/img/object/trigger/DatabaseTrigger.svg", "DBO_DATABASE_TRIGGER");
+    public static final Icon DBO_DATABASE_TRIGGER_DISABLED       = load("/img/object/trigger/DatabaseTriggerDisabled.svg");
+    public static final Icon DBO_DATABASE_TRIGGER_ERR            = load("/img/object/trigger/DatabaseTriggerErr.svg");
+    public static final Icon DBO_DATABASE_TRIGGER_ERR_DISABLED   = load("/img/object/trigger/DatabaseTriggerErrDisabled.svg");
+    public static final Icon DBO_DATABASE_TRIGGER_DEBUG          = load("/img/object/trigger/DatabaseTriggerDebug.svg");
+    public static final Icon DBO_DATABASE_TRIGGER_DEBUG_DISABLED = load("/img/object/trigger/DatabaseTriggerDebugDisabled.svg");
+    public static final Icon DBO_DATABASE_TRIGGERS               = load("/img/object/trigger/DatabaseTriggers.svg");
     public static final Icon DBO_TYPE                            = load("/img/object/type/Type.svg");
     public static final Icon DBO_TYPE_COLLECTION                 = load("/img/object/type/TypeCollection.svg");
     public static final Icon DBO_TYPE_COLLECTION_ERR             = load("/img/object/type/TypeCollectionErr.svg");

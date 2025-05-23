@@ -40,7 +40,6 @@ import com.intellij.openapi.editor.colors.EditorColorsListener;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.JBPopup;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,8 +60,6 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
     private final RegionalSettings regionalSettings;
     private final DataGridSettings dataGridSettings;
     private final TableSelectionRestorer selectionRestorer = createSelectionRestorer();
-    private JBPopup valuePopup;
-    private MathResult selectionMath;
 
     public BasicTable(DBNComponent parent, T dataModel) {
         super(parent, dataModel, true);

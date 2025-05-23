@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
+import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
 
 public class VirtualFileListCellRenderer extends ColoredListCellRenderer<VirtualFile> {
@@ -34,7 +35,8 @@ public class VirtualFileListCellRenderer extends ColoredListCellRenderer<Virtual
 
     @Override
     protected void customize(@NotNull JList<? extends VirtualFile> list, VirtualFile object, int index, boolean selected, boolean hasFocus) {
-        append(object.getPath(), REGULAR_ATTRIBUTES);
+        boolean exists = object.exists();
+        append(object.getPath(), exists ? REGULAR_ATTRIBUTES: GRAY_ATTRIBUTES);
         setIcon(object.getFileType().getIcon());
     }
 }

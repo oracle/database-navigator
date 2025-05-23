@@ -34,6 +34,7 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBJavaResource;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBProgram;
 import com.dbn.object.DBSchema;
@@ -47,6 +48,7 @@ import com.dbn.object.common.list.action.HidePseudoColumnsToggleAction;
 import com.dbn.object.dependency.action.ObjectDependencyTreeAction;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.sync.java.action.JavaObjectDownloadAction;
+import com.dbn.sync.java.action.JavaResourceDownloadAction;
 import com.dbn.vfs.DBConsoleType;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
@@ -174,6 +176,10 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
             addSeparator();
             add(new JavaObjectRunAction((DBJavaClass) object));
             add(new JavaClassWrapperAction((DBJavaClass) object));
+        }
+
+        if (object instanceof DBJavaResource) {
+            add(new JavaResourceDownloadAction(object, null));
         }
     }
 

@@ -96,7 +96,7 @@ public class JavaClassWrapperAction extends BasicAction {
 		return new SelectionListDialog<>(project, "Select method to create wrapper", javaMethods, null, javaClass);
 	}
 
-	private static Dialogs.@NotNull DialogCallback<SelectionListDialog<DBJavaMethod>> createDialogCallback(DBJavaClass javaClass) {
+	private static Dialogs.DialogCallback<SelectionListDialog<DBJavaMethod>> createDialogCallback(DBJavaClass javaClass) {
 		return (dialog, exitCode) -> {
 			if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
 			List<DBJavaMethod> methods = dialog.getSelection();

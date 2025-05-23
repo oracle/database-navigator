@@ -43,7 +43,7 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.Priority.HIGH;
-import static com.dbn.common.notification.NotificationGroup.DCN;
+import static com.dbn.common.notification.NotificationCategory.DCN;
 import static com.dbn.common.notification.NotificationSupport.sendErrorNotification;
 import static com.dbn.common.notification.NotificationSupport.sendInfoNotification;
 import static com.dbn.nls.NlsResources.txt;
