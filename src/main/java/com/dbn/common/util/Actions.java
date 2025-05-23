@@ -16,6 +16,7 @@
 
 package com.dbn.common.util;
 
+import com.dbn.common.compatibility.Compatibility;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPopupMenu;
@@ -24,6 +25,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Separator;
+import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 
@@ -98,15 +100,19 @@ public class Actions {
         inputEvent.consume();
     }
 
+    @Compatibility
     public static List<AnAction> getActions(ActionToolbar actionToolbar) {
-        ActionGroup actionGroup = actionToolbar.getActionGroup();
-        if (actionGroup instanceof DefaultActionGroup) {
-            DefaultActionGroup defaultActionGroup = (DefaultActionGroup) actionGroup;
-            AnAction[] actions = defaultActionGroup.getChildActionsOrStubs();
-            return Arrays
-                    .stream(actions)
-                    .filter(a -> !isSeparator(a))
-                    .collect(Collectors.toList());
+        if (actionToolbar instanceof ActionToolbarImpl) {
+            ActionToolbarImpl actionToolbarImpl = (ActionToolbarImpl) actionToolbar;
+            ActionGroup actionGroup = actionToolbarImpl.getActionGroup();
+            if (actionGroup instanceof DefaultActionGroup) {
+                DefaultActionGroup defaultActionGroup = (DefaultActionGroup) actionGroup;
+                AnAction[] actions = defaultActionGroup.getChildActionsOrStubs();
+                return Arrays
+                        .stream(actions)
+                        .filter(a -> !isSeparator(a))
+                        .collect(Collectors.toList());
+            }
         }
         return actionToolbar.getActions()
                 .stream()
