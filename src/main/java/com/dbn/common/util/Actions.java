@@ -101,9 +101,8 @@ public class Actions {
     public static List<AnAction> getActions(ActionToolbar actionToolbar) {
         ActionGroup actionGroup = actionToolbar.getActionGroup();
         if (actionGroup instanceof DefaultActionGroup) {
-            ActionManager actionManager = ActionManager.getInstance();
             DefaultActionGroup defaultActionGroup = (DefaultActionGroup) actionGroup;
-            AnAction[] actions = defaultActionGroup.getChildren(null, actionManager);
+            AnAction[] actions = defaultActionGroup.getChildActionsOrStubs();
             return Arrays
                     .stream(actions)
                     .filter(a -> !isSeparator(a))
