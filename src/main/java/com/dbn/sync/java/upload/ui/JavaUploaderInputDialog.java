@@ -58,7 +58,7 @@ public class JavaUploaderInputDialog extends DBNDialog<JavaUploadInputForm> {
 
 
     @Override
-    protected final Action @NotNull [] createActions() {
+    protected final Action[] createActions() {
         return new Action[]{
                 getOKAction(),
                 getCancelAction()};

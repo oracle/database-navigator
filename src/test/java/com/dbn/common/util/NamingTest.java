@@ -16,10 +16,12 @@
 
 package com.dbn.common.util;
 
+import com.dbn.common.compatibility.Compatibility;
+import com.dbn.common.compatibility.Workaround;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 public class NamingTest {
 
@@ -73,8 +75,18 @@ public class NamingTest {
     }
 
     @Test
+    @Workaround // no "assertThrows" in older junit versions (intellij 2020.x)
+    @Compatibility
     public void testLowerCaseWords_withNullInput() {
-        assertThrows(NullPointerException.class, () -> Naming.lowerCaseWords(null));
+        //assertThrows(NullPointerException.class, () -> Naming.lowerCaseWords(null));
+        Exception exception = null;
+        try {
+            Naming.lowerCaseWords(null);
+        } catch (Exception e) {
+            exception = e;
+        }
+
+        assertTrue(exception instanceof NullPointerException);
     }
 
     @Test
