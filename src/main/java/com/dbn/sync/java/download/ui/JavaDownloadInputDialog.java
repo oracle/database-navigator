@@ -58,7 +58,7 @@ public class JavaDownloadInputDialog extends DBNDialog<JavaDownloadInputForm> {
 
 
     @Override
-    protected final Action @NotNull [] createActions() {
+    protected final Action[] createActions() {
         return new Action[]{
                 getOKAction(),
                 getCancelAction()};
