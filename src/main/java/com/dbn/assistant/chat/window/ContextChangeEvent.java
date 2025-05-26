@@ -2,12 +2,12 @@ package com.dbn.assistant.chat.window;
 
 import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.ChatConversation;
+import com.dbn.assistant.chat.ChatInterruptionReason;
 import com.dbn.assistant.chat.PersistentChatConversation;
 import com.dbn.assistant.chat.ui.SaveOrDiscardConversationDialog;
+import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.util.Dialogs;
-import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,7 +45,7 @@ public class ContextChangeEvent {
         ChatConversation oldConversation = state.getCurrentConversation();
 
         List<String> titles = chatBoxForm.getConversations().stream().map(PersistentChatConversation::getTitle).collect(Collectors.toList());
-        if (isOldConversationInteractional && !oldConversation.getMessages().isEmpty()) {
+        if (isOldConversationInteractional && !oldConversation.isEmpty()) {
             // Old context is an interactive conversation
             if (!changedField.isEmpty()) {
                 Dialogs.show(() -> new SaveOrDiscardConversationDialog(
@@ -55,7 +55,7 @@ public class ContextChangeEvent {
                 state.getCurrentConversation().setContext(newContext);
             }
         }
-        else if (!isOldConversationInteractional && !oldConversation.getMessages().isEmpty()) {
+        else if (!isOldConversationInteractional && !oldConversation.isEmpty()) {
             // Old context is a non-interactive conversation with messages
             if (isNewConversationInteractional || isNewConversation) {
                 Dialogs.show(() -> new SaveOrDiscardConversationDialog(
@@ -107,6 +107,12 @@ public class ContextChangeEvent {
                 chatBoxForm.showConversation(toShowConversation);
             }
         }
+    }
+
+    @Nullable
+    private ChatInterruptionReason getInterruptionReason(ChatContext oldContext, ChatContext newContext,
+                                                         PersistentChatConversation toShowConversation, boolean isNewConversation) {
+        return null; //TODO
     }
 
     private String isConversationInterruption(ChatContext oldContext, ChatContext newContext,

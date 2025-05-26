@@ -44,6 +44,10 @@ public class ChatConversation {
         return context.isInteractive();
     }
 
+    public boolean isEmpty() {
+        return messages.isEmpty();
+    }
+
     public void setProfile(String profile) {
         context.setProfile(profile);
     }
