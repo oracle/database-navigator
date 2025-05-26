@@ -19,6 +19,7 @@ package com.dbn.assistant.chat.window.action;
 import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.window.ContextChangeEvent;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStatus;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -32,16 +33,23 @@ public class NewConversationAction extends AbstractChatBoxAction {
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
-        if(!chatBox.getAssistantState().getCurrentConversation().getContext().isActive()){
-            getAssistantState(e).set(AssistantStatus.UNAVAILABLE, false);
+
+        AssistantState assistantState = chatBox.getAssistantState();
+        if(!assistantState.getCurrentConversation().getContext().isActive()){
+            assistantState.set(AssistantStatus.UNAVAILABLE, false);
         }
-        ChatContext oldContext = chatBox.getAssistantState().getChatContext();
+
+        ChatContext oldContext = assistantState.getChatContext();
         ChatContext newContext = new ChatContext(oldContext.getProfile(), oldContext.getModel(), oldContext.getAction(), oldContext.isInteractive());
         ContextChangeEvent contextChangeEvent = new ContextChangeEvent(newContext, newContext, null, true, chatBox);
         contextChangeEvent.trigger();
     }
-    //TODO
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        AssistantState state = getAssistantState(e);
+        boolean enabled = state != null && !state.getCurrentConversation().isEmpty();
+
+        e.getPresentation().setEnabled(enabled);
     }
 }
