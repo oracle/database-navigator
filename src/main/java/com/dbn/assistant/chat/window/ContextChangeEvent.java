@@ -37,7 +37,7 @@ public class ContextChangeEvent {
     }
 
     public void trigger() {
-        String changedField = isConversationInterruption(oldContext, newContext, toShowConversation, isNewConversation);
+        ChatInterruptionReason changedField = getInterruptionReason(oldContext, newContext, toShowConversation, isNewConversation);
         boolean isOldConversationInteractional = oldContext.isInteractive();
         boolean isNewConversationInteractional = newContext.isInteractive();
 
@@ -47,7 +47,7 @@ public class ContextChangeEvent {
         List<String> titles = chatBoxForm.getConversations().stream().map(PersistentChatConversation::getTitle).collect(Collectors.toList());
         if (isOldConversationInteractional && !oldConversation.isEmpty()) {
             // Old context is an interactive conversation
-            if (!changedField.isEmpty()) {
+            if (changedField!=null) {
                 Dialogs.show(() -> new SaveOrDiscardConversationDialog(
                                 chatBoxForm.getConnection().getProject(), changedField, titles),
                         (dialog, exitCode) -> handleDialogResult(dialog, exitCode, oldConversation, state));
@@ -59,7 +59,7 @@ public class ContextChangeEvent {
             // Old context is a non-interactive conversation with messages
             if (isNewConversationInteractional || isNewConversation) {
                 Dialogs.show(() -> new SaveOrDiscardConversationDialog(
-                                chatBoxForm.getConnection().getProject(), "profile", titles),
+                                chatBoxForm.getConnection().getProject(), ChatInterruptionReason.PROFILE_SELECTION_CHANGE, titles),
                         (dialog, exitCode) -> handleDialogResult(dialog, exitCode, oldConversation, state));
             } else {
                 state.getCurrentConversation().setContext(newContext);
@@ -112,22 +112,17 @@ public class ContextChangeEvent {
     @Nullable
     private ChatInterruptionReason getInterruptionReason(ChatContext oldContext, ChatContext newContext,
                                                          PersistentChatConversation toShowConversation, boolean isNewConversation) {
-        return null; //TODO
-    }
-
-    private String isConversationInterruption(ChatContext oldContext, ChatContext newContext,
-                                              PersistentChatConversation toShowConversation, boolean isNewConversation) {
-        if (toShowConversation != null) return "conversation history";
-        if (isNewConversation) return "new conversation";
-        if (!oldContext.getProfile().equals(newContext.getProfile())) return "profile";
-        if (oldContext.getModel() != null && !oldContext.getModel().equals(newContext.getModel())) return "model";
+        if (toShowConversation != null) return ChatInterruptionReason.HISTORY_CONVERSATION_SELECTION;
+        if (isNewConversation) return ChatInterruptionReason.NEW_CONVERSATION_REQUEST;
+        if (!oldContext.getProfile().equals(newContext.getProfile())) return ChatInterruptionReason.PROFILE_SELECTION_CHANGE;
+        if (oldContext.getModel() != null && !oldContext.getModel().equals(newContext.getModel())) return ChatInterruptionReason.MODEL_SELECTION_CHANGE;
         if (oldContext.getAction() == PromptAction.CHAT && newContext.getAction() != PromptAction.CHAT) {
-            return "conversation type";
+            return ChatInterruptionReason.ACTION_SELECTION_CHANGE;
         }
         if (oldContext.getAction() != PromptAction.CHAT && newContext.getAction() == PromptAction.CHAT) {
-            return "conversation type";
+            return ChatInterruptionReason.ACTION_SELECTION_CHANGE;
         }
         // No interruption detected
-        return "";
+        return null;
     }
 }

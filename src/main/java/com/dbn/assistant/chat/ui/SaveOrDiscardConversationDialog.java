@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.chat.ui;
 
+import com.dbn.assistant.chat.ChatInterruptionReason;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -27,12 +28,12 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 
 public class SaveOrDiscardConversationDialog extends DBNDialog<SaveOrDiscardConversationForm> {
-    private final String changedField;
+    private final ChatInterruptionReason changedField;
     @Getter
     private String conversationTitle;
     private final List<String> titles;
 
-    public SaveOrDiscardConversationDialog(Project project, String changedField, List<String> titles) {
+    public SaveOrDiscardConversationDialog(Project project, ChatInterruptionReason changedField, List<String> titles) {
         super(project, "Conversation", true);
         this.changedField = changedField;
         this.titles = titles;

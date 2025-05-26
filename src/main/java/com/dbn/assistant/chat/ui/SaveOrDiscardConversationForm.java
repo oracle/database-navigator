@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.chat.ui;
 
+import com.dbn.assistant.chat.ChatInterruptionReason;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Strings;
 import org.jetbrains.annotations.NotNull;
@@ -34,12 +35,9 @@ public class SaveOrDiscardConversationForm extends DBNFormBase {
     private JTextField conversationTitleTextField;
     private List<String> titles;
 
-    SaveOrDiscardConversationForm(SaveOrDiscardConversationDialog parent, String changedField, List<String> titles) {
+    SaveOrDiscardConversationForm(SaveOrDiscardConversationDialog parent, ChatInterruptionReason changedField, List<String> titles) {
         super(parent);
-        JLabel warningLabel = new JLabel(
-                "<html>By changing the <b>" + changedField + "</b>, your current conversation will be interrupted. " +
-                        "Do you want to save this conversation?</html>"
-        );
+        JLabel warningLabel = new JLabel(changedField.getConfirmationMessage());
         warningLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
         headerPanel.add(warningLabel);
         this.titles = titles;
