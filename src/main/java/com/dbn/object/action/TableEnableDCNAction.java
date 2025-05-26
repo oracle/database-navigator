@@ -16,9 +16,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGH;
-import static com.dbn.common.notification.NotificationGroup.DCN;
-import static com.dbn.common.notification.NotificationSupport.sendErrorNotification;
-import static com.dbn.common.notification.NotificationSupport.sendInfoNotification;
 import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.nls.NlsResources.txt;
 
