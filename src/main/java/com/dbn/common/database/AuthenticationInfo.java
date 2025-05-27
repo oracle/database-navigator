@@ -39,9 +39,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Objects;
 
-import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_CONFIG_FILE;
-import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_PROFILE;
-import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_TYPE;
+import static com.dbn.common.database.AuthenticationInfo.Attributes.*;
 import static com.dbn.common.options.setting.Settings.getChars;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
@@ -55,6 +53,7 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.connection.AuthenticationType.OS_CREDENTIALS;
 import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
+import static com.dbn.credentials.SecretType.CONNECTION_AZURE_TOKEN_CLIENT_SECRET;
 import static com.dbn.credentials.SecretType.CONNECTION_PASSWORD;
 
 @Getter
@@ -65,6 +64,10 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         @NonNls String TOKEN_TYPE = "token-type";
         @NonNls String TOKEN_CONFIG_FILE = "token-config-file";
         @NonNls String TOKEN_PROFILE = "token-profile";
+        @NonNls String AZURE_TOKEN_CLIENT_ID = "azure-token-client-id";
+        @NonNls String AZURE_TOKEN_TENANT_ID = "azure-token-tenant-id";
+        @NonNls String AZURE_TOKEN_DATABASE_ID_URI = "azure-token-database-id-uri";
+        @NonNls String AZURE_TOKEN_CLIENT_SECRET_FILE = "azure-token-client-secret-file";
     }
 
     private final long timestamp = System.currentTimeMillis();
@@ -76,13 +79,34 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     
     // token auth
     private AuthenticationTokenType tokenType;
+
+    // OCI token auth
     private String tokenConfigFile;
     private String tokenProfile;
+
+    // Azure token auth
+    private String azureDatabaseApplicationIdUri;
+    private String azureClientId;
+    private String azureTenantId;
+    private String azureClientSecretFile;
+    private char[] azureClientSecretFilePassword;
+    private char[] azureClientSecret;
 
     public AuthenticationInfo(ConnectionDatabaseSettings parent, boolean temporary) {
         super(parent);
         this.temporary = temporary;
         SecretsOwnerRegistry.register(this);
+    }
+
+    public void setAzureClientSecret(char[] newSecret) {
+        this.azureClientSecret = newSecret;
+    }
+    public void setPassword(char[] newPassword) {
+        this.password = newPassword;
+    }
+
+    public void setAzureClientSecretFilePassword(char[] newPassword) {
+        this.azureClientSecretFilePassword = newPassword;
     }
 
     public ConnectionId getConnectionId() {
@@ -91,14 +115,19 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
 
 	public boolean isProvided() {
         switch (type) {
-            case NONE: return true;
             case USER: return isNotEmpty(user);
             case USER_PASSWORD: return isNotEmpty(user) && Chars.isNotEmpty(password);
-            case OS_CREDENTIALS: return true;
             case TOKEN: return tokenType == AuthenticationTokenType.OCI_INTERACTIVE ||
-                    (isNotEmpty(tokenConfigFile) && isNotEmpty(tokenProfile));
+                               tokenType == AuthenticationTokenType.AZURE_INTERACTIVE ||
+                               tokenType == AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_CERT ||
+                               tokenType == AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_SECRET ||
+                                // TODO C.B: add check for service principal values
+                               (isNotEmpty(tokenConfigFile) && isNotEmpty(tokenProfile));
+            case NONE:
+            case OS_CREDENTIALS:
+            default:
+                return true;
         }
-        return true;
     }
 
     /**
@@ -110,7 +139,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     public boolean hasUserInformation() {
         if (type == OS_CREDENTIALS) return true;
         if (type.isOneOf(USER, USER_PASSWORD)) return isNotEmpty(user);
-
+        if (type == AuthenticationType.TOKEN) return Chars.isNotEmpty(azureClientSecret);
         return false;
     }
 
@@ -124,6 +153,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     			return match(this.user, authenticationInfo.user) &&
     		           match(this.password, authenticationInfo.password);
     		case TOKEN:
+                // TODO C.B.: add check for Azure
                 return match(this.tokenConfigFile, authenticationInfo.tokenConfigFile) &&
                        match(this.tokenProfile, authenticationInfo.tokenProfile) &&
                        match(this.tokenType, authenticationInfo.tokenType);
@@ -142,14 +172,21 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
             // only propagate password when config context is transient
             // (avoid storing it in config xml)
             password = decode(getChars(element, "transient-password", encode(password)));
+            azureClientSecret = decode(getChars(element, "transient-azure-token", encode(azureClientSecret)));
+            azureClientSecretFilePassword = decode(getChars(element, "transient-azure-cert-password", encode(azureClientSecretFilePassword)));
         }
-
-
 
         // token auth attributes
         tokenType = getEnum(element, TOKEN_TYPE, AuthenticationTokenType.class);
         tokenConfigFile = getString(element, TOKEN_CONFIG_FILE, tokenConfigFile);
         tokenProfile = getString(element, TOKEN_PROFILE, tokenProfile);
+
+        // azure auth attributies
+        azureClientId = getString(element, AZURE_TOKEN_CLIENT_ID, azureClientId);
+        azureTenantId = getString(element, AZURE_TOKEN_TENANT_ID, azureTenantId);
+        azureClientSecretFile = getString(element, AZURE_TOKEN_CLIENT_SECRET_FILE, azureClientSecretFile);
+        //azureClientSecret = getString(element, AZURE_TOKEN_CLIENT_SECRET, setAzureClientSecret);
+        azureDatabaseApplicationIdUri = getString(element, AZURE_TOKEN_DATABASE_ID_URI, azureDatabaseApplicationIdUri);
     }
 
     /**
@@ -171,11 +208,18 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
             // only propagate password when config context is transient
             // (avoid storing it in config xml)
             setChars(element, "transient-password", encode(password));
+            setChars(element, "transient-azure-token", encode(azureClientSecret));
+            setChars(element, "transient-azure-cert-password", encode(azureClientSecretFilePassword));
         }
 
         setEnum(element, TOKEN_TYPE, tokenType);
         setString(element, TOKEN_CONFIG_FILE, tokenConfigFile);
         setString(element, TOKEN_PROFILE, tokenProfile);
+
+        setString(element, AZURE_TOKEN_DATABASE_ID_URI, azureDatabaseApplicationIdUri);
+        setString(element, AZURE_TOKEN_TENANT_ID, azureTenantId);
+        setString(element, AZURE_TOKEN_CLIENT_ID, azureClientId);
+        setString(element, AZURE_TOKEN_CLIENT_SECRET_FILE, azureClientSecretFile);
     }
 
     @Override
@@ -193,6 +237,13 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         this.tokenType = that.tokenType;
         this.tokenConfigFile = that.tokenConfigFile;
         this.tokenProfile = that.tokenProfile;
+
+        this.azureDatabaseApplicationIdUri = that.azureDatabaseApplicationIdUri;
+        this.azureClientId = that.azureClientId;
+        this.azureTenantId = that.azureTenantId;
+        this.azureClientSecretFile = that.azureClientSecretFile;
+        this.azureClientSecret = that.azureClientSecret;
+        this.azureClientSecretFilePassword = that.azureClientSecretFilePassword;
     }
 
     @Override
@@ -205,13 +256,22 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
                 Objects.equals(user, that.user) &&
                 Objects.deepEquals(password, that.password) &&
                 Objects.equals(tokenConfigFile, that.tokenConfigFile) &&
-                Objects.equals(tokenProfile, that.tokenProfile);
+                Objects.equals(tokenProfile, that.tokenProfile) &&
+                Objects.equals(azureClientId, that.azureClientId) &&
+                Objects.equals(azureTenantId, that.azureTenantId) &&
+                Objects.equals(azureClientSecretFile, that.azureClientSecretFile) &&
+                Objects.equals(azureClientSecretFilePassword, that.azureClientSecretFilePassword) &&
+                Objects.equals(azureDatabaseApplicationIdUri, that.azureDatabaseApplicationIdUri) &&
+                Objects.deepEquals(azureClientSecret, that.azureClientSecret);
     }
 
     @Override
     public int hashCode() {
         // lombok override (avoid using accessors / exclude irrelevant timestamp and temporary flag)
-        return Objects.hash(type, user, Arrays.hashCode(password), tokenType, tokenConfigFile, tokenProfile);
+        return Objects.hash(type, user, Arrays.hashCode(password),
+                tokenType, tokenConfigFile, tokenProfile,
+                azureClientId, azureClientSecretFile, azureTenantId, azureDatabaseApplicationIdUri,
+                Arrays.hashCode(azureClientSecretFilePassword), Arrays.hashCode(azureClientSecret));
     }
 
     /*********************************************************
@@ -231,11 +291,14 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
 
     @Override
     public Secret[] getSecrets() {
-        return new Secret[] {getPasswordSecret()};
+        return new Secret[] {getPasswordSecret(), getAzureTokenClientSecret()};
     }
 
     private Secret getPasswordSecret() {
         return new Secret(CONNECTION_PASSWORD, user, password);
+    }
+    private Secret getAzureTokenClientSecret() {
+        return new Secret(CONNECTION_AZURE_TOKEN_CLIENT_SECRET, null, azureClientSecret);
     }
 
     @Override
@@ -244,6 +307,11 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
             DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
             Secret secret = credentialManager.loadSecret(CONNECTION_PASSWORD, getConnectionId(), user);
             password = secret.getToken();
+        }
+        else if (type == AuthenticationType.TOKEN) {
+            DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
+            Secret secret = credentialManager.loadSecret(CONNECTION_AZURE_TOKEN_CLIENT_SECRET, getConnectionId(), user);
+            azureClientSecret = secret.getToken();
         }
     }
 }

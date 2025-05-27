@@ -284,7 +284,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
 
         // apply changes and create snapshot of new authentication
         authSettingsForm.applyFormChanges(authenticationInfo);
-        Secret[] newSecrets = authenticationInfo.getSecrets();
+        //Secret[] newSecrets = authenticationInfo.getSecrets();
 
         if (!authenticationInfo.isTemporary()) {
             // update password store if authentication info is not marked as temporary
@@ -319,7 +319,14 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
                 !Commons.match(configuration.getDriverLibrary(), driverSettingsForm.getDriverLibrary()) ||
                 !Commons.match(configuration.getAuthenticationInfo().getUser(), authSettingsForm.getUser()) ||
                 !Commons.match(configuration.getAuthenticationInfo().getTokenConfigFile(), authSettingsForm.getTokenConfigFile()) ||
-                !Commons.match(configuration.getAuthenticationInfo().getTokenProfile(), authSettingsForm.getTokenProfile());
+                !Commons.match(configuration.getAuthenticationInfo().getTokenProfile(), authSettingsForm.getTokenProfile()) ||
+                !Commons.match(configuration.getAuthenticationInfo().getAzureClientId(), authSettingsForm.getAzureTokenClientId()) ||
+                !Commons.match(configuration.getAuthenticationInfo().getAzureTenantId(), authSettingsForm.getAzureTokenTenantId()) ||
+                !Commons.match(configuration.getAuthenticationInfo().getAzureClientSecretFile(), authSettingsForm.getAzureTokenClientSecretFile()) ||
+                !Commons.match(configuration.getAuthenticationInfo().getAzureClientSecretFilePassword(), authSettingsForm.getAzureClientSecretFilePassword()) ||
+                !Commons.match(configuration.getAuthenticationInfo().getAzureClientSecret(), authSettingsForm.getAzureClientSecret()) ||
+                !Commons.match(configuration.getAuthenticationInfo().getAzureDatabaseApplicationIdUri(), authSettingsForm.getAzureTokenDatabaseAppIdUri())
+                ;
 
         applyFormChanges(configuration);
 

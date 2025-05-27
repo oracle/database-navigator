@@ -1,7 +1,11 @@
 package com.dbn.test.util;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
+import java.util.Properties;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -23,5 +27,11 @@ public class FileUtil {
         File file =  new File(resource.getPath());
         assertTrue(file.exists());
         return file;
+    }
+
+    public static Properties loadFromFile(File propFile) throws IOException {
+        Properties properties = new Properties();
+        properties.load(new FileInputStream(propFile));
+        return properties;
     }
 }

@@ -19,6 +19,7 @@ package com.dbn.generator.code.java.impl;
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.outcome.OutcomeType;
+import com.dbn.common.util.Chars;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionHandler;
@@ -26,6 +27,7 @@ import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.EasyConnectParameters;
 import com.dbn.connection.context.DatabaseContext;
+import com.dbn.diagnostics.Diagnostics;
 import com.dbn.generator.code.CodeGeneratorType;
 import com.dbn.generator.code.java.JavaCodeGenerator;
 import com.intellij.ide.fileTemplates.FileTemplate;
@@ -97,6 +99,11 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         Properties properties = new Properties();
         addInputProperties(input, properties);
         addConnectionProperties(context, properties);
+        if (Diagnostics.isDeveloperMode()) {
+            properties.forEach((key, value) -> {
+                System.out.printf("%s=%s\n", key,value);
+            });
+        }
         return properties;
     }
 
@@ -154,6 +161,17 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         //addProperty(properties, "PASSWORD", authenticationInfo.getPassword());
         addProperty(properties, "TOKEN_CONFIG_FILE", authenticationInfo.getTokenConfigFile());
         addProperty(properties, "TOKEN_PROFILE", authenticationInfo.getTokenProfile());
+
+        // add AZURE token properties
+        addProperty(properties, "AZURE_TOKEN_CLIENT_ID", authenticationInfo.getAzureClientId());
+        addProperty(properties, "AZURE_TOKEN_TENANT_ID", authenticationInfo.getAzureTenantId());
+        addProperty(properties, "AZURE_TOKEN_DATABASE_ID_URI", authenticationInfo.getAzureDatabaseApplicationIdUri());
+        addProperty(properties, "AZURE_TOKEN_CLIENT_SECRET_FILE", authenticationInfo.getAzureClientSecretFile());
+        char[] azureClientSecretFilePassword = authenticationInfo.getAzureClientSecretFilePassword();
+        if (Chars.isNotEmpty(azureClientSecretFilePassword)) {
+            addProperty(properties, "AZURE_TOKEN_CLIENT_SECRET_FILE_PASSWORD", azureClientSecretFilePassword);
+        }
+        addProperty(properties, "AZURE_TOKEN_CLIENT_SECRET_TOKEN", authenticationInfo.getAzureClientSecret());
 
         // custom properties as csv
         Map<String, String> props = settings.getPropertiesSettings().getProperties();
