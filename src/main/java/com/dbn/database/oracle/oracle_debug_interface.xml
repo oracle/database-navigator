@@ -34,14 +34,14 @@
             <!--alter  session set PLSQL_COMPILER_FLAGS = 'INTERPRETED','DEBUG'-->
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="connect-jdwp-session" timeout="20">
+    <statement-execution-processor id="connect-jdwp-session" timeout="60">
         <statement>
             begin
                 SYS.DBMS_DEBUG_JDWP.connect_tcp('{0}', '{1}');
             end;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="disconnect-jdwp-session" timeout="20">
+    <statement-execution-processor id="disconnect-jdwp-session" timeout="60">
         <statement>
             begin
                 SYS.DBMS_DEBUG_JDWP.disconnect();

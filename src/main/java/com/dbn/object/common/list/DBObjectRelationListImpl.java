@@ -16,6 +16,7 @@
 
 package com.dbn.object.common.list;
 
+import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.content.DynamicContentBase;
 import com.dbn.common.content.DynamicContentProperty;
 import com.dbn.common.content.DynamicContentType;
@@ -126,12 +127,25 @@ class DBObjectRelationListImpl<T extends DBObjectRelation> extends DynamicConten
 
    @Override
    public String getContentDescription() {
-        if (getParentEntity() instanceof DBObject) {
-            DBObject object = getParentEntity();
-            return getName() + " of " + object.getQualifiedNameWithType();
-        }
-       return getName() + " from " + this.getConnection().getName() ;
-    }
+       if (isDisposed()) return "disposed";
+
+       BrowserTreeNode parent = getParentEntity();
+       String contentName = getName();
+       String connectionName = getConnection().getName();
+
+       if (parent instanceof DBObject) {
+           DBObject object = (DBObject) parent;
+           String parentName = object.getQualifiedNameWithType();
+           return txt("app.object.label.SubContentDescription",
+                   contentName,
+                   parentName,
+                   connectionName);
+       }
+
+       return txt("app.object.label.RootContentDescription",
+               contentName,
+               connectionName);
+   }
 
     @Override
     public void notifyChangeListeners() {}

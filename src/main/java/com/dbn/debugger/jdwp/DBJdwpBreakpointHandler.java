@@ -16,6 +16,7 @@
 
 package com.dbn.debugger.jdwp;
 
+import com.dbn.common.thread.Read;
 import com.dbn.common.util.Documents;
 import com.dbn.debugger.DBDebugConsoleLogger;
 import com.dbn.debugger.DBDebugUtil;
@@ -229,10 +230,14 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
     private static LineBreakpoint getLineBreakpoint(Project project, @NotNull XLineBreakpoint breakpoint) {
         LineBreakpoint lineBreakpoint = breakpoint.getUserData(LINE_BREAKPOINT);
         if (lineBreakpoint == null) {
-            lineBreakpoint = LineBreakpoint.create(project, breakpoint);
+            lineBreakpoint = createLineBreakpoint(project, breakpoint);
             breakpoint.putUserData(LINE_BREAKPOINT, lineBreakpoint);
         }
         return lineBreakpoint;
+    }
+
+    private static LineBreakpoint createLineBreakpoint(Project project, @NotNull XLineBreakpoint breakpoint) {
+        return Read.call(() -> LineBreakpoint.create(project, breakpoint));
     }
 
     private ThreadReference getMainThread() {

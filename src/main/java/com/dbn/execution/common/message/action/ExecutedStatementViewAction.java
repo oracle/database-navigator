@@ -27,6 +27,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.tree.TreePath;
 import java.awt.Component;
 
 import static com.dbn.common.dispose.Checks.isValid;
@@ -41,12 +42,17 @@ public class ExecutedStatementViewAction extends AbstractExecutionMessagesAction
             @NotNull MessagesTree messagesTree) {
 
         messagesTree.grabFocus();
-        StatementExecutionMessageNode execMessageNode =
-                (StatementExecutionMessageNode) messagesTree.getSelectionPath().getLastPathComponent();
+        TreePath selectionPath = messagesTree.getSelectionPath();
+        if (selectionPath == null) return;
 
-        StatementExecutionResult executionResult = execMessageNode.getMessage().getExecutionResult();
-        ExecutionStatementViewerPopup statementViewer = new ExecutionStatementViewerPopup(executionResult);
-        statementViewer.show((Component) e.getInputEvent().getSource());
+        Object lastPathComponent = selectionPath.getLastPathComponent();
+        if (lastPathComponent instanceof StatementExecutionMessageNode) {
+
+            StatementExecutionMessageNode execMessageNode = (StatementExecutionMessageNode) lastPathComponent;
+            StatementExecutionResult executionResult = execMessageNode.getMessage().getExecutionResult();
+            ExecutionStatementViewerPopup statementViewer = new ExecutionStatementViewerPopup(executionResult);
+            statementViewer.show((Component) e.getInputEvent().getSource());
+        }
     }
 
     @Override

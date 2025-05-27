@@ -16,6 +16,7 @@
 
 package com.dbn.common.util;
 
+import com.dbn.common.compatibility.Compatibility;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPopupMenu;
@@ -98,12 +99,12 @@ public class Actions {
         inputEvent.consume();
     }
 
+    @Compatibility
     public static List<AnAction> getActions(ActionToolbar actionToolbar) {
         ActionGroup actionGroup = actionToolbar.getActionGroup();
         if (actionGroup instanceof DefaultActionGroup) {
-            ActionManager actionManager = ActionManager.getInstance();
             DefaultActionGroup defaultActionGroup = (DefaultActionGroup) actionGroup;
-            AnAction[] actions = defaultActionGroup.getChildren(null, actionManager);
+            AnAction[] actions = defaultActionGroup.getChildActionsOrStubs();
             return Arrays
                     .stream(actions)
                     .filter(a -> !isSeparator(a))

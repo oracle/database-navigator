@@ -30,6 +30,7 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.language.common.DBLanguageFileType;
 import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.components.State;
@@ -40,7 +41,9 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeEvent;
 import com.intellij.openapi.fileTypes.FileTypeListener;
 import com.intellij.openapi.fileTypes.FileTypeManager;
+import com.intellij.openapi.fileTypes.UnknownFileType;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.PathUtil;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,7 +55,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.notification.NotificationGroup.DDL;
+import static com.dbn.common.notification.NotificationCategory.DDL;
 import static com.dbn.nls.NlsResources.txt;
 
 @State(
@@ -166,6 +169,7 @@ public class DDLFileManager extends ProjectComponentBase implements PersistentSt
         }
     };
 
+    @Deprecated // use resolveFileType by object ref
     @Nullable
     public FileType resolveFileType(DBObjectType objectType, DBContentType contentType) {
         if (objectType == DBObjectType.JAVA_CLASS) {
@@ -176,6 +180,27 @@ public class DDLFileManager extends ProjectComponentBase implements PersistentSt
             DDLFileType ddlFileType = getDDLFileType(objectType, contentType);
             return ddlFileType == null ? null : ddlFileType.getLanguageFileType();
         }
+    }
+
+    public FileType resolveFileType(DBObjectRef object, DBContentType contentType) {
+        DBObjectType objectType = object.getObjectType();
+        if (objectType == DBObjectType.JAVA_CLASS) {
+            // java module may not be present in the IDE (if not IntelliJ)
+            // (fallback to plain text)
+            return FileTypes.getJavaFileType();
+        }
+
+        if (objectType == DBObjectType.JAVA_RESOURCE) {
+            String objectName = object.getObjectName();
+            String extension = PathUtil.getFileExtension(objectName);
+
+            return extension == null ?
+                    UnknownFileType.INSTANCE :
+                    FileTypes.getFileType(extension);
+        }
+
+        DDLFileType ddlFileType = getDDLFileType(objectType, contentType);
+        return ddlFileType == null ? null : ddlFileType.getLanguageFileType();
     }
 
 

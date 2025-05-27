@@ -16,13 +16,13 @@
 
 package com.dbn.sync.java.download;
 
+import com.dbn.batch.impl.BatchInputBase;
 import com.dbn.common.project.Modules;
 import com.dbn.common.thread.Read;
 import com.dbn.connection.context.DatabaseContext;
-import com.dbn.object.DBJavaClass;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.sync.common.impl.SyncInputBase;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -45,7 +45,7 @@ import static com.dbn.common.util.Strings.isEmpty;
 
 @Getter
 @Setter
-public class JavaDownloadInput extends SyncInputBase<JavaDownloadElement> {
+public class JavaDownloadInput extends BatchInputBase<JavaDownloadTask> {
 
     private DBObjectRef<?> sourceObject;
 
@@ -53,20 +53,9 @@ public class JavaDownloadInput extends SyncInputBase<JavaDownloadElement> {
     private String contentRoot;
 
 
-    public JavaDownloadInput(Project project, DBObject sourceObject, List<JavaDownloadElement> dependencies) {
-        super(project);
+    public JavaDownloadInput(Project project, DBObject sourceObject, List<JavaDownloadTask> tasks) {
+        super(project, tasks);
         this.sourceObject = DBObjectRef.of(sourceObject);
-
-        // add self to download elements
-        if (sourceObject instanceof DBJavaClass) {
-            DBJavaClass javaClass = (DBJavaClass) sourceObject;
-            JavaDownloadElement sourceElement = new JavaDownloadElement(javaClass);
-            sourceElement.setSelected(true);
-            sourceElement.setEnabled(false);
-            addElement(sourceElement);
-        }
-
-        addElements(dependencies);
     }
 
     public DatabaseContext getDatabaseContext() {
@@ -75,6 +64,14 @@ public class JavaDownloadInput extends SyncInputBase<JavaDownloadElement> {
 
     public DBObject getSourceObject() {
         return DBObjectRef.ensure(sourceObject);
+    }
+
+    public boolean hasJavaClasses() {
+        return getTasks().stream().anyMatch(t -> t.getEntityType() == DBObjectType.JAVA_CLASS);
+    }
+
+    public boolean hasJavaResources() {
+        return getTasks().stream().anyMatch(t -> t.getEntityType() == DBObjectType.JAVA_RESOURCE);
     }
 
     public PsiDirectory findContentRootDirectory() throws ConfigurationException {
@@ -127,10 +124,10 @@ public class JavaDownloadInput extends SyncInputBase<JavaDownloadElement> {
 
     public Set<JavaPackageNode> getTargetPackages() {
         JavaPackageNode rootNode = new JavaPackageNode("ROOT");
-        for (JavaDownloadElement dependency : getSelectedElements()) {
+        for (JavaDownloadTask task : getSelectedTasks()) {
             JavaPackageNode currentNode = rootNode;
 
-            String[] tokens = dependency.getPackageNameTokens();
+            String[] tokens = task.getEntityPathTokens();
             for (String token : tokens) {
                 currentNode = currentNode.ensureChild(token);
             }

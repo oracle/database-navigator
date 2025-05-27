@@ -95,7 +95,7 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.dispose.Failsafe.nd;
-import static com.dbn.common.notification.NotificationGroup.EXECUTION;
+import static com.dbn.common.notification.NotificationCategory.EXECUTION;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.nls.NlsResources.txt;

@@ -29,6 +29,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 
 public interface DBVirtualFile extends /*VirtualFileWithId, */EnvironmentTypeProvider, DatabaseContextBase, UserDataHolder {
+    byte[] EMPTY_CONTENT = new byte[0];
+
     @NotNull
     Project getProject();
 

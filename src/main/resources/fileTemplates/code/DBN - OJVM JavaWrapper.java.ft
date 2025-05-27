@@ -5,21 +5,21 @@ CREATE OR REPLACE AND COMPILE JAVA SOURCE NAMED "${JAVA_WRAPPER_NAME}" AS
 public class ${JAVA_WRAPPER_NAME} {
 
     #if($JAVA_WRAPPER_METHODS)
-        #foreach($javaWrapperMethod in $JAVA_WRAPPER_METHODS)
-            $javaWrapperMethod
+        #foreach($JAVA_WRAPPER_METHOD in $JAVA_WRAPPER_METHODS)
+            $JAVA_WRAPPER_METHOD
         #end
     #end
 
 
     #if($SQL_CONVERSION_METHODS)
-        #foreach($sqlMethod in $SQL_CONVERSION_METHODS)
-            $sqlMethod
+        #foreach($SQL_CONVERSION_METHOD in $SQL_CONVERSION_METHODS)
+            $SQL_CONVERSION_METHOD
         #end
     #end
 
     #if($JAVA_CONVERSION_METHODS)
-        #foreach($javaMethod in $JAVA_CONVERSION_METHODS)
-            $javaMethod
+        #foreach($JAVA_CONVERSION_METHOD in $JAVA_CONVERSION_METHODS)
+            $JAVA_CONVERSION_METHOD
         #end
     #end
 }

@@ -16,7 +16,9 @@
 
 package com.dbn.common.util;
 
+import com.dbn.common.Reflection;
 import com.dbn.common.color.Colors;
+import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.editor.BasicTextEditor;
@@ -54,6 +56,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorKind;
+import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.ex.EditorEx;
@@ -548,11 +551,15 @@ public class Editors {
 
     @ThreadPropertyGate(ThreadProperty.EDITOR_LOAD)
     public static void openFileEditor(Project project, VirtualFile file, boolean focus, @Nullable Consumer<FileEditor[]> callback) {
+        if (!file.exists()) return;
+
         DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
         attachmentManager.warmUpAttachedDDLFiles(file);
 
         Dispatch.run(ModalityState.NON_MODAL, () -> {
             try {
+                if (!file.exists()) return;
+
                 markSkipBrowserAutoscroll(file);
                 FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
                 boolean wasOpen = fileEditorManager.isFileOpen(file);
@@ -611,4 +618,14 @@ public class Editors {
         FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
         return fileEditorManager.getOpenFiles();
     }
+
+
+    @Workaround
+    @Compatibility
+    public static void enableSelectionOccurrenceHighlights(Editor editor) {
+        EditorSettings settings = editor.getSettings();
+        //settings.setHighlightSelectionOccurrences(true);
+        Reflection.invokeMethod(settings, "setHighlightSelectionOccurrences", true);
+    }
+
 }

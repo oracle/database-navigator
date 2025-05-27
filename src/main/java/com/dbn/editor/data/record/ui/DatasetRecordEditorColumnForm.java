@@ -125,7 +125,15 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase implements Compon
                     switch (genericDataType) {
                         case DATE_TIME: textFieldWithPopup.createCalendarPopup(false); break;
                         case ARRAY: textFieldWithPopup.createArrayEditorPopup(false); break;
-                        case VECTOR: textFieldWithPopup.createArrayViewerPopup(false); break;
+                        case VECTOR: {
+
+                            // VECTOR arrays with length > 0 are expected to be fixed-length (non-editable)
+                            editable = dataType.getLength() == 0;
+                            if (editable)
+                                textFieldWithPopup.createArrayEditorPopup(false);  else
+                                textFieldWithPopup.createArrayViewerPopup(false);
+                            break;
+                        }
                         case LITERAL: {
                             long dataLength = dataType.getLength();
                             DataEditorValueListPopupSettings valueListPopupSettings = dataEditorSettings.getValueListPopupSettings();

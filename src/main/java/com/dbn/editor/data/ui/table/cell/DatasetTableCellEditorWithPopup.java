@@ -16,6 +16,8 @@
 
 package com.dbn.editor.data.ui.table.cell;
 
+import com.dbn.common.thread.Background;
+import com.dbn.common.thread.Threads;
 import com.dbn.common.ui.misc.DBNButton;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.data.editor.ui.TextFieldPopupProvider;
@@ -34,8 +36,6 @@ import javax.swing.JTextField;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
-
-import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class DatasetTableCellEditorWithPopup extends DatasetTableCellEditor {
     public DatasetTableCellEditorWithPopup(DatasetEditorTable table) {
@@ -56,18 +56,13 @@ public class DatasetTableCellEditorWithPopup extends DatasetTableCellEditor {
         // show automatic popup
         TextFieldPopupProvider popupProvider = getEditorComponent().getAutoPopupProvider();
         if (popupProvider != null && showAutoPopup()) {
-            Thread popupThread = new Thread(() -> {
-                try {
-                    Thread.sleep(settings.getPopupSettings().getDelay());
-                } catch (InterruptedException e) {
-                    conditionallyLog(e);
-                }
+            Background.run(() -> {
+                int delay = settings.getPopupSettings().getDelay();
+                Threads.sleep(delay);
 
-                if (cell.isEditing()) {
-                    popupProvider.showPopup();
-                }
+                if (!cell.isEditing()) return;
+                popupProvider.showPopup();
             });
-            popupThread.start();
         }
     }
 

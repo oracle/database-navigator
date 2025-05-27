@@ -18,6 +18,7 @@ package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.statement.ByteArray;
+import com.dbn.database.common.statement.ClobText;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -156,6 +157,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      * <li> IS_STATIC (Y/N)
      */
     ResultSet loadJavaClasses(String ownerName, DBNConnection connection) throws SQLException;
+
+    ResultSet loadJavaResources(String ownerName, DBNConnection connection) throws SQLException;
 
     ResultSet loadJavaPrimitives(String ownerName, DBNConnection connection) throws SQLException;
 
@@ -682,6 +685,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
     ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException;
 
     ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, short overload, DBNConnection connection) throws SQLException;
+
+    ClobText loadJavaResourceSourceCode(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
     ByteArray loadJavaBinaryCode(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 

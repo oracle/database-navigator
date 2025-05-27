@@ -191,7 +191,8 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 		DBObjectList<DBJavaParameter> parameterList = initParameterList();
 		if (parameterList != null) {
 			if (parameterList.isLoaded()) {
-                navigationLists.add(DBObjectNavigationList.create("Parameters", getParameters()));
+				List<DBJavaParameter> parameters = getParameters();
+				if (!parameters.isEmpty()) navigationLists.add(DBObjectNavigationList.create("Parameters", parameters));
             } else {
 				ObjectListProvider<DBJavaParameter> provider = () -> getParameters();
 				navigationLists.add(DBObjectNavigationList.create("Parameters", provider)); // lazy
@@ -199,14 +200,18 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 		}
 
 		if (returnClass != null) {
-			if (returnClass.isLoaded()) {
-                navigationLists.add(DBObjectNavigationList.create("Return Type", getReturnClass()));
-            } else {
-				ObjectListProvider<DBJavaClass> provider = () -> {
-					DBJavaClass returnClass = getReturnClass();
-					return returnClass == null ? Collections.emptyList() : List.of(returnClass);
-				};
-				navigationLists.add(DBObjectNavigationList.create("Return Type", provider));
+			String returnClassName = returnClass.getObjectName();
+			if (!Java.isScalar(returnClassName) &&
+					!Java.isVoid(returnClassName)) {
+				if (returnClass.isLoaded()) {
+					navigationLists.add(DBObjectNavigationList.create("Return Type", getReturnClass()));
+				} else {
+					ObjectListProvider<DBJavaClass> provider = () -> {
+						DBJavaClass returnClass = getReturnClass();
+						return returnClass == null ? Collections.emptyList() : List.of(returnClass);
+					};
+					navigationLists.add(DBObjectNavigationList.create("Return Type", provider));
+				}
 			}
 		}
 

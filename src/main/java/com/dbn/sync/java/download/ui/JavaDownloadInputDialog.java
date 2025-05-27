@@ -17,7 +17,7 @@
 package com.dbn.sync.java.download.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.sync.java.download.JavaDownloadContext;
+import com.dbn.sync.java.download.JavaDownloadBatch;
 import com.dbn.sync.java.download.JavaDownloadManager;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -26,12 +26,13 @@ import javax.swing.Action;
 
 @Getter
 public class JavaDownloadInputDialog extends DBNDialog<JavaDownloadInputForm> {
-    private final JavaDownloadContext context;
+    private final JavaDownloadBatch batch;
 
-    public JavaDownloadInputDialog(JavaDownloadContext context) {
-        super(context.getProject(), "Download Java Classes", false);
-        this.context = context;
+    public JavaDownloadInputDialog(JavaDownloadBatch batch) {
+        super(batch.getProject(), "Download Java Content", false);
+        this.batch = batch;
         renameAction(getOKAction(), "Download");
+        setDefaultSize(600, 600);
         init();
     }
 
@@ -41,13 +42,13 @@ public class JavaDownloadInputDialog extends DBNDialog<JavaDownloadInputForm> {
         return new JavaDownloadInputForm(this);
     }
 
-    private void downloadObject() {
+    private void startDownload() {
         // apply the form field values to the input
         JavaDownloadInputForm inputForm = getForm();
         inputForm.applyUserInput();
 
         JavaDownloadManager manager = getJavaDownloadManager();
-        manager.startDownload(context);
+        manager.startDownload(batch);
     }
 
     @NotNull
@@ -57,7 +58,7 @@ public class JavaDownloadInputDialog extends DBNDialog<JavaDownloadInputForm> {
 
 
     @Override
-    protected final Action @NotNull [] createActions() {
+    protected final Action[] createActions() {
         return new Action[]{
                 getOKAction(),
                 getCancelAction()};
@@ -65,7 +66,7 @@ public class JavaDownloadInputDialog extends DBNDialog<JavaDownloadInputForm> {
 
     @Override
     protected void doOKAction() {
-        downloadObject();
+        startDownload();
         super.doOKAction();
     }
 }

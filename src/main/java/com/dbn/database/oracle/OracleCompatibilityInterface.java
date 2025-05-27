@@ -36,6 +36,7 @@ import static com.dbn.database.DatabaseFeature.CONSTRAINT_MANIPULATION;
 import static com.dbn.database.DatabaseFeature.CURRENT_SCHEMA;
 import static com.dbn.database.DatabaseFeature.DATABASE_LOGGING;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
+import static com.dbn.database.DatabaseFeature.EMBEDDED_JVM;
 import static com.dbn.database.DatabaseFeature.EXPLAIN_PLAN;
 import static com.dbn.database.DatabaseFeature.FUNCTION_OUT_ARGUMENTS;
 import static com.dbn.database.DatabaseFeature.OBJECT_CHANGE_MONITORING;
@@ -56,6 +57,7 @@ import static com.dbn.database.DatabaseFeature.USER_SCHEMA;
 import static com.dbn.database.DatabaseObjectTypeId.AI_PROFILE;
 import static com.dbn.database.DatabaseObjectTypeId.CREDENTIAL;
 import static com.dbn.database.DatabaseObjectTypeId.JAVA_CLASS;
+import static com.dbn.database.DatabaseObjectTypeId.JAVA_RESOURCE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -98,7 +100,8 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 USER_SCHEMA,
                 CONSTRAINT_MANIPULATION,
                 READONLY_CONNECTIVITY,
-                AI_ASSISTANT
+                AI_ASSISTANT,
+                EMBEDDED_JVM
                 //EMPTY_SCHEMA_EVALUATION // TODO disabled due to performance reasons
                 );
     }
@@ -109,7 +112,11 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
 
         if (feature == OBJECT_DDL_EXTRACTION) {
             // TODO create generic object-type to feature mapping solution
-            return !objectTypeId.isOneOf(CREDENTIAL, AI_PROFILE, JAVA_CLASS);
+            return !objectTypeId.isOneOf(
+                    CREDENTIAL,
+                    AI_PROFILE,
+                    JAVA_CLASS,
+                    JAVA_RESOURCE);
         }
         return true;
     }
@@ -150,6 +157,9 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
         return Map.of(
                 "oracle.jdbc.jsonDefaultGetObjectType", "java.lang.String",
                 "oracle.jdbc.vectorDefaultGetObjectType", "double[]",
-                "oracle.net.keepAlive", "true");
+                "oracle.net.keepAlive", "true",
+                "oracle.net.TCP_KEEPIDLE", "30",
+                "oracle.net.TCP_KEEPINTERVAL", "30",
+                "oracle.net.TCP_KEEPCOUNT", "5");
     }
 }

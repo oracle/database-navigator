@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
-import static com.intellij.openapi.application.ModalityState.nonModal;
+import static com.dbn.common.util.Modality.nonModal;
 
 public abstract class EditorNotificationProvider<T extends JComponent>
         extends EditorNotifications.Provider<T>
