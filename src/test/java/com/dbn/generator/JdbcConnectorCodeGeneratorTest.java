@@ -1,21 +1,9 @@
 package com.dbn.generator;
 
-import com.dbn.common.mock.*;
-import com.dbn.common.util.Chars;
-import com.dbn.connection.*;
-import com.dbn.connection.context.DatabaseContext;
-import com.dbn.generator.code.CodeGeneratorType;
-import com.dbn.generator.code.java.impl.JdbcConnectorCodeGenerator;
-import com.dbn.generator.code.java.impl.JdbcConnectorCodeGeneratorInput;
 import com.dbn.test.util.FileUtil;
-import com.intellij.ide.fileTemplates.FileTemplate;
-import com.intellij.ide.fileTemplates.FileTemplateManager;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
 import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.exception.MethodInvocationException;
-import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
@@ -25,7 +13,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.io.*;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
