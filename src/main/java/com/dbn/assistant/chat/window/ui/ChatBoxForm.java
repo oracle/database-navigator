@@ -22,7 +22,6 @@ import com.dbn.assistant.chat.ChatConversation;
 import com.dbn.assistant.chat.ChatInterruptionReason;
 import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.PersistentChatMessage;
-import com.dbn.assistant.chat.ui.ChatStatusLabel;
 import com.dbn.assistant.chat.ui.SaveOrDiscardConversationDialog;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.chat.window.util.RollingMessageContainer;
@@ -89,11 +88,11 @@ public class ChatBoxForm extends DBNFormBase {
   private JPanel initializingPanel;
   private JPanel conversationActionsPanel;
   private JPanel chatStatusPanel;
-  public ChatStatusLabel statusLabel = new ChatStatusLabel();
 
   private RollingMessageContainer messageContainer;
   private final ConnectionRef connection;
   private ChatBoxInputField inputField;
+  private ChatBoxStatusLabel statusLabel;
 
   public ChatBoxForm(ConnectionHandler connection) {
     super(connection, connection.getProject());
@@ -106,11 +105,9 @@ public class ChatBoxForm extends DBNFormBase {
     this.chatBoxPanel.setVisible(false);
     this.initializingPanel.setVisible(false);
 
-    chatStatusPanel.add(statusLabel, BorderLayout.CENTER);
     initHeaderForm();
     initIntroForm();
     initChatBoxForm();
-    updateStatusLabel();
   }
 
 
@@ -125,10 +122,10 @@ public class ChatBoxForm extends DBNFormBase {
   private void initChatBoxForm() {
     if (!hasUserEngaged()) return;
     chatBoxPanel.setVisible(true);
-
     createActionPanels();
+    createStatusLabel();
     createInputField();
-    configureConversationPanel();
+    createConversationPanel();
     loadProfiles();
     initMessages();
   }
@@ -160,8 +157,9 @@ public class ChatBoxForm extends DBNFormBase {
     this.chatActionsPanel.add(chatActions.getComponent());
   }
 
-  private void updateStatusLabel() {
-    statusLabel.update(getCurrentConversation());
+  private void createStatusLabel() {
+    statusLabel = new ChatBoxStatusLabel(this);
+    chatStatusPanel.add(statusLabel);
   }
 
   private void createInputField() {
@@ -175,7 +173,6 @@ public class ChatBoxForm extends DBNFormBase {
 
     messageContainer.clear();
     messageContainer.addAll(conversation.getMessages(), this);
-    updateStatusLabel();
     dispatch(() -> scrollConversationDown());
   }
 
@@ -239,6 +236,7 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   private void startConversation(ChatContext chatContext) {
+    interruptAssistantSession();
     AssistantState state = getAssistantState();
     state.createConversation(chatContext);
     state.deleteObsoleteConversations();
@@ -258,9 +256,6 @@ public class ChatBoxForm extends DBNFormBase {
     ChatConversation conversation = getCurrentConversation();
     conversation.removeProgress();
     conversation.setTitle(title);
-
-    // deactivate interactive conversations on save
-    conversation.setActive(!conversation.isInteractive());
   }
 
    public void deleteCurrentConversation() {
@@ -295,7 +290,6 @@ public class ChatBoxForm extends DBNFormBase {
   private void changeConversationContext(ChatContext context) {
     getAssistantState().setCurrentContext(context);
     updateActionToolbars();
-    updateStatusLabel();
   }
 
   public void cancelContextSwitch() {
@@ -355,7 +349,7 @@ public class ChatBoxForm extends DBNFormBase {
   /**
    * Initializes the panel to display messages
    */
-  private void configureConversationPanel() {
+  private void createConversationPanel() {
     chatScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     messageContainer = new RollingMessageContainer(AssistantState.MAX_CHAR_MESSAGE_COUNT, chatPanel);
   }

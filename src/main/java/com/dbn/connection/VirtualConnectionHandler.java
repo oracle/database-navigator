@@ -279,6 +279,11 @@ public class VirtualConnectionHandler extends StatefulDisposableBase implements 
         return unsupported();
     }
 
+    @Override
+    public @Nullable String getConnectionResourceId(SessionId sessionId) {
+        return unsupported();
+    }
+
     @NotNull
     @Override
     public DBNConnection getMainConnection(@Nullable SchemaId schemaId) {

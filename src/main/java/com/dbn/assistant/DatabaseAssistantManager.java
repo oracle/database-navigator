@@ -45,6 +45,7 @@ import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionStatusListener;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.assistant.AssistantQueryResponse;
@@ -115,9 +116,14 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
   private DatabaseAssistantManager(Project project) {
     super(project, COMPONENT_NAME);
+
     ProjectEvents.subscribe(project, this,
             FileEditorManagerListener.FILE_EDITOR_MANAGER,
             fileEditorManagerListener());
+
+    ProjectEvents.subscribe(project, this,
+            ConnectionStatusListener.TOPIC,
+            connectionStatusListener());
   }
 
   private FileEditorManagerListener fileEditorManagerListener() {
@@ -128,6 +134,21 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         ConnectionId connectionId = getConnectionId(getProject(), editor);
         switchToConnection(connectionId);
       }
+    };
+  }
+
+  private ConnectionStatusListener connectionStatusListener() {
+    return (connectionId, sessionId) -> {
+      if (sessionId != SessionId.ASSISTANT) return;
+
+      AssistantState assistantState = assistantStates.get(connectionId);
+      if (assistantState == null) return;
+
+      ConnectionHandler connection = ConnectionHandler.get(connectionId);
+      if (connection == null) return;
+
+      String resourceId = connection.getConnectionResourceId(SessionId.ASSISTANT);
+      assistantState.setCurrentSessionSignature(resourceId);
     };
   }
 
@@ -245,7 +266,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
   public void interruptAssistantSession(ConnectionHandler connection) {
     // TODO invoke conversation interruption utility as soon as available in "select ai"
-    DBNConnection assistantConnection = connection.getConnectionPool().getConnectionCache().get(SessionId.ASSISTANT);
+    DBNConnection assistantConnection = connection.getConnectionPool().getSessionConnection(SessionId.ASSISTANT);
     if (assistantConnection == null) return;
 
     assistantConnection.invalidate();

@@ -48,6 +48,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
 
 /**
@@ -73,6 +74,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   private Map<String, ChatConversation> conversations = new LinkedHashMap<>();
   private String defaultProfileName;
   private String currentConversationId;
+  private String currentSessionSignature; // the resourceId of the com.dbn.connection.jdbc.Resource
 
   public static final short MAX_CHAR_MESSAGE_COUNT = 100;
 
@@ -115,8 +117,8 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   }
 
   public ChatConversation createConversation(ChatContext chatContext) {
-    ChatConversation conversation = new ChatConversation();
-    conversation.setContext(chatContext);
+    ChatConversation conversation = new ChatConversation(chatContext);
+    conversation.setSessionSignature(currentSessionSignature);
     String conversationId = conversation.getId();
 
     conversations.put(conversationId, conversation);
@@ -152,7 +154,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     ChatConversation currentConversation = conversations.get(currentConversationId);
     if (currentConversation == null) {
       currentConversation = new ChatConversation();
-      currentConversation.setContext(new ChatContext());
+      currentConversation.setSessionSignature(currentSessionSignature);
       currentConversationId = currentConversation.getId();
       conversations.put(currentConversationId, currentConversation);
     }
@@ -165,6 +167,16 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
 
   public void setCurrentContext(ChatContext context) {
     getCurrentConversation().setContext(context);
+  }
+
+  public void setCurrentSessionSignature(String currentSessionSignature) {
+    this.currentSessionSignature = currentSessionSignature;
+    ChatConversation conversation = getCurrentConversation();
+
+    if (!conversation.isSigned() || !conversation.isInteractive() || conversation.isEmpty() || conversation.isErrorsOnly()) {
+      // safe to update conversation signature
+      conversation.setSessionSignature(currentSessionSignature);
+    }
   }
 
   public boolean isSupported() {
@@ -187,11 +199,24 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
 
     ChatContext context = getCurrentContext();
     if (!context.isInitialized()) return false;
-
-    ChatConversation conversation = getCurrentConversation();
-    if (!conversation.isActive()) return false;
+    if (!isCurrentConversationActive()) return false;
 
     return true;
+  }
+
+  public boolean isCurrentConversationInteractive() {
+    ChatConversation conversation = getCurrentConversation();
+    return conversation.isInteractive();
+  }
+
+  public boolean isCurrentConversationActive() {
+    ChatConversation conversation = getCurrentConversation();
+    if (!conversation.isInteractive()) return true; // non-interactive chats are always active if selected
+
+    String sessionSignature = conversation.getSessionSignature();
+    if (isEmpty(sessionSignature) && isEmpty(currentSessionSignature)) return conversation.isEmpty(); // empty chat not yet started or initialized (assume active)
+
+    return Objects.equals(sessionSignature, currentSessionSignature);
   }
 
   public void setDefaultProfile(@Nullable DBAIProfile profile) {

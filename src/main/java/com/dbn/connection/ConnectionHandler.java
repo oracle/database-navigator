@@ -95,6 +95,9 @@ public interface ConnectionHandler extends StatefulDisposable, EnvironmentTypePr
     @NotNull
     DBNConnection getPoolConnection(@Nullable SchemaId schemaId, boolean readonly) throws SQLException;
 
+    @Nullable
+    String getConnectionResourceId(SessionId sessionId);
+
     void setCurrentSchema(DBNConnection connection, @Nullable SchemaId schema) throws SQLException;
 
     void closeConnection(DBNConnection connection);

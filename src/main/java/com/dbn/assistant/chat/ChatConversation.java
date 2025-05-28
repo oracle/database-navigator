@@ -20,17 +20,15 @@ import com.dbn.assistant.chat.message.PersistentChatMessage;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.UUIDs;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jdom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.assistant.chat.message.AuthorType.AGENT;
 import static com.dbn.common.options.setting.Settings.longAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setLongAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -38,14 +36,18 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 
 @Getter
 @Setter
-@NoArgsConstructor
 public class ChatConversation implements PersistentStateElement {
     private String id = UUIDs.compact();
     private String title;
     private ChatContext context;
     private List<PersistentChatMessage> messages = new ArrayList<>();
     private long timestamp = System.currentTimeMillis();
-    private boolean active = true;
+
+    private String sessionSignature;
+
+    public ChatConversation() {
+        this(new ChatContext());
+    }
 
     public ChatConversation(ChatContext context) {
         this.context = context;
@@ -59,8 +61,16 @@ public class ChatConversation implements PersistentStateElement {
         return isNotEmpty(title);
     }
 
+    public boolean isSigned() {
+        return isNotEmpty(sessionSignature);
+    }
+
     public boolean isEmpty() {
         return messages.isEmpty();
+    }
+
+    public boolean isErrorsOnly() {
+        return messages.stream().noneMatch(m -> m.getAuthor() == AGENT);
     }
 
     public void clear() {
@@ -86,8 +96,8 @@ public class ChatConversation implements PersistentStateElement {
     public void readState(Element element) {
         id = stringAttribute(element, "id");
         title = stringAttribute(element, "title");
+        sessionSignature = stringAttribute(element, "session-signature");
         timestamp = longAttribute(element, "timestamp", 0L);
-        active = booleanAttribute(element, "active", true);
         List<Element> messagesElements = element.getChild("messages").getChildren();
         for(Element msgElement : messagesElements){
             PersistentChatMessage chatMessage = new PersistentChatMessage();
@@ -95,21 +105,15 @@ public class ChatConversation implements PersistentStateElement {
             messages.add(chatMessage);
         }
         Element contextElement = element.getChild("context");
-        context = new ChatContext();
         context.readState(contextElement);
-
-        if (context.isInteractive() && !isEmpty() && active) {
-            // interactive contexts can no longer be active at this stage
-            active = false;
-        }
     }
 
     @Override
     public void writeState(Element element) {
         setStringAttribute(element, "id", id);
         setStringAttribute(element, "title", title);
+        setStringAttribute(element, "session-signature", sessionSignature);
         setLongAttribute(element, "timestamp", timestamp);
-        setBooleanAttribute(element, "active", active);
         Element messagesElement = newElement("messages");
         element.addContent(messagesElement);
         for(PersistentChatMessage msg : messages){

@@ -26,7 +26,10 @@ import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionStatusListener;
+import com.dbn.connection.SessionId;
 import com.dbn.object.event.ObjectChangeListener;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
@@ -50,7 +53,6 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.util.Objects;
 
 /**
  * Input field used for the chat-box user prompt
@@ -61,7 +63,6 @@ public class ChatBoxInputField extends JPanel implements Disposable {
     private final EditorEx editor;
     private final WeakRef<ChatBoxForm> chatBox;
 
-
     public ChatBoxInputField(ChatBoxForm chatBox) {
         super(new BorderLayout());
         this.chatBox = WeakRef.of(chatBox);
@@ -71,6 +72,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
 
         ProjectEvents.subscribe(getProject(), this, AssistantStateListener.TOPIC, createStateListener());
         ProjectEvents.subscribe(getProject(), this, ObjectChangeListener.TOPIC, createObjectChangeListener());
+        ProjectEvents.subscribe(getProject(), this, ConnectionStatusListener.TOPIC, createConnectionListener());
     }
 
     /**
@@ -78,16 +80,32 @@ public class ChatBoxInputField extends JPanel implements Disposable {
      * the current state of the assistant
      */
     private AssistantStateListener createStateListener() {
-        return (project, connectionId) -> refreshState(connectionId);
+        return (project, connectionId) -> {
+            if (connectionId != getConnectionId()) return;
+            refreshComponentState();
+        };
     }
 
     private ObjectChangeListener createObjectChangeListener() {
-        return (c, o, t, a) -> refreshState(c);
+        return (connectionId, o, t, a) -> {
+            if (connectionId != getConnectionId()) return;
+            if (t != DBObjectType.AI_PROFILE) return;
+            refreshComponentState();
+        };
     }
 
-    private void refreshState(ConnectionId connectionId) {
-        if (!Objects.equals(getConnectionId(), connectionId)) return;
-        setReadonly(!getChatBox().isPromptingAvailable());
+    private ConnectionStatusListener createConnectionListener() {
+        return (connectionId, sessionId) -> {
+            if (connectionId != getConnectionId()) return;
+            if (sessionId != SessionId.ASSISTANT) return;
+
+            refreshComponentState();
+        };
+    }
+
+    private void refreshComponentState() {
+        boolean promptingAvailable = getChatBox().isPromptingAvailable();
+        setReadonly(!promptingAvailable);
     }
 
     private Project getProject() {
@@ -97,6 +115,8 @@ public class ChatBoxInputField extends JPanel implements Disposable {
     private ConnectionId getConnectionId() {
         return getChatBox().getConnection().getConnectionId();
     }
+
+
 
     @Override
     public void requestFocus() {

@@ -59,9 +59,9 @@ public class ConversationStartAction extends AbstractChatBoxAction {
     private static boolean isEnabled(@NotNull AnActionEvent e) {
         AssistantState state = getAssistantState(e);
         if (state == null) return false;
+        if (!state.isCurrentConversationActive()) return true;
 
         ChatConversation conversation = state.getCurrentConversation();
-        if (!conversation.isActive()) return true;
         if (conversation.isEmpty()) return false;
 
         return true;
