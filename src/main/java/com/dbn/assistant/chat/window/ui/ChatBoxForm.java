@@ -87,7 +87,7 @@ public class ChatBoxForm extends DBNFormBase {
   private JPanel chatBoxPanel;
   private JPanel initializingIconPanel;
   private JPanel initializingPanel;
-  private JPanel helpActionPanel;
+  private JPanel conversationActionsPanel;
   private JPanel chatStatusPanel;
   public ChatStatusLabel statusLabel = new ChatStatusLabel();
 
@@ -146,20 +146,18 @@ public class ChatBoxForm extends DBNFormBase {
   private void createActionPanels() {
     ActionToolbar profileActions = Actions.createActionToolbar(profileActionsPanel, true, "DBNavigator.ActionGroup.AssistantChatBoxProfiles");
     setAccessibleName(profileActions, txt("app.assistant.aria.ChatProfileActions"));
-    this.profileActionsPanel.add(profileActions.getComponent(), BorderLayout.CENTER);
+    this.profileActionsPanel.add(profileActions.getComponent());
 
-/*
-    ActionToolbar helpActions = Actions.createActionToolbar(helpActionPanel, "DBNavigator.ActionGroup.AssistantChatBoxHelp", "", true);
-    this.helpActionPanel.add(helpActions.getComponent(), BorderLayout.CENTER);
-*/
+    ActionToolbar helpActions = Actions.createActionToolbar(conversationActionsPanel, true, "DBNavigator.ActionGroup.AssistantConversationActions");
+    this.conversationActionsPanel.add(helpActions.getComponent());
 
     ActionToolbar typeActions = Actions.createActionToolbar(typeActionsPanel, true, "DBNavigator.ActionGroup.AssistantChatBoxTypes");
     setAccessibleName(profileActions, txt("app.assistant.aria.ChatTypeActions"));
-    this.typeActionsPanel.add(typeActions.getComponent(), BorderLayout.CENTER);
+    this.typeActionsPanel.add(typeActions.getComponent());
 
     ActionToolbar chatActions = Actions.createActionToolbar(chatActionsPanel, true, "DBNavigator.ActionGroup.AssistantChatBoxPrompt");
     setAccessibleName(profileActions, txt("app.assistant.aria.ChatActions"));
-    this.chatActionsPanel.add(chatActions.getComponent(), BorderLayout.CENTER);
+    this.chatActionsPanel.add(chatActions.getComponent());
   }
 
   private void updateStatusLabel() {

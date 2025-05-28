@@ -59,7 +59,7 @@
         <border type="none"/>
         <children/>
       </grid>
-      <grid id="67f36" binding="helpActionPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+      <grid id="67f36" binding="conversationActionsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints>
           <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>

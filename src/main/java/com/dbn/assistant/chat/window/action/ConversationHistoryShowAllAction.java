@@ -33,10 +33,10 @@ import java.util.function.Consumer;
 /**
  * Action for showcasing the rest of the conversations
  */
-public class ConversationShowAllAction extends AbstractChatBoxAction {
+public class ConversationHistoryShowAllAction extends AbstractChatBoxAction {
     private final List<ChatConversation> conversations;
 
-    public ConversationShowAllAction(List<ChatConversation> conversations) {
+    public ConversationHistoryShowAllAction(List<ChatConversation> conversations) {
         this.conversations = conversations;
     }
     @Override

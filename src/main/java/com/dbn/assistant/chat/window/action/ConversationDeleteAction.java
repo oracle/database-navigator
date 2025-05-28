@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.chat.window.action;
 
+import com.dbn.assistant.chat.ChatConversation;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.icon.Icons;
@@ -33,7 +34,7 @@ import static com.dbn.nls.NlsResources.txt;
  *
  * @author Dan Cioca (Oracle)
  */
-public class ConversationClearAction extends AbstractChatBoxAction {
+public class ConversationDeleteAction extends AbstractChatBoxAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
@@ -44,13 +45,22 @@ public class ConversationClearAction extends AbstractChatBoxAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        AssistantState state = getAssistantState(e);
-        boolean enabled = state != null && !state.getCurrentConversation().getMessages().isEmpty();
+        boolean enabled = isEnabled(e);
 
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.ACTION_DELETE);
         presentation.setText(txt("app.assistant.action.ClearConversation"));
         presentation.setEnabled(enabled);
+    }
+
+    private static boolean isEnabled(@NotNull AnActionEvent e) {
+        AssistantState state = getAssistantState(e);
+        if (state == null) return false;
+
+        ChatConversation conversation = state.getCurrentConversation();
+        if (conversation.isEmpty()) return false;
+
+        return true;
     }
 
     public void promptConversationClearing(ChatBoxForm chatBox) {

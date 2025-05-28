@@ -283,11 +283,11 @@
                 <action class="com.dbn.assistant.chat.window.action.AssistantSettingsAction" text="Settings..." id="DBNavigator.Actions.Assistant.AssistantSettings"/>
                 <action class="com.dbn.assistant.chat.window.action.ProfilesSetupAction" text="Profile Setup..." id="DBNavigator.Actions.Assistant.ProfileSetup"/>
             </group>
-
-            <separator/>
-            <group class="com.dbn.assistant.chat.window.action.ConversationSelectDropdownAction" text="Conversation History" id="DBNavigator.Actions.Assistant.ConversationHistory" icon="AllIcons.Vcs.History"/>
-            <action class="com.dbn.assistant.chat.window.action.NewConversationAction" text="New Conversation" id="DBNavigator.Actions.Assistant.NewConversation" icon="AllIcons.Actions.AddList"/>
-            <action class="com.dbn.assistant.chat.window.action.ConversationClearAction" text="Clear Conversation" id="DBNavigator.Actions.Assistant.ClearConversation" icon="AllIcons.Actions.GC"/>
+        </group>
+        <group id="DBNavigator.ActionGroup.AssistantConversationActions" text="Assistant Conversation Actions">
+            <action class="com.dbn.assistant.chat.window.action.ConversationStartAction" text="New Chat" id="DBNavigator.Actions.Assistant.NewConversation" icon="AllIcons.General.Add"/>
+            <action class="com.dbn.assistant.chat.window.action.ConversationDeleteAction" text="Clear Conversation" id="DBNavigator.Actions.Assistant.ClearConversation" icon="AllIcons.Actions.GC"/>
+            <group class="com.dbn.assistant.chat.window.action.ConversationHistoryDropdownAction" text="Conversation History" id="DBNavigator.Actions.Assistant.ConversationHistory" icon="AllIcons.Vcs.History"/>
         </group>
 
         <group id="DBNavigator.ActionGroup.AssistantConversationHistory" text="Conversation History">

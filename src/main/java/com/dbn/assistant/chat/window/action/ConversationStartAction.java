@@ -21,6 +21,7 @@ import com.dbn.assistant.chat.ChatContextEvent;
 import com.dbn.assistant.chat.ChatConversation;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.state.AssistantState;
+import com.dbn.common.compatibility.Compatibility;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Action for starting a new conversation
  */
-public class NewConversationAction extends AbstractChatBoxAction {
+public class ConversationStartAction extends AbstractChatBoxAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
@@ -41,6 +42,13 @@ public class NewConversationAction extends AbstractChatBoxAction {
 
         chatBox.processContextEvent(event);
     }
+
+    @Override
+    @Compatibility
+    public boolean displayTextInToolbar() {
+        return true;
+    }
+
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {

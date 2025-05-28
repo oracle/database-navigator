@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * Action for selecting an old conversation
  */
-public class ConversationSelectDropdownAction extends BasicActionGroup implements DumbAware {
+public class ConversationHistoryDropdownAction extends BasicActionGroup implements DumbAware {
     private static final int MAX_SIZE = 5;
 
     @Override
@@ -56,7 +56,7 @@ public class ConversationSelectDropdownAction extends BasicActionGroup implement
 
         if (conversations.size() > MAX_SIZE) {
             actionList.add(Separator.create());
-            actionList.add(new ConversationShowAllAction(conversations));
+            actionList.add(new ConversationHistoryShowAllAction(conversations));
         }
 
         return actionList.toArray(new AnAction[0]);

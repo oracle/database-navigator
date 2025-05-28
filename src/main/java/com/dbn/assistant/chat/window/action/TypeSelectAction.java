@@ -20,6 +20,7 @@ import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.ToggleAction;
+import com.dbn.common.compatibility.Compatibility;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,6 +39,7 @@ public class TypeSelectAction extends ToggleAction {
     }
 
     @Override
+    @Compatibility
     public boolean displayTextInToolbar() {
         return true;
     }
