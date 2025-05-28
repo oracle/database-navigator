@@ -27,15 +27,15 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import java.util.List;
+import java.util.Set;
 
 public class SaveOrDiscardConversationForm extends DBNFormBase {
     private JPanel headerPanel;
     private JPanel mainPanel;
     private JTextField conversationTitleTextField;
-    private List<String> titles;
+    private final Set<String> titles;
 
-    SaveOrDiscardConversationForm(SaveOrDiscardConversationDialog parent, ChatInterruptionReason changedField, List<String> titles) {
+    SaveOrDiscardConversationForm(SaveOrDiscardConversationDialog parent, ChatInterruptionReason changedField, Set<String> titles) {
         super(parent);
         JLabel warningLabel = new JLabel(changedField.getConfirmationMessage());
         warningLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
@@ -45,7 +45,7 @@ public class SaveOrDiscardConversationForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(conversationTitleTextField, Strings::isNotEmpty, "");
+        addTextValidation(conversationTitleTextField, Strings::isNotEmpty, "Please provide a conversation name");
         addTextValidation(conversationTitleTextField, this::isNotUsed, "Conversation name already in use");
     }
 

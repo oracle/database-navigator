@@ -16,7 +16,7 @@
 
 package com.dbn.assistant.chat.ui;
 
-import com.dbn.assistant.chat.PersistentChatConversation;
+import com.dbn.assistant.chat.ChatConversation;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.TextFields;
@@ -27,7 +27,7 @@ import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.util.List;
 
@@ -40,7 +40,7 @@ public class ConversationHistoryForm extends DBNFormBase {
     private JPanel conversationActionsPanel;
     private ConversationHistoryTable conversationTable;
 
-    public ConversationHistoryForm(@NotNull ConversationHistoryDialog parent, List<PersistentChatConversation> conversations) {
+    public ConversationHistoryForm(@NotNull ConversationHistoryDialog parent, List<ChatConversation> conversations) {
         super(parent);
 
         conversationTable = new ConversationHistoryTable(this, conversations);
@@ -78,15 +78,15 @@ public class ConversationHistoryForm extends DBNFormBase {
         else parent.getOKAction().setEnabled(selectedRowCount == 1);
     }
 
-    public void setConversations(List<PersistentChatConversation> conversations) {
+    public void setConversations(List<ChatConversation> conversations) {
         conversationTable.getModel().setConversations(conversations);
         conversationTable.adjustColumnWidths();
-        updateDialogButtonState((ConversationHistoryDialog) getParentComponent());
+        updateDialogButtonState(getParentComponent());
     }
 
-    public Object[] getSelectedConversationIds() {
+    public String[] getSelectedConversationIds() {
         int[] selectedRows = conversationTable.getSelectedRows();
-        Object[] ids = new Object[selectedRows.length];
+        String[] ids = new String[selectedRows.length];
 
         for (int i = 0; i < selectedRows.length; i++) {
             int modelRow = conversationTable.convertRowIndexToModel(selectedRows[i]);
@@ -96,7 +96,7 @@ public class ConversationHistoryForm extends DBNFormBase {
         return ids;
     }
 
-    public Object getSelectedConversationId() {
+    public String getSelectedConversationId() {
         int selectedRow = conversationTable.getSelectedRow();
         if (selectedRow >= 0) {
             int modelRow = conversationTable.convertRowIndexToModel(selectedRow);
@@ -106,7 +106,7 @@ public class ConversationHistoryForm extends DBNFormBase {
     }
 
     private void createActionPanel(){
-        ActionToolbar conversationActions = Actions.createActionToolbar(conversationActionsPanel, true, "DBNavigator.ActionGroup.ConversationHistory");
+        ActionToolbar conversationActions = Actions.createActionToolbar(conversationActionsPanel, true, "DBNavigator.ActionGroup.AssistantConversationHistory");
         setAccessibleName(conversationActions, "Conversation History");
         this.conversationActionsPanel.add(conversationActions.getComponent(), BorderLayout.CENTER);
     }
@@ -120,7 +120,7 @@ public class ConversationHistoryForm extends DBNFormBase {
     @Nullable
     @Override
     public Object getData(@NotNull String dataId) {
-        if (DataKeys.CONVERSATION_HISTORY.is(dataId)) return this;
+        if (DataKeys.CONVERSATION_HISTORY_FORM.is(dataId)) return this;
         return null;
     }
 }

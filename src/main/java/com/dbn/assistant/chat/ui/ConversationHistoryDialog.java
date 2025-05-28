@@ -16,33 +16,29 @@
 
 package com.dbn.assistant.chat.ui;
 
-import com.dbn.assistant.chat.PersistentChatConversation;
+import com.dbn.assistant.chat.ChatConversation;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.util.Messages;
 import com.intellij.openapi.project.Project;
-import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+
+import static com.dbn.common.util.Conditional.when;
 
 public class ConversationHistoryDialog extends DBNDialog<ConversationHistoryForm> {
-    private final List<PersistentChatConversation> conversations;
-    private final Consumer<PersistentChatConversation> openAction;
-    private final Consumer<List<PersistentChatConversation>> deleteAction;
+    private final List<ChatConversation> conversations;
+    private final Consumer<String> openAction;
+    private final Consumer<List<String>> deleteAction;
 
     public ConversationHistoryDialog(
             Project project,
-            List<PersistentChatConversation> conversations,
-            Consumer<PersistentChatConversation> openAction,
-            Consumer<List<PersistentChatConversation>> deleteAction) {
+            List<ChatConversation> conversations,
+            Consumer<String> openAction,
+            Consumer<List<String>> deleteAction) {
         super(project, "Conversation History", true);
         this.conversations = conversations;
         this.openAction = openAction;
@@ -51,8 +47,8 @@ public class ConversationHistoryDialog extends DBNDialog<ConversationHistoryForm
         getOKAction().setEnabled(false);
         setDefaultSize(600, 300);
         renameAction(getOKAction(), "Open Conversation");
+        renameAction(getCancelAction(), "Close");
         setModal(true);
-        setAutoSize(true);
         init();
     }
 
@@ -78,17 +74,10 @@ public class ConversationHistoryDialog extends DBNDialog<ConversationHistoryForm
 
     @Override
     protected void doOKAction() {
-        Object selectedId = getForm().getSelectedConversationId();
+        String selectedId = getForm().getSelectedConversationId();
 
         if (selectedId != null) {
-            PersistentChatConversation selectedConversation = conversations.stream()
-                    .filter(conversation -> conversation.getId().equals(selectedId))
-                    .findFirst()
-                    .orElse(null);
-
-            if (selectedConversation != null) {
-                openAction.accept(selectedConversation);
-            }
+            openAction.accept(selectedId);
         }
 
         close(2);
@@ -98,43 +87,31 @@ public class ConversationHistoryDialog extends DBNDialog<ConversationHistoryForm
      * Handles the delete action by confirming with the user and then calling the delete consumer
      */
     public void performDeleteAction() {
-        Object[] selectedIds = getForm().getSelectedConversationIds();
+        String[] selectedIds = getForm().getSelectedConversationIds();
+        if (selectedIds.length == 0) return;
 
-        if (selectedIds != null && selectedIds.length > 0) {
-            String confirmMessage = selectedIds.length == 1
-                    ? "Are you sure you want to delete this conversation?"
-                    : "Are you sure you want to delete these " + selectedIds.length + " conversations?";
+        String confirmMessage = selectedIds.length == 1
+                ? "Are you sure you want to delete this conversation?"
+                : "Are you sure you want to delete these " + selectedIds.length + " conversations?";
 
-            String[] options = {"No", "Yes"};
+        String[] options = {"No", "Yes"};
 
-            Messages.showQuestionDialog(
-                    getProject(),
-                    "Confirm Deletion",
-                    confirmMessage,
-                    options,
-                    1,
-                    option -> {
-                        if (option == 1) {
-                            List<Object> idList = Arrays.asList(selectedIds);
-                            Predicate<PersistentChatConversation> toDelete =
-                                    conversation -> idList.contains(conversation.getId());
+        Messages.showQuestionDialog(
+                getProject(),
+                "Confirm Deletion",
+                confirmMessage,
+                options,
+                1,
+                option -> when(option == 1, () -> deleteConversations(selectedIds))
+        );
+    }
 
-                            List<PersistentChatConversation> conversationsToDelete = conversations.stream()
-                                    .filter(toDelete)
-                                    .collect(Collectors.toList());
+    private void deleteConversations(String[] selectedIds) {
+        List<String> conversationIdsToDelete = Arrays.asList(selectedIds);
+        conversations.removeIf(c -> conversationIdsToDelete.contains(c.getId()));
+        deleteAction.accept(conversationIdsToDelete);
 
-                            if (!conversationsToDelete.isEmpty()) {
-                                deleteAction.accept(conversationsToDelete);
-
-                                List<PersistentChatConversation> updatedList = new ArrayList<>(conversations);
-                                updatedList.removeAll(conversationsToDelete);
-
-                                getForm().setConversations(updatedList);
-                            }
-                        }
-                    }
-            );
-        }
+        getForm().setConversations(conversations);
     }
 
     @Override

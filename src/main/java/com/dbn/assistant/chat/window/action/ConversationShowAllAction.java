@@ -16,10 +16,11 @@
 
 package com.dbn.assistant.chat.window.action;
 
-import com.dbn.assistant.chat.PersistentChatConversation;
+import com.dbn.assistant.chat.ChatContextEvent;
+import com.dbn.assistant.chat.ChatConversation;
 import com.dbn.assistant.chat.ui.ConversationHistoryDialog;
-import com.dbn.assistant.chat.window.ContextChangeEvent;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -27,39 +28,40 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 /**
  * Action for showcasing the rest of the conversations
  */
 public class ConversationShowAllAction extends AbstractChatBoxAction {
-    private final List<PersistentChatConversation> conversations;
+    private final List<ChatConversation> conversations;
 
-    public ConversationShowAllAction(List<PersistentChatConversation> conversations) {
+    public ConversationShowAllAction(List<ChatConversation> conversations) {
         this.conversations = conversations;
     }
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
-        Consumer<PersistentChatConversation> openAction = (PersistentChatConversation conversation) -> {
-            ContextChangeEvent contextChangeEvent = new ContextChangeEvent(chatBox.getAssistantState().getChatContext(), conversation.getContext(), conversation, false, chatBox);
-            contextChangeEvent.trigger();
-        };
-        Consumer<List<PersistentChatConversation>> deleteAction = (List<PersistentChatConversation> conversationsToDelete) -> {
-            Map<String, PersistentChatConversation> conversations =  chatBox.getAssistantState().getConversations();
-            for(PersistentChatConversation conversation : conversationsToDelete){
-                conversations.remove(conversation.getId());
-            }
 
+        Consumer<String> openAction = conversationId -> {
+            AssistantState state = chatBox.getAssistantState();
+            ChatConversation conversation = state.getConversation(conversationId);
+            ChatContextEvent event = new ChatContextEvent(state.getCurrentContext(), conversation.getContext(), conversationId, false);
+            chatBox.processContextEvent(event);
         };
+
+        Consumer<List<String>> deleteAction = conversationIds -> {
+            AssistantState state = chatBox.getAssistantState();
+            state.deleteConversations(conversationIds);
+        };
+
         Dialogs.show(()-> new ConversationHistoryDialog(project, conversations, openAction, deleteAction));
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Others ...");
+        presentation.setText("Show all...");
     }
 }

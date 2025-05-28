@@ -17,7 +17,6 @@
 package com.dbn.assistant.chat.window.action;
 
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.state.AssistantState;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -39,8 +38,8 @@ public class ProfilesRefreshAction extends AbstractChatBoxAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        AssistantState state = getAssistantState(e);
-        boolean enabled = state != null && state.isAvailable();
+        ChatBoxForm chatBox = getChatBox(e);
+        boolean enabled = chatBox != null && chatBox.isPromptingAvailable();
 
         Presentation presentation = e.getPresentation();
         presentation.setEnabled(enabled);

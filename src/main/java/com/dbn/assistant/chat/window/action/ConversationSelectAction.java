@@ -16,8 +16,9 @@
 
 package com.dbn.assistant.chat.window.action;
 
-import com.dbn.assistant.chat.PersistentChatConversation;
-import com.dbn.assistant.chat.window.ContextChangeEvent;
+import com.dbn.assistant.chat.ChatContext;
+import com.dbn.assistant.chat.ChatContextEvent;
+import com.dbn.assistant.chat.ChatConversation;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.util.Actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -29,8 +30,8 @@ import org.jetbrains.annotations.NotNull;
  * Action for selecting one individual conversation
  */
 public class ConversationSelectAction extends AbstractChatBoxAction {
-    private final PersistentChatConversation conversation;
-    ConversationSelectAction(PersistentChatConversation conversation) {
+    private final ChatConversation conversation;
+    ConversationSelectAction(ChatConversation conversation) {
         this.conversation = conversation;
     }
 
@@ -38,8 +39,10 @@ public class ConversationSelectAction extends AbstractChatBoxAction {
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
-        ContextChangeEvent contextChangeEvent = new ContextChangeEvent(chatBox.getAssistantState().getChatContext(), conversation.getContext(), conversation, false, chatBox);
-        contextChangeEvent.trigger();
+
+        ChatContext chatContext = chatBox.getAssistantState().getCurrentContext();
+        ChatContextEvent event = new ChatContextEvent(chatContext, conversation.getContext(), conversation.getId(), false);
+        chatBox.processContextEvent(event);
     }
 
     @Override

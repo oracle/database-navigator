@@ -17,6 +17,7 @@
 package com.dbn.assistant.state;
 
 import com.dbn.assistant.DatabaseAssistantType;
+import com.dbn.assistant.chat.ChatContext;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.feature.FeatureAcknowledgement;
 import com.dbn.common.feature.FeatureAvailability;
@@ -70,7 +71,21 @@ public class AssistantStateDelegate extends AssistantState {
     }
 
     @Override
-    protected void changed(AssistantStatus property, boolean value) {
+    public void setCurrentContext(ChatContext context) {
+        super.setCurrentContext(context);
+        notifyStateListeners();
+    }
+
+    @Override
+    public void setCurrentConversationId(String currentConversationId) {
+        if (Objects.equals(getCurrentConversationId(), currentConversationId)) return;
+
+        super.setCurrentConversationId(currentConversationId);
+        notifyStateListeners();
+    }
+
+    @Override
+    protected void propertyChanged(AssistantStatus property, boolean value) {
         notifyStateListeners();
     }
 

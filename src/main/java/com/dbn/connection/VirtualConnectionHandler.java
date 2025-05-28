@@ -256,6 +256,11 @@ public class VirtualConnectionHandler extends StatefulDisposableBase implements 
         return unsupported();
     }
 
+    @Override
+    public @NotNull DBNConnection getAssistantConnection() {
+        return unsupported();
+    }
+
     @NotNull
     @Override
     public DBNConnection getDebuggerConnection() {

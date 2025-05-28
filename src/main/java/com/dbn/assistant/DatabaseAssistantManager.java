@@ -17,9 +17,9 @@
 package com.dbn.assistant;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessage;
-import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.editor.action.ProfileSelectAction;
@@ -42,8 +42,8 @@ import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionHandlerImpl;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -243,8 +243,12 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     });
   }
 
-  public void interruptAssistantConnection(ConnectionHandler connection) throws SQLException {
-    ((ConnectionHandlerImpl) connection).getAssistantConnection().close();
+  public void interruptAssistantSession(ConnectionHandler connection) {
+    // TODO invoke conversation interruption utility as soon as available in "select ai"
+    DBNConnection assistantConnection = connection.getConnectionPool().getConnectionCache().get(SessionId.ASSISTANT);
+    if (assistantConnection == null) return;
+
+    assistantConnection.invalidate();
   }
 
   public AssistantState getAssistantState(ConnectionId connectionId) {
@@ -409,10 +413,9 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
     AssistantState assistantState = getAssistantState(connectionId);
     String profileName = assistantState.getSelectedProfileName();
+    if (Strings.isEmpty(profileName)) return null;
 
-    DBAIProfile profile = getProfile(connectionId, profileName);
-    if(profile!=null && assistantState.getCurrentConversation().getContext() == null) assistantState.getCurrentConversation().setContext(new ChatContext(profile.getName(), profile.getModel(), assistantState.getSelectedAction(), profile.isInteractive()));
-    return profile;
+    return getProfile(connectionId, profileName);
   }
 
   @Nullable
@@ -436,19 +439,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     String modelName = assistantState.getSelectedModelName();
 
     AIModel model = provider.getModel(modelName);
-//    assistantState.setSelectedModel(model);
     return model == null ? provider.getDefaultModel() : model;
-  }
-
-  public boolean isPromptingAvailable(ConnectionId connectionId) {
-    AssistantState assistantState = getAssistantState(connectionId);
-    if (!assistantState.isAvailable()) return false;
-
-    DBAIProfile profile = getSelectedProfile(connectionId);
-    if (profile == null) return false;
-    if (!profile.isEnabled()) return false;
-
-    return true;
   }
 
   /*********************************************

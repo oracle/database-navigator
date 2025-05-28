@@ -15,11 +15,13 @@
  */
 package com.dbn.assistant.chat.ui;
 
+import com.dbn.assistant.chat.ChatConversation;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.panel.DBNPanelImpl;
 import com.dbn.common.ui.util.Fonts;
 import com.intellij.openapi.Disposable;
 import com.intellij.ui.JBColor;
+import lombok.Getter;
 
 import javax.swing.JLabel;
 import java.awt.BorderLayout;
@@ -45,12 +47,39 @@ public class ChatStatusLabel extends DBNPanelImpl implements Disposable {
 
     }
 
-    public void update(int status) {
-        Dispatch.run(true, () -> {
-            chatStatusLabel.setForeground(status == 0 ? Colors.CONVERSATIONAL : status == 1 ? Colors.NON_CONVERSATIONAL : Colors.CONVERSATION_DISCONTINUED);
-            chatStatusLabel.setText(status == 0 ? "Interactive" : status == 1 ? "Non-Interactive" : "Discontinued");
-            chatStatusLabel.setToolTipText("Status of current chat");
+    private Status evaluateStatus(ChatConversation conversation) {
+        if (!conversation.isActive()) return Status.INACTIVE;
+        if (!conversation.isInteractive()) return Status.NON_INTERACTIVE;
+
+        return Status.INTERACTIVE;
+    }
+
+    public void update(ChatConversation conversation) {
+        Status status = evaluateStatus(conversation);
+
+        Dispatch.run(chatStatusLabel, () -> {
+            chatStatusLabel.setForeground(status.getColor());
+            chatStatusLabel.setText(status.getText());
+            chatStatusLabel.setToolTipText(status.getDescription());
         });
+    }
+
+    @Getter
+    private enum Status {
+        UNAVAILABLE ("", "", null),
+        INTERACTIVE("Interactive", "<html>The selected profile is conversational.<br>It considers up to ten of your previous prompts in the response</html>", Colors.CONVERSATIONAL),
+        NON_INTERACTIVE("Non-Interactive", "<html>The selected profile is non-conversational.<br>Every prompt is treated as an isolated question, with no consideration on any of the previous prompts</html>", Colors.NON_CONVERSATIONAL),
+        INACTIVE("Discontinued", "<html>This conversation is discontinued can no longer be prompted against.</html>", Colors.CONVERSATION_DISCONTINUED),;
+
+        private final Color color;
+        private final String text;
+        private final String description;
+
+        Status(String text, String description, Color color) {
+            this.color = color;
+            this.text = text;
+            this.description = description;
+        }
     }
 
 }

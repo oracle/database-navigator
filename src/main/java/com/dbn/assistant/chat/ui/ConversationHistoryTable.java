@@ -16,17 +16,15 @@
 
 package com.dbn.assistant.chat.ui;
 
+import com.dbn.assistant.chat.ChatConversation;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
-import com.dbn.common.ui.table.DBNTableTransferHandler;
-import com.dbn.assistant.chat.PersistentChatConversation;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableModel;
-
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
@@ -36,11 +34,10 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 public class ConversationHistoryTable extends DBNTable<ConversationHistoryTableModel> {
     private Runnable doubleClickAction;
 
-    public ConversationHistoryTable(@NotNull DBNComponent parent, List<PersistentChatConversation> conversations) {
+    public ConversationHistoryTable(@NotNull DBNComponent parent, List<ChatConversation> conversations) {
         super(parent, new ConversationHistoryTableModel(parent.ensureProject(), conversations), true);
         setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        setDefaultRenderer(PersistentChatConversation.class, new CellRenderer());
-        setTransferHandler(DBNTableTransferHandler.INSTANCE);
+        setDefaultRenderer(ChatConversation.class, new CellRenderer());
         initTableSorter();
 
         addMouseListener(new MouseAdapter() {
@@ -56,7 +53,7 @@ public class ConversationHistoryTable extends DBNTable<ConversationHistoryTableM
         });
 
         setAccessibleName(this, "Chat Conversation History");
-        setProportionalColumnWidths(50, 15, 35);
+        setProportionalColumnWidths(50, 20, 30);
     }
 
     public void setDoubleClickAction(Runnable action) {
@@ -72,7 +69,7 @@ public class ConversationHistoryTable extends DBNTable<ConversationHistoryTableM
     private class CellRenderer extends DBNColoredTableCellRenderer {
         @Override
         protected void customizeCellRenderer(DBNTable table, Object value, boolean selected, boolean hasFocus, int row, int column) {
-            PersistentChatConversation conversation = (PersistentChatConversation) value;
+            ChatConversation conversation = (ChatConversation) value;
             String columnValue = getModel().getPresentableValue(conversation, column);
             append(columnValue == null ? "" : columnValue, SimpleTextAttributes.REGULAR_ATTRIBUTES);
         }

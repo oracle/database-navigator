@@ -16,36 +16,38 @@
 
 package com.dbn.assistant.chat.ui;
 
+import com.dbn.assistant.chat.ChatConversation;
 import com.dbn.common.dispose.StatefulDisposableBase;
+import com.dbn.common.list.FilteredList;
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.ui.table.DBNReadonlyTableModel;
 import com.dbn.common.ui.util.Listeners;
-import com.dbn.assistant.chat.PersistentChatConversation;
+import com.dbn.common.util.Strings;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class ConversationHistoryTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel<PersistentChatConversation> {
-    private List<PersistentChatConversation> conversations;
+
+public class ConversationHistoryTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel<ChatConversation> {
     private final Listeners<TableModelListener> listeners = Listeners.create(this);
-    private String filterText = "";
+    private final ChatConversationFilter filter =  new ChatConversationFilter();
+    private List<ChatConversation> conversations;
     private final Project project;
-    public ConversationHistoryTableModel(Project project, List<PersistentChatConversation> conversations) {
+
+    public ConversationHistoryTableModel(Project project, List<ChatConversation> conversations) {
         super();
-        this.conversations = conversations.stream().filter(conv -> conv.getTitle() != null && !conv.getTitle().isEmpty()).collect(Collectors.toList());
+        this.conversations = FilteredList.stateful(filter, conversations);
         this.project = project;
     }
 
     @Override
     public int getRowCount() {
-        return getFilteredConversations().size();
+        return conversations.size();
     }
 
     @Override
@@ -66,17 +68,16 @@ public class ConversationHistoryTableModel extends StatefulDisposableBase implem
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return PersistentChatConversation.class;
+        return ChatConversation.class;
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        return getFilteredConversations().get(rowIndex);
+        return conversations.get(rowIndex);
     }
 
     @Override
-    public Object getValue(PersistentChatConversation conversation, int column) {
-
+    public Object getValue(ChatConversation conversation, int column) {
         switch (column) {
             case 0: return conversation.getTitle();
             case 1: return conversation.getContext().getProfile();
@@ -86,7 +87,7 @@ public class ConversationHistoryTableModel extends StatefulDisposableBase implem
     }
 
     @Override
-    public String getPresentableValue(PersistentChatConversation conversation, int column) {
+    public String getPresentableValue(ChatConversation conversation, int column) {
         if (conversation == null) return "";
         switch (column) {
             case 0: return conversation.getTitle();
@@ -96,7 +97,7 @@ public class ConversationHistoryTableModel extends StatefulDisposableBase implem
         }
     }
 
-    public String getPresentableDateFormat(long timestamp) {
+    private String getPresentableDateFormat(long timestamp) {
         Formatter formatter = Formatter.getInstance(project);
         Date date = new Date(timestamp);
         return formatter.formatDateTime(date);
@@ -106,38 +107,12 @@ public class ConversationHistoryTableModel extends StatefulDisposableBase implem
      * Apply a filter to the table data
      *
      * @param text The filter text
-     * @return True if the filter changed and the table should be updated
      */
-    public boolean filter(String text) {
-        if (text == null) {
-            text = "";
+    public void filter(String text) {
+        if (!Strings.equalsIgnoreCase(text, filter.getText())) {
+            filter.setText(text);
+            notifyModelListeners();
         }
-
-        if (!filterText.equals(text)) {
-            filterText = text;
-            TableModelEvent modelEvent = new TableModelEvent(this);
-            listeners.notify(l -> l.tableChanged(modelEvent));
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Get the list of conversations filtered by the current filter text
-     *
-     * @return Filtered list of conversations
-     */
-    public List<PersistentChatConversation> getFilteredConversations() {
-        if (filterText.isEmpty()) {
-            return conversations;
-        }
-
-        String lowerFilter = filterText.toLowerCase();
-        return conversations.stream()
-                .filter(conversation ->
-                        conversation.getTitle().toLowerCase().contains(lowerFilter) ||
-                                conversation.getId().toString().toLowerCase().contains(lowerFilter))
-                .collect(java.util.stream.Collectors.toList());
     }
 
     /**
@@ -145,10 +120,9 @@ public class ConversationHistoryTableModel extends StatefulDisposableBase implem
      *
      * @param conversations New list of conversations
      */
-    public void setConversations(List<PersistentChatConversation> conversations) {
-        this.conversations = new ArrayList<>(conversations);
-        TableModelEvent modelEvent = new TableModelEvent(this);
-        listeners.notify(l -> l.tableChanged(modelEvent));
+    public void setConversations(List<ChatConversation> conversations) {
+        this.conversations = FilteredList.stateful(filter, conversations);
+        notifyModelListeners();
     }
 
     @Override
@@ -161,6 +135,11 @@ public class ConversationHistoryTableModel extends StatefulDisposableBase implem
         listeners.remove(l);
     }
 
+    private void notifyModelListeners() {
+        TableModelEvent modelEvent = new TableModelEvent(this);
+        listeners.notify(l -> l.tableChanged(modelEvent));
+    }
+
     /**
      * Get the ID of a conversation at the specified row index
      *
@@ -168,10 +147,9 @@ public class ConversationHistoryTableModel extends StatefulDisposableBase implem
      * @return The conversation ID or null if out of bounds
      */
     @Nullable
-    public Object getIdAt(int rowIndex) {
-        List<PersistentChatConversation> filtered = getFilteredConversations();
-        if (rowIndex >= 0 && rowIndex < filtered.size()) {
-            return filtered.get(rowIndex).getId();
+    public String getIdAt(int rowIndex) {
+        if (rowIndex >= 0 && rowIndex < conversations.size()) {
+            return conversations.get(rowIndex).getId();
         }
         return null;
     }

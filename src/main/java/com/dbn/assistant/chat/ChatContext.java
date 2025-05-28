@@ -19,14 +19,17 @@ package com.dbn.assistant.chat;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.object.DBAIProfile;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
@@ -34,6 +37,7 @@ import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Strings.isNotEmpty;
 
 /**
  * Chat message context - preserving profile, model and action selection against an AI response message
@@ -50,7 +54,6 @@ public class ChatContext implements PersistentStateElement {
     private AIModel model;
     private PromptAction action = PromptAction.SHOW_SQL;
     private boolean interactive;
-    private boolean active = true; // whether conv is discontinued
 
     public ChatContext(String profile, AIModel model, PromptAction action, boolean interactive) {
         this.profile = profile;
@@ -59,9 +62,43 @@ public class ChatContext implements PersistentStateElement {
         this.interactive = interactive;
     }
 
+    public ChatContext copy() {
+        return new ChatContext(profile, model, action, interactive);
+    }
+
     public String getAttributes() {
         Map<String, String> attributes = Map.of("model", model.getApiName());
         return GSON.toJson(attributes);
+    }
+
+    public boolean isInitialized() {
+        return isNotEmpty(profile) && model != null;
+    }
+
+    public void initialize(@Nullable DBAIProfile profile) {
+        if (profile == null) {
+            this.profile = null;
+            this.model = null;
+            this.interactive = false;
+
+        } else {
+            this.profile = profile.getName();
+            this.model = profile.getModel();
+            this.interactive = profile.isInteractive();
+        }
+    }
+
+    public boolean isProfileSwitch(ChatContext that) {
+        return !Objects.equals(this.profile, that.profile);
+    }
+
+    public boolean isModelSwitch(ChatContext that) {
+        return !Objects.equals(this.model, that.model);
+    }
+
+    public boolean isInterruptingActionSwitch(ChatContext that) {
+        // when switched between CHAT and any other action, the conversation is interrupted
+        return (this.action == PromptAction.CHAT) == (that.action != PromptAction.CHAT);
     }
 
     @Override
@@ -69,8 +106,7 @@ public class ChatContext implements PersistentStateElement {
         profile = stringAttribute(element, "profile");
         model = AIModel.forId(stringAttribute(element, "model"));
         action = enumAttribute(element, "action", PromptAction.class);
-        interactive = booleanAttribute(element, "interactive", true);
-        active = booleanAttribute(element, "active", true);
+        interactive = booleanAttribute(element, "interactive", interactive);
     }
 
     @Override
@@ -79,6 +115,10 @@ public class ChatContext implements PersistentStateElement {
         setStringAttribute(element, "model", AIModel.getId(model));
         setEnumAttribute(element, "action", action);
         setBooleanAttribute(element, "interactive", interactive);
-        setBooleanAttribute(element, "active", active);
+    }
+
+    @Override
+    public String toString() {
+        return profile + " / " + model + " / " + action;
     }
 }

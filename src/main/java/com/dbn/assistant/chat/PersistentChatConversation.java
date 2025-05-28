@@ -24,10 +24,11 @@ import lombok.Setter;
 import org.jdom.Element;
 
 import java.util.List;
-import java.util.Objects;
 
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.longAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setLongAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -55,6 +56,7 @@ public class PersistentChatConversation extends ChatConversation implements Pers
         id = stringAttribute(element, "id");
         title = stringAttribute(element, "title");
         timestamp = longAttribute(element, "timestamp", 0L);
+        active = booleanAttribute(element, "active", true);
         List<Element> messagesElements = element.getChild("messages").getChildren();
         for(Element msgElement : messagesElements){
             PersistentChatMessage chatMessage = new PersistentChatMessage();
@@ -64,6 +66,11 @@ public class PersistentChatConversation extends ChatConversation implements Pers
         Element contextElement = element.getChild("context");
         context = new ChatContext();
         context.readState(contextElement);
+
+        if (context.isInteractive() && !isEmpty() && active) {
+            // interactive contexts can no longer be active at this stage
+            active = false;
+        }
     }
 
     @Override
@@ -71,6 +78,7 @@ public class PersistentChatConversation extends ChatConversation implements Pers
         setStringAttribute(element, "id", id);
         setStringAttribute(element, "title", title);
         setLongAttribute(element, "timestamp", timestamp);
+        setBooleanAttribute(element, "active", active);
         Element messagesElement = newElement("messages");
         element.addContent(messagesElement);
         for(PersistentChatMessage msg : messages){

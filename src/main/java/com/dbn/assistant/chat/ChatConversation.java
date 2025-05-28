@@ -26,6 +26,8 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.util.Strings.isNotEmpty;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -35,6 +37,7 @@ public class ChatConversation {
     protected ChatContext context;
     protected List<PersistentChatMessage> messages = new ArrayList<>();
     protected long timestamp = System.currentTimeMillis();
+    protected boolean active = true;
 
     public ChatConversation(ChatContext context) {
         this.context = context;
@@ -42,6 +45,10 @@ public class ChatConversation {
 
     public boolean isInteractive() {
         return context.isInteractive();
+    }
+
+    public boolean isPersisted() {
+        return isNotEmpty(title);
     }
 
     public boolean isEmpty() {
@@ -69,5 +76,4 @@ public class ChatConversation {
             message.setProgress(false);
         });
     }
-
 }

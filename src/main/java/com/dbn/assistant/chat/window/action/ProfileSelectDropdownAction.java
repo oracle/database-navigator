@@ -60,8 +60,7 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements DumbA
     @Override
     public void update(@NotNull AnActionEvent e) {
         ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
-        boolean enabled = chatBox != null && chatBox.getAssistantState().isAvailable();
-        if(chatBox != null) chatBox.statusLabel.update(chatBox.getLabelStatus());
+        boolean enabled = chatBox != null && chatBox.isPromptingAvailable();
 
         DBAIProfile profile = getSelectedProfile(e);
 

@@ -34,8 +34,9 @@ import static com.dbn.nls.NlsResources.txt;
 public class ConversationDeleteAction extends AbstractChatBoxAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        ConversationHistoryForm conversationHistoryForm = e.getData(DataKeys.CONVERSATION_HISTORY);
+        ConversationHistoryForm conversationHistoryForm = e.getData(DataKeys.CONVERSATION_HISTORY_FORM);
         if (conversationHistoryForm == null) return;
+
         ConversationHistoryDialog conversationHistoryDialog = conversationHistoryForm.getParentDialog();
         if (conversationHistoryDialog != null) conversationHistoryDialog.performDeleteAction();
 
@@ -43,8 +44,9 @@ public class ConversationDeleteAction extends AbstractChatBoxAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        ConversationHistoryForm conversationHistoryForm = e.getData(DataKeys.CONVERSATION_HISTORY);
+        ConversationHistoryForm conversationHistoryForm = e.getData(DataKeys.CONVERSATION_HISTORY_FORM);
         if (conversationHistoryForm == null) return;
+
         int selectedRowCount = conversationHistoryForm.getSelectedRowCount();
 
         Presentation presentation = e.getPresentation();

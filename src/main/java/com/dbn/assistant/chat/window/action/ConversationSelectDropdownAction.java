@@ -16,7 +16,7 @@
 
 package com.dbn.assistant.chat.window.action;
 
-import com.dbn.assistant.chat.PersistentChatConversation;
+import com.dbn.assistant.chat.ChatConversation;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.action.BasicActionGroup;
 import com.dbn.common.action.DataKeys;
@@ -28,30 +28,36 @@ import com.intellij.openapi.project.DumbAware;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Action for selecting an old conversation
  */
 public class ConversationSelectDropdownAction extends BasicActionGroup implements DumbAware {
+    private static final int MAX_SIZE = 5;
+
     @Override
     protected @NotNull AnAction[] loadChildren(AnActionEvent e) {
         ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
-        if (chatBox == null) return new AnAction[0];
+        if (chatBox == null) return AnAction.EMPTY_ARRAY;
 
-        List<PersistentChatConversation> conversations = chatBox.getConversations().stream().filter(conv -> conv.getTitle() != null && !conv.getTitle().isEmpty()).collect(Collectors.toList());
-        if (conversations.isEmpty()) return new AnAction[0];
+        List<ChatConversation> conversations = chatBox.getAssistantState().getSavedConversations();
+        if (conversations.isEmpty()) return AnAction.EMPTY_ARRAY;
 
         List<AnAction> actionList = new ArrayList<>();
 
-        conversations.stream()
-                .limit(3)
-                .forEach(c -> actionList.add(new ConversationSelectAction(c)));
+        // show most recent conversations first
+        conversations.
+                stream().
+                sorted(Comparator.comparingLong(c -> System.currentTimeMillis() - c.getTimestamp())).
+                limit(MAX_SIZE).
+                forEach(c -> actionList.add(new ConversationSelectAction(c)));
 
-        actionList.add(Separator.create());
-
-        actionList.add(new ConversationShowAllAction(conversations));
+        if (conversations.size() > MAX_SIZE) {
+            actionList.add(Separator.create());
+            actionList.add(new ConversationShowAllAction(conversations));
+        }
 
         return actionList.toArray(new AnAction[0]);
     }

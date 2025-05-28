@@ -38,6 +38,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
@@ -46,6 +49,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Strings.isNotEmpty;
 
 /**
  * Assistant state holder
@@ -67,10 +71,9 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
 
   private ConnectionId connectionId;
   private DatabaseAssistantType assistantType = DatabaseAssistantType.GENERIC;
-  private Map<String, PersistentChatConversation> conversations = new LinkedHashMap<>();
+  private Map<String, ChatConversation> conversations = new LinkedHashMap<>();
   private String defaultProfileName;
-  private boolean listeningForContextChanges = true;
-  private String selectedConversationId;
+  private String currentConversationId;
 
   public static final short MAX_CHAR_MESSAGE_COUNT = 100;
 
@@ -91,22 +94,78 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     }
   }
 
-  public PersistentChatConversation setCurrentConversation(ChatContext chatContext) {
-    PersistentChatConversation currentConversation = new PersistentChatConversation();
-    currentConversation.setContext(chatContext);
-    selectedConversationId = currentConversation.getId();
-    conversations.put(selectedConversationId, currentConversation);
-    return currentConversation;
+  public ChatConversation getConversation(String conversationId) {
+    return conversations.get(conversationId);
+  }
+
+  public Set<String> getConversationTitles() {
+    return conversations.
+            values().
+            stream().
+            map(c -> c.getTitle()).
+            filter(t -> isNotEmpty(t)).
+            collect(Collectors.toSet());
+  }
+
+  public List<ChatConversation> getSavedConversations() {
+    return conversations.
+            values().
+            stream().
+            filter(c -> c.isPersisted()).
+            collect(Collectors.toList());
+  }
+
+  public ChatConversation createConversation(ChatContext chatContext) {
+    ChatConversation conversation = new PersistentChatConversation();
+    conversation.setContext(chatContext);
+    String conversationId = conversation.getId();
+
+    conversations.put(conversationId, conversation);
+    setCurrentConversationId(conversationId);
+    return conversation;
+  }
+
+  public void deleteConversation(String conversationId){
+    conversations.remove(conversationId);
+  }
+
+  public void deleteConversations(List<String> conversationIds){
+    conversationIds.forEach(id -> deleteConversation(id));
+  }
+
+  public void deleteObsoleteConversations() {
+    conversations.keySet().removeIf(id -> isObsoleteConversation(id));
+  }
+
+  public boolean isCurrentConversation(ChatConversation conversation) {
+    return Objects.equals(currentConversationId, conversation.getId());
+  }
+
+  private boolean isObsoleteConversation(String conversationId) {
+    ChatConversation conversation = getConversation(conversationId);
+    if (conversation.isPersisted()) return false;
+    if (isCurrentConversation(conversation)) return false;
+    if (conversation.isEmpty()) return true; // empty unsaved conversations are
+    return false;
   }
 
   public synchronized ChatConversation getCurrentConversation() {
-    if(selectedConversationId == null || !conversations.containsKey(selectedConversationId)) {
-      PersistentChatConversation currentConversation = new PersistentChatConversation();
+    ChatConversation currentConversation = conversations.get(currentConversationId);
+    if (currentConversation == null) {
+      currentConversation = new PersistentChatConversation();
       currentConversation.setContext(new ChatContext());
-      selectedConversationId = currentConversation.getId();
-      conversations.put(selectedConversationId, currentConversation);
+      currentConversationId = currentConversation.getId();
+      conversations.put(currentConversationId, currentConversation);
     }
-    return conversations.get(selectedConversationId);
+    return currentConversation;
+  }
+
+  public ChatContext getCurrentContext() {
+    return getCurrentConversation().getContext();
+  }
+
+  public void setCurrentContext(ChatContext context) {
+    getCurrentConversation().setContext(context);
   }
 
   public boolean isSupported() {
@@ -124,22 +183,33 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
             isNot(AssistantStatus.QUERYING);
   }
 
+  public boolean isPromptingAvailable() {
+    if (!isAvailable()) return false;
+
+    ChatContext context = getCurrentContext();
+    if (!context.isInitialized()) return false;
+
+    ChatConversation conversation = getCurrentConversation();
+    if (!conversation.isActive()) return false;
+
+    return true;
+  }
+
   public void setDefaultProfile(@Nullable DBAIProfile profile) {
-    defaultProfileName = profile == null ? null : profile.getName();
+    setDefaultProfileName(profile == null ? null : profile.getName());
   }
 
+  @Nullable
   public String getSelectedProfileName() {
-    ChatConversation currentConversation = getCurrentConversation();
-    if(currentConversation.getContext()!=null) {
-      return currentConversation.getContext().getProfile();
-    } else return null;
+    ChatContext context = getCurrentContext();
+    return context.getProfile();
   }
 
+  @Nullable
   public String getSelectedModelName() {
-    ChatConversation currentConversation = getCurrentConversation();
-    if(currentConversation.getContext()!=null && currentConversation.getContext().getModel()!=null) {
-      return currentConversation.getContext().getModel().getId();
-    } else return null;
+    ChatContext context = getCurrentContext();
+    AIModel model = context.getModel();
+    return model == null ? null : model.getId();
   }
 
   public PromptAction getSelectedAction() {
@@ -150,10 +220,6 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
    getCurrentConversation().addMessages(messages);
   }
 
-  public ChatContext getChatContext() {
-    return getCurrentConversation().getContext();
-  }
-
   public void clearMessages() {
     getCurrentConversation().getMessages().clear();
   }
@@ -162,7 +228,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   public void readState(Element element) {
     connectionId = connectionIdAttribute(element, "connection-id");
     defaultProfileName = stringAttribute(element, "default-profile-name");
-    selectedConversationId = stringAttribute(element, "selected-conversation-id");
+    currentConversationId = stringAttribute(element, "selected-conversation-id");
     assistantType = enumAttribute(element, "assistant-type", assistantType);
     availability = enumAttribute(element, "availability", availability);
     acknowledgement = enumAttribute(element, "acknowledgement", acknowledgement);
@@ -182,7 +248,8 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     String selectedModelName = stringAttribute(element, "selected-model-name");
     PromptAction selectedAction = enumAttribute(element, "selected-action", PromptAction.class);
     if(selectedProfileName != null) {
-      PersistentChatConversation currentConversation = setCurrentConversation(new ChatContext(selectedProfileName, AIModel.forId(selectedModelName), selectedAction, false));
+      ChatContext context = new ChatContext(selectedProfileName, AIModel.forId(selectedModelName), selectedAction, false);
+      ChatConversation currentConversation = createConversation(context);
       for (Element messageElement : messageElements) {
         PersistentChatMessage message = new PersistentChatMessage();
         message.readState(messageElement);
@@ -195,15 +262,19 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   public void writeState(Element element) {
     setStringAttribute(element, "connection-id", connectionId.id());
     setStringAttribute(element, "default-profile-name", defaultProfileName);
-    setStringAttribute(element, "selected-conversation-id", selectedConversationId);
+    setStringAttribute(element, "selected-conversation-id", currentConversationId);
     setEnumAttribute(element, "assistant-type", assistantType);
     setEnumAttribute(element, "availability", availability);
     setEnumAttribute(element, "acknowledgement", acknowledgement);
 
     Element conversationsElement = newElement(element, "conversations");
-    for (PersistentChatConversation conversation : conversations.values()) {
-      Element conversationElement = newElement(conversationsElement, "conversation");
-      conversation.writeState(conversationElement);
+    for (ChatConversation conversation : conversations.values()) {
+        if (isObsoleteConversation(conversation.getId())) continue;
+
+        Element conversationElement = newElement(conversationsElement, "conversation");
+        PersistentChatConversation persistentConversation = (PersistentChatConversation) conversation;
+        persistentConversation.writeState(conversationElement);
     }
   }
+
 }
