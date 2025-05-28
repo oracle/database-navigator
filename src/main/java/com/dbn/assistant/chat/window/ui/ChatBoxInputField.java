@@ -16,6 +16,8 @@
 
 package com.dbn.assistant.chat.window.ui;
 
+import com.dbn.assistant.chat.ChatAvailability;
+import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateListener;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
@@ -47,6 +49,7 @@ import com.intellij.psi.impl.PsiManagerEx;
 import com.intellij.psi.impl.file.impl.FileManager;
 import com.intellij.testFramework.LightVirtualFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -104,8 +107,31 @@ public class ChatBoxInputField extends JPanel implements Disposable {
     }
 
     private void refreshComponentState() {
-        boolean promptingAvailable = getChatBox().isPromptingAvailable();
-        setReadonly(!promptingAvailable);
+        ChatBoxForm chatBox = getChatBox();
+        AssistantState state = chatBox.getAssistantState();
+        ChatAvailability availability = state.getChatAvailability();
+
+        boolean readonly = availability != ChatAvailability.AVAILABLE;
+        String readonlyHint = computeReadonlyHint(availability);
+
+        Editors.setEditorReadonly(editor, readonly);
+        Editors.setEditorReadonlyHint(editor, readonlyHint);
+
+        UserInterface.repaint(this);
+    }
+
+    @Nullable
+    private String computeReadonlyHint(ChatAvailability availability) {
+        switch (availability) {
+            case AVAILABLE: return null;
+            case BUSY_QUERYING: return "Assistant is processing your request...";
+            case BUSY_INITIALIZING: return "Assistant is initializing...";
+            case INACTIVE_CHAT_SELECTED: return "This chat is no longer active";
+            case NO_PROFILE_AVAILABLE: return "No profiles available for this connection. Please setup profiles to continue";
+            case NO_PROFILE_SELECTED: return "No profile selected. Please select a profile to continue";
+        }
+
+        return null;
     }
 
     private Project getProject() {
@@ -142,16 +168,11 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         return text;
     }
 
-    private void setReadonly(boolean readonly) {
-        Editors.setEditorReadonly(editor, readonly);
-        UserInterface.repaint(this);
-    }
-
     private EditorEx createEditor() {
         PlainTextLanguage language = PlainTextLanguage.INSTANCE;
         VirtualFile file = new LightVirtualFile("prompt.txt", language, "");
 
-        Project project = getChatBox().getProject();
+        Project project = getChatBox().ensureProject();
         PsiManagerEx psiManager = (PsiManagerEx) PsiManager.getInstance(project);
         FileManager fileManager = psiManager.getFileManager();
         FileViewProvider viewProvider = fileManager.createFileViewProvider(file, true);
@@ -202,7 +223,10 @@ public class ChatBoxInputField extends JPanel implements Disposable {
             }
 
             ChatBoxForm chatBox = getChatBox();
-            if (chatBox.isPromptingAvailable()) {
+            AssistantState state = chatBox.getAssistantState();
+            ChatAvailability availability = state.getChatAvailability();
+
+            if (availability == ChatAvailability.AVAILABLE) {
                 chatBox.submitPrompt();
             } else {
                 Documents.setText(document, text.toString().trim());

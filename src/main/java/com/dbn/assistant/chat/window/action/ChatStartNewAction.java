@@ -16,7 +16,7 @@
 
 package com.dbn.assistant.chat.window.action;
 
-import com.dbn.assistant.chat.Chat;
+import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.ChatContextEvent;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
@@ -56,14 +56,11 @@ public class ChatStartNewAction extends AbstractChatBoxAction {
         e.getPresentation().setEnabled(enabled);
     }
 
-    private static boolean isEnabled(@NotNull AnActionEvent e) {
-        AssistantState state = getAssistantState(e);
-        if (state == null) return false;
-        if (!state.isCurrentChatActive()) return true;
+    private boolean isEnabled(@NotNull AnActionEvent e) {
+        ChatAvailability availability = getChatAvailability(e);
 
-        Chat chat = state.getCurrentChat();
-        if (chat.isEmpty()) return false;
-
-        return true;
+        return availability.isOneOf(
+                ChatAvailability.AVAILABLE,
+                ChatAvailability.INACTIVE_CHAT_SELECTED);
     }
 }

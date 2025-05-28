@@ -36,7 +36,6 @@ import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.common.util.Strings.isNotEmpty;
 
 /**
  * Chat message context - preserving profile, model and action selection against an AI response message
@@ -63,10 +62,6 @@ public final class ChatContext implements PersistentStateElement {
     public String getAttributes() {
         Map<String, String> attributes = Map.of("model", model.getApiName());
         return GSON.toJson(attributes);
-    }
-
-    public boolean isInitialized() {
-        return isNotEmpty(profile) && model != null;
     }
 
     public void initialize(@Nullable DBAIProfile profile) {

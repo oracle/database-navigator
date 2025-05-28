@@ -16,8 +16,10 @@
 
 package com.dbn.assistant.state;
 
+import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.DatabaseAssistantType;
 import com.dbn.assistant.chat.Chat;
+import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.message.PersistentChatMessage;
 import com.dbn.assistant.chat.window.PromptAction;
@@ -26,14 +28,18 @@ import com.dbn.common.feature.FeatureAcknowledgement;
 import com.dbn.common.feature.FeatureAvailability;
 import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.common.util.Lists;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.object.DBAIProfile;
+import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +47,18 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
+import static com.dbn.assistant.chat.ChatAvailability.BUSY_INITIALIZING;
+import static com.dbn.assistant.chat.ChatAvailability.BUSY_QUERYING;
+import static com.dbn.assistant.chat.ChatAvailability.INACTIVE_CHAT_SELECTED;
+import static com.dbn.assistant.chat.ChatAvailability.NOT_INITIALIZED;
+import static com.dbn.assistant.chat.ChatAvailability.NOT_SUPPORTED;
+import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_AVAILABLE;
+import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_SELECTED;
+import static com.dbn.assistant.state.AssistantStatus.INITIALIZING;
+import static com.dbn.assistant.state.AssistantStatus.QUERYING;
+import static com.dbn.assistant.state.AssistantStatus.UNAVAILABLE;
+import static com.dbn.assistant.state.AssistantStatus.VALUES;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
@@ -85,7 +103,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
 
   @Override
   protected AssistantStatus[] properties() {
-    return AssistantStatus.VALUES;
+    return VALUES;
   }
 
   public String getAssistantName() {
@@ -190,19 +208,23 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
    */
   public boolean isAvailable() {
     return isSupported() &&
-            isNot(AssistantStatus.INITIALIZING) &&
-            isNot(AssistantStatus.UNAVAILABLE) &&
-            isNot(AssistantStatus.QUERYING);
+            isNot(INITIALIZING) &&
+            isNot(UNAVAILABLE) &&
+            isNot(QUERYING);
   }
 
-  public boolean isPromptingAvailable() {
-    if (!isAvailable()) return false;
+  public ChatAvailability getChatAvailability() {
+    if (!isSupported()) return NOT_SUPPORTED;
 
-    ChatContext context = getCurrentContext();
-    if (!context.isInitialized()) return false;
-    if (!isCurrentChatActive()) return false;
+    if (is(UNAVAILABLE)) return NOT_INITIALIZED;
+    if (is(INITIALIZING)) return BUSY_INITIALIZING;
+    if (is(QUERYING)) return BUSY_QUERYING;
 
-    return true;
+    if (!isCurrentChatActive()) return INACTIVE_CHAT_SELECTED;
+    if (getProfiles().isEmpty()) return NO_PROFILE_AVAILABLE;
+    if (!isCurrentContextValid()) return NO_PROFILE_SELECTED;
+
+    return AVAILABLE;
   }
 
   public boolean isCurrentChatInteractive() {
@@ -218,6 +240,20 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     if (isEmpty(sessionSignature) && isEmpty(currentSessionSignature)) return conversation.isEmpty(); // empty chat not yet started or initialized (assume active)
 
     return Objects.equals(sessionSignature, currentSessionSignature);
+  }
+
+  public boolean isCurrentContextValid() {
+    ChatContext context = getCurrentContext();
+    String profileName = context.getProfile();
+    AIModel model = context.getModel();
+
+    if (isEmpty(profileName)) return false;
+    if (model == null) return false;
+
+    DBAIProfile profile = getProfile(profileName);
+    if (profile == null) return false;
+
+    return true;
   }
 
   public void setDefaultProfile(@Nullable DBAIProfile profile) {
@@ -241,13 +277,20 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     return getCurrentChat().getContext().getAction();
   }
 
-  public void addMessages(List<PersistentChatMessage> messages) {
-   getCurrentChat().addMessages(messages);
+  public DBAIProfile getProfile(String name) {
+    List<DBAIProfile> profiles = getProfiles();
+    return Lists.first(profiles, p -> p.getName().equals(name));
   }
 
-  public void clearMessages() {
-    getCurrentChat().getMessages().clear();
+  public List<DBAIProfile> getProfiles() {
+    ConnectionHandler connection = ConnectionHandler.get(connectionId);
+    if (connection == null) return Collections.emptyList();
+
+    Project project = connection.getProject();
+    DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
+    return manager.getProfiles(connectionId);
   }
+
 
   @Override
   public void readState(Element element) {

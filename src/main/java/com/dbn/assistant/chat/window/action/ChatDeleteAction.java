@@ -71,7 +71,7 @@ public class ChatDeleteAction extends AbstractChatBoxAction {
 
     }
 
-    private static boolean isEnabled(@NotNull AnActionEvent e) {
+    private boolean isEnabled(@NotNull AnActionEvent e) {
         AssistantState state = getAssistantState(e);
         if (state == null) return false;
 
@@ -81,7 +81,7 @@ public class ChatDeleteAction extends AbstractChatBoxAction {
         return true;
     }
 
-    private static boolean isPersisted(@NotNull AnActionEvent e) {
+    private boolean isPersisted(@NotNull AnActionEvent e) {
         AssistantState state = getAssistantState(e);
         if (state == null) return false;
 

@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.chat.window.action;
 
+import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -23,6 +24,7 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -41,12 +43,16 @@ public class PromptSubmitAction extends AbstractChatBoxAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        ChatBoxForm chatBox = getChatBox(e);
-        boolean enabled = chatBox != null && chatBox.isPromptingAvailable();
+        boolean enabled = isEnabled(e);
 
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.ACTION_EXECUTE);
         presentation.setText(txt("app.assistant.action.SubmitPrompt"));
         presentation.setEnabled(enabled);
+    }
+
+    private boolean isEnabled(@NotNull AnActionEvent e) {
+        ChatAvailability availability = getChatAvailability(e);
+        return availability == AVAILABLE;
     }
 }

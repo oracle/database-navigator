@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.chat.window.action;
+package com.dbn.assistant.chat;
 
-import com.dbn.common.action.ProjectAction;
+import com.dbn.common.constant.Constant;
 
-/**
- * Abstract basic implementation for actions presented in the ChatBox
- * Features lookup utilities for the chat box component as well as the state of the assistant interface
- *
- * @author Dan Cioca (Oracle)
- */
-public abstract class AbstractChatBoxAction extends ProjectAction implements AssistantActionSupport {
+public enum ChatAvailability implements Constant<ChatAvailability> {
+    AVAILABLE,
+
+    NOT_SUPPORTED,
+    NOT_INITIALIZED,
+
+    BUSY_QUERYING,
+    BUSY_INITIALIZING,
+
+    INACTIVE_CHAT_SELECTED,
+    NO_PROFILE_AVAILABLE,
+    NO_PROFILE_SELECTED
+
 
 }

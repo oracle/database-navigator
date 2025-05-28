@@ -16,11 +16,17 @@
 
 package com.dbn.assistant.chat.window.action;
 
+import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
+import static com.dbn.assistant.chat.ChatAvailability.NOT_INITIALIZED;
+import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_AVAILABLE;
+import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_SELECTED;
 
 /**
  * Action for refreshing (reloading) the AI-assistant profiles
@@ -38,10 +44,18 @@ public class ProfilesRefreshAction extends AbstractChatBoxAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        ChatBoxForm chatBox = getChatBox(e);
-        boolean enabled = chatBox != null && chatBox.isPromptingAvailable();
+        boolean enabled = isEnabled(e);
 
         Presentation presentation = e.getPresentation();
         presentation.setEnabled(enabled);
+    }
+
+    private boolean isEnabled(@NotNull AnActionEvent e) {
+        ChatAvailability availability = getChatAvailability(e);
+        return availability.isOneOf(
+                AVAILABLE,
+                NOT_INITIALIZED,
+                NO_PROFILE_AVAILABLE,
+                NO_PROFILE_SELECTED);
     }
 }

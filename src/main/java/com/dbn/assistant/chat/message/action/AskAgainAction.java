@@ -16,9 +16,9 @@
 
 package com.dbn.assistant.chat.message.action;
 
+import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.action.BasicAction;
-import com.dbn.common.action.DataKeys;
 import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class AskAgainAction extends BasicAction {
+public class AskAgainAction extends BasicAction implements AssistantActionSupport {
   private final String content;
 
   public AskAgainAction(String content) {
@@ -42,9 +42,10 @@ public class AskAgainAction extends BasicAction {
   }
 
   @Override
-  public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
-    ChatBoxForm chatBox = anActionEvent.getData(DataKeys.ASSISTANT_CHAT_BOX);
-    assert chatBox != null;
+  public void actionPerformed(@NotNull AnActionEvent e) {
+    ChatBoxForm chatBox = getChatBox(e);
+    if (chatBox == null) return;
+
     chatBox.submitPrompt(content);
   }
 

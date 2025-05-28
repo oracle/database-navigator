@@ -17,6 +17,7 @@ package com.dbn.assistant.chat.window.ui;
 
 import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.chat.Chat;
+import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.ChatContextEvent;
 import com.dbn.assistant.chat.ChatInterruptionReason;
@@ -354,10 +355,6 @@ public class ChatBoxForm extends DBNFormBase {
     messageContainer = new RollingMessageContainer(AssistantState.MAX_CHAR_MESSAGE_COUNT, chatPanel);
   }
 
-  public boolean isPromptingAvailable() {
-    return getAssistantState().isPromptingAvailable();
-  }
-
   public ChatContext getCurrentContext() {
     return getCurrentChat().getContext();
   }
@@ -376,7 +373,9 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   private void processQuery(String question) {
-    if (!isPromptingAvailable()) return;
+    AssistantState state = getAssistantState();
+    ChatAvailability availability = state.getChatAvailability();
+    if (availability != ChatAvailability.AVAILABLE) return;
 
     ConnectionId connectionId = getConnectionId();
     DatabaseAssistantManager manager = getManager();
@@ -390,7 +389,6 @@ public class ChatBoxForm extends DBNFormBase {
     question = nvl(question, prompt);
     if (Strings.isEmptyOrSpaces(question)) return;
 
-    AssistantState state = getAssistantState();
     state.set(QUERYING, true);
 
     PromptAction actionType = state.getSelectedAction();
@@ -469,9 +467,11 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   private void initCurrentChat() {
-    ChatContext context = getCurrentContext();
-    if (!context.isInitialized()) {
+    AssistantState state = getAssistantState();
+    if (!state.isCurrentContextValid()) {
       DBAIProfile firstProfile = firstElement(getProfiles());
+
+      ChatContext context = getCurrentContext();
       context.initialize(firstProfile);
     }
   }
@@ -485,9 +485,10 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   private void appendMessage(PersistentChatMessage message) {
-    List<PersistentChatMessage> messages = List.of(message);
-    getAssistantState().addMessages(messages);
-    dispatch(() -> messageContainer.addAll(messages, this));
+    Chat chat = getCurrentChat();
+    chat.addMessage(message);
+
+    dispatch(() -> messageContainer.addAll(List.of(message), this));
     dispatch(() -> scrollDown());
     updateActionToolbars();
   }

@@ -19,7 +19,6 @@ package com.dbn.assistant.chat.window.action;
 import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.action.BasicActionGroup;
-import com.dbn.common.action.DataKeys;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -34,12 +33,12 @@ import java.util.List;
 /**
  * Action for selecting an old chat
  */
-public class ChatHistoryDropdownAction extends BasicActionGroup implements DumbAware {
+public class ChatHistoryDropdownAction extends BasicActionGroup implements DumbAware, AssistantActionSupport {
     private static final int MAX_SIZE = 5;
 
     @Override
     protected @NotNull AnAction[] loadChildren(AnActionEvent e) {
-        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
+        ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return AnAction.EMPTY_ARRAY;
 
         List<Chat> chats = chatBox.getAssistantState().getSavedChats();
