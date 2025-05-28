@@ -24,7 +24,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,10 +43,9 @@ import static com.dbn.common.util.Strings.isNotEmpty;
  *
  * @author Dan Cioca (Oracle)
  */
-@Getter
-@Setter
+@Getter // pseudo final (no setters)
 @NoArgsConstructor
-public class ChatContext implements PersistentStateElement {
+public final class ChatContext implements PersistentStateElement {
     private static final Gson GSON = new GsonBuilder().create();
 
     private String profile;
@@ -60,10 +58,6 @@ public class ChatContext implements PersistentStateElement {
         this.model = model;
         this.action = action;
         this.interactive = interactive;
-    }
-
-    public ChatContext copy() {
-        return new ChatContext(profile, model, action, interactive);
     }
 
     public String getAttributes() {

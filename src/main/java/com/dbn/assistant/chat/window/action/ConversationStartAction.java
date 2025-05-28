@@ -36,9 +36,8 @@ public class ConversationStartAction extends AbstractChatBoxAction {
         if (chatBox == null) return;
 
         AssistantState assistantState = chatBox.getAssistantState();
-        ChatContext oldContext = assistantState.getCurrentContext();
-        ChatContext newContext = oldContext.copy();
-        ChatContextEvent event = new ChatContextEvent(newContext, newContext, null, true);
+        ChatContext currentContext = assistantState.getCurrentContext();
+        ChatContextEvent event = new ChatContextEvent(currentContext, currentContext, null, true);
 
         chatBox.processContextEvent(event);
     }

@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
  */
 @Getter
 @Setter
-public class ChatContextEvent {
+public final class ChatContextEvent {
     private final ChatContext currentContext;
     private final ChatContext targetContext;
     private final String targetConversationId;

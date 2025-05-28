@@ -40,8 +40,9 @@ public class ConversationSelectAction extends AbstractChatBoxAction {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
-        ChatContext chatContext = chatBox.getAssistantState().getCurrentContext();
-        ChatContextEvent event = new ChatContextEvent(chatContext, conversation.getContext(), conversation.getId(), false);
+        ChatContext currentContext = chatBox.getAssistantState().getCurrentContext();
+        ChatContext targetContext = conversation.getContext();
+        ChatContextEvent event = new ChatContextEvent(currentContext, targetContext, conversation.getId(), false);
         chatBox.processContextEvent(event);
     }
 

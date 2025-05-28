@@ -19,7 +19,6 @@ package com.dbn.assistant.state;
 import com.dbn.assistant.DatabaseAssistantType;
 import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.ChatConversation;
-import com.dbn.assistant.chat.PersistentChatConversation;
 import com.dbn.assistant.chat.message.PersistentChatMessage;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.provider.AIModel;
@@ -116,7 +115,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   }
 
   public ChatConversation createConversation(ChatContext chatContext) {
-    ChatConversation conversation = new PersistentChatConversation();
+    ChatConversation conversation = new ChatConversation();
     conversation.setContext(chatContext);
     String conversationId = conversation.getId();
 
@@ -152,7 +151,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   public synchronized ChatConversation getCurrentConversation() {
     ChatConversation currentConversation = conversations.get(currentConversationId);
     if (currentConversation == null) {
-      currentConversation = new PersistentChatConversation();
+      currentConversation = new ChatConversation();
       currentConversation.setContext(new ChatContext());
       currentConversationId = currentConversation.getId();
       conversations.put(currentConversationId, currentConversation);
@@ -236,7 +235,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     Element conversationsElement = element.getChild("conversations");
     List<Element> conversationElements = childrenOf(conversationsElement);
     for (Element conversationElement : conversationElements) {
-      PersistentChatConversation conversation = new PersistentChatConversation();
+      ChatConversation conversation = new ChatConversation();
       conversation.readState(conversationElement);
       conversations.put(conversation.getId(), conversation);
     }
@@ -269,11 +268,10 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
 
     Element conversationsElement = newElement(element, "conversations");
     for (ChatConversation conversation : conversations.values()) {
-        if (isObsoleteConversation(conversation.getId())) continue;
+      if (isObsoleteConversation(conversation.getId())) continue;
 
-        Element conversationElement = newElement(conversationsElement, "conversation");
-        PersistentChatConversation persistentConversation = (PersistentChatConversation) conversation;
-        persistentConversation.writeState(conversationElement);
+      Element conversationElement = newElement(conversationsElement, "conversation");
+      conversation.writeState(conversationElement);
     }
   }
 

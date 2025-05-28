@@ -215,23 +215,26 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   public void selectProfile(DBAIProfile profile) {
-    ChatContext oldContext = getAssistantState().getCurrentContext();
-    ChatContext newContext = new ChatContext(profile.getName(), profile.getModel(), getAssistantState().getSelectedAction(), profile.isInteractive());
-    ChatContextEvent event = new ChatContextEvent(oldContext, newContext, null, false);
+    // preserve action from the current context
+    ChatContext currentContext = getAssistantState().getCurrentContext();
+    ChatContext targetContext = new ChatContext(profile.getName(), profile.getModel(), currentContext.getAction(), profile.isInteractive());
+    ChatContextEvent event = new ChatContextEvent(currentContext, targetContext, null, false);
     processContextEvent(event);
   }
 
   public void selectModel(AIModel model) {
-    ChatContext oldContext = getAssistantState().getCurrentContext();
-    ChatContext newContext = new ChatContext(oldContext.getProfile(), model, getAssistantState().getSelectedAction(), oldContext.isInteractive());
-    ChatContextEvent event = new ChatContextEvent(oldContext, newContext, null, false);
+    // preserve profile and action from the current context
+    ChatContext currentContext = getAssistantState().getCurrentContext();
+    ChatContext targetContext = new ChatContext(currentContext.getProfile(), model, currentContext.getAction(), currentContext.isInteractive());
+    ChatContextEvent event = new ChatContextEvent(currentContext, targetContext, null, false);
     processContextEvent(event);
   }
 
   public void selectAction(PromptAction action) {
-    ChatContext oldContext = getAssistantState().getCurrentContext();
-    ChatContext newContext = new ChatContext(oldContext.getProfile(), oldContext.getModel(), action, oldContext.isInteractive());
-    ChatContextEvent event = new ChatContextEvent(oldContext, newContext, null, false);
+    // preserve profile and model from the current context
+    ChatContext currentContext = getAssistantState().getCurrentContext();
+    ChatContext targetContext = new ChatContext(currentContext.getProfile(), currentContext.getModel(), action, currentContext.isInteractive());
+    ChatContextEvent event = new ChatContextEvent(currentContext, targetContext, null, false);
     processContextEvent(event);
   }
 
@@ -260,17 +263,21 @@ public class ChatBoxForm extends DBNFormBase {
     conversation.setActive(!conversation.isInteractive());
   }
 
-  private void deleteCurrentConversation() {
-    AssistantState assistantState = getAssistantState();
-    deleteConversation(assistantState.getCurrentConversationId());
+   public void deleteCurrentConversation() {
+    ChatContext context = getCurrentContext();
+    discardCurrentConversation();
+
+    // start a new conversation
+    startConversation(context);
   }
 
-  private void deleteConversation(String conversationId) {
-    AssistantState assistantState = getAssistantState();
-    assistantState.deleteConversation(conversationId);
+  private void discardCurrentConversation() {
+    AssistantState state = getAssistantState();
+    String conversationId = state.getCurrentConversationId();
+    state.deleteConversation(conversationId);
   }
 
-  public void performContextSwitch(ChatContextEvent event) {
+  private void performContextSwitch(ChatContextEvent event) {
     ChatContext targetContext = event.getTargetContext();
     String targetConversationId = event.getTargetConversationId();
 
@@ -294,12 +301,6 @@ public class ChatBoxForm extends DBNFormBase {
   public void cancelContextSwitch() {
     // no changes, just refresh actions
     updateActionToolbars();
-  }
-
-  public void clearConversation() {
-    // TODO delete conversation vs clear conversation
-    messageContainer.clear();
-    getAssistantState().clearMessages();
   }
 
   public void processContextEvent(ChatContextEvent event) {
@@ -339,7 +340,7 @@ public class ChatBoxForm extends DBNFormBase {
       }
       case 1: {
         // Discard was selected
-        deleteCurrentConversation();
+        discardCurrentConversation();
         performContextSwitch(event);
         break;
       }
@@ -361,6 +362,10 @@ public class ChatBoxForm extends DBNFormBase {
 
   public boolean isPromptingAvailable() {
     return getAssistantState().isPromptingAvailable();
+  }
+
+  public ChatContext getCurrentContext() {
+    return getCurrentConversation().getContext();
   }
 
   public ChatConversation getCurrentConversation() {
@@ -470,8 +475,7 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   private void initCurrentConversation() {
-    ChatConversation conversation = getCurrentConversation();
-    ChatContext context = conversation.getContext();
+    ChatContext context = getCurrentContext();
     if (!context.isInitialized()) {
       DBAIProfile firstProfile = firstElement(getProfiles());
       context.initialize(firstProfile);

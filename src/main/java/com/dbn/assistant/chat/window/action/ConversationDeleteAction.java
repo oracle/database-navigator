@@ -36,21 +36,39 @@ import static com.dbn.nls.NlsResources.txt;
  */
 public class ConversationDeleteAction extends AbstractChatBoxAction {
     @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        boolean enabled = isEnabled(e);
+        boolean persisted = isPersisted(e);
+
+        String text = persisted ?
+                txt("app.assistant.action.DeleteConversation") :
+                txt("app.assistant.action.ClearConversation");
+
+        Presentation presentation = e.getPresentation();
+        presentation.setIcon(Icons.ACTION_DELETE);
+        presentation.setText(text);
+        presentation.setEnabled(enabled);
+    }
+
+    @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
-        promptConversationClearing(chatBox);
-    }
+        boolean persisted = isPersisted(e);
 
-    @Override
-    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        boolean enabled = isEnabled(e);
+        String title = persisted ?
+                "Delete Conversation" :
+                "Clear Conversation";
 
-        Presentation presentation = e.getPresentation();
-        presentation.setIcon(Icons.ACTION_DELETE);
-        presentation.setText(txt("app.assistant.action.ClearConversation"));
-        presentation.setEnabled(enabled);
+        String message = persisted ?
+                "Are you sure you want to delete this conversation?" :
+                "Are you sure you want to clear this conversation?";
+
+        Messages.showQuestionDialog(project, title, message,
+                Messages.OPTIONS_YES_NO, 1,
+                option -> when(option == 0, () -> chatBox.deleteCurrentConversation()));
+
     }
 
     private static boolean isEnabled(@NotNull AnActionEvent e) {
@@ -63,10 +81,12 @@ public class ConversationDeleteAction extends AbstractChatBoxAction {
         return true;
     }
 
-    public void promptConversationClearing(ChatBoxForm chatBox) {
-        Messages.showQuestionDialog(chatBox.getProject(), "Conversation Clearing", "Are you sure you want to clear this conversation?",
-            Messages.OPTIONS_YES_NO, 1,
-            option -> when(option == 0, chatBox::clearConversation));
+    private static boolean isPersisted(@NotNull AnActionEvent e) {
+        AssistantState state = getAssistantState(e);
+        if (state == null) return false;
+
+        ChatConversation conversation = state.getCurrentConversation();
+        return conversation.isPersisted();
     }
 
 }

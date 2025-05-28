@@ -17,27 +17,35 @@
 package com.dbn.assistant.chat;
 
 import com.dbn.assistant.chat.message.PersistentChatMessage;
-import com.dbn.assistant.provider.AIModel;
+import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.UUIDs;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.jdom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.common.options.setting.Settings.longAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
+import static com.dbn.common.options.setting.Settings.setLongAttribute;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Strings.isNotEmpty;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class ChatConversation {
-    protected String id = UUIDs.compact();
-    protected String title;
-    protected ChatContext context;
-    protected List<PersistentChatMessage> messages = new ArrayList<>();
-    protected long timestamp = System.currentTimeMillis();
-    protected boolean active = true;
+public class ChatConversation implements PersistentStateElement {
+    private String id = UUIDs.compact();
+    private String title;
+    private ChatContext context;
+    private List<PersistentChatMessage> messages = new ArrayList<>();
+    private long timestamp = System.currentTimeMillis();
+    private boolean active = true;
 
     public ChatConversation(ChatContext context) {
         this.context = context;
@@ -55,12 +63,8 @@ public class ChatConversation {
         return messages.isEmpty();
     }
 
-    public void setProfile(String profile) {
-        context.setProfile(profile);
-    }
-
-    public void setModel(AIModel model) {
-        context.setModel(model);
+    public void clear() {
+        messages.clear();
     }
 
     public void addMessage(PersistentChatMessage message) {
@@ -75,5 +79,46 @@ public class ChatConversation {
         messages.forEach(message -> {
             message.setProgress(false);
         });
+    }
+
+
+    @Override
+    public void readState(Element element) {
+        id = stringAttribute(element, "id");
+        title = stringAttribute(element, "title");
+        timestamp = longAttribute(element, "timestamp", 0L);
+        active = booleanAttribute(element, "active", true);
+        List<Element> messagesElements = element.getChild("messages").getChildren();
+        for(Element msgElement : messagesElements){
+            PersistentChatMessage chatMessage = new PersistentChatMessage();
+            chatMessage.readState(msgElement);
+            messages.add(chatMessage);
+        }
+        Element contextElement = element.getChild("context");
+        context = new ChatContext();
+        context.readState(contextElement);
+
+        if (context.isInteractive() && !isEmpty() && active) {
+            // interactive contexts can no longer be active at this stage
+            active = false;
+        }
+    }
+
+    @Override
+    public void writeState(Element element) {
+        setStringAttribute(element, "id", id);
+        setStringAttribute(element, "title", title);
+        setLongAttribute(element, "timestamp", timestamp);
+        setBooleanAttribute(element, "active", active);
+        Element messagesElement = newElement("messages");
+        element.addContent(messagesElement);
+        for(PersistentChatMessage msg : messages){
+            Element msgElement = newElement("message");
+            messagesElement.addContent(msgElement);
+            msg.writeState(msgElement);
+        }
+
+        Element contextElement = newElement(element,"context");
+        context.writeState(contextElement);
     }
 }
