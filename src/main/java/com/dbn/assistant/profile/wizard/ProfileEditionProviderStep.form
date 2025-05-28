@@ -75,7 +75,7 @@
         </constraints>
         <properties>
           <labelFor value="da20a"/>
-          <text value="&amp;Conversation Mode"/>
+          <text value="&amp;Conversational"/>
         </properties>
       </component>
       <component id="2476" class="javax.swing.JCheckBox" binding="conversationCheckBox">
