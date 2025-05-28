@@ -16,9 +16,9 @@
 
 package com.dbn.assistant.chat.window.action;
 
+import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.ChatContextEvent;
-import com.dbn.assistant.chat.ChatConversation;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.compatibility.Compatibility;
@@ -27,9 +27,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Action for starting a new conversation
+ * Action for starting a new chat
  */
-public class ConversationStartAction extends AbstractChatBoxAction {
+public class ChatStartNewAction extends AbstractChatBoxAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
@@ -59,10 +59,10 @@ public class ConversationStartAction extends AbstractChatBoxAction {
     private static boolean isEnabled(@NotNull AnActionEvent e) {
         AssistantState state = getAssistantState(e);
         if (state == null) return false;
-        if (!state.isCurrentConversationActive()) return true;
+        if (!state.isCurrentChatActive()) return true;
 
-        ChatConversation conversation = state.getCurrentConversation();
-        if (conversation.isEmpty()) return false;
+        Chat chat = state.getCurrentChat();
+        if (chat.isEmpty()) return false;
 
         return true;
     }

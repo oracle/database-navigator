@@ -16,7 +16,7 @@
 
 package com.dbn.assistant.chat.ui;
 
-import com.dbn.assistant.chat.ChatConversation;
+import com.dbn.assistant.chat.Chat;
 import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.list.FilteredList;
 import com.dbn.common.locale.Formatter;
@@ -33,21 +33,22 @@ import java.util.Date;
 import java.util.List;
 
 
-public class ConversationHistoryTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel<ChatConversation> {
+public class ChatHistoryTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel<Chat> {
     private final Listeners<TableModelListener> listeners = Listeners.create(this);
-    private final ChatConversationFilter filter =  new ChatConversationFilter();
-    private List<ChatConversation> conversations;
+    private final ChatFilter filter =  new ChatFilter();
     private final Project project;
 
-    public ConversationHistoryTableModel(Project project, List<ChatConversation> conversations) {
+    private List<Chat> chats;
+
+    public ChatHistoryTableModel(Project project, List<Chat> chats) {
         super();
-        this.conversations = FilteredList.stateful(filter, conversations);
+        this.chats = FilteredList.stateful(filter, chats);
         this.project = project;
     }
 
     @Override
     public int getRowCount() {
-        return conversations.size();
+        return chats.size();
     }
 
     @Override
@@ -68,31 +69,31 @@ public class ConversationHistoryTableModel extends StatefulDisposableBase implem
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return ChatConversation.class;
+        return Chat.class;
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        return conversations.get(rowIndex);
+        return chats.get(rowIndex);
     }
 
     @Override
-    public Object getValue(ChatConversation conversation, int column) {
+    public Object getValue(Chat chat, int column) {
         switch (column) {
-            case 0: return conversation.getTitle();
-            case 1: return conversation.getContext().getProfile();
-            case 2: return getPresentableDateFormat(conversation.getTimestamp());
+            case 0: return chat.getTitle();
+            case 1: return chat.getContext().getProfile();
+            case 2: return getPresentableDateFormat(chat.getTimestamp());
             default: return "";
         }
     }
 
     @Override
-    public String getPresentableValue(ChatConversation conversation, int column) {
-        if (conversation == null) return "";
+    public String getPresentableValue(Chat chat, int column) {
+        if (chat == null) return "";
         switch (column) {
-            case 0: return conversation.getTitle();
-            case 1: return conversation.getContext().getProfile();
-            case 2: return getPresentableDateFormat(conversation.getTimestamp());
+            case 0: return chat.getTitle();
+            case 1: return chat.getContext().getProfile();
+            case 2: return getPresentableDateFormat(chat.getTimestamp());
             default: return "";
         }
     }
@@ -116,12 +117,12 @@ public class ConversationHistoryTableModel extends StatefulDisposableBase implem
     }
 
     /**
-     * Update the list of conversations
+     * Update the list of chats
      *
-     * @param conversations New list of conversations
+     * @param chats New list of chats
      */
-    public void setConversations(List<ChatConversation> conversations) {
-        this.conversations = FilteredList.stateful(filter, conversations);
+    public void setChats(List<Chat> chats) {
+        this.chats = FilteredList.stateful(filter, chats);
         notifyModelListeners();
     }
 
@@ -141,15 +142,15 @@ public class ConversationHistoryTableModel extends StatefulDisposableBase implem
     }
 
     /**
-     * Get the ID of a conversation at the specified row index
+     * Get the ID of a chat at the specified row index
      *
      * @param rowIndex The row index
-     * @return The conversation ID or null if out of bounds
+     * @return The chat ID or null if out of bounds
      */
     @Nullable
     public String getIdAt(int rowIndex) {
-        if (rowIndex >= 0 && rowIndex < conversations.size()) {
-            return conversations.get(rowIndex).getId();
+        if (rowIndex >= 0 && rowIndex < chats.size()) {
+            return chats.get(rowIndex).getId();
         }
         return null;
     }

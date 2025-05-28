@@ -36,7 +36,7 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 
 @Getter
 @Setter
-public class ChatConversation implements PersistentStateElement {
+public class Chat implements PersistentStateElement {
     private String id = UUIDs.compact();
     private String title;
     private ChatContext context;
@@ -45,11 +45,11 @@ public class ChatConversation implements PersistentStateElement {
 
     private String sessionSignature;
 
-    public ChatConversation() {
+    public Chat() {
         this(new ChatContext());
     }
 
-    public ChatConversation(ChatContext context) {
+    public Chat(ChatContext context) {
         this.context = context;
     }
 

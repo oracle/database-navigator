@@ -27,16 +27,16 @@ import javax.swing.Action;
 import java.awt.event.ActionEvent;
 import java.util.Set;
 
-public class SaveOrDiscardConversationDialog extends DBNDialog<SaveOrDiscardConversationForm> {
+@Getter
+public class ChatSaveDialog extends DBNDialog<ChatSaveForm> {
     private final ChatInterruptionReason changedField;
-    @Getter
-    private String conversationTitle;
-    private final Set<String> titles;
+    private final Set<String> usedTitles;
+    private String title;
 
-    public SaveOrDiscardConversationDialog(Project project, ChatInterruptionReason changedField, Set<String> titles) {
-        super(project, "Conversation", true);
+    public ChatSaveDialog(Project project, ChatInterruptionReason changedField, Set<String> usedTitles) {
+        super(project, "Save Chat", true);
         this.changedField = changedField;
-        this.titles = titles;
+        this.usedTitles = usedTitles;
         renameAction(getOKAction(), "Save");
         setModal(true);
         init();
@@ -44,8 +44,8 @@ public class SaveOrDiscardConversationDialog extends DBNDialog<SaveOrDiscardConv
 
     @NotNull
     @Override
-    protected SaveOrDiscardConversationForm createForm() {
-        return new SaveOrDiscardConversationForm(this, changedField, titles);
+    protected ChatSaveForm createForm() {
+        return new ChatSaveForm(this, changedField, usedTitles);
     }
 
 
@@ -71,7 +71,7 @@ public class SaveOrDiscardConversationDialog extends DBNDialog<SaveOrDiscardConv
     };
     @Override
     protected void doOKAction() {
-        this.conversationTitle = getForm().getConversationTitle();
+        this.title = getForm().getChatName();
         close(2);
     }
 

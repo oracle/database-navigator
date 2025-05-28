@@ -16,9 +16,9 @@
 
 package com.dbn.assistant.chat.window.action;
 
+import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.ChatContextEvent;
-import com.dbn.assistant.chat.ChatConversation;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.util.Actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -27,12 +27,12 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Action for selecting one individual conversation
+ * Action for selecting one individual chat
  */
-public class ConversationSelectAction extends AbstractChatBoxAction {
-    private final ChatConversation conversation;
-    ConversationSelectAction(ChatConversation conversation) {
-        this.conversation = conversation;
+public class ChatSelectAction extends AbstractChatBoxAction {
+    private final Chat chat;
+    ChatSelectAction(Chat chat) {
+        this.chat = chat;
     }
 
     @Override
@@ -41,14 +41,14 @@ public class ConversationSelectAction extends AbstractChatBoxAction {
         if (chatBox == null) return;
 
         ChatContext currentContext = chatBox.getAssistantState().getCurrentContext();
-        ChatContext targetContext = conversation.getContext();
-        ChatContextEvent event = new ChatContextEvent(currentContext, targetContext, conversation.getId(), false);
+        ChatContext targetContext = chat.getContext();
+        ChatContextEvent event = new ChatContextEvent(currentContext, targetContext, chat.getId(), false);
         chatBox.processContextEvent(event);
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(Actions.adjustActionName(conversation.getTitle()));
+        presentation.setText(Actions.adjustActionName(chat.getTitle()));
     }
 }

@@ -16,7 +16,7 @@
 
 package com.dbn.assistant.chat.window.action;
 
-import com.dbn.assistant.chat.ChatConversation;
+import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.icon.Icons;
@@ -30,19 +30,19 @@ import static com.dbn.common.util.Conditional.when;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
- * Action for clearing the AI Assistant conversation history
+ * Action for clearing the AI Assistant chat history
  *
  * @author Dan Cioca (Oracle)
  */
-public class ConversationDeleteAction extends AbstractChatBoxAction {
+public class ChatDeleteAction extends AbstractChatBoxAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         boolean enabled = isEnabled(e);
         boolean persisted = isPersisted(e);
 
         String text = persisted ?
-                txt("app.assistant.action.DeleteConversation") :
-                txt("app.assistant.action.ClearConversation");
+                txt("app.assistant.action.DeleteChat") :
+                txt("app.assistant.action.ClearChat");
 
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.ACTION_DELETE);
@@ -58,16 +58,16 @@ public class ConversationDeleteAction extends AbstractChatBoxAction {
         boolean persisted = isPersisted(e);
 
         String title = persisted ?
-                "Delete Conversation" :
-                "Clear Conversation";
+                "Delete Chat" :
+                "Clear Chat";
 
         String message = persisted ?
-                "Are you sure you want to delete this conversation?" :
-                "Are you sure you want to clear this conversation?";
+                "Are you sure you want to delete this chat?" :
+                "Are you sure you want to clear this chat?";
 
         Messages.showQuestionDialog(project, title, message,
                 Messages.OPTIONS_YES_NO, 1,
-                option -> when(option == 0, () -> chatBox.deleteCurrentConversation()));
+                option -> when(option == 0, () -> chatBox.deleteCurrentChat()));
 
     }
 
@@ -75,8 +75,8 @@ public class ConversationDeleteAction extends AbstractChatBoxAction {
         AssistantState state = getAssistantState(e);
         if (state == null) return false;
 
-        ChatConversation conversation = state.getCurrentConversation();
-        if (conversation.isEmpty()) return false;
+        Chat chat = state.getCurrentChat();
+        if (chat.isEmpty()) return false;
 
         return true;
     }
@@ -85,8 +85,8 @@ public class ConversationDeleteAction extends AbstractChatBoxAction {
         AssistantState state = getAssistantState(e);
         if (state == null) return false;
 
-        ChatConversation conversation = state.getCurrentConversation();
-        return conversation.isPersisted();
+        Chat chat = state.getCurrentChat();
+        return chat.isPersisted();
     }
 
 }

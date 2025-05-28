@@ -16,10 +16,10 @@
 
 package com.dbn.assistant.chat.window.action;
 
+import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.ChatContextEvent;
-import com.dbn.assistant.chat.ChatConversation;
-import com.dbn.assistant.chat.ui.ConversationHistoryDialog;
+import com.dbn.assistant.chat.ui.ChatHistoryDialog;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.util.Dialogs;
@@ -32,35 +32,35 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Action for showcasing the rest of the conversations
+ * Action for showcasing the rest of the chats
  */
-public class ConversationHistoryShowAllAction extends AbstractChatBoxAction {
-    private final List<ChatConversation> conversations;
+public class ChatHistoryShowAllAction extends AbstractChatBoxAction {
+    private final List<Chat> chats;
 
-    public ConversationHistoryShowAllAction(List<ChatConversation> conversations) {
-        this.conversations = conversations;
+    public ChatHistoryShowAllAction(List<Chat> chats) {
+        this.chats = chats;
     }
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
-        Consumer<String> openAction = conversationId -> {
+        Consumer<String> openAction = chatId -> {
             AssistantState state = chatBox.getAssistantState();
-            ChatConversation conversation = state.getConversation(conversationId);
+            Chat chat = state.getChat(chatId);
 
             ChatContext currentContext = state.getCurrentContext();
-            ChatContext targetContext = conversation.getContext();
-            ChatContextEvent event = new ChatContextEvent(currentContext, targetContext, conversationId, false);
+            ChatContext targetContext = chat.getContext();
+            ChatContextEvent event = new ChatContextEvent(currentContext, targetContext, chatId, false);
             chatBox.processContextEvent(event);
         };
 
-        Consumer<List<String>> deleteAction = conversationIds -> {
+        Consumer<List<String>> deleteAction = chatIds -> {
             AssistantState state = chatBox.getAssistantState();
-            state.deleteConversations(conversationIds);
+            state.deleteChats(chatIds);
         };
 
-        Dialogs.show(()-> new ConversationHistoryDialog(project, conversations, openAction, deleteAction));
+        Dialogs.show(()-> new ChatHistoryDialog(project, chats, openAction, deleteAction));
     }
 
     @Override

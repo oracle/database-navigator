@@ -19,6 +19,7 @@ package com.dbn.assistant.chat.ui;
 import com.dbn.assistant.chat.ChatInterruptionReason;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Strings;
+import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,41 +27,42 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import java.util.Set;
 
-public class SaveOrDiscardConversationForm extends DBNFormBase {
+public class ChatSaveForm extends DBNFormBase {
     private JPanel headerPanel;
     private JPanel mainPanel;
-    private JTextField conversationTitleTextField;
-    private final Set<String> titles;
+    private JBTextField nameTextField;
+    private final Set<String> usedNames;
 
-    SaveOrDiscardConversationForm(SaveOrDiscardConversationDialog parent, ChatInterruptionReason changedField, Set<String> titles) {
+    ChatSaveForm(ChatSaveDialog parent, ChatInterruptionReason changedField, Set<String> usedNames) {
         super(parent);
         JLabel warningLabel = new JLabel(changedField.getConfirmationMessage());
         warningLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-        headerPanel.add(warningLabel);
-        this.titles = titles;
+        this.headerPanel.add(warningLabel);
+        this.usedNames = usedNames;
+        this.nameTextField.getEmptyText().setText("Chat name");
+
     }
 
     @Override
     protected void initValidation() {
-        addTextValidation(conversationTitleTextField, Strings::isNotEmpty, "Please provide a conversation name");
-        addTextValidation(conversationTitleTextField, this::isNotUsed, "Conversation name already in use");
+        addTextValidation(nameTextField, Strings::isNotEmpty, "Please provide a chat name");
+        addTextValidation(nameTextField, this::isNotUsed, "The chat name is already in use");
     }
 
     private boolean isNotUsed(String name) {
-        return !titles.contains(name);
+        return !usedNames.contains(name);
     }
 
-    public String getConversationTitle() {
-        return conversationTitleTextField.getText();
+    public String getChatName() {
+        return nameTextField.getText();
     }
 
     @Nullable
     @Override
     public JComponent getPreferredFocusedComponent() {
-        return conversationTitleTextField;
+        return nameTextField;
     }
 
     @NotNull

@@ -23,44 +23,44 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Event that handles context changes in chat conversations
+ * Event that handles context changes in chats
  */
 @Getter
 @Setter
 public final class ChatContextEvent {
     private final ChatContext currentContext;
     private final ChatContext targetContext;
-    private final String targetConversationId;
-    private boolean newConversationRequest;
+    private final String targetChatId;
+    private boolean newChatRequest;
 
     public ChatContextEvent(@NotNull ChatContext currentContext,
                             @NotNull ChatContext targetContext,
-                            @Nullable String targetConversationId,
-                            boolean newConversationRequest) {
+                            @Nullable String targetChatId,
+                            boolean newChatRequest) {
         this.currentContext = currentContext;
         this.targetContext = targetContext;
-        this.targetConversationId = targetConversationId;
-        this.newConversationRequest = newConversationRequest;
+        this.targetChatId = targetChatId;
+        this.newChatRequest = newChatRequest;
     }
 
-    public boolean isConversationOpenRequest() {
-        return targetConversationId != null;
+    public boolean isChatOpenRequest() {
+        return targetChatId != null;
     }
 
     @Nullable
     public ChatInterruptionReason evaluateInterruption(AssistantState state) {
-        ChatConversation currentConversation = state.getCurrentConversation();
+        Chat currentChat = state.getCurrentChat();
 
-        // if current is a previously interactive persistent conversation, signal no interruption
-        if (currentConversation.isInteractive() && currentConversation.isPersisted()) return null;
+        // if current is a previously interactive persistent chat, signal no interruption
+        if (currentChat.isInteractive() && currentChat.isPersisted()) return null;
 
-        // if the current conversation is empty, signal no interruption
-        if (currentConversation.isEmpty()) return null;
+        // if the current chat is empty, signal no interruption
+        if (currentChat.isEmpty()) return null;
 
-        if (newConversationRequest) return ChatInterruptionReason.NEW_CONVERSATION_REQUEST;
-        if (targetConversationId != null) return ChatInterruptionReason.HISTORY_CONVERSATION_SELECTION;
+        if (newChatRequest) return ChatInterruptionReason.NEW_CHAT_REQUEST;
+        if (targetChatId != null) return ChatInterruptionReason.HISTORY_CHAT_SELECTION;
 
-        // if the current conversation is non-interactive, switching to a non-interactive context, signal no interruption
+        // if the current chat is non-interactive, switching to a non-interactive context, signal no interruption
         if (!currentContext.isInteractive() && !targetContext.isInteractive()) return null;
 
         if (currentContext.isProfileSwitch(targetContext)) return ChatInterruptionReason.PROFILE_SELECTION_CHANGE;

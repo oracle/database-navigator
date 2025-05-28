@@ -16,7 +16,7 @@
 
 package com.dbn.assistant.chat.ui;
 
-import com.dbn.assistant.chat.ChatConversation;
+import com.dbn.assistant.chat.Chat;
 import com.dbn.common.filter.Filter;
 import com.dbn.common.util.Strings;
 import lombok.Data;
@@ -24,12 +24,11 @@ import lombok.Data;
 import static com.dbn.common.util.Strings.containsIgnoreCase;
 
 @Data // IMPORTANT - default filter signature implementation relies on hashCode
-public class ChatConversationFilter implements Filter<ChatConversation> {
+public class ChatFilter implements Filter<Chat> {
     private String text;
 
     @Override
-    public boolean accepts(ChatConversation conversation) {
-        return Strings.isEmpty(text) ||
-                containsIgnoreCase(conversation.getTitle(), text);
+    public boolean accepts(Chat chat) {
+        return Strings.isEmpty(text) || containsIgnoreCase(chat.getTitle(), text);
     }
 }

@@ -77,10 +77,10 @@ public class AssistantStateDelegate extends AssistantState {
     }
 
     @Override
-    public void setCurrentConversationId(String currentConversationId) {
-        if (Objects.equals(getCurrentConversationId(), currentConversationId)) return;
+    public void setCurrentChatId(String currentChatId) {
+        if (Objects.equals(getCurrentChatId(), currentChatId)) return;
 
-        super.setCurrentConversationId(currentConversationId);
+        super.setCurrentChatId(currentChatId);
         notifyStateListeners();
     }
 

@@ -16,7 +16,7 @@
 
 package com.dbn.assistant.chat.window.action;
 
-import com.dbn.assistant.chat.ChatConversation;
+import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.action.BasicActionGroup;
 import com.dbn.common.action.DataKeys;
@@ -32,9 +32,9 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Action for selecting an old conversation
+ * Action for selecting an old chat
  */
-public class ConversationHistoryDropdownAction extends BasicActionGroup implements DumbAware {
+public class ChatHistoryDropdownAction extends BasicActionGroup implements DumbAware {
     private static final int MAX_SIZE = 5;
 
     @Override
@@ -42,21 +42,21 @@ public class ConversationHistoryDropdownAction extends BasicActionGroup implemen
         ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
         if (chatBox == null) return AnAction.EMPTY_ARRAY;
 
-        List<ChatConversation> conversations = chatBox.getAssistantState().getSavedConversations();
-        if (conversations.isEmpty()) return AnAction.EMPTY_ARRAY;
+        List<Chat> chats = chatBox.getAssistantState().getSavedChats();
+        if (chats.isEmpty()) return AnAction.EMPTY_ARRAY;
 
         List<AnAction> actionList = new ArrayList<>();
 
-        // show most recent conversations first
-        conversations.
+        // show most recent chats first
+        chats.
                 stream().
                 sorted(Comparator.comparingLong(c -> System.currentTimeMillis() - c.getTimestamp())).
                 limit(MAX_SIZE).
-                forEach(c -> actionList.add(new ConversationSelectAction(c)));
+                forEach(c -> actionList.add(new ChatSelectAction(c)));
 
-        if (conversations.size() > MAX_SIZE) {
+        if (chats.size() > MAX_SIZE) {
             actionList.add(Separator.create());
-            actionList.add(new ConversationHistoryShowAllAction(conversations));
+            actionList.add(new ChatHistoryShowAllAction(chats));
         }
 
         return actionList.toArray(new AnAction[0]);
@@ -64,6 +64,6 @@ public class ConversationHistoryDropdownAction extends BasicActionGroup implemen
     @Override
     public void update(@NotNull AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        presentation.setDescription("Select a conversation");
+        presentation.setDescription("Select a chat from history");
     }
 }

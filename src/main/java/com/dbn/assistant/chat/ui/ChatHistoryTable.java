@@ -16,11 +16,12 @@
 
 package com.dbn.assistant.chat.ui;
 
-import com.dbn.assistant.chat.ChatConversation;
+import com.dbn.assistant.chat.Chat;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
 import com.intellij.ui.SimpleTextAttributes;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.ListSelectionModel;
@@ -31,13 +32,14 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
-public class ConversationHistoryTable extends DBNTable<ConversationHistoryTableModel> {
+@Setter
+public class ChatHistoryTable extends DBNTable<ChatHistoryTableModel> {
     private Runnable doubleClickAction;
 
-    public ConversationHistoryTable(@NotNull DBNComponent parent, List<ChatConversation> conversations) {
-        super(parent, new ConversationHistoryTableModel(parent.ensureProject(), conversations), true);
+    public ChatHistoryTable(@NotNull DBNComponent parent, List<Chat> chats) {
+        super(parent, new ChatHistoryTableModel(parent.ensureProject(), chats), true);
         setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        setDefaultRenderer(ChatConversation.class, new CellRenderer());
+        setDefaultRenderer(Chat.class, new CellRenderer());
         initTableSorter();
 
         addMouseListener(new MouseAdapter() {
@@ -52,12 +54,8 @@ public class ConversationHistoryTable extends DBNTable<ConversationHistoryTableM
             }
         });
 
-        setAccessibleName(this, "Chat Conversation History");
+        setAccessibleName(this, "Chat History");
         setProportionalColumnWidths(50, 20, 30);
-    }
-
-    public void setDoubleClickAction(Runnable action) {
-        this.doubleClickAction = action;
     }
 
     @Override
@@ -69,8 +67,8 @@ public class ConversationHistoryTable extends DBNTable<ConversationHistoryTableM
     private class CellRenderer extends DBNColoredTableCellRenderer {
         @Override
         protected void customizeCellRenderer(DBNTable table, Object value, boolean selected, boolean hasFocus, int row, int column) {
-            ChatConversation conversation = (ChatConversation) value;
-            String columnValue = getModel().getPresentableValue(conversation, column);
+            Chat chat = (Chat) value;
+            String columnValue = getModel().getPresentableValue(chat, column);
             append(columnValue == null ? "" : columnValue, SimpleTextAttributes.REGULAR_ATTRIBUTES);
         }
     }

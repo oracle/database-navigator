@@ -91,7 +91,7 @@ public final class ChatContext implements PersistentStateElement {
     }
 
     public boolean isInterruptingActionSwitch(ChatContext that) {
-        // when switched between CHAT and any other action, the conversation is interrupted
+        // when switched between CHAT and any other action, the chat is interrupted
         return (this.action == PromptAction.CHAT) == (that.action != PromptAction.CHAT);
     }
 

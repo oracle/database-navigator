@@ -265,7 +265,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
   }
 
   public void interruptAssistantSession(ConnectionHandler connection) {
-    // TODO invoke conversation interruption utility as soon as available in "select ai"
+    // TODO invoke chat interruption utility as soon as available in "select ai"
     DBNConnection assistantConnection = connection.getConnectionPool().getSessionConnection(SessionId.ASSISTANT);
     if (assistantConnection == null) return;
 

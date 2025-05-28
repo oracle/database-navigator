@@ -22,8 +22,8 @@ import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public enum ChatInterruptionReason {
-    NEW_CONVERSATION_REQUEST(txt("cfg.assistant.text.ChatInterruptionReason_NEW_CONVERSATION_REQUEST")),
-    HISTORY_CONVERSATION_SELECTION(txt("cfg.assistant.text.ChatInterruptionReason_HISTORY_CONVERSATION_SELECTION")),
+    NEW_CHAT_REQUEST(txt("cfg.assistant.text.ChatInterruptionReason_NEW_CHAT_REQUEST")),
+    HISTORY_CHAT_SELECTION(txt("cfg.assistant.text.ChatInterruptionReason_HISTORY_CHAT_SELECTION")),
     PROFILE_SELECTION_CHANGE(txt("cfg.assistant.text.ChatInterruptionReason_PROFILE_SELECTION_CHANGE")),
     MODEL_SELECTION_CHANGE(txt("cfg.assistant.text.ChatInterruptionReason_MODEL_SELECTION_CHANGE")),
     ACTION_SELECTION_CHANGE(txt("cfg.assistant.text.ChatInterruptionReason_ACTION_SELECTION_CHANGE")),

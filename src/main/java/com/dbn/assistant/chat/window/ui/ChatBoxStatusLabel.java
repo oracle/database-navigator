@@ -96,8 +96,8 @@ public class ChatBoxStatusLabel extends DBNPanelImpl implements Disposable {
         AssistantState assistantState = getChatBox().getAssistantState();
         if(!assistantState.isAvailable()) return Status.UNAVAILABLE;
 
-        if (!assistantState.isCurrentConversationInteractive()) return Status.NON_INTERACTIVE;
-        if (!assistantState.isCurrentConversationActive()) return Status.DISCONTINUED;
+        if (!assistantState.isCurrentChatInteractive()) return Status.NON_INTERACTIVE;
+        if (!assistantState.isCurrentChatActive()) return Status.DISCONTINUED;
 
         return Status.INTERACTIVE;
     }
