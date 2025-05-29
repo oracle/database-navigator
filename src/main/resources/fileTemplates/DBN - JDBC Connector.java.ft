@@ -48,7 +48,7 @@ public class ${CLASS_NAME}  {
 
         // DRIVER
         // $databaseType driver class "${JDBC_DRIVER}"
-        Class<? extends Driver> driverClass =#if (${JDBC_DRIVER}) ${JDBC_DRIVER}.class; #else null; // TODO specify driver class#end
+        Class<? extends Driver> driverClass =#if (${JDBC_DRIVER}) ${JDBC_DRIVER}.class;#else null; // TODO specify driver class#end
         Driver driver = driverClass.getConstructor().newInstance();
 
         // CONNECTION

@@ -23,7 +23,7 @@ public class FileUtil {
      */
     public static File getFileFromClasspath(ClassLoader classLoader, String resourcePath) {
         URL resource = classLoader.getResource(resourcePath);
-        assertNotNull(resource);
+        assertNotNull("Resource not found: "+resourcePath, resource);
         File file =  new File(resource.getPath());
         assertTrue(file.exists());
         return file;

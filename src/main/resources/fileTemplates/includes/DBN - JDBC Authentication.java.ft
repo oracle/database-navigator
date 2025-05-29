@@ -39,7 +39,7 @@
              properties.put(PROP_AZURE_TOKEN_CLIENT_SECRET_TOKEN, secretToken);
         #end
     #elseif (${AUTH_TOKEN_TYPE} == 'AZURE_INTERACTIVE')
-        properties.put(PROP_TOKEN_AUTH, "AZURE_INTERACTIVE")
+        properties.put(PROP_TOKEN_AUTH, "AZURE_INTERACTIVE");
         properties.put(PROP_AZURE_TOKEN_DATABASE_ID_URI, "${AZURE_TOKEN_DATABASE_ID_URI}");
     #end
 #end

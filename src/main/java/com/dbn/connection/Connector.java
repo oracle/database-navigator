@@ -35,6 +35,7 @@ import com.dbn.connection.ssh.SshTunnelManager;
 import com.dbn.connection.ssl.SslConnectionManager;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
+import com.dbn.diagnostics.DeveloperMode;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -325,7 +326,7 @@ class Connector {
                 connectionStatus.setValid(false);
             }
             exception = toSqlException(e, "Connection error: " + message);
-            if (sessionId == SessionId.TEST) {
+            if (Diagnostics.isDeveloperMode() &&  sessionId == SessionId.TEST) {
                 Dispatch.execute(getCurrentModalityState(), () -> {
                     new ExceptionTreeDialog(exception).show();
                 });

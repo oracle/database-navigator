@@ -1,7 +1,7 @@
 package com.dbn.generator;
 
 import com.dbn.test.util.FileUtil;
-import org.apache.velocity.Template;
+import com.dbn.test.util.TextCompare;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.ResourceNotFoundException;
@@ -25,84 +25,112 @@ import static org.junit.Assert.assertTrue;
 @RunWith(Parameterized.class)
 public class JdbcConnectorCodeGeneratorTest {
 
-    private final String templateVariablesFile;
+    public static final String BASE_TEMPLATE_FILE_NAME = "DBN - JDBC Connector.java.ft";
+    public static final String TEMPLATE_FILE_BASE_PATH = "fileTemplates/";
+    public static final String CHECK_FILE_BASE_PATH = "generator/conn_settings_cases";
+    public static final String VARIABLES_PROPERTIES_FILE_NAME = "/variables.properties";
+    public static final String JDBCDRIVER_CONN_JAVA_CHECK = "/JDBCDriverConn.java.check";
     private final String name;
+    private final String useCaseDir;
     private Properties properties;
+    private VelocityContext context;
+    private InputStreamReader reader;
+    private String templatePath;
+    private VelocityEngine ve;
 
-    public JdbcConnectorCodeGeneratorTest(String name, String templateVariablesFile) {
+    public JdbcConnectorCodeGeneratorTest(String name, String useCaseDir) {
         this.name = name;
-        this.templateVariablesFile = templateVariablesFile;
+        this.useCaseDir = useCaseDir;
     }
+
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {"Secret File", "generator/azure_token_secret_file.properties"}
+            {"Azure Secret File", "azure_secret_token"},
+            {"Azure Certificate File", "azure_cert_nopass"},
+            {"Azure Interactive", "azure_interactive"}
         });
     }
     @Before
     public void before() throws IOException {
-        File propFile = FileUtil.getFileFromClasspath(
-                JdbcConnectorCodeGeneratorTest.class,
-                templateVariablesFile);
-        assertTrue(propFile.isFile());
-        this.properties = FileUtil.loadFromFile(propFile);
-
-    }
-
-    @Test
-    public void test() throws Exception {
-        VelocityEngine ve = new VelocityEngine();
+        this.ve = new VelocityEngine();
         ve.setProperty(RuntimeConstants.RESOURCE_LOADERS, "classpath");
         ve.setProperty("resource.loader.classpath.class", MyClasspathResourceLoader.class.getName());
         ve.setProperty("resource.loader.classpath.path", "fileTemplates/includes");
         ve.init();
-        String templateName = "DBN - JDBC Connector.java.ft";
-        final String templatePath = "fileTemplates/" + templateName;
+        this.templatePath = TEMPLATE_FILE_BASE_PATH + BASE_TEMPLATE_FILE_NAME;
         InputStream input = this.getClass().getClassLoader().getResourceAsStream(templatePath);
         if (input == null) {
             throw new IOException("Template file doesn't exist");
         }
+        this.reader = new InputStreamReader(input);
+        this.context = new VelocityContext();
+    }
 
-        InputStreamReader reader = new InputStreamReader(input);
-
-        VelocityContext context = new VelocityContext();
-
-
+    @Test
+    public void test() throws Exception {
+        // load template inputs
+        File propFile = FileUtil.getFileFromClasspath(
+                JdbcConnectorCodeGeneratorTest.class,
+                CHECK_FILE_BASE_PATH+"/"+useCaseDir+ VARIABLES_PROPERTIES_FILE_NAME);
+        assertTrue(propFile.isFile());
+        this.properties = FileUtil.loadFromFile(propFile);
         if (properties != null) {
-            //stringfyNulls(properties);
             for (Map.Entry<Object, Object> property : properties.entrySet()) {
                 context.put((String)property.getKey(), property.getValue());
             }
         }
 
-        Template template = ve.getTemplate(templatePath, "UTF-8");
-        String outFileName = File.createTempFile("report", ".html").getAbsolutePath();
+        // set up a buffered string writer to capture to output of the evaluated template.
         StringWriter stringWriter = new StringWriter();
         BufferedWriter writer = new BufferedWriter(stringWriter);
 
+        // ** evaluate the template
         if (!ve.evaluate(context, writer, templatePath, reader)) {
             throw new Exception("Failed to convert the template into html.");
         }
 
-        //template.merge(context, writer);
-        writer.flush();;
-        //        System.out.println(stringWriter.toString());
+        // make sure the template out put gets flushed
+        writer.flush();
+
+        // load into a line reader so we check line by line.
         StringReader stringReader = new StringReader(stringWriter.toString());
         LineNumberReader lnr = new LineNumberReader(stringReader);
-        String line;
+
+        File checkFile = FileUtil.getFileFromClasspath(
+                JdbcConnectorCodeGeneratorTest.class,
+                CHECK_FILE_BASE_PATH + "/" + useCaseDir + "/" + JDBCDRIVER_CONN_JAVA_CHECK);
+        assertTrue(checkFile.isFile());
+        // load the check file
+        FileReader expectFileReader = new FileReader(checkFile);
+        LineNumberReader expectedReader = new LineNumberReader(expectFileReader);
+
+        String expectedLine;
+        String actualLine;
         Pattern p = Pattern.compile("\\$\\{(.*)\\}");
         boolean failed = false;
-        while ((line = lnr.readLine()) != null) {
-            Matcher m = p.matcher(line);
+        while ((expectedLine = expectedReader.readLine()) != null) {
+            actualLine = lnr.readLine();
+            if (actualLine == null) {
+                failed = true;
+                System.err.println("The actual file is too short");
+            }
+            Matcher m = p.matcher(actualLine);
             if (m.find()) {
-                System.err.printf("At %d: %s\n", lnr.getLineNumber(), line);
+                System.err.printf("At %d: %s\n", lnr.getLineNumber(), actualLine);
                 failed = true;
             }
             else {
-                System.out.printf("%d: %s\n", lnr.getLineNumber(), line);
+                TextCompare.Diff diff = TextCompare.diff(expectedLine, actualLine);
+                if (diff != TextCompare.NO_DIFF) {
+                    failed = true;
+                    System.err.printf("Expected line mismatches actual at: %d\n",diff.getStartOfMismatch());
+                    System.err.printf("%d: %s\n", expectedReader.getLineNumber(), expectedLine);
+                    System.err.printf("%d: %s\n", lnr.getLineNumber(), actualLine);
+                }
             }
         }
-        assertFalse("Not all required template properties were provided", failed);
+        assertFalse("An errro occurred with the test.  See stderr for more info.", failed);
         writer.close();
     }
 
