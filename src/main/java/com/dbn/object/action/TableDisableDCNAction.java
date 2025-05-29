@@ -22,7 +22,7 @@ public class TableDisableDCNAction extends AnObjectAction<DBTable> {
   protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBTable target) {
     //todo the name should be changeable depending on if hte table already registred .
     presentation.setText(txt("app.objects.action.Disable"));
-    presentation.setIcon(Icons.TABLE_Disable_DCN);
+    presentation.setIcon(Icons.TABLE_DISABLE_DCN);
   }
 
 

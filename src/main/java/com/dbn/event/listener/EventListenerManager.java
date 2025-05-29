@@ -18,12 +18,10 @@ package com.dbn.event.listener;
 
 
 import com.dbn.common.thread.Progress;
-import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.event.NotificationHandler;
 import com.dbn.event.OracleConstants;
 import com.dbn.event.proxy.DcnListenerInvocationHandler;
 import com.dbn.event.proxy.OracleStatementInvocationHandler;
@@ -88,8 +86,7 @@ public class EventListenerManager {
                 connection.getConnectionId(),
                 c -> registerTable(tableName, connection, c, mask));
 
-        NotificationHandler.showIntelliJNotification( txt("ntf.events.info.ListenerRegisteredFor", qualifiedTableName, connectionName));
-
+        sendInfoNotification(project, DCN, txt("ntf.events.info.ListenerRegisteredFor", qualifiedTableName, connectionName));
       } catch (Exception e) {
         sendErrorNotification(project, DCN, txt("ntf.events.warning.ListenerRegistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
       }
@@ -223,8 +220,7 @@ public class EventListenerManager {
                 connection.getConnectionId(),
                 c -> unregisterListenerByRegIdInternal(regId, c,qualifiedTableName,callback));
 
-        NotificationHandler.showIntelliJNotification( txt("ntf.events.info.ListenerDeregisteredFor", qualifiedTableName, connectionName));
-
+        sendInfoNotification(project, DCN, txt("ntf.events.info.ListenerDeregisteredFor", qualifiedTableName, connectionName));
       } catch (Exception e) {
         sendErrorNotification(project, DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
       }
