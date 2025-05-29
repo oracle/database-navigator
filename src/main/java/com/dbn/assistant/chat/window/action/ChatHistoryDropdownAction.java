@@ -53,7 +53,7 @@ public class ChatHistoryDropdownAction extends BasicActionGroup implements DumbA
                 limit(MAX_SIZE).
                 forEach(c -> actionList.add(new ChatSelectAction(c)));
 
-        if (chats.size() > MAX_SIZE) {
+        if (!chats.isEmpty()) {
             actionList.add(Separator.create());
             actionList.add(new ChatHistoryShowAllAction(chats));
         }
