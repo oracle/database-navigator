@@ -92,9 +92,6 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         String text = getSelectedModelName(e);
         if (text != null) return text;
 
-        List<AIModel> models = getModels(e.getDataContext());
-        if (!models.isEmpty()) return txt("app.assistant.action.SelectModel");
-
         return txt("app.assistant.action.Model");
     }
 

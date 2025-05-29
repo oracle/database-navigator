@@ -89,9 +89,6 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
         String text = getSelectedProfileName(e);
         if (text != null) return text;
 
-        List<DBAIProfile> profiles = chatBox.getProfiles();
-        if (!profiles.isEmpty()) return txt("app.assistant.action.SelectProfile");
-
         return txt("app.assistant.action.Profile");
     }
 

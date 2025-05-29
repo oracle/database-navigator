@@ -424,6 +424,8 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     String profileName = assistantState.getDefaultProfileName();
 
     DBAIProfile profile = getProfile(connectionId, profileName);
+    if (profile == null) profile = firstElement(profiles);
+
     assistantState.setDefaultProfile(profile);
     return profile;
   }
@@ -442,10 +444,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
   @Nullable
   private DBAIProfile getProfile(ConnectionId connectionId, String profileName) {
     List<DBAIProfile> profiles = getProfiles(connectionId);
-    DBAIProfile profile = first(profiles, p -> p.getName().equalsIgnoreCase(profileName));
-
-    if (profile == null) profile = firstElement(profiles);
-    return profile;
+    return first(profiles, p -> p.getName().equalsIgnoreCase(profileName));
   }
 
   @Nullable
