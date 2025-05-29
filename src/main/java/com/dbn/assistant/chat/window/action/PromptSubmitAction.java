@@ -17,12 +17,15 @@
 package com.dbn.assistant.chat.window.action;
 
 import com.dbn.assistant.chat.ChatAvailability;
+import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+
+import javax.swing.Icon;
 
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
 import static com.dbn.nls.NlsResources.txt;
@@ -44,9 +47,10 @@ public class PromptSubmitAction extends AbstractChatBoxAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         boolean enabled = isEnabled(e);
+        Icon icon = getIcon(e);
 
         Presentation presentation = e.getPresentation();
-        presentation.setIcon(Icons.ACTION_EXECUTE);
+        presentation.setIcon(icon);
         presentation.setText(txt("app.assistant.action.SubmitPrompt"));
         presentation.setEnabled(enabled);
     }
@@ -54,5 +58,12 @@ public class PromptSubmitAction extends AbstractChatBoxAction {
     private boolean isEnabled(@NotNull AnActionEvent e) {
         ChatAvailability availability = getChatAvailability(e);
         return availability == AVAILABLE;
+    }
+
+    private Icon getIcon(@NotNull AnActionEvent e) {
+        ChatContext context = getCurrentChatContext(e);
+        return context == null || context.isInteractive() ?
+                Icons.ASSISTANT_PROMPT_INTERACTIVE :
+                Icons.ASSISTANT_PROMPT_NON_INTERACTIVE;
     }
 }

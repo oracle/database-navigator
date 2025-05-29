@@ -36,9 +36,9 @@ import java.awt.Color;
 
 public class ChatBoxStatusLabel extends DBNPanelImpl implements Disposable {
     private interface Colors {
-        Color CONVERSATIONAL = new JBColor(new Color(0x55A76A), new Color(0x55A76A));  // Green
-        Color NON_CONVERSATIONAL = new JBColor(new Color(0xFFAE10), new Color(0xFFAE10));  // Yellow
-        Color CONVERSATION_DISCONTINUED = new JBColor(new Color(0x808080), new Color(0x808080));  // Grey
+        Color CONVERSATIONAL = new JBColor(new Color(0x55A76A), new Color(0x57965C));  // Green
+        Color NON_CONVERSATIONAL = new JBColor(new Color(0xFFAF0F), new Color(0xF2C55C));  // Yellow
+        Color CONVERSATION_DISCONTINUED = new JBColor(new Color(0x818594), new Color(0x9DA0A8));  // Grey
     }
 
     private final WeakRef<ChatBoxForm> chatBox;

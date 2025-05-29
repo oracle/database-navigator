@@ -16,7 +16,9 @@
 
 package com.dbn.assistant.chat.window.action;
 
+import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatAvailability;
+import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.DataKeys;
@@ -26,10 +28,12 @@ import org.jetbrains.annotations.Nullable;
 
 public interface AssistantActionSupport {
 
-    default @Nullable ChatBoxForm getChatBox(@NotNull AnActionEvent e) {
+    @Nullable
+    default ChatBoxForm getChatBox(@NotNull AnActionEvent e) {
         return e.getData(DataKeys.ASSISTANT_CHAT_BOX);
     }
 
+    @Nullable
     default AssistantState getAssistantState(@NotNull AnActionEvent e) {
         ChatBoxForm chatBox = getChatBox(e);
         return chatBox == null ? null : chatBox.getAssistantState();
@@ -40,5 +44,17 @@ public interface AssistantActionSupport {
         return state == null ?
                 ChatAvailability.NOT_INITIALIZED :
                 state.getChatAvailability();
+    }
+
+    @Nullable
+    default Chat getCurrentChat(@NotNull AnActionEvent e) {
+        AssistantState state = getAssistantState(e);
+        return state == null ? null : state.getCurrentChat();
+    }
+
+    @Nullable
+    default ChatContext getCurrentChatContext(@NotNull AnActionEvent e) {
+        Chat chat = getCurrentChat(e);
+        return chat == null ? null : chat.getContext();
     }
 }

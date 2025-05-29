@@ -193,6 +193,9 @@ public class Icons {
     public static final Icon NAVIGATION_GO_TO_SPEC       = load("/img/GoToSpec.png");
     public static final Icon NAVIGATION_GO_TO_BODY       = load("/img/GoToBody.png");
 
+    public static final Icon ASSISTANT_PROMPT_INTERACTIVE = load("/img/action/AssistantPromptInteractive.svg");
+    public static final Icon ASSISTANT_PROMPT_NON_INTERACTIVE = load("/img/action/AssistantPromptNonInteractive.svg");
+
     public static final Icon BROWSER_BACK = AllIcons.Actions.Back;
     public static final Icon BROWSER_NEXT = AllIcons.Actions.Forward;
     public static final Icon BROWSER_OBJECT_PROPERTIES = load("/img/tools/ObjectProperties.svg");
