@@ -73,6 +73,6 @@ public class AssistantEditorNotificationProvider extends EditorNotificationProvi
 
         if (assistantState.getAcknowledgement() != FeatureAcknowledgement.NONE) return null;
 
-        return new AssistantEditorNotificationPanel(file, project);
+        return new AssistantEditorNotificationPanel(file, fileEditor, project);
     }
 }

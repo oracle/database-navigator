@@ -135,7 +135,7 @@ public class DDLMappedNotificationProvider extends EditorNotificationProvider<DD
             DBSchemaObject object = editableObjectFile.getObject();
             DDLFileEditor ddlFileEditor = (DDLFileEditor) fileEditor;
             VirtualFile ddlFile = Failsafe.nn(ddlFileEditor.getVirtualFile());
-            return new DDLMappedNotificationPanel(project, ddlFile, object);
+            return new DDLMappedNotificationPanel(project, ddlFile, fileEditor, object);
 
         } else {
             if (!isDbLanguageFile(file)) return null;
@@ -145,7 +145,7 @@ public class DDLMappedNotificationProvider extends EditorNotificationProvider<DD
             if (isNotValid(object)) return null;
             if (!isFileOpened(object)) return null;
 
-            return new DDLMappedNotificationPanel(project, file, object);
+            return new DDLMappedNotificationPanel(project, file, fileEditor, object);
         }
     }
 }

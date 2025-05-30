@@ -23,14 +23,16 @@ import com.dbn.editor.DBContentType;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettingsManager;
+import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetEditorReadonlyNotificationPanel extends DatasetEditorNotificationPanel{
-    public DatasetEditorReadonlyNotificationPanel(DBSchemaObject object) {
-        super(object, isReadonly(object) ? MessageType.INFO : MessageType.WARNING);
+    public DatasetEditorReadonlyNotificationPanel(DBSchemaObject object, @NotNull FileEditor fileEditor) {
+        super(object, fileEditor, getMessageType(object));
         String environmentName = object.getEnvironmentType().getName();
         final Project project = object.getProject();
 
@@ -57,6 +59,10 @@ public class DatasetEditorReadonlyNotificationPanel extends DatasetEditorNotific
             ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);
             settingsManager.openProjectSettings(ConfigId.GENERAL);
         });
+    }
+
+    private static MessageType getMessageType(DBSchemaObject object) {
+        return isReadonly(object) ? MessageType.INFO : MessageType.WARNING;
     }
 
     private static boolean isReadonly(DBSchemaObject schemaObject) {

@@ -49,8 +49,8 @@ public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationP
     private final ProjectRef project;
     private final JPanel contentPanel;
 
-    public EditorNotificationPanel(Project project, VirtualFile file, MessageType messageType) {
-        super((FileEditor) null, getBackground(messageType), getBackgroundKey(messageType));
+    public EditorNotificationPanel(Project project, VirtualFile file, FileEditor fileEditor, MessageType messageType) {
+        super(fileEditor, getBackground(messageType), getBackgroundKey(messageType));
         this.file = VirtualFileRef.of(file);
         this.project = ProjectRef.of(project);
 
@@ -137,7 +137,6 @@ public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationP
     public void dispose() {
         ComponentDisposer.dispose(this);
     }
-
 
     /**
      * Copy of JBUI.CurrentTheme.Banner

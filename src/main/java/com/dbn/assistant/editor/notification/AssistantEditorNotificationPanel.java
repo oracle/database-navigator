@@ -24,14 +24,15 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.connection.ConnectionId;
+import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 public class AssistantEditorNotificationPanel extends EditorNotificationPanel {
 
-    public AssistantEditorNotificationPanel(@NotNull VirtualFile file,  @NotNull Project project) {
-        super(project, file, MessageType.INFO);
+    public AssistantEditorNotificationPanel(@NotNull VirtualFile file, @NotNull FileEditor fileEditor, @NotNull Project project) {
+        super(project, file, fileEditor, MessageType.INFO);
         setIcon(Icons.COMMON_INFO);
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(
                 "Your database supports natural language interaction powered by",

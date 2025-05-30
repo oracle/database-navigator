@@ -22,6 +22,7 @@ import com.dbn.ddl.DDLFileAttachmentManager;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
+import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
@@ -29,8 +30,8 @@ import org.jetbrains.annotations.NotNull;
 public class DDLMappedNotificationPanel extends EditorNotificationPanel {
     private final DBObjectRef<DBSchemaObject> object;
 
-    public DDLMappedNotificationPanel(@NotNull Project project, @NotNull VirtualFile file, DBSchemaObject object) {
-        super(project, file, MessageType.WARNING);
+    public DDLMappedNotificationPanel(@NotNull Project project, @NotNull VirtualFile file, @NotNull FileEditor fileEditor, DBSchemaObject object) {
+        super(project, file, fileEditor, MessageType.WARNING);
         this.object = DBObjectRef.of(object);
 
         String objectName = object.getQualifiedNameWithType();
