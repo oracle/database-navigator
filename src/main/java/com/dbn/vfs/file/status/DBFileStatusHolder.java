@@ -54,7 +54,7 @@ public class DBFileStatusHolder extends PropertyHolderBase.IntStore<DBFileStatus
     }
 
     @Override
-    protected void changed(DBFileStatus property, boolean value) {
+    protected void propertyChanged(DBFileStatus property, boolean value) {
         if (file == null) return; // not initialised yet
         guarded(this, h -> {
             ProjectEvents.notify(h.getProject(),

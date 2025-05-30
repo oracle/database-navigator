@@ -16,13 +16,7 @@
 
 package com.dbn.assistant.chat.window.action;
 
-import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.state.AssistantState;
-import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.ProjectAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Abstract basic implementation for actions presented in the ChatBox
@@ -30,16 +24,6 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Dan Cioca (Oracle)
  */
-public abstract class AbstractChatBoxAction extends ProjectAction {
+public abstract class AbstractChatBoxAction extends ProjectAction implements AssistantActionSupport {
 
-    @Nullable
-    protected static ChatBoxForm getChatBox(@NotNull AnActionEvent e) {
-        return e.getData(DataKeys.ASSISTANT_CHAT_BOX);
-    }
-
-    @Nullable
-    protected static AssistantState getAssistantState(@NotNull AnActionEvent e) {
-        ChatBoxForm chatBox = getChatBox(e);
-        return chatBox == null ? null : chatBox.getAssistantState();
-    }
 }

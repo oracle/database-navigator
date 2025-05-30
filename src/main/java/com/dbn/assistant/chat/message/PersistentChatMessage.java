@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.chat.message;
 
+import com.dbn.assistant.chat.ChatContext;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.state.PersistentStateElement;
 import lombok.Getter;
@@ -49,7 +50,7 @@ public class PersistentChatMessage extends ChatMessage implements PersistentStat
    * @param author  the author of the message
    * @param context the context in which the chat message was produced
    */
-  public PersistentChatMessage(MessageType type, String content, AuthorType author, ChatMessageContext context) {
+  public PersistentChatMessage(MessageType type, String content, AuthorType author, ChatContext context) {
     super(type, content, author, context);
   }
 
@@ -63,7 +64,7 @@ public class PersistentChatMessage extends ChatMessage implements PersistentStat
     content = readCdata(contentElement);
 
     Element contextElement = element.getChild("context");
-    context = new ChatMessageContext();
+    context = new ChatContext();
     context.readState(contextElement);
   }
 

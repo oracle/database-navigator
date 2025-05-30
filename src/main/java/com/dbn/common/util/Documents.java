@@ -130,7 +130,7 @@ public class Documents {
 
         Project project = file.getProject();
         PsiDocumentManager documentManager = PsiDocumentManager.getInstance(project);
-        return documentManager.getDocument(file);
+        return Read.call(documentManager, m -> m.getDocument(file));
     }
 
     public static Editor[] getEditors(Document document) {

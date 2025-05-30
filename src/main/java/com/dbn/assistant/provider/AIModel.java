@@ -18,6 +18,7 @@ package com.dbn.assistant.provider;
 
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,6 +59,11 @@ public final class AIModel implements Presentable {
         }
 
         return null;
+    }
+
+    @Contract("null -> null; !null -> !null")
+    public static String getId(@Nullable AIModel model) {
+        return model == null ? null : model.getId();
     }
 
     @Nullable
