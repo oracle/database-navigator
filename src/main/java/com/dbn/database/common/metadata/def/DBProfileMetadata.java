@@ -37,6 +37,8 @@ public interface DBProfileMetadata extends DBObjectMetadata {
 
     String getModel() throws SQLException;
 
+    boolean isInteractive() throws SQLException;
+
     double getTemperature() throws SQLException;
 
     String getObjectList() throws SQLException;
@@ -52,6 +54,7 @@ public interface DBProfileMetadata extends DBObjectMetadata {
         private final String model;
         private final String description;
         private final String objectList;
+        private final boolean isInteractive;
         private final double temperature;
         private final boolean enabled;
     }

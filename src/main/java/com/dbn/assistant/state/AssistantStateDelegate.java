@@ -17,7 +17,7 @@
 package com.dbn.assistant.state;
 
 import com.dbn.assistant.DatabaseAssistantType;
-import com.dbn.assistant.chat.window.PromptAction;
+import com.dbn.assistant.chat.ChatContext;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.feature.FeatureAcknowledgement;
 import com.dbn.common.feature.FeatureAvailability;
@@ -63,13 +63,6 @@ public class AssistantStateDelegate extends AssistantState {
     }
 
     @Override
-    public void setSelectedAction(PromptAction selectedAction) {
-        if (getSelectedAction() == selectedAction) return;
-        super.setSelectedAction(selectedAction);
-        notifyStateListeners();
-    }
-
-    @Override
     public void setDefaultProfileName(String profileName) {
         if (Objects.equals(getDefaultProfileName(), profileName)) return;
 
@@ -78,23 +71,21 @@ public class AssistantStateDelegate extends AssistantState {
     }
 
     @Override
-    public void setSelectedProfileName(String profileName) {
-        if (Objects.equals(getSelectedProfileName(), profileName)) return;
-
-        super.setSelectedProfileName(profileName);
+    public void setCurrentContext(ChatContext context) {
+        super.setCurrentContext(context);
         notifyStateListeners();
     }
 
     @Override
-    public void setSelectedModelName(String modelName) {
-        if (Objects.equals(getSelectedModelName(), modelName)) return;
+    public void setCurrentChatId(String currentChatId) {
+        if (Objects.equals(getCurrentChatId(), currentChatId)) return;
 
-        super.setSelectedModelName(modelName);
+        super.setCurrentChatId(currentChatId);
         notifyStateListeners();
     }
 
     @Override
-    protected void changed(AssistantStatus property, boolean value) {
+    protected void propertyChanged(AssistantStatus property, boolean value) {
         notifyStateListeners();
     }
 
