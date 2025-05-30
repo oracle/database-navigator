@@ -48,7 +48,8 @@ public class JdbcConnectorCodeGeneratorTest {
         return Arrays.asList(new Object[][]{
             {"Azure Secret File", "azure_secret_token"},
             {"Azure Certificate File", "azure_cert_nopass"},
-            {"Azure Interactive", "azure_interactive"}
+            {"Azure Interactive", "azure_interactive"},
+            {"Azure Certificate File with Password", "azure_cert_with_pass"}
         });
     }
     @Before
