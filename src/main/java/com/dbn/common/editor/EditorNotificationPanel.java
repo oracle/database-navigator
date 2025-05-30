@@ -92,10 +92,9 @@ public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationP
     public void addNotify() {
         super.addNotify();
 
-        Container wrapper = getParent();
-        Container parent = null;
-        if (wrapper instanceof NonOpaquePanel) {
-            parent = wrapper.getParent();
+        Container parent = getParent();
+        if (parent instanceof NonOpaquePanel) {
+            parent = parent.getParent();
         }
 
         if (parent == null) return;
@@ -103,7 +102,7 @@ public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationP
         for (Component component : parent.getComponents()) {
             boolean duplicate = findChildComponent(component, c -> isDuplicate(c)) != null;
             if (duplicate) {
-                parent.remove(wrapper);
+                parent.remove(component);
             }
         }
     }
