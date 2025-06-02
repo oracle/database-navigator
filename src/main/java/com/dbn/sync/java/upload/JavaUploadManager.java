@@ -49,11 +49,13 @@ import com.intellij.psi.PsiJavaCodeReferenceElement;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.PsiUtilCore;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +76,18 @@ import static com.dbn.sync.java.upload.JavaUploadManager.COMPONENT_NAME;
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 public class JavaUploadManager extends ProjectComponentBase implements PersistentState {
 	public static final String COMPONENT_NAME = "DBNavigator.Project.JavaUploadManager";
+
+	@NonNls
+	private static final List<String> EXCLUDED_LIBRARIES = Arrays.asList(
+			"ojdbc",
+			"dbjava",
+			"oraclepki",
+			"orai18n",
+			"oci-java-sdk",
+			"xmlparserv2",
+			"xdb",
+			"ucp"
+	);
 
 	private final Map<String, GenericStateHolder> states = new ConcurrentHashMap<>();
 
@@ -133,11 +147,23 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 		}
 	}
 
+	private static boolean isExcludedDependency(VirtualFile file) {
+		String name = file.getName();
+		// TODO look for a better way to identify oracle driver libraries
+		for (String pattern : EXCLUDED_LIBRARIES) {
+			if (name.startsWith(pattern)) return true;
+		}
+		return false;
+	}
+
 	public boolean isUploadSupported(VirtualFile file) {
 		Project project = getProject();
 		if (isArchive(file)) {
-			return isModuleDependency(project, file);
+			if (isExcludedDependency(file)) return false;
+			if (!isModuleDependency(project, file)) return false;
+			return true;
 		}
+
 		if (isProjectSourceFile(project, file)) {
 			return true;
 		}
@@ -202,6 +228,7 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 					}
 
 					if (file == null) return;
+					if (isExcludedDependency(file)) return;
 					dependencies.add(file);
 				}
 			}
