@@ -62,6 +62,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.file.util.ProjectFiles.isModuleDependency;
 import static com.dbn.common.file.util.ProjectFiles.isProjectSourceFile;
 import static com.dbn.common.file.util.VirtualFiles.isArchive;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -132,9 +133,14 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 		}
 	}
 
-	private boolean isUploadSupported(VirtualFile file) {
-		if (isArchive(file)) return true;
-		if (isProjectSourceFile(getProject(), file)) return true;
+	public boolean isUploadSupported(VirtualFile file) {
+		Project project = getProject();
+		if (isArchive(file)) {
+			return isModuleDependency(project, file);
+		}
+		if (isProjectSourceFile(project, file)) {
+			return true;
+		}
 		return false;
 	}
 

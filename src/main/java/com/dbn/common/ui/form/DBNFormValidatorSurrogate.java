@@ -16,6 +16,7 @@
 
 package com.dbn.common.ui.form;
 
+import com.dbn.common.ui.list.CheckBoxList;
 import com.intellij.openapi.ui.ValidationInfo;
 import lombok.extern.slf4j.Slf4j;
 
@@ -73,6 +74,11 @@ public class DBNFormValidatorSurrogate implements DBNFormValidator{
 
     @Override
     public void addSelectionValidation(JComboBox comboBox, String message) {
+        notSupported();
+    }
+
+    @Override
+    public void addSelectionValidation(CheckBoxList checkBoxList, String message) {
         notSupported();
     }
 

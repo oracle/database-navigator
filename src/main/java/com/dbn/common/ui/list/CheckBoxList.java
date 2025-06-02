@@ -72,6 +72,17 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
         UserInterface.enableSelectOnFocus(this);
     }
 
+    public boolean hasSelection() {
+        ListModel<Entry<T>> model = getModel();
+        for (int i = 0; i< model.getSize(); i++) {
+            Entry<T> entry = model.getElementAt(i);
+            if (entry.getCheckBox().isSelected()){
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
