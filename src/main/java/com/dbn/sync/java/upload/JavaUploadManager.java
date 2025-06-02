@@ -121,7 +121,7 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 			}
 
 			if (dependencies.isEmpty()) {
-				Messages.showInfoDialog(project, "No Java Resources", "No Java resources found under workspace directory \"" + rootFilePath + "\"");
+				Messages.showInfoDialog(project, "No Java Resources", "No uploadable java content found under workspace directory \"" + rootFilePath + "\"");
 				return;
 			}
 
@@ -132,7 +132,7 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 
 			Dialogs.show(() -> new JavaUploaderInputDialog(batch));
 		} catch (Exception e) {
-			Messages.showErrorDialog(project, "Error Loading Java Resources", "Failed to load java resources from workspace directory \"" + rootFilePath + "\"", e);
+			Messages.showErrorDialog(project, "Error Loading Java Resources", "Failed to load java content from workspace directory \"" + rootFilePath + "\"", e);
 		}
 	}
 
