@@ -63,6 +63,7 @@ import static com.dbn.object.common.property.DBObjectProperty.INNER;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.common.property.DBObjectProperty.PRIMITIVE;
 import static com.dbn.object.common.property.DBObjectProperty.SCALAR;
+import static com.dbn.object.common.property.DBObjectProperty.SOURCE;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.type.DBJavaClassKind.ENUM;
 import static com.dbn.object.type.DBJavaClassKind.INTERFACE;
@@ -106,6 +107,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		set(STATIC, metadata.isStatic());
 		set(INNER, metadata.isInner());
 		set(PRIMITIVE, metadata.isPrimitive());
+		set(SOURCE, metadata.isSource());
 		set(SCALAR, isPrimitive() || DBJavaScalarType.isScalar(className));
 
 
@@ -224,6 +226,11 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	@Override
 	public boolean isScalar() {
 		return is(SCALAR);
+	}
+
+	@Override
+	public boolean isSource() {
+		return is(SOURCE);
 	}
 
 	@Override
