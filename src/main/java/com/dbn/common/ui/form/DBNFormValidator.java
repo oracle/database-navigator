@@ -16,6 +16,7 @@
 
 package com.dbn.common.ui.form;
 
+import com.dbn.common.ui.list.CheckBoxList;
 import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.Nullable;
 
@@ -98,6 +99,8 @@ public interface DBNFormValidator {
     void addTextValidation(JTextComponent textField, Function<JTextComponent, String> validator);
 
     void addSelectionValidation(JComboBox comboBox, String message);
+
+    void addSelectionValidation(CheckBoxList checkBoxList, String message);
 
 
     default void validateInput() {
