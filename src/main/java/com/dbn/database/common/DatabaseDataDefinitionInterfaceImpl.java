@@ -172,6 +172,21 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
         }
     }
 
+    @Override
+    public void compileObject(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException {
+        executeStatement(connection, "compile-object", ownerName, objectName, objectType, debug ? "DEBUG" : "");
+    }
+
+    @Override
+    public void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException {
+        executeStatement(connection, "compile-object-body", ownerName, objectName, objectType, debug ? "DEBUG" : "");
+    }
+
+    @Override
+    public void compileJavaClass(String ownerName, String objectName, boolean source, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, source ? "compile-java-source" : "compile-java-class", ownerName, objectName);
+    }
+
     protected String quoted(String identifier) {
         QuotePair quotes = getInterfaces().getCompatibilityInterface().getDefaultIdentifierQuotes();
         return quotes.quote(identifier);

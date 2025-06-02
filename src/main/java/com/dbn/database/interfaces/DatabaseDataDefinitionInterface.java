@@ -74,9 +74,19 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
 
     default void dropJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {}
    /*********************************************************
-    *                   RENAME statements                     *
+    *                   RENAME statements                   *
     *********************************************************/
 
+
+    /*********************************************************
+     *                   COMPILE statements                  *
+     *********************************************************/
+
+    void compileObject(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException;
+
+    void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException;
+
+    void compileJavaClass(String ownerName, String objectName, boolean source, DBNConnection connection) throws SQLException;
 
 
 }

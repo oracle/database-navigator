@@ -27,8 +27,8 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.database.DatabaseFeature;
+import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.SourceCodeEditor;
@@ -59,6 +59,7 @@ import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
+import static com.dbn.object.common.property.DBObjectProperty.SOURCE;
 import static com.dbn.object.common.status.DBObjectStatus.COMPILING;
 
 public class DatabaseCompilerManager extends ProjectComponentBase {
@@ -206,7 +207,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
     private static CompilerResult doCompileObject(DBSchemaObject object, CompileType compileType, CompilerAction compilerAction, DBObjectStatusHolder objectStatus, DBNConnection conn) throws SQLException {
         DBContentType contentType = compilerAction.getContentType();
         ConnectionHandler connection = object.getConnection();
-        DatabaseMetadataInterface metadata = connection.getMetadataInterface();
+        DatabaseDataDefinitionInterface dataDefinitionInterface = connection.getDataDefinitionInterface();
 
         boolean debug = compileType == CompileType.DEBUG;
 
@@ -219,13 +220,15 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
         String objectTypeName = cachedUpperCase(object.getTypeName());
 
         if (object.getObjectType() == DBObjectType.JAVA_CLASS) {
-            metadata.compileJavaClass(
+            boolean source = object.is(SOURCE);
+            dataDefinitionInterface.compileJavaClass(
                     schemaName,
                     objectName,
+                    source,
                     conn);
 
         } else if (contentType == DBContentType.CODE_SPEC || contentType == DBContentType.CODE) {
-            metadata.compileObject(
+            dataDefinitionInterface.compileObject(
                     schemaName,
                     objectName,
                     objectTypeName,
@@ -233,7 +236,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                     conn);
 
         } else if (contentType == DBContentType.CODE_BODY) {
-            metadata.compileObjectBody(
+            dataDefinitionInterface.compileObjectBody(
                     schemaName,
                     objectName,
                     objectTypeName,
@@ -241,13 +244,13 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                     conn);
 
         } else if (contentType == DBContentType.CODE_SPEC_AND_BODY) {
-            metadata.compileObject(
+            dataDefinitionInterface.compileObject(
                     schemaName,
                     objectName,
                     objectTypeName,
                     debug,
                     conn);
-            metadata.compileObjectBody(
+            dataDefinitionInterface.compileObjectBody(
                     schemaName,
                     objectName,
                     objectTypeName,

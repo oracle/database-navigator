@@ -109,4 +109,28 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="compile-object">
+        <statement>
+            alter {2} {0}.{1} compile {3}
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="compile-object-body">
+        <statement>
+            alter {2} {0}.{1} compile {3} body
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="compile-java-source">
+        <statement>
+            alter JAVA SOURCE {0}.{1} compile
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="compile-java-class">
+        <statement>
+            alter JAVA CLASS {0}.{1} compile
+        </statement>
+    </statement-execution-processor>
+
 </data-dictionary>

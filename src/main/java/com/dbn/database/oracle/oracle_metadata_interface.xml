@@ -2729,26 +2729,6 @@
         </statement>
     </statement-execution-processor>
 
-
-    <statement-execution-processor id="compile-object">
-        <statement>
-             alter {2} {0}.{1} compile {3}
-        </statement>
-    </statement-execution-processor>
-
-    <statement-execution-processor id="compile-object-body">
-        <statement>
-            alter {2} {0}.{1} compile {3} body
-        </statement>
-    </statement-execution-processor>
-
-    <statement-execution-processor id="compile-java-object">
-        <statement>
-            alter JAVA SOURCE {0}.{1} compile
-        </statement>
-    </statement-execution-processor>
-
-
     <statement-execution-processor id="load-distinct-values" is-query="true">
         <statement>
             select distinct {2} from {0}.{1} where {2} is not null order by {2}
