@@ -299,7 +299,6 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 					dataDefinitionInterface.compileJavaClass(
 							schemaName,
 							name,
-							isSource(),
 							conn);
 				});
 	}

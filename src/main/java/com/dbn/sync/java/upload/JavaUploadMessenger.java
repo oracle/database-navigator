@@ -64,7 +64,15 @@ public class JavaUploadMessenger extends BatchMessengerBase<JavaUploadTask, Java
 
     @Override
     public String getTaskSuccessMessage(JavaUploadBatch batch, JavaUploadTask task) {
-        return "Java resource successfully uploaded (\"" + batch.getConnectionName() + "\" / \"" + batch.getInput().getTargetSchemaName() + "\")" ;
+        String qualification = " (\"" + batch.getConnectionName() + "\" / \"" + batch.getInput().getTargetSchemaName() + "\")";
+
+        if (task.isJavaLibrary()) return "Java library successfully unpacked";
+
+        if (task.isJavaClass()) return "Java class successfully uploaded" + qualification;
+        if (task.isJavaSource()) return "Java source successfully uploaded" + qualification;
+        if (task.isJavaResource()) return "Java resource successfully uploaded" + qualification;
+
+        return "Task successfully completed";
     }
 
     @Override

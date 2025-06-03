@@ -17,11 +17,13 @@
 package com.dbn.sync.java.upload.impl;
 
 import com.dbn.common.Priority;
+import com.dbn.common.file.util.VirtualFiles;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNCallableStatement;
 import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.sync.java.upload.JavaUploadBatch;
+import com.intellij.openapi.vfs.VirtualFile;
 import lombok.SneakyThrows;
 
 import java.io.ByteArrayInputStream;
@@ -42,6 +44,29 @@ import static com.dbn.sync.java.upload.impl.JavaResourceUploader.uploadJavaResou
 public class JavaArchiveUploader extends JavaUploaderBase {
 
 	@SneakyThrows
+	public static void uploadJavaArchive(JavaUploadBatch batch, VirtualFile archiveFile) {
+		VirtualFile fileRoot = VirtualFiles.getJarFileRoot(archiveFile);
+		if (fileRoot == null) {
+			throw new IllegalArgumentException("Invalid archive file: " + archiveFile.getPath());
+		}
+		for (VirtualFile child : fileRoot.getChildren()) {
+			createUploadTasks(batch, child);
+		}
+	}
+
+	private static void createUploadTasks(JavaUploadBatch batch, VirtualFile file) {
+		if (file.isDirectory()) {
+			VirtualFile[] children = file.getChildren();
+			for (VirtualFile child : children) {
+				createUploadTasks(batch, child);
+			}
+		} else {
+			batch.createTask(file);
+		}
+	}
+
+
+	@SneakyThrows
 	public static void uploadJavaArchive(JavaUploadBatch batch, String jarPath) {
 		ensureLobTable(batch);
 
@@ -59,6 +84,8 @@ public class JavaArchiveUploader extends JavaUploaderBase {
 
 			while ((entry = zis.getNextEntry()) != null) {
 				if (isProgressCancelled()) return;
+				if (batch.isCancelled()) return;
+
 				String name = entry.getName();
 
 				if (entry.isDirectory()) {

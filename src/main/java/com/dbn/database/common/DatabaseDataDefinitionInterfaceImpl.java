@@ -183,8 +183,8 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
     }
 
     @Override
-    public void compileJavaClass(String ownerName, String objectName, boolean source, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, source ? "compile-java-source" : "compile-java-class", ownerName, objectName);
+    public void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "compile-java-class", ownerName, objectName);
     }
 
     protected String quoted(String identifier) {

@@ -16,8 +16,10 @@
 
 package com.dbn.execution.compiler;
 
+import com.dbn.common.Priority;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.notification.NotificationCategory;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Progress;
@@ -35,10 +37,13 @@ import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.code.SourceCodeManagerListener;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.compiler.ui.CompilerTypeSelectionDialog;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
+import com.dbn.object.lookup.DBJavaNameCache;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
@@ -59,7 +64,6 @@ import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
-import static com.dbn.object.common.property.DBObjectProperty.SOURCE;
 import static com.dbn.object.common.status.DBObjectStatus.COMPILING;
 
 public class DatabaseCompilerManager extends ProjectComponentBase {
@@ -220,11 +224,9 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
         String objectTypeName = cachedUpperCase(object.getTypeName());
 
         if (object.getObjectType() == DBObjectType.JAVA_CLASS) {
-            boolean source = object.is(SOURCE);
             dataDefinitionInterface.compileJavaClass(
                     schemaName,
                     objectName,
-                    source,
                     conn);
 
         } else if (contentType == DBContentType.CODE_SPEC || contentType == DBContentType.CODE) {
@@ -355,5 +357,44 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
         } else {
             callback.accept(compileType);
         }
+    }
+
+    public void compileJavaClasses(ConnectionHandler connection, List<DBObjectRef<DBJavaClass>> javaClasses) {
+        Project project = getProject();
+        Progress.background(project, connection, true,
+                "Compiling Java Classes",
+                "Compiling java classes",
+                progress -> {
+                    progress.setIndeterminate(false);
+
+                    DatabaseDataDefinitionInterface dataDefinitionInterface = connection.getDataDefinitionInterface();
+
+                    int size = javaClasses.size();
+                    for (int i = 0; i < size; i++) {
+                        DBObjectRef<DBJavaClass> javaClass = javaClasses.get(i);
+                        String className = DBJavaNameCache.getCanonicalName(javaClass);
+                        progress.setText2(className);
+
+                        String schemaName = javaClass.getSchemaName(true);
+                        String objectName = javaClass.getObjectName(true);
+                        try {
+                            DatabaseInterfaceInvoker.execute(Priority.MEDIUM,
+                                    "Compiling Java Class",
+                                    "Compiling java class \"" + className + "\"", project, connection.getConnectionId(), conn -> {
+                                        dataDefinitionInterface.compileJavaClass(
+                                                schemaName,
+                                                objectName,
+                                                conn);
+                                    });
+                        } catch (SQLException e) {
+                            sendErrorNotification(NotificationCategory.COMPILER, "Failed to compile class \"" + className + "\": " + e.getMessage());
+                        }
+                        progress.setFraction(progressOf(i + 1, size));
+                    }
+
+                    ProjectEvents.notify(project,
+                            CompileManagerListener.TOPIC,
+                            (listener) -> listener.compileFinished(connection, null));
+                });
     }
 }
