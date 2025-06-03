@@ -34,11 +34,7 @@ public class DBProfileMetadataImpl extends DBObjectMetadataBase implements DBPro
     }
 
     public String getCredentialName() throws SQLException {
-        String credentialName = getString("CREDENTIAL_NAME");
-        if (credentialName != null && credentialName.startsWith("\"") && credentialName.endsWith("\"") && credentialName.length() > 1) {
-            credentialName = credentialName.substring(1, credentialName.length() - 1);
-        }
-        return credentialName;
+        return getString("CREDENTIAL_NAME");
     }
 
     @Override
