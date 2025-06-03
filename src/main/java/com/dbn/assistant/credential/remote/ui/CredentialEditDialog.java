@@ -53,14 +53,6 @@ public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
   }
 
   /**
-   * Defines the validation logic for the fields
-   */
-  @Override
-  protected ValidationInfo doValidate() {
-    return validator.validate();
-  }
-
-  /**
    * Defines the behaviour when we click the create/update button
    * It starts by validating, and then it executes the specifies action
    */
