@@ -157,6 +157,7 @@
         <projectService serviceImplementation="com.dbn.diagnostics.DiagnosticsManager"/>
         <projectService serviceImplementation="com.dbn.diagnostics.ParserDiagnosticsManager"/>
         <projectService serviceImplementation="com.dbn.batch.BatchManager"/>
+        <projectService serviceImplementation="com.dbn.operation.DatabaseOperationManager"/>
         <projectService serviceImplementation="com.dbn.browser.DatabaseBrowserManager"/>
         <projectService serviceImplementation="com.dbn.common.environment.EnvironmentManager"/>
         <projectService serviceImplementation="com.dbn.common.expression.ExpressionEvaluationManager"/>
@@ -659,6 +660,7 @@
         <toolWindow id="DB Diagnostics" anchor="bottom" factoryClass="com.dbn.diagnostics.DiagnosticsToolWindowFactory" canCloseContents="true"/>
         <toolWindow id="DB Execution Console" anchor="bottom" factoryClass="com.dbn.execution.ExecutionConsoleToolWindowFactory" />
         <toolWindow id="DB Assistant" anchor="right" factoryClass="com.dbn.assistant.DatabaseAssistantToolWindowFactory"/>
+        <toolWindow id="DB Vector" anchor="right" factoryClass="com.dbn.vector.DatabaseVectorToolWindowFactory"/>
 
         <fileType name="DBN-SQL" language="DBN-SQL" implementationClass="com.dbn.language.sql.SQLFileType" fieldName="INSTANCE" extensions="sql;ddl;vw"/>
         <fileType name="DBN-PSQL" language="DBN-PSQL" implementationClass="com.dbn.language.psql.PSQLFileType" fieldName="INSTANCE" extensions="psql;plsql;trg;prc;fnc;pkg;pks;pkb;tpe;tps;tpb"/>
