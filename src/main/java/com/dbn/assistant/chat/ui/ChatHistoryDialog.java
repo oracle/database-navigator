@@ -99,8 +99,8 @@ public class ChatHistoryDialog extends DBNDialog<ChatHistoryForm> {
                 "Delete Chats",
                 confirmMessage,
                 Messages.OPTIONS_YES_NO,
-                1,
-                option -> when(option == 1, () -> deleteChats(selectedIds))
+                0,
+                option -> when(option == 0, () -> deleteChats(selectedIds))
         );
     }
 
