@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.chat.window.action;
 
+import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.DataKeys;
@@ -32,6 +33,9 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import java.util.List;
 
+import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
+import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_AVAILABLE;
+import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_SELECTED;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -39,7 +43,7 @@ import static com.dbn.nls.NlsResources.txt;
  *
  * @author Dan Cioca (Oracle)
  */
-public class ProfileSelectDropdownAction extends ComboBoxAction implements DumbAware {
+public class ProfileSelectDropdownAction extends ComboBoxAction implements AssistantActionSupport, DumbAware {
 
     @Override
     @NotNull
@@ -59,8 +63,7 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements DumbA
 
     @Override
     public void update(@NotNull AnActionEvent e) {
-        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
-        boolean enabled = chatBox != null && chatBox.getAssistantState().isAvailable();
+        boolean enabled = isEnabled(e);
 
         DBAIProfile profile = getSelectedProfile(e);
 
@@ -71,21 +74,26 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements DumbA
         presentation.setIcon(profile == null ? null : profile.getIcon());
     }
 
+    private boolean isEnabled(@NotNull AnActionEvent e) {
+        ChatAvailability availability = getChatAvailability(e);
+        return availability.isOneOf(
+                AVAILABLE,
+                NO_PROFILE_AVAILABLE,
+                NO_PROFILE_SELECTED);
+    }
+
     private String getText(@NotNull AnActionEvent e) {
-        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
+        ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return txt("app.assistant.action.Profile");
 
         String text = getSelectedProfileName(e);
         if (text != null) return text;
 
-        List<DBAIProfile> profiles = chatBox.getProfiles();
-        if (!profiles.isEmpty()) return txt("app.assistant.action.SelectProfile");
-
         return txt("app.assistant.action.Profile");
     }
 
     @Nullable
-    private static String getSelectedProfileName(@NotNull AnActionEvent e) {
+    private String getSelectedProfileName(@NotNull AnActionEvent e) {
         DBAIProfile profile = getSelectedProfile(e);
         if (profile == null) return null;
 
@@ -93,8 +101,8 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements DumbA
     }
 
     @Nullable
-    private static DBAIProfile getSelectedProfile(@NotNull AnActionEvent e) {
-        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
+    private DBAIProfile getSelectedProfile(@NotNull AnActionEvent e) {
+        ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return null;
 
         return chatBox.getSelectedProfile();

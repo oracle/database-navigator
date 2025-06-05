@@ -26,15 +26,17 @@ import com.dbn.editor.code.diff.MergeAction;
 import com.dbn.editor.code.diff.SourceCodeDiffManager;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
+import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.text.DateFormatUtil;
+import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Strings.toLowerCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class SourceCodeOutdatedNotificationPanel extends SourceCodeEditorNotificationPanel{
-    public SourceCodeOutdatedNotificationPanel(DBSourceCodeVirtualFile sourceCodeFile, SourceCodeEditor sourceCodeEditor) {
-        super(sourceCodeFile.getObject(), MessageType.WARNING);
+    public SourceCodeOutdatedNotificationPanel(DBSourceCodeVirtualFile sourceCodeFile, @NotNull FileEditor fileEditor, SourceCodeEditor sourceCodeEditor) {
+        super(sourceCodeFile.getObject(), fileEditor, MessageType.WARNING);
         DBSchemaObject editableObject = sourceCodeFile.getObject();
         Project project = editableObject.getProject();
         String presentableChangeTime =

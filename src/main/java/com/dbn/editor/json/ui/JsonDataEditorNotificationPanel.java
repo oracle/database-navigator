@@ -19,9 +19,11 @@ package com.dbn.editor.json.ui;
 import com.dbn.common.editor.EditorNotificationPanel;
 import com.dbn.common.message.MessageType;
 import com.dbn.object.DBJsonView;
+import com.intellij.openapi.fileEditor.FileEditor;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class JsonDataEditorNotificationPanel extends EditorNotificationPanel {
-    public JsonDataEditorNotificationPanel(DBJsonView object, MessageType messageType) {
-        super(object.getProject(), object.getVirtualFile(), messageType);
+    public JsonDataEditorNotificationPanel(DBJsonView object, @NotNull FileEditor fileEditor, MessageType messageType) {
+        super(object.getProject(), object.getVirtualFile(), fileEditor, messageType);
     }
 }

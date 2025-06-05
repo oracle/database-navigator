@@ -249,11 +249,12 @@
             select
                 p.PROFILE_NAME,
                 DECODE(STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                DECODE(pa.CONVERSATION, 'true', 'Y', 'N') as IS_CONVERSATION,
                 TO_CHAR(p.DESCRIPTION) AS DESCRIPTION,
                 pa.PROVIDER,
                 pa.MODEL,
                 pa.TEMPERATURE,
-                pa.CREDENTIAL_NAME,
+                REGEXP_REPLACE(pa.CREDENTIAL_NAME, '^"(.*)"$', '\1') as CREDENTIAL_NAME,
                 pa.OBJECT_LIST
             from (
                 select
@@ -270,6 +271,7 @@
                     'model' AS MODEL,
                     'temperature' AS TEMPERATURE,
                     'credential_name' AS CREDENTIAL_NAME,
+                    'conversation' AS CONVERSATION,
                     'object_list' AS OBJECT_LIST
                 )
             ) pa
@@ -281,11 +283,12 @@
             select
                 p.PROFILE_NAME,
                 DECODE(STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                DECODE(pa.CONVERSATION, 'true', 'Y', 'N') as IS_CONVERSATION,
                 TO_CHAR(p.DESCRIPTION) AS DESCRIPTION,
                 pa.PROVIDER,
                 pa.MODEL,
                 pa.TEMPERATURE,
-                pa.CREDENTIAL_NAME,
+                REGEXP_REPLACE(pa.CREDENTIAL_NAME, '^"(.*)"$', '\1') as CREDENTIAL_NAME,
                 pa.OBJECT_LIST
             from (
                 select
@@ -302,6 +305,7 @@
                     'model' AS MODEL,
                     'temperature' AS TEMPERATURE,
                     'credential_name' AS CREDENTIAL_NAME,
+                    'conversation' AS CONVERSATION,
                     'object_list' AS OBJECT_LIST
                 )
             ) pa
@@ -314,6 +318,7 @@
             select
                 null as PROFILE_NAME,
                 null as IS_ENABLED,
+                null as IS_CONVERSATION,
                 null as DESCRIPTION,
                 null as PROVIDER,
                 null as MODEL,

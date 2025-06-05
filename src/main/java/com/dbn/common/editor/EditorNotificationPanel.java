@@ -18,40 +18,51 @@ package com.dbn.common.editor;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.compatibility.Compatibility;
+import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.dispose.ComponentDisposer;
 import com.dbn.common.file.VirtualFileRef;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.project.ProjectRef;
+import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.mapping.FileConnectionContextManager;
+import com.intellij.codeInsight.intention.IntentionActionWithOptions;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.colors.ColorKey;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBColor;
+import com.intellij.ui.components.panels.NonOpaquePanel;
 import com.intellij.util.ui.JBUI;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.util.Objects;
 
+import static com.dbn.common.ui.util.UserInterface.findChildComponent;
 import static javax.swing.SwingConstants.RIGHT;
 
 public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationPanel implements Disposable {
     private final VirtualFileRef file;
     private final ProjectRef project;
+    private final WeakRef<FileEditor> fileEditor;
     private final JPanel contentPanel;
 
-    public EditorNotificationPanel(Project project, VirtualFile file, MessageType messageType) {
-        super((FileEditor) null, getBackground(messageType), getBackgroundKey(messageType));
+    public EditorNotificationPanel(Project project, VirtualFile file, FileEditor fileEditor, MessageType messageType) {
+        super(fileEditor, getBackground(messageType), getBackgroundKey(messageType));
         this.file = VirtualFileRef.of(file);
+        this.fileEditor = WeakRef.of(fileEditor);
         this.project = ProjectRef.of(project);
 
         int hgap = JBUI.scale(8);
@@ -64,9 +75,40 @@ public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationP
 
         this.myLabel.setForeground(Banner.FOREGROUND);
         this.myLabel.setIcon(getIcon(messageType));
+
         this.myLabel.setHorizontalAlignment(RIGHT);
         this.myLabel.setIconTextGap(hgap);
         this.myLabel.setBorder(null);
+    }
+
+    @Override
+    public @Nullable IntentionActionWithOptions getIntentionAction() {
+        // do not expose links as intentions (e.g. db-assistant "Configure")
+        return null;
+    }
+
+    @Override
+    @Workaround // duplicate notification panels - last resort
+    public void addNotify() {
+        super.addNotify();
+
+        Container parent = getParent();
+        if (parent instanceof NonOpaquePanel) {
+            parent = parent.getParent();
+        }
+
+        if (parent == null) return;
+
+        for (Component component : parent.getComponents()) {
+            boolean duplicate = findChildComponent(component, c -> isDuplicate(c)) != null;
+            if (duplicate) {
+                parent.remove(component);
+            }
+        }
+    }
+
+    private boolean isDuplicate(JComponent c) {
+        return c.getClass() == this.getClass() && c != this;
     }
 
     protected Icon getIcon(MessageType messageType) {
@@ -138,6 +180,17 @@ public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationP
         ComponentDisposer.dispose(this);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        EditorNotificationPanel that = (EditorNotificationPanel) o;
+        return Objects.equals(file, that.file) && Objects.equals(fileEditor, that.fileEditor);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(file, fileEditor);
+    }
 
     /**
      * Copy of JBUI.CurrentTheme.Banner

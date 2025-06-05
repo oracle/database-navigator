@@ -16,10 +16,10 @@
 
 package com.dbn.assistant.chat.message.action;
 
+import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.help.ui.AssistantHelpDialog;
 import com.dbn.common.action.BasicAction;
-import com.dbn.common.action.DataKeys;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class HelpAction extends BasicAction {
+public class HelpAction extends BasicAction implements AssistantActionSupport {
 
   @Override
   public void update(@NotNull AnActionEvent e) {
@@ -38,8 +38,8 @@ public class HelpAction extends BasicAction {
     presentation.setIcon(Icons.ACTION_HELP);
   }
   @Override
-  public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
-    ChatBoxForm chatBox = anActionEvent.getData(DataKeys.ASSISTANT_CHAT_BOX);
+  public void actionPerformed(@NotNull AnActionEvent e) {
+    ChatBoxForm chatBox = getChatBox(e);
     if (chatBox == null) return;
 
     Dialogs.show(() -> new AssistantHelpDialog(chatBox.getConnection()));

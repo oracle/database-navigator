@@ -256,6 +256,11 @@ public class VirtualConnectionHandler extends StatefulDisposableBase implements 
         return unsupported();
     }
 
+    @Override
+    public @NotNull DBNConnection getAssistantConnection() {
+        return unsupported();
+    }
+
     @NotNull
     @Override
     public DBNConnection getDebuggerConnection() {
@@ -271,6 +276,11 @@ public class VirtualConnectionHandler extends StatefulDisposableBase implements 
     @NotNull
     @Override
     public DBNConnection getConnection(@NotNull SessionId sessionId) throws SQLException {
+        return unsupported();
+    }
+
+    @Override
+    public @Nullable String getConnectionResourceId(SessionId sessionId) {
         return unsupported();
     }
 

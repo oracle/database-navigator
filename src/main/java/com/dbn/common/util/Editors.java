@@ -99,6 +99,7 @@ import java.util.stream.Collectors;
 import static com.dbn.browser.DatabaseBrowserUtils.markSkipBrowserAutoscroll;
 import static com.dbn.browser.DatabaseBrowserUtils.unmarkSkipBrowserAutoscroll;
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.intellij.openapi.editor.EditorModificationUtil.setReadOnlyHint;
 
 @Slf4j
 @UtilityClass
@@ -281,6 +282,10 @@ public class Editors {
             EditorHighlighter highlighter = HighlighterFactory.createHighlighter(syntaxHighlighter, colorsScheme);
             editorEx.setHighlighter(highlighter);
         }
+    }
+
+    public static void setEditorReadonlyHint(Editor editor, String readonlyHint) {
+        setReadOnlyHint(editor, readonlyHint);
     }
 
     public static void setEditorReadonly(Editor editor, boolean readonly) {
