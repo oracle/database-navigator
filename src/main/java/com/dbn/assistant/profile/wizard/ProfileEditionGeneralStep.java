@@ -44,6 +44,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.DocumentFilter;
 import java.awt.event.ItemEvent;
 import java.util.List;
 import java.util.Set;
@@ -118,6 +120,8 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   private void addValidationListener() {
     nameTextField.setInputVerifier(new ProfileNameVerifier(existingProfileNames, isUpdate));
     credentialComboBox.setInputVerifier(new ProfileCredentialVerifier());
+    ((AbstractDocument) nameTextField.getDocument()).setDocumentFilter(new UppercaseDocumentFilter());
+
     nameTextField.getDocument().addDocumentListener(new DocumentListener() {
       public void changedUpdate(DocumentEvent e) {
         nameTextField.getInputVerifier().verify(nameTextField);
@@ -131,6 +135,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
         nameTextField.getInputVerifier().verify(nameTextField);
       }
     });
+
     credentialComboBox.addItemListener(e -> {
       if (e.getStateChange() == ItemEvent.SELECTED) {
         InputVerifier verifier = credentialComboBox.getInputVerifier();
@@ -213,5 +218,17 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   @Override
   public void dispose() {
     // TODO dispose UI resources
+  }
+
+  private static class UppercaseDocumentFilter extends DocumentFilter {
+    @Override
+    public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attr) throws javax.swing.text.BadLocationException {
+      super.insertString(fb, offset, string.toUpperCase(), attr);
+    }
+
+    @Override
+    public void replace(FilterBypass fb, int offset, int length, String text, javax.swing.text.AttributeSet attrs) throws javax.swing.text.BadLocationException {
+      super.replace(fb, offset, length, text.toUpperCase(), attrs);
+    }
   }
 }

@@ -25,6 +25,7 @@ import javax.swing.border.Border;
 import java.awt.Color;
 import java.util.Set;
 
+import static com.dbn.common.util.Strings.isAlphanumericWithUnderscore;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -44,11 +45,18 @@ public class ProfileNameVerifier extends InputVerifier {
   @Override
   public boolean verify(JComponent input) {
     JTextField textField = (JTextField) input;
-    boolean isEmpty = textField.getText().trim().isEmpty();
-    boolean exists = profileNames.contains(textField.getText().trim().toUpperCase());
+    String text = textField.getText();
+
+    boolean isEmpty = text.trim().isEmpty();
+    boolean hasValidFormat = isAlphanumericWithUnderscore(text);
+    boolean exists = profileNames.contains(text.trim().toUpperCase());
+
     if (isEmpty) {
       textField.setBorder(ERROR_BORDER);
       textField.setToolTipText(txt("cfg.assistant.error.ProfileNameEmpty"));
+    } else if (!hasValidFormat) {
+      textField.setBorder(ERROR_BORDER);
+      textField.setToolTipText(txt("cfg.assistant.error.ProfileNameInvalid"));
     } else if (exists && !isUpdate) {
       textField.setBorder(ERROR_BORDER);
       textField.setToolTipText(txt("cfg.assistant.error.ProfileNameExists"));
@@ -56,7 +64,8 @@ public class ProfileNameVerifier extends InputVerifier {
       textField.setBorder(DEFAULT_BORDER);
       textField.setToolTipText(null);
     }
-    return !(isEmpty || exists);
+
+    return !isEmpty && hasValidFormat && !(exists && !isUpdate);
   }
 
   @Override

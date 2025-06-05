@@ -110,7 +110,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
                 "provider", getProvider().getId(),
                 "model", getModel().getApiName(),
                 "temperature", getTemperature(),
-                "credential_name", nvl(getCredentialName(), ""),
+                "credential_name", nvl(getQuotedCredentialName(), ""),
                 "conversation", isInteractive()?"true":"false",
                 "object_list", convert(objects, o -> objectToAttributes(o))));
     }
@@ -163,6 +163,11 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
         navigationLists.add(DBObjectNavigationList.create("Profile objects", getObjects()));
         navigationLists.add(DBObjectNavigationList.create("Credential", getCredential()));
         return navigationLists;
+    }
+
+    private String getQuotedCredentialName() {
+        DBCredential credential = getCredential();
+        return credential == null ? null : credential.getName(true);
     }
 
     /*********************************************************
