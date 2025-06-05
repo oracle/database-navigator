@@ -231,8 +231,7 @@ public class CredentialEditForm extends DBNFormBase {
     if (credentialType == null) return null;
 
     DBSchema schema = getConnection().getObjectBundle().getUserSchema();
-    String credentialName = "\"" + credentialNameField.getText() + "\"";
-    System.out.println(credentialName);
+    String credentialName = credentialNameField.getText();
     boolean selected = statusCheckBox.isSelected();
 
     DBCredential credential = new DBCredentialImpl(schema, credentialName, credentialType, selected);
