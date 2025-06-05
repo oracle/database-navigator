@@ -140,15 +140,15 @@ public class SourceCodeEditorNotificationProvider extends EditorNotificationProv
         DBSourceCodeVirtualFile sourceCodeFile = sourceCodeEditor.getVirtualFile();
         String sourceLoadError = sourceCodeFile.getSourceLoadError();
         if (Strings.isNotEmpty(sourceLoadError)) {
-            return new SourceCodeLoadErrorNotificationPanel(schemaObject, sourceLoadError);
+            return new SourceCodeLoadErrorNotificationPanel(schemaObject, fileEditor, sourceLoadError);
         }
 
         if (sourceCodeFile.isChangedInDatabase(false)) {
-            return new SourceCodeOutdatedNotificationPanel(sourceCodeFile, sourceCodeEditor);
+            return new SourceCodeOutdatedNotificationPanel(sourceCodeFile, fileEditor, sourceCodeEditor);
         }
 
         if (sourceCodeFile.getEnvironmentType().isReadonlyCode()) {
-            return new SourceCodeReadonlyNotificationPanel(schemaObject, sourceCodeEditor);
+            return new SourceCodeReadonlyNotificationPanel(schemaObject, fileEditor, sourceCodeEditor);
         }
         return null;
     }

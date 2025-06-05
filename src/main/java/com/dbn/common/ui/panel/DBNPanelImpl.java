@@ -16,14 +16,22 @@
 
 package com.dbn.common.ui.panel;
 
+import com.dbn.common.dispose.Disposer;
+import com.intellij.openapi.Disposable;
 import com.intellij.ui.components.JBPanel;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Setter
 public abstract class DBNPanelImpl extends JBPanel implements DBNPanel{
     private boolean disposed;
+    public DBNPanelImpl() {}
+
+    public DBNPanelImpl(@NotNull Disposable parentDisposable) {
+        Disposer.register(parentDisposable, this);
+    }
 
     @Override
     public void disposeInner() {

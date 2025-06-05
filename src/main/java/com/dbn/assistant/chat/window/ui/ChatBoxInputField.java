@@ -16,6 +16,8 @@
 
 package com.dbn.assistant.chat.window.ui;
 
+import com.dbn.assistant.chat.ChatAvailability;
+import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateListener;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
@@ -26,7 +28,10 @@ import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionStatusListener;
+import com.dbn.connection.SessionId;
 import com.dbn.object.event.ObjectChangeListener;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
@@ -44,13 +49,13 @@ import com.intellij.psi.impl.PsiManagerEx;
 import com.intellij.psi.impl.file.impl.FileManager;
 import com.intellij.testFramework.LightVirtualFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.util.Objects;
 
 /**
  * Input field used for the chat-box user prompt
@@ -61,7 +66,6 @@ public class ChatBoxInputField extends JPanel implements Disposable {
     private final EditorEx editor;
     private final WeakRef<ChatBoxForm> chatBox;
 
-
     public ChatBoxInputField(ChatBoxForm chatBox) {
         super(new BorderLayout());
         this.chatBox = WeakRef.of(chatBox);
@@ -71,6 +75,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
 
         ProjectEvents.subscribe(getProject(), this, AssistantStateListener.TOPIC, createStateListener());
         ProjectEvents.subscribe(getProject(), this, ObjectChangeListener.TOPIC, createObjectChangeListener());
+        ProjectEvents.subscribe(getProject(), this, ConnectionStatusListener.TOPIC, createConnectionListener());
     }
 
     /**
@@ -78,16 +83,55 @@ public class ChatBoxInputField extends JPanel implements Disposable {
      * the current state of the assistant
      */
     private AssistantStateListener createStateListener() {
-        return (project, connectionId) -> refreshState(connectionId);
+        return (project, connectionId) -> {
+            if (connectionId != getConnectionId()) return;
+            refreshComponentState();
+        };
     }
 
     private ObjectChangeListener createObjectChangeListener() {
-        return (c, o, t, a) -> refreshState(c);
+        return (connectionId, o, t, a) -> {
+            if (connectionId != getConnectionId()) return;
+            if (t != DBObjectType.AI_PROFILE) return;
+            refreshComponentState();
+        };
     }
 
-    private void refreshState(ConnectionId connectionId) {
-        if (!Objects.equals(getConnectionId(), connectionId)) return;
-        setReadonly(!getChatBox().isPromptingAvailable());
+    private ConnectionStatusListener createConnectionListener() {
+        return (connectionId, sessionId) -> {
+            if (connectionId != getConnectionId()) return;
+            if (sessionId != SessionId.ASSISTANT) return;
+
+            refreshComponentState();
+        };
+    }
+
+    private void refreshComponentState() {
+        ChatBoxForm chatBox = getChatBox();
+        AssistantState state = chatBox.getAssistantState();
+        ChatAvailability availability = state.getChatAvailability();
+
+        boolean readonly = availability != ChatAvailability.AVAILABLE;
+        String readonlyHint = computeReadonlyHint(availability);
+
+        Editors.setEditorReadonly(editor, readonly);
+        Editors.setEditorReadonlyHint(editor, readonlyHint);
+
+        UserInterface.repaint(this);
+    }
+
+    @Nullable
+    private String computeReadonlyHint(ChatAvailability availability) {
+        switch (availability) {
+            case AVAILABLE: return null;
+            case BUSY_QUERYING: return "Assistant is processing your request...";
+            case BUSY_INITIALIZING: return "Assistant is initializing...";
+            case INACTIVE_CHAT_SELECTED: return "This chat is no longer active";
+            case NO_PROFILE_AVAILABLE: return "No profiles available for this connection. Please setup profiles to continue";
+            case NO_PROFILE_SELECTED: return "No profile selected. Please select a profile to continue";
+        }
+
+        return null;
     }
 
     private Project getProject() {
@@ -97,6 +141,8 @@ public class ChatBoxInputField extends JPanel implements Disposable {
     private ConnectionId getConnectionId() {
         return getChatBox().getConnection().getConnectionId();
     }
+
+
 
     @Override
     public void requestFocus() {
@@ -122,16 +168,11 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         return text;
     }
 
-    private void setReadonly(boolean readonly) {
-        Editors.setEditorReadonly(editor, readonly);
-        UserInterface.repaint(this);
-    }
-
     private EditorEx createEditor() {
         PlainTextLanguage language = PlainTextLanguage.INSTANCE;
         VirtualFile file = new LightVirtualFile("prompt.txt", language, "");
 
-        Project project = getChatBox().getProject();
+        Project project = getChatBox().ensureProject();
         PsiManagerEx psiManager = (PsiManagerEx) PsiManager.getInstance(project);
         FileManager fileManager = psiManager.getFileManager();
         FileViewProvider viewProvider = fileManager.createFileViewProvider(file, true);
@@ -182,7 +223,10 @@ public class ChatBoxInputField extends JPanel implements Disposable {
             }
 
             ChatBoxForm chatBox = getChatBox();
-            if (chatBox.isPromptingAvailable()) {
+            AssistantState state = chatBox.getAssistantState();
+            ChatAvailability availability = state.getChatAvailability();
+
+            if (availability == ChatAvailability.AVAILABLE) {
                 chatBox.submitPrompt();
             } else {
                 Documents.setText(document, text.toString().trim());

@@ -88,11 +88,11 @@ public class DatasetEditorNotificationProvider extends EditorNotificationProvide
 
     @Nullable
     @Override
-    public DatasetEditorNotificationPanel createComponent(@NotNull VirtualFile virtualFile, @NotNull FileEditor fileEditor, @NotNull Project project) {
-        if (!(virtualFile instanceof DBEditableObjectVirtualFile)) return null;
+    public DatasetEditorNotificationPanel createComponent(@NotNull VirtualFile file, @NotNull FileEditor fileEditor, @NotNull Project project) {
+        if (!(file instanceof DBEditableObjectVirtualFile)) return null;
         if (!(fileEditor instanceof DatasetEditor)) return null;
 
-        DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) virtualFile;
+        DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) file;
         DatasetEditor datasetEditor = (DatasetEditor) fileEditor;
 
         DBSchemaObject editableObject = editableObjectFile.getObject();
@@ -100,11 +100,11 @@ public class DatasetEditorNotificationProvider extends EditorNotificationProvide
 
         String sourceLoadError = datasetEditor.getDataLoadError();
         if (Strings.isNotEmpty(sourceLoadError)) {
-            return new DatasetEditorLoadErrorNotificationPanel(editableObject, sourceLoadError);
+            return new DatasetEditorLoadErrorNotificationPanel(editableObject, fileEditor, sourceLoadError);
         }
 
         if (editableObject instanceof DBTable && editableObjectFile.getEnvironmentType().isReadonlyData()) {
-            return new DatasetEditorReadonlyNotificationPanel(editableObject);
+            return new DatasetEditorReadonlyNotificationPanel(editableObject, fileEditor);
         }
 
         return null;

@@ -14,49 +14,45 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.chat.window.action;
+package com.dbn.assistant.chat.action;
 
-import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.state.AssistantState;
+import com.dbn.assistant.chat.ui.ChatHistoryDialog;
+import com.dbn.assistant.chat.ui.ChatHistoryForm;
+import com.dbn.assistant.chat.window.action.AbstractChatBoxAction;
+import com.dbn.common.action.DataKeys;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.util.Messages;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.util.Conditional.when;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
- * Action for clearing the AI Assistant conversation history
- *
- * @author Dan Cioca (Oracle)
- */
-public class ConversationClearAction extends AbstractChatBoxAction {
+ * Action for deleting a stored chat
+ **/
+public class ChatHistoryDeleteAction extends AbstractChatBoxAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        ChatBoxForm chatBox = getChatBox(e);
-        if (chatBox == null) return;
+        ChatHistoryForm chatHistoryForm = e.getData(DataKeys.CHAT_HISTORY_FORM);
+        if (chatHistoryForm == null) return;
 
-        promptConversationClearing(chatBox);
+        ChatHistoryDialog chatHistoryDialog = chatHistoryForm.getParentDialog();
+        if (chatHistoryDialog != null) chatHistoryDialog.performDeleteAction();
+
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        AssistantState state = getAssistantState(e);
-        boolean enabled = state != null && !state.getMessages().isEmpty();
+        ChatHistoryForm chatHistoryForm = e.getData(DataKeys.CHAT_HISTORY_FORM);
+        if (chatHistoryForm == null) return;
+
+        int selectedRowCount = chatHistoryForm.getSelectedRowCount();
 
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.ACTION_DELETE);
-        presentation.setText(txt("app.assistant.action.ClearConversation"));
-        presentation.setEnabled(enabled);
-    }
-
-    public void promptConversationClearing(ChatBoxForm chatBox) {
-        Messages.showQuestionDialog(chatBox.getProject(), "Conversation Clearing", "Are you sure you want to clear this conversation?",
-            Messages.OPTIONS_YES_NO, 1,
-            option -> when(option == 0, chatBox::clearConversation));
+        presentation.setText(txt("app.assistant.action.DeleteSelectedChats"));
+        presentation.setEnabled(selectedRowCount > 0);
     }
 
 }

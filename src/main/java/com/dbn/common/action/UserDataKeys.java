@@ -34,6 +34,7 @@ import lombok.experimental.UtilityClass;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 @UtilityClass
 public class UserDataKeys {
@@ -67,5 +68,14 @@ public class UserDataKeys {
 
     public static <T> T getUserData(UserDataHolder dataHolder, Key<T> key) {
         return dataHolder.getUserData(key);
+    }
+
+    public static <T> T getUserData(UserDataHolder dataHolder, Key<T> key, Supplier<T> supplier) {
+        T userData = dataHolder.getUserData(key);
+        if (userData == null) {
+            userData = supplier.get();
+            dataHolder.putUserData(key, userData);
+        }
+        return userData;
     }
 }

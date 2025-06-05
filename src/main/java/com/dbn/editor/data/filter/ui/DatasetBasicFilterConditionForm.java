@@ -94,6 +94,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         columnSelector.setValueLoader(this::loadColumns);
         columnSelector.setSelectedValue(column);
         columnSelector.addListener((oldValue, newValue) -> {
+            if (isDisposed()) return;
             if (newValue != null) {
                 GenericDataType selectedDataType = newValue.getDataType().getGenericDataType();
                 editorComponent.setPopupEnabled(TextFieldPopupType.CALENDAR, selectedDataType == GenericDataType.DATE_TIME);

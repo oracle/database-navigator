@@ -18,8 +18,11 @@ package com.dbn.common.file.util;
 
 import com.dbn.common.thread.Read;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.OrderEnumerator;
+import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
@@ -42,6 +45,25 @@ public class ProjectFiles {
 
     public static boolean isProjectSourceFile(Project project, VirtualFile file) {
         return getProjectSourceRoot(project, file) != null;
+    }
+
+    public static boolean isModuleDependency(Project project, VirtualFile file) {
+        Ref<Boolean> found = new Ref<>(false);
+
+        OrderEnumerator orderEnumerator = OrderEnumerator.orderEntries(project);
+        orderEnumerator.librariesOnly().getPathsList();
+        orderEnumerator.forEachLibrary(l -> {
+            VirtualFile[] libFiles = l.getRootProvider().getFiles(OrderRootType.CLASSES);
+            for (VirtualFile libFile : libFiles) {
+                if (libFile.getPath().contains(file.getPath())) {
+                    found.set(true);
+                    return false;
+                }
+            }
+            return true;
+        });
+
+        return found.get();
     }
 
     public static String getProjectRelativePath(Project project, VirtualFile file) {

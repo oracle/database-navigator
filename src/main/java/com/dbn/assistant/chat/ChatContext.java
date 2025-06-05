@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.chat.message;
+package com.dbn.assistant.chat;
 
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.object.DBAIProfile;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Objects;
 
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -38,20 +42,21 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
  *
  * @author Dan Cioca (Oracle)
  */
-@Getter
-@Setter
+@Getter // pseudo final (no setters)
 @NoArgsConstructor
-public class ChatMessageContext implements PersistentStateElement {
+public final class ChatContext implements PersistentStateElement {
     private static final Gson GSON = new GsonBuilder().create();
 
     private String profile;
     private AIModel model;
-    private PromptAction action;
+    private PromptAction action = PromptAction.SHOW_SQL;
+    private boolean interactive;
 
-    public ChatMessageContext(String profile, AIModel model, PromptAction action) {
+    public ChatContext(String profile, AIModel model, PromptAction action, boolean interactive) {
         this.profile = profile;
         this.model = model;
         this.action = action;
+        this.interactive = interactive;
     }
 
     public String getAttributes() {
@@ -59,17 +64,50 @@ public class ChatMessageContext implements PersistentStateElement {
         return GSON.toJson(attributes);
     }
 
+    public void initialize(@Nullable DBAIProfile profile) {
+        if (profile == null) {
+            this.profile = null;
+            this.model = null;
+            this.interactive = false;
+
+        } else {
+            this.profile = profile.getName();
+            this.model = profile.getModel();
+            this.interactive = profile.isInteractive();
+        }
+    }
+
+    public boolean isProfileSwitch(ChatContext that) {
+        return !Objects.equals(this.profile, that.profile);
+    }
+
+    public boolean isModelSwitch(ChatContext that) {
+        return !Objects.equals(this.model, that.model);
+    }
+
+    public boolean isInterruptingActionSwitch(ChatContext that) {
+        // when switched between CHAT and any other action, the chat is interrupted
+        return (this.action == PromptAction.CHAT) == (that.action != PromptAction.CHAT);
+    }
+
     @Override
     public void readState(Element element) {
         profile = stringAttribute(element, "profile");
-          model = AIModel.forId(stringAttribute(element, "model"));
+        model = AIModel.forId(stringAttribute(element, "model"));
         action = enumAttribute(element, "action", PromptAction.class);
+        interactive = booleanAttribute(element, "interactive", interactive);
     }
 
     @Override
     public void writeState(Element element) {
         setStringAttribute(element, "profile", profile);
-        setStringAttribute(element, "model", model.getId());
+        setStringAttribute(element, "model", AIModel.getId(model));
         setEnumAttribute(element, "action", action);
+        setBooleanAttribute(element, "interactive", interactive);
+    }
+
+    @Override
+    public String toString() {
+        return profile + " / " + model + " / " + action;
     }
 }
