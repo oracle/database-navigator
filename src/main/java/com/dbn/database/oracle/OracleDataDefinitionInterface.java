@@ -143,12 +143,14 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
     @Override
     public void updateJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "prepare-java-staging-table", ownerName);
-        executeUpdate(connection, "update-java-source", ownerName, objectName, content);
+        executeUpdate(connection, "drop-java-object", ownerName, objectName);
+        executeUpdate(connection, "create-java-source", ownerName, objectName, content);
     }
 
     public void updateJavaClass(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "prepare-java-staging-table", ownerName);
-        executeUpdate(connection, "update-java-class", ownerName, objectName, content);
+        executeUpdate(connection, "drop-java-object", ownerName, objectName);
+        executeUpdate(connection, "create-java-class", ownerName, objectName, content);
     }
 
     @Override
