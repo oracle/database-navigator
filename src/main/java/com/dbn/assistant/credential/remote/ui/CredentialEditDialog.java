@@ -84,9 +84,7 @@ public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
   }
   @Override
   protected @NotNull CredentialEditForm createForm() {
-    CredentialEditForm form = new CredentialEditForm(this, DBObjectRef.get(credential), usedCredentialNames);
-    validator = new CredentialEditFormValidator(form);
-    return form;
+    return new CredentialEditForm(this, DBObjectRef.get(credential), usedCredentialNames);
   }
 
 
