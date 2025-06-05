@@ -54,6 +54,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
 import java.util.List;
+import java.util.Objects;
 
 import static com.dbn.assistant.state.AssistantStatus.INITIALIZING;
 import static com.dbn.assistant.state.AssistantStatus.QUERYING;
@@ -396,7 +397,10 @@ public class ChatBoxForm extends DBNFormBase {
     ChatContext context = new ChatContext(profile.getName(), model, actionType, false);
     PersistentChatMessage inputChatMessage = new PersistentChatMessage(MessageType.NEUTRAL, question, AuthorType.USER, context);
     inputChatMessage.setProgress(true);
-    appendMessage(inputChatMessage);
+
+
+    String chatId = state.getCurrentChatId();
+    appendMessage(chatId, inputChatMessage);
 
     if (actionType == PromptAction.CHAT) {
       question = question + " (please properly demarcate code-blocks in the output, and qualify them with the programming-language identifier)";
@@ -406,14 +410,14 @@ public class ChatBoxForm extends DBNFormBase {
       String response = manager.query(connectionId, question, context);
       state.set(QUERYING, false);
       PersistentChatMessage outPutChatMessage = new PersistentChatMessage(MessageType.NEUTRAL, response, AuthorType.AGENT, context);
-      appendMessage(outPutChatMessage);
+      appendMessage(chatId, outPutChatMessage);
       log.info("AI Query processed successfully.");
     } catch (Exception e) {
       state.set(QUERYING, false);
       log.warn("Error processing AI query", e);
       String message = manager.getPresentableMessage(connectionId, profile.getProvider(), e);
       PersistentChatMessage errorMessage = new PersistentChatMessage(MessageType.ERROR, message, AuthorType.SYSTEM, context);
-      appendMessage(errorMessage);
+      appendMessage(chatId, errorMessage);
     }
   }
 
@@ -484,13 +488,19 @@ public class ChatBoxForm extends DBNFormBase {
     // TODO show error bar (similar to editor error headers)
   }
 
-  private void appendMessage(PersistentChatMessage message) {
-    Chat chat = getCurrentChat();
-    chat.addMessage(message);
+  private void appendMessage(String chatId, PersistentChatMessage message) {
+    AssistantState state = getAssistantState();
+    Chat chat = state.getChat(chatId);
+    if (chat == null) return; // chat already discarded by the time of message arrival
 
-    dispatch(() -> messageContainer.addAll(List.of(message), this));
-    dispatch(() -> scrollDown());
-    updateActionToolbars();
+    chat.addMessage(message);
+    String currentChatId = state.getCurrentChatId();
+    if (Objects.equals(chatId, currentChatId)) {
+      // update UI only if chat is still current
+      dispatch(() -> messageContainer.addAll(List.of(message), this));
+      dispatch(() -> scrollDown());
+      updateActionToolbars();
+    }
   }
 
 
