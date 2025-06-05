@@ -59,6 +59,11 @@ public class JavaUploadMessenger extends BatchMessengerBase<JavaUploadTask, Java
 
     @Override
     public String getTaskInitMessage(JavaUploadBatch batch, JavaUploadTask task) {
+        if (task.isJavaLibrary()) return "Unpacking java library...";
+        if (task.isJavaClass()) return "Uploading java class...";
+        if (task.isJavaSource()) return "Uploading java source...";
+        if (task.isJavaResource()) return "Uploading java resource...";
+
         return "Uploading java resource...";
     }
 
@@ -80,6 +85,6 @@ public class JavaUploadMessenger extends BatchMessengerBase<JavaUploadTask, Java
         String message = e.getMessage();
         message = cleanExceptionMessage(batch, message);
 
-        return "Failed to upload java resource \nCause:" + message;
+        return "Failed to upload java resource \nCause: " + message;
     }
 }

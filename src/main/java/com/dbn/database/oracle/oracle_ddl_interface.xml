@@ -19,11 +19,13 @@
         <!ELEMENT statement-execution-processor (statement)*>
         <!ATTLIST statement-execution-processor
                 id CDATA #REQUIRED
-                is-query CDATA #IMPLIED>
+                is-query CDATA #IMPLIED
+                is-prepared-statement CDATA #IMPLIED
+                >
         <!ELEMENT statement (#PCDATA)>
         <!ATTLIST statement
                 comment CDATA #IMPLIED
-                variants CDATA #IMPLIED>
+                prefixes CDATA #IMPLIED>
         ]>
 <data-dictionary>
     <statement-execution-processor id="create-view">
@@ -55,37 +57,107 @@
         <statement>create or replace {0}</statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="update-java-object">
-        <statement>
+    <statement-execution-processor id="prepare-java-staging-table" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL">
+            declare
+                v_owner_name VARCHAR2(128) := {0};
+                v_count INTEGER;
             begin
-                execute immediate 'create or replace java source named {0}.{1} as {2}';
+                select count(1)
+                        into v_count
+                        from [PREFIX]_TABLES
+                       where OWNER = REGEXP_REPLACE(v_owner_name, '^"|"$', '')
+                         and TABLE_NAME = 'CREATE$JAVA$LOB$TABLE';
+
+                if v_count = 0 THEN
+                    execute immediate 'create table '||v_owner_name||'."CREATE$JAVA$LOB$TABLE" (
+                                "NAME" VARCHAR2(700) PRIMARY KEY,
+                                "LOB" BLOB,
+                                "LOADTIME" DATE)';
+                end if;
             end;
         </statement>
-    </statement-execution-processor>
-
-    <statement-execution-processor id="update-java-resource">
         <statement>
             declare
-                v_string_content VARCHAR2(32000) := '{2}';
-                v_binary_content BLOB;
+                v_owner_name VARCHAR2(128) := {0};
+                v_count INTEGER;
             begin
-                dbms_lob.createtemporary(v_binary_content, TRUE);
-                dbms_lob.writeappend(
-                        v_binary_content,
-                        length(v_string_content),
-                        utl_raw.cast_to_raw(v_string_content));
+                select count(1)
+                        into v_count
+                        from USER_TABLES
+                       where USER = REGEXP_REPLACE(v_owner_name, '^"|"$', '')
+                         and TABLE_NAME = 'CREATE$JAVA$LOB$TABLE';
 
-                execute immediate 'CREATE OR REPLACE JAVA RESOURCE NAMED {0}.{1} as :1' using v_binary_content;
-                dbms_lob.freetemporary(v_binary_content);
-            exception
-                when others then
-                    if dbms_lob.istemporary(v_binary_content) = 1 then
-                        dbms_lob.freetemporary(v_binary_content);
-                    end if;
+                if v_count = 0 THEN
+                    execute immediate 'create table '||v_owner_name||'."CREATE$JAVA$LOB$TABLE" (
+                                "NAME" VARCHAR2(700) PRIMARY KEY,
+                                "LOB" BLOB,
+                                "LOADTIME" DATE)';
+                end if;
             end;
         </statement>
     </statement-execution-processor>
-    
+
+    <statement-execution-processor id="update-java-resource" is-prepared-statement="true">
+        <statement>
+            declare
+                v_owner_name VARCHAR2(128) := {0};
+                v_resource_name VARCHAR2(700) := {1};
+                v_content BLOB := {2};
+                v_content_id VARCHAR2(128) := SYS_GUID();
+            begin
+                execute immediate 'insert into '||v_owner_name||'."CREATE$JAVA$LOB$TABLE" ("NAME", "LOB", "LOADTIME") VALUES ('''||v_content_id||''', :1, SYSDATE)' using v_content;
+
+                IF v_content IS NULL THEN
+                    execute immediate 'create or replace java resource named '||v_owner_name||'.'||v_resource_name||' using blob (select EMPTY_BLOB() from DUAL)';
+                ELSE
+                    execute immediate 'create or replace java resource named '||v_owner_name||'.'||v_resource_name||' using blob "LOB" from '||v_owner_name||'."CREATE$JAVA$LOB$TABLE" where "NAME" = '''||v_content_id||'''';
+                END IF;
+                execute immediate 'delete '||v_owner_name||'."CREATE$JAVA$LOB$TABLE" where "NAME" = '''||v_content_id||'''';
+            exception
+                when others then
+                    execute immediate 'delete '||v_owner_name||'."CREATE$JAVA$LOB$TABLE" where "NAME" = '''||v_content_id||'''';
+                raise;
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="update-java-class" is-prepared-statement="true">
+        <statement>
+            declare
+                v_owner_name VARCHAR2(128) := {0};
+                v_class_name VARCHAR2(700) := {1};
+                v_content BLOB := {2};
+                v_content_id VARCHAR2(128) := SYS_GUID();
+            begin
+                execute immediate 'insert into '||v_owner_name||'."CREATE$JAVA$LOB$TABLE" ("NAME", "LOB", "LOADTIME") VALUES ('''||v_content_id||''', :1, SYSDATE)' using v_content;
+                execute immediate 'create or replace java class schema '||v_owner_name||' using blob select "LOB" from '||v_owner_name||'."CREATE$JAVA$LOB$TABLE" where "NAME" = '''||v_content_id||'''';
+                execute immediate 'delete '||v_owner_name||'."CREATE$JAVA$LOB$TABLE" where "NAME" = '''||v_content_id||'''';
+            exception
+                when others then
+                    execute immediate 'delete '||v_owner_name||'."CREATE$JAVA$LOB$TABLE" where "NAME" = '''||v_content_id||'''';
+                raise;
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="update-java-source" is-prepared-statement="true">
+        <statement>
+            declare
+                v_owner_name VARCHAR2(128) := {0};
+                v_class_name VARCHAR2(700) := {1};
+                v_content BLOB := {2};
+                v_content_id VARCHAR2(128) := SYS_GUID();
+            begin
+                execute immediate 'insert into '||v_owner_name||'."CREATE$JAVA$LOB$TABLE" ("NAME", "LOB", "LOADTIME") VALUES ('''||v_content_id||''', :1, SYSDATE)' using v_content;
+                execute immediate 'create or replace java source named '||v_owner_name||'.'||v_class_name||' using blob select "LOB" from '||v_owner_name||'."CREATE$JAVA$LOB$TABLE" where "NAME" = '''||v_content_id||'''';
+                execute immediate 'delete '||v_owner_name||'."CREATE$JAVA$LOB$TABLE" where "NAME" = '''||v_content_id||'''';
+            exception
+                when others then
+                    execute immediate 'delete '||v_owner_name||'."CREATE$JAVA$LOB$TABLE" where "NAME" = '''||v_content_id||'''';
+                raise;
+            end;
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="drop-object">
         <statement>drop {0} {1}.{2}</statement>
     </statement-execution-processor>

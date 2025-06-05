@@ -34,10 +34,10 @@ import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 import static com.dbn.object.type.DBObjectType.JAVA_RESOURCE;
-import static com.dbn.sync.java.upload.impl.JavaArchiveUploader.uploadJavaArchive;
-import static com.dbn.sync.java.upload.impl.JavaClassUploader.uploadJavaClass;
-import static com.dbn.sync.java.upload.impl.JavaClassUploader.uploadJavaSource;
-import static com.dbn.sync.java.upload.impl.JavaResourceUploader.uploadJavaResource;
+import static com.dbn.sync.java.upload.JavaUploader.uploadJavaArchive;
+import static com.dbn.sync.java.upload.JavaUploader.uploadJavaClass;
+import static com.dbn.sync.java.upload.JavaUploader.uploadJavaResource;
+import static com.dbn.sync.java.upload.JavaUploader.uploadJavaSource;
 
 public final class JavaUploadProcessor extends BatchProcessorBase<JavaUploadTask, JavaUploadInput, JavaUploadBatch> {
 	public static final JavaUploadProcessor INSTANCE = new JavaUploadProcessor();
@@ -52,15 +52,17 @@ public final class JavaUploadProcessor extends BatchProcessorBase<JavaUploadTask
 		if (task.isJavaLibrary()) {
 			uploadJavaArchive(batch, task.getFile());
 		} else {
+			DBObjectRef<DBJavaEntity> entity = task.getDatabaseEntity();
 			byte[] content = task.getFileContent();
+
 			if (task.isJavaSource()) {
-				uploadJavaSource(batch, task.getJavaClassName(), content);
+				uploadJavaSource(batch, entity, content);
 
 			} else if (task.isJavaClass()){
-				uploadJavaClass(batch, task.getJavaClassName(), content);
+				uploadJavaClass(batch, entity, content);
 
 			} else {
-				uploadJavaResource(batch, task.getDatabaseEntityName(), content);
+				uploadJavaResource(batch, entity, content);
 			}
 		}
     }

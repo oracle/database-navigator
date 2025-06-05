@@ -290,10 +290,10 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 					String schemaName = getSchemaName(true);
 					String name = getName(true);
 
-					dataDefinitionInterface.updateJavaClass(
+					dataDefinitionInterface.updateJavaSource(
 							schemaName,
 							name,
-							newCode,
+							newCode.getBytes(),
 							conn);
 
 					dataDefinitionInterface.compileJavaClass(

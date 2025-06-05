@@ -130,18 +130,6 @@ public class JavaUploadTask extends BatchTaskBase {
 		return getBatch().getProject();
 	}
 
-	@Nullable
-	public DBObjectType getDatabaseEntityType() {
-		var databaseEntity = getDatabaseEntity();
-		return databaseEntity == null ? null : databaseEntity.getObjectType();
-	}
-
-	@Nullable
-	public String getDatabaseEntityName() {
-		var databaseEntity = getDatabaseEntity();
-		return databaseEntity == null ? null : databaseEntity.getObjectName();
-	}
-
 	public boolean isJavaLibrary() {
 		return file.getFileType() == ArchiveFileType.INSTANCE;
 	}

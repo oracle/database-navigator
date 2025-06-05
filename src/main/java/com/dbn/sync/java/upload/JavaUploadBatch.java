@@ -25,7 +25,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -35,8 +34,6 @@ import static com.dbn.common.util.Unsafe.cast;
 @Getter
 @Setter
 public class JavaUploadBatch extends BatchBase<JavaUploadTask, JavaUploadInput> {
-	private final List<String> classesToCompile = new ArrayList<>();
-
 	public JavaUploadBatch(JavaUploadInput input) {
 		super(input);
 	}
