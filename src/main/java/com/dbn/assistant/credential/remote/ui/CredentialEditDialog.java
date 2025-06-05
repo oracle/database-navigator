@@ -24,7 +24,6 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBCredential;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBCredentialType;
-import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,7 +35,6 @@ public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
   private final ConnectionRef connection;
   private final DBObjectRef<DBCredential> credential;
   private final Set<String> usedCredentialNames;
-  private CredentialEditFormValidator validator;
 
 
   public CredentialEditDialog(ConnectionHandler connection, @Nullable DBCredential credential, @NotNull Set<String> usedCredentialNames) {
