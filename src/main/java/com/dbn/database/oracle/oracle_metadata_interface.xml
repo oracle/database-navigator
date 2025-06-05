@@ -235,7 +235,7 @@
                 pa.PROVIDER,
                 pa.MODEL,
                 pa.TEMPERATURE,
-                pa.CREDENTIAL_NAME,
+                REGEXP_REPLACE(pa.CREDENTIAL_NAME, '^"(.*)"$', '\1') as CREDENTIAL_NAME,
                 pa.OBJECT_LIST
             from (
                 select
@@ -269,7 +269,7 @@
                 pa.PROVIDER,
                 pa.MODEL,
                 pa.TEMPERATURE,
-                pa.CREDENTIAL_NAME,
+                REGEXP_REPLACE(pa.CREDENTIAL_NAME, '^"(.*)"$', '\1') as CREDENTIAL_NAME,
                 pa.OBJECT_LIST
             from (
                 select

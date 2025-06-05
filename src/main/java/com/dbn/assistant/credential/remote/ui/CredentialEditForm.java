@@ -52,6 +52,8 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.dbn.common.ui.CardLayouts.showCard;
+import static com.dbn.common.util.Strings.isAlphanumericWithUnderscore;
+import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.object.type.DBAttributeType.FINGERPRINT;
 import static com.dbn.object.type.DBAttributeType.PASSWORD;
 import static com.dbn.object.type.DBAttributeType.PRIVATE_KEY;
@@ -115,6 +117,17 @@ public class CredentialEditForm extends DBNFormBase {
 
   private ConnectionHandler getConnection() {
     return connection.ensure();
+  }
+
+  @Override
+  protected void initValidation() {
+    addTextValidation(credentialNameField, c -> isNotEmpty(c), txt("cfg.assistant.error.CredentialNameEmpty"));
+    addTextValidation(credentialNameField, c -> isNotUsed(c), txt("cfg.assistant.error.CredentialNameExists"));
+    addTextValidation(credentialNameField, c -> isAlphanumericWithUnderscore(c), txt("cfg.assistant.error.CredentialNameInvalid"));
+  }
+
+  private boolean isNotUsed(String name) {
+    return !usedCredentialNames.contains(name);
   }
 
   private void initCredentialTypeComboBox() {
