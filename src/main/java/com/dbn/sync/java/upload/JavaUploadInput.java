@@ -30,6 +30,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -43,8 +44,8 @@ public class JavaUploadInput extends BatchInputBase<JavaUploadTask> {
     private List<String> dependentObjects;
 
 
-    public JavaUploadInput(Project project, VirtualFile rootFile, List<JavaUploadTask> tasks) {
-        super(project, tasks);
+    public JavaUploadInput(Project project, VirtualFile rootFile) {
+        super(project, Collections.emptyList());
         this.rootFile = rootFile;
     }
 

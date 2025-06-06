@@ -253,7 +253,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                 sourceCodeFile.loadSourceFromDatabase();
             } catch (SQLException e) {
                 conditionallyLog(e);
-                sourceCodeFile.setSourceLoadError(e.getMessage());
+                sourceCodeFile.setSourceLoadException(e);
                 sourceCodeFile.setModified(false);
                 if (notifyError) {
                     String objectDesc = object.getQualifiedNameWithType();

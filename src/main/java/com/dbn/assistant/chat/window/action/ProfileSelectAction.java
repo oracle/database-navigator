@@ -17,7 +17,6 @@
 package com.dbn.assistant.chat.window.action;
 
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.common.util.Actions;
 import com.dbn.object.DBAIProfile;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -53,7 +52,7 @@ public class ProfileSelectAction extends AbstractChatBoxAction {
         DBAIProfile profile = getProfile();
 
         Presentation presentation = e.getPresentation();
-        presentation.setText(Actions.adjustActionName(profile.getName()));
+        presentation.setText(profile.getName(), false);
         presentation.setIcon(profile.getIcon());
     }
 }

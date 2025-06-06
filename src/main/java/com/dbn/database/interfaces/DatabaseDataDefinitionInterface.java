@@ -59,10 +59,11 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
     @Deprecated // TODO add objectOwner / decommission schema connection context
     void updateObject(String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException;
 
+    default void updateJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException{};
 
-    default void updateJavaClass(String ownerName, String objectName, String code, DBNConnection connection) throws SQLException{};
+    default void updateJavaClass(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException{};
 
-    default void updateJavaResource(String ownerName, String objectName, String content, DBNConnection connection) throws SQLException {}
+    default void updateJavaResource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {}
    /*********************************************************
     *                   DROP statements                     *
     *********************************************************/
@@ -74,9 +75,19 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
 
     default void dropJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {}
    /*********************************************************
-    *                   RENAME statements                     *
+    *                   RENAME statements                   *
     *********************************************************/
 
+
+    /*********************************************************
+     *                   COMPILE statements                  *
+     *********************************************************/
+
+    void compileObject(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException;
+
+    void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException;
+
+    void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
 
 }

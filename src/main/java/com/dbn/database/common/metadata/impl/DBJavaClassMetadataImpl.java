@@ -82,4 +82,9 @@ public class DBJavaClassMetadataImpl extends DBObjectMetadataBase implements DBJ
 	public boolean isDebug() throws SQLException {
 		return isYesFlag("IS_DEBUG");
 	}
+
+	@Override
+	public boolean isSource() throws SQLException {
+		return isYesFlag("IS_SOURCE");
+	}
 }

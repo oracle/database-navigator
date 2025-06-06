@@ -79,7 +79,7 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
 
     private ChangeTimestamp databaseTimestamp = new ChangeTimestamp();
 
-    private String sourceLoadError;
+    private Exception sourceLoadException;
 
     public DBSourceCodeVirtualFile(final DBEditableObjectVirtualFile databaseFile, DBContentType contentType) {
         super(databaseFile, contentType);
@@ -226,7 +226,7 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
         object.getStatus().set(contentType, DBObjectStatus.PRESENT, newContent.length() > 0);
 
         databaseContent = null;
-        sourceLoadError = null;
+        sourceLoadException = null;
         set(LATEST, true);
         setModified(false);
 	}
@@ -245,7 +245,7 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
         originalContent.setText(newContent);
 
         databaseContent = null;
-        sourceLoadError = null;
+        sourceLoadException = null;
         set(LATEST, true);
         setModified(false);
     }
@@ -253,7 +253,7 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
     public void revertLocalChanges() {
         updateFileContent(null, originalContent.getText());
         databaseContent = null;
-        sourceLoadError = null;
+        sourceLoadException = null;
         set(LATEST, true);
         setModified(false);
     }

@@ -21,7 +21,6 @@ import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.util.Actions;
 import com.dbn.common.util.Lists;
 import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -73,7 +72,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         boolean enabled = isEnabled(e);
 
         Presentation presentation = e.getPresentation();
-        presentation.setText(getText(e));
+        presentation.setText(getText(e), false);
         presentation.setDescription(txt("app.assistant.tooltip.ChooseModel"));
         presentation.setEnabled(enabled);
     }
@@ -107,7 +106,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         AIModel model = chatBox.getSelectedModel();
         if (model == null) return null;
 
-        return Actions.adjustActionName(model.getName());
+        return model.getName();
     }
 
     @Override

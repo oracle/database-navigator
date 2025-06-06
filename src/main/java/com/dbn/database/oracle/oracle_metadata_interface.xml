@@ -454,8 +454,9 @@
                 'N' as IS_ABSTRACT,
                 'N' as IS_INNER,
                 'N' as IS_STATIC,
-                'Y' as IS_VALID,
                 'N' as IS_DEBUG,
+                'Y' as IS_VALID,
+                'N' as IS_SOURCE,
                 'Y' as IS_PRIMITIVE
             from PRIMITIVES connect by level &lt;= regexp_count(CSV, ',') + 1
         </statement>
@@ -472,18 +473,19 @@
                 decode(j.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
                 decode(j.IS_INNER,'YES','Y','N') as IS_INNER,
                 decode(j.IS_STATIC,'YES','Y','N') as IS_STATIC,
-                decode(ob.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
-                decode(nvl(apo.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG,
+                decode(j.IS_DEBUG,'YES','Y','N') as IS_DEBUG,
+                decode(o.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
+                decode(os.STATUS, NULL, 'N', 'Y') as IS_SOURCE,
                 'N' as IS_PRIMITIVE
             from [PREFIX]_JAVA_CLASSES j
-            left join [PREFIX]_OBJECTS ob
-                   on ob.OWNER = j.OWNER
-                  and ob.OBJECT_NAME = j.NAME
-                  and ob.OBJECT_TYPE = 'JAVA CLASS'
-            left join SYS.ALL_PROBE_OBJECTS apo
-                  on apo.OWNER = j.OWNER
-                 and apo.OBJECT_NAME = j.NAME
-                 and apo.OBJECT_TYPE = 'JAVA CLASS'
+            left join [PREFIX]_OBJECTS o on
+                  o.OWNER = j.OWNER and
+                  o.OBJECT_NAME = j.NAME and
+                  o.OBJECT_TYPE = 'JAVA CLASS'
+            left join [PREFIX]_OBJECTS os on
+                  os.OWNER = j.OWNER and
+                  os.OBJECT_NAME = j.NAME and
+                  os.OBJECT_TYPE = 'JAVA SOURCE'
             where j.OWNER = {0}
               and j.IS_INNER = 'NO'
               and j.NAME not like '%$%'   /*TODO not all classes containing $ are INNER (!?) */
@@ -505,23 +507,20 @@
                 decode(j.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
                 decode(j.IS_INNER,'YES','Y','N') as IS_INNER,
                 decode(j.IS_STATIC,'YES','Y','N') as IS_STATIC,
-                decode(ob.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
-                decode(nvl(apo.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG,
+                decode(j.IS_DEBUG,'YES','Y','N') as IS_DEBUG,
+                decode(o.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
+                decode(os.STATUS, NULL, 'N', 'Y') as IS_SOURCE,
                 'N' as IS_PRIMITIVE
             from
                 [PREFIX]_JAVA_CLASSES j
-            left join
-                [PREFIX]_OBJECTS ob
-            on
-                ob.OWNER = j.OWNER and
-                ob.OBJECT_NAME = j.NAME and
-                ob.OBJECT_TYPE = 'JAVA CLASS'
-            left join
-                SYS.ALL_PROBE_OBJECTS apo
-            on
-                apo.OWNER = j.OWNER and
-                apo.OBJECT_NAME = j.NAME and
-                apo.OBJECT_TYPE = 'JAVA CLASS'
+            left join [PREFIX]_OBJECTS o on
+                o.OWNER = j.OWNER and
+                o.OBJECT_NAME = j.NAME and
+                o.OBJECT_TYPE = 'JAVA CLASS'
+            left join [PREFIX]_OBJECTS os on
+                os.OWNER = j.OWNER and
+                os.OBJECT_NAME = j.NAME and
+                os.OBJECT_TYPE = 'JAVA SOURCE'
             where
                 j.OWNER = {0} and
                 j.OUTER = {1} and
@@ -542,23 +541,20 @@
                 decode(j.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
                 decode(j.IS_INNER,'YES','Y','N') as IS_INNER,
                 decode(j.IS_STATIC,'YES','Y','N') as IS_STATIC,
-                decode(ob.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
-                decode(nvl(apo.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG,
+                decode(j.IS_DEBUG,'YES','Y','N') as IS_DEBUG,
+                decode(o.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
+                decode(os.STATUS, NULL, 'N', 'Y') as IS_SOURCE,
                 'N' as IS_PRIMITIVE
             from
                 [PREFIX]_JAVA_CLASSES j
-            left join
-                [PREFIX]_OBJECTS ob
-            on
-                ob.OWNER = j.OWNER and
-                ob.OBJECT_NAME = j.NAME and
-                ob.OBJECT_TYPE = 'JAVA CLASS'
-            left join
-                SYS.ALL_PROBE_OBJECTS apo
-            on
-                apo.OWNER = j.OWNER and
-                apo.OBJECT_NAME = j.NAME and
-                apo.OBJECT_TYPE = 'JAVA CLASS'
+            left join [PREFIX]_OBJECTS o on
+                o.OWNER = j.OWNER and
+                o.OBJECT_NAME = j.NAME and
+                o.OBJECT_TYPE = 'JAVA CLASS'
+            left join [PREFIX]_OBJECTS os on
+                os.OWNER = j.OWNER and
+                os.OBJECT_NAME = j.NAME and
+                os.OBJECT_TYPE = 'JAVA SOURCE'
             where
                 j.OWNER = {0} and
                 j.IS_INNER = 'YES'
@@ -2732,26 +2728,6 @@
             end;
         </statement>
     </statement-execution-processor>
-
-
-    <statement-execution-processor id="compile-object">
-        <statement>
-             alter {2} {0}.{1} compile {3}
-        </statement>
-    </statement-execution-processor>
-
-    <statement-execution-processor id="compile-object-body">
-        <statement>
-            alter {2} {0}.{1} compile {3} body
-        </statement>
-    </statement-execution-processor>
-
-    <statement-execution-processor id="compile-java-object">
-        <statement>
-            alter JAVA SOURCE {0}.{1} compile
-        </statement>
-    </statement-execution-processor>
-
 
     <statement-execution-processor id="load-distinct-values" is-query="true">
         <statement>
