@@ -230,7 +230,7 @@ public class ChatBoxForm extends DBNFormBase {
   public void selectProfile(DBAIProfile profile) {
     // preserve action from the current context
     ChatContext currentContext = getAssistantState().getCurrentContext();
-    ChatContext targetContext = new ChatContext(profile.getName(), profile.getModel(), currentContext.getAction(), profile.isInteractive());
+    ChatContext targetContext = new ChatContext(profile.getName(), profile.getModel().getName(), currentContext.getAction(), profile.isInteractive());
     ChatContextEvent event = new ChatContextEvent(currentContext, targetContext, null, false);
     processContextEvent(event);
   }
@@ -238,7 +238,7 @@ public class ChatBoxForm extends DBNFormBase {
   public void selectModel(AIModel model) {
     // preserve profile and action from the current context
     ChatContext currentContext = getAssistantState().getCurrentContext();
-    ChatContext targetContext = new ChatContext(currentContext.getProfile(), model, currentContext.getAction(), currentContext.isInteractive());
+    ChatContext targetContext = new ChatContext(currentContext.getProfileName(), model.getName(), currentContext.getAction(), currentContext.isInteractive());
     ChatContextEvent event = new ChatContextEvent(currentContext, targetContext, null, false);
     processContextEvent(event);
   }
@@ -246,7 +246,7 @@ public class ChatBoxForm extends DBNFormBase {
   public void selectAction(PromptAction action) {
     // preserve profile and model from the current context
     ChatContext currentContext = getAssistantState().getCurrentContext();
-    ChatContext targetContext = new ChatContext(currentContext.getProfile(), currentContext.getModel(), action, currentContext.isInteractive());
+    ChatContext targetContext = new ChatContext(currentContext.getProfileName(), currentContext.getModelName(), action, currentContext.isInteractive());
     ChatContextEvent event = new ChatContextEvent(currentContext, targetContext, null, false);
     processContextEvent(event);
   }
@@ -408,7 +408,7 @@ public class ChatBoxForm extends DBNFormBase {
 
     PromptAction actionType = state.getSelectedAction();
 
-    ChatContext context = new ChatContext(profile.getName(), model, actionType, false);
+    ChatContext context = new ChatContext(profile.getName(), model.getName(), actionType, false);
     PersistentChatMessage inputChatMessage = new PersistentChatMessage(MessageType.NEUTRAL, question, AuthorType.USER, context);
     inputChatMessage.setProgress(true);
 

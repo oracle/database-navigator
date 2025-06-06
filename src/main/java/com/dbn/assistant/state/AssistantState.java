@@ -23,7 +23,6 @@ import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.message.PersistentChatMessage;
 import com.dbn.assistant.chat.window.PromptAction;
-import com.dbn.assistant.provider.AIModel;
 import com.dbn.common.feature.FeatureAcknowledgement;
 import com.dbn.common.feature.FeatureAvailability;
 import com.dbn.common.property.PropertyHolderBase;
@@ -246,24 +245,30 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     return Objects.equals(sessionSignature, currentSessionSignature);
   }
 
+  public boolean isCurrentContextEnabled() {
+    DBAIProfile profile = getSelectedProfile();
+    return profile != null && profile.isEnabled();
+  }
+
   public boolean isCurrentContextValid() {
     ChatContext context = getCurrentContext();
-    String profileName = context.getProfile();
-    AIModel model = context.getModel();
+    String profileName = context.getProfileName();
+    String modelName = context.getModelName();
 
     if (isEmpty(profileName)) return false;
-    if (model == null) return false;
+    if (isEmpty(modelName)) return false;
 
     DBAIProfile profile = getProfile(profileName);
     if (profile == null) return false;
-    if (!profile.isEnabled()) return false;
+    if (profile.getProvider().getModel(modelName) == null) return false;
+    if (profile.isInteractive() != context.isInteractive()) return false;
 
     return true;
   }
 
   private DBAIProfile getSelectedProfile() {
     ChatContext context = getCurrentContext();
-    String profileName = context.getProfile();
+    String profileName = context.getProfileName();
     return getProfile(profileName);
   }
 
@@ -274,14 +279,13 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   @Nullable
   public String getSelectedProfileName() {
     ChatContext context = getCurrentContext();
-    return context.getProfile();
+    return context.getProfileName();
   }
 
   @Nullable
   public String getSelectedModelName() {
     ChatContext context = getCurrentContext();
-    AIModel model = context.getModel();
-    return model == null ? null : model.getId();
+    return context.getModelName();
   }
 
   public PromptAction getSelectedAction() {
@@ -328,7 +332,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     String selectedModelName = stringAttribute(element, "selected-model-name");
     PromptAction selectedAction = enumAttribute(element, "selected-action", PromptAction.class);
     if(selectedProfileName != null) {
-      ChatContext context = new ChatContext(selectedProfileName, AIModel.forId(selectedModelName), selectedAction, false);
+      ChatContext context = new ChatContext(selectedProfileName, selectedModelName, selectedAction, false);
       Chat currentConversation = createChat(context);
       for (Element messageElement : messageElements) {
         PersistentChatMessage message = new PersistentChatMessage();

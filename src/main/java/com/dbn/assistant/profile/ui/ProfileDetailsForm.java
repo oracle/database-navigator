@@ -54,7 +54,7 @@ public class ProfileDetailsForm extends DBNFormBase {
     private void initializeFields(DBAIProfile profile) {
         enabledCheckBox.setSelected(profile.isEnabled());
         profileNameTextField.setText(profile.getName());
-        modelTextField.setText(profile.getModel().getId());
+        modelTextField.setText(profile.getModel().getName());
         credentialTextField.setText(profile.getCredentialName());
         conversationCheckBox.setSelected(profile.isInteractive());
         providerTextField.setText(profile.getProvider().getName());

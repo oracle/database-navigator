@@ -47,6 +47,6 @@ public class ModelSelectAction extends AbstractChatBoxAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(Actions.adjustActionName(model.getId()));
+        presentation.setText(Actions.adjustActionName(model.getName()));
     }
 }

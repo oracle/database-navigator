@@ -107,7 +107,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         AIModel model = chatBox.getSelectedModel();
         if (model == null) return null;
 
-        return Actions.adjustActionName(model.getId());
+        return Actions.adjustActionName(model.getName());
     }
 
     @Override

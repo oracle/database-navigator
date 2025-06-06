@@ -310,7 +310,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
   public String query(ConnectionId connectionId, String prompt, ChatContext context) throws SQLException {
     ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
 
-    String profile = context.getProfile();
+    String profile = context.getProfileName();
     String action = context.getAction().getId();
     String attributes = context.getAttributes();
 
