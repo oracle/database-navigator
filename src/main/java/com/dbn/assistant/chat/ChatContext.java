@@ -59,12 +59,7 @@ public final class ChatContext implements PersistentStateElement {
         this.interactive = interactive;
     }
 
-    public String getAttributes() {
-        Map<String, String> attributes = Map.of("model", model.getApiName());
-        return GSON.toJson(attributes);
-    }
-
-    public void initialize(@Nullable DBAIProfile profile) {
+    public ChatContext(@Nullable DBAIProfile profile) {
         if (profile == null) {
             this.profile = null;
             this.model = null;
@@ -75,6 +70,11 @@ public final class ChatContext implements PersistentStateElement {
             this.model = profile.getModel();
             this.interactive = profile.isInteractive();
         }
+    }
+
+    public String getAttributes() {
+        Map<String, String> attributes = Map.of("model", model.getApiName());
+        return GSON.toJson(attributes);
     }
 
     public boolean isProfileSwitch(ChatContext that) {

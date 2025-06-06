@@ -475,8 +475,8 @@ public class ChatBoxForm extends DBNFormBase {
     if (!state.isCurrentContextValid()) {
       DBAIProfile firstProfile = firstElement(getProfiles());
 
-      ChatContext context = getCurrentContext();
-      context.initialize(firstProfile);
+      ChatContext context = new ChatContext(firstProfile);
+      state.setCurrentContext(context);
     }
   }
 
