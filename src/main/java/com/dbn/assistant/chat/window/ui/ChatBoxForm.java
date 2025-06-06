@@ -30,6 +30,7 @@ import com.dbn.assistant.init.ui.AssistantIntroductionForm;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.DataKeys;
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Background;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -41,6 +42,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBAIProfile;
+import com.dbn.object.event.ObjectChangeListener;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
@@ -66,6 +68,7 @@ import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.object.common.DBObjectUtil.refreshUserObjects;
 import static com.dbn.object.type.DBObjectType.AI_PROFILE;
+import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 
 /**
  * Database Assistant ChatBox component
@@ -110,6 +113,17 @@ public class ChatBoxForm extends DBNFormBase {
     initHeaderForm();
     initIntroForm();
     initChatBoxForm();
+
+    ProjectEvents.subscribe(connection.getProject(), this, ObjectChangeListener.TOPIC, createObjectChangeListener());
+  }
+
+  private ObjectChangeListener createObjectChangeListener() {
+    return (connectionId, ownerId, objectType, action) -> {
+      if (!objectType.isOneOf(AI_PROFILE, CREDENTIAL)) return;
+      if (!Objects.equals(connectionId, getConnectionId())) return;
+
+      Background.run(() -> loadProfiles(false));
+    };
   }
 
 
@@ -423,16 +437,16 @@ public class ChatBoxForm extends DBNFormBase {
 
 
   public void reloadProfiles() {
-    Background.run(() -> doLoadProfiles(true));
+    Background.run(() -> loadProfiles(true));
   }
   public void loadProfiles() {
-    Background.run(() -> doLoadProfiles(false));
+    Background.run(() -> loadProfiles(false));
   }
 
   /**
    * Initializes the profile dropdowns for the chat box
    */
-  private void doLoadProfiles(boolean force) {
+  private void loadProfiles(boolean force) {
     if (getAssistantState().is(INITIALIZING)) return;
     try {
       if (force) refreshUserObjects(getConnectionId(), AI_PROFILE);
