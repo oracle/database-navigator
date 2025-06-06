@@ -47,42 +47,48 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 public final class ChatContext implements PersistentStateElement {
     private static final Gson GSON = new GsonBuilder().create();
 
-    private String profile;
-    private AIModel model;
+    private String profileName;
+    private String modelName;
     private PromptAction action = PromptAction.SHOW_SQL;
     private boolean interactive;
 
-    public ChatContext(String profile, AIModel model, PromptAction action, boolean interactive) {
-        this.profile = profile;
-        this.model = model;
+    public ChatContext(String profileName, String modelName, PromptAction action, boolean interactive) {
+        this.profileName = profileName;
+        this.modelName = modelName;
         this.action = action;
         this.interactive = interactive;
     }
 
-    public String getAttributes() {
-        Map<String, String> attributes = Map.of("model", model.getApiName());
-        return GSON.toJson(attributes);
-    }
-
-    public void initialize(@Nullable DBAIProfile profile) {
-        if (profile == null) {
-            this.profile = null;
-            this.model = null;
+    public ChatContext(@Nullable DBAIProfile profileName) {
+        if (profileName == null) {
+            this.profileName = null;
+            this.modelName = null;
             this.interactive = false;
 
         } else {
-            this.profile = profile.getName();
-            this.model = profile.getModel();
-            this.interactive = profile.isInteractive();
+            this.profileName = profileName.getName();
+            this.modelName = profileName.getModel().getName();
+            this.interactive = profileName.isInteractive();
         }
     }
 
+    public AIModel getModel() {
+        return AIModel.forName(this.modelName);
+    }
+
+    public String getAttributes() {
+        AIModel model = getModel();
+        String modelApiName = model == null ? "undefined" : model.getApiName();
+        Map<String, String> attributes = Map.of("model", modelApiName);
+        return GSON.toJson(attributes);
+    }
+
     public boolean isProfileSwitch(ChatContext that) {
-        return !Objects.equals(this.profile, that.profile);
+        return !Objects.equals(this.profileName, that.profileName);
     }
 
     public boolean isModelSwitch(ChatContext that) {
-        return !Objects.equals(this.model, that.model);
+        return !Objects.equals(this.modelName, that.modelName);
     }
 
     public boolean isInterruptingActionSwitch(ChatContext that) {
@@ -92,22 +98,22 @@ public final class ChatContext implements PersistentStateElement {
 
     @Override
     public void readState(Element element) {
-        profile = stringAttribute(element, "profile");
-        model = AIModel.forId(stringAttribute(element, "model"));
+        profileName = stringAttribute(element, "profile");
+        modelName = stringAttribute(element, "model");
         action = enumAttribute(element, "action", PromptAction.class);
         interactive = booleanAttribute(element, "interactive", interactive);
     }
 
     @Override
     public void writeState(Element element) {
-        setStringAttribute(element, "profile", profile);
-        setStringAttribute(element, "model", AIModel.getId(model));
+        setStringAttribute(element, "profile", profileName);
+        setStringAttribute(element, "model", modelName);
         setEnumAttribute(element, "action", action);
         setBooleanAttribute(element, "interactive", interactive);
     }
 
     @Override
     public String toString() {
-        return profile + " / " + model + " / " + action;
+        return profileName + " / " + modelName + " / " + action;
     }
 }

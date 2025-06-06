@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
+import static com.dbn.assistant.chat.ChatAvailability.DISABLED_PROFILE_SELECTED;
 import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_AVAILABLE;
 import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_SELECTED;
 import static com.dbn.nls.NlsResources.txt;
@@ -81,7 +82,8 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         return availability.isOneOf(
                 AVAILABLE,
                 NO_PROFILE_AVAILABLE,
-                NO_PROFILE_SELECTED);
+                NO_PROFILE_SELECTED,
+                DISABLED_PROFILE_SELECTED);
     }
 
     private String getText(@NotNull AnActionEvent e) {
@@ -104,7 +106,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         AIModel model = chatBox.getSelectedModel();
         if (model == null) return null;
 
-        return model.getId();
+        return model.getName();
     }
 
     @Override

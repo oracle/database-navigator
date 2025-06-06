@@ -144,6 +144,10 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
         return DBObjectRef.get(credential);
     }
 
+    @Override
+    public String getModelName() {
+        return model == null ? null : model.getName();
+    }
 
     @Override
     public void buildToolTip(HtmlToolTipBuilder ttb) {

@@ -17,8 +17,8 @@
 package com.dbn.assistant.editor;
 
 import com.dbn.assistant.DatabaseAssistantManager;
-import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.ChatContext;
+import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.common.thread.Command;
 import com.dbn.common.thread.Dispatch;
@@ -55,7 +55,7 @@ public class AssistantEditorAdapter {
       return;
     }
 
-    ChatContext context = new ChatContext(profile.getName(), profile.getModel(), action, false);
+    ChatContext context = new ChatContext(profile.getName(), profile.getModelName(), action, false);
     manager.generate(connectionId, prompt, context, message -> Dispatch.run(editor.getComponent(), () -> appendMessage(project, editor, message)));
   }
 

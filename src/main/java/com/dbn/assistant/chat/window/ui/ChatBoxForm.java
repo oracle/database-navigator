@@ -30,6 +30,7 @@ import com.dbn.assistant.init.ui.AssistantIntroductionForm;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.DataKeys;
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Background;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -41,6 +42,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBAIProfile;
+import com.dbn.object.event.ObjectChangeListener;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
@@ -66,6 +68,7 @@ import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.object.common.DBObjectUtil.refreshUserObjects;
 import static com.dbn.object.type.DBObjectType.AI_PROFILE;
+import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 
 /**
  * Database Assistant ChatBox component
@@ -110,6 +113,17 @@ public class ChatBoxForm extends DBNFormBase {
     initHeaderForm();
     initIntroForm();
     initChatBoxForm();
+
+    ProjectEvents.subscribe(connection.getProject(), this, ObjectChangeListener.TOPIC, createObjectChangeListener());
+  }
+
+  private ObjectChangeListener createObjectChangeListener() {
+    return (connectionId, ownerId, objectType, action) -> {
+      if (!objectType.isOneOf(AI_PROFILE, CREDENTIAL)) return;
+      if (!Objects.equals(connectionId, getConnectionId())) return;
+
+      Background.run(() -> loadProfiles(false));
+    };
   }
 
 
@@ -216,7 +230,7 @@ public class ChatBoxForm extends DBNFormBase {
   public void selectProfile(DBAIProfile profile) {
     // preserve action from the current context
     ChatContext currentContext = getAssistantState().getCurrentContext();
-    ChatContext targetContext = new ChatContext(profile.getName(), profile.getModel(), currentContext.getAction(), profile.isInteractive());
+    ChatContext targetContext = new ChatContext(profile.getName(), profile.getModel().getName(), currentContext.getAction(), profile.isInteractive());
     ChatContextEvent event = new ChatContextEvent(currentContext, targetContext, null, false);
     processContextEvent(event);
   }
@@ -224,7 +238,7 @@ public class ChatBoxForm extends DBNFormBase {
   public void selectModel(AIModel model) {
     // preserve profile and action from the current context
     ChatContext currentContext = getAssistantState().getCurrentContext();
-    ChatContext targetContext = new ChatContext(currentContext.getProfile(), model, currentContext.getAction(), currentContext.isInteractive());
+    ChatContext targetContext = new ChatContext(currentContext.getProfileName(), model.getName(), currentContext.getAction(), currentContext.isInteractive());
     ChatContextEvent event = new ChatContextEvent(currentContext, targetContext, null, false);
     processContextEvent(event);
   }
@@ -232,7 +246,7 @@ public class ChatBoxForm extends DBNFormBase {
   public void selectAction(PromptAction action) {
     // preserve profile and model from the current context
     ChatContext currentContext = getAssistantState().getCurrentContext();
-    ChatContext targetContext = new ChatContext(currentContext.getProfile(), currentContext.getModel(), action, currentContext.isInteractive());
+    ChatContext targetContext = new ChatContext(currentContext.getProfileName(), currentContext.getModelName(), action, currentContext.isInteractive());
     ChatContextEvent event = new ChatContextEvent(currentContext, targetContext, null, false);
     processContextEvent(event);
   }
@@ -394,7 +408,7 @@ public class ChatBoxForm extends DBNFormBase {
 
     PromptAction actionType = state.getSelectedAction();
 
-    ChatContext context = new ChatContext(profile.getName(), model, actionType, false);
+    ChatContext context = new ChatContext(profile.getName(), model.getName(), actionType, false);
     PersistentChatMessage inputChatMessage = new PersistentChatMessage(MessageType.NEUTRAL, question, AuthorType.USER, context);
     inputChatMessage.setProgress(true);
 
@@ -423,16 +437,16 @@ public class ChatBoxForm extends DBNFormBase {
 
 
   public void reloadProfiles() {
-    Background.run(() -> doLoadProfiles(true));
+    Background.run(() -> loadProfiles(true));
   }
   public void loadProfiles() {
-    Background.run(() -> doLoadProfiles(false));
+    Background.run(() -> loadProfiles(false));
   }
 
   /**
    * Initializes the profile dropdowns for the chat box
    */
-  private void doLoadProfiles(boolean force) {
+  private void loadProfiles(boolean force) {
     if (getAssistantState().is(INITIALIZING)) return;
     try {
       if (force) refreshUserObjects(getConnectionId(), AI_PROFILE);
@@ -475,8 +489,8 @@ public class ChatBoxForm extends DBNFormBase {
     if (!state.isCurrentContextValid()) {
       DBAIProfile firstProfile = firstElement(getProfiles());
 
-      ChatContext context = getCurrentContext();
-      context.initialize(firstProfile);
+      ChatContext context = new ChatContext(firstProfile);
+      state.setCurrentContext(context);
     }
   }
 

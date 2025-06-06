@@ -29,7 +29,8 @@ public enum ChatAvailability implements Constant<ChatAvailability> {
 
     INACTIVE_CHAT_SELECTED,
     NO_PROFILE_AVAILABLE,
-    NO_PROFILE_SELECTED
+    NO_PROFILE_SELECTED,
+    DISABLED_PROFILE_SELECTED
 
 
 }
