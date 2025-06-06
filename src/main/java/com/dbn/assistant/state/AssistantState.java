@@ -50,6 +50,7 @@ import java.util.stream.Collectors;
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
 import static com.dbn.assistant.chat.ChatAvailability.BUSY_INITIALIZING;
 import static com.dbn.assistant.chat.ChatAvailability.BUSY_QUERYING;
+import static com.dbn.assistant.chat.ChatAvailability.DISABLED_PROFILE_SELECTED;
 import static com.dbn.assistant.chat.ChatAvailability.INACTIVE_CHAT_SELECTED;
 import static com.dbn.assistant.chat.ChatAvailability.NOT_INITIALIZED;
 import static com.dbn.assistant.chat.ChatAvailability.NOT_SUPPORTED;
@@ -222,7 +223,10 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
 
     if (!isCurrentChatActive()) return INACTIVE_CHAT_SELECTED;
     if (getProfiles().isEmpty()) return NO_PROFILE_AVAILABLE;
-    if (!isCurrentContextValid()) return NO_PROFILE_SELECTED;
+
+    DBAIProfile selectedProfile = getSelectedProfile();
+    if (selectedProfile == null) return NO_PROFILE_SELECTED;
+    if (!selectedProfile.isEnabled()) return DISABLED_PROFILE_SELECTED;
 
     return AVAILABLE;
   }
@@ -252,8 +256,15 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
 
     DBAIProfile profile = getProfile(profileName);
     if (profile == null) return false;
+    if (!profile.isEnabled()) return false;
 
     return true;
+  }
+
+  private DBAIProfile getSelectedProfile() {
+    ChatContext context = getCurrentContext();
+    String profileName = context.getProfile();
+    return getProfile(profileName);
   }
 
   public void setDefaultProfile(@Nullable DBAIProfile profile) {
@@ -278,6 +289,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   }
 
   public DBAIProfile getProfile(String name) {
+    if (isEmpty(name)) return null;
     List<DBAIProfile> profiles = getProfiles();
     return Lists.first(profiles, p -> p.getName().equals(name));
   }

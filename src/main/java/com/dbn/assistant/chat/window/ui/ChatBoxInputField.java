@@ -129,6 +129,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
             case INACTIVE_CHAT_SELECTED: return "This chat is no longer active";
             case NO_PROFILE_AVAILABLE: return "No profiles available for this connection. Please setup profiles to continue";
             case NO_PROFILE_SELECTED: return "No profile selected. Please select a profile to continue";
+            case DISABLED_PROFILE_SELECTED: return "The selected profile is disabled. Please select an active profile to continue";
         }
 
         return null;
