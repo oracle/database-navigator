@@ -16,8 +16,10 @@
 
 package com.dbn.execution.compiler;
 
+import com.dbn.common.Priority;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.notification.NotificationCategory;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Progress;
@@ -27,18 +29,21 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.database.DatabaseFeature;
+import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.code.SourceCodeManagerListener;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.compiler.ui.CompilerTypeSelectionDialog;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
+import com.dbn.object.lookup.DBJavaNameCache;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
@@ -206,7 +211,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
     private static CompilerResult doCompileObject(DBSchemaObject object, CompileType compileType, CompilerAction compilerAction, DBObjectStatusHolder objectStatus, DBNConnection conn) throws SQLException {
         DBContentType contentType = compilerAction.getContentType();
         ConnectionHandler connection = object.getConnection();
-        DatabaseMetadataInterface metadata = connection.getMetadataInterface();
+        DatabaseDataDefinitionInterface dataDefinitionInterface = connection.getDataDefinitionInterface();
 
         boolean debug = compileType == CompileType.DEBUG;
 
@@ -219,13 +224,13 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
         String objectTypeName = cachedUpperCase(object.getTypeName());
 
         if (object.getObjectType() == DBObjectType.JAVA_CLASS) {
-            metadata.compileJavaClass(
+            dataDefinitionInterface.compileJavaClass(
                     schemaName,
                     objectName,
                     conn);
 
         } else if (contentType == DBContentType.CODE_SPEC || contentType == DBContentType.CODE) {
-            metadata.compileObject(
+            dataDefinitionInterface.compileObject(
                     schemaName,
                     objectName,
                     objectTypeName,
@@ -233,7 +238,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                     conn);
 
         } else if (contentType == DBContentType.CODE_BODY) {
-            metadata.compileObjectBody(
+            dataDefinitionInterface.compileObjectBody(
                     schemaName,
                     objectName,
                     objectTypeName,
@@ -241,13 +246,13 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                     conn);
 
         } else if (contentType == DBContentType.CODE_SPEC_AND_BODY) {
-            metadata.compileObject(
+            dataDefinitionInterface.compileObject(
                     schemaName,
                     objectName,
                     objectTypeName,
                     debug,
                     conn);
-            metadata.compileObjectBody(
+            dataDefinitionInterface.compileObjectBody(
                     schemaName,
                     objectName,
                     objectTypeName,
@@ -352,5 +357,44 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
         } else {
             callback.accept(compileType);
         }
+    }
+
+    public void compileJavaClasses(ConnectionHandler connection, List<DBObjectRef<DBJavaClass>> javaClasses) {
+        Project project = getProject();
+        Progress.background(project, connection, true,
+                "Compiling Java Classes",
+                "Compiling java classes",
+                progress -> {
+                    progress.setIndeterminate(false);
+
+                    DatabaseDataDefinitionInterface dataDefinitionInterface = connection.getDataDefinitionInterface();
+
+                    int size = javaClasses.size();
+                    for (int i = 0; i < size; i++) {
+                        DBObjectRef<DBJavaClass> javaClass = javaClasses.get(i);
+                        String className = DBJavaNameCache.getCanonicalName(javaClass);
+                        progress.setText2(className);
+
+                        String schemaName = javaClass.getSchemaName(true);
+                        String objectName = javaClass.getObjectName(true);
+                        try {
+                            DatabaseInterfaceInvoker.execute(Priority.MEDIUM,
+                                    "Compiling Java Class",
+                                    "Compiling java class \"" + className + "\"", project, connection.getConnectionId(), conn -> {
+                                        dataDefinitionInterface.compileJavaClass(
+                                                schemaName,
+                                                objectName,
+                                                conn);
+                                    });
+                        } catch (SQLException e) {
+                            sendErrorNotification(NotificationCategory.COMPILER, "Failed to compile class \"" + className + "\": " + e.getMessage());
+                        }
+                        progress.setFraction(progressOf(i + 1, size));
+                    }
+
+                    ProjectEvents.notify(project,
+                            CompileManagerListener.TOPIC,
+                            (listener) -> listener.compileFinished(connection, null));
+                });
     }
 }
