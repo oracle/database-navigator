@@ -55,6 +55,5 @@ public class ProfileSelectAction extends AbstractChatBoxAction {
         Presentation presentation = e.getPresentation();
         presentation.setText(Actions.adjustActionName(profile.getName()));
         presentation.setIcon(profile.getIcon());
-        presentation.setEnabled(profile.isEnabled());
     }
 }
