@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.chat.message;
 
+import com.dbn.assistant.chat.ChatContext;
 import com.dbn.common.message.MessageType;
 import org.intellij.markdown.ast.ASTNode;
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor;
@@ -50,7 +51,7 @@ public class ChatMessageTest {
         ASTNode astNode = markdownParser.buildMarkdownTreeFromString(content);
 
 
-        ChatMessage chatMessage = new ChatMessage(MessageType.NEUTRAL, content, AuthorType.AGENT, new ChatMessageContext());
+        ChatMessage chatMessage = new ChatMessage(MessageType.NEUTRAL, content, AuthorType.AGENT, new ChatContext());
         return chatMessage.getSections();
     }
 
