@@ -86,11 +86,6 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
         executeUpdate(connection, "create-object", code);
     }
 
-    @Override
-    public void createJavaClass(String fullyQualifiedClassName, String code, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "create-java-class", fullyQualifiedClassName, code);
-    }
-
     /*********************************************************
      *                   CHANGE statements                   *
      *********************************************************/

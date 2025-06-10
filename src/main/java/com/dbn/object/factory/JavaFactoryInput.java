@@ -24,6 +24,7 @@ import lombok.Getter;
 import java.util.List;
 
 import static com.dbn.common.util.Java.getQualifiedClassName;
+import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.object.type.DBJavaClassType.EXCEPTION;
 
 @Getter
@@ -42,6 +43,12 @@ public class JavaFactoryInput extends SchemaObjectFactoryInput{
         if(classType == EXCEPTION){
             this.extendsSuffix = " extends Exception ";
         }
+    }
+
+    public String getDatabaseObjectName(){
+        if (isEmpty(packageName)) return className;
+
+        return packageName.replace(".", "/") + "/" + className;
     }
 
     public String getTypeIdentifier() {
