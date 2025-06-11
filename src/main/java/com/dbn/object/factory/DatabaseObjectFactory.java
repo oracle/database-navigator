@@ -23,8 +23,10 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
+import com.dbn.connection.security.DatabaseIdentifierCache;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.editor.DBContentType;
@@ -51,6 +53,7 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
@@ -138,21 +141,15 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
     }
 
     private void createJavaObject(JavaFactoryInput input) throws SQLException {
-        DBObjectType objectType = JAVA_CLASS;
         String className = input.getClassName();
         String packageName = input.getPackageName();
         String classType = input.getTypeIdentifier();
         String extendsSuffix = input.getExtendsSuffix();
         DBSchema schema = input.getSchema();
 
-        String fullyQualifiedClassName;
-
         StringBuilder javaCode = new StringBuilder();
-        if(!packageName.isEmpty()) {
-            fullyQualifiedClassName = packageName + "." + className;
+        if(isNotEmpty(packageName)) {
             javaCode.append("package ").append(packageName).append(";").append("\n");
-        } else {
-            fullyQualifiedClassName = className;
         }
 
         javaCode.append("public ").append(classType).append(" ").append(className).append(extendsSuffix)
@@ -160,6 +157,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                 .append("\n")
                 .append("}");
 
+        String objectName = input.getDatabaseObjectName();
         ConnectionId connectionId = schema.getConnectionId();
         SchemaId schemaId = schema.getSchemaId();
 
@@ -169,14 +167,16 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                 schema.getProject(),
                 connectionId,
                 conn -> {
-                    DatabaseDataDefinitionInterface dataDefinition = schema.getDataDefinitionInterface();
-                    dataDefinition.createJavaClass(fullyQualifiedClassName, javaCode.toString(), conn);
+                    ConnectionHandler connection = schema.getConnection();
+                    DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
+                    DatabaseIdentifierCache identifierCache = connection.getIdentifierCache();
+                    String quotedObjectName = identifierCache.getQuotedIdentifier(objectName);
+                    dataDefinition.createJavaSource(schema.getName(), quotedObjectName, javaCode.toString().getBytes(), conn);
                 });
 
         notifyObjectChanges(connectionId, schemaId, JAVA_CLASS, CREATE);
 
-        String objectName = fullyQualifiedClassName.replace(".", "/");
-        DBJavaClass javaClass = schema.getChildObject(objectType, objectName, false);
+        DBJavaClass javaClass = schema.getChildObject(JAVA_CLASS, objectName, false);
         if (javaClass == null) return;
 
         DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(getProject());
