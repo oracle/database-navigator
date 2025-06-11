@@ -140,13 +140,6 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         executeUpdate(connection, "update-object", newCode);
     }
 
-    @Override
-    public void updateJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "prepare-java-staging-table", ownerName);
-        executeUpdate(connection, "drop-java-object", ownerName, objectName);
-        executeUpdate(connection, "create-java-source", ownerName, objectName, content);
-    }
-
     public void createJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "prepare-java-staging-table", ownerName);
         executeUpdate(connection, "create-java-source", ownerName, objectName, content);
@@ -154,7 +147,20 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
     }
 
     @Override
-    public void updateJavaClass(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
+    public void updateJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "prepare-java-staging-table", ownerName);
+        executeUpdate(connection, "update-java-source", ownerName, objectName, content);
+    }
+
+    @Override
+    public void replaceJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "prepare-java-staging-table", ownerName);
+        executeUpdate(connection, "drop-java-object", ownerName, objectName);
+        executeUpdate(connection, "create-java-source", ownerName, objectName, content);
+    }
+
+    @Override
+    public void replaceJavaClass(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "prepare-java-staging-table", ownerName);
         executeUpdate(connection, "drop-java-object", ownerName, objectName);
         executeUpdate(connection, "create-java-class", ownerName, objectName, content);

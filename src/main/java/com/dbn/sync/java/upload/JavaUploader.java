@@ -80,7 +80,7 @@ public class JavaUploader {
 				batch.getConnectionId(),
 				c -> {
 					DatabaseDataDefinitionInterface dataDefinitionInterface = batch.getConnection().getDataDefinitionInterface();
-					dataDefinitionInterface.updateJavaSource(schemaName, objectName, sourceContent, c);
+					dataDefinitionInterface.replaceJavaSource(schemaName, objectName, sourceContent, c);
 
 				});
 	}
@@ -97,7 +97,7 @@ public class JavaUploader {
 				batch.getConnectionId(),
 				c -> {
 					DatabaseDataDefinitionInterface dataDefinitionInterface = batch.getConnection().getDataDefinitionInterface();
-					dataDefinitionInterface.updateJavaClass(schemaName, objectName, classBytes, c);
+					dataDefinitionInterface.replaceJavaClass(schemaName, objectName, classBytes, c);
 				});
 	}
 }
