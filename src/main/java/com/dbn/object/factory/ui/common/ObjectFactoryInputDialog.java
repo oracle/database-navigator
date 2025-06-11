@@ -17,8 +17,10 @@
 package com.dbn.object.factory.ui.common;
 
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.message.InteractiveMessage;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.common.util.Conditional;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.diagnostics.Diagnostics;
@@ -105,12 +107,20 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
         try {
             factory.createObject(input);
         } catch (SQLException e) {
-            Messages.showErrorDialog(project, "Failed to create " + input.getObjectTypeName() + ".", e);
-            // TODO ask if to retry
-            Dialogs.show(() -> new ObjectFactoryInputDialog(project, schema, objectType, input));
+            //Messages.showErrorDialog(project, "Failed to create " + input.getObjectTypeName() + ".", e);
 
+            InteractiveMessage message =
+                    InteractiveMessage.error("Object creation failed", "Failed to create " + input.getObjectTypeName() + ".").
+                    withException(e).
+                    withOptions(Messages.OPTIONS_RETRY_CANCEL, 0).
+                    withCallback(o -> Conditional.when(o == 0, () -> reopenInputDialog(project, schema, objectType, input)));
+            Messages.showMessageDialog(project, message);
         }
 
+    }
+
+    private static void reopenInputDialog(Project project, DBSchema schema, DBObjectType objectType, ObjectFactoryInput input) {
+        Dialogs.show(() -> new ObjectFactoryInputDialog(project, schema, objectType, input));
     }
 
     @Override

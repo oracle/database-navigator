@@ -52,14 +52,15 @@ import static com.dbn.common.util.Strings.toUpperCase;
 public abstract class MethodFactoryInputForm extends ObjectFactoryInputForm<MethodFactoryInput> {
     private JPanel mainPanel;
     private JTextField nameTextField;
+    private JPanel returnDataTypeEditor;
     private JPanel returnArgumentPanel;
     private JLabel returnArgumentIconLabel;
+    private JPanel argumentListComponent;
     private JPanel headerPanel;
     private JLabel nameLabel;
     private DBNComboBox<ConnectionHandler> connectionComboBox;
     private DBNComboBox<SchemaId> schemaComboBox;
 
-    private DataTypeEditor returnDataTypeEditor;
 
     private ArgumentFactoryInputListForm argumentListPanel;
     private final DBObjectRef<DBSchema> schema;
@@ -105,10 +106,13 @@ public abstract class MethodFactoryInputForm extends ObjectFactoryInputForm<Meth
         addTextValidation(nameTextField, n -> isWord(n), "Please enter a valid " + objectTypeName + " name");
 
         if (hasReturnArgument()) {
-            addTextValidation(returnDataTypeEditor.getTextField(), t -> isNotEmptyOrSpaces(t), "Please enter the return argument data type");
+            addTextValidation(getReturnDataTypeEditor().getTextField(), t -> isNotEmptyOrSpaces(t), "Please enter the return argument data type");
         }
     }
 
+    public DataTypeEditor getReturnDataTypeEditor() {
+        return (DataTypeEditor) returnDataTypeEditor;
+    }
 
     private DBNHeaderForm createHeaderForm(DBSchema schema, DBObjectType objectType) {
         String headerTitle = schema.getName() + ".[unnamed]";
@@ -135,7 +139,7 @@ public abstract class MethodFactoryInputForm extends ObjectFactoryInputForm<Meth
 
             ArgumentFactoryInput returnArgument = new ArgumentFactoryInput(
                     input, 0, "return",
-                    returnDataTypeEditor.getDataTypeRepresentation(),
+                    getReturnDataTypeEditor().getDataTypeRepresentation(),
                     false, true);
 
             input.setReturnArgument(returnArgument);
@@ -159,7 +163,7 @@ public abstract class MethodFactoryInputForm extends ObjectFactoryInputForm<Meth
         if (hasReturnArgument()) {
             ArgumentFactoryInput returnArgument = input.getReturnArgument();
             if (returnArgument != null) {
-                returnDataTypeEditor.setText(returnArgument.getDataType());
+                getReturnDataTypeEditor().setText(returnArgument.getDataType());
             }
         }
     }
@@ -179,6 +183,7 @@ public abstract class MethodFactoryInputForm extends ObjectFactoryInputForm<Meth
         ConnectionHandler connection = getConnection();
         boolean enforceInArguments = hasReturnArgument() && !DatabaseFeature.FUNCTION_OUT_ARGUMENTS.isSupported(connection);
         argumentListPanel = new ArgumentFactoryInputListForm(this, connection, enforceInArguments);
+        argumentListComponent = (JPanel) argumentListPanel.getComponent();
         returnDataTypeEditor = new DataTypeEditor(getConnection());
     }
 
