@@ -85,7 +85,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         }
     }
 
-    public boolean createObject(ObjectFactoryInput factoryInput) throws SQLException {
+    public void createObject(ObjectFactoryInput factoryInput) throws SQLException {
         Project project = getProject();
         List<String> errors = new ArrayList<>();
         factoryInput.validate(errors);
@@ -93,23 +93,22 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
             String objectType = factoryInput.getObjectType().getName();
             String objectErrors = errors.stream().map(error -> " - " + error + "\n").collect(Collectors.joining());
             Messages.showErrorDialog(project, txt("msg.objects.error.ObjectCreationError", objectType, objectErrors));
-            return false;
+            return;
         }
 
         if (factoryInput instanceof MethodFactoryInput) {
             MethodFactoryInput methodFactoryInput = (MethodFactoryInput) factoryInput;
             createMethod(methodFactoryInput);
-            return true;
+            return;
         }
 
         if (factoryInput instanceof JavaFactoryInput) {
             JavaFactoryInput javaFactoryInput = (JavaFactoryInput) factoryInput;
             createJavaObject(javaFactoryInput);
-            return true;
+            return;
         }
         // TODO other factory inputs
 
-        return false;
     }
 
     private void createMethod(MethodFactoryInput input) throws SQLException {
