@@ -157,6 +157,10 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
     public void registerBreakpoints(@NotNull List<XLineBreakpoint<XBreakpointProperties>> breakpoints, final List<? extends DBObject> objects) {
         ManagedThreadCommand.invoke(getJdiDebugProcess(), PrioritizedTask.Priority.LOW, () -> {
             for (DBObject object : objects) {
+                if (!object.isSchemaObject()) {
+                    object = object.getParentObject(o -> o.isSchemaObject());
+                }
+
                 if (object instanceof DBSchemaObject) {
                     DBSchemaObject schemaObject = (DBSchemaObject) object;
                     DBContentType contentType = schemaObject.getContentType();
