@@ -32,9 +32,10 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 public class SessionBrowserEditorProvider implements FileEditorProvider, NamedComponent, DumbAware {
-    /*********************************************************
-     *                  FileEditorProvider                   *
-     *********************************************************/
+    @Override
+    public boolean acceptRequiresReadAction() {
+        return false;
+    }
 
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile virtualFile) {

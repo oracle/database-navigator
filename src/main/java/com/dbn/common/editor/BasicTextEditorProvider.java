@@ -68,4 +68,8 @@ public abstract class BasicTextEditorProvider implements FileEditorProvider, Nam
     @NotNull
     public abstract EditorProviderId getEditorProviderId();
 
+    @Override
+    public boolean acceptRequiresReadAction() {
+        return false;
+    }
 }
