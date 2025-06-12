@@ -16,11 +16,13 @@
 
 package com.dbn.editor.json.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ContextAction;
 import com.dbn.editor.json.JsonDataEditor;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+@BackgroundUpdate
 abstract class AbstractJsonDataEditorAction extends ContextAction<JsonDataEditor> {
 
     @Override
