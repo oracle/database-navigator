@@ -58,8 +58,8 @@
             select
                 rp.GRANTEE as USER_NAME,
                 rp.GRANTED_ROLE as GRANTED_ROLE_NAME,
-                rp.ADMIN_OPTION as IS_ADMIN_OPTION,
-                rp.DEFAULT_ROLE as IS_DEFAULT_ROLE
+                decode(rp.ADMIN_OPTION, 'YES', 'Y', 'N') as IS_ADMIN_OPTION,
+                decode(rp.DEFAULT_ROLE, 'YES', 'Y', 'N') as IS_DEFAULT_ROLE
             from
                 DBA_ROLE_PRIVS rp,
                 DBA_USERS u
@@ -68,14 +68,24 @@
                 by rp.GRANTEE,
                 rp.GRANTED_ROLE asc
         </statement>
+        <statement>
+            select
+                rp.USERNAME as USER_NAME,
+                rp.GRANTED_ROLE as GRANTED_ROLE_NAME,
+                decode(rp.ADMIN_OPTION, 'YES', 'Y', 'N') as IS_ADMIN_OPTION,
+                decode(rp.DEFAULT_ROLE, 'YES', 'Y', 'N') as IS_DEFAULT_ROLE
+            from USER_ROLE_PRIVS rp
+            where rp.USERNAME = USER
+            order by rp.GRANTED_ROLE asc
+        </statement>
     </statement-execution-processor>
     <statement-execution-processor id="all-role-roles" is-query="true" is-prepared-statement="true">
         <statement>
             select
                 rp.GRANTEE as ROLE_NAME,
                 rp.GRANTED_ROLE as GRANTED_ROLE_NAME,
-                rp.ADMIN_OPTION as IS_ADMIN_OPTION,
-                rp.DEFAULT_ROLE as IS_DEFAULT_ROLE
+                decode(rp.ADMIN_OPTION, 'YES', 'Y', 'N') as IS_ADMIN_OPTION,
+                decode(rp.DEFAULT_ROLE, 'YES', 'Y', 'N') as IS_DEFAULT_ROLE
             from
                 DBA_ROLE_PRIVS rp,
                 DBA_ROLES r
@@ -95,7 +105,7 @@
             select
                 sp.GRANTEE as USER_NAME,
                 sp.PRIVILEGE as GRANTED_PRIVILEGE_NAME,
-                sp.ADMIN_OPTION as IS_ADMIN_OPTION
+                decode(sp.ADMIN_OPTION, 'YES', 'Y', 'N') as IS_ADMIN_OPTION
             from
                 DBA_SYS_PRIVS sp,
                 [PREFIX]_USERS u
@@ -103,6 +113,15 @@
             order by
                 sp.GRANTEE,
                 sp.PRIVILEGE asc
+        </statement>
+        <statement>
+            select
+                sp.username as USER_NAME,
+                sp.PRIVILEGE as GRANTED_PRIVILEGE_NAME,
+                decode(sp.ADMIN_OPTION, 'YES', 'Y', 'N') as IS_ADMIN_OPTION
+            from USER_SYS_PRIVS sp
+            where sp.USERNAME = USER
+            order by sp.PRIVILEGE asc
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="all-role-privileges" is-query="true" is-prepared-statement="true">
