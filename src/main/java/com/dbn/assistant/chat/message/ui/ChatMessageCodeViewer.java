@@ -38,8 +38,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.impl.PsiManagerEx;
 import com.intellij.psi.impl.file.impl.FileManager;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.ui.JBUI;
@@ -53,6 +51,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import java.awt.BorderLayout;
 
+import static com.dbn.language.common.psi.PsiUtil.getFileManager;
 import static javax.swing.JLayeredPane.DRAG_LAYER;
 
 /**
@@ -109,8 +108,7 @@ public class ChatMessageCodeViewer extends JPanel implements Disposable {
         FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
         contextManager.setConnection(file, connection);
 
-        PsiManagerEx psiManager = (PsiManagerEx) PsiManager.getInstance(project);
-        FileManager fileManager = psiManager.getFileManager();
+        FileManager fileManager = getFileManager(project);
         FileViewProvider viewProvider = fileManager.createFileViewProvider(file, true);
         PsiFile psiFile = viewProvider.getPsi(language);
         if (psiFile == null) return null;

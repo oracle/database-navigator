@@ -43,8 +43,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.impl.PsiManagerEx;
 import com.intellij.psi.impl.file.impl.FileManager;
 import com.intellij.testFramework.LightVirtualFile;
 import org.jetbrains.annotations.NotNull;
@@ -58,6 +56,7 @@ import java.sql.SQLException;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.language.common.psi.PsiUtil.getFileManager;
 
 public class TextEditorForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -125,7 +124,7 @@ public class TextEditorForm extends DBNFormBase {
                 virtualFile.putUserData(UserDataKeys.LANGUAGE_DIALECT, languageDialect);
             }
 
-            FileManager fileManager = ((PsiManagerEx)PsiManager.getInstance(project)).getFileManager();
+            FileManager fileManager = getFileManager(project);
             FileViewProvider viewProvider = fileManager.createFileViewProvider(virtualFile, true);
             PsiFile psiFile = viewProvider.getPsi(languageFileType.getLanguage());
             document = psiFile == null ? null : Documents.getDocument(psiFile);
