@@ -157,6 +157,24 @@
             end;
         </statement>
     </statement-execution-processor>
+    <statement-execution-processor id="update-java-source" is-prepared-statement="true">
+        <statement>
+            declare
+                v_owner_name VARCHAR2(128) := {0};
+                v_class_name VARCHAR2(700) := {1};
+                v_content BLOB := {2};
+                v_content_id VARCHAR2(128) := SYS_GUID();
+            begin
+                execute immediate 'insert into '||v_owner_name||'."CREATE$JAVA$LOB$TABLE" ("NAME", "LOB", "LOADTIME") VALUES ('''||v_content_id||''', :1, SYSDATE)' using v_content;
+                execute immediate 'create or replace java source named '||v_owner_name||'.'||v_class_name||' using blob select "LOB" from '||v_owner_name||'."CREATE$JAVA$LOB$TABLE" where "NAME" = '''||v_content_id||'''';
+                execute immediate 'delete '||v_owner_name||'."CREATE$JAVA$LOB$TABLE" where "NAME" = '''||v_content_id||'''';
+            exception
+                when others then
+                    execute immediate 'delete '||v_owner_name||'."CREATE$JAVA$LOB$TABLE" where "NAME" = '''||v_content_id||'''';
+                raise;
+            end;
+        </statement>
+    </statement-execution-processor>
 
     <statement-execution-processor id="drop-object">
         <statement>drop {0} {1}.{2}</statement>

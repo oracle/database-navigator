@@ -17,9 +17,11 @@
 package com.dbn.object.factory.ui.common;
 
 import com.dbn.common.dispose.Failsafe;
-import com.dbn.common.thread.Dispatch;
+import com.dbn.common.message.InteractiveMessage;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.common.util.Conditional;
+import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.object.DBSchema;
@@ -30,20 +32,27 @@ import com.dbn.object.factory.ui.JavaFactoryInputForm;
 import com.dbn.object.factory.ui.ProcedureFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
+@Getter
 public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?>> {
     private final DBObjectRef<DBSchema> schema;
     private final DBObjectType objectType;
+    private final ObjectFactoryInput initialInput;
 
     public ObjectFactoryInputDialog(@NotNull Project project, DBSchema schema, DBObjectType objectType) {
+        this(project, schema, objectType, null);
+    }
+
+    public ObjectFactoryInputDialog(@NotNull Project project, DBSchema schema, DBObjectType objectType, ObjectFactoryInput initialInput) {
         super(project, "Create " + objectType.getName(), true);
         this.schema = DBObjectRef.of(schema);
         this.objectType = objectType;
+        this.initialInput = initialInput;
         setModal(false);
         setResizable(true);
         init();
@@ -53,10 +62,16 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
     @Override
     protected ObjectFactoryInputForm<?> createForm() {
         DBSchema schema = getSchema();
-        return objectType == DBObjectType.FUNCTION ? new FunctionFactoryInputForm(this, schema, objectType, 0) :
-               objectType == DBObjectType.PROCEDURE ? new ProcedureFactoryInputForm(this, schema, objectType, 0) :
-               objectType == DBObjectType.JAVA_CLASS ? new JavaFactoryInputForm(this,schema, 0):
-                       Failsafe.nn(null);
+        ObjectFactoryInputForm inputForm =
+                objectType == DBObjectType.FUNCTION ? new FunctionFactoryInputForm(this, schema, objectType, 0) :
+                objectType == DBObjectType.PROCEDURE ? new ProcedureFactoryInputForm(this, schema, objectType, 0) :
+                objectType == DBObjectType.JAVA_CLASS ? new JavaFactoryInputForm(this, schema, 0) :
+                                Failsafe.nn(null);
+
+        if (initialInput != null) {
+            inputForm.restoreUserInput(initialInput);
+        }
+        return inputForm;
     }
 
     private DBSchema getSchema() {
@@ -71,29 +86,41 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
 
     @Override
     public void doOKAction() {
+        Project project = getProject();
+        DBSchema schema = getSchema();
+        DBObjectType objectType = getObjectType();
+
         ObjectFactoryInputForm form = getForm();
-        ObjectFactoryInput input = form.createFactoryInput(null);
-        Progress.modal(
+        ObjectFactoryInput input = form.createFactoryInput();
+        super.doOKAction();
+
+        Progress.prompt(
                 getProject(),
                 getSchema(), true,
                 "Creating " + input.getObjectTypeName(),
                 "Creating " + input.getObjectDescription(),
-                p -> invokeObjectFactory(p, input));
+                p -> invokeObjectFactory(project, schema, objectType, input));
     }
 
-    private void invokeObjectFactory(ProgressIndicator progress, ObjectFactoryInput input) {
-        Project project = getProject();
-
+    private void invokeObjectFactory(Project project, DBSchema schema, DBObjectType objectType, ObjectFactoryInput input) {
         DatabaseObjectFactory factory = DatabaseObjectFactory.getInstance(project);
         try {
-            boolean success = factory.createObject(input);
-            if (!success) return;
-            if (progress.isCanceled()) return; // do not close the dialog if cancelled
-
-            Dispatch.run(getComponent(), () -> super.doOKAction());
+            factory.createObject(input);
         } catch (SQLException e) {
-            Messages.showErrorDialog(project, "Failed to create " + input.getObjectTypeName() + ".", e);
+            //Messages.showErrorDialog(project, "Failed to create " + input.getObjectTypeName() + ".", e);
+
+            InteractiveMessage message =
+                    InteractiveMessage.error("Object creation failed", "Failed to create " + input.getObjectTypeName() + ".").
+                    withException(e).
+                    withOptions(Messages.OPTIONS_RETRY_CANCEL, 0).
+                    withCallback(o -> Conditional.when(o == 0, () -> reopenInputDialog(project, schema, objectType, input)));
+            Messages.showMessageDialog(project, message);
         }
+
+    }
+
+    private static void reopenInputDialog(Project project, DBSchema schema, DBObjectType objectType, ObjectFactoryInput input) {
+        Dialogs.show(() -> new ObjectFactoryInputDialog(project, schema, objectType, input));
     }
 
     @Override
