@@ -66,10 +66,12 @@ public class DatabaseFileViewProvider extends SingleRootFileViewProvider {
         virtualFile.putUserData(CACHED_VIEW_PROVIDER, this);
         //virtualFile.putUserData(FREE_THREADED, true);
 
-        Write.run(() -> {
-            FileManager fileManager = getFileManager(project);
-            fileManager.setViewProvider(virtualFile, this);
-        });
+        if (virtualFile instanceof DBVirtualFile) {
+            Write.run(() -> {
+                FileManager fileManager = getFileManager(project);
+                fileManager.setViewProvider(virtualFile, this);
+            });
+        }
     }
 
     @Override
@@ -93,7 +95,7 @@ public class DatabaseFileViewProvider extends SingleRootFileViewProvider {
             }
 
             Language baseLanguage = getBaseLanguage();
-            return super.getPsiInner(baseLanguage);
+            PsiFile psiFile = super.getPsiInner(baseLanguage);
 
 /*
             // TODO cleanup
@@ -107,6 +109,9 @@ public class DatabaseFileViewProvider extends SingleRootFileViewProvider {
                 return psiFile;
             }
 */
+
+            return psiFile;
+
         }
 
         return super.getPsiInner(language);
