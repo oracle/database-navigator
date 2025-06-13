@@ -16,6 +16,7 @@
 
 package com.dbn.common.editor;
 
+import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Editors;
 import com.dbn.editor.EditorProviderId;
@@ -68,7 +69,8 @@ public abstract class BasicTextEditorProvider implements FileEditorProvider, Nam
     @NotNull
     public abstract EditorProviderId getEditorProviderId();
 
-    @Override
+    //@Override
+    @Compatibility
     public boolean acceptRequiresReadAction() {
         return false;
     }
