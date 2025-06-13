@@ -322,14 +322,14 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
             conditionallyLog(e);
             // connectivity / timeout exceptions: mark content dirty (no logging)
             elements = Unsafe.cast(EMPTY_CONTENT);
-            set(DynamicContentProperty.DIRTY, true);
+            markDirty();
 
         } catch (Throwable e) {
             conditionallyLog(e);
             // any other exception: log error
             log.error("Failed to load content", e);
             elements = Unsafe.cast(EMPTY_CONTENT);
-            set(DynamicContentProperty.DIRTY, true);
+            markDirty();
         }
 
         checkDisposed();

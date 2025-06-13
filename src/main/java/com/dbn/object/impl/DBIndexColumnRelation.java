@@ -22,8 +22,6 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectRelationImpl;
 import com.dbn.object.type.DBObjectRelationType;
 
-import static com.dbn.common.util.Commons.nvl;
-
 class DBIndexColumnRelation extends DBObjectRelationImpl<DBIndex, DBColumn> {
     DBIndexColumnRelation(DBIndex index, DBColumn column) {
         super(DBObjectRelationType.INDEX_COLUMN, index, column);
@@ -31,7 +29,9 @@ class DBIndexColumnRelation extends DBObjectRelationImpl<DBIndex, DBColumn> {
 
     @Override
     public DBObject getRelationHolder() {
-        return nvl(getColumn().getParentObject(), getColumn());
+        DBColumn column = getColumn();
+        DBObject parentObject = column.getParentObject();
+        return parentObject == null ? column : parentObject;
     }
 
     public DBIndex getIndex() {
