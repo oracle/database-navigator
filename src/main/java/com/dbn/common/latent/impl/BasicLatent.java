@@ -31,13 +31,13 @@ public class BasicLatent<T> implements Latent<T> {
     public final T get(){
         if (!shouldLoad()) return value;
 
-        synchronized (this) {
+        synchronized (loader) {
             if (!shouldLoad()) return value;
 
             T newValue = null;
             try {
                 beforeLoad();
-                newValue = loader == null ? value : loader.load();
+                newValue = loader.load();
                 if (value != newValue) {
                     value = newValue;
                 }
@@ -50,7 +50,7 @@ public class BasicLatent<T> implements Latent<T> {
     }
 
     protected boolean shouldLoad() {
-        return !loaded;
+        return !loaded && loader != null;
     }
 
     protected void beforeLoad() {};
