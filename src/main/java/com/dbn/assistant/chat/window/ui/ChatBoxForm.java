@@ -29,6 +29,7 @@ import com.dbn.assistant.chat.window.util.RollingMessageContainer;
 import com.dbn.assistant.init.ui.AssistantIntroductionForm;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.state.AssistantState;
+import com.dbn.assistant.state.AssistantStateListener;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.message.MessageType;
@@ -98,6 +99,7 @@ public class ChatBoxForm extends DBNFormBase {
   private final ConnectionRef connection;
   private ChatBoxInputField inputField;
   private ChatBoxStatusLabel statusLabel;
+  private String currentChatId; // identifier of currently displayed chat (can be temporarels different from the one in the AssistantState)
 
   public ChatBoxForm(ConnectionHandler connection) {
     super(connection, connection.getProject());
@@ -114,7 +116,9 @@ public class ChatBoxForm extends DBNFormBase {
     initIntroForm();
     initChatBoxForm();
 
-    ProjectEvents.subscribe(connection.getProject(), this, ObjectChangeListener.TOPIC, createObjectChangeListener());
+    Project project = connection.getProject();
+    ProjectEvents.subscribe(project, this, ObjectChangeListener.TOPIC, createObjectChangeListener());
+    ProjectEvents.subscribe(project, this, AssistantStateListener.TOPIC, createStateListener());
   }
 
   private ObjectChangeListener createObjectChangeListener() {
@@ -125,6 +129,19 @@ public class ChatBoxForm extends DBNFormBase {
       Background.run(() -> loadProfiles(false));
     };
   }
+
+  private AssistantStateListener createStateListener() {
+    return (project, connectionId) -> {
+      if (!Objects.equals(connectionId, getConnectionId())) return;
+
+      AssistantState state = getAssistantState();
+      if (Objects.equals(currentChatId, state.getCurrentChatId())) return;
+
+      initMessages();
+    };
+  }
+
+
 
 
   private void initIntroForm() {
@@ -185,6 +202,7 @@ public class ChatBoxForm extends DBNFormBase {
 
   public void initMessages() {
     Chat chat = getCurrentChat();
+    currentChatId = chat.getId();
     chat.removeProgress();
 
     messageContainer.clear();
