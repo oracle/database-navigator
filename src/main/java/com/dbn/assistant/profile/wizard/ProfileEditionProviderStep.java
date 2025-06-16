@@ -27,6 +27,7 @@ import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -50,6 +51,8 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
   private JComboBox<AIProvider> providerNameCombo;
   private JComboBox<AIModel> providerModelCombo;
   private JSlider temperatureSlider;
+  private JLabel conversationLabel;
+  private JCheckBox conversationCheckBox;
   private final ProfileData profile;
 
   private static final int MIN_TEMPERATURE = 0;
@@ -66,12 +69,14 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
     if (isUpdate) {
       providerNameCombo.setSelectedItem(profile.getProvider());
       providerModelCombo.setSelectedItem(profile.getModel() != null ? profile.getModel() : profile.getProvider().getDefaultModel());
+      conversationCheckBox.setSelected(profile.isConversation());
       temperatureSlider.setValue((int) (profile.getTemperature() * 10));
     } else {
       UserInterface.whenShown(mainPanel, () -> {
         AIProvider provider = guessProviderType(profile);
         providerNameCombo.setSelectedItem(provider);
         providerModelCombo.setSelectedItem(provider.getDefaultModel());
+        conversationCheckBox.setSelected(true);
         temperatureSlider.setValue(5);
       }, false);
 
@@ -150,6 +155,7 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
     AIModel model = (AIModel) providerModelCombo.getSelectedItem();
     profile.setProvider(provider);
     profile.setModel(model);
+    profile.setConversation(conversationCheckBox.isSelected());
     profile.setTemperature((float) temperatureSlider.getValue() / 10);
     return super.onNext(wizardModel);
   }

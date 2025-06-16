@@ -73,6 +73,7 @@ public class JavaUploadInputForm extends DBNFormBase {
     protected void initValidation() {
         addSelectionValidation(connectionComboBox, "Please select the target connection");
         addSelectionValidation(schemaComboBox, "Please select the target schema");
+        addSelectionValidation(dependenciesCheckBoxList, "Please select at least one resource to upload");
     }
 
     private void initHintPanel() {

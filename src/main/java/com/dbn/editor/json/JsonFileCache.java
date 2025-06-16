@@ -25,11 +25,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.impl.PsiManagerEx;
 import com.intellij.psi.impl.file.impl.FileManager;
 import com.intellij.testFramework.LightVirtualFile;
 import lombok.experimental.UtilityClass;
+
+import static com.dbn.language.common.psi.PsiUtil.getFileManager;
 
 @UtilityClass
 public class JsonFileCache {
@@ -56,9 +56,8 @@ public class JsonFileCache {
         return getPsiFile(project, contentFile);
     }
 
-    private PsiFile getPsiFile(Project project, VirtualFile contentFile) {
-        PsiManagerEx psiManager = (PsiManagerEx) PsiManager.getInstance(project);
-        FileManager fileManager = psiManager.getFileManager();
+    private static PsiFile getPsiFile(Project project, VirtualFile contentFile) {
+        FileManager fileManager = getFileManager(project);
         return fileManager.getCachedPsiFile(contentFile);
     }
 
@@ -71,8 +70,7 @@ public class JsonFileCache {
         LightVirtualFile jsonFile = new LightVirtualFile(fileName, fileType, text);
 
         Project project = jsonView.getProject();
-        PsiManagerEx psiManager = (PsiManagerEx) PsiManager.getInstance(project);
-        FileManager fileManager = psiManager.getFileManager();
+        FileManager fileManager = getFileManager(project);
         FileViewProvider viewProvider = fileManager.createFileViewProvider(jsonFile, true);
 
         viewProvider.getPsi(language);

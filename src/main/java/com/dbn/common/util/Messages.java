@@ -17,9 +17,11 @@
 package com.dbn.common.util;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.common.message.InteractiveMessage;
 import com.dbn.common.message.Message;
 import com.dbn.common.message.MessageBundle;
 import com.dbn.common.message.MessageCallback;
+import com.dbn.common.message.MessageType;
 import com.dbn.common.message.TitledMessage;
 import com.dbn.common.message.TitledMessageBundle;
 import com.dbn.common.message.ui.MessageBundleDialog;
@@ -75,6 +77,21 @@ public class Messages {
 
     public static void showMessageDialog(@Nullable Project project, Message message) {
         String title = null;
+        if (message instanceof InteractiveMessage) {
+            InteractiveMessage interactiveMessage = (InteractiveMessage) message;
+
+            showDialog(project,
+                    interactiveMessage.getText(),
+                    interactiveMessage.getTitle(),
+                    interactiveMessage.getOptions(),
+                    interactiveMessage.getDefaultOptionIndex(),
+                    getDialogIcon(interactiveMessage.getType()),
+                    interactiveMessage.getCallback(),
+                    interactiveMessage.getDoNotAskOption());
+            return;
+
+        }
+
         if (message instanceof TitledMessage) {
             TitledMessage titledMessage = (TitledMessage) message;
             title = titledMessage.getTitle();
@@ -85,6 +102,18 @@ public class Messages {
             case ERROR: showErrorDialog(project, nvl(title, txt("msg.shared.title.Error")), message.getText()); break;
             case WARNING: showWarningDialog(project, nvl(title, txt("msg.shared.title.Warning")), message.getText()); break;
             default:
+        }
+    }
+
+
+    private static Icon getDialogIcon(MessageType messageType) {
+        switch (messageType) {
+            case INFO: return Icons.DIALOG_INFORMATION;
+            case ERROR: return Icons.DIALOG_ERROR;
+            case WARNING: return Icons.DIALOG_WARNING;
+            case QUESTION: return Icons.DIALOG_QUESTION;
+            case SUCCESS: return Icons.DIALOG_SUCCESS;
+            default: return null;
         }
     }
 

@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.chat.message;
 
+import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.editor.SQLChatMessageConverter;
 import com.dbn.common.latent.Latent;
@@ -51,7 +52,7 @@ public class ChatMessage {
     protected MessageType type = MessageType.NEUTRAL;
     protected AuthorType author;
     protected @NonNls String content;
-    protected ChatMessageContext context;
+    protected ChatContext context;
     private Latent<List<ChatMessageSection>> sections = Latent.basic(() -> buildSections());
 
     private transient boolean progress;
@@ -64,7 +65,7 @@ public class ChatMessage {
      * @param author  the author of the message
      * @param context the context in which the chat message was produced
      */
-    public ChatMessage(MessageType type, String content, AuthorType author, ChatMessageContext context) {
+    public ChatMessage(MessageType type, String content, AuthorType author, ChatContext context) {
         this.type = type;
         this.content = content.trim();
         this.author = author;

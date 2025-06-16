@@ -72,6 +72,7 @@ public enum DBObjectProperty implements Property.LongBase {
     STATIC,
     INNER,
     SCALAR,
+    SOURCE,
     PRIMITIVE,
 
     // json duality views

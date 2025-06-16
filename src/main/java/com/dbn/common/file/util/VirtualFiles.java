@@ -27,6 +27,7 @@ import com.intellij.ide.highlighter.ArchiveFileType;
 import com.intellij.injected.editor.VirtualFileWindow;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.StandardFileSystems;
 import com.intellij.openapi.vfs.VfsUtilCore;
@@ -91,12 +92,23 @@ public final class VirtualFiles {
         return file.getFileSystem() instanceof DatabaseFileSystem;
     }
 
+    public static boolean isJarFileSystem(@NotNull VirtualFile file) {
+        return file.getFileSystem() instanceof JarFileSystem;
+    }
+
     public static boolean isLocalFileSystem(@NotNull VirtualFile file) {
         return file.isInLocalFileSystem();
     }
 
     public static boolean isVirtualFileSystem(@NotNull VirtualFile file) {
         return !isDatabaseFileSystem(file) && !isLocalFileSystem(file);
+    }
+
+    public static VirtualFile getJarFileRoot(@NotNull VirtualFile file) {
+        if (isJarFileSystem(file)) return file;
+
+        JarFileSystem jarFileSystem = JarFileSystem.getInstance();
+        return jarFileSystem.getJarRootForLocalFile(file);
     }
 
     public static VirtualFile ioFileToVirtualFile(File file) {

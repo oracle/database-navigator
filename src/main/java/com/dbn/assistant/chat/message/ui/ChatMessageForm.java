@@ -16,9 +16,9 @@
 
 package com.dbn.assistant.chat.message.ui;
 
+import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessage;
-import com.dbn.assistant.chat.message.ChatMessageContext;
 import com.dbn.assistant.chat.message.action.CopyContentAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.color.Colors;
@@ -84,10 +84,10 @@ public abstract class ChatMessageForm extends DBNFormBase {
         if (titleLabel == null) return;
 
         ChatMessage message = getMessage();
-        ChatMessageContext context = message.getContext();
+        ChatContext context = message.getContext();
         String title =
-                context.getProfile() + " / " +
-                        context.getModel() + "  -  " +
+                context.getProfileName() + " / " +
+                        context.getModelName() + "  -  " +
                         context.getAction().getName();
 
         titleLabel.setFont(regularBold(-2));

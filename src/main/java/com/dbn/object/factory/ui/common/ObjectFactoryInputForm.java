@@ -25,6 +25,7 @@ import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPanel;
 
@@ -53,7 +54,13 @@ public abstract class ObjectFactoryInputForm<T extends ObjectFactoryInput> exten
         return connection.ensure();
     }
 
+    public T createFactoryInput() {
+        return createFactoryInput(null);
+    }
+
     public abstract T createFactoryInput(ObjectFactoryInput parent);
+
+    public abstract void restoreUserInput(@Nullable T input);
 
     public abstract void focus();
 }

@@ -23,6 +23,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.mapping.FileConnectionContext;
 import com.dbn.connection.mapping.FileConnectionContextManager;
+import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ui.UIUtil;
@@ -34,13 +35,14 @@ import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Conditional.when;
 
 public class FileConnectionContextNotificationPanel extends EditorNotificationPanel {
-    private boolean inheritedContext;
+    private final boolean inheritedContext;
 
     public FileConnectionContextNotificationPanel(
             @NotNull Project project,
             @NotNull VirtualFile file,
+            @NotNull FileEditor fileEditor,
             @NotNull FileConnectionContext mapping) {
-        super(project, file ,MessageType.SYSTEM);
+        super(project, file, fileEditor, MessageType.SYSTEM);
 
         ConnectionId connectionId = mapping.getConnectionId();
         ConnectionHandler connection = ConnectionHandler.get(connectionId);

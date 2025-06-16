@@ -37,6 +37,7 @@ public class ProfileData {
     private String credentialName;
     private List<DBObjectRef<DBObject>> objectList = new ArrayList<>();
 
+    private boolean conversation;
     private double temperature;
     private boolean enabled = true;
 
@@ -54,6 +55,7 @@ public class ProfileData {
         this.model = profile.getModel();
         this.credentialName = profile.getCredentialName();
         this.enabled = profile.isEnabled();
+        this.conversation = profile.isInteractive();
         this.temperature = profile.getTemperature();
         this.objectList = DBObjectRef.from(profile.getObjects());
     }

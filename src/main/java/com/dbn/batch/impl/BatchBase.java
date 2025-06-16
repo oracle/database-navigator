@@ -58,7 +58,7 @@ public abstract class BatchBase<
         I extends BatchInput<T>> implements Batch<I, T> {
 
     private final I input;
-    private final Queue<T> tasks = new LinkedList<>();
+    private final Queue<T> queue = new LinkedList<>();
     private final List<T> completedTasks = new ArrayList<>();
     private final BatchProcessor<T, I, Batch<I, T>> processor;
     private final BatchMessenger<T, I, Batch<I, T>> messenger;
@@ -82,8 +82,20 @@ public abstract class BatchBase<
 
     @Override
     public final void init() {
-        tasks.addAll(input.getSelectedTasks());
-        counters.queued().set(tasks.size());
+        queue.addAll(input.getSelectedTasks());
+        counters.queued().set(queue.size());
+    }
+
+    public final void queueTask(T task) {
+        if (status == NEW) {
+            // batch not yet started, silently add to input
+            getInput().addTask(task);
+            return;
+        }
+
+        queue.add(task);
+        counters.queued().increment();
+        notifyEvent(BatchEventType.EXTENDED);
     }
 
     public final void start() {

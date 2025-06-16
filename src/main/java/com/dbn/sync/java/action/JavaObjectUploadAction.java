@@ -28,8 +28,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.file.util.ProjectFiles.isProjectSourceFile;
-import static com.dbn.common.file.util.VirtualFiles.isArchive;
+import static com.dbn.common.file.util.VirtualFiles.isJarFileSystem;
+import static com.dbn.common.util.Java.isDbSupportAvailable;
 import static com.dbn.common.util.Java.isIdeSupportAvailable;
 
 @BackgroundUpdate
@@ -45,12 +45,14 @@ public class JavaObjectUploadAction extends AbstractFolderContextAction {
 
 	private boolean isAvailableFor(Project project, VirtualFile file) {
 		if (file == null) return false;
-		if (file.isDirectory()) return true; // support action on any folder level
-		if (isArchive(file)) return true;
-		if (!isProjectSourceFile(project, file)) return false;
 		if (!isIdeSupportAvailable()) return false;
+		if (!isDbSupportAvailable(project)) return false;
 
-		return true;
+		if (isJarFileSystem(file)) return false; // exclude files and directories from within jar files
+		if (file.isDirectory()) return true; // support action on any folder level
+
+		JavaUploadManager uploadManager = JavaUploadManager.getInstance(project);
+		return uploadManager.isUploadSupported(file);
 	}
 
 	@Override

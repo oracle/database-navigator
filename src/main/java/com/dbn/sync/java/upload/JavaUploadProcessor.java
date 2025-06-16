@@ -20,9 +20,12 @@ import com.dbn.batch.impl.BatchProcessorBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
+import com.dbn.execution.compiler.DatabaseCompilerManager;
+import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaEntity;
 import com.dbn.object.event.ObjectChangeListener;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VfsUtilCore;
 import lombok.SneakyThrows;
 
 import java.util.List;
@@ -31,45 +34,67 @@ import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 import static com.dbn.object.type.DBObjectType.JAVA_RESOURCE;
-import static com.dbn.sync.java.upload.impl.JavaArchiveUploader.uploadJavaArchive;
-import static com.dbn.sync.java.upload.impl.JavaClassUploader.uploadJavaSource;
-import static com.dbn.sync.java.upload.impl.JavaResourceUploader.uploadJavaResource;
+import static com.dbn.sync.java.upload.JavaUploader.uploadJavaArchive;
+import static com.dbn.sync.java.upload.JavaUploader.uploadJavaClass;
+import static com.dbn.sync.java.upload.JavaUploader.uploadJavaResource;
+import static com.dbn.sync.java.upload.JavaUploader.uploadJavaSource;
 
-public final class JavaUploaderProcessor extends BatchProcessorBase<JavaUploadTask, JavaUploadInput, JavaUploadBatch> {
-	public static final JavaUploaderProcessor INSTANCE = new JavaUploaderProcessor();
+public final class JavaUploadProcessor extends BatchProcessorBase<JavaUploadTask, JavaUploadInput, JavaUploadBatch> {
+	public static final JavaUploadProcessor INSTANCE = new JavaUploadProcessor();
 
-	private JavaUploaderProcessor() {
+	private JavaUploadProcessor() {
 		super("JAVA_UPLOADER");
 	}
 
 	@Override
 	@SneakyThrows
 	public void processTask(JavaUploadBatch batch, JavaUploadTask task) {
-		if (task.isArchive()) {
-			uploadJavaArchive(batch, task.getFile().getPath());
+		if (task.isJavaLibrary()) {
+			uploadJavaArchive(batch, task.getFile());
 		} else {
-			byte[] content = VfsUtilCore.loadBytes(task.getFile());
-			if (task.isJavaClass()) {
-				uploadJavaSource(batch, task.getJavaClassName(), content);
+			DBObjectRef<DBJavaEntity> entity = task.getDatabaseEntity();
+			byte[] content = task.getFileContent();
+
+			if (task.isJavaSource()) {
+				uploadJavaSource(batch, entity, content);
+
+			} else if (task.isJavaClass()){
+				uploadJavaClass(batch, entity, content);
+
 			} else {
-				uploadJavaResource(batch, task.getTargetEntityName(), content);
+				uploadJavaResource(batch, entity, content);
 			}
 		}
-	}
+    }
 
 	@Override
 	protected void postProcessBatch(JavaUploadBatch batch) {
 		// notify listeners
+		refreshDatabaseBrowser(batch);
+		compileUploadedClasses(batch);
+	}
+
+	private static void refreshDatabaseBrowser(JavaUploadBatch batch) {
 		Project project = batch.getProject();
 		JavaUploadInput input = batch.getInput();
 		ConnectionId connectionId = nn(input.getTargetConnectionId());
 		SchemaId schemaId = nn(input.getTargetSchemaId());
 
-		List<JavaUploadTask> completedTasks = batch.getCompletedTasks();
-		boolean refreshJavaClasses = completedTasks.stream().anyMatch(t -> t.getTargetEntityType() == JAVA_CLASS);
-		boolean refreshJavaResources = completedTasks.stream().anyMatch(t -> t.getTargetEntityType() == JAVA_RESOURCE);
+		List<DBObjectRef<DBJavaEntity>> javaClasses = batch.getUploadedEntities(JAVA_CLASS);
+		List<DBObjectRef<DBJavaEntity>> javaResources = batch.getUploadedEntities(JAVA_RESOURCE);
+
+		boolean refreshJavaClasses = !javaClasses.isEmpty();
+		boolean refreshJavaResources = !javaResources.isEmpty();
 
 		if (refreshJavaClasses) ProjectEvents.notify(project, ObjectChangeListener.TOPIC, l -> l.objectsChanged(connectionId, schemaId, JAVA_CLASS, CREATE));
 		if (refreshJavaResources) ProjectEvents.notify(project, ObjectChangeListener.TOPIC, l -> l.objectsChanged(connectionId, schemaId, JAVA_RESOURCE, CREATE));
+	}
+
+	private void compileUploadedClasses(JavaUploadBatch batch) {
+		Project project = batch.getProject();
+		DatabaseCompilerManager compilerManager = DatabaseCompilerManager.getInstance(project);
+
+		List<DBObjectRef<DBJavaClass>> javaClasses = batch.getUploadedEntities(JAVA_CLASS);
+		compilerManager.compileJavaClasses(batch.getConnection(), javaClasses);
 	}
 }

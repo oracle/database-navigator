@@ -195,7 +195,7 @@ public class CredentialManagementForm extends DBNFormBase {
     Messages.showQuestionDialog(getProject(),
             txt("msg.assistant.title.DeleteCredential"),
             detailedMessage.toString(),
-            Messages.OPTIONS_YES_NO, 1,
+            Messages.OPTIONS_YES_NO, 0,
             option -> when(option == 0, () -> removeCredential(credential)));
   }
 

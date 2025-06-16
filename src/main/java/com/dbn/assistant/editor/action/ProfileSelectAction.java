@@ -19,7 +19,6 @@ package com.dbn.assistant.editor.action;
 import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.action.Selectable;
-import com.dbn.common.util.Actions;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionId;
 import com.dbn.object.DBAIProfile;
@@ -50,8 +49,7 @@ public class ProfileSelectAction extends ProjectAction implements Selectable {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        String name = Actions.adjustActionName(getProfileName());
-        e.getPresentation().setText(name);
+        e.getPresentation().setText(getProfileName(), false);
     }
 
     public String getProfileName() {

@@ -22,7 +22,7 @@ public abstract class PropertyHolderBase<T extends Property> implements Property
     protected abstract T[] properties();
     protected abstract void change(T property, boolean value);
 
-    protected void changed(T property, boolean value) {
+    protected void propertyChanged(T property, boolean value) {
         // no action by default
     }
 
@@ -151,7 +151,7 @@ public abstract class PropertyHolderBase<T extends Property> implements Property
                         (short) (this.computed | property.maskOn()):
                         (short) (this.computed & property.maskOff());
             }
-            changed(property, value);
+            propertyChanged(property, value);
         }
 
         public void reset() {
@@ -184,7 +184,7 @@ public abstract class PropertyHolderBase<T extends Property> implements Property
                         this.computed | property.maskOn() :
                         this.computed & property.maskOff();
             }
-            changed(property, value);
+            propertyChanged(property, value);
         }
 
         public void reset() {
@@ -217,7 +217,7 @@ public abstract class PropertyHolderBase<T extends Property> implements Property
                         this.computed | property.maskOn() :
                         this.computed & property.maskOff();
             }
-            changed(property, value);
+            propertyChanged(property, value);
         }
 
         public void reset() {
