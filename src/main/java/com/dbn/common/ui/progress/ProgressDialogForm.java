@@ -80,11 +80,13 @@ public class ProgressDialogForm extends DBNFormBase {
             return;
         }
 
+        checkDisposed();
         String text = handler.getText();
         String text2 = handler.getText2();
         if (progressForm.matchesText(text, text2)) return;
 
         Dispatch.run(mainPanel, () -> {
+            checkDisposed();
             progressForm.setText(text);
             progressForm.setText2(text2);
             resizeToFitContent(mainPanel);
