@@ -32,6 +32,7 @@ import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.intellij.codeInsight.intention.IntentionActionWithOptions;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.colors.ColorKey;
+import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBColor;
