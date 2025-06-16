@@ -197,7 +197,7 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
         configuration.setEnableDdlFileBinding(ddlFileBindingCheckBox.isSelected());
         configuration.setEnableDatabaseLogging(databaseLoggingCheckBox.isSelected());
         configuration.setAlternativeStatementDelimiter(alternativeStatementDelimiterTextField.getText());
-        int connectivityTimeout = ConfigurationEditors.validateIntegerValue(connectivityTimeoutTextField, txt("cfg.connection.field.ConnectivityTimeout"), true, 0, 30, "");
+        int connectivityTimeout = ConfigurationEditors.validateIntegerValue(connectivityTimeoutTextField, txt("cfg.connection.field.ConnectivityTimeout"), true, 0, 90, "");
         int idleTimeToDisconnect = ConfigurationEditors.validateIntegerValue(idleTimeTextField, txt("cfg.connection.field.IdleTimeToDisconnect"), true, 0, 60, "");
         int idleTimeToDisconnectPool = ConfigurationEditors.validateIntegerValue(idleTimePoolTextField, txt("cfg.connection.field.IdleTimeToDisconnectPool"), true, 1, 60, "");
         int passwordExpiryTime = ConfigurationEditors.validateIntegerValue(passwordExpiryTextField, txt("cfg.connection.field.IdleTimeToRequestPassword"), true, 0, 60, "");
