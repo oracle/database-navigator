@@ -496,6 +496,10 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
         return getConnections(c -> supportedFeature.isSupported(c));
     }
 
+    public boolean hasConnectionsSupportingFeature(DatabaseFeature supportedFeature) {
+        return getConnections().stream().anyMatch(c -> supportedFeature.isSupported(c));
+    }
+
      public ConnectionHandler getActiveConnection(Project project) {
          ConnectionHandler connection = null;
          VirtualFile virtualFile = Editors.getSelectedFile(project);

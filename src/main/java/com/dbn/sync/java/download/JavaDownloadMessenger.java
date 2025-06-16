@@ -71,6 +71,6 @@ public class JavaDownloadMessenger extends BatchMessengerBase<JavaDownloadTask, 
     public String getTaskFailureMessage(JavaDownloadBatch batch, JavaDownloadTask task, Exception e) {
         String message = e.getMessage();
         message = cleanExceptionMessage(batch, message);
-        return "Failed to download java resource\nCause:" + message;
+        return "Failed to download java resource\nCause: " + message;
     }
 }

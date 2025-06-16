@@ -35,9 +35,13 @@ public interface DBAIProfile extends DBSchemaObject {
 
     AIModel getModel();
 
+    String getModelName();
+
     double getTemperature();
 
     List<DBObject> getObjects();
+
+    boolean isInteractive();
 
     String getAttributesJson();
 

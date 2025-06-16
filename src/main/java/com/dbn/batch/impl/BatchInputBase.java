@@ -37,6 +37,11 @@ public abstract class BatchInputBase<T extends BatchTask> implements BatchInput<
         this.tasks = new ArrayList<>(tasks);
     }
 
+    @Override
+    public final void addTask(T task) {
+        tasks.add(task);
+    }
+
     public final List<T> getSelectedTasks() {
         return filter(tasks, t -> t.isSelected());
     }

@@ -19,6 +19,7 @@ package com.dbn.object.impl;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.browser.ui.HtmlToolTipBuilder;
+import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBProfileMetadata;
 import com.dbn.object.DBAIProfile;
@@ -37,6 +38,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Icon;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,6 +46,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.object.common.DBObjectUtil.jsonToObjectList;
 import static com.dbn.object.common.DBObjectUtil.objectToAttributes;
@@ -57,6 +60,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
     private DBObjectRef<DBCredential> credential;
     private AIProvider provider;
     private AIModel model;
+    private boolean isInteractive;
     private double temperature;
     private List<DBObjectRef<?>> objects;
 
@@ -68,6 +72,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
             AIProvider provider,
             AIModel model,
             String objectList,
+            boolean isInteractive,
             double temperature,
             boolean enabled) throws SQLException {
         super(parent, new DBProfileMetadata.Record(
@@ -77,6 +82,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
                 model.getApiName(),
                 description,
                 objectList,
+                isInteractive,
                 temperature,
                 enabled));
     }
@@ -92,6 +98,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
         description = metadata.getDescription();
         provider = AIProvider.forId(metadata.getProvider());
         model = AIModel.forApiName(metadata.getModel());
+        isInteractive = metadata.isInteractive();
         temperature = metadata.getTemperature();
         objects = jsonToObjectList(connection.getConnectionId(), metadata.getObjectList());
 
@@ -103,7 +110,8 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
                 "provider", getProvider().getId(),
                 "model", getModel().getApiName(),
                 "temperature", getTemperature(),
-                "credential_name", nvl(getCredentialName(), ""),
+                "credential_name", nvl(getQuotedCredentialName(), ""),
+                "conversation", isInteractive()?"true":"false",
                 "object_list", convert(objects, o -> objectToAttributes(o))));
     }
 
@@ -136,6 +144,10 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
         return DBObjectRef.get(credential);
     }
 
+    @Override
+    public String getModelName() {
+        return model == null ? null : model.getName();
+    }
 
     @Override
     public void buildToolTip(HtmlToolTipBuilder ttb) {
@@ -157,6 +169,11 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
         return navigationLists;
     }
 
+    private String getQuotedCredentialName() {
+        DBCredential credential = getCredential();
+        return credential == null ? null : credential.getName(true);
+    }
+
     /*********************************************************
      *                     TreeElement                       *
      *********************************************************/
@@ -169,5 +186,15 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
     @Override
     public List<DBObject> getObjects() {
         return objects.stream().map(o -> o.get()).filter(o -> o != null).collect(Collectors.toList());
+    }
+
+    @Override
+    public @Nullable Icon getIcon() {
+        boolean disabled = isDisabled();
+        DBObjectType objectType = getObjectType();
+        Icon icon = disabled  ?
+                objectType.getDisabledIcon() :
+                isInteractive ? Icons.DBO_AI_PROFILE_CONVERSATION : objectType.getIcon();
+        return nvln(icon, objectType.getIcon());
     }
 }

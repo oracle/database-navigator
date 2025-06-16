@@ -17,11 +17,20 @@
 package com.dbn.editor.code.ui;
 
 import com.dbn.common.message.MessageType;
+import com.dbn.common.util.Messages;
 import com.dbn.object.common.DBSchemaObject;
+import com.intellij.openapi.fileEditor.FileEditor;
+import org.jetbrains.annotations.NotNull;
 
 public class SourceCodeLoadErrorNotificationPanel extends SourceCodeEditorNotificationPanel{
-    public SourceCodeLoadErrorNotificationPanel(DBSchemaObject object, String sourceLoadError) {
-        super(object, MessageType.ERROR);
-        setText("Could not load source for " + object.getQualifiedNameWithType() + ". Error details: " + sourceLoadError.replace("\n", " "));
+    public SourceCodeLoadErrorNotificationPanel(DBSchemaObject object, @NotNull FileEditor fileEditor, Exception exception) {
+        super(object, fileEditor, MessageType.ERROR);
+
+        setText("Could not load source for " + object.getQualifiedNameWithType());
+        createActionLabel("Error details", () -> showErrorDetails(exception));
+    }
+
+    private void showErrorDetails(Exception exception) {
+        Messages.showErrorDialog(getProject(), "Source Load Error", exception.getMessage());
     }
 }

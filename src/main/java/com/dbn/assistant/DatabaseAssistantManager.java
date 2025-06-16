@@ -17,9 +17,9 @@
 package com.dbn.assistant;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessage;
-import com.dbn.assistant.chat.message.ChatMessageContext;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.editor.action.ProfileSelectAction;
@@ -42,8 +42,10 @@ import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionStatusListener;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.assistant.AssistantQueryResponse;
@@ -114,9 +116,14 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
   private DatabaseAssistantManager(Project project) {
     super(project, COMPONENT_NAME);
+
     ProjectEvents.subscribe(project, this,
             FileEditorManagerListener.FILE_EDITOR_MANAGER,
             fileEditorManagerListener());
+
+    ProjectEvents.subscribe(project, this,
+            ConnectionStatusListener.TOPIC,
+            connectionStatusListener());
   }
 
   private FileEditorManagerListener fileEditorManagerListener() {
@@ -127,6 +134,21 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         ConnectionId connectionId = getConnectionId(getProject(), editor);
         switchToConnection(connectionId);
       }
+    };
+  }
+
+  private ConnectionStatusListener connectionStatusListener() {
+    return (connectionId, sessionId) -> {
+      if (sessionId != SessionId.ASSISTANT) return;
+
+      AssistantState assistantState = assistantStates.get(connectionId);
+      if (assistantState == null) return;
+
+      ConnectionHandler connection = ConnectionHandler.get(connectionId);
+      if (connection == null) return;
+
+      String resourceId = connection.getConnectionResourceId(SessionId.ASSISTANT);
+      assistantState.setCurrentSessionSignature(resourceId);
     };
   }
 
@@ -242,6 +264,14 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     });
   }
 
+  public void interruptAssistantSession(ConnectionHandler connection) {
+    // TODO invoke chat interruption utility as soon as available in "select ai"
+    DBNConnection assistantConnection = connection.getConnectionPool().getSessionConnection(SessionId.ASSISTANT);
+    if (assistantConnection == null) return;
+
+    assistantConnection.invalidate();
+  }
+
   public AssistantState getAssistantState(ConnectionId connectionId) {
     return assistantStates.computeIfAbsent(connectionId, c -> new AssistantStateDelegate(getProject(), c));
   }
@@ -277,10 +307,10 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     }
   }
 
-  public String query(ConnectionId connectionId, String prompt, ChatMessageContext context) throws SQLException {
+  public String query(ConnectionId connectionId, String prompt, ChatContext context) throws SQLException {
     ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
 
-    String profile = context.getProfile();
+    String profile = context.getProfileName();
     String action = context.getAction().getId();
     String attributes = context.getAttributes();
 
@@ -293,7 +323,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     return response.read();
   }
 
-  public void generate(ConnectionId connectionId, String text, ChatMessageContext context, Consumer<ChatMessage> consumer) {
+  public void generate(ConnectionId connectionId, String text, ChatContext context, Consumer<ChatMessage> consumer) {
     ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
     Project project = getProject();
 
@@ -379,9 +409,6 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     getAssistantState(connectionId).setDefaultProfile(profile);
   }
 
-  public void setSelectedProfile(ConnectionId connectionId, @Nullable DBAIProfile profile) {
-    getAssistantState(connectionId).setSelectedProfile(profile);
-  }
 
   public boolean isDefaultProfile(ConnectionId connectionId, DBAIProfile profile) {
     DBAIProfile defaultProfile = getDefaultProfile(connectionId);
@@ -397,6 +424,8 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     String profileName = assistantState.getDefaultProfileName();
 
     DBAIProfile profile = getProfile(connectionId, profileName);
+    if (profile == null) profile = firstElement(profiles);
+
     assistantState.setDefaultProfile(profile);
     return profile;
   }
@@ -407,19 +436,15 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
     AssistantState assistantState = getAssistantState(connectionId);
     String profileName = assistantState.getSelectedProfileName();
+    if (Strings.isEmpty(profileName)) return null;
 
-    DBAIProfile profile = getProfile(connectionId, profileName);
-    assistantState.setSelectedProfile(profile);
-    return profile;
+    return getProfile(connectionId, profileName);
   }
 
   @Nullable
   private DBAIProfile getProfile(ConnectionId connectionId, String profileName) {
     List<DBAIProfile> profiles = getProfiles(connectionId);
-    DBAIProfile profile = first(profiles, p -> p.getName().equalsIgnoreCase(profileName));
-
-    if (profile == null) profile = firstElement(profiles);
-    return profile;
+    return first(profiles, p -> p.getName().equalsIgnoreCase(profileName));
   }
 
   @Nullable
@@ -435,17 +460,6 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
     AIModel model = provider.getModel(modelName);
     return model == null ? provider.getDefaultModel() : model;
-  }
-
-  public boolean isPromptingAvailable(ConnectionId connectionId) {
-    AssistantState assistantState = getAssistantState(connectionId);
-    if (!assistantState.isAvailable()) return false;
-
-    DBAIProfile profile = getSelectedProfile(connectionId);
-    if (profile == null) return false;
-    if (!profile.isEnabled()) return false;
-
-    return true;
   }
 
   /*********************************************

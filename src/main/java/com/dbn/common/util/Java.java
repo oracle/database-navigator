@@ -16,8 +16,11 @@
 
 package com.dbn.common.util;
 
+import com.dbn.connection.ConnectionManager;
+import com.dbn.database.DatabaseFeature;
 import com.dbn.object.type.DBJavaScalarType;
 import com.intellij.ide.plugins.PluginManager;
+import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
@@ -138,5 +141,10 @@ public class Java {
 
     public static boolean isIdeSupportAvailable() {
         return PluginManager.isPluginInstalled(JAVA_PLUGIN_ID);
+    }
+
+    public static boolean isDbSupportAvailable(Project project) {
+        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+        return connectionManager.hasConnectionsSupportingFeature(DatabaseFeature.EMBEDDED_JVM);
     }
 }

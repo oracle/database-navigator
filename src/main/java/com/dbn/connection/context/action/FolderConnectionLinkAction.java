@@ -46,8 +46,8 @@ public class FolderConnectionLinkAction extends AbstractFolderContextAction {
         }
     }
 
-    private boolean isAvailableFor(VirtualFile virtualFile) {
-        return virtualFile != null && virtualFile.isDirectory();
+    private boolean isAvailableFor(VirtualFile file) {
+        return file != null && file.isDirectory() && file.isInLocalFileSystem();
     }
 
     @Override

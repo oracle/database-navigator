@@ -58,8 +58,8 @@ public class SessionBrowserNotificationProvider extends EditorNotificationProvid
 
     @Nullable
     @Override
-    public SessionBrowserErrorNotificationPanel createComponent(@NotNull VirtualFile virtualFile, @NotNull FileEditor fileEditor, @NotNull Project project) {
-        if (!(virtualFile instanceof DBSessionBrowserVirtualFile)) return null;
+    public SessionBrowserErrorNotificationPanel createComponent(@NotNull VirtualFile file, @NotNull FileEditor fileEditor, @NotNull Project project) {
+        if (!(file instanceof DBSessionBrowserVirtualFile)) return null;
         if (!(fileEditor instanceof SessionBrowser)) return null;
 
         SessionBrowser sessionBrowser = (SessionBrowser) fileEditor;
@@ -67,6 +67,6 @@ public class SessionBrowserNotificationProvider extends EditorNotificationProvid
         String error = sessionBrowser.getModelError();
         if (Strings.isEmpty(error)) return null;
 
-        return new SessionBrowserErrorNotificationPanel(project, virtualFile, error);
+        return new SessionBrowserErrorNotificationPanel(project, file, fileEditor, error);
     }
 }

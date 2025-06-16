@@ -18,10 +18,12 @@ package com.dbn.editor.json.ui;
 
 import com.dbn.common.message.MessageType;
 import com.dbn.object.DBJsonView;
+import com.intellij.openapi.fileEditor.FileEditor;
+import org.jetbrains.annotations.NotNull;
 
 public class JsonDataEditorLoadErrorNotificationPanel extends JsonDataEditorNotificationPanel {
-    public JsonDataEditorLoadErrorNotificationPanel(DBJsonView jsonView, String sourceLoadError) {
-        super(jsonView, MessageType.ERROR);
+    public JsonDataEditorLoadErrorNotificationPanel(DBJsonView jsonView, @NotNull FileEditor fileEditor, String sourceLoadError) {
+        super(jsonView, fileEditor, MessageType.ERROR);
         setText("Could not load data for " + jsonView.getQualifiedNameWithType() + ". Error details: " + sourceLoadError.replace("\n", " "));
     }
 }

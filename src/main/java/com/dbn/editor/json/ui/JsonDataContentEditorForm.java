@@ -43,12 +43,10 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.event.HyperlinkListener;
 
 import static com.dbn.common.ui.util.UserInterface.updateScrollPanes;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Editors.enableSelectionOccurrenceHighlights;
-import static com.intellij.openapi.editor.EditorModificationUtil.setReadOnlyHint;
 
 public class JsonDataContentEditorForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -205,13 +203,8 @@ public class JsonDataContentEditorForm extends DBNFormBase {
                 !connected ? "Not connected to database" : null;
 
         boolean readonly = !editable || !connected || !selected;
+
         Editors.setEditorReadonly(editor, readonly);
-
-        HyperlinkListener unlockListener = null; /* locked ? e -> {
-            if (e.getEventType() != ACTIVATED) return;
-            jsonDataEditor.toggleEditingLock();
-        : null}*/;
-
-        setReadOnlyHint(editor, readonlyHint, unlockListener);
+        Editors.setEditorReadonlyHint(editor, readonlyHint);
     }
 }

@@ -16,8 +16,8 @@
 
 package com.dbn.assistant.chat.message.ui;
 
+import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.message.AuthorType;
-import com.dbn.assistant.chat.message.ChatMessageContext;
 import com.dbn.assistant.chat.message.ChatMessageSection;
 import com.dbn.assistant.chat.message.PersistentChatMessage;
 import com.dbn.common.color.Colors;
@@ -141,10 +141,10 @@ public class ChatMessagePanel extends JPanel {
   private void initializeTitle() {
     if (message.getAuthor() == AuthorType.USER) return;
 
-    ChatMessageContext context = message.getContext();
+    ChatContext context = message.getContext();
     String title =
-            context.getProfile() + " / " +
-                    context.getModel() + "  -  " +
+            context.getProfileName() + " / " +
+                    context.getModelName() + "  -  " +
                     context.getAction().getName();
     JLabel label = new JLabel(title);
     label.setFont(regularBold(-2));

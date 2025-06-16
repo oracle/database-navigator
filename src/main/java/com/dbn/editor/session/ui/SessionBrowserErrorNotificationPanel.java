@@ -19,16 +19,18 @@ package com.dbn.editor.session.ui;
 import com.dbn.common.editor.EditorNotificationPanel;
 import com.dbn.common.message.MessageType;
 import com.dbn.connection.ConnectionHandler;
+import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JLabel;
 
 public class SessionBrowserErrorNotificationPanel extends EditorNotificationPanel{
     protected final JLabel label = new JLabel();
 
-    public SessionBrowserErrorNotificationPanel(Project project, VirtualFile file, String error) {
-        super(project, file, MessageType.ERROR);
+    public SessionBrowserErrorNotificationPanel(Project project, VirtualFile file, @NotNull FileEditor fileEditor, String error) {
+        super(project, file, fileEditor, MessageType.ERROR);
         ConnectionHandler connection = getConnection();
         setText("Could not load sessions for " + connection.getName() + ". Error details: " + error.replace("\n", " "));
     }

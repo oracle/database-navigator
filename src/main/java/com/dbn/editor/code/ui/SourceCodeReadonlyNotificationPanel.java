@@ -25,13 +25,15 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettingsManager;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
+import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Conditional.when;
 
 public class SourceCodeReadonlyNotificationPanel extends SourceCodeEditorNotificationPanel{
-    public SourceCodeReadonlyNotificationPanel(DBSchemaObject object, SourceCodeEditor sourceCodeEditor) {
-        super(object, isReadonly(sourceCodeEditor) ? MessageType.INFO : MessageType.WARNING);
+    public SourceCodeReadonlyNotificationPanel(DBSchemaObject object, @NotNull FileEditor fileEditor, SourceCodeEditor sourceCodeEditor) {
+        super(object, fileEditor, getMessageType(sourceCodeEditor));
         DBSourceCodeVirtualFile sourceCodeFile = sourceCodeEditor.getVirtualFile();
         String environmentName = sourceCodeFile.getEnvironmentType().getName();
 
@@ -61,6 +63,10 @@ public class SourceCodeReadonlyNotificationPanel extends SourceCodeEditorNotific
             ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);
             settingsManager.openProjectSettings(ConfigId.GENERAL);
         });
+    }
+
+    private static MessageType getMessageType(SourceCodeEditor sourceCodeEditor) {
+        return isReadonly(sourceCodeEditor) ? MessageType.NEUTRAL : MessageType.WARNING;
     }
 
     private static boolean isReadonly(SourceCodeEditor sourceCodeEditor) {

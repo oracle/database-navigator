@@ -39,7 +39,7 @@ public interface Batch<I extends BatchInput<T>, T extends BatchTask> {
 
     BatchMessenger<T, I, ? extends Batch<I, T>> getMessenger();
 
-    Queue<T> getTasks();
+    Queue<T> getQueue();
 
     BatchCounters getCounters();
 

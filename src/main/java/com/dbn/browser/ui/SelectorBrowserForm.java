@@ -29,7 +29,6 @@ import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.Popups;
 import com.dbn.common.ui.util.UserInterface;
-import com.dbn.common.util.Actions;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionHandlerStatusListener;
@@ -236,7 +235,7 @@ public class SelectorBrowserForm extends DatabaseBrowserForm {
             ConnectionHandler connection = getConnection();
             if (connection == null) return;
 
-            presentation.setText(Actions.adjustActionName(connection.getName()));
+            presentation.setText(connection.getName(), false);
             presentation.setIcon(connection.getIcon());
 
         }

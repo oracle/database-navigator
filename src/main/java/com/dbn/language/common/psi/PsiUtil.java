@@ -41,6 +41,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.psi.impl.PsiManagerEx;
+import com.intellij.psi.impl.file.impl.FileManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -375,5 +377,11 @@ public class PsiUtil {
 
     public static boolean isWhiteSpaceOrComment(PsiElement element) {
         return element instanceof PsiWhiteSpace || element instanceof PsiComment;
+    }
+
+
+    public static FileManager getFileManager(Project project) {
+        PsiManagerEx psiManager = (PsiManagerEx) PsiManager.getInstance(project);
+        return psiManager.getFileManager();
     }
 }

@@ -57,8 +57,7 @@ public class AssistantEditorNotificationProvider extends EditorNotificationProvi
 
     @Override
     public AssistantEditorNotificationPanel createComponent(@NotNull VirtualFile file, @NotNull FileEditor fileEditor, @NotNull Project project) {
-        if (fileEditor instanceof DBContentVirtualFile) return null;
-
+        if (file instanceof DBContentVirtualFile) return null;
         FileType fileType = file.getFileType();
         if (!(fileType instanceof DBLanguageFileType)) return null;
 
@@ -74,6 +73,6 @@ public class AssistantEditorNotificationProvider extends EditorNotificationProvi
 
         if (assistantState.getAcknowledgement() != FeatureAcknowledgement.NONE) return null;
 
-        return new AssistantEditorNotificationPanel(file, project);
+        return new AssistantEditorNotificationPanel(file, fileEditor, project);
     }
 }

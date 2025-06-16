@@ -544,7 +544,21 @@ public class ConnectionHandlerImpl extends StatefulDisposableBase implements Con
         if (sessionId == SessionId.MAIN) return getMainConnection();
         if (sessionId == SessionId.ASSISTANT) return getAssistantConnection();
         if (sessionId == SessionId.POOL) return getPoolConnection(false);
-        return getConnectionPool().ensureSessionConnection(sessionId);
+
+        ConnectionPool connectionPool = getConnectionPool();
+        return connectionPool.ensureSessionConnection(sessionId);
+    }
+
+    @Override
+    @Nullable
+    public String getConnectionResourceId(SessionId sessionId) {
+        if (sessionId == SessionId.POOL) return null; // multiple resource ids
+
+        ConnectionPool connectionPool = getConnectionPool();
+        DBNConnection connection = connectionPool.getSessionConnection(sessionId);
+        if (connection == null) return null;
+
+        return connection.getResourceId();
     }
 
     @Override

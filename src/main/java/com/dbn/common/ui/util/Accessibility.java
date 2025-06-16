@@ -223,7 +223,7 @@ public class Accessibility {
     }
 
     public static void attachSelectionAnnouncer(DBNComboBox<?> comboBox, String name) {
-        ComboBoxes.onSelectionChange(comboBox, selectedItem -> announceEvent(comboBox, name + " selection changed to " + selectedItem.getAccessibleName()));
+        ComboBoxes.onSelectionChange(comboBox, selectedItem -> announceEvent(comboBox, name + " selection changed to " + (selectedItem == null ? "empty" : selectedItem.getAccessibleName())));
     }
 
     public static void attachStateAnnouncer(JToggleButton toggle, String name) {

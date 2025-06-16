@@ -117,6 +117,15 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
         this.objectName = objectName.intern();
     }
 
+    public String getObjectName(boolean quoted) {
+        if (!quoted) return objectName;
+
+        ConnectionHandler connection = getConnection();
+        if (connection == null) return objectName;
+
+        return connection.getIdentifierCache().getQuotedIdentifier(objectName);
+    }
+
     public void setParent(Object parent) {
         if (parent == null) return;
 

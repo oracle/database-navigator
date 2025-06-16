@@ -58,7 +58,6 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-import static com.dbn.common.compatibility.CompatibilityUtil.isStructureViewAccess;
 import static com.dbn.common.util.GuardedBlocks.createGuardedBlocks;
 import static com.dbn.common.util.GuardedBlocks.removeGuardedBlocks;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -79,7 +78,7 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
 
     private ChangeTimestamp databaseTimestamp = new ChangeTimestamp();
 
-    private String sourceLoadError;
+    private Exception sourceLoadException;
 
     public DBSourceCodeVirtualFile(final DBEditableObjectVirtualFile databaseFile, DBContentType contentType) {
         super(databaseFile, contentType);
@@ -226,7 +225,7 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
         object.getStatus().set(contentType, DBObjectStatus.PRESENT, newContent.length() > 0);
 
         databaseContent = null;
-        sourceLoadError = null;
+        sourceLoadException = null;
         set(LATEST, true);
         setModified(false);
 	}
@@ -245,7 +244,7 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
         originalContent.setText(newContent);
 
         databaseContent = null;
-        sourceLoadError = null;
+        sourceLoadException = null;
         set(LATEST, true);
         setModified(false);
     }
@@ -253,7 +252,7 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
     public void revertLocalChanges() {
         updateFileContent(null, originalContent.getText());
         databaseContent = null;
-        sourceLoadError = null;
+        sourceLoadException = null;
         set(LATEST, true);
         setModified(false);
     }
@@ -324,7 +323,11 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
     public VirtualFile getOriginFile() {
         // WORKAROUND: structure view builder is expecting the main database file for matching the editor selection
         // Logic here is conditional to avoid issue reported in DBN-536
-        return isStructureViewAccess() ? getMainDatabaseFile() : this;
+        // return isStructureViewAccess() ? getMainDatabaseFile() : this;
 
+        // Update June-2025 (DBN-609)
+        // - restored to original due to multiple UI freeze reports during navigation
+        // - conditional logic above seems to no longer fix the issue reported in DBN-536 in the latest versions of intellij
+        return getMainDatabaseFile();
     }
 }
