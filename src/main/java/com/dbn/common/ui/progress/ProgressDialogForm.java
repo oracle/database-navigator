@@ -74,19 +74,21 @@ public class ProgressDialogForm extends DBNFormBase {
     }
 
     private void updateProgressLabels() {
+        if (isDisposed()) return;
+
         ProgressIndicator progressIndicator = handler.getProgressIndicator();
         if (progressIndicator == null || !progressIndicator.isRunning()) {
             dispose();
             return;
         }
 
-        checkDisposed();
         String text = handler.getText();
         String text2 = handler.getText2();
         if (progressForm.matchesText(text, text2)) return;
 
         Dispatch.run(mainPanel, () -> {
-            checkDisposed();
+            if (isDisposed()) return;
+
             progressForm.setText(text);
             progressForm.setText2(text2);
             resizeToFitContent(mainPanel);
