@@ -27,7 +27,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 
 public class DBNTreeTransferHandler extends TransferHandler {
-    public static DBNTreeTransferHandler INSTANCE = new DBNTreeTransferHandler();
+    public static final DBNTreeTransferHandler INSTANCE = new DBNTreeTransferHandler();
 
     private DBNTreeTransferHandler() {}
 
