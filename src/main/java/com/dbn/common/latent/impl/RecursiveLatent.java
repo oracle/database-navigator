@@ -41,7 +41,7 @@ final class RecursiveLatent<T> extends LatentBase<T> implements Latent<T> {
     }
 
     @Override
-    protected void afterLoad(T value) {
+    protected void afterLoad() {
         loading.remove();
     }
 

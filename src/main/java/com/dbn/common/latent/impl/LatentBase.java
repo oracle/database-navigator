@@ -21,66 +21,57 @@ import com.dbn.common.latent.Loader;
 
 abstract class LatentBase<T> implements Latent<T> {
     private final Loader<T> loader;
-    private volatile T value;
-    private volatile boolean loaded;
+    private T value;
+    private boolean loaded;
 
     public LatentBase(Loader<T> loader) {
         this.loader = loader;
     }
 
-    public final T get(){
-        if (!shouldLoad()) return value;
-
-        // deferred sync bloc (99% of calls act on a "loaded" latent)
-        synchronized (this) {
-            if (!shouldLoad()) return value;
-
-            T newValue = null;
+    public final synchronized T get(){
+        if (shouldLoad()) {
             try {
                 beforeLoad();
-                newValue = loader.load();
-                if (value != newValue) {
-                    value = newValue;
-                }
-                loaded = true;
+                load();
             } finally {
-                afterLoad(newValue);
+                afterLoad();
             }
         }
         return value;
     }
 
-    protected boolean shouldLoad() {
+    private void load() {
         // NOTE even if final, the loader could become null through
         // forced disposal utilities like com.dbn.common.dispose.Nullifier
-        return !loaded && loader != null;
+        Loader<T> loader = this.loader == null ? () -> value : this.loader;
+        value = loader.load();
+        loaded = true;
+    }
+
+    protected boolean shouldLoad() {
+        return !loaded;
     }
 
     protected void beforeLoad() {};
 
-    protected void afterLoad(T value) {
+    protected void afterLoad() {}
+
+    public final synchronized void set(T value) {
+        this.value = value;
+        this.loaded = true;
     }
 
-    public final void set(T value) {
-        synchronized (this) {
-            this.value = value;
-            this.loaded = true;
-        }
-    }
-
-    public final boolean loaded() {
+    public final synchronized boolean loaded() {
         return loaded;
     }
 
     @Override
-    public T value() {
+    public final synchronized T value() {
         return value;
     }
 
-    public void reset() {
-        synchronized (this) {
-            value = null;
-            loaded = false;
-        }
+    public synchronized void reset() {
+        value = null;
+        loaded = false;
     }
 }
