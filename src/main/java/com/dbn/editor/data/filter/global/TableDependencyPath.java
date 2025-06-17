@@ -16,12 +16,13 @@
 
 package com.dbn.editor.data.filter.global;
 
+import com.dbn.common.util.Cloneable;
 import com.dbn.object.DBTable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TableDependencyPath {
+public class TableDependencyPath implements Cloneable<TableDependencyPath> {
     private final List<DBTable> tables = new ArrayList<>();
 
     @Override
