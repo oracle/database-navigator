@@ -40,6 +40,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,9 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
     private static final Gson GSON = new GsonBuilder().create();
     private String description;
     private DBObjectRef<DBCredential> credential;
+    private String region;
+    private String ociCompartmentId;
+    private String ociEndpointId;
     private AIProvider provider;
     private AIModel model;
     private boolean isInteractive;
@@ -69,6 +73,9 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
             String name,
             String description,
             DBCredential credential,
+            String region,
+            String ociCompartmentId,
+            String ociEndpointId,
             AIProvider provider,
             AIModel model,
             String objectList,
@@ -78,6 +85,9 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
         super(parent, new DBProfileMetadata.Record(
                 name,
                 credential.getName(),
+                region,
+                ociCompartmentId,
+                ociEndpointId,
                 provider.getId(),
                 model.getApiName(),
                 description,
@@ -95,6 +105,9 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
     protected String initObject(ConnectionHandler connection, DBObject parentObject, DBProfileMetadata metadata) throws SQLException {
         String name = metadata.getProfileName();
         credential = new DBObjectRef<>(parentObject.ref(), DBObjectType.CREDENTIAL, metadata.getCredentialName());
+        region = metadata.getRegion();
+        ociCompartmentId = metadata.getOciCompartmentId();
+        ociEndpointId = metadata.getOciEndpointId();
         description = metadata.getDescription();
         provider = AIProvider.forId(metadata.getProvider());
         model = AIModel.forApiName(metadata.getModel());
@@ -106,13 +119,17 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
     }
 
     public @NonNls String getAttributesJson() {
-        return GSON.toJson(Map.of(
-                "provider", getProvider().getId(),
-                "model", getModel().getApiName(),
-                "temperature", getTemperature(),
-                "credential_name", nvl(getQuotedCredentialName(), ""),
-                "conversation", isInteractive()?"true":"false",
-                "object_list", convert(objects, o -> objectToAttributes(o))));
+        Map<String, Object> attributes = new HashMap<>(Map.of(
+            "provider", getProvider().getId(),
+            "model", getModel().getApiName(),
+            "temperature", getTemperature(),
+            "credential_name", nvl(getQuotedCredentialName(), ""),
+            "conversation", isInteractive() ? "true" : "false",
+            "object_list", convert(objects, o -> objectToAttributes(o))));
+        if(getRegion() != null) attributes.put("region", getRegion());
+        if(getOciCompartmentId() != null) attributes.put("oci_compartment_id", getOciCompartmentId());
+        if(getOciEndpointId() != null) attributes.put("oci_endpoint_id", getOciEndpointId());
+        return GSON.toJson(attributes);
     }
 
     public String getCredentialName() {

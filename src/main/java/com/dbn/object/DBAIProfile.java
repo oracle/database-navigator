@@ -31,6 +31,15 @@ public interface DBAIProfile extends DBSchemaObject {
     @Nullable
     DBCredential getCredential();
 
+    @Nullable
+    String getRegion();
+
+    @Nullable
+    String getOciCompartmentId();
+
+    @Nullable
+    String getOciEndpointId();
+
     AIProvider getProvider();
 
     AIModel getModel();

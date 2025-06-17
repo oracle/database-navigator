@@ -255,7 +255,10 @@
                 pa.MODEL,
                 pa.TEMPERATURE,
                 REGEXP_REPLACE(pa.CREDENTIAL_NAME, '^"(.*)"$', '\1') as CREDENTIAL_NAME,
-                pa.OBJECT_LIST
+                pa.OBJECT_LIST,
+                pa.REGION,
+                pa.OCI_COMPARTMENT_ID,
+                pa.OCI_ENDPOINT_ID
             from (
                 select
                 PROFILE_ID,
@@ -272,7 +275,10 @@
                     'temperature' AS TEMPERATURE,
                     'credential_name' AS CREDENTIAL_NAME,
                     'conversation' AS CONVERSATION,
-                    'object_list' AS OBJECT_LIST
+                    'object_list' AS OBJECT_LIST,
+                    'region' AS REGION,
+                    'oci_compartment_id' AS OCI_COMPARTMENT_ID,
+                    'oci_endpoint_id' AS OCI_ENDPOINT_ID
                 )
             ) pa
             join DBA_CLOUD_AI_PROFILES p on p.PROFILE_ID = pa.PROFILE_ID
@@ -289,7 +295,10 @@
                 pa.MODEL,
                 pa.TEMPERATURE,
                 REGEXP_REPLACE(pa.CREDENTIAL_NAME, '^"(.*)"$', '\1') as CREDENTIAL_NAME,
-                pa.OBJECT_LIST
+                pa.OBJECT_LIST,
+                pa.REGION,
+                pa.OCI_COMPARTMENT_ID,
+                pa.OCI_ENDPOINT_ID
             from (
                 select
                 PROFILE_ID,
@@ -306,7 +315,10 @@
                     'temperature' AS TEMPERATURE,
                     'credential_name' AS CREDENTIAL_NAME,
                     'conversation' AS CONVERSATION,
-                    'object_list' AS OBJECT_LIST
+                    'object_list' AS OBJECT_LIST,
+                    'region' AS REGION,
+                    'oci_compartment_id' AS OCI_COMPARTMENT_ID,
+                    'oci_endpoint_id' AS OCI_ENDPOINT_ID
                 )
             ) pa
             join USER_CLOUD_AI_PROFILES p on p.PROFILE_ID = pa.PROFILE_ID
@@ -324,7 +336,10 @@
                 null as MODEL,
                 null as TEMPERATURE,
                 null as CREDENTIAL_NAME,
-                null as OBJECT_LIST
+                null as OBJECT_LIST,
+                null as REGION,
+                null as OCI_COMPARTMENT_ID,
+                null as OCI_ENDPOINT_ID
             from DUAL where 1 = 2
         </statement>
     </statement-execution-processor>

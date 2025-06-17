@@ -31,6 +31,12 @@ public interface DBProfileMetadata extends DBObjectMetadata {
     @ObjectIdentifier
     String getCredentialName() throws SQLException;
 
+    String getRegion() throws SQLException;
+
+    String getOciCompartmentId() throws SQLException;
+
+    String getOciEndpointId() throws SQLException;
+
     String getDescription() throws SQLException;
 
     String getProvider() throws SQLException;
@@ -50,6 +56,9 @@ public interface DBProfileMetadata extends DBObjectMetadata {
     class Record implements DBProfileMetadata {
         private final String profileName;
         private final String credentialName;
+        private final String region;
+        private final String ociCompartmentId;
+        private final String ociEndpointId;
         private final String provider;
         private final String model;
         private final String description;

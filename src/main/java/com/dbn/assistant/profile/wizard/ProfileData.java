@@ -35,6 +35,10 @@ public class ProfileData {
     private AIModel model;
 
     private String credentialName;
+    private String region;
+    private String ociCompartmentId;
+    private String ociEndpointId;
+
     private List<DBObjectRef<DBObject>> objectList = new ArrayList<>();
 
     private boolean conversation;
@@ -54,6 +58,9 @@ public class ProfileData {
         this.provider = profile.getProvider();
         this.model = profile.getModel();
         this.credentialName = profile.getCredentialName();
+        this.region = profile.getRegion();
+        this.ociCompartmentId = profile.getOciCompartmentId();
+        this.ociEndpointId = profile.getOciEndpointId();
         this.enabled = profile.isEnabled();
         this.conversation = profile.isInteractive();
         this.temperature = profile.getTemperature();

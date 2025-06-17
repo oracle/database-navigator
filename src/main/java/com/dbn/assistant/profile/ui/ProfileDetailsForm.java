@@ -26,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -43,6 +44,12 @@ public class ProfileDetailsForm extends DBNFormBase {
     private JTextField profileNameTextField;
     private JCheckBox enabledCheckBox;
     private JCheckBox conversationCheckBox;
+    private JLabel regionLabel;
+    private JTextField regionTextField;
+    private JLabel ociCompartmentIdLabel;
+    private JTextField ociCompartmentIdTextField;
+    private JLabel ociEndpointIdLabel;
+    private JTextField ociEndpointIdTextField;
 
     public ProfileDetailsForm(@NotNull ProfileManagementForm parent, DBAIProfile profile) {
         super(parent);
@@ -56,6 +63,24 @@ public class ProfileDetailsForm extends DBNFormBase {
         profileNameTextField.setText(profile.getName());
         modelTextField.setText(profile.getModel().getName());
         credentialTextField.setText(profile.getCredentialName());
+        if(profile.getRegion() != null){
+            regionTextField.setText(profile.getRegion());
+        } else {
+            regionLabel.setVisible(false);
+            regionTextField.setVisible(false);
+        }
+        if(profile.getOciCompartmentId() != null){
+            ociCompartmentIdTextField.setText(profile.getOciCompartmentId());
+        } else {
+            ociCompartmentIdLabel.setVisible(false);
+            ociCompartmentIdTextField.setVisible(false);
+        }
+        if(profile.getOciEndpointId() != null){
+            ociEndpointIdTextField.setText(profile.getOciEndpointId());
+        } else {
+            ociEndpointIdLabel.setVisible(false);
+            ociEndpointIdTextField.setVisible(false);
+        }
         conversationCheckBox.setSelected(profile.isInteractive());
         providerTextField.setText(profile.getProvider().getName());
     }

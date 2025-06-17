@@ -37,6 +37,18 @@ public class DBProfileMetadataImpl extends DBObjectMetadataBase implements DBPro
         return getString("CREDENTIAL_NAME");
     }
 
+    public String getRegion() throws SQLException {
+        return getString("REGION");
+    }
+
+    public String getOciCompartmentId() throws SQLException {
+        return getString("OCI_COMPARTMENT_ID");
+    }
+
+    public String getOciEndpointId() throws SQLException {
+        return getString("OCI_ENDPOINT_ID");
+    }
+
     @Override
     public String getProvider() throws SQLException {
         return getString("PROVIDER");
