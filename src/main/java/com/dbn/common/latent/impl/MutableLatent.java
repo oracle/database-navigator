@@ -24,7 +24,7 @@ import com.dbn.common.util.Safe;
 import java.util.Objects;
 
 final class MutableLatent<T, S> extends LatentBase<T> implements Latent<T> {
-    private S signature;
+    private volatile S signature;
     private final Loader<S> signatureLoader;
 
     MutableLatent(Loader<S> signatureLoader, Loader<T> valueLoader) {

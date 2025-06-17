@@ -21,7 +21,7 @@ import com.dbn.common.latent.Loader;
 
 abstract class LatentBase<T> implements Latent<T> {
     private final Loader<T> loader;
-    private T value;
+    private volatile T value;
     private volatile boolean loaded;
 
     public LatentBase(Loader<T> loader) {
