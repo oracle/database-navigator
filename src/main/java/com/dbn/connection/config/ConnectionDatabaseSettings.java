@@ -19,6 +19,7 @@ package com.dbn.connection.config;
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.options.BasicConfiguration;
+import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Files;
 import com.dbn.common.util.Strings;
@@ -66,7 +67,7 @@ import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSettings, ConnectionDatabaseSettingsForm> {
+public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSettings, ConnectionDatabaseSettingsForm> implements Cloneable<ConnectionDatabaseSettings> {
 
     private @NonNls String name;
     private String description;
