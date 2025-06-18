@@ -25,6 +25,7 @@ import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.Read;
 import com.dbn.common.util.Commons;
+import com.dbn.common.util.Files;
 import com.dbn.common.util.Lists;
 import com.dbn.diagnostics.data.DiagnosticCategory;
 import com.dbn.diagnostics.data.ParserDiagnosticsFilter;
@@ -95,12 +96,13 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
             VirtualFile[] files = VirtualFiles.findFiles(getProject(), searchRequest);
             ParserDiagnosticsResult result = new ParserDiagnosticsResult(getProject());
             progress.setIndeterminate(false);
+            progress.setText("Performing parser diagnostics (" + files.length + " files)");
 
             for (int i = 0, filesLength = files.length; i < filesLength; i++) {
                 VirtualFile file = files[i];
                 progress.checkCanceled();
-                String filePath = file.getPath();
-                progress.setText(filePath);
+                String filePath = Files.convertToRelativePath(getProject(), file.getPath());
+                progress.setText2(filePath);
                 progress.setFraction(Progress.progressOf(i, files.length));
 
                 DBLanguagePsiFile psiFile = ensureFileParsed(file);

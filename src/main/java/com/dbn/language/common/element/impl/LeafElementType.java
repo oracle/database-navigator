@@ -80,7 +80,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
             if (elementType instanceof SequenceElementType) {
                 SequenceElementType sequenceElementType = (SequenceElementType) elementType;
                 if (position > 0 ) {
-                    return sequenceElementType.getChild(position-1).elementType;
+                    return sequenceElementType.children[position-1].elementType;
                 }
             }
             position = pathNode.getIndexInParent();
@@ -98,10 +98,10 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
             if (elementType instanceof SequenceElementType) {
                 SequenceElementType sequenceElementType = (SequenceElementType) elementType;
 
-                int elementsCount = sequenceElementType.getChildCount();
+                int elementsCount = sequenceElementType.children.length;
 
                 if (position < elementsCount) {
-                    ElementTypeRef element = sequenceElementType.getChild(position);
+                    ElementTypeRef element = sequenceElementType.children[position];
                     while (element != null) {
                         if (context.check(element)) {
                             element.elementType.cache.captureFirstPossibleLeafs(context.reset(), possibleLeafs);
@@ -110,7 +110,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                                 break;
                             }
                         }
-                        element = element.getNext();
+                        element = element.next;
                     }
                 } else if (elementType instanceof NamedElementType){
                     context.removeBranchMarkers((NamedElementType) elementType);
@@ -161,7 +161,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
             if (elementType instanceof SequenceElementType) {
                 SequenceElementType sequenceElementType = (SequenceElementType) elementType;
 
-                int elementsCount = sequenceElementType.getChildCount();
+                int elementsCount = sequenceElementType.children.length;
                 if (position == -1) {
                     position = pathNode.cursorPosition + 1;
                 }
@@ -174,7 +174,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                 }
 */
                 if (position < elementsCount) {
-                    ElementTypeRef element = sequenceElementType.getChild(position);
+                    ElementTypeRef element = sequenceElementType.children[position];
                     while (element != null) {
                         ElementTypeLookupCache lookupCache = element.elementType.cache;
                         if (required) {
@@ -190,7 +190,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                         if (!element.optional/* && !child.isOptionalFromHere()*/) {
                             return false;
                         }
-                        element = element.getNext();
+                        element = element.next;
                     }
                 }
             } else if (elementType instanceof IterationElementType) {
@@ -229,7 +229,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
             if (elementType instanceof SequenceElementType) {
                 SequenceElementType sequenceElementType = (SequenceElementType) elementType;
 
-                ElementTypeRef element = sequenceElementType.getChild(position + 1);
+                ElementTypeRef element = sequenceElementType.children[position + 1];
                 while (element != null) {
                     if (!element.optional) {
                         ElementTypeLookupCache<?> lookupCache = element.elementType.cache;
@@ -237,7 +237,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                         pathNode = null;
                         break;
                     }
-                    element = element.getNext();
+                    element = element.next;
                 }
             } else if (elementType instanceof IterationElementType) {
                 IterationElementType iteration = (IterationElementType) elementType;
