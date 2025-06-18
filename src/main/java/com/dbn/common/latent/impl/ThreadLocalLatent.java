@@ -19,11 +19,11 @@ package com.dbn.common.latent.impl;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.latent.Loader;
 
-public final class ThreadLocalLatent<T> implements Latent<T> {
+final class ThreadLocalLatent<T> implements Latent<T> {
     private final Loader<T> loader;
     private final ThreadLocal<T> value = new ThreadLocal<>();
 
-    public ThreadLocalLatent(Loader<T> loader) {
+    ThreadLocalLatent(Loader<T> loader) {
         this.loader = loader;
     }
 
