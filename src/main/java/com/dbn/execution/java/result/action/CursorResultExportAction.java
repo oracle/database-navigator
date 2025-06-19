@@ -17,8 +17,8 @@
 package com.dbn.execution.java.result.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.util.Dialogs;
-import com.dbn.data.export.ui.ExportDataDialog;
+import com.dbn.data.export.DataExportManager;
+import com.dbn.data.export.DataExportSource;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.object.DBJavaParameter;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -35,12 +35,14 @@ public class CursorResultExportAction extends JavaExecutionCursorResultAction {
     }
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        ResultSetTable<?> resultSetTable = getResultSetTable(e);
-        if (resultSetTable == null) return;
+        ResultSetTable<?> sourceTable = getResultSetTable(e);
+        if (sourceTable == null) return;
 
-        DBJavaParameter methodArgument = getMethodArgument(e);
-        if (methodArgument == null) return;
+        DBJavaParameter sourceObject = getMethodArgument(e);
+        if (sourceObject == null) return;
 
-        Dialogs.show(() -> new ExportDataDialog(resultSetTable, methodArgument));
+        DataExportSource exportSource = DataExportSource.create(sourceTable, sourceObject);
+        DataExportManager exportManager = DataExportManager.getInstance(project);
+        exportManager.openExportDialog(exportSource, null);
     }
 }

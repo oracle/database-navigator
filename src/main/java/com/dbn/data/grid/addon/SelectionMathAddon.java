@@ -17,8 +17,8 @@
 package com.dbn.data.grid.addon;
 
 import com.dbn.common.addon.ComponentAddonBase;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.util.Fonts;
+import com.dbn.common.util.Alarms;
 import com.dbn.common.util.MathResult;
 import com.dbn.data.grid.ui.table.basic.BasicTable;
 import com.dbn.data.grid.ui.table.basic.MathPanel;
@@ -55,11 +55,11 @@ public class SelectionMathAddon extends ComponentAddonBase<BasicTable> {
 
     private void initMouseMotionListener() {
         getTable().addMouseMotionListener(new MouseMotionAdapter() {
-            private final Alarm runner = Dispatch.alarm(getTable());
+            private final Alarm runner = Alarms.createAlarm(getTable());
             @Override
             public void mouseMoved(MouseEvent e) {
                 if (mathResult != null && isCellSelected(e.getPoint())) {
-                    Dispatch.alarmRequest(runner, 100, true, () -> showSelectionTooltip());
+                    Alarms.alarmRequest(runner, 100, true, () -> showSelectionTooltip());
                 }
             }
         });

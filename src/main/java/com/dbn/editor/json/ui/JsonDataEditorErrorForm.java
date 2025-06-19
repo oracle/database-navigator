@@ -18,9 +18,9 @@ package com.dbn.editor.json.ui;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.ref.WeakRef;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.DBNTooltip;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.util.Alarms;
 import com.dbn.common.util.Strings;
 import com.dbn.editor.json.model.JsonDataEditorModelCell;
 import com.dbn.editor.json.model.JsonDataEditorModelRow;
@@ -81,7 +81,7 @@ public class JsonDataEditorErrorForm extends DBNFormBase implements ChangeListen
         tooltip.setTextBackground(Colors.getErrorHintColor());
         tooltip.setDismissOnTimeout(false);
 
-        Dispatch.delayed(200, () -> IdeTooltipManager.getInstance().show(tooltip, true));
+        Alarms.executeLater(200, () -> IdeTooltipManager.getInstance().show(tooltip, true));
     }
 
     @NotNull

@@ -18,8 +18,7 @@ package com.dbn.common.ui.progress;
 
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.thread.Dispatch;
-import com.dbn.common.ui.dialog.DBNDialogMonitor;
-import com.dbn.common.util.Timers;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
@@ -35,7 +34,9 @@ import javax.swing.JComponent;
 import java.util.Iterator;
 import java.util.Set;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.ui.dialog.DBNDialogMonitor.hasOpenDialogs;
+import static com.dbn.common.util.Alarms.executeLater;
 
 @Getter
 public class ProgressDialogHandler {
@@ -69,30 +70,36 @@ public class ProgressDialogHandler {
         return progressIndicator == null ? null : progressIndicator.getText2();
     }
 
-    public void trigger() {
-        // delay the creation of the dialog to reduce the number of prompts if the background process finishes in acceptable time
-        Timers.executeLater("ProgressDialogPrompt", 600, MILLISECONDS, () -> {
-            if (finished()) return;
-            if (DBNDialogMonitor.hasOpenDialogs()) return;
-
-            openPopup();
-        });
+    public boolean isIndeterminate() {
+        return progressIndicator != null && progressIndicator.isIndeterminate();
     }
 
-    private void openPopup() {
-        Dispatch.run(true, () -> {
-            if (finished()) return;
+    public double getFraction() {
+        return progressIndicator == null ? 0 : progressIndicator.getFraction();
+    }
 
-            closeProgressDialogs();
+    public void trigger() {
+        Project project = getProject();
+        ModalityState modalityState = Dispatch.getCurrentModalityState();
+        Dispatch.run(modalityState, () -> executeLater(500, () -> openPopup(project)));
+    }
 
-            JBPopup dialog = createPopup();
-            dialog.showCenteredInCurrentWindow(getProject());
-            progressDialogs.add(dialog);
+    private void openPopup(Project project) {
+        if (finished()) return;
+        if (hasOpenDialogs()) return;
+        if (isNotValid(project)) return;
 
-            this.progressDialog = dialog;
+        closeProgressDialogs();
 
-        });
-        if (finished()) release();
+        JBPopup dialog = createPopup();
+        dialog.showCenteredInCurrentWindow(project);
+        progressDialogs.add(dialog);
+
+        this.progressDialog = dialog;
+
+        if (finished()) {
+            release();
+        }
 
     }
 
