@@ -18,6 +18,7 @@ package com.dbn.common.ui.progress;
 
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.thread.Dispatch;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
@@ -36,7 +37,6 @@ import java.util.Set;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.hasOpenDialogs;
 import static com.dbn.common.util.Alarms.executeLater;
-import static com.dbn.common.util.Modality.nonModal;
 
 @Getter
 public class ProgressDialogHandler {
@@ -80,7 +80,8 @@ public class ProgressDialogHandler {
 
     public void trigger() {
         Project project = getProject();
-        Dispatch.run(nonModal(), () -> executeLater(500, () -> openPopup(project)));
+        ModalityState modalityState = Dispatch.getCurrentModalityState();
+        Dispatch.run(modalityState, () -> executeLater(500, () -> openPopup(project)));
     }
 
     private void openPopup(Project project) {
