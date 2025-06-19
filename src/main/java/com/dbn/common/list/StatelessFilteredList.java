@@ -228,16 +228,6 @@ public final class StatelessFilteredList<T> extends FilteredListBase<T> {
         }
     }
 
-    public boolean equals(Object o){
-        if (isFiltered()) {
-            List list = Arrays.asList(toArray());
-            return list.equals(o);
-        } else {
-            return base.equals(o);
-        }
-
-    }
-
     private int findIndex(int index) {
         int count = -1;
         Filter<T> filter = getFilter();

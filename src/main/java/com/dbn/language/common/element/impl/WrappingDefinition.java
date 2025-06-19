@@ -28,14 +28,19 @@ public class WrappingDefinition {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if(this == obj) return true;
-        if (obj instanceof WrappingDefinition) {
-            WrappingDefinition definition = (WrappingDefinition) obj;
-            return
-                Objects.equals(this.beginElementType.tokenType, definition.beginElementType.tokenType) &&
-                Objects.equals(this.endElementType.tokenType, definition.endElementType.tokenType);
-        }
-        return false;
+    public boolean equals(Object o) {
+        if (o == null) return false;
+        if (getClass() != o.getClass()) return false;
+
+        WrappingDefinition that = (WrappingDefinition) o;
+        return Objects.equals(beginElementType.tokenType, that.beginElementType.tokenType) &&
+                Objects.equals(endElementType.tokenType, that.endElementType.tokenType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                beginElementType.tokenType,
+                endElementType.tokenType);
     }
 }

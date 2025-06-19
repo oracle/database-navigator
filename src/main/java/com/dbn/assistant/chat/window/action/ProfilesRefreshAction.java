@@ -24,6 +24,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
+import static com.dbn.assistant.chat.ChatAvailability.DISABLED_PROFILE_SELECTED;
 import static com.dbn.assistant.chat.ChatAvailability.NOT_INITIALIZED;
 import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_AVAILABLE;
 import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_SELECTED;
@@ -56,6 +57,7 @@ public class ProfilesRefreshAction extends AbstractChatBoxAction {
                 AVAILABLE,
                 NOT_INITIALIZED,
                 NO_PROFILE_AVAILABLE,
-                NO_PROFILE_SELECTED);
+                NO_PROFILE_SELECTED,
+                DISABLED_PROFILE_SELECTED);
     }
 }

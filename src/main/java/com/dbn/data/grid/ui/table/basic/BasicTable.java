@@ -220,7 +220,7 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
         if (e.getValueIsAdjusting()) return;
         if (!hasFocus()) return;
 
-        getTableGutter().clearSelection();
+        clearGutterSelection();
     }
 
     @Override

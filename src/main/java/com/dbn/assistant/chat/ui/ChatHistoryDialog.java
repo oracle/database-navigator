@@ -60,7 +60,7 @@ public class ChatHistoryDialog extends DBNDialog<ChatHistoryForm> {
 
     @Override
     @NotNull
-    protected final Action @NotNull [] createActions() {
+    protected final Action [] createActions() {
         return new Action[]{
                 getCancelAction(),
                 getOKAction()

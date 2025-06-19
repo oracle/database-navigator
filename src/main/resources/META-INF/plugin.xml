@@ -776,10 +776,12 @@
         <editorNotificationProvider implementation="com.dbn.connection.mapping.FileConnectionContextNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.assistant.editor.notification.AssistantEditorNotificationProvider"/>
 
-        <additionalTextAttributes scheme="Default" file="textAttributes/DBNDefaultColors.xml" id="DBN-Default"/>
-        <additionalTextAttributes scheme="Darcula" file="textAttributes/DBNDarculaColors.xml" id="DBN-Darcula"/>
         <additionalTextAttributes scheme="Dark" file="textAttributes/DBNDarkColors.xml" id="DBN-Dark"/>
         <additionalTextAttributes scheme="Light" file="textAttributes/DBNLightColors.xml" id="DBN-Light"/>
+        <additionalTextAttributes scheme="Default" file="textAttributes/DBNDefaultColors.xml" id="DBN-Default"/>
+        <additionalTextAttributes scheme="Darcula" file="textAttributes/DBNDarculaColors.xml" id="DBN-Darcula"/>
+        <additionalTextAttributes scheme="IntelliJ Light" file="textAttributes/DBNLightColors.xml" id="DBN-IntelliJ-Light"/>
+        <additionalTextAttributes scheme="High contrast" file="textAttributes/DBNHighContrastColors.xml" id="DBN-HighContrast"/>
         <additionalTextAttributes scheme="AllHallowsEve" file="textAttributes/DBNAllHallowsEveColors.xml" id="DBN-AllHallowsEve"/>
         <additionalTextAttributes scheme="Blackboard" file="textAttributes/DBNBlackboardColors.xml" id="DBN-Blackboard"/>
         <additionalTextAttributes scheme="Cobalt" file="textAttributes/DBNCobaltColors.xml" id="DBN-Cobalt"/>

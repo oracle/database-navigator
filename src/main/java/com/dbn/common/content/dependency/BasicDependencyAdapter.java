@@ -17,9 +17,9 @@
 package com.dbn.common.content.dependency;
 
 public class BasicDependencyAdapter implements ContentDependencyAdapter {
-    public static BasicDependencyAdapter REGULAR = new BasicDependencyAdapter();
+    public static final BasicDependencyAdapter REGULAR = new BasicDependencyAdapter();
 
-    public static BasicDependencyAdapter FAST = new BasicDependencyAdapter() {
+    public static final BasicDependencyAdapter FAST = new BasicDependencyAdapter() {
         @Override
         public boolean canLoadFast() {
             return true;

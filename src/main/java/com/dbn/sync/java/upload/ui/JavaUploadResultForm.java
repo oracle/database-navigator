@@ -68,7 +68,7 @@ public class JavaUploadResultForm extends DBNFormBase {
 
 
     private void initObjectList(JavaUploadBatch batch) {
-        fileList.setModel(DBObjectRefListModel.create(this, batch.getUploadedEntities()));
+        fileList.setModel(DBObjectRefListModel.create(this, batch.getUploadedEntities(null)));
         fileList.setCellRenderer(DBObjectRefListCellRenderer.create());
     }
 

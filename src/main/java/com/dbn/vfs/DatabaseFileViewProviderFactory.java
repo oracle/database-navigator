@@ -16,7 +16,6 @@
 
 package com.dbn.vfs;
 
-import com.dbn.common.util.Commons;
 import com.dbn.language.common.DBLanguageFileType;
 import com.dbn.vfs.file.DBObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
@@ -42,22 +41,18 @@ public class DatabaseFileViewProviderFactory implements FileViewProviderFactory{
             if (file instanceof DBVirtualFile) {
                 DBVirtualFile virtualFile = (DBVirtualFile) file;
 
-                return Commons.nvl(virtualFile.getCachedViewProvider(),
-                        () -> createViewProvider(
-                                file,
-                                language,
-                                manager,
-                                eventSystemEnabled));
-            } else {
-                return createViewProvider(
-                        file,
-                        language,
-                        manager,
-                        eventSystemEnabled);
+                DatabaseFileViewProvider viewProvider = virtualFile.getCachedViewProvider();
+                if (viewProvider != null) return viewProvider;
             }
-        } else{
-            return new SingleRootFileViewProvider(manager, file, eventSystemEnabled);
+
+            return createViewProvider(
+                    file,
+                    language,
+                    manager,
+                    eventSystemEnabled);
         }
+
+        return new SingleRootFileViewProvider(manager, file, eventSystemEnabled);
     }
 
     @NotNull

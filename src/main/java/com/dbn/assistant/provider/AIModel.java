@@ -34,27 +34,27 @@ import static com.dbn.common.util.Lists.first;
 @Getter
 public final class AIModel implements Presentable {
     private final AIProvider provider;
-    private final String id;
+    private final String name;
 
     //How this is named in profile API
     private final String apiName;
 
-    AIModel(AIProvider provider, String id, String apiName) {
+    AIModel(AIProvider provider, String name, String apiName) {
         this.provider = provider;
-        this.id = id;
+        this.name = name;
         this.apiName = apiName;
     }
 
     @Override
     public @NotNull String getName() {
-        return id; // TODO presentable profile names
+        return name; // TODO presentable profile names
     }
 
     @Nullable
-    public static AIModel forId(String id) {
+    public static AIModel forName(String name) {
         List<AIProvider> providers = AIProvider.values();
         for (AIProvider provider : providers) {
-            AIModel model = provider.getModel(id);
+            AIModel model = provider.getModel(name);
             if (model != null) return model;
         }
 
@@ -62,8 +62,8 @@ public final class AIModel implements Presentable {
     }
 
     @Contract("null -> null; !null -> !null")
-    public static String getId(@Nullable AIModel model) {
-        return model == null ? null : model.getId();
+    public static String getName(@Nullable AIModel model) {
+        return model == null ? null : model.getName();
     }
 
     @Nullable

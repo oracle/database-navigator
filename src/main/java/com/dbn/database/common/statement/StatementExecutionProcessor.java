@@ -317,15 +317,27 @@ public class StatementExecutionProcessor {
             Object... arguments) throws SQLException {
         StatementExecutor.execute(context,
                 () -> {
-                    String statementText = definition.prepareStatementText(arguments);
-                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
-
                     DBNConnection connection = context.getConnection();
-                    DBNStatement statement = connection.createStatement();
-                    context.setStatement(statement);
+                    String statementText = definition.prepareStatementText(arguments);
+                    DBNStatement statement = null;
+
+                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
                     try {
-                        statement.setQueryTimeout(timeout);
-                        statement.executeUpdate(statementText);
+                        if (prepared) {
+                            DBNPreparedStatement preparedStatement = definition.prepareStatement(connection, arguments);
+                            statement = preparedStatement;
+                            context.setStatement(statement);
+
+                            statement.setQueryTimeout(timeout);
+                            preparedStatement.execute();
+
+                        } else {
+                            statement = connection.createStatement();
+                            context.setStatement(statement);
+
+                            statement.setQueryTimeout(timeout);
+                            statement.executeUpdate(statementText);
+                        }
                     } catch (SQLException e) {
                         conditionallyLog(e);
                         if (isDatabaseAccessDebug())

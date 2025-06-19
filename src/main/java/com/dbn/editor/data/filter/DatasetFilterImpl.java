@@ -27,7 +27,6 @@ import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.UUID;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
@@ -79,16 +78,6 @@ public abstract class DatasetFilterImpl extends BasicConfiguration<DatasetFilter
     }
 
     public abstract void generateName();
-
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj instanceof DatasetFilter) {
-            DatasetFilter remote = (DatasetFilter) obj;
-            return Objects.equals(remote.getFilterGroup(), filterGroup) &&
-                   Objects.equals(remote.getId(), id);
-        }
-        return false;
-    }
 
     @Nullable
     public DBDataset lookupDataset() {

@@ -56,12 +56,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.file.util.ProjectFiles.isModuleDependency;
@@ -111,29 +112,36 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 		Project project = getProject();
 		String rootFilePath = Files.convertToRelativePath(project, rootFile.getPath());
 		try {
-			List<VirtualFile> files = new ArrayList<>();
-			collectFiles(rootFile, files);
-
-			Set<VirtualFile> dependencies = new HashSet<>();
-			for (VirtualFile file : files) {
-				Set<VirtualFile> fileDependencies = resolveDependencies(file);
-				dependencies.addAll(fileDependencies);
-			}
-
+			Set<VirtualFile> dependencies = loadDependencies(rootFile);
 			if (dependencies.isEmpty()) {
 				Messages.showInfoDialog(project, "No Java Resources", "No uploadable java content found under workspace directory \"" + rootFilePath + "\"");
 				return;
 			}
 
-			List<JavaUploadTask> uploadElements = dependencies.stream().map(f -> new JavaUploadTask(project, f)).sorted().collect(Collectors.toList());
-
-			JavaUploadInput input = new JavaUploadInput(project, rootFile, uploadElements);
-			JavaUploadBatch batch = new JavaUploadBatch(input);
-
+			JavaUploadBatch batch = createBatch(rootFile, project, dependencies);
 			Dialogs.show(() -> new JavaUploaderInputDialog(batch));
 		} catch (Exception e) {
 			Messages.showErrorDialog(project, "Error Loading Java Resources", "Failed to load java content from workspace directory \"" + rootFilePath + "\"", e);
 		}
+	}
+
+	private Set<VirtualFile> loadDependencies(VirtualFile rootFile) {
+		List<VirtualFile> files = new ArrayList<>();
+		collectFiles(rootFile, files);
+
+		Set<VirtualFile> dependencies = new TreeSet<>(Comparator.comparing(f -> f.getPath()));
+		for (VirtualFile file : files) {
+			Set<VirtualFile> fileDependencies = resolveDependencies(file);
+			dependencies.addAll(fileDependencies);
+		}
+		return dependencies;
+	}
+
+	private static JavaUploadBatch createBatch(VirtualFile rootFile, Project project, Set<VirtualFile> dependencies) {
+		JavaUploadInput input = new JavaUploadInput(project, rootFile);
+		JavaUploadBatch batch = new JavaUploadBatch(input);
+		dependencies.forEach(f -> batch.createTask(f));
+		return batch;
 	}
 
 	private void collectFiles(VirtualFile rootFile, List<VirtualFile> files) {

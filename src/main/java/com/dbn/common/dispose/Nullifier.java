@@ -45,6 +45,8 @@ import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+
 @Slf4j
 @UtilityClass
 public final class Nullifier {
@@ -103,7 +105,8 @@ public final class Nullifier {
         for (Field field : fields) {
             try {
                 nullifyField(object, field);
-            } catch (UnsupportedOperationException ignore) {
+            } catch (UnsupportedOperationException e) {
+                conditionallyLog(e);
             } catch (Throwable e) {
                 log.error("Failed to nullify field", e);
             }

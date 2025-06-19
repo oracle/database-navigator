@@ -51,6 +51,8 @@ public interface DBJavaClass extends DBJavaEntity {
 
 	boolean isScalar();
 
+	boolean isSource();
+
     List<DBJavaMethod> getMethods();
 
 	List<DBJavaMethod> getStaticMethods();

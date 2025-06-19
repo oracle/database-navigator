@@ -87,23 +87,23 @@ public class ElementTypeRef extends Linked<ElementTypeRef> {
     boolean isOptionalToHere() {
         if (getIndex() == 0) return false;
 
-        ElementTypeRef previous = getPrevious();
+        ElementTypeRef previous = this.previous;
         while (previous != null) {
             if (!previous.optional) {
                 return false;
             }
-            previous = previous.getPrevious();
+            previous = previous.previous;
         }
         return true;
     }
 
     public boolean isOptionalFromHere() {
-        ElementTypeRef next = getNext();
+        ElementTypeRef next = this.next;
         while (next != null) {
             if (!next.optional) {
                 return false;
             }
-            next = next.getNext();
+            next = next.next;
         }
         return true;
     }

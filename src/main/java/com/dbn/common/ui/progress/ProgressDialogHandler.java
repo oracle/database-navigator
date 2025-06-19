@@ -70,8 +70,8 @@ public class ProgressDialogHandler {
     }
 
     public void trigger() {
-        // delay the creation of the dialog 1 second to reduce number of prompts if background process finishes in acceptable time
-        Timers.executeLater("ProgressDialogPrompt", 300, MILLISECONDS, () -> {
+        // delay the creation of the dialog to reduce the number of prompts if the background process finishes in acceptable time
+        Timers.executeLater("ProgressDialogPrompt", 600, MILLISECONDS, () -> {
             if (finished()) return;
             if (DBNDialogMonitor.hasOpenDialogs()) return;
 

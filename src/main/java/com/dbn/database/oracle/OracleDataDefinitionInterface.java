@@ -140,13 +140,38 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         executeUpdate(connection, "update-object", newCode);
     }
 
-    public void updateJavaClass(String ownerName, String objectName, String code, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "update-java-object", ownerName, objectName, code.replace("'","''"));
+    public void createJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "prepare-java-staging-table", ownerName);
+        executeUpdate(connection, "create-java-source", ownerName, objectName, content);
+        executeUpdate(connection, "compile-java-class", ownerName, objectName);
     }
 
-    public void updateJavaResource(String ownerName, String objectName, String code, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "update-java-resource", ownerName, objectName, code.replace("'","''"));
+    @Override
+    public void updateJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "prepare-java-staging-table", ownerName);
+        executeUpdate(connection, "update-java-source", ownerName, objectName, content);
     }
+
+    @Override
+    public void replaceJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "prepare-java-staging-table", ownerName);
+        executeUpdate(connection, "drop-java-object", ownerName, objectName);
+        executeUpdate(connection, "create-java-source", ownerName, objectName, content);
+    }
+
+    @Override
+    public void replaceJavaClass(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "prepare-java-staging-table", ownerName);
+        executeUpdate(connection, "drop-java-object", ownerName, objectName);
+        executeUpdate(connection, "create-java-class", ownerName, objectName, content);
+    }
+
+    @Override
+    public void updateJavaResource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "prepare-java-staging-table", ownerName);
+        executeUpdate(connection, "update-java-resource", ownerName, objectName, content);
+    }
+
 
     /*********************************************************
      *                   CREATE statements                   *

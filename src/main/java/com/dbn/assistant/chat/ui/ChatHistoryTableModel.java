@@ -81,7 +81,7 @@ public class ChatHistoryTableModel extends StatefulDisposableBase implements DBN
     public Object getValue(Chat chat, int column) {
         switch (column) {
             case 0: return chat.getTitle();
-            case 1: return chat.getContext().getProfile();
+            case 1: return chat.getContext().getProfileName();
             case 2: return getPresentableDateFormat(chat.getTimestamp());
             default: return "";
         }
@@ -92,7 +92,7 @@ public class ChatHistoryTableModel extends StatefulDisposableBase implements DBN
         if (chat == null) return "";
         switch (column) {
             case 0: return chat.getTitle();
-            case 1: return chat.getContext().getProfile();
+            case 1: return chat.getContext().getProfileName();
             case 2: return getPresentableDateFormat(chat.getTimestamp());
             default: return "";
         }

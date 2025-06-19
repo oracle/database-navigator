@@ -715,12 +715,6 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      */
     ResultSet loadCompileObjectErrors(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
-    void compileObject(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException;
-
-    void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException;
-
-    void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException;
-
     ResultSet loadObjectChangeTimestamp(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException;
 
     void enableTrigger(String ownerName, String triggerName, DBNConnection connection) throws SQLException;

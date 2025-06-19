@@ -89,7 +89,7 @@ public class ObjectStatusManager extends ProjectComponentBase implements Persist
         Background.run(() -> {
             try {
                 List<DBSchema> schemas = requester == null ?
-                        connection.getObjectBundle().getSchemas() :
+                        connection.getObjectBundle().getSchemas(true) :
                         requester.getReferencingSchemas();
 
                 DatabaseInterfaceInvoker.schedule(LOW,

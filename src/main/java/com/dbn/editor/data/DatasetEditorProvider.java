@@ -16,6 +16,7 @@
 
 package com.dbn.editor.data;
 
+import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.EditorProviderId;
@@ -39,9 +40,12 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.common.dispose.Failsafe.nn;
 
 public class DatasetEditorProvider implements FileEditorProvider, NamedComponent, DumbAware {
-    /*********************************************************
-     *                  FileEditorProvider                   *
-     *********************************************************/
+
+    //@Override
+    @Compatibility
+    public boolean acceptRequiresReadAction() {
+        return false;
+    }
 
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile virtualFile) {

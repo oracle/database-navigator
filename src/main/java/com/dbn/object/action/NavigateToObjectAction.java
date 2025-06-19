@@ -41,12 +41,12 @@ public class NavigateToObjectAction extends BasicAction {
 
         Presentation presentation = getTemplatePresentation();
         if (object instanceof DBJavaParameter) {
-            presentation.setText(object.getName(), true);
+            presentation.setText(object.getName(), false);
         } else {
             presentation.setText(
                     sourceObject != object.getParentObject() ?
                             object.getQualifiedName() :
-                            object.getName(), true);
+                            object.getName(), false);
         }
         presentation.setIcon(object.getIcon());
         presentation.setDescription(object.getTypeName());
