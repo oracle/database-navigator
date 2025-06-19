@@ -36,7 +36,7 @@ import java.util.Set;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.hasOpenDialogs;
 import static com.dbn.common.util.Alarms.executeLater;
-import static com.intellij.openapi.application.ModalityState.nonModal;
+import static com.dbn.common.util.Modality.nonModal;
 
 @Getter
 public class ProgressDialogHandler {
