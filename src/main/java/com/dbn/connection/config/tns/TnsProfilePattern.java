@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 
 @NonNls
 public class TnsProfilePattern {
-    public static TnsProfilePattern INSTANCE = new TnsProfilePattern();
+    public static final TnsProfilePattern INSTANCE = new TnsProfilePattern();
 
     private final Pattern pattern;
 

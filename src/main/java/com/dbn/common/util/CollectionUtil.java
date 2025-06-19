@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+
 @UtilityClass
 public class CollectionUtil {
     public static <T extends Cloneable<T>> void cloneElements(Collection<T> source, Collection<T> target) {
@@ -36,11 +38,13 @@ public class CollectionUtil {
     }
 
     public static void clear(Collection<?> collection) {
-        if (collection == null || collection.size() == 0) return;
+        if (collection == null || collection.isEmpty()) return;
 
         try {
             collection.clear();
-        } catch (UnsupportedOperationException ignore) {}
+        } catch (UnsupportedOperationException e) {
+            conditionallyLog(e);
+        }
     }
 
     public static void clear(@Nullable Map<?, ?> map) {
@@ -48,7 +52,9 @@ public class CollectionUtil {
 
         try {
             map.clear();
-        } catch (UnsupportedOperationException ignore) {}
+        } catch (UnsupportedOperationException e) {
+            conditionallyLog(e);
+        }
     }
 
 

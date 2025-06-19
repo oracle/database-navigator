@@ -51,7 +51,7 @@ public class ChatSaveDialog extends DBNDialog<ChatSaveForm> {
 
     @Override
     @NotNull
-    protected final Action @NotNull [] createActions() {
+    protected final Action[] createActions() {
         return new Action[]{
                 getCancelAction(),
                 discardAction,

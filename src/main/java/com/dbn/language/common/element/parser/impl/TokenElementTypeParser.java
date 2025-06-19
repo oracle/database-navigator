@@ -48,7 +48,7 @@ public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> 
                 return stepOut(marker, context, ParseResultType.FULL_MATCH, 1);
             }
 
-            SharedTokenTypeBundle sharedTokenTypes = getElementBundle().getTokenTypeBundle().getSharedTokenTypes();
+            SharedTokenTypeBundle sharedTokenTypes = elementType.bundle.tokenTypeBundle.getSharedTokenTypes();
             SimpleTokenType leftParenthesis = sharedTokenTypes.getChrLeftParenthesis();
             SimpleTokenType dot = sharedTokenTypes.getChrDot();
 

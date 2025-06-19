@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,64 +16,10 @@
 
 package com.dbn.common.latent.impl;
 
-import com.dbn.common.latent.Latent;
 import com.dbn.common.latent.Loader;
 
-public class BasicLatent<T> implements Latent<T> {
-    private final Loader<T> loader;
-    private T value;
-    private volatile boolean loaded;
-
-    public BasicLatent(Loader<T> loader) {
-        this.loader = loader;
-    }
-
-    public final T get(){
-        if (!shouldLoad()) return value;
-
-        synchronized (this) {
-            if (!shouldLoad()) return value;
-
-            T newValue = null;
-            try {
-                beforeLoad();
-                newValue = loader == null ? value : loader.load();
-                if (value != newValue) {
-                    value = newValue;
-                }
-                loaded = true;
-            } finally {
-                afterLoad(newValue);
-            }
-        }
-        return value;
-    }
-
-    protected boolean shouldLoad() {
-        return !loaded;
-    }
-
-    protected void beforeLoad() {};
-
-    protected void afterLoad(T value) {
-    }
-
-    public final void set(T value) {
-        this.value = value;
-        loaded = true;
-    }
-
-    public final boolean loaded() {
-        return loaded;
-    }
-
-    @Override
-    public T value() {
-        return value;
-    }
-
-    public void reset() {
-        value = null;
-        loaded = false;
+final class BasicLatent<T> extends LatentBase<T>{
+    BasicLatent(Loader<T> loader) {
+        super(loader);
     }
 }

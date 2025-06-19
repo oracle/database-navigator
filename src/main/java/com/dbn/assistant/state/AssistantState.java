@@ -94,6 +94,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   private String currentChatId;
   private String currentSessionSignature; // the resourceId of the com.dbn.connection.jdbc.Resource
   private String defaultProfileName;
+  private ChatContext latestContext = new ChatContext();
 
   public static final short MAX_CHAR_MESSAGE_COUNT = 100;
 
@@ -170,22 +171,31 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   }
 
   public synchronized Chat getCurrentChat() {
-    Chat currentConversation = chats.get(currentChatId);
-    if (currentConversation == null) {
-      currentConversation = new Chat();
-      currentConversation.setSessionSignature(currentSessionSignature);
-      currentChatId = currentConversation.getId();
-      chats.put(currentChatId, currentConversation);
+    Chat currentChat = chats.get(currentChatId);
+    if (currentChat == null) {
+      currentChat = new Chat(latestContext);
+      currentChat.setSessionSignature(currentSessionSignature);
+      currentChatId = currentChat.getId();
+      chats.put(currentChatId, currentChat);
     }
-    return currentConversation;
+    return currentChat;
   }
 
   public ChatContext getCurrentContext() {
     return getCurrentChat().getContext();
   }
 
+  public void setCurrentChatId(String id) {
+    currentChatId = id;
+
+    Chat currentChat = getCurrentChat();
+    latestContext = currentChat.getContext();
+  }
+
   public void setCurrentContext(ChatContext context) {
-    getCurrentChat().setContext(context);
+    Chat currentChat = getCurrentChat();
+    currentChat.setContext(context);
+    latestContext = context;
   }
 
   public void setCurrentSessionSignature(String currentSessionSignature) {

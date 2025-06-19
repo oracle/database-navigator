@@ -235,6 +235,9 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
    * @param connectionId the new selected connection
    */
   public void switchToConnection(@Nullable ConnectionId connectionId) {
+    if (connectionId == null) return; // do not switch away if switched to a non-db context
+
+
     JPanel toolWindowPanel = getToolWindowPanel();
     if (toolWindowPanel == null) return;
 

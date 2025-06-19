@@ -156,10 +156,6 @@ final class StatefulFilteredList<T> extends FilteredListBase<T> {
         return list().containsAll(c);
     }
 
-    public boolean equals(Object o){
-        return list().equals(o);
-    }
-
     private int findIndex(int index) {
         int count = -1;
         Filter<T> filter = getFilter();
