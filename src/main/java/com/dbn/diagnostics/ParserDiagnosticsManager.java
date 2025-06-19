@@ -20,9 +20,7 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.file.util.FileSearchRequest;
-import com.dbn.common.file.util.VirtualFiles;
 import com.dbn.common.notification.NotificationSupport;
-import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.Read;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Files;
@@ -61,8 +59,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.file.util.VirtualFiles.findFiles;
 import static com.dbn.common.notification.NotificationCategory.DEVELOPER;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.thread.Progress.progressOf;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -91,20 +91,23 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
     public ParserDiagnosticsResult runParserDiagnostics(ProgressIndicator progress) {
         try {
             running = true;
+            Project project = getProject();
             String[] extensions = getFileExtensions();
             FileSearchRequest searchRequest = FileSearchRequest.forExtensions(extensions);
-            VirtualFile[] files = VirtualFiles.findFiles(getProject(), searchRequest);
-            ParserDiagnosticsResult result = new ParserDiagnosticsResult(getProject());
+            VirtualFile[] files = findFiles(project, searchRequest);
+            ParserDiagnosticsResult result = new ParserDiagnosticsResult(project);
+
             progress.setIndeterminate(false);
             progress.setText("Running parser diagnostics (0 / " + files.length + " files)");
 
             for (int i = 0, filesLength = files.length; i < filesLength; i++) {
                 VirtualFile file = files[i];
+                String filePath = file.getPath();
+
                 progress.checkCanceled();
-                String filePath = Files.convertToRelativePath(getProject(), file.getPath());
                 progress.setText("Running parser diagnostics (" + i + " / " + files.length + " files)");
-                progress.setText2(filePath);
-                progress.setFraction(Progress.progressOf(i, files.length));
+                progress.setText2(Files.convertToRelativePath(project, filePath));
+                progress.setFraction(progressOf(i, files.length));
 
                 DBLanguagePsiFile psiFile = ensureFileParsed(file);
                 progress.checkCanceled();
@@ -129,7 +132,7 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
     public void scrambleProjectFiles(ProgressIndicator progress, File rootDir) {
         String[] extensions = getFileExtensions();
         FileSearchRequest searchRequest = FileSearchRequest.forExtensions(extensions);
-        VirtualFile[] files = VirtualFiles.findFiles(getProject(), searchRequest);
+        VirtualFile[] files = findFiles(getProject(), searchRequest);
 
         DBLLanguageFileScrambler scrambler = new DBLLanguageFileScrambler();
         progress.setIndeterminate(true);
@@ -139,7 +142,7 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
             progress.checkCanceled();
             String filePath = file.getPath();
             progress.setText(filePath);
-            progress.setFraction(Progress.progressOf(i, files.length));
+            progress.setFraction(progressOf(i, files.length));
 
             DBLanguagePsiFile psiFile = ensureFileParsed(file);
             progress.checkCanceled();
