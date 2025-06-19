@@ -47,6 +47,7 @@ import com.dbn.debugger.jdwp.frame.DBJdwpDebugSuspendContext;
 import com.dbn.editor.DBContentType;
 import com.dbn.execution.ExecutionContext;
 import com.dbn.execution.ExecutionInput;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBProgram;
 import com.dbn.object.DBSchema;
@@ -418,6 +419,13 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         String sourceUrl = "<NULL>";
         try {
             sourceUrl = location.sourcePath();
+            if(! sourceUrl.startsWith("$")){
+                DBSchema schema = getConnection().getObjectBundle().getSchema("SCOTT");
+                DBJavaClass javaClass = schema.getJavaClass(sourceUrl.split("\\.")[0]);
+                DBEditableObjectVirtualFile editableVirtualFile = javaClass.getEditableVirtualFile();
+                DBContentType contentType = DBContentType.CODE;
+                return editableVirtualFile.getContentFile(contentType);
+            }
             DBJdwpSourcePath sourcePath = DBJdwpSourcePath.from(sourceUrl);
             String programType = sourcePath.getProgramType();
             if (!Objects.equals(programType, "Block")) {

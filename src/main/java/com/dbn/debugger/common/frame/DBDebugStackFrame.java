@@ -43,6 +43,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.ui.ColoredTextContainer;
 import com.intellij.ui.SimpleTextAttributes;
@@ -98,7 +99,13 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
         }
 
         Document document = Documents.getDocument(virtualFile);
-        DBLanguagePsiFile psiFile = (DBLanguagePsiFile) PsiUtil.getPsiFile(project, document);
+        PsiFile dbFile = PsiUtil.getPsiFile(project, document);
+        DBLanguagePsiFile psiFile;
+        if (dbFile instanceof DBLanguagePsiFile) {
+            psiFile = (DBLanguagePsiFile) dbFile;
+        } else {
+            return null;
+        }
         if (sourcePosition == null || psiFile == null || document == null) return null;
 
         int line = sourcePosition.getLine();
