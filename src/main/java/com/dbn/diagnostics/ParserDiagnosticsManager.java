@@ -96,12 +96,13 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
             VirtualFile[] files = VirtualFiles.findFiles(getProject(), searchRequest);
             ParserDiagnosticsResult result = new ParserDiagnosticsResult(getProject());
             progress.setIndeterminate(false);
-            progress.setText("Performing parser diagnostics (" + files.length + " files)");
+            progress.setText("Running parser diagnostics (0 / " + files.length + " files)");
 
             for (int i = 0, filesLength = files.length; i < filesLength; i++) {
                 VirtualFile file = files[i];
                 progress.checkCanceled();
                 String filePath = Files.convertToRelativePath(getProject(), file.getPath());
+                progress.setText("Running parser diagnostics (" + i + " / " + files.length + " files)");
                 progress.setText2(filePath);
                 progress.setFraction(Progress.progressOf(i, files.length));
 

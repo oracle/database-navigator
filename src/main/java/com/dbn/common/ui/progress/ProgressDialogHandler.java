@@ -69,6 +69,14 @@ public class ProgressDialogHandler {
         return progressIndicator == null ? null : progressIndicator.getText2();
     }
 
+    public boolean isIndeterminate() {
+        return progressIndicator != null && progressIndicator.isIndeterminate();
+    }
+
+    public double getFraction() {
+        return progressIndicator == null ? 0 : progressIndicator.getFraction();
+    }
+
     public void trigger() {
         // delay the creation of the dialog to reduce the number of prompts if the background process finishes in acceptable time
         Timers.executeLater("ProgressDialogPrompt", 600, MILLISECONDS, () -> {
