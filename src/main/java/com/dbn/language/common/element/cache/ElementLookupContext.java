@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class ElementLookupContext {
-    public static double MAX_DB_VERSION = 9999;
+    public static final double MAX_DB_VERSION = 9999;
     private final Set<NamedElementType> scannedElements = new HashSet<>();
     private final Set<ElementTypeAttribute> breakOnAttributes = new HashSet<>();
     private final Map<Branch, NamedElementType> branchMarkers = new HashMap<>();

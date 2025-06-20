@@ -22,16 +22,16 @@ import com.dbn.common.latent.Loader;
 
 /**
  * A class representing a recursive latent value implementation. The RecursiveLatent class extends
- * {@link BasicLatent} and incorporates a mechanism to prevent recursive loading scenarios by
+ * {@link LatentBase} and incorporates a mechanism to prevent recursive loading scenarios by
  * utilizing thread-local state.
  *
  * @param <T> the type of value being lazily loaded and managed
  */
-public class RecursiveLatent<T> extends BasicLatent<T> implements Latent<T> {
+final class RecursiveLatent<T> extends LatentBase<T> implements Latent<T> {
     private static final Object LOCK = new Object();
     private final ThreadLocal<Object> loading = new ThreadLocal<>();
 
-    public RecursiveLatent(Loader<T> loader) {
+    RecursiveLatent(Loader<T> loader) {
         super(loader);
     }
 
@@ -41,7 +41,7 @@ public class RecursiveLatent<T> extends BasicLatent<T> implements Latent<T> {
     }
 
     @Override
-    protected void afterLoad(T value) {
+    protected void afterLoad() {
         loading.remove();
     }
 

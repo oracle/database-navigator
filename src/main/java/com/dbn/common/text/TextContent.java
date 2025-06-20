@@ -22,7 +22,7 @@ import java.util.Objects;
 
 @Data
 public class TextContent {
-    public static TextContent EMPTY_PLAIN_TEXT = TextContent.plain("");
+    public static final TextContent EMPTY_PLAIN_TEXT = TextContent.plain("");
 
     private String text;
     private final MimeType type;

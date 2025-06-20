@@ -300,10 +300,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                         options("Merge Changes", "Cancel"), 0,
                         option -> {
                             if (option == 0) {
-                                Progress.prompt(project, object, false,
-                                        txt("prc.codeEditor.title.LoadingSourceCode"),
-                                        txt("prc.codeEditor.text.LoadingSourceCodeOf", objectQualifiedName),
-                                        progress -> openCodeMergeDialog(sourceCodeFile, fileEditor));
+                                openCodeMergeDialog(sourceCodeFile, fileEditor);
                             } else {
                                 sourceCodeFile.set(SAVING, false);
                             }
@@ -322,17 +319,8 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
     private void openCodeMergeDialog(@NotNull DBSourceCodeVirtualFile sourceCodeFile, @Nullable SourceCodeEditor fileEditor) {
         Project project = getProject();
-        try {
-            DBSchemaObject object = sourceCodeFile.getObject();
-            DBContentType contentType = sourceCodeFile.getContentType();
-            SourceCodeContent sourceCodeContent = loadSourceFromDatabase(object, contentType);
-            String databaseContent = sourceCodeContent.getText().toString();
-            SourceCodeDiffManager diffManager = SourceCodeDiffManager.getInstance(project);
-            diffManager.openCodeMergeDialog(databaseContent, sourceCodeFile, fileEditor, MergeAction.SAVE);
-        } catch (SQLException e) {
-            conditionallyLog(e);
-            showErrorDialog(project, "Could not load database sources.", e);
-        }
+        SourceCodeDiffManager diffManager = SourceCodeDiffManager.getInstance(project);
+        diffManager.openCodeMergeDialog(sourceCodeFile, fileEditor, MergeAction.SAVE);
     }
 
     private boolean isValidObjectHeader(@NotNull DBSourceCodeVirtualFile sourceCodeFile) {

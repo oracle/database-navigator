@@ -24,7 +24,6 @@ import com.dbn.common.util.Strings;
 import com.dbn.data.sorting.SortingState;
 import com.dbn.editor.data.filter.ui.DatasetCustomFilterForm;
 import com.dbn.object.DBDataset;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
@@ -38,7 +37,6 @@ import static com.dbn.common.options.setting.Settings.writeCdata;
 
 @Getter
 @Setter
-@EqualsAndHashCode(callSuper = true)
 public class DatasetCustomFilter extends DatasetFilterImpl {
     private @NonNls String condition;
 

@@ -47,10 +47,10 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.dbn.common.dispose.Failsafe.nn;
-import static com.dbn.common.thread.Dispatch.alarm;
-import static com.dbn.common.thread.Dispatch.alarmRequest;
 import static com.dbn.common.ui.BorderDelegate.delegate;
 import static com.dbn.common.ui.util.UserInterface.getParentOfType;
+import static com.dbn.common.util.Alarms.alarmRequest;
+import static com.dbn.common.util.Alarms.createAlarm;
 
 public class DBNStickyPathTree extends DBNTree{
     private static final TreeModel EMPTY_TREE_MODEL = new EmptyTreeModel();
@@ -59,7 +59,7 @@ public class DBNStickyPathTree extends DBNTree{
     private final Container container;
 
     private final State currentState = new State();
-    private final Alarm refreshAlarm = alarm(this);
+    private final Alarm refreshAlarm = createAlarm(this);
     private final boolean scrollBarOpaque;
 
     public DBNStickyPathTree(@NotNull DBNTree sourceTree) {

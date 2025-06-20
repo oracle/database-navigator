@@ -25,7 +25,6 @@ import com.dbn.execution.compiler.CompilerActionSource;
 import com.dbn.execution.compiler.DatabaseCompilerManager;
 import com.dbn.execution.compiler.options.CompilerSettings;
 import com.dbn.object.common.DBSchemaObject;
-import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -34,6 +33,10 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.common.status.DBObjectStatus.COMPILING;
+import static com.dbn.object.common.status.DBObjectStatus.DEBUG;
+import static com.dbn.object.common.status.DBObjectStatus.PRESENT;
+import static com.dbn.object.common.status.DBObjectStatus.VALID;
 
 public class CompileObjectAction extends BasicAction {
     private final DBObjectRef<DBSchemaObject> objectRef;
@@ -64,20 +67,44 @@ public class CompileObjectAction extends BasicAction {
         DBSchemaObject object = getObject();
         Presentation presentation = e.getPresentation();
 
-        DBObjectStatusHolder status = object.getStatus();
 
-        boolean isPresent = status.is(contentType, DBObjectStatus.PRESENT);
-        boolean isCompiling = status.is(contentType, DBObjectStatus.COMPILING);
-        boolean isEnabled = isPresent && !isCompiling /*&& (compilerSettings.alwaysShowCompilerControls() || !isValid)*/;
-
-        presentation.setEnabled(isEnabled);
+        presentation.setEnabled(isEnabled());
 
         boolean debug = compileType == CompileType.DEBUG;
         String objectTypeName = object.getObjectType().getName();
         String text = debug ?
-                txt("app.compiler.action.CompileObject", objectTypeName) :
-                txt("app.compiler.action.CompileObjectDebug", objectTypeName);
+                txt("app.compiler.action.CompileObjectDebug", objectTypeName):
+                txt("app.compiler.action.CompileObject", objectTypeName);
+
         presentation.setText(text);
+    }
+
+    private boolean isEnabled() {
+        DBSchemaObject object = getObject();
+        DBObjectStatusHolder status = object.getStatus();
+
+        if (status.is(contentType, COMPILING)) return false;
+
+        CompilerSettings settings = getCompilerSettings(object.getProject());
+        if (settings.isAlwaysShowCompilerControls()) return true;
+
+
+        boolean debug = compileType == CompileType.DEBUG;
+        DBContentType[] subContentTypes = contentType.getSubContentTypes();
+        if (subContentTypes.length > 0) {
+            for (DBContentType subContentType : subContentTypes) {
+                if (status.isNot(subContentType, PRESENT)) continue;
+                if (status.isNot(subContentType, VALID)) return true;
+                if (debug != status.is(subContentType, DEBUG)) return true;
+            }
+
+        } else {
+            if (status.isNot(VALID)) return true;
+            if (debug != status.is(DEBUG)) return true;
+
+        }
+
+        return false;
     }
 
     private static CompilerSettings getCompilerSettings(Project project) {
