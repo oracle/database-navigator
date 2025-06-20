@@ -27,22 +27,29 @@ public class DBJdwpSourcePath {
     private final String programName;
 
     private DBJdwpSourcePath(String sourceUrl) {
-        String[] tokens;
-        if (sourceUrl.contains("\\")) {
-            tokens = sourceUrl.split("[\\\\.:]");
-        } else if (sourceUrl.contains("/")) {
-            tokens = sourceUrl.split("[/.:]");
-        } else {
-            tokens = sourceUrl.split("[.:]");
-        }
+        if (sourceUrl.startsWith("$Oracle")) {
+            String[] tokens;
+            if (sourceUrl.contains("\\")) {
+                tokens = sourceUrl.split("[\\\\.:]");
+            } else if (sourceUrl.contains("/")) {
+                tokens = sourceUrl.split("[/.:]");
+            } else {
+                tokens = sourceUrl.split("[.:]");
+            }
 
-        if (tokens.length < 4) {
-            throw new UnsupportedOperationException("Cannot tokenize source path: " + sourceUrl);
+            if (tokens.length < 4) {
+                throw new UnsupportedOperationException("Cannot tokenize source path: " + sourceUrl);
+            }
+            signature = tokens[0];
+            programType = tokens[1];
+            programOwner = tokens[2];
+            programName = tokens[3];
+        } else {
+            signature = null;
+            programType = "JavaClass";
+            programName = sourceUrl;
+            programOwner = null;
         }
-        signature = tokens[0];
-        programType = tokens[1];
-        programOwner = tokens[2];
-        programName = tokens[3];
     }
 
     public static DBJdwpSourcePath from(@NotNull String sourceUrl) throws Exception {

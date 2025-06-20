@@ -421,7 +421,8 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         String sourceUrl = "<NULL>";
         try {
             sourceUrl = location.sourcePath();
-            if(! sourceUrl.startsWith("$")){
+            if(! sourceUrl.startsWith("$Oracle")){
+                // TODO extract as resolveJavaClass
                 String objectName = sourceUrl.split("\\.")[0];
                 DBSchema schema;
                 SchemaId schemaId = getExecutionInput().getTargetSchemaId();
@@ -437,14 +438,25 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                         }
                     }
                 }
+
+                // TODO fallback
+                // 1. ojvm java source (DBJavaClass.isSource())
+                // 2. local java source
+                // 3. ojvm java class
+
                 if(javaClass == null) {
-                    // TODO
+                    // TODO find local java class
                     return null;
                 }
+                // TODO if no sources available, find local java class an return the associated VF
+                //  if no local java available, return the oracle java class (a.i. below code)
+
                 DBEditableObjectVirtualFile editableVirtualFile = javaClass.getEditableVirtualFile();
                 DBContentType contentType = DBContentType.CODE;
                 return editableVirtualFile.getContentFile(contentType);
             }
+
+            // TODO extract as resolveDatabaseProgram
             DBJdwpSourcePath sourcePath = DBJdwpSourcePath.from(sourceUrl);
             String programType = sourcePath.getProgramType();
             if (!Objects.equals(programType, "Block")) {
