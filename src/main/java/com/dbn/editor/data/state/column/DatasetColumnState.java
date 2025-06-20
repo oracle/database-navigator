@@ -17,6 +17,7 @@
 package com.dbn.editor.data.state.column;
 
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Strings;
 import com.dbn.object.DBColumn;
 import lombok.EqualsAndHashCode;
@@ -35,7 +36,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class DatasetColumnState implements Comparable<DatasetColumnState>, PersistentStateElement {
+public class DatasetColumnState implements Comparable<DatasetColumnState>, PersistentStateElement, Cloneable<DatasetColumnState> {
     private String name;
     private short position = -1;
     private boolean visible = true;
@@ -82,7 +83,7 @@ public class DatasetColumnState implements Comparable<DatasetColumnState>, Persi
     }
 
     @Override
-    protected DatasetColumnState clone() {
+    public DatasetColumnState clone() {
         return new DatasetColumnState(this);
     }
 

@@ -34,7 +34,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
-import static com.dbn.editor.DBContentType.*;
+import static com.dbn.editor.DBContentType.CODE_BODY;
+import static com.dbn.editor.DBContentType.CODE_SPEC;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.vfs.file.status.DBFileStatus.SAVING;
 
@@ -89,7 +90,7 @@ public class SourceCodeSaveAction extends AbstractCodeEditorAction {
         }
 
         @Override
-        protected boolean canDelegateExecute(AnActionEvent e) {
+        protected boolean canDelegate(AnActionEvent e) {
             DBSourceCodeVirtualFile sourcecodeFile = getSourcecodeFile(e);
             if (isNotValid(sourcecodeFile)) return false;
             if (!sourcecodeFile.isModified()) return false;

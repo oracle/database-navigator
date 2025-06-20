@@ -23,11 +23,11 @@ import com.dbn.common.util.TimeUtil;
 
 import java.util.concurrent.TimeUnit;
 
-public class ReloadableLatent<T, M> extends BasicLatent<T> implements Latent<T> {
+final class ReloadableLatent<T> extends LatentBase<T> implements Latent<T> {
     private long timestamp;
     private final long intervalMillis;
 
-    public ReloadableLatent(long interval, TimeUnit intervalUnit, Loader<T> loader) {
+    ReloadableLatent(long interval, TimeUnit intervalUnit, Loader<T> loader) {
         super(loader);
         intervalMillis = intervalUnit.toMillis(interval);
     }

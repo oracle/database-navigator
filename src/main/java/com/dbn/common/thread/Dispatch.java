@@ -17,15 +17,12 @@
 package com.dbn.common.thread;
 
 import com.dbn.common.action.Lookups;
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.diagnostics.Diagnostics;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ModalityState;
-import com.intellij.util.Alarm;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -151,25 +148,6 @@ public final class Dispatch {
         return resultRef.get();
     }
 
-
-    public static Alarm alarm(Disposable parentDisposable) {
-        Failsafe.nd(parentDisposable);
-        return new Alarm(parentDisposable);
-    }
-
-    public static void delayed(int delayMillis, @NotNull Runnable runnable) {
-        alarmRequest(new Alarm(), delayMillis, false, runnable);
-    }
-
-    public static void alarmRequest(@NotNull Alarm alarm, long delayMillis, boolean cancelRequests, @NotNull Runnable runnable) {
-        run(true, () -> {
-            if (alarm.isDisposed()) return;
-            if (cancelRequests) alarm.cancelAllRequests();
-            if (alarm.isDisposed()) return;
-
-            alarm.addRequest(runnable, delayMillis);
-        });
-    }
 
     public static ModalityState getCurrentModalityState() {
         if (isDispatchThread()) {

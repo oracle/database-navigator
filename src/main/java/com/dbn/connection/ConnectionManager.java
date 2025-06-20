@@ -307,7 +307,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
         try {
             databaseSettings.validate();
             ensureAuthenticationProvided(databaseSettings, (authenticationInfo) ->
-                    Progress.modal(project, null, false,
+                    Progress.modal(project, null, true,
                             txt("prc.connection.title.ConnectingToDatabase"),
                             txt("prc.connection.text.ConnectingToDatabase", connectionName),
                             progress -> {
@@ -316,6 +316,8 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                                     ConnectionInfo connectionInfo = new ConnectionInfo(connection.getMetaData());
                                     Resources.close(connection);
                                     showConnectionInfoDialog(project, connectionInfo, connectionName, environmentType);
+                                } catch (ProcessCanceledException e) {
+                                    conditionallyLog(e);
                                 } catch (Exception e) {
                                     conditionallyLog(e);
                                     showErrorConnectionMessage(project, connectionName, e);

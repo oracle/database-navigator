@@ -85,6 +85,12 @@ public class AssistantStateDelegate extends AssistantState {
     }
 
     @Override
+    public void deleteChat(String conversationId) {
+        super.deleteChat(conversationId);
+        notifyStateListeners();
+    }
+
+    @Override
     protected void propertyChanged(AssistantStatus property, boolean value) {
         notifyStateListeners();
     }

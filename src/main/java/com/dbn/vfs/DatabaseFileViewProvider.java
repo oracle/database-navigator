@@ -35,12 +35,14 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.SingleRootFileViewProvider;
+import com.intellij.psi.impl.file.impl.FileManager;
 import com.intellij.testFramework.LightVirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.language.common.psi.PsiUtil.getFileManager;
 
 public class DatabaseFileViewProvider extends SingleRootFileViewProvider {
     public static final Key<DatabaseFileViewProvider> CACHED_VIEW_PROVIDER = new Key<>("CACHED_VIEW_PROVIDER");
@@ -49,16 +51,27 @@ public class DatabaseFileViewProvider extends SingleRootFileViewProvider {
     public DatabaseFileViewProvider(@NotNull Project project, @NotNull VirtualFile virtualFile, boolean eventSystemEnabled) {
         super(PsiManager.getInstance(project), virtualFile, eventSystemEnabled);
         this.project = ProjectRef.of(project);
-        virtualFile.putUserData(CACHED_VIEW_PROVIDER, this);
-        //virtualFile.putUserData(FREE_THREADED, true);
+
+        cacheViewProvider(project, virtualFile);
     }
 
     public DatabaseFileViewProvider(@NotNull Project project, @NotNull VirtualFile virtualFile, boolean eventSystemEnabled, @NotNull Language language) {
         super(PsiManager.getInstance(project), virtualFile, eventSystemEnabled, language);
         this.project = ProjectRef.of(project);
-        virtualFile.putUserData(CACHED_VIEW_PROVIDER, this);
 
+        cacheViewProvider(project, virtualFile);
+    }
+
+    private void cacheViewProvider(@NotNull Project project, @NotNull VirtualFile virtualFile) {
+        virtualFile.putUserData(CACHED_VIEW_PROVIDER, this);
         //virtualFile.putUserData(FREE_THREADED, true);
+
+        if (virtualFile instanceof DBVirtualFile) {
+            Write.run(() -> {
+                FileManager fileManager = getFileManager(project);
+                fileManager.setViewProvider(virtualFile, this);
+            });
+        }
     }
 
     @Override
@@ -82,7 +95,7 @@ public class DatabaseFileViewProvider extends SingleRootFileViewProvider {
             }
 
             Language baseLanguage = getBaseLanguage();
-            return super.getPsiInner(baseLanguage);
+            PsiFile psiFile = super.getPsiInner(baseLanguage);
 
 /*
             // TODO cleanup
@@ -96,6 +109,9 @@ public class DatabaseFileViewProvider extends SingleRootFileViewProvider {
                 return psiFile;
             }
 */
+
+            return psiFile;
+
         }
 
         return super.getPsiInner(language);
