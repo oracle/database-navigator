@@ -26,6 +26,7 @@ import com.intellij.debugger.engine.JavaStackFrame;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XStackFrame;
+import com.sun.jdi.Location;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -65,8 +66,13 @@ public class DBJdwpDebugExecutionStack extends XExecutionStack {
     }
 
     @Override
-    public XStackFrame getTopFrame() {
+    public DBJdwpDebugStackFrame getTopFrame() {
         return topStackFrame.get();
+    }
+
+    public Location getTopFrameLocation() {
+        DBJdwpDebugStackFrame topFrame = getTopFrame();
+        return topFrame == null ? null : topFrame.getLocation();
     }
 
     private DBJdwpDebugStackFrame getFrame(JavaStackFrame underlyingFrame) {

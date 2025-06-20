@@ -42,6 +42,7 @@ import com.dbn.debugger.common.process.DBDebugProcessStatusHolder;
 import com.dbn.debugger.jdwp.DBJdwpBreakpointHandler;
 import com.dbn.debugger.jdwp.DBJdwpSourcePath;
 import com.dbn.debugger.jdwp.ManagedThreadCommand;
+import com.dbn.debugger.jdwp.frame.DBJdwpDebugExecutionStack;
 import com.dbn.debugger.jdwp.frame.DBJdwpDebugStackFrame;
 import com.dbn.debugger.jdwp.frame.DBJdwpDebugSuspendContext;
 import com.dbn.editor.DBContentType;
@@ -89,6 +90,7 @@ import java.util.Objects;
 
 import static com.dbn.common.thread.ThreadProperty.DEBUGGER_NAVIGATION;
 import static com.dbn.common.util.Classes.simpleClassName;
+import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.intellij.debugger.impl.PrioritizedTask.Priority.LOW;
 
@@ -244,16 +246,14 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
             @ThreadPropertyGate(DEBUGGER_NAVIGATION)
             public void sessionPaused() {
                 XSuspendContext suspendContext = session.getSuspendContext();
-                if (!shouldSuspend(suspendContext)) {
-                    Dispatch.run(() -> session.resume());
+                if (suspendContext == null || !shouldSuspend(suspendContext)) {
+                    Dispatch.run(nonModal(), () -> session.resume());
                     return;
                 }
 
                 XExecutionStack activeExecutionStack = suspendContext.getActiveExecutionStack();
-                if (activeExecutionStack == null) return;
 
-                XStackFrame topFrame = activeExecutionStack.getTopFrame();
-                Location location = getLocation(topFrame);
+                Location location = getTopFrameLocation(activeExecutionStack);
                 VirtualFile virtualFile = getVirtualFile(location);
                 DBDebugUtil.openEditor(virtualFile);
             }
@@ -500,6 +500,20 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         }
 
         return false;
+    }
+
+
+    @Nullable
+    public static Location getTopFrameLocation(@Nullable XExecutionStack executionStack) {
+        if (executionStack == null) return null;
+
+        if (executionStack instanceof DBJdwpDebugExecutionStack) {
+            DBJdwpDebugExecutionStack dbExecutionStack = (DBJdwpDebugExecutionStack) executionStack;
+            return dbExecutionStack.getTopFrameLocation();
+        } else {
+            XStackFrame topFrame = executionStack.getTopFrame();
+            return getLocation(topFrame);
+        }
     }
 
 
