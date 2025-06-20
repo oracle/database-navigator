@@ -174,21 +174,24 @@ public final class Progress {
         if (indicator == null) return;
         indicator.checkCanceled();
 
-        new ProgressIndicatorListener() {
-            @Override
-            public void cancelled() {
-                listener.accept(indicator);
-            }
+        if (indicator instanceof ProgressIndicatorEx) {
+            new ProgressIndicatorListener() {
+                @Override
+                public void cancelled() {
+                    listener.accept(indicator);
+                }
 
-            @Override
-            public void stopped() {
-                listener.accept(indicator);
-            }
+                @Override
+                public void stopped() {
+                    listener.accept(indicator);
+                }
 
-            @Override
-            public void onFractionChanged(double fraction) {
-                listener.accept(indicator);
-            }
-        }.installToProgressIfPossible(indicator);
+                //@Override
+                public void onFractionChanged(double fraction) {
+                    listener.accept(indicator);
+                }
+            }.installToProgress((ProgressIndicatorEx) indicator);
+        }
+
     }
 }
