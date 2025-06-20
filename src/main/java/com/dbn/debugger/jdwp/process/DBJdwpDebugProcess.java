@@ -62,6 +62,8 @@ import com.intellij.debugger.engine.JavaStackFrame;
 import com.intellij.debugger.engine.SuspendContext;
 import com.intellij.debugger.engine.SuspendContextImpl;
 import com.intellij.debugger.impl.DebuggerSession;
+import com.intellij.debugger.jdi.StackFrameProxyImpl;
+import com.intellij.debugger.ui.impl.watch.StackFrameDescriptorImpl;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
@@ -75,6 +77,8 @@ import com.intellij.xdebugger.frame.XStackFrame;
 import com.intellij.xdebugger.frame.XSuspendContext;
 import com.intellij.xdebugger.impl.XDebugSessionImpl;
 import com.sun.jdi.Location;
+import com.sun.jdi.StackFrame;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -134,19 +138,18 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     }
 
     protected boolean shouldSuspend(XSuspendContext suspendContext) {
-        if (is(DBDebugProcessStatus.TARGET_EXECUTION_TERMINATED)) {
-            return false;
-        } else {
-            XExecutionStack executionStack = suspendContext.getActiveExecutionStack();
-            if (executionStack != null) {
-                XStackFrame topFrame = executionStack.getTopFrame();
-                if (topFrame instanceof DBJdwpDebugStackFrame) {
-                    return true;
-                }
-                Location location = getLocation(topFrame);
-                VirtualFile virtualFile = getVirtualFile(location);
-                return virtualFile != null;
+        if (suspendContext == null) return false;
+        if (is(DBDebugProcessStatus.TARGET_EXECUTION_TERMINATED)) return false;
+
+        XExecutionStack executionStack = suspendContext.getActiveExecutionStack();
+        if (executionStack != null) {
+            XStackFrame topFrame = executionStack.getTopFrame();
+            if (topFrame instanceof DBJdwpDebugStackFrame) {
+                return true;
             }
+            Location location = getLocation(topFrame);
+            VirtualFile virtualFile = getVirtualFile(location);
+            return virtualFile != null;
         }
         return true;
     }
@@ -243,17 +246,16 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                 XSuspendContext suspendContext = session.getSuspendContext();
                 if (!shouldSuspend(suspendContext)) {
                     Dispatch.run(() -> session.resume());
-                } else {
-                    XExecutionStack activeExecutionStack = suspendContext.getActiveExecutionStack();
-                    if (activeExecutionStack != null) {
-                        XStackFrame topFrame = activeExecutionStack.getTopFrame();
-                        if (topFrame instanceof JavaStackFrame) {
-                            Location location = getLocation(topFrame);
-                            VirtualFile virtualFile = getVirtualFile(location);
-                            DBDebugUtil.openEditor(virtualFile);
-                        }
-                    }
+                    return;
                 }
+
+                XExecutionStack activeExecutionStack = suspendContext.getActiveExecutionStack();
+                if (activeExecutionStack == null) return;
+
+                XStackFrame topFrame = activeExecutionStack.getTopFrame();
+                Location location = getLocation(topFrame);
+                VirtualFile virtualFile = getVirtualFile(location);
+                DBDebugUtil.openEditor(virtualFile);
             }
         });
 
@@ -501,11 +503,21 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     }
 
 
-
     @Nullable
-    private Location getLocation(@Nullable XStackFrame stackFrame) {
+    @SneakyThrows
+    public static Location getLocation(@Nullable XStackFrame stackFrame) {
         if (stackFrame instanceof JavaStackFrame) {
-            return ((JavaStackFrame) stackFrame).getDescriptor().getLocation();
+            JavaStackFrame javaStackFrame = (JavaStackFrame) stackFrame;
+            StackFrameDescriptorImpl frameDescriptor = javaStackFrame.getDescriptor();
+            Location location = frameDescriptor.getLocation();
+            if (location != null) return location;
+
+            // unwrap frame proxy
+            StackFrameProxyImpl frameProxy = frameDescriptor.getFrameProxy();
+            StackFrame proxyStackFrame = frameProxy.getStackFrame();
+            location = proxyStackFrame.location();
+            return location;
+
         }
         return null;
     }
