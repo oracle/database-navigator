@@ -65,6 +65,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 import static com.dbn.object.common.status.DBObjectStatus.COMPILING;
+import static com.dbn.object.common.status.DBObjectStatus.PRESENT;
 
 public class DatabaseCompilerManager extends ProjectComponentBase {
     private DatabaseCompilerManager(@NotNull Project project) {
@@ -252,12 +253,16 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                     objectTypeName,
                     debug,
                     conn);
-            dataDefinitionInterface.compileObjectBody(
-                    schemaName,
-                    objectName,
-                    objectTypeName,
-                    debug,
-                    conn);
+
+            if (object.getStatus().is(DBContentType.CODE_BODY, PRESENT)) {
+                // body is optional for packages and types (e.g. constant definitions)
+                dataDefinitionInterface.compileObjectBody(
+                        schemaName,
+                        objectName,
+                        objectTypeName,
+                        debug,
+                        conn);
+            }
         }
 
         return createCompilerResult(object, compilerAction, conn);
