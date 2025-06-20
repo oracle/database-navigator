@@ -2579,7 +2579,6 @@
             from [PREFIX]_DEPENDENCIES d
             where
                 TYPE = 'SYNONYM' and
-                REFERENCED_TYPE != 'JAVA CLASS' and
                 OWNER = {0}
             order by NAME asc
         </statement>

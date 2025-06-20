@@ -51,6 +51,8 @@ import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBProgram;
 import com.dbn.object.DBSchema;
+import com.dbn.object.DBSynonym;
+import com.dbn.object.common.DBObject;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.debugger.DebuggerManager;
 import com.intellij.debugger.engine.DebugProcessImpl;
@@ -420,8 +422,25 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         try {
             sourceUrl = location.sourcePath();
             if(! sourceUrl.startsWith("$")){
-                DBSchema schema = getConnection().getObjectBundle().getSchema("SCOTT");
-                DBJavaClass javaClass = schema.getJavaClass(sourceUrl.split("\\.")[0]);
+                String objectName = sourceUrl.split("\\.")[0];
+                DBSchema schema;
+                SchemaId schemaId = getExecutionInput().getTargetSchemaId();
+                schema = getConnection().getObjectBundle().getSchema(schemaId.getName());
+                DBJavaClass javaClass = schema.getJavaClass(objectName);
+                // resolveing
+                if(javaClass == null) {
+                    DBSynonym synonym = schema.getSynonym(objectName);
+                    if(synonym != null){
+                        DBObject synonymObject = synonym.getUnderlyingObject();
+                        if(synonymObject instanceof DBJavaClass){
+                            javaClass = (DBJavaClass) synonymObject;
+                        }
+                    }
+                }
+                if(javaClass == null) {
+                    // TODO
+                    return null;
+                }
                 DBEditableObjectVirtualFile editableVirtualFile = javaClass.getEditableVirtualFile();
                 DBContentType contentType = DBContentType.CODE;
                 return editableVirtualFile.getContentFile(contentType);
