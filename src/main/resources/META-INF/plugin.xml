@@ -54,13 +54,21 @@
         <ul>
             <li><b>3.6.0</b>
             <ul>
-                <li>Oracle "Select-AI" conversation mode
-                <li>Oracle Connectivity - EasyConnect support
-                <li>Oracle OJVM support (project synchronization)
-                <li>Oracle JSON Duality Views support
-                <li>Vector data readonly support
+                <li>JDBC driver download feature
+                <li>Oracle "Select-AI" support<ul>
+                    <li>Conversational profiles
+                    <li>Persistent chat history
+                </ul>
+                <li>Oracle OJVM support<ul>
+                    <li>Java resources support
+                    <li>Workspace synchronization
+                    <li>Execution wrapper factories
+                </ul>
+                <li>Oracle connectivity - EasyConnect support
+                <li>Oracle JSON duality views support
+                <li>Vector data-type support
                 <li>Oracle "OCI Toolkit" plugin integration
-                <li>Bug fixes
+                <li>Bug fixes and performance improvements
             </ul>
             <li><b>3.5.3</b>
             <ul>

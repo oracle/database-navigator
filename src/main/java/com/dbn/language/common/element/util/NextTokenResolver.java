@@ -97,11 +97,11 @@ public final class NextTokenResolver {
 
     @Nullable
     private ElementTypeBase visitSequence(SequenceElementType parent, ElementType element) {
-        int elementsCount = parent.getChildCount();
+        int elementsCount = parent.children.length;
         int index = parent.indexOf(element, 0) + 1;
 
         if (index < elementsCount) {
-            ElementTypeRef child = parent.getChild(index);
+            ElementTypeRef child = parent.children[index];
             while (child != null) {
                 ensureBucket();
                 ElementTypeLookupCache lookupCache = child.elementType.cache;
@@ -110,7 +110,7 @@ public final class NextTokenResolver {
                     parent = null;
                     break;
                 }
-                child = child.getNext();
+                child = child.next;
             }
         }
         return parent;

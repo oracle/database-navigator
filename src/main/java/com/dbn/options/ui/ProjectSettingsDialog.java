@@ -16,8 +16,8 @@
 
 package com.dbn.options.ui;
 
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.common.util.Alarms;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseType;
@@ -165,7 +165,7 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
     }
 
     private class ApplyAction extends AbstractAction {
-        private final Alarm alarm = Dispatch.alarm(getForm());
+        private final Alarm alarm = Alarms.createAlarm(getForm());
         private final Runnable reloader = new Runnable() {
             @Override
             public void run() {

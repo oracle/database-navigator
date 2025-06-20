@@ -67,8 +67,8 @@ public class ElementTypeBundle {
     private final AtomicInteger leafIndexer = new AtomicInteger();
     private final IndexRegistry<LeafElementType> leafRegistry = new IndexRegistry<>();
 
-    private final TokenTypeBundle tokenTypeBundle;
-    private BasicElementType unknownElementType;
+    public final TokenTypeBundle tokenTypeBundle;
+    public final BasicElementType unknownElementType = new UnknownElementType(this);
     private NamedElementType rootElementType;
 
     private final DBLanguageDialect languageDialect;
@@ -272,13 +272,6 @@ public class ElementTypeBundle {
 
     public NamedElementType getNamedElementType(String id) {
         return namedElementTypes.get(id);
-    }
-
-    public BasicElementType getUnknownElementType() {
-        if (unknownElementType == null) {
-            unknownElementType = new UnknownElementType(this);
-        }
-        return unknownElementType;
     }
 
     private String createId() {

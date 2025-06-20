@@ -74,7 +74,6 @@ public class SessionBrowserForm extends DBNFormBase implements SearchableDataCom
         editorPanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
         browserTable = new SessionBrowserTable(this, sessionBrowser);
         tableScrollPane.setViewportView(browserTable);
-        browserTable.initTableGutter();
         detailsForm = new SessionBrowserDetailsForm(this, sessionBrowser);
         detailsPanel.add(detailsForm.getComponent(), BorderLayout.CENTER);
 

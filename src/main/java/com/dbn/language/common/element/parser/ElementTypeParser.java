@@ -21,7 +21,6 @@ import com.dbn.language.common.ParseException;
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.SimpleTokenType;
 import com.dbn.language.common.TokenType;
-import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.impl.BlockElementType;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.LeafElementType;
@@ -102,7 +101,7 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
      */
     protected boolean isSuppressibleReservedWord(TokenType tokenType, ParserNode node, ParserContext context) {
         if (tokenType != null && tokenType.isSuppressibleReservedWord()) {
-            SharedTokenTypeBundle sharedTokenTypes = getElementBundle().getTokenTypeBundle().getSharedTokenTypes();
+            SharedTokenTypeBundle sharedTokenTypes = elementType.bundle.tokenTypeBundle.getSharedTokenTypes();
             SimpleTokenType dot = sharedTokenTypes.getChrDot();
             SimpleTokenType leftParenthesis = sharedTokenTypes.getChrLeftParenthesis();
             ParserBuilder builder = context.builder;
@@ -131,10 +130,6 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
             return true;//!isFollowedByToken(tokenType, node);
         }
         return false;
-    }
-
-    public ElementTypeBundle getElementBundle() {
-        return elementType.bundle;
     }
 
     @Deprecated

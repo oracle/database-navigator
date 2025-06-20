@@ -51,7 +51,7 @@ public class OneOfElementTypeParser extends ElementTypeParser<OneOfElementType> 
                         return stepOut(node, context, result.getType(), result.getMatchedTokens());
                     }
                 }
-                element = element.getNext();
+                element = element.next;
             }
         }
         return stepOut(node, context, ParseResultType.NO_MATCH, 0);

@@ -119,10 +119,6 @@ public class SequenceElementType extends ElementTypeBase {
         return false;
     }
 
-    public int getChildCount() {
-        return children.length;
-    }
-
     @Override
     public PsiElement createPsiElement(ASTNode astNode) {
         return new SequencePsiElement(astNode, this);
@@ -146,7 +142,7 @@ public class SequenceElementType extends ElementTypeBase {
             ElementTypeRef child = children[index];
             while (child != null) {
                 if (child.elementType.cache.couldStartWithToken(tokenType)) return true;
-                child = child.getNext();
+                child = child.next;
             }
         }
         return false;
@@ -193,7 +189,7 @@ public class SequenceElementType extends ElementTypeBase {
             if (child.elementType == leafElementType || child.elementType.cache.containsLeaf(leafElementType)) {
                 return child.getIndex();
             }
-            child = child.getNext();
+            child = child.next;
         }
 
         return -1;
@@ -213,7 +209,7 @@ public class SequenceElementType extends ElementTypeBase {
                 if (child.elementType == elementType) {
                     return child.getIndex();
                 }
-                child = child.getNext();
+                child = child.next;
             }
         }
         return -1;
