@@ -32,7 +32,6 @@ import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 import static com.dbn.object.common.property.DBObjectProperty.DEBUGABLE;
@@ -59,21 +58,15 @@ abstract class DBProgramImpl<M extends DBProgramMetadata, P extends DBProcedure,
 
     @Override
     public void initStatus(M metadata) throws SQLException {
-        String specValidString = metadata.getSpecValid();
-        String bodyValidString = metadata.getBodyValid();
-
-        String specDebugString = metadata.getSpecDebug();
-        String bodyDebugString = metadata.getBodyDebug();
-
         DBObjectStatusHolder objectStatus = getStatus();
 
-        boolean specPresent = specValidString != null;
-        boolean specValid = !specPresent || Objects.equals(specValidString, "Y");
-        boolean specDebug = !specPresent || Objects.equals(specDebugString, "Y");
+        boolean specPresent = metadata.isSpecPresent();
+        boolean specValid = !specPresent || metadata.isSpecValid();
+        boolean specDebug = specPresent && metadata.isSpecDebug();
 
-        boolean bodyPresent = bodyValidString != null;
-        boolean bodyValid = !bodyPresent || Objects.equals(bodyValidString, "Y");
-        boolean bodyDebug = !bodyPresent || Objects.equals(bodyDebugString, "Y");
+        boolean bodyPresent = metadata.isBodyPresent();
+        boolean bodyValid = !bodyPresent || metadata.isBodyValid();
+        boolean bodyDebug = bodyPresent && metadata.isBodyDebug();
 
         objectStatus.set(DBContentType.CODE_SPEC, DBObjectStatus.PRESENT, specPresent);
         objectStatus.set(DBContentType.CODE_SPEC, DBObjectStatus.VALID, specValid);
