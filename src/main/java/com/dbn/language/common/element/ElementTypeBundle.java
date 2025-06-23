@@ -68,7 +68,7 @@ public class ElementTypeBundle {
     private final IndexRegistry<LeafElementType> leafRegistry = new IndexRegistry<>();
 
     public final TokenTypeBundle tokenTypeBundle;
-    public final BasicElementType unknownElementType = new UnknownElementType(this);
+    public final BasicElementType unknownElementType;
     private NamedElementType rootElementType;
 
     private final DBLanguageDialect languageDialect;
@@ -96,6 +96,8 @@ public class ElementTypeBundle {
     public ElementTypeBundle(DBLanguageDialect languageDialect, TokenTypeBundle tokenTypeBundle, Document document) {
         this.languageDialect = languageDialect;
         this.tokenTypeBundle = tokenTypeBundle;
+
+        this.unknownElementType = new UnknownElementType(this);
         Measured.run("building element-type bundle for " + languageDialect.getID(), () -> build(document));
     }
 
