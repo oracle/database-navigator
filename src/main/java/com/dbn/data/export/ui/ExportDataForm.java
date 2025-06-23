@@ -254,6 +254,7 @@ public class ExportDataForm extends DBNFormBase {
             formatCustomRadioButton.isSelected() ? DataExportFormat.CUSTOM : null;
     }
 
+    @Deprecated // use DBNFormValidator integration
     void validateEntries(@NotNull Runnable callback) {
         boolean validOpenQuote = !isEmptyText(beginQuoteTextField);
         boolean validCloseQuote = !isEmptyText(endQuoteTextField);

@@ -82,7 +82,6 @@ abstract class DBProgramImpl<M extends DBProgramMetadata, P extends DBProcedure,
         objectStatus.set(DBContentType.CODE_BODY, DBObjectStatus.PRESENT, bodyPresent);
         objectStatus.set(DBContentType.CODE_BODY, DBObjectStatus.VALID, bodyValid);
         objectStatus.set(DBContentType.CODE_BODY, DBObjectStatus.DEBUG, bodyDebug);
-
     }
 
     protected abstract DBObjectType getFunctionObjectType();

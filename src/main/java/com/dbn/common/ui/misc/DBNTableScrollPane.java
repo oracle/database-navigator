@@ -16,9 +16,9 @@
 
 package com.dbn.common.ui.misc;
 
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Fonts;
+import com.dbn.common.util.Alarms;
 import com.dbn.data.grid.options.DataGridGeneralSettings;
 import com.dbn.data.grid.options.DataGridSettings;
 import com.dbn.data.grid.ui.table.basic.BasicTable;
@@ -71,7 +71,7 @@ public class DBNTableScrollPane extends DBNScrollPane{
             float defaultSize = Fonts.regular().getSize();
             int percentage = (int) (size / defaultSize * 100);
 
-            Dispatch.alarmRequest(resizeAlarm, 10, true, () -> {
+            Alarms.alarmRequest(resizeAlarm, 10, true, () -> {
                 resultTable.setFont(font);
                 IdeTooltip tooltip = new IdeTooltip(this, e.getPoint(), new JLabel(percentage + "%"));
                 IdeTooltipManager.getInstance().show(tooltip, true);

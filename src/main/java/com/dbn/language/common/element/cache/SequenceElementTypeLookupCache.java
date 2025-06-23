@@ -56,7 +56,7 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
             } else {
                 return child.elementType == elementType;
             }
-            child = child.getNext();
+            child = child.next;
         }
         return false;
     }
@@ -67,7 +67,7 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
             if (!child.optional) {
                 return child.elementType == elementType;
             }
-            child = child.getNext();
+            child = child.next;
         }
         return false;
     }
@@ -83,7 +83,7 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
             if (!child.optional) {
                 return false;
             }
-            child = child.getNext();
+            child = child.next;
         }
         return false;
     }
@@ -99,7 +99,7 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
                 child.elementType.cache.captureFirstPossibleLeafs(context, bucket);
             }
             if (!child.optional) break;
-            child = child.getNext();
+            child = child.next;
         }
         return bucket;
     }
@@ -115,7 +115,7 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
                 child.elementType.cache.captureFirstPossibleTokens(context, bucket);
             }
             if (!child.optional) break;
-            child = child.getNext();
+            child = child.next;
         }
         return bucket;
     }

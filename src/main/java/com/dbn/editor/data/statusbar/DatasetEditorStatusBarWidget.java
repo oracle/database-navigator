@@ -21,8 +21,8 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.util.UserInterface;
+import com.dbn.common.util.Alarms;
 import com.dbn.common.util.MathResult;
 import com.dbn.common.util.Safe;
 import com.dbn.editor.data.DatasetEditor;
@@ -51,7 +51,7 @@ public class DatasetEditorStatusBarWidget extends ProjectComponentBase implement
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatasetEditorStatusBarWidget";
 
     private final JLabel textLabel;
-    private final Alarm updateAlarm = Dispatch.alarm(this);
+    private final Alarm updateAlarm = Alarms.createAlarm(this);
     private final JPanel component = new JPanel(new BorderLayout());
 
     DatasetEditorStatusBarWidget(@NotNull Project project) {
@@ -109,7 +109,7 @@ public class DatasetEditorStatusBarWidget extends ProjectComponentBase implement
     }
 
     public void update() {
-        Dispatch.alarmRequest(updateAlarm, 100, true, () -> {
+        Alarms.alarmRequest(updateAlarm, 100, true, () -> {
             DatasetEditorTable editorTable = getEditorTable();
             MathResult mathResult = Safe.call(editorTable, table -> table.getSelectionMath());
 

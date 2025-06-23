@@ -19,14 +19,16 @@ package com.dbn.data.export.action;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
-import com.dbn.common.util.Dialogs;
-import com.dbn.data.export.ui.ExportDataDialog;
+import com.dbn.data.export.DataExportManager;
+import com.dbn.data.export.DataExportSource;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.object.DBDataset;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ExportDataAction extends BasicAction {
@@ -41,6 +43,15 @@ public class ExportDataAction extends BasicAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        Dialogs.show(() -> new ExportDataDialog(table.ensure(), dataset.ensure()));
+        Project project = e.getProject();
+        if (isNotValid(project)) return;
+
+        ResultSetTable<?> sourceTable = this.table.ensure();
+        DBDataset sourceObject = this.dataset.ensure();
+
+        DataExportSource exportSource = DataExportSource.create(sourceTable, sourceObject);
+
+        DataExportManager exportManager = DataExportManager.getInstance(project);
+        exportManager.openExportDialog(exportSource, null);
     }
 }
