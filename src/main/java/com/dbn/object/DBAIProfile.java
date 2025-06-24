@@ -20,7 +20,6 @@ import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
-import com.esotericsoftware.kryo.kryo5.util.Null;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
