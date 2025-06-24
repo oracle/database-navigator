@@ -18,6 +18,8 @@ package com.dbn.assistant.profile.ui;
 
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.object.DBAIProfile;
+import com.dbn.object.DBCredential;
+import com.dbn.object.type.DBCredentialType;
 import com.intellij.ui.ColoredTableCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
@@ -55,6 +57,7 @@ public class ProfileDetailsForm extends DBNFormBase {
     private JLabel ociApiFormatLabel;
     private JTextField ociApiFormatTextField;
     private JTextField descriptionTextField;
+    private JPanel ociAttributesPanel;
 
     public ProfileDetailsForm(@NotNull ProfileManagementForm parent, DBAIProfile profile) {
         super(parent);
@@ -69,38 +72,25 @@ public class ProfileDetailsForm extends DBNFormBase {
         descriptionTextField.setText(profile.getDescription());
         modelTextField.setText(profile.getModel().getName());
         credentialTextField.setText(profile.getCredentialName());
-        if(profile.getRegion() != null){
+
+        boolean ociCredential = isOciCredential(profile);
+        ociAttributesPanel.setVisible(ociCredential);
+
+        if (ociCredential) {
             regionTextField.setText(profile.getRegion());
-        } else {
-            regionLabel.setVisible(false);
-            regionTextField.setVisible(false);
-        }
-        if(profile.getOciCompartmentId() != null){
             ociCompartmentIdTextField.setText(profile.getOciCompartmentId());
-        } else {
-            ociCompartmentIdLabel.setVisible(false);
-            ociCompartmentIdTextField.setVisible(false);
-        }
-        if(profile.getOciEndpointId() != null){
             ociEndpointIdTextField.setText(profile.getOciEndpointId());
-        } else {
-            ociEndpointIdLabel.setVisible(false);
-            ociEndpointIdTextField.setVisible(false);
-        }
-        if(profile.getOciRuntimeType() != null){
             ociRuntimeTypeTextField.setText(profile.getOciRuntimeType());
-        } else {
-            ociRuntimeTypeLabel.setVisible(false);
-            ociRuntimeTypeTextField.setVisible(false);
-        }
-        if(profile.getOciApiFormat() != null){
             ociApiFormatTextField.setText(profile.getOciApiFormat());
-        } else {
-            ociApiFormatLabel.setVisible(false);
-            ociApiFormatTextField.setVisible(false);
         }
+
         conversationCheckBox.setSelected(profile.isInteractive());
         providerTextField.setText(profile.getProvider().getName());
+    }
+
+    private static boolean isOciCredential(DBAIProfile profile) {
+        DBCredential credential = profile.getCredential();
+        return credential != null && credential.getType() == DBCredentialType.OCI;
     }
 
     private void initializeTable(DBAIProfile profile) {

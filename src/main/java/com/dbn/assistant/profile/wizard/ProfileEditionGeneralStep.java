@@ -50,11 +50,12 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.DocumentFilter;
 import java.awt.event.ItemEvent;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.UserInterface.updateTitledBorders;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.common.util.Lists.convert;
@@ -81,6 +82,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   private JTextField ociRuntimeTypeTextField;
   private JLabel ociApiFormatLabel;
   private JTextField ociApiFormatTextField;
+  private JPanel ociAttributesPanel;
 
   private final Map<String, DBCredentialType> credentialTypes = new HashMap<>();
   private final ConnectionRef connection;
@@ -100,6 +102,8 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
     initCredentialAddButton();
     initializeUI();
     addValidationListener();
+
+    updateTitledBorders(mainPanel);
 
     whenFirstShown(mainPanel, () -> populateCredentials());
   }
@@ -145,31 +149,8 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
 
     ((AbstractDocument) nameTextField.getDocument()).setDocumentFilter(new UppercaseDocumentFilter());
 
-    nameTextField.getDocument().addDocumentListener(new DocumentListener() {
-      public void changedUpdate(DocumentEvent e) {
-        nameTextField.getInputVerifier().verify(nameTextField);
-      }
-
-      public void removeUpdate(DocumentEvent e) {
-        nameTextField.getInputVerifier().verify(nameTextField);
-      }
-
-      public void insertUpdate(DocumentEvent e) {
-        nameTextField.getInputVerifier().verify(nameTextField);
-      }
-    });
-
-    ociCompartmentIdTextField.getDocument().addDocumentListener(new DocumentListener() {
-      public void changedUpdate(DocumentEvent e) {
-        ociCompartmentIdTextField.getInputVerifier().verify(ociCompartmentIdTextField);
-      }
-      public void removeUpdate(DocumentEvent e) {
-        ociCompartmentIdTextField.getInputVerifier().verify(ociCompartmentIdTextField);
-      }
-      public void insertUpdate(DocumentEvent e) {
-        ociCompartmentIdTextField.getInputVerifier().verify(ociCompartmentIdTextField);
-      }
-    });
+    installValidator(nameTextField);
+    installValidator(ociCompartmentIdTextField);
 
     credentialComboBox.addItemListener(e -> {
       if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -178,17 +159,32 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
           verifier.verify(credentialComboBox);
         }
       }
-      regionTextField.setVisible(getSelectedCredentialType() == DBCredentialType.OCI);
-      regionLabel.setVisible(getSelectedCredentialType() == DBCredentialType.OCI);
-      ociCompartmentIdTextField.setVisible(getSelectedCredentialType() == DBCredentialType.OCI);
-      ociCompartmentIdLabel.setVisible(getSelectedCredentialType() == DBCredentialType.OCI);
-      ociEndpointIdTextField.setVisible(getSelectedCredentialType() == DBCredentialType.OCI);
-      ociEndpointIdLabel.setVisible(getSelectedCredentialType() == DBCredentialType.OCI);
-      ociRuntimeTypeTextField.setVisible(getSelectedCredentialType() == DBCredentialType.OCI);
-      ociRuntimeTypeLabel.setVisible(getSelectedCredentialType() == DBCredentialType.OCI);
-      ociApiFormatTextField.setVisible(getSelectedCredentialType() == DBCredentialType.OCI);
-      ociApiFormatLabel.setVisible(getSelectedCredentialType() == DBCredentialType.OCI);
+      ociAttributesPanel.setVisible(isOciCredential());
     });
+  }
+
+  private static void installValidator(JTextField textField) {
+    textField.getDocument().addDocumentListener(new DocumentListener() {
+      public void changedUpdate(DocumentEvent e) {
+        validateInput(textField);
+      }
+
+      public void removeUpdate(DocumentEvent e) {
+        validateInput(textField);
+      }
+
+      public void insertUpdate(DocumentEvent e) {
+        validateInput(textField);
+      }
+    });
+  }
+
+  private static boolean validateInput(JComponent component) {
+    return component.getInputVerifier().verify(component);
+  }
+
+  private boolean isOciCredential() {
+    return getSelectedCredentialType() == DBCredentialType.OCI;
   }
 
   private DBCredentialType getSelectedCredentialType() {
@@ -197,11 +193,9 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   }
 
   private void populateCredentials() {
-    ConnectionHandler connection = getConnection();
-    Project project = connection.getProject();
-
     Background.run(() -> {
       String currentCredential = profile.getCredentialName();
+      ConnectionHandler connection = getConnection();
       DBSchema schema = connection.getObjectBundle().getUserSchema();
       if (schema == null) return;
 
@@ -217,22 +211,6 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
       String selectedCredential = nvln(currentCredential, Lists.firstElement(credentialNames));
       credentialComboBox.setSelectedItem(selectedCredential);
     });
-
-/*
-    credentialSvc.list().thenAccept(credentialProviderList -> {
-      SwingUtilities.invokeLater(() -> {
-
-
-        credentialComboBox.removeAllItems();
-        for (Credential credential : credentialProviderList) {
-          credentialComboBox.addItem(credential.getName());
-        }
-        if (!credentialProviderList.isEmpty()) {
-          credentialComboBox.setSelectedItem(currentCredential);
-        }
-      });
-    });
-*/
   }
 
   @Override
@@ -247,38 +225,40 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
 
   @Override
   public WizardStep<ProfileEditionWizardModel> onNext(ProfileEditionWizardModel model) {
-    boolean nameValid = isUpdate || nameTextField.getInputVerifier().verify(nameTextField);
-    boolean credentialValid = credentialComboBox.getInputVerifier().verify(credentialComboBox);
-    boolean ociCompartmentIdValid = ociCompartmentIdTextField.getInputVerifier().verify(ociCompartmentIdTextField);
+    boolean nameValid = isUpdate || validateInput(nameTextField);
+    boolean credentialValid = validateInput(credentialComboBox);
+    boolean ociCompartmentIdValid = validateInput(ociCompartmentIdTextField);
 
     profile.setName(nameTextField.getText());
     profile.setCredentialName((String) credentialComboBox.getSelectedItem());
 
-    if(getSelectedCredentialType() == DBCredentialType.OCI && !regionTextField.getText().isEmpty()) {
+    boolean ociCredential = isOciCredential();
+
+    if(ociCredential && !regionTextField.getText().isEmpty()) {
       profile.setRegion(regionTextField.getText());
     } else {
       profile.setRegion(null);
     }
 
-    if(getSelectedCredentialType() == DBCredentialType.OCI && !ociCompartmentIdTextField.getText().isEmpty()){
+    if(ociCredential && !ociCompartmentIdTextField.getText().isEmpty()){
       profile.setOciCompartmentId(ociCompartmentIdTextField.getText());
     } else {
       profile.setOciCompartmentId(null);
     }
 
-    if(getSelectedCredentialType() == DBCredentialType.OCI && !ociEndpointIdTextField.getText().isEmpty()){
+    if(ociCredential && !ociEndpointIdTextField.getText().isEmpty()){
       profile.setOciEndpointId(ociEndpointIdTextField.getText());
     } else {
       profile.setOciEndpointId(null);
     }
 
-    if(getSelectedCredentialType() == DBCredentialType.OCI && !ociRuntimeTypeTextField.getText().isEmpty()){
+    if(ociCredential && !ociRuntimeTypeTextField.getText().isEmpty()){
       profile.setOciRuntimeType(ociRuntimeTypeTextField.getText());
     } else {
       profile.setOciRuntimeType(null);
     }
 
-    if(getSelectedCredentialType() == DBCredentialType.OCI && !ociApiFormatTextField.getText().isEmpty()){
+    if(ociCredential && !ociApiFormatTextField.getText().isEmpty()){
       profile.setOciApiFormat(ociApiFormatTextField.getText());
     } else {
       profile.setOciApiFormat(null);
