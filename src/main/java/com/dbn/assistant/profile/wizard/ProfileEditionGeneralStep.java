@@ -77,6 +77,10 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   private JTextField ociCompartmentIdTextField;
   private JLabel ociEndpointIdLabel;
   private JTextField ociEndpointIdTextField;
+  private JLabel ociRuntimeTypeLabel;
+  private JTextField ociRuntimeTypeTextField;
+  private JLabel ociApiFormatLabel;
+  private JTextField ociApiFormatTextField;
 
   private final Map<String, DBCredentialType> credentialTypes = new HashMap<>();
   private final ConnectionRef connection;
@@ -126,6 +130,8 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
       regionTextField.setText(profile.getRegion());
       ociCompartmentIdTextField.setText(profile.getOciCompartmentId());
       ociEndpointIdTextField.setText(profile.getOciEndpointId());
+      ociRuntimeTypeTextField.setText(profile.getOciRuntimeType());
+      ociApiFormatTextField.setText(profile.getOciApiFormat());
       nameTextField.setEnabled(false);
       credentialComboBox.setEnabled(true);
       descriptionTextField.setEnabled(false);
@@ -178,6 +184,10 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
       ociCompartmentIdLabel.setVisible(getSelectedCredentialType() == DBCredentialType.OCI);
       ociEndpointIdTextField.setVisible(getSelectedCredentialType() == DBCredentialType.OCI);
       ociEndpointIdLabel.setVisible(getSelectedCredentialType() == DBCredentialType.OCI);
+      ociRuntimeTypeTextField.setVisible(getSelectedCredentialType() == DBCredentialType.OCI);
+      ociRuntimeTypeLabel.setVisible(getSelectedCredentialType() == DBCredentialType.OCI);
+      ociApiFormatTextField.setVisible(getSelectedCredentialType() == DBCredentialType.OCI);
+      ociApiFormatLabel.setVisible(getSelectedCredentialType() == DBCredentialType.OCI);
     });
   }
 
@@ -260,6 +270,18 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
       profile.setOciEndpointId(ociEndpointIdTextField.getText());
     } else {
       profile.setOciEndpointId(null);
+    }
+
+    if(getSelectedCredentialType() == DBCredentialType.OCI && !ociRuntimeTypeTextField.getText().isEmpty()){
+      profile.setOciRuntimeType(ociRuntimeTypeTextField.getText());
+    } else {
+      profile.setOciRuntimeType(null);
+    }
+
+    if(getSelectedCredentialType() == DBCredentialType.OCI && !ociApiFormatTextField.getText().isEmpty()){
+      profile.setOciApiFormat(ociApiFormatTextField.getText());
+    } else {
+      profile.setOciApiFormat(null);
     }
 
     // Handle description logic...

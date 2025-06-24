@@ -50,6 +50,10 @@ public class ProfileDetailsForm extends DBNFormBase {
     private JTextField ociCompartmentIdTextField;
     private JLabel ociEndpointIdLabel;
     private JTextField ociEndpointIdTextField;
+    private JLabel ociRuntimeTypeLabel;
+    private JTextField ociRuntimeTypeTextField;
+    private JLabel ociApiFormatLabel;
+    private JTextField ociApiFormatTextField;
 
     public ProfileDetailsForm(@NotNull ProfileManagementForm parent, DBAIProfile profile) {
         super(parent);
@@ -80,6 +84,18 @@ public class ProfileDetailsForm extends DBNFormBase {
         } else {
             ociEndpointIdLabel.setVisible(false);
             ociEndpointIdTextField.setVisible(false);
+        }
+        if(profile.getOciRuntimeType() != null){
+            ociRuntimeTypeTextField.setText(profile.getOciRuntimeType());
+        } else {
+            ociRuntimeTypeLabel.setVisible(false);
+            ociRuntimeTypeTextField.setVisible(false);
+        }
+        if(profile.getOciApiFormat() != null){
+            ociApiFormatTextField.setText(profile.getOciApiFormat());
+        } else {
+            ociApiFormatLabel.setVisible(false);
+            ociApiFormatTextField.setVisible(false);
         }
         conversationCheckBox.setSelected(profile.isInteractive());
         providerTextField.setText(profile.getProvider().getName());

@@ -49,6 +49,14 @@ public class DBProfileMetadataImpl extends DBObjectMetadataBase implements DBPro
         return getString("OCI_ENDPOINT_ID");
     }
 
+    public String getOciRuntimeType() throws SQLException {
+        return getString("OCI_RUNTIME_TYPE");
+    }
+
+    public String getOciApiFormat() throws SQLException {
+        return getString("OCI_API_FORMAT");
+    }
+
     @Override
     public String getProvider() throws SQLException {
         return getString("PROVIDER");

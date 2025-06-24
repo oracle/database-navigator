@@ -184,6 +184,8 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
             editedProfile.getRegion(),
             editedProfile.getOciCompartmentId(),
             editedProfile.getOciEndpointId(),
+            editedProfile.getOciRuntimeType(),
+            editedProfile.getOciApiFormat(),
             editedProfile.getProvider(),
             editedProfile.getModel(),
             DBObjectUtil.objectListToJson(editedProfile.getObjectList()),

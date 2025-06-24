@@ -37,6 +37,10 @@ public interface DBProfileMetadata extends DBObjectMetadata {
 
     String getOciEndpointId() throws SQLException;
 
+    String getOciRuntimeType() throws SQLException;
+
+    String getOciApiFormat() throws SQLException;
+
     String getDescription() throws SQLException;
 
     String getProvider() throws SQLException;
@@ -59,6 +63,8 @@ public interface DBProfileMetadata extends DBObjectMetadata {
         private final String region;
         private final String ociCompartmentId;
         private final String ociEndpointId;
+        private final String ociRuntimeType;
+        private final String ociApiFormat;
         private final String provider;
         private final String model;
         private final String description;
