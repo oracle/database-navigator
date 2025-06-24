@@ -22,11 +22,15 @@ import java.sql.SQLException;
 
 public interface DBProgramMetadata extends DBObjectMetadata {
 
-    String getSpecValid() throws SQLException;
+    boolean isSpecPresent() throws SQLException;
 
-    String getBodyValid() throws SQLException;
+    boolean isSpecValid() throws SQLException;
 
-    String getSpecDebug() throws SQLException;
+    boolean isSpecDebug() throws SQLException;
 
-    String getBodyDebug() throws SQLException;
+    boolean isBodyPresent() throws SQLException;
+
+    boolean isBodyValid() throws SQLException;
+
+    boolean isBodyDebug() throws SQLException;
 }
