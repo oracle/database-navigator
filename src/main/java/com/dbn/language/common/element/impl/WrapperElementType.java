@@ -118,7 +118,7 @@ public final class WrapperElementType extends ElementTypeBase {
             SequenceElementType sequenceElementType = (SequenceElementType) parent;
             int index = sequenceElementType.indexOf(this);
 
-            ElementTypeRef child = sequenceElementType.getChild(index);
+            ElementTypeRef child = sequenceElementType.children[index];
             if (child.optional) {
                 return false;
             }

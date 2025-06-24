@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.dbn.assistant.profile.ui.ProfileDetailsForm">
-  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="14" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="15" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="12" bottom="0" right="12"/>
     <constraints>
-      <xy x="20" y="20" width="500" height="482"/>
+      <xy x="20" y="20" width="500" height="521"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
       <component id="bd10d" class="javax.swing.JLabel">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <labelFor value="f8626"/>
@@ -19,7 +19,7 @@
       </component>
       <component id="7fe77" class="javax.swing.JLabel">
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <labelFor value="77d58"/>
@@ -28,7 +28,7 @@
       </component>
       <component id="4ae0a" class="javax.swing.JLabel">
         <constraints>
-          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <labelFor value="1444e"/>
@@ -36,16 +36,6 @@
         </properties>
       </component>
       <component id="f8626" class="javax.swing.JTextField" binding="providerTextField">
-        <constraints>
-          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="-1"/>
-          </grid>
-        </constraints>
-        <properties>
-          <editable value="false"/>
-        </properties>
-      </component>
-      <component id="77d58" class="javax.swing.JTextField" binding="modelTextField">
         <constraints>
           <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -55,7 +45,7 @@
           <editable value="false"/>
         </properties>
       </component>
-      <component id="1444e" class="javax.swing.JTextField" binding="credentialTextField">
+      <component id="77d58" class="javax.swing.JTextField" binding="modelTextField">
         <constraints>
           <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -65,9 +55,19 @@
           <editable value="false"/>
         </properties>
       </component>
+      <component id="1444e" class="javax.swing.JTextField" binding="credentialTextField">
+        <constraints>
+          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <editable value="false"/>
+        </properties>
+      </component>
       <component id="fb4a9" class="javax.swing.JLabel">
         <constraints>
-          <grid row="12" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="13" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <horizontalAlignment value="2"/>
@@ -81,7 +81,7 @@
         </constraints>
         <properties>
           <labelFor value="be777"/>
-          <text value="Profile &amp;Name"/>
+          <text value="&amp;Name"/>
         </properties>
       </component>
       <component id="be777" class="javax.swing.JTextField" binding="profileNameTextField">
@@ -96,7 +96,7 @@
       </component>
       <scrollpane id="57e93">
         <constraints>
-          <grid row="13" column="0" row-span="1" col-span="2" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="14" column="0" row-span="1" col-span="2" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
@@ -109,37 +109,20 @@
       </scrollpane>
       <vspacer id="bcf3">
         <constraints>
-          <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false">
+          <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false">
             <preferred-size width="-1" height="8"/>
           </grid>
         </constraints>
       </vspacer>
       <component id="65d00" class="javax.swing.JLabel">
         <constraints>
-          <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text value="&amp;Conversational"/>
         </properties>
       </component>
       <component id="6ed8c" class="javax.swing.JCheckBox" binding="conversationCheckBox">
-        <constraints>
-          <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <enabled value="false"/>
-          <text value=""/>
-        </properties>
-      </component>
-      <component id="8f10c" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Enabled"/>
-        </properties>
-      </component>
-      <component id="50a1e" class="javax.swing.JCheckBox" binding="enabledCheckBox">
         <constraints>
           <grid row="10" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -148,9 +131,26 @@
           <text value=""/>
         </properties>
       </component>
+      <component id="8f10c" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Enabled"/>
+        </properties>
+      </component>
+      <component id="50a1e" class="javax.swing.JCheckBox" binding="enabledCheckBox">
+        <constraints>
+          <grid row="11" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <enabled value="false"/>
+          <text value=""/>
+        </properties>
+      </component>
       <component id="8b023" class="javax.swing.JLabel" binding="regionLabel">
         <constraints>
-          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <labelFor value="1444e"/>
@@ -159,7 +159,7 @@
       </component>
       <component id="d7503" class="javax.swing.JTextField" binding="regionTextField">
         <constraints>
-          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
           </grid>
         </constraints>
@@ -169,7 +169,7 @@
       </component>
       <component id="a226f" class="javax.swing.JLabel" binding="ociCompartmentIdLabel">
         <constraints>
-          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <labelFor value="1444e"/>
@@ -177,26 +177,6 @@
         </properties>
       </component>
       <component id="cef60" class="javax.swing.JTextField" binding="ociCompartmentIdTextField">
-        <constraints>
-          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="-1"/>
-          </grid>
-        </constraints>
-        <properties>
-          <editable value="false"/>
-          <visible value="true"/>
-        </properties>
-      </component>
-      <component id="ac1e" class="javax.swing.JLabel" binding="ociEndpointIdLabel">
-        <constraints>
-          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <labelFor value="1444e"/>
-          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.OciEndpointId"/>
-        </properties>
-      </component>
-      <component id="d3337" class="javax.swing.JTextField" binding="ociEndpointIdTextField">
         <constraints>
           <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -207,16 +187,16 @@
           <visible value="true"/>
         </properties>
       </component>
-      <component id="4a2bd" class="javax.swing.JLabel" binding="ociRuntimeTypeLabel">
+      <component id="ac1e" class="javax.swing.JLabel" binding="ociEndpointIdLabel">
         <constraints>
           <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <labelFor value="1444e"/>
-          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.OciRuntimeType"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.OciEndpointId"/>
         </properties>
       </component>
-      <component id="29b5c" class="javax.swing.JTextField" binding="ociRuntimeTypeTextField">
+      <component id="d3337" class="javax.swing.JTextField" binding="ociEndpointIdTextField">
         <constraints>
           <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -227,9 +207,29 @@
           <visible value="true"/>
         </properties>
       </component>
-      <component id="aa18a" class="javax.swing.JLabel" binding="ociApiFormatLabel">
+      <component id="4a2bd" class="javax.swing.JLabel" binding="ociRuntimeTypeLabel">
         <constraints>
           <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="1444e"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.OciRuntimeType"/>
+        </properties>
+      </component>
+      <component id="29b5c" class="javax.swing.JTextField" binding="ociRuntimeTypeTextField">
+        <constraints>
+          <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <editable value="false"/>
+          <visible value="true"/>
+        </properties>
+      </component>
+      <component id="aa18a" class="javax.swing.JLabel" binding="ociApiFormatLabel">
+        <constraints>
+          <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <labelFor value="1444e"/>
@@ -238,13 +238,32 @@
       </component>
       <component id="d9659" class="javax.swing.JTextField" binding="ociApiFormatTextField">
         <constraints>
-          <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+          <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
           </grid>
         </constraints>
         <properties>
           <editable value="false"/>
           <visible value="true"/>
+        </properties>
+      </component>
+      <component id="64f90" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="be777"/>
+          <text value="&amp;Description"/>
+        </properties>
+      </component>
+      <component id="b1dbe" class="javax.swing.JTextField" binding="descriptionTextField">
+        <constraints>
+          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <editable value="false"/>
         </properties>
       </component>
     </children>

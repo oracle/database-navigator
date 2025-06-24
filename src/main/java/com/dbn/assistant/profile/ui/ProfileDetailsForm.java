@@ -54,6 +54,7 @@ public class ProfileDetailsForm extends DBNFormBase {
     private JTextField ociRuntimeTypeTextField;
     private JLabel ociApiFormatLabel;
     private JTextField ociApiFormatTextField;
+    private JTextField descriptionTextField;
 
     public ProfileDetailsForm(@NotNull ProfileManagementForm parent, DBAIProfile profile) {
         super(parent);
@@ -65,6 +66,7 @@ public class ProfileDetailsForm extends DBNFormBase {
     private void initializeFields(DBAIProfile profile) {
         enabledCheckBox.setSelected(profile.isEnabled());
         profileNameTextField.setText(profile.getName());
+        descriptionTextField.setText(profile.getDescription());
         modelTextField.setText(profile.getModel().getName());
         credentialTextField.setText(profile.getCredentialName());
         if(profile.getRegion() != null){

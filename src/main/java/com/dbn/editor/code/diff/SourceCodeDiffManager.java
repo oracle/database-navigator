@@ -45,6 +45,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.vfs.file.status.DBFileStatus.SAVING;
@@ -65,59 +66,84 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
         return projectService(project, SourceCodeDiffManager.class);
     }
 
-    public void openCodeMergeDialog(String databaseContent, DBSourceCodeVirtualFile sourceCodeFile, SourceCodeEditor fileEditor, MergeAction action) {
-        Dispatch.run(() -> {
-            Project project = getProject();
-            SourceCodeDiffContent leftContent = new SourceCodeDiffContent("Database version", databaseContent);
-            SourceCodeDiffContent targetContent = new SourceCodeDiffContent("Merge result", sourceCodeFile.getOriginalContent());
-            SourceCodeDiffContent rightContent = new SourceCodeDiffContent("Your version", sourceCodeFile.getContent());
-            MergeContent mergeContent = new MergeContent(leftContent, targetContent, rightContent );
-            try {
-                DiffRequestFactory diffRequestFactory = DiffRequestFactory.getInstance();
-                MergeRequest mergeRequest = diffRequestFactory.createMergeRequest(
-                        project,
-                        sourceCodeFile,
-                        mergeContent.getByteContents(),
-                        "Version conflict resolution for " + sourceCodeFile.getObject().getQualifiedNameWithType(),
-                        mergeContent.getTitles(),
-                        mergeResult -> {
-                            if (action == MergeAction.SAVE) {
-                                switch (mergeResult) {
-                                    case LEFT:
-                                    case RIGHT:
-                                    case RESOLVED:
-                                        SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
-                                        sourceCodeManager.storeSourceToDatabase(sourceCodeFile, fileEditor, null);
-                                        ProjectEvents.notify(project,
-                                                SourceCodeDifManagerListener.TOPIC,
-                                                (listener) -> listener.contentMerged(sourceCodeFile, action));
-                                        break;
-                                    case CANCEL:
-                                        sourceCodeFile.set(SAVING, false);
-                                        break;
-                                }
-                            } else if (action == MergeAction.MERGE) {
-                                switch (mergeResult) {
-                                    case LEFT:
-                                    case RIGHT:
-                                    case RESOLVED:
-                                        sourceCodeFile.markAsMerged();
-                                        ProjectEvents.notify(project,
-                                                SourceCodeDifManagerListener.TOPIC,
-                                                (listener) -> listener.contentMerged(sourceCodeFile, action));
-                                        break;
-                                    case CANCEL:
-                                        break;
-                                }
-                            }
-                        });
+    public void openCodeMergeDialog(DBSourceCodeVirtualFile sourceCodeFile, SourceCodeEditor fileEditor, MergeAction mergeAction) {
+        DBSchemaObject object = sourceCodeFile.getObject();
+        ConnectionAction.invoke("Merging changes", false, sourceCodeFile,
+                action -> Progress.prompt(getProject(), object, true,
+                        txt("prc.codeEditor.title.LoadingSourceCode"),
+                        txt("prc.codeEditor.text.LoadingSourceCodeOf", object.getQualifiedNameWithType()),
+                        progress -> {
+                            Project project = getProject();
+                            try {
+                                SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
+                                SourceCodeContent sourceCodeContent = sourceCodeManager.loadSourceFromDatabase(object, sourceCodeFile.getContentType());
+                                String databaseContent = sourceCodeContent.getRawContent();
+                                if (action.isCancelled()) return;
 
-                DiffManager diffManager = DiffManager.getInstance();
-                diffManager.showMerge(project, mergeRequest);
-            } catch (InvalidDiffRequestException e) {
-                conditionallyLog(e);
-            }
-        });
+                                openCodeMergeDialog(databaseContent, sourceCodeFile, fileEditor, mergeAction);
+                            } catch (Exception e1) {
+                                conditionallyLog(e1);
+                                Messages.showErrorDialog(
+                                        project, "Could not load sourcecode for " +
+                                                object.getQualifiedNameWithType() + " from database.", e1);
+                            }
+                        }));
+    }
+
+    private void openCodeMergeDialog(String databaseContent, DBSourceCodeVirtualFile sourceCodeFile, SourceCodeEditor fileEditor, MergeAction action) {
+        try {
+            Project project = getProject();
+            MergeRequest mergeRequest = createMergeRequest(databaseContent, sourceCodeFile, fileEditor, action, project);
+            Dispatch.run(nonModal(), () -> DiffManager.getInstance().showMerge(project, mergeRequest));
+        } catch (InvalidDiffRequestException e) {
+            conditionallyLog(e);
+        }
+    }
+
+    private static @NotNull MergeRequest createMergeRequest(String databaseContent, DBSourceCodeVirtualFile sourceCodeFile, SourceCodeEditor fileEditor, MergeAction action, Project project) throws InvalidDiffRequestException {
+        SourceCodeDiffContent leftContent = new SourceCodeDiffContent("Database version", databaseContent);
+        SourceCodeDiffContent targetContent = new SourceCodeDiffContent("Merge result", sourceCodeFile.getOriginalContent());
+        SourceCodeDiffContent rightContent = new SourceCodeDiffContent("Your version", sourceCodeFile.getContent());
+        MergeContent mergeContent = new MergeContent(leftContent, targetContent, rightContent );
+
+        DiffRequestFactory diffRequestFactory = DiffRequestFactory.getInstance();
+        return diffRequestFactory.createMergeRequest(
+                project,
+                sourceCodeFile,
+                mergeContent.getByteContents(),
+                "Version conflict resolution for " + sourceCodeFile.getObject().getQualifiedNameWithType(),
+                mergeContent.getTitles(),
+                mergeResult -> {
+                    if (action == MergeAction.SAVE) {
+                        switch (mergeResult) {
+                            case LEFT:
+                            case RIGHT:
+                            case RESOLVED:
+                                SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
+                                sourceCodeManager.storeSourceToDatabase(sourceCodeFile, fileEditor, null);
+                                ProjectEvents.notify(project,
+                                        SourceCodeDifManagerListener.TOPIC,
+                                        (listener) -> listener.contentMerged(sourceCodeFile, action));
+                                break;
+                            case CANCEL:
+                                sourceCodeFile.set(SAVING, false);
+                                break;
+                        }
+                    } else if (action == MergeAction.MERGE) {
+                        switch (mergeResult) {
+                            case LEFT:
+                            case RIGHT:
+                            case RESOLVED:
+                                sourceCodeFile.markAsMerged();
+                                ProjectEvents.notify(project,
+                                        SourceCodeDifManagerListener.TOPIC,
+                                        (listener) -> listener.contentMerged(sourceCodeFile, action));
+                                break;
+                            case CANCEL:
+                                break;
+                        }
+                    }
+                });
     }
 
 
@@ -140,7 +166,7 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
                 referenceTitle,
                 "Your version");
 
-        Dispatch.run(() -> DiffManager.getInstance().showDiff(project, diffRequest));
+        Dispatch.run(nonModal(), () -> DiffManager.getInstance().showDiff(project, diffRequest));
     }
 
 
@@ -156,10 +182,9 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
                                 SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
                                 SourceCodeContent sourceCodeContent = sourceCodeManager.loadSourceFromDatabase(object, sourceCodeFile.getContentType());
                                 CharSequence referenceText = sourceCodeContent.getText();
+                                if (action.isCancelled()) return;
 
-                                if (!action.isCancelled()) {
-                                    openDiffWindow(sourceCodeFile, referenceText.toString(), "Database version", "Local version vs. database version");
-                                }
+                                openDiffWindow(sourceCodeFile, referenceText.toString(), "Database version", "Local version vs. database version");
 
                             } catch (Exception e1) {
                                 conditionallyLog(e1);

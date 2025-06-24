@@ -18,6 +18,7 @@ package com.dbn.object.common.status;
 
 import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.editor.DBContentType;
+import com.dbn.object.common.status.DBObjectStatus.Propagation;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,21 +32,21 @@ public class DBObjectStatusHolder {
 
     private synchronized Entry ensure(DBContentType contentType) {
         Entry statusEntry = get(contentType);
-        if (statusEntry == null) {
-            if (statusEntries == null) {
-                statusEntries = new Entry[1];
+        if (statusEntry != null) return statusEntry;
+
+        if (statusEntries == null) {
+            statusEntries = new Entry[1];
+            statusEntry = new Entry(contentType);
+            statusEntries[0] = statusEntry;
+        } else {
+            statusEntry = get(contentType);
+            if (statusEntry == null) {
+                int currentSize = this.statusEntries.length;
+                Entry[] statusEntries = new Entry[currentSize + 1];
+                System.arraycopy(this.statusEntries, 0, statusEntries, 0, currentSize);
                 statusEntry = new Entry(contentType);
-                statusEntries[0] = statusEntry;
-            } else {
-                statusEntry = get(contentType);
-                if (statusEntry == null) {
-                    int currentSize = this.statusEntries.length;
-                    Entry[] statusEntries = new Entry[currentSize + 1];
-                    System.arraycopy(this.statusEntries, 0, statusEntries, 0, currentSize);
-                    statusEntry = new Entry(contentType);
-                    statusEntries[currentSize] = statusEntry;
-                    this.statusEntries = statusEntries;
-                }
+                statusEntries[currentSize] = statusEntry;
+                this.statusEntries = statusEntries;
             }
         }
         return statusEntry;
@@ -53,18 +54,19 @@ public class DBObjectStatusHolder {
 
     @Nullable
     private Entry get(DBContentType contentType) {
-        if (statusEntries != null) {
-            for (Entry statusEntry : statusEntries) {
-                if (statusEntry.getContentType() == contentType) {
-                    return statusEntry;
-                }
+        if (statusEntries == null) return null;
+
+        for (Entry statusEntry : statusEntries) {
+            if (statusEntry.getContentType() == contentType) {
+                return statusEntry;
             }
         }
         return null;
     }
 
 
-    public boolean set(DBContentType contentType, DBObjectStatus status, boolean value) { Entry statusEntry = ensure(contentType);
+    public boolean set(DBContentType contentType, DBObjectStatus status, boolean value) {
+        Entry statusEntry = ensure(contentType);
         return statusEntry.set(status, value);
     }
 
@@ -85,18 +87,25 @@ public class DBObjectStatusHolder {
 
     public boolean is(DBObjectStatus status) {
         DBContentType[] subContentTypes = mainContentType.getSubContentTypes();
-        if (subContentTypes.length > 0) {
+        Propagation propagation = status.getPropagation();
+
+        if (propagation != Propagation.NONE && subContentTypes.length > 0) {
             for (DBContentType contentType : subContentTypes) {
-                if (status.isPropagable()) {
-                    if (!is(contentType, status)) return false;
-                } else {
-                    if (is(contentType, status)) return true;
+                boolean statusMatch = is(contentType, status);
+                if (propagation == Propagation.ANY) {
+                    // if any of the subcontents matches the status -> true
+                    if (statusMatch) return true;
+
+                } else if (propagation == Propagation.ALL) {
+                    // if at least one of the subcontents does not match the status -> false
+                    if (!statusMatch) return false;
+
                 }
             }
-            return status.isPropagable();
-        } else {
-            return is(mainContentType, status);
+            return status.getDefaultValue();
         }
+
+        return is(mainContentType, status);
     }
 
     public boolean isNot(DBObjectStatus status) {

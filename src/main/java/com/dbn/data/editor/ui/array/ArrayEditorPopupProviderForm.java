@@ -84,7 +84,6 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
         list.setBackground(Colors.getEditorBackground());
 
         listScrollPane.setViewportView(list);
-        list.initTableGutter();
     }
 
     private void initEditorToolbar() {

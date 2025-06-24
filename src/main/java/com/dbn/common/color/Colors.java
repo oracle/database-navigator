@@ -53,13 +53,13 @@ import static com.intellij.ui.ColorUtil.withAlpha;
 
 @UtilityClass
 public final class Colors {
-    public static Color LIGHT_BLUE = new JBColor(new Color(235, 244, 254), new Color(0x2D3548));
-    public static Color HINT_COLOR = new JBColor(new Color(-12029286), new Color(-10058060));
+    public static final Color LIGHT_BLUE = new JBColor(new Color(235, 244, 254), new Color(0x2D3548));
+    public static final Color HINT_COLOR = new JBColor(new Color(-12029286), new Color(-10058060));
 
-    public static Color FAILURE_COLOR = new JBColor(new Color(0xFF0000), new Color(0xBC3F3C));
-    public static Color SUCCESS_COLOR = new JBColor(new Color(0x009600), new Color(0x629755));
+    public static final Color FAILURE_COLOR = new JBColor(new Color(0xFF0000), new Color(0xBC3F3C));
+    public static final Color SUCCESS_COLOR = new JBColor(new Color(0x009600), new Color(0x629755));
 
-    public static Color SEPARATOR_COLOR = JBColor.namedColor("Separator.separatorColor", new JBColor(0xcdcdcd, 0x515151));
+    public static final Color SEPARATOR_COLOR = JBColor.namedColor("Separator.separatorColor", new JBColor(0xcdcdcd, 0x515151));
 
     public static Color getPanelBackground() {
         return cached(0, () -> UIUtil.getPanelBackground());
