@@ -899,6 +899,8 @@
         <notificationGroup id="DBNavigator.NotificationGroup.Assistant" displayType="BALLOON" key="ntf.shared.title.DBNavigatorAssistant" toolWindowId="DB Assistant"/>
         <notificationGroup id="DBNavigator.NotificationGroup.Diagnostics" displayType="BALLOON" key="ntf.shared.title.DBNavigatorDiagnostics" toolWindowId="DB Diagnostics"/>
         <notificationGroup id="DBNavigator.NotificationGroup.Events" displayType="BALLOON" key="ntf.shared.title.DBNavigatorEvents" toolWindowId="DB Events"/>
+
+        <lang.directNavigationProvider implementation="com.dbn.navigation.DatabaseNavigationProvider"/>
         <postStartupActivity implementation="com.dbn.project.ProjectStartupActivity"/>
         <!--<postStartupActivity implementation="com.dbn.project.ProjectComponentsInitializer" order="last"/>-->
         <!--<applicationInitializedListener implementation="com.dbn.init.DatabaseNavigatorInitializer"/>-->
