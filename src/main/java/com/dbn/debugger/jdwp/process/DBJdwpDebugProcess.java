@@ -41,20 +41,14 @@ import com.dbn.debugger.common.process.DBDebugProcessStatus;
 import com.dbn.debugger.common.process.DBDebugProcessStatusHolder;
 import com.dbn.debugger.jdwp.DBJdwpBreakpointHandler;
 import com.dbn.debugger.jdwp.DBJdwpSourcePath;
+import com.dbn.debugger.jdwp.DBJdwpSourcePathCache;
 import com.dbn.debugger.jdwp.ManagedThreadCommand;
 import com.dbn.debugger.jdwp.frame.DBJdwpDebugExecutionStack;
 import com.dbn.debugger.jdwp.frame.DBJdwpDebugStackFrame;
 import com.dbn.debugger.jdwp.frame.DBJdwpDebugSuspendContext;
-import com.dbn.editor.DBContentType;
 import com.dbn.execution.ExecutionContext;
 import com.dbn.execution.ExecutionInput;
-import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBMethod;
-import com.dbn.object.DBProgram;
-import com.dbn.object.DBSchema;
-import com.dbn.object.DBSynonym;
-import com.dbn.object.common.DBObject;
-import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.debugger.DebuggerManager;
 import com.intellij.debugger.engine.DebugProcessImpl;
 import com.intellij.debugger.engine.DebugProcessListener;
@@ -67,11 +61,8 @@ import com.intellij.debugger.jdi.StackFrameProxyImpl;
 import com.intellij.debugger.ui.impl.watch.StackFrameDescriptorImpl;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.Key;
-import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileVisitor;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebugSessionListener;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
@@ -89,7 +80,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 
 import static com.dbn.common.thread.ThreadProperty.DEBUGGER_NAVIGATION;
 import static com.dbn.common.util.Classes.simpleClassName;
@@ -109,6 +99,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     private final DBDebugConsoleLogger console;
     private final String declaredBlockIdentifier;
     private final DBJdwpTcpConfig tcpConfig;
+    private final DBJdwpSourcePathCache sourcePathCache = new DBJdwpSourcePathCache();
 
 
     protected DBNConnection targetConnection;
@@ -168,6 +159,11 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     public T getExecutionInput() {
         DBRunConfig<T> runProfile = getRunProfile();
         return runProfile == null ? null : runProfile.getExecutionInput();
+    }
+
+    SchemaId getTargetSchemaId() {
+        T input = getExecutionInput();
+        return input == null ? null : input.getTargetSchemaId();
     }
 
     DBRunConfig<T> getRunProfile() {
@@ -418,76 +414,6 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         targetConnection = null;
     }
 
-    private DBProgram resolveDatabaseProgram(DBJdwpSourcePath sourcePath) {
-        String schemaName = sourcePath.getProgramOwner();
-        String programName = sourcePath.getProgramName();
-        DBSchema schema = getConnection().getObjectBundle().getSchema(schemaName);
-        if (schema != null) {
-            return schema.getProgram(programName);
-        }
-        return null;
-    }
-
-    private DBMethod resolveDBMethod(DBJdwpSourcePath sourcePath) {
-        String schemaName = sourcePath.getProgramOwner();
-        String programName = sourcePath.getProgramName();
-        DBSchema schema = getConnection().getObjectBundle().getSchema(schemaName);
-        if(schema != null) {
-            return schema.getMethod(programName, (short) 0);
-        }
-        return null;
-    }
-    private DBJavaClass resolveJavaClass(String sourceUrl) {
-        SchemaId schemaId = getExecutionInput().getTargetSchemaId();
-        String objectName = sourceUrl.split("\\.")[0];
-
-        DBSchema schema = getConnection().getObjectBundle().getSchema(schemaId.getName());
-        DBJavaClass javaClass = schema.getJavaClass(objectName);
-
-        if (javaClass == null) {
-            DBSynonym synonym = schema.getSynonym(objectName);
-            if (synonym != null) {
-                DBObject synonymObject = synonym.getUnderlyingObject();
-                if (synonymObject instanceof DBJavaClass) {
-                    javaClass = (DBJavaClass) synonymObject;
-                }
-            }
-        }
-
-        return javaClass;
-    }
-
-    private VirtualFile resolveLocalFile(String fileName) {
-        Project project = getExecutionInput().getProject();
-        VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentSourceRoots();
-        VirtualFile[] result = new VirtualFile[1];
-
-        for (VirtualFile root : contentRoots) {
-            findInSrcFolderRecursively(root, fileName, result);
-            if (result[0] != null) break;
-        }
-
-        return result[0];
-    }
-
-    private static void findInSrcFolderRecursively(VirtualFile root, String relativePath, VirtualFile[] result) {
-        VfsUtilCore.visitChildrenRecursively(root, new VirtualFileVisitor<>() {
-            @Override
-            public boolean visitFile(@NotNull VirtualFile file) {
-                if (result[0] != null) return false; // already found
-                if (file.isDirectory() && file.getName().equals("src")) {
-                    VirtualFile target = file.findFileByRelativePath(relativePath);
-                    if (target != null && !target.isDirectory()) {
-                        result[0] = target;
-                        return false;
-                    }
-                    return false;
-                }
-                return true;
-            }
-        });
-    }
-
     @Nullable
     public VirtualFile getVirtualFile(Location location) {
         if (location == null) return null;
@@ -495,41 +421,13 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         String sourceUrl = "<NULL>";
         try {
             sourceUrl = location.sourcePath();
-            if (!sourceUrl.startsWith("$Oracle")) {
-                DBJavaClass javaClass = resolveJavaClass(sourceUrl);
-
-                if (javaClass != null && javaClass.isSource()) {
-                    DBEditableObjectVirtualFile editableVirtualFile = javaClass.getEditableVirtualFile();
-                    DBContentType contentType = DBContentType.CODE;
-                    return editableVirtualFile.getContentFile(contentType);
-                }
-
-                VirtualFile localFile = resolveLocalFile(sourceUrl);
-                if (localFile != null) return localFile;
-
-                if (javaClass != null) {
-                    DBEditableObjectVirtualFile editableVirtualFile = javaClass.getEditableVirtualFile();
-                    DBContentType contentType = DBContentType.CODE;
-                    return editableVirtualFile.getContentFile(contentType);
-                }
-                return null;
-            }
 
             DBJdwpSourcePath sourcePath = DBJdwpSourcePath.from(sourceUrl);
-            String programType = sourcePath.getProgramType();
-            if (!Objects.equals(programType, "Block")) {
-                DBProgram program = resolveDatabaseProgram(sourcePath);
-                if (program != null) {
-                    DBEditableObjectVirtualFile editableVirtualFile = program.getEditableVirtualFile();
-                    DBContentType contentType = Objects.equals(programType, "PackageBody") ? DBContentType.CODE_BODY : DBContentType.CODE_SPEC;
-                    return editableVirtualFile.getContentFile(contentType);
-                } else {
-                    DBMethod method = resolveDBMethod(sourcePath);
-                    if (method != null) {
-                        return method.getEditableVirtualFile().getContentFile(DBContentType.CODE);
-                    }
-                }
-            }
+            ConnectionHandler connection = getConnection();
+            SchemaId schemaId = getTargetSchemaId();
+
+            return sourcePathCache.getSourceFile(sourcePath, connection, schemaId);
+
         } catch (Exception e) {
             conditionallyLog(e);
             String errorMessage = Commons.nvl(e.getMessage(), simpleClassName(e));

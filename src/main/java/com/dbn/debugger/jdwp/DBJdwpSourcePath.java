@@ -16,10 +16,15 @@
 
 package com.dbn.debugger.jdwp;
 
+import com.dbn.common.util.Strings;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 @Getter
+@EqualsAndHashCode
 public class DBJdwpSourcePath {
     private final String signature;
     private final String programType;
@@ -52,7 +57,30 @@ public class DBJdwpSourcePath {
         }
     }
 
+    public boolean isAnonymousBlock() {
+        return Objects.equals(programType, "Block");
+    }
+
+    public boolean isJavaProgram() {
+        return Objects.equals(programType, "JavaClass");
+    }
+
+    public boolean isDatabaseProgram() {
+        return !isAnonymousBlock() && !isJavaProgram();
+    }
+
+    public boolean isProgramBody() {
+        return Strings.isOneOf(programType, "PackageBody", "TypeBody");
+    }
+
     public static DBJdwpSourcePath from(@NotNull String sourceUrl) throws Exception {
         return new DBJdwpSourcePath(sourceUrl);
+    }
+
+    @Override
+    public String toString() {
+        return isJavaProgram() ? "[JAVA_CLASS] " + programName :
+                isDatabaseProgram() ? "[DB_PROGRAM] " + programOwner + "." + programName :
+                isAnonymousBlock() ? "[ANONYMOUS_BLOCK] " : "Unknown";
     }
 }
