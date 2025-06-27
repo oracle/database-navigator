@@ -223,6 +223,14 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="set-java-compiler-option">
+        <statement>
+            begin
+                dbms_java.set_compiler_option('{0}', 'debug', '{1}');
+            end;
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="compile-java-class">
         <statement>
             begin

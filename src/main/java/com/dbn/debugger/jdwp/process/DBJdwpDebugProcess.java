@@ -67,8 +67,11 @@ import com.intellij.debugger.jdi.StackFrameProxyImpl;
 import com.intellij.debugger.ui.impl.watch.StackFrameDescriptorImpl;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.Key;
+import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileVisitor;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebugSessionListener;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
@@ -247,7 +250,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
             public void sessionPaused() {
                 XSuspendContext suspendContext = session.getSuspendContext();
                 if (suspendContext == null || !shouldSuspend(suspendContext)) {
-                    Dispatch.run(nonModal(), () -> session.resume());
+                    Dispatch.run(nonModal(), () -> session.stepInto());
                     return;
                 }
 
@@ -409,11 +412,80 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     }
 
 
-
     protected void releaseTargetConnection() {
         console.system(txt("log.debugger.info.ReleasingTargetConnection"));
         Resources.close(targetConnection);
         targetConnection = null;
+    }
+
+    private DBProgram resolveDatabaseProgram(DBJdwpSourcePath sourcePath) {
+        String schemaName = sourcePath.getProgramOwner();
+        String programName = sourcePath.getProgramName();
+        DBSchema schema = getConnection().getObjectBundle().getSchema(schemaName);
+        if (schema != null) {
+            return schema.getProgram(programName);
+        }
+        return null;
+    }
+
+    private DBMethod resolveDBMethod(DBJdwpSourcePath sourcePath) {
+        String schemaName = sourcePath.getProgramOwner();
+        String programName = sourcePath.getProgramName();
+        DBSchema schema = getConnection().getObjectBundle().getSchema(schemaName);
+        if(schema != null) {
+            return schema.getMethod(programName, (short) 0);
+        }
+        return null;
+    }
+    private DBJavaClass resolveJavaClass(String sourceUrl) {
+        SchemaId schemaId = getExecutionInput().getTargetSchemaId();
+        String objectName = sourceUrl.split("\\.")[0];
+
+        DBSchema schema = getConnection().getObjectBundle().getSchema(schemaId.getName());
+        DBJavaClass javaClass = schema.getJavaClass(objectName);
+
+        if (javaClass == null) {
+            DBSynonym synonym = schema.getSynonym(objectName);
+            if (synonym != null) {
+                DBObject synonymObject = synonym.getUnderlyingObject();
+                if (synonymObject instanceof DBJavaClass) {
+                    javaClass = (DBJavaClass) synonymObject;
+                }
+            }
+        }
+
+        return javaClass;
+    }
+
+    private VirtualFile resolveLocalFile(String fileName) {
+        Project project = getExecutionInput().getProject();
+        VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentSourceRoots();
+        VirtualFile[] result = new VirtualFile[1];
+
+        for (VirtualFile root : contentRoots) {
+            findInSrcFolderRecursively(root, fileName, result);
+            if (result[0] != null) break;
+        }
+
+        return result[0];
+    }
+
+    private static void findInSrcFolderRecursively(VirtualFile root, String relativePath, VirtualFile[] result) {
+        VfsUtilCore.visitChildrenRecursively(root, new VirtualFileVisitor<>() {
+            @Override
+            public boolean visitFile(@NotNull VirtualFile file) {
+                if (result[0] != null) return false; // already found
+                if (file.isDirectory() && file.getName().equals("src")) {
+                    VirtualFile target = file.findFileByRelativePath(relativePath);
+                    if (target != null && !target.isDirectory()) {
+                        result[0] = target;
+                        return false;
+                    }
+                    return false;
+                }
+                return true;
+            }
+        });
     }
 
     @Nullable
@@ -423,59 +495,38 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         String sourceUrl = "<NULL>";
         try {
             sourceUrl = location.sourcePath();
-            if(! sourceUrl.startsWith("$Oracle")){
-                // TODO extract as resolveJavaClass
-                String objectName = sourceUrl.split("\\.")[0];
-                DBSchema schema;
-                SchemaId schemaId = getExecutionInput().getTargetSchemaId();
-                schema = getConnection().getObjectBundle().getSchema(schemaId.getName());
-                DBJavaClass javaClass = schema.getJavaClass(objectName);
-                // resolveing
-                if(javaClass == null) {
-                    DBSynonym synonym = schema.getSynonym(objectName);
-                    if(synonym != null){
-                        DBObject synonymObject = synonym.getUnderlyingObject();
-                        if(synonymObject instanceof DBJavaClass){
-                            javaClass = (DBJavaClass) synonymObject;
-                        }
-                    }
+            if (!sourceUrl.startsWith("$Oracle")) {
+                DBJavaClass javaClass = resolveJavaClass(sourceUrl);
+
+                if (javaClass != null && javaClass.isSource()) {
+                    DBEditableObjectVirtualFile editableVirtualFile = javaClass.getEditableVirtualFile();
+                    DBContentType contentType = DBContentType.CODE;
+                    return editableVirtualFile.getContentFile(contentType);
                 }
 
-                // TODO fallback
-                // 1. ojvm java source (DBJavaClass.isSource())
-                // 2. local java source
-                // 3. ojvm java class
+                VirtualFile localFile = resolveLocalFile(sourceUrl);
+                if (localFile != null) return localFile;
 
-                if(javaClass == null) {
-                    // TODO find local java class
-                    return null;
+                if (javaClass != null) {
+                    DBEditableObjectVirtualFile editableVirtualFile = javaClass.getEditableVirtualFile();
+                    DBContentType contentType = DBContentType.CODE;
+                    return editableVirtualFile.getContentFile(contentType);
                 }
-                // TODO if no sources available, find local java class an return the associated VF
-                //  if no local java available, return the oracle java class (a.i. below code)
-
-                DBEditableObjectVirtualFile editableVirtualFile = javaClass.getEditableVirtualFile();
-                DBContentType contentType = DBContentType.CODE;
-                return editableVirtualFile.getContentFile(contentType);
+                return null;
             }
 
-            // TODO extract as resolveDatabaseProgram
             DBJdwpSourcePath sourcePath = DBJdwpSourcePath.from(sourceUrl);
             String programType = sourcePath.getProgramType();
             if (!Objects.equals(programType, "Block")) {
-                String schemaName = sourcePath.getProgramOwner();
-                String programName = sourcePath.getProgramName();
-                DBSchema schema = getConnection().getObjectBundle().getSchema(schemaName);
-                if (schema != null) {
-                    DBProgram program = schema.getProgram(programName);
-                    if (program != null) {
-                        DBEditableObjectVirtualFile editableVirtualFile = program.getEditableVirtualFile();
-                        DBContentType contentType = Objects.equals(programType, "PackageBody") ? DBContentType.CODE_BODY : DBContentType.CODE_SPEC;
-                        return editableVirtualFile.getContentFile(contentType);
-                    } else {
-                        DBMethod method = schema.getMethod(programName, (short) 0);
-                        if (method != null) {
-                            return method.getEditableVirtualFile().getContentFile(DBContentType.CODE);
-                        }
+                DBProgram program = resolveDatabaseProgram(sourcePath);
+                if (program != null) {
+                    DBEditableObjectVirtualFile editableVirtualFile = program.getEditableVirtualFile();
+                    DBContentType contentType = Objects.equals(programType, "PackageBody") ? DBContentType.CODE_BODY : DBContentType.CODE_SPEC;
+                    return editableVirtualFile.getContentFile(contentType);
+                } else {
+                    DBMethod method = resolveDBMethod(sourcePath);
+                    if (method != null) {
+                        return method.getEditableVirtualFile().getContentFile(DBContentType.CODE);
                     }
                 }
             }
