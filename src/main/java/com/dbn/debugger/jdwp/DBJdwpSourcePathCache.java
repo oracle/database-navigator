@@ -29,11 +29,10 @@ import com.dbn.object.common.DBObjectBundle;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileVisitor;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.util.ClassUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -99,9 +98,10 @@ public class DBJdwpSourcePathCache {
         return schema.getMethod(programName, (short) 0);
     }
 
-    private static @Nullable VirtualFile resolveJavaFile(DBJdwpSourcePath sourcePath, ConnectionHandler connection, SchemaId schemaId) {
-        String className = sourcePath.getProgramName();
-        DBJavaClass javaClass = resolveJavaClass(className, connection, schemaId);
+    @Nullable
+    private static VirtualFile resolveJavaFile(DBJdwpSourcePath sourcePath, ConnectionHandler connection, SchemaId schemaId) {
+        String programName = sourcePath.getProgramName();
+        DBJavaClass javaClass = resolveJavaClass(programName, connection, schemaId);
 
         if (javaClass != null && javaClass.isSource()) {
             DBEditableObjectVirtualFile editableVirtualFile = javaClass.getEditableVirtualFile();
@@ -109,7 +109,7 @@ public class DBJdwpSourcePathCache {
             return editableVirtualFile.getContentFile(contentType);
         }
 
-        VirtualFile localFile = resolveLocalFile(className, connection.getProject());
+        VirtualFile localFile = resolveLocalFile(programName, connection.getProject());
         if (localFile != null) return localFile;
 
         if (javaClass != null) {
@@ -120,9 +120,9 @@ public class DBJdwpSourcePathCache {
         return null;
     }
 
-
-    private static DBJavaClass resolveJavaClass(String sourceUrl, ConnectionHandler connection, SchemaId schemaId) {
-        String objectName = sourceUrl.split("\\.")[0];
+    @Nullable
+    private static DBJavaClass resolveJavaClass(String programName, ConnectionHandler connection, SchemaId schemaId) {
+        String objectName = programName.split("\\.")[0];
 
         DBObjectBundle objectBundle = connection.getObjectBundle();
         DBSchema schema = objectBundle.getSchema(schemaId.getName());
@@ -134,41 +134,20 @@ public class DBJdwpSourcePathCache {
         DBSynonym synonym = schema.getSynonym(objectName);
         DBObject object = DBSynonym.unwrap(synonym);
         if (object instanceof DBJavaClass) {
-            return  (DBJavaClass) object;
+            return (DBJavaClass) object;
         }
 
         return javaClass;
     }
 
-    private static VirtualFile resolveLocalFile(String fileName, Project project) {
-        ProjectRootManager rootManager = ProjectRootManager.getInstance(project);
+    @Nullable
+    private static VirtualFile resolveLocalFile(String programName, Project project) {
+        String className = programName.replace("/", ".");
 
-        VirtualFile[] contentRoots = rootManager.getContentSourceRoots();
-        VirtualFile[] result = new VirtualFile[1];
+        PsiManager psiManager = PsiManager.getInstance(project);
+        PsiClass psiClass = ClassUtil.findPsiClass(psiManager, className);
+        if (psiClass == null) return null;
 
-        for (VirtualFile root : contentRoots) {
-            findInSrcFolderRecursively(root, fileName, result);
-            if (result[0] != null) break;
-        }
-
-        return result[0];
-    }
-
-    private static void findInSrcFolderRecursively(VirtualFile root, String relativePath, VirtualFile[] result) {
-        VfsUtilCore.visitChildrenRecursively(root, new VirtualFileVisitor<>() {
-            @Override
-            public boolean visitFile(@NotNull VirtualFile file) {
-                if (result[0] != null) return false; // already found
-                if (file.isDirectory() && file.getName().equals("src")) {
-                    VirtualFile target = file.findFileByRelativePath(relativePath);
-                    if (target != null && !target.isDirectory()) {
-                        result[0] = target;
-                        return false;
-                    }
-                    return false;
-                }
-                return true;
-            }
-        });
+        return psiClass.getContainingFile().getVirtualFile();
     }
 }
