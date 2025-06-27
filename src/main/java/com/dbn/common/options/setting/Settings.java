@@ -16,6 +16,8 @@
 
 package com.dbn.common.options.setting;
 
+import com.dbn.common.constant.Constant;
+import com.dbn.common.constant.PseudoConstant;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionId;
@@ -123,6 +125,11 @@ public final class Settings {
     public static String stringAttribute(Element element, @NonNls String name) {
         String attributeValue = element == null ? null : element.getAttributeValue(name);
         return Strings.isEmptyOrSpaces(attributeValue) ? attributeValue : attributeValue.intern();
+    }
+
+    public static <T extends PseudoConstant<T>> T constantAttribute(Element element, @NonNls String name, Class<T> constantType) {
+        String attributeValue = element == null ? null : element.getAttributeValue(name);
+        return PseudoConstant.get(constantType, attributeValue);
     }
 
     public static char[] charsAttribute(Element element, @NonNls String name) {
@@ -297,6 +304,10 @@ public final class Settings {
         element.setAttribute(attributeName, value == null ? "" : value);
     }
 
+    public static void setConstantAttribute(Element element, @NonNls String attributeName, Constant value) {
+        element.setAttribute(attributeName, value == null ? "" : value.id());
+    }
+
     public static void setCharsAttribute(Element element, @NonNls String attributeName, char[] value) {
         element.setAttribute(attributeName, value == null ? "" : new String(value));
     }
@@ -329,6 +340,19 @@ public final class Settings {
     @NotNull
     public static List<Element> childrenOf(@Nullable Element element) {
         return element == null ? Collections.emptyList(): element.getChildren();
+    }
+
+    /**
+     * Retrieves the child elements of the given {@code Element} that match the specified name.
+     *
+     * @param element the parent {@code Element} from which to retrieve child elements; may be {@code null}
+     * @param name the name of the child elements to retrieve
+     * @return a list of child {@code Element} objects matching the specified name if the given element is not null,
+     *         or an empty list if the given element is null
+     */
+    @NotNull
+    public static List<Element> childrenOf(@Nullable Element element, String name) {
+        return element == null ? Collections.emptyList(): element.getChildren(name);
     }
 
     /**

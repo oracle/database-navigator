@@ -16,7 +16,7 @@
 
 package com.dbn.sync.java.upload.ui;
 
-import com.dbn.common.state.StateHolder;
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
@@ -108,7 +108,7 @@ public class JavaUploadInputForm extends DBNFormBase {
         Project project = ensureProject();
         JavaUploadManager uploadManager = JavaUploadManager.getInstance(project);
 
-        StateHolder state = uploadManager.getState("UPLOAD");
+        StateAttributes state = uploadManager.getState("UPLOAD_INPUT");
 
         initPersistence(connectionComboBox, state, "connection-selection");
         initPersistence(schemaComboBox, state, "schema-selection");
