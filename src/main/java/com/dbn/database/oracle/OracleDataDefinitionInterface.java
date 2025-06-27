@@ -21,7 +21,6 @@ import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
 import com.dbn.common.util.Strings;
-import com.dbn.common.util.Unsafe;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseDataDefinitionInterfaceImpl;
@@ -149,10 +148,10 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
 
     public void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
         try {
-            Unsafe.warned(() -> executeUpdate(connection, "set-java-compiler-option", objectName, "true"));
+            executeSilentUpdate(connection, "set-java-compiler-option", objectName, "true");
             executeUpdate(connection, "compile-java-class", ownerName, objectName);
         } finally {
-            Unsafe.warned(() -> executeUpdate(connection, "set-java-compiler-option", objectName, ""));
+            executeSilentUpdate(connection, "set-java-compiler-option", objectName, "");
         }
     }
 

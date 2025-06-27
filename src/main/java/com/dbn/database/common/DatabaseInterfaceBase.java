@@ -16,6 +16,7 @@
 
 package com.dbn.database.common;
 
+import com.dbn.common.util.Unsafe;
 import com.dbn.common.util.XmlContents;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -98,6 +99,12 @@ public abstract class DatabaseInterfaceBase implements DatabaseInterface{
         executionProcessor.executeUpdate(connection, arguments);
         checkDisposed(connection);
     }
+
+    @NonNls
+    protected void executeSilentUpdate(@NotNull DBNConnection connection, @NonNls String loaderId, @Nullable Object... arguments) {
+        Unsafe.warned(() -> executeUpdate(connection, loaderId, arguments));
+    }
+
 
     @NotNull
     private StatementExecutionProcessor getExecutionProcessor(@NonNls String loaderId) throws SQLException {
