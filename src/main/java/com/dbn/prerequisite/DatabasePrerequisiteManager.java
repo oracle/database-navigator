@@ -41,9 +41,14 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
 
 	private DatabasePrerequisiteManager(Project project) {
 		super(project, COMPONENT_NAME);
-	}
+        initDefinitionProviders();
+    }
 
-	public static DatabasePrerequisiteManager getInstance(@NotNull Project project) {
+    private void initDefinitionProviders() {
+        //List<PrerequisiteDefinitionProvider> extensionList = PrerequisiteDefinitionProvider.EP.getExtensionList();
+    }
+
+    public static DatabasePrerequisiteManager getInstance(@NotNull Project project) {
 		return projectService(project, DatabasePrerequisiteManager.class);
 	}
 
@@ -51,6 +56,11 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
 	public StateAttributes getState(StateCategory category) {
 		return states.ensureAttributes(category);
 	}
+
+
+    public void evaluatePrerequisite() {
+
+    }
 
 
 	/****************************************

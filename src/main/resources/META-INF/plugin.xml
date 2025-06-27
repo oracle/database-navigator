@@ -221,6 +221,12 @@
 
         <fileIconPatcher implementation="com.dbn.vfs.DBFileIconPatcher"/>
     </extensions>
+    <extensionPoints>
+        <extensionPoint name="prerequisiteDefinitionProvider" qualifiedName="com.dbn.prerequisiteDefinitionProvider" interface="com.dbn.prerequisite.definition.PrerequisiteDefinitionProvider" dynamic="true"/>
+    </extensionPoints>
+    <extensions defaultExtensionNs="com.dbn">
+        <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.DebugPrerequisiteDefinitions"/>
+    </extensions>
 
     <actions>
         <action class="com.dbn.execution.script.action.ExecuteScriptFileAction" id="DBNavigator.Actions.Editor.ExecuteScript" text="Execute SQL Script" icon="com.dbn.common.icon.Icons.EXECUTE_SQL_SCRIPT">
