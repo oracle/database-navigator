@@ -93,7 +93,7 @@ public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
             throw new ExecutionException("Failed to resolve host", e);
         }
 
-        for (int portNumber = minPortNumber; portNumber < maxPortNumber; portNumber++) {
+        for (int portNumber = minPortNumber; portNumber <= maxPortNumber; portNumber++) {
             try (ServerSocket ignored = new ServerSocket(portNumber, 50, inetAddress)) {
                 return portNumber;
             } catch (Exception e) {
