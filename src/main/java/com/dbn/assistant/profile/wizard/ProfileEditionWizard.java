@@ -180,7 +180,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
     DBAIProfile profile = new DBAIProfileImpl(userSchema,
             editedProfile.getName(),
             editedProfile.getDescription(),
-            userSchema.getCredential(editedProfile.getCredentialName()),
+            editedProfile.getCredentialName(),
             editedProfile.getRegion(),
             editedProfile.getOciCompartmentId(),
             editedProfile.getOciEndpointId(),
@@ -189,8 +189,8 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
             editedProfile.getProvider(),
             editedProfile.getModel(),
             DBObjectUtil.objectListToJson(editedProfile.getObjectList()),
-            editedProfile.isConversation(),
             editedProfile.getTemperature(),
+            editedProfile.isConversation(),
             editedProfile.isEnabled());
 
     ObjectManagementService managementService = ObjectManagementService.getInstance(project);

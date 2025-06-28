@@ -66,7 +66,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
     private String ociApiFormat;
     private AIProvider provider;
     private AIModel model;
-    private boolean isInteractive;
+    private boolean interactive;
     private double temperature;
     private List<DBObjectRef<?>> objects;
 
@@ -74,7 +74,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
             DBSchema parent,
             String name,
             String description,
-            DBCredential credential,
+            String credentialName,
             String region,
             String ociCompartmentId,
             String ociEndpointId,
@@ -83,12 +83,12 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
             AIProvider provider,
             AIModel model,
             String objectList,
-            boolean isInteractive,
             double temperature,
+            boolean interactive,
             boolean enabled) throws SQLException {
         super(parent, new DBProfileMetadata.Record(
                 name,
-                credential.getName(),
+                credentialName,
                 region,
                 ociCompartmentId,
                 ociEndpointId,
@@ -98,9 +98,9 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
                 model.getApiName(),
                 description,
                 objectList,
-                isInteractive,
                 temperature,
-                enabled));
+                enabled,
+                interactive));
     }
 
     DBAIProfileImpl(DBSchema parent, DBProfileMetadata metadata) throws SQLException {
@@ -119,26 +119,28 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
         description = metadata.getDescription();
         provider = AIProvider.forId(metadata.getProvider());
         model = AIModel.forApiName(metadata.getModel());
-        isInteractive = metadata.isInteractive();
+        interactive = metadata.isInteractive();
         temperature = metadata.getTemperature();
         objects = jsonToObjectList(connection.getConnectionId(), metadata.getObjectList());
 
         return name;
     }
 
-    public @NonNls String getAttributesJson() {
+    @NonNls
+    public String getAttributesJson() {
+        @NonNls
         Map<String, Object> attributes = new HashMap<>(Map.of(
-            "provider", getProvider().getId(),
-            "model", getModel().getApiName(),
-            "temperature", getTemperature(),
+            "provider", provider.getId(),
+            "model", model.getApiName(),
+            "temperature", temperature,
             "credential_name", nvl(getQuotedCredentialName(), ""),
-            "conversation", isInteractive() ? "true" : "false",
+            "conversation", interactive ? "true" : "false",
             "object_list", convert(objects, o -> objectToAttributes(o))));
-        if(getRegion() != null) attributes.put("region", getRegion());
-        if(getOciCompartmentId() != null) attributes.put("oci_compartment_id", getOciCompartmentId());
-        if(getOciEndpointId() != null) attributes.put("oci_endpoint_id", getOciEndpointId());
-        if(getOciRuntimeType() != null) attributes.put("oci_runtimetype", getOciRuntimeType());
-        if(getOciApiFormat() != null) attributes.put("oci_apiformat", getOciApiFormat());
+        if(region != null) attributes.put("region", region);
+        if(ociCompartmentId != null) attributes.put("oci_compartment_id", ociCompartmentId);
+        if(ociEndpointId != null) attributes.put("oci_endpoint_id", ociEndpointId);
+        if(ociRuntimeType != null) attributes.put("oci_runtimetype", ociRuntimeType);
+        if(ociApiFormat != null) attributes.put("oci_apiformat", ociApiFormat);
         return GSON.toJson(attributes);
     }
 
@@ -221,7 +223,9 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
         DBObjectType objectType = getObjectType();
         Icon icon = disabled  ?
                 objectType.getDisabledIcon() :
-                isInteractive ? Icons.DBO_AI_PROFILE_CONVERSATION : objectType.getIcon();
+                interactive ?
+                        Icons.DBO_AI_PROFILE_CONVERSATION :
+                        Icons.DBO_AI_PROFILE;
         return nvln(icon, objectType.getIcon());
     }
 }
