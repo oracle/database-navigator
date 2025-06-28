@@ -29,7 +29,7 @@ import java.util.TimerTask;
 public class LoadInProgressIcon implements Icon{
     public static final Icon INSTANCE = new LoadInProgressIcon();
 
-    public static int ROLL_INTERVAL = 80;
+    public static final int ROLL_INTERVAL = 80;
 
     private static final Icon[] ICONS;
     static {

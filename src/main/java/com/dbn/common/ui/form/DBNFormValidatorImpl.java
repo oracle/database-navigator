@@ -18,6 +18,7 @@ package com.dbn.common.ui.form;
 
 import com.dbn.common.ref.WeakRefWrapper;
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.common.ui.list.CheckBoxList;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.DocumentAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -98,6 +99,11 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         addValidation(comboBox, c -> c.getSelectedItem() != null, message);
     }
 
+    @Override
+    public void addSelectionValidation(CheckBoxList checkBoxList, String message) {
+        addValidation(checkBoxList, l -> l.hasSelection(), message);
+    }
+
     private <C extends JComponent> void initEventValidation(C component) {
         if (component instanceof JTextComponent) {
             JTextComponent textField = (JTextComponent) component;
@@ -108,6 +114,9 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         } else if (component instanceof JComboBox) {
             JComboBox comboBox = (JComboBox) component;
             addValidationListeners(comboBox);
+        } else if (component instanceof CheckBoxList) {
+            CheckBoxList checkBoxList = (CheckBoxList) component;
+            addValidationListeners(checkBoxList);
         }
         // ...
     }
@@ -139,12 +148,19 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         HAS_VALIDATION_LISTENERS.set(comboBox, true);
 
         // add action listener to perform validation on selection change
-        comboBox.addActionListener(e -> {
-            validateInput(comboBox);
-        });
+        comboBox.addActionListener(e -> validateInput(comboBox));
 
         // add focus listener to perform validation when focus is gained or lost
         addFocusValidationListeners(comboBox);
+    }
+
+    private void addValidationListeners(CheckBoxList checkBoxList) {
+        if (HAS_VALIDATION_LISTENERS.is(checkBoxList)) return;
+        HAS_VALIDATION_LISTENERS.set(checkBoxList, true);
+
+        checkBoxList.addActionListener(e -> validateInput(checkBoxList));
+
+        addFocusValidationListeners(checkBoxList);
     }
 
     private void addFocusValidationListeners(JComponent component) {

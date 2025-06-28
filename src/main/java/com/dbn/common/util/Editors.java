@@ -51,7 +51,6 @@ import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBJsonDataVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.ide.highlighter.HighlighterFactory;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -99,6 +98,7 @@ import java.util.stream.Collectors;
 import static com.dbn.browser.DatabaseBrowserUtils.markSkipBrowserAutoscroll;
 import static com.dbn.browser.DatabaseBrowserUtils.unmarkSkipBrowserAutoscroll;
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.intellij.openapi.editor.EditorModificationUtil.setReadOnlyHint;
 
 @Slf4j
 @UtilityClass
@@ -281,6 +281,10 @@ public class Editors {
             EditorHighlighter highlighter = HighlighterFactory.createHighlighter(syntaxHighlighter, colorsScheme);
             editorEx.setHighlighter(highlighter);
         }
+    }
+
+    public static void setEditorReadonlyHint(Editor editor, String readonlyHint) {
+        setReadOnlyHint(editor, readonlyHint);
     }
 
     public static void setEditorReadonly(Editor editor, boolean readonly) {
@@ -556,7 +560,7 @@ public class Editors {
         DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
         attachmentManager.warmUpAttachedDDLFiles(file);
 
-        Dispatch.run(ModalityState.NON_MODAL, () -> {
+        Dispatch.run(Modality.nonModal(), () -> {
             try {
                 if (!file.exists()) return;
 
@@ -601,7 +605,7 @@ public class Editors {
         if (editorProviderId == null) return;
 
         FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
-        Dispatch.run(ModalityState.NON_MODAL, () -> fileEditorManager.setSelectedEditor(file, editorProviderId.getId()));
+        Dispatch.run(Modality.nonModal(), () -> fileEditorManager.setSelectedEditor(file, editorProviderId.getId()));
     }
 
     @Workaround

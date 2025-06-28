@@ -126,7 +126,7 @@ public class DBJavaResourceImpl extends DBSchemaObjectImpl<DBJavaResourceMetadat
 					dataDefinitionInterface.updateJavaResource(
 							getSchemaName(true),
 							getName(true),
-							newCode,
+							newCode.getBytes(),
 							conn);
 				});
 	}

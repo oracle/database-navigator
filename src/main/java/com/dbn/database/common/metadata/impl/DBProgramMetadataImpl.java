@@ -28,19 +28,27 @@ public abstract class DBProgramMetadataImpl extends DBObjectMetadataBase impleme
         super(resultSet);
     }
 
-    public String getSpecValid() throws SQLException {
-        return getString("IS_SPEC_VALID");
+    public boolean isSpecPresent() throws SQLException {
+        return isYesFlag("IS_SPEC_PRESENT");
     }
 
-    public String getBodyValid() throws SQLException {
-        return getString("IS_BODY_VALID");
+    public boolean isSpecValid() throws SQLException {
+        return isYesFlag("IS_SPEC_VALID");
     }
 
-    public String getSpecDebug() throws SQLException {
-        return getString("IS_SPEC_DEBUG");
+    public boolean isSpecDebug() throws SQLException {
+        return isYesFlag("IS_SPEC_DEBUG");
     }
 
-    public String getBodyDebug() throws SQLException {
-        return getString("IS_BODY_DEBUG");
+    public boolean isBodyPresent() throws SQLException {
+        return isYesFlag("IS_BODY_PRESENT");
+    }
+
+    public boolean isBodyValid() throws SQLException {
+        return isYesFlag("IS_BODY_VALID");
+    }
+
+    public boolean isBodyDebug() throws SQLException {
+        return isYesFlag("IS_BODY_DEBUG");
     }
 }

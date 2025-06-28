@@ -88,11 +88,11 @@ public class JsonDataEditorNotificationProvider extends EditorNotificationProvid
 
     @Nullable
     @Override
-    public JsonDataEditorNotificationPanel createComponent(@NotNull VirtualFile virtualFile, @NotNull FileEditor fileEditor, @NotNull Project project) {
-        if (!(virtualFile instanceof DBEditableObjectVirtualFile)) return null;
+    public JsonDataEditorNotificationPanel createComponent(@NotNull VirtualFile file, @NotNull FileEditor fileEditor, @NotNull Project project) {
+        if (!(file instanceof DBEditableObjectVirtualFile)) return null;
         if (!(fileEditor instanceof JsonDataEditor)) return null;
 
-        DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) virtualFile;
+        DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) file;
         JsonDataEditor jsonDataEditor = (JsonDataEditor) fileEditor;
 
         DBJsonView jsonView = (DBJsonView) editableObjectFile.getObject();
@@ -100,11 +100,11 @@ public class JsonDataEditorNotificationProvider extends EditorNotificationProvid
 
         String dataLoadError = jsonDataEditor.getDataLoadError();
         if (Strings.isNotEmpty(dataLoadError)) {
-            return new JsonDataEditorLoadErrorNotificationPanel(jsonView, dataLoadError);
+            return new JsonDataEditorLoadErrorNotificationPanel(jsonView, fileEditor, dataLoadError);
         }
 
         if (editableObjectFile.getEnvironmentType().isReadonlyData()) {
-            return new JsonDataEditorReadonlyNotificationPanel(jsonView);
+            return new JsonDataEditorReadonlyNotificationPanel(jsonView, fileEditor);
         }
 
         return null;

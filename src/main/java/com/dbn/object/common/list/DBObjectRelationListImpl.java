@@ -177,12 +177,16 @@ class DBObjectRelationListImpl<T extends DBObjectRelation> extends DynamicConten
                 DBObjectRef relationHolder = DBObjectRef.of(objectRelation.getRelationHolder());
 
                 if (!Objects.equals(groupObject, relationHolder)) {
-                    ranges.put(groupObject, new Range(rangeStart, i - 1));
+                    if (groupObject != null) {
+                        // complete previous group
+                        ranges.put(groupObject, new Range(rangeStart, i - 1));
+                    }
                     groupObject = relationHolder;
                     rangeStart = i;
                 }
 
                 if (i == elements.size() - 1) {
+                    // complete last group
                     ranges.put(groupObject, new Range(rangeStart, i));
                 }
             }

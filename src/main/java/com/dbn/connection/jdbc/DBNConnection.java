@@ -450,6 +450,11 @@ public class DBNConnection extends DBNConnectionBase {
         }
     }
 
+    public void invalidate() {
+        set(VALID, false);
+        Background.run(() -> Resources.close(this));
+    }
+
     @NotNull
     @Override
     public DBNConnection getConnection() {

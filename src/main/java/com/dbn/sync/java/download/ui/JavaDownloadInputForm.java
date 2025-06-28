@@ -77,6 +77,13 @@ public class JavaDownloadInputForm extends DBNFormBase {
         dependenciesCheckBoxList.setElements(input.getTasks());
     }
 
+    @Override
+    protected void initValidation() {
+        addSelectionValidation(moduleComboBox, "Please select the target module");
+        addSelectionValidation(contentRootComboBox, "Please select the target content root");
+        addSelectionValidation(dependenciesCheckBoxList, "Please select at least one resource to download");
+    }
+
     private void initHeaderPanel(JavaDownloadInput input) {
         DBObject sourceObject = input.getSourceObject();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, sourceObject);

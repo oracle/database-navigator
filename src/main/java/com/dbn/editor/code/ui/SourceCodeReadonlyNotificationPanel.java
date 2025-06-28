@@ -25,13 +25,16 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettingsManager;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
+import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SourceCodeReadonlyNotificationPanel extends SourceCodeEditorNotificationPanel{
-    public SourceCodeReadonlyNotificationPanel(DBSchemaObject object, SourceCodeEditor sourceCodeEditor) {
-        super(object, isReadonly(sourceCodeEditor) ? MessageType.INFO : MessageType.WARNING);
+    public SourceCodeReadonlyNotificationPanel(DBSchemaObject object, @NotNull FileEditor fileEditor, SourceCodeEditor sourceCodeEditor) {
+        super(object, fileEditor, getMessageType(sourceCodeEditor));
         DBSourceCodeVirtualFile sourceCodeFile = sourceCodeEditor.getVirtualFile();
         String environmentName = sourceCodeFile.getEnvironmentType().getName();
 
@@ -40,7 +43,7 @@ public class SourceCodeReadonlyNotificationPanel extends SourceCodeEditorNotific
 
         if (isReadonly(sourceCodeEditor)) {
             setText("READONLY CODE - This is meant to prevent accidental code changes in \"" + environmentName + "\" environments (check environment settings)");
-            createActionLabel("Edit Mode", () ->
+            createActionLabel("Edit mode", () ->
                     Messages.showQuestionDialog(project,
                             "Enable edit-mode",
                             "Are you sure you want to enable editing for " + object.getQualifiedNameWithType(),
@@ -51,16 +54,20 @@ public class SourceCodeReadonlyNotificationPanel extends SourceCodeEditorNotific
                             })));
         } else {
             setText("EDITABLE CODE! - Edit-mode enabled (the environment \"" + environmentName + "\" is configured as \"Readonly Code\")");
-            createActionLabel("Cancel Editing", () -> {
+            createActionLabel(txt("app.dataEditor.link.CancelEditing"), () -> {
                 EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
                 environmentManager.disableEditing(object, contentType);
             });
         }
 
-        createActionLabel("Settings", () -> {
+        createActionLabel(txt("app.dataEditor.link.Settings"), () -> {
             ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);
             settingsManager.openProjectSettings(ConfigId.GENERAL);
         });
+    }
+
+    private static MessageType getMessageType(SourceCodeEditor sourceCodeEditor) {
+        return isReadonly(sourceCodeEditor) ? MessageType.NEUTRAL : MessageType.WARNING;
     }
 
     private static boolean isReadonly(SourceCodeEditor sourceCodeEditor) {

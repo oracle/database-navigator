@@ -193,6 +193,9 @@ public class Icons {
     public static final Icon NAVIGATION_GO_TO_SPEC       = load("/img/GoToSpec.png");
     public static final Icon NAVIGATION_GO_TO_BODY       = load("/img/GoToBody.png");
 
+    public static final Icon ASSISTANT_PROMPT_INTERACTIVE = load("/img/action/AssistantPromptInteractive.svg");
+    public static final Icon ASSISTANT_PROMPT_NON_INTERACTIVE = load("/img/action/AssistantPromptNonInteractive.svg");
+
     public static final Icon BROWSER_BACK = AllIcons.Actions.Back;
     public static final Icon BROWSER_NEXT = AllIcons.Actions.Forward;
     public static final Icon BROWSER_OBJECT_PROPERTIES = load("/img/tools/ObjectProperties.svg");
@@ -356,6 +359,7 @@ public class Icons {
 
 
     public static final Icon DBO_AI_PROFILE                      = load("/img/object/profile/AIProfile.png");
+    public static final Icon DBO_AI_PROFILE_CONVERSATION         = load("/img/object/profile/AIProfileConversation.png");
     public static final Icon DBO_AI_PROFILE_DISABLED             = load("/img/object/profile/AIProfileDisabled.png");
     public static final Icon DBO_AI_PROFILES                     = load("/img/object/profile/AIProfiles.png");
     public static final Icon DBO_ATTRIBUTE                       = load("/img/object/Attribute.png");

@@ -33,6 +33,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.lang.Character.isWhitespace;
 
 @NonNls
@@ -107,6 +108,18 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
         return StringUtil.isEmptyOrSpaces(string);
     }
 
+    public static boolean isAlphanumericWithUnderscore(@Nullable String string) {
+        if (isEmptyOrSpaces(string)) return false;
+
+        for (int i = 0; i < string.length(); i++) {
+            char chr = string.charAt(i);
+            if (!Character.isLetterOrDigit(chr) && chr != '_') {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static boolean isOneOf(String string, String ... values) {
         for (String value : values) {
             if (Objects.equals(value, string)) return true;
@@ -150,7 +163,9 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
                 Integer.parseInt(string);
                 return true;
             }
-        } catch (NumberFormatException ignore) {}
+        } catch (NumberFormatException e) {
+            conditionallyLog(e);
+        }
 
         return false;
 
@@ -171,7 +186,9 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
                 Double.parseDouble(string);
                 return true;
             }
-        } catch (NumberFormatException ignore) {}
+        } catch (NumberFormatException e) {
+            conditionallyLog(e);
+        }
         return false;
     }
 

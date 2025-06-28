@@ -25,6 +25,7 @@ import com.dbn.ddl.options.DDLFileGeneralSettings;
 import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.ddl.options.listener.DDLFileSettingsChangeListener;
 import com.dbn.ddl.ui.DDLMappedNotificationPanel;
+import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.ddl.DDLFileEditor;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
@@ -121,6 +122,7 @@ public class DDLMappedNotificationProvider extends EditorNotificationProvider<DD
     @Override
     public DDLMappedNotificationPanel createComponent(@NotNull VirtualFile file, @NotNull FileEditor fileEditor, @NotNull Project project) {
         if (isNotValid(fileEditor)) return null;
+        if (fileEditor instanceof SourceCodeEditor) return null;
 
         DDLFileSettings fileSettings = DDLFileSettings.getInstance(project);
         DDLFileGeneralSettings generalSettings = fileSettings.getGeneralSettings();
@@ -133,7 +135,7 @@ public class DDLMappedNotificationProvider extends EditorNotificationProvider<DD
             DBSchemaObject object = editableObjectFile.getObject();
             DDLFileEditor ddlFileEditor = (DDLFileEditor) fileEditor;
             VirtualFile ddlFile = Failsafe.nn(ddlFileEditor.getVirtualFile());
-            return new DDLMappedNotificationPanel(project, ddlFile, object);
+            return new DDLMappedNotificationPanel(project, ddlFile, fileEditor, object);
 
         } else {
             if (!isDbLanguageFile(file)) return null;
@@ -143,7 +145,7 @@ public class DDLMappedNotificationProvider extends EditorNotificationProvider<DD
             if (isNotValid(object)) return null;
             if (!isFileOpened(object)) return null;
 
-            return new DDLMappedNotificationPanel(project, file, object);
+            return new DDLMappedNotificationPanel(project, file, fileEditor, object);
         }
     }
 }

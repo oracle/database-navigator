@@ -35,6 +35,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.containers.ContainerUtil;
+import lombok.Getter;
 import lombok.experimental.Delegate;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -63,7 +64,9 @@ public abstract class DBNFormBase
         extends DBNComponentBase
         implements DBNForm, NotificationSupport {
 
+    @Getter
     private boolean initialized;
+
     private final Set<JComponent> enabled = ContainerUtil.createWeakSet();
     private final Latent<DBNFormFieldAdapter> fieldAdapter = Latent.basic(() -> DBNFormFieldAdapter.create(this));
     private final Latent<Boolean> hasScrollBars = Latent.basic(() -> hasChildComponent(getMainComponent(), c -> c instanceof JScrollPane));

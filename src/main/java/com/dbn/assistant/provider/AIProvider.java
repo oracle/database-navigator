@@ -60,8 +60,8 @@ public final class AIProvider implements Presentable {
       return Lists.first(values(),  p -> p.getId().equals(id));
   }
 
-  public AIModel getModel(String id) {
-    return Lists.first(models, p -> p.getId().equals(id));
+  public AIModel getModel(String name) {
+    return Lists.first(models, p -> p.getName().equals(name));
   }
 
   public AIModel getDefaultModel() {

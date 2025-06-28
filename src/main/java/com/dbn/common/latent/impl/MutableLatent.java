@@ -23,11 +23,11 @@ import com.dbn.common.util.Safe;
 
 import java.util.Objects;
 
-public class MutableLatent<T, S> extends BasicLatent<T> implements Latent<T> {
+final class MutableLatent<T, S> extends LatentBase<T> implements Latent<T> {
     private S signature;
     private final Loader<S> signatureLoader;
 
-    public MutableLatent(Loader<S> signatureLoader, Loader<T> valueLoader) {
+    MutableLatent(Loader<S> signatureLoader, Loader<T> valueLoader) {
         super(valueLoader);
         this.signatureLoader = signatureLoader;
     }

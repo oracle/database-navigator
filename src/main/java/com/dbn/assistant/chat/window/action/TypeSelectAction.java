@@ -16,19 +16,22 @@
 
 package com.dbn.assistant.chat.window.action;
 
+import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.ToggleAction;
+import com.dbn.common.compatibility.Compatibility;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
 
 /**
  * Action for selecting the type of interaction with the AI-assistant engine
  *
  * @author Dan Cioca (Oracle)
  */
-public class TypeSelectAction extends ToggleAction {
+public class TypeSelectAction extends ToggleAction implements AssistantActionSupport {
     private final PromptAction type;
 
     TypeSelectAction(PromptAction type) {
@@ -38,6 +41,7 @@ public class TypeSelectAction extends ToggleAction {
     }
 
     @Override
+    @Compatibility
     public boolean displayTextInToolbar() {
         return true;
     }
@@ -68,25 +72,23 @@ public class TypeSelectAction extends ToggleAction {
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
-        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
+        ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return false;
 
         PromptAction action = chatBox.getAssistantState().getSelectedAction();
         return action == type;
     }
 
-    private static boolean isEnabled(@NotNull AnActionEvent e) {
-        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
-        if (chatBox == null) return false;
-
-        return chatBox.isPromptingAvailable();
+    private boolean isEnabled(@NotNull AnActionEvent e) {
+        ChatAvailability availability = getChatAvailability(e);
+        return availability == AVAILABLE;
     }
 
     @Override
     public void setSelected(@NotNull AnActionEvent e, boolean state) {
         if (!state) return;
 
-        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
+        ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
         chatBox.selectAction(type);

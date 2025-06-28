@@ -19,6 +19,7 @@ package com.dbn.object.impl;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.browser.ui.HtmlToolTipBuilder;
+import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBProfileMetadata;
 import com.dbn.object.DBAIProfile;
@@ -37,13 +38,16 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Icon;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.object.common.DBObjectUtil.jsonToObjectList;
 import static com.dbn.object.common.DBObjectUtil.objectToAttributes;
@@ -55,8 +59,14 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
     private static final Gson GSON = new GsonBuilder().create();
     private String description;
     private DBObjectRef<DBCredential> credential;
+    private String region;
+    private String ociCompartmentId;
+    private String ociEndpointId;
+    private String ociRuntimeType;
+    private String ociApiFormat;
     private AIProvider provider;
     private AIModel model;
+    private boolean interactive;
     private double temperature;
     private List<DBObjectRef<?>> objects;
 
@@ -64,21 +74,33 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
             DBSchema parent,
             String name,
             String description,
-            DBCredential credential,
+            String credentialName,
+            String region,
+            String ociCompartmentId,
+            String ociEndpointId,
+            String ociRuntimeType,
+            String ociApiFormat,
             AIProvider provider,
             AIModel model,
             String objectList,
             double temperature,
+            boolean interactive,
             boolean enabled) throws SQLException {
         super(parent, new DBProfileMetadata.Record(
                 name,
-                credential.getName(),
+                credentialName,
+                region,
+                ociCompartmentId,
+                ociEndpointId,
+                ociRuntimeType,
+                ociApiFormat,
                 provider.getId(),
                 model.getApiName(),
                 description,
                 objectList,
                 temperature,
-                enabled));
+                enabled,
+                interactive));
     }
 
     DBAIProfileImpl(DBSchema parent, DBProfileMetadata metadata) throws SQLException {
@@ -89,22 +111,37 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
     protected String initObject(ConnectionHandler connection, DBObject parentObject, DBProfileMetadata metadata) throws SQLException {
         String name = metadata.getProfileName();
         credential = new DBObjectRef<>(parentObject.ref(), DBObjectType.CREDENTIAL, metadata.getCredentialName());
+        region = metadata.getRegion();
+        ociCompartmentId = metadata.getOciCompartmentId();
+        ociEndpointId = metadata.getOciEndpointId();
+        ociRuntimeType = metadata.getOciRuntimeType();
+        ociApiFormat = metadata.getOciApiFormat();
         description = metadata.getDescription();
         provider = AIProvider.forId(metadata.getProvider());
         model = AIModel.forApiName(metadata.getModel());
+        interactive = metadata.isInteractive();
         temperature = metadata.getTemperature();
         objects = jsonToObjectList(connection.getConnectionId(), metadata.getObjectList());
 
         return name;
     }
 
-    public @NonNls String getAttributesJson() {
-        return GSON.toJson(Map.of(
-                "provider", getProvider().getId(),
-                "model", getModel().getApiName(),
-                "temperature", getTemperature(),
-                "credential_name", nvl(getCredentialName(), ""),
-                "object_list", convert(objects, o -> objectToAttributes(o))));
+    @NonNls
+    public String getAttributesJson() {
+        @NonNls
+        Map<String, Object> attributes = new HashMap<>(Map.of(
+            "provider", provider.getId(),
+            "model", model.getApiName(),
+            "temperature", temperature,
+            "credential_name", nvl(getQuotedCredentialName(), ""),
+            "conversation", interactive ? "true" : "false",
+            "object_list", convert(objects, o -> objectToAttributes(o))));
+        if(region != null) attributes.put("region", region);
+        if(ociCompartmentId != null) attributes.put("oci_compartment_id", ociCompartmentId);
+        if(ociEndpointId != null) attributes.put("oci_endpoint_id", ociEndpointId);
+        if(ociRuntimeType != null) attributes.put("oci_runtimetype", ociRuntimeType);
+        if(ociApiFormat != null) attributes.put("oci_apiformat", ociApiFormat);
+        return GSON.toJson(attributes);
     }
 
     public String getCredentialName() {
@@ -136,6 +173,10 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
         return DBObjectRef.get(credential);
     }
 
+    @Override
+    public String getModelName() {
+        return model == null ? null : model.getName();
+    }
 
     @Override
     public void buildToolTip(HtmlToolTipBuilder ttb) {
@@ -157,6 +198,11 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
         return navigationLists;
     }
 
+    private String getQuotedCredentialName() {
+        DBCredential credential = getCredential();
+        return credential == null ? null : credential.getName(true);
+    }
+
     /*********************************************************
      *                     TreeElement                       *
      *********************************************************/
@@ -169,5 +215,17 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
     @Override
     public List<DBObject> getObjects() {
         return objects.stream().map(o -> o.get()).filter(o -> o != null).collect(Collectors.toList());
+    }
+
+    @Override
+    public @Nullable Icon getIcon() {
+        boolean disabled = isDisabled();
+        DBObjectType objectType = getObjectType();
+        Icon icon = disabled  ?
+                objectType.getDisabledIcon() :
+                interactive ?
+                        Icons.DBO_AI_PROFILE_CONVERSATION :
+                        Icons.DBO_AI_PROFILE;
+        return nvln(icon, objectType.getIcon());
     }
 }

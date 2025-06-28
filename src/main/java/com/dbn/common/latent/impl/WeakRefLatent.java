@@ -20,16 +20,16 @@ import com.dbn.common.latent.Latent;
 import com.dbn.common.latent.Loader;
 import com.dbn.common.ref.WeakRef;
 
-public class WeakRefLatent<T> implements Latent<T> {
+final class WeakRefLatent<T> implements Latent<T> {
     private final Loader<T> loader;
     private WeakRef<T> value;
     private volatile boolean loaded;
 
-    public WeakRefLatent(Loader<T> loader) {
+    WeakRefLatent(Loader<T> loader) {
         this.loader = loader;
     }
 
-    public final T get() {
+    public T get() {
         if (!loaded) {
             synchronized (this) {
                 if (!loaded) {
@@ -42,12 +42,12 @@ public class WeakRefLatent<T> implements Latent<T> {
         return WeakRef.get(value);
     }
 
-    public final void set(T value) {
+    public void set(T value) {
         this.value = WeakRef.of(value);
         loaded = true;
     }
 
-    public final boolean loaded() {
+    public boolean loaded() {
         return loaded;
     }
 

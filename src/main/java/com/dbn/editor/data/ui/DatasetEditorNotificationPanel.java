@@ -19,9 +19,11 @@ package com.dbn.editor.data.ui;
 import com.dbn.common.editor.EditorNotificationPanel;
 import com.dbn.common.message.MessageType;
 import com.dbn.object.common.DBSchemaObject;
+import com.intellij.openapi.fileEditor.FileEditor;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class DatasetEditorNotificationPanel extends EditorNotificationPanel {
-    public DatasetEditorNotificationPanel(DBSchemaObject object, MessageType messageType) {
-        super(object.getProject(), object.getVirtualFile(), messageType);
+    public DatasetEditorNotificationPanel(DBSchemaObject object, @NotNull FileEditor fileEditor, MessageType messageType) {
+        super(object.getProject(), object.getVirtualFile(), fileEditor, messageType);
     }
 }

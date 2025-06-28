@@ -23,8 +23,6 @@ import com.dbn.object.common.list.DBObjectRelationImpl;
 import com.dbn.object.type.DBObjectRelationType;
 import lombok.Getter;
 
-import static com.dbn.common.util.Commons.nvl;
-
 @Getter
 class DBConstraintColumnRelation extends DBObjectRelationImpl<DBConstraint, DBColumn> {
     private final short position;
@@ -36,7 +34,9 @@ class DBConstraintColumnRelation extends DBObjectRelationImpl<DBConstraint, DBCo
 
     @Override
     public DBObject getRelationHolder() {
-        return nvl(getColumn().getParentObject(), getColumn());
+        DBColumn column = getColumn();
+        DBObject parentObject = column.getParentObject();
+        return parentObject == null ? column : parentObject;
     }
 
     public DBConstraint getConstraint() {

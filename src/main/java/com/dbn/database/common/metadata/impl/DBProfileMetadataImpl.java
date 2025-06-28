@@ -37,6 +37,26 @@ public class DBProfileMetadataImpl extends DBObjectMetadataBase implements DBPro
         return getString("CREDENTIAL_NAME");
     }
 
+    public String getRegion() throws SQLException {
+        return getString("REGION");
+    }
+
+    public String getOciCompartmentId() throws SQLException {
+        return getString("OCI_COMPARTMENT_ID");
+    }
+
+    public String getOciEndpointId() throws SQLException {
+        return getString("OCI_ENDPOINT_ID");
+    }
+
+    public String getOciRuntimeType() throws SQLException {
+        return getString("OCI_RUNTIME_TYPE");
+    }
+
+    public String getOciApiFormat() throws SQLException {
+        return getString("OCI_API_FORMAT");
+    }
+
     @Override
     public String getProvider() throws SQLException {
         return getString("PROVIDER");
@@ -55,6 +75,11 @@ public class DBProfileMetadataImpl extends DBObjectMetadataBase implements DBPro
     @Override
     public String getDescription() throws SQLException {
         return getString("DESCRIPTION");
+    }
+
+    @Override
+    public boolean isInteractive() throws SQLException {
+       return isYesFlag("IS_CONVERSATION");
     }
 
     @Override

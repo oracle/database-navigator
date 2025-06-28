@@ -54,13 +54,21 @@
         <ul>
             <li><b>3.6.0</b>
             <ul>
-                <li>Oracle "Select-AI" conversation mode
-                <li>Oracle Connectivity - EasyConnect support
-                <li>Oracle OJVM support (project synchronization)
-                <li>Oracle JSON Duality Views support
-                <li>Vector data readonly support
+                <li>JDBC driver download feature
+                <li>Oracle "Select-AI" support<ul>
+                    <li>Conversational profiles
+                    <li>Persistent chat history
+                </ul>
+                <li>Oracle OJVM support<ul>
+                    <li>Java resources support
+                    <li>Workspace synchronization
+                    <li>Execution wrapper factories
+                </ul>
+                <li>Oracle connectivity - EasyConnect support
+                <li>Oracle JSON duality views support
+                <li>Vector data-type support
                 <li>Oracle "OCI Toolkit" plugin integration
-                <li>Bug fixes
+                <li>Bug fixes and performance improvements
             </ul>
             <li><b>3.5.3</b>
             <ul>
@@ -280,19 +288,26 @@
             <action class="com.dbn.assistant.chat.window.action.ProfilesRefreshAction" text="Reload Profiles" id="DBNavigator.Actions.Assistant.RefreshProfiles" icon="AllIcons.Actions.Refresh"/>
             <action class="com.dbn.assistant.chat.window.action.ConfigurationHelpAction" text="Help" id="DBNavigator.Actions.Assistant.ConfigurationHelp" icon="AllIcons.Actions.Help"/>
             <group id="DBNavigator.Actions.Assistant.OpenSettings" text="Options" icon="AllIcons.General.GearPlain" popup="true">
-                <action class="com.dbn.assistant.chat.window.action.AssistantSettingsAction" text="Settings..." id="DBNavigator.Actions.Assistant.AssistantSettings"/>
                 <action class="com.dbn.assistant.chat.window.action.ProfilesSetupAction" text="Profile Setup..." id="DBNavigator.Actions.Assistant.ProfileSetup"/>
+                <action class="com.dbn.assistant.chat.window.action.AssistantSettingsAction" text="Settings..." id="DBNavigator.Actions.Assistant.AssistantSettings"/>
             </group>
-
-            <separator/>
-            <action class="com.dbn.assistant.chat.window.action.ConversationClearAction" text="Clear Conversation" id="DBNavigator.Actions.Assistant.ClearConversation" icon="AllIcons.Actions.GC"/>
         </group>
+        <group id="DBNavigator.ActionGroup.AssistantChatActions" text="Assistant Chat Actions">
+            <action class="com.dbn.assistant.chat.window.action.ChatStartNewAction" text="New Chat" id="DBNavigator.Actions.Assistant.NewChat" icon="AllIcons.General.Add"/>
+            <action class="com.dbn.assistant.chat.window.action.ChatDeleteAction" text="Clear Chat" id="DBNavigator.Actions.Assistant.DeleteChat" icon="AllIcons.Actions.GC"/>
+            <group class="com.dbn.assistant.chat.window.action.ChatHistoryDropdownAction" text="Chat History" id="DBNavigator.Actions.Assistant.ChatHistory" icon="AllIcons.Vcs.History"/>
+        </group>
+
+        <group id="DBNavigator.ActionGroup.AssistantChatHistory" text="Chat History">
+            <action class="com.dbn.assistant.chat.action.ChatHistoryDeleteAction" text="Delete Conversations" id="DBNavigator.Actions.Assistant.DeleteChats"/>
+        </group>
+
 <!--
         <group id="DBNavigator.ActionGroup.AssistantChatBoxHelp" text="Assistant Chat-Box Help">
             <action class="com.dbn.assistant.chat.window.action.ConfigurationHelpAction" text="Profile Settings" id="DBNavigator.Actions.Assistant.ConfigurationHelp" icon="AllIcons.Actions.Help"/>
         </group>
 -->
-        <group id="DBNavigator.ActionGroup.AssistantChatBoxTypes" text="Assistant Chat-Box Types">
+        <group id="DBNavigator.ActionGroup.AssistantChatTypes" text="Assistant Chat Types">
             <action class="com.dbn.assistant.chat.window.action.TypeSelectAction$ShowSQL" text="Show SQL" id="DBNavigator.Actions.Assistant.TypeShow"/>
             <action class="com.dbn.assistant.chat.window.action.TypeSelectAction$ExplainSQL" id="DBNavigator.Actions.Assistant.TypeExplain"/>
             <action class="com.dbn.assistant.chat.window.action.TypeSelectAction$Narrate" id="DBNavigator.Actions.Assistant.TypeNarrate"/>
@@ -746,10 +761,12 @@
         <editorNotificationProvider implementation="com.dbn.connection.mapping.FileConnectionContextNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.assistant.editor.notification.AssistantEditorNotificationProvider"/>
 
-        <additionalTextAttributes scheme="Default" file="textAttributes/DBNDefaultColors.xml" id="DBN-Default"/>
-        <additionalTextAttributes scheme="Darcula" file="textAttributes/DBNDarculaColors.xml" id="DBN-Darcula"/>
         <additionalTextAttributes scheme="Dark" file="textAttributes/DBNDarkColors.xml" id="DBN-Dark"/>
         <additionalTextAttributes scheme="Light" file="textAttributes/DBNLightColors.xml" id="DBN-Light"/>
+        <additionalTextAttributes scheme="Default" file="textAttributes/DBNDefaultColors.xml" id="DBN-Default"/>
+        <additionalTextAttributes scheme="Darcula" file="textAttributes/DBNDarculaColors.xml" id="DBN-Darcula"/>
+        <additionalTextAttributes scheme="IntelliJ Light" file="textAttributes/DBNLightColors.xml" id="DBN-IntelliJ-Light"/>
+        <additionalTextAttributes scheme="High contrast" file="textAttributes/DBNHighContrastColors.xml" id="DBN-HighContrast"/>
         <additionalTextAttributes scheme="AllHallowsEve" file="textAttributes/DBNAllHallowsEveColors.xml" id="DBN-AllHallowsEve"/>
         <additionalTextAttributes scheme="Blackboard" file="textAttributes/DBNBlackboardColors.xml" id="DBN-Blackboard"/>
         <additionalTextAttributes scheme="Cobalt" file="textAttributes/DBNCobaltColors.xml" id="DBN-Cobalt"/>

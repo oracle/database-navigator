@@ -35,7 +35,11 @@ public class ThreadInfo extends PropertyHolderBase.IntStore<ThreadProperty> impl
         ThreadInfo current = current();
         ThreadInfo copy = new ThreadInfo();
         copy.inherit(current);
-        collectThreadProperties(copy);
+
+        // TODO this never worked properly due to wrong "takeWhile" condition
+        //  (disabled for now as identified as performance issue during profiling)
+        //  consider implementing with JDBC-4452
+        //collectThreadProperties(copy);
         return copy;
     }
 
@@ -82,7 +86,7 @@ public class ThreadInfo extends PropertyHolderBase.IntStore<ThreadProperty> impl
     private static void collectThreadProperties(Consumer<ThreadProperty> consumer) {
         StackWalker stackWalker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
         stackWalker.walk(frames -> {
-            frames.takeWhile(frame -> !frame.getClassName().startsWith("com.dci"))
+            frames.takeWhile(frame -> frame.getClassName().startsWith("com.dbn"))
                     .map(f -> collectThreadProperty(f))
                     .filter(p -> p != null)
                     .forEach(consumer);

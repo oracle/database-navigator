@@ -17,8 +17,8 @@
 package com.dbn.execution.statement.result.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.util.Dialogs;
-import com.dbn.data.export.ui.ExportDataDialog;
+import com.dbn.data.export.DataExportManager;
+import com.dbn.data.export.DataExportSource;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -33,11 +33,14 @@ import static com.dbn.nls.NlsResources.txt;
 public class ExecutionResultExportAction extends AbstractExecutionResultAction {
 
     @Override
-    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull StatementExecutionCursorResult executionResult) {
-        ResultSetTable resultTable = executionResult.getResultTable();
-        if (isNotValid(resultTable)) return;
+    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull StatementExecutionCursorResult sourceResult) {
+        ResultSetTable sourceTable = sourceResult.getResultTable();
+        if (isNotValid(sourceTable)) return;
 
-        Dialogs.show(() -> new ExportDataDialog(resultTable, executionResult));
+        DataExportSource exportSource = DataExportSource.create(sourceTable, sourceResult);
+        DataExportManager exportManager = DataExportManager.getInstance(project);
+        exportManager.openExportDialog(exportSource, null);
+
     }
 
     @Override

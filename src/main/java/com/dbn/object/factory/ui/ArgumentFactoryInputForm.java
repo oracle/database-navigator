@@ -22,7 +22,7 @@ import com.dbn.data.type.ui.DataTypeEditor;
 import com.dbn.object.factory.ArgumentFactoryInput;
 import com.dbn.object.factory.ObjectFactoryInput;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
-import com.dbn.object.factory.ui.common.ObjectListForm.ObjectDetail;
+import com.dbn.object.factory.ui.common.ObjectListForm;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +50,7 @@ public class ArgumentFactoryInputForm extends ObjectFactoryInputForm<ArgumentFac
     private JPanel dataTypeEditor;
     private final boolean enforceInArgument;
 
-    ArgumentFactoryInputForm(ArgumentFactoryInputListForm parent, ConnectionHandler connection, boolean enforceInArgument, int index, @Nullable ObjectDetail detail) {
+    ArgumentFactoryInputForm(ArgumentFactoryInputListForm parent, ConnectionHandler connection, boolean enforceInArgument, int index, @Nullable ObjectListForm.ObjectDetail detail) {
         super(parent, connection, DBObjectType.ARGUMENT, index);
         this.enforceInArgument = enforceInArgument;
         iconLabel.setText(null);
@@ -123,6 +123,16 @@ public class ArgumentFactoryInputForm extends ObjectFactoryInputForm<ArgumentFac
                 getDataTypeEditor().getDataTypeRepresentation(),
                 enforceInArgument || inCheckBox.isSelected(),
                 outCheckBox.isSelected());
+    }
+
+    @Override
+    public void restoreUserInput(@Nullable ArgumentFactoryInput input) {
+        if (input == null) return;
+
+        nameTextField.setText(input.getObjectName());
+        inCheckBox.setSelected(input.isInput());
+        outCheckBox.setSelected(input.isOutput());
+        getDataTypeEditor().setText(input.getDataType());
     }
 
     private DataTypeEditor getDataTypeEditor() {

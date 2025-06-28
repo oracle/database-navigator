@@ -19,19 +19,21 @@ package com.dbn.sync.java.upload;
 import com.dbn.batch.impl.BatchBase;
 import com.dbn.object.DBJavaEntity;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBObjectType;
+import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-import static com.dbn.common.util.Lists.convert;
+import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 @Setter
 public class JavaUploadBatch extends BatchBase<JavaUploadTask, JavaUploadInput> {
-	private final List<String> classesToCompile = new ArrayList<>();
-
 	public JavaUploadBatch(JavaUploadInput input) {
 		super(input);
 	}
@@ -42,8 +44,8 @@ public class JavaUploadBatch extends BatchBase<JavaUploadTask, JavaUploadInput> 
 	}
 
 	@Override
-	protected JavaUploaderProcessor createProcessor() {
-		return JavaUploaderProcessor.INSTANCE;
+	protected JavaUploadProcessor createProcessor() {
+		return JavaUploadProcessor.INSTANCE;
 	}
 
 	@Override
@@ -51,13 +53,28 @@ public class JavaUploadBatch extends BatchBase<JavaUploadTask, JavaUploadInput> 
 		return getInput().getTargetConnection();
 	}
 
-	public List<DBObjectRef<DBJavaEntity>> getUploadedEntities() {
-		return convert(getCompletedTasks(), t -> t.getTargetEntity());
+	public <T extends DBJavaEntity> List<DBObjectRef<T>> getUploadedEntities(@Nullable DBObjectType objectType) {
+		return cast(getCompletedTasks().
+				stream().
+				map(e -> e.getDatabaseEntity()).
+				filter(e -> e != null).
+				filter(e -> objectType == null || e.getObjectType() == objectType).
+				collect(Collectors.toList()));
 	}
 
 	@Override
 	public void showResults() {
 		JavaUploadManager uploadManager = JavaUploadManager.getInstance(getProject());
 		uploadManager.openBatchResult(this);
+	}
+
+	public void createTask(VirtualFile file) {
+		JavaUploadTask task = new JavaUploadTask(this, file);
+		if (task.isJavaLibrary()) {
+			// do not select a library-task by default unless the upload was invocated directly on the library file
+			task.setSelected(Objects.equals(file, getInput().getRootFile()));
+		}
+
+		queueTask(task);
 	}
 }
