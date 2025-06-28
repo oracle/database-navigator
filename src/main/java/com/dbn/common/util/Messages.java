@@ -28,6 +28,7 @@ import com.dbn.common.message.ui.MessageBundleDialog;
 import com.dbn.common.message.ui.MessageBundleDialogConfig;
 import com.dbn.common.option.DoNotAskOption;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.dialog.ExceptionTreeDialog;
 import com.dbn.common.ui.messages.DBNMessageDialog;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.application.ModalityState;
@@ -214,6 +215,14 @@ public class Messages {
             messageDialog.show();
             return messageDialog.getExitCode();
         }
+    }
+    public static void showErrorDialogWithException(@Nullable Project project, String title, @DialogMessage String message, Throwable exception) {
+        closeProgressDialogs();
+        Dispatch.execute(getCurrentModalityState(), () -> {
+            if (project != null) nd(project);
+            ExceptionTreeDialog dialog = new ExceptionTreeDialog(project, title, message, exception, null);
+            dialog.show();
+        });
     }
 
     public static @Button String[] options(String ... options) {

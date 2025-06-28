@@ -92,6 +92,7 @@ import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Messages.showInfoDialog;
 import static com.dbn.common.util.Messages.showWarningDialog;
+import static com.dbn.common.util.Messages.showErrorDialogWithException;
 import static com.dbn.connection.transaction.TransactionAction.actions;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -293,7 +294,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                 conditionallyLog(e);
                 databaseSettings.setConnectivityStatus(ConnectivityStatus.INVALID);
                 if (showMessageDialog) {
-                    showErrorConnectionMessage(project, connectionName, e);
+                    showExceptionConnectionMessage(project, connectionName, e);
                 }
             }
         });
@@ -402,6 +403,14 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                 e == null ?
                     txt("msg.connection.error.ConnectionErrorUnknown", connectionName) :
                     txt("msg.connection.error.ConnectionError", connectionName, e.getLocalizedMessage()));
+    }
+
+    public void showExceptionConnectionMessage(Project project, String connectionName, @Nullable Throwable e) {
+        showErrorDialogWithException(
+                project,
+                "Connection Error",
+                e.getLocalizedMessage(),
+                e);
     }
 
     void showSuccessfulConnectionMessage(Project project, String connectionName) {

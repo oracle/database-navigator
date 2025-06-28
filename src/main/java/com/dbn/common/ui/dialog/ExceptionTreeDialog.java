@@ -7,14 +7,16 @@ import com.dbn.common.ui.tree.DBNTreeNode;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBScrollPane;
+import com.dbn.common.exception.Exceptions;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import java.awt.*;
+
 
 public class ExceptionTreeDialog extends DialogWrapper {
 
@@ -64,13 +66,14 @@ public class ExceptionTreeDialog extends DialogWrapper {
 
         @Override
         public boolean getAllowsChildren() {
-            return getUserObject().getCause()!=null && getUserObject().getCause() != getUserObject();
+            return getUserObject().getCause() != null && getUserObject().getCause() != getUserObject();
         }
 
         public Throwable getUserObject() {
             return (Throwable) super.getUserObject();
         }
     }
+
     private static class ExceptionTreeModel extends DefaultTreeModel {
 
         public ExceptionTreeModel(TreeNode root) {
@@ -80,6 +83,17 @@ public class ExceptionTreeDialog extends DialogWrapper {
         @Override
         public Object getChild(Object parent, int index) {
             return super.getChild(parent, index);
+        }
+
+        protected @NotNull ExceptionChainTreeForm createForm() {
+            return new ExceptionChainTreeForm(this, contextObject, message, new Exceptions.ExceptionCauseChain(exception));
+        }
+
+        @Override
+        protected final Action[] createActions() {
+            return new Action[]{
+                    getOKAction()
+            };
         }
     }
 }
