@@ -49,4 +49,6 @@ public interface DBJavaClassMetadata extends DBObjectMetadata {
     boolean isValid() throws SQLException;
 
     boolean isDebug() throws SQLException;
+
+    boolean isSource() throws SQLException;
 }

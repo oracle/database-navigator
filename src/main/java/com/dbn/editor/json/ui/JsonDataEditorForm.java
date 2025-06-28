@@ -90,7 +90,6 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
             editorPanel.setVisible(false);
             jsonDataEditorTable = new JsonDataEditorTable(this, jsonDataEditor);
             jsonDataTableScrollPane.setViewportView(jsonDataEditorTable);
-            jsonDataEditorTable.initTableGutter();
 
             ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.JsonDataEditor");
             setAccessibleName(actionToolbar, txt("app.dataEditor.aria.JsonDataEditorActions"));
@@ -146,7 +145,6 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
         dispatch(() -> {
             JsonDataEditorTable jsonDataEditorTable = getEditorTable();
             jsonDataTableScrollPane.setViewportView(jsonDataEditorTable);
-            jsonDataEditorTable.initTableGutter();
             jsonDataEditorTable.updateBackground(false);
 
             Disposer.dispose(oldEditorTable);

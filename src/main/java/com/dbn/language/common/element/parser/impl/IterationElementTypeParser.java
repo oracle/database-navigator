@@ -147,7 +147,7 @@ public class IterationElementTypeParser extends ElementTypeParser<IterationEleme
             ParseBuilderErrorHandler.updateBuilderError(expectedTokens, context);
         }
         boolean advanced = false;
-        BasicElementType unknownElementType = getElementBundle().getUnknownElementType();
+        BasicElementType unknownElementType = elementType.bundle.unknownElementType;
         while (!builder.eof()) {
             TokenType token = builder.getToken();
             if (token == null || token.isChameleon())  break;

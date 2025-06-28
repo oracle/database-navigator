@@ -125,7 +125,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
 
     @Deprecated // ambiguous
     private boolean ignoreFirstMatch() {
-        ElementTypeRef firstChild = elementType.getChild(0);
+        ElementTypeRef firstChild = elementType.children[0];
         ElementType elementType = firstChild.elementType;
         if (elementType instanceof IdentifierElementType) {
             IdentifierElementType identifierElementType = (IdentifierElementType) elementType;

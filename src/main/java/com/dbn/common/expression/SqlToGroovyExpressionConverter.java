@@ -32,6 +32,7 @@ public class SqlToGroovyExpressionConverter {
     }
 
     public static String sqlToGroovy(String expression) {
+        expression = expression.replaceAll("\\s", " ");
         expression = expression.replaceAll("(?i)\\bOR\\b", "||");
         expression = expression.replaceAll("(?i)\\bAND\\b", "&&");
         expression = expression.replaceAll("(?i)\\bIS\\s+NULL\\b", "== null");

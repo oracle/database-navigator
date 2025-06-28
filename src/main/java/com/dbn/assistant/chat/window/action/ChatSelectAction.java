@@ -20,7 +20,6 @@ import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.ChatContextEvent;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.common.util.Actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -49,6 +48,6 @@ public class ChatSelectAction extends AbstractChatBoxAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(Actions.adjustActionName(chat.getTitle()));
+        presentation.setText(chat.getTitle(), false);
     }
 }

@@ -21,6 +21,7 @@ import com.dbn.common.filter.Filter;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.options.CompositeProjectConfiguration;
 import com.dbn.common.options.Configuration;
+import com.dbn.common.util.Cloneable;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ui.ConnectionFilterSettingsForm;
 import com.dbn.object.DBColumn;
@@ -49,7 +50,7 @@ import static com.dbn.object.type.DBObjectType.SCHEMA;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-public class ConnectionFilterSettings extends CompositeProjectConfiguration<ConnectionSettings, ConnectionFilterSettingsForm> {
+public class ConnectionFilterSettings extends CompositeProjectConfiguration<ConnectionSettings, ConnectionFilterSettingsForm> implements Cloneable<ConnectionFilterSettings> {
     
     private final @Getter(lazy = true) ObjectFilterSettings objectFilterSettings = new ObjectFilterSettings(this, getConnectionId());
     private final @Getter(lazy = true) ObjectTypeFilterSettings objectTypeFilterSettings = new ObjectTypeFilterSettings(this, getConnectionId());

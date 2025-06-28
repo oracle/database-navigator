@@ -91,7 +91,6 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
             datasetTablePanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
             datasetEditorTable = new DatasetEditorTable(this, datasetEditor);
             datasetTableScrollPane.setViewportView(datasetEditorTable);
-            datasetEditorTable.initTableGutter();
 
             ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.DataEditor");
             setAccessibleName(actionToolbar, txt("app.dataEditor.aria.DatasetEditorActions"));
@@ -165,7 +164,6 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
         dispatch(() -> {
             DatasetEditorTable datasetEditorTable = getEditorTable();
             datasetTableScrollPane.setViewportView(datasetEditorTable);
-            datasetEditorTable.initTableGutter();
             datasetEditorTable.updateBackground(false);
 
             Disposer.dispose(oldEditorTable);

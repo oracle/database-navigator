@@ -23,6 +23,7 @@ import java.util.List;
 
 public interface BatchInput<T extends BatchTask> {
     Project getProject();
+    void addTask(T task);
     List<T> getTasks();
     List<T> getSelectedTasks();
     DatabaseContext getDatabaseContext();

@@ -19,7 +19,9 @@ package com.dbn.data.export;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.message.InteractiveMessage;
 import com.dbn.common.notification.NotificationCategory;
+import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.export.processor.CSVDataExportProcessor;
@@ -31,12 +33,12 @@ import com.dbn.data.export.processor.HTMLDataExportProcessor;
 import com.dbn.data.export.processor.JIRAMarkupDataExportProcessor;
 import com.dbn.data.export.processor.SQLDataExportProcessor;
 import com.dbn.data.export.processor.XMLDataExportProcessor;
-import com.dbn.data.grid.ui.table.sortable.SortableTable;
+import com.dbn.data.export.ui.ExportDataDialog;
+import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
-import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,11 +50,11 @@ import java.util.List;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
 @Getter
-@Setter
 @State(
     name = DataExportManager.COMPONENT_NAME,
     storages = @Storage(DatabaseNavigator.STORAGE_FILE)
@@ -89,13 +91,16 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
         return null;
     }
 
-    public void exportTableContent(
-            SortableTable table,
-            DataExportInstructions instructions,
-            ConnectionHandler connection,
-            @NotNull Runnable successCallback) {
-        Project project = getProject();
+    public void exportTableContent(DataExportSource source, DataExportInstructions instructions) {
+        // remember instructions
+        this.exportInstructions = instructions.clone();
+
+        Project project = source.getProject();
+        ConnectionHandler connection = source.getConnection();
+
         boolean isSelection = instructions.getScope() == DataExportInstructions.Scope.SELECTION;
+        ResultSetTable<?> table = source.getTable();
+
         DataExportModel exportModel = new SortableTableExportModel(isSelection, table);
         try {
             DataExportProcessor processor = getExportProcessor(instructions.getFormat());
@@ -107,7 +112,6 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
 
             String warningsBlock = warnings.isEmpty() ? null : String.join("\n", warnings);
             if (destination == DataExportInstructions.Destination.CLIPBOARD) {
-                successCallback.run();
                 if (warningsBlock == null) {
                     Messages.showInfoDialog(
                             project,
@@ -136,10 +140,7 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
                                 txt("msg.data.title.DataExported"),
                                 txt("msg.data.info.DataExportedToFile", filePath),
                                 new String[]{txt("msg.shared.button.OK"), txt("msg.shared.button.OpenFile")}, 0,
-                                o -> {
-                                    successCallback.run();
-                                    if (o == 1) openFile(project, file);
-                                });
+                                o -> when(o == 1, () -> openFile(project, file)));
                     }
                     else {
                         Messages.showWarningDialog(
@@ -147,10 +148,7 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
                                 txt("msg.data.title.DataExported"),
                                 txt("msg.data.warning.DataExportedToFile", filePath, warningsBlock),
                                 new String[]{txt("msg.shared.button.OK"), txt("msg.shared.button.OpenFile")}, 0,
-                                o -> {
-                                    successCallback.run();
-                                    if (o == 1) openFile(project, file);
-                                });
+                                o -> when(o == 1, () -> openFile(project, file)));
                     }
 
                 } else {
@@ -168,8 +166,17 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
 
         } catch (DataExportException e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(project, txt("msg.data.error.ExportFailure"), e);
+            InteractiveMessage message =
+                    InteractiveMessage.error("Export Error", txt("msg.data.error.ExportFailure")).
+                            withException(e).
+                            withOptions(Messages.OPTIONS_RETRY_CANCEL, 0).
+                            withCallback(o -> when(o == 0, () -> openExportDialog(source, instructions)));
+            Messages.showMessageDialog(project, message);
         }
+    }
+
+    public void openExportDialog(DataExportSource source, DataExportInstructions instructions) {
+        Dialogs.show(() -> new ExportDataDialog(source, instructions), null);
     }
 
     private void openFile(Project project, File file) {
@@ -177,6 +184,7 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
             Desktop.getDesktop().open(file);
         } catch (IOException e) {
             conditionallyLog(e);
+
             String filePath = file.getPath();
             Messages.showErrorDialog(
                     project,

@@ -75,6 +75,8 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
     }
 
     protected void initValidation() {
+        addSelectionValidation(moduleComboBox, "Please select the destination module");
+        addSelectionValidation(contentRootComboBox, "Please select the destination content root");
         addTextValidation(packageTextField, p -> isValidPackageName(p), "Please enter a valid package name");
         addTextValidation(classNameTextField, p -> isNotEmpty(p), "Please enter a class name");
         addTextValidation(classNameTextField, p -> isValidClassName(p), "Please enter a valid class name");

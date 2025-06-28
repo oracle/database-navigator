@@ -20,7 +20,6 @@ import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectPopupAction;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.util.Actions;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.action.AbstractConnectionAction;
@@ -99,7 +98,7 @@ public class SQLConsoleOpenAction extends ProjectPopupAction {
             if (console == null) {
                 presentation.setText(txt("app.browser.action.NewConsole",consoleType.getName()));
             } else {
-                presentation.setText(Actions.adjustActionName(console.getName()));
+                presentation.setText(console.getName(), false);
                 presentation.setIcon(console.getIcon());
             }
         }

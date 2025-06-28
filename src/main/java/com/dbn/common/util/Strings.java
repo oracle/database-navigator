@@ -33,6 +33,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.lang.Character.isWhitespace;
 
 @NonNls
@@ -162,7 +163,9 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
                 Integer.parseInt(string);
                 return true;
             }
-        } catch (NumberFormatException ignore) {}
+        } catch (NumberFormatException e) {
+            conditionallyLog(e);
+        }
 
         return false;
 
@@ -183,7 +186,9 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
                 Double.parseDouble(string);
                 return true;
             }
-        } catch (NumberFormatException ignore) {}
+        } catch (NumberFormatException e) {
+            conditionallyLog(e);
+        }
         return false;
     }
 

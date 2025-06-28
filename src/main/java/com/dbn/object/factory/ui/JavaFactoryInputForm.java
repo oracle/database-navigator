@@ -148,6 +148,15 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
     }
 
     @Override
+    public void restoreUserInput(@Nullable JavaFactoryInput input) {
+        if (input == null) return;
+
+        packageTextField.setText(input.getPackageName());
+        classNameTextField.setText(input.getClassName());
+        classTypeComboBox.setSelectedValue(input.getClassType());
+    }
+
+    @Override
     protected void initValidation() {
         addTextValidation(packageTextField, p -> isValidPackageName(p), "Please enter a valid package name");
         addTextValidation(classNameTextField, p -> isNotEmpty(p), "Please enter a class name");

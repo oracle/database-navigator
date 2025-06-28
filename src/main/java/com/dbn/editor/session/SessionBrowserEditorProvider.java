@@ -16,6 +16,7 @@
 
 package com.dbn.editor.session;
 
+import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.editor.EditorProviderId;
 import com.dbn.vfs.file.DBSessionBrowserVirtualFile;
@@ -32,9 +33,11 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 public class SessionBrowserEditorProvider implements FileEditorProvider, NamedComponent, DumbAware {
-    /*********************************************************
-     *                  FileEditorProvider                   *
-     *********************************************************/
+    //@Override
+    @Compatibility
+    public boolean acceptRequiresReadAction() {
+        return false;
+    }
 
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile virtualFile) {

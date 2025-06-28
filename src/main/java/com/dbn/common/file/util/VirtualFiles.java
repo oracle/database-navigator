@@ -104,6 +104,13 @@ public final class VirtualFiles {
         return !isDatabaseFileSystem(file) && !isLocalFileSystem(file);
     }
 
+    public static VirtualFile getJarFileRoot(@NotNull VirtualFile file) {
+        if (isJarFileSystem(file)) return file;
+
+        JarFileSystem jarFileSystem = JarFileSystem.getInstance();
+        return jarFileSystem.getJarRootForLocalFile(file);
+    }
+
     public static VirtualFile ioFileToVirtualFile(File file) {
         return LocalFileSystem.getInstance().findFileByIoFile(file);
     }

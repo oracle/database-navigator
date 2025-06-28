@@ -17,9 +17,9 @@
 package com.dbn.plugin.ui;
 
 import com.dbn.common.text.TextContent;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.util.Alarms;
 import com.dbn.common.util.Commons;
 import com.dbn.plugin.PluginConflictResolution;
 import com.intellij.util.Alarm;
@@ -86,7 +86,7 @@ public class PluginConflictResolutionForm extends DBNFormBase {
 
     protected void showErrorMessage() {
         selectOptionLabel.setVisible(true);
-        Dispatch.alarmRequest(selectOptionAlarm, (int) TimeUnit.SECONDS.toMillis(3), true, () -> selectOptionLabel.setVisible(false));
+        Alarms.alarmRequest(selectOptionAlarm, (int) TimeUnit.SECONDS.toMillis(3), true, () -> selectOptionLabel.setVisible(false));
     }
 
     @Nullable
