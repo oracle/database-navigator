@@ -82,6 +82,7 @@ abstract class DBMethodImpl<M extends DBMethodMetadata> extends DBSchemaObjectIm
         DBObjectStatusHolder objectStatus = getStatus();
         objectStatus.set(DBObjectStatus.VALID, isValid);
         objectStatus.set(DBObjectStatus.DEBUG, isDebug);
+        objectStatus.set(DBObjectStatus.PRESENT, true);
     }
 
     @Override
