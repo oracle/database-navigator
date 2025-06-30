@@ -1,3 +1,18 @@
+**3.6.0 - June 2025**
+- JDBC driver download feature
+- Oracle "Select-AI" support
+  - Conversational profiles
+  - Persistent chat history
+- Oracle OJVM support
+  - Java resources support
+  - Workspace synchronization
+  - Execution wrapper factories
+- Oracle connectivity - EasyConnect support
+- Oracle JSON duality views support
+- Vector data-type support
+- Oracle "OCI Toolkit" plugin integration
+- Bug fixes and performance improvements
+
 **3.5.0 - February 2025**
 - Oracle "Select-AI" integration (Database Assistant - experimental)
 - Oracle token authentication ("OCI API Key" and "OCI Interactive")
