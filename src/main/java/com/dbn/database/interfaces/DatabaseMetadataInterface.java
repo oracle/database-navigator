@@ -748,4 +748,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
     String createDateString(Date date);
 
     boolean hasPendingTransactions(@NotNull DBNConnection connection);
+
+    boolean hasSystemPrivilege(String privilegeName, DBNConnection connection) throws SQLException;
+
+    boolean hasObjectPrivilege(String objectOwner, String objectName, String privilegeName, DBNConnection connection) throws SQLException;
 }
