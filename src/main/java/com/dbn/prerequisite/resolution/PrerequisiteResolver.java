@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package com.dbn.prerequisite.evaluation;
+package com.dbn.prerequisite.resolution;
 
 import com.dbn.connection.context.DatabaseContext;
 
 import java.sql.SQLException;
 
-public interface PrerequisiteEvaluator {
+public interface PrerequisiteResolver {
     /**
-     * Evaluates whether the specified database context meets the conditions defined for a given prerequisite.
+     * Component that attempts to resolve a not yet fulfilled prerequisite.
+     * (is allowed to fail if the user does not have the necessary privileges)
      *
      * @param context the database context that encapsulates the database connection, session, schema, and other
-     *                information needed for evaluation.
-     * @return true if the prerequisite conditions are met, false otherwise.
-     * @throws SQLException if an error occurs while evaluating prerequisite in the database context.
-     *  (e.g., the user may not have access to the database entities required for the evaluation)
+     *                information needed for resolving the prerequisite.
+     * @throws SQLException if an error occurs while resolving prerequisite in the database context.
      */
-    boolean evaluate(DatabaseContext context) throws SQLException;
+    void resolve(DatabaseContext context) throws SQLException;
 }

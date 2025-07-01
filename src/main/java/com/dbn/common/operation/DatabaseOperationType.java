@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2024 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-package com.dbn.prerequisite.evaluation;
+package com.dbn.common.operation;
 
-import com.dbn.connection.context.DatabaseContext;
+import lombok.Getter;
 
-import java.sql.SQLException;
+@Getter
+public enum DatabaseOperationType {
+    DEBUG_JAVA_CODE("Debugging java code"),
+    DEBUG_DATABASE_CODE("Debugging database code"),
+    ;
 
-public interface PrerequisiteResolver {
-    boolean resolve(DatabaseContext context) throws SQLException;
+    private final String description;
+
+    DatabaseOperationType(String description) {
+        this.description = description;
+    }
 }

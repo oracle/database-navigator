@@ -18,10 +18,10 @@ package com.dbn.prerequisite.definition;
 
 import com.dbn.database.DatabaseFeature;
 import com.dbn.prerequisite.evaluation.PrerequisiteEvaluator;
-import com.dbn.prerequisite.evaluation.PrerequisiteResolver;
 import com.dbn.prerequisite.model.Prerequisite;
 import com.dbn.prerequisite.model.PrerequisiteCategory;
 import com.dbn.prerequisite.model.PrerequisiteType;
+import com.dbn.prerequisite.resolution.PrerequisiteResolver;
 
 public interface PrerequisiteDefinition {
     String getName();
