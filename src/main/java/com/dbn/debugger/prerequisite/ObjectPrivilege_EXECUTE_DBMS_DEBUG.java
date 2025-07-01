@@ -14,13 +14,28 @@
  * limitations under the License.
  */
 
-package com.dbn.prerequisite.definition;
+package com.dbn.debugger.prerequisite;
 
-import com.intellij.openapi.extensions.ExtensionPointName;
-import com.intellij.openapi.project.DumbAware;
+import com.dbn.prerequisite.definition.impl.ObjectPrivilegePrerequisite;
 
-public interface PrerequisiteDefinitionProvider  extends DumbAware {
-    ExtensionPointName<PrerequisiteDefinitionProvider> EP = ExtensionPointName.create("com.dbn.prerequisiteDefinitionProvider");
+public class ObjectPrivilege_EXECUTE_DBMS_DEBUG extends ObjectPrivilegePrerequisite {
 
-    PrerequisiteDefinition getDefinition();
+    public ObjectPrivilege_EXECUTE_DBMS_DEBUG() {
+        super(DebugPrerequisiteTypes.EXECUTE_DBMS_DEBUG);
+    }
+
+    @Override
+    protected String getOwnerName() {
+        return "SYS";
+    }
+
+    @Override
+    protected String getObjectName() {
+        return "DMBS_DEBUG";
+    }
+
+    @Override
+    protected String getPrivilegeName() {
+        return "EXECUTE";
+    }
 }

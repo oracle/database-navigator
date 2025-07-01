@@ -16,6 +16,10 @@
 
 package com.dbn.prerequisite.evaluation;
 
+import com.dbn.connection.context.DatabaseContext;
+
+import java.sql.SQLException;
+
 public interface PrerequisiteEvaluator {
-    PrerequisiteEvaluationResult evaluate(PrerequisiteEvaluationInput input);
+    boolean evaluate(DatabaseContext context) throws SQLException;
 }

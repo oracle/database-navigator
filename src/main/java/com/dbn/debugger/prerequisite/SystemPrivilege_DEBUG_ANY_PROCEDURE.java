@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-package com.dbn.prerequisite.definition;
+package com.dbn.debugger.prerequisite;
 
-import com.intellij.openapi.extensions.ExtensionPointName;
-import com.intellij.openapi.project.DumbAware;
+import com.dbn.prerequisite.definition.impl.SystemPrivilegePrerequisite;
 
-public interface PrerequisiteDefinitionProvider  extends DumbAware {
-    ExtensionPointName<PrerequisiteDefinitionProvider> EP = ExtensionPointName.create("com.dbn.prerequisiteDefinitionProvider");
+public class SystemPrivilege_DEBUG_ANY_PROCEDURE extends SystemPrivilegePrerequisite {
 
-    PrerequisiteDefinition getDefinition();
+    public SystemPrivilege_DEBUG_ANY_PROCEDURE() {
+        super(DebugPrerequisiteTypes.DEBUG_ANY_PROCEDURE);
+    }
+
+    @Override
+    protected String getPrivilegeName() {
+        return "DEBUG ANY PROCEDURE";
+    }
 }

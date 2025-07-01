@@ -18,6 +18,7 @@ package com.dbn.prerequisite.definition;
 
 import com.dbn.database.DatabaseFeature;
 import com.dbn.prerequisite.evaluation.PrerequisiteEvaluator;
+import com.dbn.prerequisite.evaluation.PrerequisiteResolver;
 import com.dbn.prerequisite.model.Prerequisite;
 import com.dbn.prerequisite.model.PrerequisiteBase;
 import com.dbn.prerequisite.model.PrerequisiteCategory;
@@ -33,15 +34,17 @@ public class PrerequisiteDefinitionBase implements PrerequisiteDefinition {
     private final PrerequisiteType type;
     private final PrerequisiteCategory category;
     private final PrerequisiteEvaluator evaluator;
+    private final PrerequisiteResolver resolver;
     private final Set<DatabaseFeature> features;
 
 
-    public PrerequisiteDefinitionBase(String name, String description, PrerequisiteType type, PrerequisiteCategory category, PrerequisiteEvaluator evaluator, DatabaseFeature ... features) {
+    public PrerequisiteDefinitionBase(String name, String description, PrerequisiteType type, PrerequisiteCategory category, PrerequisiteEvaluator evaluator, PrerequisiteResolver resolver, DatabaseFeature ... features) {
         this.name = name;
         this.description = description;
         this.type = type;
         this.category = category;
         this.evaluator = evaluator;
+        this.resolver = resolver;
         this.features = Set.of(features);
     }
 

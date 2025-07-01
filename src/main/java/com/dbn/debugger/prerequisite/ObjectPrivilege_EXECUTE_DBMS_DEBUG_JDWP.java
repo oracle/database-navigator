@@ -14,15 +14,28 @@
  * limitations under the License.
  */
 
-package com.dbn.prerequisite.evaluation;
+package com.dbn.debugger.prerequisite;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.dbn.prerequisite.definition.impl.ObjectPrivilegePrerequisite;
 
-@Getter
-@Setter
-public class PrerequisiteEvaluationResult {
-    private boolean success;
-    private String message;
-    private Exception exception;
+public class ObjectPrivilege_EXECUTE_DBMS_DEBUG_JDWP extends ObjectPrivilegePrerequisite {
+
+    public ObjectPrivilege_EXECUTE_DBMS_DEBUG_JDWP() {
+        super(DebugPrerequisiteTypes.EXECUTE_DBMS_DEBUG_JDWP);
+    }
+
+    @Override
+    protected String getOwnerName() {
+        return "SYS";
+    }
+
+    @Override
+    protected String getObjectName() {
+        return "DMBS_DEBUG_JDWP";
+    }
+
+    @Override
+    protected String getPrivilegeName() {
+        return "EXECUTE";
+    }
 }

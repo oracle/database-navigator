@@ -636,7 +636,7 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
-    public boolean hasObjectPrivilege(String objectOwner, String objectName, String privilegeName, DBNConnection connection) throws SQLException {
-        return getBooleanValue(connection, "has-object-privilege", objectOwner, objectName, privilegeName);
+    public boolean hasObjectPrivilege(String privilegeName, String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return getBooleanValue(connection, "has-object-privilege", privilegeName, ownerName, objectName);
     }
 }

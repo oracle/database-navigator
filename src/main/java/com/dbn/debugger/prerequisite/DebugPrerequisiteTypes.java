@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.dbn.prerequisite.definition;
+package com.dbn.debugger.prerequisite;
 
-import com.intellij.openapi.extensions.ExtensionPointName;
-import com.intellij.openapi.project.DumbAware;
+import com.dbn.prerequisite.model.PrerequisiteType;
 
-public interface PrerequisiteDefinitionProvider  extends DumbAware {
-    ExtensionPointName<PrerequisiteDefinitionProvider> EP = ExtensionPointName.create("com.dbn.prerequisiteDefinitionProvider");
-
-    PrerequisiteDefinition getDefinition();
+public class DebugPrerequisiteTypes {
+    public static final PrerequisiteType EXECUTE_DBMS_DEBUG = PrerequisiteType.get("EXECUTION_OF_DBMS_DEBUG");
+    public static final PrerequisiteType EXECUTE_DBMS_DEBUG_JDWP = PrerequisiteType.get("EXECUTION_OF_DBMS_DEBUG_JDWP");
+    public static final PrerequisiteType DEBUG_ANY_PROCEDURE = PrerequisiteType.get("DEBUG_ANY_PROCEDURE");
+    public static final PrerequisiteType DEBUG_CONNECT_SESSION = PrerequisiteType.get("DEBUG_CONNECT_SESSION");
 }

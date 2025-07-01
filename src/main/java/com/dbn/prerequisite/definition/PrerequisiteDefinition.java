@@ -18,6 +18,7 @@ package com.dbn.prerequisite.definition;
 
 import com.dbn.database.DatabaseFeature;
 import com.dbn.prerequisite.evaluation.PrerequisiteEvaluator;
+import com.dbn.prerequisite.evaluation.PrerequisiteResolver;
 import com.dbn.prerequisite.model.Prerequisite;
 import com.dbn.prerequisite.model.PrerequisiteCategory;
 import com.dbn.prerequisite.model.PrerequisiteType;
@@ -28,7 +29,7 @@ public interface PrerequisiteDefinition {
     PrerequisiteType getType();
     PrerequisiteCategory getCategory();
     PrerequisiteEvaluator getEvaluator();
-
+    PrerequisiteResolver getResolver();
 
     boolean supports(DatabaseFeature feature);
 

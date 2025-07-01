@@ -2867,9 +2867,9 @@
                     when exists (
                         select 1
                           from ALL_TAB_PRIVS P
-                          where P.TABLE_SCHEMA = {0}
-                            and P.TABLE_NAME = {1}
-                            and P.PRIVILEGE = {2}
+                          where P.PRIVILEGE = {0}
+                            and P.TABLE_SCHEMA = {1}
+                            and P.TABLE_NAME = {2}
                             and (P.GRANTEE = USER
                               or P.GRANTEE = 'PUBLIC'
                               or exists (select 1 from SESSION_ROLES R where R.ROLE = P.GRANTEE)))

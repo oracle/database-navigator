@@ -16,22 +16,10 @@
 
 package com.dbn.prerequisite.evaluation;
 
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
-import com.dbn.prerequisite.definition.PrerequisiteDefinition;
-import lombok.Getter;
+import com.dbn.connection.context.DatabaseContext;
 
-@Getter
-public class PrerequisiteEvaluationInput {
-    private final PrerequisiteDefinition definition;
-    private final ConnectionRef connection;
+import java.sql.SQLException;
 
-    public PrerequisiteEvaluationInput(PrerequisiteDefinition definition, ConnectionHandler connection) {
-        this.definition = definition;
-        this.connection = ConnectionRef.of(connection);
-    }
-
-    public ConnectionHandler getConnection() {
-        return ConnectionRef.get(connection);
-    }
+public interface PrerequisiteResolver {
+    boolean resolve(DatabaseContext context) throws SQLException;
 }
