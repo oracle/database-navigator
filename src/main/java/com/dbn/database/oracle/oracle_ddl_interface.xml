@@ -225,7 +225,10 @@
 
     <statement-execution-processor id="set-java-compiler-option">
         <statement>
+            declare
+                result varchar2(4000);
             begin
+                result := dbms_java.set_property('sun.tools.javac.Main.args', 'g');
                 dbms_java.set_compiler_option('{0}', 'debug', '{1}');
             end;
         </statement>

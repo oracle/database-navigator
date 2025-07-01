@@ -148,10 +148,10 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
 
     public void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
         try {
-            executeSilentUpdate(connection, "set-java-compiler-option", objectName, "true");
+            executeSilentUpdate(connection, "set-java-compiler-option", objectName.replace("\"", ""), "true");
             executeUpdate(connection, "compile-java-class", ownerName, objectName);
         } finally {
-            executeSilentUpdate(connection, "set-java-compiler-option", objectName, "");
+            executeSilentUpdate(connection, "set-java-compiler-option", objectName.replace("\"", ""), "false");
         }
     }
 
@@ -159,6 +159,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
     public void updateJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "prepare-java-staging-table", ownerName);
         executeUpdate(connection, "update-java-source", ownerName, objectName, content);
+        compileJavaClass(ownerName, objectName, connection);
     }
 
     @Override
