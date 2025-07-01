@@ -19,7 +19,9 @@ package com.dbn.database.interfaces;
 import com.dbn.assistant.DatabaseAssistantType;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.assistant.AssistantQueryResponse;
+import com.dbn.object.factory.ModelFactoryInput;
 
+import java.sql.Blob;
 import java.sql.SQLException;
 
 /**
@@ -97,4 +99,8 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
   default DatabaseAssistantType getAssistantType(DBNConnection connection) throws SQLException {
     return DatabaseAssistantType.GENERIC;
   }
+
+  void loadOnnxModelFromOci(ModelFactoryInput input, DBNConnection conn) throws SQLException;
+
+  void loadOnnxModelThroughJdbc(String modelName, Blob modelBlob, DBNConnection conn) throws SQLException;
 }

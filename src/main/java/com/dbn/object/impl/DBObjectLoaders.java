@@ -30,6 +30,7 @@ import com.dbn.database.common.metadata.def.DBConstraintMetadata;
 import com.dbn.database.common.metadata.def.DBCredentialMetadata;
 import com.dbn.database.common.metadata.def.DBDatabaseLinkMetadata;
 import com.dbn.database.common.metadata.def.DBDimensionMetadata;
+import com.dbn.database.common.metadata.def.DBModelMetadata;
 import com.dbn.database.common.metadata.def.DBFunctionMetadata;
 import com.dbn.database.common.metadata.def.DBGrantedPrivilegeMetadata;
 import com.dbn.database.common.metadata.def.DBGrantedRoleMetadata;
@@ -325,6 +326,10 @@ public class DBObjectLoaders {
                 (content, conn, mdi) -> mdi.loadAiProfiles(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBAIProfileImpl(content.getParentEntity(), md));
 
+        DynamicContentResultSetLoader.<DBAIModelImpl, DBModelMetadata>create(
+                "AI_MODELS", DBObjectType.SCHEMA, DBObjectType.AI_MODEL, true, true,
+                (content, conn, mdi) -> mdi.loadAiModels(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> new DBAIModelImpl(content.getParentEntity(), md));
         DynamicContentResultSetLoader.<DBDatabaseLink, DBDatabaseLinkMetadata>create(
                 "DBLINKS", DBObjectType.SCHEMA, DBObjectType.DBLINK, true, true,
                 (content, conn, mdi) -> mdi.loadDatabaseLinks(content.ensureParentEntity().getName(), conn),

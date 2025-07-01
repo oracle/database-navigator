@@ -23,8 +23,10 @@ import com.dbn.database.common.assistant.AssistantQueryResponse;
 import com.dbn.database.common.util.BooleanResultSetConsumer;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
+import com.dbn.object.factory.ModelFactoryInput;
 import lombok.extern.slf4j.Slf4j;
 
+import java.sql.Blob;
 import java.sql.SQLException;
 
 /**
@@ -66,6 +68,16 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
             DatabaseAssistantType.GENERIC;
   }
 
+  @Override
+  public void loadOnnxModelFromOci(ModelFactoryInput input, DBNConnection conn) throws SQLException {
+    executeUpdate(conn,"load-onnx-model-from-object-storage",input.getModelName(), input.getCredential(), input.getLocation());
+  }
+
+  @Override
+  public void loadOnnxModelThroughJdbc(String modelName, Blob modelBlob, DBNConnection conn) throws SQLException {
+    executeCall(conn,null,"load-onnx-model-through-jdbc",modelName, modelBlob);
+
+  }
 
   @Override
   public void createPwdCredential(DBNConnection connection, String credentialName, String userName, String password) throws SQLException {

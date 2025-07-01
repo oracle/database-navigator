@@ -25,6 +25,8 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.editor.DBContentType;
@@ -40,10 +42,16 @@ import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputDialog;
 import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.vector.common.ModelPathType;
 import com.dbn.vfs.DatabaseFileManager;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.*;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +66,7 @@ import static com.dbn.object.event.ObjectChangeAction.DELETE;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
 import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 import static com.dbn.object.type.DBObjectType.PROCEDURE;
+import static com.dbn.object.type.DBObjectType.AI_MODEL;
 
 public class DatabaseObjectFactory extends ProjectComponentBase {
 
@@ -73,7 +82,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
     public void openFactoryInputDialog(DBSchema schema, DBObjectType objectType) {
         Project project = getProject();
-        if (objectType.isOneOf(FUNCTION, PROCEDURE, JAVA_CLASS)) {
+        if (objectType.isOneOf(FUNCTION, PROCEDURE, JAVA_CLASS,AI_MODEL)) {
             Dialogs.show(() -> new ObjectFactoryInputDialog(project, schema, objectType));
         } else {
             Messages.showErrorDialog(project,
@@ -82,7 +91,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         }
     }
 
-    public boolean createObject(ObjectFactoryInput factoryInput) throws SQLException {
+    public boolean createObject(ObjectFactoryInput factoryInput, ProgressIndicator progress) throws SQLException {
         Project project = getProject();
         List<String> errors = new ArrayList<>();
         factoryInput.validate(errors);
@@ -104,10 +113,106 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
             createJavaObject(javaFactoryInput);
             return true;
         }
+
+        if (factoryInput instanceof ModelFactoryInput) {
+            ModelFactoryInput modelFactoryInput = (ModelFactoryInput) factoryInput;
+            createModel(modelFactoryInput,progress);
+            return true;
+        }
         // TODO other factory inputs
 
         return false;
     }
+
+    private void createModel(ModelFactoryInput input, ProgressIndicator progress) throws SQLException {
+        DBObjectType objectType = AI_MODEL;
+        ModelPathType modelPathType = input.getModelPathType();
+        DBSchema schema = input.getSchema();
+
+        ConnectionId connectionId = schema.getConnectionId();
+        SchemaId schemaId = schema.getSchemaId();
+
+        DatabaseInterfaceInvoker.execute(HIGHEST,
+                "Creating " + input.getObjectType().getCapitalizedName(),
+                "Creating " + input.getObjectDescription(),
+                schema.getProject(),
+                connectionId,
+                schemaId,
+                conn -> {
+                    DatabaseAssistantInterface dataDefinition = schema.getAssistantInterface();
+                    if (ModelPathType.OBJECT_STORAGE.equals(modelPathType)) {
+
+                        dataDefinition.loadOnnxModelFromOci(input, conn);
+                    }else {
+
+                        Blob modelBlob = prepareOnnxModel(conn,input.getLocation(),progress);
+                        dataDefinition.loadOnnxModelThroughJdbc(input.getModelName(),modelBlob, conn);
+                    }
+                });
+
+        notifyObjectChanges(connectionId, schemaId, objectType, CREATE);
+
+    }
+
+    private Blob prepareOnnxModel(
+            DBNConnection conn,
+            String modelLocation,
+            ProgressIndicator progress
+    ) throws SQLException {
+        File modelFile = new File(modelLocation);
+        long fileSize      = modelFile.length();
+        double totalMB     = fileSize / (1024.0 * 1024.0);
+
+        // Tell the ProgressIndicator what we're doing
+        progress.setIndeterminate(false);
+        progress.setText("Uploading ONNX model");
+        progress.setFraction(0.0);
+
+        Blob modelBlob = conn.createBlob();
+
+        try (RandomAccessFile randomFile = new RandomAccessFile(modelFile, "r");
+             FileChannel     fileChannel = randomFile.getChannel();
+             OutputStream    dbOutput    = modelBlob.setBinaryStream(1)) {
+
+            MappedByteBuffer mappedFile  = fileChannel.map(
+                    FileChannel.MapMode.READ_ONLY, 0, fileSize
+            );
+            byte[] chunk = new byte[1024 * 1024];  // 1 MB buffer
+            long bytesUploaded = 0;
+
+            while (mappedFile.hasRemaining()) {
+                // allow user to cancel
+                progress.checkCanceled();
+
+                int toRead = (int)Math.min(chunk.length, mappedFile.remaining());
+                mappedFile.get(chunk, 0, toRead);
+                dbOutput.write(chunk, 0, toRead);
+
+                bytesUploaded += toRead;
+                double fraction = bytesUploaded / (double)fileSize;
+
+                // update the progress bar
+                progress.setFraction(fraction);
+                progress.setText(String.format(
+                        "Uploaded %.1f MB of %.1f MB",
+                        bytesUploaded / (1024.0 * 1024.0),
+                        totalMB
+                ));
+            }
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+
+      // final update (100%)
+        progress.setFraction(1.0);
+        progress.setText("Upload complete");
+
+
+
+        return modelBlob;
+    }
+
+
 
     private void createMethod(MethodFactoryInput input) throws SQLException {
         DBObjectType objectType = input.isFunction() ? FUNCTION : PROCEDURE;

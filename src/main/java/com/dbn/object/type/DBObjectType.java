@@ -52,6 +52,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 @Slf4j
 @Getter
 public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentable {
+    AI_MODEL(DatabaseObjectTypeId.AI_MODEL,"AI model","AI models",Icons.DBO_AI_MODEL, Icons.DBO_AI_MODEL, Icons.DBO_AI_MODEL,false),
     AI_PROFILE(DatabaseObjectTypeId.AI_PROFILE, "AI profile", "AI profiles", Icons.DBO_AI_PROFILE, Icons.DBO_AI_PROFILE_DISABLED, Icons.DBO_AI_PROFILES, false),
     ATTRIBUTE(DatabaseObjectTypeId.ATTRIBUTE, "attribute", "attribute", Icons.DBO_ATTRIBUTE, null, Icons.DBO_ATTRIBUTES, false),
     ARGUMENT(DatabaseObjectTypeId.ARGUMENT, "argument", "arguments", Icons.DBO_ARGUMENT, null, Icons.DBO_ARGUMENTS, false),
@@ -94,8 +95,8 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     LOB(DatabaseObjectTypeId.LOB, "lob", "lobs", null, null, null, false),
     MATERIALIZED_VIEW(DatabaseObjectTypeId.MATERIALIZED_VIEW, "materialized view", "materialized views", Icons.DBO_MATERIALIZED_VIEW, null, Icons.DBO_MATERIALIZED_VIEWS, false),
     METHOD(DatabaseObjectTypeId.METHOD, "method", "methods", null, null, null, true),
-    MODEL(DatabaseObjectTypeId.MODEL, "model", "models", null, null, null, false),
-    MINING_MODEL(DatabaseObjectTypeId.MINING_MODEL, "mining model", "mining models", null, null, null, false),
+//    MODEL(DatabaseObjectTypeId.MODEL, "model", "models", null, null, null, false),
+//    MINING_MODEL(DatabaseObjectTypeId.MINING_MODEL, "mining model", "mining models", null, null, null, false),
     NESTED_TABLE(DatabaseObjectTypeId.NESTED_TABLE, "nested table", "nested tables", Icons.DBO_NESTED_TABLE, null, Icons.DBO_NESTED_TABLES, false),
     NESTED_TABLE_COLUMN(DatabaseObjectTypeId.NESTED_TABLE_COLUMN, "nested table column", "nested table columns", null, null, null, false),
     OPERATOR(DatabaseObjectTypeId.OPERATOR, "operator", "operators", null, null, null, false),
@@ -386,6 +387,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     }
 
     private static void initParentRelations() {
+        AI_MODEL.addParent(SCHEMA);
         AI_PROFILE.addParent(SCHEMA);
         ARGUMENT.addParent(FUNCTION);
         ARGUMENT.addParent(PROCEDURE);

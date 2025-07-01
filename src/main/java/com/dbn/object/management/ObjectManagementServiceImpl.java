@@ -28,6 +28,7 @@ import com.dbn.object.management.adapter.impl.DBConstraintManagementAdapter;
 import com.dbn.object.management.adapter.impl.DBCredentialManagementAdapter;
 import com.dbn.object.management.adapter.impl.DBJsonViewManagementAdapter;
 import com.dbn.object.management.adapter.impl.DBTriggerManagementAdapter;
+import com.dbn.object.management.adapter.impl.DBAiModelManagementAdapter;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -53,6 +54,7 @@ import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 import static com.dbn.object.type.DBObjectType.DATABASE_TRIGGER;
 import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
 import static com.dbn.object.type.DBObjectType.JSON_VIEW;
+import static com.dbn.object.type.DBObjectType.AI_MODEL;
 
 /**
  * Generic database object management component
@@ -83,6 +85,7 @@ final class ObjectManagementServiceImpl extends ProjectComponentBase implements 
         managementAdapters.put(DATABASE_TRIGGER, new DBTriggerManagementAdapter());
         managementAdapters.put(CREDENTIAL, new DBCredentialManagementAdapter());
         managementAdapters.put(AI_PROFILE, new DBAIProfileManagementAdapter());
+        managementAdapters.put(AI_MODEL,new DBAiModelManagementAdapter());
         //...
     }
 

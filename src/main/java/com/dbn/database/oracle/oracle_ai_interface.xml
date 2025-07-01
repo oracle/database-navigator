@@ -166,5 +166,23 @@
                           where OBJECT_NAME like '%DBMS_CLOUD_AI%')
         </statement>
     </statement-execution-processor>
+    <statement-execution-processor id="load-onnx-model-from-object-storage" timeout="120" is-query="true">
+        <statement>
+            BEGIN
+            DBMS_VECTOR.LOAD_ONNX_MODEL_CLOUD(
+                model_name =>   '{0}',
+                credential =>   '{1}',
+                uri  =>    '{2}'
+                );
+            END;
+        </statement>
+    </statement-execution-processor>
 
+    <statement-execution-processor id="load-onnx-model-through-jdbc" timeout="1200" is-prepared-statement="true"  is-query="false">
+        <statement>
+            BEGIN
+            DBMS_VECTOR.LOAD_ONNX_MODEL({0}, {1});
+            END;
+        </statement>
+    </statement-execution-processor>
 </data-dictionary>

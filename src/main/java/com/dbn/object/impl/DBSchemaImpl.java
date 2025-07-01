@@ -55,6 +55,7 @@ import com.dbn.object.DBTable;
 import com.dbn.object.DBType;
 import com.dbn.object.DBUser;
 import com.dbn.object.DBView;
+import com.dbn.object.DBAIModel;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBRootObjectImpl;
 import com.dbn.object.common.DBSchemaObject;
@@ -98,6 +99,7 @@ import static com.dbn.object.type.DBObjectRelationType.CONSTRAINT_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.INDEX_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.JSON_VIEW_TABLE;
 import static com.dbn.object.type.DBObjectType.AI_PROFILE;
+import static com.dbn.object.type.DBObjectType.AI_MODEL;
 import static com.dbn.object.type.DBObjectType.ANY;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
 import static com.dbn.object.type.DBObjectType.CLUSTER;
@@ -176,7 +178,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(DBLINK,            this);
         childObjects.createObjectList(CREDENTIAL,        this);
         childObjects.createObjectList(AI_PROFILE,        this);
-
+        childObjects.createObjectList(AI_MODEL,          this);
         DBObjectList<DBConstraint> constraints = childObjects.createObjectList(CONSTRAINT, this, INTERNAL, GROUPED);
         DBObjectList<DBIndex> indexes          = childObjects.createObjectList(INDEX,      this, INTERNAL, GROUPED);
         DBObjectList<DBColumn> columns         = childObjects.createObjectList(COLUMN,     this, INTERNAL, GROUPED, HIDDEN);
@@ -393,6 +395,13 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     public List<DBAIProfile> getAIProfiles() {
         return getChildObjects(AI_PROFILE);
     }
+
+    @Override
+    public List<DBAIModel> getAiModels() {
+        return getChildObjects(AI_MODEL);
+    }
+
+
 
     @Override
     public List<DBDatabaseLink> getDatabaseLinks() {
@@ -662,7 +671,8 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
                 getChildObjectList(CLUSTER),
                 getChildObjectList(DBLINK),
                 getChildObjectList(CREDENTIAL),
-                getChildObjectList(AI_PROFILE));
+                getChildObjectList(AI_PROFILE),
+                getChildObjectList(AI_MODEL));
     }
 
     @Override
@@ -686,7 +696,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
             settings.isVisible(CLUSTER) ||
             settings.isVisible(DBLINK) ||
             settings.isVisible(CREDENTIAL) ||
-            settings.isVisible(AI_PROFILE)
-                ;
+            settings.isVisible(AI_PROFILE) ||
+            settings.isVisible(AI_MODEL);
     }
 }

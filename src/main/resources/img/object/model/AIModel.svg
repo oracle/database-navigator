@@ -1,0 +1,60 @@
+<svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 64 64"
+        fill="#B0C0BC"
+        stroke="#B0C0BC"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+>
+    <!-- Input layer (3 nodes) -->
+    <circle cx="12" cy="16" r="3"/>
+    <circle cx="12" cy="32" r="3"/>
+    <circle cx="12" cy="48" r="3"/>
+
+    <!-- Hidden layer (4 nodes) -->
+    <circle cx="32" cy="8"  r="3"/>
+    <circle cx="32" cy="24" r="3"/>
+    <circle cx="32" cy="40" r="3"/>
+    <circle cx="32" cy="56" r="3"/>
+
+    <!-- Output layer (3 nodes) -->
+    <circle cx="52" cy="16" r="3"/>
+    <circle cx="52" cy="32" r="3"/>
+    <circle cx="52" cy="48" r="3"/>
+
+    <!-- Connections Input → Hidden -->
+    <path d="M15 16 L29 8" />
+    <path d="M15 16 L29 24" />
+    <path d="M15 16 L29 40" />
+    <path d="M15 16 L29 56" />
+
+    <path d="M15 32 L29 8" />
+    <path d="M15 32 L29 24" />
+    <path d="M15 32 L29 40" />
+    <path d="M15 32 L29 56" />
+
+    <path d="M15 48 L29 8" />
+    <path d="M15 48 L29 24" />
+    <path d="M15 48 L29 40" />
+    <path d="M15 48 L29 56" />
+
+    <!-- Connections Hidden → Output -->
+    <path d="M35 8  L49 16" />
+    <path d="M35 8  L49 32" />
+    <path d="M35 8  L49 48" />
+
+    <path d="M35 24 L49 16" />
+    <path d="M35 24 L49 32" />
+    <path d="M35 24 L49 48" />
+
+    <path d="M35 40 L49 16" />
+    <path d="M35 40 L49 32" />
+    <path d="M35 40 L49 48" />
+
+    <path d="M35 56 L49 16" />
+    <path d="M35 56 L49 32" />
+    <path d="M35 56 L49 48" />
+</svg>

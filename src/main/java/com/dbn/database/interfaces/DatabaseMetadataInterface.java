@@ -401,6 +401,9 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      */
     ResultSet loadAiProfiles(String ownerName, DBNConnection connection) throws SQLException;
 
+    ResultSet loadAiModels(String ownerName, DBNConnection connection) throws SQLException;
+
+
     /**
      * Loads the functions of the given owner<br>
      * Column names of the returned ResultSet

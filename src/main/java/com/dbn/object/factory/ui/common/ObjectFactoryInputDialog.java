@@ -24,9 +24,11 @@ import com.dbn.common.util.Messages;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.DatabaseObjectFactory;
+import com.dbn.object.factory.ModelFactoryInput;
 import com.dbn.object.factory.ObjectFactoryInput;
 import com.dbn.object.factory.ui.FunctionFactoryInputForm;
 import com.dbn.object.factory.ui.JavaFactoryInputForm;
+import com.dbn.object.factory.ui.ModelFactoryInputForm;
 import com.dbn.object.factory.ui.ProcedureFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
@@ -56,6 +58,8 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
         return objectType == DBObjectType.FUNCTION ? new FunctionFactoryInputForm(this, schema, objectType, 0) :
                objectType == DBObjectType.PROCEDURE ? new ProcedureFactoryInputForm(this, schema, objectType, 0) :
                objectType == DBObjectType.JAVA_CLASS ? new JavaFactoryInputForm(this,schema, 0):
+               objectType == DBObjectType.AI_MODEL ? new ModelFactoryInputForm(this,schema, objectType,0):
+
                        Failsafe.nn(null);
     }
 
@@ -73,12 +77,22 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
     public void doOKAction() {
         ObjectFactoryInputForm form = getForm();
         ObjectFactoryInput input = form.createFactoryInput(null);
-        Progress.modal(
-                getProject(),
-                getSchema(), true,
-                "Creating " + input.getObjectTypeName(),
-                "Creating " + input.getObjectDescription(),
-                p -> invokeObjectFactory(p, input));
+        if (input instanceof ModelFactoryInput){
+            Progress.prompt(
+                    getProject(),
+                    getSchema(), true,
+                    "Creating " + input.getObjectTypeName(),
+                    "Creating " + input.getObjectDescription(),
+                    p -> invokeObjectFactory(p, input));
+            close(OK_EXIT_CODE);
+        }else {
+            Progress.modal(
+                    getProject(),
+                    getSchema(), true,
+                    "Creating " + input.getObjectTypeName(),
+                    "Creating " + input.getObjectDescription(),
+                    p -> invokeObjectFactory(p, input));
+        }
     }
 
     private void invokeObjectFactory(ProgressIndicator progress, ObjectFactoryInput input) {
@@ -86,7 +100,7 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
 
         DatabaseObjectFactory factory = DatabaseObjectFactory.getInstance(project);
         try {
-            boolean success = factory.createObject(input);
+            boolean success = factory.createObject(input, progress);
             if (!success) return;
             if (progress.isCanceled()) return; // do not close the dialog if cancelled
 

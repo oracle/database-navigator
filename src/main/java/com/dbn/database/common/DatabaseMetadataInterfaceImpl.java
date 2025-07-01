@@ -431,6 +431,15 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
         return executeQuery(connection, "ai-profiles", ownerName);
     }
 
+
+    /*********************************************************
+     *                     AI Models                       *
+     *********************************************************/
+    @Override
+    public ResultSet loadAiModels(final String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "ai-models", ownerName);
+    }
+
     /*********************************************************
      *                      REFERENCES                       *
      *********************************************************/

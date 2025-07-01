@@ -310,6 +310,35 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="ai-models" is-query="true" is-prepared-statement="true">
+        <statement>
+            SELECT
+            MODEL_NAME
+            FROM ALL_MINING_MODELS
+            WHERE OWNER = {0}
+            ORDER BY MODEL_NAME ASC
+        </statement>
+        <statement>
+            SELECT
+            NULL AS OWNER,
+            MODEL_NAME
+            FROM USER_MINING_MODELS
+            ORDER BY MODEL_NAME ASC
+        </statement>
+        <statement>
+            <!-- Fallback for non‐mining databases -->
+            SELECT
+            NULL AS OWNER,
+            NULL AS MODEL_NAME,
+            NULL AS MINING_FUNCTION,
+            NULL AS ALGORITHM,
+            NULL AS COMMENTS
+            FROM DUAL
+            WHERE 1 = 2
+        </statement>
+    </statement-execution-processor>
+
+
     <statement-execution-processor id="tables" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             with DBN_MVIEWS as (

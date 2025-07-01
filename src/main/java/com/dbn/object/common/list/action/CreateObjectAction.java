@@ -32,6 +32,7 @@ import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
 import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 import static com.dbn.object.type.DBObjectType.PROCEDURE;
+import static com.dbn.object.type.DBObjectType.AI_MODEL;
 
 public class CreateObjectAction extends BasicAction {
 
@@ -65,7 +66,7 @@ public class CreateObjectAction extends BasicAction {
             if (schema.isSystemSchema()) return false;
 
             DBObjectType objectType = objectList.getObjectType();
-            return objectType.isOneOf(FUNCTION, PROCEDURE, JAVA_CLASS);
+            return objectType.isOneOf(FUNCTION, PROCEDURE, JAVA_CLASS,AI_MODEL);
         }
         return false;
     }
