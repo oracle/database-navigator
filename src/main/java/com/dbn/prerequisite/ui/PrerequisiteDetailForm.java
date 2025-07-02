@@ -19,26 +19,28 @@ package com.dbn.prerequisite.ui;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.prerequisite.definition.PrerequisiteDefinition;
 import com.dbn.prerequisite.event.PrerequisiteEvent;
 import com.dbn.prerequisite.event.PrerequisiteEventListener;
 import com.dbn.prerequisite.event.PrerequisiteEventType;
 import com.dbn.prerequisite.model.Prerequisite;
 import com.dbn.prerequisite.model.PrerequisiteBundle;
 import com.intellij.util.ui.AsyncProcessIcon;
+import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextPane;
+import javax.swing.JTextArea;
 
 public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteEventListener {
 
     private JPanel mainPanel;
     private JPanel statusPanel;
     private JLabel titleLabel;
-    private JTextPane messageTextPane;
+    private JTextArea descriptionTextArea;
 
     private final Prerequisite prerequisite;
 
@@ -46,8 +48,13 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
         super(parent);
         this.prerequisite = prerequisite;
 
-        titleLabel.setText(prerequisite.getDefinition().getName());
-        messageTextPane.setForeground(Colors.faded(UIUtil.getLabelForeground()));
+        parent.getPrerequisiteBundle().addEventListener(this);
+
+        PrerequisiteDefinition definition = prerequisite.getDefinition();
+        titleLabel.setText(definition.getName());
+        descriptionTextArea.setFont(JBUI.Fonts.label());
+        descriptionTextArea.setForeground(Colors.faded(UIUtil.getLabelForeground()));
+        descriptionTextArea.setText(definition.getDescription());
     }
 
     private PrerequisiteBundle getBundle() {
@@ -58,7 +65,7 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
     public void initialize() {
         statusPanel.removeAll();
         statusPanel.add(new AsyncProcessIcon("Processing..."));
-        messageTextPane.setText("Verifying prerequisite");
+        //messageTextPane.setText("Verifying prerequisite");
     }
 
     public void complete() {
@@ -72,8 +79,6 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
                 Icons.COMMON_STATUS_ERROR;
 
         statusPanel.add(new JLabel(icon));
-        messageTextPane.setText(message);
-
     }
 
     @Override

@@ -101,6 +101,10 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
         listeners.notify(l -> l.eventOccurred(event));
     }
 
+    public void addEventListener(PrerequisiteEventListener listener) {
+        listeners.add(listener);
+    }
+
     @Override
     public void disposeInner() {
 

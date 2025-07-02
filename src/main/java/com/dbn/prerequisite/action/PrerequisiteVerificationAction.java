@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -47,7 +48,7 @@ public class PrerequisiteVerificationAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(txt("app.menu.action.OperationPrerequisiteVerification"));
+        presentation.setText(txt("app.menu.action.PrerequisiteVerification"));
     }
 
     @Override
@@ -77,7 +78,7 @@ public class PrerequisiteVerificationAction extends ProjectAction {
         private final ConnectionRef connection;
 
         private SelectConnectionAction(ConnectionHandler connection) {
-            super(connection.getName(), null, connection.getIcon());
+            super(adjustActionName(connection.getName()), null, connection.getIcon());
             this.connection = ConnectionRef.of(connection);
             setPopup(true);
         }

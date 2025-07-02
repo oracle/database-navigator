@@ -52,6 +52,7 @@ public class PrerequisitesForm extends DBNFormBase implements PrerequisiteEventL
     public PrerequisitesForm(PrerequisitesDialog dialog) {
         super(dialog);
         prerequisiteBundle = dialog.getPrerequisites();
+        prerequisiteBundle.addEventListener(this);
 
         initHeaderPanel();
         initDetailsPanel();
