@@ -366,6 +366,7 @@
             </action>
             <action class="com.dbn.menu.action.FileConnectionMappingsOpenAction" text="File Connection Mappings" id="DBNavigator.Actions.MainMenu.FileConnectionMappings"/>
             <action class="com.dbn.menu.action.ResourceMonitorOpenAction" text="Resource Monitor" id="DBNavigator.Actions.MainMenu.ResourceMonitor"/>
+            <action class="com.dbn.prerequisite.action.PrerequisiteVerificationAction" text="Prerequisite Verification" id="DBNavigator.Actions.MainMenu.PrerequisiteVerification"/> />
             <!--<action class="com.dbn.action.menu.PendingTransactionsOpenAction" text="Open Transactions" id="DBNavigator.Actions.MainMenu.PendingTransactions"/>-->
             <group id="DBNavigator.ActionGroup.ImportExportSettings" text="Default Settings" popup="true">
                 <action id="DBNavigator.Actions.MainMenu.OpenDefaultSettings" class="com.dbn.menu.action.ProjectDefaultSettingsOpenAction" text="Open Default Settings..."/>

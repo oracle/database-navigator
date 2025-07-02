@@ -19,15 +19,30 @@ package com.dbn.prerequisite;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.state.StateCategory;
 import com.dbn.common.state.StateContainer;
+import com.dbn.common.util.Dialogs;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.prerequisite.definition.PrerequisiteDefinition;
+import com.dbn.prerequisite.definition.PrerequisiteDefinitionProvider;
+import com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator;
+import com.dbn.prerequisite.model.Prerequisite;
+import com.dbn.prerequisite.model.PrerequisiteBundle;
+import com.dbn.prerequisite.model.PrerequisiteType;
+import com.dbn.prerequisite.ui.PrerequisitesDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newStateElement;
@@ -57,8 +72,48 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
 		return states.ensureAttributes(category);
 	}
 
+    public PrerequisiteBundle createPrerequisiteBundle(ConnectionHandler connection, DatabaseOperation operation) {
+        Set<PrerequisiteType> types = resolvePrerequisiteTypes(connection, operation);
+        List<PrerequisiteDefinition> definitions = loadPrerequisiteDefinitions(types);
+        List<Prerequisite> prerequisites = createPrerequisites(definitions);
+        return new PrerequisiteBundle(connection, operation, prerequisites);
+    }
 
-    public void evaluatePrerequisite() {
+
+    private static Set<PrerequisiteType> resolvePrerequisiteTypes(ConnectionHandler connection, DatabaseOperation operation) {
+        Set<PrerequisiteType> types = new LinkedHashSet<>();
+        List<PrerequisiteRequirementEvaluator> evaluators = PrerequisiteRequirementEvaluator.EP.getExtensionList();
+        for (PrerequisiteRequirementEvaluator evaluator : evaluators) {
+            List<PrerequisiteType> applicableTypes = evaluator.resolvePrerequisites(connection, operation);
+            types.addAll(applicableTypes);
+        }
+        return types;
+    }
+
+    private static @NotNull List<Prerequisite> createPrerequisites(List<PrerequisiteDefinition> definitions) {
+        List<Prerequisite> prerequisites = new ArrayList<>();
+        for (PrerequisiteDefinition definition : definitions) {
+            Prerequisite prerequisite = definition.createPrerequisite();
+            prerequisites.add(prerequisite);
+        }
+        return prerequisites;
+    }
+
+    private static @NotNull List<PrerequisiteDefinition> loadPrerequisiteDefinitions(Set<PrerequisiteType> types) {
+        List<PrerequisiteDefinition> definitions = new ArrayList<>();
+        List<PrerequisiteDefinitionProvider> providers = PrerequisiteDefinitionProvider.EP.getExtensionList();
+        for (PrerequisiteDefinitionProvider provider : providers) {
+            PrerequisiteDefinition definition = provider.getDefinition();
+            if (types.contains(definition.getType())) {
+                definitions.add(definition);
+            }
+        }
+        return definitions;
+    }
+
+    public void evaluatePrerequisites(ConnectionHandler connection, DatabaseOperation operation) {
+        PrerequisiteBundle prerequisites = createPrerequisiteBundle(connection, operation);
+        Dialogs.show(() -> new PrerequisitesDialog(prerequisites));
 
     }
 

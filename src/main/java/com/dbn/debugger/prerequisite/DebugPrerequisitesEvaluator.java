@@ -23,7 +23,10 @@ import com.dbn.debugger.DBDebuggerType;
 import com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator;
 import com.dbn.prerequisite.model.PrerequisiteType;
 
-import static com.dbn.common.util.Commons.list;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.dbn.common.operation.DatabaseOperationType.DEBUG_JAVA_CODE;
 import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.DEBUG_ANY_PROCEDURE;
 import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.DEBUG_CONNECT_SESSION;
 import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.EXECUTE_DBMS_DEBUG;
@@ -31,40 +34,19 @@ import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.EXECUTE_DBMS_
 
 public class DebugPrerequisitesEvaluator implements PrerequisiteRequirementEvaluator {
     @Override
-    public PrerequisiteType[] resolvePrerequisites(DatabaseContext context, DatabaseOperation operation) {
+    public List<PrerequisiteType> resolvePrerequisites(DatabaseContext context, DatabaseOperation operation) {
+        List<PrerequisiteType> prerequisites = new ArrayList<>();
+
+        prerequisites.add(DEBUG_CONNECT_SESSION);
+        prerequisites.add(DEBUG_ANY_PROCEDURE);
+        prerequisites.add(EXECUTE_DBMS_DEBUG);
+
+
         DatabaseOperationType operationType = operation.getType();
-
-        if (operationType == DatabaseOperationType.DEBUG_JAVA_CODE) {
-            return list(
-                    DEBUG_CONNECT_SESSION,
-                    DEBUG_ANY_PROCEDURE,
-                    EXECUTE_DBMS_DEBUG,
-                    EXECUTE_DBMS_DEBUG_JDWP
-                    //...
-            );
+        DBDebuggerType debuggerType = operation.getAttribute("DEBUGGER_TYPE");
+        if (operationType == DEBUG_JAVA_CODE || debuggerType == DBDebuggerType.JDWP) {
+            prerequisites.add(EXECUTE_DBMS_DEBUG_JDWP);
         }
-
-        if (operationType == DatabaseOperationType.DEBUG_DATABASE_CODE) {
-            DBDebuggerType debuggerType = operation.getAttribute("DEBUGGER_TYPE");
-
-            if (debuggerType == DBDebuggerType.JDWP)
-                return list(
-                    DEBUG_CONNECT_SESSION,
-                    DEBUG_ANY_PROCEDURE,
-                    EXECUTE_DBMS_DEBUG,
-                    EXECUTE_DBMS_DEBUG_JDWP
-                    //...
-            ); else {
-                return list(
-                        DEBUG_CONNECT_SESSION,
-                        DEBUG_ANY_PROCEDURE,
-                        EXECUTE_DBMS_DEBUG
-                        //...
-                );
-            }
-        }
-
-
-        return new PrerequisiteType[0];
+        return prerequisites;
     }
 }

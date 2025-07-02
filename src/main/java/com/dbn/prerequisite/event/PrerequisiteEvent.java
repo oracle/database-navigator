@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package com.dbn.prerequisite.model;
+package com.dbn.prerequisite.event;
 
-import com.dbn.common.ui.Presentable;
-import com.dbn.prerequisite.definition.PrerequisiteDefinition;
+import com.dbn.prerequisite.model.Prerequisite;
+import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
-public interface Prerequisite extends Presentable {
-    PrerequisiteDefinition getDefinition();
-    PrerequisiteStatus getStatus();
-    String getStatusMessage();
-    Exception getStatusException();
+@Getter
+public class PrerequisiteEvent {
+    private final Prerequisite prerequisite;
+    private final PrerequisiteEventType type;
 
-    void setStatus(PrerequisiteStatus status);
-    void setStatusMessage(String statusMessage);
-    void setStatusException(Exception statusException);
+    public PrerequisiteEvent(@NotNull PrerequisiteEventType type, @NotNull Prerequisite prerequisite) {
+        this.type = type;
+        this.prerequisite = prerequisite;
+    }
 }

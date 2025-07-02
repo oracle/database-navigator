@@ -27,6 +27,8 @@ public class PrerequisiteBase implements Prerequisite {
     @Delegate
     private final PrerequisiteDefinition definition;
     private PrerequisiteStatus status = PrerequisiteStatus.NEW;
+    private String statusMessage;
+    private Exception statusException;
 
     public PrerequisiteBase(PrerequisiteDefinition definition) {
         this.definition = definition;

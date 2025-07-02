@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-package com.dbn.prerequisite.model;
+package com.dbn.prerequisite.event;
 
-import com.dbn.common.ui.Presentable;
-import com.dbn.prerequisite.definition.PrerequisiteDefinition;
+import java.util.EventListener;
 
-public interface Prerequisite extends Presentable {
-    PrerequisiteDefinition getDefinition();
-    PrerequisiteStatus getStatus();
-    String getStatusMessage();
-    Exception getStatusException();
-
-    void setStatus(PrerequisiteStatus status);
-    void setStatusMessage(String statusMessage);
-    void setStatusException(Exception statusException);
+public interface PrerequisiteEventListener extends EventListener {
+    void eventOccurred(PrerequisiteEvent event);
 }
