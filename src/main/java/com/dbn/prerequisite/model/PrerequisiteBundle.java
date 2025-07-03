@@ -69,6 +69,7 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
             try {
                 prerequisite.setStatus(EVALUATING);
                 notifyEvaluationStarted(prerequisite);
+
                 PrerequisiteEvaluator evaluator = prerequisite.getDefinition().getEvaluator();
                 boolean conditionsMet = evaluator.evaluate(this);
 
@@ -76,10 +77,11 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
                 notifyEvaluationFinished(prerequisite);
 
             } catch (Exception e) {
-                notifyEvaluationFailed(prerequisite);
                 prerequisite.setStatus(UNKNOWN);
                 prerequisite.setStatusException(e);
                 prerequisite.setStatusMessage("Could not verify prerequisite. " + e.getMessage());
+
+                notifyEvaluationFailed(prerequisite);
             }
         });
     }
