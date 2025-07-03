@@ -230,7 +230,8 @@
         <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.ObjectPrivilege_EXECUTE_DBMS_DEBUG_JDWP"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.SystemPrivilege_DEBUG_ANY_PROCEDURE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.SystemPrivilege_DEBUG_CONNECT_SESSION"/>
-        
+        <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.NetworkAccess_HOST_ACE_JDWP"/>
+
         <prerequisiteRequirementEvaluator implementation="com.dbn.debugger.prerequisite.DebugPrerequisitesEvaluator"/>
     </extensions>
 

@@ -31,6 +31,7 @@ import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.DEBUG_ANY_PRO
 import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.DEBUG_CONNECT_SESSION;
 import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.EXECUTE_DBMS_DEBUG;
 import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.EXECUTE_DBMS_DEBUG_JDWP;
+import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.HOST_ACE_JDWP;
 
 public class DebugPrerequisitesEvaluator implements PrerequisiteRequirementEvaluator {
     @Override
@@ -46,6 +47,7 @@ public class DebugPrerequisitesEvaluator implements PrerequisiteRequirementEvalu
         DBDebuggerType debuggerType = operation.getAttribute("DEBUGGER_TYPE");
         if (operationType == DEBUG_JAVA_CODE || debuggerType == DBDebuggerType.JDWP) {
             prerequisites.add(EXECUTE_DBMS_DEBUG_JDWP);
+            prerequisites.add(HOST_ACE_JDWP);
         }
         return prerequisites;
     }

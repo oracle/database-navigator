@@ -752,4 +752,6 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
     boolean hasSystemPrivilege(String privilegeName, DBNConnection connection) throws SQLException;
 
     boolean hasObjectPrivilege(String privilegeName, String ownerName, String objectName, DBNConnection connection) throws SQLException;
+
+    boolean hasHostAcePrivilege(String ownerName, DBNConnection connection) throws SQLException;
 }
