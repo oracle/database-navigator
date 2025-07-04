@@ -2880,21 +2880,34 @@
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="has-host-ace-privilege" is-query="true" is-prepared-statement="true">
-        <statement>
+        <statement prefixes="DBA, USER">
             select
                 case
                     when exists (
                         SELECT 1
-                            FROM DBA_HOST_ACES
+                            FROM [PREFIX]_HOST_ACES
                         WHERE
                             PRINCIPAL = '{0}' AND
-                            PRIVILEGE = 'JDWP' AND
-                            HOST = '127.0.0.1'
+                            PRIVILEGE = '{2}' AND
+                            HOST = '{1}'
                         )
                 then 'Y'
                 else 'N'
                 end as value
             from DUAL
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="grant-host-ace-privilege" is-prepared-statement="true">
+        <statement>
+            BEGIN
+                DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(
+                    host => {1},
+                    ace => xs$ace_type(
+                        privilege_list => xs$name_list({2}),
+                        principal_name => {0},
+                        principal_type => xs_acl.ptype_db)
+                    );
+            END;
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="explain-plan-result" is-query="true" is-prepared-statement="true">

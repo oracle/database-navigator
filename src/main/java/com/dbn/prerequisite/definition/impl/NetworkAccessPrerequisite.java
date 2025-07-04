@@ -27,6 +27,7 @@ import com.dbn.prerequisite.model.PrerequisiteCategory;
 import com.dbn.prerequisite.model.PrerequisiteType;
 import com.dbn.prerequisite.resolution.PrerequisiteResolver;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
@@ -34,7 +35,8 @@ import static com.dbn.nls.NlsResources.txt;
 @Getter
 public abstract class NetworkAccessPrerequisite extends PrerequisiteDefinitionProviderBase {
 
-    String ownerName;
+    protected abstract @NonNls String getHost();
+    protected abstract @NonNls String getPrivilege();
 
     protected NetworkAccessPrerequisite(PrerequisiteType prerequisiteType) {
         super(prerequisiteType);
@@ -43,23 +45,29 @@ public abstract class NetworkAccessPrerequisite extends PrerequisiteDefinitionPr
     @Override
     protected @Nullable PrerequisiteEvaluator createEvaluator() {
         return context -> {
-            this.ownerName = context.getSchemaName();
+            String schemaName = context.ensureConnection().getUserName();
+            String host = getHost();
+            String privilege = getPrivilege();
 
             DatabaseMetadataInterface metadataInterface = context.getMetadataInterface();
             return DatabaseInterfaceInvoker.load(Priority.HIGH,
                     txt("prc.prerequisite.title.CheckingHostAcePrivilege"),
-                    txt("prc.prerequisite.text.CheckingHostAcePrivilege", this.ownerName),
+                    txt("prc.prerequisite.text.CheckingHostAcePrivilege", schemaName, host, privilege),
                     context.getProject(),
                     context.getConnectionId(),
-                    c -> metadataInterface.hasHostAcePrivilege(this.ownerName, c));
+                    c -> metadataInterface.hasHostAcePrivilege(schemaName, host, privilege, c));
         };
     }
 
     @Override
     protected PrerequisiteDefinition createDefinition(PrerequisiteEvaluator evaluator, PrerequisiteResolver resolver) {
+        String schemaName = ""; // TODO get schema name from connection
+        String host = getHost();
+        String privilege = getPrivilege();
+
         return new PrerequisiteDefinitionBase(
                 txt("prc.prerequisite.title.CheckingHostAcePrivilege"),
-                txt("prc.prerequisite.text.CheckingHostAcePrivilege", this.ownerName),
+                txt("prc.prerequisite.text.CheckingHostAcePrivilege", schemaName, host, privilege),
                 getPrerequisiteType(),
                 PrerequisiteCategory.GRANT,
                 evaluator,
@@ -68,6 +76,18 @@ public abstract class NetworkAccessPrerequisite extends PrerequisiteDefinitionPr
 
     @Override
     protected @Nullable PrerequisiteResolver createResolver() {
-        return null;
+        return context -> {
+            String schemaName = context.ensureConnection().getUserName();
+            String host = getHost();
+            String privilege = getPrivilege();
+
+            DatabaseMetadataInterface metadataInterface = context.getMetadataInterface();
+            DatabaseInterfaceInvoker.execute(Priority.HIGH,
+                    txt("prc.prerequisite.title.GrantingHostAcePrivilege"),
+                    txt("prc.prerequisite.text.GrantingHostAcePrivilege", schemaName, host, privilege),
+                    context.getProject(),
+                    context.getConnectionId(),
+                    c -> metadataInterface.grantHostAcePrivilege(schemaName, host, privilege, c));
+        };
     }
 }

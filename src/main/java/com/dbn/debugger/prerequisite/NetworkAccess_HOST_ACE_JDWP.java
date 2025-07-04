@@ -23,4 +23,14 @@ public class NetworkAccess_HOST_ACE_JDWP extends NetworkAccessPrerequisite {
     public NetworkAccess_HOST_ACE_JDWP() {
         super(DebugPrerequisiteTypes.HOST_ACE_JDWP);
     }
+
+    @Override
+    protected String getHost() {
+        return "127.0.0.1";
+    }
+
+    @Override
+    protected String getPrivilege() {
+        return "JDWP";
+    }
 }

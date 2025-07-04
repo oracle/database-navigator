@@ -641,7 +641,12 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
-    public boolean hasHostAcePrivilege(String ownerName, DBNConnection connection) throws SQLException {
-        return getBooleanValue(connection, "has-object-privilege", ownerName);
+    public boolean hasHostAcePrivilege(String ownerName, String host, String privilege, DBNConnection connection) throws SQLException {
+        return getBooleanValue(connection, "has-host-ace-privilege", ownerName, host, privilege);
+    }
+
+    @Override
+    public void grantHostAcePrivilege(String ownerName, String host, String privilege, DBNConnection connection) throws SQLException {
+        executeQuery(connection, "grant-host-ace-privilege", ownerName, host, privilege);
     }
 }
