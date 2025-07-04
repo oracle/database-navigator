@@ -20,8 +20,8 @@ import lombok.Getter;
 
 @Getter
 public enum DatabaseOperationType {
-    DEBUG_JAVA_CODE("Debugging java code"),
-    DEBUG_DATABASE_CODE("Debugging database code"),
+    DEBUG_JAVA_CODE("Debugging Java Code"),
+    DEBUG_DATABASE_CODE("Debugging Database Code"),
     ;
 
     private final String description;

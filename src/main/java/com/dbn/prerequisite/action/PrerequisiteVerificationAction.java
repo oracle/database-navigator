@@ -17,21 +17,17 @@
 package com.dbn.prerequisite.action;
 
 import com.dbn.common.action.BasicAction;
-import com.dbn.common.action.ProjectAction;
 import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.common.operation.DatabaseOperationType;
 import com.dbn.common.ui.util.Popups;
-import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.ConnectionRef;
-import com.dbn.object.DBConsole;
 import com.dbn.prerequisite.DatabasePrerequisiteManager;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,74 +37,63 @@ import java.util.List;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.common.util.Lists.convert;
-import static com.dbn.nls.NlsResources.txt;
 
-public class PrerequisiteVerificationAction extends ProjectAction {
+public class PrerequisiteVerificationAction extends ActionGroup {
 
-    @Override
-    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        Presentation presentation = e.getPresentation();
-        presentation.setText(txt("app.menu.action.PrerequisiteVerification"));
+
+    public AnAction[] getChildren(AnActionEvent e) {
+        List<AnAction> actions = new ArrayList<>();
+
+        for (DatabaseOperationType operationType : DatabaseOperationType.values()) {
+            actions.add(new SelectOperationAction(new DatabaseOperation(operationType)));
+        }
+        return actions.toArray(new AnAction[0]);
     }
 
-    @Override
-    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        //FeatureUsageTracker.getInstance().triggerFeatureUsed("navigation.popup.file");
-        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-        ConnectionBundle connectionBundle = connectionManager.getConnectionBundle();
-        List<ConnectionHandler> connections = connectionBundle.getConnections();
-        if (connections.isEmpty()) {
-            connectionManager.promptMissingConnection();
-            return;
+    private static class SelectOperationAction extends BasicAction {
+        private final DatabaseOperation operation;
+
+
+        SelectOperationAction(DatabaseOperation operation) {
+            super(operation.getType().getDescription());
+            this.operation = operation;
         }
 
-        if (connections.size() == 1) {
-            openSQLConsole(connections.get(0));
-            return;
-        }
-
-        List<SelectConnectionAction> actions = convert(connections, c -> new SelectConnectionAction(c));
-        Popups.popupBuilder(actions, e).
-                withTitle("Select Console Connection").
-                withSpeedSearch().
-                buildAndShowCentered();
-    }
-
-    private static class SelectConnectionAction extends ActionGroup {
-        private final ConnectionRef connection;
-
-        private SelectConnectionAction(ConnectionHandler connection) {
-            super(adjustActionName(connection.getName()), null, connection.getIcon());
-            this.connection = ConnectionRef.of(connection);
-            setPopup(true);
-        }
-/*
         @Override
-        public void actionPerformed(AnActionEvent e) {
-            openSQLConsole(connection);
-            latestSelection = connection;
-        }*/
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            Project project = e.getProject();
+            if (isNotValid(project)) return;
 
-        @NotNull
-        @Override
-        public AnAction[] getChildren(AnActionEvent e) {
-            ConnectionHandler connection = this.connection.ensure();
-            List<AnAction> actions = new ArrayList<>();
-
-            for (DatabaseOperationType operationType : DatabaseOperationType.values()) {
-                actions.add(new OperationVerificationAction(connection, new DatabaseOperation(operationType)));
+            //FeatureUsageTracker.getInstance().triggerFeatureUsed("navigation.popup.file");
+            ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+            ConnectionBundle connectionBundle = connectionManager.getConnectionBundle();
+            List<ConnectionHandler> connections = connectionBundle.getConnections();
+            if (connections.isEmpty()) {
+                connectionManager.promptMissingConnection();
+                return;
             }
-            return actions.toArray(new AnAction[0]);
+
+            if (connections.size() == 1) {
+                openPrerequisiteEvaluator(connections.get(0), operation);
+                return;
+            }
+
+            List<SelectTargetConnection> actions = convert(connections, c -> new SelectTargetConnection(c, operation));
+            Popups.popupBuilder(actions, e).
+                    withTitle("Prerequisite Verification Target").
+                    withSpeedSearch().
+                    buildAndShowCentered();
         }
     }
 
-    private static class OperationVerificationAction extends BasicAction {
+
+    private static class SelectTargetConnection extends BasicAction {
         private final ConnectionRef connection;
         private final DatabaseOperation operation;
 
 
-        OperationVerificationAction(ConnectionHandler connection, DatabaseOperation operation) {
-            super(operation.getType().getDescription());
+        SelectTargetConnection(ConnectionHandler connection, DatabaseOperation operation) {
+            super(adjustActionName(connection.getName()), null, connection.getIcon());
             this.connection = ConnectionRef.of(connection);
             this.operation = operation;
         }
@@ -116,17 +101,16 @@ public class PrerequisiteVerificationAction extends ProjectAction {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             ConnectionHandler connection = this.connection.get();
-            if (isNotValid(connection)) return;
-
-            Project project = connection.getProject();
-            DatabasePrerequisiteManager prerequisiteManager = DatabasePrerequisiteManager.getInstance(project);
-
-            prerequisiteManager.evaluatePrerequisites(connection, operation);
+            openPrerequisiteEvaluator(connection, operation);
         }
     }
 
-    private static void openSQLConsole(ConnectionHandler connection) {
-        DBConsole defaultConsole = connection.getConsoleBundle().getDefaultConsole();
-        Editors.openFileEditor(connection.getProject(), defaultConsole.getVirtualFile(), true);
+    private static void openPrerequisiteEvaluator(ConnectionHandler connection, DatabaseOperation operation) {
+        if (isNotValid(connection)) return;
+
+        Project project = connection.getProject();
+        DatabasePrerequisiteManager prerequisiteManager = DatabasePrerequisiteManager.getInstance(project);
+
+        prerequisiteManager.evaluatePrerequisites(connection, operation);
     }
 }
