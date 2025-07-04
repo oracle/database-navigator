@@ -31,7 +31,7 @@ public class ObjectPrivilege_EXECUTE_DBMS_DEBUG extends ObjectPrivilegePrerequis
 
     @Override
     protected String getObjectName() {
-        return "DMBS_DEBUG";
+        return "DBMS_DEBUG";
     }
 
     @Override

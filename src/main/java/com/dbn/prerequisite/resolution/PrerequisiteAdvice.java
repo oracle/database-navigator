@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package com.dbn.debugger.prerequisite;
+package com.dbn.prerequisite.resolution;
 
-import com.dbn.prerequisite.definition.impl.NetworkAccessPrerequisite;
+import lombok.Getter;
 
-public class NetworkAccess_HOST_ACE_JDWP extends NetworkAccessPrerequisite {
+@Getter
+public class PrerequisiteAdvice {
+    private final String title;
+    private final String description;
+    private final String code;
 
-    public NetworkAccess_HOST_ACE_JDWP() {
-        super(DebugPrerequisiteTypes.HOST_ACE_JDWP);
-    }
-
-    @Override
-    protected String getHostName() {
-        return "127.0.0.1";
-    }
-
-    @Override
-    protected String getPrivilegeName() {
-        return "JDWP";
+    public PrerequisiteAdvice(String title, String description, String code) {
+        this.title = title;
+        this.description = description;
+        this.code = code;
     }
 }

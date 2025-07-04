@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package com.dbn.debugger.prerequisite;
+package com.dbn.prerequisite.resolution;
 
-import com.dbn.prerequisite.definition.impl.NetworkAccessPrerequisite;
+import com.dbn.connection.context.DatabaseContext;
 
-public class NetworkAccess_HOST_ACE_JDWP extends NetworkAccessPrerequisite {
-
-    public NetworkAccess_HOST_ACE_JDWP() {
-        super(DebugPrerequisiteTypes.HOST_ACE_JDWP);
-    }
-
-    @Override
-    protected String getHostName() {
-        return "127.0.0.1";
-    }
-
-    @Override
-    protected String getPrivilegeName() {
-        return "JDWP";
-    }
+/**
+ * The PrerequisiteAdvisor interface provides a mechanism for generating
+ * advice related to a prerequisite within a given database context.
+ * It is used to generate a user-readable recommendation on the resolution
+ * of an unmet prerequisite, encapsulated in a {@link PrerequisiteAdvice} object.
+ */
+public interface PrerequisiteAdvisor {
+    PrerequisiteAdvice advise(DatabaseContext context);
 }

@@ -31,7 +31,7 @@ public class ObjectPrivilege_EXECUTE_DBMS_DEBUG_JDWP extends ObjectPrivilegePrer
 
     @Override
     protected String getObjectName() {
-        return "DMBS_DEBUG_JDWP";
+        return "DBMS_DEBUG_JDWP";
     }
 
     @Override

@@ -25,69 +25,105 @@ import com.dbn.prerequisite.definition.PrerequisiteDefinitionProviderBase;
 import com.dbn.prerequisite.evaluation.PrerequisiteEvaluator;
 import com.dbn.prerequisite.model.PrerequisiteCategory;
 import com.dbn.prerequisite.model.PrerequisiteType;
+import com.dbn.prerequisite.resolution.PrerequisiteAdvice;
+import com.dbn.prerequisite.resolution.PrerequisiteAdvisor;
 import com.dbn.prerequisite.resolution.PrerequisiteResolver;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public abstract class NetworkAccessPrerequisite extends PrerequisiteDefinitionProviderBase {
 
-    protected abstract @NonNls String getHost();
-    protected abstract @NonNls String getPrivilege();
+    protected abstract @NonNls String getHostName();
+    protected abstract @NonNls String getPrivilegeName();
 
     protected NetworkAccessPrerequisite(PrerequisiteType prerequisiteType) {
         super(prerequisiteType);
     }
 
+    @NotNull
     @Override
-    protected @Nullable PrerequisiteEvaluator createEvaluator() {
+    protected PrerequisiteEvaluator createEvaluator() {
         return context -> {
-            String schemaName = context.ensureConnection().getUserName();
-            String host = getHost();
-            String privilege = getPrivilege();
+            String privilegeName = getPrivilegeName();
+            String hostName = getHostName();
+            String userName = context.getUserName();
 
             DatabaseMetadataInterface metadataInterface = context.getMetadataInterface();
             return DatabaseInterfaceInvoker.load(Priority.HIGH,
-                    txt("prc.prerequisite.title.CheckingHostAcePrivilege"),
-                    txt("prc.prerequisite.text.CheckingHostAcePrivilege", schemaName, host, privilege),
+                    txt("prc.prerequisite.title.CheckingNetworkPrivilege"),
+                    txt("prc.prerequisite.text.CheckingHostAcePrivilege", userName, hostName, privilegeName),
                     context.getProject(),
                     context.getConnectionId(),
-                    c -> metadataInterface.hasHostAcePrivilege(schemaName, host, privilege, c));
+                    c -> metadataInterface.hasNetworkPrivilege(
+                            userName,
+                            hostName,
+                            privilegeName, c));
         };
     }
 
+    @NotNull
     @Override
-    protected PrerequisiteDefinition createDefinition(PrerequisiteEvaluator evaluator, PrerequisiteResolver resolver) {
-        String schemaName = ""; // TODO get schema name from connection
-        String host = getHost();
-        String privilege = getPrivilege();
-
+    protected PrerequisiteDefinition createDefinition(PrerequisiteEvaluator evaluator, PrerequisiteResolver resolver, PrerequisiteAdvisor advisor) {
+        String privilegeName = getPrivilegeName();
+        String hostName = getHostName();
         return new PrerequisiteDefinitionBase(
-                txt("prc.prerequisite.title.CheckingHostAcePrivilege"),
-                txt("prc.prerequisite.text.CheckingHostAcePrivilege", schemaName, host, privilege),
+                txt("app.prerequisite.title.NetworkPrivilege", privilegeName, hostName),
+                txt("app.prerequisite.text.NetworkPrivilege", privilegeName, hostName),
                 getPrerequisiteType(),
                 PrerequisiteCategory.GRANT,
                 evaluator,
-                resolver);
+                resolver,
+                advisor);
     }
 
+
+    @NotNull
     @Override
-    protected @Nullable PrerequisiteResolver createResolver() {
+    protected PrerequisiteResolver createResolver() {
+        // users may under circumstances grant network ACL privileges to (for) themselves
+
         return context -> {
-            String schemaName = context.ensureConnection().getUserName();
-            String host = getHost();
-            String privilege = getPrivilege();
+            String privilegeName = getPrivilegeName();
+            String userName = context.getUserName();
+            String hostName = getHostName();
 
             DatabaseMetadataInterface metadataInterface = context.getMetadataInterface();
             DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                    txt("prc.prerequisite.title.GrantingHostAcePrivilege"),
-                    txt("prc.prerequisite.text.GrantingHostAcePrivilege", schemaName, host, privilege),
+                    txt("prc.prerequisite.title.GrantingNetworkPrivilege"),
+                    txt("prc.prerequisite.text.GrantingHostAcePrivilege", userName, hostName, privilegeName),
                     context.getProject(),
                     context.getConnectionId(),
-                    c -> metadataInterface.grantHostAcePrivilege(schemaName, host, privilege, c));
+                    c -> metadataInterface.grantNetworkPrivilege(
+                            userName,
+                            hostName,
+                            privilegeName, c));
+        };
+    }
+
+    @NotNull
+    protected PrerequisiteAdvisor createAdvisor() {
+        return context -> {
+            String privilegeName = getPrivilegeName();
+            String hostName = getHostName();
+            String userName = context.getUserName();
+
+            return new PrerequisiteAdvice(
+                    "Request privilege",
+                    "Request \"" + privilegeName + "\" network privilege for host \"" + hostName + "\"",
+                    String.format("BEGIN\n" +
+                            "   DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(\n" +
+                            "       host =>  '%s',\n" +
+                            "       ace  => xs$ace_type(\n" +
+                            "           privilege_list => xs$name_list('%s'),\n" +
+                            "           principal_name => '%s',\n" +
+                            "           principal_type => xs_acl.ptype_db\n" +
+                            "      )\n" +
+                            "    );\n" +
+                            "END;", hostName, privilegeName, userName));
         };
     }
 }

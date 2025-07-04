@@ -2879,25 +2879,37 @@
             from DUAL
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="has-host-ace-privilege" is-query="true" is-prepared-statement="true">
-        <statement prefixes="DBA, USER">
+    <statement-execution-processor id="has-network-privilege" is-query="true" is-prepared-statement="true">
+        <statement>
             select
                 case
                     when exists (
-                        SELECT 1
-                            FROM [PREFIX]_HOST_ACES
+                        SELECT 1 FROM DBA_HOST_ACES
                         WHERE
-                            PRINCIPAL = '{0}' AND
-                            PRIVILEGE = '{2}' AND
-                            HOST = '{1}'
-                        )
+                            PRINCIPAL = {0} AND
+                            HOST = {1}  AND
+                            UPPER(PRIVILEGE) = UPPER({2}))
                 then 'Y'
                 else 'N'
                 end as value
             from DUAL
         </statement>
+        <statement>
+            select
+                case
+                    when exists (
+                        SELECT 1 FROM USER_HOST_ACES
+                        WHERE
+                            USER = {0} AND
+                            HOST = {1} AND
+                            UPPER(PRIVILEGE) = UPPER({2}))
+                    then 'Y'
+                    else 'N'
+                end as value
+            from DUAL
+        </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="grant-host-ace-privilege" is-prepared-statement="true">
+    <statement-execution-processor id="grant-network-privilege" is-prepared-statement="true">
         <statement>
             BEGIN
                 DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(

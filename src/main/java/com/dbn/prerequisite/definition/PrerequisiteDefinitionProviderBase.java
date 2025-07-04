@@ -18,8 +18,10 @@ package com.dbn.prerequisite.definition;
 
 import com.dbn.prerequisite.evaluation.PrerequisiteEvaluator;
 import com.dbn.prerequisite.model.PrerequisiteType;
+import com.dbn.prerequisite.resolution.PrerequisiteAdvisor;
 import com.dbn.prerequisite.resolution.PrerequisiteResolver;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class PrerequisiteDefinitionProviderBase implements PrerequisiteDefinitionProvider{
@@ -36,15 +38,19 @@ public abstract class PrerequisiteDefinitionProviderBase implements Prerequisite
     private PrerequisiteDefinition createDefinition() {
         PrerequisiteEvaluator evaluator = createEvaluator();
         PrerequisiteResolver resolver = createResolver();
-        return createDefinition(evaluator, resolver);
+        PrerequisiteAdvisor advisor = createAdvisor();
+        return createDefinition(evaluator, resolver, advisor);
     }
 
-    @Nullable
+    @NotNull
     protected abstract PrerequisiteEvaluator createEvaluator();
 
     @Nullable
     protected abstract PrerequisiteResolver createResolver();
 
-    protected abstract PrerequisiteDefinition createDefinition(PrerequisiteEvaluator evaluator, PrerequisiteResolver resolver);
+    @NotNull
+    protected abstract PrerequisiteAdvisor createAdvisor();
+
+    protected abstract PrerequisiteDefinition createDefinition(PrerequisiteEvaluator evaluator, PrerequisiteResolver resolver, PrerequisiteAdvisor advisor);
 
 }

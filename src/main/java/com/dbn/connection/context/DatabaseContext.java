@@ -46,7 +46,11 @@ public interface DatabaseContext extends DatabaseInterfacesProvider {
 
     boolean isSameAs(DatabaseContext context);
 
+    @Nullable
     DBSchema getSchema();
+
+    @Nullable
+    String getUserName();
 
     @Nullable
     default String getSchemaName() {

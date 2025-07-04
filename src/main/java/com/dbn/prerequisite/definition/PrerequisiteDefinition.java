@@ -21,6 +21,7 @@ import com.dbn.prerequisite.evaluation.PrerequisiteEvaluator;
 import com.dbn.prerequisite.model.Prerequisite;
 import com.dbn.prerequisite.model.PrerequisiteCategory;
 import com.dbn.prerequisite.model.PrerequisiteType;
+import com.dbn.prerequisite.resolution.PrerequisiteAdvisor;
 import com.dbn.prerequisite.resolution.PrerequisiteResolver;
 
 public interface PrerequisiteDefinition {
@@ -30,6 +31,7 @@ public interface PrerequisiteDefinition {
     PrerequisiteCategory getCategory();
     PrerequisiteEvaluator getEvaluator();
     PrerequisiteResolver getResolver();
+    PrerequisiteAdvisor getAdvisor();
 
     boolean supports(DatabaseFeature feature);
 

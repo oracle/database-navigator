@@ -25,9 +25,12 @@ import com.dbn.prerequisite.definition.PrerequisiteDefinitionProviderBase;
 import com.dbn.prerequisite.evaluation.PrerequisiteEvaluator;
 import com.dbn.prerequisite.model.PrerequisiteCategory;
 import com.dbn.prerequisite.model.PrerequisiteType;
+import com.dbn.prerequisite.resolution.PrerequisiteAdvice;
+import com.dbn.prerequisite.resolution.PrerequisiteAdvisor;
 import com.dbn.prerequisite.resolution.PrerequisiteResolver;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
@@ -45,8 +48,13 @@ public abstract class ObjectPrivilegePrerequisite extends PrerequisiteDefinition
     protected abstract @NonNls String getPrivilegeName();
 
 
+    @NotNull
     @Override
-    public PrerequisiteDefinition createDefinition(PrerequisiteEvaluator evaluator, PrerequisiteResolver resolver) {
+    public PrerequisiteDefinition createDefinition(
+            PrerequisiteEvaluator evaluator,
+            PrerequisiteResolver resolver,
+            PrerequisiteAdvisor advisor) {
+
         String privilegeName = getPrivilegeName();
         String ownerName = getOwnerName();
         String objectName = getObjectName();
@@ -57,9 +65,11 @@ public abstract class ObjectPrivilegePrerequisite extends PrerequisiteDefinition
                 getPrerequisiteType(),
                 PrerequisiteCategory.GRANT,
                 evaluator,
-                resolver);
+                resolver,
+                advisor);
     }
 
+    @NotNull
     @Override
     protected PrerequisiteEvaluator createEvaluator() {
         return context -> {
@@ -77,8 +87,26 @@ public abstract class ObjectPrivilegePrerequisite extends PrerequisiteDefinition
         };
     }
 
+    @Nullable
     @Override
-    protected @Nullable PrerequisiteResolver createResolver() {
+    protected PrerequisiteResolver createResolver() {
+        // users cannot grant object privileges to themselves, hence no "resolver"
         return null;
+    }
+
+    @Override
+    @NotNull
+    protected PrerequisiteAdvisor createAdvisor() {
+        return context -> {
+            String privilegeName = getPrivilegeName();
+            String ownerName = getOwnerName();
+            String objectName = getObjectName();
+            String userName = context.getUserName();
+
+            return new PrerequisiteAdvice(
+                    "Request privilege",
+                    "Request " + privilegeName + " privilege on " + ownerName + "." + objectName + " object",
+                    String.format("grant %s on %s.%s to %s;", privilegeName, ownerName, objectName, userName));
+        };
     }
 }

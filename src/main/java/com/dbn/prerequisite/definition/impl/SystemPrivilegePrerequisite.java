@@ -25,9 +25,12 @@ import com.dbn.prerequisite.definition.PrerequisiteDefinitionProviderBase;
 import com.dbn.prerequisite.evaluation.PrerequisiteEvaluator;
 import com.dbn.prerequisite.model.PrerequisiteCategory;
 import com.dbn.prerequisite.model.PrerequisiteType;
+import com.dbn.prerequisite.resolution.PrerequisiteAdvice;
+import com.dbn.prerequisite.resolution.PrerequisiteAdvisor;
 import com.dbn.prerequisite.resolution.PrerequisiteResolver;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
@@ -40,9 +43,9 @@ public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinition
 
     protected abstract @NonNls String getPrivilegeName();
 
-
+    @NotNull
     @Override
-    public PrerequisiteDefinition createDefinition(PrerequisiteEvaluator evaluator, PrerequisiteResolver resolver) {
+    public PrerequisiteDefinition createDefinition(PrerequisiteEvaluator evaluator, PrerequisiteResolver resolver, PrerequisiteAdvisor advisor) {
         String privilegeName = getPrivilegeName();
         return new PrerequisiteDefinitionBase(
                 txt("app.prerequisite.title.SystemPrivilege", privilegeName),
@@ -50,9 +53,11 @@ public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinition
                 getPrerequisiteType(),
                 PrerequisiteCategory.GRANT,
                 evaluator,
-                resolver);
+                resolver,
+                advisor);
     }
 
+    @NotNull
     @Override
     protected PrerequisiteEvaluator createEvaluator() {
         return context -> {
@@ -68,8 +73,24 @@ public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinition
         };
     }
 
+    @Nullable
     @Override
-    protected @Nullable PrerequisiteResolver createResolver() {
+    protected PrerequisiteResolver createResolver() {
+        // users cannot grant system privileges to themselves, hence no "resolver"
         return null;
+    }
+
+    @NotNull
+    @Override
+    protected PrerequisiteAdvisor createAdvisor() {
+        return context -> {
+            String privilegeName = getPrivilegeName();
+            String userName = context.getUserName();
+
+            return new PrerequisiteAdvice(
+                    "Request privilege",
+                    "Request " + privilegeName + " system privilege",
+                    String.format("grant %s to %s;", privilegeName, userName));
+        };
     }
 }

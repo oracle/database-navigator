@@ -22,6 +22,7 @@ import com.dbn.prerequisite.model.Prerequisite;
 import com.dbn.prerequisite.model.PrerequisiteBase;
 import com.dbn.prerequisite.model.PrerequisiteCategory;
 import com.dbn.prerequisite.model.PrerequisiteType;
+import com.dbn.prerequisite.resolution.PrerequisiteAdvisor;
 import com.dbn.prerequisite.resolution.PrerequisiteResolver;
 import lombok.Getter;
 
@@ -35,16 +36,26 @@ public class PrerequisiteDefinitionBase implements PrerequisiteDefinition {
     private final PrerequisiteCategory category;
     private final PrerequisiteEvaluator evaluator;
     private final PrerequisiteResolver resolver;
+    private final PrerequisiteAdvisor advisor;
     private final Set<DatabaseFeature> features;
 
 
-    public PrerequisiteDefinitionBase(String name, String description, PrerequisiteType type, PrerequisiteCategory category, PrerequisiteEvaluator evaluator, PrerequisiteResolver resolver, DatabaseFeature ... features) {
+    public PrerequisiteDefinitionBase(
+            String name,
+            String description,
+            PrerequisiteType type,
+            PrerequisiteCategory category,
+            PrerequisiteEvaluator evaluator,
+            PrerequisiteResolver resolver,
+            PrerequisiteAdvisor advisor,
+            DatabaseFeature ... features) {
         this.name = name;
         this.description = description;
         this.type = type;
         this.category = category;
         this.evaluator = evaluator;
         this.resolver = resolver;
+        this.advisor = advisor;
         this.features = Set.of(features);
     }
 
