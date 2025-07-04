@@ -73,8 +73,8 @@ import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.EditorNotifications;
 import com.intellij.ui.TabbedPaneWrapper;
+import com.intellij.ui.tabs.JBTabs;
 import com.intellij.ui.tabs.TabInfo;
-import com.intellij.ui.tabs.impl.JBTabsImpl;
 import com.intellij.util.ui.UIUtil;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -159,7 +159,7 @@ public class Editors {
     }
 
     public static void setEditorProviderIcon(@NotNull Project project, @NotNull VirtualFile file, @NotNull FileEditor fileEditor, Icon icon) {
-        JBTabsImpl tabs = getEditorTabComponent(project, file, fileEditor);
+        JBTabs tabs = getEditorTabComponent(project, file, fileEditor);
         if (tabs == null) return;
 
         TabInfo tabInfo = getEditorTabInfo(tabs, fileEditor.getComponent());
@@ -169,7 +169,7 @@ public class Editors {
     }
 
     @Nullable
-    private static JBTabsImpl getEditorTabComponent(@NotNull Project project, @NotNull VirtualFile file, FileEditor fileEditor) {
+    private static JBTabs getEditorTabComponent(@NotNull Project project, @NotNull VirtualFile file, FileEditor fileEditor) {
         FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
         FileEditor selectedEditor = fileEditorManager.getSelectedEditor(file);
         if (selectedEditor == null) {
@@ -183,13 +183,13 @@ public class Editors {
             }
         }
         if (selectedEditor != null) {
-            return UIUtil.getParentOfType(JBTabsImpl.class, selectedEditor.getComponent());
+            return UIUtil.getParentOfType(JBTabs.class, selectedEditor.getComponent());
         }
         return null;
     }
 
     @Nullable
-    private static TabInfo getEditorTabInfo(@NotNull JBTabsImpl tabs, JComponent editorComponent) {
+    private static TabInfo getEditorTabInfo(@NotNull JBTabs tabs, JComponent editorComponent) {
         Component wrapperComponent = UIUtil.getParentOfType(TabbedPaneWrapper.TabWrapper.class, editorComponent);
         List<TabInfo> tabInfos = tabs.getTabs();
         for (TabInfo tabInfo : tabInfos) {
