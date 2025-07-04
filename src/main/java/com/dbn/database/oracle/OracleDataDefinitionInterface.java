@@ -35,6 +35,7 @@ import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
 
+import static com.dbn.common.util.Naming.unquote;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.database.DatabaseObjectTypeId.DATABASE_TRIGGER;
 import static com.dbn.database.DatabaseObjectTypeId.DATASET_TRIGGER;
@@ -148,10 +149,11 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
 
     public void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
         try {
-            executeSilentUpdate(connection, "set-java-compiler-option", objectName.replace("\"", ""), "true");
+            executeSilentUpdate(connection, "set-java-property", "sun.tools.javac.Main.args", 'g');
+            executeSilentUpdate(connection, "set-java-compiler-option", unquote(objectName), "debug", "true");
             executeUpdate(connection, "compile-java-class", ownerName, objectName);
         } finally {
-            executeSilentUpdate(connection, "set-java-compiler-option", objectName.replace("\"", ""), "false");
+            executeSilentUpdate(connection, "set-java-compiler-option", unquote(objectName), "debug", "false");
         }
     }
 
