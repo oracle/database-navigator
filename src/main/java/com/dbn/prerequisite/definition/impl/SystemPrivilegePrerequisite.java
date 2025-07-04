@@ -89,7 +89,7 @@ public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinition
 
             return new PrerequisiteAdvice(
                     "Request privilege",
-                    "Request " + privilegeName + " system privilege",
+                    "request " + privilegeName + " system privilege",
                     String.format("grant %s to %s;", privilegeName, userName));
         };
     }

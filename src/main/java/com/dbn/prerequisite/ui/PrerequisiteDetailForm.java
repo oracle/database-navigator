@@ -27,7 +27,6 @@ import com.dbn.prerequisite.event.PrerequisiteEventType;
 import com.dbn.prerequisite.model.Prerequisite;
 import com.dbn.prerequisite.model.PrerequisiteBundle;
 import com.dbn.prerequisite.model.PrerequisiteStatus;
-import com.dbn.prerequisite.resolution.PrerequisiteAdvice;
 import com.dbn.prerequisite.resolution.PrerequisiteAdvisor;
 import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.JBUI;
@@ -46,8 +45,7 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
     private JPanel statusPanel;
     private JLabel titleLabel;
     private JTextArea descriptionTextArea;
-    private JTextArea adviceCodeTextArea;
-    private JLabel adviceTextLabel;
+    private JLabel statusLabel;
 
     private final Prerequisite prerequisite;
 
@@ -57,22 +55,17 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
 
         parent.getPrerequisiteBundle().addEventListener(this);
 
+        Color greyContent = Colors.faded(UIUtil.getLabelForeground());
+
         PrerequisiteDefinition definition = prerequisite.getDefinition();
         titleLabel.setText(definition.getName());
+        statusLabel.setForeground(greyContent);
         descriptionTextArea.setFont(JBUI.Fonts.label());
-        descriptionTextArea.setForeground(Colors.faded(UIUtil.getLabelForeground()));
+        descriptionTextArea.setForeground(greyContent);
         descriptionTextArea.setText(definition.getDescription());
 
         ConnectionHandler connection = parent.getPrerequisiteBundle().getConnection();
         PrerequisiteAdvisor advisor = prerequisite.getDefinition().getAdvisor();
-        PrerequisiteAdvice advice = advisor.advise(connection);
-
-        adviceTextLabel.setText(advice.getDescription());
-        adviceTextLabel.setVisible(false);
-        adviceCodeTextArea.setText(advice.getCode());
-
-        Color background = Colors.lafBrighter(Colors.getEditorBackground(), 5);
-        adviceCodeTextArea.setBackground(background);
     }
 
     private PrerequisiteBundle getBundle() {
@@ -82,17 +75,27 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
 
     public void initialize() {
         statusPanel.removeAll();
-        statusPanel.add(new AsyncProcessIcon("Processing..."));
+        statusPanel.add(new AsyncProcessIcon("Verifying prerequisite..."));
+        statusLabel.setText("Verifying...");
         //messageTextPane.setText("Verifying prerequisite");
     }
 
     public void complete() {
         statusPanel.removeAll();
+        PrerequisiteStatus status = prerequisite.getStatus();
         Exception exception = prerequisite.getStatusException();
         String message = prerequisite.getStatusMessage();
 
+        statusLabel.setToolTipText(message);
+        if (exception != null) {
+            statusLabel.setText("Unknown");
+        } else if (status == PrerequisiteStatus.SATISFIED) {
+            statusLabel.setText("OK");
+        } else if (status == PrerequisiteStatus.UNSATISFIED) {
+            statusLabel.setText("Not OK");
+        }
 
-        Icon icon = exception == null && prerequisite.getStatus() == PrerequisiteStatus.SATISFIED?
+        Icon icon = exception == null && status == PrerequisiteStatus.SATISFIED?
                 Icons.COMMON_STATUS_SUCCESS :
                 Icons.COMMON_STATUS_ERROR;
 

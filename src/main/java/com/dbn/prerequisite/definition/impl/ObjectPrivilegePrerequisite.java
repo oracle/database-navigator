@@ -105,7 +105,7 @@ public abstract class ObjectPrivilegePrerequisite extends PrerequisiteDefinition
 
             return new PrerequisiteAdvice(
                     "Request privilege",
-                    "Request " + privilegeName + " privilege on " + ownerName + "." + objectName + " object",
+                    "request " + privilegeName + " privilege on " + ownerName + "." + objectName + " object",
                     String.format("grant %s on %s.%s to %s;", privilegeName, ownerName, objectName, userName));
         };
     }

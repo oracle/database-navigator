@@ -27,6 +27,9 @@ import com.dbn.prerequisite.evaluation.PrerequisiteEvaluator;
 import com.dbn.prerequisite.event.PrerequisiteEvent;
 import com.dbn.prerequisite.event.PrerequisiteEventListener;
 import com.dbn.prerequisite.event.PrerequisiteEventType;
+import com.dbn.prerequisite.resolution.PrerequisiteAdvice;
+import com.dbn.prerequisite.resolution.PrerequisiteAdvisor;
+import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -58,6 +61,29 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
     @NotNull
     public ConnectionHandler getConnection() {
         return ConnectionRef.ensure(connection);
+    }
+
+    @NotNull
+    @Override
+    public Project getProject() {
+        return getConnection().getProject();
+    }
+
+    public String createAdviceContent() {
+        StringBuilder builder = new StringBuilder();
+        ConnectionHandler connection = this.connection.ensure();
+        for (Prerequisite prerequisite : prerequisites) {
+            PrerequisiteAdvisor advisor = prerequisite.getDefinition().getAdvisor();
+            PrerequisiteAdvice advice = advisor.advise(connection);
+            builder.append("--");
+            builder.append(advice.getDescription());
+            builder.append("\n");
+            builder.append(advice.getCode());
+            builder.append("\n");
+            builder.append("\n");
+        }
+
+        return builder.toString();
     }
 
     public void evaluateAll() {

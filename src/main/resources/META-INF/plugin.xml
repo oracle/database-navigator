@@ -687,6 +687,7 @@
         <fileType name="DBN-PSQL" language="DBN-PSQL" implementationClass="com.dbn.language.psql.PSQLFileType" fieldName="INSTANCE" extensions="psql;plsql;trg;prc;fnc;pkg;pks;pkb;tpe;tps;tpb"/>
 
         <fileIconProvider order="last" implementation="com.dbn.vfs.DBFileIconProvider"/>
+        <writingAccessProvider implementation="com.dbn.vfs.DBFileAccessProvider"/>
 
         <colorSettingsPage implementation="com.dbn.code.sql.color.SQLColorSettingsPage"/>
         <colorSettingsPage implementation="com.dbn.code.psql.color.PSQLColorSettingsPage"/>
