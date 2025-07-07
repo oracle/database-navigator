@@ -17,6 +17,9 @@
 package com.dbn.execution.java.wrapper;
 
 import com.dbn.common.util.Lists;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.SchemaId;
+import com.dbn.connection.context.DatabaseContextBase;
 import com.dbn.execution.java.wrapper.model.ClassWrapper;
 import com.dbn.execution.java.wrapper.model.FieldWrapper;
 import com.dbn.execution.java.wrapper.model.MethodWrapper;
@@ -42,7 +45,7 @@ import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
 @Getter
 @Setter
-public class Wrapper {
+public class Wrapper implements DatabaseContextBase {
 	private final DBObjectRef<?> sourceObject;
 	private final DBObjectRef<DBJavaClass> javaClass;
 	private DBObjectRef<DBJavaClass> javaWrapperClass;
@@ -84,6 +87,16 @@ public class Wrapper {
 			sqlWrapperMethod = new DBObjectRef<>(schemaRef, methodType, sqlWrapperName);
 		}
 	}
+
+    @Override
+    public ConnectionHandler getConnection() {
+        return javaClass.getConnection();
+    }
+
+    @Override
+    public SchemaId getSchemaId() {
+        return javaClass.getSchemaId();
+    }
 
 	public String getClassName() {
 		return getCanonicalName(javaClass);

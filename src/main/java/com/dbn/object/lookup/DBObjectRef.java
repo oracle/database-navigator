@@ -126,6 +126,10 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
         return connection.getIdentifierCache().getQuotedIdentifier(objectName);
     }
 
+    public String getObjectTypeName() {
+        return objectType.getName();
+    }
+
     public void setParent(Object parent) {
         if (parent == null) return;
 
