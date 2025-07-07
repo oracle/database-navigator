@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package com.dbn.event.listener;
+package com.dbn.event.registration;
 
 
+import com.dbn.DatabaseNavigator;
+import com.dbn.common.component.Components;
+import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.thread.Progress;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -25,11 +28,13 @@ import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.event.OracleConstants;
 import com.dbn.event.proxy.DcnListenerInvocationHandler;
 import com.dbn.event.proxy.OracleStatementInvocationHandler;
-import com.dbn.event.service.RegistrationService;
 import com.dbn.object.DBTable;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -42,30 +47,27 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.notification.NotificationCategory.DCN;
-import static com.dbn.common.notification.NotificationSupport.sendErrorNotification;
-import static com.dbn.common.notification.NotificationSupport.sendInfoNotification;
+import static com.dbn.event.registration.EventRegistrationManager.COMPONENT_NAME;
 import static com.dbn.nls.NlsResources.txt;
 
-public class EventListenerManager {
-  // we need the key to be the table not the connection Id because one connection can have multiple registrations ...
-  @Getter
+
+@State(
+        name = COMPONENT_NAME,
+        storages = @Storage(DatabaseNavigator.STORAGE_FILE)
+)
+public class EventRegistrationManager extends ProjectComponentBase {
+    public static final String COMPONENT_NAME = "DBNavigator.Project.EventRegistrationManager";
+
+    // we need the key to be the table not the connection Id because one connection can have multiple registrations ...
+@Getter
   private Map<String, Object> activeRegistrations = new ConcurrentHashMap<>();
-  private static EventListenerManager instance;
-  Project project;
-  private  ClassLoader classLoader;
-  private RegistrationService registrationService = new RegistrationService();
-
-
-
-  // bundle the registrations we created .
-  public static synchronized EventListenerManager getInstance() {
-    if (instance == null) {
-      instance = new EventListenerManager();
-    }
-    return instance;
+  public EventRegistrationManager(@NotNull Project project) {
+    super(project, COMPONENT_NAME);
   }
 
-
+  public static EventRegistrationManager getInstance(Project project) {
+    return Components.projectService(project, EventRegistrationManager.class);
+  }
 
   public void startListening(DBTable table, int mask) {
     ConnectionHandler connection = table.getConnection();
@@ -86,9 +88,9 @@ public class EventListenerManager {
                 connection.getConnectionId(),
                 c -> registerTable(tableName, connection, c, mask));
 
-        sendInfoNotification(project, DCN, txt("ntf.events.info.ListenerRegisteredFor", qualifiedTableName, connectionName));
+        sendInfoNotification(DCN, txt("ntf.events.info.ListenerRegisteredFor", qualifiedTableName, connectionName));
       } catch (Exception e) {
-        sendErrorNotification(project, DCN, txt("ntf.events.warning.ListenerRegistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
+        sendErrorNotification(DCN, txt("ntf.events.warning.ListenerRegistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
       }
     });
   }
@@ -103,7 +105,7 @@ public class EventListenerManager {
 //    performPrivilegesCheck(dbnConnection);
 
 
-    this.classLoader = raw.getClass().getClassLoader();
+    ClassLoader classLoader = raw.getClass().getClassLoader();
 
 
 
@@ -137,7 +139,9 @@ public class EventListenerManager {
 //    registrationService.getMissingDcnPrivileges(connection);
 //  }
 
-  private void tieTableToRegistration(String tableName, Class<?> oracleConnIfc, Connection raw, Object dcr, Class<?> oraStmtIfc) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
+  @SneakyThrows
+  private void tieTableToRegistration(String tableName, Class<?> oracleConnIfc, Connection raw, Object dcr, Class<?> oraStmtIfc) {
+    ClassLoader classLoader = dcr.getClass().getClassLoader();
     Object stmtRaw = oracleConnIfc.getMethod("createStatement").invoke(raw);
     Object stmtProxy = OracleStatementInvocationHandler
             .createProxy((Statement) stmtRaw, dcr, classLoader);
@@ -149,7 +153,9 @@ public class EventListenerManager {
     closeStmt.invoke(stmtProxy);
   }
 
-  private void createDCNListner(ConnectionHandler handler, Long regId, Class<?> dcrIfc, Class<?> listenerIfc, Object dcr) throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+  @SneakyThrows
+  private void createDCNListner(ConnectionHandler handler, Long regId, Class<?> dcrIfc, Class<?> listenerIfc, Object dcr) {
+    ClassLoader classLoader = dcr.getClass().getClassLoader();
     Object listener = DcnListenerInvocationHandler
             .createProxy(handler, classLoader, regId);
     dcrIfc.getMethod("addListener", listenerIfc)
@@ -196,10 +202,10 @@ public class EventListenerManager {
                 connection.getConnectionId(),
                 c -> unregisterTable(tableName, c));
 
-        sendInfoNotification(project, DCN, txt("ntf.events.info.ListenerDeregisteredFor", qualifiedTableName, connectionName));
+        sendInfoNotification(DCN, txt("ntf.events.info.ListenerDeregisteredFor", qualifiedTableName, connectionName));
 
       } catch (Exception e) {
-        sendErrorNotification(project, DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
+        sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
       }
     });
   }
@@ -220,9 +226,9 @@ public class EventListenerManager {
                 connection.getConnectionId(),
                 c -> unregisterListenerByRegIdInternal(regId, c,qualifiedTableName,callback));
 
-        sendInfoNotification(project, DCN, txt("ntf.events.info.ListenerDeregisteredFor", qualifiedTableName, connectionName));
+        sendInfoNotification(DCN, txt("ntf.events.info.ListenerDeregisteredFor", qualifiedTableName, connectionName));
       } catch (Exception e) {
-        sendErrorNotification(project, DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
+        sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
       }
     });
   }
@@ -248,8 +254,9 @@ public class EventListenerManager {
     Object dcr = activeRegistrations.remove(tableName);
 
     Connection raw = DBNConnection.getInner(dbnConnection);
+      ClassLoader classLoader = raw.getClass().getClassLoader();
 
-    Class<?> oracleConnIfc = classLoader.loadClass("oracle.jdbc.OracleConnection");
+      Class<?> oracleConnIfc = classLoader.loadClass("oracle.jdbc.OracleConnection");
 
     if (dcr != null) {
       try {
@@ -272,7 +279,8 @@ public class EventListenerManager {
 
 
   private Long getRegId(Object dcr) throws InvocationTargetException, IllegalAccessException, ClassNotFoundException, NoSuchMethodException {
-    Class<?> dcrIfc = classLoader.loadClass("oracle.jdbc.dcn.DatabaseChangeRegistration");
+      ClassLoader classLoader = dcr.getClass().getClassLoader();
+      Class<?> dcrIfc = classLoader.loadClass("oracle.jdbc.dcn.DatabaseChangeRegistration");
 
     Method regIdMethod = dcrIfc.getMethod("getRegId");
     Long regId = (Long) regIdMethod.invoke(dcr);

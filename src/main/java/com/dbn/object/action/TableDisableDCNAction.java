@@ -1,7 +1,7 @@
 package com.dbn.object.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.event.listener.EventListenerManager;
+import com.dbn.event.registration.EventRegistrationManager;
 import com.dbn.object.DBTable;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -28,7 +28,7 @@ public class TableDisableDCNAction extends AnObjectAction<DBTable> {
 
   @Override
   protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBTable target) {
-    System.out.println("Disabling DCN");
-    EventListenerManager.getInstance().unregisterTable(getTarget());
+      EventRegistrationManager registrationManager = EventRegistrationManager.getInstance(project);
+      registrationManager.unregisterTable(getTarget());
   }
 }

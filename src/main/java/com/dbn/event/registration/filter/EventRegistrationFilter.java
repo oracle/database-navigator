@@ -14,44 +14,44 @@
  * limitations under the License.
  */
 
-package com.dbn.event.listener.filter;
+package com.dbn.event.registration.filter;
 
 import com.dbn.common.filter.Filter;
 import com.dbn.common.util.Strings;
-import com.dbn.event.listener.EventListenerManager;
-import com.dbn.event.listener.model.DataChangeListener;
+import com.dbn.event.registration.EventRegistrationManager;
+import com.dbn.event.registration.model.DataChangeRegistration;
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Strings.equalsIgnoreCase;
 
 @Data // IMPORTANT: "hashCode" needed for the filter signature watchers
-public class EventListenerFilter implements Filter<DataChangeListener> {
+public class EventRegistrationFilter implements Filter<DataChangeRegistration> {
     private String user;
     private String table;
     private String status;
 
     @Override
-    public boolean accepts(DataChangeListener listener) {
+    public boolean accepts(DataChangeRegistration registration) {
         return
-            matchesUser(listener) &&
-            matchesTable(listener) &&
-            matchesStatus(listener);
+            matchesUser(registration) &&
+            matchesTable(registration) &&
+            matchesStatus(registration);
     }
 
-    private boolean matchesUser(DataChangeListener registration) {
+    private boolean matchesUser(DataChangeRegistration registration) {
         return Strings.isEmpty(user) || equalsIgnoreCase(user, registration.getUserName());
     }
 
-    private boolean matchesTable(DataChangeListener registration) {
+    private boolean matchesTable(DataChangeRegistration registration) {
         return Strings.isEmpty(table) || equalsIgnoreCase(table, registration.getTableName());
     }
 
-    private boolean matchesStatus(DataChangeListener registration) {
+    private boolean matchesStatus(DataChangeRegistration registration) {
         if (Strings.isEmpty(status)) return true; // no filter on status
 
-        EventListenerManager instance = EventListenerManager.getInstance();
-        boolean active = instance.isActive(registration.getRegId());
+        EventRegistrationManager registrationManager = EventRegistrationManager.getInstance(registration.getProject());
+        boolean active = registrationManager.isActive(registration.getRegId());
 
         if (equalsIgnoreCase(status, "Active")) return active;
         if (equalsIgnoreCase(status, "Inactive")) return !active;
@@ -60,7 +60,7 @@ public class EventListenerFilter implements Filter<DataChangeListener> {
     }
 
     @Nullable
-    public String getFilterValue(EventListenerFilterType filterType) {
+    public String getFilterValue(EventRegistrationFilterType filterType) {
         switch (filterType) {
             case USER: return user;
             case TABLE: return table;

@@ -20,6 +20,7 @@ import com.dbn.common.list.FilteredList;
 import com.dbn.common.ui.table.DBNMutableTableModel;
 import com.dbn.common.ui.table.DBNTableGutterModel;
 import com.dbn.common.ui.table.DBNTableWithGutterModel;
+import com.dbn.connection.ConnectionId;
 import com.dbn.event.notification.filter.EventNotificationFilter;
 import com.dbn.event.notification.filter.EventNotificationFilterType;
 import com.dbn.event.service.EventHistoryService;
@@ -40,7 +41,7 @@ public class DataChangeEventBundle extends DBNMutableTableModel<DataChangeEvent>
   private final ListModel gutterModel = new DBNTableGutterModel<>(this);
 
 
-  private final String connectionId  ;
+  private final ConnectionId connectionId  ;
   // Define the column names for the dashboard
   private final String COLUMN_OPERATION = "Operation";
   private final String COLUMN_TABLE = "Table";
@@ -51,7 +52,7 @@ public class DataChangeEventBundle extends DBNMutableTableModel<DataChangeEvent>
             COLUMN_OPERATION, COLUMN_TABLE, COLUMN_ROWID, COLUMN_TIMESTAMP
     };
 
-  public DataChangeEventBundle(String connectionId) {
+  public DataChangeEventBundle(ConnectionId connectionId) {
     this.connectionId = connectionId;
     //intialise the model
     // subscribe for new events

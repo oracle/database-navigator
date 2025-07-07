@@ -62,7 +62,7 @@ public class NotificationHandler {
             dataChangeEvent.getOperation(),
             dataChangeEvent.getTableName(),
             connectionName,
-            dataChangeEvent.getRegID())); // TODO link to open "events" tool-window
+            dataChangeEvent.getRegId())); // TODO link to open "events" tool-window
 
     //showIntelliJNotification(dataChangeEvent.toString());
     //todo we were updating the events data , and updating the ui of the dashboard .

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.dbn.event.listener.action;
+package com.dbn.event.registration.action;
 
-import com.dbn.event.listener.filter.EventListenerFilterType;
+import com.dbn.event.registration.filter.EventRegistrationFilterType;
 
-public class EventListenerTableFilterAction extends EventListenerFilterAction {
-    public EventListenerTableFilterAction() {
-        super(EventListenerFilterType.TABLE);
+public class EventRegistrationStatusFilterAction extends EventRegistrationFilterAction {
+    public EventRegistrationStatusFilterAction() {
+        super(EventRegistrationFilterType.STATUS);
     }
 }

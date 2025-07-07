@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package com.dbn.event.listener.action;
+package com.dbn.event.registration.action;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.editor.session.action.AbstractSessionBrowserAction;
-import com.dbn.event.listener.ui.EventListenersForm;
+import com.dbn.event.registration.ui.EventRegistrationsForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.event.listener.action.EventListenerActionUtil.getListenersForm;
+import static com.dbn.event.registration.action.EventRegistrationActionUtil.getListenersForm;
 import static com.dbn.nls.NlsResources.txt;
 
-public class EventListenersReloadAction extends AbstractSessionBrowserAction {
+public class EventRegistrationReloadAction extends AbstractSessionBrowserAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        EventListenersForm registrationsForm = getListenersForm(e);
+        EventRegistrationsForm registrationsForm = getListenersForm(e);
         if (registrationsForm == null) return;
 
         registrationsForm.refresh();
@@ -39,7 +39,7 @@ public class EventListenersReloadAction extends AbstractSessionBrowserAction {
     @Override
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        EventListenersForm registrationsForm = getListenersForm(e);
+        EventRegistrationsForm registrationsForm = getListenersForm(e);
 
         presentation.setEnabled(registrationsForm != null && !registrationsForm.isLoading());
         presentation.setText(txt("app.eventRegistration.action.Reload"));

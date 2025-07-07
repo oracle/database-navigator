@@ -19,7 +19,7 @@ package com.dbn.object.action;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.editor.DBContentType;
-import com.dbn.event.listener.EventListenerManager;
+import com.dbn.event.registration.EventRegistrationManager;
 import com.dbn.execution.compiler.action.CompileActionGroup;
 import com.dbn.execution.java.action.JavaClassWrapperAction;
 import com.dbn.execution.java.action.JavaMethodWrapperAction;
@@ -53,6 +53,7 @@ import com.dbn.vfs.DBConsoleType;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.Project;
 
 import java.util.List;
 
@@ -94,13 +95,15 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
 
             addSeparator();
             //todo check of DCN already enabled
+            Project project = object.getProject();
+            EventRegistrationManager registrationManager = EventRegistrationManager.getInstance(project);
+
             String tableName = object.getQualifiedName();
-            if(EventListenerManager.getInstance().isListening(tableName)){
+            if (registrationManager.isListening(tableName)) {
                 add(new TableDisableDCNAction((DBTable) object));
-            }else{
+            } else {
                 add(new TableEnableDCNAction((DBTable) object));
             }
-
         }
     }
 

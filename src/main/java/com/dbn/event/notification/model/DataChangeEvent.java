@@ -18,26 +18,24 @@ package com.dbn.event.notification.model;
 
 import com.dbn.connection.ConnectionId;
 import lombok.Data;
-import lombok.ToString;
 
 @Data
-@ToString
 public class DataChangeEvent {
-  private  String operation;
-  private  String tableName;
-  private  String rowId;
-  private  String timestamp;
-  private Long regID;
-  private ConnectionId connectionId;
+    private ConnectionId connectionId;
+    private Long regId;
+    private String operation;
+    private String tableName;
+    private String rowId;
+    private String timestamp;
 
 
-  public DataChangeEvent(String operation, String tableName, String rowId, String timestamp, Long regId, ConnectionId connectionId) {
-    this.operation = operation;
-    this.tableName = tableName;
-    this.rowId = rowId;
-    this.timestamp = timestamp;
-    this.regID = regId;
-    this.connectionId = connectionId;
-  }
+    public DataChangeEvent(String operation, String tableName, String rowId, String timestamp, Long regId, ConnectionId connectionId) {
+        this.operation = operation;
+        this.tableName = tableName;
+        this.rowId = rowId;
+        this.timestamp = timestamp;
+        this.regId = regId;
+        this.connectionId = connectionId;
+    }
 
 }

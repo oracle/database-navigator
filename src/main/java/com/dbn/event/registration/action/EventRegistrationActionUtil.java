@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package com.dbn.event.listener.action;
+package com.dbn.event.registration.action;
 
 import com.dbn.common.action.DataKeys;
-import com.dbn.event.listener.ui.EventListenersForm;
+import com.dbn.event.registration.ui.EventRegistrationsForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
 @UtilityClass
-public class EventListenerActionUtil {
+public class EventRegistrationActionUtil {
     @Nullable
-    static EventListenersForm getListenersForm(DataContext dataContext) {
-        return DataKeys.EVENT_LISTENERS_FORM.getData(dataContext);
+    static EventRegistrationsForm getListenersForm(DataContext dataContext) {
+        return DataKeys.EVENT_REGISTRATIONS_FORM.getData(dataContext);
     }
 
     @Nullable
-    static EventListenersForm getListenersForm(AnActionEvent e) {
+    static EventRegistrationsForm getListenersForm(AnActionEvent e) {
         return getListenersForm(e.getDataContext());
     }
 }

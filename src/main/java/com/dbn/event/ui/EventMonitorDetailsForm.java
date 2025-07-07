@@ -21,10 +21,10 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.event.listener.model.DataChangeListenerBundle;
-import com.dbn.event.listener.ui.EventListenersForm;
 import com.dbn.event.notification.model.DataChangeEventBundle;
 import com.dbn.event.notification.ui.EventNotificationsForm;
+import com.dbn.event.registration.model.DataChangeRegistrationBundle;
+import com.dbn.event.registration.ui.EventRegistrationsForm;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
@@ -47,11 +47,11 @@ public class EventMonitorDetailsForm extends DBNFormBase {
     tabsPanel.add(contentTabs, BorderLayout.CENTER);
     contentTabs.enableFocusInheritance();
 
-    DataChangeEventBundle eventModel = new DataChangeEventBundle(connection.getConnectionId().toString());
-    DataChangeListenerBundle registrationModel = new DataChangeListenerBundle(connection);
+    DataChangeEventBundle eventModel = new DataChangeEventBundle(connection.getConnectionId());
+    DataChangeRegistrationBundle registrationModel = new DataChangeRegistrationBundle(connection);
 
     // Initialize tables
-    EventListenersForm listenersForm = new EventListenersForm(this, registrationModel);
+    EventRegistrationsForm listenersForm = new EventRegistrationsForm(this, registrationModel);
     contentTabs.addTab("Registrations", listenersForm.getComponent(), listenersForm);
 
     EventNotificationsForm notificationsForm = new EventNotificationsForm(this, eventModel);

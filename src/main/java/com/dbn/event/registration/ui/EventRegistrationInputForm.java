@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.event.listener.ui;
+package com.dbn.event.registration.ui;
 
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -27,7 +27,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-public class EventListenerRegistrationForm extends DBNFormBase {
+public class EventRegistrationInputForm extends DBNFormBase {
   private JPanel mainPanel;
   private JCheckBox insertCheckBox;
   private JCheckBox updateCheckBox;
@@ -36,7 +36,7 @@ public class EventListenerRegistrationForm extends DBNFormBase {
 
   private final DBObjectRef<DBTable> table;
 
-  public EventListenerRegistrationForm(@Nullable Disposable parent, final DBTable table) {
+  public EventRegistrationInputForm(@Nullable Disposable parent, final DBTable table) {
     super(parent);
     this.table = DBObjectRef.of(table);
 

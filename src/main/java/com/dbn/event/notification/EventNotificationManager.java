@@ -22,7 +22,7 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.util.Dialogs;
-import com.dbn.event.listener.ui.EventListenerRegistrationDialog;
+import com.dbn.event.registration.ui.EventRegistrationInputDialog;
 import com.dbn.event.ui.EventMonitorForm;
 import com.dbn.object.DBTable;
 import com.intellij.openapi.components.State;
@@ -49,15 +49,10 @@ public class EventNotificationManager extends ProjectComponentBase {
 
 //  private final Map<ConnectionId, DataChangeEventBundle> eventBundles = new ConcurrentHashMap<>();
 
-
   public EventNotificationManager(@NotNull Project project) {
     super(project, COMPONENT_NAME);
   }
 
-
-  //  protected DCNManager(@NotNull Project project, String componentName) {
-//    super(project, componentName);
-//  }
   public static EventNotificationManager getInstance(Project project) {
     return Components.projectService(project, EventNotificationManager.class);
   }
@@ -66,7 +61,7 @@ public class EventNotificationManager extends ProjectComponentBase {
 //    return eventBundles.computeIfAbsent(connectionId, k -> new DataChangeEventBundle());
 //  }
   public void openEditorAndConfig(DBTable object) {
-    Dialogs.show(()->new EventListenerRegistrationDialog(getProject(),object));
+    Dialogs.show(()->new EventRegistrationInputDialog(getProject(),object));
   }
 
   public ToolWindow getEventToolWindow() {

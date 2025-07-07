@@ -16,23 +16,26 @@
 
 package com.dbn.event.service;
 
-import com.dbn.event.listener.EventListenerManager;
+import com.dbn.common.ui.util.Listeners;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.event.notification.model.DataChangeEvent;
+import com.dbn.event.notification.model.DataChangeEventListener;
+import com.dbn.event.registration.EventRegistrationManager;
+import com.intellij.openapi.project.Project;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class EventHistoryService {
   private static final EventHistoryService INSTANCE = new EventHistoryService();
 
-  private final Map<String, Map<Long, List<DataChangeEvent>>> eventHistory = new HashMap<>();
-  private final Map<String ,List<Consumer<DataChangeEvent>>> listeners = new HashMap<>();
+  private final Map<ConnectionId, Map<Long, List<DataChangeEvent>>> eventHistory = new HashMap<>();
+  private final Listeners<DataChangeEventListener> listeners = Listeners.create();
 
   private EventHistoryService() { }
 
@@ -41,29 +44,22 @@ public class EventHistoryService {
   }
 
   // Push event for a specific ConnectionId and regId
-  public synchronized void pushEvent(String connectionId, long regId, DataChangeEvent event) {
+  public synchronized void pushEvent(ConnectionId connectionId, long regId, DataChangeEvent event) {
     eventHistory
             .computeIfAbsent(connectionId, k -> new HashMap<>())
             .computeIfAbsent(regId, k -> new ArrayList<>())
             .add(event);
-    listeners.
-            computeIfAbsent(connectionId, k -> new ArrayList<>())
-                    .forEach(listener -> {
-//                      if (connectionId.equals(event.getConnectionId())) {
-                        listener.accept(event);
-//                      }
-                    });
-//    listeners.forEach(listener -> listener.accept(event));
+    listeners.notify(l -> l.accept(event));
   }
 
   // Retrieve events for a specific ConnectionId and regId
-  public synchronized List<DataChangeEvent> getEventsByConnectionAndRegId(String connectionId, long regId) {
+  public synchronized List<DataChangeEvent> getEventsByConnectionAndRegId(ConnectionId connectionId, long regId) {
     return new ArrayList<>(eventHistory
             .getOrDefault(connectionId, Collections.emptyMap())
             .getOrDefault(regId, Collections.emptyList()));
   }
 
-  public List<DataChangeEvent> getAllEventsForConnection(String connectionId) {
+  public List<DataChangeEvent> getAllEventsForConnection(ConnectionId connectionId) {
 
     // Fetch events for the given connectionId from EventHistoryService
     Map<Long, List<DataChangeEvent>> allEvents = eventHistory.get(connectionId);
@@ -81,7 +77,7 @@ public class EventHistoryService {
   }
 
 
-  public List<DataChangeEvent> getAllEventsForConnection(String connectionId, String tableNameFilter, String regStatusFilter) {
+  public List<DataChangeEvent> getAllEventsForConnection(ConnectionId connectionId, String tableNameFilter, String regStatusFilter) {
     List<DataChangeEvent> filteredEvents = new ArrayList<>();
 
     // Fetch all events for the given connection
@@ -94,9 +90,9 @@ public class EventHistoryService {
       }
 
       // Filter by registration status (Active/Inactive/All)
-      if ("Active".equals(regStatusFilter) && !isActive(event)) {
+      if ("Active".equals(regStatusFilter) && !isActive(connectionId, event)) {
         continue;
-      } else if ("Inactive".equals(regStatusFilter) && isActive(event)) {
+      } else if ("Inactive".equals(regStatusFilter) && isActive(connectionId, event)) {
         continue;
       }
 
@@ -107,17 +103,23 @@ public class EventHistoryService {
     return filteredEvents;
   }
 
-  public void registerListener(String connectionId,Consumer<DataChangeEvent> listener) {
-   listeners.computeIfAbsent(connectionId, k -> new CopyOnWriteArrayList<>())
-   .add(listener);
+  public void registerListener(ConnectionId connectionId, DataChangeEventListener listener) {
+   listeners.add(listener);
   }
 
-  private boolean isActive(DataChangeEvent event) {
-    // Implement the logic for determining if the event is active or inactive
+  private boolean isActive(ConnectionId connectionId, DataChangeEvent event) {
+      ConnectionHandler connection = ConnectionHandler.get(connectionId);
+      if (connection == null) return false;
+
+      Project project = connection.getProject();
+      EventRegistrationManager registrationManager = EventRegistrationManager.getInstance(project);
+
+      // Implement the logic for determining if the event is active or inactive
     // This depends on how you define an active event in your system
     // For example, you could check if the registration ID is in the active registrations list
 //    return re.contains(event.getRegistrationId());
-    return EventListenerManager.getInstance().isActive(event.getRegID());
+
+      return registrationManager.isActive(event.getRegId());
   }
 
   }

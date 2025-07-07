@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.event.listener.ui;
+package com.dbn.event.registration.ui;
 
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
@@ -24,11 +24,12 @@ import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.table.DBNTableWithGutter;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
-import com.dbn.event.listener.EventListenerManager;
-import com.dbn.event.listener.model.DataChangeListener;
-import com.dbn.event.listener.model.DataChangeListenerBundle;
+import com.dbn.event.registration.EventRegistrationManager;
+import com.dbn.event.registration.model.DataChangeRegistration;
+import com.dbn.event.registration.model.DataChangeRegistrationBundle;
 import com.dbn.event.ui.EventMonitorDetailsForm;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -37,10 +38,11 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.util.List;
 
 import static com.dbn.common.ui.util.ClientProperty.NO_BORDER;
 
-public class EventListenersForm extends DBNFormBase {
+public class EventRegistrationsForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel controlPanel;
     private JPanel actionsPanel;
@@ -49,9 +51,9 @@ public class EventListenersForm extends DBNFormBase {
     private JPanel searchPanel;
     private DBNScrollPane listenersScrollPane;
 
-    private @Getter DBNTableWithGutter<DataChangeListenerBundle> listenersTable;
+    private @Getter DBNTableWithGutter<DataChangeRegistrationBundle> listenersTable;
 
-    public EventListenersForm(EventMonitorDetailsForm parent, DataChangeListenerBundle listeners) {
+    public EventRegistrationsForm(EventMonitorDetailsForm parent, DataChangeRegistrationBundle listeners) {
         super(parent);
         initActionToolbar();
         initLoadIndicator();
@@ -73,7 +75,7 @@ public class EventListenersForm extends DBNFormBase {
         controlPanel.setBorder(Borders.lineBorder(Colors.getTableGridColor(), 0, 0, 1, 0));
     }
 
-    private void initTable(DataChangeListenerBundle listeners) {
+    private void initTable(DataChangeRegistrationBundle listeners) {
         listenersTable = new DBNTableWithGutter<>(this, listeners, true);
         listenersScrollPane.setViewportView(listenersTable);
         NO_BORDER.set(listenersTable, true);
@@ -87,7 +89,7 @@ public class EventListenersForm extends DBNFormBase {
         markLoading(true);
         Background.run(() -> {
             try {
-                DataChangeListenerBundle model = listenersTable.getModel();
+                DataChangeRegistrationBundle model = listenersTable.getModel();
                 model.load();
             } catch (Exception e) {
                 // TODO show load exception (maybe as a banner??)
@@ -105,16 +107,17 @@ public class EventListenersForm extends DBNFormBase {
         });
     }
 
-    public void  deleteSelectedRegistrations(){
+    public void deleteSelectedRegistrations(){
+        Project project = ensureProject();
+        EventRegistrationManager registrationManager = EventRegistrationManager.getInstance(project);
 
-        DataChangeListenerBundle listenersTableModel = listenersTable.getModel();
-        int [] selectedRows = listenersTable.getSelectedRows();
-        if(selectedRows.length > 0){
-            for (int i = 0; i < selectedRows.length; i++) {
-                DataChangeListener dataChangeListener = listenersTableModel.getListeners().get(selectedRows[i]);
-                Long regId = dataChangeListener.getRegId();
-                EventListenerManager.getInstance().unregisterListenerByRegId(regId,listenersTableModel.getConnection(),dataChangeListener.getTableName(),this::refresh);
-            }
+        DataChangeRegistrationBundle listenersTableModel = listenersTable.getModel();
+        List<DataChangeRegistration> listeners = listenersTableModel.getListeners();
+        int[] selectedRows = listenersTable.getSelectedRows();
+        for (int selectedRow : selectedRows) {
+            DataChangeRegistration dataChangeRegistration = listeners.get(selectedRow);
+            Long regId = dataChangeRegistration.getRegId();
+            registrationManager.unregisterListenerByRegId(regId, listenersTableModel.getConnection(), dataChangeRegistration.getTableName(), this::refresh);
         }
 
     }
@@ -127,7 +130,7 @@ public class EventListenersForm extends DBNFormBase {
     @Nullable
     @Override
     public Object getData(@NotNull String dataId) {
-        if (DataKeys.EVENT_LISTENERS_FORM.is(dataId)) return this;
+        if (DataKeys.EVENT_REGISTRATIONS_FORM.is(dataId)) return this;
         return null;
     }
 

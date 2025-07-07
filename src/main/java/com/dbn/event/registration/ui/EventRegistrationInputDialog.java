@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-package com.dbn.event.listener.ui;
+package com.dbn.event.registration.ui;
 
-import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.connection.ConnectionAction;
-import com.dbn.debugger.DatabaseDebuggerManager;
-import com.dbn.event.listener.EventListenerManager;
-import com.dbn.event.service.RegistrationService;
+import com.dbn.event.registration.EventRegistrationManager;
 import com.dbn.object.DBTable;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
@@ -29,13 +25,11 @@ import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.common.util.Unsafe.cast;
-
-public class EventListenerRegistrationDialog extends DBNDialog<EventListenerRegistrationForm> {
+public class EventRegistrationInputDialog extends DBNDialog<EventRegistrationInputForm> {
   private final DBObjectRef<DBTable> table;
   private int mask;
 
-  public EventListenerRegistrationDialog(Project project, DBTable table) {
+  public EventRegistrationInputDialog(Project project, DBTable table) {
     super(project, "Event Listener Registration", true);
     this.table = DBObjectRef.of(table);
     setModal(false);
@@ -49,9 +43,9 @@ public class EventListenerRegistrationDialog extends DBNDialog<EventListenerRegi
 
   @NotNull
   @Override
-  protected EventListenerRegistrationForm createForm() {
+  protected EventRegistrationInputForm createForm() {
     DBTable object = DBObjectRef.get(this.table);
-    return new EventListenerRegistrationForm(this, object);
+    return new EventRegistrationInputForm(this, object);
   }
 
   @Override
@@ -66,7 +60,7 @@ public class EventListenerRegistrationDialog extends DBNDialog<EventListenerRegi
 
   @Override
   protected @Nullable ValidationInfo doValidate() {
-    EventListenerRegistrationForm form = getForm();
+    EventRegistrationInputForm form = getForm();
     int mask = 0;
     boolean insertOperation = form.isInsert();
     boolean updateOperation = form.isUpdate();
@@ -85,7 +79,9 @@ public class EventListenerRegistrationDialog extends DBNDialog<EventListenerRegi
 
   @Override
   protected void doOKAction() {
-    EventListenerManager.getInstance().startListening(getTable(),mask);
+    Project project = getProject();
+    EventRegistrationManager registrationManager = EventRegistrationManager.getInstance(project);
+    registrationManager.startListening(getTable(), mask);
     super.doOKAction();
   }
 }

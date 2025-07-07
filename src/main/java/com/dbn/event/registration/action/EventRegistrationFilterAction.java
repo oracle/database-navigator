@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.dbn.event.listener.action;
+package com.dbn.event.registration.action;
 
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.util.Strings;
-import com.dbn.event.listener.filter.EventListenerFilter;
-import com.dbn.event.listener.filter.EventListenerFilterType;
-import com.dbn.event.listener.model.DataChangeListenerBundle;
-import com.dbn.event.listener.ui.EventListenersForm;
+import com.dbn.event.registration.filter.EventRegistrationFilter;
+import com.dbn.event.registration.filter.EventRegistrationFilterType;
+import com.dbn.event.registration.model.DataChangeRegistrationBundle;
+import com.dbn.event.registration.ui.EventRegistrationsForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -35,13 +35,13 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import java.util.List;
 
-import static com.dbn.event.listener.action.EventListenerActionUtil.getListenersForm;
+import static com.dbn.event.registration.action.EventRegistrationActionUtil.getListenersForm;
 import static com.dbn.nls.NlsResources.txt;
 
-public abstract class EventListenerFilterAction extends ComboBoxAction implements DumbAware {
-    private final EventListenerFilterType filterType;
+public abstract class EventRegistrationFilterAction extends ComboBoxAction implements DumbAware {
+    private final EventRegistrationFilterType filterType;
 
-    public EventListenerFilterAction(EventListenerFilterType filterType) {
+    public EventRegistrationFilterAction(EventRegistrationFilterType filterType) {
         this.filterType = filterType;
     }
 
@@ -49,14 +49,14 @@ public abstract class EventListenerFilterAction extends ComboBoxAction implement
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(@NotNull JComponent component, @NotNull DataContext dataContext) {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
-        EventListenersForm registrationsForm = EventListenerActionUtil.getListenersForm(dataContext);
+        EventRegistrationsForm registrationsForm = EventRegistrationActionUtil.getListenersForm(dataContext);
 
         actionGroup.addSeparator();
         actionGroup.add(new SelectFilterValueAction(null));
         if (registrationsForm == null) return actionGroup;
 
-        DBNTable<DataChangeListenerBundle> registrationsTable = registrationsForm.getListenersTable();
-        DataChangeListenerBundle model = registrationsTable.getModel();
+        DBNTable<DataChangeRegistrationBundle> registrationsTable = registrationsForm.getListenersTable();
+        DataChangeRegistrationBundle model = registrationsTable.getModel();
         List<String> filterValues = model.getDistinctValues(filterType);
 
         for (String filterValue : filterValues) {
@@ -73,10 +73,10 @@ public abstract class EventListenerFilterAction extends ComboBoxAction implement
         Icon icon = null;//Icons.DATASET_FILTER_EMPTY;
 
 
-        EventListenersForm registrationsForm = getListenersForm(e);
+        EventRegistrationsForm registrationsForm = getListenersForm(e);
         if (registrationsForm != null) {
-            DataChangeListenerBundle listeners = registrationsForm.getListenersTable().getModel();
-            EventListenerFilter filter = listeners.getFilter();
+            DataChangeRegistrationBundle listeners = registrationsForm.getListenersTable().getModel();
+            EventRegistrationFilter filter = listeners.getFilter();
 
             if (filter != null) {
                 String filterValue = filter.getFilterValue(filterType);
@@ -102,10 +102,10 @@ public abstract class EventListenerFilterAction extends ComboBoxAction implement
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            EventListenersForm registrationsForm = getListenersForm(e);
+            EventRegistrationsForm registrationsForm = getListenersForm(e);
             if (registrationsForm == null) return;
 
-            EventListenerFilter filter = registrationsForm.getListenersTable().getModel().getFilter();
+            EventRegistrationFilter filter = registrationsForm.getListenersTable().getModel().getFilter();
             switch (filterType) {
                 case USER: filter.setUser(filterValue); break;
                 case TABLE: filter.setTable(filterValue); break;

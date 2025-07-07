@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-package com.dbn.event.listener.action;
+package com.dbn.event.notification.model;
 
-import com.dbn.event.listener.filter.EventListenerFilterType;
-
-public class EventListenerStatusFilterAction extends EventListenerFilterAction {
-    public EventListenerStatusFilterAction() {
-        super(EventListenerFilterType.STATUS);
-    }
+public interface DataChangeEventListener {
+    void accept(DataChangeEvent event);
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.event.listener.model;
+package com.dbn.event.registration.model;
 
 import com.dbn.common.list.FilteredList;
 import com.dbn.common.ui.table.DBNMutableTableModel;
@@ -22,8 +22,8 @@ import com.dbn.common.ui.table.DBNTableGutterModel;
 import com.dbn.common.ui.table.DBNTableWithGutterModel;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
-import com.dbn.event.listener.filter.EventListenerFilter;
-import com.dbn.event.listener.filter.EventListenerFilterType;
+import com.dbn.event.registration.filter.EventRegistrationFilter;
+import com.dbn.event.registration.filter.EventRegistrationFilterType;
 import com.dbn.event.service.RegistrationService;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -35,13 +35,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
-public class DataChangeListenerBundle extends DBNMutableTableModel<DataChangeListener> implements DBNTableWithGutterModel<DataChangeListener> {
+public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChangeRegistration> implements DBNTableWithGutterModel<DataChangeRegistration> {
   private final ConnectionRef connection;
   private final ListModel gutterModel = new DBNTableGutterModel<>(this);
   private final RegistrationService registrationService = new RegistrationService();
 
-  private final EventListenerFilter filter = new EventListenerFilter();
-  private List<DataChangeListener> listeners = FilteredList.stateful(filter);
+  private final EventRegistrationFilter filter = new EventRegistrationFilter();
+  private List<DataChangeRegistration> listeners = FilteredList.stateful(filter);
 
   // Column identifiers
   public static final String COL_USERNAME         = "USERNAME";
@@ -65,7 +65,7 @@ public class DataChangeListenerBundle extends DBNMutableTableModel<DataChangeLis
           COL_TABLE_NAME
   };
 
-  public DataChangeListenerBundle(ConnectionHandler connection) {
+  public DataChangeRegistrationBundle(ConnectionHandler connection) {
     this.connection = ConnectionRef.of(connection);
   }
 
@@ -85,7 +85,7 @@ public class DataChangeListenerBundle extends DBNMutableTableModel<DataChangeLis
 
   @Override
   public Object getValueAt(int rowIndex, int columnIndex) {
-    DataChangeListener reg = listeners.get(rowIndex);
+    DataChangeRegistration reg = listeners.get(rowIndex);
     switch (columnIndex) {
       case 0: return reg.getUserName();
       case 1: return reg.getRegId();
@@ -120,7 +120,7 @@ public class DataChangeListenerBundle extends DBNMutableTableModel<DataChangeLis
   public void load() throws SQLException {
     ConnectionHandler connection = getConnection();
 
-    List<DataChangeListener> registrations = registrationService.fetchRegistrations(connection);
+    List<DataChangeRegistration> registrations = registrationService.fetchRegistrations(connection);
     this.listeners = FilteredList.stateful(filter, registrations);
 
     notifyRowChanges();
@@ -181,7 +181,7 @@ public class DataChangeListenerBundle extends DBNMutableTableModel<DataChangeLis
             .collect(Collectors.toList());
   }
 
-  public List<String> getDistinctValues(EventListenerFilterType filterType) {
+  public List<String> getDistinctValues(EventRegistrationFilterType filterType) {
     switch (filterType) {
       case USER: return getUserNames();
       case TABLE: return getTableNames();

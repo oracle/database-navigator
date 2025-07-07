@@ -14,26 +14,12 @@
  * limitations under the License.
  */
 
-package com.dbn.event.listener.filter;
+package com.dbn.event.registration.action;
 
-import com.dbn.common.icon.Icons;
-import lombok.Getter;
+import com.dbn.event.registration.filter.EventRegistrationFilterType;
 
-import javax.swing.Icon;
-
-@Getter
-public enum EventListenerFilterType {
-    USER("user", Icons.DBO_USER),
-    TABLE("table", Icons.DBO_TABLE),
-    STATUS("listening", null),
-    //...
-    ;
-
-    private final String name;
-    private final Icon icon;
-
-    EventListenerFilterType(String name, Icon icon) {
-        this.name = name;
-        this.icon = icon;
+public class EventRegistrationUserFilterAction extends EventRegistrationFilterAction {
+    public EventRegistrationUserFilterAction() {
+        super(EventRegistrationFilterType.USER);
     }
 }
