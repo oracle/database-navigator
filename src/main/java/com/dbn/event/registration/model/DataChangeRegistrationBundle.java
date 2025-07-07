@@ -22,9 +22,9 @@ import com.dbn.common.ui.table.DBNTableGutterModel;
 import com.dbn.common.ui.table.DBNTableWithGutterModel;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.event.registration.EventRegistrationUtil;
 import com.dbn.event.registration.filter.EventRegistrationFilter;
 import com.dbn.event.registration.filter.EventRegistrationFilterType;
-import com.dbn.event.service.RegistrationService;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
 public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChangeRegistration> implements DBNTableWithGutterModel<DataChangeRegistration> {
   private final ConnectionRef connection;
   private final ListModel gutterModel = new DBNTableGutterModel<>(this);
-  private final RegistrationService registrationService = new RegistrationService();
 
   private final EventRegistrationFilter filter = new EventRegistrationFilter();
   private List<DataChangeRegistration> listeners = FilteredList.stateful(filter);
@@ -120,7 +119,7 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
   public void load() throws SQLException {
     ConnectionHandler connection = getConnection();
 
-    List<DataChangeRegistration> registrations = registrationService.fetchRegistrations(connection);
+    List<DataChangeRegistration> registrations = EventRegistrationUtil.fetchRegistrations(connection);
     this.listeners = FilteredList.stateful(filter, registrations);
 
     notifyRowChanges();

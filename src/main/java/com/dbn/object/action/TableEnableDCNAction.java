@@ -5,7 +5,7 @@ import com.dbn.common.thread.Progress;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.event.notification.EventNotificationManager;
-import com.dbn.event.service.RegistrationService;
+import com.dbn.event.registration.EventRegistrationUtil;
 import com.dbn.object.DBTable;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -20,7 +20,6 @@ import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.nls.NlsResources.txt;
 
 public class TableEnableDCNAction extends AnObjectAction<DBTable> {
-  private RegistrationService registrationService = new RegistrationService();
   public TableEnableDCNAction(DBTable table) {
     super(table);
   }
@@ -49,8 +48,8 @@ public class TableEnableDCNAction extends AnObjectAction<DBTable> {
                 project,
                 connection.getConnectionId(),
                 c -> {
-                  List<String> missingPrivileges = registrationService.getMissingDcnPrivileges(c);
-                  if (missingPrivileges != null && !missingPrivileges.isEmpty()) {
+                  List<String> missingPrivileges = EventRegistrationUtil.getMissingDcnPrivileges(c);
+                  if (!missingPrivileges.isEmpty()) {
                     showWarningDialog(
                             project,
                             txt("msg.debugger.title.InsufficientPrivileges"),

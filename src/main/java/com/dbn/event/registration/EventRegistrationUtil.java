@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package com.dbn.event.service;
+package com.dbn.event.registration;
 
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ResultSets;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.event.registration.model.DataChangeRegistration;
 import com.intellij.openapi.project.Project;
+import lombok.experimental.UtilityClass;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -37,9 +40,10 @@ import static com.dbn.event.registration.model.DataChangeRegistrationBundle.COL_
 import static com.dbn.event.registration.model.DataChangeRegistrationBundle.COL_TIMEOUT;
 import static com.dbn.event.registration.model.DataChangeRegistrationBundle.COL_USERNAME;
 
-public class RegistrationService {
+@UtilityClass
+public class EventRegistrationUtil {
 
-  private DataChangeRegistration createRegistration(Project project, ResultSet rs) throws SQLException {
+  private static DataChangeRegistration createRegistration(Project project, ResultSet rs) throws SQLException {
     return new DataChangeRegistration(
             project,
             rs.getString(COL_USERNAME),
@@ -53,9 +57,7 @@ public class RegistrationService {
     );
   }
 
-  public List<DataChangeRegistration> fetchRegistrations(ConnectionHandler connection)
-          throws SQLException
-  {
+  public static List<DataChangeRegistration> fetchRegistrations(ConnectionHandler connection) throws SQLException {
       Project project = connection.getProject();
       return DatabaseInterfaceInvoker.load(
             HIGH,
@@ -64,18 +66,14 @@ public class RegistrationService {
               project,
             connection.getConnectionId(),
             conn -> {
-              List<DataChangeRegistration> list = new ArrayList<>();
-              try (ResultSet rs = connection.getMetadataInterface().loadDataEventRegistrations(conn)) {
-                while (rs.next()) {
-                  list.add(createRegistration(project, rs));
-                }
-              }
-              return list;
+                DatabaseMetadataInterface metadataInterface = connection.getMetadataInterface();
+                ResultSet resultSet = metadataInterface.loadDataEventRegistrations(conn);
+                return ResultSets.convert(resultSet, rs -> createRegistration(project, rs));
             }
     );
   }
 
-    public List<String> getMissingDcnPrivileges(DBNConnection connection) throws SQLException {
+    public static List<String> getMissingDcnPrivileges(DBNConnection connection) throws SQLException {
         ConnectionHandler connectionHandler = connection.getConnectionHandler();
         ResultSet rs = connectionHandler.getMetadataInterface().checkUserPrivilegesOnNotification(connection);
         List<String> missingPrivileges = new ArrayList<>();
