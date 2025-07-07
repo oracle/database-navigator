@@ -118,7 +118,7 @@ public class JavaClassWrapperAction extends BasicAction {
 		if (connection.isValid()) {
 			try {
 				JavaExecutionWrapperManager wrapperManager = JavaExecutionWrapperManager.getInstance(project);
-				Wrapper wrapper = wrapperManager.createExecutionWrappers(javaClass, selectedMethods, true);
+				Wrapper wrapper = wrapperManager.createExecutionWrappers(javaClass, selectedMethods, true, false);
 				wrapperManager.showWrapperResult(wrapper);
 			} catch (Exception ex) {
 				Messages.showErrorDialog(project,"Error creating execution wrappers for java methods \nCause: " + ex.getMessage());

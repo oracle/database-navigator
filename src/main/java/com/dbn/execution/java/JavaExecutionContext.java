@@ -42,7 +42,7 @@ public class JavaExecutionContext extends ExecutionContext<JavaExecutionInput> {
 
     public void createExecutionWrappers() throws SQLException {
         // use technical names during anonymous execution
-        statementExecutor.createExecutionWrappers(getMethod(), false);
+        statementExecutor.createExecutionWrappers(getMethod(), false, true);
     }
 
     public void discardExecutionWrappers() throws SQLException {

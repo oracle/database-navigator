@@ -52,14 +52,14 @@ public class JavaExecutionWrapperManager extends ProjectComponentBase implements
 		return projectService(project, JavaExecutionWrapperManager.class);
 	}
 
-	public Wrapper createExecutionWrappers(DBJavaMethod method, boolean useFriendlyNames) throws SQLException {
+	public Wrapper createExecutionWrappers(DBJavaMethod method, boolean useFriendlyNames, boolean compileInDebugMode) throws SQLException {
 		WrapperStatementExecutor statementExecutor = new WrapperStatementExecutor();
-		return statementExecutor.createExecutionWrappers(method, useFriendlyNames);
+		return statementExecutor.createExecutionWrappers(method, useFriendlyNames, compileInDebugMode);
 	}
 
-	public Wrapper createExecutionWrappers(DBJavaClass javaClass, List<DBJavaMethod> methods, boolean useFriendlyNames) throws SQLException {
+	public Wrapper createExecutionWrappers(DBJavaClass javaClass, List<DBJavaMethod> methods, boolean useFriendlyNames, boolean compileInDebugMode) throws SQLException {
 		WrapperStatementExecutor statementExecutor = new WrapperStatementExecutor();
-		return statementExecutor.createExecutionWrappers(javaClass, methods, useFriendlyNames);
+		return statementExecutor.createExecutionWrappers(javaClass, methods, useFriendlyNames, compileInDebugMode);
 	}
 
 	public void showWrapperResult(Wrapper wrapper) {

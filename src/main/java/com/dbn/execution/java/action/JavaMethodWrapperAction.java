@@ -50,7 +50,7 @@ public class JavaMethodWrapperAction extends AnObjectAction<DBJavaMethod> {
 							if (connection.isValid()) {
 								try {
 									JavaExecutionWrapperManager wrapperManager = JavaExecutionWrapperManager.getInstance(getProject());
-									Wrapper wrapper = wrapperManager.createExecutionWrappers(method, true);
+									Wrapper wrapper = wrapperManager.createExecutionWrappers(method, true, false);
 									wrapperManager.showWrapperResult(wrapper);
 								} catch (Exception ex) {
 									showErrorDialog(project,

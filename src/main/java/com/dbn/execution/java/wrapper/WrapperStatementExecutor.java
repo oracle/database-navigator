@@ -18,9 +18,12 @@ package com.dbn.execution.java.wrapper;
 
 import com.dbn.common.Priority;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
+import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
+import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
@@ -40,7 +43,7 @@ import static com.dbn.object.event.ObjectChangeAction.CREATE;
 public class WrapperStatementExecutor {
     private Wrapper wrapper;
 
-    public Wrapper createExecutionWrappers(DBJavaMethod method, boolean useFriendlyNames) throws SQLException {
+    public Wrapper createExecutionWrappers(DBJavaMethod method, boolean useFriendlyNames, boolean compileInDebugMode) throws SQLException {
         Project project = method.getProject();
 
         WrapperBuilder wrapperBuilder = WrapperBuilder.getInstance();
@@ -57,6 +60,9 @@ public class WrapperStatementExecutor {
                 connectionId, c -> {
                     DBNPreparedStatement statement = c.prepareStatement(creationStatement);
                     statement.execute();
+                    if(compileInDebugMode) {
+                        compileObjectInDebugMode(c, method.getConnection(), method.getSchemaName(), wrapper);
+                    }
                 });
 
         if (useFriendlyNames) {
@@ -69,7 +75,7 @@ public class WrapperStatementExecutor {
         return wrapper;
     }
 
-    public Wrapper createExecutionWrappers(DBJavaClass javaClass, List<DBJavaMethod> methods, boolean useFriendlyNames) throws SQLException {
+    public Wrapper createExecutionWrappers(DBJavaClass javaClass, List<DBJavaMethod> methods, boolean useFriendlyNames, boolean compileInDebugMode) throws SQLException {
         if (methods.isEmpty()) return null;
 
         Project project = javaClass.getProject();
@@ -87,6 +93,9 @@ public class WrapperStatementExecutor {
                 connectionId, c -> {
                     DBNPreparedStatement statement = c.prepareStatement(creationStatement);
                     statement.execute();
+                    if(compileInDebugMode) {
+                        compileObjectInDebugMode(c, javaClass.getConnection(), javaClass.getSchemaName(), wrapper);
+                    }
                 });
 
         if (useFriendlyNames) {
@@ -119,5 +128,22 @@ public class WrapperStatementExecutor {
         ConnectionId connectionId = sourceObject.getConnectionId();
         SchemaId schemaId = sourceObject.getSchemaId();
         ProjectEvents.notify(project, ObjectChangeListener.TOPIC, l -> l.objectsChanged(connectionId, schemaId, objectType, action));
+    }
+
+    private void compileObjectInDebugMode(DBNConnection connection, ConnectionHandler connectionHandler, String schemaName, Wrapper wrapper) throws SQLException{
+        DatabaseDataDefinitionInterface dataDefinitionInterface = connectionHandler.getDataDefinitionInterface();
+
+        for(String typeName: wrapper.getSqlTypeNames())
+            dataDefinitionInterface.compileObject(schemaName, typeName, "TYPE", true, connection);
+
+        String objectType;
+        if(wrapper.getSqlWrapperMethod().getObjectType() == DBObjectType.PROCEDURE) {
+            objectType = "PROCEDURE";
+        } else {
+            objectType = "FUNCTION";
+        }
+        String sqlWrapperName = wrapper.getSqlWrapperName();
+
+        dataDefinitionInterface.compileObject(schemaName, sqlWrapperName, objectType, true, connection);
     }
 }
