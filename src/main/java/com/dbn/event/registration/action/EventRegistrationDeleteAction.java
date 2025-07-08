@@ -26,7 +26,7 @@ public class EventRegistrationDeleteAction extends AbstractSessionBrowserAction 
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
         EventRegistrationsForm registrationsForm = getListenersForm(e);
-        boolean rowSelected = registrationsForm.getListenersTable().getSelectedRows().length > 0;
+        boolean rowSelected = registrationsForm.getRegistrationsTable().getSelectedRows().length > 0;
         presentation.setEnabled(registrationsForm != null && !registrationsForm.isLoading() && rowSelected);
         presentation.setText(txt("app.eventRegistration.action.Delete"));
         presentation.setIcon(Icons.ACTION_DELETE);

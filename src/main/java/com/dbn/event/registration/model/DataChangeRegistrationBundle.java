@@ -39,9 +39,8 @@ import java.util.stream.Collectors;
 public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChangeRegistration> implements DBNTableWithGutterModel<DataChangeRegistration> {
   private final ConnectionRef connection;
   private final ListModel gutterModel = new DBNTableGutterModel<>(this);
-
   private final EventRegistrationFilter filter;
-  private List<DataChangeRegistration> listeners;
+  private List<DataChangeRegistration> registrations;
 
   // Column identifiers
   public static final String COL_USERNAME         = "USERNAME";
@@ -70,7 +69,7 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
 
     ConnectionId connectionId = connection.getConnectionId();
     this.filter = new EventRegistrationFilter(connectionId);
-    this.listeners = FilteredList.stateful(filter);
+    this.registrations = FilteredList.stateful(filter);
   }
 
   public ConnectionHandler getConnection() {
@@ -79,7 +78,7 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
 
   @Override
   public int getRowCount() {
-    return listeners.size();
+    return registrations.size();
   }
 
   @Override
@@ -89,31 +88,49 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
 
   @Override
   public Object getValueAt(int rowIndex, int columnIndex) {
-    DataChangeRegistration reg = listeners.get(rowIndex);
-    switch (columnIndex) {
-      case 0: return reg.getUserName();
-      case 1: return reg.getRegId();
-      case 2: return reg.getRegFlags();
-      case 3: return reg.getCallback();
-      case 4: return reg.getOperationsFilter();       // numeric
-      case 5: return reg.getOperationsDescription();  // human-readable
-      case 6: return reg.getChangeLag();
-      case 7: return reg.getTimeout();
-      case 8: return reg.getTableName();
-      default: return "";
-    }
+    return registrations.get(rowIndex);
   }
 
-  @Override
+    @Override
+    public Object getValue(DataChangeRegistration row, int column) {
+        switch (column) {
+            case 0: return row.getUserName();
+            case 1: return row.getRegId();
+            case 2: return row.getRegFlags();
+            case 3: return row.getCallback();
+            //case 4: return row.getOperationsFilter();       // numeric
+            case 4: return row.getOperationsDescription();  // human-readable
+            case 5: return row.getChangeLag();
+            case 6: return row.getTimeout();
+            case 7: return row.getTableName();
+            default: return "";
+        }
+    }
+
+    @Override
+    public String getPresentableValue(DataChangeRegistration row, int column) {
+        switch (column) {
+            case 0: return row.getUserName();
+            case 1: return Long.toString(row.getRegId());
+            case 2: return Integer.toString(row.getRegFlags());
+            case 3: return row.getCallback();
+            //case 4: return row.getOperationsFilter();       // numeric
+            case 4: return row.getOperationsDescription();  // human-readable
+            case 5: return Integer.toString(row.getChangeLag());
+            case 6: return Long.toString(row.getTimeout());
+            case 7: return row.getTableName();
+            default: return "";
+        }
+    }
+
+    @Override
   public String getColumnName(int column) {
     return COLUMN_NAMES[column];
   }
 
   @Override
   public @NotNull Class<?> getColumnClass(int columnIndex) {
-    // If any column is a number, you could return Integer.class, Long.class, etc.
-    // Here we assume everything is best represented as String.
-    return String.class;
+    return DataChangeRegistration.class;
   }
 
   @Override
@@ -125,7 +142,7 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
     ConnectionHandler connection = getConnection();
 
     List<DataChangeRegistration> registrations = EventRegistrationUtil.fetchRegistrations(connection);
-    this.listeners = FilteredList.stateful(filter, registrations);
+    this.registrations = FilteredList.stateful(filter, registrations);
 
     notifyRowChanges();
   }
@@ -167,7 +184,7 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
 
   private List<String> getUserNames() {
     return FilteredList
-            .unwrap(listeners)
+            .unwrap(registrations)
             .stream()
             .map(l -> l.getUserName())
             .distinct()
@@ -177,7 +194,7 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
 
   private List<String> getTableNames() {
     return FilteredList
-            .unwrap(listeners)
+            .unwrap(registrations)
             .stream()
             .map(l -> l.getTableName())
             .distinct()

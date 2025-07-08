@@ -16,11 +16,11 @@
 
 package com.dbn.data.grid.ui.table.basic;
 
-import com.dbn.common.ui.table.DBNTableGutterRendererBase;
+import com.dbn.common.ui.table.DBNTableGutterRenderer;
 
 import javax.swing.JList;
 
-public class BasicTableGutterCellRenderer extends DBNTableGutterRendererBase {
+public class BasicTableGutterCellRenderer extends DBNTableGutterRenderer {
 
     @Override
     protected void adjustListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {

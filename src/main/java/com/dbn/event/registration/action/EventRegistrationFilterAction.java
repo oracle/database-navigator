@@ -55,7 +55,7 @@ public abstract class EventRegistrationFilterAction extends ComboBoxAction imple
         actionGroup.add(new SelectFilterValueAction(null));
         if (registrationsForm == null) return actionGroup;
 
-        DBNTable<DataChangeRegistrationBundle> registrationsTable = registrationsForm.getListenersTable();
+        DBNTable<DataChangeRegistrationBundle> registrationsTable = registrationsForm.getRegistrationsTable();
         DataChangeRegistrationBundle model = registrationsTable.getModel();
         List<String> filterValues = model.getDistinctValues(filterType);
 
@@ -75,7 +75,7 @@ public abstract class EventRegistrationFilterAction extends ComboBoxAction imple
 
         EventRegistrationsForm registrationsForm = getListenersForm(e);
         if (registrationsForm != null) {
-            DataChangeRegistrationBundle listeners = registrationsForm.getListenersTable().getModel();
+            DataChangeRegistrationBundle listeners = registrationsForm.getRegistrationsTable().getModel();
             EventRegistrationFilter filter = listeners.getFilter();
 
             if (filter != null) {
@@ -105,7 +105,7 @@ public abstract class EventRegistrationFilterAction extends ComboBoxAction imple
             EventRegistrationsForm registrationsForm = getListenersForm(e);
             if (registrationsForm == null) return;
 
-            EventRegistrationFilter filter = registrationsForm.getListenersTable().getModel().getFilter();
+            EventRegistrationFilter filter = registrationsForm.getRegistrationsTable().getModel().getFilter();
             switch (filterType) {
                 case USER: filter.setUser(filterValue); break;
                 case TABLE: filter.setTable(filterValue); break;

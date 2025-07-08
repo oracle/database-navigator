@@ -21,7 +21,6 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.thread.Background;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNScrollPane;
-import com.dbn.common.ui.table.DBNTableWithGutter;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.dbn.event.registration.EventRegistrationManager;
@@ -51,13 +50,13 @@ public class EventRegistrationsForm extends DBNFormBase {
     private JPanel searchPanel;
     private DBNScrollPane listenersScrollPane;
 
-    private @Getter DBNTableWithGutter<DataChangeRegistrationBundle> listenersTable;
+    private @Getter EventRegistrationsTable registrationsTable;
 
-    public EventRegistrationsForm(EventMonitorDetailsForm parent, DataChangeRegistrationBundle listeners) {
+    public EventRegistrationsForm(EventMonitorDetailsForm parent, DataChangeRegistrationBundle registrations) {
         super(parent);
         initActionToolbar();
         initLoadIndicator();
-        initTable(listeners);
+        initTable(registrations);
 
         // start loading when the form is shown
         whenShown(() -> load());
@@ -76,9 +75,9 @@ public class EventRegistrationsForm extends DBNFormBase {
     }
 
     private void initTable(DataChangeRegistrationBundle listeners) {
-        listenersTable = new DBNTableWithGutter<>(this, listeners, true);
-        listenersScrollPane.setViewportView(listenersTable);
-        NO_BORDER.set(listenersTable, true);
+        registrationsTable = new EventRegistrationsTable(this, listeners);
+        listenersScrollPane.setViewportView(registrationsTable);
+        NO_BORDER.set(registrationsTable, true);
     }
 
     public void refresh() {
@@ -89,7 +88,7 @@ public class EventRegistrationsForm extends DBNFormBase {
         markLoading(true);
         Background.run(() -> {
             try {
-                DataChangeRegistrationBundle model = listenersTable.getModel();
+                DataChangeRegistrationBundle model = registrationsTable.getModel();
                 model.load();
             } catch (Exception e) {
                 // TODO show load exception (maybe as a banner??)
@@ -103,7 +102,7 @@ public class EventRegistrationsForm extends DBNFormBase {
         dispatch(() -> {
             loadingIconPanel.setVisible(loading);
             loadingLabel.setVisible(loading);
-            listenersTable.setLoading(loading);
+            registrationsTable.setLoading(loading);
         });
     }
 
@@ -111,9 +110,9 @@ public class EventRegistrationsForm extends DBNFormBase {
         Project project = ensureProject();
         EventRegistrationManager registrationManager = EventRegistrationManager.getInstance(project);
 
-        DataChangeRegistrationBundle listenersTableModel = listenersTable.getModel();
-        List<DataChangeRegistration> listeners = listenersTableModel.getListeners();
-        int[] selectedRows = listenersTable.getSelectedRows();
+        DataChangeRegistrationBundle listenersTableModel = registrationsTable.getModel();
+        List<DataChangeRegistration> listeners = listenersTableModel.getRegistrations();
+        int[] selectedRows = registrationsTable.getSelectedRows();
         for (int selectedRow : selectedRows) {
             DataChangeRegistration dataChangeRegistration = listeners.get(selectedRow);
             Long regId = dataChangeRegistration.getRegId();
@@ -135,7 +134,7 @@ public class EventRegistrationsForm extends DBNFormBase {
     }
 
     public boolean isLoading() {
-        return listenersTable.isLoading();
+        return registrationsTable.isLoading();
     }
 
     public void showSearchHeader(){
