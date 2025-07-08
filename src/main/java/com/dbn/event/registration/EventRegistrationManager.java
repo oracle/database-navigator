@@ -20,14 +20,22 @@ package com.dbn.event.registration;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.reflection.ObjectProxies;
 import com.dbn.common.thread.Progress;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.event.OracleConstants;
-import com.dbn.event.proxy.DcnListenerInvocationHandler;
-import com.dbn.event.proxy.OracleStatementInvocationHandler;
+import com.dbn.event.model.DatabaseChangeListener;
+import com.dbn.event.model.DatabaseChangeRegistration;
+import com.dbn.event.model.OracleConnection;
+import com.dbn.event.model.OracleStatement;
+import com.dbn.event.model.RowChangeDescription;
+import com.dbn.event.model.TableChangeDescription;
+import com.dbn.event.notification.model.DataChangeEvent;
+import com.dbn.event.service.EventHistoryService;
 import com.dbn.object.DBTable;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -36,14 +44,10 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Map;
+import java.sql.PreparedStatement;
+import java.time.LocalDateTime;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.notification.NotificationCategory.DCN;
@@ -55,255 +59,196 @@ import static com.dbn.nls.NlsResources.txt;
         name = COMPONENT_NAME,
         storages = @Storage(DatabaseNavigator.STORAGE_FILE)
 )
+@Getter
 public class EventRegistrationManager extends ProjectComponentBase {
     public static final String COMPONENT_NAME = "DBNavigator.Project.EventRegistrationManager";
 
-    // we need the key to be the table not the connection Id because one connection can have multiple registrations ...
-@Getter
-  private Map<String, Object> activeRegistrations = new ConcurrentHashMap<>();
-  public EventRegistrationManager(@NotNull Project project) {
-    super(project, COMPONENT_NAME);
-  }
+    private final EventRegistrationCache registrationCache = new EventRegistrationCache();
 
-  public static EventRegistrationManager getInstance(Project project) {
-    return Components.projectService(project, EventRegistrationManager.class);
-  }
-
-  public void startListening(DBTable table, int mask) {
-    ConnectionHandler connection = table.getConnection();
-    Project project = connection.getProject();
-    String connectionName = connection.getName();
-    String qualifiedTableName = table.getQualifiedNameWithType();
-
-    String processTitle = "Registering Event Listener";
-    String processText = "Registering event listener for " + qualifiedTableName;
-
-    Progress.prompt(project, table, false, processTitle, processText, progress -> {
-      try {
-        String tableName = table.getQualifiedName();
-        DatabaseInterfaceInvoker.execute(HIGH,
-                processTitle,
-                processText,
-                project,
-                connection.getConnectionId(),
-                c -> registerTable(tableName, connection, c, mask));
-
-        sendInfoNotification(DCN, txt("ntf.events.info.ListenerRegisteredFor", qualifiedTableName, connectionName));
-      } catch (Exception e) {
-        sendErrorNotification(DCN, txt("ntf.events.warning.ListenerRegistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
-      }
-    });
-  }
-
-  @SneakyThrows
-  public void registerTable(String tableName,
-                            ConnectionHandler handler,
-                            DBNConnection dbnConnection, int mask) {
-
-    handler.ensureConnection();
-    Connection raw = DBNConnection.getInner(dbnConnection);
-//    performPrivilegesCheck(dbnConnection);
-
-
-    ClassLoader classLoader = raw.getClass().getClassLoader();
-
-
-
-    // --- 1) Load the public interfaces ---
-    Class<?> oracleConnIfc = classLoader.loadClass("oracle.jdbc.OracleConnection");
-    Class<?> dcrIfc = classLoader.loadClass("oracle.jdbc.dcn.DatabaseChangeRegistration");
-    Class<?> listenerIfc = classLoader.loadClass("oracle.jdbc.dcn.DatabaseChangeListener");
-    Class<?> oraStmtIfc = classLoader.loadClass("oracle.jdbc.OracleStatement");
-
-    Properties props = buildDcnProperties(oracleConnIfc, mask);
-
-
-
-    // --- 3) Create a registration
-    Method registrationMethod = oracleConnIfc.getMethod(
-            "registerDatabaseChangeNotification", Properties.class);
-    Object dcr  = registrationMethod.invoke(raw, props);
-    Long regId = (Long) dcrIfc.getMethod("getRegId").invoke(dcr);
-
-    createDCNListner(handler, regId, dcrIfc, listenerIfc, dcr);
-
-    tieTableToRegistration(tableName, oracleConnIfc, raw, dcr, oraStmtIfc);
-
-    // Store for cleanup
-    activeRegistrations.put(tableName, dcr);
-    System.out.println("DCN registered reflectively on table: " + tableName);
-  }
-
-//  private void performPrivilegesCheck(DBNConnection connection) throws SQLException {
-//
-//    registrationService.getMissingDcnPrivileges(connection);
-//  }
-
-  @SneakyThrows
-  private void tieTableToRegistration(String tableName, Class<?> oracleConnIfc, Connection raw, Object dcr, Class<?> oraStmtIfc) {
-    ClassLoader classLoader = dcr.getClass().getClassLoader();
-    Object stmtRaw = oracleConnIfc.getMethod("createStatement").invoke(raw);
-    Object stmtProxy = OracleStatementInvocationHandler
-            .createProxy((Statement) stmtRaw, dcr, classLoader);
-
-    Method execQ = oraStmtIfc.getMethod("executeQuery", String.class);
-    execQ.invoke(stmtProxy, "SELECT * FROM " + tableName + " WHERE 1=0");
-
-    Method closeStmt = oraStmtIfc.getMethod("close");
-    closeStmt.invoke(stmtProxy);
-  }
-
-  @SneakyThrows
-  private void createDCNListner(ConnectionHandler handler, Long regId, Class<?> dcrIfc, Class<?> listenerIfc, Object dcr) {
-    ClassLoader classLoader = dcr.getClass().getClassLoader();
-    Object listener = DcnListenerInvocationHandler
-            .createProxy(handler, classLoader, regId);
-    dcrIfc.getMethod("addListener", listenerIfc)
-            .invoke(dcr, listener);
-  }
-
-  private Properties buildDcnProperties(Class<?> oracleConnIfc, int mask) {
-    Properties props = new Properties();
-
-    props.setProperty(OracleConstants.DCN_NOTIFY_ROWIDS, "true");
-    props.setProperty(OracleConstants.DCN_CLIENT_INIT_CONNECTION, "true");
-
-    if ((mask & OracleConstants.DCN_NOTIFY_INSERTOP) == 0) {
-      props.setProperty(OracleConstants.DCN_IGNORE_INSERTOP, "true");
+    public EventRegistrationManager(@NotNull Project project) {
+        super(project, COMPONENT_NAME);
     }
 
-    if ((mask & OracleConstants.DCN_NOTIFY_UPDATEOP) == 0) {
-      props.setProperty(OracleConstants.DCN_IGNORE_UPDATEOP, "true");
+    public static EventRegistrationManager getInstance(Project project) {
+        return Components.projectService(project, EventRegistrationManager.class);
     }
 
-    if ((mask & OracleConstants.DCN_NOTIFY_DELETEOP) == 0) {  // <-- changed from != 0 to == 0
-      props.setProperty(OracleConstants.DCN_IGNORE_DELETEOP, "true");
+    public void startListening(DBTable table, int mask) {
+        ConnectionHandler connection = table.getConnection();
+        Project project = connection.getProject();
+        String connectionName = connection.getName();
+        String qualifiedTableName = table.getQualifiedNameWithType();
+
+        String processTitle = "Registering Event Listener";
+        String processText = "Registering event listener for " + qualifiedTableName;
+
+        Progress.prompt(project, table, false, processTitle, processText, progress -> {
+            try {
+                ConnectionId connectionId = connection.getConnectionId();
+                String tableName = table.getQualifiedName();
+                DatabaseInterfaceInvoker.execute(HIGH,
+                        processTitle,
+                        processText,
+                        project,
+                        connectionId,
+                        c -> registerTable(tableName, mask, connectionId, c));
+
+                sendInfoNotification(DCN, txt("ntf.events.info.ListenerRegisteredFor", qualifiedTableName, connectionName));
+            } catch (Exception e) {
+                sendErrorNotification(DCN, txt("ntf.events.warning.ListenerRegistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
+            }
+        });
     }
 
-    return props;
-  }
+    @SneakyThrows
+    public void registerTable(String tableName, int mask, ConnectionId connectionId, Connection conn) {
+        Connection rawConnection = DBNConnection.getInner(conn);
 
-  public void unregisterTable(DBTable table) {
-    ConnectionHandler connection = table.getConnection();
-    Project project = connection.getProject();
-    String connectionName = connection.getName();
-    String qualifiedTableName = table.getQualifiedNameWithType();
+        Properties properties = buildDcnProperties(mask);
+        OracleConnection connection = ObjectProxies.create(rawConnection, OracleConnection.class);
+        DatabaseChangeRegistration registration = connection.registerDatabaseChangeNotification(properties);
+        long regId = registration.getRegId();
 
-    String processTitle = "Stopping Event Listener";
-    String processText = "Stopping event listener for " + qualifiedTableName;
+        DatabaseChangeListener listener = event -> {
+            long eventRegId = event.getRegId();
+            if (regId != eventRegId) return;
+            TableChangeDescription[] tableChanges = event.getTableChangeDescription();
+            for (TableChangeDescription tableChange : tableChanges) {
+                String eventTableName = tableChange.getTableName();
+                if (!tableName.equals(eventTableName)) continue;
 
-    Progress.prompt(project, table, false, processTitle, processText, progress -> {
-      try {
-        String tableName = table.getQualifiedName();
-        DatabaseInterfaceInvoker.execute(HIGH,
-                processTitle,
-                processText,
-                project,
-                connection.getConnectionId(),
-                c -> unregisterTable(tableName, c));
 
-        sendInfoNotification(DCN, txt("ntf.events.info.ListenerDeregisteredFor", qualifiedTableName, connectionName));
+                RowChangeDescription[] rowChanges = tableChange.getRowChangeDescription();
+                for (RowChangeDescription rowChange : rowChanges) {
+                    String rowId = rowChange.getRowid().toString();
+                    String operation = rowChange.getRowOperations().toString();
 
-      } catch (Exception e) {
-        sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
-      }
-    });
-  }
+                    String timestamp = LocalDateTime.now().toString();
+                    DataChangeEvent dataChangeEvent = new DataChangeEvent(operation, eventTableName, rowId, timestamp, eventRegId, connectionId);
+                    EventHistoryService.getInstance().pushEvent(connectionId, eventRegId, dataChangeEvent);
+                }
+            }
+        };
 
-  public void unregisterListenerByRegId(Long regId, ConnectionHandler connection, String qualifiedTableName, Runnable callback) {
-    Project project = connection.getProject();
-    String connectionName = connection.getName();
+        registration.addListener(listener);
 
-    String processTitle = "Stopping Event Listener";
-    String processText = "Stopping event listener for " + qualifiedTableName;
-
-    Progress.prompt(project, connection, false, processTitle, processText, progress -> {
-      try {
-        DatabaseInterfaceInvoker.execute(HIGH,
-                processTitle,
-                processText,
-                project,
-                connection.getConnectionId(),
-                c -> unregisterListenerByRegIdInternal(regId, c,qualifiedTableName,callback));
-
-        sendInfoNotification(DCN, txt("ntf.events.info.ListenerDeregisteredFor", qualifiedTableName, connectionName));
-      } catch (Exception e) {
-        sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
-      }
-    });
-  }
-
-  @SneakyThrows
-  private void unregisterListenerByRegIdInternal(Long regId, DBNConnection dbnConnection, String qualifiedTableName, Runnable callback) {
-    //todo improve .  we make sure this method is transactional
-    Object dcr = activeRegistrations.remove(qualifiedTableName);
-    String creationStatement ="{ call DBMS_CHANGE_NOTIFICATION.deregister(?) }";
-    ;
-
-    DBNPreparedStatement statement = dbnConnection.prepareStatement(creationStatement);
-    statement.setLong(1, regId);
-    statement.execute();
-    callback.run();
-
-  }
-
-  // Stop listening for changes on a given table
-  @SneakyThrows
-  private void unregisterTable(String tableName, DBNConnection dbnConnection) {
-    //todo improve .  we make sure this method is transactional
-    Object dcr = activeRegistrations.remove(tableName);
-
-    Connection raw = DBNConnection.getInner(dbnConnection);
-      ClassLoader classLoader = raw.getClass().getClassLoader();
-
-      Class<?> oracleConnIfc = classLoader.loadClass("oracle.jdbc.OracleConnection");
-
-    if (dcr != null) {
-      try {
-        oracleConnIfc.getMethod("unregisterDatabaseChangeNotification", classLoader.loadClass("oracle.jdbc.dcn.DatabaseChangeRegistration"))
-                .invoke(raw, dcr);
-
-        System.out.println("Stopped listening on table: " + tableName);
-      } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
-        // Handle exceptions related to reflection
-        e.printStackTrace();
-        throw new SQLException("Error while stopping DCN listener on table: " + tableName, e);
-      }
-    } else {
-      System.out.println("No registration found for table: " + tableName);
+        try (OracleStatement statement = connection.createStatement()) {
+            statement.setDatabaseChangeRegistration(registration);
+            statement.executeQuery("SELECT * FROM " + tableName + " WHERE 1=0");
+        }
+        registrationCache.addRegistration(connectionId, tableName, registration);
     }
-  }
+
+    private Properties buildDcnProperties(int mask) {
+        Properties props = new Properties();
+
+        props.setProperty(OracleConstants.DCN_NOTIFY_ROWIDS, "true");
+        props.setProperty(OracleConstants.DCN_CLIENT_INIT_CONNECTION, "true");
+
+        if ((mask & OracleConstants.DCN_NOTIFY_INSERTOP) == 0) {
+            props.setProperty(OracleConstants.DCN_IGNORE_INSERTOP, "true");
+        }
+
+        if ((mask & OracleConstants.DCN_NOTIFY_UPDATEOP) == 0) {
+            props.setProperty(OracleConstants.DCN_IGNORE_UPDATEOP, "true");
+        }
+
+        if ((mask & OracleConstants.DCN_NOTIFY_DELETEOP) == 0) {  // <-- changed from != 0 to == 0
+            props.setProperty(OracleConstants.DCN_IGNORE_DELETEOP, "true");
+        }
+
+        return props;
+    }
+
+    public void unregisterTable(DBTable table) {
+        ConnectionHandler connection = table.getConnection();
+        Project project = connection.getProject();
+        String connectionName = connection.getName();
+        String qualifiedTableName = table.getQualifiedNameWithType();
+
+        String processTitle = "Stopping Event Listener";
+        String processText = "Stopping event listener for " + qualifiedTableName;
+
+        Progress.prompt(project, table, false, processTitle, processText, progress -> {
+            try {
+                String tableName = table.getQualifiedName();
+                ConnectionId connectionId = connection.getConnectionId();
+                DatabaseInterfaceInvoker.execute(HIGH,
+                        processTitle,
+                        processText,
+                        project,
+                        connectionId,
+                        c -> unregisterTable(tableName, connectionId, c));
+
+                sendInfoNotification(DCN, txt("ntf.events.info.ListenerDeregisteredFor", qualifiedTableName, connectionName));
+
+            } catch (Exception e) {
+                sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
+            }
+        });
+    }
+
+    public void unregisterListener(Long regId, ConnectionHandler connection, String tableName, Runnable callback) {
+        Project project = connection.getProject();
+        String connectionName = connection.getName();
+
+        String processTitle = "Stopping Event Listener";
+        String processText = "Stopping event listener for " + tableName;
+
+        Progress.prompt(project, connection, false, processTitle, processText, progress -> {
+            try {
+                ConnectionId connectionId = connection.getConnectionId();
+                DatabaseInterfaceInvoker.execute(HIGH,
+                        processTitle,
+                        processText,
+                        project,
+                        connectionId,
+                        c -> unregisterListener(regId, tableName, connectionId, c, callback));
+
+                sendInfoNotification(DCN, txt("ntf.events.info.ListenerDeregisteredFor", tableName, connectionName));
+            } catch (Exception e) {
+                sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", tableName, connectionName, e.getMessage()));
+            }
+        });
+    }
+
+    @SneakyThrows
+    private void unregisterListener(long regId, String tableName, ConnectionId connectionId, DBNConnection conn, Runnable callback) {
+
+      // TODO fails with missing privileges
+      OracleConnection connection = createProxy(conn);
+      connection.unregisterDatabaseChangeNotification((int) regId);
 
 
+        String creationStatement = "{ call DBMS_CHANGE_NOTIFICATION.deregister(?) }";
 
+        PreparedStatement statement = null;
 
+        try {
+            statement = conn.prepareStatement(creationStatement);
+            statement.setLong(1, regId);
+            statement.execute();
+        } finally {
+            Resources.close(statement);
+        }
+        registrationCache.removeRegistration(connectionId, tableName);
+        callback.run();
+    }
 
-  private Long getRegId(Object dcr) throws InvocationTargetException, IllegalAccessException, ClassNotFoundException, NoSuchMethodException {
-      ClassLoader classLoader = dcr.getClass().getClassLoader();
-      Class<?> dcrIfc = classLoader.loadClass("oracle.jdbc.dcn.DatabaseChangeRegistration");
+    // Stop listening for changes on a given table
+    @SneakyThrows
+    private void unregisterTable(String tableName, ConnectionId connectionId, Connection conn) {
+        OracleConnection connection = createProxy(conn);
+        DatabaseChangeRegistration registration = registrationCache.getRegistration(connectionId, tableName);
+        if (registration == null) return;
 
-    Method regIdMethod = dcrIfc.getMethod("getRegId");
-    Long regId = (Long) regIdMethod.invoke(dcr);
-    return regId;
-  }
+        connection.unregisterDatabaseChangeNotification(registration);
+        registrationCache.removeRegistration(connectionId, tableName);
+    }
 
-
-  public boolean isListening (String tableName) {
-    return activeRegistrations.containsKey(tableName);
-  }
-
-
-  public boolean isActive(Long regId) {
-    return activeRegistrations.values().stream()
-            .anyMatch(v-> {
-              try {
-                return regId.equals(getRegId(v));
-              } catch (InvocationTargetException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException e) {
-                throw new RuntimeException(e);
-              }
-            });
-  }
-
-
+    private static OracleConnection createProxy(Connection connection) {
+        Connection rawConnection = DBNConnection.getInner(connection);
+        return ObjectProxies.create(rawConnection, OracleConnection.class);
+    }
 }
 

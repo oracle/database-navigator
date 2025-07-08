@@ -119,7 +119,7 @@ public class EventHistoryService {
     // For example, you could check if the registration ID is in the active registrations list
 //    return re.contains(event.getRegistrationId());
 
-      return registrationManager.isActive(event.getRegId());
+      return registrationManager.getRegistrationCache().isActive(connectionId, event.getRegId());
   }
 
   }

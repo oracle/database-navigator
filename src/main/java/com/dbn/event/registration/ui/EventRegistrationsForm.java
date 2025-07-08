@@ -117,7 +117,7 @@ public class EventRegistrationsForm extends DBNFormBase {
         for (int selectedRow : selectedRows) {
             DataChangeRegistration dataChangeRegistration = listeners.get(selectedRow);
             Long regId = dataChangeRegistration.getRegId();
-            registrationManager.unregisterListenerByRegId(regId, listenersTableModel.getConnection(), dataChangeRegistration.getTableName(), this::refresh);
+            registrationManager.unregisterListener(regId, listenersTableModel.getConnection(), dataChangeRegistration.getTableName(), this::refresh);
         }
 
     }

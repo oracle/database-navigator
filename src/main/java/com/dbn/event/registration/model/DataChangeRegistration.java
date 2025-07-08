@@ -26,7 +26,7 @@ public class DataChangeRegistration {
     private transient final ProjectRef project;
 
     private final String userName;
-    private final Long regId;
+    private final long regId;
     private final int regFlags;
     private final String callback;
     private final int operationsFilter;
@@ -38,9 +38,14 @@ public class DataChangeRegistration {
 
     public DataChangeRegistration(
             Project project,
-            String userName, Long regId, int regFlags, String callback,
-                                  int operationsFilter, int changeLag,
-                                  long timeout, String tableName) {
+            String userName,
+            long regId,
+            int regFlags,
+            String callback,
+            int operationsFilter,
+            int changeLag,
+            long timeout,
+            String tableName) {
         this.project = ProjectRef.of(project);
         this.userName = userName;
         this.regId = regId;

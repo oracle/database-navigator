@@ -21,6 +21,7 @@ import com.dbn.common.ui.table.DBNMutableTableModel;
 import com.dbn.common.ui.table.DBNTableGutterModel;
 import com.dbn.common.ui.table.DBNTableWithGutterModel;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.event.registration.EventRegistrationUtil;
 import com.dbn.event.registration.filter.EventRegistrationFilter;
@@ -39,8 +40,8 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
   private final ConnectionRef connection;
   private final ListModel gutterModel = new DBNTableGutterModel<>(this);
 
-  private final EventRegistrationFilter filter = new EventRegistrationFilter();
-  private List<DataChangeRegistration> listeners = FilteredList.stateful(filter);
+  private final EventRegistrationFilter filter;
+  private List<DataChangeRegistration> listeners;
 
   // Column identifiers
   public static final String COL_USERNAME         = "USERNAME";
@@ -66,6 +67,10 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
 
   public DataChangeRegistrationBundle(ConnectionHandler connection) {
     this.connection = ConnectionRef.of(connection);
+
+    ConnectionId connectionId = connection.getConnectionId();
+    this.filter = new EventRegistrationFilter(connectionId);
+    this.listeners = FilteredList.stateful(filter);
   }
 
   public ConnectionHandler getConnection() {

@@ -18,6 +18,8 @@ package com.dbn.event.registration.filter;
 
 import com.dbn.common.filter.Filter;
 import com.dbn.common.util.Strings;
+import com.dbn.connection.ConnectionId;
+import com.dbn.event.registration.EventRegistrationCache;
 import com.dbn.event.registration.EventRegistrationManager;
 import com.dbn.event.registration.model.DataChangeRegistration;
 import lombok.Data;
@@ -27,9 +29,14 @@ import static com.dbn.common.util.Strings.equalsIgnoreCase;
 
 @Data // IMPORTANT: "hashCode" needed for the filter signature watchers
 public class EventRegistrationFilter implements Filter<DataChangeRegistration> {
+    private final ConnectionId connectionId;
     private String user;
     private String table;
     private String status;
+
+    public EventRegistrationFilter(ConnectionId connectionId) {
+        this.connectionId = connectionId;
+    }
 
     @Override
     public boolean accepts(DataChangeRegistration registration) {
@@ -51,7 +58,8 @@ public class EventRegistrationFilter implements Filter<DataChangeRegistration> {
         if (Strings.isEmpty(status)) return true; // no filter on status
 
         EventRegistrationManager registrationManager = EventRegistrationManager.getInstance(registration.getProject());
-        boolean active = registrationManager.isActive(registration.getRegId());
+        EventRegistrationCache registrationCache = registrationManager.getRegistrationCache();
+        boolean active = registrationCache.isActive(connectionId, registration.getRegId());
 
         if (equalsIgnoreCase(status, "Active")) return active;
         if (equalsIgnoreCase(status, "Inactive")) return !active;

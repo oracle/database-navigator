@@ -18,6 +18,7 @@ package com.dbn.object.action;
 
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.editor.DBContentType;
 import com.dbn.event.registration.EventRegistrationManager;
 import com.dbn.execution.compiler.action.CompileActionGroup;
@@ -99,7 +100,9 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
             EventRegistrationManager registrationManager = EventRegistrationManager.getInstance(project);
 
             String tableName = object.getQualifiedName();
-            if (registrationManager.isListening(tableName)) {
+            ConnectionId connectionId = object.getConnectionId();
+
+            if (registrationManager.getRegistrationCache().isListening(connectionId, tableName)) {
                 add(new TableDisableDCNAction((DBTable) object));
             } else {
                 add(new TableEnableDCNAction((DBTable) object));
