@@ -24,9 +24,11 @@ import com.dbn.database.common.util.BooleanResultSetConsumer;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.object.factory.ModelFactoryInput;
+import com.dbn.vector.ui.ChunkConfiguration;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Blob;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -71,6 +73,11 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   @Override
   public void loadOnnxModelFromOci(ModelFactoryInput input, DBNConnection conn) throws SQLException {
     executeUpdate(conn,"load-onnx-model-from-object-storage",input.getModelName(), input.getCredential(), input.getLocation());
+  }
+
+  @Override
+  public ResultSet chunk(String text, ChunkConfiguration chunkConfiguration, DBNConnection conn) throws SQLException {
+    return executeQuery(conn,"chunk-text-from-chunk-lab",text,chunkConfiguration.getBy(),chunkConfiguration.getMax(),chunkConfiguration.getOverlap(),chunkConfiguration.getSplitBy());
   }
 
   @Override

@@ -1,10 +1,7 @@
 package com.dbn.object.management.adapter.impl;
 
-import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.interfaces.DatabaseAssistantInterface;
-import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.object.DBAIModel;
 import com.dbn.object.management.ObjectManagementAdapterFactoryBase;
 

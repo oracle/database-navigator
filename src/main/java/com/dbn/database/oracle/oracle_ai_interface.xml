@@ -178,11 +178,27 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="load-onnx-model-through-jdbc" timeout="1200" is-prepared-statement="true"  is-query="false">
+    <statement-execution-processor id="load-onnx-model-through-jdbc" timeout="12000" is-prepared-statement="true"  is-query="false">
         <statement>
             BEGIN
             DBMS_VECTOR.LOAD_ONNX_MODEL({0}, {1});
             END;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="chunk-text-from-chunk-lab" timeout="120" is-query="true"   >
+        <statement>
+            select
+                CHUNK_OFFSET,
+                CHUNK_LENGTH,
+                CHUNK_TEXT
+            from VECTOR_CHUNKS(
+                '{0}'
+                BY {1}
+                MAX {2}
+                OVERLAP {3}
+                SPLIT BY {4})
+
         </statement>
     </statement-execution-processor>
 </data-dictionary>

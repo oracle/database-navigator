@@ -20,8 +20,10 @@ import com.dbn.assistant.DatabaseAssistantType;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.assistant.AssistantQueryResponse;
 import com.dbn.object.factory.ModelFactoryInput;
+import com.dbn.vector.ui.ChunkConfiguration;
 
 import java.sql.Blob;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -103,4 +105,5 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
   void loadOnnxModelFromOci(ModelFactoryInput input, DBNConnection conn) throws SQLException;
 
   void loadOnnxModelThroughJdbc(String modelName, Blob modelBlob, DBNConnection conn) throws SQLException;
+  ResultSet chunk(String text, ChunkConfiguration chunkConfiguration, DBNConnection conn) throws SQLException;
 }

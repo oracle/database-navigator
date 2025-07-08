@@ -1,6 +1,5 @@
 package com.dbn.vector;
 
-import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ui.CardLayouts;
 import com.dbn.common.ui.window.DBNToolWindowFactory;
@@ -20,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-import static com.dbn.common.icon.Icons.WINDOW_DATABASE_VECTOR;
+import static com.dbn.common.icon.Icons.WINDOW_DATABASE_VECTOR_AI;
 import static com.dbn.common.util.ContextLookup.getConnectionId;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.vector.DatabaseVectorManager.TOOL_WINDOW_ID;
@@ -31,7 +30,7 @@ public class DatabaseVectorToolWindowFactory extends DBNToolWindowFactory {
     protected void initialize(@NotNull ToolWindow toolWindow) {
         toolWindow.setTitle(txt("app.vector.title.DatabaseVector"));
         toolWindow.setStripeTitle(txt("app.vector.title.DatabaseVector"));
-        toolWindow.setIcon(WINDOW_DATABASE_VECTOR.get());
+        toolWindow.setIcon(WINDOW_DATABASE_VECTOR_AI.get());
     }
 
     @Override
@@ -40,7 +39,7 @@ public class DatabaseVectorToolWindowFactory extends DBNToolWindowFactory {
         toolWindow.setToHideOnEmptyContent(true);
         toolWindow.setAutoHide(false);
 
-        DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
+        DatabaseVectorManager manager = DatabaseVectorManager.getInstance(project);
 
         ProjectEvents.subscribe(project, manager,
                 FileConnectionContextListener.TOPIC,
@@ -67,7 +66,7 @@ public class DatabaseVectorToolWindowFactory extends DBNToolWindowFactory {
                 if (!file.isInLocalFileSystem()) return; // changing connection in surrogate (LightVirtualFiles) should not cause connection switch
 
                 ConnectionId connectionId = connection == null ? null : connection.getConnectionId();
-                DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
+                DatabaseVectorManager manager = DatabaseVectorManager.getInstance(project);
                 manager.switchToConnection(connectionId);
             }
         };
@@ -86,7 +85,7 @@ public class DatabaseVectorToolWindowFactory extends DBNToolWindowFactory {
                 ConnectionId connectionId = getConnectionId(project, file);
                 if (connectionId == null) return; // do not switch away from last selected connection
 
-                DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
+                DatabaseVectorManager assistantManager = DatabaseVectorManager.getInstance(project);
                 assistantManager.switchToConnection(connectionId);
             }
         };
