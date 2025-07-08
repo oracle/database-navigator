@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.sql.SQLException;
 import java.sql.SQLNonTransientConnectionException;
 import java.sql.SQLTimeoutException;
@@ -109,6 +110,11 @@ public class Exceptions {
     }
 
     public static Throwable unwrap(Throwable throwable) {
+        if (throwable instanceof UndeclaredThrowableException) {
+            UndeclaredThrowableException undeclaredThrowableException = (UndeclaredThrowableException) throwable;
+            return undeclaredThrowableException.getUndeclaredThrowable();
+        }
+
         if (throwable instanceof InvocationTargetException) {
             InvocationTargetException invocationTargetException = (InvocationTargetException) throwable;
             return invocationTargetException.getTargetException();
