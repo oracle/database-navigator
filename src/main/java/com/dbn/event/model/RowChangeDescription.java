@@ -29,5 +29,5 @@ import java.util.Set;
 public interface RowChangeDescription extends ProxyObject {
     RowId getRowid();
 
-    Set<String> getRowOperations();
+    Set<?> getRowOperations();
 }

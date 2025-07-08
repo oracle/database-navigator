@@ -46,7 +46,7 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
     private List<DataChangeRegistration> registrations;
 
     // Column identifiers
-    public static final String COL_REG_ID = "Reg Id";
+    public static final String COL_REG_ID = "Registration Id";
     public static final String COL_USERNAME = "User Name";
     public static final String COL_TABLE_NAME = "Table Name";
     public static final String COL_OPERATIONS = "Operations";

@@ -28,7 +28,7 @@ import java.util.Set;
 public interface TableChangeDescription extends ProxyObject {
     String getTableName();
 
-    Set<String> getTableOperations();
+    Set<?> getTableOperations();
 
     int getObjectNumber();
 

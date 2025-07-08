@@ -212,11 +212,11 @@ public class Lists {
         return index < 0 || index >= list.size();
     }
 
-    public static <T> String toCsv(List<T> elements, Function<T, String> toString) {
+    public static <T> String toCsv(Collection<T> elements, Function<T, String> toString) {
         return toCsv(elements, ", ", toString);
     }
 
-    public static <T> String toCsv(List<T> elements, String separator, Function<T, String> toString) {
+    public static <T> String toCsv(Collection<T> elements, String separator, Function<T, String> toString) {
         StringBuilder buffer = new StringBuilder();
         for (T element : elements) {
             if (buffer.length() != 0) buffer.append(separator);

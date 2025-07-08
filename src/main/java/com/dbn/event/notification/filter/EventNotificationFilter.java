@@ -22,6 +22,7 @@ import com.dbn.event.notification.model.DataChangeNotification;
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.util.Strings.containsIgnoreCase;
 import static com.dbn.common.util.Strings.equalsIgnoreCase;
 
 @Data // IMPORTANT: "hashCode" needed for the filter signature watchers
@@ -43,7 +44,7 @@ public class EventNotificationFilter implements Filter<DataChangeNotification> {
 
     private boolean matchesOperation(DataChangeNotification event) {
         return Strings.isEmpty(operation) ||
-                equalsIgnoreCase(operation, event.getOperation());
+                containsIgnoreCase(operation, event.getOperation());
     }
 
     @Nullable

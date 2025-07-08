@@ -20,6 +20,7 @@ package com.dbn.event.registration;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.data.Data;
 import com.dbn.common.reflection.ObjectProxies;
 import com.dbn.common.thread.Progress;
 import com.dbn.connection.ConnectionHandler;
@@ -51,6 +52,7 @@ import java.util.Properties;
 
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.notification.NotificationCategory.DCN;
+import static com.dbn.common.util.Lists.toCsv;
 import static com.dbn.event.registration.EventRegistrationManager.COMPONENT_NAME;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -121,7 +123,7 @@ public class EventRegistrationManager extends ProjectComponentBase {
                 RowChangeDescription[] rowChanges = tableChange.getRowChangeDescription();
                 for (RowChangeDescription rowChange : rowChanges) {
                     String rowId = rowChange.getRowid().toString();
-                    String operation = rowChange.getRowOperations().toString();
+                    String operation = toCsv(rowChange.getRowOperations(), ", ", o -> Data.asString(o));
 
                     String timestamp = LocalDateTime.now().toString();
                     DataChangeNotification notification = new DataChangeNotification(operation, eventTableName, rowId, timestamp, eventRegId, connectionId);

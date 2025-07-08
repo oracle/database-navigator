@@ -42,22 +42,19 @@ public class DataChangeNotificationBundle extends DBNMutableTableModel<DataChang
     private List<DataChangeNotification> notifications = FilteredList.stateful(filter);
 
     private final ListModel gutterModel = new DBNTableGutterModel<>(this);
-
-
     private final ConnectionId connectionId;
-    // Define the column names for the dashboard
-    private final String COLUMN_REG_ID = "Reg Id";
+
     private final String COLUMN_TABLE = "Table Name";
     private final String COLUMN_OPERATION = "Operation";
     private final String COLUMN_TIMESTAMP = "Timestamp";
-    private final String COLUMN_ROWID = "Row ID";
-    // List to hold the NotificationEvent objects
+    private final String COLUMN_ROWID = "Row Id";
+    private final String COLUMN_REG_ID = "Source Registration Id";
     private final String[] columnNames = {
-            COLUMN_REG_ID,
             COLUMN_TABLE,
             COLUMN_OPERATION,
             COLUMN_TIMESTAMP,
-            COLUMN_ROWID};
+            COLUMN_ROWID,
+            COLUMN_REG_ID};
 
     public DataChangeNotificationBundle(ConnectionId connectionId) {
         this.connectionId = connectionId;
@@ -92,11 +89,11 @@ public class DataChangeNotificationBundle extends DBNMutableTableModel<DataChang
     @Override
     public Object getValue(DataChangeNotification row, int column) {
         switch (column) {
-            case 0: return row.getRegId();
-            case 1: return row.getTableName();
-            case 2: return row.getOperation();
-            case 3: return row.getTimestamp();
-            case 4: return row.getRowId();
+            case 0: return row.getTableName();
+            case 1: return row.getOperation();
+            case 2: return row.getTimestamp();
+            case 3: return row.getRowId();
+            case 4: return row.getRegId();
             default:
                 return "";
         }
