@@ -16,26 +16,8 @@
 
 package com.dbn.event.notification.model;
 
-import com.dbn.connection.ConnectionId;
-import lombok.Data;
+import java.util.EventListener;
 
-@Data
-public class DataChangeEvent {
-    private ConnectionId connectionId;
-    private Long regId;
-    private String operation;
-    private String tableName;
-    private String rowId;
-    private String timestamp;
-
-
-    public DataChangeEvent(String operation, String tableName, String rowId, String timestamp, Long regId, ConnectionId connectionId) {
-        this.operation = operation;
-        this.tableName = tableName;
-        this.rowId = rowId;
-        this.timestamp = timestamp;
-        this.regId = regId;
-        this.connectionId = connectionId;
-    }
-
+public interface DataChangeNotificationListener extends EventListener {
+    void accept(DataChangeNotification notification);
 }

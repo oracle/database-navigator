@@ -22,7 +22,7 @@ import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.util.Strings;
 import com.dbn.event.notification.filter.EventNotificationFilter;
 import com.dbn.event.notification.filter.EventNotificationFilterType;
-import com.dbn.event.notification.model.DataChangeEventBundle;
+import com.dbn.event.notification.model.DataChangeNotificationBundle;
 import com.dbn.event.notification.ui.EventNotificationsForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
@@ -55,8 +55,8 @@ public abstract class EventNotificationFilterAction extends ComboBoxAction imple
         actionGroup.add(new SelectFilterValueAction(null));
         if (notificationForm == null) return actionGroup;
 
-        DBNTable<DataChangeEventBundle> notificationsTable = notificationForm.getNotificationsTable();
-        DataChangeEventBundle model = notificationsTable.getModel();
+        DBNTable<DataChangeNotificationBundle> notificationsTable = notificationForm.getNotificationsTable();
+        DataChangeNotificationBundle model = notificationsTable.getModel();
         List<String> filterValues = model.getDistinctValues(filterType);
 
         for (String filterValue : filterValues) {
@@ -75,7 +75,7 @@ public abstract class EventNotificationFilterAction extends ComboBoxAction imple
 
         EventNotificationsForm notificationForm = getNotificationForm(e);
         if (notificationForm != null) {
-            DataChangeEventBundle notifications = notificationForm.getNotificationsTable().getModel();
+            DataChangeNotificationBundle notifications = notificationForm.getNotificationsTable().getModel();
             EventNotificationFilter filter = notifications.getFilter();
 
             if (filter != null) {

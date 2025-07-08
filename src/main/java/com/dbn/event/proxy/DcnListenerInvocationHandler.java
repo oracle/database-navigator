@@ -18,7 +18,7 @@ package com.dbn.event.proxy;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.event.NotificationHandler;
-import com.dbn.event.notification.model.DataChangeEvent;
+import com.dbn.event.notification.model.DataChangeNotification;
 import com.dbn.event.service.EventHistoryService;
 
 import java.lang.reflect.InvocationHandler;
@@ -57,7 +57,7 @@ public class DcnListenerInvocationHandler implements InvocationHandler {
       // args[0] is the driver's DatabaseChangeEvent
 
       Object rawEvent = args[0]; // the raw event
-      DataChangeEvent mappedEvent = toDataChangeEvent(rawEvent);  // Map to your DataChangeEvent class
+      DataChangeNotification mappedEvent = toDataChangeEvent(rawEvent);  // Map to your DataChangeEvent class
 
       // Dispatch the mapped event via your NotificationHandler
       NotificationHandler.onChange(
@@ -74,8 +74,8 @@ public class DcnListenerInvocationHandler implements InvocationHandler {
   }
 
   // Mapping method to convert DatabaseChangeEvent to DataChangeEvent
-  private DataChangeEvent toDataChangeEvent(Object rawEvent) {
-    AtomicReference<DataChangeEvent> dataChangeEvent = new AtomicReference<>();
+  private DataChangeNotification toDataChangeEvent(Object rawEvent) {
+    AtomicReference<DataChangeNotification> dataChangeEvent = new AtomicReference<>();
 
     try {
       // Use reflection to get the TableChangeDescription array from the event getTableChangeDescription
@@ -113,7 +113,7 @@ public class DcnListenerInvocationHandler implements InvocationHandler {
                 // Use current timestamp (you can use the actual timestamp from the event, if available)
                 String timestamp = LocalDateTime.now().toString();
                 // Create and set the mapped DataChangeEvent
-                dataChangeEvent.set(new DataChangeEvent(operation, tableName, rowId, timestamp,regId, handler.getConnectionId()));
+                dataChangeEvent.set(new DataChangeNotification(operation, tableName, rowId, timestamp,regId, handler.getConnectionId()));
                 EventHistoryService.getInstance().pushEvent(handler.getConnectionId(),this.regId,dataChangeEvent.get());
               } catch (Exception e) {
                 e.printStackTrace(); // Handle potential reflection errors in row processing

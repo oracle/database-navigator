@@ -19,8 +19,8 @@ package com.dbn.event.service;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.event.notification.model.DataChangeEvent;
-import com.dbn.event.notification.model.DataChangeEventListener;
+import com.dbn.event.notification.model.DataChangeNotification;
+import com.dbn.event.notification.model.DataChangeNotificationListener;
 import com.dbn.event.registration.EventRegistrationManager;
 import com.intellij.openapi.project.Project;
 
@@ -34,8 +34,8 @@ import java.util.stream.Collectors;
 public class EventHistoryService {
   private static final EventHistoryService INSTANCE = new EventHistoryService();
 
-  private final Map<ConnectionId, Map<Long, List<DataChangeEvent>>> eventHistory = new HashMap<>();
-  private final Listeners<DataChangeEventListener> listeners = Listeners.create();
+  private final Map<ConnectionId, Map<Long, List<DataChangeNotification>>> eventHistory = new HashMap<>();
+  private final Listeners<DataChangeNotificationListener> listeners = Listeners.create();
 
   private EventHistoryService() { }
 
@@ -44,7 +44,7 @@ public class EventHistoryService {
   }
 
   // Push event for a specific ConnectionId and regId
-  public synchronized void pushEvent(ConnectionId connectionId, long regId, DataChangeEvent event) {
+  public synchronized void pushEvent(ConnectionId connectionId, long regId, DataChangeNotification event) {
     eventHistory
             .computeIfAbsent(connectionId, k -> new HashMap<>())
             .computeIfAbsent(regId, k -> new ArrayList<>())
@@ -53,16 +53,16 @@ public class EventHistoryService {
   }
 
   // Retrieve events for a specific ConnectionId and regId
-  public synchronized List<DataChangeEvent> getEventsByConnectionAndRegId(ConnectionId connectionId, long regId) {
+  public synchronized List<DataChangeNotification> getEventsByConnectionAndRegId(ConnectionId connectionId, long regId) {
     return new ArrayList<>(eventHistory
             .getOrDefault(connectionId, Collections.emptyMap())
             .getOrDefault(regId, Collections.emptyList()));
   }
 
-  public List<DataChangeEvent> getAllEventsForConnection(ConnectionId connectionId) {
+  public List<DataChangeNotification> getAllEventsForConnection(ConnectionId connectionId) {
 
     // Fetch events for the given connectionId from EventHistoryService
-    Map<Long, List<DataChangeEvent>> allEvents = eventHistory.get(connectionId);
+    Map<Long, List<DataChangeNotification>> allEvents = eventHistory.get(connectionId);
 
 
     // Check if the registrations exist, then flatten the events into a single list using streams
@@ -77,13 +77,13 @@ public class EventHistoryService {
   }
 
 
-  public List<DataChangeEvent> getAllEventsForConnection(ConnectionId connectionId, String tableNameFilter, String regStatusFilter) {
-    List<DataChangeEvent> filteredEvents = new ArrayList<>();
+  public List<DataChangeNotification> getAllEventsForConnection(ConnectionId connectionId, String tableNameFilter, String regStatusFilter) {
+    List<DataChangeNotification> filteredEvents = new ArrayList<>();
 
     // Fetch all events for the given connection
-    List<DataChangeEvent> allEvents = getAllEventsForConnection(connectionId);
+    List<DataChangeNotification> allEvents = getAllEventsForConnection(connectionId);
 
-    for (DataChangeEvent event : allEvents) {
+    for (DataChangeNotification event : allEvents) {
       // Filter by table name
       if (!"All".equals(tableNameFilter) && !event.getTableName().equalsIgnoreCase(tableNameFilter)) {
         continue;
@@ -103,11 +103,11 @@ public class EventHistoryService {
     return filteredEvents;
   }
 
-  public void registerListener(ConnectionId connectionId, DataChangeEventListener listener) {
+  public void registerListener(ConnectionId connectionId, DataChangeNotificationListener listener) {
    listeners.add(listener);
   }
 
-  private boolean isActive(ConnectionId connectionId, DataChangeEvent event) {
+  private boolean isActive(ConnectionId connectionId, DataChangeNotification event) {
       ConnectionHandler connection = ConnectionHandler.get(connectionId);
       if (connection == null) return false;
 

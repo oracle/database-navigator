@@ -638,13 +638,16 @@
         </group>
 
         <group id="DBNavigator.ActionGroup.EventRegistration.Controls" text="Database Event Registration Controls">
+<!--
             <action id="DBNavigator.Actions.EventRegistration.Find" class="com.dbn.event.registration.action.EventRegistrationFindAction" text="Event Registrations - Find..." icon="AllIcons.Actions.Find">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>
             </action>
+-->
             <action id="DBNavigator.Actions.EventRegistration.Reload" class="com.dbn.event.registration.action.EventRegistrationReloadAction" text="Event Registrations - Reload"/>
             <action id="DBNavigator.Actions.EventRegistration.UserFilter" class="com.dbn.event.registration.action.EventRegistrationUserFilterAction" text="Event Registrations - User Filter"/>
             <action id="DBNavigator.Actions.EventRegistration.TableFilter" class="com.dbn.event.registration.action.EventRegistrationTableFilterAction" text="Event Registrations - Table Filter"/>
             <action id="DBNavigator.Actions.EventRegistration.StatusFilter" class="com.dbn.event.registration.action.EventRegistrationStatusFilterAction" text="Event Registrations - Status Filter"/>
+            <separator/>
             <action id="DBNavigator.Actions.EventRegistration.Delete" class="com.dbn.event.registration.action.EventRegistrationDeleteAction" text="Event Registrations - Delete Registration"/>
         </group>
         <group id="DBNavigator.ActionGroup.EventNotification.Controls" text="Database Event Notification Controls">

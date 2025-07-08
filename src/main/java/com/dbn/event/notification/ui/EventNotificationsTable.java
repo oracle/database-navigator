@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.event.registration.ui;
+package com.dbn.event.notification.ui;
 
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
@@ -22,8 +22,8 @@ import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.table.DBNTableGutter;
 import com.dbn.common.ui.table.DBNTableTransferHandler;
 import com.dbn.common.ui.table.DBNTableWithGutter;
-import com.dbn.event.registration.model.DataChangeRegistration;
-import com.dbn.event.registration.model.DataChangeRegistrationBundle;
+import com.dbn.event.notification.model.DataChangeNotification;
+import com.dbn.event.notification.model.DataChangeNotificationBundle;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,17 +32,17 @@ import javax.swing.table.TableModel;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
-public class EventRegistrationsTable extends DBNTableWithGutter<DataChangeRegistrationBundle> {
+public class EventNotificationsTable extends DBNTableWithGutter<DataChangeNotificationBundle> {
 
-    public EventRegistrationsTable(@NotNull DBNComponent parent, DataChangeRegistrationBundle registrations) {
+    public EventNotificationsTable(@NotNull DBNComponent parent, DataChangeNotificationBundle registrations) {
         super(parent, registrations, true);
         setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        setDefaultRenderer(DataChangeRegistration.class, new CellRenderer());
+        setDefaultRenderer(DataChangeNotification.class, new CellRenderer());
         setTransferHandler(DBNTableTransferHandler.INSTANCE);
         initTableSorter();
 
 
-        setAccessibleName(this, "Data change listener registrations");
+        setAccessibleName(this, "Data change event notifications");
     }
 
     @Override
@@ -59,7 +59,7 @@ public class EventRegistrationsTable extends DBNTableWithGutter<DataChangeRegist
     private class CellRenderer extends DBNColoredTableCellRenderer {
         @Override
         protected void customizeCellRenderer(DBNTable table, Object value, boolean selected, boolean hasFocus, int row, int column) {
-            DataChangeRegistration entry = (DataChangeRegistration) value;
+            DataChangeNotification entry = (DataChangeNotification) value;
             String columnValue = getModel().getPresentableValue(entry, column);
             append(columnValue == null ? "" : columnValue, SimpleTextAttributes.REGULAR_ATTRIBUTES);
         }

@@ -18,7 +18,7 @@ package com.dbn.event;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.event.notification.model.DataChangeEvent;
+import com.dbn.event.notification.model.DataChangeNotification;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
@@ -42,7 +42,7 @@ public class NotificationHandler {
     notification.notify(project);
   }
 
-  public static void onChange(Project project, DataChangeEvent dataChangeEvent, @NotNull ConnectionId connectionId) {
+  public static void onChange(Project project, DataChangeNotification notification, @NotNull ConnectionId connectionId) {
 //    DataChangeEvent dataChangeEvent = toDataChangeEvent(event);
 //    Arrays.stream(event.getTableChangeDescription()).forEach(desc -> {
 //      String tableName = desc.getTableName();
@@ -59,10 +59,10 @@ public class NotificationHandler {
     String connectionName = connection == null ? "UNKNOWN" : connection.getName();
 
     sendInfoNotification(project, DCN, txt("ntf.events.info.DataEventOccurred",
-            dataChangeEvent.getOperation(),
-            dataChangeEvent.getTableName(),
+            notification.getOperation(),
+            notification.getTableName(),
             connectionName,
-            dataChangeEvent.getRegId())); // TODO link to open "events" tool-window
+            notification.getRegId())); // TODO link to open "events" tool-window
 
     //showIntelliJNotification(dataChangeEvent.toString());
     //todo we were updating the events data , and updating the ui of the dashboard .

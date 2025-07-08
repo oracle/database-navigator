@@ -18,30 +18,30 @@ package com.dbn.event.notification.filter;
 
 import com.dbn.common.filter.Filter;
 import com.dbn.common.util.Strings;
-import com.dbn.event.notification.model.DataChangeEvent;
+import com.dbn.event.notification.model.DataChangeNotification;
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Strings.equalsIgnoreCase;
 
 @Data // IMPORTANT: "hashCode" needed for the filter signature watchers
-public class EventNotificationFilter implements Filter<DataChangeEvent> {
+public class EventNotificationFilter implements Filter<DataChangeNotification> {
     private String table;
     private String operation;
 
     @Override
-    public boolean accepts(DataChangeEvent event) {
+    public boolean accepts(DataChangeNotification event) {
         return
             matchesTable(event) &&
             matchesOperation(event);
     }
 
-    private boolean matchesTable(DataChangeEvent event) {
+    private boolean matchesTable(DataChangeNotification event) {
         return Strings.isEmpty(table) ||
                 equalsIgnoreCase(table, event.getTableName());
     }
 
-    private boolean matchesOperation(DataChangeEvent event) {
+    private boolean matchesOperation(DataChangeNotification event) {
         return Strings.isEmpty(operation) ||
                 equalsIgnoreCase(operation, event.getOperation());
     }

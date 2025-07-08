@@ -22,11 +22,9 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNScrollPane;
-import com.dbn.common.ui.table.DBNTable;
-import com.dbn.common.ui.table.DBNTableWithGutter;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
-import com.dbn.event.notification.model.DataChangeEventBundle;
+import com.dbn.event.notification.model.DataChangeNotificationBundle;
 import com.dbn.event.ui.EventMonitorDetailsForm;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.util.ui.AsyncProcessIcon;
@@ -48,9 +46,9 @@ public class EventNotificationsForm extends DBNFormBase {
     private JLabel loadingLabel;
     private DBNScrollPane notificationsScrollPane;
 
-    private @Getter DBNTable<DataChangeEventBundle> notificationsTable;
+    private @Getter EventNotificationsTable notificationsTable;
 
-    public EventNotificationsForm(EventMonitorDetailsForm parent, DataChangeEventBundle events) {
+    public EventNotificationsForm(EventMonitorDetailsForm parent, DataChangeNotificationBundle events) {
         super(parent);
         initActionToolbar();
         initLoadIndicator();
@@ -72,8 +70,8 @@ public class EventNotificationsForm extends DBNFormBase {
         controlPanel.setBorder(Borders.lineBorder(Colors.getTableGridColor(), 0, 0, 1, 0));
     }
 
-    private void initTable(DataChangeEventBundle events) {
-        notificationsTable = new DBNTableWithGutter<>(this, events, true);
+    private void initTable(DataChangeNotificationBundle notifications) {
+        notificationsTable = new EventNotificationsTable(this, notifications);
         notificationsScrollPane.setViewportView(notificationsTable);
         NO_BORDER.set(notificationsTable, true);
     }
@@ -86,7 +84,7 @@ public class EventNotificationsForm extends DBNFormBase {
         markLoading(true);
         Background.run(() -> {
             try {
-                DataChangeEventBundle model = notificationsTable.getModel();
+                DataChangeNotificationBundle model = notificationsTable.getModel();
                 model.load();
             } catch (Exception e) {
                 // TODO show load exception (maybe as a banner??)

@@ -24,6 +24,7 @@ import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.event.registration.model.DataChangeRegistration;
 import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,29 +32,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGH;
-import static com.dbn.event.registration.model.DataChangeRegistrationBundle.COL_CALLBACK;
-import static com.dbn.event.registration.model.DataChangeRegistrationBundle.COL_CHANGELAG;
-import static com.dbn.event.registration.model.DataChangeRegistrationBundle.COL_OPERATIONS;
-import static com.dbn.event.registration.model.DataChangeRegistrationBundle.COL_REGFLAGS;
-import static com.dbn.event.registration.model.DataChangeRegistrationBundle.COL_REGID;
-import static com.dbn.event.registration.model.DataChangeRegistrationBundle.COL_TABLE_NAME;
-import static com.dbn.event.registration.model.DataChangeRegistrationBundle.COL_TIMEOUT;
-import static com.dbn.event.registration.model.DataChangeRegistrationBundle.COL_USERNAME;
 
 @UtilityClass
 public class EventRegistrationUtil {
 
-  private static DataChangeRegistration createRegistration(Project project, ResultSet rs) throws SQLException {
+  private static @NonNls DataChangeRegistration createRegistration(Project project, ResultSet rs) throws SQLException {
     return new DataChangeRegistration(
             project,
-            rs.getString(COL_USERNAME),
-            rs.getLong(COL_REGID),
-            rs.getInt(COL_REGFLAGS),
-            rs.getString(COL_CALLBACK),
-            rs.getInt(COL_OPERATIONS),
-            rs.getInt(COL_CHANGELAG),
-            rs.getLong(COL_TIMEOUT),
-            rs.getString(COL_TABLE_NAME)
+            rs.getString("USER_NAME"),
+            rs.getLong("REG_ID"),
+            rs.getInt("REG_FLAGS"),
+            rs.getString("CALLBACK"),
+            rs.getInt("OPERATIONS"),
+            rs.getInt("CHANGE_LAG"),
+            rs.getLong("TIMEOUT"),
+            rs.getString("TABLE_NAME")
     );
   }
 

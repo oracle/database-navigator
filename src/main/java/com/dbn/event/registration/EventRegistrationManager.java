@@ -34,7 +34,7 @@ import com.dbn.event.model.OracleConnection;
 import com.dbn.event.model.OracleStatement;
 import com.dbn.event.model.RowChangeDescription;
 import com.dbn.event.model.TableChangeDescription;
-import com.dbn.event.notification.model.DataChangeEvent;
+import com.dbn.event.notification.model.DataChangeNotification;
 import com.dbn.event.service.EventHistoryService;
 import com.dbn.object.DBTable;
 import com.intellij.openapi.components.State;
@@ -124,8 +124,8 @@ public class EventRegistrationManager extends ProjectComponentBase {
                     String operation = rowChange.getRowOperations().toString();
 
                     String timestamp = LocalDateTime.now().toString();
-                    DataChangeEvent dataChangeEvent = new DataChangeEvent(operation, eventTableName, rowId, timestamp, eventRegId, connectionId);
-                    EventHistoryService.getInstance().pushEvent(connectionId, eventRegId, dataChangeEvent);
+                    DataChangeNotification notification = new DataChangeNotification(operation, eventTableName, rowId, timestamp, eventRegId, connectionId);
+                    EventHistoryService.getInstance().pushEvent(connectionId, eventRegId, notification);
                 }
             }
         };

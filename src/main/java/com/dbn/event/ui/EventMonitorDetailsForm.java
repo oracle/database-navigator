@@ -21,7 +21,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.event.notification.model.DataChangeEventBundle;
+import com.dbn.event.notification.model.DataChangeNotificationBundle;
 import com.dbn.event.notification.ui.EventNotificationsForm;
 import com.dbn.event.registration.model.DataChangeRegistrationBundle;
 import com.dbn.event.registration.ui.EventRegistrationsForm;
@@ -47,7 +47,7 @@ public class EventMonitorDetailsForm extends DBNFormBase {
     tabsPanel.add(contentTabs, BorderLayout.CENTER);
     contentTabs.enableFocusInheritance();
 
-    DataChangeEventBundle eventModel = new DataChangeEventBundle(connection.getConnectionId());
+    DataChangeNotificationBundle eventModel = new DataChangeNotificationBundle(connection.getConnectionId());
     DataChangeRegistrationBundle registrationModel = new DataChangeRegistrationBundle(connection);
 
     // Initialize tables

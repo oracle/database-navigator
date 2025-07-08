@@ -542,7 +542,7 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
     @Override
     public ResultSet loadDataEventRegistrations(DBNConnection connection) throws SQLException {
-      return executeQuery(connection, "data-event-registrations");
+      return executeQuery(connection, "data-change-event-registrations");
     }
     @Override
     public ResultSet checkUserPrivilegesOnNotification(DBNConnection connection) throws SQLException{
