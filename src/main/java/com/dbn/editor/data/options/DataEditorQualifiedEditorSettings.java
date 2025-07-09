@@ -16,8 +16,8 @@
 
 package com.dbn.editor.data.options;
 
+import com.dbn.common.latent.Latent;
 import com.dbn.common.options.BasicConfiguration;
-import com.dbn.common.util.Strings;
 import com.dbn.data.editor.text.TextContentType;
 import com.dbn.editor.data.options.ui.DataEditorQualifiedEditorSettingsForm;
 import lombok.EqualsAndHashCode;
@@ -38,12 +38,13 @@ import static com.dbn.common.options.setting.Settings.integerAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setIntegerAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Strings.isEmpty;
 
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
 public class DataEditorQualifiedEditorSettings extends BasicConfiguration<DataEditorSettings, DataEditorQualifiedEditorSettingsForm> {
-    private final List<TextContentType> contentTypes = Stream.of(
+    private final Latent<List<TextContentType>> contentTypes = Latent.basic(() -> Stream.of(
         TextContentType.create("Text", "PLAIN_TEXT"),
         TextContentType.create("Properties", "Properties"),
         TextContentType.create("XML", "XML"),
@@ -75,7 +76,7 @@ public class DataEditorQualifiedEditorSettings extends BasicConfiguration<DataEd
         TextContentType.create("C++", "C++"),
         TextContentType.create("Bash", "Bash"),
         TextContentType.create("Manifest", "Manifest")
-    ).filter(e -> e != null).collect(Collectors.toList());
+    ).filter(e -> e != null).collect(Collectors.toList()));
 
     private int textLengthThreshold = 300;
 
@@ -94,13 +95,18 @@ public class DataEditorQualifiedEditorSettings extends BasicConfiguration<DataEd
         return "dataEditor";
     }
 
+    public List<TextContentType> getContentTypes() {
+        return contentTypes.get();
+    }
+
     @Nullable
     public TextContentType getContentType(String name) {
-        if (Strings.isNotEmpty(name)) {
-            for (TextContentType contentType : contentTypes) {
-                if (Objects.equals(contentType.getName(), name)) {
-                    return contentType;
-                }
+        if (isEmpty(name)) return null;
+
+        List<TextContentType> contentTypes = getContentTypes();
+        for (TextContentType contentType : contentTypes) {
+            if (Objects.equals(contentType.getName(), name)) {
+                return contentType;
             }
         }
         return null;
