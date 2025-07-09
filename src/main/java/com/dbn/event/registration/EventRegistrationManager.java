@@ -36,6 +36,7 @@ import com.dbn.event.model.OracleConnection;
 import com.dbn.event.model.OracleStatement;
 import com.dbn.event.model.RowChangeDescription;
 import com.dbn.event.model.TableChangeDescription;
+import com.dbn.event.notification.EventNotificationListener;
 import com.dbn.event.notification.model.DataChangeNotification;
 import com.dbn.event.service.EventHistoryService;
 import com.dbn.object.DBTable;
@@ -99,15 +100,19 @@ public class EventRegistrationManager extends ProjectComponentBase {
                         c -> registerTable(tableName, mask, connectionId, c));
 
                 sendInfoNotification(DCN, txt("ntf.events.info.ListenerRegisteredFor", qualifiedTableName, connectionName));
-                notifyRegistrationListeners(project, connectionId);
+                notifyRegistrationListeners(connectionId);
             } catch (Exception e) {
                 sendErrorNotification(DCN, txt("ntf.events.warning.ListenerRegistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
             }
         });
     }
 
-    private static void notifyRegistrationListeners(Project project, ConnectionId connectionId) {
-        ProjectEvents.notify(project, EventRegistrationListener.TOPIC, l -> l.registrationsChanged(connectionId));
+    private void notifyRegistrationListeners(ConnectionId connectionId) {
+        ProjectEvents.notify(ensureProject(), EventRegistrationListener.TOPIC, l -> l.registrationsChanged(connectionId));
+    }
+
+    private void notifyNotificationListeners(ConnectionId connectionId, String tableName) {
+        ProjectEvents.notify(ensureProject(), EventNotificationListener.TOPIC, l -> l.notificationReceived(connectionId, tableName));
     }
 
     @SneakyThrows
@@ -134,6 +139,7 @@ public class EventRegistrationManager extends ProjectComponentBase {
                     DataChangeNotification notification = new DataChangeNotification(operation, eventTableName, rowId, timestamp, eventRegId, connectionId);
                     EventHistoryService.getInstance().pushEvent(connectionId, eventRegId, notification);
                 }
+                notifyNotificationListeners(connectionId, eventTableName);
             }
         };
 
@@ -188,7 +194,7 @@ public class EventRegistrationManager extends ProjectComponentBase {
                         c -> unregisterTable(tableName, connectionId, c));
 
                 sendInfoNotification(DCN, txt("ntf.events.info.ListenerDeregisteredFor", qualifiedTableName, connectionName));
-                notifyRegistrationListeners(project, connectionId);
+                notifyRegistrationListeners(connectionId);
             } catch (Exception e) {
                 sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
             }
@@ -213,7 +219,7 @@ public class EventRegistrationManager extends ProjectComponentBase {
                         c -> unregisterListener(regId, tableName, connectionId, c));
 
                 sendInfoNotification(DCN, txt("ntf.events.info.ListenerDeregisteredFor", tableName, connectionName));
-                notifyRegistrationListeners(project, connectionId);
+                notifyRegistrationListeners(connectionId);
             } catch (Exception e) {
                 sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", tableName, connectionName, e.getMessage()));
             }

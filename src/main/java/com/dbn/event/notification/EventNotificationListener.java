@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.dbn.event.registration;
+package com.dbn.event.notification;
 
 import com.dbn.connection.ConnectionId;
 import com.intellij.util.messages.Topic;
 
 import java.util.EventListener;
 
-public interface EventRegistrationListener extends EventListener {
-    Topic<EventRegistrationListener> TOPIC = Topic.create("Data Change Registration Event", EventRegistrationListener.class);
+public interface EventNotificationListener extends EventListener {
+    Topic<EventNotificationListener> TOPIC = Topic.create("Data Change Notification Event", EventNotificationListener.class);
 
-    void registrationsChanged(ConnectionId connectionId);
+    void notificationReceived(ConnectionId connectionId, String tableName);
 }

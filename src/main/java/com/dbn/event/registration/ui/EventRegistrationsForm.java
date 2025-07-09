@@ -98,6 +98,7 @@ public class EventRegistrationsForm extends DBNFormBase {
     }
 
     public void refresh() {
+        if (isLoading()) return;
         load();
     }
 

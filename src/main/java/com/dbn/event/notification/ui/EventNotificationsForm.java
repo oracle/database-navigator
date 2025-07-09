@@ -18,16 +18,20 @@ package com.dbn.event.notification.ui;
 
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
+import com.dbn.connection.ConnectionId;
+import com.dbn.event.notification.EventNotificationListener;
 import com.dbn.event.notification.filter.EventNotificationFilter;
 import com.dbn.event.notification.model.DataChangeNotificationBundle;
 import com.dbn.event.ui.EventMonitorDetailsForm;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +42,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import static com.dbn.common.ui.util.ClientProperty.NO_BORDER;
+import static com.dbn.common.util.Conditional.when;
 
 public class EventNotificationsForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -55,8 +60,19 @@ public class EventNotificationsForm extends DBNFormBase {
         initLoadIndicator();
         initTable(events);
 
+        Project project = ensureProject();
+        ProjectEvents.subscribe(project, this, EventNotificationListener.TOPIC, createEventNotificationListener());
+
         // start loading when the form is shown
         whenShown(() -> load());
+    }
+
+    private EventNotificationListener createEventNotificationListener() {
+        return (connectionId, tableName) -> when(connectionId == getConnectionId(), () -> refresh());
+    }
+
+    private @Nullable ConnectionId getConnectionId() {
+        return notificationsTable.getModel().getConnectionId();
     }
 
     private void initLoadIndicator() {
@@ -78,6 +94,7 @@ public class EventNotificationsForm extends DBNFormBase {
     }
 
     public void refresh() {
+        if (isLoading()) return;
         load();
     }
 
