@@ -26,12 +26,12 @@ import org.jetbrains.annotations.Nullable;
 @UtilityClass
 public class EventRegistrationActionUtil {
     @Nullable
-    static EventRegistrationsForm getListenersForm(DataContext dataContext) {
+    static EventRegistrationsForm getRegistrationsForm(DataContext dataContext) {
         return DataKeys.EVENT_REGISTRATIONS_FORM.getData(dataContext);
     }
 
     @Nullable
-    static EventRegistrationsForm getListenersForm(AnActionEvent e) {
-        return getListenersForm(e.getDataContext());
+    static EventRegistrationsForm getRegistrationsForm(AnActionEvent e) {
+        return getRegistrationsForm(e.getDataContext());
     }
 }

@@ -24,6 +24,7 @@ import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.dbn.event.registration.EventRegistrationManager;
+import com.dbn.event.registration.filter.EventRegistrationFilter;
 import com.dbn.event.registration.model.DataChangeRegistration;
 import com.dbn.event.registration.model.DataChangeRegistrationBundle;
 import com.dbn.event.ui.EventMonitorDetailsForm;
@@ -139,5 +140,14 @@ public class EventRegistrationsForm extends DBNFormBase {
 
     public void showSearchHeader(){
 
+    }
+
+    public EventRegistrationFilter getFilter() {
+        return getRegistrationsTable().getModel().getFilter();
+    }
+
+    public void clearFilter() {
+        getFilter().clear();
+        refresh();
     }
 }

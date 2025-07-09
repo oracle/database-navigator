@@ -17,6 +17,7 @@
 package com.dbn.event.registration.model;
 
 import com.dbn.common.data.Data;
+import com.dbn.common.filter.FilterOption;
 import com.dbn.common.list.FilteredList;
 import com.dbn.common.ui.table.DBNMutableTableModel;
 import com.dbn.common.ui.table.DBNTableGutterModel;
@@ -37,6 +38,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.util.Lists.isInBounds;
+import static com.dbn.event.registration.filter.EventRegistrationFilterType.FILTER_STATUS_LISTENING;
+import static com.dbn.event.registration.filter.EventRegistrationFilterType.FILTER_STATUS_NOT_LISTENING;
 
 @Getter
 public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChangeRegistration> implements DBNTableWithGutterModel<DataChangeRegistration> {
@@ -161,14 +164,11 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
                 .collect(Collectors.toList());
     }
 
-    public List<String> getDistinctValues(EventRegistrationFilterType filterType) {
+    public List<FilterOption> geFilterOptions(EventRegistrationFilterType filterType) {
         switch (filterType) {
-            case USER:
-                return getUserNames();
-            case TABLE:
-                return getTableNames();
-            case STATUS:
-                return List.of("On", "Off");
+            case USER: return FilterOption.fromValues(getUserNames());
+            case TABLE: return FilterOption.fromValues(getTableNames());
+            case STATUS: return List.of(FILTER_STATUS_LISTENING, FILTER_STATUS_NOT_LISTENING);
         }
         return Collections.emptyList();
     }

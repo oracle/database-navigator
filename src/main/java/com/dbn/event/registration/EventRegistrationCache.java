@@ -16,51 +16,96 @@
 
 package com.dbn.event.registration;
 
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionUtil;
+import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.event.model.DatabaseChangeRegistration;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.sql.Driver;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.intellij.util.containers.CollectionFactory.createConcurrentWeakValueMap;
+import static com.dbn.common.util.Unsafe.warned;
+import static com.intellij.util.containers.CollectionFactory.createConcurrentWeakMap;
+import static java.util.Collections.emptyList;
 
 public class EventRegistrationCache {
-    private final Map<ConnectionId, Map<String, DatabaseChangeRegistration>> registrations = new ConcurrentHashMap<>();
+    // hold weak reference to registrations by using weak cache around the driver class-loader
+    private final Map<ClassLoader, Map<ConnectionId, EventRegistrationData>> registrations = createConcurrentWeakMap();
 
-    public void addRegistration(ConnectionId connectionId, String tableIdentifier, DatabaseChangeRegistration registration) {
-        // hold week reference to registrations so they be cleaned-up if no-one else is holding the reference
-        var registrations = this.registrations.computeIfAbsent(connectionId, key -> createConcurrentWeakValueMap());
-        registrations.put(tableIdentifier, registration);
+    public void addRegistration(ConnectionId connectionId, DatabaseChangeRegistration registration) {
+        EventRegistrationData registrationData = getRegistrationData(connectionId, true);
+        if (registrationData == null) return;
+
+        registrationData.addRegistration(registration);
     }
 
-    @Nullable
-    public DatabaseChangeRegistration removeRegistration(ConnectionId connectionId, String tableName) {
-        var registrations = this.registrations.get(connectionId);
-        if (registrations == null) return null;
+    public int removeRegistrations(ConnectionId connectionId, String tableIdentifier) {
+        EventRegistrationData registrationData = getRegistrationData(connectionId, false);
+        if (registrationData == null) return 0;
 
-        return registrations.remove(tableName);
+        return registrationData.removeRegistrations(tableIdentifier);
     }
 
+    public void removeRegistration(ConnectionId connectionId, long regId) {
+        EventRegistrationData registrationData = getRegistrationData(connectionId, false);
+        if (registrationData == null) return;
 
-    @Nullable
-    public DatabaseChangeRegistration getRegistration(ConnectionId connectionId, String tableIdentifier) {
-        var registrations = this.registrations.get(connectionId);
-        if (registrations == null) return null;
+        registrationData.removeRegistration(regId);
+    }
 
-        return registrations.get(tableIdentifier);
+    @NotNull
+    public List<DatabaseChangeRegistration> getRegistrations(ConnectionId connectionId, String tableIdentifier) {
+        EventRegistrationData registrationData = getRegistrationData(connectionId, false);
+        if (registrationData == null) return emptyList();
+
+        return registrationData.getRegistrations(tableIdentifier);
     }
 
     public boolean isListening(ConnectionId connectionId, String tableIdentifier) {
-        return getRegistration(connectionId, tableIdentifier) != null;
+        EventRegistrationData registrationData = getRegistrationData(connectionId, false);
+        if (registrationData == null) return false;
+
+        return registrationData.hasRegistrations(tableIdentifier);
     }
 
 
     public boolean isActive(ConnectionId connectionId, long regId) {
-        var registrations = this.registrations.get(connectionId);
-        if (registrations == null) return false;
+        EventRegistrationData registrationData = getRegistrationData(connectionId, false);
+        if (registrationData == null) return false;
 
-        // TODO this is called quite often from the UI to refresh cell renderers (create weak ref cache)
-        return registrations.values().stream().anyMatch(r -> r.getRegId() == regId);
+        return registrationData.isRegistrationPresent(regId);
     }
+
+    @Nullable
+    private EventRegistrationData getRegistrationData(ConnectionId connectionId, boolean init) {
+        ClassLoader classLoader = getDriverClassLoader(connectionId);
+        if (classLoader == null) return null;
+
+        if (init) {
+            var registrations = this.registrations.computeIfAbsent(classLoader, c -> new ConcurrentHashMap<>());
+            return registrations.computeIfAbsent(connectionId, k -> new EventRegistrationData(connectionId));
+        } else {
+            var registrations = this.registrations.get(classLoader);
+            if (registrations == null) return null;
+
+            return registrations.get(connectionId);
+        }
+    }
+
+    private static ClassLoader getDriverClassLoader(ConnectionId connectionId) {
+        ConnectionHandler connection = ConnectionHandler.get(connectionId);
+        if (connection == null) return null;
+
+        ConnectionDatabaseSettings databaseSettings = connection.getSettings().getDatabaseSettings();
+        Driver driver = warned(null, () -> ConnectionUtil.resolveDriver(databaseSettings));
+        if (driver == null) return null;
+
+        return driver.getClass().getClassLoader();
+    }
+
 }

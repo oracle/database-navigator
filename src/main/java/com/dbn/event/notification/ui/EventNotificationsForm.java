@@ -24,6 +24,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
+import com.dbn.event.notification.filter.EventNotificationFilter;
 import com.dbn.event.notification.model.DataChangeNotificationBundle;
 import com.dbn.event.ui.EventMonitorDetailsForm;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -116,5 +117,15 @@ public class EventNotificationsForm extends DBNFormBase {
 
     public boolean isLoading() {
         return notificationsTable.isLoading();
+    }
+
+    public void clearFilter() {
+        EventNotificationFilter notificationsFilter = getFilter();
+        notificationsFilter.clear();
+        refresh();
+    }
+
+    public EventNotificationFilter getFilter() {
+        return getNotificationsTable().getModel().getFilter();
     }
 }

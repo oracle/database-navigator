@@ -55,4 +55,14 @@ public class EventNotificationFilter implements Filter<DataChangeNotification> {
         }
         return null;
     }
+
+    public void clear() {
+        table = null;
+        operation = null;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return Strings.isEmpty(table) && Strings.isEmpty(operation);
+    }
 }

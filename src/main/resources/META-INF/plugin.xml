@@ -647,6 +647,7 @@
             <action id="DBNavigator.Actions.EventRegistration.UserFilter" class="com.dbn.event.registration.action.EventRegistrationUserFilterAction" text="Event Registrations - User Filter"/>
             <action id="DBNavigator.Actions.EventRegistration.TableFilter" class="com.dbn.event.registration.action.EventRegistrationTableFilterAction" text="Event Registrations - Table Filter"/>
             <action id="DBNavigator.Actions.EventRegistration.StatusFilter" class="com.dbn.event.registration.action.EventRegistrationStatusFilterAction" text="Event Registrations - Status Filter"/>
+            <action id="DBNavigator.Actions.EventRegistration.ClearFilter" class="com.dbn.event.registration.action.EventRegistrationClearFiltersAction" text="Event Registrations - Clear Filters"/>
             <separator/>
             <action id="DBNavigator.Actions.EventRegistration.Delete" class="com.dbn.event.registration.action.EventRegistrationDeleteAction" text="Event Registrations - Delete Registration"/>
         </group>
@@ -654,6 +655,7 @@
             <action id="DBNavigator.Actions.EventNotification.Reload" class="com.dbn.event.notification.action.EventNotificationsReloadAction" text="Event Notifications - Reload"/>
             <action id="DBNavigator.Actions.EventNotification.TableFilter" class="com.dbn.event.notification.action.EventNotificationTableFilterAction" text="Event Notifications - Table Filter"/>
             <action id="DBNavigator.Actions.EventNotification.OperationFilter" class="com.dbn.event.notification.action.EventNotificationOperationFilterAction" text="Event Notifications - Operation Filter"/>
+            <action id="DBNavigator.Actions.EventNotification.ClearFilter" class="com.dbn.event.notification.action.EventNotificationClearFiltersAction" text="Event Notifications - Clear Filters"/>
         </group>
     </actions>
     <projectListeners>

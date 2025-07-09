@@ -17,7 +17,7 @@
 package com.dbn.event.registration.filter;
 
 import com.dbn.common.filter.Filter;
-import com.dbn.common.util.Strings;
+import com.dbn.common.filter.FilterOption;
 import com.dbn.connection.ConnectionId;
 import com.dbn.event.registration.EventRegistrationCache;
 import com.dbn.event.registration.EventRegistrationManager;
@@ -25,14 +25,17 @@ import com.dbn.event.registration.model.DataChangeRegistration;
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.common.util.Strings.equalsIgnoreCase;
+import java.util.Objects;
+
+import static com.dbn.event.registration.filter.EventRegistrationFilterType.FILTER_STATUS_LISTENING;
+import static com.dbn.event.registration.filter.EventRegistrationFilterType.FILTER_STATUS_NOT_LISTENING;
 
 @Data // IMPORTANT: "hashCode" needed for the filter signature watchers
 public class EventRegistrationFilter implements Filter<DataChangeRegistration> {
     private final ConnectionId connectionId;
-    private String user;
-    private String table;
-    private String status;
+    private FilterOption user;
+    private FilterOption table;
+    private FilterOption status;
 
     public EventRegistrationFilter(ConnectionId connectionId) {
         this.connectionId = connectionId;
@@ -47,33 +50,44 @@ public class EventRegistrationFilter implements Filter<DataChangeRegistration> {
     }
 
     private boolean matchesUser(DataChangeRegistration registration) {
-        return Strings.isEmpty(user) || equalsIgnoreCase(user, registration.getUserName());
+        return user == null || user.matchesIgnoreCase(registration.getUserName());
     }
 
     private boolean matchesTable(DataChangeRegistration registration) {
-        return Strings.isEmpty(table) || equalsIgnoreCase(table, registration.getTableName());
+        return table == null || table.matchesIgnoreCase(registration.getTableName());
     }
 
     private boolean matchesStatus(DataChangeRegistration registration) {
-        if (Strings.isEmpty(status)) return true; // no filter on status
+        if (status == null) return true; // no filter on status
 
         EventRegistrationManager registrationManager = EventRegistrationManager.getInstance(registration.getProject());
         EventRegistrationCache registrationCache = registrationManager.getRegistrationCache();
         boolean active = registrationCache.isActive(connectionId, registration.getRegId());
 
-        if (equalsIgnoreCase(status, "Active")) return active;
-        if (equalsIgnoreCase(status, "Inactive")) return !active;
+        if (Objects.equals(FILTER_STATUS_LISTENING, status)) return active;
+        if (Objects.equals(FILTER_STATUS_NOT_LISTENING, status)) return !active;
 
         return false;
     }
 
     @Nullable
-    public String getFilterValue(EventRegistrationFilterType filterType) {
+    public FilterOption getFilterOption(EventRegistrationFilterType filterType) {
         switch (filterType) {
             case USER: return user;
             case TABLE: return table;
             case STATUS: return status;
         }
         return null;
+    }
+
+    public void clear() {
+        user = null;
+        table = null;
+        status = null;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return user == null && table == null && status == null;
     }
 }

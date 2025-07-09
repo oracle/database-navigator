@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2024 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +14,42 @@
  * limitations under the License.
  */
 
-package com.dbn.event.registration.action;
+package com.dbn.event.notification.action;
 
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
-import com.dbn.event.registration.ui.EventRegistrationsForm;
+import com.dbn.event.notification.ui.EventNotificationsForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.event.registration.action.EventRegistrationActionUtil.getRegistrationsForm;
+import static com.dbn.event.notification.action.EventNotificationActionUtil.getNotificationForm;
 import static com.dbn.nls.NlsResources.txt;
 
-public class EventRegistrationReloadAction extends BasicAction {
+public class EventNotificationClearFiltersAction extends BasicAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        EventRegistrationsForm registrationsForm = getRegistrationsForm(e);
-        if (registrationsForm == null) return;
+        EventNotificationsForm notificationForm = getNotificationForm(e);
+        if (notificationForm == null) return;
 
-        registrationsForm.refresh();
+        notificationForm.clearFilter();
     }
 
     @Override
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        EventRegistrationsForm registrationsForm = getRegistrationsForm(e);
+        presentation.setText(txt("app.sessions.action.ClearFilter"));
+        presentation.setIcon(Icons.DATASET_FILTER_CLEAR);
 
-        presentation.setEnabled(registrationsForm != null && !registrationsForm.isLoading());
-        presentation.setText(txt("app.eventRegistration.action.Reload"));
-        presentation.setIcon(Icons.ACTION_RELOAD);
+        presentation.setEnabled(isEnabled(e));
+
+    }
+
+    private static boolean isEnabled(AnActionEvent e) {
+        EventNotificationsForm notificationForm = getNotificationForm(e);
+        if (notificationForm == null) return false;
+
+        return !notificationForm.getFilter().isEmpty();
     }
 }

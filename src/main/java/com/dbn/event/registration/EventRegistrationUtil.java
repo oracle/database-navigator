@@ -55,7 +55,7 @@ public class EventRegistrationUtil {
       return DatabaseInterfaceInvoker.load(
             HIGH,
             "Loading DCN registrations",
-            "Fetching data‑change‑notification sessions…",
+            "Fetching data change notification registrations",
               project,
             connection.getConnectionId(),
             conn -> {

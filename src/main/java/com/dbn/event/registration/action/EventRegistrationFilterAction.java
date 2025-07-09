@@ -18,8 +18,8 @@ package com.dbn.event.registration.action;
 
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ComboBoxAction;
+import com.dbn.common.filter.FilterOption;
 import com.dbn.common.ui.table.DBNTable;
-import com.dbn.common.util.Strings;
 import com.dbn.event.registration.filter.EventRegistrationFilter;
 import com.dbn.event.registration.filter.EventRegistrationFilterType;
 import com.dbn.event.registration.model.DataChangeRegistrationBundle;
@@ -35,7 +35,8 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import java.util.List;
 
-import static com.dbn.event.registration.action.EventRegistrationActionUtil.getListenersForm;
+import static com.dbn.common.util.Commons.nvln;
+import static com.dbn.event.registration.action.EventRegistrationActionUtil.getRegistrationsForm;
 import static com.dbn.nls.NlsResources.txt;
 
 public abstract class EventRegistrationFilterAction extends ComboBoxAction implements DumbAware {
@@ -49,7 +50,7 @@ public abstract class EventRegistrationFilterAction extends ComboBoxAction imple
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(@NotNull JComponent component, @NotNull DataContext dataContext) {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
-        EventRegistrationsForm registrationsForm = EventRegistrationActionUtil.getListenersForm(dataContext);
+        EventRegistrationsForm registrationsForm = getRegistrationsForm(dataContext);
 
         actionGroup.addSeparator();
         actionGroup.add(new SelectFilterValueAction(null));
@@ -57,10 +58,10 @@ public abstract class EventRegistrationFilterAction extends ComboBoxAction imple
 
         DBNTable<DataChangeRegistrationBundle> registrationsTable = registrationsForm.getRegistrationsTable();
         DataChangeRegistrationBundle model = registrationsTable.getModel();
-        List<String> filterValues = model.getDistinctValues(filterType);
 
-        for (String filterValue : filterValues) {
-            SelectFilterValueAction action = new SelectFilterValueAction(filterValue);
+        List<FilterOption> filterOptions = model.geFilterOptions(filterType);
+        for (FilterOption filterOption : filterOptions) {
+            SelectFilterValueAction action = new SelectFilterValueAction(filterOption);
             actionGroup.add(action);
         }
         return actionGroup;
@@ -73,16 +74,15 @@ public abstract class EventRegistrationFilterAction extends ComboBoxAction imple
         Icon icon = null;//Icons.DATASET_FILTER_EMPTY;
 
 
-        EventRegistrationsForm registrationsForm = getListenersForm(e);
+        EventRegistrationsForm registrationsForm = getRegistrationsForm(e);
         if (registrationsForm != null) {
-            DataChangeRegistrationBundle listeners = registrationsForm.getRegistrationsTable().getModel();
-            EventRegistrationFilter filter = listeners.getFilter();
+            EventRegistrationFilter filter = registrationsForm.getFilter();
 
             if (filter != null) {
-                String filterValue = filter.getFilterValue(filterType);
-                if (Strings.isNotEmpty(filterValue)) {
-                    text = filterValue;
-                    icon = filterType.getIcon();
+                FilterOption filterOption = filter.getFilterOption(filterType);
+                if (filterOption != null) {
+                    text = filterOption.getName();
+                    icon = nvln(filterOption.getIcon(), filterType.getIcon());
                 }
             }
         }
@@ -93,23 +93,23 @@ public abstract class EventRegistrationFilterAction extends ComboBoxAction imple
     }
 
     private class SelectFilterValueAction extends BasicAction {
-        private final String filterValue;
+        private final FilterOption filterOption;
 
-        public SelectFilterValueAction(String filterValue) {
-            super(filterValue == null ? txt("app.shared.action.NoFilter") : filterValue, null, filterValue == null ? null : filterType.getIcon());
-            this.filterValue = filterValue;
+        public SelectFilterValueAction(FilterOption filterOption) {
+            super(filterOption == null ? txt("app.shared.action.NoFilter") : filterOption.getName(), null, filterOption == null ? null : nvln(filterOption.getIcon(), filterType.getIcon()));
+            this.filterOption = filterOption;
         }
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            EventRegistrationsForm registrationsForm = getListenersForm(e);
+            EventRegistrationsForm registrationsForm = getRegistrationsForm(e);
             if (registrationsForm == null) return;
 
-            EventRegistrationFilter filter = registrationsForm.getRegistrationsTable().getModel().getFilter();
+            EventRegistrationFilter filter = registrationsForm.getFilter();
             switch (filterType) {
-                case USER: filter.setUser(filterValue); break;
-                case TABLE: filter.setTable(filterValue); break;
-                case STATUS: filter.setStatus(filterValue); break;
+                case USER: filter.setUser(filterOption); break;
+                case TABLE: filter.setTable(filterOption); break;
+                case STATUS: filter.setStatus(filterOption); break;
             }
             registrationsForm.refresh();
 
@@ -117,8 +117,8 @@ public abstract class EventRegistrationFilterAction extends ComboBoxAction imple
 
         @Override
         public void update(@NotNull AnActionEvent e) {
-            if (filterValue == null) return;
-            e.getPresentation().setText(filterValue, false);
+            if (filterOption == null) return;
+            e.getPresentation().setText(filterOption.getName(), false);
         }
     }
  }

@@ -16,6 +16,7 @@
 
 package com.dbn.event.registration.filter;
 
+import com.dbn.common.filter.FilterOption;
 import com.dbn.common.icon.Icons;
 import lombok.Getter;
 
@@ -25,9 +26,12 @@ import javax.swing.Icon;
 public enum EventRegistrationFilterType {
     USER("user", Icons.DBO_USER),
     TABLE("table", Icons.DBO_TABLE),
-    STATUS("listening", null),
+    STATUS("status", null),
     //...
     ;
+
+    public static final FilterOption FILTER_STATUS_LISTENING = new FilterOption("LISTENING", "Listening", Icons.COMMON_FILTER_ACTIVE);
+    public static final FilterOption FILTER_STATUS_NOT_LISTENING = new FilterOption("NOT_LISTENING", "Not Listening", Icons.COMMON_FILTER_INACTIVE);
 
     private final String name;
     private final Icon icon;

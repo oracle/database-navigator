@@ -48,6 +48,7 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Properties;
 
 import static com.dbn.common.Priority.HIGH;
@@ -104,10 +105,8 @@ public class EventRegistrationManager extends ProjectComponentBase {
 
     @SneakyThrows
     public void registerTable(String tableName, int mask, ConnectionId connectionId, Connection conn) {
-        Connection rawConnection = DBNConnection.getInner(conn);
-
         Properties properties = buildDcnProperties(mask);
-        OracleConnection connection = ObjectProxies.create(rawConnection, OracleConnection.class);
+        OracleConnection connection = createProxy(conn);
         DatabaseChangeRegistration registration = connection.registerDatabaseChangeNotification(properties);
         long regId = registration.getRegId();
 
@@ -118,7 +117,6 @@ public class EventRegistrationManager extends ProjectComponentBase {
             for (TableChangeDescription tableChange : tableChanges) {
                 String eventTableName = tableChange.getTableName();
                 if (!tableName.equals(eventTableName)) continue;
-
 
                 RowChangeDescription[] rowChanges = tableChange.getRowChangeDescription();
                 for (RowChangeDescription rowChange : rowChanges) {
@@ -138,7 +136,7 @@ public class EventRegistrationManager extends ProjectComponentBase {
             statement.setDatabaseChangeRegistration(registration);
             statement.executeQuery("SELECT * FROM " + tableName + " WHERE 1=0");
         }
-        registrationCache.addRegistration(connectionId, tableName, registration);
+        registrationCache.addRegistration(connectionId, registration);
     }
 
     private Properties buildDcnProperties(int mask) {
@@ -235,7 +233,7 @@ public class EventRegistrationManager extends ProjectComponentBase {
         } finally {
             Resources.close(statement);
         }
-        registrationCache.removeRegistration(connectionId, tableName);
+        registrationCache.removeRegistrations(connectionId, tableName);
         callback.run();
     }
 
@@ -243,11 +241,13 @@ public class EventRegistrationManager extends ProjectComponentBase {
     @SneakyThrows
     private void unregisterTable(String tableName, ConnectionId connectionId, Connection conn) {
         OracleConnection connection = createProxy(conn);
-        DatabaseChangeRegistration registration = registrationCache.getRegistration(connectionId, tableName);
-        if (registration == null) return;
+        List<DatabaseChangeRegistration> registrations = registrationCache.getRegistrations(connectionId, tableName);
+        for (DatabaseChangeRegistration registration : registrations) {
+            connection.unregisterDatabaseChangeNotification(registration);
+            registrationCache.removeRegistration(connectionId, registration.getRegId());
+        }
 
-        connection.unregisterDatabaseChangeNotification(registration);
-        registrationCache.removeRegistration(connectionId, tableName);
+
     }
 
     private static OracleConnection createProxy(Connection connection) {

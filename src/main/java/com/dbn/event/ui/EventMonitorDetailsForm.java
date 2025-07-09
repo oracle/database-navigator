@@ -51,8 +51,8 @@ public class EventMonitorDetailsForm extends DBNFormBase {
     DataChangeRegistrationBundle registrationModel = new DataChangeRegistrationBundle(connection);
 
     // Initialize tables
-    EventRegistrationsForm listenersForm = new EventRegistrationsForm(this, registrationModel);
-    contentTabs.addTab("Registrations", listenersForm.getComponent(), listenersForm);
+    EventRegistrationsForm registrationsForm = new EventRegistrationsForm(this, registrationModel);
+    contentTabs.addTab("Registrations", registrationsForm.getComponent(), registrationsForm);
 
     EventNotificationsForm notificationsForm = new EventNotificationsForm(this, eventModel);
     contentTabs.addTab("Notifications", notificationsForm.getComponent(), notificationsForm);

@@ -18,8 +18,10 @@ package com.dbn.event.model;
 
 import com.dbn.common.reflection.ProxyObject;
 import com.dbn.common.reflection.ProxyObjectInfo;
+import com.dbn.common.util.Strings;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.concurrent.Executor;
 
 /**
@@ -37,4 +39,8 @@ public interface DatabaseChangeRegistration extends ProxyObject {
     void addListener(DatabaseChangeListener listener, Executor executor) throws SQLException;
 
     void removeListener(DatabaseChangeListener listener) throws SQLException;
+
+    default boolean matches(String tableIdentifier) {
+        return Arrays.stream(getTables()).anyMatch(t -> Strings.containsIgnoreCase(t, tableIdentifier));
+    }
 }

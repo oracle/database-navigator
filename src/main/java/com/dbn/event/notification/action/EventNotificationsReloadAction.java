@@ -16,8 +16,8 @@
 
 package com.dbn.event.notification.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
-import com.dbn.editor.session.action.AbstractSessionBrowserAction;
 import com.dbn.event.notification.ui.EventNotificationsForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.event.notification.action.EventNotificationActionUtil.getNotificationForm;
 import static com.dbn.nls.NlsResources.txt;
 
-public class EventNotificationsReloadAction extends AbstractSessionBrowserAction {
+public class EventNotificationsReloadAction extends BasicAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {

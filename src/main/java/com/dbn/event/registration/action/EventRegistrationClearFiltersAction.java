@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2024 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,23 +26,30 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.event.registration.action.EventRegistrationActionUtil.getRegistrationsForm;
 import static com.dbn.nls.NlsResources.txt;
 
-public class EventRegistrationReloadAction extends BasicAction {
+public class EventRegistrationClearFiltersAction extends BasicAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         EventRegistrationsForm registrationsForm = getRegistrationsForm(e);
         if (registrationsForm == null) return;
 
-        registrationsForm.refresh();
+        registrationsForm.clearFilter();
     }
 
     @Override
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        EventRegistrationsForm registrationsForm = getRegistrationsForm(e);
+        presentation.setText(txt("app.sessions.action.ClearFilter"));
+        presentation.setIcon(Icons.DATASET_FILTER_CLEAR);
 
-        presentation.setEnabled(registrationsForm != null && !registrationsForm.isLoading());
-        presentation.setText(txt("app.eventRegistration.action.Reload"));
-        presentation.setIcon(Icons.ACTION_RELOAD);
+        presentation.setEnabled(isEnabled(e));
+
+    }
+
+    private static boolean isEnabled(AnActionEvent e) {
+        EventRegistrationsForm registrationsForm = getRegistrationsForm(e);
+        if (registrationsForm == null) return false;
+
+        return !registrationsForm.getFilter().isEmpty();
     }
 }
