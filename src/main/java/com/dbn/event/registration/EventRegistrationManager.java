@@ -217,9 +217,11 @@ public class EventRegistrationManager extends ProjectComponentBase {
     @SneakyThrows
     private void unregisterListener(long regId, String tableName, ConnectionId connectionId, DBNConnection conn, Runnable callback) {
 
-      // TODO fails with missing privileges
+/*
+      // TODO this fails with missing privileges even for own registrations (why not when creating a registration???)
       OracleConnection connection = createProxy(conn);
       connection.unregisterDatabaseChangeNotification((int) regId);
+*/
 
 
         String creationStatement = "{ call DBMS_CHANGE_NOTIFICATION.deregister(?) }";
