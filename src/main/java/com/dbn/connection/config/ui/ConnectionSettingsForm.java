@@ -22,10 +22,14 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.ui.CompositeConfigurationEditorForm;
+import com.dbn.common.ui.dialog.DialogNotificationListener;
+import com.dbn.common.ui.dialog.DialogNotificationPanel;
 import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Messages;
+import com.dbn.common.util.NotificationStatus;
 import com.dbn.common.util.Safe;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
@@ -45,12 +49,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
-import java.awt.Color;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionListener;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
@@ -58,6 +58,8 @@ import static com.dbn.common.options.ConfigActivity.CLONING;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<ConnectionSettings> {
+    public static final String OCI_BIND_PORT_WARNING = "OCI_BIND_PORT_WARNING";
+    public static final String OCI_OFFER_USER_TOOLKIT_PLUGIN = "OCI_OFFER_USER_TOOLKIT_PLUGIN";
     private JPanel mainPanel;
     private JPanel contentPanel;
     private JPanel headerPanel;
@@ -66,6 +68,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
 
     private DBNTabbedPane tabbedPane;
     private DBNHeaderForm headerForm;
+    private DialogNotificationPanel notificationPanel;
 
     public ConnectionSettingsForm(ConnectionSettings connectionSettings) {
         super(connectionSettings);
@@ -129,7 +132,25 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
         headerForm.addButton(testButton);
         headerForm.addButton(infoButton);
 
+        DialogNotificationPanel.Builder panelBuilder = new DialogNotificationPanel.Builder();
+        panelBuilder.project(ensureProject());
+        panelBuilder.backgroundColor(color);
+        // use default error label
+        panelBuilder.addComponent(OCI_BIND_PORT_WARNING);
+        panelBuilder.addComponent(OCI_OFFER_USER_TOOLKIT_PLUGIN);
+
+        ///setIcon(Icons.COMMON_INFO);
+//        HyperLinkForm hyperLinkForm = HyperLinkForm.create(
+//                "You may wish to install OCI support for this database.",
+//                "Oracle OCI Toolkit Plugin",
+//                "https://plugins.jetbrains.com/plugin/22952-oracle-oci-toolkit");
+
+        this.notificationPanel = panelBuilder.build();
+        notificationPanel.init();
+        notificationPanel.setVisible(false);
+
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+        headerPanel.add(notificationPanel, BorderLayout.PAGE_END);
     }
 
     public ConnectionSettings getTemporaryConfig() throws ConfigurationException {
@@ -214,8 +235,35 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
         settingsEditor.notifyPresentationChanges();
     }
 
+    public void deselectTab() {
+        Safe.run(notificationPanel, n -> n.disableNotifications());
+    }
     public void selectTab(String tabName) {
         Safe.run(tabbedPane, t -> t.selectTab(tabName));
+        Safe.run(this, n -> n.updateForSelected());
+    }
+
+    private void updateForSelected() {
+        notificationPanel.enableNotifications();
+        checkToolkitNotifications();
+    }
+
+    private void checkToolkitNotifications() {
+        // TODO: reenable when have plugin detection working.
+        boolean hasOfferToolkitEvent = true; //notificationPanel.searchForEvents(OCI_OFFER_USER_TOOLKIT_PLUGIN);
+        // if no event, check if we need to add one
+        if (!hasOfferToolkitEvent) {
+            NotificationStatus status = new NotificationStatus(NotificationStatus.Severity.INFO,
+                    "It appears you don't have OCI Toolkit...");
+            // for now just assume
+            final DialogNotificationListener.NotificationStatusEvent event =
+                    new DialogNotificationListener.NotificationStatusEvent(
+                            this, ConnectionSettingsForm.OCI_OFFER_USER_TOOLKIT_PLUGIN, status);
+            ProjectEvents.notify(ensureProject(), DialogNotificationListener.TOPIC,
+                    notificationListener -> {
+                        notificationListener.fireNotificatonStatusEvent(event);
+                    });
+        }
     }
 
     public String getSelectedTabName() {

@@ -17,6 +17,12 @@
 package com.dbn.connection.ui;
 
 import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.routine.ThrowableRunnable;
+import com.dbn.common.thread.Background;
+import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.dialog.DialogNotificationListener;
+import com.dbn.common.ui.dialog.DialogNotificationPanel;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
@@ -24,8 +30,13 @@ import com.dbn.common.ui.form.field.JComponentCategory;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Chars;
 import com.dbn.common.util.Commons;
+import com.dbn.common.util.NotificationStatus;
+import com.dbn.common.util.Sockets;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
+import com.dbn.connection.config.ui.ConnectionSettingsForm;
+import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,6 +47,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
@@ -62,6 +74,9 @@ import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.connection.ui.ConnectionAuthenticationFieldsForm.FieldCategory.CACHEABLE_FIELDS;
 
 public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
+
+    private final BindPortWarningListener bindPortWarningListener;
+
     enum FieldCategory implements JComponentCategory {
         CACHEABLE_FIELDS,
     }
@@ -95,6 +110,10 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         ActionListener actionListener = e -> updateAuthenticationFields();
         authTypeComboBox.addActionListener(actionListener);
         tokenTypeComboBox.addActionListener(actionListener);
+        this.bindPortWarningListener =
+                new BindPortWarningListener(getProject(), authTypeComboBox, tokenTypeComboBox);
+        authTypeComboBox.addActionListener(bindPortWarningListener);
+        tokenTypeComboBox.addActionListener(bindPortWarningListener);
 
         initFields();
     }
@@ -282,4 +301,50 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         return getSelection(tokenTypeComboBox);
     }
 
+    private static class BindPortWarningListener implements ActionListener {
+        private final JComboBox<AuthenticationType> authTypeCombo;
+        private final JComboBox<AuthenticationTokenType> tokenTypeCombo;
+        private final Project project;
+
+        public BindPortWarningListener(Project project, JComboBox<AuthenticationType> authTypeCombo, JComboBox<AuthenticationTokenType> tokenTypeCombo) {
+            this.project = project;
+            this.authTypeCombo = authTypeCombo;
+            this.tokenTypeCombo = tokenTypeCombo;
+        }
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            final boolean isOCIInteractive =
+                AuthenticationType.TOKEN.equals(authTypeCombo.getSelectedItem())
+                 && OCI_INTERACTIVE.equals(tokenTypeCombo.getSelectedItem());
+
+            Background.run(new ThrowableRunnable<Throwable>() {
+                @Override
+                public void run() throws Throwable {
+                    NotificationStatus status = NotificationStatus.NONE;
+                    if (isOCIInteractive) {
+                        // if OCI Interactive and 8181 appears to be bound already, then
+                        // warn the user.
+                        if (!Sockets.tryToBindPort(8181)) {
+                            status = new NotificationStatus(NotificationStatus.Severity.WARNING,
+                                    "Possible error with OCI_INTERACTIVE...");
+                        }
+                    }
+                    final DialogNotificationListener.NotificationStatusEvent event =
+                            new DialogNotificationListener.NotificationStatusEvent(
+                                    this, ConnectionSettingsForm.OCI_BIND_PORT_WARNING, status);
+                    // TODO: let each listener decide whether or not run on UI thread?
+                    Dispatch.run(authTypeCombo, new Runnable() {
+                        @Override
+                        public void run() {
+                            ProjectEvents.notify(project, DialogNotificationListener.TOPIC,
+                                    notificationListener -> {
+                                        notificationListener.fireNotificatonStatusEvent(event);
+                                    });
+                        }
+                    });
+                }
+            });
+
+        }
+    }
 }

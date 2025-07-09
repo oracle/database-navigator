@@ -16,6 +16,7 @@
 
 package com.dbn.database.interfaces;
 
+import com.dbn.connection.ConnectionExceptionInfo;
 import com.dbn.connection.DatabaseAttachmentHandler;
 import com.dbn.data.sorting.SortDirection;
 import com.dbn.database.DatabaseFeature;
@@ -78,5 +79,15 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
 
     default Map<String, String> getImplicitConnectionProperties() {
         return Map.of();
+    }
+
+    /**
+     * Does database-specific handling of a connection error
+     * @param info
+     * @return true if throwable was handled, false if it was ignored by the specific database compatibility
+     * implementation.
+     */
+    default boolean handleConnectionException(final ConnectionExceptionInfo info) {
+        return false;
     }
 }

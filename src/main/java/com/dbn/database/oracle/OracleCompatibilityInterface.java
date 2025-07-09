@@ -16,19 +16,34 @@
 
 package com.dbn.database.oracle;
 
+import com.dbn.common.thread.Dispatch;
+import com.dbn.common.thread.Threads;
+import com.dbn.common.util.Classes;
+import com.dbn.common.util.Sockets;
+import com.dbn.connection.AuthenticationTokenType;
+import com.dbn.connection.AuthenticationType;
+import com.dbn.connection.ConnectionExceptionInfo;
+import com.dbn.connection.ConnectionExceptionVisitor;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
+import com.dbn.diagnostics.Diagnostics;
 import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.QuoteDefinition;
 import com.dbn.language.common.QuotePair;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
+import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
 import static com.dbn.database.DatabaseFeature.AI_ASSISTANT;
 import static com.dbn.database.DatabaseFeature.AUTHID_METHOD_EXECUTION;
 import static com.dbn.database.DatabaseFeature.CONNECTION_ERROR_RECOVERY;
@@ -63,6 +78,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 @Slf4j
 public class OracleCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
     public static final QuoteDefinition IDENTIFIER_QUOTE_DEFINITION = new QuoteDefinition(new QuotePair('"', '"'));
+    public static final int FAILURE_ON_PROVIDER_ERROR = 18726;
 
     @Override
     public boolean supportsObjectType(DatabaseObjectTypeId objectTypeId) {
@@ -161,5 +177,45 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 "oracle.net.TCP_KEEPIDLE", "30",
                 "oracle.net.TCP_KEEPINTERVAL", "30",
                 "oracle.net.TCP_KEEPCOUNT", "5");
+    }
+
+    @Override
+    public boolean handleConnectionException(final ConnectionExceptionInfo info) {
+        ConnectionExceptionVisitor visitor = new ConnectionExceptionVisitor();
+        info.accept(visitor);
+        // if a bind exception was thrown or the error was due to an provider failure code
+        if (visitor.hasBindException() || visitor.containsOraErrorCodes(FAILURE_ON_PROVIDER_ERROR)) {
+            if (info.getAuthenticationInfo().getType() == AuthenticationType.TOKEN) {
+                AuthenticationTokenType tokenType = info.getAuthenticationInfo().getTokenType();
+                if (tokenType == OCI_INTERACTIVE) {
+                    Future<?> future = Threads.backgroundExecutor().submit(new java.lang.Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                // todo, use a backoff and retry?
+                                if (!Sockets.tryToBindPort(8181)) {
+                                    Sockets.pokeWebServer("http://localhost:8181/token?");
+                                }
+                            }
+                            catch (final IOException ioe) {
+                                Diagnostics.conditionallyLog(ioe);
+                            }
+                            try {
+                                ClassLoader classLoader = info.getClassLoader();
+                                Class<?> cacheControllerClass =
+                                    Class.forName(
+                                            "oracle.jdbc.provider.cache.CacheController", true, classLoader);
+                                Method clearAllCaches = cacheControllerClass.getMethod("clearAllCaches");
+                                clearAllCaches.invoke(null, new Object[0]);
+                            } catch (final Exception e) {
+                                Diagnostics.conditionallyLog(e);
+                            }
+
+                        }
+                    });
+                }
+            }
+        }
+        return false;
     }
 }
