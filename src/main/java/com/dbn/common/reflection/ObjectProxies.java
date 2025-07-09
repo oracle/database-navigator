@@ -172,7 +172,7 @@ public class ObjectProxies extends ObjectProxiesBase{
             targetMethod.setAccessible(true);
             return targetMethod;
         } catch (Exception e) {
-            Method[] targetMethods = targetClass.getDeclaredMethods();
+            Method[] targetMethods = targetClass.getMethods();
             for (Method targetMethod : targetMethods) {
                 if (matchMethods(sourceMethod, targetMethod)) {
                     targetMethod.setAccessible(true);
