@@ -55,7 +55,6 @@ public class TableEnableDCNAction extends AnObjectAction<DBTable> {
                             txt("msg.debugger.title.InsufficientPrivileges"),
                             txt("msg.events.error.InsufficientPrivileges", connection.getUserName(), missingPrivileges));
                   } else {
-                    System.out.println("enabling DCN");
                     EventNotificationManager eventNotificationManager = EventNotificationManager.getInstance(project);
                     eventNotificationManager.openEditorAndConfig(getTarget());
 

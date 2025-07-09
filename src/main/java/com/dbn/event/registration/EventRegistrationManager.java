@@ -21,6 +21,7 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.data.Data;
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.reflection.ObjectProxies;
 import com.dbn.common.thread.Progress;
 import com.dbn.connection.ConnectionHandler;
@@ -98,10 +99,15 @@ public class EventRegistrationManager extends ProjectComponentBase {
                         c -> registerTable(tableName, mask, connectionId, c));
 
                 sendInfoNotification(DCN, txt("ntf.events.info.ListenerRegisteredFor", qualifiedTableName, connectionName));
+                notifyRegistrationListeners(project, connectionId);
             } catch (Exception e) {
                 sendErrorNotification(DCN, txt("ntf.events.warning.ListenerRegistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
             }
         });
+    }
+
+    private static void notifyRegistrationListeners(Project project, ConnectionId connectionId) {
+        ProjectEvents.notify(project, EventRegistrationListener.TOPIC, l -> l.registrationsChanged(connectionId));
     }
 
     @SneakyThrows
@@ -182,14 +188,14 @@ public class EventRegistrationManager extends ProjectComponentBase {
                         c -> unregisterTable(tableName, connectionId, c));
 
                 sendInfoNotification(DCN, txt("ntf.events.info.ListenerDeregisteredFor", qualifiedTableName, connectionName));
-
+                notifyRegistrationListeners(project, connectionId);
             } catch (Exception e) {
                 sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
             }
         });
     }
 
-    public void unregisterListener(Long regId, ConnectionHandler connection, String tableName, Runnable callback) {
+    public void unregisterListener(Long regId, ConnectionHandler connection, String tableName) {
         Project project = connection.getProject();
         String connectionName = connection.getName();
 
@@ -204,9 +210,10 @@ public class EventRegistrationManager extends ProjectComponentBase {
                         processText,
                         project,
                         connectionId,
-                        c -> unregisterListener(regId, tableName, connectionId, c, callback));
+                        c -> unregisterListener(regId, tableName, connectionId, c));
 
                 sendInfoNotification(DCN, txt("ntf.events.info.ListenerDeregisteredFor", tableName, connectionName));
+                notifyRegistrationListeners(project, connectionId);
             } catch (Exception e) {
                 sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", tableName, connectionName, e.getMessage()));
             }
@@ -214,7 +221,7 @@ public class EventRegistrationManager extends ProjectComponentBase {
     }
 
     @SneakyThrows
-    private void unregisterListener(long regId, String tableName, ConnectionId connectionId, DBNConnection conn, Runnable callback) {
+    private void unregisterListener(long regId, String tableName, ConnectionId connectionId, DBNConnection conn) {
 
 /*
       // TODO this fails with missing privileges even for own registrations (why not when creating a registration???)
@@ -235,7 +242,6 @@ public class EventRegistrationManager extends ProjectComponentBase {
             Resources.close(statement);
         }
         registrationCache.removeRegistrations(connectionId, tableName);
-        callback.run();
     }
 
     // Stop listening for changes on a given table
@@ -250,9 +256,9 @@ public class EventRegistrationManager extends ProjectComponentBase {
                 registrationCache.removeRegistration(connectionId, registration.getRegId());
             } catch (SQLException e) {
                 if (e.getErrorCode() == 29970) {
-                    // TODO OracleMessageParserInterface
                     // ORA-29970 - Specified registration id does not exist
                     // https://docs.oracle.com/error-help/db/ora-29970/
+                    // (safe to remove)
                     registrationCache.removeRegistration(connectionId, regId);
                 }
                 throw e;

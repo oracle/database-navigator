@@ -18,11 +18,15 @@ package com.dbn.event.registration.ui;
 
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.thread.Background;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.event.registration.EventRegistrationListener;
 import com.dbn.event.registration.EventRegistrationManager;
 import com.dbn.event.registration.filter.EventRegistrationFilter;
 import com.dbn.event.registration.model.DataChangeRegistration;
@@ -41,6 +45,7 @@ import javax.swing.JPanel;
 import java.util.List;
 
 import static com.dbn.common.ui.util.ClientProperty.NO_BORDER;
+import static com.dbn.common.util.Conditional.when;
 
 public class EventRegistrationsForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -59,8 +64,19 @@ public class EventRegistrationsForm extends DBNFormBase {
         initLoadIndicator();
         initTable(registrations);
 
+        Project project = ensureProject();
+        ProjectEvents.subscribe(project, this, EventRegistrationListener.TOPIC, createEventRegistrationListener());
+
         // start loading when the form is shown
         whenShown(() -> load());
+    }
+
+    private EventRegistrationListener createEventRegistrationListener() {
+        return connectionId -> when(connectionId == getConnectionId(), () -> refresh());
+    }
+
+    private @Nullable ConnectionId getConnectionId() {
+        return registrationsTable.getModel().getConnectionId();
     }
 
     private void initLoadIndicator() {
@@ -114,12 +130,12 @@ public class EventRegistrationsForm extends DBNFormBase {
         DataChangeRegistrationBundle listenersTableModel = registrationsTable.getModel();
         List<DataChangeRegistration> listeners = listenersTableModel.getRegistrations();
         int[] selectedRows = registrationsTable.getSelectedRows();
+        ConnectionHandler connection = listenersTableModel.getConnection();
         for (int selectedRow : selectedRows) {
             DataChangeRegistration dataChangeRegistration = listeners.get(selectedRow);
             Long regId = dataChangeRegistration.getRegId();
-            registrationManager.unregisterListener(regId, listenersTableModel.getConnection(), dataChangeRegistration.getTableName(), this::refresh);
+            registrationManager.unregisterListener(regId, connection, dataChangeRegistration.getTableName());
         }
-
     }
 
     @Override

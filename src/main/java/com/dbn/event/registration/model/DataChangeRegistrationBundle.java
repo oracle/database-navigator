@@ -25,6 +25,7 @@ import com.dbn.common.ui.table.DBNTableWithGutterModel;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.connection.context.DatabaseContextBase;
 import com.dbn.event.registration.EventRegistrationUtil;
 import com.dbn.event.registration.filter.EventRegistrationFilter;
 import com.dbn.event.registration.filter.EventRegistrationFilterType;
@@ -42,7 +43,7 @@ import static com.dbn.event.registration.filter.EventRegistrationFilterType.FILT
 import static com.dbn.event.registration.filter.EventRegistrationFilterType.FILTER_STATUS_NOT_LISTENING;
 
 @Getter
-public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChangeRegistration> implements DBNTableWithGutterModel<DataChangeRegistration> {
+public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChangeRegistration> implements DBNTableWithGutterModel<DataChangeRegistration>, DatabaseContextBase {
     private final ConnectionRef connection;
     private final ListModel gutterModel = new DBNTableGutterModel<>(this);
     private final EventRegistrationFilter filter;
@@ -77,6 +78,7 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
         this.registrations = FilteredList.stateful(filter);
     }
 
+    @NotNull
     public ConnectionHandler getConnection() {
         return ConnectionRef.ensure(connection);
     }
