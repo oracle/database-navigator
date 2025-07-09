@@ -28,13 +28,13 @@ import java.util.Properties;
 @ProxyObjectInfo(delegateClass = "oracle.jdbc.OracleConnection")
 public interface OracleConnection extends ProxyObject {
 
-    DatabaseChangeRegistration registerDatabaseChangeNotification(Properties properties);
+    DatabaseChangeRegistration registerDatabaseChangeNotification(Properties properties) throws SQLException;
 
-    void unregisterDatabaseChangeNotification(DatabaseChangeRegistration registration);
+    void unregisterDatabaseChangeNotification(DatabaseChangeRegistration registration) throws SQLException;
 
-    void unregisterDatabaseChangeNotification(int regId);
+    void unregisterDatabaseChangeNotification(int regId) throws SQLException;
 
-    void unregisterDatabaseChangeNotification(long regId, String callback);
+    void unregisterDatabaseChangeNotification(long regId, String callback) throws SQLException;
 
     OracleStatement createStatement() throws SQLException;
 }

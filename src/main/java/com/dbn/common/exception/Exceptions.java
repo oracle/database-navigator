@@ -112,22 +112,26 @@ public class Exceptions {
     public static Throwable unwrap(Throwable throwable) {
         if (throwable instanceof UndeclaredThrowableException) {
             UndeclaredThrowableException undeclaredThrowableException = (UndeclaredThrowableException) throwable;
-            return undeclaredThrowableException.getUndeclaredThrowable();
+            Throwable undeclaredThrowable = undeclaredThrowableException.getUndeclaredThrowable();
+            return undeclaredThrowable == throwable ? throwable : unwrap(undeclaredThrowable);
         }
 
         if (throwable instanceof InvocationTargetException) {
             InvocationTargetException invocationTargetException = (InvocationTargetException) throwable;
-            return invocationTargetException.getTargetException();
+            Throwable targetException = invocationTargetException.getTargetException();
+            return targetException == throwable ? throwable : unwrap(targetException);
         }
 
         if (throwable instanceof ExecutionException) {
             ExecutionException executionException = (ExecutionException) throwable;
-            return causeOf(executionException);
+            Throwable cause = causeOf(executionException);
+            return cause == throwable ? throwable : unwrap(cause);
         }
 
         if (throwable instanceof CompletionException) {
             CompletionException completionException = (CompletionException) throwable;
-            return causeOf(completionException);
+            Throwable cause = causeOf(completionException);
+            return cause == throwable ? throwable : unwrap(cause);
         }
 
         //...

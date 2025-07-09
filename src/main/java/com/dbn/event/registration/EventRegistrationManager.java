@@ -47,6 +47,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Properties;
@@ -243,8 +244,19 @@ public class EventRegistrationManager extends ProjectComponentBase {
         OracleConnection connection = createProxy(conn);
         List<DatabaseChangeRegistration> registrations = registrationCache.getRegistrations(connectionId, tableName);
         for (DatabaseChangeRegistration registration : registrations) {
-            connection.unregisterDatabaseChangeNotification(registration);
-            registrationCache.removeRegistration(connectionId, registration.getRegId());
+            long regId = registration.getRegId();
+            try {
+                connection.unregisterDatabaseChangeNotification(registration);
+                registrationCache.removeRegistration(connectionId, registration.getRegId());
+            } catch (SQLException e) {
+                if (e.getErrorCode() == 29970) {
+                    // TODO OracleMessageParserInterface
+                    // ORA-29970 - Specified registration id does not exist
+                    // https://docs.oracle.com/error-help/db/ora-29970/
+                    registrationCache.removeRegistration(connectionId, regId);
+                }
+                throw e;
+            }
         }
 
 
