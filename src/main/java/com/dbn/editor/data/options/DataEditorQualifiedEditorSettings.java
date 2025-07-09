@@ -18,6 +18,7 @@ package com.dbn.editor.data.options;
 
 import com.dbn.common.latent.Latent;
 import com.dbn.common.options.BasicConfiguration;
+import com.dbn.common.util.Unsafe;
 import com.dbn.data.editor.text.TextContentType;
 import com.dbn.editor.data.options.ui.DataEditorQualifiedEditorSettingsForm;
 import lombok.EqualsAndHashCode;
@@ -25,6 +26,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,44 +46,52 @@ import static com.dbn.common.util.Strings.isEmpty;
 @Setter
 @EqualsAndHashCode(callSuper = false)
 public class DataEditorQualifiedEditorSettings extends BasicConfiguration<DataEditorSettings, DataEditorQualifiedEditorSettingsForm> {
-    private final Latent<List<TextContentType>> contentTypes = Latent.basic(() -> Stream.of(
-        TextContentType.create("Text", "PLAIN_TEXT"),
-        TextContentType.create("Properties", "Properties"),
-        TextContentType.create("XML", "XML"),
-        TextContentType.create("DTD", "DTD"),
-        TextContentType.create("HTML", "HTML"),
-        TextContentType.create("XHTML", "XHTML"),
-        TextContentType.create("CSS", "CSS"),
-        TextContentType.create("Java", "JAVA"),
-        TextContentType.create("SQL", "DBN-SQL"),
-        TextContentType.create("PL/SQL", "DBN-PSQL"),
-        TextContentType.create("JPA QL", "JPA QL"),
-        TextContentType.create("JavaScript", "JavaScript"),
-        TextContentType.create("JSON", "JSON"),
-        TextContentType.create("JSON5", "JSON5"),
-        TextContentType.create("PHP", "PHP"),
-        TextContentType.create("JSP", "JSP"),
-        TextContentType.create("JSPx", "JSPX"),
-        TextContentType.create("Perl", "Perl"),
-        TextContentType.create("Groovy", "Groovy"),
-        TextContentType.create("FTL", "FTL"),
-        TextContentType.create("TML", "TML"),
-        TextContentType.create("GSP", "GSP"),
-        TextContentType.create("ASP", "ASP"),
-        TextContentType.create("VTL", "VTL"),
-        TextContentType.create("AIDL", "AIDL"),
-        TextContentType.create("YAML", "YAML"),
-        TextContentType.create("Flex", "SWF"),
-        TextContentType.create("C#", "C#"),
-        TextContentType.create("C++", "C++"),
-        TextContentType.create("Bash", "Bash"),
-        TextContentType.create("Manifest", "Manifest")
-    ).filter(e -> e != null).collect(Collectors.toList()));
-
+    private final Latent<List<TextContentType>> contentTypes = Latent.basic(() -> createContentTypes());
     private int textLengthThreshold = 300;
 
     DataEditorQualifiedEditorSettings(DataEditorSettings parent) {
         super(parent);
+    }
+
+    private @NotNull List<TextContentType> createContentTypes() {
+        return Stream.of(
+                createContentType("Text", "PLAIN_TEXT"),
+                createContentType("Properties", "Properties"),
+                createContentType("XML", "XML"),
+                createContentType("DTD", "DTD"),
+                createContentType("HTML", "HTML"),
+                createContentType("XHTML", "XHTML"),
+                createContentType("CSS", "CSS"),
+                createContentType("Java", "JAVA"),
+                createContentType("SQL", "DBN-SQL"),
+                createContentType("PL/SQL", "DBN-PSQL"),
+                createContentType("JPA QL", "JPA QL"),
+                createContentType("JavaScript", "JavaScript"),
+                createContentType("JSON", "JSON"),
+                createContentType("JSON5", "JSON5"),
+                createContentType("PHP", "PHP"),
+                createContentType("JSP", "JSP"),
+                createContentType("JSPx", "JSPX"),
+                createContentType("Perl", "Perl"),
+                createContentType("Groovy", "Groovy"),
+                createContentType("FTL", "FTL"),
+                createContentType("TML", "TML"),
+                createContentType("GSP", "GSP"),
+                createContentType("ASP", "ASP"),
+                createContentType("VTL", "VTL"),
+                createContentType("AIDL", "AIDL"),
+                createContentType("YAML", "YAML"),
+                createContentType("Flex", "SWF"),
+                createContentType("C#", "C#"),
+                createContentType("C++", "C++"),
+                createContentType("Bash", "Bash"),
+                createContentType("Manifest", "Manifest")
+        ).filter(e -> e != null).collect(Collectors.toList());
+    }
+
+    @Nullable
+    private TextContentType createContentType(@NonNls String name, @NonNls String fileTypeName) {
+        return Unsafe.warned(null, () -> TextContentType.create(name, fileTypeName));
     }
 
     @Nls
