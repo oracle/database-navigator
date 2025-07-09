@@ -98,6 +98,7 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
 
     @Override
     public Object getValue(DataChangeRegistration row, int column) {
+        if (row == null) return null;
         switch (column) {
             case 0: return row.getRegId();
             case 1: return row.getUserName();

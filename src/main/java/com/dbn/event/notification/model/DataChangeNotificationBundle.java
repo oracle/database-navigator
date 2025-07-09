@@ -88,6 +88,7 @@ public class DataChangeNotificationBundle extends DBNMutableTableModel<DataChang
 
     @Override
     public Object getValue(DataChangeNotification row, int column) {
+        if (row == null) return null;
         switch (column) {
             case 0: return row.getTableName();
             case 1: return row.getOperation();

@@ -295,8 +295,8 @@ public class Icons {
     public static final Icon OBJECT_COMPILE_ASK = load("/img/action/CompileAsk.png");
     public static final Icon OBJECT_EDIT_SOURCE = load("/img/action/EditSource.svg");
     public static final Icon OBJECT_EDIT_DATA = load("/img/action/EditData.svg");
-    public static final Icon TABLE_ENABLE_DCN = load("/img/action/EnableTableListener.svg");
-    public static final Icon TABLE_DISABLE_DCN = load("/img/action/DisableTableListener.svg");
+    public static final Icon TABLE_ENABLE_DCN = load("/img/action/DataChangeListenerEnabled.svg");
+    public static final Icon TABLE_DISABLE_DCN = load("/img/action/DataChangeListenerDisabled.svg");
 
     public static final Icon OBJECT_VIEW_DATA = load("/img/ViewData.png");
 
