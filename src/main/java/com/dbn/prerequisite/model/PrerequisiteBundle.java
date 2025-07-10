@@ -35,7 +35,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
+import static com.dbn.common.load.ProgressMonitor.setProgressFraction;
 import static com.dbn.prerequisite.event.PrerequisiteEventType.EVALUATION_FAILED;
 import static com.dbn.prerequisite.event.PrerequisiteEventType.EVALUATION_FINISHED;
 import static com.dbn.prerequisite.event.PrerequisiteEventType.EVALUATION_STARTED;
@@ -51,6 +54,8 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
     private final List<Prerequisite> prerequisites;
     private final Listeners<PrerequisiteEventListener> listeners = Listeners.create(this);
 
+    private AtomicInteger evaluationCount = new AtomicInteger();
+    private boolean evaluating = false;
 
     public PrerequisiteBundle(ConnectionHandler connection, DatabaseOperation operation, List<Prerequisite> prerequisites) {
         this.connection = ConnectionRef.of(connection);
@@ -86,30 +91,61 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
         return builder.toString();
     }
 
-    public void evaluateAll() {
-        prerequisites.forEach(p -> evaluatePrerequisite(p));
+    public int size() {
+        return prerequisites.size();
+    }
+
+    public boolean isEvaluated() {
+        return evaluationCount.get() == size();
+    }
+
+    public synchronized void evaluateAll(boolean background) {
+        if (evaluating) return;
+        evaluating = true;
+
+        notifyEvaluationStarted(null);
+        evaluationCount.set(0);
+        prerequisites.forEach(p -> evaluatePrerequisite(p, background));
+    }
+
+    private void evaluatePrerequisite(Prerequisite prerequisite, boolean background) {
+        if (background) {
+            Background.run(() -> evaluatePrerequisite(prerequisite));
+        } else {
+            evaluatePrerequisite(prerequisite);
+        }
     }
 
     private void evaluatePrerequisite(Prerequisite prerequisite) {
-        Background.run(() -> {
-            try {
-                prerequisite.setStatus(EVALUATING);
-                notifyEvaluationStarted(prerequisite);
+        try {
+            setProgressDetail("Evaluating prerequisite \"" + prerequisite.getName() + "\"");
+            setProgressFraction(getEvaluationProgress());
+            prerequisite.setStatus(EVALUATING);
+            notifyEvaluationStarted(prerequisite);
 
-                PrerequisiteEvaluator evaluator = prerequisite.getDefinition().getEvaluator();
-                boolean conditionsMet = evaluator.evaluate(this);
+            PrerequisiteEvaluator evaluator = prerequisite.getDefinition().getEvaluator();
+            boolean conditionsMet = evaluator.evaluate(this);
 
-                prerequisite.setStatus(conditionsMet ? SATISFIED : UNSATISFIED);
-                notifyEvaluationFinished(prerequisite);
+            prerequisite.setStatus(conditionsMet ? SATISFIED : UNSATISFIED);
+            notifyEvaluationFinished(prerequisite);
 
-            } catch (Exception e) {
-                prerequisite.setStatus(UNKNOWN);
-                prerequisite.setStatusException(e);
-                prerequisite.setStatusMessage("Could not verify prerequisite. " + e.getMessage());
+        } catch (Exception e) {
+            prerequisite.setStatus(UNKNOWN);
+            prerequisite.setStatusException(e);
+            prerequisite.setStatusMessage("Could not verify prerequisite. " + e.getMessage());
 
-                notifyEvaluationFailed(prerequisite);
+            notifyEvaluationFailed(prerequisite);
+        } finally {
+            evaluationCount.incrementAndGet();
+            if (evaluationCount.get() == size()) {
+                notifyEvaluationFinished(null);
+                evaluating = false;
             }
-        });
+        }
+    }
+
+    private double getEvaluationProgress() {
+        return (double) evaluationCount.get() / size();
     }
 
     private void notifyEvaluationStarted(Prerequisite prerequisite) {

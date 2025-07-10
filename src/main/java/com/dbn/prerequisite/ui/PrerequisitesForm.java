@@ -72,7 +72,14 @@ public class PrerequisitesForm extends DBNFormBase implements PrerequisiteEventL
         initHeaderPanel();
         initDetailsPanel();
         initAdvicePanel();
-        whenShown(() -> prerequisiteBundle.evaluateAll());
+
+        scheduleEvaluation();
+    }
+
+    private void scheduleEvaluation() {
+        if (prerequisiteBundle.isEvaluated()) return;
+
+        whenShown(() -> prerequisiteBundle.evaluateAll(true));
     }
 
     private void initAdvicePanel() {

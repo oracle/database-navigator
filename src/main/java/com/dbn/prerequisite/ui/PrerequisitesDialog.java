@@ -19,6 +19,7 @@ package com.dbn.prerequisite.ui;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.prerequisite.event.PrerequisiteEvent;
 import com.dbn.prerequisite.event.PrerequisiteEventListener;
+import com.dbn.prerequisite.event.PrerequisiteEventType;
 import com.dbn.prerequisite.model.PrerequisiteBundle;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -33,8 +34,9 @@ public class PrerequisitesDialog extends DBNDialog<PrerequisitesForm> implements
         super(prerequisites.getProject(), "Prerequisite Verification", false);
         this.setModal(false);
         this.prerequisites = prerequisites;
+        this.prerequisites.addEventListener(this);
 
-        setDefaultSize(600, 600);
+        setDefaultSize(600, 900);
         renameAction(getCancelAction(), "Close");
 
         init();
@@ -49,7 +51,14 @@ public class PrerequisitesDialog extends DBNDialog<PrerequisitesForm> implements
     @Override
     protected final Action[] createActions() {
         return createActions(
+                reevaluateAction,
                 getCancelAction());
+    }
+
+    private final Action reevaluateAction = createAction("Reevaluate", () -> reevaluatePrerequisites());
+
+    private void reevaluatePrerequisites() {
+        prerequisites.evaluateAll(true);
     }
 
     @Override
@@ -60,5 +69,18 @@ public class PrerequisitesDialog extends DBNDialog<PrerequisitesForm> implements
 
     @Override
     public void eventOccurred(PrerequisiteEvent event) {
+        // skip if individual prerequisite level
+        if (event.getPrerequisite() != null) return;
+
+        PrerequisiteEventType eventType = event.getType();
+        switch (eventType) {
+            case EVALUATION_STARTED:
+                reevaluateAction.setEnabled(false);
+                break;
+            case EVALUATION_FINISHED:
+                reevaluateAction.setEnabled(true);
+                break;
+
+        }
     }
 }

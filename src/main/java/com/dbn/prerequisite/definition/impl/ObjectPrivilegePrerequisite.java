@@ -80,7 +80,7 @@ public abstract class ObjectPrivilegePrerequisite extends PrerequisiteDefinition
             DatabaseMetadataInterface metadataInterface = context.getMetadataInterface();
             return DatabaseInterfaceInvoker.load(Priority.HIGH,
                     txt("prc.prerequisite.title.CheckingObjectPrivilege"),
-                    txt("prc.prerequisite.text.CheckingObjectPrivilege"),
+                    txt("prc.prerequisite.text.CheckingObjectPrivilege", privilegeName, ownerName, objectName),
                     context.getProject(),
                     context.getConnectionId(),
                     c -> metadataInterface.hasObjectPrivilege(privilegeName, ownerName, objectName, c));

@@ -19,13 +19,14 @@ package com.dbn.prerequisite.event;
 import com.dbn.prerequisite.model.Prerequisite;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 public class PrerequisiteEvent {
     private final Prerequisite prerequisite;
     private final PrerequisiteEventType type;
 
-    public PrerequisiteEvent(@NotNull PrerequisiteEventType type, @NotNull Prerequisite prerequisite) {
+    public PrerequisiteEvent(@NotNull PrerequisiteEventType type, @Nullable Prerequisite prerequisite) {
         this.type = type;
         this.prerequisite = prerequisite;
     }

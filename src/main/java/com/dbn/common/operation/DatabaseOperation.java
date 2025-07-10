@@ -16,7 +16,7 @@
 
 package com.dbn.common.operation;
 
-import lombok.Getter;
+import lombok.Data;
 import org.jetbrains.annotations.NonNls;
 
 import java.util.HashMap;
@@ -28,7 +28,7 @@ import static com.dbn.common.util.Unsafe.cast;
  * Represents a database operation, capturing its type and allowing the storage
  * of arbitrary attributes related to the operation.
  */
-@Getter
+@Data // used as key in HashSet
 public class DatabaseOperation {
     private final DatabaseOperationType type;
     private final Map<String, Object> attributes = new HashMap<>();

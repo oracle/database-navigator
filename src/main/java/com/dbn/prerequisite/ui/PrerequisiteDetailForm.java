@@ -68,6 +68,7 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
         descriptionTextArea.setForeground(greyContent);
         descriptionTextArea.setText(definition.getDescription());
 
+        updatePrerequisiteStatus();
         ConnectionHandler connection = parent.getPrerequisiteBundle().getConnection();
         PrerequisiteAdvisor advisor = prerequisite.getDefinition().getAdvisor();
     }
@@ -85,6 +86,10 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
     }
 
     public void complete() {
+        updatePrerequisiteStatus();
+    }
+
+    private void updatePrerequisiteStatus() {
         statusPanel.removeAll();
         PrerequisiteStatus status = prerequisite.getStatus();
         Exception exception = prerequisite.getStatusException();

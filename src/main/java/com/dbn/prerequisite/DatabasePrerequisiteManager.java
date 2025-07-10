@@ -19,12 +19,15 @@ package com.dbn.prerequisite;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.state.StateCategory;
 import com.dbn.common.state.StateContainer;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.prerequisite.definition.PrerequisiteDefinition;
 import com.dbn.prerequisite.definition.PrerequisiteDefinitionProvider;
 import com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator;
@@ -42,7 +45,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newStateElement;
@@ -53,14 +58,15 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
 	public static final String COMPONENT_NAME = "DBNavigator.Project.DatabasePrerequisiteManager";
 
 	private final StateContainer states = new StateContainer();
+    private final Map<ConnectionId, PrerequisiteData> prerequisiteData = new ConcurrentHashMap<>();
 
 	private DatabasePrerequisiteManager(Project project) {
 		super(project, COMPONENT_NAME);
-        initDefinitionProviders();
+        ProjectEvents.subscribe(project, this, ConnectionConfigListener.TOPIC, createConnectionConfigListener());
     }
 
-    private void initDefinitionProviders() {
-        //List<PrerequisiteDefinitionProvider> extensionList = PrerequisiteDefinitionProvider.EP.getExtensionList();
+    private ConnectionConfigListener createConnectionConfigListener() {
+        return ConnectionConfigListener.whenRemoved(connectionId -> prerequisiteData.remove(connectionId));
     }
 
     public static DatabasePrerequisiteManager getInstance(@NotNull Project project) {
@@ -72,7 +78,13 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
 		return states.ensureAttributes(category);
 	}
 
-    public PrerequisiteBundle createPrerequisiteBundle(ConnectionHandler connection, DatabaseOperation operation) {
+    private PrerequisiteBundle getPrerequisiteBundle(ConnectionHandler connection, DatabaseOperation operation) {
+        ConnectionId connectionId = connection.getConnectionId();
+        PrerequisiteData prerequisiteData = this.prerequisiteData.computeIfAbsent(connectionId, c -> new PrerequisiteData(connection));
+        return prerequisiteData.computeIfAbsent(operation, (c, o) -> createPrerequisiteBundle(c, o));
+    }
+
+    private PrerequisiteBundle createPrerequisiteBundle(ConnectionHandler connection, DatabaseOperation operation) {
         Set<PrerequisiteType> types = resolvePrerequisiteTypes(connection, operation);
         List<PrerequisiteDefinition> definitions = loadPrerequisiteDefinitions(types);
         List<Prerequisite> prerequisites = createPrerequisites(definitions);
@@ -90,7 +102,7 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
         return types;
     }
 
-    private static @NotNull List<Prerequisite> createPrerequisites(List<PrerequisiteDefinition> definitions) {
+    private static List<Prerequisite> createPrerequisites(List<PrerequisiteDefinition> definitions) {
         List<Prerequisite> prerequisites = new ArrayList<>();
         for (PrerequisiteDefinition definition : definitions) {
             Prerequisite prerequisite = definition.createPrerequisite();
@@ -99,7 +111,7 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
         return prerequisites;
     }
 
-    private static @NotNull List<PrerequisiteDefinition> loadPrerequisiteDefinitions(Set<PrerequisiteType> types) {
+    private static List<PrerequisiteDefinition> loadPrerequisiteDefinitions(Set<PrerequisiteType> types) {
         List<PrerequisiteDefinition> definitions = new ArrayList<>();
         List<PrerequisiteDefinitionProvider> providers = PrerequisiteDefinitionProvider.EP.getExtensionList();
         for (PrerequisiteDefinitionProvider provider : providers) {
@@ -112,11 +124,9 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
     }
 
     public void evaluatePrerequisites(ConnectionHandler connection, DatabaseOperation operation) {
-        PrerequisiteBundle prerequisites = createPrerequisiteBundle(connection, operation);
+        PrerequisiteBundle prerequisites = getPrerequisiteBundle(connection, operation);
         Dialogs.show(() -> new PrerequisitesDialog(prerequisites));
-
     }
-
 
 	/****************************************
 	 *       PersistentStateComponent       *
