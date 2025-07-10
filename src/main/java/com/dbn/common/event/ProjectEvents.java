@@ -18,6 +18,7 @@ package com.dbn.common.event;
 
 import com.dbn.common.project.Projects;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.util.Environment;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
@@ -38,6 +39,8 @@ import static com.dbn.common.dispose.Failsafe.nd;
 public final class ProjectEvents {
 
     public static <T> void subscribe(@NotNull Project project, @Nullable Disposable parentDisposable, Topic<T> topic, T handler) {
+        if (Environment.isHeadless()) return;
+
         guarded(() -> {
             if (isNotValid(project) || project.isDefault()) return;
 
@@ -51,6 +54,8 @@ public final class ProjectEvents {
     }
 
     public static <T> void subscribe(Topic<T> topic, T handler) {
+        if (Environment.isHeadless()) return;
+
         for (Project openProject : Projects.getOpenProjects()) {
             subscribe(openProject, null, topic, handler);
         }
@@ -63,6 +68,8 @@ public final class ProjectEvents {
     }
 
     public static <T> void notify(@Nullable Project project, Topic<T> topic, Consumer<T> consumer) {
+        if (Environment.isHeadless()) return;
+
         guarded(() -> {
             if (isNotValid(project) || project.isDefault()) return;
             T publisher = publisher(project, topic);
