@@ -24,6 +24,8 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.TreeModel;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.SQLException;
 import java.sql.SQLNonTransientConnectionException;
 import java.sql.SQLTimeoutException;
@@ -141,7 +143,7 @@ public class Exceptions {
 
         /**
          * @param type the class type to adapt the object to
-         * @return a version of the implemention of this as T or null if this object doesn't adapt to T
+         * @return a version of the implementation of this as T or null if this object doesn't adapt to T
          */
         @Override
         public <T> T adaptTo(Class<T> type) {
@@ -149,6 +151,14 @@ public class Exceptions {
                 return (T) new ExceptionTreeModel(new ExceptionTreeNode(this.caught));
             }
             return null;
+        }
+
+        @Override
+        public String toString() {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter writer = new PrintWriter(stringWriter);
+            this.caught.printStackTrace(writer);
+            return stringWriter.toString();
         }
     }
 }

@@ -16,10 +16,15 @@
 
 package com.dbn.common.clipboard;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.ide.CopyPasteManager;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
+import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -48,4 +53,11 @@ public class Clipboard {
         return null;
     }
 
+    public static void copyTextToClipboard(@NotNull  String content) {
+        // TODO: CopyPasteManager.copyTextToClipboard looks like a better
+        // and more robust option, but this isn't available in our version
+        // range.
+        StringSelection transferableString = new StringSelection(content);
+        CopyPasteManager.getInstance().setContents(transferableString);
+    }
 }

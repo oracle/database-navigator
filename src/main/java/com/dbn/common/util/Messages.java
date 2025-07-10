@@ -216,7 +216,7 @@ public class Messages {
             return messageDialog.getExitCode();
         }
     }
-    public static void showErrorDialogWithException(@Nullable Project project, String title, @DialogMessage String message, Throwable exception) {
+    public static void showErrorDialogWithException(@Nullable Project project, @DialogTitle String title, @DialogMessage String message, Throwable exception) {
         closeProgressDialogs();
         Dispatch.execute(getCurrentModalityState(), () -> {
             if (project != null) nd(project);

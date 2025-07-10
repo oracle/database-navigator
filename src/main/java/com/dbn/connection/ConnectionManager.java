@@ -405,11 +405,11 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                     txt("msg.connection.error.ConnectionError", connectionName, e.getLocalizedMessage()));
     }
 
-    public void showExceptionConnectionMessage(Project project, String connectionName, @Nullable Throwable e) {
+    public void showExceptionConnectionMessage(Project project, String connectionName, @NotNull Throwable e) {
         showErrorDialogWithException(
                 project,
                 "Connection Error",
-                e.getLocalizedMessage(),
+                txt("msg.connection.error.ConnectionError", connectionName, e.getLocalizedMessage()),
                 e);
     }
 
