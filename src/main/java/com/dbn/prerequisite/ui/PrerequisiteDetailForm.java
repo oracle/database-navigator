@@ -19,6 +19,7 @@ package com.dbn.prerequisite.ui;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.util.Fonts;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.prerequisite.definition.PrerequisiteDefinition;
 import com.dbn.prerequisite.event.PrerequisiteEvent;
@@ -36,15 +37,16 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import java.awt.Color;
+import java.awt.Font;
 
 public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteEventListener {
 
     private JPanel mainPanel;
     private JPanel statusPanel;
     private JLabel titleLabel;
-    private JTextArea descriptionTextArea;
+    private JTextPane descriptionTextArea;
     private JLabel statusLabel;
 
     private final Prerequisite prerequisite;
@@ -56,9 +58,11 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
         parent.getPrerequisiteBundle().addEventListener(this);
 
         Color greyContent = Colors.faded(UIUtil.getLabelForeground());
+        Font largerFont = Fonts.regular(1);
 
         PrerequisiteDefinition definition = prerequisite.getDefinition();
         titleLabel.setText(definition.getName());
+        titleLabel.setFont(largerFont);
         statusLabel.setForeground(greyContent);
         descriptionTextArea.setFont(JBUI.Fonts.label());
         descriptionTextArea.setForeground(greyContent);
