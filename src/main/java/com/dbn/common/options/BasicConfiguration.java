@@ -20,7 +20,10 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ref.WeakRef;
+import com.dbn.common.util.Environment;
 import com.dbn.options.TopLevelConfig;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.options.ConfigurationException;
 import lombok.Getter;
 import org.jdom.Element;
@@ -93,7 +96,18 @@ public abstract class BasicConfiguration<P extends Configuration, E extends Conf
     public JComponent createComponent() {
         E editorForm = createConfigurationEditor();
         this.settingsEditor = WeakRef.of(editorForm);
+
+        registerHeadlessDisposer();
         return editorForm.getComponent();
+    }
+
+    private void registerHeadlessDisposer() {
+        if (Environment.isHeadless()) {
+            // NOTE: registering disposables against Application is not recommended
+            // This is only needed in headless mode (e.g. when executing the "buildSearchableOptions" gradle task)
+            Application application = ApplicationManager.getApplication();
+            Disposer.register(application, () -> disposeUIResources());
+        }
     }
 
     public void setModified(boolean modified) {

@@ -17,6 +17,7 @@
 package com.dbn.common.event;
 
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.util.Environment;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.util.messages.MessageBus;
@@ -33,6 +34,8 @@ import static com.dbn.common.dispose.Failsafe.nd;
 public final class ApplicationEvents {
 
     public static <T> void subscribe(@Nullable Disposable parentDisposable, Topic<T> topic, T handler) {
+        if (Environment.isHeadless()) return;
+
         guarded(() -> {
             MessageBus messageBus = messageBus();
             MessageBusConnection connection = parentDisposable == null ?

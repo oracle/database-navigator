@@ -16,9 +16,9 @@
 
 package com.dbn.assistant.service.selectai.profile.wizard;
 
+import com.dbn.common.dispose.Disposer;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.wizard.WizardModel;
 import com.intellij.ui.wizard.WizardStep;
 import lombok.Getter;

@@ -18,6 +18,7 @@ package com.dbn.common.util;
 
 import com.intellij.lang.Language;
 import com.intellij.openapi.application.ApplicationInfo;
+import com.intellij.openapi.application.ApplicationManager;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 
@@ -28,6 +29,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Environment {
     private static final Map<String, String> variables = new ConcurrentHashMap<>();
     private static final boolean HAS_JAVA_SUPPORT = Language.findLanguageByID("JAVA") != null;
+
+    public static boolean isHeadless() {
+        return ApplicationManager.getApplication().isHeadlessEnvironment();
+    }
 
     public static boolean isIdeNewerThan(String targetVersion) {
         String currentVersion = ApplicationInfo.getInstance().getFullVersion();
