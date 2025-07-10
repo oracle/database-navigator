@@ -17,10 +17,13 @@
 package com.dbn.prerequisite.ui;
 
 import com.dbn.common.action.DataKeys;
+import com.dbn.common.message.MessageType;
+import com.dbn.common.message.TitledMessage;
 import com.dbn.common.operation.DatabaseOperationType;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.messages.DBNMessageForm;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
@@ -43,6 +46,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.util.containers.ContainerUtil;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -51,6 +55,9 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.prerequisite.model.PrerequisiteStatus.SATISFIED;
+import static com.dbn.prerequisite.model.PrerequisiteStatus.UNKNOWN;
+import static com.dbn.prerequisite.model.PrerequisiteStatus.UNSATISFIED;
 
 @SuppressWarnings("unchecked")
 public class PrerequisitesForm extends DBNFormBase implements PrerequisiteEventListener {
@@ -59,17 +66,20 @@ public class PrerequisitesForm extends DBNFormBase implements PrerequisiteEventL
     private JPanel hintPanel;
     private JPanel detailsPanel;
     private JPanel advicePanel;
+    private JPanel messagePanel;
 
     private final Map<String, PrerequisiteDetailForm> detailForms = ContainerUtil.createConcurrentWeakValueMap();
-    private final @Getter PrerequisiteBundle prerequisiteBundle;
+    private final @Getter PrerequisiteBundle prerequisites;
     private EditorEx viewer;
+    private DBNMessageForm messageForm;
 
     public PrerequisitesForm(PrerequisitesDialog dialog) {
         super(dialog);
-        prerequisiteBundle = dialog.getPrerequisites();
-        prerequisiteBundle.addEventListener(this);
+        prerequisites = dialog.getPrerequisites();
+        prerequisites.addEventListener(this);
 
         initHeaderPanel();
+        initMessagePanel();
         initDetailsPanel();
         initAdvicePanel();
 
@@ -77,16 +87,14 @@ public class PrerequisitesForm extends DBNFormBase implements PrerequisiteEventL
     }
 
     private void scheduleEvaluation() {
-        if (prerequisiteBundle.isEvaluated()) return;
-
-        whenShown(() -> prerequisiteBundle.evaluateAll(true));
+        whenShown(() -> prerequisites.evaluateAll(true));
     }
 
     private void initAdvicePanel() {
-        Project project = prerequisiteBundle.getProject();
-        ConnectionHandler connection = prerequisiteBundle.getConnection();
-        DatabaseOperationType operationType = prerequisiteBundle.getOperation().getType();
-        String content = prerequisiteBundle.createAdviceContent();
+        Project project = prerequisites.getProject();
+        ConnectionHandler connection = prerequisites.getConnection();
+        DatabaseOperationType operationType = prerequisites.getOperation().getType();
+        String content = prerequisites.createAdviceContent();
 
         String fileName = connection.getConnectionId() + "" + operationType;
 
@@ -117,7 +125,7 @@ public class PrerequisitesForm extends DBNFormBase implements PrerequisiteEventL
 
     private void initDetailsPanel() {
         verticalBoxLayout(detailsPanel);
-        List<Prerequisite> prerequisites = prerequisiteBundle.getPrerequisites();
+        List<Prerequisite> prerequisites = this.prerequisites.getPrerequisites();
         for (Prerequisite prerequisite : prerequisites) {
             PrerequisiteDetailForm detailForm = new PrerequisiteDetailForm(this, prerequisite);
             detailsPanel.add(detailForm.getMainComponent());
@@ -125,11 +133,65 @@ public class PrerequisitesForm extends DBNFormBase implements PrerequisiteEventL
     }
 
     private void initHeaderPanel() {
-        ConnectionHandler connection = prerequisiteBundle.getConnection();
-        String title = connection.getName() + " - " + prerequisiteBundle.getOperation().getType().getDescription();
+        ConnectionHandler connection = prerequisites.getConnection();
+        String title = connection.getName() + " - " + prerequisites.getOperation().getType().getDescription();
         Color color = connection.getEnvironmentType().getColor();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, title, connection.getIcon(), color);
         headerPanel.add(headerForm.getMainComponent());
+    }
+
+    private void initMessagePanel() {
+        TitledMessage message = getMessage();
+        messageForm = new DBNMessageForm(this, message);
+        messagePanel.add(messageForm.getComponent());
+    }
+
+    private void updateMessagePanel() {
+        TitledMessage message = getMessage();
+        messageForm.setMessage(message);
+    }
+
+    private TitledMessage getMessage() {
+        String description = prerequisites.getOperation().getType().getDescription();
+        if (prerequisites.isEvaluated()) {
+            int total = prerequisites.size();
+
+            int unknown = prerequisites.count(UNKNOWN);
+            int satisfied = prerequisites.count(SATISFIED);
+            int unsatisfied = prerequisites.count(UNSATISFIED);
+
+            if (satisfied == total) {
+                return new TitledMessage(MessageType.SUCCESS,
+                        "Prerequisites satisfied",
+                        "All requirements for performing the operation \"" + description + "\" are met\n");
+            }
+
+            if (unsatisfied == total) {
+                return new TitledMessage(MessageType.ERROR,
+                        "Prerequisites unsatisfied",
+                        "None of the requirements for performing the operation \"" + description + "\" are met.\n" +
+                                "Please request the missing privileges from your database administrator.");
+            }
+
+            if (unknown == total) {
+                return new TitledMessage(MessageType.ERROR,
+                        "Failed to verify prerequisites",
+                        "Could not verify any of the requirements for performing the operation \"" + description + "\".\n  " +
+                                "Please check the connectivity or database access rights.");
+
+            }
+
+            if (satisfied > 0) {
+                return new TitledMessage(MessageType.WARNING,
+                        "Prerequisites partially satisfied",
+                        "Some of the requirements for performing the operation \"" + description + "\" are not met.\n" +
+                                "Please request the missing privileges from your database administrator.");
+            }
+
+        }
+        return new TitledMessage(MessageType.INFO,
+                "Verifying prerequisites...",
+                "Verifying requirements for performing the operation \"" + description + "\"\n");
     }
 
     @Override
@@ -146,22 +208,22 @@ public class PrerequisitesForm extends DBNFormBase implements PrerequisiteEventL
     }
 
     private void processEvent(PrerequisiteEvent event) {
+        Prerequisite prerequisite = event.getPrerequisite();
         PrerequisiteEventType type = event.getType();
         switch (type) {
-            case EVALUATION_STARTED: onVerificationStarted(); break;
-            case EVALUATION_FINISHED: onVerificationFinished(); break;
-            case EVALUATION_FAILED: onVerificationFailed(); break;
+            case EVALUATION_STARTED: onVerificationStarted(prerequisite); break;
+            case EVALUATION_FINISHED: onVerificationFinished(prerequisite); break;
         }
     }
 
-    private void onVerificationStarted() {
+    private void onVerificationStarted(@Nullable Prerequisite prerequisite) {
+        if (prerequisite != null) return; // ignore item level
+        updateMessagePanel();
     }
 
-    private void onVerificationFinished() {
-    }
-
-    private void onVerificationFailed() {
-
+    private void onVerificationFinished(Prerequisite prerequisite) {
+        if (prerequisite != null) return; // ignore item level
+        updateMessagePanel();
     }
 
     public Object getData(@NotNull String dataId) {
@@ -171,6 +233,9 @@ public class PrerequisitesForm extends DBNFormBase implements PrerequisiteEventL
 
     @Override
     public void disposeInner() {
+        prerequisites.removeEventListener(this);
+        detailForms.values().forEach(f -> prerequisites.removeEventListener(f));
+
         Editors.releaseEditor(viewer);
         super.disposeInner();
     }

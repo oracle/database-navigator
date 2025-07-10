@@ -19,8 +19,8 @@ package com.dbn.prerequisite.ui;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.text.HiddenCaret;
 import com.dbn.common.ui.util.Fonts;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.prerequisite.definition.PrerequisiteDefinition;
 import com.dbn.prerequisite.event.PrerequisiteEvent;
 import com.dbn.prerequisite.event.PrerequisiteEventListener;
@@ -28,7 +28,6 @@ import com.dbn.prerequisite.event.PrerequisiteEventType;
 import com.dbn.prerequisite.model.Prerequisite;
 import com.dbn.prerequisite.model.PrerequisiteBundle;
 import com.dbn.prerequisite.model.PrerequisiteStatus;
-import com.dbn.prerequisite.resolution.PrerequisiteAdvisor;
 import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
@@ -48,6 +47,7 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
     private JLabel titleLabel;
     private JTextPane descriptionTextArea;
     private JLabel statusLabel;
+    private JPanel actionsPanel;
 
     private final Prerequisite prerequisite;
 
@@ -55,7 +55,7 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
         super(parent);
         this.prerequisite = prerequisite;
 
-        parent.getPrerequisiteBundle().addEventListener(this);
+        parent.getPrerequisites().addEventListener(this);
 
         Color greyContent = Colors.faded(UIUtil.getLabelForeground());
         Font largerFont = Fonts.regular(1);
@@ -67,15 +67,14 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
         descriptionTextArea.setFont(JBUI.Fonts.label());
         descriptionTextArea.setForeground(greyContent);
         descriptionTextArea.setText(definition.getDescription());
+        descriptionTextArea.setCaret(new HiddenCaret());
 
         updatePrerequisiteStatus();
-        ConnectionHandler connection = parent.getPrerequisiteBundle().getConnection();
-        PrerequisiteAdvisor advisor = prerequisite.getDefinition().getAdvisor();
     }
 
-    private PrerequisiteBundle getBundle() {
+    private PrerequisiteBundle getPrerequisites() {
         PrerequisitesForm parentForm = ensureParentComponent();
-        return parentForm.getPrerequisiteBundle();
+        return parentForm.getPrerequisites();
     }
 
     public void initialize() {

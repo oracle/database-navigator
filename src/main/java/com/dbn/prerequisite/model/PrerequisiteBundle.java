@@ -20,6 +20,7 @@ import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.common.thread.Background;
 import com.dbn.common.ui.util.Listeners;
+import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.context.DatabaseContextBase;
@@ -54,8 +55,9 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
     private final List<Prerequisite> prerequisites;
     private final Listeners<PrerequisiteEventListener> listeners = Listeners.create(this);
 
-    private AtomicInteger evaluationCount = new AtomicInteger();
+    private final AtomicInteger evaluationCount = new AtomicInteger();
     private boolean evaluating = false;
+    private long evaluationTimestamp;
 
     public PrerequisiteBundle(ConnectionHandler connection, DatabaseOperation operation, List<Prerequisite> prerequisites) {
         this.connection = ConnectionRef.of(connection);
@@ -99,6 +101,14 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
         return evaluationCount.get() == size();
     }
 
+    public boolean has(PrerequisiteStatus status) {
+        return Lists.anyMatch(prerequisites, p -> p.getStatus() == status);
+    }
+
+    public int count(PrerequisiteStatus status) {
+        return Lists.count(prerequisites, p -> p.getStatus() == status);
+    }
+
     public synchronized void evaluateAll(boolean background) {
         if (evaluating) return;
         evaluating = true;
@@ -120,7 +130,12 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
         try {
             setProgressDetail("Evaluating prerequisite \"" + prerequisite.getName() + "\"");
             setProgressFraction(getEvaluationProgress());
+
+            // reset the prerequisite
+            prerequisite.setStatusMessage(null);
+            prerequisite.setStatusException(null);
             prerequisite.setStatus(EVALUATING);
+
             notifyEvaluationStarted(prerequisite);
 
             PrerequisiteEvaluator evaluator = prerequisite.getDefinition().getEvaluator();
@@ -140,6 +155,7 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
             if (evaluationCount.get() == size()) {
                 notifyEvaluationFinished(null);
                 evaluating = false;
+                evaluationTimestamp = System.currentTimeMillis();
             }
         }
     }
@@ -167,6 +183,10 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
 
     public void addEventListener(PrerequisiteEventListener listener) {
         listeners.add(listener);
+    }
+
+    public void removeEventListener(PrerequisiteEventListener listener) {
+        listeners.remove(listener);
     }
 
     @Override

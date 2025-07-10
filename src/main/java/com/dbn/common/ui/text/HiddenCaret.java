@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-package com.dbn.common.operation;
+package com.dbn.common.ui.text;
 
-import lombok.Getter;
+import javax.swing.text.DefaultCaret;
+import java.awt.Graphics;
 
-@Getter
-public enum DatabaseOperationType {
-    DEBUG_JAVA_CODE("Debug Java Code"),
-    DEBUG_DATABASE_CODE("Debug Database Code"),
-    ;
-
-    private final String description;
-
-    DatabaseOperationType(String description) {
-        this.description = description;
+public class HiddenCaret extends DefaultCaret {
+    @Override
+    public void paint(Graphics g) {
+        // Do nothing to hide the cursor
     }
 }

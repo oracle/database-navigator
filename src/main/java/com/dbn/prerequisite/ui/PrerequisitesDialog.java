@@ -36,7 +36,7 @@ public class PrerequisitesDialog extends DBNDialog<PrerequisitesForm> implements
         this.prerequisites = prerequisites;
         this.prerequisites.addEventListener(this);
 
-        setDefaultSize(600, 900);
+        setDefaultSize(800, 600);
         renameAction(getCancelAction(), "Close");
 
         init();
@@ -82,5 +82,11 @@ public class PrerequisitesDialog extends DBNDialog<PrerequisitesForm> implements
                 break;
 
         }
+    }
+
+    @Override
+    public void disposeInner() {
+        prerequisites.removeEventListener(this);
+        super.disposeInner();
     }
 }
