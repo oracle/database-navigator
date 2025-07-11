@@ -30,6 +30,7 @@ import java.util.function.BiFunction;
 
 @Getter
 public class PrerequisiteData {
+
     private final ConnectionRef connection;
     private final Map<DatabaseOperation, PrerequisiteBundle> prerequisites = new ConcurrentHashMap<>();
 
@@ -47,7 +48,7 @@ public class PrerequisiteData {
         return prerequisites.get(operation);
     }
 
-    public PrerequisiteBundle computeIfAbsent(DatabaseOperation operation, BiFunction<ConnectionHandler, DatabaseOperation, PrerequisiteBundle> supplier) {
+    public PrerequisiteBundle ensureBundle(DatabaseOperation operation, BiFunction<ConnectionHandler, DatabaseOperation, PrerequisiteBundle> supplier) {
         return prerequisites.computeIfAbsent(operation, k -> supplier.apply(getConnection(), operation));
     }
 }

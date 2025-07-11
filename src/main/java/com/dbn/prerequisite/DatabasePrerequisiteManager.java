@@ -21,9 +21,12 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.operation.DatabaseOperation;
+import com.dbn.common.option.ConfirmationOptionHandler;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.state.StateCategory;
 import com.dbn.common.state.StateContainer;
+import com.dbn.common.thread.Dispatch;
+import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -51,7 +54,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.prerequisite.DatabasePrerequisiteManager.COMPONENT_NAME;
+import static com.dbn.prerequisite.model.PrerequisiteStatus.SATISFIED;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 public class DatabasePrerequisiteManager extends ProjectComponentBase implements PersistentState {
@@ -81,7 +86,7 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
     private PrerequisiteBundle getPrerequisiteBundle(ConnectionHandler connection, DatabaseOperation operation) {
         ConnectionId connectionId = connection.getConnectionId();
         PrerequisiteData prerequisiteData = this.prerequisiteData.computeIfAbsent(connectionId, c -> new PrerequisiteData(connection));
-        return prerequisiteData.computeIfAbsent(operation, (c, o) -> createPrerequisiteBundle(c, o));
+        return prerequisiteData.ensureBundle(operation, (c, o) -> createPrerequisiteBundle(c, o));
     }
 
     private PrerequisiteBundle createPrerequisiteBundle(ConnectionHandler connection, DatabaseOperation operation) {
@@ -126,6 +131,39 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
     public void evaluatePrerequisites(ConnectionHandler connection, DatabaseOperation operation) {
         PrerequisiteBundle prerequisites = getPrerequisiteBundle(connection, operation);
         Dialogs.show(() -> new PrerequisitesDialog(prerequisites));
+    }
+
+    public void startOperation(ConnectionHandler connection, DatabaseOperation operation, Runnable operationRunner) {
+        Project project = connection.getProject();
+        Progress.prompt(
+                project, connection, true,
+                "Verifying prerequisites",
+                "Verifying prerequisites for operation \"" + operation.getType().getDescription() + "\"",
+                indicator -> verifyOperation(connection, operation, operationRunner));
+    }
+
+    public void verifyOperation(ConnectionHandler connection, DatabaseOperation operation, Runnable operationRunner) {
+        PrerequisiteBundle bundle = getPrerequisiteBundle(connection, operation);
+        // evaluate if not yet done
+        if (!bundle.isEvaluated()) {
+            bundle.evaluateAll(false);
+        }
+
+        // all green - continue with operation
+        if (bundle.isCompletely(SATISFIED)) {
+            operationRunner.run();
+            return;
+        }
+
+        // check "do not ask" option
+        Dispatch.run(nonModal(), () -> {
+            Project project = connection.getProject();
+            ConfirmationOptionHandler confirmationHandler = bundle.getConfirmationHandler();
+            boolean canContinue = confirmationHandler.resolve(project);
+            if (canContinue) {
+                operationRunner.run();
+            }
+        });
     }
 
 	/****************************************

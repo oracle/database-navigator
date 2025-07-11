@@ -18,6 +18,7 @@ package com.dbn.prerequisite.model;
 
 import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.operation.DatabaseOperation;
+import com.dbn.common.option.ConfirmationOptionHandler;
 import com.dbn.common.thread.Background;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.util.Lists;
@@ -39,7 +40,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
-import static com.dbn.common.load.ProgressMonitor.setProgressFraction;
 import static com.dbn.prerequisite.event.PrerequisiteEventType.EVALUATION_FAILED;
 import static com.dbn.prerequisite.event.PrerequisiteEventType.EVALUATION_FINISHED;
 import static com.dbn.prerequisite.event.PrerequisiteEventType.EVALUATION_STARTED;
@@ -54,6 +54,7 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
     private final DatabaseOperation operation;
     private final List<Prerequisite> prerequisites;
     private final Listeners<PrerequisiteEventListener> listeners = Listeners.create(this);
+    private final ConfirmationOptionHandler confirmationHandler;
 
     private final AtomicInteger evaluationCount = new AtomicInteger();
     private boolean evaluating = false;
@@ -63,6 +64,7 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
         this.connection = ConnectionRef.of(connection);
         this.operation = operation;
         this.prerequisites = Collections.unmodifiableList(prerequisites);
+        this.confirmationHandler = createConfirmationHandler(operation);
     }
 
     @NotNull
@@ -101,6 +103,10 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
         return evaluationCount.get() == size();
     }
 
+    public boolean isCompletely(PrerequisiteStatus status) {
+        return Lists.allMatch(prerequisites, p -> p.getStatus() == status);
+    }
+
     public boolean has(PrerequisiteStatus status) {
         return Lists.anyMatch(prerequisites, p -> p.getStatus() == status);
     }
@@ -129,7 +135,6 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
     private void evaluatePrerequisite(Prerequisite prerequisite) {
         try {
             setProgressDetail("Evaluating prerequisite \"" + prerequisite.getName() + "\"");
-            setProgressFraction(getEvaluationProgress());
 
             // reset the prerequisite
             prerequisite.setStatusMessage(null);
@@ -187,6 +192,14 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
 
     public void removeEventListener(PrerequisiteEventListener listener) {
         listeners.remove(listener);
+    }
+
+
+    private static ConfirmationOptionHandler createConfirmationHandler(DatabaseOperation operation) {
+        return new ConfirmationOptionHandler(
+                "missing-prerequisites",
+                "Missing Prerequisites",
+                "Not all requirements for performing \"" + operation.getType().getDescription() + "\" are met.\nDo you want to continue?", true);
     }
 
     @Override
