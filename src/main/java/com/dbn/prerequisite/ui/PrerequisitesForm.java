@@ -50,7 +50,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.awt.Color;
 import java.util.List;
 import java.util.Map;
 
@@ -134,9 +133,7 @@ public class PrerequisitesForm extends DBNFormBase implements PrerequisiteEventL
 
     private void initHeaderPanel() {
         ConnectionHandler connection = prerequisites.getConnection();
-        String title = connection.getName() + " - " + prerequisites.getOperation().getType().getDescription();
-        Color color = connection.getEnvironmentType().getColor();
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, title, connection.getIcon(), color);
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
         headerPanel.add(headerForm.getMainComponent());
     }
 
@@ -162,20 +159,20 @@ public class PrerequisitesForm extends DBNFormBase implements PrerequisiteEventL
 
             if (satisfied == total) {
                 return new TitledMessage(MessageType.SUCCESS,
-                        "Prerequisites satisfied",
+                        description + " - Requirements met",
                         "All requirements for performing the operation \"" + description + "\" are met\n");
             }
 
             if (unsatisfied == total) {
                 return new TitledMessage(MessageType.ERROR,
-                        "Prerequisites unsatisfied",
+                        description + " - Requirements not met",
                         "None of the requirements for performing the operation \"" + description + "\" are met.\n" +
                                 "Please request the missing privileges from your database administrator.");
             }
 
             if (unknown == total) {
                 return new TitledMessage(MessageType.ERROR,
-                        "Failed to verify prerequisites",
+                        description + " - Failed to verify requirements",
                         "Could not verify any of the requirements for performing the operation \"" + description + "\".\n  " +
                                 "Please check the connectivity or database access rights.");
 
@@ -183,14 +180,14 @@ public class PrerequisitesForm extends DBNFormBase implements PrerequisiteEventL
 
             if (satisfied > 0) {
                 return new TitledMessage(MessageType.WARNING,
-                        "Prerequisites partially satisfied",
+                        description + " - Requirements partially met",
                         "Some of the requirements for performing the operation \"" + description + "\" are not met.\n" +
                                 "Please request the missing privileges from your database administrator.");
             }
 
         }
         return new TitledMessage(MessageType.INFO,
-                "Verifying prerequisites...",
+                description + " - Verifying requirements...",
                 "Verifying requirements for performing the operation \"" + description + "\"\n");
     }
 
