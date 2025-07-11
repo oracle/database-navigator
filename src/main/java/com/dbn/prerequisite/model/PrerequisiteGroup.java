@@ -223,15 +223,14 @@ public class PrerequisiteGroup extends StatefulDisposableBase implements Databas
         return new InteractiveOptionBroker<>(
                 "missing-prerequisites",
                 "Missing Prerequisites",
-                "Not all requirements for performing \"" + operation + "\" are met. " +
-                        "You may not be able to perform this operation.\n" +
-                        "Do you want to continue?",
+                operation.getMissingPrerequisiteMessage() +
+                        "\n\nDo you want to continue?",
                 PrerequisiteOption.CONTINUE,
                 PrerequisiteOption.RESOLVE,
                 PrerequisiteOption.CONTINUE,
                 PrerequisiteOption.CANCEL).
                             withIcon(Icons.DIALOG_WARNING).
-                            withDoNotShowMessage("Skip verification for this connection");
+                            withDoNotShowMessage("Ignore for this connection");
 
     }
 

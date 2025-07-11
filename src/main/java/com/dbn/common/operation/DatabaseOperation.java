@@ -19,18 +19,32 @@ package com.dbn.common.operation;
 import com.dbn.common.constant.Constant;
 import lombok.Getter;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public enum DatabaseOperation implements Constant<DatabaseOperation> {
 
-    DEBUG_JAVA_CODE("Debug Java Code"),
-    DEBUG_PLSQL_CODE("Debug PLSQL Code"),
-    DEBUG_PLSQL_CODE_JDWP("Debug PLSQL Code (JDWP)"),
+    DEBUG_JAVA_CODE(
+            txt("app.shared.const.Operation_DEBUG_JAVA_CODE"),
+            txt("msg.prerequisites.warning.MissingPrerequisites_DEBUG_JAVA_CODE")),
+
+    DEBUG_PLSQL_CODE(
+            txt("app.shared.const.Operation_DEBUG_PLSQL_CODE"),
+            txt("msg.prerequisites.warning.MissingPrerequisites_DEBUG_PLSQL_CODE")),
+
+    DEBUG_PLSQL_CODE_JDWP(
+            txt("app.shared.const.Operation_DEBUG_PLSQL_CODE_JDWP"),
+            txt("msg.prerequisites.warning.MissingPrerequisites_DEBUG_PLSQL_CODE_JDWP")),
     ;
 
     private final String name;
+    //private final String description;
+    private final String missingPrerequisiteMessage;
 
-    DatabaseOperation(String name) {
+    DatabaseOperation(String name, /*String description, */String missingPrerequisiteMessage) {
         this.name = name;
+        //this.description = description;
+        this.missingPrerequisiteMessage = missingPrerequisiteMessage;
     }
 
     @Override
