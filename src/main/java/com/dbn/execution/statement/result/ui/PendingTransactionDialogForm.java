@@ -16,13 +16,11 @@
 
 package com.dbn.execution.statement.result.ui;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Viewers;
@@ -42,7 +40,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -118,12 +115,9 @@ public class PendingTransactionDialogForm extends DBNFormBase {
         Document previewDocument = Documents.ensureDocument(selectStatementFile);
         viewer = Viewers.createViewer(previewDocument, project, null, SQLFileType.INSTANCE);
         viewer.setEmbeddedIntoDialogWrapper(true);
-        JScrollPane viewerScrollPane = viewer.getScrollPane();
+        Editors.updateEditorScrollPane(viewer);
 
         Editors.initEditorHighlighter(viewer, SQLLanguage.INSTANCE, connection);
-        viewer.setBackgroundColor(Colors.lafDarker(viewer.getBackgroundColor(), 1));
-        //viewerScrollPane.setBorder(null);
-        viewerScrollPane.setViewportBorder(Borders.lineBorder(Colors.getEditorBackground(), 4));
 
         EditorSettings settings = viewer.getSettings();
         settings.setFoldingOutlineShown(false);
