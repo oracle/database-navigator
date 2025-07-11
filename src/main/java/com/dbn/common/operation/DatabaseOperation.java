@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2024 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,37 +16,25 @@
 
 package com.dbn.common.operation;
 
-import lombok.Data;
-import org.jetbrains.annotations.NonNls;
+import com.dbn.common.constant.Constant;
+import lombok.Getter;
 
-import java.util.HashMap;
-import java.util.Map;
+@Getter
+public enum DatabaseOperation implements Constant<DatabaseOperation> {
 
-import static com.dbn.common.util.Unsafe.cast;
+    DEBUG_JAVA_CODE("Debug Java Code"),
+    DEBUG_PLSQL_CODE("Debug PLSQL Code"),
+    DEBUG_PLSQL_CODE_JDWP("Debug PLSQL Code (JDWP)"),
+    ;
 
-/**
- * Represents a database operation, capturing its type and allowing the storage
- * of arbitrary attributes related to the operation.
- */
-@Data // used as key in HashSet
-public class DatabaseOperation {
-    private final DatabaseOperationType type;
-    private final Map<String, Object> attributes = new HashMap<>();
+    private final String name;
 
-    public DatabaseOperation(DatabaseOperationType type) {
-        this.type = type;
+    DatabaseOperation(String name) {
+        this.name = name;
     }
 
-    public static DatabaseOperation create(DatabaseOperationType type) {
-        return new DatabaseOperation(type);
-    }
-
-    public <T> T getAttribute(@NonNls String name) {
-        return cast(attributes.get(name));
-    }
-
-    public DatabaseOperation withAttribute(@NonNls String name, Object value) {
-        attributes.put(name, value);
-        return this;
+    @Override
+    public String toString() {
+        return name;
     }
 }

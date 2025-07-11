@@ -32,7 +32,7 @@ import javax.swing.Icon;
 
 @Getter
 @Setter
-public class ConfirmationOptionHandler implements DoNotAskOption, PersistentConfiguration{
+public class InteractiveConfirmationBroker implements DoNotAskOption, PersistentConfiguration{
     private final String configName;
     private final String title;
     private final String message;
@@ -42,19 +42,19 @@ public class ConfirmationOptionHandler implements DoNotAskOption, PersistentConf
 
     protected transient boolean confirm;
 
-    public ConfirmationOptionHandler(@NonNls String configName, String title, String message, boolean defaultKeepAsking) {
+    public InteractiveConfirmationBroker(@NonNls String configName, String title, String message, boolean defaultKeepAsking) {
         this.configName = configName;
         this.title = title;
         this.message = message;
         this.confirm = defaultKeepAsking;
     }
 
-    public ConfirmationOptionHandler withDialogIcon(Icon dialogIcon) {
+    public InteractiveConfirmationBroker withDialogIcon(Icon dialogIcon) {
         this.dialogIcon = dialogIcon;
         return this;
     }
 
-    public ConfirmationOptionHandler withDoNotShowMessage(String doNotShowMessage) {
+    public InteractiveConfirmationBroker withDoNotShowMessage(String doNotShowMessage) {
         this.doNotShowMessage = doNotShowMessage;
         return this;
     }

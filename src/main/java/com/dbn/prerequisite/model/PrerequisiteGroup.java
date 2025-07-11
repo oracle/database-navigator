@@ -18,14 +18,16 @@ package com.dbn.prerequisite.model;
 
 import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.message.MessageType;
+import com.dbn.common.message.TitledMessage;
 import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.common.option.InteractiveOptionBroker;
 import com.dbn.common.option.OptionBroker;
+import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.Background;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.context.DatabaseContextBase;
 import com.dbn.prerequisite.evaluation.PrerequisiteEvaluator;
 import com.dbn.prerequisite.event.PrerequisiteEvent;
@@ -41,21 +43,27 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
 import static com.dbn.prerequisite.event.PrerequisiteEventType.EVALUATION_FAILED;
 import static com.dbn.prerequisite.event.PrerequisiteEventType.EVALUATION_FINISHED;
 import static com.dbn.prerequisite.event.PrerequisiteEventType.EVALUATION_STARTED;
+import static com.dbn.prerequisite.model.PrerequisiteStatus.AVAILABLE;
 import static com.dbn.prerequisite.model.PrerequisiteStatus.EVALUATING;
-import static com.dbn.prerequisite.model.PrerequisiteStatus.SATISFIED;
+import static com.dbn.prerequisite.model.PrerequisiteStatus.UNAVAILABLE;
 import static com.dbn.prerequisite.model.PrerequisiteStatus.UNKNOWN;
-import static com.dbn.prerequisite.model.PrerequisiteStatus.UNSATISFIED;
 
+/**
+ * Group of prerequisites associated to a given {@link DatabaseOperation}
+ * All prerequisites are expected to be met for performing the given operation
+ */
 @Getter
-public class PrerequisiteBundle extends StatefulDisposableBase implements DatabaseContextBase {
-    private final ConnectionRef connection;
+public class PrerequisiteGroup extends StatefulDisposableBase implements DatabaseContextBase {
+    private final WeakRef<PrerequisiteData> data;
     private final DatabaseOperation operation;
-    private final List<Prerequisite> prerequisites;
+    private final List<PrerequisiteType> prerequisiteTypes;
+
     private final Listeners<PrerequisiteEventListener> listeners = Listeners.create(this);
     private final OptionBroker<PrerequisiteOption> optionBroker;
 
@@ -63,16 +71,29 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
     private boolean evaluating = false;
     private long evaluationTimestamp;
 
-    public PrerequisiteBundle(ConnectionHandler connection, DatabaseOperation operation, List<Prerequisite> prerequisites) {
-        this.connection = ConnectionRef.of(connection);
+    public PrerequisiteGroup(PrerequisiteData prerequisiteData, DatabaseOperation operation, List<PrerequisiteType> prerequisiteTypes) {
+        this.data = WeakRef.of(prerequisiteData);
         this.operation = operation;
-        this.prerequisites = Collections.unmodifiableList(prerequisites);
+        this.prerequisiteTypes = Collections.unmodifiableList(prerequisiteTypes);
         this.optionBroker = createOptionBroker(operation);
     }
 
     @NotNull
+    public PrerequisiteData getData() {
+        return data.ensure();
+    }
+
+    @NotNull
     public ConnectionHandler getConnection() {
-        return ConnectionRef.ensure(connection);
+        return getData().getConnection();
+    }
+
+    public List<Prerequisite> getPrerequisites() {
+        return Lists.convert(prerequisiteTypes, t -> getData().getPrerequisite(t));
+    }
+
+    private Stream<Prerequisite> prerequisites() {
+        return prerequisiteTypes.stream().map(t -> getData().getPrerequisite(t));
     }
 
     @NotNull
@@ -83,8 +104,8 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
 
     public String createAdviceContent() {
         StringBuilder builder = new StringBuilder();
-        ConnectionHandler connection = this.connection.ensure();
-        for (Prerequisite prerequisite : prerequisites) {
+        ConnectionHandler connection = getConnection();
+        for (Prerequisite prerequisite : getPrerequisites()) {
             PrerequisiteAdvisor advisor = prerequisite.getDefinition().getAdvisor();
             PrerequisiteAdvice advice = advisor.advise(connection);
             builder.append("--");
@@ -99,23 +120,23 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
     }
 
     public int size() {
-        return prerequisites.size();
+        return prerequisiteTypes.size();
     }
 
     public boolean isEvaluated() {
         return evaluationCount.get() == size();
     }
 
-    public boolean isCompletely(PrerequisiteStatus status) {
-        return Lists.allMatch(prerequisites, p -> p.getStatus() == status);
+    public boolean arePrerequisitesMet() {
+        return prerequisites().allMatch(p -> p.getStatus() == AVAILABLE);
     }
 
     public boolean has(PrerequisiteStatus status) {
-        return Lists.anyMatch(prerequisites, p -> p.getStatus() == status);
+        return prerequisites().anyMatch(p -> p.getStatus() == status);
     }
 
     public int count(PrerequisiteStatus status) {
-        return Lists.count(prerequisites, p -> p.getStatus() == status);
+        return (int) prerequisites().filter(p -> p.getStatus() == status).count();
     }
 
     public synchronized void evaluateAll(boolean background) {
@@ -124,7 +145,7 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
 
         notifyEvaluationStarted(null);
         evaluationCount.set(0);
-        prerequisites.forEach(p -> evaluatePrerequisite(p, background));
+        prerequisites().forEach(p -> evaluatePrerequisite(p, background));
     }
 
     private void evaluatePrerequisite(Prerequisite prerequisite, boolean background) {
@@ -149,7 +170,7 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
             PrerequisiteEvaluator evaluator = prerequisite.getDefinition().getEvaluator();
             boolean conditionsMet = evaluator.evaluate(this);
 
-            prerequisite.setStatus(conditionsMet ? SATISFIED : UNSATISFIED);
+            prerequisite.setStatus(conditionsMet ? AVAILABLE : UNAVAILABLE);
             notifyEvaluationFinished(prerequisite);
 
         } catch (Exception e) {
@@ -199,11 +220,12 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
 
 
     private static OptionBroker<PrerequisiteOption> createOptionBroker(DatabaseOperation operation) {
-        String description = operation.getType().getDescription();
         return new InteractiveOptionBroker<>(
                 "missing-prerequisites",
                 "Missing Prerequisites",
-                "Not all requirements for performing \"" + description + "\" are met. Do you want to continue?",
+                "Not all requirements for performing \"" + operation + "\" are met. " +
+                        "You may not be able to perform this operation.\n" +
+                        "Do you want to continue?",
                 PrerequisiteOption.CONTINUE,
                 PrerequisiteOption.RESOLVE,
                 PrerequisiteOption.CONTINUE,
@@ -211,6 +233,49 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
                             withIcon(Icons.DIALOG_WARNING).
                             withDoNotShowMessage("Skip verification for this connection");
 
+    }
+
+    public TitledMessage createStatusMessage() {
+        String description = operation.getName();
+        if (isEvaluated()) {
+            int total = size();
+
+            int unknown = count(UNKNOWN);
+            int available = count(AVAILABLE);
+            int unavailable = count(UNAVAILABLE);
+
+            if (available == total) {
+                return new TitledMessage(MessageType.SUCCESS,
+                        description + " - Requirements met",
+                        "All requirements for performing the operation \"" + description + "\" are met\n");
+            }
+
+            if (unavailable == total) {
+                return new TitledMessage(MessageType.ERROR,
+                        description + " - Requirements not met",
+                        "None of the requirements for performing the operation \"" + description + "\" are met.\n" +
+                                "Please request the missing privileges from your database administrator.");
+            }
+
+            if (unknown == total) {
+                return new TitledMessage(MessageType.ERROR,
+                        description + " - Failed to verify requirements",
+                        "Could not verify any of the requirements for performing the operation \"" + description + "\".\n  " +
+                                "Please check the connectivity or database access rights.");
+
+            }
+
+            if (available > 0) {
+                return new TitledMessage(MessageType.WARNING,
+                        description + " - Requirements partially met",
+                        "Some of the requirements for performing the operation \"" + description + "\" are not met.\n" +
+                                "Please request the missing privileges from your database administrator.");
+            }
+
+        }
+        return new TitledMessage(MessageType.INFO,
+                description + " - Verifying requirements...",
+                "Verifying requirements for performing the operation \"" + description + "\"\n");
     }
 
     @Override

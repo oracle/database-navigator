@@ -93,11 +93,11 @@ public class TransactionManagerSettingsForm extends ConfigurationEditorForm<Tran
     @Override
     public void applyFormChanges() throws ConfigurationException {
         TransactionManagerSettings settings = getConfiguration();
-        settings.getCloseProject().set(           getSelection(uncommittedChangesOnProjectCloseComboBox));
-        settings.getToggleAutoCommit().set(       getSelection(uncommittedChangesOnSwitchComboBox));
-        settings.getDisconnect().set(             getSelection(uncommittedChangesOnDisconnectComboBox));
-        settings.getCommitMultipleChanges().set(  getSelection(multipleChangesOnCommitComboBox));
-        settings.getRollbackMultipleChanges().set(getSelection(multipleChangesOnRollbackComboBox));
+        settings.getCloseProject().selectOption(           getSelection(uncommittedChangesOnProjectCloseComboBox));
+        settings.getToggleAutoCommit().selectOption(       getSelection(uncommittedChangesOnSwitchComboBox));
+        settings.getDisconnect().selectOption(             getSelection(uncommittedChangesOnDisconnectComboBox));
+        settings.getCommitMultipleChanges().selectOption(  getSelection(multipleChangesOnCommitComboBox));
+        settings.getRollbackMultipleChanges().selectOption(getSelection(multipleChangesOnRollbackComboBox));
     }
 
     @Override

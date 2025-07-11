@@ -19,8 +19,8 @@ package com.dbn.prerequisite.model;
 public enum PrerequisiteStatus {
     NEW,          // prerequisite evaluation pending
     EVALUATING,   // prerequisite evaluation in progress
-    SATISFIED,    // prerequisite verification passed (conditions met)
-    UNSATISFIED,  // prerequisite verification did not pass (conditions not met)
+    AVAILABLE,    // prerequisite verification passed (conditions met)
+    UNAVAILABLE,  // prerequisite verification did not pass (conditions not met)
     UNKNOWN       // prerequisite evaluation failed or is not possible
     ;
 }

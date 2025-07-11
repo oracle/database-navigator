@@ -18,7 +18,6 @@ package com.dbn.prerequisite.action;
 
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.operation.DatabaseOperation;
-import com.dbn.common.operation.DatabaseOperationType;
 import com.dbn.common.ui.util.Popups;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionBundle;
@@ -45,8 +44,8 @@ public class PrerequisiteVerificationAction extends ActionGroup {
     public AnAction[] getChildren(AnActionEvent e) {
         List<AnAction> actions = new ArrayList<>();
 
-        for (DatabaseOperationType operationType : DatabaseOperationType.values()) {
-            actions.add(new SelectOperationAction(new DatabaseOperation(operationType)));
+        for (DatabaseOperation operation : DatabaseOperation.values()) {
+            actions.add(new SelectOperationAction(operation));
         }
         return actions.toArray(new AnAction[0]);
     }
@@ -56,7 +55,7 @@ public class PrerequisiteVerificationAction extends ActionGroup {
 
 
         SelectOperationAction(DatabaseOperation operation) {
-            super(operation.getType().getDescription());
+            super(operation.getName());
             this.operation = operation;
         }
 
@@ -114,7 +113,7 @@ public class PrerequisiteVerificationAction extends ActionGroup {
 
         // TODO TEMPORARY (restore to evaluatePrerequisites())
         //prerequisiteManager.evaluatePrerequisites(connection, operation);
-        String description = operation.getType().getDescription();
+        String description = operation.getName();
         prerequisiteManager.startOperation(connection, operation, () -> Messages.showInfoDialog(project, description, "Performing "+ description));
     }
 }

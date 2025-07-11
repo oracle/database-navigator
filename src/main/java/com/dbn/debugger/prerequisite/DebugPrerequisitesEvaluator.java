@@ -17,16 +17,15 @@
 package com.dbn.debugger.prerequisite;
 
 import com.dbn.common.operation.DatabaseOperation;
-import com.dbn.common.operation.DatabaseOperationType;
 import com.dbn.connection.context.DatabaseContext;
-import com.dbn.debugger.DBDebuggerType;
 import com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator;
 import com.dbn.prerequisite.model.PrerequisiteType;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.dbn.common.operation.DatabaseOperationType.DEBUG_JAVA_CODE;
+import static com.dbn.common.operation.DatabaseOperation.DEBUG_JAVA_CODE;
+import static com.dbn.common.operation.DatabaseOperation.DEBUG_PLSQL_CODE_JDWP;
 import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.DEBUG_ANY_PROCEDURE;
 import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.DEBUG_CONNECT_SESSION;
 import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.EXECUTE_DBMS_DEBUG;
@@ -42,10 +41,10 @@ public class DebugPrerequisitesEvaluator implements PrerequisiteRequirementEvalu
         prerequisites.add(DEBUG_ANY_PROCEDURE);
         prerequisites.add(EXECUTE_DBMS_DEBUG);
 
+        if (operation.isOneOf(
+                DEBUG_JAVA_CODE,
+                DEBUG_PLSQL_CODE_JDWP)) {
 
-        DatabaseOperationType operationType = operation.getType();
-        DBDebuggerType debuggerType = operation.getAttribute("DEBUGGER_TYPE");
-        if (operationType == DEBUG_JAVA_CODE || debuggerType == DBDebuggerType.JDWP) {
             prerequisites.add(EXECUTE_DBMS_DEBUG_JDWP);
             prerequisites.add(HOST_ACE_JDWP);
         }

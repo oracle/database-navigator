@@ -22,20 +22,14 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.common.option.OptionBroker;
-import com.dbn.common.state.StateAttributes;
-import com.dbn.common.state.StateCategory;
 import com.dbn.common.state.StateContainer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
-import com.dbn.prerequisite.definition.PrerequisiteDefinition;
-import com.dbn.prerequisite.definition.PrerequisiteDefinitionProvider;
-import com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator;
-import com.dbn.prerequisite.model.Prerequisite;
-import com.dbn.prerequisite.model.PrerequisiteBundle;
-import com.dbn.prerequisite.model.PrerequisiteType;
+import com.dbn.prerequisite.model.PrerequisiteData;
+import com.dbn.prerequisite.model.PrerequisiteGroup;
 import com.dbn.prerequisite.resolution.PrerequisiteOption;
 import com.dbn.prerequisite.ui.PrerequisitesDialog;
 import com.intellij.openapi.components.State;
@@ -45,23 +39,18 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.prerequisite.DatabasePrerequisiteManager.COMPONENT_NAME;
-import static com.dbn.prerequisite.model.PrerequisiteStatus.SATISFIED;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 public class DatabasePrerequisiteManager extends ProjectComponentBase implements PersistentState {
 	public static final String COMPONENT_NAME = "DBNavigator.Project.DatabasePrerequisiteManager";
 
-	private final StateContainer states = new StateContainer();
+    private final StateContainer states = new StateContainer();
     private final Map<ConnectionId, PrerequisiteData> prerequisiteData = new ConcurrentHashMap<>();
 
 	private DatabasePrerequisiteManager(Project project) {
@@ -77,59 +66,15 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
 		return projectService(project, DatabasePrerequisiteManager.class);
 	}
 
-	@NotNull
-	public StateAttributes getState(StateCategory category) {
-		return states.ensureAttributes(category);
-	}
-
-    private PrerequisiteBundle getPrerequisiteBundle(ConnectionHandler connection, DatabaseOperation operation) {
+    private PrerequisiteGroup getPrerequisiteGroup(ConnectionHandler connection, DatabaseOperation operation) {
         ConnectionId connectionId = connection.getConnectionId();
         PrerequisiteData prerequisiteData = this.prerequisiteData.computeIfAbsent(connectionId, c -> new PrerequisiteData(connection));
-        return prerequisiteData.ensureBundle(operation, (c, o) -> createPrerequisiteBundle(c, o));
-    }
-
-    private PrerequisiteBundle createPrerequisiteBundle(ConnectionHandler connection, DatabaseOperation operation) {
-        Set<PrerequisiteType> types = resolvePrerequisiteTypes(connection, operation);
-        List<PrerequisiteDefinition> definitions = loadPrerequisiteDefinitions(types);
-        List<Prerequisite> prerequisites = createPrerequisites(definitions);
-        return new PrerequisiteBundle(connection, operation, prerequisites);
-    }
-
-
-    private static Set<PrerequisiteType> resolvePrerequisiteTypes(ConnectionHandler connection, DatabaseOperation operation) {
-        Set<PrerequisiteType> types = new LinkedHashSet<>();
-        List<PrerequisiteRequirementEvaluator> evaluators = PrerequisiteRequirementEvaluator.EP.getExtensionList();
-        for (PrerequisiteRequirementEvaluator evaluator : evaluators) {
-            List<PrerequisiteType> applicableTypes = evaluator.resolvePrerequisites(connection, operation);
-            types.addAll(applicableTypes);
-        }
-        return types;
-    }
-
-    private static List<Prerequisite> createPrerequisites(List<PrerequisiteDefinition> definitions) {
-        List<Prerequisite> prerequisites = new ArrayList<>();
-        for (PrerequisiteDefinition definition : definitions) {
-            Prerequisite prerequisite = definition.createPrerequisite();
-            prerequisites.add(prerequisite);
-        }
-        return prerequisites;
-    }
-
-    private static List<PrerequisiteDefinition> loadPrerequisiteDefinitions(Set<PrerequisiteType> types) {
-        List<PrerequisiteDefinition> definitions = new ArrayList<>();
-        List<PrerequisiteDefinitionProvider> providers = PrerequisiteDefinitionProvider.EP.getExtensionList();
-        for (PrerequisiteDefinitionProvider provider : providers) {
-            PrerequisiteDefinition definition = provider.getDefinition();
-            if (types.contains(definition.getType())) {
-                definitions.add(definition);
-            }
-        }
-        return definitions;
+        return prerequisiteData.getPrerequisiteGroup(operation);
     }
 
     public void showPrerequisiteDetails(ConnectionHandler connection, DatabaseOperation operation) {
-        PrerequisiteBundle prerequisites = getPrerequisiteBundle(connection, operation);
-        Dialogs.show(() -> new PrerequisitesDialog(prerequisites));
+        PrerequisiteGroup prerequisiteGroup = getPrerequisiteGroup(connection, operation);
+        Dialogs.show(() -> new PrerequisitesDialog(prerequisiteGroup));
     }
 
     public void startOperation(ConnectionHandler connection, DatabaseOperation operation, Runnable operationRunner) {
@@ -137,26 +82,26 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
         Progress.prompt(
                 project, connection, true,
                 "Verifying prerequisites",
-                "Verifying prerequisites for operation \"" + operation.getType().getDescription() + "\"",
+                "Verifying prerequisites for operation \"" + operation.getName() + "\"",
                 indicator -> verifyOperation(connection, operation, operationRunner));
     }
 
     public void verifyOperation(ConnectionHandler connection, DatabaseOperation operation, Runnable operationRunner) {
-        PrerequisiteBundle bundle = getPrerequisiteBundle(connection, operation);
+        PrerequisiteGroup prerequisiteGroup = getPrerequisiteGroup(connection, operation);
         // evaluate if not yet done
-        if (!bundle.isEvaluated()) {
-            bundle.evaluateAll(false);
+        if (!prerequisiteGroup.isEvaluated()) {
+            prerequisiteGroup.evaluateAll(false);
         }
 
         // all green - continue with operation
-        if (bundle.isCompletely(SATISFIED)) {
+        if (prerequisiteGroup.arePrerequisitesMet()) {
             operationRunner.run();
             return;
         }
 
         // check "do not ask" option
         Project project = connection.getProject();
-        OptionBroker<PrerequisiteOption> optionBroker = bundle.getOptionBroker();
+        OptionBroker<PrerequisiteOption> optionBroker = prerequisiteGroup.getOptionBroker();
         optionBroker.resolve(project, null,
                 option -> brokerOption(connection, operation, operationRunner, option));
     }
@@ -174,12 +119,15 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
 	@Override
 	public Element getComponentState() {
 		Element element = newStateElement();
+
         states.writeState(element, "prerequisite-states");
-		return element;
+
+        return element;
 	}
 
 	@Override
 	public void loadComponentState(@NotNull Element element) {
+
         states.readState(element, "prerequisite-states");
 	}
 }

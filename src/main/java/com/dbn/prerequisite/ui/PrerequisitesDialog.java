@@ -20,7 +20,7 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.prerequisite.event.PrerequisiteEvent;
 import com.dbn.prerequisite.event.PrerequisiteEventListener;
 import com.dbn.prerequisite.event.PrerequisiteEventType;
-import com.dbn.prerequisite.model.PrerequisiteBundle;
+import com.dbn.prerequisite.model.PrerequisiteGroup;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,13 +28,13 @@ import javax.swing.Action;
 
 @Getter
 public class PrerequisitesDialog extends DBNDialog<PrerequisitesForm> implements PrerequisiteEventListener {
-    private final PrerequisiteBundle prerequisites;
+    private final PrerequisiteGroup prerequisiteGroup;
 
-    public PrerequisitesDialog(PrerequisiteBundle prerequisites) {
-        super(prerequisites.getProject(), "Prerequisite Verification", false);
+    public PrerequisitesDialog(PrerequisiteGroup prerequisiteGroup) {
+        super(prerequisiteGroup.getProject(), "Prerequisite Verification", false);
         this.setModal(false);
-        this.prerequisites = prerequisites;
-        this.prerequisites.addEventListener(this);
+        this.prerequisiteGroup = prerequisiteGroup;
+        this.prerequisiteGroup.addEventListener(this);
 
         setDefaultSize(800, 600);
         renameAction(getCancelAction(), "Close");
@@ -58,7 +58,7 @@ public class PrerequisitesDialog extends DBNDialog<PrerequisitesForm> implements
     private final Action reevaluateAction = createAction("Reevaluate", () -> reevaluatePrerequisites());
 
     private void reevaluatePrerequisites() {
-        prerequisites.evaluateAll(true);
+        prerequisiteGroup.evaluateAll(true);
     }
 
     @Override
@@ -86,7 +86,7 @@ public class PrerequisitesDialog extends DBNDialog<PrerequisitesForm> implements
 
     @Override
     public void disposeInner() {
-        prerequisites.removeEventListener(this);
+        prerequisiteGroup.removeEventListener(this);
         super.disposeInner();
     }
 }

@@ -17,15 +17,18 @@
 package com.dbn.common.option;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.util.Commons;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nls;
 
 import javax.swing.Icon;
 
+import static com.dbn.common.util.Commons.nvl;
+
 @Getter
 @Setter
+@Slf4j
 public abstract class OptionBrokerBase<T> implements OptionBroker<T> {
     private final String configName;
     private final @Nls String title;
@@ -57,7 +60,15 @@ public abstract class OptionBrokerBase<T> implements OptionBroker<T> {
     }
 
     public T getOption() {
-        return Commons.nvl(selectedOption, defaultOption);
+        return nvl(selectedOption, defaultOption);
+    }
+
+    public void selectOption(T option) {
+        if (canSelectOption(option)) {
+            this.selectedOption = option;
+        } else {
+            log.error("Cannot select option: {}", option);
+        }
     }
 
     @Override
@@ -69,4 +80,6 @@ public abstract class OptionBrokerBase<T> implements OptionBroker<T> {
     public boolean shouldSaveOptionsOnCancel() {
         return false;
     }
+
+    protected abstract boolean canSelectOption(T option);
 }

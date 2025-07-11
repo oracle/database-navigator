@@ -107,7 +107,7 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
         configuration.setCompileDependencies(compileDependenciesCheckBox.isSelected());
         configuration.setTcpDriverTunneling(tcpDriverTunnelingCheckBox.isSelected());
         configuration.setTcpHostAddress(tcpHostTextBox.getText());
-        configuration.getDebuggerType().set(getSelection(debuggerTypeComboBox));
+        configuration.getDebuggerType().selectOption(getSelection(debuggerTypeComboBox));
         try {
             configuration.setTcpPortRange(new Range<>(
                     Integer.parseInt(tcpPortFromTextField.getText()),

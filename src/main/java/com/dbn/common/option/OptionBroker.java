@@ -29,4 +29,8 @@ public interface OptionBroker<T> extends DoNotAskOption, PersistentConfiguration
     OptionBroker<T> withIcon(Icon icon);
 
     OptionBroker<T> withDoNotShowMessage(@Nls String doNotShowMessage);
+
+    T getSelectedOption();
+
+    void selectOption(T option);
 }

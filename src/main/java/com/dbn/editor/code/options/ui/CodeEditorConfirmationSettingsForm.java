@@ -59,7 +59,7 @@ public class CodeEditorConfirmationSettingsForm extends ConfigurationEditorForm<
         CodeEditorConfirmationSettings settings = getConfiguration();
         settings.getSaveChanges().setConfirm(confirmSaveCheckBox.isSelected());
         settings.getRevertChanges().setConfirm(confirmRevertCheckBox.isSelected());
-        settings.getExitOnChanges().set(getSelection(disconnectSessionComboBox));
+        settings.getExitOnChanges().selectOption(getSelection(disconnectSessionComboBox));
     }
 
     @Override

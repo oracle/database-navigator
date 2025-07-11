@@ -67,9 +67,9 @@ public class InteractiveOptionBroker<T extends InteractiveOption> extends Option
         }
     }
 
-    public void set(T selectedOption) {
-        assert !selectedOption.isCancel();
-        setSelectedOption(selectedOption);
+    @Override
+    protected boolean canSelectOption(T option) {
+        return !option.isCancel();
     }
 
     public void resolve(Project project, Object[] messageArgs, Consumer<T> consumer) {
@@ -123,7 +123,7 @@ public class InteractiveOptionBroker<T extends InteractiveOption> extends Option
     @Override
     public void readConfiguration(Element element) {
         T option = (T) Settings.getEnum(element, getConfigName(), (Enum) getDefaultOption());
-        set(option);
+        selectOption(option);
     }
 
     @Override

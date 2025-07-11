@@ -26,7 +26,7 @@ import com.dbn.prerequisite.event.PrerequisiteEvent;
 import com.dbn.prerequisite.event.PrerequisiteEventListener;
 import com.dbn.prerequisite.event.PrerequisiteEventType;
 import com.dbn.prerequisite.model.Prerequisite;
-import com.dbn.prerequisite.model.PrerequisiteBundle;
+import com.dbn.prerequisite.model.PrerequisiteGroup;
 import com.dbn.prerequisite.model.PrerequisiteStatus;
 import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.JBUI;
@@ -55,7 +55,7 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
         super(parent);
         this.prerequisite = prerequisite;
 
-        parent.getPrerequisites().addEventListener(this);
+        parent.getPrerequisiteGroup().addEventListener(this);
 
         Color greyContent = Colors.faded(UIUtil.getLabelForeground());
         Font largerFont = Fonts.regular(1);
@@ -72,9 +72,9 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
         updatePrerequisiteStatus();
     }
 
-    private PrerequisiteBundle getPrerequisites() {
+    private PrerequisiteGroup getPrerequisiteGroup() {
         PrerequisitesForm parentForm = ensureParentComponent();
-        return parentForm.getPrerequisites();
+        return parentForm.getPrerequisiteGroup();
     }
 
     public void initialize() {
@@ -97,13 +97,13 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
         statusLabel.setToolTipText(message);
         if (exception != null) {
             statusLabel.setText("Unknown");
-        } else if (status == PrerequisiteStatus.SATISFIED) {
+        } else if (status == PrerequisiteStatus.AVAILABLE) {
             statusLabel.setText("OK");
-        } else if (status == PrerequisiteStatus.UNSATISFIED) {
+        } else if (status == PrerequisiteStatus.UNAVAILABLE) {
             statusLabel.setText("Not OK");
         }
 
-        Icon icon = exception == null && status == PrerequisiteStatus.SATISFIED?
+        Icon icon = exception == null && status == PrerequisiteStatus.AVAILABLE ?
                 Icons.COMMON_STATUS_SUCCESS :
                 Icons.COMMON_STATUS_ERROR;
 
