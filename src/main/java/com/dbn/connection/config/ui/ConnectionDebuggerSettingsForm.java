@@ -125,7 +125,7 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
         tcpHostTextBox.setText(configuration.getTcpHostAddress());
         tcpPortFromTextField.setText(String.valueOf(configuration.getTcpPortRange().getFrom()));
         tcpPortToTextField.setText(String.valueOf(configuration.getTcpPortRange().getTo()));
-        setSelection(debuggerTypeComboBox, configuration.getDebuggerType().get());
+        setSelection(debuggerTypeComboBox, configuration.getDebuggerType().getOption());
         updateTcpFields();
     }
 }

@@ -103,11 +103,11 @@ public class TransactionManagerSettingsForm extends ConfigurationEditorForm<Tran
     @Override
     public void resetFormChanges() {
         TransactionManagerSettings settings = getConfiguration();
-        setSelection(uncommittedChangesOnProjectCloseComboBox, settings.getCloseProject().get());
-        setSelection(uncommittedChangesOnSwitchComboBox,       settings.getToggleAutoCommit().get());
-        setSelection(uncommittedChangesOnDisconnectComboBox,   settings.getDisconnect().get());
-        setSelection(multipleChangesOnCommitComboBox,          settings.getCommitMultipleChanges().get());
-        setSelection(multipleChangesOnRollbackComboBox,        settings.getRollbackMultipleChanges().get());
+        setSelection(uncommittedChangesOnProjectCloseComboBox, settings.getCloseProject().getOption());
+        setSelection(uncommittedChangesOnSwitchComboBox,       settings.getToggleAutoCommit().getOption());
+        setSelection(uncommittedChangesOnDisconnectComboBox,   settings.getDisconnect().getOption());
+        setSelection(multipleChangesOnCommitComboBox,          settings.getCommitMultipleChanges().getOption());
+        setSelection(multipleChangesOnRollbackComboBox,        settings.getRollbackMultipleChanges().getOption());
 
     }
 }

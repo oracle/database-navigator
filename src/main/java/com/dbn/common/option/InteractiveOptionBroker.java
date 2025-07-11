@@ -17,15 +17,11 @@
 package com.dbn.common.option;
 
 
-import com.dbn.common.icon.Icons;
-import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.options.setting.Settings;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Dispatch;
-import com.dbn.common.util.Commons;
 import com.dbn.common.util.Messages;
 import com.intellij.openapi.project.Project;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
@@ -36,15 +32,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.dbn.common.util.Modality.nonModal;
+
 @Getter
 @Setter
-@EqualsAndHashCode
-public class InteractiveOptionBroker<T extends InteractiveOption> implements DoNotAskOption, PersistentConfiguration{
-    private final String configName;
-    private final @Nls String title;
-    private final @Nls String message;
-    private final T defaultOption;
-    private T selectedOption;
+public class InteractiveOptionBroker<T extends InteractiveOption> extends OptionBrokerBase<T>{
     private T lastUsedOption;
     private final List<T> options;
 
@@ -55,11 +47,9 @@ public class InteractiveOptionBroker<T extends InteractiveOption> implements DoN
             @Nls String message,
             @NotNull T defaultOption,
             T... options) {
-        this.configName = configName;
-        this.title = title;
-        this.message = message;
+        super(configName, title, message, defaultOption);
         this.options = Arrays.asList(options);
-        this.defaultOption = defaultOption;
+        setDoNotShowMessage("Remember option");
     }
 
     @Override
@@ -71,65 +61,46 @@ public class InteractiveOptionBroker<T extends InteractiveOption> implements DoN
     public void setToBeShown(boolean keepAsking, int selectedIndex) {
         T selectedOption = getOption(selectedIndex);
         if (keepAsking || selectedOption.isAsk() || selectedOption.isCancel()) {
-            this.selectedOption = null;
+            setSelectedOption(null);
         } else {
-            this.selectedOption = selectedOption;
+            setSelectedOption(selectedOption);
         }
     }
 
     public void set(T selectedOption) {
         assert !selectedOption.isCancel();
-        this.selectedOption = selectedOption;
-    }
-
-    @NotNull
-    public T get() {
-        return Commons.nvl(selectedOption, defaultOption);
-    }
-
-    @Override
-    public boolean canBeHidden() {
-        return true;
-    }
-
-    @Override
-    public boolean shouldSaveOptionsOnCancel() {
-        return false;
-    }
-
-    @NotNull
-    @Override
-    public String getDoNotShowMessage() {
-        return "Remember option";
+        setSelectedOption(selectedOption);
     }
 
     public void resolve(Project project, Object[] messageArgs, Consumer<T> consumer) {
-        Dispatch.run(() -> {
-            T option;
-            if (selectedOption != null && !selectedOption.isAsk()) {
-                option = selectedOption;
-            } else {
-                int lastUsedOptionIndex = 0;
-                if (lastUsedOption != null) {
-                    lastUsedOptionIndex = options.indexOf(lastUsedOption);
-                }
+        Dispatch.run(nonModal(), () -> doResolve(project, messageArgs, consumer));
+    }
 
-                int optionIndex = Messages.showDialog(
-                        project,
-                        txt(message, messageArgs),
-                        txt(title),
-                        toStringOptions(options),
-                        lastUsedOptionIndex, Icons.DIALOG_QUESTION, this);
+    private void doResolve(Project project, Object[] messageArgs, Consumer<T> consumer) {
+        T option;
+        T selectedOption = getSelectedOption();
+        if (selectedOption != null && !selectedOption.isAsk()) {
+            option = selectedOption;
+        } else {
+            int lastUsedOptionIndex = 0;
+            if (lastUsedOption != null) {
+                lastUsedOptionIndex = options.indexOf(lastUsedOption);
+            }
 
-                option = getOption(optionIndex);
-                if (!option.isCancel() && !option.isAsk()) {
-                    lastUsedOption = option;
-                }
+            int optionIndex = Messages.showDialog(
+                    project,
+                    txt(getMessage(), messageArgs),
+                    txt(getTitle()),
+                    toStringOptions(options),
+                    lastUsedOptionIndex,
+                    getIcon(), this);
+
+            option = getOption(optionIndex);
+            if (!option.isCancel() && !option.isAsk()) {
+                lastUsedOption = option;
             }
-            if (option != null) {
-                consumer.accept(option);
-            }
-        });
+        }
+        consumer.accept(option);
     }
 
     @NotNull
@@ -151,12 +122,12 @@ public class InteractiveOptionBroker<T extends InteractiveOption> implements DoN
      *******************************************************/
     @Override
     public void readConfiguration(Element element) {
-        T option = (T) Settings.getEnum(element, configName, (Enum)defaultOption);
+        T option = (T) Settings.getEnum(element, getConfigName(), (Enum) getDefaultOption());
         set(option);
     }
 
     @Override
     public void writeConfiguration(Element element) {
-        Settings.setEnum(element, configName, (Enum) get());
+        Settings.setEnum(element, getConfigName(), (Enum) getOption());
     }
 }

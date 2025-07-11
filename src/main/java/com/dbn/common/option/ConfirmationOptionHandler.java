@@ -20,29 +20,43 @@ package com.dbn.common.option;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.options.setting.Settings;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Messages;
 import com.intellij.openapi.project.Project;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
+
+import javax.swing.Icon;
 
 @Getter
 @Setter
-@EqualsAndHashCode
 public class ConfirmationOptionHandler implements DoNotAskOption, PersistentConfiguration{
     private final String configName;
     private final String title;
     private final String message;
-    private boolean confirm;
+
+    private Icon dialogIcon = Icons.DIALOG_QUESTION;
+    private String doNotShowMessage = "Do not ask again";
+
+    protected transient boolean confirm;
 
     public ConfirmationOptionHandler(@NonNls String configName, String title, String message, boolean defaultKeepAsking) {
         this.configName = configName;
         this.title = title;
         this.message = message;
         this.confirm = defaultKeepAsking;
+    }
+
+    public ConfirmationOptionHandler withDialogIcon(Icon dialogIcon) {
+        this.dialogIcon = dialogIcon;
+        return this;
+    }
+
+    public ConfirmationOptionHandler withDoNotShowMessage(String doNotShowMessage) {
+        this.doNotShowMessage = doNotShowMessage;
+        return this;
     }
 
     @Override
@@ -65,21 +79,18 @@ public class ConfirmationOptionHandler implements DoNotAskOption, PersistentConf
         return false;
     }
 
-    @NotNull
-    @Override
-    public String getDoNotShowMessage() {
-        return "Do not ask again";
-    }
-
     public boolean resolve(Project project, Object ... messageArgs) {
         if (!confirm) return true;
+        return Dispatch.call(() -> prompt(project, messageArgs));
+    }
 
+    private boolean prompt(Project project, Object[] messageArgs) {
         int optionIndex = Messages.showDialog(
                 project,
                 txt(message, messageArgs),
                 txt(title),
                 Messages.OPTIONS_YES_NO, 0,
-                Icons.DIALOG_QUESTION, this);
+                dialogIcon, this);
         return optionIndex == 0;
     }
 

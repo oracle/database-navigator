@@ -21,11 +21,10 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.operation.DatabaseOperation;
-import com.dbn.common.option.ConfirmationOptionHandler;
+import com.dbn.common.option.OptionBroker;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.state.StateCategory;
 import com.dbn.common.state.StateContainer;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
@@ -37,6 +36,7 @@ import com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator;
 import com.dbn.prerequisite.model.Prerequisite;
 import com.dbn.prerequisite.model.PrerequisiteBundle;
 import com.dbn.prerequisite.model.PrerequisiteType;
+import com.dbn.prerequisite.resolution.PrerequisiteOption;
 import com.dbn.prerequisite.ui.PrerequisitesDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -54,7 +54,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newStateElement;
-import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.prerequisite.DatabasePrerequisiteManager.COMPONENT_NAME;
 import static com.dbn.prerequisite.model.PrerequisiteStatus.SATISFIED;
 
@@ -128,7 +127,7 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
         return definitions;
     }
 
-    public void evaluatePrerequisites(ConnectionHandler connection, DatabaseOperation operation) {
+    public void showPrerequisiteDetails(ConnectionHandler connection, DatabaseOperation operation) {
         PrerequisiteBundle prerequisites = getPrerequisiteBundle(connection, operation);
         Dialogs.show(() -> new PrerequisitesDialog(prerequisites));
     }
@@ -156,17 +155,19 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
         }
 
         // check "do not ask" option
-        Dispatch.run(nonModal(), () -> {
-            Project project = connection.getProject();
-            ConfirmationOptionHandler confirmationHandler = bundle.getConfirmationHandler();
-            boolean canContinue = confirmationHandler.resolve(project);
-            if (canContinue) {
-                operationRunner.run();
-            }
-        });
+        Project project = connection.getProject();
+        OptionBroker<PrerequisiteOption> optionBroker = bundle.getOptionBroker();
+        optionBroker.resolve(project, null,
+                option -> brokerOption(connection, operation, operationRunner, option));
     }
 
-	/****************************************
+    private void brokerOption(ConnectionHandler connection, DatabaseOperation operation, Runnable operationRunner, PrerequisiteOption option) {
+        if (option == PrerequisiteOption.CANCEL) return;
+        if (option == PrerequisiteOption.CONTINUE) operationRunner.run();
+        if (option == PrerequisiteOption.RESOLVE) showPrerequisiteDetails(connection, operation);
+    }
+
+    /****************************************
 	 *       PersistentStateComponent       *
 	 *****************************************/
 	@Nullable

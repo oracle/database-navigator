@@ -17,8 +17,10 @@
 package com.dbn.prerequisite.model;
 
 import com.dbn.common.dispose.StatefulDisposableBase;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.operation.DatabaseOperation;
-import com.dbn.common.option.ConfirmationOptionHandler;
+import com.dbn.common.option.InteractiveOptionBroker;
+import com.dbn.common.option.OptionBroker;
 import com.dbn.common.thread.Background;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.util.Lists;
@@ -31,6 +33,7 @@ import com.dbn.prerequisite.event.PrerequisiteEventListener;
 import com.dbn.prerequisite.event.PrerequisiteEventType;
 import com.dbn.prerequisite.resolution.PrerequisiteAdvice;
 import com.dbn.prerequisite.resolution.PrerequisiteAdvisor;
+import com.dbn.prerequisite.resolution.PrerequisiteOption;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -54,7 +57,7 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
     private final DatabaseOperation operation;
     private final List<Prerequisite> prerequisites;
     private final Listeners<PrerequisiteEventListener> listeners = Listeners.create(this);
-    private final ConfirmationOptionHandler confirmationHandler;
+    private final OptionBroker<PrerequisiteOption> optionBroker;
 
     private final AtomicInteger evaluationCount = new AtomicInteger();
     private boolean evaluating = false;
@@ -64,7 +67,7 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
         this.connection = ConnectionRef.of(connection);
         this.operation = operation;
         this.prerequisites = Collections.unmodifiableList(prerequisites);
-        this.confirmationHandler = createConfirmationHandler(operation);
+        this.optionBroker = createOptionBroker(operation);
     }
 
     @NotNull
@@ -195,11 +198,19 @@ public class PrerequisiteBundle extends StatefulDisposableBase implements Databa
     }
 
 
-    private static ConfirmationOptionHandler createConfirmationHandler(DatabaseOperation operation) {
-        return new ConfirmationOptionHandler(
+    private static OptionBroker<PrerequisiteOption> createOptionBroker(DatabaseOperation operation) {
+        String description = operation.getType().getDescription();
+        return new InteractiveOptionBroker<>(
                 "missing-prerequisites",
                 "Missing Prerequisites",
-                "Not all requirements for performing \"" + operation.getType().getDescription() + "\" are met.\nDo you want to continue?", true);
+                "Not all requirements for performing \"" + description + "\" are met. Do you want to continue?",
+                PrerequisiteOption.CONTINUE,
+                PrerequisiteOption.RESOLVE,
+                PrerequisiteOption.CONTINUE,
+                PrerequisiteOption.CANCEL).
+                            withIcon(Icons.DIALOG_WARNING).
+                            withDoNotShowMessage("Skip verification for this connection");
+
     }
 
     @Override

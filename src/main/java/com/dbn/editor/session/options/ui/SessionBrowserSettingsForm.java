@@ -70,8 +70,8 @@ public class SessionBrowserSettingsForm extends ConfigurationEditorForm<SessionB
     @Override
     public void resetFormChanges() {
         SessionBrowserSettings settings = getConfiguration();
-        setSelection(disconnectSessionComboBox, settings.getDisconnectSession().get());
-        setSelection(killSessionComboBox, settings.getKillSession().get());
+        setSelection(disconnectSessionComboBox, settings.getDisconnectSession().getOption());
+        setSelection(killSessionComboBox, settings.getKillSession().getOption());
         reloadOnFilterChangeCheckBox.setSelected(settings.isReloadOnFilterChange());
     }
 }
