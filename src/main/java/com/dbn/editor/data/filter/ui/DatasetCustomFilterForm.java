@@ -18,7 +18,6 @@ package com.dbn.editor.data.filter.ui;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.GuardedBlocks;
@@ -40,14 +39,12 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.util.Objects;
 
 import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
 import static com.dbn.common.ui.util.ClientProperty.NO_INDENT;
-import static com.dbn.common.ui.util.UserInterface.updateScrollPanes;
 import static com.dbn.editor.code.content.GuardedBlockType.READONLY_DOCUMENT_SECTION;
 
 public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCustomFilter> {
@@ -114,13 +111,7 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
         editor.getCaretModel().moveToOffset(conditionOffset);
         if (!isValidCondition) editor.getSelectionModel().setSelection(conditionOffset, document.getTextLength());
 
-        JScrollPane editorScrollPane = editor.getScrollPane();
-        editorScrollPane.setViewportBorder(Borders.insetBorder(4));
-
-
-        //viewer.setBackgroundColor(viewer.getColorsScheme().getColor(ColorKey.find("CARET_ROW_COLOR")));
-        //viewer.getScrollPane().setViewportBorder(new LineBorder(viewer.getBackroundColor(), 4, false));
-        //editor.getScrollPane().setBorder(null);
+        Editors.updateEditorScrollPane(editor);
 
         EditorSettings settings = editor.getSettings();
         settings.setFoldingOutlineShown(false);
@@ -134,7 +125,6 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
         settings.setUseTabCharacter(true);
 
         editorPanel.add(editor.getComponent(), BorderLayout.CENTER);
-        updateScrollPanes(editorPanel);
     }
 
     private void initErrorLabel(DatasetCustomFilter filter) {

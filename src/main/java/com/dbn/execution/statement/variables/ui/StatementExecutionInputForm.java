@@ -16,7 +16,6 @@
 
 package com.dbn.execution.statement.variables.ui;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.environment.EnvironmentType;
@@ -25,7 +24,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
-import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
@@ -54,7 +52,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -222,9 +219,7 @@ public class StatementExecutionInputForm extends DBNFormBase implements Componen
             Editors.initEditorHighlighter(viewer, SQLLanguage.INSTANCE, connection);
             Editors.setEditorReadonly(viewer, true);
 
-            JScrollPane viewerScrollPane = viewer.getScrollPane();
-            //viewerScrollPane.setBorder(null);
-            viewerScrollPane.setViewportBorder(Borders.lineBorder(Colors.getReadonlyEditorBackground(), 4));
+            Editors.updateEditorScrollPane(viewer);
 
             EditorSettings settings = viewer.getSettings();
             settings.setFoldingOutlineShown(false);
