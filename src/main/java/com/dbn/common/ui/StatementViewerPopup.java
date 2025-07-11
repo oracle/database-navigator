@@ -17,7 +17,6 @@
 package com.dbn.common.ui;
 
 import com.dbn.common.color.Colors;
-import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Viewers;
@@ -37,7 +36,6 @@ import com.intellij.openapi.ui.popup.JBPopupListener;
 import com.intellij.openapi.ui.popup.LightweightWindowEvent;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JScrollPane;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -57,10 +55,7 @@ public class StatementViewerPopup implements Disposable {
         viewer.setBackgroundColor(Colors.getReadonlyEditorBackground());
         Editors.initEditorHighlighter(viewer, language, connection);
 
-        JScrollPane viewerScrollPane = viewer.getScrollPane();
-        viewerScrollPane.setViewportBorder(Borders.lineBorder(Colors.getReadonlyEditorBackground(), 8));
-        viewerScrollPane.setBorder(null);
-
+        Editors.updateEditorScrollPane(viewer, null);
 
         EditorSettings settings = viewer.getSettings();
         settings.setFoldingOutlineShown(false);
