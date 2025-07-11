@@ -131,6 +131,7 @@ class Connector {
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
         Optional<DatabaseCompatibilityInterface> dbCompatibility = Optional.empty();
         Optional<AuthenticationInfo> authInfo = Optional.empty();
+        Driver driver = null;
         try {
             DatabaseType databaseType = databaseSettings.getDatabaseType();
             if (databaseType == DatabaseType.GENERIC) {
@@ -204,7 +205,7 @@ class Connector {
             properties.putAll(configProperties);
 
             // DRIVER
-            Driver driver = ConnectionUtil.resolveDriver(databaseSettings);
+            driver = ConnectionUtil.resolveDriver(databaseSettings);
             if (driver == null) {
                 throw new SQLException("Could not resolve driver class.");
             }
@@ -303,7 +304,7 @@ class Connector {
             exception = toSqlException(e, "Connection error: " + message);
             if (dbCompatibility.isPresent() && authInfo.isPresent()) {
                ConnectionExceptionInfo info = new ConnectionExceptionInfo(e,
-                       databaseSettings.getDriver().getClass().getClassLoader(),
+                       driver != null ? driver.getClass().getClassLoader() : null,
                        authInfo.get());
                dbCompatibility.get().handleConnectionException(info);
             }

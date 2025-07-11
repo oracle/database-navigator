@@ -2,7 +2,6 @@ package com.dbn.common.util;
 
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.util.Range;
-import org.apache.commons.math3.util.IntegerSequence;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,7 +11,7 @@ import java.net.*;
 public class Sockets {
     /**
      * TODO: could move to Http specific class but we don't really have much to put there right now
-     * Or is there an apache commons class with similar constants? Could find one.
+     * Or is there an apache commons class with similar constants? Could not find one.
      *
      * @param urlStr
      */

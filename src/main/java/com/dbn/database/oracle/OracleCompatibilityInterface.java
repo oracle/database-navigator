@@ -16,9 +16,7 @@
 
 package com.dbn.database.oracle;
 
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Threads;
-import com.dbn.common.util.Classes;
 import com.dbn.common.util.Sockets;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
@@ -35,44 +33,15 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
-import static com.dbn.database.DatabaseFeature.AI_ASSISTANT;
-import static com.dbn.database.DatabaseFeature.AUTHID_METHOD_EXECUTION;
-import static com.dbn.database.DatabaseFeature.CONNECTION_ERROR_RECOVERY;
-import static com.dbn.database.DatabaseFeature.CONSTRAINT_MANIPULATION;
-import static com.dbn.database.DatabaseFeature.CURRENT_SCHEMA;
-import static com.dbn.database.DatabaseFeature.DATABASE_LOGGING;
-import static com.dbn.database.DatabaseFeature.DEBUGGING;
-import static com.dbn.database.DatabaseFeature.EMBEDDED_JVM;
-import static com.dbn.database.DatabaseFeature.EXPLAIN_PLAN;
-import static com.dbn.database.DatabaseFeature.FUNCTION_OUT_ARGUMENTS;
-import static com.dbn.database.DatabaseFeature.OBJECT_CHANGE_MONITORING;
-import static com.dbn.database.DatabaseFeature.OBJECT_DDL_EXTRACTION;
-import static com.dbn.database.DatabaseFeature.OBJECT_DEPENDENCIES;
-import static com.dbn.database.DatabaseFeature.OBJECT_DISABLING;
-import static com.dbn.database.DatabaseFeature.OBJECT_INVALIDATION;
-import static com.dbn.database.DatabaseFeature.OBJECT_REPLACING;
-import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
-import static com.dbn.database.DatabaseFeature.READONLY_CONNECTIVITY;
-import static com.dbn.database.DatabaseFeature.SESSION_BROWSING;
-import static com.dbn.database.DatabaseFeature.SESSION_CURRENT_SQL;
-import static com.dbn.database.DatabaseFeature.SESSION_DISCONNECT;
-import static com.dbn.database.DatabaseFeature.SESSION_INTERRUPTION_TIMING;
-import static com.dbn.database.DatabaseFeature.SESSION_KILL;
-import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
-import static com.dbn.database.DatabaseFeature.USER_SCHEMA;
-import static com.dbn.database.DatabaseObjectTypeId.AI_PROFILE;
-import static com.dbn.database.DatabaseObjectTypeId.CREDENTIAL;
-import static com.dbn.database.DatabaseObjectTypeId.JAVA_CLASS;
-import static com.dbn.database.DatabaseObjectTypeId.JAVA_RESOURCE;
+import static com.dbn.database.DatabaseFeature.*;
+import static com.dbn.database.DatabaseObjectTypeId.*;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -202,11 +171,16 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                             }
                             try {
                                 ClassLoader classLoader = info.getClassLoader();
-                                Class<?> cacheControllerClass =
-                                    Class.forName(
-                                            "oracle.jdbc.provider.cache.CacheController", true, classLoader);
-                                Method clearAllCaches = cacheControllerClass.getMethod("clearAllCaches");
-                                clearAllCaches.invoke(null, new Object[0]);
+                                if (classLoader != null) {
+                                    Class<?> cacheControllerClass =
+                                            Class.forName(
+                                                    "oracle.jdbc.provider.cache.CacheController", true, classLoader);
+                                    Method clearAllCaches = cacheControllerClass.getMethod("clearAllCaches");
+                                    clearAllCaches.invoke(null, new Object[0]);
+                                }
+                                else {
+                                    Diagnostics.conditionallyLog(new NullPointerException("classLoader was null"));
+                                }
                             } catch (final Exception e) {
                                 Diagnostics.conditionallyLog(e);
                             }
