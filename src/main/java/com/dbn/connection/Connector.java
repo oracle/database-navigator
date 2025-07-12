@@ -129,6 +129,7 @@ class Connector {
     private DBNConnection doConnect() {
         //trace(this);
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
+        // we need some of these in the catch condition of this tru
         Optional<DatabaseCompatibilityInterface> dbCompatibility = Optional.empty();
         Optional<AuthenticationInfo> authInfo = Optional.empty();
         Driver driver = null;
@@ -302,6 +303,9 @@ class Connector {
                 connectionStatus.setValid(false);
             }
             exception = toSqlException(e, "Connection error: " + message);
+            // if we have all the info we need, pass this on to the
+            // compatibility layer to see if there is any extra additional processing
+            // necessary.
             if (dbCompatibility.isPresent() && authInfo.isPresent()) {
                ConnectionExceptionInfo info = new ConnectionExceptionInfo(e,
                        driver != null ? driver.getClass().getClassLoader() : null,

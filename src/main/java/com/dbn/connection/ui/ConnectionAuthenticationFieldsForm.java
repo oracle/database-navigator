@@ -35,6 +35,7 @@ import com.dbn.common.util.Sockets;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.config.ui.ConnectionSettingsForm;
+import com.dbn.database.oracle.OracleCompatibilityInterface;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -110,6 +111,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         ActionListener actionListener = e -> updateAuthenticationFields();
         authTypeComboBox.addActionListener(actionListener);
         tokenTypeComboBox.addActionListener(actionListener);
+        // monitor auth type changes and fire a warning
+        // event under Bug_38087045 conditions.
         this.bindPortWarningListener =
                 new BindPortWarningListener(getProject(), authTypeComboBox, tokenTypeComboBox);
         authTypeComboBox.addActionListener(bindPortWarningListener);
@@ -301,6 +304,12 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         return getSelection(tokenTypeComboBox);
     }
 
+    /**
+     * Responds to a change in auth type from or to OCI_INTERACTIVE
+     * and checks if the token callback bind port (8181) can be bound
+     * and warns the user if the port is already bound by firing
+     * a MessageBus dispatch on DialogNotifcationListener.TOPIC.
+     */
     private static class BindPortWarningListener implements ActionListener {
         private final JComboBox<AuthenticationType> authTypeCombo;
         private final JComboBox<AuthenticationTokenType> tokenTypeCombo;
@@ -324,7 +333,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
                     if (isOCIInteractive) {
                         // if OCI Interactive and 8181 appears to be bound already, then
                         // warn the user.
-                        if (!Sockets.tryToBindPort(8181)) {
+                        if (!Sockets.tryToBindPort(OracleCompatibilityInterface.ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT)) {
                             status = new NotificationStatus(NotificationStatus.Severity.WARNING,
                                     "Possible error with OCI_INTERACTIVE...");
                         }
@@ -333,12 +342,12 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
                             new DialogNotificationListener.NotificationStatusEvent(
                                     this, ConnectionSettingsForm.OCI_BIND_PORT_WARNING, status);
                     // TODO: let each listener decide whether or not run on UI thread?
-                    Dispatch.run(authTypeCombo, new Runnable() {
+                    Dispatch.run(ModalityState.any(), new Runnable() {
                         @Override
                         public void run() {
                             ProjectEvents.notify(project, DialogNotificationListener.TOPIC,
                                     notificationListener -> {
-                                        notificationListener.fireNotificatonStatusEvent(event);
+                                        notificationListener.fireNotificationStatusEvent(event);
                                     });
                         }
                     });

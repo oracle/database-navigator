@@ -25,25 +25,17 @@ import com.dbn.common.options.ui.CompositeConfigurationEditorForm;
 import com.dbn.common.ui.dialog.DialogNotificationListener;
 import com.dbn.common.ui.dialog.DialogNotificationPanel;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.NotificationStatus;
 import com.dbn.common.util.Safe;
+import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.ConnectivityStatus;
 import com.dbn.connection.DatabaseType;
-import com.dbn.connection.config.ConnectionBundleSettings;
-import com.dbn.connection.config.ConnectionConfigType;
-import com.dbn.connection.config.ConnectionDatabaseSettings;
-import com.dbn.connection.config.ConnectionDebuggerSettings;
-import com.dbn.connection.config.ConnectionDetailSettings;
-import com.dbn.connection.config.ConnectionFilterSettings;
-import com.dbn.connection.config.ConnectionPropertiesSettings;
-import com.dbn.connection.config.ConnectionSettings;
-import com.dbn.connection.config.ConnectionSshTunnelSettings;
+import com.dbn.connection.config.*;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
@@ -65,7 +57,6 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
     private JPanel headerPanel;
     private JButton infoButton;
     private JButton testButton;
-
     private DBNTabbedPane tabbedPane;
     private DBNHeaderForm headerForm;
     private DialogNotificationPanel notificationPanel;
@@ -81,6 +72,17 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
         registerComponent(testButton);
         registerComponent(infoButton);
         ProjectEvents.subscribe(ensureProject(), this, ConnectionPresentationChangeListener.TOPIC, connectionPresentationChangeListener);
+    }
+
+    @Override
+    public void disposeInner() {
+        // TODO: it's unclear why the Disposer automation doesn't pick this up
+        // the DialogNotificationPanel.  It is a descendent of the parent component
+        // and I registered right after creation
+        // I'm expecting that this disposeInner would otherwise
+        // be run on this thread by the automation.
+        Unsafe.logged(() -> {notificationPanel.dispose();});
+        super.disposeInner();
     }
 
     private void initConfigTabs(ConnectionSettings connectionSettings) {
@@ -132,25 +134,34 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
         headerForm.addButton(testButton);
         headerForm.addButton(infoButton);
 
-        DialogNotificationPanel.Builder panelBuilder = new DialogNotificationPanel.Builder();
-        panelBuilder.project(ensureProject());
-        panelBuilder.backgroundColor(color);
-        // use default error label
-        panelBuilder.addComponent(OCI_BIND_PORT_WARNING);
-        panelBuilder.addComponent(OCI_OFFER_USER_TOOLKIT_PLUGIN);
-
-        ///setIcon(Icons.COMMON_INFO);
-//        HyperLinkForm hyperLinkForm = HyperLinkForm.create(
-//                "You may wish to install OCI support for this database.",
-//                "Oracle OCI Toolkit Plugin",
-//                "https://plugins.jetbrains.com/plugin/22952-oracle-oci-toolkit");
-
-        this.notificationPanel = panelBuilder.build();
-        notificationPanel.init();
-        notificationPanel.setVisible(false);
-
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+
+        this.notificationPanel = createNotificationPanel(color);
         headerPanel.add(notificationPanel, BorderLayout.PAGE_END);
+    }
+
+    /**
+     * A panel that goes across the top of the form just below the connection
+     * name header bar.  The panel subscribes to a MessageBus topic and updates
+     * its message accordingly.
+     *
+     * @param color the background color of the panel
+     * @return a JPanel that implements the messaging.
+     */
+    private DialogNotificationPanel createNotificationPanel(Color color) {
+        DialogNotificationPanel.Builder panelBuilder = new DialogNotificationPanel.Builder();
+        DialogNotificationPanel notificationPanel = panelBuilder
+                .project(ensureProject())
+                .parentDisposable(getConfiguration().getParent())
+                .backgroundColor(color)
+                // use default error label
+                .addComponent(OCI_BIND_PORT_WARNING)
+                .addComponent(OCI_OFFER_USER_TOOLKIT_PLUGIN)
+                .build();
+        notificationPanel.setVisible(false);
+        notificationPanel.init();
+        notificationPanel.setName("DialogNotificationPanel");
+        return notificationPanel;
     }
 
     public ConnectionSettings getTemporaryConfig() throws ConfigurationException {
@@ -246,10 +257,15 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
     private void updateForSelected() {
         notificationPanel.enableNotifications();
         checkToolkitNotifications();
+        checkIfCurrentlyOCIInteractive();
+    }
+
+    private void checkIfCurrentlyOCIInteractive() {
+        //getConfiguration().getDatabaseSettings().getAuthenticationInfo()
     }
 
     private void checkToolkitNotifications() {
-        // TODO: reenable when have plugin detection working.
+        // TODO: re-enable when have plugin detection working.
         boolean hasOfferToolkitEvent = true; //notificationPanel.searchForEvents(OCI_OFFER_USER_TOOLKIT_PLUGIN);
         // if no event, check if we need to add one
         if (!hasOfferToolkitEvent) {
@@ -261,7 +277,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
                             this, ConnectionSettingsForm.OCI_OFFER_USER_TOOLKIT_PLUGIN, status);
             ProjectEvents.notify(ensureProject(), DialogNotificationListener.TOPIC,
                     notificationListener -> {
-                        notificationListener.fireNotificatonStatusEvent(event);
+                        notificationListener.fireNotificationStatusEvent(event);
                     });
         }
     }

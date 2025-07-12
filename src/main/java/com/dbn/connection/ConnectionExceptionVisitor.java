@@ -2,24 +2,39 @@ package com.dbn.connection;
 
 import com.dbn.common.lookup.Visitor;
 import com.dbn.diagnostics.Diagnostics;
-import fleet.kernel.HackyNonBlockingChangeKt;
 
 import java.net.BindException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.*;
 
+/**
+ * A visitor that assembles information about a connection exception
+ * that allows decision making about extra processing of the error such
+ * as bug workarounds.
+ */
 public class ConnectionExceptionVisitor implements Visitor<Throwable> {
     private boolean hasBindException;
     private Set<Integer> oraErrorCodes;
     private LinkedHashMap<Integer, String> oraErrorCodeMessages;
 
+    /**
+     * Pulls the ORA failure code out of thie message of a SQLException that was
+     * thrown by an Oracle driver.
+     */
     private static Pattern ORA_ERROR_MESSAGE = Pattern.compile("^ORA-(\\d+)(.*)");
+
+    /**
+     *
+     * @param element
+     */
     @Override
     public void visit(Throwable element) {
         if (element instanceof SQLException) {
             SQLException sqlExcp = (SQLException) element;
+            // try to pull the error code right out of the exception.
             addOraErrorCode(sqlExcp.getErrorCode());
+            // try to derive the error code from the message
             String localizedMessage = sqlExcp.getLocalizedMessage();
             if (localizedMessage != null) {
                 Matcher matchOraError = ORA_ERROR_MESSAGE.matcher(localizedMessage.trim());
@@ -28,6 +43,8 @@ public class ConnectionExceptionVisitor implements Visitor<Throwable> {
                 }
             }
         }
+        // a bind exception can occur if we do an interactive token authentication
+        // and the expected call back port is already bound.
         if (element instanceof BindException) {
             this.hasBindException = true;
         }

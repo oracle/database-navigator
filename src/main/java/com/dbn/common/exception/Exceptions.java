@@ -108,6 +108,11 @@ public class Exceptions {
         throw new IllegalStateException(message);
     }
 
+    /**
+     * Visit the cause chaing of t using visitor
+     * @param visitor
+     * @param t
+     */
     public static void accept(Visitor<Throwable> visitor, Throwable t) {
         Set<Throwable> visited = new HashSet<>();
         while (t != null && !visited.contains(t)) {

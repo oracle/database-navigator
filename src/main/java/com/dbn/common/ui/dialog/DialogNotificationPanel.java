@@ -1,6 +1,9 @@
 package com.dbn.common.ui.dialog;
 
 import com.dbn.common.color.Colors;
+import com.dbn.common.dispose.Disposer;
+import com.dbn.common.dispose.Nullifier;
+import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.NotificationStatus;
@@ -12,7 +15,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,98 +22,142 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 
+/**
+ * A JPanel that can be added to a dialog (maybe other header forms?) that
+ * will subscribe to {@link DialogNotificationListener#TOPIC} on a project's
+ * IntelliJ MessageBus and displays customizable JPanels based on an event that
+ * has a name and a  {@link NotificationStatus}.  For each event name, messages
+ * are priorized based on the {@link NotificationStatus}'s severity which allows
+ * for multiple events to be queued when more than one is possible.
+ *
+ * Use the builder to construct a new instance.  Project, parentDisposable and
+ * at least one component are required for construction to succeed, else an
+ * exception will be thrown.  You can check builder's readiness by calling
+ * {@link Builder#validate()}. Use {@link Builder#build()} to construct a new instance.
+ *
+ * At construction, notifications are turned off.  To start reacting to the
+ * the {@link com.intellij.util.messages.MessageBus} topic, you must call
+ * {@link #enableNotifications()}.  Use {@link #disableNotifications()} to turn
+ * them off.
+ */
 @Setter(AccessLevel.PROTECTED)
 @Getter(AccessLevel.PROTECTED)
-public class DialogNotificationPanel extends JPanel implements  Disposable {
-    public static final String DEFAULT_NOTIFICATION_NAME = "default";
-
-    private Color backgroundColor;
+public final class DialogNotificationPanel extends JPanel implements StatefulDisposable {
     private final CardLayout cardLayout;
     private final Project project;
-    private @Nullable Disposable parentDisposable;
-    private @Nullable String defaultComponent;
-    private LinkedHashMap<String, NotificationStatusPanel> statusComponents = new LinkedHashMap<>();
-    private PriorityQueue<SeverityPrioritizedStack> statusEvents =
+    private @NotNull Disposable parentDisposable;
+    private final LinkedHashMap<String, NotificationStatusPanel> statusComponents = new LinkedHashMap<>();
+    private final PriorityQueue<SeverityPrioritizedStack> statusEvents =
             new PriorityQueue<>();
+    private final AtomicBoolean notificationsEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean disposed = new AtomicBoolean(false);
     private DialogNotificationListener.NotificationStatusEvent curEvent;
-    private final AtomicBoolean notificationsEnabled = new AtomicBoolean();
-    private final AtomicBoolean disposed = new AtomicBoolean();
 
     @Override
-    public void dispose() {
-        if (disposed.compareAndSet(false, true)) {
-            statusComponents.clear();
-            backgroundColor = null;
-            statusEvents.clear();
-            statusEvents = null;
-            curEvent = null;
-        }
+    public boolean isDisposed() {
+        return this.disposed.get();
     }
 
-    public void disableNotifications() {
-        this.notificationsEnabled.set(false);
+    @Override
+    public void setDisposed(boolean disposed) {
+        this.disposed.set(disposed);
     }
 
-    public void enableNotifications() {
-        this.notificationsEnabled.set(true);
+    @Override
+    public void disposeInner() {
+        Nullifier.nullify(this);
     }
 
-    protected static class NotificationUI {
-        public NotificationUI(@NotNull String key, NotificationStatusPanel uiComponent) {
-            this.uiComponent = uiComponent;
-            this.key = key;
-        }
+    /**
+     * Used to encapsulate a notification panel and a related event key to
+     * use it with.
+     *
+     */
+    private static class NotificationUI {
         private final NotificationStatusPanel uiComponent;
         private final String key;
+
+        /**
+         *
+         * @param key the event key this uiComponent will be used for.
+         * @param notificationStatusPanel the panel
+         */
+        public NotificationUI(@NotNull String key, NotificationStatusPanel notificationStatusPanel) {
+            this.uiComponent = notificationStatusPanel;
+            this.key = key;
+        }
     }
+
+    /**
+     * Builder pattern used to construct new instances of {@link DialogNotificationPanel}
+     */
     public final static class Builder {
         private Color bgColor;
         private Project project;
         private Disposable parentDisposable;
         private final LinkedHashMap<String, NotificationUI> components = new LinkedHashMap<>();
-        private String defaultComponent;
 
-        public Builder() {
-
-        }
-
+        /**
+         * Add a default notification panel with the event key
+         * @param key
+         * @return this
+         */
         public Builder addComponent(String key) {
             addComponent(null, key);
             return this;
         }
+
+        /**
+         * Add a {@link NotificationStatusPanel} under the associated event key
+         * @param component
+         * @param key
+         * @return this
+         */
         public Builder addComponent(NotificationStatusPanel component, String key) {
             if (key == null) {
                 throw new IllegalArgumentException("key can't be null");
-            }
-            if (DEFAULT_NOTIFICATION_NAME.equals(key)) {
-                throw new IllegalArgumentException("Cannot overiride DEFAULT_NOTIFICATION_NAME key:"+key);
             }
             components.put(key, new NotificationUI(key, component));
             return this;
         }
 
-        public Builder defaultComponent(String key) {
-            if (key == null || (!components.containsKey(key) && !DEFAULT_NOTIFICATION_NAME.equals(key))) {
-                throw new IllegalArgumentException("key must have a corresponding notification component: "+key);
-            }
-            this.defaultComponent = key;
-            return this;
-        }
-
+        /**
+         * The background color for the {@link DialogNotificationPanel}
+         * @param bgColor the color
+         * @return this
+         */
         public Builder backgroundColor(Color  bgColor) {
             this.bgColor = bgColor;
             return this;
         }
 
+        /**
+         * The project scope of the panel.
+         *
+         * @param project
+         * @return this
+         */
         public Builder project(Project project) {
             this.project = project;
             return this;
         }
 
+        /**
+         * A parent disposable to use for the panel and the associated {@link com.intellij.util.messages.MessageBus}
+         * event subscription
+         *
+         * @param parentDisposable
+         * @return
+         */
         public Builder parentDisposable(Disposable parentDisposable) {
             this.parentDisposable = parentDisposable;
             return this;
         }
+
+        /**
+         * Create a new instance of {@link DialogNotificationPanel} with this builder's info
+         * @return
+         */
         public DialogNotificationPanel build() {
             // make sure we have the minimum attributes
             Optional<String> result = validate();
@@ -120,34 +166,41 @@ public class DialogNotificationPanel extends JPanel implements  Disposable {
             });
 
             DialogNotificationPanel instance = new DialogNotificationPanel(this.project);
-            instance.setBackground(this.bgColor);
+            if (this.bgColor != null) {
+                instance.setBackground(this.bgColor);
+            }
             instance.setParentDisposable(this.parentDisposable);
             for (NotificationUI component : components.values()) {
                 instance.addNotificationComponent(component.key,
                         component.uiComponent != null ? component.uiComponent :
                                 new DefaultNotificationStatusPanel(Colors.getLabelForeground()));
-                if (component.key.equals(defaultComponent)) {
-                    instance.setDefaultComponent(defaultComponent);
-                }
             }
-            // if the caller didn't override the default event panel,
-            // add the "default default"
-            DefaultNotificationStatusPanel defaultStatusPanel =
-                    new DefaultNotificationStatusPanel(Colors.getLabelForeground());
-            if (components.isEmpty()) {
-                instance.addNotificationComponent(DEFAULT_NOTIFICATION_NAME,defaultStatusPanel);
-            }
+
             return instance;
         }
 
+        /**
+         * @return an empty {@link Optional} if this builder is valid for calling {@link #build()},
+         * false otherwise.
+         */
         public Optional<String> validate() {
             if (project == null) {
                 return Optional.of("Must specify a project");
             }
+            if (parentDisposable == null) {
+                return Optional.of("Must specify a parentDisposable");
+            }
+            if (components.isEmpty()) {
+                return Optional.of("Must specify at least one component");
+            }
             return Optional.empty();
         }
     }
-    protected DialogNotificationPanel(Project project) {
+
+    /**
+     * @param project The project to listen to message events in.
+     */
+    protected DialogNotificationPanel(@NotNull Project project) {
         this.project  = project;
         this.cardLayout = new CardLayout();
         setLayout(this.cardLayout);
@@ -159,14 +212,34 @@ public class DialogNotificationPanel extends JPanel implements  Disposable {
         add(uiComponent);
     }
 
+    /**
+     * Stop this panel from reacting to {@link com.intellij.util.messages.MessageBus} events.
+     */
+    public void disableNotifications() {
+        this.notificationsEnabled.set(false);
+    }
+
+    /**
+     * Start this panel from reacting to {@link com.intellij.util.messages.MessageBus} events
+     */
+    public void enableNotifications() {
+        this.notificationsEnabled.set(true);
+    }
+
+    /**
+     * Call this initialize the panel for use.  This immediately subscribe to the
+     * {@link com.intellij.util.messages.MessageBus} TOPIC and, if {@link #enableNotifications()}
+     * has been called, the panel will start displaying notification events on the bus.
+     */
     public void init() {
-        if (defaultComponent != null) {
-            this.cardLayout.show(this, defaultComponent);
-        }
+        Disposer.register(parentDisposable, this);
+        /**
+         * TODO: move this to a new Subscriber class?
+         */
         ProjectEvents.subscribe(this.project, parentDisposable, DialogNotificationListener.TOPIC,
                 event -> {
                     // TODO: disconnect instead?
-                    if (!notificationsEnabled.get()) {
+                    if (disposed.get() || !notificationsEnabled.get()) {
                         return;
                     }
                     boolean changeUI = false;
@@ -247,10 +320,10 @@ public class DialogNotificationPanel extends JPanel implements  Disposable {
      * @return true if at least on event was found, regardless of whether searchVisitor processed it.
      */
     public boolean searchForEvents(String eventName,
-                                BiFunction<ListIterator, DialogNotificationListener.NotificationStatusEvent, Boolean> searchVisitor) {
+                                BiFunction<ListIterator<?>, DialogNotificationListener.NotificationStatusEvent, Boolean> searchVisitor) {
         boolean found = false;
         OUTER_LOOP: for (SeverityPrioritizedStack stack : statusEvents) {
-            ListIterator iterator = stack.eventStack.listIterator();
+            ListIterator<?> iterator = stack.eventStack.listIterator();
             while (iterator.hasNext()) {
                 DialogNotificationListener.NotificationStatusEvent event = (DialogNotificationListener.NotificationStatusEvent) iterator.next();
                 if (event.getName().equals(eventName)) {
@@ -284,15 +357,28 @@ public class DialogNotificationPanel extends JPanel implements  Disposable {
         stack.eventStack.push(event);
     }
 
+    /**
+     * Each notification event type can be associated with it's own
+     * panel.  Clients can extend this class or sub-class {@link DefaultNotificationStatusPanel}
+     */
     public static abstract class NotificationStatusPanel extends JPanel {
         protected abstract void initUI();
 
         public abstract void updateStatus(NotificationStatus status);
     }
+
+    /**
+     * A default status panel implementation.
+     */
     public static class DefaultNotificationStatusPanel extends NotificationStatusPanel {
         private final Color fgColor;
         private JBLabel errorLabel;
 
+        /**
+         * The foreground color for the panel.
+         *
+         * @param fgColor
+         */
         public DefaultNotificationStatusPanel(Color fgColor) {
             this.fgColor = fgColor;
             initUI();
@@ -301,6 +387,7 @@ public class DialogNotificationPanel extends JPanel implements  Disposable {
         protected void initUI() {
             setLayout(new BorderLayout());
             this.errorLabel = new JBLabel();
+            this.errorLabel.setForeground(fgColor);
             add(this.errorLabel, BorderLayout.PAGE_START);
         }
 

@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
 
+/**
+ * Utility methods for TCP sockets and http
+ */
 public class Sockets {
     /**
      * TODO: could move to Http specific class but we don't really have much to put there right now
@@ -23,11 +26,19 @@ public class Sockets {
     public static Range<Integer> ALL_ERROR_RESPONSE = new Range<>(400, 599);
     public static Range<Integer> ALL_SUCCESS_RESPONSE = new Range<>(100,299);
 
+    /**
+     * Tries to connect the urlStr assuming it is an HTTP server.
+     * Sends a GET request. In DeveloperMode, prints the HTTP response if
+     * successful.
+     *
+     * @param urlStr
+     * @return true if the HTTP request returns a success code.
+     * // TODO: should we narrow the success code range?
+     */
     public static boolean pokeWebServer(String urlStr) {
         HttpURLConnection httpConnection = null;
         try {
             httpConnection = (HttpURLConnection) new URL(urlStr).openConnection();
-            // Set the request method (GET, POST, etc.)
             httpConnection.setRequestMethod("GET");
             // Get the response code
             int responseCode = httpConnection.getResponseCode();
@@ -63,12 +74,17 @@ public class Sockets {
         }
     }
 
+    /**
+     *
+     * @return the InetAddress for localhost
+     * @throws UnknownHostException
+     */
     public static InetAddress getLocalHost() throws UnknownHostException {
         return InetAddress.getByName("localhost");
     }
 
     /**
-     *
+     * Tries to bind the server socket port for port.
      * @param port
      * @return true if port was available to bind, false if it's already bound.
      * @throws IOException
