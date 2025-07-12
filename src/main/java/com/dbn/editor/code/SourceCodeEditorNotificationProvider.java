@@ -20,7 +20,6 @@ import com.dbn.common.editor.EditorNotificationProvider;
 import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
-import com.dbn.common.util.Strings;
 import com.dbn.editor.code.diff.SourceCodeDifManagerListener;
 import com.dbn.editor.code.ui.SourceCodeEditorNotificationPanel;
 import com.dbn.editor.code.ui.SourceCodeLoadErrorNotificationPanel;
@@ -138,9 +137,9 @@ public class SourceCodeEditorNotificationProvider extends EditorNotificationProv
         DBSchemaObject schemaObject = (DBSchemaObject) object;
         SourceCodeEditor sourceCodeEditor = (SourceCodeEditor) fileEditor;
         DBSourceCodeVirtualFile sourceCodeFile = sourceCodeEditor.getVirtualFile();
-        String sourceLoadError = sourceCodeFile.getSourceLoadError();
-        if (Strings.isNotEmpty(sourceLoadError)) {
-            return new SourceCodeLoadErrorNotificationPanel(schemaObject, fileEditor, sourceLoadError);
+        Exception sourceLoadException = sourceCodeFile.getSourceLoadException();
+        if (sourceLoadException != null) {
+            return new SourceCodeLoadErrorNotificationPanel(schemaObject, fileEditor, sourceLoadException);
         }
 
         if (sourceCodeFile.isChangedInDatabase(false)) {

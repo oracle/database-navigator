@@ -19,9 +19,11 @@ package com.dbn.connection.config;
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.options.BasicConfiguration;
+import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Files;
 import com.dbn.common.util.Strings;
+import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectivityStatus;
@@ -66,7 +68,7 @@ import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSettings, ConnectionDatabaseSettingsForm> {
+public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSettings, ConnectionDatabaseSettingsForm> implements Cloneable<ConnectionDatabaseSettings> {
 
     private @NonNls String name;
     private String description;
@@ -409,5 +411,13 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
 
     public Project getProject() {
         return getParent().getProject();
+    }
+
+    public boolean isInteractiveAuthentication() {
+        AuthenticationType authenticationType = authenticationInfo.getType();
+        if (authenticationType != AuthenticationType.TOKEN) return false;
+
+        AuthenticationTokenType tokenType = authenticationInfo.getTokenType();
+        return tokenType == AuthenticationTokenType.OCI_INTERACTIVE; // TODO Azure interactive
     }
 }

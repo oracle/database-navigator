@@ -130,10 +130,10 @@ public final class OneOfElementType extends ElementTypeBase {
     private void relink() {
         ElementTypeRef previous = null;
         for (ElementTypeRef child : children) {
-            child.setPrevious(previous);
-            child.setNext(null);
+            child.previous = previous;
+            child.next = null;
             if (previous != null) {
-                previous.setNext(child);
+                previous.next = child;
             }
             previous = child;
         }

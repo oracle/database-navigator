@@ -23,7 +23,6 @@ import com.dbn.common.util.Lists;
 import com.dbn.data.sorting.SortingState;
 import com.dbn.editor.data.filter.ui.DatasetBasicFilterForm;
 import com.dbn.object.DBDataset;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
@@ -40,7 +39,6 @@ import static com.dbn.common.options.setting.Settings.newElement;
 
 @Getter
 @Setter
-@EqualsAndHashCode(callSuper = true)
 public class DatasetBasicFilter extends DatasetFilterImpl {
     private final List<DatasetBasicFilterCondition> conditions = new ArrayList<>();
     private ConditionJoinType joinType = ConditionJoinType.AND;

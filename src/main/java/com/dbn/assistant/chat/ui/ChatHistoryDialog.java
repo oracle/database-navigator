@@ -60,7 +60,7 @@ public class ChatHistoryDialog extends DBNDialog<ChatHistoryForm> {
 
     @Override
     @NotNull
-    protected final Action @NotNull [] createActions() {
+    protected final Action [] createActions() {
         return new Action[]{
                 getCancelAction(),
                 getOKAction()
@@ -99,8 +99,8 @@ public class ChatHistoryDialog extends DBNDialog<ChatHistoryForm> {
                 "Delete Chats",
                 confirmMessage,
                 Messages.OPTIONS_YES_NO,
-                1,
-                option -> when(option == 1, () -> deleteChats(selectedIds))
+                0,
+                option -> when(option == 0, () -> deleteChats(selectedIds))
         );
     }
 

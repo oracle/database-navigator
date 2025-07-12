@@ -113,7 +113,7 @@ public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<C
                         UIUtil.getComboBoxDisabledBackground());
     }
 
-    public static ListCellRenderer LIST_CELL_RENDERER = new ColoredListCellRenderer() {
+    public static final ListCellRenderer LIST_CELL_RENDERER = new ColoredListCellRenderer() {
         @Override
         protected void customize(@NotNull JList list, Object value, int index, boolean selected, boolean hasFocus) {
             CodeCompletionSortingItem sortingItem = (CodeCompletionSortingItem) value;

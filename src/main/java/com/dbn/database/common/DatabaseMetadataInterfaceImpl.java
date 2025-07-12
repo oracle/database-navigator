@@ -525,22 +525,6 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
         return executeQuery(connection, "object-compile-errors", ownerName, objectName);
     }
 
-
-    @Override
-    public void compileObject(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException {
-        executeStatement(connection, "compile-object", ownerName, objectName, objectType, debug ? "DEBUG" : "");
-    }
-
-    @Override
-    public void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException {
-        executeStatement(connection, "compile-object-body", ownerName, objectName, objectType, debug ? "DEBUG" : "");
-    }
-
-    @Override
-    public void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "compile-java-object", ownerName, objectName);
-    }
-
     @Override
     public void enableTrigger(String ownerName, String triggerName, DBNConnection connection) throws SQLException {
         executeQuery(connection, "enable-trigger", ownerName, triggerName);

@@ -22,6 +22,7 @@ public enum BatchEventType {
     ERRORED,
     CANCELLED,
     PAUSED,
-    RESUMED
+    RESUMED,
+    EXTENDED
     ;
 }

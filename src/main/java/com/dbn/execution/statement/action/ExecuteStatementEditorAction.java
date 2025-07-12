@@ -93,7 +93,7 @@ public class ExecuteStatementEditorAction extends ProjectAction {
         }
 
         @Override
-        protected boolean canDelegateExecute(AnActionEvent e) {
+        protected boolean canDelegate(AnActionEvent e) {
             return isEnabled(e);
         }
     }

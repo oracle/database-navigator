@@ -56,6 +56,7 @@ import static com.dbn.common.util.Lists.forEach;
 import static com.dbn.common.util.TimeUtil.isOlderThan;
 import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
 import static com.intellij.openapi.fileEditor.impl.FileDocumentManagerImpl.HARD_REF_TO_DOCUMENT_KEY;
+import static com.intellij.openapi.util.text.StringUtil.convertLineSeparators;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @UtilityClass
@@ -246,12 +247,13 @@ public class Documents {
     }
 
     private static void changeText(Document document, CharSequence text) {
-        boolean isReadonly = !document.isWritable();
+        boolean readonly = !document.isWritable();
         try {
+            text = convertLineSeparators(text.toString());
             document.setReadOnly(false);
             document.setText(text);
         } finally {
-            document.setReadOnly(isReadonly);
+            document.setReadOnly(readonly);
         }
     }
 

@@ -89,7 +89,7 @@ public abstract class BatchProcessorBase<
         if (batch.isFinished()) return;
         if (batch.isCancelled()) return;
 
-        Queue<T> tasks = batch.getTasks();
+        Queue<T> tasks = batch.getQueue();
         while (!tasks.isEmpty()) {
             if (isInterrupted(batch)) return;
 

@@ -67,8 +67,8 @@ public class ElementTypeBundle {
     private final AtomicInteger leafIndexer = new AtomicInteger();
     private final IndexRegistry<LeafElementType> leafRegistry = new IndexRegistry<>();
 
-    private final TokenTypeBundle tokenTypeBundle;
-    private BasicElementType unknownElementType;
+    public final TokenTypeBundle tokenTypeBundle;
+    public final BasicElementType unknownElementType;
     private NamedElementType rootElementType;
 
     private final DBLanguageDialect languageDialect;
@@ -96,6 +96,8 @@ public class ElementTypeBundle {
     public ElementTypeBundle(DBLanguageDialect languageDialect, TokenTypeBundle tokenTypeBundle, Document document) {
         this.languageDialect = languageDialect;
         this.tokenTypeBundle = tokenTypeBundle;
+
+        this.unknownElementType = new UnknownElementType(this);
         Measured.run("building element-type bundle for " + languageDialect.getID(), () -> build(document));
     }
 
@@ -272,13 +274,6 @@ public class ElementTypeBundle {
 
     public NamedElementType getNamedElementType(String id) {
         return namedElementTypes.get(id);
-    }
-
-    public BasicElementType getUnknownElementType() {
-        if (unknownElementType == null) {
-            unknownElementType = new UnknownElementType(this);
-        }
-        return unknownElementType;
     }
 
     private String createId() {

@@ -30,6 +30,8 @@ import com.dbn.common.thread.Read;
 import com.dbn.common.thread.ThreadProperty;
 import com.dbn.common.thread.ThreadPropertyGate;
 import com.dbn.common.ui.form.DBNToolbarForm;
+import com.dbn.common.ui.util.Borderless;
+import com.dbn.common.ui.util.Borders;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.editor.text.TextContentType;
 import com.dbn.ddl.DDLFileAttachmentManager;
@@ -51,7 +53,6 @@ import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBJsonDataVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.ide.highlighter.HighlighterFactory;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -84,6 +85,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.border.Border;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -561,7 +565,7 @@ public class Editors {
         DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
         attachmentManager.warmUpAttachedDDLFiles(file);
 
-        Dispatch.run(ModalityState.NON_MODAL, () -> {
+        Dispatch.run(Modality.nonModal(), () -> {
             try {
                 if (!file.exists()) return;
 
@@ -606,7 +610,7 @@ public class Editors {
         if (editorProviderId == null) return;
 
         FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
-        Dispatch.run(ModalityState.NON_MODAL, () -> fileEditorManager.setSelectedEditor(file, editorProviderId.getId()));
+        Dispatch.run(Modality.nonModal(), () -> fileEditorManager.setSelectedEditor(file, editorProviderId.getId()));
     }
 
     @Workaround
@@ -633,4 +637,20 @@ public class Editors {
         Reflection.invokeMethod(settings, "setHighlightSelectionOccurrences", true);
     }
 
+    public static void updateEditorScrollPane(EditorEx viewer, Border border) {
+        JScrollPane scrollPane = viewer.getScrollPane();
+        scrollPane.setViewportBorder(Borders.lineBorder(Colors.delegate(() -> viewer.getBackgroundColor()), 8));
+        scrollPane.getVerticalScrollBar().setOpaque(false);
+        scrollPane.getHorizontalScrollBar().setOpaque(false);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setBorder(border);
+        if (border == null) {
+            Borderless.markBorderless(viewer.getContentComponent());
+        }
+    }
+
+    public static void updateEditorScrollPane(EditorEx viewer) {
+        updateEditorScrollPane(viewer, Borders.COMPONENT_OUTLINE_BORDER);
+    }
 }

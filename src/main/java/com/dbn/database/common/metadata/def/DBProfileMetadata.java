@@ -31,13 +31,21 @@ public interface DBProfileMetadata extends DBObjectMetadata {
     @ObjectIdentifier
     String getCredentialName() throws SQLException;
 
+    String getRegion() throws SQLException;
+
+    String getOciCompartmentId() throws SQLException;
+
+    String getOciEndpointId() throws SQLException;
+
+    String getOciRuntimeType() throws SQLException;
+
+    String getOciApiFormat() throws SQLException;
+
     String getDescription() throws SQLException;
 
     String getProvider() throws SQLException;
 
     String getModel() throws SQLException;
-
-    boolean isInteractive() throws SQLException;
 
     double getTemperature() throws SQLException;
 
@@ -45,17 +53,24 @@ public interface DBProfileMetadata extends DBObjectMetadata {
 
     boolean isEnabled() throws SQLException;
 
+    boolean isInteractive() throws SQLException;
+
     @Data
     @AllArgsConstructor
     class Record implements DBProfileMetadata {
         private final String profileName;
         private final String credentialName;
+        private final String region;
+        private final String ociCompartmentId;
+        private final String ociEndpointId;
+        private final String ociRuntimeType;
+        private final String ociApiFormat;
         private final String provider;
         private final String model;
         private final String description;
         private final String objectList;
-        private final boolean isInteractive;
         private final double temperature;
         private final boolean enabled;
+        private final boolean interactive;
     }
 }

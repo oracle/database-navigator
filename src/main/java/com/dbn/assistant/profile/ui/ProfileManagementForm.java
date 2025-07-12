@@ -166,7 +166,7 @@ public class ProfileManagementForm extends DBNFormBase {
   public void promptProfileDeletion(@NotNull DBAIProfile profile) {
     Messages.showQuestionDialog(getProject(), txt(
                     "msg.assistant.title.DeleteProfile"), txt("msg.assistant.question.DeleteProfile", profile.getName()),
-            Messages.OPTIONS_YES_NO, 1,
+            Messages.OPTIONS_YES_NO, 0,
             option -> when(option == 0, () -> removeProfile(profile)));
   }
 

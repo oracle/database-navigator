@@ -20,6 +20,7 @@ import com.dbn.common.dispose.Checks;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.ref.WeakRef;
+import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.progress.ProgressDialogHandler;
 import com.dbn.common.util.Titles;
 import com.dbn.common.util.Unsafe;
@@ -160,5 +161,27 @@ public final class Progress {
 
         }.installToProgressIfPossible(indicator);
 
+    }
+
+    public static void installProgressListener(@Nullable ProgressIndicator indicator, Consumer<ProgressIndicator> listener) {
+        if (indicator == null) return;
+        indicator.checkCanceled();
+
+        new ProgressIndicatorListener() {
+            @Override
+            public void cancelled() {
+                listener.accept(indicator);
+            }
+
+            @Override
+            public void stopped() {
+                listener.accept(indicator);
+            }
+
+            @Override
+            public void onFractionChanged(double fraction) {
+                listener.accept(indicator);
+            }
+        }.installToProgressIfPossible(indicator);
     }
 }

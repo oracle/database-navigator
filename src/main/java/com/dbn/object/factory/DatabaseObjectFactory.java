@@ -23,9 +23,11 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.connection.security.DatabaseIdentifierCache;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
@@ -48,7 +50,10 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.sql.Blob;
@@ -59,14 +64,15 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.event.ObjectChangeAction.DELETE;
+import static com.dbn.object.type.DBObjectType.AI_MODEL;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
 import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 import static com.dbn.object.type.DBObjectType.PROCEDURE;
-import static com.dbn.object.type.DBObjectType.AI_MODEL;
 
 public class DatabaseObjectFactory extends ProjectComponentBase {
 
@@ -91,7 +97,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         }
     }
 
-    public boolean createObject(ObjectFactoryInput factoryInput, ProgressIndicator progress) throws SQLException {
+    public void createObject(ObjectFactoryInput factoryInput, ProgressIndicator progress) throws SQLException {
         Project project = getProject();
         List<String> errors = new ArrayList<>();
         factoryInput.validate(errors);
@@ -99,19 +105,19 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
             String objectType = factoryInput.getObjectType().getName();
             String objectErrors = errors.stream().map(error -> " - " + error + "\n").collect(Collectors.joining());
             Messages.showErrorDialog(project, txt("msg.objects.error.ObjectCreationError", objectType, objectErrors));
-            return false;
+            return;
         }
 
         if (factoryInput instanceof MethodFactoryInput) {
             MethodFactoryInput methodFactoryInput = (MethodFactoryInput) factoryInput;
             createMethod(methodFactoryInput);
-            return true;
+            return;
         }
 
         if (factoryInput instanceof JavaFactoryInput) {
             JavaFactoryInput javaFactoryInput = (JavaFactoryInput) factoryInput;
             createJavaObject(javaFactoryInput);
-            return true;
+            return;
         }
 
         if (factoryInput instanceof ModelFactoryInput) {
@@ -121,7 +127,6 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         }
         // TODO other factory inputs
 
-        return false;
     }
 
     private void createModel(ModelFactoryInput input, ProgressIndicator progress) throws SQLException {
@@ -243,21 +248,15 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
     }
 
     private void createJavaObject(JavaFactoryInput input) throws SQLException {
-        DBObjectType objectType = JAVA_CLASS;
         String className = input.getClassName();
         String packageName = input.getPackageName();
         String classType = input.getTypeIdentifier();
         String extendsSuffix = input.getExtendsSuffix();
         DBSchema schema = input.getSchema();
 
-        String fullyQualifiedClassName;
-
         StringBuilder javaCode = new StringBuilder();
-        if(!packageName.isEmpty()) {
-            fullyQualifiedClassName = packageName + "." + className;
+        if(isNotEmpty(packageName)) {
             javaCode.append("package ").append(packageName).append(";").append("\n");
-        } else {
-            fullyQualifiedClassName = className;
         }
 
         javaCode.append("public ").append(classType).append(" ").append(className).append(extendsSuffix)
@@ -265,6 +264,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                 .append("\n")
                 .append("}");
 
+        String objectName = input.getDatabaseObjectName();
         ConnectionId connectionId = schema.getConnectionId();
         SchemaId schemaId = schema.getSchemaId();
 
@@ -274,14 +274,16 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                 schema.getProject(),
                 connectionId,
                 conn -> {
-                    DatabaseDataDefinitionInterface dataDefinition = schema.getDataDefinitionInterface();
-                    dataDefinition.createJavaClass(fullyQualifiedClassName, javaCode.toString(), conn);
+                    ConnectionHandler connection = schema.getConnection();
+                    DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
+                    DatabaseIdentifierCache identifierCache = connection.getIdentifierCache();
+                    String quotedObjectName = identifierCache.getQuotedIdentifier(objectName);
+                    dataDefinition.createJavaSource(schema.getName(), quotedObjectName, javaCode.toString().getBytes(), conn);
                 });
 
         notifyObjectChanges(connectionId, schemaId, JAVA_CLASS, CREATE);
 
-        String objectName = fullyQualifiedClassName.replace(".", "/");
-        DBJavaClass javaClass = schema.getChildObject(objectType, objectName, false);
+        DBJavaClass javaClass = schema.getChildObject(JAVA_CLASS, objectName, false);
         if (javaClass == null) return;
 
         DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(getProject());

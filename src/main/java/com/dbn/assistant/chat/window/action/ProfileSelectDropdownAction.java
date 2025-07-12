@@ -20,7 +20,6 @@ import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.util.Actions;
 import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
@@ -34,6 +33,7 @@ import javax.swing.JComponent;
 import java.util.List;
 
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
+import static com.dbn.assistant.chat.ChatAvailability.DISABLED_PROFILE_SELECTED;
 import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_AVAILABLE;
 import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_SELECTED;
 import static com.dbn.nls.NlsResources.txt;
@@ -68,7 +68,7 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
         DBAIProfile profile = getSelectedProfile(e);
 
         Presentation presentation = e.getPresentation();
-        presentation.setText(getText(e));
+        presentation.setText(getText(e), false);
         presentation.setDescription(txt("app.assistant.tooltip.ChooseProfile"));
         presentation.setEnabled(enabled);
         presentation.setIcon(profile == null ? null : profile.getIcon());
@@ -79,7 +79,8 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
         return availability.isOneOf(
                 AVAILABLE,
                 NO_PROFILE_AVAILABLE,
-                NO_PROFILE_SELECTED);
+                NO_PROFILE_SELECTED,
+                DISABLED_PROFILE_SELECTED);
     }
 
     private String getText(@NotNull AnActionEvent e) {
@@ -97,7 +98,7 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
         DBAIProfile profile = getSelectedProfile(e);
         if (profile == null) return null;
 
-        return Actions.adjustActionName(profile.getName());
+        return profile.getName();
     }
 
     @Nullable

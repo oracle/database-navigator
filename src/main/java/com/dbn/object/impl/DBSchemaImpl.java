@@ -614,6 +614,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         public void visit(DBObjectList<?> objectList) {
             if (objectList.isDirty()) return;
             if (objectList.isLoading()) return;
+            if (objectList.isInternal()) return;
             if (!objectList.isLoaded()) return;
 
             List<DBObject> objects = cast(objectList.getObjects());

@@ -17,6 +17,7 @@
 package com.dbn.assistant.profile.wizard;
 
 import com.dbn.assistant.credential.remote.ui.CredentialEditDialog;
+import com.dbn.assistant.profile.wizard.validation.OciCompartmentIdVerifier;
 import com.dbn.assistant.profile.wizard.validation.ProfileCredentialVerifier;
 import com.dbn.assistant.profile.wizard.validation.ProfileNameVerifier;
 import com.dbn.common.event.ProjectEvents;
@@ -29,6 +30,7 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeListener;
+import com.dbn.object.type.DBCredentialType;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
@@ -40,14 +42,20 @@ import javax.swing.InputVerifier;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.DocumentFilter;
 import java.awt.event.ItemEvent;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.UserInterface.updateTitledBorders;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.common.util.Lists.convert;
@@ -64,7 +72,19 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   private JComboBox<String> credentialComboBox;
   private JTextField descriptionTextField;
   private JButton addCredentialButton;
+  private JTextField regionTextField;
+  private JLabel regionLabel;
+  private JLabel ociCompartmentIdLabel;
+  private JTextField ociCompartmentIdTextField;
+  private JLabel ociEndpointIdLabel;
+  private JTextField ociEndpointIdTextField;
+  private JLabel ociRuntimeTypeLabel;
+  private JTextField ociRuntimeTypeTextField;
+  private JLabel ociApiFormatLabel;
+  private JTextField ociApiFormatTextField;
+  private JPanel ociAttributesPanel;
 
+  private final Map<String, DBCredentialType> credentialTypes = new HashMap<>();
   private final ConnectionRef connection;
   private final ProfileData profile;
   private final Set<String> existingProfileNames;
@@ -82,6 +102,8 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
     initCredentialAddButton();
     initializeUI();
     addValidationListener();
+
+    updateTitledBorders(mainPanel);
 
     whenFirstShown(mainPanel, () -> populateCredentials());
   }
@@ -109,6 +131,11 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
     if (isUpdate) {
       nameTextField.setText(profile.getName());
       descriptionTextField.setText(profile.getDescription());
+      regionTextField.setText(profile.getRegion());
+      ociCompartmentIdTextField.setText(profile.getOciCompartmentId());
+      ociEndpointIdTextField.setText(profile.getOciEndpointId());
+      ociRuntimeTypeTextField.setText(profile.getOciRuntimeType());
+      ociApiFormatTextField.setText(profile.getOciApiFormat());
       nameTextField.setEnabled(false);
       credentialComboBox.setEnabled(true);
       descriptionTextField.setEnabled(false);
@@ -118,19 +145,13 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   private void addValidationListener() {
     nameTextField.setInputVerifier(new ProfileNameVerifier(existingProfileNames, isUpdate));
     credentialComboBox.setInputVerifier(new ProfileCredentialVerifier());
-    nameTextField.getDocument().addDocumentListener(new DocumentListener() {
-      public void changedUpdate(DocumentEvent e) {
-        nameTextField.getInputVerifier().verify(nameTextField);
-      }
+    ociCompartmentIdTextField.setInputVerifier(new OciCompartmentIdVerifier()); // Add this line
 
-      public void removeUpdate(DocumentEvent e) {
-        nameTextField.getInputVerifier().verify(nameTextField);
-      }
+    ((AbstractDocument) nameTextField.getDocument()).setDocumentFilter(new UppercaseDocumentFilter());
 
-      public void insertUpdate(DocumentEvent e) {
-        nameTextField.getInputVerifier().verify(nameTextField);
-      }
-    });
+    installValidator(nameTextField);
+    installValidator(ociCompartmentIdTextField);
+
     credentialComboBox.addItemListener(e -> {
       if (e.getStateChange() == ItemEvent.SELECTED) {
         InputVerifier verifier = credentialComboBox.getInputVerifier();
@@ -138,20 +159,50 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
           verifier.verify(credentialComboBox);
         }
       }
+      ociAttributesPanel.setVisible(isOciCredential());
     });
+  }
 
+  private static void installValidator(JTextField textField) {
+    textField.getDocument().addDocumentListener(new DocumentListener() {
+      public void changedUpdate(DocumentEvent e) {
+        validateInput(textField);
+      }
+
+      public void removeUpdate(DocumentEvent e) {
+        validateInput(textField);
+      }
+
+      public void insertUpdate(DocumentEvent e) {
+        validateInput(textField);
+      }
+    });
+  }
+
+  private static boolean validateInput(JComponent component) {
+    return component.getInputVerifier().verify(component);
+  }
+
+  private boolean isOciCredential() {
+    return getSelectedCredentialType() == DBCredentialType.OCI;
+  }
+
+  private DBCredentialType getSelectedCredentialType() {
+    String selectedName = (String) credentialComboBox.getSelectedItem();
+    return credentialTypes.get(selectedName);
   }
 
   private void populateCredentials() {
-    ConnectionHandler connection = getConnection();
-    Project project = connection.getProject();
-
     Background.run(() -> {
       String currentCredential = profile.getCredentialName();
+      ConnectionHandler connection = getConnection();
       DBSchema schema = connection.getObjectBundle().getUserSchema();
       if (schema == null) return;
 
       List<DBCredential> credentials = schema.getCredentials();
+      credentialTypes.clear();
+      credentials.forEach(c -> credentialTypes.put(c.getName(), c.getType()));
+
       List<String> credentialNames = convert(credentials, c -> c.getName());
       if (currentCredential != null && !credentialNames.contains(currentCredential)) credentialNames.add(currentCredential);
 
@@ -160,22 +211,6 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
       String selectedCredential = nvln(currentCredential, Lists.firstElement(credentialNames));
       credentialComboBox.setSelectedItem(selectedCredential);
     });
-
-/*
-    credentialSvc.list().thenAccept(credentialProviderList -> {
-      SwingUtilities.invokeLater(() -> {
-
-
-        credentialComboBox.removeAllItems();
-        for (Credential credential : credentialProviderList) {
-          credentialComboBox.addItem(credential.getName());
-        }
-        if (!credentialProviderList.isEmpty()) {
-          credentialComboBox.setSelectedItem(currentCredential);
-        }
-      });
-    });
-*/
   }
 
   @Override
@@ -190,28 +225,71 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
 
   @Override
   public WizardStep<ProfileEditionWizardModel> onNext(ProfileEditionWizardModel model) {
-    boolean nameValid = isUpdate || nameTextField.getInputVerifier().verify(nameTextField);
-    boolean credentialValid = credentialComboBox.getInputVerifier().verify(credentialComboBox);
+    boolean nameValid = isUpdate || validateInput(nameTextField);
+    boolean credentialValid = validateInput(credentialComboBox);
+    boolean ociCompartmentIdValid = validateInput(ociCompartmentIdTextField);
+
     profile.setName(nameTextField.getText());
     profile.setCredentialName((String) credentialComboBox.getSelectedItem());
-    // special case for description: null and empty string is the same
-    //    do not confuse Profile.equals() because of that
+
+    boolean ociCredential = isOciCredential();
+
+    if(ociCredential && !regionTextField.getText().isEmpty()) {
+      profile.setRegion(regionTextField.getText());
+    } else {
+      profile.setRegion(null);
+    }
+
+    if(ociCredential && !ociCompartmentIdTextField.getText().isEmpty()){
+      profile.setOciCompartmentId(ociCompartmentIdTextField.getText());
+    } else {
+      profile.setOciCompartmentId(null);
+    }
+
+    if(ociCredential && !ociEndpointIdTextField.getText().isEmpty()){
+      profile.setOciEndpointId(ociEndpointIdTextField.getText());
+    } else {
+      profile.setOciEndpointId(null);
+    }
+
+    if(ociCredential && !ociRuntimeTypeTextField.getText().isEmpty()){
+      profile.setOciRuntimeType(ociRuntimeTypeTextField.getText());
+    } else {
+      profile.setOciRuntimeType(null);
+    }
+
+    if(ociCredential && !ociApiFormatTextField.getText().isEmpty()){
+      profile.setOciApiFormat(ociApiFormatTextField.getText());
+    } else {
+      profile.setOciApiFormat(null);
+    }
+
+    // Handle description logic...
     if (descriptionTextField.getText().isEmpty()) {
-      // did the user really remove the description or was it missing
-      // from the beginning ?
       if (profile.getDescription() != null && !profile.getDescription().isEmpty()) {
         profile.setDescription(descriptionTextField.getText());
       }
     } else {
-      // set it in any case
       profile.setDescription(descriptionTextField.getText());
     }
 
-    return nameValid && credentialValid ? super.onNext(model) : this;
+    return nameValid && credentialValid && ociCompartmentIdValid ? super.onNext(model) : this;
   }
 
   @Override
   public void dispose() {
     // TODO dispose UI resources
+  }
+
+  private static class UppercaseDocumentFilter extends DocumentFilter {
+    @Override
+    public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attr) throws javax.swing.text.BadLocationException {
+      super.insertString(fb, offset, string.toUpperCase(), attr);
+    }
+
+    @Override
+    public void replace(FilterBypass fb, int offset, int length, String text, javax.swing.text.AttributeSet attrs) throws javax.swing.text.BadLocationException {
+      super.replace(fb, offset, length, text.toUpperCase(), attrs);
+    }
   }
 }

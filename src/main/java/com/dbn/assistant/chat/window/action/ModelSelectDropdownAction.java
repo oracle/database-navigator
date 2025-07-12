@@ -21,7 +21,6 @@ import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.util.Actions;
 import com.dbn.common.util.Lists;
 import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -36,6 +35,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
+import static com.dbn.assistant.chat.ChatAvailability.DISABLED_PROFILE_SELECTED;
 import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_AVAILABLE;
 import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_SELECTED;
 import static com.dbn.nls.NlsResources.txt;
@@ -72,7 +72,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         boolean enabled = isEnabled(e);
 
         Presentation presentation = e.getPresentation();
-        presentation.setText(getText(e));
+        presentation.setText(getText(e), false);
         presentation.setDescription(txt("app.assistant.tooltip.ChooseModel"));
         presentation.setEnabled(enabled);
     }
@@ -82,7 +82,8 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         return availability.isOneOf(
                 AVAILABLE,
                 NO_PROFILE_AVAILABLE,
-                NO_PROFILE_SELECTED);
+                NO_PROFILE_SELECTED,
+                DISABLED_PROFILE_SELECTED);
     }
 
     private String getText(@NotNull AnActionEvent e) {
@@ -105,7 +106,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         AIModel model = chatBox.getSelectedModel();
         if (model == null) return null;
 
-        return Actions.adjustActionName(model.getId());
+        return model.getName();
     }
 
     @Override

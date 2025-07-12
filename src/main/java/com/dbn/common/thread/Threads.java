@@ -96,7 +96,7 @@ public final class Threads {
         return OBJECT_LOOKUP_EXECUTOR;
     }
 
-    static void delay(Object sync) {
+    public static void delay(Object sync) {
         LockSupport.parkNanos(sync, DELAY);
     }
 

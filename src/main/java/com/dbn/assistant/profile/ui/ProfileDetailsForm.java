@@ -18,6 +18,8 @@ package com.dbn.assistant.profile.ui;
 
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.object.DBAIProfile;
+import com.dbn.object.DBCredential;
+import com.dbn.object.type.DBCredentialType;
 import com.intellij.ui.ColoredTableCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
@@ -26,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -43,6 +46,18 @@ public class ProfileDetailsForm extends DBNFormBase {
     private JTextField profileNameTextField;
     private JCheckBox enabledCheckBox;
     private JCheckBox conversationCheckBox;
+    private JLabel regionLabel;
+    private JTextField regionTextField;
+    private JLabel ociCompartmentIdLabel;
+    private JTextField ociCompartmentIdTextField;
+    private JLabel ociEndpointIdLabel;
+    private JTextField ociEndpointIdTextField;
+    private JLabel ociRuntimeTypeLabel;
+    private JTextField ociRuntimeTypeTextField;
+    private JLabel ociApiFormatLabel;
+    private JTextField ociApiFormatTextField;
+    private JTextField descriptionTextField;
+    private JPanel ociAttributesPanel;
 
     public ProfileDetailsForm(@NotNull ProfileManagementForm parent, DBAIProfile profile) {
         super(parent);
@@ -54,10 +69,28 @@ public class ProfileDetailsForm extends DBNFormBase {
     private void initializeFields(DBAIProfile profile) {
         enabledCheckBox.setSelected(profile.isEnabled());
         profileNameTextField.setText(profile.getName());
-        modelTextField.setText(profile.getModel().getId());
+        descriptionTextField.setText(profile.getDescription());
+        modelTextField.setText(profile.getModel().getName());
         credentialTextField.setText(profile.getCredentialName());
+
+        boolean ociCredential = isOciCredential(profile);
+        ociAttributesPanel.setVisible(ociCredential);
+
+        if (ociCredential) {
+            regionTextField.setText(profile.getRegion());
+            ociCompartmentIdTextField.setText(profile.getOciCompartmentId());
+            ociEndpointIdTextField.setText(profile.getOciEndpointId());
+            ociRuntimeTypeTextField.setText(profile.getOciRuntimeType());
+            ociApiFormatTextField.setText(profile.getOciApiFormat());
+        }
+
         conversationCheckBox.setSelected(profile.isInteractive());
         providerTextField.setText(profile.getProvider().getName());
+    }
+
+    private static boolean isOciCredential(DBAIProfile profile) {
+        DBCredential credential = profile.getCredential();
+        return credential != null && credential.getType() == DBCredentialType.OCI;
     }
 
     private void initializeTable(DBAIProfile profile) {

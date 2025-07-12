@@ -160,6 +160,7 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
                 case RESUMED: onBatchResume(); break;
                 case CANCELLED: onBatchCancel(); break;
                 case FINISHED: onBatchCompletion(); break;
+                case EXTENDED: onBatchExtension(); break;
             }
         } else {
             switch (type) {
@@ -196,6 +197,10 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
     private void onBatchCompletion() {
         hideProgressPanel();
         showMessagePanel();
+    }
+
+    private void onBatchExtension() {
+        progressForm.setMaximum(batch.getCounters().queuedItems());
     }
 
     private void onTaskStart(BatchTask task) {

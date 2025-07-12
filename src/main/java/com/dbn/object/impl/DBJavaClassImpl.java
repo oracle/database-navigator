@@ -25,7 +25,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.editor.DBContentType;
 import com.dbn.nls.NlsResources;
 import com.dbn.object.DBJavaClass;
@@ -63,6 +62,7 @@ import static com.dbn.object.common.property.DBObjectProperty.INNER;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.common.property.DBObjectProperty.PRIMITIVE;
 import static com.dbn.object.common.property.DBObjectProperty.SCALAR;
+import static com.dbn.object.common.property.DBObjectProperty.SOURCE;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.type.DBJavaClassKind.ENUM;
 import static com.dbn.object.type.DBJavaClassKind.INTERFACE;
@@ -106,6 +106,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		set(STATIC, metadata.isStatic());
 		set(INNER, metadata.isInner());
 		set(PRIMITIVE, metadata.isPrimitive());
+		set(SOURCE, metadata.isSource());
 		set(SCALAR, isPrimitive() || DBJavaScalarType.isScalar(className));
 
 
@@ -227,6 +228,11 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	}
 
 	@Override
+	public boolean isSource() {
+		return is(SOURCE);
+	}
+
+	@Override
 	public List<DBJavaMethod> getMethods() {
 		return getChildObjects(JAVA_METHOD);
 	}
@@ -281,16 +287,18 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 				conn -> {
 					ConnectionHandler connection = getConnection();
 					DatabaseDataDefinitionInterface dataDefinitionInterface = connection.getDataDefinitionInterface();
-					dataDefinitionInterface.updateJavaClass(
-							getSchemaName(true),
-							getName(true),
-							newCode,
+					String schemaName = getSchemaName(true);
+					String name = getName(true);
+
+					dataDefinitionInterface.updateJavaSource(
+							schemaName,
+							name,
+							newCode.getBytes(),
 							conn);
 
-					DatabaseMetadataInterface metadataInterface = connection.getMetadataInterface();
-					metadataInterface.compileJavaClass(
-							getSchemaName(true),
-							getName(true),
+					dataDefinitionInterface.compileJavaClass(
+							schemaName,
+							name,
 							conn);
 				});
 	}

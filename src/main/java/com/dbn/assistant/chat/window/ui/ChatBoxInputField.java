@@ -19,7 +19,6 @@ package com.dbn.assistant.chat.window.ui;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateListener;
-import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ref.WeakRef;
@@ -44,18 +43,15 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.impl.PsiManagerEx;
 import com.intellij.psi.impl.file.impl.FileManager;
 import com.intellij.testFramework.LightVirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 import java.awt.BorderLayout;
-import java.awt.Color;
+
+import static com.dbn.language.common.psi.PsiUtil.getFileManager;
 
 /**
  * Input field used for the chat-box user prompt
@@ -129,6 +125,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
             case INACTIVE_CHAT_SELECTED: return "This chat is no longer active";
             case NO_PROFILE_AVAILABLE: return "No profiles available for this connection. Please setup profiles to continue";
             case NO_PROFILE_SELECTED: return "No profile selected. Please select a profile to continue";
+            case DISABLED_PROFILE_SELECTED: return "The selected profile is disabled. Please select an active profile to continue";
         }
 
         return null;
@@ -173,8 +170,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         VirtualFile file = new LightVirtualFile("prompt.txt", language, "");
 
         Project project = getChatBox().ensureProject();
-        PsiManagerEx psiManager = (PsiManagerEx) PsiManager.getInstance(project);
-        FileManager fileManager = psiManager.getFileManager();
+        FileManager fileManager = getFileManager(project);
         FileViewProvider viewProvider = fileManager.createFileViewProvider(file, true);
         PsiFile psiFile = viewProvider.getPsi(language);
         Document document = Documents.ensureDocument(psiFile);
@@ -182,13 +178,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         EditorEx editor = Editors.createEditor(document, project, file, file.getFileType());
         //editor.setEmbeddedIntoDialogWrapper(false); TODO quick-fix check why it does not grab focus if this is set to false
         editor.setBorder(Borders.EMPTY_BORDER);
-
-        JScrollPane scrollPane = editor.getScrollPane();
-        Color backgroundColor = Colors.delegate(editor::getBackgroundColor);
-        scrollPane.setViewportBorder(Borders.lineBorder(backgroundColor, 2, 4, 2, 4) );
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setBorder(Borders.lineBorder(Colors.getOutlineColor()));
+        Editors.updateEditorScrollPane(editor);
 
         document.addDocumentListener(new EnterKeyInterceptor());
 

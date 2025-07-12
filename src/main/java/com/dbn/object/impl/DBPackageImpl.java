@@ -31,6 +31,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.status.DBObjectStatus;
+import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
@@ -100,8 +101,9 @@ class DBPackageImpl
     @Override
     @Nullable
     public Icon getIcon() {
-        if (getStatus().is(DBObjectStatus.VALID)) {
-            if (getStatus().is(DBObjectStatus.DEBUG))  {
+        DBObjectStatusHolder status = getStatus();
+        if (status.is(DBObjectStatus.VALID)) {
+            if (status.is(DBObjectStatus.DEBUG))  {
                 return Icons.DBO_PACKAGE_DEBUG;
             } else {
                 return Icons.DBO_PACKAGE;

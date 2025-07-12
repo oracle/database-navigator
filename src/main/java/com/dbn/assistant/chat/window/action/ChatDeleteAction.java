@@ -66,7 +66,7 @@ public class ChatDeleteAction extends AbstractChatBoxAction {
                 "Are you sure you want to clear this chat?";
 
         Messages.showQuestionDialog(project, title, message,
-                Messages.OPTIONS_YES_NO, 1,
+                Messages.OPTIONS_YES_NO, 0,
                 option -> when(option == 0, () -> chatBox.deleteCurrentChat()));
 
     }

@@ -82,6 +82,7 @@ public class ParserDiagnosticsTableModel implements DBNReadonlyTableModel<Parser
 
     @Override
     public Object getValue(ParserDiagnosticsEntry row, int column) {
+        if (row == null) return null;
         if (isInitial()) {
             switch (column) {
                 case 0: return getRowIndex(row);
@@ -109,6 +110,7 @@ public class ParserDiagnosticsTableModel implements DBNReadonlyTableModel<Parser
 
     @Override
     public String getPresentableValue(ParserDiagnosticsEntry row, int column) {
+        if (row == null) return "";
         if (isInitial()) {
             switch (column) {
                 case 0: return Integer.toString(getRowIndex(row));
