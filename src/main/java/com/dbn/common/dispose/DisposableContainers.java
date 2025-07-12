@@ -20,7 +20,6 @@ import com.intellij.openapi.Disposable;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,7 @@ public final class DisposableContainers {
         return new DisposableMap<>(parent);
     }
 
-    private static class DisposableList<T extends Disposable> extends ArrayList<T> implements Disposable{
+    private static class DisposableList<T extends Disposable> extends CopyOnWriteArrayList<T> implements Disposable{
         public DisposableList(@NotNull Disposable parent) {
             Disposer.register(parent, this);
         }

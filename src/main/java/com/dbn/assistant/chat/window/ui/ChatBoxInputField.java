@@ -19,7 +19,6 @@ package com.dbn.assistant.chat.window.ui;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateListener;
-import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ref.WeakRef;
@@ -50,10 +49,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 import java.awt.BorderLayout;
-import java.awt.Color;
 
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
 
@@ -182,13 +178,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         EditorEx editor = Editors.createEditor(document, project, file, file.getFileType());
         //editor.setEmbeddedIntoDialogWrapper(false); TODO quick-fix check why it does not grab focus if this is set to false
         editor.setBorder(Borders.EMPTY_BORDER);
-
-        JScrollPane scrollPane = editor.getScrollPane();
-        Color backgroundColor = Colors.delegate(editor::getBackgroundColor);
-        scrollPane.setViewportBorder(Borders.lineBorder(backgroundColor, 2, 4, 2, 4) );
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setBorder(Borders.lineBorder(Colors.getOutlineColor()));
+        Editors.updateEditorScrollPane(editor);
 
         document.addDocumentListener(new EnterKeyInterceptor());
 
