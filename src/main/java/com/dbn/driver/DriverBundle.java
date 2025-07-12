@@ -17,6 +17,7 @@
 package com.dbn.driver;
 
 import com.dbn.common.ref.WeakRefCache;
+import com.dbn.common.thread.Threads;
 import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.Disposable;
 import lombok.Getter;
@@ -89,7 +90,8 @@ public class DriverBundle implements Disposable {
 
     @NotNull
     @SneakyThrows
-    private static Driver createDriver(Class<Driver> driverClass){
+    private Driver createDriver(Class<Driver> driverClass){
+        Threads.delay(this);
         return driverClass.getDeclaredConstructor().newInstance();
     }
 
