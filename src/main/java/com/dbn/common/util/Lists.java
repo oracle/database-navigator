@@ -132,7 +132,7 @@ public class Lists {
 
         int count = 0;
         for (T element : list) {
-            if (!predicate.test(element)) {
+            if (predicate.test(element)) {
                 count++;
             }
         }

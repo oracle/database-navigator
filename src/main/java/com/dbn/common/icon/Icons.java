@@ -114,8 +114,8 @@ public class Icons {
     public static final Icon ACTION_LAYOUT_DATA               = load("/img/action/LayoutDataOnly.svg");
     public static final Icon ACTION_LAYOUT_DATA_CONTENT       = load("/img/action/LayoutDataAndContent.svg");
 
-    public static final Icon FOLDER_CONNECTION_ASSOCIATION = load("/img/action/FolderConnectionLink.png");
-    public static final Icon FOLDER_SCHEMA_ASSOCIATION = load("/img/action/FolderSchemaLink.png");
+    public static final Icon FOLDER_CONNECTION_ASSOCIATION = load("/img/action/FolderConnectionLink.svg");
+    public static final Icon FOLDER_SCHEMA_ASSOCIATION = load("/img/action/FolderSchemaLink.svg");
 
 
     public static final Icon DATABASE_NAVIGATOR = load("/img/project/DatabaseNavigator.svg");

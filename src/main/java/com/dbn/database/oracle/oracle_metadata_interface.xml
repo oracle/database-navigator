@@ -2745,6 +2745,13 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="view-source-code" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL" since-version="12.0">
+            select TEXT_VC as SOURCE_CODE
+            from [PREFIX]_VIEWS
+            where
+                OWNER = {0} and
+                VIEW_NAME = {1}
+        </statement>
         <statement prefixes="DBA, ALL">
             select TEXT as SOURCE_CODE
             from [PREFIX]_VIEWS
