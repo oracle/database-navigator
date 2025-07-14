@@ -35,9 +35,4 @@ public enum PrerequisiteOption implements InteractiveOption{
     public boolean isCancel() {
         return this == CANCEL || this == RESOLVE;
     }
-
-    @Override
-    public boolean isAsk() {
-        return false;
-    }
 }

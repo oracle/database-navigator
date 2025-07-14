@@ -17,12 +17,9 @@
 package com.dbn.prerequisite.model;
 
 import com.dbn.common.dispose.StatefulDisposableBase;
-import com.dbn.common.icon.Icons;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.message.TitledMessage;
 import com.dbn.common.operation.DatabaseOperation;
-import com.dbn.common.option.InteractiveOptionBroker;
-import com.dbn.common.option.OptionBroker;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.Background;
 import com.dbn.common.ui.util.Listeners;
@@ -35,7 +32,6 @@ import com.dbn.prerequisite.event.PrerequisiteEventListener;
 import com.dbn.prerequisite.event.PrerequisiteEventType;
 import com.dbn.prerequisite.resolution.PrerequisiteAdvice;
 import com.dbn.prerequisite.resolution.PrerequisiteAdvisor;
-import com.dbn.prerequisite.resolution.PrerequisiteOption;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -65,7 +61,6 @@ public class PrerequisiteGroup extends StatefulDisposableBase implements Databas
     private final List<PrerequisiteType> prerequisiteTypes;
 
     private final Listeners<PrerequisiteEventListener> listeners = Listeners.create(this);
-    private final OptionBroker<PrerequisiteOption> optionBroker;
 
     private final AtomicInteger evaluationCount = new AtomicInteger();
     private boolean evaluating = false;
@@ -75,7 +70,6 @@ public class PrerequisiteGroup extends StatefulDisposableBase implements Databas
         this.data = WeakRef.of(prerequisiteData);
         this.operation = operation;
         this.prerequisiteTypes = Collections.unmodifiableList(prerequisiteTypes);
-        this.optionBroker = createOptionBroker(operation);
     }
 
     @NotNull
@@ -216,22 +210,6 @@ public class PrerequisiteGroup extends StatefulDisposableBase implements Databas
 
     public void removeEventListener(PrerequisiteEventListener listener) {
         listeners.remove(listener);
-    }
-
-
-    private static OptionBroker<PrerequisiteOption> createOptionBroker(DatabaseOperation operation) {
-        return new InteractiveOptionBroker<>(
-                "missing-prerequisites",
-                "Missing Prerequisites",
-                operation.getMissingPrerequisiteMessage() +
-                        "\n\nDo you want to continue?",
-                PrerequisiteOption.CONTINUE,
-                PrerequisiteOption.RESOLVE,
-                PrerequisiteOption.CONTINUE,
-                PrerequisiteOption.CANCEL).
-                            withIcon(Icons.DIALOG_WARNING).
-                            withDoNotShowMessage("Ignore for this connection");
-
     }
 
     public TitledMessage createStatusMessage() {

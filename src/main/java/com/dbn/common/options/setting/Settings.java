@@ -313,7 +313,7 @@ public final class Settings {
     }
 
     public static  <T extends Enum<T>> void setEnumAttribute(Element element, String attributeName, T value) {
-        element.setAttribute(attributeName, value.name());
+        element.setAttribute(attributeName, value == null ? "" : value.name());
     }
 
     public static Element newStateElement() {

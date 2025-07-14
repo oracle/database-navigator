@@ -69,7 +69,7 @@ public class InteractiveOptionBroker<T extends InteractiveOption> extends Option
 
     @Override
     protected boolean canSelectOption(T option) {
-        return !option.isCancel();
+        return option == null || !option.isCancel();
     }
 
     public void resolve(Project project, Object[] messageArgs, Consumer<T> consumer) {

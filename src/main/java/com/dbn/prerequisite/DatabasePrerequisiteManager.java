@@ -22,7 +22,6 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.common.option.OptionBroker;
-import com.dbn.common.state.StateContainer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
@@ -40,17 +39,21 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.options.setting.Settings.childrenOf;
+import static com.dbn.common.options.setting.Settings.constantAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 import static com.dbn.prerequisite.DatabasePrerequisiteManager.COMPONENT_NAME;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 public class DatabasePrerequisiteManager extends ProjectComponentBase implements PersistentState {
 	public static final String COMPONENT_NAME = "DBNavigator.Project.DatabasePrerequisiteManager";
 
-    private final StateContainer states = new StateContainer();
     private final Map<ConnectionId, PrerequisiteData> prerequisiteData = new ConcurrentHashMap<>();
 
 	private DatabasePrerequisiteManager(Project project) {
@@ -67,9 +70,19 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
 	}
 
     private PrerequisiteGroup getPrerequisiteGroup(ConnectionHandler connection, DatabaseOperation operation) {
-        ConnectionId connectionId = connection.getConnectionId();
-        PrerequisiteData prerequisiteData = this.prerequisiteData.computeIfAbsent(connectionId, c -> new PrerequisiteData(connection));
+        PrerequisiteData prerequisiteData = getPrerequisiteData(connection);
         return prerequisiteData.getPrerequisiteGroup(operation);
+    }
+
+    @Nullable
+    private PrerequisiteData getPrerequisiteData(ConnectionId connectionId) {
+        ConnectionHandler connection = ConnectionHandler.get(connectionId);
+        return connection != null ? getPrerequisiteData(connection) : null;
+    }
+
+    private PrerequisiteData getPrerequisiteData(ConnectionHandler connection) {
+        ConnectionId connectionId = connection.getConnectionId();
+        return this.prerequisiteData.computeIfAbsent(connectionId, c -> new PrerequisiteData(connection));
     }
 
     public void showPrerequisiteDetails(ConnectionHandler connection, DatabaseOperation operation) {
@@ -101,7 +114,8 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
 
         // check "do not ask" option
         Project project = connection.getProject();
-        OptionBroker<PrerequisiteOption> optionBroker = prerequisiteGroup.getOptionBroker();
+        PrerequisiteData prerequisiteData = getPrerequisiteData(connection);
+        OptionBroker<PrerequisiteOption> optionBroker = prerequisiteData.getOptionBroker(operation);
         optionBroker.resolve(project, null,
                 option -> brokerOption(connection, operation, operationRunner, option));
     }
@@ -120,14 +134,30 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
 	public Element getComponentState() {
 		Element element = newStateElement();
 
-        states.writeState(element, "prerequisite-states");
+        Element prerequisitesElement = newElement(element, "prerequisites");
+        Set<ConnectionId> connectionIds = prerequisiteData.keySet();
+        for (ConnectionId connectionId : connectionIds) {
+            Element dataElement = newElement(prerequisitesElement, "prerequisite-data");
+
+            PrerequisiteData prerequisiteData = this.prerequisiteData.get(connectionId);
+
+            setConstantAttribute(dataElement, "connection-id", connectionId);
+            prerequisiteData.writeState(dataElement);
+        }
 
         return element;
 	}
 
 	@Override
 	public void loadComponentState(@NotNull Element element) {
+        Element prerequisitesElement = element.getChild("prerequisites");
+        for (Element dataElement : childrenOf(prerequisitesElement)) {
+            ConnectionId connectionId = constantAttribute(dataElement, "connection-id", ConnectionId.class);
 
-        states.readState(element, "prerequisite-states");
-	}
+            PrerequisiteData prerequisiteData = getPrerequisiteData(connectionId);
+            if (prerequisiteData == null) continue;
+
+            prerequisiteData.readState(dataElement);
+        }
+    }
 }

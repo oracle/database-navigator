@@ -16,14 +16,20 @@
 
 package com.dbn.prerequisite.model;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.common.operation.DatabaseOperation;
+import com.dbn.common.option.InteractiveOptionBroker;
+import com.dbn.common.option.OptionBroker;
+import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.prerequisite.definition.PrerequisiteDefinition;
 import com.dbn.prerequisite.definition.PrerequisiteDefinitionProvider;
 import com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator;
+import com.dbn.prerequisite.resolution.PrerequisiteOption;
 import lombok.Getter;
+import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,11 +40,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.dbn.common.options.setting.Settings.childrenOf;
+import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
+
 @Getter
-public class PrerequisiteData{
+public class PrerequisiteData implements PersistentStateElement {
     private final ConnectionRef connection;
-    private final Map<DatabaseOperation, PrerequisiteGroup> groups = new ConcurrentHashMap<>();
     private final Map<PrerequisiteType, Prerequisite> prerequisites = new ConcurrentHashMap<>();
+    private final Map<DatabaseOperation, PrerequisiteGroup> groups = new ConcurrentHashMap<>();
+    private final Map<DatabaseOperation, OptionBroker<PrerequisiteOption>> optionBrokers = new ConcurrentHashMap<>();
 
     public PrerequisiteData(ConnectionHandler connection) {
         this.connection = connection.ref();
@@ -49,12 +61,17 @@ public class PrerequisiteData{
         return connection.ensure();
     }
 
+    @NotNull
+    public OptionBroker<PrerequisiteOption> getOptionBroker(DatabaseOperation operation) {
+        return optionBrokers.computeIfAbsent(operation, k -> createOptionBroker(operation));
+    }
 
-    @Nullable
+    @NotNull
     public PrerequisiteGroup getPrerequisiteGroup(DatabaseOperation operation) {
         return groups.computeIfAbsent(operation, k -> createPrerequisiteGroup(getConnection(), operation));
     }
 
+    @Nullable
     public Prerequisite getPrerequisite(PrerequisiteType prerequisiteType) {
         return prerequisites.get(prerequisiteType);
     }
@@ -100,5 +117,46 @@ public class PrerequisiteData{
             }
         }
         return definitions;
+    }
+
+    private static OptionBroker<PrerequisiteOption> createOptionBroker(DatabaseOperation operation) {
+        return new InteractiveOptionBroker<>(
+                "missing-prerequisites",
+                "Missing Prerequisites",
+                operation.getMissingPrerequisiteMessage() +
+                        "\n\nDo you want to continue?",
+                PrerequisiteOption.CONTINUE,
+                PrerequisiteOption.RESOLVE,
+                PrerequisiteOption.CONTINUE,
+                PrerequisiteOption.CANCEL).
+                withIcon(Icons.DIALOG_WARNING).
+                withDoNotShowMessage("Ignore for this connection");
+
+    }
+
+    @Override
+    public void readState(Element element) {
+        List<Element> operationElements = childrenOf(element, "operation");
+        for (Element operationElement : operationElements) {
+            DatabaseOperation operation = enumAttribute(operationElement, "type", DatabaseOperation.class);
+            PrerequisiteOption option = enumAttribute(operationElement, "option", PrerequisiteOption.class);
+
+            OptionBroker<PrerequisiteOption> optionBroker = getOptionBroker(operation);
+            optionBroker.selectOption(option);
+        }
+
+    }
+
+    @Override
+    public void writeState(Element element) {
+        Set<DatabaseOperation> operations = optionBrokers.keySet();
+        for (DatabaseOperation operation : operations) {
+            OptionBroker<PrerequisiteOption> optionBroker = optionBrokers.get(operation);
+            PrerequisiteOption option = optionBroker.getSelectedOption();
+
+            Element operationElement = newElement(element, "operation");
+            setEnumAttribute(operationElement, "type", operation);
+            setEnumAttribute(operationElement, "option", option);
+        }
     }
 }
