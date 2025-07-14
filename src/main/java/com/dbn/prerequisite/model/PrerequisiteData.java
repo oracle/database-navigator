@@ -126,8 +126,8 @@ public class PrerequisiteData implements PersistentStateElement {
                 operation.getMissingPrerequisiteMessage() +
                         "\n\nDo you want to continue?",
                 PrerequisiteOption.CONTINUE,
-                PrerequisiteOption.RESOLVE,
                 PrerequisiteOption.CONTINUE,
+                PrerequisiteOption.RESOLVE,
                 PrerequisiteOption.CANCEL).
                 withIcon(Icons.DIALOG_WARNING).
                 withDoNotShowMessage("Ignore for this connection");

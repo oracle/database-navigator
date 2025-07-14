@@ -25,8 +25,8 @@ import static com.dbn.nls.NlsResources.txt;
 @Getter
 @AllArgsConstructor
 public enum PrerequisiteOption implements InteractiveOption{
-    RESOLVE("Details"),
     CONTINUE("Continue"),
+    RESOLVE("Details"),
     CANCEL(txt("app.sessions.const.SessionInterruptionOption_CANCEL"));
 
     private final String name;
