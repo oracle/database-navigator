@@ -18,7 +18,6 @@ package com.dbn.database.common;
 
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
-import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
@@ -29,7 +28,6 @@ import com.dbn.language.common.QuotePair;
 import com.dbn.object.type.DBConstraintType;
 import org.jetbrains.annotations.NonNls;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.regex.Matcher;
@@ -58,19 +56,6 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
                 objectTypeId == DatabaseObjectTypeId.TRIGGER ||
                 objectTypeId == DatabaseObjectTypeId.TYPE;
 
-    }
-
-    protected final String getSingleValue(DBNConnection connection, String loaderId, Object... arguments) throws SQLException {
-        ResultSet resultSet = null;
-        try {
-            resultSet = executeQuery(connection, loaderId, arguments);
-            if (resultSet.next()) {
-                return resultSet.getString(1);
-            }
-        } finally {
-            Resources.close(resultSet);
-        }
-        return null;
     }
 
     /*********************************************************

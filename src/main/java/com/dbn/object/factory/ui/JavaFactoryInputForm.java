@@ -17,7 +17,7 @@
 package com.dbn.object.factory.ui;
 
 import com.dbn.common.color.Colors;
-import com.dbn.common.state.StateHolder;
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNComboBox;
@@ -128,7 +128,7 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
         Project project = ensureProject();
         ObjectFactoryManager factoryManager = ObjectFactoryManager.getInstance(project);
 
-        StateHolder state = factoryManager.getState(getObjectType());
+        StateAttributes state = factoryManager.getState(getObjectType());
         initPersistence(classTypeComboBox, state, "class-type-selection");
         initPersistence(packageTextField, state, "package-selection");
     }

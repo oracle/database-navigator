@@ -40,6 +40,7 @@ import com.dbn.execution.method.result.ui.MethodExecutionCursorResultForm;
 import com.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dbn.object.DBArgument;
 import com.dbn.object.DBJavaParameter;
+import com.dbn.prerequisite.ui.PrerequisitesForm;
 import com.intellij.openapi.actionSystem.DataKey;
 
 public interface DataKeys {
@@ -62,7 +63,8 @@ public interface DataKeys {
     DataKey<ChatHistoryForm> CHAT_HISTORY_FORM = DataKey.create("DBNavigator.ChatHistoryForm");
     DataKey<CredentialManagementForm> CREDENTIAL_MANAGEMENT_FORM = DataKey.create("DBNavigator.CredentialManagementForm");
     DataKey<ProfileManagementForm> PROFILE_MANAGEMENT_FORM = DataKey.create("DBNavigator.ProfileManagementForm");
-    DataKey<BatchMonitorForm> BATCH_MONITOR_FORM = DataKey.create("DBNavigator.BATCH_MONITOR_FORM");
+    DataKey<BatchMonitorForm> BATCH_MONITOR_FORM = DataKey.create("DBNavigator.BatchMonitorForm");
+    DataKey<PrerequisitesForm> PREREQUISITES_FORM = DataKey.create("DBNavigator.PrerequisitesForm");
     DataKey<DBNTabbedPane> TABBED_PANE = DataKey.create("DBNavigator.TabbedPane");
 
     DataKey<CalendarPopupProviderForm> CALENDAR_POPUP_PROVIDER_FORM = DataKey.create("DBNavigator.CalendarPopupProviderForm");

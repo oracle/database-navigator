@@ -51,7 +51,12 @@ public enum DatabaseFeature {
     CONSTRAINT_MANIPULATION("Constraint manipulation"),
     READONLY_CONNECTIVITY("Readonly connectivity"),
     AI_ASSISTANT("AI assistant"),
-    EMBEDDED_JVM("Embedded java virtual machine"),
+
+    // OJVM
+    JAVA_VIRTUAL_MACHINE("Embedded JVM"),
+    JAVA_COMPILER("Embedded JVM compiler"),
+    JAVA_EXECUTION("Embedded JVM execution"),
+    JAVA_DEBUGGING("Embedded JVM debugging"),
 
     @Deprecated // temporary disabled feature because of performance issues with empty schema evaluations
     EMPTY_SCHEMA_EVALUATION("Empty schema evaluation"),
