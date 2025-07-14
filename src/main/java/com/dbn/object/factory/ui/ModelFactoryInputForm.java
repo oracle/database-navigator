@@ -27,6 +27,7 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -185,6 +186,11 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
             localFileRadioButton.isSelected() ? onnxModel.getText() : objectUrl.getText(),
             (String) credentialDBNComboBox.getSelectedItem()
     ) ;
+  }
+
+  @Override
+  public void restoreUserInput(@Nullable ModelFactoryInput input) {
+    //todo
   }
 
   @Override

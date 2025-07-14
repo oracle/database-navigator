@@ -34,6 +34,7 @@ import com.dbn.object.factory.ui.ModelFactoryInputForm;
 import com.dbn.object.factory.ui.ProcedureFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -102,7 +103,7 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
                     getSchema(), true,
                     "Creating " + input.getObjectTypeName(),
                     "Creating " + input.getObjectDescription(),
-                    p -> invokeObjectFactory(p, input));
+                    p -> invokeObjectFactory(project,schema,objectType,p, input));
             close(OK_EXIT_CODE);
         }else {
             Progress.prompt(
@@ -110,11 +111,11 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
                     getSchema(), true,
                     "Creating " + input.getObjectTypeName(),
                     "Creating " + input.getObjectDescription(),
-                    p -> invokeObjectFactory(project, schema, objectType, input));
+                    p -> invokeObjectFactory(project, schema, objectType,p, input));
         }
     }
 
-    private void invokeObjectFactory(Project project, DBSchema schema, DBObjectType objectType, ObjectFactoryInput input) {
+    private void invokeObjectFactory(Project project, DBSchema schema, DBObjectType objectType, ProgressIndicator progress, ObjectFactoryInput input) {
         DatabaseObjectFactory factory = DatabaseObjectFactory.getInstance(project);
         try {
             factory.createObject(input, progress);

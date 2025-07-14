@@ -123,7 +123,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         if (factoryInput instanceof ModelFactoryInput) {
             ModelFactoryInput modelFactoryInput = (ModelFactoryInput) factoryInput;
             createModel(modelFactoryInput,progress);
-            return true;
+            return ;
         }
         // TODO other factory inputs
 
