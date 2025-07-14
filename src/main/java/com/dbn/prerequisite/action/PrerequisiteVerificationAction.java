@@ -19,7 +19,6 @@ package com.dbn.prerequisite.action;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.common.ui.util.Popups;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
@@ -111,9 +110,6 @@ public class PrerequisiteVerificationAction extends ActionGroup {
         Project project = connection.getProject();
         DatabasePrerequisiteManager prerequisiteManager = DatabasePrerequisiteManager.getInstance(project);
 
-        // TODO TEMPORARY (restore to evaluatePrerequisites())
-        //prerequisiteManager.evaluatePrerequisites(connection, operation);
-        String description = operation.getName();
-        prerequisiteManager.startOperation(connection, operation, () -> Messages.showInfoDialog(project, description, "Performing "+ description));
+        prerequisiteManager.showPrerequisiteDetails(connection, operation);
     }
 }
