@@ -1,5 +1,6 @@
 package com.dbn.vector.ui.source.ui;
 
+import com.dbn.common.ui.file.VirtualFileListForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.util.FileChoosers;
@@ -11,9 +12,11 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.JComponent;
+import javax.swing.JList;
+import javax.swing.JPanel;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class FileSystemSourceForm extends DBNFormBase {
@@ -21,7 +24,8 @@ public class FileSystemSourceForm extends DBNFormBase {
   private TextFieldWithBrowseButton filesField;
   private JList<String> selectedFilesList  ;
   private DBNScrollPane DBNScrollPane1;
-  private DefaultListModel<String> filesListModel =  new DefaultListModel<>();
+    private JPanel fileListPanel;
+    private DefaultListModel<String> filesListModel =  new DefaultListModel<>();
   public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.multipleFiles().
           withTitle("Select Text Files to Embed").
           withDescription("Select valid text files to embed");
@@ -53,6 +57,9 @@ public class FileSystemSourceForm extends DBNFormBase {
                 }
               });
     });
+
+      VirtualFileListForm fileListForm = new VirtualFileListForm(this, "Source files");
+      fileListPanel.add(fileListForm.getComponent());
 
   }
 
