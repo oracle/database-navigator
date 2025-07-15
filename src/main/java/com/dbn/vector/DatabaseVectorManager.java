@@ -4,14 +4,15 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.vector.model.ChunkData;
-import com.dbn.vector.ui.ChunkConfiguration;
+import com.dbn.vector.model.ChunkConfiguration;
 import com.dbn.vector.ui.VectorAIForm;
+import com.dbn.vector.ui.VectorAiDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -77,8 +78,12 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
         JPanel toolWindowPanel = getToolWindowPanel();
         if (toolWindowPanel == null) return;
 
-        VectorAIForm chatBox = new VectorAIForm(ConnectionHandler.get(connectionId));
-        addCard(toolWindowPanel, chatBox, connectionId);
+//        VectorAIForm chatBox = new VectorAIForm(ConnectionHandler.get(connectionId));
+        JButton vectorAiButton = new JButton("Vector AI");
+        vectorAiButton.addActionListener(e -> {
+            Dialogs.show(()->new VectorAiDialog(getProject(),"Vector Ai",true,ConnectionHandler.get(connectionId)));
+        });
+        addCard(toolWindowPanel, vectorAiButton, connectionId);
 
 //        if (chatBox == null) {
         showCard(toolWindowPanel,connectionId);

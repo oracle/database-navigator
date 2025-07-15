@@ -20,7 +20,7 @@ import com.dbn.assistant.DatabaseAssistantType;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.assistant.AssistantQueryResponse;
 import com.dbn.object.factory.ModelFactoryInput;
-import com.dbn.vector.ui.ChunkConfiguration;
+import com.dbn.vector.model.ChunkConfiguration;
 
 import java.sql.Blob;
 import java.sql.ResultSet;

@@ -6,17 +6,15 @@ import com.dbn.common.ui.table.DBNTableWithGutter;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.vector.model.ChunkConfiguration;
 import com.dbn.vector.model.ChunkDataModel;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTextArea;
-import com.intellij.util.ui.JBUI;
-import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-import java.awt.*;
 import java.sql.SQLException;
 
 import static com.dbn.common.Priority.HIGHEST;

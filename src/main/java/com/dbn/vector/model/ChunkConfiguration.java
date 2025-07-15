@@ -1,4 +1,4 @@
-package com.dbn.vector.ui;
+package com.dbn.vector.model;
 
 import lombok.Getter;
 

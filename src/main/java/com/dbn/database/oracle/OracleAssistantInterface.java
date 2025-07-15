@@ -24,7 +24,7 @@ import com.dbn.database.common.util.BooleanResultSetConsumer;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.object.factory.ModelFactoryInput;
-import com.dbn.vector.ui.ChunkConfiguration;
+import com.dbn.vector.model.ChunkConfiguration;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Blob;

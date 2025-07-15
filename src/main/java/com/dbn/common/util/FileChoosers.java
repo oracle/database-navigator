@@ -65,4 +65,8 @@ public class FileChoosers {
     public static FileChooserDescriptor singleFileOrFolder() {
         return new FileChooserDescriptor(true, true, false, false, false, false).withShowHiddenFiles(true);
     }
+
+    public static FileChooserDescriptor multipleFiles() {
+        return new FileChooserDescriptor(true, true, false, false, false, true).withShowHiddenFiles(true);
+    }
 }
