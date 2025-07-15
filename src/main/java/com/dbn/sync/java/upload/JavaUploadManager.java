@@ -17,11 +17,12 @@
 package com.dbn.sync.java.upload;
 
 import com.dbn.DatabaseNavigator;
-import com.dbn.batch.BatchManager;
+import com.dbn.batch.DatabaseBatchManager;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
-import com.dbn.common.state.GenericStateHolder;
-import com.dbn.common.state.StateHolder;
+import com.dbn.common.state.StateAttributes;
+import com.dbn.common.state.StateCategory;
+import com.dbn.common.state.StateContainer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.Read;
 import com.dbn.common.util.Dialogs;
@@ -59,19 +60,14 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.file.util.ProjectFiles.isModuleDependency;
 import static com.dbn.common.file.util.ProjectFiles.isProjectSourceFile;
 import static com.dbn.common.file.util.VirtualFiles.isArchive;
-import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
-import static com.dbn.common.options.setting.Settings.setStringAttribute;
-import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.sync.java.upload.JavaUploadManager.COMPONENT_NAME;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
@@ -90,7 +86,7 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 			"ucp"
 	);
 
-	private final Map<String, GenericStateHolder> states = new ConcurrentHashMap<>();
+    private final StateContainer states = new StateContainer();
 
 	private JavaUploadManager(Project project) {
 		super(project, COMPONENT_NAME);
@@ -186,18 +182,20 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 	}
 
 	public void startUpload(JavaUploadBatch batch) {
-		BatchManager batchManager = BatchManager.getInstance(getProject());
-		batchManager.startBatchProcess(batch);
+		DatabaseBatchManager databaseBatchManager = DatabaseBatchManager.getInstance(getProject());
+		databaseBatchManager.startBatchProcess(batch);
 	}
 
 	public void openBatchResult(JavaUploadBatch batch) {
 		Dialogs.show(() -> new JavaUploadResultDialog(batch));
 	}
 
-	@NotNull
-	public StateHolder getState(String category) {
-		return states.computeIfAbsent(category, k -> new GenericStateHolder());
-	}
+    @NotNull
+    public StateAttributes getState(String category) {
+        StateCategory stateCategory = StateCategory.get(category);
+        return states.ensureAttributes(stateCategory);
+    }
+
 
 	private Set<VirtualFile> resolveDependencies(VirtualFile virtualFile) {
 		Project project = getProject();
@@ -274,31 +272,17 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 	/****************************************
 	 *       PersistentStateComponent       *
 	 *****************************************/
-	@Nullable
-	@Override
-	public Element getComponentState() {
-		Element element = newStateElement();
-		Element statesElement = newElement(element, "uploader-states");
-		for (String category : states.keySet()) {
-			Element stateElement = newElement(statesElement, "state");
-			setStringAttribute(stateElement, "category", category);
+    @Nullable
+    @Override
+    public Element getComponentState() {
+        Element element = newStateElement();
+        states.writeState(element, "download-states");
+        return element;
+    }
 
-			GenericStateHolder state = states.get(category);
-			state.writeState(stateElement);
-		}
-		return element;
-	}
+    @Override
+    public void loadComponentState(@NotNull Element element) {
+        states.readState(element, "download-states");
+    }
 
-	@Override
-	public void loadComponentState(@NotNull Element element) {
-		Element statesElement = element.getChild("uploader-states");
-		if (statesElement != null) {
-			for (Element stateElement : statesElement.getChildren("state")) {
-				String category = stringAttribute(stateElement, "category");
-				GenericStateHolder state = new GenericStateHolder();
-				state.readState(stateElement);
-				states.put(category, state);
-			}
-		}
-	}
 }

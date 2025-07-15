@@ -19,7 +19,7 @@ package com.dbn.editor.code.action;
 import com.dbn.common.dispose.Checks;
 import com.dbn.common.environment.EnvironmentManager;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.option.ConfirmationOptionHandler;
+import com.dbn.common.option.InteractiveConfirmationBroker;
 import com.dbn.common.ui.shortcut.ComplementaryShortcutInterceptor;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.SourceCodeEditor;
@@ -49,10 +49,10 @@ public class SourceCodeSaveAction extends AbstractCodeEditorAction {
     private static void performSave(@NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {
         CodeEditorSettings editorSettings = CodeEditorSettings.getInstance(project);
         CodeEditorConfirmationSettings confirmationSettings = editorSettings.getConfirmationSettings();
-        ConfirmationOptionHandler optionHandler = confirmationSettings.getSaveChanges();
+        InteractiveConfirmationBroker confirmationBroker = confirmationSettings.getSaveChanges();
 
         String objectName = fileEditor.getObject().getQualifiedNameWithType();
-        boolean canContinue = optionHandler.resolve(project, objectName);
+        boolean canContinue = confirmationBroker.resolve(project, objectName);
         if (!canContinue) return;
 
         SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);

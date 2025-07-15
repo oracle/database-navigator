@@ -17,12 +17,13 @@
 package com.dbn.sync.java.download;
 
 import com.dbn.DatabaseNavigator;
-import com.dbn.batch.BatchManager;
+import com.dbn.batch.DatabaseBatchManager;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.data.Data;
-import com.dbn.common.state.GenericStateHolder;
-import com.dbn.common.state.StateHolder;
+import com.dbn.common.state.StateAttributes;
+import com.dbn.common.state.StateCategory;
+import com.dbn.common.state.StateContainer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
@@ -46,6 +47,7 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,23 +55,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
-import static com.dbn.common.options.setting.Settings.setStringAttribute;
-import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.sync.java.download.JavaDownloadManager.COMPONENT_NAME;
 import static com.dbn.sync.java.download.JavaDownloadUtil.prepareDestinationFolders;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 public class JavaDownloadManager extends ProjectComponentBase implements PersistentState {
 	public static final String COMPONENT_NAME = "DBNavigator.Project.JavaDownloadManager";
+	private final StateContainer states = new StateContainer();
 
-	private final Map<String, GenericStateHolder> states = new ConcurrentHashMap<>();
 
 	private JavaDownloadManager(Project project) {
 		super(project, COMPONENT_NAME);
@@ -199,8 +196,8 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 			// prepare destination folders
 			prepareDestinationFolders(batch);
 
-			BatchManager batchManager = BatchManager.getInstance(getProject());
-			batchManager.startBatchProcess(batch);
+			DatabaseBatchManager databaseBatchManager = DatabaseBatchManager.getInstance(getProject());
+			databaseBatchManager.startBatchProcess(batch);
 		} catch (Exception e) {
 			Project project = batch.getProject();
 			Messages.showErrorDialog(project,
@@ -214,38 +211,24 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 	}
 
 	@NotNull
-	public StateHolder getState(String category) {
-		return states.computeIfAbsent(category, k -> new GenericStateHolder());
+	public StateAttributes getState(@NonNls String category) {
+        StateCategory stateCategory = StateCategory.get(category);
+        return states.ensureAttributes(stateCategory);
 	}
 
 	/****************************************
 	 *       PersistentStateComponent       *
 	 *****************************************/
-	@Nullable
-	@Override
-	public Element getComponentState() {
-		Element element = newStateElement();
-		Element statesElement = newElement(element, "downloader-states");
-		for (String category : states.keySet()) {
-			Element stateElement = newElement(statesElement, "state");
-			setStringAttribute(stateElement, "category", category);
+    @Nullable
+    @Override
+    public Element getComponentState() {
+        Element element = newStateElement();
+        states.writeState(element, "download-states");
+        return element;
+    }
 
-			GenericStateHolder state = states.get(category);
-			state.writeState(stateElement);
-		}
-		return element;
-	}
-
-	@Override
-	public void loadComponentState(@NotNull Element element) {
-		Element statesElement = element.getChild("downloader-states");
-		if (statesElement != null) {
-			for (Element stateElement : statesElement.getChildren("state")) {
-				String category = stringAttribute(stateElement, "category");
-				GenericStateHolder state = new GenericStateHolder();
-				state.readState(stateElement);
-				states.put(category, state);
-			}
-		}
-	}
+    @Override
+    public void loadComponentState(@NotNull Element element) {
+        states.readState(element, "download-states");
+    }
 }

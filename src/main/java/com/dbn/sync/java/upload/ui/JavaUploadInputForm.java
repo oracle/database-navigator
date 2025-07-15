@@ -16,7 +16,7 @@
 
 package com.dbn.sync.java.upload.ui;
 
-import com.dbn.common.state.StateHolder;
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
@@ -43,7 +43,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setEmptyOptionsText;
-import static com.dbn.database.DatabaseFeature.EMBEDDED_JVM;
+import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
 import static java.util.Collections.emptyList;
 
 public class JavaUploadInputForm extends DBNFormBase {
@@ -108,7 +108,7 @@ public class JavaUploadInputForm extends DBNFormBase {
         Project project = ensureProject();
         JavaUploadManager uploadManager = JavaUploadManager.getInstance(project);
 
-        StateHolder state = uploadManager.getState("UPLOAD");
+        StateAttributes state = uploadManager.getState("UPLOAD_INPUT");
 
         initPersistence(connectionComboBox, state, "connection-selection");
         initPersistence(schemaComboBox, state, "schema-selection");
@@ -117,7 +117,7 @@ public class JavaUploadInputForm extends DBNFormBase {
     private void initConnectionSelector() {
         Project project = ensureProject();
 		ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-        List<ConnectionHandler> connections = connectionManager.getConnections(EMBEDDED_JVM);
+        List<ConnectionHandler> connections = connectionManager.getConnections(JAVA_VIRTUAL_MACHINE);
         initComboBox(connectionComboBox, connections);
     }
 

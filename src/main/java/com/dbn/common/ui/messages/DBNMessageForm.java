@@ -16,8 +16,10 @@
 
 package com.dbn.common.ui.messages;
 
+import com.dbn.common.message.TitledMessage;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.text.HiddenCaret;
 import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Fonts;
@@ -51,10 +53,16 @@ public class DBNMessageForm extends DBNFormBase {
     private JLabel iconLabel;
     private JPanel rememberOptionPanel;
 
-    private final Icon icon;
-    private final String title;
-    private final String message;
+    private Icon icon;
+    private String title;
+    private String message;
 
+    public DBNMessageForm(@NotNull DBNComponent parent, TitledMessage message) {
+        this(parent,
+                message.getDialogIcon(),
+                message.getTitle(),
+                message.getText());
+    }
     public DBNMessageForm(@NotNull DBNComponent parent, Icon icon, @DialogTitle String title, @DialogMessage String message) {
         super(parent);
         this.icon = icon;
@@ -67,10 +75,32 @@ public class DBNMessageForm extends DBNFormBase {
         initDragging();
     }
 
+    public void setMessage(TitledMessage message) {
+        setIcon(message.getDialogIcon());
+        setTitle(message.getTitle());
+        setMessage(message.getText());
+    }
+
+    public void setIcon(Icon icon) {
+        this.icon = icon;
+        initIcon();
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+        initTitle();
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+        initMessage();
+    }
+
     private void initIcon() {
         if (icon == null) {
             iconLabel.setVisible(false);
         } else {
+            iconLabel.setVisible(true);
             iconLabel.setIcon(icon);
             iconLabel.setText("");
         }
@@ -82,6 +112,7 @@ public class DBNMessageForm extends DBNFormBase {
     }
 
     private void initMessage() {
+        messageTextPane.setCaret(new HiddenCaret());
         messageTextPane.setText(message);
         messageTextPane.addFocusListener(new FocusAdapter() {
             @Override
