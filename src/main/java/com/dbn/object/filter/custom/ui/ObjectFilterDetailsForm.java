@@ -16,7 +16,6 @@
 
 package com.dbn.object.filter.custom.ui;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.expression.ExpressionEvaluator;
 import com.dbn.common.expression.ExpressionEvaluatorContext;
@@ -26,7 +25,6 @@ import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
-import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
@@ -56,7 +54,6 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.List;
@@ -175,13 +172,13 @@ public class ObjectFilterDetailsForm extends DBNFormBase {
             }
         });
 
-        JScrollPane editorScrollPane = editor.getScrollPane();
-        editorScrollPane.setViewportBorder(Borders.lineBorder(Colors.getEditorBackground(), 4));
+        Editors.updateEditorScrollPane(editor);
 
         EditorSettings settings = editor.getSettings();
         settings.setFoldingOutlineShown(false);
         settings.setLineMarkerAreaShown(false);
         settings.setLineNumbersShown(false);
+        settings.setCaretRowShown(false);
         settings.setVirtualSpace(false);
         settings.setDndEnabled(false);
         settings.setAdditionalLinesCount(2);

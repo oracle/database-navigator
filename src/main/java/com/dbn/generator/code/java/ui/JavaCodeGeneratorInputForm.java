@@ -18,7 +18,7 @@ package com.dbn.generator.code.java.ui;
 
 import com.dbn.common.file.VirtualFilePresentable;
 import com.dbn.common.project.ModulePresentable;
-import com.dbn.common.state.StateHolder;
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.context.DatabaseContext;
@@ -92,7 +92,7 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
         CodeGeneratorCategory generatorCategory = getGeneratorCategory();
         CodeGeneratorManager codeGeneratorManager = CodeGeneratorManager.getInstance(project);
 
-        StateHolder state = codeGeneratorManager.getState(generatorCategory);
+        StateAttributes state = codeGeneratorManager.getState(generatorCategory);
 
         initPersistence(moduleComboBox, state, "module-selection");
         initPersistence(contentRootComboBox, state, "content-root-selection");

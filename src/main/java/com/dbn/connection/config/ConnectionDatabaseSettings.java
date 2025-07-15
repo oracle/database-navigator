@@ -23,6 +23,7 @@ import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Files;
 import com.dbn.common.util.Strings;
+import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectivityStatus;
@@ -410,5 +411,13 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
 
     public Project getProject() {
         return getParent().getProject();
+    }
+
+    public boolean isInteractiveAuthentication() {
+        AuthenticationType authenticationType = authenticationInfo.getType();
+        if (authenticationType != AuthenticationType.TOKEN) return false;
+
+        AuthenticationTokenType tokenType = authenticationInfo.getTokenType();
+        return tokenType == AuthenticationTokenType.OCI_INTERACTIVE; // TODO Azure interactive
     }
 }

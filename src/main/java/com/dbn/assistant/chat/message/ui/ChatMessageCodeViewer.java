@@ -18,7 +18,6 @@ package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.assistant.chat.message.ChatMessageSection;
 import com.dbn.assistant.chat.message.action.CopyContentAction;
-import com.dbn.common.color.Colors;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
@@ -47,8 +46,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 import java.awt.BorderLayout;
 
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
@@ -127,12 +124,7 @@ public class ChatMessageCodeViewer extends JPanel implements Disposable {
         viewer.setEmbeddedIntoDialogWrapper(false);
         //Editors.initEditorHighlighter(viewer, language, connection);
 
-        JScrollPane viewerScrollPane = viewer.getScrollPane();
-        viewerScrollPane.setViewportBorder(Borders.lineBorder(Colors.delegate(() -> viewer.getBackgroundColor()), 8));
-        viewerScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        viewerScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        viewerScrollPane.setBorder(null);
-        //viewer.getComponent().setBorder(JBUI.Borders.empty(10));
+        Editors.updateEditorScrollPane(viewer);
 
         EditorSettings settings = viewer.getSettings();
         settings.setFoldingOutlineShown(false);

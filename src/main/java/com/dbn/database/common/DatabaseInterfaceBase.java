@@ -16,8 +16,10 @@
 
 package com.dbn.database.common;
 
+import com.dbn.common.data.Data;
 import com.dbn.common.util.XmlContents;
 import com.dbn.connection.DatabaseType;
+import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.statement.CallableStatementOutput;
 import com.dbn.database.common.statement.StatementExecutionProcessor;
@@ -111,5 +113,23 @@ public abstract class DatabaseInterfaceBase implements DatabaseInterface{
 
     private void checkDisposed(DBNConnection connection) {
         nd(connection.getProject());
+    }
+
+    protected final boolean getBooleanValue(DBNConnection connection, String loaderId, Object... arguments) throws SQLException {
+        return Data.asBooleanPrimitive(getSingleValue(connection, loaderId, arguments));
+    }
+
+
+    protected final String getSingleValue(DBNConnection connection, String loaderId, Object... arguments) throws SQLException {
+        ResultSet resultSet = null;
+        try {
+            resultSet = executeQuery(connection, loaderId, arguments);
+            if (resultSet.next()) {
+                return resultSet.getString(1);
+            }
+        } finally {
+            Resources.close(resultSet);
+        }
+        return null;
     }
 }

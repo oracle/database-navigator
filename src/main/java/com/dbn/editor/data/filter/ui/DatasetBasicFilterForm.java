@@ -23,7 +23,6 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.ValueSelector;
 import com.dbn.common.ui.ValueSelectorOption;
-import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
@@ -53,7 +52,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
@@ -69,7 +67,6 @@ import static com.dbn.common.ui.util.ClientProperty.NO_INDENT;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
-import static com.dbn.common.ui.util.UserInterface.updateScrollPanes;
 
 public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasicFilter> {
     private JPanel conditionsPanel;
@@ -222,9 +219,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
             Editors.initEditorHighlighter(this.viewer, SQLLanguage.INSTANCE, dataset);
             Editors.setEditorReadonly(this.viewer, true);
 
-            JScrollPane viewerScrollPane = this.viewer.getScrollPane();
-            //viewerScrollPane.setBorder(null);
-            viewerScrollPane.setViewportBorder(Borders.lineBorder(Colors.getReadonlyEditorBackground(), 4));
+            Editors.updateEditorScrollPane(this.viewer);
 
             EditorSettings settings = this.viewer.getSettings();
             settings.setFoldingOutlineShown(false);
@@ -237,8 +232,6 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
             settings.setCaretRowShown(false);
             this.viewer.getComponent().setFocusable(false);
             previewPanel.add(this.viewer.getComponent(), BorderLayout.CENTER);
-
-            updateScrollPanes(previewPanel);
         } else {
             Documents.setText(previewDocument, selectStatement);
         }

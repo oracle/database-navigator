@@ -37,6 +37,7 @@ import com.dbn.vfs.file.DBContentVirtualFile;
 import com.dbn.vfs.file.DBDatasetFilterVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBLooseContentVirtualFile;
+import com.dbn.vfs.file.DBObjectContentVirtualFile;
 import com.dbn.vfs.file.DBObjectFilterExpressionFile;
 import com.dbn.vfs.file.DBObjectListVirtualFile;
 import com.dbn.vfs.file.DBObjectVirtualFile;
@@ -375,12 +376,17 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
 
             if (virtualFile instanceof DBObjectFilterExpressionFile) {
                 DBObjectFilterExpressionFile file = (DBObjectFilterExpressionFile) virtualFile;
-                return connectionId + PSS + FILTER_EXPRESSIONS + PSS + file.getName();
+                return connectionId + PSS + FILTER_EXPRESSIONS + file.getName();
+            }
+
+            if (virtualFile instanceof DBObjectContentVirtualFile) {
+                DBObjectContentVirtualFile file = (DBObjectContentVirtualFile) virtualFile;
+                return connectionId + PSS + LOOSE_CONTENTS + DBObjectRef.serialised(file.getObject());
             }
 
             if (virtualFile instanceof DBLooseContentVirtualFile) {
                 DBLooseContentVirtualFile file = (DBLooseContentVirtualFile) virtualFile;
-                return connectionId + PSS + LOOSE_CONTENTS + PSS + DBObjectRef.serialised(file.getObject());
+                return connectionId + PSS + LOOSE_CONTENTS + file.getName();
             }
 
             throw new IllegalArgumentException("File of type " + virtualFile.getClass() + " is not supported");
