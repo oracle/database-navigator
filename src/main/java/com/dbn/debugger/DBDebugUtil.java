@@ -19,6 +19,7 @@ package com.dbn.debugger;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.code.SourceCodeManager;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
@@ -54,6 +55,16 @@ public class DBDebugUtil {
         return sourcePosition.getFile();
     }
 
+    @Nullable
+    public static DBEditableObjectVirtualFile getMainDatabaseFile(DBJavaMethod javaMethod) {
+        DBSchemaObject schemaObject = getMainDatabaseObject(javaMethod);
+        return schemaObject == null ? null : (DBEditableObjectVirtualFile) schemaObject.getVirtualFile();
+    }
+
+    @Nullable
+    public static DBSchemaObject getMainDatabaseObject(DBJavaMethod method) {
+        return method.getOwnerClass();
+    }
 
     @Nullable
     public static DBEditableObjectVirtualFile getMainDatabaseFile(DBMethod method) {

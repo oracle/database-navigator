@@ -18,12 +18,13 @@ package com.dbn.execution.java.action;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Progress;
+import com.dbn.debugger.DatabaseDebuggerManager;
+import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.execution.java.wrapper.JavaExecutionWrapperManager;
-import com.dbn.execution.java.wrapper.WrapperStatementExecutor;
+import com.dbn.execution.java.wrapper.Wrapper;
 import com.dbn.object.DBJavaMethod;
-import com.dbn.object.DBSchema;
+import com.dbn.object.DBMethod;
 import com.dbn.object.action.AnObjectAction;
-import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -33,7 +34,6 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.object.event.ObjectChangeAction.CREATE;
 
 public class JavaMethodDebugAction extends AnObjectAction<DBJavaMethod> {
 
@@ -51,16 +51,15 @@ public class JavaMethodDebugAction extends AnObjectAction<DBJavaMethod> {
         Progress.prompt(project, null, true, "Debugging java method", "Creating execution wrappers for java method \"" + methodSignature + "\"", progress -> {
             try {
                 JavaExecutionWrapperManager wrapperManager = JavaExecutionWrapperManager.getInstance(getProject());
-                wrapperManager.createExecutionWrappers(method, false, true);
+                Wrapper wrapper = wrapperManager.createExecutionWrappers(method, false, true);
 
-                DBSchema schema = method.getSchema();
-                WrapperStatementExecutor statementExecutor = new WrapperStatementExecutor();
-                assert schema != null;
-                statementExecutor.notifyObjectChanges(schema, DBObjectType.JAVA_CLASS, CREATE);
-                statementExecutor.notifyObjectChanges(schema, DBObjectType.FUNCTION, CREATE);
-                statementExecutor.notifyObjectChanges(schema, DBObjectType.PROCEDURE, CREATE);
-                statementExecutor.notifyObjectChanges(schema, DBObjectType.TYPE, CREATE);
+                String sqlWrapperName = wrapper.getSqlWrapperName();
+                DBMethod dbMethod = method.getSchema().getMethod(sqlWrapperName, (short) 0);
+                DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(getProject());
+                editorManager.connectAndOpenEditor(dbMethod, null, false, true);
 
+                DatabaseDebuggerManager executionManager = DatabaseDebuggerManager.getInstance(project);
+                executionManager.startJavaDebugger(method);
             } catch (Exception ex) {
                 showErrorDialog(project, "Error creating debug wrappers for java method \"" + methodSignature + "\"\nCause: " + ex.getMessage());
                 conditionallyLog(ex);

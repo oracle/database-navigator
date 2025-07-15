@@ -34,10 +34,12 @@ import com.dbn.debugger.common.breakpoint.DBBreakpointUpdaterFileEditorListener;
 import com.dbn.debugger.common.process.DBProgramRunner;
 import com.dbn.debugger.jdbc.process.DBMethodJdbcRunner;
 import com.dbn.debugger.jdbc.process.DBStatementJdbcRunner;
+import com.dbn.debugger.jdwp.process.DBJavaJdwpRunner;
 import com.dbn.debugger.jdwp.process.DBMethodJdwpRunner;
 import com.dbn.debugger.jdwp.process.DBStatementJdwpRunner;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.execution.statement.processor.StatementExecutionProcessor;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBProgram;
 import com.dbn.object.DBSchema;
@@ -206,6 +208,38 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
                 conditionallyLog(e);
                 Messages.showErrorDialog(
                         project, "Could not start statement debugger. \n" +
+                                "Cause: " + e.getMessage());
+            }
+        });
+    }
+
+    public void startJavaDebugger(@NotNull DBJavaMethod method) {
+        startDebugger(method.getConnection(), (debuggerType) -> {
+            Project project = getProject();
+            ExecutionConfigManager configManager = ExecutionConfigManager.getInstance(project);
+            RunnerAndConfigurationSettings settings = configManager.createConfiguration(method, debuggerType);
+
+            String runnerId =
+//                    debuggerType == DBDebuggerType.JDBC ? DBMethodJdbcRunner.RUNNER_ID :
+                    debuggerType == DBDebuggerType.JDWP ? DBJavaJdwpRunner.RUNNER_ID : null;
+
+            if (runnerId == null) return;
+
+            ProgramRunner programRunner = ProgramRunner.findRunnerById(runnerId);
+            if (programRunner == null) return;
+
+            try {
+                Executor executorInstance = DefaultDebugExecutor.getDebugExecutorInstance();
+                if (executorInstance == null) {
+                    throw new ExecutionException("Could not resolve debug executor");
+                }
+
+                ExecutionEnvironment executionEnvironment = new ExecutionEnvironment(executorInstance, programRunner, settings, project);
+                programRunner.execute(executionEnvironment);
+            } catch (ExecutionException e) {
+                conditionallyLog(e);
+                Messages.showErrorDialog(
+                        project, "Could not start debugger for " + method.getQualifiedName() + ". \n" +
                                 "Cause: " + e.getMessage());
             }
         });

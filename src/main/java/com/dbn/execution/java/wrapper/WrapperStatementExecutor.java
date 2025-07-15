@@ -65,7 +65,7 @@ public class WrapperStatementExecutor {
                     }
                 });
 
-        if (useFriendlyNames) {
+        if (useFriendlyNames || compileInDebugMode) {
             notifyObjectChanges(method, DBObjectType.JAVA_CLASS, CREATE);
             notifyObjectChanges(method, DBObjectType.FUNCTION, CREATE);
             notifyObjectChanges(method, DBObjectType.PROCEDURE, CREATE);
@@ -140,5 +140,8 @@ public class WrapperStatementExecutor {
         String methodName = method.getObjectName();
         String methodType = method.getObjectTypeName();
         dataDefinitionInterface.compileObject(schemaName, methodName, methodType, true, connection);
+
+        // compile java wrapper
+        dataDefinitionInterface.compileJavaClass(schemaName, wrapper.getJavaWrapperName(), connection);
     }
 }

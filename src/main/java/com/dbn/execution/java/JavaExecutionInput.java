@@ -63,7 +63,7 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
     private Map<String, ExecutionVariable> executionVariables = new LinkedHashMap<>();
 
     public JavaExecutionInput(Project project) {
-        super(project, ExecutionTarget.METHOD);
+        super(project, ExecutionTarget.JAVA);
         method = new DBObjectRef<>();
 
         ExecutionOptions options = getOptions();
@@ -72,7 +72,7 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
     }
 
     public JavaExecutionInput(Project project, DBObjectRef<DBJavaMethod> method) {
-        super(project, ExecutionTarget.METHOD);
+        super(project, ExecutionTarget.JAVA);
         this.method = method;
         SchemaId methodSchema = method.getSchemaId();
 
