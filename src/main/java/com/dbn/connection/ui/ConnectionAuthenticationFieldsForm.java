@@ -335,7 +335,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
                         // warn the user.
                         if (!Sockets.tryToBindPort(OracleCompatibilityInterface.ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT)) {
                             status = new NotificationStatus(NotificationStatus.Severity.WARNING,
-                                    "Possible error with OCI_INTERACTIVE...");
+                                    "TCP port 8181 appears to be bound.  This may cause interactive OCI authentication to fail.");
                         }
                     }
                     final DialogNotificationListener.NotificationStatusEvent event =
