@@ -3,7 +3,6 @@ package com.dbn.debugger.jdwp.process;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.debugger.common.breakpoint.DBBreakpointHandler;
-import com.dbn.debugger.common.config.DBRunConfig;
 import com.dbn.execution.ExecutionTarget;
 import com.dbn.execution.java.JavaExecutionContext;
 import com.dbn.execution.java.JavaExecutionInput;
@@ -74,7 +73,7 @@ public class DBJavaJdwpDebugProcess extends DBJdwpDebugProcess<JavaExecutionInpu
     }
 
     @Override
-    protected void registerDefaultBreakpoint(DBRunConfig<JavaExecutionInput> runProfile) {
+    protected void registerDefaultBreakpoint() {
         JavaExecutionInput executionInput = getExecutionInput();
         if (executionInput == null) return;
 

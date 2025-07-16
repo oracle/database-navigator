@@ -57,7 +57,10 @@ import com.intellij.debugger.engine.JavaDebugProcess;
 import com.intellij.debugger.engine.JavaStackFrame;
 import com.intellij.debugger.engine.SuspendContext;
 import com.intellij.debugger.engine.SuspendContextImpl;
+import com.intellij.debugger.impl.DebuggerContextListener;
 import com.intellij.debugger.impl.DebuggerSession;
+import com.intellij.debugger.impl.DebuggerStateManager;
+import com.intellij.debugger.impl.PrioritizedTask;
 import com.intellij.debugger.jdi.StackFrameProxyImpl;
 import com.intellij.debugger.ui.impl.watch.StackFrameDescriptorImpl;
 import com.intellij.execution.process.ProcessHandler;
@@ -87,7 +90,8 @@ import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
-import static com.intellij.debugger.impl.PrioritizedTask.Priority.LOW;
+import static com.intellij.debugger.impl.PrioritizedTask.Priority.LOWEST;
+import static com.intellij.debugger.impl.PrioritizedTask.Priority.NORMAL;
 
 @Slf4j
 public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
@@ -208,37 +212,78 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
 
     @Override
     public void sessionInitialized() {
+        unmuteBreakpoints();
+
+        DebuggerSession debuggerSession = getDebuggerSession();
+        DebugProcessImpl process = debuggerSession.getProcess();
+        ProcessHandler processHandler = process.getProcessHandler();
+
+        DebuggerManager debuggerManager = getDebuggerManager();
+        debuggerManager.addDebugProcessListener(processHandler, createProcessListener());
+
+        XDebugSession session = getSession();
+        session.addSessionListener(createSessionListener());
+
+        DebuggerStateManager contextManager = debuggerSession.getContextManager();
+        contextManager.addListener(createContextListener());
+        process.setXDebugProcess(this);
+
+        DBDebugOperation.run(getProject(), "initialize debug environment", () -> {
+            try {
+                T input = getExecutionInput();
+                if (input == null) return;
+
+                console.system("Initializing debug environment");
+
+                ConnectionHandler connection = getConnection();
+                SchemaId schemaId = input.getExecutionContext().getTargetSchema();
+                targetConnection = connection.getDebugConnection(schemaId);
+                targetConnection.setAutoCommit(false);
+                targetConnection.beforeClose(() -> releaseSession(targetConnection));
+
+
+                if (tcpConfig.isLocal()) {
+                    String tcpHost = tcpConfig.getHost();
+                    int tcpPort = tcpConfig.getPort();
+                    console.info("Initializing debug session on address " + tcpHost + ":" + tcpPort);
+
+                    DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
+                    debuggerInterface.initializeJdwpSession(targetConnection, tcpHost, String.valueOf(tcpPort));
+                }
+                console.system("Debug session initialized (JDWP)");
+                set(DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED, true);
+
+                createExecutionWrappers();
+                queueCommand(NORMAL, () -> registerDefaultBreakpoint());
+                queueCommand(NORMAL, () -> registerBreakpoints());
+                queueCommand(LOWEST, () -> startTargetProgram()); // start program after initialization completion
+            } catch (Exception e) {
+                conditionallyLog(e);
+                set(DBDebugProcessStatus.SESSION_INITIALIZATION_THREW_EXCEPTION, true);
+                console.error("Error initializing debug environment\n" + e.getMessage());
+                stop();
+            }
+        });
+    }
+
+    private @NotNull DebuggerContextListener createContextListener() {
+        return (newContext, event) -> {
+            SuspendContextImpl suspendContext = newContext.getSuspendContext();
+            overwriteSuspendContext(suspendContext);
+        };
+    }
+
+    private void unmuteBreakpoints() {
         XDebugSession session = getSession();
         if (session instanceof XDebugSessionImpl) {
             XDebugSessionImpl sessionImpl = (XDebugSessionImpl) session;
             sessionImpl.getSessionData().setBreakpointsMuted(false);
         }
-        DBRunConfig<T> runProfile = getRunProfile();
-        DebugProcessImpl process = getDebuggerSession().getProcess();
-        ManagedThreadCommand.schedule(process, LOW, () -> registerDefaultBreakpoint(runProfile));
+    }
 
-        DebuggerSession debuggerSession = getDebuggerSession();
-        Project project = getProject();
-        DebuggerManager debuggerManager = DebuggerManager.getInstance(project);
-        ProcessHandler processHandler = debuggerSession.getProcess().getProcessHandler();
-        debuggerManager.addDebugProcessListener(processHandler, new DebugProcessListener(){
-            @Override
-            public void paused(@NotNull SuspendContext suspendContext) {
-                if (suspendContext instanceof XSuspendContext) {
-                    XSuspendContext xSuspendContext = (XSuspendContext) suspendContext;
-
-                    XExecutionStack[] executionStacks = xSuspendContext.getExecutionStacks();
-                    for (XExecutionStack executionStack : executionStacks) {
-                        //System.out.println();
-                    }
-
-                    //underlyingFrame.getDescriptor().getLocation()
-
-                }
-            }
-        });
-
-        session.addSessionListener(new XDebugSessionListener() {
+    private @NotNull XDebugSessionListener createSessionListener() {
+        XDebugSession session = getSession();
+        return new XDebugSessionListener() {
             @Override
             @ThreadPropertyGate(DEBUGGER_NAVIGATION)
             public void sessionPaused() {
@@ -254,79 +299,64 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                 VirtualFile virtualFile = getVirtualFile(location);
                 DBDebugUtil.openEditor(virtualFile);
             }
-        });
-
-        debuggerSession.getContextManager().addListener((newContext, event) -> {
-            SuspendContextImpl suspendContext = newContext.getSuspendContext();
-            overwriteSuspendContext(suspendContext);
-        });
-
-        process.setXDebugProcess(this);
-
-        DBDebugOperation.run(project, "initialize debug environment", () -> {
-            try {
-                console.system("Initializing debug environment");
-                T input = getExecutionInput();
-                if (input != null) {
-                    ConnectionHandler connection = getConnection();
-                    SchemaId schemaId = input.getExecutionContext().getTargetSchema();
-                    targetConnection = connection.getDebugConnection(schemaId);
-                    targetConnection.setAutoCommit(false);
-                    targetConnection.beforeClose(() -> releaseSession(targetConnection));
-
-
-                    if (tcpConfig.isLocal()) {
-                        String tcpHost = tcpConfig.getHost();
-                        int tcpPort = tcpConfig.getPort();
-                        console.info("Initializing debug session on address " + tcpHost + ":" + tcpPort);
-
-                        DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
-                        debuggerInterface.initializeJdwpSession(targetConnection, tcpHost, String.valueOf(tcpPort));
-                    }
-                    console.system("Debug session initialized (JDWP)");
-                    set(DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED, true);
-
-                    createExecutionWrappers();
-                    initializeBreakpoints();
-                    startTargetProgram();
-                }
-            } catch (Exception e) {
-                conditionallyLog(e);
-                set(DBDebugProcessStatus.SESSION_INITIALIZATION_THREW_EXCEPTION, true);
-                console.error("Error initializing debug environment\n" + e.getMessage());
-                stop();
-            }
-        });
+        };
     }
 
-    protected void registerDefaultBreakpoint(DBRunConfig<T> runProfile) {
+    private static @NotNull DebugProcessListener createProcessListener() {
+        return new DebugProcessListener() {
+            @Override
+            public void paused(@NotNull SuspendContext suspendContext) {
+                if (suspendContext instanceof XSuspendContext) {
+                    XSuspendContext xSuspendContext = (XSuspendContext) suspendContext;
+
+                    XExecutionStack[] executionStacks = xSuspendContext.getExecutionStacks();
+                    for (XExecutionStack executionStack : executionStacks) {
+                        //System.out.println();
+                    }
+
+                    //underlyingFrame.getDescriptor().getLocation()
+
+                }
+            }
+        };
+    }
+
+    protected void registerDefaultBreakpoint() {
         console.system("Registering default breakpoint");
+
+        DBRunConfig<T> runProfile = getRunProfile();
         List<DBObjectRef<DBMethod>> methods = runProfile.getMethodRefs();
         if (methods.isEmpty()) return;
 
-        DBBreakpointHandler<DBJdwpDebugProcess> breakpointHandler = getBreakpointHandler();
+        var breakpointHandler = getBreakpointHandler();
         breakpointHandler.registerDefaultBreakpoint(methods.get(0));
     }
 
-    private void initializeBreakpoints() {
+    private void registerBreakpoints() {
         console.system("Registering breakpoints...");
+
         List<DBObjectRef<DBMethod>> methods = getRunProfile().getMethodRefs();
         List<XLineBreakpoint<XBreakpointProperties>> breakpoints = DBBreakpointUtil.getDatabaseBreakpoints(getConnection());
-        getBreakpointHandler().registerBreakpoints(breakpoints, methods);
+
+        var breakpointHandler = getBreakpointHandler();
+        breakpointHandler.registerBreakpoints(breakpoints, methods);
     }
 
     private void overwriteSuspendContext(final @Nullable XSuspendContext suspendContext) {
-        if (suspendContext != null && suspendContext != lastSuspendContext && !(suspendContext instanceof DBJdwpDebugSuspendContext)) {
-            DebugProcessImpl debugProcess = getDebuggerSession().getProcess();
-            ManagedThreadCommand.schedule(debugProcess, LOW, () -> {
-                lastSuspendContext = suspendContext;
-                XDebugSession session = getSession();
-                if (shouldSuspend(suspendContext)) {
-                    DBJdwpDebugSuspendContext dbSuspendContext = new DBJdwpDebugSuspendContext(DBJdwpDebugProcess.this, suspendContext);
-                    session.positionReached(dbSuspendContext);
-                }
-            });
-            throw new ProcessDeferredException();
+        if (suspendContext == null) return;
+        if (suspendContext == lastSuspendContext) return;
+        if (suspendContext instanceof DBJdwpDebugSuspendContext) return;
+
+        lastSuspendContext = suspendContext;
+        queueCommand(NORMAL, () -> processSuspendContext(suspendContext));
+        throw new ProcessDeferredException();
+    }
+
+    private void processSuspendContext(@NotNull XSuspendContext suspendContext) {
+        XDebugSession session = getSession();
+        if (shouldSuspend(suspendContext)) {
+            DBJdwpDebugSuspendContext dbSuspendContext = new DBJdwpDebugSuspendContext(DBJdwpDebugProcess.this, suspendContext);
+            session.positionReached(dbSuspendContext);
         }
     }
 
@@ -335,36 +365,33 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     }
 
     private void startTargetProgram() {
-        // trigger in managed thread
-        DebugProcessImpl debugProcess = getDebuggerSession().getProcess();
         T input = getExecutionInput();
-        ManagedThreadCommand.schedule(debugProcess, LOW, () -> {
-            Progress.background(getProject(), getConnection(), false,
-                    txt("prc.debugger.title.RunningDebuggerTarget"),
-                    input == null ?
-                            txt("prc.debugger.text.ExecutingTargetProgram") :
-                            txt("prc.debugger.text.Executing", input.getExecutionContext().getTargetName()),
-                    progress -> {
-                        console.system(txt("log.debugger.info.ExecutingTargetProgram"));
-                        if (is(DBDebugProcessStatus.SESSION_INITIALIZATION_THREW_EXCEPTION)) return;
-                        try {
-                            set(DBDebugProcessStatus.TARGET_EXECUTION_STARTED, true);
-                            executeTarget();
-                        } catch (SQLException e) {
-                            conditionallyLog(e);
-                            set(DBDebugProcessStatus.TARGET_EXECUTION_THREW_EXCEPTION, true);
-                            if (isNot(DBDebugProcessStatus.DEBUGGER_STOPPING)) {
-                                String errorMessage = e.getMessage();
-                                console.error(input == null ?
-                                        txt("log.debugger.error.ErrorExecutingTargetProgram", errorMessage) :
-                                        txt("log.debugger.error.ErrorExecuting", input.getExecutionContext().getTargetName(), errorMessage));
-                            }
-                        } finally {
-                            set(DBDebugProcessStatus.TARGET_EXECUTION_TERMINATED, true);
-                            stop();
+        String title = txt("prc.debugger.title.RunningDebuggerTarget");
+        String message = input == null ?
+                txt("prc.debugger.text.ExecutingTargetProgram") :
+                txt("prc.debugger.text.Executing", input.getExecutionContext().getTargetName());
+
+        Progress.background(getProject(), getConnection(), false, title, message,
+                progress -> {
+                    console.system(txt("log.debugger.info.ExecutingTargetProgram"));
+                    if (is(DBDebugProcessStatus.SESSION_INITIALIZATION_THREW_EXCEPTION)) return;
+                    try {
+                        set(DBDebugProcessStatus.TARGET_EXECUTION_STARTED, true);
+                        executeTarget();
+                    } catch (SQLException e) {
+                        conditionallyLog(e);
+                        set(DBDebugProcessStatus.TARGET_EXECUTION_THREW_EXCEPTION, true);
+                        if (isNot(DBDebugProcessStatus.DEBUGGER_STOPPING)) {
+                            String errorMessage = e.getMessage();
+                            console.error(input == null ?
+                                    txt("log.debugger.error.ErrorExecutingTargetProgram", errorMessage) :
+                                    txt("log.debugger.error.ErrorExecuting", input.getExecutionContext().getTargetName(), errorMessage));
                         }
-                    });
-        });
+                    } finally {
+                        set(DBDebugProcessStatus.TARGET_EXECUTION_TERMINATED, true);
+                        stop();
+                    }
+                });
     }
 
     protected abstract void executeTarget() throws SQLException;
@@ -496,4 +523,17 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         }
         return null;
     }
+
+
+    private DebuggerManager getDebuggerManager() {
+        return DebuggerManager.getInstance(getProject());
+    }
+
+    @Override
+    public void queueCommand(PrioritizedTask.Priority priority, Runnable command) {
+        DebugProcessImpl debugProcess = getDebuggerSession().getProcess();
+        ManagedThreadCommand.schedule(debugProcess, priority, command);
+    }
+
+
 }

@@ -21,6 +21,7 @@ import com.dbn.common.thread.Read;
 import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
+import com.dbn.debugger.jdwp.DBJdwpBreakpointProperties;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vfs.DatabaseFileSystem;
@@ -31,7 +32,6 @@ import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.xdebugger.XDebuggerManager;
-import com.intellij.xdebugger.XDebuggerUtil;
 import com.intellij.xdebugger.breakpoints.XBreakpointManager;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
@@ -144,10 +144,23 @@ public class DBBreakpointUtil {
         return breakpoints;
     }
 
+    public static void registerBreakpoint(DBContentVirtualFile contentFile, int line, DBJdwpBreakpointProperties properties) {
+        String fileUrl = contentFile.getUrl();
+        XBreakpointManager breakpointManager = getBreakpointManager(contentFile.getProject());
+
+        DBBreakpointType breakpointType = DBBreakpointType.get();
+        breakpointManager.addLineBreakpoint(breakpointType, fileUrl, line, properties, true);
+    }
+
     @NotNull
     private static Collection<XLineBreakpoint<XBreakpointProperties>> getAllBreakpoints(Project project) {
-        DBBreakpointType databaseBreakpointType = XDebuggerUtil.getInstance().findBreakpointType(DBBreakpointType.class);
-        XBreakpointManager breakpointManager = XDebuggerManager.getInstance(project).getBreakpointManager();
-        return Read.call(() -> Unsafe.cast(breakpointManager.getBreakpoints(databaseBreakpointType)));
+        DBBreakpointType breakpointType = DBBreakpointType.get();
+        XBreakpointManager breakpointManager = getBreakpointManager(project);
+        return Read.call(() -> Unsafe.cast(breakpointManager.getBreakpoints(breakpointType)));
+    }
+
+    public static @NotNull XBreakpointManager getBreakpointManager(Project project) {
+        XDebuggerManager debuggerManager = XDebuggerManager.getInstance(project);
+        return debuggerManager.getBreakpointManager();
     }
 }

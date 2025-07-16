@@ -20,6 +20,7 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.util.Modality;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.config.ConnectionDebuggerSettings;
@@ -152,7 +153,7 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
         }
     }
 
-    private void performInitialization(
+    protected void performInitialization(
             @NotNull ConnectionHandler connection,
             @NotNull T executionInput,
             @NotNull ExecutionEnvironment environment,
@@ -240,11 +241,11 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
         });
     }
 
-    private void performExecution(
+    protected void performExecution(
             T executionInput,
             ExecutionEnvironment environment,
             Callback callback) {
-        Dispatch.run(() ->
+        Dispatch.run(Modality.nonModal(), () ->
                 promptExecutionDialog(executionInput, () ->
                         triggerExecution(executionInput, environment, callback)));
     }

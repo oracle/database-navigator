@@ -33,6 +33,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.xdebugger.XDebuggerBundle;
+import com.intellij.xdebugger.XDebuggerUtil;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
@@ -57,6 +58,10 @@ public class DBBreakpointType extends XLineBreakpointType<XBreakpointProperties>
 
     public DBBreakpointType() {
         super("db-program", "DB-Program Breakpoint");
+    }
+
+    public static DBBreakpointType get() {
+        return XDebuggerUtil.getInstance().findBreakpointType(DBBreakpointType.class);
     }
 
     @Override

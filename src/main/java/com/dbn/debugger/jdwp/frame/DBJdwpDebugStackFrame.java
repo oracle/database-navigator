@@ -56,6 +56,8 @@ public class DBJdwpDebugStackFrame extends DBDebugStackFrame<DBJdwpDebugProcess<
 
     @Override
     public void computeChildren(@NotNull XCompositeNode node) {
+        if (underlyingFrame == null) return;
+
         DBJdwpCompositeNode wrapper = new DBJdwpCompositeNode(node);
         underlyingFrame.computeChildren(wrapper);
     }

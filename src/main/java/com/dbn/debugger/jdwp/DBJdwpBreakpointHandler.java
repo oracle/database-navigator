@@ -19,6 +19,7 @@ package com.dbn.debugger.jdwp;
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.thread.Read;
 import com.dbn.common.util.Documents;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.debugger.DBDebugConsoleLogger;
 import com.dbn.debugger.DBDebugUtil;
 import com.dbn.debugger.common.breakpoint.DBBreakpointHandler;
@@ -39,7 +40,6 @@ import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.debugger.engine.DebugProcessImpl;
 import com.intellij.debugger.engine.requests.RequestManagerImpl;
-import com.intellij.debugger.impl.PrioritizedTask;
 import com.intellij.debugger.jdi.ThreadReferenceProxyImpl;
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl;
 import com.intellij.debugger.requests.ClassPrepareRequestor;
@@ -48,7 +48,6 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.xdebugger.XDebugSession;
-import com.intellij.xdebugger.XDebuggerUtil;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import com.sun.jdi.Location;
@@ -65,6 +64,7 @@ import java.util.Set;
 
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.intellij.debugger.impl.PrioritizedTask.Priority.NORMAL;
 
 public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProcess> {
     private static final ClassPrepareRequestor GENERIC_CLASS_PREPARE_REQUESTER = (p, r) -> {};
@@ -114,8 +114,11 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
 
     private void registerBreakpoint(DBContentVirtualFile contentFile, int line) {
         Read.run(() -> {
-            XDebuggerUtil debuggerUtil = XDebuggerUtil.getInstance();
-            debuggerUtil.toggleLineBreakpoint(getProject(), contentFile, line, true);
+            Project project = getProject();
+            ConnectionHandler connection = contentFile.getConnection();
+
+            DBJdwpBreakpointProperties breakpointProperties = new DBJdwpBreakpointProperties(connection);
+            DBBreakpointUtil.registerBreakpoint(contentFile, line, breakpointProperties);
         });
     }
 
@@ -178,34 +181,39 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
     }
 
     @Override
-    public void registerBreakpoints(@NotNull List<XLineBreakpoint<XBreakpointProperties>> breakpoints, List<DBObjectRef<DBMethod>> objects) {
-        ManagedThreadCommand.invoke(getJdiDebugProcess(), PrioritizedTask.Priority.LOW, () -> {
-            for (DBObjectRef<?> object : objects) {
-                if (!object.isSchemaObject()) {
-                    object = object.getParentRef(o -> o.isSchemaObject());
-                }
+    public void registerBreakpoints(@NotNull List<XLineBreakpoint<XBreakpointProperties>> breakpoints, List<DBObjectRef<DBMethod>> methods) {
+        registerMethodBreakpoints(methods);
+        registerLineBreakpoints(breakpoints);
+    }
 
-                if (object != null && object.isSchemaObject()) {
-                    DBContentType contentType = object.getObjectType().getContentType();
-                    if (contentType == DBContentType.CODE) {
-                        prepareObjectClasses(object, DBContentType.CODE);
-                    } else if (contentType == DBContentType.CODE_SPEC_AND_BODY) {
-                        prepareObjectClasses(object, DBContentType.CODE_SPEC);
-                        prepareObjectClasses(object, DBContentType.CODE_BODY);
-                    }
+    private void registerLineBreakpoints(@NotNull List<XLineBreakpoint<XBreakpointProperties>> breakpoints) {
+        for (var breakpoint : breakpoints) {
+            XBreakpointProperties properties = breakpoint.getProperties();
+            if (properties instanceof DBBreakpointProperties) {
+                DBBreakpointProperties breakpointProperties = (DBBreakpointProperties) properties;
+                if (breakpointProperties.getConnection() == getConnection()) {
+                    prepareObjectClasses(breakpoint);
                 }
             }
+        }
+    }
 
-            for (XLineBreakpoint<XBreakpointProperties> breakpoint : breakpoints) {
-                XBreakpointProperties properties = breakpoint.getProperties();
-                if (properties instanceof DBBreakpointProperties) {
-                    DBBreakpointProperties breakpointProperties = (DBBreakpointProperties) properties;
-                    if (breakpointProperties.getConnection() == getConnection()) {
-                        prepareObjectClasses(breakpoint);
-                    }
+    private void registerMethodBreakpoints(List<DBObjectRef<DBMethod>> methods) {
+        for (DBObjectRef<?> method : methods) {
+            if (!method.isSchemaObject()) {
+                method = method.getParentRef(o -> o.isSchemaObject());
+            }
+
+            if (method != null && method.isSchemaObject()) {
+                DBContentType contentType = method.getObjectType().getContentType();
+                if (contentType == DBContentType.CODE) {
+                    prepareObjectClasses(method, DBContentType.CODE);
+                } else if (contentType == DBContentType.CODE_SPEC_AND_BODY) {
+                    prepareObjectClasses(method, DBContentType.CODE_SPEC);
+                    prepareObjectClasses(method, DBContentType.CODE_BODY);
                 }
             }
-        });
+        }
     }
 
     private void prepareObjectClasses(@NotNull final XLineBreakpoint<XBreakpointProperties> breakpoint) {
@@ -221,9 +229,9 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
         if (!requests.isEmpty()) return;
 
         ClassPrepareRequest request = requestsManager.createClassPrepareRequest((p, r) -> createBreakpointRequest(breakpoint), programIdentifier);
-        if (request != null) {
-            requestsManager.enableRequest(request);
-        }
+        if (request == null) return;
+
+        requestsManager.enableRequest(request);
     }
 
     private void prepareObjectClasses(DBObjectRef object, final DBContentType contentType) {
@@ -238,7 +246,8 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
 
     @Override
     protected void unregisterDatabaseBreakpoint(@NotNull final XLineBreakpoint<XBreakpointProperties> breakpoint, final boolean temporary) {
-        ManagedThreadCommand.invoke(getJdiDebugProcess(), PrioritizedTask.Priority.LOW, () -> {
+        DBJdwpDebugProcess debugProcess = getDebugProcess();
+        debugProcess.queueCommand(NORMAL, () -> {
             RequestManagerImpl requestsManager = getRequestsManager();
             LineBreakpoint lineBreakpoint = getLineBreakpoint(getSession().getProject(), breakpoint);
             if (temporary) {

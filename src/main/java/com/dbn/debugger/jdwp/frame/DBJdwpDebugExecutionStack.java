@@ -19,9 +19,7 @@ package com.dbn.debugger.jdwp.frame;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.util.CollectionUtil;
 import com.dbn.debugger.DBDebugUtil;
-import com.dbn.debugger.jdwp.ManagedThreadCommand;
 import com.dbn.debugger.jdwp.process.DBJdwpDebugProcess;
-import com.intellij.debugger.engine.DebugProcessImpl;
 import com.intellij.debugger.engine.JavaStackFrame;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.frame.XExecutionStack;
@@ -35,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.intellij.debugger.impl.PrioritizedTask.Priority.LOW;
+import static com.intellij.debugger.impl.PrioritizedTask.Priority.NORMAL;
 
 @Getter
 public class DBJdwpDebugExecutionStack extends XExecutionStack {
@@ -56,8 +54,8 @@ public class DBJdwpDebugExecutionStack extends XExecutionStack {
     }
 
     @NotNull
-    private DebugProcessImpl getDebugProcess() {
-        return getSuspendContext().getDebugProcess().getDebuggerSession().getProcess();
+    private DBJdwpDebugProcess getDebugProcess() {
+        return suspendContext.getDebugProcess();
     }
 
     @Nullable
@@ -82,19 +80,19 @@ public class DBJdwpDebugExecutionStack extends XExecutionStack {
             }
         }
 
-        DBJdwpDebugProcess<?> debugProcess = suspendContext.getDebugProcess();
+        DBJdwpDebugProcess<?> debugProcess = getDebugProcess();
         DBJdwpDebugStackFrame stackFrame = new DBJdwpDebugStackFrame(debugProcess, underlyingFrame, stackFrames.size());
         stackFrames.add(stackFrame);
         return stackFrame;
     }
 
     @Override
-    public void computeStackFrames(final int firstFrameIndex, final XStackFrameContainer container) {
+    public void computeStackFrames(int firstFrameIndex, XStackFrameContainer container) {
         XExecutionStack underlyingStack = getUnderlyingStack();
         if (underlyingStack == null) return;
 
-        ManagedThreadCommand.schedule(getDebugProcess(), LOW, () ->
-                computeStackFrames(firstFrameIndex, container, underlyingStack));
+        DBJdwpDebugProcess debugProcess = getDebugProcess();
+        debugProcess.queueCommand(NORMAL, () -> computeStackFrames(firstFrameIndex, container, underlyingStack));
     }
 
     private void computeStackFrames(int firstFrameIndex, XStackFrameContainer container, XExecutionStack underlyingStack) {

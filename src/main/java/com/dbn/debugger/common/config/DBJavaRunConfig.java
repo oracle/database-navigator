@@ -24,8 +24,10 @@ import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.debugger.common.config.ui.DBJavaRunConfigEditor;
 import com.dbn.debugger.jdwp.state.DBJdwpJavaRunProfileState;
 import com.dbn.debugger.options.DebuggerTypeOption;
+import com.dbn.execution.java.JavaExecutionContext;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.JavaExecutionManager;
+import com.dbn.execution.java.wrapper.WrapperModel;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import com.dbn.object.lookup.DBObjectRef;
@@ -147,7 +149,12 @@ public class DBJavaRunConfig extends DBRunConfig<JavaExecutionInput> implements 
 
     @Override
     public List<DBObjectRef<DBMethod>> getMethodRefs() {
-        return Collections.emptyList();
+        JavaExecutionInput executionInput = getExecutionInput();
+        JavaExecutionContext executionContext = executionInput.getExecutionContext();
+        WrapperModel wrapperModel = executionContext.getWrapperModel();
+        DBObjectRef<DBMethod> wrapperMethod = wrapperModel.getSqlWrapperMethod();
+
+        return Collections.singletonList(wrapperMethod);
     }
 
     @Override

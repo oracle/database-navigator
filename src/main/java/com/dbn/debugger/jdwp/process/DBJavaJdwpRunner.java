@@ -22,8 +22,10 @@ import com.dbn.debugger.common.process.DBDebugProcessStarter;
 import com.dbn.debugger.common.process.DBProgramRunner;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.JavaExecutionManager;
+import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class DBJavaJdwpRunner extends DBProgramRunner<JavaExecutionInput> {
     public static final String RUNNER_ID = "DBNJavaMethodJdwpRunner";
@@ -45,6 +47,22 @@ public class DBJavaJdwpRunner extends DBProgramRunner<JavaExecutionInput> {
             return new DBJavaJdwpCloudProcessStarter(connection);
         }
         return new DBJavaJdwpLocalProcessStarter(connection);
+    }
+
+    @Override
+    protected void performInitialization(
+            @NotNull ConnectionHandler connection,
+            @NotNull JavaExecutionInput executionInput,
+            @NotNull ExecutionEnvironment environment,
+            @Nullable Callback callback) {
+
+        // no initialization required for java debugging (as of now)
+        // (wrapper method is expected to be already compiled in debug mode)
+
+        performExecution(
+                executionInput,
+                environment,
+                callback);
     }
 
     @Override
