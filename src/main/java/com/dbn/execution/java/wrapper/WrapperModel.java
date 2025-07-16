@@ -28,9 +28,11 @@ import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBPackage;
+import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
+import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -40,14 +42,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
-
 
 @Getter
 @Setter
-public class Wrapper implements DatabaseContextBase {
-	private final DBObjectRef<?> sourceObject;
-	private final DBObjectRef<DBJavaClass> javaClass;
+public class WrapperModel implements DatabaseContextBase {
+    private WrapperContext context;
+
 	private DBObjectRef<DBJavaClass> javaWrapperClass;
 	private DBObjectRef<DBPackage> sqlWrapperPackage;
 	private DBObjectRef<DBMethod> sqlWrapperMethod;
@@ -56,24 +56,28 @@ public class Wrapper implements DatabaseContextBase {
 	private List<MethodWrapper> methods = new ArrayList<>();
     private List<ClassWrapper> classes = new ArrayList<>();
 
-	public Wrapper(@NotNull DBJavaClass javaClass) {
-		this.sourceObject = DBObjectRef.of(javaClass);
-		this.javaClass = DBObjectRef.of(javaClass);
-		initWrapperNames(javaClass);
-	}
+    public WrapperModel(WrapperContext context) {
+        this.context = context;
+        WrapperModelInput input = context.getInput();
 
-	public Wrapper(@NotNull DBJavaMethod javaMethod) {
-		this.sourceObject = DBObjectRef.of(javaMethod);
-		this.javaClass = javaMethod.getOwnerClassRef();
-		initWrapperNames(javaMethod);
-	}
+        if (input.isClassLevel()) {
+            DBJavaClass javaClass = input.getJavaClass();
+            initWrapperNames(javaClass);
+        } else {
+            DBJavaMethod javaMethod = input.getTargetMethod();
+            initWrapperNames(javaMethod);
+
+        }
+    }
 
 	private void initWrapperNames(DBObject sourceObject) {
-		WrapperNamingProvider namingProvider = getNamingProvider();
+		WrapperNamingProvider namingProvider = context.getNamingProvider();
 		String javaWrapperName = namingProvider.getJavaWrapperName(sourceObject);
-		DBObjectRef<?> schemaRef = javaClass.getParentRef();
+        DBSchema schema = getJavaClass().getSchema();
+        DBObjectRef<DBSchema> schemaRef = schema.ref();
 
-		this.javaWrapperClass = new DBObjectRef<>(schemaRef, DBObjectType.JAVA_CLASS, javaWrapperName);
+
+        this.javaWrapperClass = new DBObjectRef<>(schemaRef, DBObjectType.JAVA_CLASS, javaWrapperName);
 
 		String sqlWrapperName = namingProvider.getSqlWrapperName(sourceObject);
 		if (sourceObject instanceof DBJavaClass) {
@@ -88,23 +92,32 @@ public class Wrapper implements DatabaseContextBase {
 		}
 	}
 
+    public WrapperModelInput getInput() {
+        return context.getInput();
+    }
+
     @Override
+    @NotNull
     public ConnectionHandler getConnection() {
-        return javaClass.getConnection();
+        return getJavaClass().ensureConnection();
+    }
+
+    private DBJavaClass getJavaClass() {
+        return context.getInput().getJavaClass();
+    }
+
+    @NotNull
+    public Project getProject() {
+        return getConnection().getProject();
     }
 
     @Override
     public SchemaId getSchemaId() {
-        return javaClass.getSchemaId();
+        return getJavaClass().getSchemaId();
     }
 
 	public String getClassName() {
-		return getCanonicalName(javaClass);
-	}
-
-	public String getSqlTypeName(DBJavaClass javaClass, int arrayDepth) {
-		WrapperNamingProvider namingProvider = getNamingProvider();
-		return namingProvider.getSqlTypeName(javaClass, arrayDepth);
+		return getJavaClass().getCanonicalName();
 	}
 
 	public void addClassWrapper(ClassWrapper classWrapper) {
@@ -125,24 +138,12 @@ public class Wrapper implements DatabaseContextBase {
 		methods.add(javaMethod);
 	}
 
-	private static WrapperBuilderContext getContext() {
-		return WrapperBuilderContext.get();
-	}
-
-	private static WrapperNamingProvider getNamingProvider() {
-		return getContext().getNamingProvider();
-	}
-
-	public DBObject getSourceObject() {
-		return this.sourceObject.ensure();
-	}
-
-	public DBObjectRef getSourceObjectRef() {
-		return this.sourceObject;
+	public <T extends DBObject> T getSourceObject() {
+		return getInput().getSourceObject();
 	}
 
 	public Object isClassWrapper() {
-		return sourceObject.getObjectType().matches(DBObjectType.JAVA_CLASS);
+		return getInput().isClassLevel();
 	}
 
 	public String getJavaWrapperName() {

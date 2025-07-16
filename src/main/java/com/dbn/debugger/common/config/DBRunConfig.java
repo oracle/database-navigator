@@ -21,6 +21,7 @@ import com.dbn.connection.context.DatabaseContext;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.ExecutionInput;
 import com.dbn.object.DBMethod;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.execution.ExecutionTarget;
 import com.intellij.execution.configurations.LocatableConfiguration;
 import com.intellij.execution.configurations.RunConfigurationBase;
@@ -86,7 +87,11 @@ public abstract class DBRunConfig<I extends ExecutionInput> extends RunConfigura
         debuggerType = getEnum(element, "debugger-type", debuggerType);
     }
 
-    public abstract List<DBMethod> getMethods();
+    public List<DBMethod> getMethods() {
+        return DBObjectRef.get(getMethodRefs());
+    }
+
+    public abstract List<DBObjectRef<DBMethod>> getMethodRefs();
 
     @Nullable
     public abstract DatabaseContext getDatabaseContext();

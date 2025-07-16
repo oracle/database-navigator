@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.wrapper.model;
 
+import com.dbn.execution.java.wrapper.WrapperModel;
 import com.dbn.execution.java.wrapper.naming.WrapperNamingProvider;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBSchema;
@@ -46,7 +47,8 @@ public class ClassWrapper extends EntityWrapper {
 	private ArgumentDirection argumentDirection;
 	private List<FieldWrapper> fields = new ArrayList<>();
 
-	public ClassWrapper(DBObjectRef<DBJavaClass> javaClass, int arrayDepth, ArgumentDirection argumentDirection) {
+	public ClassWrapper(WrapperModel model, DBObjectRef<DBJavaClass> javaClass, int arrayDepth, ArgumentDirection argumentDirection) {
+        super(model);
 		this.javaClass = javaClass;
 		this.arrayDepth = arrayDepth;
 		this.argumentDirection = argumentDirection;

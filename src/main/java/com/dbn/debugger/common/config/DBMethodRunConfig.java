@@ -45,13 +45,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.options.setting.Settings.newElement;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 public class DBMethodRunConfig extends DBRunConfig<MethodExecutionInput> implements Cloneable<DBMethodRunConfig> {
     private Map<DBObjectRef<DBMethod>, MethodExecutionInput> methodSelectionHistory = new HashMap<>();
@@ -146,13 +147,11 @@ public class DBMethodRunConfig extends DBRunConfig<MethodExecutionInput> impleme
     }
 
     @Override
-    public List<DBMethod> getMethods() {
-        ArrayList<DBMethod> methods = new ArrayList<>();
+    public List<DBObjectRef<DBMethod>> getMethodRefs() {
         DBMethod method = getMethod();
-        if (method != null) {
-            methods.add(method);
-        }
-        return methods;
+        return method == null ?
+                emptyList() :
+                singletonList(method.ref());
     }
 
     @Override

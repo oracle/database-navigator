@@ -26,11 +26,8 @@ import com.dbn.debugger.jdwp.state.DBJdwpJavaRunProfileState;
 import com.dbn.debugger.options.DebuggerTypeOption;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.JavaExecutionManager;
-import com.dbn.execution.java.wrapper.Wrapper;
-import com.dbn.execution.java.wrapper.WrapperBuilder;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
-import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
@@ -48,8 +45,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -142,12 +139,6 @@ public class DBJavaRunConfig extends DBRunConfig<JavaExecutionInput> implements 
         return getJavaMethod();
     }
 
-    public String getSqlWrapperName() {
-        WrapperBuilder wrapperBuilder = WrapperBuilder.getInstance();
-        Wrapper wrapper = wrapperBuilder.build(getJavaMethod(), false);
-        return wrapper.getSqlWrapperName();
-    }
-
     @Nullable
     public DBJavaMethod getJavaMethod() {
         JavaExecutionInput executionInput = getExecutionInput();
@@ -155,15 +146,8 @@ public class DBJavaRunConfig extends DBRunConfig<JavaExecutionInput> implements 
     }
 
     @Override
-    public List<DBMethod> getMethods() {
-        DBJavaMethod javaMethod = getJavaMethod();
-        DBSchema schema = javaMethod.getSchema();
-        String sqlWrapperName = getSqlWrapperName();
-
-        DBMethod sqlWrapperMethod = schema.getMethod(sqlWrapperName, (short) 0);
-        List<DBMethod> methods = new ArrayList<>();
-        methods.add(sqlWrapperMethod);
-        return methods;
+    public List<DBObjectRef<DBMethod>> getMethodRefs() {
+        return Collections.emptyList();
     }
 
     @Override

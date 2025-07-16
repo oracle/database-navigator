@@ -52,18 +52,28 @@ public class JavaExecutionWrapperManager extends ProjectComponentBase implements
 		return projectService(project, JavaExecutionWrapperManager.class);
 	}
 
-	public Wrapper createExecutionWrappers(DBJavaMethod method, boolean useFriendlyNames, boolean compileInDebugMode) throws SQLException {
-		WrapperStatementExecutor statementExecutor = new WrapperStatementExecutor();
-		return statementExecutor.createExecutionWrappers(method, useFriendlyNames, compileInDebugMode);
-	}
+    @NotNull
+    public WrapperModel createExecutionWrappers(DBJavaMethod method, boolean useFriendlyNames, boolean compileInDebugMode) throws SQLException {
+        WrapperModelInput modelInput = new WrapperModelInput(method, useFriendlyNames, compileInDebugMode);
+        return createExecutionWrappers(modelInput);
+    }
 
-	public Wrapper createExecutionWrappers(DBJavaClass javaClass, List<DBJavaMethod> methods, boolean useFriendlyNames, boolean compileInDebugMode) throws SQLException {
-		WrapperStatementExecutor statementExecutor = new WrapperStatementExecutor();
-		return statementExecutor.createExecutionWrappers(javaClass, methods, useFriendlyNames, compileInDebugMode);
-	}
+    @NotNull
+    public WrapperModel createExecutionWrappers(DBJavaClass javaClass, List<DBJavaMethod> methods, boolean useFriendlyNames, boolean compileInDebugMode) throws SQLException {
+        WrapperModelInput modelInput = new  WrapperModelInput(javaClass, methods, useFriendlyNames, compileInDebugMode);
+        return createExecutionWrappers(modelInput);
+    }
 
-	public void showWrapperResult(Wrapper wrapper) {
-		Dialogs.show(() -> new WrapperResultDialog(getProject(), wrapper));
+    @NotNull
+    private static WrapperModel createExecutionWrappers(WrapperModelInput modelInput) throws SQLException {
+        WrapperModelBuilder builder = WrapperModelBuilder.getInstance();
+        WrapperModel model = builder.buildModel(modelInput);
+        WrapperStatementExecutor.createExecutionWrappers(model);
+        return model;
+    }
+
+	public void showWrapperResult(WrapperModel model) {
+		Dialogs.show(() -> new WrapperResultDialog(getProject(), model));
 	}
 
 	/****************************************

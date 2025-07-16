@@ -30,6 +30,7 @@ import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBSchema;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
@@ -117,19 +118,19 @@ public class DBStatementRunConfig extends DBRunConfig<StatementExecutionInput> {
     }
 
     @Override
-    public List<DBMethod> getMethods() {
+    public List<DBObjectRef<DBMethod>> getMethodRefs() {
         if (executionInput == null) return Collections.emptyList();
 
         ExecutablePsiElement executablePsiElement = executionInput.getExecutionProcessor().getCachedExecutable();
         if (executablePsiElement == null) return Collections.emptyList();
 
-        List<DBMethod> methods = new ArrayList<>();
+        List<DBObjectRef<DBMethod>> methods = new ArrayList<>();
         executablePsiElement.collectObjectReferences(DBObjectType.METHOD, object -> {
             if (object instanceof DBMethod) {
                 DBMethod method = (DBMethod) object;
                 DBSchema schema = method.getSchema();
                 if (!schema.isSystemSchema() && !schema.isPublicSchema()) {
-                    methods.add(method);
+                    methods.add(method.ref());
                 }
             }
         });

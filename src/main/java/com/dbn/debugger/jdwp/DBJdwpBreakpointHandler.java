@@ -16,6 +16,7 @@
 
 package com.dbn.debugger.jdwp;
 
+import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.thread.Read;
 import com.dbn.common.util.Documents;
 import com.dbn.debugger.DBDebugConsoleLogger;
@@ -29,8 +30,11 @@ import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.psql.PSQLFile;
 import com.dbn.object.DBMethod;
-import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBObjectType;
+import com.dbn.vfs.DatabaseFileSystem;
+import com.dbn.vfs.file.DBContentVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.debugger.engine.DebugProcessImpl;
@@ -71,7 +75,7 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
     }
 
     @Override
-    public void registerDefaultBreakpoint(DBMethod method) {
+    public void registerDefaultBreakpoint(DBObjectRef<DBMethod> method) {
         DBEditableObjectVirtualFile mainDatabaseFile = DBDebugUtil.getMainDatabaseFile(method);
         if (mainDatabaseFile == null) return;
 
@@ -79,7 +83,9 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
         PSQLFile psqlFile = (PSQLFile) sourceCodeFile.getPsiFile();
         if (psqlFile == null) return;
 
-        BasePsiElement basePsiElement = psqlFile.lookupObjectDeclaration(method.getObjectType().getGenericType(), method.getName());
+        String methodName = method.getObjectName();
+        DBObjectType methodType = method.getObjectType().getGenericType();
+        BasePsiElement basePsiElement = psqlFile.lookupObjectDeclaration(methodType, methodName);
         if (basePsiElement == null) return;
 
         BasePsiElement subject = basePsiElement.findFirstPsiElement(ElementTypeAttribute.SUBJECT);
@@ -88,11 +94,29 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
         if (document == null) return;
 
         int line = document.getLineNumber(offset);
-        DBSchemaObject schemaObject = DBDebugUtil.getMainDatabaseObject(method);
+        DBObjectRef<DBSchemaObject> schemaObject = DBDebugUtil.getMainDatabaseObject(method);
         if (schemaObject == null) return;
 
-        XDebuggerUtil debuggerUtil = XDebuggerUtil.getInstance();
-        debuggerUtil.toggleLineBreakpoint(getSession().getProject(), sourceCodeFile, line, true);
+        registerBreakpoint(sourceCodeFile, line);
+    }
+
+    public void registerWrapperBreakpoint(DBObjectRef<DBMethod> wrapperMethod) {
+        DatabaseFileSystem databaseFileSystem = DatabaseFileSystem.getInstance();
+        DBEditableObjectVirtualFile wrapperFile = databaseFileSystem.findOrCreateDatabaseFile(getProject(), wrapperMethod);
+        if (wrapperFile == null) return;
+
+        DBContentVirtualFile contentFile = wrapperFile.getContentFile(DBContentType.CODE);
+        if (contentFile == null) return;
+
+        UserDataKeys.WRAPPER_FILE.set(contentFile, true);
+        registerBreakpoint(contentFile, 0);
+    }
+
+    private void registerBreakpoint(DBContentVirtualFile contentFile, int line) {
+        Read.run(() -> {
+            XDebuggerUtil debuggerUtil = XDebuggerUtil.getInstance();
+            debuggerUtil.toggleLineBreakpoint(getProject(), contentFile, line, true);
+        });
     }
 
     @Override
@@ -107,7 +131,7 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
 
     private void createBreakpointRequest(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) {
         DBDebugConsoleLogger console = getDebugProcess().getConsole();
-        DBSchemaObject databaseObject = DBBreakpointUtil.getDatabaseObject(breakpoint);
+        DBObjectRef databaseObject = DBBreakpointUtil.getDatabaseObject(breakpoint);
         String breakpointLocation = databaseObject == null ? "" : " on " + databaseObject.getQualifiedName() + " at line " + (breakpoint.getLine() + 1);
         try {
             VirtualMachineProxyImpl virtualMachineProxy = getVirtualMachineProxy();
@@ -154,21 +178,20 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
     }
 
     @Override
-    public void registerBreakpoints(@NotNull List<XLineBreakpoint<XBreakpointProperties>> breakpoints, final List<? extends DBObject> objects) {
+    public void registerBreakpoints(@NotNull List<XLineBreakpoint<XBreakpointProperties>> breakpoints, List<DBObjectRef<DBMethod>> objects) {
         ManagedThreadCommand.invoke(getJdiDebugProcess(), PrioritizedTask.Priority.LOW, () -> {
-            for (DBObject object : objects) {
+            for (DBObjectRef<?> object : objects) {
                 if (!object.isSchemaObject()) {
-                    object = object.getParentObject(o -> o.isSchemaObject());
+                    object = object.getParentRef(o -> o.isSchemaObject());
                 }
 
-                if (object instanceof DBSchemaObject) {
-                    DBSchemaObject schemaObject = (DBSchemaObject) object;
-                    DBContentType contentType = schemaObject.getContentType();
+                if (object != null && object.isSchemaObject()) {
+                    DBContentType contentType = object.getObjectType().getContentType();
                     if (contentType == DBContentType.CODE) {
-                        prepareObjectClasses(schemaObject, DBContentType.CODE);
+                        prepareObjectClasses(object, DBContentType.CODE);
                     } else if (contentType == DBContentType.CODE_SPEC_AND_BODY) {
-                        prepareObjectClasses(schemaObject, DBContentType.CODE_SPEC);
-                        prepareObjectClasses(schemaObject, DBContentType.CODE_BODY);
+                        prepareObjectClasses(object, DBContentType.CODE_SPEC);
+                        prepareObjectClasses(object, DBContentType.CODE_BODY);
                     }
                 }
             }
@@ -203,14 +226,14 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
         }
     }
 
-    private void prepareObjectClasses(final DBSchemaObject object, final DBContentType contentType) {
+    private void prepareObjectClasses(DBObjectRef object, final DBContentType contentType) {
         RequestManagerImpl requestsManager = getRequestsManager();
         String programIdentifier = DBBreakpointUtil.getProgramIdentifier(getConnection(), object, contentType);
 
         ClassPrepareRequest request = requestsManager.createClassPrepareRequest(GENERIC_CLASS_PREPARE_REQUESTER, programIdentifier);
-        if (request != null) {
-            requestsManager.enableRequest(request);
-        }
+        if (request == null) return;
+
+        requestsManager.enableRequest(request);
     }
 
     @Override

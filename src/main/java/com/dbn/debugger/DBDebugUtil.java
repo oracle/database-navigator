@@ -22,6 +22,8 @@ import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.vfs.DatabaseFileSystem;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.project.Project;
@@ -29,6 +31,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.xdebugger.XSourcePosition;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.common.util.Unsafe.cast;
 
 @UtilityClass
 public class DBDebugUtil {
@@ -75,6 +79,24 @@ public class DBDebugUtil {
     @Nullable
     public static DBSchemaObject getMainDatabaseObject(DBMethod method) {
         return method != null && method.isProgramMethod() ? method.getProgram() : method;
+    }
+
+    @Nullable
+    public static DBEditableObjectVirtualFile getMainDatabaseFile(DBObjectRef<DBMethod> method) {
+        DBObjectRef<DBSchemaObject> schemaObject = getMainDatabaseObject(method);
+        if (schemaObject == null) return null;
+
+        Project project = schemaObject.getProject();
+        if (project == null) return null;
+
+        DatabaseFileSystem databaseFileSystem = DatabaseFileSystem.getInstance();
+        return databaseFileSystem.findOrCreateDatabaseFile(project, method);
+    }
+
+    public static DBObjectRef<DBSchemaObject> getMainDatabaseObject(DBObjectRef<DBMethod> method) {
+        if (method == null) return null;
+        if (method.isSchemaObject()) return cast(method);
+        return method.getParentRef(o -> o.isSchemaObject());
     }
 
     public static void openEditor(VirtualFile virtualFile) {
