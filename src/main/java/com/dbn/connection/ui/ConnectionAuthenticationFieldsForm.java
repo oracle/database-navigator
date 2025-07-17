@@ -18,19 +18,19 @@ package com.dbn.connection.ui;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.message.MessageType;
 import com.dbn.common.routine.ThrowableRunnable;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
-import com.dbn.common.ui.dialog.DialogNotificationListener;
-import com.dbn.common.ui.dialog.DialogNotificationPanel;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.form.field.JComponentCategory;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Chars;
 import com.dbn.common.util.Commons;
-import com.dbn.common.util.NotificationStatus;
 import com.dbn.common.util.Sockets;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.form.field.JComponentFilter.accessibleClassifiedAs;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.form.field.JComponentFilter.classifiedAs;
@@ -94,6 +95,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     private JLabel tokenTypeLabel;
     private JLabel tokenConfigFileLabel;
     private JLabel tokenProfileLabel;
+    private JPanel interactivePortWarningPanel;
 
 
     public ConnectionAuthenticationFieldsForm(@NotNull DBNForm parentComponent) {
@@ -111,10 +113,18 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         ActionListener actionListener = e -> updateAuthenticationFields();
         authTypeComboBox.addActionListener(actionListener);
         tokenTypeComboBox.addActionListener(actionListener);
+
+        // TODO NLS
+        TextContent interactivePortHintText = plain("TCP port 8181 appears to be bound.  This may cause interactive OCI authentication to fail.");
+        DBNHintForm hintForm = new DBNHintForm(this, interactivePortHintText, MessageType.WARNING, false);
+        interactivePortWarningPanel.add(hintForm.getComponent());
+
+        interactivePortWarningPanel.setVisible(false);
+
         // monitor auth type changes and fire a warning
         // event under Bug_38087045 conditions.
         this.bindPortWarningListener =
-                new BindPortWarningListener(getProject(), authTypeComboBox, tokenTypeComboBox);
+                new BindPortWarningListener(interactivePortWarningPanel, authTypeComboBox, tokenTypeComboBox);
         authTypeComboBox.addActionListener(bindPortWarningListener);
         tokenTypeComboBox.addActionListener(bindPortWarningListener);
 
@@ -313,10 +323,10 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     private static class BindPortWarningListener implements ActionListener {
         private final JComboBox<AuthenticationType> authTypeCombo;
         private final JComboBox<AuthenticationTokenType> tokenTypeCombo;
-        private final Project project;
+        private final JPanel interactiveHintPanel;
 
-        public BindPortWarningListener(Project project, JComboBox<AuthenticationType> authTypeCombo, JComboBox<AuthenticationTokenType> tokenTypeCombo) {
-            this.project = project;
+        public BindPortWarningListener(JPanel interactivePortHintPanel, JComboBox<AuthenticationType> authTypeCombo, JComboBox<AuthenticationTokenType> tokenTypeCombo) {
+            this.interactiveHintPanel = interactivePortHintPanel;
             this.authTypeCombo = authTypeCombo;
             this.tokenTypeCombo = tokenTypeCombo;
         }
@@ -329,26 +339,19 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
             Background.run(new ThrowableRunnable<Throwable>() {
                 @Override
                 public void run() throws Throwable {
-                    NotificationStatus status = NotificationStatus.NONE;
+                    final boolean[] isInteractivePortBound = new boolean[1];
                     if (isOCIInteractive) {
                         // if OCI Interactive and 8181 appears to be bound already, then
                         // warn the user.
                         if (!Sockets.tryToBindPort(OracleCompatibilityInterface.ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT)) {
-                            status = new NotificationStatus(NotificationStatus.Severity.WARNING,
-                                    "TCP port 8181 appears to be bound.  This may cause interactive OCI authentication to fail.");
+                            isInteractivePortBound[0] = true;
                         }
                     }
-                    final DialogNotificationListener.NotificationStatusEvent event =
-                            new DialogNotificationListener.NotificationStatusEvent(
-                                    this, ConnectionSettingsForm.OCI_BIND_PORT_WARNING, status);
                     // TODO: let each listener decide whether or not run on UI thread?
                     Dispatch.run(ModalityState.any(), new Runnable() {
                         @Override
                         public void run() {
-                            ProjectEvents.notify(project, DialogNotificationListener.TOPIC,
-                                    notificationListener -> {
-                                        notificationListener.fireNotificationStatusEvent(event);
-                                    });
+                            interactiveHintPanel.setVisible(isInteractivePortBound[0]);
                         }
                     });
                 }

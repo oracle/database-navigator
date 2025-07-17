@@ -22,15 +22,11 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.ui.CompositeConfigurationEditorForm;
-import com.dbn.common.ui.dialog.DialogNotificationListener;
-import com.dbn.common.ui.dialog.DialogNotificationPanel;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Messages;
-import com.dbn.common.util.NotificationStatus;
 import com.dbn.common.util.Safe;
-import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.ConnectivityStatus;
@@ -59,7 +55,6 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
     private JButton testButton;
     private DBNTabbedPane tabbedPane;
     private DBNHeaderForm headerForm;
-    private DialogNotificationPanel notificationPanel;
 
     public ConnectionSettingsForm(ConnectionSettings connectionSettings) {
         super(connectionSettings);
@@ -72,17 +67,6 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
         registerComponent(testButton);
         registerComponent(infoButton);
         ProjectEvents.subscribe(ensureProject(), this, ConnectionPresentationChangeListener.TOPIC, connectionPresentationChangeListener);
-    }
-
-    @Override
-    public void disposeInner() {
-        // TODO: it's unclear why the Disposer automation doesn't pick this up
-        // the DialogNotificationPanel.  It is a descendent of the parent component
-        // and I registered right after creation
-        // I'm expecting that this disposeInner would otherwise
-        // be run on this thread by the automation.
-        Unsafe.logged(() -> {notificationPanel.dispose();});
-        super.disposeInner();
     }
 
     private void initConfigTabs(ConnectionSettings connectionSettings) {
@@ -135,34 +119,8 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
         headerForm.addButton(infoButton);
 
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
-
-        this.notificationPanel = createNotificationPanel(color);
-        headerPanel.add(notificationPanel, BorderLayout.PAGE_END);
     }
 
-    /**
-     * A panel that goes across the top of the form just below the connection
-     * name header bar.  The panel subscribes to a MessageBus topic and updates
-     * its message accordingly.
-     *
-     * @param color the background color of the panel
-     * @return a JPanel that implements the messaging.
-     */
-    private DialogNotificationPanel createNotificationPanel(Color color) {
-        DialogNotificationPanel.Builder panelBuilder = new DialogNotificationPanel.Builder();
-        DialogNotificationPanel notificationPanel = panelBuilder
-                .project(ensureProject())
-                .parentDisposable(getConfiguration().getParent())
-                .backgroundColor(color)
-                // use default error label
-                .addComponent(OCI_BIND_PORT_WARNING)
-                .addComponent(OCI_OFFER_USER_TOOLKIT_PLUGIN)
-                .build();
-        notificationPanel.setVisible(false);
-        notificationPanel.init();
-        notificationPanel.setName("DialogNotificationPanel");
-        return notificationPanel;
-    }
 
     public ConnectionSettings getTemporaryConfig() throws ConfigurationException {
         try {
@@ -246,40 +204,8 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
         settingsEditor.notifyPresentationChanges();
     }
 
-    public void deselectTab() {
-        Safe.run(notificationPanel, n -> n.disableNotifications());
-    }
     public void selectTab(String tabName) {
         Safe.run(tabbedPane, t -> t.selectTab(tabName));
-        Safe.run(this, n -> n.updateForSelected());
-    }
-
-    private void updateForSelected() {
-        notificationPanel.enableNotifications();
-        checkToolkitNotifications();
-        checkIfCurrentlyOCIInteractive();
-    }
-
-    private void checkIfCurrentlyOCIInteractive() {
-        //getConfiguration().getDatabaseSettings().getAuthenticationInfo()
-    }
-
-    private void checkToolkitNotifications() {
-        // TODO: re-enable when have plugin detection working.
-        boolean hasOfferToolkitEvent = true; //notificationPanel.searchForEvents(OCI_OFFER_USER_TOOLKIT_PLUGIN);
-        // if no event, check if we need to add one
-        if (!hasOfferToolkitEvent) {
-            NotificationStatus status = new NotificationStatus(NotificationStatus.Severity.INFO,
-                    "It appears you don't have OCI Toolkit...");
-            // for now just assume
-            final DialogNotificationListener.NotificationStatusEvent event =
-                    new DialogNotificationListener.NotificationStatusEvent(
-                            this, ConnectionSettingsForm.OCI_OFFER_USER_TOOLKIT_PLUGIN, status);
-            ProjectEvents.notify(ensureProject(), DialogNotificationListener.TOPIC,
-                    notificationListener -> {
-                        notificationListener.fireNotificationStatusEvent(event);
-                    });
-        }
     }
 
     public String getSelectedTabName() {

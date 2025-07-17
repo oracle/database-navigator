@@ -195,7 +195,6 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         // being replaced with a different selection
         String selectedTabName = null;
         if (currentForm != null) {
-            currentForm.deselectTab();
             selectedTabName = currentForm.getSelectedTabName();
         }
 
