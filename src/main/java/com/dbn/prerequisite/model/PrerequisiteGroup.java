@@ -58,7 +58,7 @@ import static com.dbn.prerequisite.model.PrerequisiteStatus.UNKNOWN;
 public class PrerequisiteGroup extends StatefulDisposableBase implements DatabaseContextBase {
     private final WeakRef<PrerequisiteData> data;
     private final DatabaseOperation operation;
-    private final List<PrerequisiteType> prerequisiteTypes;
+    private final List<PrerequisiteMandate> mandates;
 
     private final Listeners<PrerequisiteEventListener> listeners = Listeners.create(this);
 
@@ -66,10 +66,10 @@ public class PrerequisiteGroup extends StatefulDisposableBase implements Databas
     private boolean evaluating = false;
     private long evaluationTimestamp;
 
-    public PrerequisiteGroup(PrerequisiteData prerequisiteData, DatabaseOperation operation, List<PrerequisiteType> prerequisiteTypes) {
+    public PrerequisiteGroup(PrerequisiteData prerequisiteData, DatabaseOperation operation, List<PrerequisiteMandate> mandates) {
         this.data = WeakRef.of(prerequisiteData);
         this.operation = operation;
-        this.prerequisiteTypes = Collections.unmodifiableList(prerequisiteTypes);
+        this.mandates = Collections.unmodifiableList(mandates);
     }
 
     public synchronized void reset() {
@@ -89,12 +89,20 @@ public class PrerequisiteGroup extends StatefulDisposableBase implements Databas
         return getData().getConnection();
     }
 
+    public PrerequisiteMandate getMandate(PrerequisiteType type) {
+        return Lists.first(mandates, m -> m.getType() == type);
+    }
+
+    public List<PrerequisiteType> getPrerequisiteTypes() {
+        return Lists.convert(mandates, m-> m.getType());
+    }
+
     public List<Prerequisite> getPrerequisites() {
-        return Lists.convert(prerequisiteTypes, t -> getData().getPrerequisite(t));
+        return Lists.convert(getPrerequisiteTypes(), t -> getData().getPrerequisite(t));
     }
 
     private Stream<Prerequisite> prerequisites() {
-        return prerequisiteTypes.stream().map(t -> getData().getPrerequisite(t));
+        return mandates.stream().map(m -> getData().getPrerequisite(m.getType()));
     }
 
     @NotNull
@@ -121,7 +129,7 @@ public class PrerequisiteGroup extends StatefulDisposableBase implements Databas
     }
 
     public int size() {
-        return prerequisiteTypes.size();
+        return mandates.size();
     }
 
     public boolean isEvaluated() {

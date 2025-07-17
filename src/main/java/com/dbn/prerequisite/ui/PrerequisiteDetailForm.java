@@ -27,7 +27,9 @@ import com.dbn.prerequisite.event.PrerequisiteEventListener;
 import com.dbn.prerequisite.event.PrerequisiteEventType;
 import com.dbn.prerequisite.model.Prerequisite;
 import com.dbn.prerequisite.model.PrerequisiteGroup;
+import com.dbn.prerequisite.model.PrerequisiteMandate;
 import com.dbn.prerequisite.model.PrerequisiteStatus;
+import com.dbn.prerequisite.model.PrerequisiteType;
 import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
@@ -48,6 +50,7 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
     private JTextPane descriptionTextArea;
     private JLabel statusLabel;
     private JPanel actionsPanel;
+    private JTextPane reasonTextArea;
 
     private final Prerequisite prerequisite;
 
@@ -65,9 +68,17 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
         titleLabel.setFont(largerFont);
         statusLabel.setForeground(greyContent);
         descriptionTextArea.setFont(JBUI.Fonts.label());
-        descriptionTextArea.setForeground(greyContent);
+        //descriptionTextArea.setForeground(greyContent);
         descriptionTextArea.setText(definition.getDescription());
         descriptionTextArea.setCaret(new HiddenCaret());
+
+        PrerequisiteType type = prerequisite.getType();
+        PrerequisiteMandate mandate = getPrerequisiteGroup().getMandate(type);
+        reasonTextArea.setText(mandate.getReason());
+        reasonTextArea.setFont(JBUI.Fonts.label());
+        reasonTextArea.setForeground(greyContent);
+        reasonTextArea.setCaret(new HiddenCaret());
+
 
         updatePrerequisiteStatus();
     }
