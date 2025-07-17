@@ -205,7 +205,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                         public void run() {
                             try {
                                 // todo, use a backoff and retry?
-                                if (!Sockets.tryToBindPort(8181)) {
+                                if (!Sockets.tryToBindPort(OracleCompatibilityInterface.ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT)) {
                                     /**
                                      *  @see ProviderErrorHandlingConstants.OCI_INTERACTIVE_WEB_SERVER_POKE_URL
                                      */

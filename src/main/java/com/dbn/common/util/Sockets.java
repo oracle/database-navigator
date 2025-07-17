@@ -2,6 +2,7 @@ package com.dbn.common.util;
 
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.util.Range;
+import lombok.experimental.UtilityClass;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.net.*;
 /**
  * Utility methods for TCP sockets and http
  */
+@UtilityClass
 public class Sockets {
     /**
      * TODO: could move to Http specific class but we don't really have much to put there right now
@@ -92,7 +94,7 @@ public class Sockets {
     public static boolean tryToBindPort(int port) throws IOException {
         ServerSocket socket = null;
         try  {
-            socket = new ServerSocket(8181, 50, getLocalHost());
+            socket = new ServerSocket(port, 50, getLocalHost());
             return true;
         } catch (IOException e) {
             if (e instanceof BindException) {
