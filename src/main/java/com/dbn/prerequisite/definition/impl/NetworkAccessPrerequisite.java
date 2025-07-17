@@ -113,7 +113,7 @@ public abstract class NetworkAccessPrerequisite extends PrerequisiteDefinitionPr
 
             return new PrerequisiteAdvice(
                     "Request privilege",
-                    "request \"" + privilegeName + "\" network privilege for host \"" + hostName + "\"",
+                    "\"" + privilegeName + "\" network privilege for host \"" + hostName + "\"",
                     String.format("BEGIN\n" +
                             "   DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(\n" +
                             "       host =>  '%s',\n" +

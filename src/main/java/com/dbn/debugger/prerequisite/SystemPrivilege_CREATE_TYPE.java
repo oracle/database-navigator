@@ -28,4 +28,9 @@ public class SystemPrivilege_CREATE_TYPE extends SystemPrivilegePrerequisite {
     protected String getPrivilegeName() {
         return "CREATE TYPE";
     }
+
+    @Override
+    protected String getAlternativePrivilegeName() {
+        return "CREATE ANY TYPE";
+    }
 }

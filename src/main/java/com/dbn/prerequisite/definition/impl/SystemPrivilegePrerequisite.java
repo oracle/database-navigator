@@ -43,6 +43,18 @@ public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinition
 
     protected abstract @NonNls String getPrivilegeName();
 
+    /**
+     * Provides an alternative privilege name, which can be utilized as a fallback
+     * when checking or evaluating prerequisite requirements (typically a
+     * much higher privilege that implies the default one).
+     *
+     * @return a String representing the alternative privilege name, or null if no
+     * alternative privilege is defined.
+     */
+    protected @NonNls String getAlternativePrivilegeName() {
+        return null;
+    }
+
     @NotNull
     @Override
     public PrerequisiteDefinition createDefinition(PrerequisiteEvaluator evaluator, PrerequisiteResolver resolver, PrerequisiteAdvisor advisor) {
@@ -62,6 +74,7 @@ public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinition
     protected PrerequisiteEvaluator createEvaluator() {
         return context -> {
             String privilegeName = getPrivilegeName();
+            String alternativePrivilegeName = getAlternativePrivilegeName();
 
             DatabaseMetadataInterface metadataInterface = context.getMetadataInterface();
             return DatabaseInterfaceInvoker.load(Priority.HIGH,
@@ -69,7 +82,13 @@ public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinition
                     txt("prc.prerequisite.text.CheckingSystemPrivilege", privilegeName),
                     context.getProject(),
                     context.getConnectionId(),
-                    c -> metadataInterface.hasSystemPrivilege(privilegeName, c));
+                    c -> {
+                        boolean privilegeGranted = metadataInterface.hasSystemPrivilege(privilegeName, c);
+                        if (!privilegeGranted && alternativePrivilegeName != null) {
+                            privilegeGranted = metadataInterface.hasSystemPrivilege(alternativePrivilegeName, c);
+                        }
+                        return privilegeGranted;
+                    });
         };
     }
 
@@ -89,7 +108,7 @@ public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinition
 
             return new PrerequisiteAdvice(
                     "Request privilege",
-                    "request " + privilegeName + " system privilege",
+                    "" + privilegeName + " system privilege",
                     String.format("grant %s to %s;", privilegeName, userName));
         };
     }

@@ -28,4 +28,9 @@ public class SystemPrivilege_CREATE_PROCEDURE extends SystemPrivilegePrerequisit
     protected String getPrivilegeName() {
         return "CREATE PROCEDURE";
     }
+
+    @Override
+    protected String getAlternativePrivilegeName() {
+        return "CREATE ANY PROCEDURE";
+    }
 }
