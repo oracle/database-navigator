@@ -23,7 +23,6 @@ import com.dbn.debugger.DBDebuggerType;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.debugger.common.config.ui.DBJavaRunConfigEditor;
 import com.dbn.debugger.jdwp.state.DBJdwpJavaRunProfileState;
-import com.dbn.debugger.options.DebuggerTypeOption;
 import com.dbn.execution.java.JavaExecutionContext;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.JavaExecutionManager;
@@ -70,9 +69,7 @@ public class DBJavaRunConfig extends DBRunConfig<JavaExecutionInput> implements 
 
     @Override
     public RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment env) throws ExecutionException {
-        DBDebuggerType debuggerType = getDebuggerType();
-//        return debuggerType == DBDebuggerType.JDBC ? new DBJdbcMethodRunProfileState(env) :
-        return debuggerType == DBDebuggerType.JDWP ? new DBJdwpJavaRunProfileState(env) : null;
+        return new DBJdwpJavaRunProfileState(env);
     }
 
     public Collection<JavaExecutionInput> getJavaSelectionHistory() {
@@ -93,11 +90,8 @@ public class DBJavaRunConfig extends DBRunConfig<JavaExecutionInput> implements 
         if (!super.canRun()) return false;
         if (getJavaMethod() == null) return false;
 
-        DebuggerTypeOption debuggerTypeOption = getJavaMethod().getConnection().getSettings().getDebuggerSettings().getDebuggerType().getSelectedOption();
-        if (debuggerTypeOption == DebuggerTypeOption.JDWP) {
-            return DBDebuggerType.JDWP.isSupported();
-        }
-        return true;
+        // Java debugging requires JDWP debugger
+        return DBDebuggerType.JDWP.isSupported();
     }
 
     @Override
@@ -129,10 +123,7 @@ public class DBJavaRunConfig extends DBRunConfig<JavaExecutionInput> implements 
                     "Debugging is not supported for " + connection.getDatabaseType().getName() +" databases.");
         }
 
-        DebuggerTypeOption debuggerTypeOption = connection.getSettings().getDebuggerSettings().getDebuggerType().getSelectedOption();
-        if (debuggerTypeOption == DebuggerTypeOption.JDWP) {
-            DatabaseDebuggerManager.checkJdwpConfiguration();
-        }
+        DatabaseDebuggerManager.verifyJdwpSupport(false);
     }
 
     @Nullable
@@ -216,18 +207,10 @@ public class DBJavaRunConfig extends DBRunConfig<JavaExecutionInput> implements 
             JavaExecutionInput executionInput = getExecutionInput();
             if (executionInput != null) {
                 setGeneratedName(true);
-                String runnerName = executionInput.getMethodRef().getObjectName();
-                if (getDebuggerType() == DBDebuggerType.JDWP) {
-                    runnerName = runnerName + " (JDWP)";
-                }
-                return runnerName;
+                return executionInput.getMethodRef().getObjectName();
             }
         } else {
-            String defaultRunnerName = getType().getDefaultRunnerName();
-            if (getDebuggerType() == DBDebuggerType.JDWP) {
-                defaultRunnerName = defaultRunnerName + " (JDWP)";
-            }
-            return defaultRunnerName;
+            return getType().getDefaultRunnerName();
         }
         return null;
     }

@@ -16,7 +16,6 @@
 
 package com.dbn.debugger.jdwp.config;
 
-import com.dbn.debugger.DBDebuggerType;
 import com.dbn.debugger.ExecutionConfigManager;
 import com.dbn.debugger.common.config.DBJavaRunConfig;
 import com.dbn.debugger.common.config.DBJavaRunConfigFactory;
@@ -31,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class DBJdwpJavaRunConfigFactory extends DBJavaRunConfigFactory<DBJavaRunConfigType, DBJavaRunConfig> {
     public DBJdwpJavaRunConfigFactory(@NotNull DBJavaRunConfigType type) {
-        super(type, DBDebuggerType.JDWP);
+        super(type);
     }
 
     @NotNull

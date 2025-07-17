@@ -92,7 +92,7 @@ public class DBMethodRunConfig extends DBRunConfig<MethodExecutionInput> impleme
         if (!super.canRun()) return false;
         if (getMethod() == null) return false;
 
-        DebuggerTypeOption debuggerTypeOption = getMethod().getConnection().getSettings().getDebuggerSettings().getDebuggerType().getSelectedOption();
+        DebuggerTypeOption debuggerTypeOption = getDebuggerTypeOption();
         if (debuggerTypeOption == DebuggerTypeOption.JDWP) {
             return DBDebuggerType.JDWP.isSupported();
         }
@@ -128,9 +128,9 @@ public class DBMethodRunConfig extends DBRunConfig<MethodExecutionInput> impleme
                     "Debugging is not supported for " + connection.getDatabaseType().getName() +" databases.");
         }
 
-        DebuggerTypeOption debuggerTypeOption = connection.getSettings().getDebuggerSettings().getDebuggerType().getSelectedOption();
+        DebuggerTypeOption debuggerTypeOption = DebuggerTypeOption.of(connection);
         if (debuggerTypeOption == DebuggerTypeOption.JDWP) {
-            DatabaseDebuggerManager.checkJdwpConfiguration();
+            DatabaseDebuggerManager.verifyJdwpSupport(true);
         }
     }
 

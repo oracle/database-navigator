@@ -19,6 +19,7 @@ package com.dbn.debugger.common.config;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.debugger.DBDebuggerType;
+import com.dbn.debugger.options.DebuggerTypeOption;
 import com.dbn.execution.ExecutionInput;
 import com.dbn.object.DBMethod;
 import com.dbn.object.lookup.DBObjectRef;
@@ -56,6 +57,11 @@ public abstract class DBRunConfig<I extends ExecutionInput> extends RunConfigura
         super(project, factory, name);
         this.category = category;
         this.debuggerType = factory == null ? this.debuggerType : factory.getDebuggerType();
+    }
+
+    protected DebuggerTypeOption getDebuggerTypeOption() {
+        ConnectionHandler connection = getConnection();
+        return DebuggerTypeOption.of(connection);
     }
 
     public boolean canRun() {

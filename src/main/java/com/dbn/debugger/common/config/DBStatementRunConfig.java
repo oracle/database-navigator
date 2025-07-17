@@ -84,7 +84,7 @@ public class DBStatementRunConfig extends DBRunConfig<StatementExecutionInput> {
         if (isNotValid(connection)) return false;
         if (!DatabaseFeature.DEBUGGING.isSupported(connection)) return false;
 
-        DebuggerTypeOption debuggerTypeOption = connection.getSettings().getDebuggerSettings().getDebuggerType().getSelectedOption();
+        DebuggerTypeOption debuggerTypeOption = DebuggerTypeOption.of(connection);
         if (debuggerTypeOption == DebuggerTypeOption.JDWP && !DBDebuggerType.JDWP.isSupported()) return false;
 
         return true;
@@ -104,9 +104,9 @@ public class DBStatementRunConfig extends DBRunConfig<StatementExecutionInput> {
                     "Debugging is not supported for " + connection.getDatabaseType().getName() +" databases.");
         }
 
-        DebuggerTypeOption debuggerTypeOption = connection.getSettings().getDebuggerSettings().getDebuggerType().getSelectedOption();
+        DebuggerTypeOption debuggerTypeOption = DebuggerTypeOption.of(connection);
         if (debuggerTypeOption == DebuggerTypeOption.JDWP) {
-            DatabaseDebuggerManager.checkJdwpConfiguration();
+            DatabaseDebuggerManager.verifyJdwpSupport(true);
         }
     }
 

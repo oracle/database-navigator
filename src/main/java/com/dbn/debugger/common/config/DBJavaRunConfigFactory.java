@@ -26,8 +26,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 
 public abstract class DBJavaRunConfigFactory<T extends DBJavaRunConfigType, C extends DBJavaRunConfig> extends DBRunConfigFactory<T, C> {
-    protected DBJavaRunConfigFactory(T type, DBDebuggerType debuggerType) {
-        super(type, debuggerType);
+    protected DBJavaRunConfigFactory(T type) {
+        super(type, DBDebuggerType.JDWP);
     }
 
     @Override
