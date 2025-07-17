@@ -31,7 +31,6 @@ import com.dbn.language.common.QuoteDefinition;
 import com.dbn.language.common.QuotePair;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
@@ -60,14 +59,14 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
         public static final int OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT = 8181;
         /**
          * The ORA error code we look for to indicate that a connection attempt
-         * has falled due to a general provider issue.  This includes issues
+         * has failed due to a general provider issue.  This includes issues
          * around Bug_38087045.
          */
         public static final int FAILURE_ON_PROVIDER_ERROR = 18726;
         /**
          * The URL to poke when the OCI_INTERACTIVE mode has failed due to
          * a bind exception where-in the expect port for token callback is already
-         * bound or where the user cancels or let's the connection auth expire and
+         * bound or where the user cancels or lets the connection auth expire and
          * the provider blocks forever waiting for a call that will never come.
          * Calling a GET on this url can work around the problem by simulating an
          * expected call on the token web server and awaking the blocked thread
@@ -195,7 +194,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
     public boolean handleConnectionException(final ConnectionExceptionInfo info) {
         ConnectionExceptionVisitor visitor = new ConnectionExceptionVisitor();
         info.accept(visitor);
-        // if a bind exception was thrown or the error was due to an provider failure code
+        // if a bind exception was thrown or the error was due to n provider failure code
         if (visitor.hasBindException() || visitor.containsOraErrorCodes(ProviderErrorHandlingConstants.FAILURE_ON_PROVIDER_ERROR)) {
             if (info.getAuthenticationInfo().getType() == AuthenticationType.TOKEN) {
                 AuthenticationTokenType tokenType = info.getAuthenticationInfo().getTokenType();
@@ -203,18 +202,13 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                     Future<?> future = Threads.backgroundExecutor().submit(new java.lang.Runnable() {
                         @Override
                         public void run() {
-                            try {
-                                // todo, use a backoff and retry?
-                                if (!Sockets.tryToBindPort(OracleCompatibilityInterface.ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT)) {
-                                    /**
-                                     *  @see ProviderErrorHandlingConstants.OCI_INTERACTIVE_WEB_SERVER_POKE_URL
-                                     */
-                                    Sockets.pokeWebServer(
-                                            ProviderErrorHandlingConstants.OCI_INTERACTIVE_WEB_SERVER_POKE_URL);
-                                }
-                            }
-                            catch (final IOException ioe) {
-                                Diagnostics.conditionallyLog(ioe);
+                            // TODO: use a backoff and retry?
+                            if (!Sockets.tryToBindPort(ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT)) {
+                                /**
+                                 *  @see ProviderErrorHandlingConstants.OCI_INTERACTIVE_WEB_SERVER_POKE_URL
+                                 */
+                                Sockets.pokeWebServer(
+                                        ProviderErrorHandlingConstants.OCI_INTERACTIVE_WEB_SERVER_POKE_URL);
                             }
                             try {
                                 /**

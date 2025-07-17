@@ -88,22 +88,21 @@ public class Sockets {
     /**
      * Tries to bind the server socket port for port.
      * @param port
-     * @return true if port was available to bind, false if it's already bound.
+     * @return true if port was available to bind, false if we wer unable to bind the port
+     * for any reason.  Logs and swallows any IOExceptions from ServerSocket rather than throwing.
      * @throws IOException
      */
-    public static boolean tryToBindPort(int port) throws IOException {
+    public static boolean tryToBindPort(int port) {
         ServerSocket socket = null;
         try  {
             socket = new ServerSocket(port, 50, getLocalHost());
             return true;
         } catch (IOException e) {
-            if (e instanceof BindException) {
-                return false;
-            }
-            throw e;
+            Diagnostics.conditionallyLog(e);
+            return false;
         } finally {
             if (socket != null && socket.isBound() && !socket.isClosed()) {
-                socket.close();
+                Unsafe.warned(socket, s -> s.close());
             }
         }
     }

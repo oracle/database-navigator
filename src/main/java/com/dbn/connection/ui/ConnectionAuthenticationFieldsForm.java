@@ -335,7 +335,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
             final boolean isOCIInteractive =
                 AuthenticationType.TOKEN.equals(authTypeCombo.getSelectedItem())
                  && OCI_INTERACTIVE.equals(tokenTypeCombo.getSelectedItem());
-
+            /*
             Background.run(new ThrowableRunnable<Throwable>() {
                 @Override
                 public void run() throws Throwable {
@@ -347,7 +347,6 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
                             isInteractivePortBound[0] = true;
                         }
                     }
-                    // TODO: let each listener decide whether or not run on UI thread?
                     Dispatch.run(ModalityState.any(), new Runnable() {
                         @Override
                         public void run() {
@@ -356,7 +355,22 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
                     });
                 }
             });
+            */
 
+            Dispatch.async(this.authTypeCombo,
+                    () -> {
+                            if (isOCIInteractive) {
+                                // if OCI Interactive and 8181 appears to be bound already, then
+                                // warn the user.
+                                if (!Sockets.tryToBindPort(OracleCompatibilityInterface.ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT)) {
+                                    return true;
+                                }
+                            }
+                            return false;
+                    },
+                    isInteractivePortBound -> {
+                        interactiveHintPanel.setVisible(isInteractivePortBound);
+                    });
         }
     }
 }
