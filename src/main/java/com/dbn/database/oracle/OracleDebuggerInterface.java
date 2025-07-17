@@ -185,12 +185,6 @@ public class OracleDebuggerInterface extends DatabaseDebuggerInterfaceImpl imple
 
     @NonNls
     @Override
-    public String[] getRequiredPrivilegeNames() {
-        return new String[]{"DEBUG CONNECT SESSION", "DEBUG ANY PROCEDURE"};
-    }
-
-    @NonNls
-    @Override
     public String getDebugConsoleTemplate(CodeStyleCaseSettings settings) {
         CodeStyleCaseOption kco = settings.getKeywordCaseOption();
         CodeStyleCaseOption oco = settings.getObjectCaseOption();

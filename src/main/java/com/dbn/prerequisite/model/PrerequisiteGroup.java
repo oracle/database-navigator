@@ -72,6 +72,13 @@ public class PrerequisiteGroup extends StatefulDisposableBase implements Databas
         this.prerequisiteTypes = Collections.unmodifiableList(prerequisiteTypes);
     }
 
+    public synchronized void reset() {
+        if (evaluating) return;
+        if (!isEvaluated()) return;
+
+        evaluationCount.set(0);
+    }
+
     @NotNull
     public PrerequisiteData getData() {
         return data.ensure();

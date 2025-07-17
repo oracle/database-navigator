@@ -17,7 +17,6 @@
 package com.dbn.debugger.jdwp.process;
 
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.debugger.DBDebuggerType;
 import com.dbn.debugger.common.process.DBDebugProcessStarter;
 import com.dbn.debugger.common.process.DBProgramRunner;
 import com.dbn.execution.java.JavaExecutionInput;
@@ -25,20 +24,21 @@ import com.dbn.execution.java.JavaExecutionManager;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.common.operation.DatabaseOperation.DEBUG_JAVA_CODE;
+import static com.dbn.debugger.DBDebuggerType.JDWP;
 
 public class DBJavaJdwpRunner extends DBProgramRunner<JavaExecutionInput> {
     public static final String RUNNER_ID = "DBNJavaMethodJdwpRunner";
+
+    public DBJavaJdwpRunner() {
+        super(JDWP, DEBUG_JAVA_CODE);
+    }
 
     @Override
     @NotNull
     public String getRunnerId() {
         return RUNNER_ID;
-    }
-
-    @Override
-    public DBDebuggerType getDebuggerType() {
-        return DBDebuggerType.JDWP;
     }
 
     @Override
@@ -53,22 +53,20 @@ public class DBJavaJdwpRunner extends DBProgramRunner<JavaExecutionInput> {
     protected void performInitialization(
             @NotNull ConnectionHandler connection,
             @NotNull JavaExecutionInput executionInput,
-            @NotNull ExecutionEnvironment environment,
-            @Nullable Callback callback) {
+            @NotNull ExecutionEnvironment environment) {
 
         // no initialization required for java debugging (as of now)
         // (wrapper method is expected to be already compiled in debug mode)
 
         performExecution(
                 executionInput,
-                environment,
-                callback);
+                environment);
     }
 
     @Override
     protected void promptExecutionDialog(JavaExecutionInput executionInput, Runnable callback) {
         Project project = executionInput.getProject();
         JavaExecutionManager executionManager = JavaExecutionManager.getInstance(project);
-        executionManager.promptExecutionDialog(executionInput, DBDebuggerType.JDWP, callback);
+        executionManager.promptExecutionDialog(executionInput, JDWP, callback);
     }
 }

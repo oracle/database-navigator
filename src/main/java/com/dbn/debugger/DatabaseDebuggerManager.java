@@ -43,10 +43,7 @@ import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBProgram;
 import com.dbn.object.DBSchema;
-import com.dbn.object.DBSystemPrivilege;
-import com.dbn.object.DBUser;
 import com.dbn.object.common.DBObject;
-import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.common.status.DBObjectStatus;
@@ -312,26 +309,6 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
             return true;
         }
         return false;
-    }
-
-    public List<String> getMissingDebugPrivileges(@NotNull ConnectionHandler connection) {
-        List<String> missingPrivileges = new ArrayList<>();
-        String userName = connection.getUserName();
-        DBObjectBundle objectBundle = connection.getObjectBundle();
-        DBUser user = objectBundle.getUser(userName);
-
-        if (user != null) {
-            String[] privilegeNames = connection.getDebuggerInterface().getRequiredPrivilegeNames();
-
-            for (String privilegeName : privilegeNames) {
-                DBSystemPrivilege systemPrivilege = objectBundle.getSystemPrivilege(privilegeName);
-                if (systemPrivilege == null || !user.hasPrivilege(systemPrivilege))  {
-                    missingPrivileges.add(privilegeName);
-                }
-            }
-        }
-        return missingPrivileges;
-
     }
 
     private static final Comparator<DBSchemaObject> DEPENDENCY_COMPARATOR = (schemaObject1, schemaObject2) -> {
