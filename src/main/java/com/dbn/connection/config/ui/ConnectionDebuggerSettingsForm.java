@@ -19,12 +19,14 @@ package com.dbn.connection.config.ui;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.connection.config.ConnectionDebuggerSettings;
 import com.dbn.connection.config.ReverseSshTunnelConfiguration;
+import com.dbn.debugger.JDWPTunnelType;
 import com.dbn.debugger.options.DebuggerTypeOption;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.util.Range;
 
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -39,13 +41,13 @@ import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<ConnectionDebuggerSettings> {
     private JPanel mainPanel;
     private JCheckBox compileDependenciesCheckBox;
-    private JCheckBox tcpDriverTunnelingCheckBox;
     private JTextField tcpHostTextBox;
     private JTextField tcpPortFromTextField;
     private JTextField tcpPortToTextField;
     private ComboBox<DebuggerTypeOption> debuggerTypeComboBox;
-    private JCheckBox reverseSSHTunnelingRemoteCheckBox;
     private JPanel reverseSshTunnelPanel;
+    private JComboBox<JDWPTunnelType> tunnelTypeComboBox;
+    private JPanel tcpAddressPanel;
     private final ReverseSshTunnelConfigForm reverseSshTunnelForm;
 
     public ConnectionDebuggerSettingsForm(ConnectionDebuggerSettings configuration) {
@@ -59,6 +61,11 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
                 DebuggerTypeOption.JDWP,
                 DebuggerTypeOption.JDBC,
                 DebuggerTypeOption.ASK);
+
+        initComboBox(tunnelTypeComboBox,
+                JDWPTunnelType.NONE,
+                JDWPTunnelType.TCP_DRIVER_TUNNEL,
+                JDWPTunnelType.SSH_REVERSE_TUNNEL);
 
         resetFormChanges();
         updateTcpFields();
@@ -78,11 +85,9 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
 
     protected ActionListener createActionListener() {
         return e -> {
-            if (e.getSource() == tcpDriverTunnelingCheckBox) {
+            if (e.getSource() == tunnelTypeComboBox) {
                 updateTcpFields();
-                updateReverseSSHFTunnelFields();
             }
-            if (e.getSource() == reverseSSHTunnelingRemoteCheckBox) updateReverseSSHFTunnelFields();
             getConfiguration().setModified(true);
         };
     }
@@ -90,7 +95,8 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
     @Override
     protected ItemListener createItemListener() {
         return e -> {
-            if (e.getSource() == debuggerTypeComboBox) updateTcpFields();
+            Object source = e.getSource();
+            if (source == debuggerTypeComboBox || source == tunnelTypeComboBox) updateTcpFields();
             getConfiguration().setModified(true);
         };
     }
@@ -99,28 +105,13 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
         DebuggerTypeOption debuggerTypeOption = (DebuggerTypeOption) debuggerTypeComboBox.getSelectedItem();
         boolean classic = debuggerTypeOption == DebuggerTypeOption.JDBC;
 
-        boolean tunneling = tcpDriverTunnelingCheckBox.isSelected();
-        tcpDriverTunnelingCheckBox.setEnabled(!classic);
-        tcpHostTextBox.setEnabled(!tunneling && !classic);
-        tcpPortFromTextField.setEnabled(!tunneling && !classic);
-        tcpPortToTextField.setEnabled(!tunneling && !classic);
+        JDWPTunnelType tunnelType = getSelection(tunnelTypeComboBox);
+        boolean tunneling = tunnelType != JDWPTunnelType.NONE;
+        tcpAddressPanel.setVisible(!tunneling && !classic);
 
-        updateReverseSSHFTunnelFields();
+        boolean reverseTunneling = !classic && tunnelType == JDWPTunnelType.SSH_REVERSE_TUNNEL;
+        reverseSshTunnelPanel.setVisible(reverseTunneling);
     }
-
-    private void updateReverseSSHFTunnelFields() {
-        DebuggerTypeOption debuggerTypeOption = (DebuggerTypeOption) debuggerTypeComboBox.getSelectedItem();
-        boolean classic = debuggerTypeOption == DebuggerTypeOption.JDBC;
-        boolean reverseSSHTunneling = reverseSSHTunnelingRemoteCheckBox.isSelected();
-        boolean tcpDriverTunneling = tcpDriverTunnelingCheckBox.isSelected();
-
-        reverseSSHTunnelingRemoteCheckBox.setVisible(!tcpDriverTunneling && !classic);
-        boolean enabledValue = reverseSSHTunneling && !classic && !tcpDriverTunneling;
-        reverseSshTunnelPanel.setVisible(enabledValue);
-
-    }
-
-
 
     @Override
     public void applyFormChanges() throws ConfigurationException {
@@ -132,7 +123,7 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
     @Override
     public void applyFormChanges(ConnectionDebuggerSettings configuration) throws ConfigurationException {
         configuration.setCompileDependencies(compileDependenciesCheckBox.isSelected());
-        configuration.setTcpDriverTunneling(tcpDriverTunnelingCheckBox.isSelected());
+        configuration.setJdwpTunnelType(getSelection(tunnelTypeComboBox));
         configuration.setTcpHostAddress(tcpHostTextBox.getText());
         configuration.getDebuggerType().selectOption(getSelection(debuggerTypeComboBox));
         try {
@@ -143,7 +134,6 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
             throw new ConfigurationException(txt("cfg.debugger.error.NonNumericPortRange"));
         }
 
-        configuration.setReverseSshTunneling(reverseSSHTunnelingRemoteCheckBox.isSelected());
         reverseSshTunnelForm.applyFormChanges(configuration.getReverseSshTunnelConfiguration());
     }
 
@@ -151,15 +141,14 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
     public void resetFormChanges() {
         ConnectionDebuggerSettings configuration = getConfiguration();
         compileDependenciesCheckBox.setSelected(configuration.isCompileDependencies());
-        tcpDriverTunnelingCheckBox.setSelected(configuration.isTcpDriverTunneling());
+
         tcpHostTextBox.setText(configuration.getTcpHostAddress());
         tcpPortFromTextField.setText(String.valueOf(configuration.getTcpPortRange().getFrom()));
         tcpPortToTextField.setText(String.valueOf(configuration.getTcpPortRange().getTo()));
         setSelection(debuggerTypeComboBox, configuration.getDebuggerType().getOption());
+        setSelection(tunnelTypeComboBox, configuration.getJdwpTunnelType());
 
-        reverseSSHTunnelingRemoteCheckBox.setSelected(configuration.isReverseSshTunneling());
         reverseSshTunnelForm.resetFormChanges();
-
         updateTcpFields();
     }
 }

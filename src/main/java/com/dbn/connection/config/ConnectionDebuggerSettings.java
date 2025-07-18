@@ -20,6 +20,7 @@ import com.dbn.common.option.InteractiveOptionBroker;
 import com.dbn.common.options.BasicConfiguration;
 import com.dbn.connection.config.ui.ConnectionDebuggerSettingsForm;
 import com.dbn.debugger.DBDebuggerType;
+import com.dbn.debugger.JDWPTunnelType;
 import com.dbn.debugger.options.DebuggerTypeOption;
 import com.intellij.util.Range;
 import lombok.Getter;
@@ -28,9 +29,11 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.options.setting.Settings.getBoolean;
+import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getInteger;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setBoolean;
+import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setInteger;
 import static com.dbn.common.options.setting.Settings.setString;
 
@@ -38,13 +41,13 @@ import static com.dbn.common.options.setting.Settings.setString;
 @Setter
 public class ConnectionDebuggerSettings extends BasicConfiguration<ConnectionSettings, ConnectionDebuggerSettingsForm> {
     private boolean compileDependencies = true;
-    private boolean tcpDriverTunneling;
+    private JDWPTunnelType jdwpTunnelType = JDWPTunnelType.NONE;
+
     private String tcpHostAddress;
     private Range<Integer> tcpPortRange = new Range<>(4000, 4999);
 
     //reverse ssh tunnel settings
     private ReverseSshTunnelConfiguration reverseSshTunnelConfiguration = new ReverseSshTunnelConfiguration(this);
-    boolean reverseSshTunneling = false;
 
     private final InteractiveOptionBroker<DebuggerTypeOption> debuggerType =
             new InteractiveOptionBroker<>(
@@ -73,25 +76,29 @@ public class ConnectionDebuggerSettings extends BasicConfiguration<ConnectionSet
     @Override
     public void readConfiguration(Element element) {
         compileDependencies = getBoolean(element, "compile-dependencies", compileDependencies);
-        tcpDriverTunneling = getBoolean(element, "tcp-driver-tunneling", tcpDriverTunneling);
+        jdwpTunnelType = getEnum(element, "jdwp-tunnel-type", jdwpTunnelType);
         tcpHostAddress = getString(element, "tcp-host-address", tcpHostAddress);
         int tcpPortFrom = getInteger(element, "tcp-port-from", tcpPortRange.getFrom());
         int tcpPortTo = getInteger(element, "tcp-port-to", tcpPortRange.getTo());
         tcpPortRange = new Range<>(tcpPortFrom, tcpPortTo);
+
         debuggerType.readConfiguration(element);
-        reverseSshTunneling = getBoolean(element, "tcp-reverse-ssh-tunneling", reverseSshTunneling);
         reverseSshTunnelConfiguration.readConfiguration(element);
+
+        // TODO remove after few subsequent releases (backward compatibility)
+        boolean driverTunneling = getBoolean(element, "tcp-driver-tunneling", false);
+        if (driverTunneling) jdwpTunnelType = JDWPTunnelType.TCP_DRIVER_TUNNEL;
     }
 
     @Override
     public void writeConfiguration(Element element) {
         setBoolean(element, "compile-dependencies", compileDependencies);
-        setBoolean(element, "tcp-driver-tunneling", tcpDriverTunneling);
         setString(element, "tcp-host-address", tcpHostAddress);
         setInteger(element, "tcp-port-from", tcpPortRange.getFrom());
         setInteger(element, "tcp-port-to", tcpPortRange.getTo());
+        setEnum(element, "jdwp-tunnel-type", jdwpTunnelType);
+
         debuggerType.writeConfiguration(element);
-        setBoolean(element,"tcp-reverse-ssh-tunneling", reverseSshTunneling);
         reverseSshTunnelConfiguration.writeConfiguration(element);
 
     }

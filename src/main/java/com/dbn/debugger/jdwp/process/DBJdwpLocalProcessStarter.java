@@ -23,6 +23,7 @@ import com.dbn.connection.config.ConnectionDebuggerSettings;
 import com.dbn.connection.config.ReverseSshTunnelConfiguration;
 import com.dbn.connection.ssh.SshAuthType;
 import com.dbn.connection.ssh.SshTunnelConfig;
+import com.dbn.debugger.JDWPTunnelType;
 import com.intellij.debugger.DebugEnvironment;
 import com.intellij.debugger.DebuggerManagerEx;
 import com.intellij.debugger.DefaultDebugEnvironment;
@@ -88,7 +89,7 @@ public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
         String tcpHost = resolveTcpHost(debuggerSettings.getTcpHostAddress());
         int tcpPort = findFreePort(tcpHost, portRange.getFrom(), portRange.getTo());
 
-        boolean reverseSshTunnelEnabled = debuggerSettings.isReverseSshTunneling();
+        boolean reverseSshTunnelEnabled = debuggerSettings.getJdwpTunnelType() == JDWPTunnelType.SSH_REVERSE_TUNNEL;
         SshTunnelConfig reverseSshTunnelConfig = null;
         if(reverseSshTunnelEnabled) {
             ReverseSshTunnelConfiguration reverseSshTunnelConfiguration = debuggerSettings.getReverseSshTunnelConfiguration();

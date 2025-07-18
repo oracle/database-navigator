@@ -17,6 +17,7 @@
 package com.dbn.debugger.jdwp.process;
 
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.debugger.JDWPTunnelType;
 import com.dbn.debugger.common.process.DBDebugProcessStarter;
 import com.dbn.debugger.common.process.DBProgramRunner;
 import com.dbn.execution.method.MethodExecutionInput;
@@ -42,7 +43,7 @@ public class DBMethodJdwpRunner extends DBProgramRunner<MethodExecutionInput> {
 
     @Override
     protected DBDebugProcessStarter createProcessStarter(ConnectionHandler connection) {
-        if(connection.isCloudDatabase() || connection.getSettings().getDebuggerSettings().isTcpDriverTunneling()){
+        if(connection.isCloudDatabase() || connection.getSettings().getDebuggerSettings().getJdwpTunnelType() == JDWPTunnelType.TCP_DRIVER_TUNNEL){
             return new DBMethodJdwpCloudProcessStarter(connection);
         }
         return new DBMethodJdwpLocalProcessStarter(connection);
