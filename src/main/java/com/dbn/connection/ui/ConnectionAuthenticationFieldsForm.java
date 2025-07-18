@@ -59,6 +59,7 @@ import static com.dbn.common.ui.form.field.JComponentFilter.classifiedAs;
 import static com.dbn.common.ui.form.field.JComponentFilter.inaccessible;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
+import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
@@ -105,9 +106,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         initComboBox(authTypeComboBox, AuthenticationType.values());
         initComboBox(tokenTypeComboBox, OCI_API_KEY, OCI_INTERACTIVE); // currently supported token types
 
-        ActionListener actionListener = e -> updateAuthenticationFields();
-        authTypeComboBox.addActionListener(actionListener);
-        tokenTypeComboBox.addActionListener(actionListener);
+        onSelectionChange(authTypeComboBox, v -> updateAuthenticationFields());
+        onSelectionChange(tokenTypeComboBox, v -> updateAuthenticationFields());
 
         // TODO NLS
         TextContent interactivePortHintText = plain("TCP port 8181 appears to be bound.\nThis may cause interactive OCI authentication to fail.");

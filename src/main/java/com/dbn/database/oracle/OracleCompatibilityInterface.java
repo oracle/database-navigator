@@ -16,7 +16,7 @@
 
 package com.dbn.database.oracle;
 
-import com.dbn.common.thread.Threads;
+import com.dbn.common.thread.Background;
 import com.dbn.common.util.Sockets;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
@@ -36,11 +36,37 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 
 import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
-import static com.dbn.database.DatabaseFeature.*;
-import static com.dbn.database.DatabaseObjectTypeId.*;
+import static com.dbn.database.DatabaseFeature.AI_ASSISTANT;
+import static com.dbn.database.DatabaseFeature.AUTHID_METHOD_EXECUTION;
+import static com.dbn.database.DatabaseFeature.CONNECTION_ERROR_RECOVERY;
+import static com.dbn.database.DatabaseFeature.CONSTRAINT_MANIPULATION;
+import static com.dbn.database.DatabaseFeature.CURRENT_SCHEMA;
+import static com.dbn.database.DatabaseFeature.DATABASE_LOGGING;
+import static com.dbn.database.DatabaseFeature.DEBUGGING;
+import static com.dbn.database.DatabaseFeature.EMBEDDED_JVM;
+import static com.dbn.database.DatabaseFeature.EXPLAIN_PLAN;
+import static com.dbn.database.DatabaseFeature.FUNCTION_OUT_ARGUMENTS;
+import static com.dbn.database.DatabaseFeature.OBJECT_CHANGE_MONITORING;
+import static com.dbn.database.DatabaseFeature.OBJECT_DDL_EXTRACTION;
+import static com.dbn.database.DatabaseFeature.OBJECT_DEPENDENCIES;
+import static com.dbn.database.DatabaseFeature.OBJECT_DISABLING;
+import static com.dbn.database.DatabaseFeature.OBJECT_INVALIDATION;
+import static com.dbn.database.DatabaseFeature.OBJECT_REPLACING;
+import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
+import static com.dbn.database.DatabaseFeature.READONLY_CONNECTIVITY;
+import static com.dbn.database.DatabaseFeature.SESSION_BROWSING;
+import static com.dbn.database.DatabaseFeature.SESSION_CURRENT_SQL;
+import static com.dbn.database.DatabaseFeature.SESSION_DISCONNECT;
+import static com.dbn.database.DatabaseFeature.SESSION_INTERRUPTION_TIMING;
+import static com.dbn.database.DatabaseFeature.SESSION_KILL;
+import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
+import static com.dbn.database.DatabaseFeature.USER_SCHEMA;
+import static com.dbn.database.DatabaseObjectTypeId.AI_PROFILE;
+import static com.dbn.database.DatabaseObjectTypeId.CREDENTIAL;
+import static com.dbn.database.DatabaseObjectTypeId.JAVA_CLASS;
+import static com.dbn.database.DatabaseObjectTypeId.JAVA_RESOURCE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -199,41 +225,42 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
             if (info.getAuthenticationInfo().getType() == AuthenticationType.TOKEN) {
                 AuthenticationTokenType tokenType = info.getAuthenticationInfo().getTokenType();
                 if (tokenType == OCI_INTERACTIVE) {
-                    Future<?> future = Threads.backgroundExecutor().submit(new java.lang.Runnable() {
-                        @Override
-                        public void run() {
-                            // TODO: use a backoff and retry?
-                            if (!Sockets.tryToBindPort(ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT)) {
-                                /**
-                                 *  @see ProviderErrorHandlingConstants.OCI_INTERACTIVE_WEB_SERVER_POKE_URL
-                                 */
-                                Sockets.pokeWebServer(
-                                        ProviderErrorHandlingConstants.OCI_INTERACTIVE_WEB_SERVER_POKE_URL);
-                            }
-                            try {
-                                /**
-                                 * @see ProviderErrorHandlingConstants.CLEAR_ALL_CACHES_METHOD_NAME
-                                 */
-                                ClassLoader classLoader = info.getClassLoader();
-                                if (classLoader != null) {
-                                    Class<?> cacheControllerClass =
-                                            Class.forName(
-                                                    ProviderErrorHandlingConstants.ORACLE_JDBC_PROVIDER_CACHE_CACHE_CONTROLLER_CLASSNAME, true, classLoader);
-                                    Method clearAllCaches = cacheControllerClass.getMethod(ProviderErrorHandlingConstants.CLEAR_ALL_CACHES_METHOD_NAME);
-                                    clearAllCaches.invoke(null, new Object[0]);
-                                }
-                                else {
-                                    Diagnostics.conditionallyLog(new NullPointerException("classLoader was null"));
-                                }
-                            } catch (final Exception e) {
-                                Diagnostics.conditionallyLog(e);
-                            }
-
-                        }
-                    });
+                    Background.run(() -> resetOciInteractiveConnection(info));
                 }
             }
         }
         return false;
+    }
+
+    private static void resetOciInteractiveConnection(ConnectionExceptionInfo info) {
+        // TODO: use a backoff and retry?
+        // unfreeze the busy socket (e.g. when auth browser is left unattended or closed without completing the authentication)
+        if (!Sockets.tryToBindPort(ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT)) {
+            /**
+             *  @see ProviderErrorHandlingConstants.OCI_INTERACTIVE_WEB_SERVER_POKE_URL
+             */
+            Sockets.pokeWebServer(
+                    ProviderErrorHandlingConstants.OCI_INTERACTIVE_WEB_SERVER_POKE_URL);
+        }
+
+        // clear the provider caches holding unsuccessful authentication state
+        try {
+            /**
+             * @see ProviderErrorHandlingConstants.CLEAR_ALL_CACHES_METHOD_NAME
+             */
+            ClassLoader classLoader = info.getClassLoader();
+            if (classLoader != null) {
+                Class<?> cacheControllerClass =
+                        Class.forName(
+                                ProviderErrorHandlingConstants.ORACLE_JDBC_PROVIDER_CACHE_CACHE_CONTROLLER_CLASSNAME, true, classLoader);
+                Method clearAllCaches = cacheControllerClass.getMethod(ProviderErrorHandlingConstants.CLEAR_ALL_CACHES_METHOD_NAME);
+                clearAllCaches.invoke(null, new Object[0]);
+            }
+            else {
+                Diagnostics.conditionallyLog(new NullPointerException("classLoader was null"));
+            }
+        } catch (final Exception e) {
+            Diagnostics.conditionallyLog(e);
+        }
     }
 }

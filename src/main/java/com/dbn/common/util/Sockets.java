@@ -16,6 +16,7 @@
 
 package com.dbn.common.util;
 
+import com.dbn.common.thread.Synchronized;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.util.Range;
 import lombok.experimental.UtilityClass;
@@ -107,15 +108,23 @@ public class Sockets {
 
     /**
      * Tries to bind the server socket port for port.
-     * @param port
-     * @return true if port was available to bind, false if we wer unable to bind the port
-     * for any reason.  Logs and swallows any IOExceptions from ServerSocket rather than throwing.
-     * @throws IOException
+     * @param port the port to be verified
+     * @return true if the port was available to bind, false if we were unable to bind the port
+     * for any reason. Logs and swallows any IOExceptions from ServerSocket rather than throwing.
      */
     public static boolean tryToBindPort(int port) {
+        // synchronize evaluation to prevent false positives on concurrent invocations
+        // (i.e., when the verification itself briefly keeps the port busy)
+        return Synchronized.on(port, p -> {
+            return tryToBindPort("localhost", p);
+        });
+    }
+
+    private static boolean tryToBindPort(String hostName, int port) {
         ServerSocket socket = null;
         try  {
-            socket = new ServerSocket(port, 50, getLocalHost());
+            InetAddress address = InetAddress.getByName(hostName);
+            socket = new ServerSocket(port, 50, address);
             return true;
         } catch (IOException e) {
             Diagnostics.conditionallyLog(e);
