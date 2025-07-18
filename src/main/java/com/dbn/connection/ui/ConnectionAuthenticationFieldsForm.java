@@ -116,16 +116,6 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
         interactivePortWarningPanel.setVisible(false);
 
-/*
-        // monitor auth type changes and fire a warning
-        // event under Bug_38087045 conditions.
-        this.bindPortWarningListener =
-                new BindPortWarningListener(interactivePortWarningPanel, authTypeComboBox, tokenTypeComboBox);
-        authTypeComboBox.addActionListener(bindPortWarningListener);
-        tokenTypeComboBox.addActionListener(bindPortWarningListener);
-
- */
-
         initFields();
     }
 
@@ -316,66 +306,6 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     @Nullable
     private AuthenticationTokenType getTokenAuthenticationType() {
         return getSelection(tokenTypeComboBox);
-    }
-
-    /**
-     * Responds to a change in auth type from or to OCI_INTERACTIVE
-     * and checks if the token callback bind port (8181) can be bound
-     * and warns the user if the port is already bound by firing
-     * a MessageBus dispatch on DialogNotifcationListener.TOPIC.
-     */
-    private static class BindPortWarningListener implements ActionListener {
-        private final JComboBox<AuthenticationType> authTypeCombo;
-        private final JComboBox<AuthenticationTokenType> tokenTypeCombo;
-        private final JPanel interactiveHintPanel;
-
-        public BindPortWarningListener(JPanel interactivePortHintPanel, JComboBox<AuthenticationType> authTypeCombo, JComboBox<AuthenticationTokenType> tokenTypeCombo) {
-            this.interactiveHintPanel = interactivePortHintPanel;
-            this.authTypeCombo = authTypeCombo;
-            this.tokenTypeCombo = tokenTypeCombo;
-        }
-        @Override
-        public void actionPerformed(ActionEvent actionEvent) {
-            final boolean isOCIInteractive =
-                AuthenticationType.TOKEN.equals(authTypeCombo.getSelectedItem())
-                 && OCI_INTERACTIVE.equals(tokenTypeCombo.getSelectedItem());
-            /*
-            Background.run(new ThrowableRunnable<Throwable>() {
-                @Override
-                public void run() throws Throwable {
-                    final boolean[] isInteractivePortBound = new boolean[1];
-                    if (isOCIInteractive) {
-                        // if OCI Interactive and 8181 appears to be bound already, then
-                        // warn the user.
-                        if (!Sockets.tryToBindPort(OracleCompatibilityInterface.ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT)) {
-                            isInteractivePortBound[0] = true;
-                        }
-                    }
-                    Dispatch.run(ModalityState.any(), new Runnable() {
-                        @Override
-                        public void run() {
-                            interactiveHintPanel.setVisible(isInteractivePortBound[0]);
-                        }
-                    });
-                }
-            });
-            */
-
-            Dispatch.async(this.authTypeCombo,
-                    () -> {
-                            if (isOCIInteractive) {
-                                // if OCI Interactive and 8181 appears to be bound already, then
-                                // warn the user.
-                                if (!Sockets.tryToBindPort(OracleCompatibilityInterface.ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT)) {
-                                    return true;
-                                }
-                            }
-                            return false;
-                    },
-                    isInteractivePortBound -> {
-                        interactiveHintPanel.setVisible(isInteractivePortBound);
-                    });
-        }
     }
 
     /**
