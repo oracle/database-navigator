@@ -115,8 +115,8 @@ public class Sockets {
     public static boolean tryToBindPort(int port) {
         // synchronize evaluation to prevent false positives on concurrent invocations
         // (i.e., when the verification itself briefly keeps the port busy)
-        return Synchronized.on(port, p -> {
-            return tryToBindPort("localhost", p);
+        return Synchronized.on("PORT_CHECK:" + port, k -> {
+            return tryToBindPort("localhost", port);
         });
     }
 

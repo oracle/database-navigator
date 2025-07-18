@@ -31,7 +31,6 @@ import com.dbn.common.util.Commons;
 import com.dbn.common.util.Sockets;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
-import com.dbn.database.oracle.OracleCompatibilityInterface;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,8 +41,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -72,8 +69,6 @@ import static com.dbn.connection.ui.ConnectionAuthenticationFieldsForm.FieldCate
 import static com.dbn.database.oracle.OracleCompatibilityInterface.ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT;
 
 public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
-
-    //private final BindPortWarningListener bindPortWarningListener;
 
     enum FieldCategory implements JComponentCategory {
         CACHEABLE_FIELDS,
