@@ -24,6 +24,7 @@ import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.credentialStore.OneTimeString;
 import com.intellij.ide.passwordSafe.PasswordSafe;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -35,6 +36,7 @@ import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.util.Commons.match;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.credentials.Secret.EMPTY;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
 public class DatabaseCredentialManager extends ApplicationComponentBase {
@@ -129,6 +131,9 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
             secret = new Secret(type, user, token);
             log.info("Loaded secret {}", secret.safePresentation());
 
+        } catch (ProcessCanceledException e) {
+            conditionallyLog(e);
+            secret = new Secret(type, user, EMPTY);
         } catch (Exception e) {
             secret = new Secret(type, user, EMPTY);
             log.error("Failed to load secret {}", secret.safePresentation(), e);

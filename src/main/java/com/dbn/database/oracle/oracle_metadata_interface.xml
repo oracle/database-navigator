@@ -2726,6 +2726,13 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="view-source-code" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL" since-version="12.0">
+            select TEXT_VC as SOURCE_CODE
+            from [PREFIX]_VIEWS
+            where
+                OWNER = {0} and
+                VIEW_NAME = {1}
+        </statement>
         <statement prefixes="DBA, ALL">
             select TEXT as SOURCE_CODE
             from [PREFIX]_VIEWS
@@ -2847,6 +2854,79 @@
             order by
                 TYPE,
                 SEQUENCE asc
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="has-system-privilege" is-query="true" is-prepared-statement="true">
+        <statement>
+            select
+                case
+                    when exists (select 1 from SESSION_PRIVS where PRIVILEGE = {0})
+                    then 'Y'
+                    else 'N'
+                end as value
+            from DUAL
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="has-object-privilege" is-query="true" is-prepared-statement="true">
+        <statement>
+            select
+                case
+                    when exists (
+                        select 1
+                          from ALL_TAB_PRIVS P
+                          where P.PRIVILEGE = {0}
+                            and P.TABLE_SCHEMA = {1}
+                            and P.TABLE_NAME = {2}
+                            and (P.GRANTEE = USER
+                              or P.GRANTEE = 'PUBLIC'
+                              or exists (select 1 from SESSION_ROLES R where R.ROLE = P.GRANTEE)))
+                    then 'Y'
+                    else 'N'
+                    end as value
+            from DUAL
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="has-network-privilege" is-query="true" is-prepared-statement="true">
+        <statement>
+            select
+                case
+                    when exists (
+                        SELECT 1 FROM DBA_HOST_ACES
+                        WHERE
+                            PRINCIPAL = {0} AND
+                            HOST = {1}  AND
+                            UPPER(PRIVILEGE) = UPPER({2}))
+                then 'Y'
+                else 'N'
+                end as value
+            from DUAL
+        </statement>
+        <statement>
+            select
+                case
+                    when exists (
+                        SELECT 1 FROM USER_HOST_ACES
+                        WHERE
+                            USER = {0} AND
+                            HOST = {1} AND
+                            UPPER(PRIVILEGE) = UPPER({2}))
+                    then 'Y'
+                    else 'N'
+                end as value
+            from DUAL
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="grant-network-privilege" is-prepared-statement="true">
+        <statement>
+            BEGIN
+                DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(
+                    host => {1},
+                    ace => xs$ace_type(
+                        privilege_list => xs$name_list({2}),
+                        principal_name => {0},
+                        principal_type => xs_acl.ptype_db)
+                    );
+            END;
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="explain-plan-result" is-query="true" is-prepared-statement="true">

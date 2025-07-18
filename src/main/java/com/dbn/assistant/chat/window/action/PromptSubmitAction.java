@@ -19,6 +19,7 @@ package com.dbn.assistant.chat.window.action;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -35,6 +36,7 @@ import static com.dbn.nls.NlsResources.txt;
  *
  * @author Dan Cioca (Oracle)
  */
+@BackgroundUpdate
 public class PromptSubmitAction extends AbstractChatBoxAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {

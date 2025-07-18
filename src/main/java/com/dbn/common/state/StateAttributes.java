@@ -21,9 +21,9 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 
@@ -34,7 +34,7 @@ import static com.dbn.common.options.setting.Settings.setStringAttribute;
  *
  * @author Dan Cioca (Oracle)
  */
-public class GenericStateHolder implements PersistentStateElement, StateHolder {
+public class StateAttributes implements AttributeHolder, PersistentStateElement {
     private final Map<String, String> properties = new HashMap<>();
 
     @Override
@@ -49,8 +49,7 @@ public class GenericStateHolder implements PersistentStateElement, StateHolder {
 
     @Override
     public void readState(Element element) {
-        List<Element> children = element.getChildren();
-        for (Element child : children) {
+        for (Element child : childrenOf(element)) {
             String key = child.getName();
             String value = Settings.stringAttribute(child, "value");
             properties.put(key, value);

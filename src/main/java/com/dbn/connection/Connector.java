@@ -110,11 +110,15 @@ class Connector {
 
 
     private int getConnectTimeout() {
+        int timeout = connectionSettings.getDetailSettings().getConnectivityTimeoutSeconds();
+        int timeoutExtension = 0;
+
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
         boolean driversLoaded = databaseSettings.driversLoaded();
-        int connectTimeoutExtension = driversLoaded ? 0 : 20; // allow 20 seconds for drivers to load
-        int connectTimeout = 300; //connectTimeoutExtension + connectionSettings.getDetailSettings().getConnectivityTimeoutSeconds();
-        return connectTimeout;
+        if (!driversLoaded) timeoutExtension += 30; // allow 30 seconds for drivers to load
+        if (databaseSettings.isInteractiveAuthentication()) timeoutExtension += 120; // allow 2 additional minutes for interactive login
+
+        return timeout + timeoutExtension;
     }
 
 

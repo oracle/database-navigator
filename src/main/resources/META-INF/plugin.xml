@@ -164,7 +164,7 @@
         <projectService serviceImplementation="com.dbn.project.ProjectStateManager"/>
         <projectService serviceImplementation="com.dbn.diagnostics.DiagnosticsManager"/>
         <projectService serviceImplementation="com.dbn.diagnostics.ParserDiagnosticsManager"/>
-        <projectService serviceImplementation="com.dbn.batch.BatchManager"/>
+        <projectService serviceImplementation="com.dbn.batch.DatabaseBatchManager"/>
         <projectService serviceImplementation="com.dbn.browser.DatabaseBrowserManager"/>
         <projectService serviceImplementation="com.dbn.common.environment.EnvironmentManager"/>
         <projectService serviceImplementation="com.dbn.common.expression.ExpressionEvaluationManager"/>
@@ -213,12 +213,26 @@
         <projectService serviceImplementation="com.dbn.object.dependency.ObjectDependencyManager"/>
         <projectService serviceImplementation="com.dbn.object.status.ObjectStatusManager"/>
         <projectService serviceImplementation="com.dbn.options.ProjectSettingsManager"/>
+        <projectService serviceImplementation="com.dbn.prerequisite.DatabasePrerequisiteManager"/>
         <projectService serviceImplementation="com.dbn.vfs.DatabaseFileManager"/>
         <projectService serviceImplementation="com.dbn.connection.session.DatabaseSessionManager"/>
         <projectService serviceImplementation="com.dbn.connection.console.DatabaseConsoleManager"/>
         <projectService serviceInterface="com.dbn.object.management.ObjectManagementService" serviceImplementation="com.dbn.object.management.ObjectManagementServiceImpl"/>
 
         <fileIconPatcher implementation="com.dbn.vfs.DBFileIconPatcher"/>
+    </extensions>
+    <extensionPoints>
+        <extensionPoint name="prerequisiteDefinitionProvider" qualifiedName="com.dbn.prerequisiteDefinitionProvider" interface="com.dbn.prerequisite.definition.PrerequisiteDefinitionProvider" dynamic="true"/>
+        <extensionPoint name="prerequisiteRequirementEvaluator" qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
+    </extensionPoints>
+    <extensions defaultExtensionNs="com.dbn">
+        <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.SystemPrivilege_DEBUG_CONNECT_SESSION"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.SystemPrivilege_DEBUG_ANY_PROCEDURE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.ObjectPrivilege_EXECUTE_DBMS_DEBUG"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.ObjectPrivilege_EXECUTE_DBMS_DEBUG_JDWP"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.NetworkAccess_HOST_ACE_JDWP"/>
+
+        <prerequisiteRequirementEvaluator implementation="com.dbn.debugger.prerequisite.DebugPrerequisitesEvaluator"/>
     </extensions>
 
     <actions>
@@ -353,6 +367,7 @@
             </action>
             <action class="com.dbn.menu.action.FileConnectionMappingsOpenAction" text="File Connection Mappings" id="DBNavigator.Actions.MainMenu.FileConnectionMappings"/>
             <action class="com.dbn.menu.action.ResourceMonitorOpenAction" text="Resource Monitor" id="DBNavigator.Actions.MainMenu.ResourceMonitor"/>
+            <group class="com.dbn.prerequisite.action.PrerequisiteVerificationAction" popup="true" text="Prerequisite Verification" id="DBNavigator.Actions.MainMenu.PrerequisiteVerification"/> />
             <!--<action class="com.dbn.action.menu.PendingTransactionsOpenAction" text="Open Transactions" id="DBNavigator.Actions.MainMenu.PendingTransactions"/>-->
             <group id="DBNavigator.ActionGroup.ImportExportSettings" text="Default Settings" popup="true">
                 <action id="DBNavigator.Actions.MainMenu.OpenDefaultSettings" class="com.dbn.menu.action.ProjectDefaultSettingsOpenAction" text="Open Default Settings..."/>
@@ -672,6 +687,7 @@
         <fileType name="DBN-PSQL" language="DBN-PSQL" implementationClass="com.dbn.language.psql.PSQLFileType" fieldName="INSTANCE" extensions="psql;plsql;trg;prc;fnc;pkg;pks;pkb;tpe;tps;tpb"/>
 
         <fileIconProvider order="last" implementation="com.dbn.vfs.DBFileIconProvider"/>
+        <writingAccessProvider implementation="com.dbn.vfs.DBFileAccessProvider"/>
 
         <colorSettingsPage implementation="com.dbn.code.sql.color.SQLColorSettingsPage"/>
         <colorSettingsPage implementation="com.dbn.code.psql.color.PSQLColorSettingsPage"/>
