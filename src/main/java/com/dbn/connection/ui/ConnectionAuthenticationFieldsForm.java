@@ -381,14 +381,14 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     /**
      * Checks if the token callback bind port (8181) can be bound.
      * Used to warn the interactive connectivity option if the port is already bound
-     * @return true if port is free, false otherwise
+     * @return true if the port is free or binding is irrelevant for the selected authentication type, false otherwise
      */
     private boolean verifyInteractivePortBinding() {
         AuthenticationType authenticationType = getAuthenticationType();
         AuthenticationTokenType tokenAuthenticationType = getTokenAuthenticationType();
 
-        if (authenticationType != AuthenticationType.TOKEN) return false;
-        if (tokenAuthenticationType != OCI_INTERACTIVE) return false;
+        if (authenticationType != AuthenticationType.TOKEN) return true;
+        if (tokenAuthenticationType != OCI_INTERACTIVE) return true;
 
         return Sockets.tryToBindPort(OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT);
     }
