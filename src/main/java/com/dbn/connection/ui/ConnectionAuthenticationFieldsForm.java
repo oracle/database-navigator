@@ -17,11 +17,8 @@
 package com.dbn.connection.ui;
 
 import com.dbn.common.database.AuthenticationInfo;
-import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.message.MessageType;
-import com.dbn.common.routine.ThrowableRunnable;
 import com.dbn.common.text.TextContent;
-import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -34,10 +31,7 @@ import com.dbn.common.util.Commons;
 import com.dbn.common.util.Sockets;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
-import com.dbn.connection.config.ui.ConnectionSettingsForm;
 import com.dbn.database.oracle.OracleCompatibilityInterface;
-import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -74,10 +68,11 @@ import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
 import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.connection.ui.ConnectionAuthenticationFieldsForm.FieldCategory.CACHEABLE_FIELDS;
+import static com.dbn.database.oracle.OracleCompatibilityInterface.ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT;
 
 public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
-    private final BindPortWarningListener bindPortWarningListener;
+    //private final BindPortWarningListener bindPortWarningListener;
 
     enum FieldCategory implements JComponentCategory {
         CACHEABLE_FIELDS,
@@ -115,18 +110,21 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         tokenTypeComboBox.addActionListener(actionListener);
 
         // TODO NLS
-        TextContent interactivePortHintText = plain("TCP port 8181 appears to be bound.  This may cause interactive OCI authentication to fail.");
-        DBNHintForm hintForm = new DBNHintForm(this, interactivePortHintText, MessageType.WARNING, false);
+        TextContent interactivePortHintText = plain("TCP port 8181 appears to be bound.\nThis may cause interactive OCI authentication to fail.");
+        DBNHintForm hintForm = new DBNHintForm(this, interactivePortHintText, MessageType.WARNING, true);
         interactivePortWarningPanel.add(hintForm.getComponent());
 
         interactivePortWarningPanel.setVisible(false);
 
+/*
         // monitor auth type changes and fire a warning
         // event under Bug_38087045 conditions.
         this.bindPortWarningListener =
                 new BindPortWarningListener(interactivePortWarningPanel, authTypeComboBox, tokenTypeComboBox);
         authTypeComboBox.addActionListener(bindPortWarningListener);
         tokenTypeComboBox.addActionListener(bindPortWarningListener);
+
+ */
 
         initFields();
     }
@@ -172,6 +170,12 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
         // restore values of fields classified as CACHEABLE which are visible and enabled
         fieldAdapter.restoreFieldValues(accessibleClassifiedAs(CACHEABLE_FIELDS));
+
+        // monitor auth type changes and fire a warning
+        // event under Bug_38087045 conditions.
+        Dispatch.async(mainPanel,
+                () -> verifyInteractivePortBinding(),
+                success -> interactivePortWarningPanel.setVisible(!success));
     }
 
     public void setAuthenticationTypes(AuthenticationType ...  authenticationTypes) {
@@ -372,5 +376,20 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
                         interactiveHintPanel.setVisible(isInteractivePortBound);
                     });
         }
+    }
+
+    /**
+     * Checks if the token callback bind port (8181) can be bound.
+     * Used to warn the interactive connectivity option if the port is already bound
+     * @return true if port is free, false otherwise
+     */
+    private boolean verifyInteractivePortBinding() {
+        AuthenticationType authenticationType = getAuthenticationType();
+        AuthenticationTokenType tokenAuthenticationType = getTokenAuthenticationType();
+
+        if (authenticationType != AuthenticationType.TOKEN) return false;
+        if (tokenAuthenticationType != OCI_INTERACTIVE) return false;
+
+        return Sockets.tryToBindPort(OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT);
     }
 }
