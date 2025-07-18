@@ -13,7 +13,8 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Host"/>
+          <labelFor value="2bcef"/>
+          <text value="&amp;Host"/>
         </properties>
       </component>
       <component id="6b251" class="javax.swing.JLabel">
@@ -21,7 +22,8 @@
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="User"/>
+          <labelFor value="2e347"/>
+          <text value="&amp;User"/>
         </properties>
       </component>
       <component id="fd4bd" class="javax.swing.JLabel">
@@ -29,14 +31,15 @@
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Authentication type"/>
+          <text value="&amp;Authentication type"/>
         </properties>
       </component>
-      <component id="5e8ed" class="javax.swing.JLabel" binding="sshPasswordLabel">
+      <component id="5e8ed" class="javax.swing.JLabel" binding="passwordLabel">
         <constraints>
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
+          <labelFor value="6527e"/>
           <text value="Password"/>
         </properties>
       </component>
@@ -45,7 +48,8 @@
           <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Key passphrase"/>
+          <labelFor value="e5586"/>
+          <text value="Key &amp;passphrase"/>
         </properties>
       </component>
       <component id="3dc48" class="javax.swing.JLabel">
@@ -53,10 +57,11 @@
           <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
+          <labelFor value="8df3"/>
           <text value="Bind host"/>
         </properties>
       </component>
-      <component id="2bcef" class="javax.swing.JTextField" binding="sshHostNameTextField">
+      <component id="2bcef" class="javax.swing.JTextField" binding="hostTextField">
         <constraints>
           <grid row="0" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -64,7 +69,7 @@
         </constraints>
         <properties/>
       </component>
-      <component id="2e347" class="javax.swing.JTextField" binding="sshUserTextField">
+      <component id="2e347" class="javax.swing.JTextField" binding="userTextField">
         <constraints>
           <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -72,13 +77,13 @@
         </constraints>
         <properties/>
       </component>
-      <component id="32aec" class="com.intellij.openapi.ui.ComboBox" binding="sshAuthenticationTypeComboBox">
+      <component id="32aec" class="com.intellij.openapi.ui.ComboBox" binding="authTypeComboBox">
         <constraints>
           <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
       </component>
-      <component id="6527e" class="javax.swing.JPasswordField" binding="sshPasswordField">
+      <component id="6527e" class="javax.swing.JPasswordField" binding="passwordField">
         <constraints>
           <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -86,7 +91,7 @@
         </constraints>
         <properties/>
       </component>
-      <component id="e5586" class="javax.swing.JPasswordField" binding="sshKeyPassPhraseInput">
+      <component id="e5586" class="javax.swing.JPasswordField" binding="keyPassPhraseInput">
         <constraints>
           <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -94,7 +99,7 @@
         </constraints>
         <properties/>
       </component>
-      <component id="8df3" class="javax.swing.JTextField" binding="sshBindHost">
+      <component id="8df3" class="javax.swing.JTextField" binding="bindHostTextField">
         <constraints>
           <grid row="6" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -107,10 +112,10 @@
           <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Key File"/>
+          <text value="Key &amp;file"/>
         </properties>
       </component>
-      <component id="b7d49" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="sshKeyFileBrowseInput">
+      <component id="b7d49" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="keyFileBrowseInput">
         <constraints>
           <grid row="4" column="1" row-span="1" col-span="4" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -128,10 +133,11 @@
           <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
+          <labelFor value="487d4"/>
           <text value="Port"/>
         </properties>
       </component>
-      <component id="487d4" class="javax.swing.JFormattedTextField" binding="sshPortTextField">
+      <component id="487d4" class="javax.swing.JFormattedTextField" binding="portTextField">
         <constraints>
           <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="80" height="-1"/>
@@ -144,10 +150,11 @@
           <grid row="6" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
+          <labelFor value="cdab8"/>
           <text value="Bind port"/>
         </properties>
       </component>
-      <component id="cdab8" class="javax.swing.JFormattedTextField" binding="sshBindPort">
+      <component id="cdab8" class="javax.swing.JFormattedTextField" binding="bindPortTextField">
         <constraints>
           <grid row="6" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="80" height="-1"/>

@@ -22,37 +22,37 @@ import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 
 public class ReverseSshTunnelConfigForm extends ConfigurationEditorForm<ReverseSshTunnelConfiguration> {
-    private JLabel sshPasswordLabel;
+    private JLabel passwordLabel;
     private JLabel sshKeyPassPhraseLabel;
-    private JTextField sshHostNameTextField;
-    private JFormattedTextField sshPortTextField;
-    private JTextField sshUserTextField;
-    private ComboBox<SshAuthType> sshAuthenticationTypeComboBox;
-    private JPasswordField sshPasswordField;
-    private JPasswordField sshKeyPassPhraseInput;
-    private JTextField sshBindHost;
-    private JFormattedTextField sshBindPort;
+    private JTextField hostTextField;
+    private JFormattedTextField portTextField;
+    private JTextField userTextField;
+    private ComboBox<SshAuthType> authTypeComboBox;
+    private JPasswordField passwordField;
+    private JPasswordField keyPassPhraseInput;
+    private JTextField bindHostTextField;
+    private JFormattedTextField bindPortTextField;
     private JLabel sshKeyFileLabel;
-    private TextFieldWithBrowseButton sshKeyFileBrowseInput;
+    private TextFieldWithBrowseButton keyFileBrowseInput;
     private JPanel mainPanel;
 
 
     public ReverseSshTunnelConfigForm(ReverseSshTunnelConfiguration configuration) {
         super(configuration);
-        initComboBox(sshAuthenticationTypeComboBox, SshAuthType.values());
-        sshAuthenticationTypeComboBox.addActionListener(e -> showHideFieldsSshAuthTypeComboBox());
-        addSingleFileChooser(getProject(), sshKeyFileBrowseInput, txt("cfg.connection.title.SelectPrivateKeyFile"), "");
+        initComboBox(authTypeComboBox, SshAuthType.values());
+        authTypeComboBox.addActionListener(e -> showHideFieldsSshAuthTypeComboBox());
+        addSingleFileChooser(getProject(), keyFileBrowseInput, txt("cfg.connection.title.SelectPrivateKeyFile"), "");
     }
 
     private void showHideFieldsSshAuthTypeComboBox() {
-        boolean isKeyPair = getSelection(sshAuthenticationTypeComboBox) == SshAuthType.KEY_PAIR;
-        sshPasswordField.setVisible(!isKeyPair);
-        sshPasswordLabel.setVisible(!isKeyPair);
+        boolean isKeyPair = getSelection(authTypeComboBox) == SshAuthType.KEY_PAIR;
+        passwordField.setVisible(!isKeyPair);
+        passwordLabel.setVisible(!isKeyPair);
 
         sshKeyFileLabel.setVisible(isKeyPair);
         sshKeyPassPhraseLabel.setVisible(isKeyPair);
-        sshKeyFileBrowseInput.setVisible(isKeyPair);
-        sshKeyPassPhraseInput.setVisible(isKeyPair);
+        keyFileBrowseInput.setVisible(isKeyPair);
+        keyPassPhraseInput.setVisible(isKeyPair);
     }
 
     @Override
@@ -65,15 +65,15 @@ public class ReverseSshTunnelConfigForm extends ConfigurationEditorForm<ReverseS
         // snapshot old secret before form changes are applied
         Secret[] oldSecrets = configuration.getSecrets();
 
-        configuration.setSshHost(sshHostNameTextField.getText());
-        configuration.setSshPort(sshPortTextField.getText());
-        configuration.setSshUser(sshUserTextField.getText());
-        configuration.setSshAuthType(getSelection(sshAuthenticationTypeComboBox));
-        configuration.setSshPassword(sshPasswordField.getPassword());
-        configuration.setSshKeyFile(sshKeyFileBrowseInput.getText());
-        configuration.setSshKeyPassphrase(sshKeyPassPhraseInput.getPassword());
-        configuration.setSshBindHost(sshBindHost.getText());
-        configuration.setSshBindPort(sshBindPort.getText());
+        configuration.setHost(hostTextField.getText());
+        configuration.setPort(portTextField.getText());
+        configuration.setUser(userTextField.getText());
+        configuration.setAuthType(getSelection(authTypeComboBox));
+        configuration.setPassword(passwordField.getPassword());
+        configuration.setKeyFile(keyFileBrowseInput.getText());
+        configuration.setKeyPassphrase(keyPassPhraseInput.getPassword());
+        configuration.setBindHost(bindHostTextField.getText());
+        configuration.setBindPort(bindPortTextField.getText());
 
         if (!ConfigMonitor.isCloning()) {
             // replace secrets in the password store
@@ -83,15 +83,15 @@ public class ReverseSshTunnelConfigForm extends ConfigurationEditorForm<ReverseS
 
     public void resetFormChanges() {
         ReverseSshTunnelConfiguration configuration = getConfiguration();
-        sshHostNameTextField.setText(configuration.getSshHost());
-        sshPortTextField.setText(String.valueOf(configuration.getSshPort()));
-        sshUserTextField.setText(configuration.getSshUser());
-        sshPasswordField.setText(new String(configuration.getSshPassword()));
-        setSelection(sshAuthenticationTypeComboBox, configuration.getSshAuthType());
-        sshKeyFileBrowseInput.setText(configuration.getSshKeyFile());
-        sshKeyPassPhraseInput.setText(new String(configuration.getSshKeyPassphrase()));
-        sshBindHost.setText(configuration.getSshBindHost());
-        sshBindPort.setText(String.valueOf(configuration.getSshBindPort()));
+        hostTextField.setText(configuration.getHost());
+        portTextField.setText(String.valueOf(configuration.getPort()));
+        userTextField.setText(configuration.getUser());
+        passwordField.setText(new String(configuration.getPassword()));
+        setSelection(authTypeComboBox, configuration.getAuthType());
+        keyFileBrowseInput.setText(configuration.getKeyFile());
+        keyPassPhraseInput.setText(new String(configuration.getKeyPassphrase()));
+        bindHostTextField.setText(configuration.getBindHost());
+        bindPortTextField.setText(String.valueOf(configuration.getBindPort()));
     }
 
     @Override

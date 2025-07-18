@@ -189,7 +189,7 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
             sshTunnelSettings.initSecrets();
 
             // DEBUGGER REVERSE SSH TUNNEL PASSWORDS
-            ReverseSshTunnelConfiguration reverseTunnelSettings = connection.getDebuggerSettings().getReverseSshTunnelConfiguration();
+            ReverseSshTunnelConfiguration reverseTunnelSettings = connection.getDebuggerSettings().getReverseSshTunnelConfig();
             reverseTunnelSettings.initSecrets();
         }
 

@@ -42,55 +42,59 @@ import static com.dbn.credentials.SecretType.DEBUGGER_SSH_TUNNEL_PASSWORD;
 @Getter
 @Setter
 public class ReverseSshTunnelConfiguration  extends BasicConfiguration <ConnectionDebuggerSettings, ConfigurationEditorForm> implements SecretsOwner {
-    private String sshHost;
-    private String sshUser;
-    private char[] sshPassword;
-    private String sshPort = "22";
-    private SshAuthType sshAuthType = SshAuthType.PASSWORD;
-    private String sshKeyFile;
-    private char[] sshKeyPassphrase;
-    private String sshBindHost = "127.0.0.1";
-    private String sshBindPort = "0";
+    private String host;
+    private String port = "22";
+
+    private SshAuthType authType = SshAuthType.PASSWORD;
+    private String user;
+    private String keyFile;
+    private char[] keyPassphrase;
+    private char[] password;
+    private String bindHost = "127.0.0.1";
+    private String bindPort = "0";
 
     public ReverseSshTunnelConfiguration(ConnectionDebuggerSettings parent) {
         super(parent);
     }
 
-
     @Override
     public void readConfiguration(Element element) {
-        sshHost = getString(element, "reverse-ssh-host", sshHost);
-        sshUser = getString(element, "reverse-ssh-user", sshUser);
-        sshPort = getString(element, "reverse-ssh-port", sshPort);
-        sshKeyFile = getString(element, "reverse-ssh-key-file", sshKeyFile);
-        sshAuthType = getEnum(element, "reverse-ssh-auth-type", sshAuthType);
-        sshBindHost = getString(element, "reverse-ssh-bind-host", sshBindHost);
-        sshBindPort = getString(element, "reverse-ssh-bind-port", sshBindPort);
+        if (element == null) return;
+
+        host = getString(element, "host", host);
+        port = getString(element, "port", port);
+        bindHost = getString(element, "bind-host", bindHost);
+        bindPort = getString(element, "bind-port", bindPort);
+
+        user = getString(element, "user", user);
+        authType = getEnum(element, "auth-type", authType);
+        keyFile = getString(element, "key-file", keyFile);
 
         if (isTransientContext()) {
             // only propagate password when config context is transient
             // (avoid storing it in config xml)
-            sshPassword = decode(getChars(element, "transient-reverse-ssh-password", encode(sshPassword)));
-            sshKeyPassphrase = decode(getChars(element, "transient-reverse-ssh-key-passphrase", encode(sshKeyPassphrase)));
+            password = decode(getChars(element, "transient-password", encode(password)));
+            keyPassphrase = decode(getChars(element, "transient-key-passphrase", encode(keyPassphrase)));
         }
 
     }
 
     @Override
     public void writeConfiguration(Element element) {
-        setString(element, "reverse-ssh-host", sshHost);
-        setString(element, "reverse-ssh-user", sshUser);
-        setString(element, "reverse-ssh-port", sshPort);
-        setEnum(element, "reverse-ssh-auth-type", sshAuthType);
-        setString(element, "reverse-ssh-key-file", sshKeyFile);
-        setString(element, "reverse-ssh-bind-host", sshBindHost);
-        setString(element, "reverse-ssh-bind-port", sshBindPort);
+        setString(element, "host", host);
+        setString(element, "port", port);
+        setString(element, "bind-host", bindHost);
+        setString(element, "bind-port", bindPort);
+
+        setEnum(element, "auth-type", authType);
+        setString(element, "user", user);
+        setString(element, "key-file", keyFile);
 
         if (isTransientContext()) {
             // only propagate password when config context is transient
             // (avoid storing it in config xml)
-            setChars(element, "transient-reverse-ssh-password", encode(sshPassword));
-            setChars(element, "transient-reverse-ssh-key-passphrase", encode(sshKeyPassphrase));
+            setChars(element, "transient-password", encode(password));
+            setChars(element, "transient-key-passphrase", encode(keyPassphrase));
         }
     }
 
@@ -126,11 +130,11 @@ public class ReverseSshTunnelConfiguration  extends BasicConfiguration <Connecti
     }
 
     private Secret getPasswordSecret() {
-        return new Secret(DEBUGGER_SSH_TUNNEL_PASSWORD, sshUser, sshPassword);
+        return new Secret(DEBUGGER_SSH_TUNNEL_PASSWORD, user, password);
     }
 
     private Secret getKeyPassphraseSecret() {
-        return new Secret(DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE, sshKeyFile, sshKeyPassphrase);
+        return new Secret(DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE, keyFile, keyPassphrase);
     }
 
     /**
@@ -138,16 +142,15 @@ public class ReverseSshTunnelConfiguration  extends BasicConfiguration <Connecti
      */
     @Override
     public void initSecrets() {
-        //if (!active) return;
-
         ConnectionId connectionId = getConnectionId();
         DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
-        if (sshAuthType == SshAuthType.PASSWORD) {
-            Secret secret = credentialManager.loadSecret(DEBUGGER_SSH_TUNNEL_PASSWORD, connectionId, sshUser);
-            sshPassword = secret.getToken();
-        } else if (sshAuthType == SshAuthType.KEY_PAIR) {
-            Secret secret = credentialManager.loadSecret(DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE, connectionId, sshKeyFile);
-            sshKeyPassphrase = secret.getToken();
+        if (authType == SshAuthType.PASSWORD) {
+            Secret secret = credentialManager.loadSecret(DEBUGGER_SSH_TUNNEL_PASSWORD, connectionId, user);
+            password = secret.getToken();
+
+        } else if (authType == SshAuthType.KEY_PAIR) {
+            Secret secret = credentialManager.loadSecret(DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE, connectionId, keyFile);
+            keyPassphrase = secret.getToken();
         }
     }
 }

@@ -16,39 +16,25 @@
 
 package com.dbn.debugger.jdwp.process;
 
+import com.dbn.common.network.NetworkAddress;
 import com.dbn.connection.ssh.SshTunnelConfig;
+import com.dbn.debugger.JDWPTunnelType;
 import lombok.Getter;
 
 @Getter
 public class DBJdwpTcpConfig {
-    private final String host;
-    private final int port;
-    private final boolean tunneled;
-    private final boolean isReverseSshTunneled;
+    private final NetworkAddress localAddress;
+    private final JDWPTunnelType tunnelType;
     private final SshTunnelConfig sshTunnelConfig;
 
-    public DBJdwpTcpConfig(String host, int port) {
-        this(host, port, false);
-    }
-
-    public DBJdwpTcpConfig(String host, int port, boolean tunneled) {
-        this.host = host;
-        this.port = port;
-        this.tunneled = tunneled;
-        this.isReverseSshTunneled = false;
+    public DBJdwpTcpConfig(NetworkAddress localAddress, JDWPTunnelType tunnelType) {
+        this.localAddress = localAddress;
+        this.tunnelType = tunnelType;
         this.sshTunnelConfig = null;
     }
-    public DBJdwpTcpConfig(String host, int port,
-                           boolean isReverseSshTunneled, SshTunnelConfig sshTunnelConfig) {
-        this.host = host;
-        this.port = port;
-        this.tunneled = false;
-        this.isReverseSshTunneled = isReverseSshTunneled;
+    public DBJdwpTcpConfig(NetworkAddress localAddress, JDWPTunnelType tunnelType, SshTunnelConfig sshTunnelConfig) {
+        this.localAddress = localAddress;
+        this.tunnelType = tunnelType;
         this.sshTunnelConfig = sshTunnelConfig;
-    }
-
-
-    public boolean isLocal() {
-        return !isTunneled();
     }
 }

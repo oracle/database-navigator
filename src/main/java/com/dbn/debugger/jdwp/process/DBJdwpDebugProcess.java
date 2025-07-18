@@ -18,6 +18,7 @@ package com.dbn.debugger.jdwp.process;
 
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.exception.ProcessDeferredException;
+import com.dbn.common.network.NetworkAddress;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.ThreadPropertyGate;
@@ -34,6 +35,7 @@ import com.dbn.debugger.DBDebugConsoleLogger;
 import com.dbn.debugger.DBDebugOperation;
 import com.dbn.debugger.DBDebugUtil;
 import com.dbn.debugger.DatabaseDebuggerManager;
+import com.dbn.debugger.JDWPTunnelType;
 import com.dbn.debugger.common.breakpoint.DBBreakpointHandler;
 import com.dbn.debugger.common.breakpoint.DBBreakpointUtil;
 import com.dbn.debugger.common.config.DBRunConfig;
@@ -52,7 +54,12 @@ import com.dbn.execution.ExecutionInput;
 import com.dbn.object.DBMethod;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.debugger.DebuggerManager;
-import com.intellij.debugger.engine.*;
+import com.intellij.debugger.engine.DebugProcessImpl;
+import com.intellij.debugger.engine.DebugProcessListener;
+import com.intellij.debugger.engine.JavaDebugProcess;
+import com.intellij.debugger.engine.JavaStackFrame;
+import com.intellij.debugger.engine.SuspendContext;
+import com.intellij.debugger.engine.SuspendContextImpl;
 import com.intellij.debugger.impl.DebuggerContextListener;
 import com.intellij.debugger.impl.DebuggerSession;
 import com.intellij.debugger.impl.DebuggerStateManager;
@@ -75,6 +82,7 @@ import com.sun.jdi.Location;
 import com.sun.jdi.StackFrame;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.sshd.common.util.net.SshdSocketAddress;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -85,6 +93,8 @@ import static com.dbn.common.thread.ThreadProperty.DEBUGGER_NAVIGATION;
 import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.debugger.JDWPTunnelType.SSH_REVERSE_TUNNEL;
+import static com.dbn.debugger.JDWPTunnelType.TCP_DRIVER_TUNNEL;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.intellij.debugger.impl.PrioritizedTask.Priority.LOWEST;
 import static com.intellij.debugger.impl.PrioritizedTask.Priority.NORMAL;
@@ -237,9 +247,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                 targetConnection.setAutoCommit(false);
                 targetConnection.beforeClose(() -> releaseSession(targetConnection));
 
-
-                if (tcpConfig.isLocal())
-                {initializeLocalJdwpSession();}
+                initializeLocalJdwpSession();
 
                 console.system("Debug session initialized (JDWP)");
                 set(DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED, true);
@@ -258,31 +266,36 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     }
 
     private void initializeLocalJdwpSession(){
-        try {
-            String tcpHost = tcpConfig.getHost();
-            int tcpPort = tcpConfig.getPort();
-            console.info("Initializing debug session on address " + tcpHost + ":" + tcpPort);
+        JDWPTunnelType tunnelType = tcpConfig.getTunnelType();
+        if (tunnelType == TCP_DRIVER_TUNNEL) return; // no local session initialization for driver tunneling
 
-            String debugListenerHostForDatabase = tcpConfig.getHost();
-            String debugListenerPortForDatabase = String.valueOf(tcpPort);
+        try {
+            NetworkAddress localAddress = tcpConfig.getLocalAddress();
+            console.info("Initializing debug session on address " + localAddress);
+
+            NetworkAddress jdwpTcpAddress = localAddress.clone();
 
             //opening reverse ssh tunnel here if required
-            if (tcpConfig.isReverseSshTunneled()) {
-                SshTunnelConnector sshTunnelConnector = new SshTunnelConnector(tcpConfig.getSshTunnelConfig(), tcpConfig.getHost(), tcpConfig.getPort());
+            if (tunnelType == SSH_REVERSE_TUNNEL) {
+                console.info("Initializing reverse ssh tunnel...");
+                SshTunnelConnector sshTunnelConnector = new SshTunnelConnector(tcpConfig.getSshTunnelConfig(), localAddress);
                 sshTunnelConnector.setReverseTunnel(true);
                 sshTunnelConnector.connect();
                 targetConnection.beforeClose(() -> sshTunnelConnector.disconnect());
 
-                debugListenerHostForDatabase = sshTunnelConnector.getTracker().getBoundAddress().getHostName();
-                debugListenerPortForDatabase = String.valueOf(sshTunnelConnector.getTracker().getBoundAddress().getPort());
+                SshdSocketAddress boundAddress = sshTunnelConnector.getTracker().getBoundAddress();
+                jdwpTcpAddress.setHost(boundAddress.getHostName());
+                jdwpTcpAddress.setPort(boundAddress.getPort());
 
-                console.system("Reverse Tunnel Started ~ " + tcpConfig.getHost() + ":" + tcpConfig.getPort() + "(This Machine)"
-                        + "<-" + debugListenerHostForDatabase + ":" + debugListenerPortForDatabase + "(" + tcpConfig.getSshTunnelConfig().getProxyHost() + ")");
+                NetworkAddress proxyAddress = tcpConfig.getSshTunnelConfig().getProxyAddress();
+                console.system("Reverse ssh tunnel started ~ " + localAddress + " (this machine)"
+                        + " <- " + jdwpTcpAddress + " (" + proxyAddress + ")");
             }
 
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
-            debuggerInterface.initializeJdwpSession(targetConnection, debugListenerHostForDatabase,
-                    debugListenerPortForDatabase);
+            debuggerInterface.initializeJdwpSession(targetConnection,
+                    jdwpTcpAddress.getHost(),
+                    jdwpTcpAddress.getPortString());
         }
         catch (Exception e) {
             conditionallyLog(e);

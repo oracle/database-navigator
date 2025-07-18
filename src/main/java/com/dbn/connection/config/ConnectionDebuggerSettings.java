@@ -32,6 +32,7 @@ import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getInteger;
 import static com.dbn.common.options.setting.Settings.getString;
+import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setBoolean;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setInteger;
@@ -47,7 +48,7 @@ public class ConnectionDebuggerSettings extends BasicConfiguration<ConnectionSet
     private Range<Integer> tcpPortRange = new Range<>(4000, 4999);
 
     //reverse ssh tunnel settings
-    private ReverseSshTunnelConfiguration reverseSshTunnelConfiguration = new ReverseSshTunnelConfiguration(this);
+    private ReverseSshTunnelConfiguration reverseSshTunnelConfig = new ReverseSshTunnelConfiguration(this);
 
     private final InteractiveOptionBroker<DebuggerTypeOption> debuggerType =
             new InteractiveOptionBroker<>(
@@ -83,7 +84,8 @@ public class ConnectionDebuggerSettings extends BasicConfiguration<ConnectionSet
         tcpPortRange = new Range<>(tcpPortFrom, tcpPortTo);
 
         debuggerType.readConfiguration(element);
-        reverseSshTunnelConfiguration.readConfiguration(element);
+        Element sshTunnelElement = element.getChild("reverse-ssh-tunnel");
+        reverseSshTunnelConfig.readConfiguration(sshTunnelElement);
 
         // TODO remove after few subsequent releases (backward compatibility)
         boolean driverTunneling = getBoolean(element, "tcp-driver-tunneling", false);
@@ -97,9 +99,10 @@ public class ConnectionDebuggerSettings extends BasicConfiguration<ConnectionSet
         setInteger(element, "tcp-port-from", tcpPortRange.getFrom());
         setInteger(element, "tcp-port-to", tcpPortRange.getTo());
         setEnum(element, "jdwp-tunnel-type", jdwpTunnelType);
-
         debuggerType.writeConfiguration(element);
-        reverseSshTunnelConfiguration.writeConfiguration(element);
+
+        Element sshTunnelElement = newElement(element, "reverse-ssh-tunnel");
+        reverseSshTunnelConfig.writeConfiguration(sshTunnelElement);
 
     }
 }

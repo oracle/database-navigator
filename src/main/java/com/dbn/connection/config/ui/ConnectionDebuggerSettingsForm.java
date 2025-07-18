@@ -37,6 +37,9 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.debugger.JDWPTunnelType.NONE;
+import static com.dbn.debugger.JDWPTunnelType.SSH_REVERSE_TUNNEL;
+import static com.dbn.debugger.JDWPTunnelType.TCP_DRIVER_TUNNEL;
 
 public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<ConnectionDebuggerSettings> {
     private JPanel mainPanel;
@@ -54,8 +57,8 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
     public ConnectionDebuggerSettingsForm(ConnectionDebuggerSettings configuration) {
         super(configuration);
 
-        ReverseSshTunnelConfiguration sshTunnelConfiguration = configuration.getReverseSshTunnelConfiguration();
-        reverseSshTunnelForm = new ReverseSshTunnelConfigForm(sshTunnelConfiguration);
+        ReverseSshTunnelConfiguration sshTunnelConfig = configuration.getReverseSshTunnelConfig();
+        reverseSshTunnelForm = new ReverseSshTunnelConfigForm(sshTunnelConfig);
         reverseSshTunnelPanel.add(reverseSshTunnelForm.getMainComponent());
 
         initComboBox(debuggerTypeComboBox,
@@ -64,9 +67,9 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
                 DebuggerTypeOption.ASK);
 
         initComboBox(tunnelTypeComboBox,
-                JDWPTunnelType.NONE,
-                JDWPTunnelType.TCP_DRIVER_TUNNEL,
-                JDWPTunnelType.SSH_REVERSE_TUNNEL);
+                TCP_DRIVER_TUNNEL,
+                SSH_REVERSE_TUNNEL,
+                NONE);
 
         resetFormChanges();
         updateTcpFields();
@@ -108,11 +111,8 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
         jdwpDebuggerPanel.setVisible(!classic);
 
         JDWPTunnelType tunnelType = getSelection(tunnelTypeComboBox);
-        boolean tunneling = tunnelType != JDWPTunnelType.NONE;
-        tcpAddressPanel.setVisible(!tunneling && !classic);
-
-        boolean reverseTunneling = !classic && tunnelType == JDWPTunnelType.SSH_REVERSE_TUNNEL;
-        reverseSshTunnelPanel.setVisible(reverseTunneling);
+        tcpAddressPanel.setVisible(!classic && tunnelType != TCP_DRIVER_TUNNEL);
+        reverseSshTunnelPanel.setVisible(!classic && tunnelType == SSH_REVERSE_TUNNEL);
     }
 
     @Override
@@ -136,7 +136,7 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
             throw new ConfigurationException(txt("cfg.debugger.error.NonNumericPortRange"));
         }
 
-        reverseSshTunnelForm.applyFormChanges(configuration.getReverseSshTunnelConfiguration());
+        reverseSshTunnelForm.applyFormChanges(configuration.getReverseSshTunnelConfig());
     }
 
     @Override
