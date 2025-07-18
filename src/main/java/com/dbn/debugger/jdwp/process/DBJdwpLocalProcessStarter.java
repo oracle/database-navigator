@@ -20,6 +20,9 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.config.ConnectionDebuggerSettings;
+import com.dbn.connection.config.ReverseSshTunnelConfiguration;
+import com.dbn.connection.ssh.SshAuthType;
+import com.dbn.connection.ssh.SshTunnelConfig;
 import com.intellij.debugger.DebugEnvironment;
 import com.intellij.debugger.DebuggerManagerEx;
 import com.intellij.debugger.DefaultDebugEnvironment;
@@ -66,14 +69,8 @@ public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
 
 
         ExecutionEnvironment environment = ExecutionEnvironmentBuilder.create(session.getProject(), executor, runProfile).build();
-        ConnectionDebuggerSettings debuggerSettings = getConnection().getSettings().getDebuggerSettings();
-        Range<Integer> portRange = debuggerSettings.getTcpPortRange();
-        String tcpHost = resolveTcpHost(debuggerSettings.getTcpHostAddress());
-        int tcpPort = findFreePort(tcpHost, portRange.getFrom(), portRange.getTo());
-        DBJdwpTcpConfig tcpConfig = new DBJdwpTcpConfig(tcpHost, tcpPort);
-
-        RemoteConnection remoteConnection = new RemoteConnection(true, tcpHost, Integer.toString(tcpPort), true);
-
+        DBJdwpTcpConfig tcpConfig = initializeJdwpTcpConfig();
+        RemoteConnection remoteConnection = new RemoteConnection(true, tcpConfig.getHost(), Integer.toString(tcpConfig.getPort()), true);
         RunProfileState state = Failsafe.nn(runProfile.getState(executor, environment));
 
         DebugEnvironment debugEnvironment = new DefaultDebugEnvironment(environment, state, remoteConnection, true);
@@ -83,6 +80,34 @@ public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
 
         return createDebugProcess(session, debuggerSession, tcpConfig);
 
+    }
+
+    private DBJdwpTcpConfig initializeJdwpTcpConfig() throws ExecutionException {
+        ConnectionDebuggerSettings debuggerSettings = getConnection().getSettings().getDebuggerSettings();
+        Range<Integer> portRange = debuggerSettings.getTcpPortRange();
+        String tcpHost = resolveTcpHost(debuggerSettings.getTcpHostAddress());
+        int tcpPort = findFreePort(tcpHost, portRange.getFrom(), portRange.getTo());
+
+        boolean reverseSshTunnelEnabled = debuggerSettings.isReverseSshTunneling();
+        SshTunnelConfig reverseSshTunnelConfig = null;
+        if(reverseSshTunnelEnabled) {
+            ReverseSshTunnelConfiguration reverseSshTunnelConfiguration = debuggerSettings.getReverseSshTunnelConfiguration();
+            String proxyHost = reverseSshTunnelConfiguration.getSshHost();
+            int proxyPort = Integer.parseInt(reverseSshTunnelConfiguration.getSshPort());
+            String proxyUser = reverseSshTunnelConfiguration.getSshUser();
+            char[] proxyPassword = reverseSshTunnelConfiguration.getSshPassword();
+            SshAuthType authType = reverseSshTunnelConfiguration.getSshAuthType();
+            String keyFile = reverseSshTunnelConfiguration.getSshKeyFile();
+            char[] keyPassphrase = reverseSshTunnelConfiguration.getSshKeyPassphrase();
+            String remoteHost = reverseSshTunnelConfiguration.getSshBindHost();
+            int remotePort = Integer.parseInt(reverseSshTunnelConfiguration.getSshBindPort());
+
+            reverseSshTunnelConfig = new SshTunnelConfig(proxyHost, proxyPort, proxyUser,
+                    authType, keyFile, keyPassphrase, proxyPassword, remoteHost, remotePort);
+        }
+
+        return new DBJdwpTcpConfig(tcpHost, tcpPort,
+                reverseSshTunnelEnabled, reverseSshTunnelConfig);
     }
 
     private static int findFreePort(String host, int minPortNumber, int maxPortNumber) throws ExecutionException {

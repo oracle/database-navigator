@@ -27,12 +27,7 @@ import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.options.setting.Settings.getBoolean;
-import static com.dbn.common.options.setting.Settings.getInteger;
-import static com.dbn.common.options.setting.Settings.getString;
-import static com.dbn.common.options.setting.Settings.setBoolean;
-import static com.dbn.common.options.setting.Settings.setInteger;
-import static com.dbn.common.options.setting.Settings.setString;
+import static com.dbn.common.options.setting.Settings.*;
 
 @Getter
 @Setter
@@ -41,6 +36,10 @@ public class ConnectionDebuggerSettings extends BasicConfiguration<ConnectionSet
     private boolean tcpDriverTunneling;
     private String tcpHostAddress;
     private Range<Integer> tcpPortRange = new Range<>(4000, 4999);
+
+    //reverse ssh tunnel settings
+    private ReverseSshTunnelConfiguration reverseSshTunnelConfiguration;
+    boolean reverseSshTunneling = false;
 
     private final InteractiveOptionBroker<DebuggerTypeOption> debuggerType =
             new InteractiveOptionBroker<>(
@@ -58,6 +57,7 @@ public class ConnectionDebuggerSettings extends BasicConfiguration<ConnectionSet
 
     public ConnectionDebuggerSettings(ConnectionSettings parent) {
         super(parent);
+        this.reverseSshTunnelConfiguration = new ReverseSshTunnelConfiguration(parent);
     }
 
     @Override
@@ -79,6 +79,8 @@ public class ConnectionDebuggerSettings extends BasicConfiguration<ConnectionSet
         int tcpPortTo = getInteger(element, "tcp-port-to", tcpPortRange.getTo());
         tcpPortRange = new Range<>(tcpPortFrom, tcpPortTo);
         debuggerType.readConfiguration(element);
+        reverseSshTunneling = getBoolean(element, "tcp-reverse-ssh-tunneling", reverseSshTunneling);
+        reverseSshTunnelConfiguration.readConfiguration(element);
     }
 
     @Override
@@ -89,5 +91,8 @@ public class ConnectionDebuggerSettings extends BasicConfiguration<ConnectionSet
         setInteger(element, "tcp-port-from", tcpPortRange.getFrom());
         setInteger(element, "tcp-port-to", tcpPortRange.getTo());
         debuggerType.writeConfiguration(element);
+        setBoolean(element,"tcp-reverse-ssh-tunneling", reverseSshTunneling);
+        reverseSshTunnelConfiguration.writeConfiguration(element);
+
     }
 }

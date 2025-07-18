@@ -28,6 +28,7 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.Resources;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.connection.ssh.SshTunnelConnector;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
 import com.dbn.debugger.DBDebugConsoleLogger;
 import com.dbn.debugger.DBDebugOperation;
@@ -51,12 +52,7 @@ import com.dbn.execution.ExecutionInput;
 import com.dbn.object.DBMethod;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.debugger.DebuggerManager;
-import com.intellij.debugger.engine.DebugProcessImpl;
-import com.intellij.debugger.engine.DebugProcessListener;
-import com.intellij.debugger.engine.JavaDebugProcess;
-import com.intellij.debugger.engine.JavaStackFrame;
-import com.intellij.debugger.engine.SuspendContext;
-import com.intellij.debugger.engine.SuspendContextImpl;
+import com.intellij.debugger.engine.*;
 import com.intellij.debugger.impl.DebuggerContextListener;
 import com.intellij.debugger.impl.DebuggerSession;
 import com.intellij.debugger.impl.DebuggerStateManager;
@@ -242,14 +238,9 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                 targetConnection.beforeClose(() -> releaseSession(targetConnection));
 
 
-                if (tcpConfig.isLocal()) {
-                    String tcpHost = tcpConfig.getHost();
-                    int tcpPort = tcpConfig.getPort();
-                    console.info("Initializing debug session on address " + tcpHost + ":" + tcpPort);
+                if (tcpConfig.isLocal())
+                {initializeLocalJdwpSession();}
 
-                    DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
-                    debuggerInterface.initializeJdwpSession(targetConnection, tcpHost, String.valueOf(tcpPort));
-                }
                 console.system("Debug session initialized (JDWP)");
                 set(DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED, true);
 
@@ -264,6 +255,41 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                 stop();
             }
         });
+    }
+
+    private void initializeLocalJdwpSession(){
+        try {
+            String tcpHost = tcpConfig.getHost();
+            int tcpPort = tcpConfig.getPort();
+            console.info("Initializing debug session on address " + tcpHost + ":" + tcpPort);
+
+            String debugListenerHostForDatabase = tcpConfig.getHost();
+            String debugListenerPortForDatabase = String.valueOf(tcpPort);
+
+            //opening reverse ssh tunnel here if required
+            if (tcpConfig.isReverseSshTunneled()) {
+                SshTunnelConnector sshTunnelConnector = new SshTunnelConnector(tcpConfig.getSshTunnelConfig(), tcpConfig.getHost(), tcpConfig.getPort());
+                sshTunnelConnector.setReverseTunnel(true);
+                sshTunnelConnector.connect();
+                targetConnection.beforeClose(() -> sshTunnelConnector.disconnect());
+
+                debugListenerHostForDatabase = sshTunnelConnector.getTracker().getBoundAddress().getHostName();
+                debugListenerPortForDatabase = String.valueOf(sshTunnelConnector.getTracker().getBoundAddress().getPort());
+
+                console.system("Reverse Tunnel Started ~ " + tcpConfig.getHost() + ":" + tcpConfig.getPort() + "(This Machine)"
+                        + "<-" + debugListenerHostForDatabase + ":" + debugListenerPortForDatabase + "(" + tcpConfig.getSshTunnelConfig().getProxyHost() + ")");
+            }
+
+            DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
+            debuggerInterface.initializeJdwpSession(targetConnection, debugListenerHostForDatabase,
+                    debugListenerPortForDatabase);
+        }
+        catch (Exception e) {
+            conditionallyLog(e);
+            set(DBDebugProcessStatus.SESSION_INITIALIZATION_THREW_EXCEPTION, true);
+            console.error("Error initializing local jdwp session\n" + e.getMessage());
+            stop();
+        }
     }
 
     private @NotNull DebuggerContextListener createContextListener() {

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.dbn.connection.config.ui.ReverseSshTunnelConfigForm">
+  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="8" column-count="6" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="0" left="0" bottom="0" right="0"/>
+    <constraints>
+      <xy x="20" y="20" width="806" height="545"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <vspacer id="7dbfc">
+        <constraints>
+          <grid row="0" column="1" row-span="8" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </vspacer>
+      <component id="2277d" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Host"/>
+        </properties>
+      </component>
+      <component id="6b251" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="User"/>
+        </properties>
+      </component>
+      <component id="fd4bd" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Authentication Type"/>
+        </properties>
+      </component>
+      <component id="5e8ed" class="javax.swing.JLabel" binding="sshPasswordLabel">
+        <constraints>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Password"/>
+        </properties>
+      </component>
+      <component id="86a18" class="javax.swing.JLabel" binding="sshKeyPassPhraseLabel">
+        <constraints>
+          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Key passphrase"/>
+        </properties>
+      </component>
+      <component id="3dc48" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Bind Host"/>
+        </properties>
+      </component>
+      <component id="2bcef" class="javax.swing.JTextField" binding="sshHostNameTextField">
+        <constraints>
+          <grid row="0" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <minimum-size width="200" height="-1"/>
+            <preferred-size width="200" height="-1"/>
+          </grid>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="2e347" class="javax.swing.JTextField" binding="sshUserTextField">
+        <constraints>
+          <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="213" height="34"/>
+          </grid>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="32aec" class="com.intellij.openapi.ui.ComboBox" binding="sshAuthenticationTypeComboBox">
+        <constraints>
+          <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="213" height="34"/>
+          </grid>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="6527e" class="javax.swing.JPasswordField" binding="sshPasswordField">
+        <constraints>
+          <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="213" height="34"/>
+          </grid>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="e5586" class="javax.swing.JPasswordField" binding="sshKeyPassPhraseInput">
+        <constraints>
+          <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="213" height="34"/>
+          </grid>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="8df3" class="javax.swing.JTextField" binding="sshBindHost">
+        <constraints>
+          <grid row="6" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="213" height="34"/>
+          </grid>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="9ddcf" class="javax.swing.JLabel" binding="sshKeyFileLabel">
+        <constraints>
+          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Key File"/>
+        </properties>
+      </component>
+      <component id="b7d49" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="sshKeyFileBrowseInput">
+        <constraints>
+          <grid row="4" column="2" row-span="1" col-span="2" vsize-policy="3" hsize-policy="2" anchor="0" fill="1" indent="0" use-parent-layout="false">
+            <minimum-size width="200" height="-1"/>
+            <preferred-size width="300" height="34"/>
+          </grid>
+        </constraints>
+        <properties/>
+      </component>
+      <hspacer id="b4388">
+        <constraints>
+          <grid row="3" column="3" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="136" height="11"/>
+          </grid>
+        </constraints>
+      </hspacer>
+      <component id="18bb5" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Port"/>
+        </properties>
+      </component>
+      <component id="487d4" class="javax.swing.JFormattedTextField" binding="sshPortTextField">
+        <constraints>
+          <grid row="0" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="213" height="34"/>
+            <maximum-size width="80" height="-1"/>
+          </grid>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="202dd" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="6" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Bind Port"/>
+        </properties>
+      </component>
+      <component id="cdab8" class="javax.swing.JFormattedTextField" binding="sshBindPort">
+        <constraints>
+          <grid row="6" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="213" height="34"/>
+            <maximum-size width="80" height="-1"/>
+          </grid>
+        </constraints>
+        <properties/>
+      </component>
+    </children>
+  </grid>
+</form>

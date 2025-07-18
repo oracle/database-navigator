@@ -23,17 +23,12 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.util.Range;
 
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
-import static com.dbn.common.ui.util.ComboBoxes.getSelection;
-import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
-import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.ComboBoxes.*;
 
 public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<ConnectionDebuggerSettings> {
     private JPanel mainPanel;
@@ -43,18 +38,23 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
     private JTextField tcpPortFromTextField;
     private JTextField tcpPortToTextField;
     private ComboBox<DebuggerTypeOption> debuggerTypeComboBox;
+    private JCheckBox reverseSSHTunnelingRemoteCheckBox;
+    private JPanel reverseSshTunnelPanel;
+    private final ReverseSshTunnelConfigForm reverseSshTunnelForm = new ReverseSshTunnelConfigForm(this);
 
     public ConnectionDebuggerSettingsForm(ConnectionDebuggerSettings configuration) {
         super(configuration);
+
 
         initComboBox(debuggerTypeComboBox,
                 DebuggerTypeOption.JDWP,
                 DebuggerTypeOption.JDBC,
                 DebuggerTypeOption.ASK);
 
-
         resetFormChanges();
         updateTcpFields();
+
+        reverseSshTunnelPanel.add(reverseSshTunnelForm.getMainComponent());
         registerComponent(mainPanel);
     }
 
@@ -71,7 +71,11 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
 
     protected ActionListener createActionListener() {
         return e -> {
-            if (e.getSource() == tcpDriverTunnelingCheckBox) updateTcpFields();
+            if (e.getSource() == tcpDriverTunnelingCheckBox) {
+                updateTcpFields();
+                updateReverseSSHFTunnelFields();
+            }
+            if (e.getSource() == reverseSSHTunnelingRemoteCheckBox) updateReverseSSHFTunnelFields();
             getConfiguration().setModified(true);
         };
     }
@@ -93,7 +97,23 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
         tcpHostTextBox.setEnabled(!tunneling && !classic);
         tcpPortFromTextField.setEnabled(!tunneling && !classic);
         tcpPortToTextField.setEnabled(!tunneling && !classic);
+
+        updateReverseSSHFTunnelFields();
     }
+
+    private void updateReverseSSHFTunnelFields() {
+        DebuggerTypeOption debuggerTypeOption = (DebuggerTypeOption) debuggerTypeComboBox.getSelectedItem();
+        boolean classic = debuggerTypeOption == DebuggerTypeOption.JDBC;
+        boolean reverseSSHTunneling = reverseSSHTunnelingRemoteCheckBox.isSelected();
+        boolean tcpDriverTunneling = tcpDriverTunnelingCheckBox.isSelected();
+
+        reverseSSHTunnelingRemoteCheckBox.setVisible(!tcpDriverTunneling && !classic);
+        boolean enabledValue = reverseSSHTunneling && !classic && !tcpDriverTunneling;
+        reverseSshTunnelPanel.setVisible(enabledValue);
+
+    }
+
+
 
     @Override
     public void applyFormChanges() throws ConfigurationException {
@@ -115,6 +135,9 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
         } catch (NumberFormatException e) {
             throw new ConfigurationException(txt("cfg.debugger.error.NonNumericPortRange"));
         }
+
+        configuration.setReverseSshTunneling(reverseSSHTunnelingRemoteCheckBox.isSelected());
+        reverseSshTunnelForm.applyFormChanges(configuration.getReverseSshTunnelConfiguration());
     }
 
     @Override
@@ -126,6 +149,10 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
         tcpPortFromTextField.setText(String.valueOf(configuration.getTcpPortRange().getFrom()));
         tcpPortToTextField.setText(String.valueOf(configuration.getTcpPortRange().getTo()));
         setSelection(debuggerTypeComboBox, configuration.getDebuggerType().getOption());
+
+        reverseSSHTunnelingRemoteCheckBox.setSelected(configuration.isReverseSshTunneling());
+        reverseSshTunnelForm.resetFormChanges(configuration.getReverseSshTunnelConfiguration());
+
         updateTcpFields();
     }
 }

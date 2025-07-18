@@ -234,8 +234,8 @@ class Connector {
                 SshTunnelManager sshTunnelManager = SshTunnelManager.getInstance();
                 SshTunnelConnector sshTunnelConnector = sshTunnelManager.ensureSshConnection(connectionSettings);
                 if (sshTunnelConnector != null) {
-                    String localHost = sshTunnelConnector.getLocalHost();
-                    String localPort = Integer.toString(sshTunnelConnector.getLocalPort());
+                    String localHost = sshTunnelConnector.getLocalAddressHost();
+                    String localPort = Integer.toString(sshTunnelConnector.getLocalAddressPort());
                     connectionUrl = databaseSettings.getConnectionUrl(localHost, localPort);
                 }
             }

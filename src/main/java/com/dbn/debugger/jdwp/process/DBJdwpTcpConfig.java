@@ -16,6 +16,7 @@
 
 package com.dbn.debugger.jdwp.process;
 
+import com.dbn.connection.ssh.SshTunnelConfig;
 import lombok.Getter;
 
 @Getter
@@ -23,6 +24,8 @@ public class DBJdwpTcpConfig {
     private final String host;
     private final int port;
     private final boolean tunneled;
+    private final boolean isReverseSshTunneled;
+    private final SshTunnelConfig sshTunnelConfig;
 
     public DBJdwpTcpConfig(String host, int port) {
         this(host, port, false);
@@ -32,7 +35,18 @@ public class DBJdwpTcpConfig {
         this.host = host;
         this.port = port;
         this.tunneled = tunneled;
+        this.isReverseSshTunneled = false;
+        this.sshTunnelConfig = null;
     }
+    public DBJdwpTcpConfig(String host, int port,
+                           boolean isReverseSshTunneled, SshTunnelConfig sshTunnelConfig) {
+        this.host = host;
+        this.port = port;
+        this.tunneled = false;
+        this.isReverseSshTunneled = isReverseSshTunneled;
+        this.sshTunnelConfig = sshTunnelConfig;
+    }
+
 
     public boolean isLocal() {
         return !isTunneled();
