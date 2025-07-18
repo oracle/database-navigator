@@ -27,7 +27,12 @@ import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.options.setting.Settings.getBoolean;
+import static com.dbn.common.options.setting.Settings.getInteger;
+import static com.dbn.common.options.setting.Settings.getString;
+import static com.dbn.common.options.setting.Settings.setBoolean;
+import static com.dbn.common.options.setting.Settings.setInteger;
+import static com.dbn.common.options.setting.Settings.setString;
 
 @Getter
 @Setter
@@ -38,7 +43,7 @@ public class ConnectionDebuggerSettings extends BasicConfiguration<ConnectionSet
     private Range<Integer> tcpPortRange = new Range<>(4000, 4999);
 
     //reverse ssh tunnel settings
-    private ReverseSshTunnelConfiguration reverseSshTunnelConfiguration;
+    private ReverseSshTunnelConfiguration reverseSshTunnelConfiguration = new ReverseSshTunnelConfiguration(this);
     boolean reverseSshTunneling = false;
 
     private final InteractiveOptionBroker<DebuggerTypeOption> debuggerType =
@@ -51,13 +56,8 @@ public class ConnectionDebuggerSettings extends BasicConfiguration<ConnectionSet
                     DebuggerTypeOption.JDBC,
                     DebuggerTypeOption.CANCEL);
 
-    public ConnectionDebuggerSettings() {
-        super(null);
-    }
-
     public ConnectionDebuggerSettings(ConnectionSettings parent) {
         super(parent);
-        this.reverseSshTunnelConfiguration = new ReverseSshTunnelConfiguration(parent);
     }
 
     @Override

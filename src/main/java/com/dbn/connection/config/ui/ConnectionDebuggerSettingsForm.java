@@ -18,17 +18,23 @@ package com.dbn.connection.config.ui;
 
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.connection.config.ConnectionDebuggerSettings;
+import com.dbn.connection.config.ReverseSshTunnelConfiguration;
 import com.dbn.debugger.options.DebuggerTypeOption;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.util.Range;
 
-import javax.swing.*;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
-import static com.dbn.common.ui.util.ComboBoxes.*;
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
+import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 
 public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<ConnectionDebuggerSettings> {
     private JPanel mainPanel;
@@ -40,11 +46,14 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
     private ComboBox<DebuggerTypeOption> debuggerTypeComboBox;
     private JCheckBox reverseSSHTunnelingRemoteCheckBox;
     private JPanel reverseSshTunnelPanel;
-    private final ReverseSshTunnelConfigForm reverseSshTunnelForm = new ReverseSshTunnelConfigForm(this);
+    private final ReverseSshTunnelConfigForm reverseSshTunnelForm;
 
     public ConnectionDebuggerSettingsForm(ConnectionDebuggerSettings configuration) {
         super(configuration);
 
+        ReverseSshTunnelConfiguration sshTunnelConfiguration = configuration.getReverseSshTunnelConfiguration();
+        reverseSshTunnelForm = new ReverseSshTunnelConfigForm(sshTunnelConfiguration);
+        reverseSshTunnelPanel.add(reverseSshTunnelForm.getMainComponent());
 
         initComboBox(debuggerTypeComboBox,
                 DebuggerTypeOption.JDWP,
@@ -53,8 +62,6 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
 
         resetFormChanges();
         updateTcpFields();
-
-        reverseSshTunnelPanel.add(reverseSshTunnelForm.getMainComponent());
         registerComponent(mainPanel);
     }
 
@@ -151,7 +158,7 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
         setSelection(debuggerTypeComboBox, configuration.getDebuggerType().getOption());
 
         reverseSSHTunnelingRemoteCheckBox.setSelected(configuration.isReverseSshTunneling());
-        reverseSshTunnelForm.resetFormChanges(configuration.getReverseSshTunnelConfiguration());
+        reverseSshTunnelForm.resetFormChanges();
 
         updateTcpFields();
     }
