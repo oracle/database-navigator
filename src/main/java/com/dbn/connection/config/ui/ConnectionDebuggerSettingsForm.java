@@ -48,6 +48,7 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
     private JPanel reverseSshTunnelPanel;
     private JComboBox<JDWPTunnelType> tunnelTypeComboBox;
     private JPanel tcpAddressPanel;
+    private JPanel jdwpDebuggerPanel;
     private final ReverseSshTunnelConfigForm reverseSshTunnelForm;
 
     public ConnectionDebuggerSettingsForm(ConnectionDebuggerSettings configuration) {
@@ -102,8 +103,9 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
     }
 
     private void updateTcpFields() {
-        DebuggerTypeOption debuggerTypeOption = (DebuggerTypeOption) debuggerTypeComboBox.getSelectedItem();
+        DebuggerTypeOption debuggerTypeOption = getSelection(debuggerTypeComboBox);
         boolean classic = debuggerTypeOption == DebuggerTypeOption.JDBC;
+        jdwpDebuggerPanel.setVisible(!classic);
 
         JDWPTunnelType tunnelType = getSelection(tunnelTypeComboBox);
         boolean tunneling = tunnelType != JDWPTunnelType.NONE;
