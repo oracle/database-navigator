@@ -129,12 +129,13 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 	}
 
 	public void initExecutionWrappers(JavaExecutionContext context) throws SQLException {
-        WrapperModel wrapperModel = context.getWrapperModel();
-        if (wrapperModel == null) {
-            // create java wrapper
-            setProgressDetail("Initializing java execution environment");
-            context.createExecutionWrappers();
-        }
+        // the debugger engine creates the wrappers before triggering the method execution
+        // (to allow breakpoints to be set on the wrapper methods)
+        if (context.getDebuggerType() == DBDebuggerType.JDWP) return;
+
+        // create java wrapper
+        setProgressDetail("Initializing java execution environment");
+        context.createExecutionWrappers();
 	}
 
 	private void triggerExecution(JavaExecutionContext context) throws SQLException {
