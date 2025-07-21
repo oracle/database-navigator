@@ -40,6 +40,11 @@ public class DebugPrerequisitesEvaluator implements PrerequisiteRequirementEvalu
     public List<PrerequisiteMandate> resolvePrerequisites(DatabaseContext context, DatabaseOperation operation) {
         List<PrerequisiteMandate> mandates = new ArrayList<>();
 
+        if (operation == DEBUG_JAVA_CODE) {
+            createMandate(mandates, CREATE_PROCEDURE, "Allows user to create functions, procedures, and packages in own schema. This is required for creating the java execution wrappers");
+            createMandate(mandates, CREATE_TYPE, "Allows user to create database types in own schema. These are sometimes required as data converters in the java execution wrappers");
+        }
+
         createMandate(mandates, DEBUG_CONNECT_SESSION, "Enables debugging of PL/SQL code by granting access to the databases's debugging facilities");
         createMandate(mandates, DEBUG_ANY_PROCEDURE, "Allows user to debug PL/SQL code in any schema, not just their own");
         createMandate(mandates, EXECUTE_DBMS_DEBUG, "Grants the ability to execute procedures and functions of the SYS.DBMS_DEBUG package, which provides an API for debugging PL/SQL code within the database");
@@ -49,8 +54,6 @@ public class DebugPrerequisitesEvaluator implements PrerequisiteRequirementEvalu
                 DEBUG_PLSQL_CODE_JDWP)) {
 
             createMandate(mandates, EXECUTE_DBMS_DEBUG_JDWP, "Grants the ability to execute procedures and functions of the SYS.DBMS_DEBUG_JDWP package, which provides an API for debugging PL/SQL and Java code within the database");
-            createMandate(mandates, CREATE_PROCEDURE, "Allows user to create functions, procedures, and packages in own schema. This is required for creating the java execution wrappers");
-            createMandate(mandates, CREATE_TYPE, "Allows user to create database types in own schema. These are sometimes required as data converters in the java execution wrappers");
             createMandate(mandates, HOST_ACE_JDWP, "Grants database access to a network location. Enables a database user to establish a JDWP connection to a specific host");
         }
         return mandates;
