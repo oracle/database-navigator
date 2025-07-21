@@ -7,6 +7,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.vector.DatabaseVectorManager;
+import com.dbn.vector.model.chunk.ChunkConfiguration;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 

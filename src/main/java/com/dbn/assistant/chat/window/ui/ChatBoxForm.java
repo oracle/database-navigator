@@ -180,7 +180,7 @@ public class ChatBoxForm extends DBNFormBase {
 
     ActionToolbar helpActions = Actions.createActionToolbar(chatActionsPanel, true, "DBNavigator.ActionGroup.AssistantChatActions");
     this.chatActionsPanel.add(helpActions.getComponent());
-
+    // here
     ActionToolbar typeActions = Actions.createActionToolbar(typeActionsPanel, true, "DBNavigator.ActionGroup.AssistantChatTypes");
     setAccessibleName(profileActions, txt("app.assistant.aria.ChatTypeActions"));
     this.typeActionsPanel.add(typeActions.getComponent());
@@ -437,7 +437,7 @@ public class ChatBoxForm extends DBNFormBase {
     if (actionType == PromptAction.CHAT) {
       question = question + " (please properly demarcate code-blocks in the output, and qualify them with the programming-language identifier)";
     }
-
+    //here
     try {
       String response = manager.query(connectionId, question, context);
       state.set(QUERYING, false);

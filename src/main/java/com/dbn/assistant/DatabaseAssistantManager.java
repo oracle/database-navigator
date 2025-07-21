@@ -309,7 +309,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
       toolWindow.setAvailable(true);
     }
   }
-
+  //
   public String query(ConnectionId connectionId, String prompt, ChatContext context) throws SQLException {
     ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
 
@@ -318,14 +318,22 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     String attributes = context.getAttributes();
 
     DBNConnection conn = connection.getConnection(SessionId.ASSISTANT);
-    DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
+    AssistantQueryResponse response;
+    if (PromptAction.RAG.equals(context.getAction())){
+      DBSchema schema = connection.getSchema(connection.getUserSchema());
 
-    AssistantQueryResponse response = assistantInterface.generate(conn, action, profile, attributes, prompt);
+      DatabaseAssistantInterface assistantInterface = schema.getAssistantInterface();
+      response = assistantInterface.generateRag(conn,prompt);
+    }else {
+      DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
+
+      response = assistantInterface.generate(conn, action, profile, attributes, prompt);
+    }
     ProgressMonitor.checkCancelled();
 
     return response.read();
   }
-
+  //
   public void generate(ConnectionId connectionId, String text, ChatContext context, Consumer<ChatMessage> consumer) {
     ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
     Project project = getProject();

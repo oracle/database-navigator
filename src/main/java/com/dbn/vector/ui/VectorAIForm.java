@@ -1,16 +1,27 @@
 package com.dbn.vector.ui;
 
+import com.dbn.common.routine.Consumer;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
+import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.vector.DatabaseVectorManager;
+import com.dbn.vector.model.chunk.ChunkConfiguration;
+import com.dbn.vector.model.embed.EmbedConfig;
+import com.dbn.vector.model.sourceconfig.SourceConfig;
+import com.dbn.vector.model.store.StoreConfig;
+import com.dbn.vector.ui.chunk.ChunkConfigForm;
+import com.dbn.vector.ui.embed.EmbedConfigForm;
 import com.dbn.vector.ui.source.ui.SourceDataForm;
+import com.dbn.vector.ui.store.SaveVectorsForm;
 
 import javax.swing.*;
 
 import java.awt.*;
+import java.sql.SQLException;
 
 public class VectorAIForm extends DBNFormBase {
   private JPanel mainPanel;
@@ -20,6 +31,8 @@ public class VectorAIForm extends DBNFormBase {
   private JPanel saveDataPanel;
   private JPanel hintPanel;
   private JPanel headerPanel;
+  private JButton ApplyButton;
+  private JButton chatNowButton;
 
   private SourceDataForm sourceDataForm;
   private ChunkConfigForm chunkConfigForm;
@@ -43,20 +56,52 @@ public class VectorAIForm extends DBNFormBase {
     sourceCollapsiblePanel.setExpanded(true);
     dataPanel.add(sourceCollapsiblePanel.getComponent());
 
-    DBNCollapsiblePanel chunkCollapsiblePanel = new DBNCollapsiblePanel(this,chunkConfigForm,false);
-    chunkCollapsiblePanel.setExpanded(false);
+    DBNCollapsiblePanel chunkCollapsiblePanel = new DBNCollapsiblePanel(this,chunkConfigForm,true);
+    chunkCollapsiblePanel.setExpanded(true);
     chunkConfigPanel.add(chunkCollapsiblePanel.getComponent());
 
-    DBNCollapsiblePanel embedCollapsiblePanel = new DBNCollapsiblePanel(this,embedConfigForm,false);
-    embedCollapsiblePanel.setExpanded(false);
+    DBNCollapsiblePanel embedCollapsiblePanel = new DBNCollapsiblePanel(this,embedConfigForm,true);
+    embedCollapsiblePanel.setExpanded(true);
     embedConfigPanel.add(embedCollapsiblePanel.getComponent());
 
-    DBNCollapsiblePanel saveCollapsiblePanel = new DBNCollapsiblePanel(this,saveVectorsForm,false);
-    saveCollapsiblePanel.setExpanded(false);
+    DBNCollapsiblePanel saveCollapsiblePanel = new DBNCollapsiblePanel(this,saveVectorsForm,true);
+    saveCollapsiblePanel.setExpanded(true);
     saveDataPanel.add(saveCollapsiblePanel.getComponent());
 
     initHintPanel();
     initHeaderPanel();
+    initButtonListners();
+  }
+
+  private void initButtonListners() {
+    ApplyButton.addActionListener(e -> {
+
+
+      SourceConfig sourceConfig = this.getSourceDataForm().getSourceConfig();
+      ChunkConfiguration chunkConfiguration = this.getChunkConfigForm().getChunkConfig();
+      EmbedConfig embedConfig = this.getEmbedConfigForm().getEmbedConfig();
+      StoreConfig storeConfig = this.getSaveVectorsForm().getStoreConfig();
+
+      try {
+        Runnable callbackInfo = ()->{
+          Messages.showInfoDialog(getProject(), "Embedding Succeeded ","Your data has been embedded successfully!");
+          chatNowButton.setEnabled(true);
+        };
+        Consumer<Exception> callbackError = (ex) -> {
+          Messages.showErrorDialog(getProject(), "Embedding Failed", ex.getMessage(), ex);
+        };
+        DatabaseVectorManager.getInstance(getProject()).query(sourceConfig,chunkConfiguration,embedConfig,storeConfig,connectionHandler,callbackInfo,callbackError);
+      } catch (SQLException ex) {
+        Messages.showErrorDialog(getProject(), null,
+                ex.getMessage(),ex);
+        throw new RuntimeException(ex);
+      }
+    });
+
+    chatNowButton.addActionListener(e -> {
+      //todo open select ai
+
+    });
   }
 
   private void initHeaderPanel() {
@@ -84,6 +129,21 @@ public class VectorAIForm extends DBNFormBase {
     hintPanel.add(hintComponent);
   }
 
+  public SourceDataForm getSourceDataForm() {
+    return sourceDataForm;
+  }
+
+  public ChunkConfigForm getChunkConfigForm() {
+    return chunkConfigForm;
+  }
+
+  public EmbedConfigForm getEmbedConfigForm() {
+    return embedConfigForm;
+  }
+
+  public SaveVectorsForm getSaveVectorsForm() {
+    return saveVectorsForm;
+  }
 
   @Override
   protected JComponent getMainComponent() {

@@ -314,6 +314,7 @@
             <action class="com.dbn.assistant.chat.window.action.TypeSelectAction$ExplainSQL" id="DBNavigator.Actions.Assistant.TypeExplain"/>
             <action class="com.dbn.assistant.chat.window.action.TypeSelectAction$Narrate" id="DBNavigator.Actions.Assistant.TypeNarrate"/>
             <action class="com.dbn.assistant.chat.window.action.TypeSelectAction$Chat" id="DBNavigator.Actions.Assistant.TypeChat"/>
+            <action class="com.dbn.assistant.chat.window.action.TypeSelectAction$Rag" id="DBNavigator.Actions.Assistant.TypeRag"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantChatBoxPrompt" text="Assistant Chat-Box Prompt">
             <action class="com.dbn.assistant.chat.window.action.PromptSubmitAction" text="Submit Prompt" id="DBNavigator.Actions.Assistant.SubmitPrompt" icon="AllIcons.Actions.Execute">

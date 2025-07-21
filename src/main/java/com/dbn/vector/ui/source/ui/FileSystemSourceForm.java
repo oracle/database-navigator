@@ -2,65 +2,43 @@ package com.dbn.vector.ui.source.ui;
 
 import com.dbn.common.ui.file.VirtualFileListForm;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.util.FileChoosers;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.vector.model.common.CreateTableConfig;
+import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JComponent;
-import javax.swing.JList;
-import javax.swing.JPanel;
+import javax.swing.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class FileSystemSourceForm extends DBNFormBase {
   private JPanel mainPanel;
-  private TextFieldWithBrowseButton filesField;
-  private JList<String> selectedFilesList  ;
-  private DBNScrollPane DBNScrollPane1;
-    private JPanel fileListPanel;
-    private DefaultListModel<String> filesListModel =  new DefaultListModel<>();
+  private VirtualFileListForm fileListForm;
+  private JPanel fileListPanel;
+  private JCheckBox storetableCheckbox;
+//  private FileSystemSourceConfig fileSystemSourceConfig;
   public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.multipleFiles().
           withTitle("Select Text Files to Embed").
           withDescription("Select valid text files to embed");
-//          withFileFilter(virtualFile -> Objects.equals(virtualFile.getExtension(), List.of("pdf","txt","md","json","xml","tex","log") ));
 
   public FileSystemSourceForm(@Nullable Disposable parent, ConnectionHandler connectionHandler) {
     super(parent);
-    System.out.println("ffesm");
-    selectedFilesList.setModel(filesListModel);
-    filesField.addBrowseFolderListener(
-            getProject(),
-            FILE_CHOOSER_DESCRIPTOR
-    );
+    fileListForm= new VirtualFileListForm(this, "Source files");
+    fileListPanel.add(fileListForm.getComponent());
+  }
 
-    filesField.addActionListener(e -> {
-      FileChooser.chooseFiles(FILE_CHOOSER_DESCRIPTOR, getProject(), /* parent= */ null,
-              (List<VirtualFile> selected) -> {
-                // clear old entries
-                filesListModel.clear();
-                // set the text field to a “;”-delimited list of paths
-                String paths = selected.stream()
-                        .map(VirtualFile::getPath)
-                        .collect(Collectors.joining(";"));
-                filesField.setText(paths);
-
-                // populate JList
-                for (VirtualFile vf : selected) {
-                  filesListModel.addElement(vf.getCanonicalFile().getName());
-                }
-              });
-    });
-
-      VirtualFileListForm fileListForm = new VirtualFileListForm(this, "Source files");
-      fileListPanel.add(fileListForm.getComponent());
-
+  public FileSystemSourceConfig getfileSystemSourceConfig() {
+    FileSystemSourceConfig fileSystemSourceConfig = new FileSystemSourceConfig();
+    fileSystemSourceConfig.setVirtualFiles(fileListForm.getFileList().getModel().getFiles());
+    fileSystemSourceConfig.setToStore(storetableCheckbox.isSelected());
+    if (storetableCheckbox.isSelected()){
+      CreateTableConfig createTableConfig = new CreateTableConfig();
+      fileSystemSourceConfig.setTableConfig(createTableConfig);
+    }
+    return fileSystemSourceConfig;
   }
 
   @Override

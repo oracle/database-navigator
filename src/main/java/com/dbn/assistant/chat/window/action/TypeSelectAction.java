@@ -63,10 +63,15 @@ public class TypeSelectAction extends ToggleAction implements AssistantActionSup
             super(PromptAction.NARRATE);
         }
     }
-
+    // here
     public static class Chat extends TypeSelectAction {
         public Chat() {
             super(PromptAction.CHAT);
+        }
+    }
+    public static class Rag extends TypeSelectAction {
+        public Rag() {
+            super(PromptAction.RAG);
         }
     }
 

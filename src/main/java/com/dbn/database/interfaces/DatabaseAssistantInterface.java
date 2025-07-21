@@ -20,9 +20,14 @@ import com.dbn.assistant.DatabaseAssistantType;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.assistant.AssistantQueryResponse;
 import com.dbn.object.factory.ModelFactoryInput;
-import com.dbn.vector.model.ChunkConfiguration;
+import com.dbn.vector.model.chunk.ChunkConfiguration;
+import com.dbn.vector.model.embed.EmbedConfig;
+import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
+import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
+import com.dbn.vector.model.store.StoreConfig;
 
 import java.sql.Blob;
+import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -47,6 +52,7 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
    * @throws SQLException If there is an error in executing the AI query.
    */
   AssistantQueryResponse generate(DBNConnection connection, String action, String profile, String attributes, String prompt) throws SQLException;
+  public AssistantQueryResponse generateRag(DBNConnection connection, String prompt) throws SQLException ;
 
   /**
    * Grant a user the necessary privileges to access needed packages (DBMS_CLOUD, DBMS_CLOUD_AI)
@@ -106,4 +112,9 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
 
   void loadOnnxModelThroughJdbc(String modelName, Blob modelBlob, DBNConnection conn) throws SQLException;
   ResultSet chunk(String text, ChunkConfiguration chunkConfiguration, DBNConnection conn) throws SQLException;
+
+  void embed(DBNConnection connection, DBTableSourceConfig sourceConfig, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException;
+  void createTable(DBNConnection connection, String tableName) throws SQLException;
+
+  void embed(DBNConnection conn, Clob sourceFileClob, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException;
 }

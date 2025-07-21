@@ -20,6 +20,7 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ToolbarDecorator;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JLabel;
@@ -35,6 +36,7 @@ public class VirtualFileListForm extends DBNFormBase {
     private JLabel titleLabel;
     private JPanel listPanel;
 
+    @Getter
     private final VirtualFileList fileList;
 
     public VirtualFileListForm(DBNComponent parent, String title) {
@@ -58,7 +60,7 @@ public class VirtualFileListForm extends DBNFormBase {
         return createToolbarDecoratorComponent(decorator, fileList);
     }
 
-    @NotNull
+  @NotNull
     @Override
     public JPanel getMainComponent() {
         return component;
