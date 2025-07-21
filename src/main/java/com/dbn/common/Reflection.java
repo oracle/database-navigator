@@ -126,18 +126,22 @@ public class Reflection {
      */
     public static boolean hasAnnotation(Class<?> clazz, Class<? extends Annotation> annotation) {
         // avoid boxing / unboxing by using Boolean objects instead of primitives
-        Map<Class<? extends Annotation>, Boolean> annotationMap = classAnnotations.computeIfAbsent(clazz, c -> new ConcurrentHashMap<>());
-        Boolean result = annotationMap.computeIfAbsent(annotation, a -> checkHasAnnotation(clazz, a) ? Boolean.TRUE : Boolean.FALSE);
-        return result == Boolean.TRUE;
+        var annotations = classAnnotations.computeIfAbsent(clazz, c -> new ConcurrentHashMap<>());
+        return annotations.computeIfAbsent(annotation, a -> checkHasAnnotation(clazz, a) ? Boolean.TRUE : Boolean.FALSE);
     }
 
     /**
-     * Recursive verification of presence of an annotation on a given class or its super classes
+     * Recursive verification of the annotation presence on a given class,
+     * its super-classes, or any of the implemented interfaces
      */
     private static boolean checkHasAnnotation(Class<?> clazz, Class<? extends Annotation> annotation) {
         if (clazz == null) return false;
         if (Objects.equals(clazz, Object.class)) return false;
         if (clazz.getAnnotation(annotation) != null) return true;
+        Class<?>[] interfaces = clazz.getInterfaces();
+        for (Class<?> intrface : interfaces) {
+            if (intrface.getAnnotation(annotation) != null) return true;
+        }
 
         return checkHasAnnotation(clazz.getSuperclass(), annotation);
     }

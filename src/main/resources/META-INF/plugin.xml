@@ -17,7 +17,7 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator" require-restart="true">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>3.6.0.0</version>
+    <version>3.6.1.0</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -52,6 +52,11 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>3.6.1</b>
+            <ul>
+                <li>Resolved connectivity issues (timeouts / concurrency)
+                <li>Small bug fixes
+            </ul>
             <li><b>3.6.0</b>
             <ul>
                 <li>JDBC driver download feature
