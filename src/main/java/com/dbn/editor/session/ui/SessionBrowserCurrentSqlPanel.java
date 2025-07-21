@@ -19,7 +19,6 @@ package com.dbn.editor.session.ui;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ToggleAction;
 import com.dbn.common.action.UserDataKeys;
-import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.exception.OutdatedContentException;
 import com.dbn.common.icon.Icons;
@@ -28,7 +27,6 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.thread.PooledThread;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.util.Borderless;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Documents;
@@ -60,7 +58,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -202,9 +199,7 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
         viewerComponent.setFocusable(false);
         viewerPanel.add(viewerComponent, BorderLayout.CENTER);
 
-        JScrollPane viewerScrollPane = viewer.getScrollPane();
-        viewerScrollPane.setViewportBorder(Borders.lineBorder(Colors.getReadonlyEditorBackground(), 4));
-        Borderless.markBorderless(viewerScrollPane.getViewport().getView());
+        Editors.updateEditorScrollPane(viewer, null);
     }
 
 

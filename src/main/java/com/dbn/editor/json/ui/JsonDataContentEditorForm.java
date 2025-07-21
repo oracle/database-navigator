@@ -21,7 +21,6 @@ import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Json;
@@ -42,7 +41,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 import static com.dbn.common.ui.util.UserInterface.updateScrollPanes;
 import static com.dbn.common.util.Commons.nvl;
@@ -97,8 +95,7 @@ public class JsonDataContentEditorForm extends DBNFormBase {
         editor.setEmbeddedIntoDialogWrapper(true);
         Disposer.register(this, editor);
 
-        JScrollPane editorScrollPane = editor.getScrollPane();
-        editorScrollPane.setViewportBorder(Borders.insetBorder(4));
+        Editors.updateEditorScrollPane(editor, null);
 
         EditorSettings settings = editor.getSettings();
         enableSelectionOccurrenceHighlights(editor);
