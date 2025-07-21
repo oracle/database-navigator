@@ -44,6 +44,11 @@ public abstract class NetworkAccessPrerequisite extends PrerequisiteDefinitionPr
         super(prerequisiteType);
     }
 
+    @Override
+    public PrerequisiteType getAlternativeType() {
+        return null;
+    }
+
     @NotNull
     @Override
     protected PrerequisiteEvaluator createEvaluator() {
@@ -73,7 +78,8 @@ public abstract class NetworkAccessPrerequisite extends PrerequisiteDefinitionPr
         return new PrerequisiteDefinitionBase(
                 txt("app.prerequisite.title.NetworkPrivilege", privilegeName, hostName),
                 txt("app.prerequisite.text.NetworkPrivilege", privilegeName, hostName),
-                getPrerequisiteType(),
+                getType(),
+                getAlternativeType(),
                 PrerequisiteCategory.GRANT,
                 evaluator,
                 resolver,

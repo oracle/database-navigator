@@ -17,21 +17,15 @@
 package com.dbn.debugger.prerequisite;
 
 import com.dbn.prerequisite.definition.impl.SystemPrivilegePrerequisite;
-import com.dbn.prerequisite.model.PrerequisiteType;
 
-public class SystemPrivilege_CREATE_PROCEDURE extends SystemPrivilegePrerequisite {
+public class SystemPrivilege_CREATE_ANY_PROCEDURE extends SystemPrivilegePrerequisite {
 
-    public SystemPrivilege_CREATE_PROCEDURE() {
-        super(DebugPrerequisiteTypes.CREATE_PROCEDURE);
+    public SystemPrivilege_CREATE_ANY_PROCEDURE() {
+        super(DebugPrerequisiteTypes.CREATE_ANY_PROCEDURE);
     }
 
     @Override
     protected String getPrivilegeName() {
-        return "CREATE PROCEDURE";
-    }
-
-    @Override
-    public PrerequisiteType getAlternativeType() {
-        return DebugPrerequisiteTypes.CREATE_ANY_PROCEDURE;
+        return "CREATE ANY PROCEDURE";
     }
 }

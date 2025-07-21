@@ -119,6 +119,20 @@ public class PrerequisiteData implements PersistentStateElement {
         return Collections.unmodifiableList(new ArrayList<>(mandates));
     }
 
+    @Nullable
+    public static PrerequisiteDefinition getPrerequisiteDefinition(PrerequisiteType type) {
+        if (type == null) return null;
+        List<PrerequisiteDefinitionProvider> providers = PrerequisiteDefinitionProvider.EP.getExtensionList();
+        for (PrerequisiteDefinitionProvider provider : providers) {
+            PrerequisiteDefinition definition = provider.getDefinition();
+            if (type == provider.getType()) {
+                return definition;
+            }
+        }
+        return null;
+
+    }
+
     private static List<PrerequisiteDefinition> loadPrerequisiteDefinitions(List<PrerequisiteType> types) {
         Set<PrerequisiteType> prerequisiteTypes = new HashSet<>(types);
         List<PrerequisiteDefinition> definitions = new ArrayList<>();

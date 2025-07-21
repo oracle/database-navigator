@@ -26,6 +26,7 @@ import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.context.DatabaseContextBase;
+import com.dbn.prerequisite.definition.PrerequisiteDefinition;
 import com.dbn.prerequisite.evaluation.PrerequisiteEvaluator;
 import com.dbn.prerequisite.event.PrerequisiteEvent;
 import com.dbn.prerequisite.event.PrerequisiteEventListener;
@@ -36,6 +37,7 @@ import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -179,6 +181,8 @@ public class PrerequisiteGroup extends StatefulDisposableBase implements Databas
             PrerequisiteEvaluator evaluator = prerequisite.getDefinition().getEvaluator();
             boolean conditionsMet = evaluator.evaluate(this);
 
+            conditionsMet = conditionsMet || evaluateAlternativePrerequisite(prerequisite);
+
             prerequisite.setStatus(conditionsMet ? AVAILABLE : UNAVAILABLE);
             notifyEvaluationFinished(prerequisite);
 
@@ -196,6 +200,16 @@ public class PrerequisiteGroup extends StatefulDisposableBase implements Databas
                 evaluationTimestamp = System.currentTimeMillis();
             }
         }
+    }
+
+    private boolean evaluateAlternativePrerequisite(Prerequisite prerequisite) throws SQLException {
+        PrerequisiteType alternativeType = prerequisite.getAlternativeType();
+        if (alternativeType == null) return false;
+
+        PrerequisiteDefinition definition = PrerequisiteData.getPrerequisiteDefinition(alternativeType);
+        if (definition == null) return false;
+
+        return definition.getEvaluator().evaluate(this);
     }
 
     private double getEvaluationProgress() {

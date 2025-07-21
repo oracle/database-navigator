@@ -44,14 +44,14 @@ public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinition
     protected abstract @NonNls String getPrivilegeName();
 
     /**
-     * Provides an alternative privilege name, which can be utilized as a fallback
+     * Provides an alternative privilege type, which can be utilized as a fallback
      * when checking or evaluating prerequisite requirements (typically a
      * much higher privilege that implies the default one).
      *
-     * @return a String representing the alternative privilege name, or null if no
+     * @return the alternative {@link PrerequisiteType}, or null if no
      * alternative privilege is defined.
      */
-    protected @NonNls String getAlternativePrivilegeName() {
+    public PrerequisiteType getAlternativeType() {
         return null;
     }
 
@@ -62,7 +62,8 @@ public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinition
         return new PrerequisiteDefinitionBase(
                 txt("app.prerequisite.title.SystemPrivilege", privilegeName),
                 txt("app.prerequisite.text.SystemPrivilege", privilegeName),
-                getPrerequisiteType(),
+                getType(),
+                getAlternativeType(),
                 PrerequisiteCategory.GRANT,
                 evaluator,
                 resolver,
@@ -74,21 +75,13 @@ public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinition
     protected PrerequisiteEvaluator createEvaluator() {
         return context -> {
             String privilegeName = getPrivilegeName();
-            String alternativePrivilegeName = getAlternativePrivilegeName();
-
             DatabaseMetadataInterface metadataInterface = context.getMetadataInterface();
             return DatabaseInterfaceInvoker.load(Priority.HIGH,
                     txt("prc.prerequisite.title.CheckingSystemPrivilege"),
                     txt("prc.prerequisite.text.CheckingSystemPrivilege", privilegeName),
                     context.getProject(),
                     context.getConnectionId(),
-                    c -> {
-                        boolean privilegeGranted = metadataInterface.hasSystemPrivilege(privilegeName, c);
-                        if (!privilegeGranted && alternativePrivilegeName != null) {
-                            privilegeGranted = metadataInterface.hasSystemPrivilege(alternativePrivilegeName, c);
-                        }
-                        return privilegeGranted;
-                    });
+                    c -> metadataInterface.hasSystemPrivilege(privilegeName, c));
         };
     }
 

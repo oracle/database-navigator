@@ -17,6 +17,7 @@
 package com.dbn.debugger.prerequisite;
 
 import com.dbn.prerequisite.definition.impl.SystemPrivilegePrerequisite;
+import com.dbn.prerequisite.model.PrerequisiteType;
 
 public class SystemPrivilege_CREATE_TYPE extends SystemPrivilegePrerequisite {
 
@@ -30,7 +31,7 @@ public class SystemPrivilege_CREATE_TYPE extends SystemPrivilegePrerequisite {
     }
 
     @Override
-    protected String getAlternativePrivilegeName() {
-        return "CREATE ANY TYPE";
+    public PrerequisiteType getAlternativeType() {
+        return DebugPrerequisiteTypes.CREATE_ANY_TYPE;
     }
 }
