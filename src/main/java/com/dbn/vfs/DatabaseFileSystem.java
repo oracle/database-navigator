@@ -291,7 +291,8 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
         if (isNotValid(object) && isTimeSensitiveThread()) {
             DBObjectBundle objectBundle = connection.getObjectBundle();
             objectBundle.getObjectInitializer().initObject(ref);
-            return null;
+            // TODO invalidate file in cache on content load
+            //return null;
         }
         return filesCache.computeIfAbsent(ref, r -> new DBEditableObjectVirtualFile(project, r));
     }

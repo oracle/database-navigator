@@ -49,6 +49,7 @@ import javax.swing.Icon;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -126,6 +127,10 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
         return connection.getIdentifierCache().getQuotedIdentifier(objectName);
     }
 
+    public String getObjectTypeName() {
+        return objectType.getName();
+    }
+
     public void setParent(Object parent) {
         if (parent == null) return;
 
@@ -182,6 +187,20 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
         }
         return null;
     }
+
+    @Nullable
+    public <P extends DBObject> DBObjectRef<P> getParentRef(Predicate<DBObjectRef> predicate) {
+        DBObjectRef<?> element = this;
+        while (element != null) {
+            if (predicate.test(element)) {
+                return cast(element);
+            }
+
+            element = element.getParentRef();
+        }
+        return null;
+    }
+
 
     public DBObjectRef<?> getParentRef() {
         return parent instanceof DBObjectRef ? (DBObjectRef) parent : null;
@@ -669,5 +688,10 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
     @Override
     public @Nullable Icon getIcon(boolean unused) {
         return getObjectType().getIcon();
+    }
+
+    public boolean isSchemaObject() {
+        DBObjectRef<?> parentRef = getParentRef();
+        return parentRef != null && parentRef.getObjectType() == SCHEMA;
     }
 }

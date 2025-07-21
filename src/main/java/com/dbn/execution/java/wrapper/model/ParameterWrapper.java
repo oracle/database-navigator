@@ -18,6 +18,7 @@ package com.dbn.execution.java.wrapper.model;
 
 import com.dbn.execution.java.wrapper.SqlType;
 import com.dbn.execution.java.wrapper.TypeMappings;
+import com.dbn.execution.java.wrapper.WrapperModel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,7 +32,8 @@ public class ParameterWrapper extends EntityWrapper {
     private int arrayDepth = 0;
     private boolean sqlConversionPossible;
 
-    public ParameterWrapper() {
+    public ParameterWrapper(WrapperModel model) {
+        super(model);
     }
 
     public boolean isArray() {

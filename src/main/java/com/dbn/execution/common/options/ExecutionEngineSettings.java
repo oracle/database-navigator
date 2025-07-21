@@ -20,6 +20,7 @@ import com.dbn.common.options.CompositeProjectConfiguration;
 import com.dbn.common.options.Configuration;
 import com.dbn.execution.ExecutionTarget;
 import com.dbn.execution.common.options.ui.ExecutionEngineSettingsForm;
+import com.dbn.execution.java.options.JavaExecutionSettings;
 import com.dbn.execution.method.options.MethodExecutionSettings;
 import com.dbn.execution.script.options.ScriptExecutionSettings;
 import com.dbn.execution.statement.options.StatementExecutionSettings;
@@ -36,6 +37,7 @@ public class ExecutionEngineSettings extends CompositeProjectConfiguration<Proje
     private final @Getter(lazy = true) StatementExecutionSettings statementExecutionSettings = new StatementExecutionSettings(this);
     private final @Getter(lazy = true) ScriptExecutionSettings scriptExecutionSettings       = new ScriptExecutionSettings(this);
     private final @Getter(lazy = true) MethodExecutionSettings methodExecutionSettings       = new MethodExecutionSettings(this);
+    private final @Getter(lazy = true) JavaExecutionSettings javaExecutionSettings           = new JavaExecutionSettings(this);
 
     public ExecutionEngineSettings(ProjectSettings parent) {
         super(parent);
@@ -51,6 +53,7 @@ public class ExecutionEngineSettings extends CompositeProjectConfiguration<Proje
             case STATEMENT: return getStatementExecutionSettings();
             case SCRIPT: return getScriptExecutionSettings();
             case METHOD: return getMethodExecutionSettings();
+            case JAVA: return getJavaExecutionSettings();
         }
         throw new IllegalArgumentException("Invalid execution type " + executionTarget);
     }
@@ -101,6 +104,7 @@ public class ExecutionEngineSettings extends CompositeProjectConfiguration<Proje
         return new Configuration[] {
                 getStatementExecutionSettings(),
                 getScriptExecutionSettings(),
-                getMethodExecutionSettings()};
+                getMethodExecutionSettings(),
+                getJavaExecutionSettings()};
     }
 }

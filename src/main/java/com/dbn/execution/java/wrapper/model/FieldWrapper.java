@@ -51,6 +51,7 @@ public class FieldWrapper extends EntityWrapper {
     private String typeCastEnd;
 
     public FieldWrapper(ClassWrapper parentClassWrapper, DBJavaField field) {
+        super(parentClassWrapper.getModel());
         this.ownerClassWrapper = parentClassWrapper;
 
         this.field = DBObjectRef.of(field);

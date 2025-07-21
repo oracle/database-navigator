@@ -228,6 +228,10 @@
     <extensions defaultExtensionNs="com.dbn">
         <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.SystemPrivilege_DEBUG_CONNECT_SESSION"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.SystemPrivilege_DEBUG_ANY_PROCEDURE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.SystemPrivilege_CREATE_PROCEDURE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.SystemPrivilege_CREATE_TYPE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.SystemPrivilege_CREATE_ANY_PROCEDURE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.SystemPrivilege_CREATE_ANY_TYPE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.ObjectPrivilege_EXECUTE_DBMS_DEBUG"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.ObjectPrivilege_EXECUTE_DBMS_DEBUG_JDWP"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.NetworkAccess_HOST_ACE_JDWP"/>

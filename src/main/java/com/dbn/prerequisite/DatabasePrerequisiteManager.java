@@ -48,7 +48,9 @@ import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
+import static com.dbn.common.util.TimeUtil.isOlderThan;
 import static com.dbn.prerequisite.DatabasePrerequisiteManager.COMPONENT_NAME;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 public class DatabasePrerequisiteManager extends ProjectComponentBase implements PersistentState {
@@ -91,12 +93,28 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
     }
 
     public void startOperation(ConnectionHandler connection, DatabaseOperation operation, Runnable operationRunner) {
+        PrerequisiteGroup prerequisiteGroup = getPrerequisiteGroup(connection, operation);
+        resetPrerequisites(prerequisiteGroup);
+
         Project project = connection.getProject();
         Progress.prompt(
                 project, connection, true,
                 "Verifying prerequisites",
                 "Verifying prerequisites for operation \"" + operation.getName() + "\"",
                 indicator -> verifyOperation(connection, operation, operationRunner));
+    }
+
+    private static void resetPrerequisites(PrerequisiteGroup prerequisiteGroup) {
+        if (!prerequisiteGroup.isEvaluated()) return;
+        if (prerequisiteGroup.arePrerequisitesMet()) {
+            // reevaluate if older than 10 minutes
+            // (environment states and user privileges may change)
+            long evaluationTimestamp = prerequisiteGroup.getEvaluationTimestamp();
+            if (!isOlderThan(evaluationTimestamp, 10, MINUTES)) return;
+        }
+
+        // reset the prerequisite group - force reevaluation
+        prerequisiteGroup.reset();
     }
 
     public void verifyOperation(ConnectionHandler connection, DatabaseOperation operation, Runnable operationRunner) {

@@ -34,11 +34,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
@@ -77,11 +80,18 @@ public class PrerequisiteData implements PersistentStateElement {
     }
 
     private PrerequisiteGroup createPrerequisiteGroup(ConnectionHandler connection, DatabaseOperation operation) {
-        Set<PrerequisiteType> types = resolvePrerequisiteTypes(connection, operation);
+        List<PrerequisiteMandate> mandates = resolvePrerequisiteMandates(connection, operation);
+        List<PrerequisiteType> types = PrerequisiteMandate.asPrerequisiteTypes(mandates);
+
         List<PrerequisiteDefinition> definitions = loadPrerequisiteDefinitions(types);
         List<Prerequisite> prerequisites = ensurePrerequisites(definitions);
-        List<PrerequisiteType> prerequisiteTypes = Lists.convert(prerequisites, p -> p.getType());
-        return new PrerequisiteGroup(this, operation, prerequisiteTypes);
+
+        // some prerequisites may miss definitions
+        // TODO warn
+        Set<PrerequisiteType> definedTypes = prerequisites.stream().map(p -> p.getType()).collect(Collectors.toSet());
+        mandates = Lists.filter(mandates, m-> definedTypes.contains(m.getType()));
+
+        return new PrerequisiteGroup(this, operation, mandates);
     }
 
     private List<Prerequisite> ensurePrerequisites(List<PrerequisiteDefinition> definitions) {
@@ -97,22 +107,39 @@ public class PrerequisiteData implements PersistentStateElement {
         return prerequisites.computeIfAbsent(definition.getType(), t -> definition.createPrerequisite());
     }
 
-    private static Set<PrerequisiteType> resolvePrerequisiteTypes(ConnectionHandler connection, DatabaseOperation operation) {
-        Set<PrerequisiteType> types = new LinkedHashSet<>();
+    private static List<PrerequisiteMandate> resolvePrerequisiteMandates(ConnectionHandler connection, DatabaseOperation operation) {
+        // use set to prevent duplicates from multiple requirement evaluators
+        Set<PrerequisiteMandate> mandates = new LinkedHashSet<>();
+
         List<PrerequisiteRequirementEvaluator> evaluators = PrerequisiteRequirementEvaluator.EP.getExtensionList();
         for (PrerequisiteRequirementEvaluator evaluator : evaluators) {
-            List<PrerequisiteType> applicableTypes = evaluator.resolvePrerequisites(connection, operation);
-            types.addAll(applicableTypes);
+            List<PrerequisiteMandate> applicableTypes = evaluator.resolvePrerequisites(connection, operation);
+            mandates.addAll(applicableTypes);
         }
-        return types;
+        return Collections.unmodifiableList(new ArrayList<>(mandates));
     }
 
-    private static List<PrerequisiteDefinition> loadPrerequisiteDefinitions(Set<PrerequisiteType> types) {
+    @Nullable
+    public static PrerequisiteDefinition getPrerequisiteDefinition(PrerequisiteType type) {
+        if (type == null) return null;
+        List<PrerequisiteDefinitionProvider> providers = PrerequisiteDefinitionProvider.EP.getExtensionList();
+        for (PrerequisiteDefinitionProvider provider : providers) {
+            PrerequisiteDefinition definition = provider.getDefinition();
+            if (type == provider.getType()) {
+                return definition;
+            }
+        }
+        return null;
+
+    }
+
+    private static List<PrerequisiteDefinition> loadPrerequisiteDefinitions(List<PrerequisiteType> types) {
+        Set<PrerequisiteType> prerequisiteTypes = new HashSet<>(types);
         List<PrerequisiteDefinition> definitions = new ArrayList<>();
         List<PrerequisiteDefinitionProvider> providers = PrerequisiteDefinitionProvider.EP.getExtensionList();
         for (PrerequisiteDefinitionProvider provider : providers) {
             PrerequisiteDefinition definition = provider.getDefinition();
-            if (types.contains(definition.getType())) {
+            if (prerequisiteTypes.contains(definition.getType())) {
                 definitions.add(definition);
             }
         }

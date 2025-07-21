@@ -19,6 +19,8 @@ package com.dbn.execution.java.history.ui;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.database.DatabaseFeature;
+import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.JavaExecutionManager;
 import com.intellij.openapi.project.Project;
@@ -32,7 +34,7 @@ import java.awt.event.ActionEvent;
 public class JavaExecutionHistoryDialog extends DBNDialog<JavaExecutionHistoryForm> {
 	private SelectAction selectAction;
 	private ExecuteAction executeAction;
-	//    private DebugAction debugAction;
+	private DebugAction debugAction;
 	private SaveAction saveAction;
 	private CloseAction closeAction;
 	private final boolean editable;
@@ -41,7 +43,7 @@ public class JavaExecutionHistoryDialog extends DBNDialog<JavaExecutionHistoryFo
 
 	public JavaExecutionHistoryDialog(@NotNull Project project, @Nullable JavaExecutionInput executionInput, boolean editable, boolean modal, boolean debug) {
 
-		super(project, "Method execution history", true);
+		super(project, "Java execution history", true);
 		this.selectedExecutionInput = WeakRef.of(executionInput);
 		this.editable = editable;
 		this.debug = debug;
@@ -65,12 +67,12 @@ public class JavaExecutionHistoryDialog extends DBNDialog<JavaExecutionHistoryFo
 		if (editable) {
 			executeAction = new ExecuteAction();
 			executeAction.setEnabled(false);
-//			debugAction = new DebugAction();
-//			debugAction.setEnabled(false);
+			debugAction = new DebugAction();
+			debugAction.setEnabled(false);
 			saveAction = new SaveAction();
 			saveAction.setEnabled(false);
 			closeAction = new CloseAction();
-			return new Action[]{executeAction, /*debugAction ,*/ saveAction, closeAction};
+			return new Action[]{executeAction, debugAction, saveAction, closeAction};
 		} else {
 			selectAction = new SelectAction();
 			selectAction.setEnabled(false);
@@ -132,22 +134,22 @@ public class JavaExecutionHistoryDialog extends DBNDialog<JavaExecutionHistoryFo
 		}
 	}
 
-//	    private class DebugAction extends AbstractAction {
-//	        DebugAction() {
-//	            super("Debug", Icons.METHOD_EXECUTION_DEBUG);
-//	        }
-//
-//	        @Override
-//	        public void actionPerformed(ActionEvent e) {
-//	            saveChanges();
-//	            JavaExecutionInput executionInput = getForm().getTree().getSelectedExecutionInput();
-//	            if (executionInput != null) {
-//	                DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(getProject());
-//	                close(OK_EXIT_CODE);
-//	                debuggerManager.startMethodDebugger(executionInput.getMethod());
-//	            }
-//	        }
-//	    }
+	    private class DebugAction extends AbstractAction {
+	        DebugAction() {
+	            super("Debug", Icons.METHOD_EXECUTION_DEBUG);
+	        }
+
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	            saveChanges();
+	            JavaExecutionInput executionInput = getForm().getTree().getSelectedExecutionInput();
+	            if (executionInput != null) {
+	                DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(getProject());
+	                close(OK_EXIT_CODE);
+	                debuggerManager.startJavaDebugger(executionInput.getMethod());
+	            }
+	        }
+	    }
 
 	private class SaveAction extends AbstractAction {
 		SaveAction() {
@@ -176,11 +178,11 @@ public class JavaExecutionHistoryDialog extends DBNDialog<JavaExecutionHistoryFo
 	void updateMainButtons(JavaExecutionInput selection) {
 		if (selection == null) {
 			if (executeAction != null) executeAction.setEnabled(false);
-//			if (debugAction != null) debugAction.setEnabled(false);
+			if (debugAction != null) debugAction.setEnabled(false);
 			if (selectAction != null) selectAction.setEnabled(false);
 		} else {
 			if (executeAction != null) executeAction.setEnabled(true);
-//			if (debugAction != null) debugAction.setEnabled(DatabaseFeature.DEBUGGING.isSupported(selection));
+			if (debugAction != null) debugAction.setEnabled(DatabaseFeature.DEBUGGING.isSupported(selection));
 			if (selectAction != null) selectAction.setEnabled(true);
 		}
 	}

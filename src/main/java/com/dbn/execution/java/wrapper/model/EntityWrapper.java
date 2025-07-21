@@ -16,13 +16,29 @@
 
 package com.dbn.execution.java.wrapper.model;
 
-import com.dbn.execution.java.wrapper.WrapperBuilderContext;
+import com.dbn.common.ref.WeakRef;
+import com.dbn.execution.java.wrapper.WrapperContext;
+import com.dbn.execution.java.wrapper.WrapperModel;
+import com.dbn.execution.java.wrapper.WrapperModelInput;
 import com.dbn.execution.java.wrapper.naming.WrapperNamingProvider;
 
 abstract class EntityWrapper {
+    private final WeakRef<WrapperModel> model;
 
-    protected WrapperBuilderContext getContext() {
-        return WrapperBuilderContext.get();
+    public EntityWrapper(WrapperModel model) {
+        this.model = WeakRef.of(model);
+    }
+
+    public WrapperModel getModel() {
+        return model.ensure();
+    }
+
+    protected WrapperContext getContext() {
+        return getModel().getContext();
+    }
+
+    protected WrapperModelInput getInput() {
+        return getModel().getInput();
     }
 
     protected WrapperNamingProvider getNamingProvider() {
