@@ -47,7 +47,7 @@ public class DBJdwpDebugStackFrame extends DBDebugStackFrame<DBJdwpDebugProcess<
 
     private final Latent<DBJdwpDebuggerEvaluator> evaluator = Latent.basic(() -> new DBJdwpDebuggerEvaluator(DBJdwpDebugStackFrame.this));
 
-    private final Latent<Location> location = Latent.basic(() -> underlyingFrame == null ? null : underlyingFrame.getDescriptor().getLocation());
+    private final Latent<Location> location = Latent.basic(() -> underlyingFrame == null ? null : DBJdwpDebugProcess.getLocation(underlyingFrame));
 
     DBJdwpDebugStackFrame(DBJdwpDebugProcess debugProcess, JavaStackFrame underlyingFrame, int index) {
         super(debugProcess, index);
@@ -56,6 +56,8 @@ public class DBJdwpDebugStackFrame extends DBDebugStackFrame<DBJdwpDebugProcess<
 
     @Override
     public void computeChildren(@NotNull XCompositeNode node) {
+        if (underlyingFrame == null) return;
+
         DBJdwpCompositeNode wrapper = new DBJdwpCompositeNode(node);
         underlyingFrame.computeChildren(wrapper);
     }

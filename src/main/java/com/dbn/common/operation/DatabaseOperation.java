@@ -28,9 +28,9 @@ public enum DatabaseOperation implements Constant<DatabaseOperation> {
             txt("app.shared.const.Operation_DEBUG_JAVA_CODE"),
             txt("msg.prerequisites.warning.MissingPrerequisites_DEBUG_JAVA_CODE")),
 
-    DEBUG_PLSQL_CODE(
-            txt("app.shared.const.Operation_DEBUG_PLSQL_CODE"),
-            txt("msg.prerequisites.warning.MissingPrerequisites_DEBUG_PLSQL_CODE")),
+    DEBUG_PLSQL_CODE_JDBC(
+            txt("app.shared.const.Operation_DEBUG_PLSQL_CODE_JDBC"),
+            txt("msg.prerequisites.warning.MissingPrerequisites_DEBUG_PLSQL_CODE_JDBC")),
 
     DEBUG_PLSQL_CODE_JDWP(
             txt("app.shared.const.Operation_DEBUG_PLSQL_CODE_JDWP"),

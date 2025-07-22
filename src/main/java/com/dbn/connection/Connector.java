@@ -18,6 +18,7 @@ package com.dbn.connection;
 
 import com.dbn.common.constant.Constants;
 import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.network.NetworkAddress;
 import com.dbn.common.thread.Timeout;
 import com.dbn.common.util.Chars;
 import com.dbn.common.util.Classes;
@@ -236,8 +237,9 @@ class Connector {
                 SshTunnelManager sshTunnelManager = SshTunnelManager.getInstance();
                 SshTunnelConnector sshTunnelConnector = sshTunnelManager.ensureSshConnection(connectionSettings);
                 if (sshTunnelConnector != null) {
-                    String localHost = sshTunnelConnector.getLocalHost();
-                    String localPort = Integer.toString(sshTunnelConnector.getLocalPort());
+                    NetworkAddress localAddress = sshTunnelConnector.getLocalAddress();
+                    String localHost = localAddress.getHost();
+                    String localPort = localAddress.getPortString();
                     connectionUrl = databaseSettings.getConnectionUrl(localHost, localPort);
                 }
             }

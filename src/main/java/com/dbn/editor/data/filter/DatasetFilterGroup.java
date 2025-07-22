@@ -16,6 +16,7 @@
 
 package com.dbn.editor.data.filter;
 
+import com.dbn.common.data.Data;
 import com.dbn.common.dispose.AlreadyDisposedException;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.options.BasicProjectConfiguration;
@@ -91,7 +92,11 @@ public class DatasetFilterGroup extends BasicProjectConfiguration<ProjectConfigu
     DatasetBasicFilter createBasicFilter(String columnName, Object columnValue, ConditionOperator operator, boolean interactive) {
         String name = createFilterName("Filter");
         DatasetBasicFilter filter = new DatasetBasicFilter(this, name);
-        if (columnValue != null) filter.setName(columnValue.toString());
+
+        // overwrite name
+        name = Data.asString(columnValue);
+        if (name != null) filter.setName(name);
+
         DatasetBasicFilterCondition condition = interactive ?
                 new DatasetBasicFilterCondition(filter, columnName, columnValue, operator, true) :
                 new DatasetBasicFilterCondition(filter, columnName, columnValue, operator);
@@ -106,7 +111,11 @@ public class DatasetFilterGroup extends BasicProjectConfiguration<ProjectConfigu
     DatasetBasicFilter createBasicFilter(String columnName, Object columnValue, ConditionOperator operator) {
         String name = createFilterName("Filter");
         DatasetBasicFilter filter = new DatasetBasicFilter(this, name);
-        if (columnValue != null) filter.setName(columnValue.toString());
+
+        // overwrite name
+        name = Data.asString(columnValue);
+        if (name != null) filter.setName(name);
+
         DatasetBasicFilterCondition condition = new DatasetBasicFilterCondition(filter, columnName, columnValue, operator, true);
         filter.addCondition(condition);
         addFilter(filter, false);

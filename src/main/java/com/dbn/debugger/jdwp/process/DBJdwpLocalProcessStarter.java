@@ -17,9 +17,13 @@
 package com.dbn.debugger.jdwp.process;
 
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.network.NetworkAddress;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.config.ConnectionDebuggerSettings;
+import com.dbn.connection.config.ReverseSshTunnelConfiguration;
+import com.dbn.connection.ssh.SshTunnelConfig;
+import com.dbn.debugger.JDWPTunnelType;
 import com.intellij.debugger.DebugEnvironment;
 import com.intellij.debugger.DebuggerManagerEx;
 import com.intellij.debugger.DefaultDebugEnvironment;
@@ -43,6 +47,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
 
+import static com.dbn.debugger.JDWPTunnelType.SSH_REVERSE_TUNNEL;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -66,14 +71,10 @@ public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
 
 
         ExecutionEnvironment environment = ExecutionEnvironmentBuilder.create(session.getProject(), executor, runProfile).build();
-        ConnectionDebuggerSettings debuggerSettings = getConnection().getSettings().getDebuggerSettings();
-        Range<Integer> portRange = debuggerSettings.getTcpPortRange();
-        String tcpHost = resolveTcpHost(debuggerSettings.getTcpHostAddress());
-        int tcpPort = findFreePort(tcpHost, portRange.getFrom(), portRange.getTo());
-        DBJdwpTcpConfig tcpConfig = new DBJdwpTcpConfig(tcpHost, tcpPort);
+        DBJdwpTcpConfig tcpConfig = initializeJdwpTcpConfig();
+        NetworkAddress localAddress = tcpConfig.getLocalAddress();
 
-        RemoteConnection remoteConnection = new RemoteConnection(true, tcpHost, Integer.toString(tcpPort), true);
-
+        RemoteConnection remoteConnection = new RemoteConnection(true, localAddress.getHost(), localAddress.getPortString() , true);
         RunProfileState state = Failsafe.nn(runProfile.getState(executor, environment));
 
         DebugEnvironment debugEnvironment = new DefaultDebugEnvironment(environment, state, remoteConnection, true);
@@ -85,6 +86,47 @@ public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
 
     }
 
+    private DBJdwpTcpConfig initializeJdwpTcpConfig() throws ExecutionException {
+        ConnectionDebuggerSettings debuggerSettings = getConnection().getSettings().getDebuggerSettings();
+        NetworkAddress localAddress = resolveLocalAddress(debuggerSettings);
+
+        JDWPTunnelType tunnelType = debuggerSettings.getJdwpTunnelType();
+        if (tunnelType == SSH_REVERSE_TUNNEL) {
+            SshTunnelConfig sshTunnelConfig = createSshTunnelConfig(debuggerSettings);
+            return new DBJdwpTcpConfig(localAddress, tunnelType, sshTunnelConfig);
+        }
+
+        return new DBJdwpTcpConfig(localAddress, JDWPTunnelType.NONE);
+    }
+
+    public SshTunnelConfig createSshTunnelConfig(ConnectionDebuggerSettings debuggerSettings) {
+        ReverseSshTunnelConfiguration config = debuggerSettings.getReverseSshTunnelConfig();
+        NetworkAddress proxyAddress = new NetworkAddress(
+                config.getHost(),
+                config.getPort());
+
+        NetworkAddress remoteAddress = new NetworkAddress(
+                config.getBindHost(),
+                config.getBindPort());
+
+        return new SshTunnelConfig(
+                proxyAddress,
+                remoteAddress,
+                config.getAuthType(),
+                config.getUser(),
+                config.getPassword(), config.getKeyFile(),
+                config.getKeyPassphrase()
+        );
+    }
+
+    private NetworkAddress resolveLocalAddress(ConnectionDebuggerSettings debuggerSettings) throws ExecutionException {
+        Range<Integer> portRange = debuggerSettings.getTcpPortRange();
+        String localHost = resolveTcpHost(debuggerSettings.getTcpHostAddress());
+        int localPort = findFreePort(localHost, portRange.getFrom(), portRange.getTo());
+
+        return new NetworkAddress(localHost, localPort);
+    }
+
     private static int findFreePort(String host, int minPortNumber, int maxPortNumber) throws ExecutionException {
         InetAddress inetAddress;
         try {
@@ -93,7 +135,7 @@ public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
             throw new ExecutionException("Failed to resolve host", e);
         }
 
-        for (int portNumber = minPortNumber; portNumber < maxPortNumber; portNumber++) {
+        for (int portNumber = minPortNumber; portNumber <= maxPortNumber; portNumber++) {
             try (ServerSocket ignored = new ServerSocket(portNumber, 50, inetAddress)) {
                 return portNumber;
             } catch (Exception e) {

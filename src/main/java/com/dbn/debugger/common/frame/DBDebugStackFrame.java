@@ -43,9 +43,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.ui.ColoredTextContainer;
-import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.xdebugger.XDebuggerBundle;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
@@ -64,8 +64,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.common.util.Strings.toLowerCase;
+import static com.intellij.ui.SimpleTextAttributes.ERROR_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
 
 @Slf4j
 @Getter
@@ -98,7 +103,13 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
         }
 
         Document document = Documents.getDocument(virtualFile);
-        DBLanguagePsiFile psiFile = (DBLanguagePsiFile) PsiUtil.getPsiFile(project, document);
+        PsiFile dbFile = PsiUtil.getPsiFile(project, document);
+        DBLanguagePsiFile psiFile;
+        if (dbFile instanceof DBLanguagePsiFile) {
+            psiFile = (DBLanguagePsiFile) dbFile;
+        } else {
+            return null;
+        }
         if (sourcePosition == null || psiFile == null || document == null) return null;
 
         int line = sourcePosition.getLine();
@@ -238,8 +249,8 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
 
         DBSchemaObject object = DBDebugUtil.getObject(sourcePosition);
         if (object != null) {
-            String frameName = object.getName();
-            Icon frameIcon = object.getObjectType().getIcon();
+            String frameName = nvl(object.getPresentableText(), object.getName());
+            Icon frameIcon = object.getIcon();
 
             IdentifierPsiElement subject = getSubject();
             if (subject != null && !Strings.equalsIgnoreCase(subject.getChars(), frameName)) {
@@ -248,8 +259,8 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
                 frameIcon = objectType.getIcon();
             }
 
-            component.append(frameName, SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            component.append(" (line " + (sourcePosition.getLine() + 1) + ") ", SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES);
+            component.append(frameName, REGULAR_ATTRIBUTES);
+            component.append(" (line " + (sourcePosition.getLine() + 1) + ") ", GRAY_ITALIC_ATTRIBUTES);
             component.setIcon(frameIcon);
 
         } else if (virtualFile != null){
@@ -260,13 +271,13 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
                 frameIcon = virtualFile.getFileType().getIcon();
             }
             component.setIcon(frameIcon);
-            component.append(virtualFile.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            component.append(" (line " + (sourcePosition.getLine() + 1) + ") ", SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES);
+            component.append(virtualFile.getName(), REGULAR_ATTRIBUTES);
+            component.append(" (line " + (sourcePosition.getLine() + 1) + ") ", GRAY_ITALIC_ATTRIBUTES);
         } else if (getDebugProcess().getExecutionTarget() == ExecutionTarget.METHOD) {
-            component.append("Anonymous block (method runner)", SimpleTextAttributes.GRAY_ATTRIBUTES);
+            component.append("Anonymous block (method runner)", GRAY_ATTRIBUTES);
             component.setIcon(Icons.FILE_SQL_DEBUG_CONSOLE);
         } else {
-            component.append(XDebuggerBundle.message("invalid.frame"), SimpleTextAttributes.ERROR_ATTRIBUTES);
+            component.append(XDebuggerBundle.message("invalid.frame"), ERROR_ATTRIBUTES);
         }
     }
 

@@ -17,6 +17,7 @@
 package com.dbn.prerequisite.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.diagnostics.Diagnostics;
 import com.dbn.prerequisite.event.PrerequisiteEvent;
 import com.dbn.prerequisite.event.PrerequisiteEventListener;
 import com.dbn.prerequisite.event.PrerequisiteEventType;
@@ -36,10 +37,17 @@ public class PrerequisitesDialog extends DBNDialog<PrerequisitesForm> implements
         this.prerequisiteGroup = prerequisiteGroup;
         this.prerequisiteGroup.addEventListener(this);
 
-        setDefaultSize(800, 600);
+        int height = Math.min(prerequisiteGroup.size() * 200 + 200, 800);
+        setDefaultSize(1000, height);
         renameAction(getCancelAction(), "Close");
 
         init();
+    }
+
+    @Override
+    protected String getDimensionServiceKey() {
+        // store different dimensions based on the database operation
+        return Diagnostics.isDialogSizingReset() ? null : "DBNavigator.PrerequisitesDialog." + prerequisiteGroup.getOperation();
     }
 
     @NotNull

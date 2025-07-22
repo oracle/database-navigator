@@ -26,13 +26,13 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class PrerequisiteDefinitionProviderBase implements PrerequisiteDefinitionProvider{
     @Getter
-    private final PrerequisiteType prerequisiteType;
+    private final PrerequisiteType type;
 
     @Getter(lazy = true)
     private final PrerequisiteDefinition definition = createDefinition();
 
-    protected PrerequisiteDefinitionProviderBase(PrerequisiteType prerequisiteType) {
-        this.prerequisiteType = prerequisiteType;
+    protected PrerequisiteDefinitionProviderBase(PrerequisiteType type) {
+        this.type = type;
     }
 
     private PrerequisiteDefinition createDefinition() {

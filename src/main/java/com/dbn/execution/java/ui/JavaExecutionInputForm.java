@@ -215,4 +215,9 @@ public class JavaExecutionInputForm extends DBNFormBase implements ComponentAlig
     public List<? extends ComponentAligner.Form> getAlignableForms() {
         return parameterForms;
     }
+
+    @Deprecated
+    public void touch() {
+        executionOptionsForm.touch();
+    }
 }

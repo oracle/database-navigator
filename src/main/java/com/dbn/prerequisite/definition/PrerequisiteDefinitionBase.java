@@ -33,6 +33,7 @@ public class PrerequisiteDefinitionBase implements PrerequisiteDefinition {
     private final String name;
     private final String description;
     private final PrerequisiteType type;
+    private final PrerequisiteType alternativeType;
     private final PrerequisiteCategory category;
     private final PrerequisiteEvaluator evaluator;
     private final PrerequisiteResolver resolver;
@@ -44,6 +45,7 @@ public class PrerequisiteDefinitionBase implements PrerequisiteDefinition {
             String name,
             String description,
             PrerequisiteType type,
+            PrerequisiteType alternativeType,
             PrerequisiteCategory category,
             PrerequisiteEvaluator evaluator,
             PrerequisiteResolver resolver,
@@ -52,6 +54,7 @@ public class PrerequisiteDefinitionBase implements PrerequisiteDefinition {
         this.name = name;
         this.description = description;
         this.type = type;
+        this.alternativeType = alternativeType;
         this.category = category;
         this.evaluator = evaluator;
         this.resolver = resolver;

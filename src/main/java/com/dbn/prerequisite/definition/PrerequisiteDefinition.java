@@ -28,6 +28,7 @@ public interface PrerequisiteDefinition {
     String getName();
     String getDescription();
     PrerequisiteType getType();
+    PrerequisiteType getAlternativeType();
     PrerequisiteCategory getCategory();
     PrerequisiteEvaluator getEvaluator();
     PrerequisiteResolver getResolver();

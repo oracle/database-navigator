@@ -35,6 +35,7 @@ import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
 
+import static com.dbn.common.util.Naming.unquote;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.database.DatabaseObjectTypeId.DATABASE_TRIGGER;
 import static com.dbn.database.DatabaseObjectTypeId.DATASET_TRIGGER;
@@ -143,13 +144,24 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
     public void createJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "prepare-java-staging-table", ownerName);
         executeUpdate(connection, "create-java-source", ownerName, objectName, content);
-        executeUpdate(connection, "compile-java-class", ownerName, objectName);
+        compileJavaClass(ownerName, objectName, connection);
+    }
+
+    public void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        try {
+            executeSilentUpdate(connection, "set-java-property", "sun.tools.javac.Main.args", 'g');
+            executeSilentUpdate(connection, "set-java-compiler-option", unquote(objectName), "debug", "true");
+            executeUpdate(connection, "compile-java-class", ownerName, objectName);
+        } finally {
+            executeSilentUpdate(connection, "set-java-compiler-option", unquote(objectName), "debug", "false");
+        }
     }
 
     @Override
     public void updateJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "prepare-java-staging-table", ownerName);
         executeUpdate(connection, "update-java-source", ownerName, objectName, content);
+        compileJavaClass(ownerName, objectName, connection);
     }
 
     @Override
