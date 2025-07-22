@@ -20,6 +20,8 @@ import com.dbn.common.dispose.StatefulDisposableBase;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.swing.Icon;
+
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class Message extends StatefulDisposableBase {
@@ -37,6 +39,10 @@ public class Message extends StatefulDisposableBase {
 
     public boolean isInfo() {
         return type == MessageType.INFO;
+    }
+
+    public Icon getDialogIcon() {
+        return type.getDialogIcon();
     }
 
     @Override

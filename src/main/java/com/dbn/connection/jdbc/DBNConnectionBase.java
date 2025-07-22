@@ -18,6 +18,7 @@ package com.dbn.connection.jdbc;
 
 import com.dbn.common.compatibility.Exploitable;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.Resources;
 import lombok.SneakyThrows;
 
 import java.sql.Array;
@@ -47,6 +48,16 @@ abstract class DBNConnectionBase extends DBNResource<Connection> implements Conn
     protected abstract <S extends Statement> S wrap(Statement statement);
 
     protected abstract <S extends Statement> S wrap(Statement statement, String sql);
+
+    public void executeStatement(String sql) throws SQLException {
+        DBNPreparedStatement statement = null;
+        try {
+            statement = prepareStatement(sql);
+            statement.execute();
+        } finally {
+            Resources.close(statement);
+        }
+    }
 
     /********************************************************************
      *                            Wrapped calls                         *

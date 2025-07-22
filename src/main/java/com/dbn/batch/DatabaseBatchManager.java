@@ -22,8 +22,9 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.message.ui.MessageBundleDialog;
 import com.dbn.common.message.ui.MessageBundleDialogConfig;
-import com.dbn.common.state.GenericStateHolder;
-import com.dbn.common.state.StateHolder;
+import com.dbn.common.state.StateAttributes;
+import com.dbn.common.state.StateCategory;
+import com.dbn.common.state.StateContainer;
 import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -32,35 +33,30 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static com.dbn.batch.BatchManager.COMPONENT_NAME;
+import static com.dbn.batch.DatabaseBatchManager.COMPONENT_NAME;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.message.MessageType.ERROR;
 import static com.dbn.common.message.MessageType.WARNING;
-import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
-import static com.dbn.common.options.setting.Settings.setStringAttribute;
-import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
-public class BatchManager extends ProjectComponentBase implements PersistentState {
-	public static final String COMPONENT_NAME = "DBNavigator.Project.BatchManager";
+public class DatabaseBatchManager extends ProjectComponentBase implements PersistentState {
+	public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseBatchManager";
 
-	private final Map<String, GenericStateHolder> states = new ConcurrentHashMap<>();
+	private final StateContainer states = new StateContainer();
 
-	private BatchManager(Project project) {
+	private DatabaseBatchManager(Project project) {
 		super(project, COMPONENT_NAME);
 	}
 
-	public static BatchManager getInstance(@NotNull Project project) {
-		return projectService(project, BatchManager.class);
+	public static DatabaseBatchManager getInstance(@NotNull Project project) {
+		return projectService(project, DatabaseBatchManager.class);
 	}
 
 	@NotNull
-	public StateHolder getState(String category) {
-		return states.computeIfAbsent(category, k -> new GenericStateHolder());
+	public StateAttributes getState(String category) {
+        StateCategory stateCategory = StateCategory.get(category);
+        return states.ensureAttributes(stateCategory);
 	}
 
 
@@ -93,31 +89,16 @@ public class BatchManager extends ProjectComponentBase implements PersistentStat
 	/****************************************
 	 *       PersistentStateComponent       *
 	 *****************************************/
-	@Nullable
-	@Override
-	public Element getComponentState() {
-		Element element = newStateElement();
-		Element statesElement = newElement(element, "batch-states");
-		for (String category : states.keySet()) {
-			Element stateElement = newElement(statesElement, "state");
-			setStringAttribute(stateElement, "category", category);
+    @Nullable
+    @Override
+    public Element getComponentState() {
+        Element element = newStateElement();
+        states.writeState(element, "batch-states");
+        return element;
+    }
 
-			GenericStateHolder state = states.get(category);
-			state.writeState(stateElement);
-		}
-		return element;
-	}
-
-	@Override
-	public void loadComponentState(@NotNull Element element) {
-		Element statesElement = element.getChild("batch-states");
-		if (statesElement != null) {
-			for (Element stateElement : statesElement.getChildren("state")) {
-				String category = stringAttribute(stateElement, "category");
-				GenericStateHolder state = new GenericStateHolder();
-				state.readState(stateElement);
-				states.put(category, state);
-			}
-		}
-	}
+    @Override
+    public void loadComponentState(@NotNull Element element) {
+        states.readState(element, "batch-states");
+    }
 }

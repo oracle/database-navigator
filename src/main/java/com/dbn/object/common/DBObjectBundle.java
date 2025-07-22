@@ -67,6 +67,8 @@ public interface DBObjectBundle extends BrowserTreeNode, StatefulDisposable, Dat
     DBNativeDataType getNativeDataType(String name);
 
     @Nullable
+    DBSchema getSchema(SchemaId schemaId);
+
     DBSchema getSchema(String name);
 
     @Nullable

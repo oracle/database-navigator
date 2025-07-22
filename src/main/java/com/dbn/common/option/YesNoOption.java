@@ -34,9 +34,4 @@ public enum YesNoOption implements InteractiveOption {
     public boolean isCancel() {
         return false;
     }
-
-    @Override
-    public boolean isAsk() {
-        return false;
-    }
 }

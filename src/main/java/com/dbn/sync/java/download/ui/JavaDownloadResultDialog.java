@@ -16,7 +16,7 @@
 
 package com.dbn.sync.java.download.ui;
 
-import com.dbn.batch.BatchManager;
+import com.dbn.batch.DatabaseBatchManager;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.sync.java.download.JavaDownloadBatch;
 import lombok.Getter;
@@ -66,7 +66,7 @@ public class JavaDownloadResultDialog extends DBNDialog<JavaDownloadResultForm> 
         if (!batch.getMessages().hasErrors()) return null;
 
         return createAction("Show Errors", () -> {
-            BatchManager batchManager = BatchManager.getInstance(getProject());
+            DatabaseBatchManager batchManager = DatabaseBatchManager.getInstance(getProject());
             batchManager.showErrorDialog(batch);
         });
     }

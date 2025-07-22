@@ -16,19 +16,42 @@
 
 package com.dbn.database.oracle;
 
+import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.thread.Background;
+import com.dbn.common.util.Chars;
+import com.dbn.common.util.Sockets;
+import com.dbn.common.util.Strings;
+import com.dbn.connection.AuthenticationTokenType;
+import com.dbn.connection.AuthenticationType;
+import com.dbn.connection.ConnectionExceptionInfo;
+import com.dbn.connection.ConnectionExceptionVisitor;
+import com.dbn.connection.ConnectionType;
+import com.dbn.connection.ConnectorProperties;
+import com.dbn.connection.SessionId;
+import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
+import com.dbn.diagnostics.Diagnostics;
 import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.QuoteDefinition;
 import com.dbn.language.common.QuotePair;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.connection.AuthenticationTokenType.AZURE_INTERACTIVE;
+import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
+import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_TOKEN;
+import static com.dbn.connection.AuthenticationTokenType.OCI_API_KEY;
+import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
 import static com.dbn.database.DatabaseFeature.AI_ASSISTANT;
 import static com.dbn.database.DatabaseFeature.AUTHID_METHOD_EXECUTION;
 import static com.dbn.database.DatabaseFeature.CONNECTION_ERROR_RECOVERY;
@@ -36,9 +59,9 @@ import static com.dbn.database.DatabaseFeature.CONSTRAINT_MANIPULATION;
 import static com.dbn.database.DatabaseFeature.CURRENT_SCHEMA;
 import static com.dbn.database.DatabaseFeature.DATABASE_LOGGING;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
-import static com.dbn.database.DatabaseFeature.EMBEDDED_JVM;
 import static com.dbn.database.DatabaseFeature.EXPLAIN_PLAN;
 import static com.dbn.database.DatabaseFeature.FUNCTION_OUT_ARGUMENTS;
+import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
 import static com.dbn.database.DatabaseFeature.OBJECT_CHANGE_MONITORING;
 import static com.dbn.database.DatabaseFeature.OBJECT_DDL_EXTRACTION;
 import static com.dbn.database.DatabaseFeature.OBJECT_DEPENDENCIES;
@@ -63,6 +86,76 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 @Slf4j
 public class OracleCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
     public static final QuoteDefinition IDENTIFIER_QUOTE_DEFINITION = new QuoteDefinition(new QuotePair('"', '"'));
+
+    private interface Property {
+        String SESSION_PROGRAM = "v$session.program";
+
+        String ORACLE_JDBC_OCI_PROFILE = "oracle.jdbc.ociProfile";
+        String ORACLE_JDBC_OCI_CONFIG_FILE = "oracle.jdbc.ociConfigFile";
+        // if this value is set, it puts the driver into on of the token auth
+        // modes based setting one of PropertyValue.TOKEN_AUTHENTICATION_*
+        String ORACLE_JDBC_TOKEN_AUTHENTICATION = "oracle.jdbc.tokenAuthentication";
+        String ORACLE_JDBC_DEBUG_JDWP = "oracle.jdbc.debugJDWP";
+        String ORACLE_JDBC_AZURE_DATABASE_APPLICATION_ID_URI = "oracle.jdbc.azureDatabaseApplicationIdUri";
+        String ORACLE_JDBC_AZURE_CLIENT_CERTIFICATE_FILE = "oracle.jdbc.clientCertificate";
+        String ORACLE_JDBC_AZURE_CLIENT_CERTIFICATE_PASSWORD = "oracle.jdbc.clientCertificatePassword";
+        String ORACLE_JDBC_AZURE_CLIENT_SECRET = "oracle.jdbc.clientSecret";
+        String ORACLE_JDBC_AZURE_CLIENT_ID = "oracle.jdbc.clientId";
+        String ORACLE_JDBC_AZURE_TENANT_ID = "oracle.jdbc.tenantId";
+        String ORACLE_JDBC_SSL_SERVER_DN_MATCH = "oracle.net.ssl_server_dn_match";
+    }    
+
+    @NonNls
+    private interface PropertyValue {
+        String TOKEN_AUTHENTICATION_OCI_API_KEY = "OCI_API_KEY";
+        String TOKEN_AUTHENTICATION_OCI_INTERACTIVE = "OCI_INTERACTIVE";
+        String TOKEN_AUTHENTICATION_AZURE_INTERACTIVE = "AZURE_INTERACTIVE";
+        String TOKEN_AUTHENTICATION_AZURE_SERVICE_PRINCIPAL = "AZURE_SERVICE_PRINCIPAL";
+    }
+
+    /**
+     * Encapsulates constants used in handling connection errors related to issues
+     * in the Oracle JDBC driver "provider" framework
+     */
+    public static class ProviderErrorHandlingConstants {
+        /**
+         * The TCP port that the OCI_INTERACTIVE token provider needs to bind
+         * in order to receive a response from the browser.
+         */
+        public static final int OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT = 8181;
+        /**
+         * The ORA error code we look for to indicate that a connection attempt
+         * has failed due to a general provider issue.  This includes issues
+         * around Bug_38087045.
+         */
+        public static final int FAILURE_ON_PROVIDER_ERROR = 18726;
+        /**
+         * The URL to poke when the OCI_INTERACTIVE mode has failed due to
+         * a bind exception where-in the expect port for token callback is already
+         * bound or where the user cancels or lets the connection auth expire and
+         * the provider blocks forever waiting for a call that will never come.
+         * Calling a GET on this url can work around the problem by simulating an
+         * expected call on the token web server and awaking the blocked thread
+         * into a failure code.
+         */
+        public static final String OCI_INTERACTIVE_WEB_SERVER_POKE_URL = "http://localhost:8181/token?";
+        /**
+         * The class name of the class to call clearAllCaches on (see below) when
+         * the provider cache is suspected of being stuck in a permanent failure
+         * state.
+         */
+        public static final String ORACLE_JDBC_PROVIDER_CACHE_CACHE_CONTROLLER_CLASSNAME = "oracle.jdbc.provider.cache.CacheController";
+        /**
+         * Certain calls that are serviced by certain providers can fail in the provider code
+         * and this failure gets stuck in the caching mechanism of the provider framework.
+         * When this happens, the provider cache will continue to throw the same error
+         * regardless of whether the original failure condition has been cleared.  At this
+         * point, at least until there is a fix, the only solution is to call
+         * CacheController.clearAllCaches() in the classloader of the failing Driver.
+         * This is the name of that method.
+         */
+        public static final String CLEAR_ALL_CACHES_METHOD_NAME = "clearAllCaches";
+    }
 
     @Override
     public boolean supportsObjectType(DatabaseObjectTypeId objectTypeId) {
@@ -101,7 +194,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 CONSTRAINT_MANIPULATION,
                 READONLY_CONNECTIVITY,
                 AI_ASSISTANT,
-                EMBEDDED_JVM
+                JAVA_VIRTUAL_MACHINE
                 //EMPTY_SCHEMA_EVALUATION // TODO disabled due to performance reasons
                 );
     }
@@ -161,5 +254,115 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 "oracle.net.TCP_KEEPIDLE", "30",
                 "oracle.net.TCP_KEEPINTERVAL", "30",
                 "oracle.net.TCP_KEEPCOUNT", "5");
+    }
+
+
+    @Override
+    public void initConnectorAuthentication(ConnectorProperties properties, @Nullable AuthenticationInfo authenticationInfo) {
+        if (authenticationInfo == null) return;
+
+        AuthenticationType authenticationType = authenticationInfo.getType();
+        if (authenticationType == AuthenticationType.TOKEN) {
+            AuthenticationTokenType tokenType = authenticationInfo.getTokenType();
+            if (tokenType == OCI_INTERACTIVE) {
+                properties.add(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_OCI_INTERACTIVE);
+            } else if (tokenType == OCI_API_KEY) {
+                properties.add(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_OCI_API_KEY);
+                properties.add(Property.ORACLE_JDBC_OCI_CONFIG_FILE, nvl(authenticationInfo.getTokenConfigFile(), ""));
+                properties.add(Property.ORACLE_JDBC_OCI_PROFILE, nvl(authenticationInfo.getTokenProfile(), ""));
+            } else if (tokenType == AZURE_INTERACTIVE) {
+                properties.add(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_AZURE_INTERACTIVE);
+                properties.add(Property.ORACLE_JDBC_AZURE_DATABASE_APPLICATION_ID_URI, authenticationInfo.getAzureDatabaseApplicationIdUri());
+            } else if (tokenType == AZURE_SERVICE_PRINCIPAL_CERTIFICATE) {
+                copyCommonAzureServicePrincipalProperties(properties, authenticationInfo);
+                properties.add(Property.ORACLE_JDBC_AZURE_CLIENT_CERTIFICATE_FILE, authenticationInfo.getAzureClientCertificateFile());
+                properties.add(Property.ORACLE_JDBC_AZURE_CLIENT_CERTIFICATE_PASSWORD,
+                        Chars.toStringAcceptEmpty(authenticationInfo.getAzureClientCertificatePassword()));
+            } else if (tokenType == AZURE_SERVICE_PRINCIPAL_TOKEN) {
+                copyCommonAzureServicePrincipalProperties(properties, authenticationInfo);
+                properties.add(Property.ORACLE_JDBC_AZURE_CLIENT_SECRET, Chars.toStringAcceptEmpty(authenticationInfo.getAzureClientSecret()));
+            } else {
+                //TODO...
+            }
+        } else {
+            super.initConnectorAuthentication(properties, authenticationInfo);
+        }
+    }
+
+    @Override
+    public void initConnectorSession(ConnectorProperties properties, ConnectionSettings settings, SessionId sessionId) {
+        super.initConnectorSession(properties, settings, sessionId);
+
+        ConnectionType connectionType = sessionId.getConnectionType();
+        String appName = "DB Navigator - " + connectionType.getName();
+        properties.add(Property.SESSION_PROGRAM, appName);
+    }
+
+    @Override
+    public void initConnectorDebugger(ConnectorProperties properties, ConnectionSettings settings) {
+        Map<String, String> configProperties = settings.getPropertiesSettings().getProperties();
+
+        // i check if we have got jdwpHostPort if yes i get a connection using CONNECTION_PROPERTY_THIN_DEBUG_JDWP property
+        // TODO jdwpHostPort may remain resident if this stage is not reached for any reason... (maybe add transient properties container to settings)
+        String jdwpHostPort = configProperties.remove("jdwpHostPort");
+        if (Strings.isNotEmpty(jdwpHostPort)) {
+            properties.add(Property.ORACLE_JDBC_DEBUG_JDWP, jdwpHostPort);
+        }
+    }
+
+    private static void copyCommonAzureServicePrincipalProperties(ConnectorProperties properties, AuthenticationInfo authenticationInfo) {
+        properties.add(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_AZURE_SERVICE_PRINCIPAL);
+        properties.add(Property.ORACLE_JDBC_SSL_SERVER_DN_MATCH, "yes");
+        properties.add(Property.ORACLE_JDBC_AZURE_CLIENT_ID, authenticationInfo.getAzureClientId());
+        properties.add(Property.ORACLE_JDBC_AZURE_TENANT_ID, authenticationInfo.getAzureTenantId());
+        properties.add(Property.ORACLE_JDBC_AZURE_DATABASE_APPLICATION_ID_URI, authenticationInfo.getAzureDatabaseApplicationIdUri());
+    }
+
+    @Override
+    public boolean handleConnectionException(final ConnectionExceptionInfo info) {
+        ConnectionExceptionVisitor visitor = new ConnectionExceptionVisitor();
+        info.accept(visitor);
+        // if a bind exception was thrown or the error was due to n provider failure code
+        if (visitor.hasBindException() || visitor.containsOraErrorCodes(ProviderErrorHandlingConstants.FAILURE_ON_PROVIDER_ERROR)) {
+            if (info.getAuthenticationInfo().getType() == AuthenticationType.TOKEN) {
+                AuthenticationTokenType tokenType = info.getAuthenticationInfo().getTokenType();
+                if (tokenType == OCI_INTERACTIVE) {
+                    Background.run(() -> resetOciInteractiveConnection(info));
+                }
+            }
+        }
+        return false;
+    }
+
+    private static void resetOciInteractiveConnection(ConnectionExceptionInfo info) {
+        // TODO: use a backoff and retry?
+        // unfreeze the busy socket (e.g. when auth browser is left unattended or closed without completing the authentication)
+        if (!Sockets.tryToBindPort(ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT)) {
+            /**
+             *  @see ProviderErrorHandlingConstants.OCI_INTERACTIVE_WEB_SERVER_POKE_URL
+             */
+            Sockets.pokeWebServer(
+                    ProviderErrorHandlingConstants.OCI_INTERACTIVE_WEB_SERVER_POKE_URL);
+        }
+
+        // clear the provider caches holding unsuccessful authentication state
+        try {
+            /**
+             * @see ProviderErrorHandlingConstants.CLEAR_ALL_CACHES_METHOD_NAME
+             */
+            ClassLoader classLoader = info.getClassLoader();
+            if (classLoader != null) {
+                Class<?> cacheControllerClass =
+                        Class.forName(
+                                ProviderErrorHandlingConstants.ORACLE_JDBC_PROVIDER_CACHE_CACHE_CONTROLLER_CLASSNAME, true, classLoader);
+                Method clearAllCaches = cacheControllerClass.getMethod(ProviderErrorHandlingConstants.CLEAR_ALL_CACHES_METHOD_NAME);
+                clearAllCaches.invoke(null, new Object[0]);
+            }
+            else {
+                Diagnostics.conditionallyLog(new NullPointerException("classLoader was null"));
+            }
+        } catch (final Exception e) {
+            Diagnostics.conditionallyLog(e);
+        }
     }
 }

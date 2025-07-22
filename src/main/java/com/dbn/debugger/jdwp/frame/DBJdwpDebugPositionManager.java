@@ -56,15 +56,17 @@ public class DBJdwpDebugPositionManager implements PositionManager {
         int lineNumber = location.lineNumber() - 1;
 
         String ownerName = DBJdwpDebugUtil.getOwnerName(location);
-        VirtualFile virtualFile = getDebugProcess().getVirtualFile(location);
+        DBJdwpDebugProcess debugProcess = getDebugProcess();
+
+        VirtualFile virtualFile = debugProcess.getVirtualFile(location);
         if (virtualFile == null) return null;
 
-        PsiFile psiFile = PsiUtil.getPsiFile(getDebugProcess().getProject(), virtualFile);
+        PsiFile psiFile = PsiUtil.getPsiFile(debugProcess.getProject(), virtualFile);
 
         if (psiFile == null) return null;
 
         if (ownerName == null) {
-            ExecutionInput executionInput = getDebugProcess().getExecutionInput();
+            ExecutionInput executionInput = debugProcess.getExecutionInput();
             if (executionInput instanceof StatementExecutionInput) {
                 StatementExecutionInput statementExecutionInput = (StatementExecutionInput) executionInput;
                 lineNumber += statementExecutionInput.getExecutableLineNumber();
@@ -105,7 +107,9 @@ public class DBJdwpDebugPositionManager implements PositionManager {
     }
 
     @NotNull Location check(@Nullable Location location) throws NoDataException {
-        if (location == null || !location.declaringType().name().startsWith("$Oracle")) {
+        // TODO cleanup - this was needed before OJVM support was added (no longer applicable now)
+        //if (location == null || !location.declaringType().name().startsWith("$Oracle")) {
+        if (location == null) {
             throw NoDataException.INSTANCE;
         }
         return location;

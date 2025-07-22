@@ -191,7 +191,12 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         }
 
         ConnectionSettingsForm currentForm = cachedForms.get(currentPanelId);
-        String selectedTabName = currentForm == null ? null : currentForm.getSelectedTabName();
+        // inform the current form that its tab is
+        // being replaced with a different selection
+        String selectedTabName = null;
+        if (currentForm != null) {
+            selectedTabName = currentForm.getSelectedTabName();
+        }
 
         currentPanelId = connectionSettings.getConnectionId().id();
         if (!cachedForms.containsKey(currentPanelId)) {
@@ -253,6 +258,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         DatabaseInfo databaseInfo = connectionConfig.getDatabaseInfo();
         String dbUrl = getUrl(ociConnectionData);
         databaseInfo.setUrl(dbUrl);
+        // TODO: Azure token values?
         connectionConfig.getAuthenticationInfo().setTokenConfigFile(ociConnectionData.getConfigFile());
         connectionConfig.getAuthenticationInfo().setTokenProfile(ociConnectionData.getConfigProfile());
         databaseInfo.setUrlType(DatabaseUrlType.CUSTOM);
@@ -450,6 +456,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
                 ociConnectionData.setConnectionId(databaseSettings.getConnectionId());
                 databaseSettings.getAuthenticationInfo().setTokenConfigFile(ociConnectionData.getConfigFile());
                 databaseSettings.getAuthenticationInfo().setTokenProfile(ociConnectionData.getConfigProfile());
+                // TODO handle AZURE token cases
             }else {
                 name = tnsProfile.getProfile();
             }
