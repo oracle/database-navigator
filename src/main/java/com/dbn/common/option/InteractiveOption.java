@@ -21,5 +21,7 @@ import com.dbn.common.ui.Presentable;
 public interface InteractiveOption extends Presentable{
     boolean isCancel();
 
-    boolean isAsk();
+    default boolean isAsk() {
+        return false;
+    }
 }

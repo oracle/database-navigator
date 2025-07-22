@@ -24,5 +24,6 @@
 
         <configurationType implementation="com.dbn.debugger.common.config.DBMethodRunConfigType"/>
         <configurationType implementation="com.dbn.debugger.common.config.DBStatementRunConfigType"/>
+        <configurationType implementation="com.dbn.debugger.common.config.DBJavaRunConfigType"/>
     </extensions>
 </idea-plugin>

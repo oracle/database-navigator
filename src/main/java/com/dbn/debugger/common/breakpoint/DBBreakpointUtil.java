@@ -21,8 +21,9 @@ import com.dbn.common.thread.Read;
 import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
+import com.dbn.debugger.jdwp.DBJdwpBreakpointProperties;
 import com.dbn.editor.DBContentType;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vfs.DatabaseFileSystem;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.dbn.vfs.file.DBContentVirtualFile;
@@ -31,7 +32,6 @@ import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.xdebugger.XDebuggerManager;
-import com.intellij.xdebugger.XDebuggerUtil;
 import com.intellij.xdebugger.breakpoints.XBreakpointManager;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
@@ -80,11 +80,11 @@ public class DBBreakpointUtil {
     }
 
     @Nullable
-    public static DBSchemaObject getDatabaseObject(@NotNull XLineBreakpoint breakpoint) {
-        VirtualFile virtualFile = getVirtualFile(breakpoint);
-        if (virtualFile instanceof DBEditableObjectVirtualFile) {
-            DBEditableObjectVirtualFile objectVirtualFile = (DBEditableObjectVirtualFile) virtualFile;
-            return objectVirtualFile.getObject();
+    public static DBObjectRef getDatabaseObject(@NotNull XLineBreakpoint breakpoint) {
+        VirtualFile file = getVirtualFile(breakpoint);
+        if (file instanceof DBEditableObjectVirtualFile) {
+            DBEditableObjectVirtualFile objectFile = (DBEditableObjectVirtualFile) file;
+            return objectFile.getObjectRef();
         }
         return null;
     }
@@ -101,13 +101,13 @@ public class DBBreakpointUtil {
 
     @Nullable
     public static String getProgramIdentifier(@NotNull ConnectionHandler connection, @NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) {
-        DBSchemaObject object = getDatabaseObject(breakpoint);
+        DBObjectRef object = getDatabaseObject(breakpoint);
         DBContentType contentType = getContentType(breakpoint);
         return getProgramIdentifier(connection, object, contentType);
     }
 
     @Nullable
-    public static String getProgramIdentifier(@NotNull ConnectionHandler connection, DBSchemaObject object, DBContentType contentType) {
+    public static String getProgramIdentifier(@NotNull ConnectionHandler connection, DBObjectRef object, DBContentType contentType) {
         DatabaseDebuggerInterface debuggerInterface = connection.getDebuggerInterface();
         return object == null ?
                 debuggerInterface.getJdwpBlockIdentifier() :
@@ -116,7 +116,7 @@ public class DBBreakpointUtil {
 
     @NotNull
     public static String getBreakpointDesc(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) {
-        DBSchemaObject object = getDatabaseObject(breakpoint);
+        DBObjectRef object = getDatabaseObject(breakpoint);
         VirtualFile virtualFile = getVirtualFile(breakpoint);
         int line = breakpoint.getLine() + 1;
         Integer breakpointId = getBreakpointId(breakpoint);
@@ -144,10 +144,23 @@ public class DBBreakpointUtil {
         return breakpoints;
     }
 
+    public static void registerBreakpoint(DBContentVirtualFile contentFile, int line, DBJdwpBreakpointProperties properties) {
+        String fileUrl = contentFile.getUrl();
+        XBreakpointManager breakpointManager = getBreakpointManager(contentFile.getProject());
+
+        DBBreakpointType breakpointType = DBBreakpointType.get();
+        breakpointManager.addLineBreakpoint(breakpointType, fileUrl, line, properties, true);
+    }
+
     @NotNull
     private static Collection<XLineBreakpoint<XBreakpointProperties>> getAllBreakpoints(Project project) {
-        DBBreakpointType databaseBreakpointType = XDebuggerUtil.getInstance().findBreakpointType(DBBreakpointType.class);
-        XBreakpointManager breakpointManager = XDebuggerManager.getInstance(project).getBreakpointManager();
-        return Read.call(() -> Unsafe.cast(breakpointManager.getBreakpoints(databaseBreakpointType)));
+        DBBreakpointType breakpointType = DBBreakpointType.get();
+        XBreakpointManager breakpointManager = getBreakpointManager(project);
+        return Read.call(() -> Unsafe.cast(breakpointManager.getBreakpoints(breakpointType)));
+    }
+
+    public static @NotNull XBreakpointManager getBreakpointManager(Project project) {
+        XDebuggerManager debuggerManager = XDebuggerManager.getInstance(project);
+        return debuggerManager.getBreakpointManager();
     }
 }

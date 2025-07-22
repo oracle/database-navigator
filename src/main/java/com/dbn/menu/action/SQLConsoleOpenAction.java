@@ -20,7 +20,6 @@ import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.util.Popups;
-import com.dbn.common.util.Actions;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
@@ -42,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -81,7 +81,7 @@ public class SQLConsoleOpenAction extends ProjectAction {
         private final ConnectionRef connection;
 
         private SelectConnectionAction(ConnectionHandler connection) {
-            super(connection.getName(), null, connection.getIcon());
+            super(adjustActionName(connection.getName()), null, connection.getIcon());
             this.connection = ConnectionRef.of(connection);
             setPopup(true);
         }
@@ -124,7 +124,7 @@ public class SQLConsoleOpenAction extends ProjectAction {
         }
 
         SelectConsoleAction(DBConsole console) {
-            super(Actions.adjustActionName(console.getName()), null, console.getIcon());
+            super(adjustActionName(console.getName()), null, console.getIcon());
             this.console = console;
         }
 

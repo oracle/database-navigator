@@ -16,6 +16,10 @@
 
 package com.dbn.common.message;
 
+import com.dbn.common.icon.Icons;
+
+import javax.swing.Icon;
+
 public enum MessageType {
     INFO,
     SUCCESS,
@@ -23,5 +27,18 @@ public enum MessageType {
     ERROR,
     SYSTEM,
     QUESTION,
-    NEUTRAL
+    NEUTRAL;
+
+
+    public Icon getDialogIcon() {
+        switch (this) {
+            case INFO: return Icons.DIALOG_INFORMATION;
+            case SUCCESS: return Icons.DIALOG_SUCCESS;
+            case WARNING: return Icons.DIALOG_WARNING;
+            case ERROR: return Icons.DIALOG_ERROR;
+            case QUESTION: return Icons.DIALOG_QUESTION;
+            default: return null;
+        }
+    }
+
 }

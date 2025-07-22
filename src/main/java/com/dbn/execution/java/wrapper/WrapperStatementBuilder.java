@@ -52,14 +52,14 @@ public final class WrapperStatementBuilder {
 		return ProjectRef.ensure(project);
 	}
 
-	private List<String> createSQLTypes(Wrapper wrapper) {
+	private List<String> createSQLTypes(WrapperModel model) {
 		List<String> sqlTypes = new ArrayList<>();
 		@NonNls Properties properties = new Properties();
 
-		Set<String> sqlTypeNames = wrapper.getSqlTypeNames();
+		Set<String> sqlTypeNames = model.getSqlTypeNames();
 		sqlTypeNames.clear();
 
-		for (ClassWrapper classWrapper : wrapper.getClasses()) {
+		for (ClassWrapper classWrapper : model.getClasses()) {
 			String sqlTypeName = classWrapper.getSqlTypeName();
 
 			if (sqlTypeNames.contains(sqlTypeName)) continue;
@@ -85,12 +85,12 @@ public final class WrapperStatementBuilder {
 		return sqlTypes;
 	}
 
-	private List<String> createSQLToJava(Wrapper wrapper) {
+	private List<String> createSQLToJava(WrapperModel model) {
 		List<String> javaConverterMethods = new ArrayList<>();
 
 		String objArray ="objArray";
 		String javaObj = "javaObj";
-		for (ClassWrapper classWrapper : wrapper.getClasses()) {
+		for (ClassWrapper classWrapper : model.getClasses()) {
 			// Skip RETURN attributes and duplicates based on SQL type name.
 			if (classWrapper.getArgumentDirection() == ClassWrapper.ArgumentDirection.OUT)
 				continue;
@@ -106,7 +106,7 @@ public final class WrapperStatementBuilder {
 				// For arrays, set typecasting properties
 				String squareBrackets = String.join("", Collections.nCopies(classWrapper.getArrayDepth() - 1, "[]"));
 				String iterator = "i";
-				String iterationCode = buildSqlArrayToJavaAssignmentLine(classWrapper,javaObj,objArray,iterator,wrapper);
+				String iterationCode = buildSqlArrayToJavaAssignmentLine(classWrapper,javaObj,objArray,iterator, model);
 
 				context.put("SQUARE_BRACKETS", squareBrackets);
 				context.put("ITERATOR",iterator);
@@ -118,7 +118,7 @@ public final class WrapperStatementBuilder {
 				List<String> fieldAssignments = new ArrayList<>();
 				if (classWrapper.getFields() != null && !classWrapper.getFields().isEmpty()) {
 				  for (FieldWrapper fieldWrapper : classWrapper.getFields()) {
-					  String assignmentLine = buildSqlToJavaAssignmentLine(fieldWrapper, javaObj, objArray, wrapper);
+					  String assignmentLine = buildSqlToJavaAssignmentLine(fieldWrapper, javaObj, objArray, model);
 					  fieldAssignments.add(assignmentLine);
 				  }
 				  context.put("FIELD_ASSIGNMENTS", fieldAssignments);
@@ -132,13 +132,13 @@ public final class WrapperStatementBuilder {
 	}
 
 
-	private List<String> createJavaToSQL(Wrapper wrapper) {
+	private List<String> createJavaToSQL(WrapperModel model) {
 		List<String> javaConverterMethods = new ArrayList<>();
-		if (wrapper.getMethods().isEmpty()) return javaConverterMethods;
+		if (model.getMethods().isEmpty()) return javaConverterMethods;
 
 		String objArray ="objArray";
 		String javaObj = "javaObj";
-		for (ClassWrapper classWrapper : wrapper.getClasses()) {
+		for (ClassWrapper classWrapper : model.getClasses()) {
 			if (classWrapper.getArgumentDirection() == ClassWrapper.ArgumentDirection.IN) continue;
 
 			Map<String, Object> context = new HashMap<>();
@@ -153,7 +153,7 @@ public final class WrapperStatementBuilder {
 			if (classWrapper.isArray()) {
 				String squareBrackets = String.join("", Collections.nCopies(classWrapper.getArrayDepth() - 1, "[]"));
 				String iterator = "i";
-				String iterationCode = buildJavaArrayToSqlAssignmentLine(classWrapper,objArray,javaObj,iterator,wrapper);
+				String iterationCode = buildJavaArrayToSqlAssignmentLine(classWrapper,objArray,javaObj,iterator, model);
 
 				context.put("SQUARE_BRACKETS", squareBrackets);
 				context.put("ITERATOR",iterator);
@@ -164,7 +164,7 @@ public final class WrapperStatementBuilder {
 				List<String> fieldAssignments = new ArrayList<>();
 				if (classWrapper.getFields() != null && !classWrapper.getFields().isEmpty()) {
 					for (FieldWrapper fieldWrapper : classWrapper.getFields()) {
-						String assignmentLine = buildJavaToSqlAssignmentLine(fieldWrapper, objArray, javaObj, wrapper);
+						String assignmentLine = buildJavaToSqlAssignmentLine(fieldWrapper, objArray, javaObj, model);
 						fieldAssignments.add(assignmentLine);
 					}
 					context.put("FIELD_ASSIGNMENTS", fieldAssignments);
@@ -177,16 +177,16 @@ public final class WrapperStatementBuilder {
 		return javaConverterMethods;
 	}
 
-	private List<String> createJavaWrapperMethods(Wrapper wrapper) {
+	private List<String> createJavaWrapperMethods(WrapperModel model) {
 		List<String> javaWrapperMethods = new ArrayList<>();
-		if (wrapper.getMethods().isEmpty()) return javaWrapperMethods;
+		if (model.getMethods().isEmpty()) return javaWrapperMethods;
 
-		for (MethodWrapper method : wrapper.getMethods()) {
+		for (MethodWrapper method : model.getMethods()) {
 			String methodReturnType = resolveMethodReturnType(method);
 			String methodName = method.getSurrogateJavaMethodName();
 			String methodParameters = getJavaParameters(method, true);
 			String argumentConversions = getArgumentConversionStatements(method);
-			String returnStatement = getReturnStatement(method, wrapper.getClassName());
+			String returnStatement = getReturnStatement(method, model.getClassName());
 
 			Map<String, Object> context = new HashMap<>();
 			context.put("METHOD_NAME", methodName);
@@ -204,33 +204,33 @@ public final class WrapperStatementBuilder {
 
 	@NonNls
 	@NotNull
-	private String createJavaWrapper(Wrapper wrapper) {
-		List<String> sqlMethods = createSQLToJava(wrapper);
-		List<String> javaMethods = createJavaToSQL(wrapper);
-		List<String> javaWrapperMethods = createJavaWrapperMethods(wrapper);
+	private String createJavaWrapper(WrapperModel model) {
+		List<String> sqlMethods = createSQLToJava(model);
+		List<String> javaMethods = createJavaToSQL(model);
+		List<String> javaWrapperMethods = createJavaWrapperMethods(model);
 
 		Map<String, Object> context = new HashMap<>();
 
-		context.put("JAVA_WRAPPER_NAME", wrapper.getJavaWrapperName());
+		context.put("JAVA_WRAPPER_NAME", model.getJavaWrapperName());
 		context.put("SQL_CONVERSION_METHODS", sqlMethods);
 		context.put("JAVA_CONVERSION_METHODS", javaMethods);
 		context.put("JAVA_WRAPPER_METHODS", javaWrapperMethods);
-		context.put("FULLY_QUALIFIED_ORIGINAL_CLASSNAME",wrapper.getClassName());
+		context.put("FULLY_QUALIFIED_ORIGINAL_CLASSNAME", model.getClassName());
 
-		context.put("JAVA_CLASS", wrapper.getClassName());
+		context.put("JAVA_CLASS", model.getClassName());
 
-		context.put("WRAPPER_METHODS", wrapper.getMethods());
+		context.put("WRAPPER_METHODS", model.getMethods());
 
 		return generateCode("DBN - OJVM JavaWrapper.java", context);
 
 	}
 
-	private String createSQLWrapper(Wrapper wrapper) {
+	private String createSQLWrapper(WrapperModel model) {
 		Map<String, Object> context = new HashMap<>();
-		context.put("SQL_WRAPPER_NAME", wrapper.getSqlWrapperName());
-		context.put("JAVA_WRAPPER_NAME", wrapper.getJavaWrapperName());
+		context.put("SQL_WRAPPER_NAME", model.getSqlWrapperName());
+		context.put("JAVA_WRAPPER_NAME", model.getJavaWrapperName());
 		// Transform each WrapperJavaMethod into a map with precomputed values.
-		List<Map<String, Object>> methodList = wrapper.getMethods().stream()
+		List<Map<String, Object>> methodList = model.getMethods().stream()
 				.map(method -> {
 					Map<String, Object> m = new HashMap<>();
 					m.put("JAVA_METHOD_NAME", method.getSurrogateJavaMethodName());
@@ -257,15 +257,15 @@ public final class WrapperStatementBuilder {
 				.collect(Collectors.toList());
 
 		context.put("WRAPPER_METHODS", methodList);
-		context.put("IS_PACKAGE_FORMAT", wrapper.isClassWrapper());
+		context.put("IS_PACKAGE_FORMAT", model.isClassWrapper());
 
         return generateCode("DBN - OJVM SQLWrapper.sql", context);
 	}
 
-	public String buildWrapperCreationStatement(Wrapper wrapper) {
-		List<String> sqlTypes = createSQLTypes(wrapper);
-		String javaCode = createJavaWrapper(wrapper);
-		String sqlWrapper = createSQLWrapper(wrapper);
+	public String buildWrapperCreationStatement(WrapperModel model) {
+		List<String> sqlTypes = createSQLTypes(model);
+		String javaCode = createJavaWrapper(model);
+		String sqlWrapper = createSQLWrapper(model);
 
 		String sqlCode = "BEGIN" + "\n";
 		if (!sqlTypes.isEmpty()) {
@@ -284,24 +284,24 @@ public final class WrapperStatementBuilder {
 		return sqlCode;
 	}
 
-	public String buildWrapperRemovalStatement(Wrapper wrapper) {
+	public String buildWrapperRemovalStatement(WrapperModel model) {
 		Properties properties = new Properties();
 
-		boolean isFunction = wrapper.getMethods().get(0).getReturnParameter() != null
-				&& wrapper.getMethods().get(0).getReturnParameter().getJavaTypeName() != null;
+		boolean isFunction = model.getMethods().get(0).getReturnParameter() != null
+				&& model.getMethods().get(0).getReturnParameter().getJavaTypeName() != null;
 		properties.setProperty("TYPE", isFunction ? "FUNCTION" : "PROCEDURE");
 
-		Set<String> sqlTypeNames = wrapper.getSqlTypeNames();
+		Set<String> sqlTypeNames = model.getSqlTypeNames();
 		String allTypes = String.join(",", sqlTypeNames);
 		properties.setProperty("SQLTYPES", allTypes);
-		properties.setProperty("SQL_WRAPPER_NAME", wrapper.getSqlWrapperName());
-		properties.setProperty("JAVA_WRAPPER_NAME", wrapper.getJavaWrapperName());
+		properties.setProperty("SQL_WRAPPER_NAME", model.getSqlWrapperName());
+		properties.setProperty("JAVA_WRAPPER_NAME", model.getJavaWrapperName());
 		return generateCode("DBN - OJVM SQLCleanup.sql", properties);
 	}
 
 	public String buildSqlToJavaAssignmentLine(FieldWrapper fieldWrapper,
 											   String targetName, String arrayName,
-											   Wrapper wrapper) {
+											   WrapperModel model) {
 		StringBuilder line = new StringBuilder();
 
 		// Determine assignment operator and line terminator based on access modifier.
@@ -325,7 +325,7 @@ public final class WrapperStatementBuilder {
 		String conversionSuffix = "";
 		if (fieldWrapper.isComplexType()) {
 			// For complex types, wrap the SQL element with the proper converter.
-			ClassWrapper classWrapper = wrapper.getFieldClassWrapper(fieldWrapper);
+			ClassWrapper classWrapper = model.getFieldClassWrapper(fieldWrapper);
 			String converterMethod = classWrapper.getSqlToJavaConverterName();
 
 			conversionPrefix = converterMethod + "(" +
@@ -356,7 +356,7 @@ public final class WrapperStatementBuilder {
 
 	public String buildJavaToSqlAssignmentLine(FieldWrapper fieldWrapper,
 											   String targetArray, String javaObj,
-											   Wrapper wrapper) {
+											   WrapperModel model) {
 		StringBuilder line = new StringBuilder();
 
 		// Determine assignment operator and line terminator based on access modifier.
@@ -375,7 +375,7 @@ public final class WrapperStatementBuilder {
 		String conversionEnd = "";
 
 		if(fieldWrapper.isArray() || fieldWrapper.isComplexType()) {
-			ClassWrapper classWrapper = wrapper.getFieldClassWrapper(fieldWrapper);
+			ClassWrapper classWrapper = model.getFieldClassWrapper(fieldWrapper);
 			String converterName = classWrapper.getJavaToSqlConverterName();
 			conversionStart = converterName + "(";
 			conversionEnd = ")";
@@ -398,7 +398,7 @@ public final class WrapperStatementBuilder {
 
 	public String buildSqlArrayToJavaAssignmentLine(ClassWrapper classWrapper,
 													String targetName, String arrayName,
-													String iterator, Wrapper wrapper) {
+													String iterator, WrapperModel model) {
 		StringBuilder line = new StringBuilder();
 
 		// Determine assignment operator and line terminator based on access modifier.
@@ -449,7 +449,7 @@ public final class WrapperStatementBuilder {
 
 	public String buildJavaArrayToSqlAssignmentLine(ClassWrapper classWrapper,
 													String targetSqlArray, String javaArrayName,
-													String iterator, Wrapper wrapper) {
+													String iterator, WrapperModel model) {
 		StringBuilder line = new StringBuilder();
 
 		// Determine assignment operator

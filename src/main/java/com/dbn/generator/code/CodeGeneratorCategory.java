@@ -16,12 +16,14 @@
 
 package com.dbn.generator.code;
 
+import com.dbn.common.constant.Constant;
+
 /**
  * High level categorization of code generators, typically resembling the language of the generated code
  *
  * @author Dan Cioca (Oracle)
  */
-public enum CodeGeneratorCategory {
+public enum CodeGeneratorCategory implements Constant<CodeGeneratorCategory> {
     JAVA
     //...
 }

@@ -20,7 +20,9 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.execution.ExecutionContext;
 import com.dbn.execution.ExecutionOptions;
-import com.dbn.execution.java.wrapper.Wrapper;
+import com.dbn.execution.java.wrapper.WrapperModel;
+import com.dbn.execution.java.wrapper.WrapperModelBuilder;
+import com.dbn.execution.java.wrapper.WrapperModelInput;
 import com.dbn.execution.java.wrapper.WrapperStatementExecutor;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.lookup.DBObjectRef;
@@ -34,19 +36,31 @@ import static com.dbn.common.dispose.Failsafe.nd;
 
 @Getter
 public class JavaExecutionContext extends ExecutionContext<JavaExecutionInput> {
-    private final WrapperStatementExecutor statementExecutor = new WrapperStatementExecutor();
+    private WrapperModel wrapperModel;
 
     public JavaExecutionContext(JavaExecutionInput input) {
         super(input);
     }
 
     public void createExecutionWrappers() throws SQLException {
-        // use technical names during anonymous execution
-        statementExecutor.createExecutionWrappers(getMethod(), false);
+        WrapperModel wrapperModel = initWrapperModel();
+        WrapperStatementExecutor.createExecutionWrappers(wrapperModel);
     }
 
     public void discardExecutionWrappers() throws SQLException {
-        statementExecutor.discardExecutionWrappers(getMethod());
+        WrapperModel wrapperModel = getWrapperModel();
+        WrapperStatementExecutor.discardExecutionWrappers(wrapperModel);
+    }
+
+    public synchronized WrapperModel initWrapperModel() {
+        if (wrapperModel == null) {
+            WrapperModelBuilder modelBuilder = WrapperModelBuilder.getInstance();
+
+            // use technical names during anonymous execution
+            WrapperModelInput wrapperModelInput = new WrapperModelInput(getMethod(), false, true);
+            wrapperModel = modelBuilder.buildModel(wrapperModelInput);
+        }
+        return wrapperModel;
     }
 
     @NotNull
@@ -75,9 +89,5 @@ public class JavaExecutionContext extends ExecutionContext<JavaExecutionInput> {
 
     public ExecutionOptions getOptions() {
         return getInput().getOptions();
-    }
-
-    public Wrapper getWrapper() {
-        return statementExecutor.getWrapper();
     }
 }

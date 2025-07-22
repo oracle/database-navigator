@@ -84,8 +84,6 @@ public interface DatabaseDebuggerInterface extends DatabaseInterface{
 
     ExecutionBacktraceInfo getExecutionBacktraceInfo(DBNConnection connection) throws SQLException;
 
-    String[] getRequiredPrivilegeNames();
-
     String getDebugConsoleTemplate(CodeStyleCaseSettings settings);
 
     String getRuntimeEventReason(int code);

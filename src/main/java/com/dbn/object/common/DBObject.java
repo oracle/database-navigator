@@ -48,6 +48,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static com.dbn.common.util.Commons.nvl;
 
@@ -75,6 +76,8 @@ public interface DBObject extends
     @NotNull
     DBObjectType getObjectType();
 
+    boolean isSchemaObject();
+
     boolean isOfType(DBObjectType objectType);
 
     DBLanguageDialect getLanguageDialect(DBLanguage language);
@@ -93,6 +96,9 @@ public interface DBObject extends
     DBUser getOwner();
 
     <T extends DBObject> T getParentObject();
+
+    @Nullable
+    <T extends DBObject> T getParentObject(Predicate<DBObject> predicate);
 
     <T extends DBObject> DBObjectRef<T> getParentObjectRef();
 

@@ -18,6 +18,7 @@ package com.dbn.connection;
 
 import com.dbn.common.constant.Constants;
 import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.network.NetworkAddress;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Timeout;
 import com.dbn.common.ui.dialog.ExceptionTreeDialog;
@@ -130,11 +131,15 @@ class Connector {
 
 
     private int getConnectTimeout() {
+        int timeout = connectionSettings.getDetailSettings().getConnectivityTimeoutSeconds();
+        int timeoutExtension = 0;
+
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
         boolean driversLoaded = databaseSettings.driversLoaded();
-        int connectTimeoutExtension = driversLoaded ? 0 : 20; // allow 20 seconds for drivers to load
-        int connectTimeout = 300; //connectTimeoutExtension + connectionSettings.getDetailSettings().getConnectivityTimeoutSeconds();
-        return connectTimeout;
+        if (!driversLoaded) timeoutExtension += 30; // allow 30 seconds for drivers to load
+        if (databaseSettings.isInteractiveAuthentication()) timeoutExtension += 120; // allow 2 additional minutes for interactive login
+
+        return timeout + timeoutExtension;
     }
 
 
@@ -258,8 +263,9 @@ class Connector {
                 SshTunnelManager sshTunnelManager = SshTunnelManager.getInstance();
                 SshTunnelConnector sshTunnelConnector = sshTunnelManager.ensureSshConnection(connectionSettings);
                 if (sshTunnelConnector != null) {
-                    String localHost = sshTunnelConnector.getLocalHost();
-                    String localPort = Integer.toString(sshTunnelConnector.getLocalPort());
+                    NetworkAddress localAddress = sshTunnelConnector.getLocalAddress();
+                    String localHost = localAddress.getHost();
+                    String localPort = localAddress.getPortString();
                     connectionUrl = databaseSettings.getConnectionUrl(localHost, localPort);
                 }
             }

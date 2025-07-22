@@ -120,6 +120,12 @@ public class DBVirtualObjectBundle extends StatefulDisposableBase implements DBO
         return null;
     }
 
+    @Override
+    @Nullable
+    public DBSchema getSchema(SchemaId schemaId) {
+        return null;
+    }
+
     @Nullable
     @Override
     public DBSchema getPublicSchema() {

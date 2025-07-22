@@ -25,7 +25,7 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.execution.java.wrapper.JavaExecutionWrapperManager;
-import com.dbn.execution.java.wrapper.Wrapper;
+import com.dbn.execution.java.wrapper.WrapperModel;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.common.DBObject;
@@ -118,8 +118,8 @@ public class JavaClassWrapperAction extends BasicAction {
 		if (connection.isValid()) {
 			try {
 				JavaExecutionWrapperManager wrapperManager = JavaExecutionWrapperManager.getInstance(project);
-				Wrapper wrapper = wrapperManager.createExecutionWrappers(javaClass, selectedMethods, true);
-				wrapperManager.showWrapperResult(wrapper);
+				WrapperModel model = wrapperManager.createExecutionWrappers(javaClass, selectedMethods, true, false);
+				wrapperManager.showWrapperResult(model);
 			} catch (Exception ex) {
 				Messages.showErrorDialog(project,"Error creating execution wrappers for java methods \nCause: " + ex.getMessage());
 				conditionallyLog(ex);

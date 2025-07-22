@@ -16,6 +16,7 @@
 
 package com.dbn.common.ui.util;
 
+import com.dbn.common.dispose.Checks;
 import com.dbn.common.dispose.Disposed;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.routine.Consumer;
@@ -48,6 +49,7 @@ public class Listeners<T/* extends EventListener*/> {
     }
 
     public void notify(Consumer<T> notifier) {
+        cleanup();
         container.stream().filter(l -> l != null).forEach(l -> guarded(notifier, n -> n.accept(l)));
     }
 
@@ -56,6 +58,11 @@ public class Listeners<T/* extends EventListener*/> {
     }
 
     public boolean isEmpty() {
+        cleanup();
         return container.isEmpty();
+    }
+
+    public void cleanup() {
+        container.removeIf(l -> Checks.isNotValid(l));
     }
 }

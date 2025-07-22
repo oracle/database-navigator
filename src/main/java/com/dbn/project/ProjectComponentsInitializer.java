@@ -35,6 +35,7 @@ import com.dbn.execution.compiler.DatabaseCompilerManager;
 import com.dbn.language.common.DBLanguageFileType;
 import com.dbn.object.common.loader.DatabaseLoaderManager;
 import com.dbn.options.ProjectSettingsProvider;
+import com.dbn.prerequisite.DatabasePrerequisiteManager;
 import com.dbn.vfs.DBVirtualFile;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
@@ -102,6 +103,7 @@ public class ProjectComponentsInitializer extends ProjectComponentBase implement
         DatabaseFileEditorManager.getInstance(project);
         AssistantInitializationManager.getInstance(project);
         DatabaseTransactionManager.getInstance(project);
+        DatabasePrerequisiteManager.getInstance(project);
         initialized = true;
     }
 }

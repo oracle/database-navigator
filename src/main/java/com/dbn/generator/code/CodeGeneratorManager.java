@@ -22,8 +22,9 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.outcome.MessageOutcomeHandler;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.outcome.OutcomeType;
-import com.dbn.common.state.GenericStateHolder;
-import com.dbn.common.state.StateHolder;
+import com.dbn.common.state.StateAttributes;
+import com.dbn.common.state.StateCategory;
+import com.dbn.common.state.StateContainer;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.shared.CodeGenerator;
@@ -40,14 +41,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.options.setting.Settings.enumAttribute;
-import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
-import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.util.Editors.openFileEditor;
 import static com.dbn.generator.code.CodeGeneratorManager.COMPONENT_NAME;
 
@@ -58,7 +54,7 @@ import static com.dbn.generator.code.CodeGeneratorManager.COMPONENT_NAME;
 public class CodeGeneratorManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.CodeGeneratorManager";
 
-    private final Map<CodeGeneratorCategory, GenericStateHolder> states = new ConcurrentHashMap<>();
+    private final StateContainer states = new StateContainer();
 
     private CodeGeneratorManager(Project project) {
         super(project, COMPONENT_NAME);
@@ -114,8 +110,9 @@ public class CodeGeneratorManager extends ProjectComponentBase implements Persis
     }
 
     @NotNull
-    public StateHolder getState(CodeGeneratorCategory category) {
-        return states.computeIfAbsent(category, k -> new GenericStateHolder());
+    public StateAttributes getState(CodeGeneratorCategory category) {
+        StateCategory stateCategory = StateCategory.cast(category);
+        return states.ensureAttributes(stateCategory);
     }
 
     /****************************************
@@ -125,28 +122,12 @@ public class CodeGeneratorManager extends ProjectComponentBase implements Persis
     @Override
     public Element getComponentState() {
         Element element = newStateElement();
-        Element statesElement = newElement(element, "generator-states");
-        for (CodeGeneratorCategory category : states.keySet()) {
-            Element stateElement = newElement(statesElement, "generator-state");
-            setEnumAttribute(stateElement, "category", category);
-
-            GenericStateHolder state = states.get(category);
-            state.writeState(stateElement);
-        }
+        states.writeState(element, "generator-states");
         return element;
     }
 
     @Override
     public void loadComponentState(@NotNull Element element) {
-        Element statesElement = element.getChild("generator-states");
-        if (statesElement != null) {
-            for (Element stateElement : statesElement.getChildren("generator-state")) {
-                CodeGeneratorCategory category = enumAttribute(stateElement, "category", CodeGeneratorCategory.class);
-                GenericStateHolder state = new GenericStateHolder();
-                state.readState(stateElement);
-                states.put(category, state);
-            }
-        }
+        states.readState(element, "generator-states");
     }
-
 }
