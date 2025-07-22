@@ -24,11 +24,12 @@ import lombok.Getter;
  */
 @Getter
 public enum SecretType implements Presentable {
-    CONNECTION_PASSWORD("Connection password"),               // connection passwords
-    CONNECTION_AZURE_TOKEN_CLIENT_SECRET("Azure Token Client Secret"), // token client secret for azure
-    SSH_TUNNEL_PASSWORD("SSH tunnel password"),               // password for SSH tunnels
-    SSH_TUNNEL_KEY_PASSPHRASE("SSH tunnel key passphrase"),   // key passphrases for SSH tunnels
-    GENERIC_CREDENTIAL("Generic credential")                  // e.g. database assistant credential tokens
+    CONNECTION_PASSWORD("Connection password"),                                       // connection passwords
+    CONNECTION_AZURE_TOKEN_CLIENT_SECRET("Azure token client secret"),                // token client secret for azure
+    CONNECTION_AZURE_TOKEN_CERTIFICATE_PASSWORD("Azure token certificate password"),  // token certificate password for azure
+    SSH_TUNNEL_PASSWORD("SSH tunnel password"),                                       // password for SSH tunnels
+    SSH_TUNNEL_KEY_PASSPHRASE("SSH tunnel key passphrase"),                           // key passphrases for SSH tunnels
+    GENERIC_CREDENTIAL("Generic credential")                                          // e.g. database assistant credential tokens
     ;
 
     SecretType(String name) {

@@ -322,8 +322,8 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
                 !Commons.match(configuration.getAuthenticationInfo().getTokenProfile(), authSettingsForm.getTokenProfile()) ||
                 !Commons.match(configuration.getAuthenticationInfo().getAzureClientId(), authSettingsForm.getAzureTokenClientId()) ||
                 !Commons.match(configuration.getAuthenticationInfo().getAzureTenantId(), authSettingsForm.getAzureTokenTenantId()) ||
-                !Commons.match(configuration.getAuthenticationInfo().getAzureClientSecretFile(), authSettingsForm.getAzureTokenClientSecretFile()) ||
-                !Commons.match(configuration.getAuthenticationInfo().getAzureClientSecretFilePassword(), authSettingsForm.getAzureClientSecretFilePassword()) ||
+                !Commons.match(configuration.getAuthenticationInfo().getAzureClientCertificateFile(), authSettingsForm.getAzureTokenClientSecretFile()) ||
+                !Commons.match(configuration.getAuthenticationInfo().getAzureClientCertificatePassword(), authSettingsForm.getAzureClientSecretFilePassword()) ||
                 !Commons.match(configuration.getAuthenticationInfo().getAzureClientSecret(), authSettingsForm.getAzureClientSecret()) ||
                 !Commons.match(configuration.getAuthenticationInfo().getAzureDatabaseApplicationIdUri(), authSettingsForm.getAzureTokenDatabaseAppIdUri())
                 ;

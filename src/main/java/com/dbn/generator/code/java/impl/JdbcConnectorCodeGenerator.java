@@ -166,8 +166,8 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         addProperty(properties, "AZURE_TOKEN_CLIENT_ID", authenticationInfo.getAzureClientId());
         addProperty(properties, "AZURE_TOKEN_TENANT_ID", authenticationInfo.getAzureTenantId());
         addProperty(properties, "AZURE_TOKEN_DATABASE_ID_URI", authenticationInfo.getAzureDatabaseApplicationIdUri());
-        addProperty(properties, "AZURE_TOKEN_CLIENT_SECRET_FILE", authenticationInfo.getAzureClientSecretFile());
-        char[] azureClientSecretFilePassword = authenticationInfo.getAzureClientSecretFilePassword();
+        addProperty(properties, "AZURE_TOKEN_CLIENT_SECRET_FILE", authenticationInfo.getAzureClientCertificateFile());
+        char[] azureClientSecretFilePassword = authenticationInfo.getAzureClientCertificatePassword();
         if (Chars.isNotEmpty(azureClientSecretFilePassword)) {
             addProperty(properties, "AZURE_TOKEN_CLIENT_SECRET_FILE_PASSWORD", azureClientSecretFilePassword);
         }

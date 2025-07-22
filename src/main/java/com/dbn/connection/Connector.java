@@ -35,7 +35,6 @@ import com.dbn.connection.ssh.SshTunnelManager;
 import com.dbn.connection.ssl.SslConnectionManager;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
-import com.dbn.diagnostics.DeveloperMode;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -58,7 +57,11 @@ import static com.dbn.common.thread.Dispatch.getCurrentModalityState;
 import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Maps.toProperties;
-import static com.dbn.connection.AuthenticationTokenType.*;
+import static com.dbn.connection.AuthenticationTokenType.AZURE_INTERACTIVE;
+import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
+import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_TOKEN;
+import static com.dbn.connection.AuthenticationTokenType.OCI_API_KEY;
+import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.diagnostics.data.Activity.CONNECT;
 import static com.dbn.nls.NlsResources.txt;
@@ -86,8 +89,8 @@ class Connector {
         String ORACLE_JDBC_TOKEN_AUTHENTICATION = "oracle.jdbc.tokenAuthentication";
         String ORACLE_JDBC_DEBUG_JDWP = "oracle.jdbc.debugJDWP";
         String ORACLE_JDBC_AZURE_DATABASE_APPLICATION_ID_URI = "oracle.jdbc.azureDatabaseApplicationIdUri";
-        String ORACLE_JDBC_AZURE_CLIENT_SECRET_FILE = "oracle.jdbc.clientCertificate";
-        String ORACLE_JDBC_AZURE_CLIENT_SECRET_FILE_PASSWORD = "oracle.jdbc.clientCertificatePassword";
+        String ORACLE_JDBC_AZURE_CLIENT_CERTIFICATE_FILE = "oracle.jdbc.clientCertificate";
+        String ORACLE_JDBC_AZURE_CLIENT_CERTIFICATE_PASSWORD = "oracle.jdbc.clientCertificatePassword";
         String ORACLE_JDBC_AZURE_CLIENT_SECRET = "oracle.jdbc.clientSecret";
         String ORACLE_JDBC_AZURE_CLIENT_ID = "oracle.jdbc.clientId";
         String ORACLE_JDBC_AZURE_TENANT_ID = "oracle.jdbc.tenantId";
@@ -192,12 +195,12 @@ class Connector {
                 } else if (tokenType == AZURE_INTERACTIVE) {
                     properties.put(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_AZURE_INTERACTIVE);
                     properties.put(Property.ORACLE_JDBC_AZURE_DATABASE_APPLICATION_ID_URI, authenticationInfo.getAzureDatabaseApplicationIdUri());
-                } else if (tokenType == AZURE_SERVICE_PRINCIPAL_CERT) {
+                } else if (tokenType == AZURE_SERVICE_PRINCIPAL_CERTIFICATE) {
                     copyCommonAzureServicePrincipalProperties(properties, authenticationInfo);
-                    properties.put(Property.ORACLE_JDBC_AZURE_CLIENT_SECRET_FILE, authenticationInfo.getAzureClientSecretFile());
-                    properties.put(Property.ORACLE_JDBC_AZURE_CLIENT_SECRET_FILE_PASSWORD,
-                            Chars.toStringAcceptEmpty(authenticationInfo.getAzureClientSecretFilePassword()));
-                } else if (tokenType == AZURE_SERVICE_PRINCIPAL_SECRET) {
+                    properties.put(Property.ORACLE_JDBC_AZURE_CLIENT_CERTIFICATE_FILE, authenticationInfo.getAzureClientCertificateFile());
+                    properties.put(Property.ORACLE_JDBC_AZURE_CLIENT_CERTIFICATE_PASSWORD,
+                            Chars.toStringAcceptEmpty(authenticationInfo.getAzureClientCertificatePassword()));
+                } else if (tokenType == AZURE_SERVICE_PRINCIPAL_TOKEN) {
                     copyCommonAzureServicePrincipalProperties(properties, authenticationInfo);
                     properties.put(Property.ORACLE_JDBC_AZURE_CLIENT_SECRET, Chars.toStringAcceptEmpty(authenticationInfo.getAzureClientSecret()));
                 }  else {

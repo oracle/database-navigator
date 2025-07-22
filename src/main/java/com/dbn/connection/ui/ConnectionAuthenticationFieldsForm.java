@@ -55,7 +55,11 @@ import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.Lists.firstElement;
-import static com.dbn.connection.AuthenticationTokenType.*;
+import static com.dbn.connection.AuthenticationTokenType.AZURE_INTERACTIVE;
+import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
+import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_TOKEN;
+import static com.dbn.connection.AuthenticationTokenType.OCI_API_KEY;
+import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
 import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.connection.ui.ConnectionAuthenticationFieldsForm.FieldCategory.CACHEABLE_FIELDS;
@@ -103,7 +107,12 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
         initComboBox(authTypeComboBox, AuthenticationType.values());
         // currently supported token types
-        initComboBox(tokenTypeComboBox, OCI_API_KEY, OCI_INTERACTIVE, AZURE_SERVICE_PRINCIPAL_CERT, AZURE_SERVICE_PRINCIPAL_SECRET, AZURE_INTERACTIVE);
+        initComboBox(tokenTypeComboBox,
+                OCI_API_KEY,
+                OCI_INTERACTIVE,
+                AZURE_SERVICE_PRINCIPAL_CERTIFICATE,
+                AZURE_SERVICE_PRINCIPAL_TOKEN,
+                AZURE_INTERACTIVE);
 
         ActionListener actionListener = e -> updateAuthenticationFields();
         authTypeComboBox.addActionListener(actionListener);
@@ -224,8 +233,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
         authenticationInfo.setAzureClientId(azureClientIdTextField.getText());
         authenticationInfo.setAzureTenantId(azureTenantIdTextField.getText());
-        authenticationInfo.setAzureClientSecretFile(azureClientCertificateFileTextField.getText());
-        authenticationInfo.setAzureClientSecretFilePassword(azureClientCertificateFilePasswordTextField.getPassword());
+        authenticationInfo.setAzureClientCertificateFile(azureClientCertificateFileTextField.getText());
+        authenticationInfo.setAzureClientCertificatePassword(azureClientCertificateFilePasswordTextField.getPassword());
         authenticationInfo.setAzureDatabaseApplicationIdUri(azureAppIdUriTextField.getText());
         authenticationInfo.setAzureClientSecret(azureClientSecretPasswordField.getPassword());
     }
@@ -240,8 +249,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         setSelection(tokenTypeComboBox, authenticationInfo.getTokenType());
 
         azureAppIdUriTextField.setText(authenticationInfo.getAzureDatabaseApplicationIdUri());
-        azureClientCertificateFileTextField.setText(authenticationInfo.getAzureClientSecretFile());
-        azureClientCertificateFilePasswordTextField.setText(Chars.toString(authenticationInfo.getAzureClientSecretFilePassword()));
+        azureClientCertificateFileTextField.setText(authenticationInfo.getAzureClientCertificateFile());
+        azureClientCertificateFilePasswordTextField.setText(Chars.toString(authenticationInfo.getAzureClientCertificatePassword()));
         azureClientIdTextField.setText(authenticationInfo.getAzureClientId());
         azureTenantIdTextField.setText(authenticationInfo.getAzureTenantId());
         azureClientSecretPasswordField.setText(Chars.toString(authenticationInfo.getAzureClientSecret()));
@@ -372,18 +381,18 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     }
 
     private boolean isAzureTokenAuth() {
-        return isTokenAuth() && Commons.isOneOf(getTokenAuthenticationType(), AZURE_SERVICE_PRINCIPAL_CERT, AZURE_SERVICE_PRINCIPAL_SECRET, AZURE_INTERACTIVE);
+        return isTokenAuth() && Commons.isOneOf(getTokenAuthenticationType(), AZURE_SERVICE_PRINCIPAL_CERTIFICATE, AZURE_SERVICE_PRINCIPAL_TOKEN, AZURE_INTERACTIVE);
     }
 
     private boolean isAzureServicePrincipal() {
-        return isAzureTokenAuth() && Commons.isOneOf(getTokenAuthenticationType(), AZURE_SERVICE_PRINCIPAL_CERT, AZURE_SERVICE_PRINCIPAL_SECRET);
+        return isAzureTokenAuth() && Commons.isOneOf(getTokenAuthenticationType(), AZURE_SERVICE_PRINCIPAL_CERTIFICATE, AZURE_SERVICE_PRINCIPAL_TOKEN);
     }
     private boolean isAzureServicePrincipalCertAuth() {
-        return isTokenAuth() && getTokenAuthenticationType() == AZURE_SERVICE_PRINCIPAL_CERT;
+        return isTokenAuth() && getTokenAuthenticationType() == AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
     }
 
     private boolean isAzureServicePrincipalSecretAuth() {
-        return isTokenAuth() && getTokenAuthenticationType() == AZURE_SERVICE_PRINCIPAL_SECRET;
+        return isTokenAuth() && getTokenAuthenticationType() == AZURE_SERVICE_PRINCIPAL_TOKEN;
     }
     @Nullable
     private AuthenticationType getAuthenticationType() {
