@@ -44,10 +44,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Driver;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.notification.NotificationCategory.CONNECTION;
@@ -137,6 +134,10 @@ class Connector {
     private DBNConnection doConnect() {
         //trace(this);
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
+        // we need some of these in the catch condition of this tru
+        Optional<DatabaseCompatibilityInterface> dbCompatibility = Optional.empty();
+        Optional<AuthenticationInfo> authInfo = Optional.empty();
+        Driver driver = null;
         try {
             DatabaseType databaseType = databaseSettings.getDatabaseType();
             if (databaseType == DatabaseType.GENERIC) {
@@ -144,6 +145,7 @@ class Connector {
             }
             DatabaseInterfaces databaseInterfaces = DatabaseInterfacesBundle.get(databaseType);
             DatabaseCompatibilityInterface compatibilityInterface = databaseInterfaces.getCompatibilityInterface();
+            dbCompatibility = Optional.ofNullable(compatibilityInterface);
 
             Map<String, String> implicitProperties = compatibilityInterface.getImplicitConnectionProperties();
             Map<String, String> properties = new HashMap<>(implicitProperties);
@@ -153,7 +155,7 @@ class Connector {
             if (!authenticationInfo.isProvided() && this.authenticationInfo != null) {
                 authenticationInfo = this.authenticationInfo;
             }
-
+            authInfo = Optional.of(authenticationInfo);
             AuthenticationType authenticationType = authenticationInfo.getType();
             if (Constants.isOneOf(authenticationType, AuthenticationType.USER, AuthenticationType.USER_PASSWORD)) {
                 String user = authenticationInfo.getUser();
@@ -209,7 +211,7 @@ class Connector {
             properties.putAll(configProperties);
 
             // DRIVER
-            Driver driver = ConnectionUtil.resolveDriver(databaseSettings);
+            driver = ConnectionUtil.resolveDriver(databaseSettings);
             if (driver == null) {
                 throw new SQLException("Could not resolve driver class.");
             }
@@ -307,6 +309,15 @@ class Connector {
                 connectionStatus.setValid(false);
             }
             exception = toSqlException(e, "Connection error: " + message);
+            // if we have all the info we need, pass this on to the
+            // compatibility layer to see if there is any extra additional processing
+            // necessary.
+            if (dbCompatibility.isPresent() && authInfo.isPresent()) {
+               ConnectionExceptionInfo info = new ConnectionExceptionInfo(e,
+                       driver != null ? driver.getClass().getClassLoader() : null,
+                       authInfo.get());
+               dbCompatibility.get().handleConnectionException(info);
+            }
         }
         return null;
     }

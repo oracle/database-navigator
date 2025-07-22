@@ -17,13 +17,18 @@
 package com.dbn.connection.ui;
 
 import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.message.MessageType;
+import com.dbn.common.text.TextContent;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.form.field.JComponentCategory;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Chars;
 import com.dbn.common.util.Commons;
+import com.dbn.common.util.Sockets;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -36,7 +41,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -45,12 +49,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.form.field.JComponentFilter.accessibleClassifiedAs;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.form.field.JComponentFilter.classifiedAs;
 import static com.dbn.common.ui.form.field.JComponentFilter.inaccessible;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
+import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
@@ -60,8 +66,10 @@ import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
 import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.connection.ui.ConnectionAuthenticationFieldsForm.FieldCategory.CACHEABLE_FIELDS;
+import static com.dbn.database.oracle.OracleCompatibilityInterface.ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT;
 
 public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
+
     enum FieldCategory implements JComponentCategory {
         CACHEABLE_FIELDS,
     }
@@ -78,6 +86,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     private JLabel tokenTypeLabel;
     private JLabel tokenConfigFileLabel;
     private JLabel tokenProfileLabel;
+    private JPanel interactivePortWarningPanel;
 
 
     public ConnectionAuthenticationFieldsForm(@NotNull DBNForm parentComponent) {
@@ -92,9 +101,15 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         initComboBox(authTypeComboBox, AuthenticationType.values());
         initComboBox(tokenTypeComboBox, OCI_API_KEY, OCI_INTERACTIVE); // currently supported token types
 
-        ActionListener actionListener = e -> updateAuthenticationFields();
-        authTypeComboBox.addActionListener(actionListener);
-        tokenTypeComboBox.addActionListener(actionListener);
+        onSelectionChange(authTypeComboBox, v -> updateAuthenticationFields());
+        onSelectionChange(tokenTypeComboBox, v -> updateAuthenticationFields());
+
+        // TODO NLS
+        TextContent interactivePortHintText = plain("TCP port 8181 appears to be bound.\nThis may cause interactive OCI authentication to fail.");
+        DBNHintForm hintForm = new DBNHintForm(this, interactivePortHintText, MessageType.WARNING, true);
+        interactivePortWarningPanel.add(hintForm.getComponent());
+
+        interactivePortWarningPanel.setVisible(false);
 
         initFields();
     }
@@ -140,6 +155,12 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
         // restore values of fields classified as CACHEABLE which are visible and enabled
         fieldAdapter.restoreFieldValues(accessibleClassifiedAs(CACHEABLE_FIELDS));
+
+        // monitor auth type changes and fire a warning
+        // event under Bug_38087045 conditions.
+        Dispatch.async(mainPanel,
+                () -> verifyInteractivePortBinding(),
+                success -> interactivePortWarningPanel.setVisible(!success));
     }
 
     public void setAuthenticationTypes(AuthenticationType ...  authenticationTypes) {
@@ -282,4 +303,18 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         return getSelection(tokenTypeComboBox);
     }
 
+    /**
+     * Checks if the token callback bind port (8181) can be bound.
+     * Used to warn the interactive connectivity option if the port is already bound
+     * @return true if the port is free or binding is irrelevant for the selected authentication type, false otherwise
+     */
+    private boolean verifyInteractivePortBinding() {
+        AuthenticationType authenticationType = getAuthenticationType();
+        AuthenticationTokenType tokenAuthenticationType = getTokenAuthenticationType();
+
+        if (authenticationType != AuthenticationType.TOKEN) return true;
+        if (tokenAuthenticationType != OCI_INTERACTIVE) return true;
+
+        return Sockets.tryToBindPort(OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT);
+    }
 }

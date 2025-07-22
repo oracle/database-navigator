@@ -191,7 +191,12 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         }
 
         ConnectionSettingsForm currentForm = cachedForms.get(currentPanelId);
-        String selectedTabName = currentForm == null ? null : currentForm.getSelectedTabName();
+        // inform the current form that its tab is
+        // being replaced with a different selection
+        String selectedTabName = null;
+        if (currentForm != null) {
+            selectedTabName = currentForm.getSelectedTabName();
+        }
 
         currentPanelId = connectionSettings.getConnectionId().id();
         if (!cachedForms.containsKey(currentPanelId)) {
