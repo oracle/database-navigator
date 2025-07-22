@@ -18,6 +18,7 @@ package com.dbn.connection.ssh;
 
 import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.database.DatabaseInfo;
+import com.dbn.common.network.NetworkAddress;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.ConnectionSshTunnelSettings;
@@ -27,7 +28,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.applicationService;
-import static com.dbn.common.util.Strings.parseInt;
 
 public class SshTunnelManager extends ApplicationComponentBase {
     private final Map<SshTunnelConfig, SshTunnelConnector> sshTunnelConnectors = new ConcurrentHashMap<>();
@@ -56,21 +56,16 @@ public class SshTunnelManager extends ApplicationComponentBase {
     private static SshTunnelConfig createConfig(ConnectionDatabaseSettings databaseSettings, ConnectionSshTunnelSettings sshSettings) {
         DatabaseInfo databaseInfo = databaseSettings.getDatabaseInfo();
 
-        String proxyHost = sshSettings.getHost();
-        int proxyPort = parseInt(sshSettings.getPort(), -1);
-
-        String remoteHost = databaseInfo.getHost();
-        int remotePort = parseInt(databaseInfo.getPort(), -1);
+        NetworkAddress proxyAddress = new NetworkAddress(sshSettings.getHost(), sshSettings.getPort());
+        NetworkAddress remoteAddress = new NetworkAddress(databaseInfo.getHost(), databaseInfo.getPort());
 
         return new SshTunnelConfig(
-                proxyHost,
-                proxyPort,
-                sshSettings.getUser(),
+                proxyAddress,
+                remoteAddress,
                 sshSettings.getAuthType(),
-                sshSettings.getKeyFile(),
-                sshSettings.getKeyPassphrase(),
+                sshSettings.getUser(),
                 sshSettings.getPassword(),
-                remoteHost,
-                remotePort);
+                sshSettings.getKeyFile(),
+                sshSettings.getKeyPassphrase());
     }
 }

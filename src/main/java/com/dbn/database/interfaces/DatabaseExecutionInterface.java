@@ -33,6 +33,7 @@ public interface DatabaseExecutionInterface {
     MethodExecutionProcessor createDebugExecutionProcessor(DBMethod method);
 
     JavaExecutionProcessor createExecutionProcessor(DBJavaMethod method);
+    JavaExecutionProcessor createDebugExecutionProcessor(DBJavaMethod method);
 
     CmdLineExecutionInput createScriptExecutionInput(
             @NotNull CmdLineInterface cmdLineInterface,

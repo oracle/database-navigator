@@ -23,6 +23,7 @@ import com.dbn.database.CmdLineExecutionInput;
 import com.dbn.database.common.execution.JavaExecutionProcessor;
 import com.dbn.database.common.execution.MethodExecutionProcessor;
 import com.dbn.database.interfaces.DatabaseExecutionInterface;
+import com.dbn.database.oracle.execution.OracleJavaDebugExecutionProcessor;
 import com.dbn.database.oracle.execution.OracleJavaExecutionProcessor;
 import com.dbn.database.oracle.execution.OracleMethodDebugExecutionProcessor;
 import com.dbn.database.oracle.execution.OracleMethodExecutionProcessor;
@@ -49,6 +50,10 @@ public final class OracleExecutionInterface implements DatabaseExecutionInterfac
     @Override
     public JavaExecutionProcessor createExecutionProcessor(DBJavaMethod method) {
         return new OracleJavaExecutionProcessor(method);
+    }
+
+    public JavaExecutionProcessor createDebugExecutionProcessor(DBJavaMethod method) {
+        return new OracleJavaDebugExecutionProcessor(method);
     }
 
     @Override

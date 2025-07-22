@@ -44,6 +44,8 @@ public class PostgresExecutionInterface extends DatabaseExecutionInterfaceImpl {
     @Override
     public JavaExecutionProcessor createExecutionProcessor(DBJavaMethod method) {return null;}
 
+    public JavaExecutionProcessor createDebugExecutionProcessor(DBJavaMethod method) {return null;}
+
     @Override
     public CmdLineExecutionInput createScriptExecutionInput(
             @NotNull CmdLineInterface cmdLineInterface,

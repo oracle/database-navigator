@@ -22,6 +22,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
 import com.dbn.debugger.DBDebugConsoleLogger;
 import com.dbn.execution.ExecutionTarget;
+import com.intellij.debugger.impl.PrioritizedTask.Priority;
 import com.intellij.openapi.project.Project;
 
 public interface DBDebugProcess extends Presentable, PropertyHolder<DBDebugProcessStatus> {
@@ -34,4 +35,6 @@ public interface DBDebugProcess extends Presentable, PropertyHolder<DBDebugProce
     DatabaseDebuggerInterface getDebuggerInterface();
 
     ExecutionTarget getExecutionTarget();
+
+    void queueCommand(Priority priority, Runnable command);
 }

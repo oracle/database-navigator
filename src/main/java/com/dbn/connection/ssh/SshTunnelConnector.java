@@ -16,9 +16,11 @@
 
 package com.dbn.connection.ssh;
 
+import com.dbn.common.network.NetworkAddress;
 import com.dbn.common.util.Chars;
 import com.dbn.common.util.Commons;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.future.ConnectFuture;
@@ -30,6 +32,7 @@ import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.apache.sshd.common.util.net.SshdSocketAddress;
 import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.core.CoreModuleProperties;
+import org.apache.sshd.server.forward.AcceptAllForwardingFilter;
 import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
@@ -41,22 +44,29 @@ import java.rmi.ConnectException;
 import java.util.concurrent.TimeUnit;
 
 import static com.dbn.connection.ssh.SshAuthType.KEY_PAIR;
+import static com.dbn.connection.ssh.SshConnections.toSshdSocketAddress;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
 @Getter
+@Setter
 public class SshTunnelConnector {
     private final SshTunnelConfig config;
 
     @NonNls
-    private final String localHost = "localhost";
-    private int localPort;
+    private NetworkAddress localAddress = new NetworkAddress("localhost", 0);
     private ClientSession session;
     private SshClient client;
     private PortForwardingTracker tracker;
+    private boolean reverseTunnel = false;
 
     public SshTunnelConnector(SshTunnelConfig config) {
         this.config = config;
+    }
+
+    public SshTunnelConnector(SshTunnelConfig config, NetworkAddress localAddress) {
+        this.config = config;
+        this.localAddress = localAddress;
     }
 
     public ClientSession connect() throws Exception {
@@ -73,23 +83,35 @@ public class SshTunnelConnector {
     }
 
     private void initPort() throws IOException {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            localPort = serverSocket.getLocalPort();
+        if (localAddress.getPort() == 0) {
+            try (ServerSocket serverSocket = new ServerSocket(0)) {
+                localAddress.setPort(serverSocket.getLocalPort());
+            }
         }
-        log.info("SSH Tunnel Connection - Local port initialised as {}", localPort);
+        log.info("SSH Tunnel Connection - Local port initialised as {}", localAddress.getPort());
     }
 
     private void initClient() {
         client = SshClient.setUpDefaultClient();
+        if (reverseTunnel) {
+            client.setForwardingFilter(AcceptAllForwardingFilter.INSTANCE);
+        }
         client.setServerKeyVerifier((clientSession, remoteAddress, serverKey) -> true); // Disable host key checking (for development/testing)
+
         CoreModuleProperties.SOCKET_KEEPALIVE.set(client, true);
+
         client.start();
         log.info("SSH Tunnel Connection - client initialized");
     }
 
     private void initSession() throws Exception {
-        ConnectFuture future = client.connect(config.getProxyUser(), config.getProxyHost(), config.getProxyPort());
-        session = future.verify(10, TimeUnit.SECONDS).getSession();
+        NetworkAddress proxyAddress = config.getProxyAddress();
+        ConnectFuture future = client.connect(
+                config.getProxyUser(),
+                proxyAddress.getHost(),
+                proxyAddress.getPort());
+
+        session = future.verify(30, TimeUnit.SECONDS).getSession();
         log.info("SSH Tunnel Connection - session initialized");
     }
 
@@ -120,12 +142,17 @@ public class SshTunnelConnector {
     }
 
     private void initTracker() throws IOException {
-        SshdSocketAddress localAddress = new SshdSocketAddress(localHost, localPort);
-        SshdSocketAddress remoteAddress = new SshdSocketAddress(config.getRemoteHost(), config.getRemotePort());
-        SshdSocketAddress boundAddress = session.startLocalPortForwarding(localPort, remoteAddress);
-
+        SshdSocketAddress localAddress = toSshdSocketAddress(this.localAddress);
+        SshdSocketAddress remoteAddress = toSshdSocketAddress(config.getRemoteAddress());
+        SshdSocketAddress boundAddress = startPortForwarding(remoteAddress, localAddress);
         tracker = new ExplicitPortForwardingTracker(session, true, localAddress, remoteAddress, boundAddress);
         log.info("SSH Tunnel Connection - tracker initialized");
+    }
+
+    private SshdSocketAddress startPortForwarding(SshdSocketAddress remoteAddress, SshdSocketAddress localAddress) throws IOException {
+        return reverseTunnel ?
+                session.startRemotePortForwarding(remoteAddress, localAddress) :
+                session.startLocalPortForwarding(localAddress.getPort(), remoteAddress);
     }
 
     public boolean isConnected() {

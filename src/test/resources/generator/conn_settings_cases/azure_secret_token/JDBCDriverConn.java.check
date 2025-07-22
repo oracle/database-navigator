@@ -1,0 +1,142 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.test;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.util.Properties;
+
+/**
+ * Oracle JDBC Connector<br>
+ * This is generated code. The {@link JdbcConnectorAzureSecret#connect()} method is implemented to connect to the
+ * Oracle Database using the appropriate JDBC Driver.
+ *
+ * <p><u>DRIVER LIBRARIES</u></p>
+ * To run this class you will need to integrate the Oracle JDBC Driver libraries in your project<br>
+ * e.g. by using Maven Project Object Model (POM) <a href="https://repo1.maven.org/maven2/com/oracle/database/jdbc/ojdbc11/23.6.0.24.10/ojdbc11-23.6.0.24.10.pom">ojdbc11-23.6.0.24.10.pom</a><br>
+ * Additional features may require other libraries to be added to the runtime. Please read the Oracle JDBC documentation for additional details.
+ *
+ * <p><u>JDBC URL</u></p>
+ * The connection is using a JDBC URL of type "TNS"<br>
+ * URL pattern: "jdbc:oracle:thin:@{TNS_PROFILE}?TNS_ADMIN="{TNS_FOLDER}""<br>
+ * <ul>
+ *   <li>TNS_FOLDER: the location of the tnsnames.ora</li>
+ *   <li>TNS_PROFILE: the name of the profile definition in tnsnames.ora</li>
+ * </ul>
+ *
+ * <p><u>AUTHENTICATION</u></p>
+ * The connection uses "Azure Service Principal with Token Token" authentication (AZURE_SERVICE_PRINCIPAL_SECRET)
+ * Authentication type, Azure OAuth parameters are passed as properties to the driver
+ * <ul>
+ *   <li>Property "oracle.jdbc.tokenAuthentication=AZURE_SERVICE_PRINCIPAL_SECRET": the type of token authentication</li>
+ *   <li>Property "oracle.jdbc.clientId": the client (app) id of the OAuth client app</li>
+ *   <li>Property "oracle.jdbc.tenantId": the tenant id of the OAuth client app</li>
+ *   <li>Property "oracle.jdbc.azureDatabaseApplicationIdUri": the ID URI of the resource app</li>
+   *   <li>Property "oracle.jdbc.clientSecret": the secret token used to authenticate with the resource</li>
+ * </ul>
+ * <p>To run this code, add the following to your pom.xml:</p>
+ *    <p><dependencies>
+ *          <!-- Service Provider which requests tokens from OCI -->
+ *          <dependency>
+ *              <groupId>com.oracle.database.jdbc</groupId>
+ *              <artifactId>ojdbc-provider-oci</artifactId>
+ *              <version>1.0.1</version>
+ *          </dependency>
+ *
+ *          <!-- Service Provider which requests tokens from Azure -->
+ *          <dependency>
+ *              <groupId>com.oracle.database.jdbc</groupId>
+ *              <artifactId>ojdbc-provider-azure</artifactId>
+ *              <version>1.0.1</version>
+ *          </dependency>
+ *
+ *          <!-- Providers will remain compatible with ojdbc 23.4 or newer -->
+ *          <dependency>
+ *              <groupId>com.oracle.database.jdbc</groupId>
+ *              <artifactId>ojdbc11</artifactId>
+ *              <version>23.4.0.24.05</version>
+ *          </dependency>
+ *     </dependencies>
+ *     </p>
+ */
+public class JdbcConnectorAzureSecret  {
+        private static final String PROP_TOKEN_AUTH = "oracle.jdbc.tokenAuthentication";
+        private static final String PROP_AZURE_TOKEN_CLIENT_ID = "oracle.jdbc.clientId";
+        private static final String PROP_AZURE_TOKEN_TENANT_ID = "oracle.jdbc.tenantId";
+        private static final String PROP_AZURE_TOKEN_DATABASE_ID_URI = "oracle.jdbc.azureDatabaseApplicationIdUri";
+           private static final String PROP_AZURE_TOKEN_CLIENT_SECRET_TOKEN = "oracle.jdbc.clientSecret";
+
+    /**
+     * Creates a jdbc connection to the ORACLE database
+     * @return a new {@link Connection}
+     * @throws Exception if something goes wrong
+     */
+    public Connection connect() throws Exception {
+        Properties properties = new Properties();
+
+        // JDBC URL
+        // ORACLE jdbc url: jdbc:oracle:thin:@<TNS_PROFILE>?TNS_ADMIN="<TNS_FOLDER>"
+        String tnsFolder = "/Users/cbateman/git/ojdbc-token-demos-with-secret";
+        String tnsProfile = "azure_db";
+        String jdbcUrl = "jdbc:oracle:thin:@" + tnsProfile + "?TNS_ADMIN=\"" + tnsFolder + "\"";
+
+
+        // AUTHENTICATION
+        properties.put(PROP_TOKEN_AUTH, "AZURE_SERVICE_PRINCIPAL");
+        properties.put(PROP_AZURE_TOKEN_CLIENT_ID, "60ba30aa-f5ec-4c03-98ff-d481cbc738a1");
+        properties.put(PROP_AZURE_TOKEN_TENANT_ID, "5b743bc7-c1e2-4d46-b4b5-a32eddac0286");
+        properties.put(PROP_AZURE_TOKEN_DATABASE_ID_URI, "https://oracledevelopment.onmicrosoft.com/2a0698da-5691-4e06-83bf-fc74c700c04e");
+             String secretToken = System.getProperty(PROP_AZURE_TOKEN_CLIENT_SECRET_TOKEN);
+             properties.put(PROP_AZURE_TOKEN_CLIENT_SECRET_TOKEN, secretToken);
+
+        // PROPERTIES
+    // custom properties (e.g. properties.put("charset", "UTF-8");)
+
+        // DRIVER
+        // ORACLE driver class "oracle.jdbc.OracleDriver"
+        Class<? extends Driver> driverClass = oracle.jdbc.OracleDriver.class;
+        Driver driver = driverClass.getConstructor().newInstance();
+
+        // CONNECTION
+        return driver.connect(jdbcUrl, properties);
+    }
+
+    public static void main(String[] args) {
+        // init secret
+        readSecret();
+
+        JdbcConnectorAzureSecret connector = new JdbcConnectorAzureSecret();
+        try (Connection connection = connector.connect()) {
+            connection.isValid(10);
+            System.out.println("INFO: Successfully connected and validated");
+
+        } catch (Exception e) {
+            System.out.println("ERROR: Failed to connect. Cause:  " + e.getMessage());
+        }
+    }
+
+    /**
+     * Load secret from system environment
+     */
+    private static void readSecret() {
+        String secret = System.getenv("AZURE_TOKEN_CLIENT_SECRET_TOKEN");
+        if (secret == null) {
+            String errorMessage = "Your connection is using Azure Service Principal with secret token authentication," +
+                                    "you must set the value on the AZURE_TOKEN_CLIENT_SECRET_TOKEN environment variable to pass the secret token.";
+            throw new AssertionError(errorMessage);
+        }
+        System.setProperty(PROP_AZURE_TOKEN_CLIENT_SECRET_TOKEN, secret);
+    }
+}

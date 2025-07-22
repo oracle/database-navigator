@@ -39,6 +39,10 @@ public class Chars {
         return chars == null ? null : new String(chars);
     }
 
+    public static String toStringAcceptEmpty(char[] chars) {
+        return chars == null ? new String(EMPTY_ARRAY) : new String(chars);
+    }
+
     public static char[] fromString(String string) {
         return string == null ? null : string.toCharArray();
     }

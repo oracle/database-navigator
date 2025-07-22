@@ -25,18 +25,11 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 public abstract class ManagedThreadCommand extends DebuggerCommandImpl{
-    private final Priority priority;
 
     @Compatibility
     private ManagedThreadCommand(Priority priority) {
         //super(priority); // backward compatibility
-        super();
-        this.priority = priority;
-    }
-
-    @Override
-    public Priority getPriority() {
-        return super.getPriority();
+        super(priority);
     }
 
     public static void schedule(DebugProcess debugProcess, Priority priority, Runnable action) {

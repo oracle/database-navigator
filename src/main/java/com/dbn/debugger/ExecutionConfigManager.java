@@ -22,6 +22,9 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Naming;
+import com.dbn.debugger.common.config.DBJavaRunConfig;
+import com.dbn.debugger.common.config.DBJavaRunConfigFactory;
+import com.dbn.debugger.common.config.DBJavaRunConfigType;
 import com.dbn.debugger.common.config.DBMethodRunConfig;
 import com.dbn.debugger.common.config.DBMethodRunConfigFactory;
 import com.dbn.debugger.common.config.DBMethodRunConfigType;
@@ -30,6 +33,7 @@ import com.dbn.debugger.common.config.DBStatementRunConfig;
 import com.dbn.debugger.common.config.DBStatementRunConfigFactory;
 import com.dbn.debugger.common.config.DBStatementRunConfigType;
 import com.dbn.execution.statement.processor.StatementExecutionProcessor;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import com.intellij.execution.RunManager;
 import com.intellij.execution.RunManagerEx;
@@ -88,11 +92,27 @@ public class ExecutionConfigManager extends ProjectComponentBase implements Pers
         return ContainerUtil.findInstance(configurationTypes, DBStatementRunConfigType.class);
     }
 
+    public DBJavaRunConfigType getJavaConfigurationType() {
+        List<ConfigurationType> configurationTypes = ConfigurationType.CONFIGURATION_TYPE_EP.getExtensionList();
+        return ContainerUtil.findInstance(configurationTypes, DBJavaRunConfigType.class);
+    }
+
     public String createMethodConfigurationName(DBMethod method) {
         DBMethodRunConfigType configurationType = getMethodConfigurationType();
         List<RunnerAndConfigurationSettings> configurationSettings = getRunManager().getConfigurationSettingsList(configurationType);
 
         String name = method.getName();
+        while (nameExists(configurationSettings, name)) {
+            name = Naming.nextNumberedIdentifier(name, true);
+        }
+        return name;
+    }
+
+    public String createJavaMethodConfigurationName(DBJavaMethod javaMethod) {
+        DBJavaRunConfigType configurationType = getJavaConfigurationType();
+        List<RunnerAndConfigurationSettings> configurationSettings = getRunManager().getConfigurationSettingsList(configurationType);
+
+        String name = javaMethod.getName();
         while (nameExists(configurationSettings, name)) {
             name = Naming.nextNumberedIdentifier(name, true);
         }
@@ -116,6 +136,14 @@ public class ExecutionConfigManager extends ProjectComponentBase implements Pers
         DBStatementRunConfigType configType = getStatementConfigurationType();
         DBStatementRunConfigFactory<?, ?> configFactory = configType.getConfigurationFactory(debuggerType);
         DBStatementRunConfig config = configFactory.createConfiguration(executionProcessor);
+
+        return getRunManager().createConfiguration(config, configFactory);
+    }
+
+    public RunnerAndConfigurationSettings createConfiguration(@NotNull DBJavaMethod method, DBDebuggerType debuggerType) {
+        DBJavaRunConfigType configType = getJavaConfigurationType();
+        DBJavaRunConfigFactory<?, ?> configFactory = configType.getConfigurationFactory(debuggerType);
+        DBJavaRunConfig config = configFactory.createConfiguration(method);
 
         return getRunManager().createConfiguration(config, configFactory);
     }

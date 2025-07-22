@@ -33,7 +33,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.xdebugger.XDebuggerBundle;
+import com.intellij.xdebugger.XDebuggerUtil;
 import com.intellij.xdebugger.XSourcePosition;
+import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import com.intellij.xdebugger.breakpoints.XLineBreakpointType;
@@ -44,6 +46,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 
+import static com.dbn.common.action.UserDataKeys.WRAPPER_FILE;
+import static com.dbn.common.action.UserDataKeys.isUserData;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Files.isDbLanguageFile;
 import static com.dbn.common.util.Files.isDbLanguagePsiFile;
@@ -56,10 +60,15 @@ public class DBBreakpointType extends XLineBreakpointType<XBreakpointProperties>
         super("db-program", "DB-Program Breakpoint");
     }
 
+    public static DBBreakpointType get() {
+        return XDebuggerUtil.getInstance().findBreakpointType(DBBreakpointType.class);
+    }
+
     @Override
     public boolean canPutAt(@NotNull VirtualFile file, int line, @NotNull Project project) {
         if (isNotValid(file)) return false;
         if (!isDbLanguageFile(file)) return false;
+        if (isUserData(file, WRAPPER_FILE)) return true;
 
         PsiFile psiFile = PsiUtil.getPsiFile(project, file);
         if (isNotValid(psiFile)) return false;
@@ -133,6 +142,11 @@ public class DBBreakpointType extends XLineBreakpointType<XBreakpointProperties>
     @Override
     public XDebuggerEditorsProvider getEditorsProvider(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint, @NotNull Project project) {
         return DBJdbcDebuggerEditorsProvider.INSTANCE;
+    }
+
+    @Override
+    public XSourcePosition getSourcePosition(@NotNull XBreakpoint<XBreakpointProperties> breakpoint) {
+        return super.getSourcePosition(breakpoint);
     }
 
     @Override

@@ -42,9 +42,6 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import java.util.Map;
 
-import static com.dbn.common.icon.Icons.DIALOG_ERROR;
-import static com.dbn.common.icon.Icons.DIALOG_SUCCESS;
-import static com.dbn.common.icon.Icons.DIALOG_WARNING;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 import static com.dbn.common.util.Actions.createActionToolbar;
 
@@ -110,9 +107,7 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
         String message = messenger.getProgressMessage(batch, null);
 
         MessageType messageType = messenger.getProgressMessageType(batch);
-        Icon icon = messageType == MessageType.SUCCESS ? DIALOG_SUCCESS :
-                    messageType == MessageType.WARNING ? DIALOG_WARNING :
-                    messageType == MessageType.ERROR ?  DIALOG_ERROR : null;
+        Icon icon = messageType.getDialogIcon();
 
         DBNMessageForm messageForm = new DBNMessageForm(this, icon, title, message);
         messagePanel.add(messageForm.getComponent());

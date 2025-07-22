@@ -31,7 +31,7 @@ import com.dbn.execution.ExecutionStatus;
 import com.dbn.execution.java.JavaExecutionContext;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
-import com.dbn.execution.java.wrapper.Wrapper;
+import com.dbn.execution.java.wrapper.WrapperModel;
 import com.dbn.execution.logging.DatabaseLoggingManager;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
@@ -129,9 +129,13 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 	}
 
 	public void initExecutionWrappers(JavaExecutionContext context) throws SQLException {
-		// create java wrapper
-		setProgressDetail("Initializing java execution environment");
-		context.createExecutionWrappers();
+        // the debugger engine creates the wrappers before triggering the method execution
+        // (to allow breakpoints to be set on the wrapper methods)
+        if (context.getDebuggerType() == DBDebuggerType.JDWP) return;
+
+        // create java wrapper
+        setProgressDetail("Initializing java execution environment");
+        context.createExecutionWrappers();
 	}
 
 	private void triggerExecution(JavaExecutionContext context) throws SQLException {
@@ -183,9 +187,9 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 	}
 
 	private void initCommand(JavaExecutionContext context) throws SQLException {
-		Wrapper wrapper = context.getWrapper();
+		WrapperModel wrapperModel = context.getWrapperModel();
 		JavaExecutionInput executionInput = context.getInput();
-		String command = buildExecutionCommand(executionInput, wrapper);
+		String command = buildExecutionCommand(executionInput, wrapperModel);
 		DBNConnection conn = context.getConnection();
 		DBNPreparedStatement<?> statement = !isQuery() ?
 				conn.prepareStatement(command) :
@@ -215,10 +219,10 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 	private void initParameters(JavaExecutionContext context) {
 		if (!isQuery()) return;
 
-		Wrapper wrapper = context.getWrapper();
+		WrapperModel wrapperModel = context.getWrapperModel();
 		JavaExecutionInput executionInput = context.getInput();
 		DBNPreparedStatement statement = context.getStatement();
-		bindParameters(executionInput, statement, wrapper);
+		bindParameters(executionInput, statement, wrapperModel);
 	}
 
 	private void initTimeout(JavaExecutionContext context) throws SQLException {
@@ -294,7 +298,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		return !getMethod().getSignature().split(":")[1].trim().equals("void");
 	}
 
-	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement preparedStatement, Wrapper wrapper) {
+	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement preparedStatement, WrapperModel wrapperModel) {
 
 	}
 
@@ -307,5 +311,5 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		return method.getProject();
 	}
 
-	public abstract String buildExecutionCommand(JavaExecutionInput executionInput, Wrapper wrapper) throws SQLException;
+	public abstract String buildExecutionCommand(JavaExecutionInput executionInput, WrapperModel wrapperModel) throws SQLException;
 }

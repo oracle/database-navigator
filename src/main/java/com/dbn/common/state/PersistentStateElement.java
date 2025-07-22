@@ -35,6 +35,19 @@ public interface PersistentStateElement {
      */
     void writeState(@NonNls Element element);
 
+    default void readState(@NonNls Element parentElement, @NonNls String childName) {
+        Element stateElement = parentElement.getChild(childName);
+        if (stateElement == null) return;
+
+        readState(stateElement);
+    }
+
+    default void writeState(@NonNls Element parentElement, @NonNls String childName) {
+        Element stateElement = newElement(parentElement, childName);
+        writeState(stateElement);
+    }
+
+
     static <T extends PersistentStateElement> T cloneElement(T source, T target) {
         Element element = newElement("Element");
         source.writeState(element);
