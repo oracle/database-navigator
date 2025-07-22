@@ -55,6 +55,13 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
         return fieldsForm.getTokenProfile();
     }
 
+    public String getAzureTokenClientId() {return fieldsForm.getAzureTokenClientId();}
+    public String getAzureTokenTenantId() {return fieldsForm.getAzureTokenTenantId();}
+    public String getAzureTokenClientSecretFile() {return fieldsForm.getAzureTokenClientSecretFile();}
+    public char[] getAzureClientSecretFilePassword() {return fieldsForm.getAzureTokenClientSecretFilePassword();}
+    public String getAzureTokenDatabaseAppIdUri() {return fieldsForm.getAzureTokenDatabaseAppIdUri();}
+    public char[] getAzureClientSecret() {return fieldsForm.getAzureTokenClientSecret();}
+
     public void resetFormChanges() {
         ConnectionDatabaseSettingsForm parent = ensureParentComponent();
         ConnectionDatabaseSettings configuration = parent.getConfiguration();
@@ -66,4 +73,5 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
     public void applyFormChanges(AuthenticationInfo authenticationInfo) {
         fieldsForm.applyFormChanges(authenticationInfo);
     }
+
 }
