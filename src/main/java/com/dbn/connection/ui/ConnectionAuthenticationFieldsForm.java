@@ -89,7 +89,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     private JLabel tokenTypeLabel;
     private JLabel tokenConfigFileLabel;
     private JLabel tokenProfileLabel;
-    private JPanel interactivePortWarningPanel;
+    private JPanel warningPanel;
+
     private JTextField azureClientIdTextField;
     private JTextField azureTenantIdTextField;
     private JTextField azureAppIdUriTextField;
@@ -128,9 +129,9 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         // TODO NLS
         TextContent interactivePortHintText = plain("TCP port 8181 appears to be bound.\nThis may cause interactive OCI authentication to fail.");
         DBNHintForm hintForm = new DBNHintForm(this, interactivePortHintText, MessageType.WARNING, true);
-        interactivePortWarningPanel.add(hintForm.getComponent());
+        warningPanel.add(hintForm.getComponent());
 
-        interactivePortWarningPanel.setVisible(false);
+        warningPanel.setVisible(false);
 
         addSingleFileChooser(
                 getProject(), azureClientCertificateFileTextField,
@@ -216,7 +217,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         // event under Bug_38087045 conditions.
         Dispatch.async(mainPanel,
                 () -> verifyInteractivePortBinding(),
-                success -> interactivePortWarningPanel.setVisible(!success));
+                success -> warningPanel.setVisible(!success));
     }
 
     public void setAuthenticationTypes(AuthenticationType ...  authenticationTypes) {
