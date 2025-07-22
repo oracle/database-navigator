@@ -39,7 +39,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Objects;
 
-import static com.dbn.common.database.AuthenticationInfo.Attributes.*;
+import static com.dbn.common.database.AuthenticationInfo.Attributes.AZURE_TOKEN_CLIENT_ID;
+import static com.dbn.common.database.AuthenticationInfo.Attributes.AZURE_TOKEN_CLIENT_SECRET_FILE;
+import static com.dbn.common.database.AuthenticationInfo.Attributes.AZURE_TOKEN_DATABASE_ID_URI;
+import static com.dbn.common.database.AuthenticationInfo.Attributes.AZURE_TOKEN_TENANT_ID;
+import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_CONFIG_FILE;
+import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_PROFILE;
+import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_TYPE;
 import static com.dbn.common.options.setting.Settings.getChars;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
@@ -96,17 +102,6 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         super(parent);
         this.temporary = temporary;
         SecretsOwnerRegistry.register(this);
-    }
-
-    public void setAzureClientSecret(char[] newSecret) {
-        this.azureClientSecret = newSecret;
-    }
-    public void setPassword(char[] newPassword) {
-        this.password = newPassword;
-    }
-
-    public void setAzureClientSecretFilePassword(char[] newPassword) {
-        this.azureClientSecretFilePassword = newPassword;
     }
 
     public ConnectionId getConnectionId() {
@@ -260,7 +255,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
                 Objects.equals(azureClientId, that.azureClientId) &&
                 Objects.equals(azureTenantId, that.azureTenantId) &&
                 Objects.equals(azureClientSecretFile, that.azureClientSecretFile) &&
-                Objects.equals(azureClientSecretFilePassword, that.azureClientSecretFilePassword) &&
+                Objects.deepEquals(azureClientSecretFilePassword, that.azureClientSecretFilePassword) &&
                 Objects.equals(azureDatabaseApplicationIdUri, that.azureDatabaseApplicationIdUri) &&
                 Objects.deepEquals(azureClientSecret, that.azureClientSecret);
     }
