@@ -45,6 +45,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.connection.AuthenticationTokenType.AZURE_INTERACTIVE;
@@ -106,7 +107,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
         String ORACLE_JDBC_AZURE_CLIENT_ID = "oracle.jdbc.clientId";
         String ORACLE_JDBC_AZURE_TENANT_ID = "oracle.jdbc.tenantId";
         String ORACLE_JDBC_SSL_SERVER_DN_MATCH = "oracle.net.ssl_server_dn_match";
-    }    
+    }
 
     @NonNls
     private interface PropertyValue {
@@ -132,6 +133,10 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
          * around Bug_38087045.
          */
         public static final int FAILURE_ON_PROVIDER_ERROR = 18726;
+        public static final int FAILURE_ON_LOGIN_ERROR = 1017;
+
+        public static final Set<Integer> ORA_FAILURECODES_ON_CONNECTION =
+                Set.of(FAILURE_ON_PROVIDER_ERROR, FAILURE_ON_LOGIN_ERROR);
         /**
          * The URL to poke when the OCI_INTERACTIVE mode has failed due to
          * a bind exception where-in the expect port for token callback is already
@@ -337,7 +342,8 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
         ConnectionExceptionVisitor visitor = new ConnectionExceptionVisitor();
         info.accept(visitor);
         // if a bind exception was thrown or the error was due to n provider failure code
-        if (visitor.hasBindException() || visitor.containsOraErrorCodes(ProviderErrorHandlingConstants.FAILURE_ON_PROVIDER_ERROR)) {
+        if (visitor.hasBindException() ||
+                visitor.containsOraErrorCodes(ProviderErrorHandlingConstants.ORA_FAILURECODES_ON_CONNECTION)) {
             if (info.getAuthenticationInfo().getType() == AuthenticationType.TOKEN) {
                 AuthenticationTokenType tokenType = info.getAuthenticationInfo().getTokenType();
                 if (tokenType == OCI_INTERACTIVE) {

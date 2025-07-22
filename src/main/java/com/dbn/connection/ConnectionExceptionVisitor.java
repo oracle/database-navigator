@@ -74,14 +74,14 @@ public class ConnectionExceptionVisitor implements Visitor<Throwable> {
         return this.hasBindException;
     }
 
-    public boolean containsOraErrorCodes(int theseCodes) {
+    public boolean containsOraErrorCodes(final Set<Integer> theseCodes) {
         if (this.oraErrorCodes != null) {
-            if (this.oraErrorCodes.contains(theseCodes)) {
-                return true;
-            }
+             if (theseCodes.stream().anyMatch(checkCode -> this.oraErrorCodes.contains(checkCode))) {
+                 return true;
+             }
         }
         if (this.oraErrorCodeMessages != null) {
-            if (this.oraErrorCodeMessages.keySet().contains(theseCodes)) {
+            if (theseCodes.stream().anyMatch(checkCode -> this.oraErrorCodes.contains(checkCode))) {
                 return true;
             }
         }
