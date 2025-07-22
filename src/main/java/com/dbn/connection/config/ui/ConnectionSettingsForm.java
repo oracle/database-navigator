@@ -31,14 +31,26 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.ConnectivityStatus;
 import com.dbn.connection.DatabaseType;
-import com.dbn.connection.config.*;
+import com.dbn.connection.config.ConnectionBundleSettings;
+import com.dbn.connection.config.ConnectionConfigType;
+import com.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dbn.connection.config.ConnectionDebuggerSettings;
+import com.dbn.connection.config.ConnectionDetailSettings;
+import com.dbn.connection.config.ConnectionFilterSettings;
+import com.dbn.connection.config.ConnectionPropertiesSettings;
+import com.dbn.connection.config.ConnectionSettings;
+import com.dbn.connection.config.ConnectionSshTunnelSettings;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionListener;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
@@ -46,8 +58,6 @@ import static com.dbn.common.options.ConfigActivity.CLONING;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<ConnectionSettings> {
-    public static final String OCI_BIND_PORT_WARNING = "OCI_BIND_PORT_WARNING";
-    public static final String OCI_OFFER_USER_TOOLKIT_PLUGIN = "OCI_OFFER_USER_TOOLKIT_PLUGIN";
     private JPanel mainPanel;
     private JPanel contentPanel;
     private JPanel headerPanel;
