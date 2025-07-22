@@ -280,7 +280,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                 txt("prc.connection.text.AttemptingConnectionToDatabase", connectionName),
                 progress -> {
             try {
-                DBNConnection connection = ConnectionUtil.connect(connectionSettings, null, authentication, SessionId.TEST, false, null);
+                DBNConnection connection = ConnectionUtil.connect(connectionSettings, null, authentication, SessionId.TEST, false);
                 Resources.close(connection);
                 databaseSettings.setConnectivityStatus(ConnectivityStatus.VALID);
                 if (showMessageDialog) {
@@ -312,7 +312,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                             txt("prc.connection.text.ConnectingToDatabase", connectionName),
                             progress -> {
                                 try {
-                                    DBNConnection connection = ConnectionUtil.connect(connectionSettings, null, authenticationInfo, SessionId.TEST, false, null);
+                                    DBNConnection connection = ConnectionUtil.connect(connectionSettings, null, authenticationInfo, SessionId.TEST, false);
                                     ConnectionInfo connectionInfo = new ConnectionInfo(connection.getMetaData());
                                     Resources.close(connection);
                                     showConnectionInfoDialog(project, connectionInfo, connectionName, environmentType);
