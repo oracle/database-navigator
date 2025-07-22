@@ -53,9 +53,9 @@ public class DBMethodJdbcDebugProcess extends DBJdbcDebugProcess<MethodExecution
     protected void registerDefaultBreakpoint() {
         MethodExecutionInput methodExecutionInput = getExecutionInput();
         DBMethod method = methodExecutionInput.getMethod();
-        if (method != null) {
-            getBreakpointHandler().registerDefaultBreakpoint(method);
-        }
+        if (method == null) return;
+
+        getBreakpointHandler().registerDefaultBreakpoint(method.ref());
 
     }
 

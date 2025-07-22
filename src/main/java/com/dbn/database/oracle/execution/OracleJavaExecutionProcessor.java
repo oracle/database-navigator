@@ -26,7 +26,7 @@ import com.dbn.database.common.execution.JavaExecutionProcessorImpl;
 import com.dbn.database.oracle.OracleTypes;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
-import com.dbn.execution.java.wrapper.Wrapper;
+import com.dbn.execution.java.wrapper.WrapperModel;
 import com.dbn.execution.java.wrapper.model.ClassWrapper;
 import com.dbn.execution.java.wrapper.model.MethodWrapper;
 import com.dbn.execution.java.wrapper.model.ParameterWrapper;
@@ -79,9 +79,9 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	}
 
 	@Override
-	public String buildExecutionCommand(JavaExecutionInput executionInput, Wrapper wrapper) {
+	public String buildExecutionCommand(JavaExecutionInput executionInput, WrapperModel wrapperModel) {
 		boolean procedure = isProcedure();
-		String wrapperName = wrapper.getSqlWrapperName();
+		String wrapperName = wrapperModel.getSqlWrapperName();
 		List<DBJavaParameter> arguments = getArguments();
 
 		StringBuilder buffer = new StringBuilder();
@@ -99,7 +99,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		buffer.append("declare\n");
 
 		if (!procedure) {
-			ParameterWrapper returnParameter = wrapper.getMethods().get(0).getReturnParameter();
+			ParameterWrapper returnParameter = wrapperModel.getMethods().get(0).getReturnParameter();
 			buffer.append("output_arg ")
 					.append(returnParameter.getSqlTypeName())
 					.append(returnParameter.getSqlDeclarationSuffix())
@@ -131,21 +131,21 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
 	@SneakyThrows
 	@Override
-	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement statement, Wrapper wrapper) {
+	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement statement, WrapperModel wrapperModel) {
 		// bind input variables
 		int parameterIndex = 1;
-		MethodWrapper methodWrapper = wrapper.getMethods().get(0);
+		MethodWrapper methodWrapper = wrapperModel.getMethods().get(0);
 		for (DBJavaParameter parameter : getArguments()) {
 
 			String parameterName = parameter.getName();
 			if (parameter.isArray()) {
 				String objectName = methodWrapper.getParameters().get(parameterIndex - 1).getSqlTypeName();
-				Array arrObj = getArrayObject(executionInput, parameter.getJavaClass().getFields(), wrapper, objectName, parameterName);
+				Array arrObj = getArrayObject(executionInput, parameter.getJavaClass().getFields(), wrapperModel, objectName, parameterName);
 				statement.setArray(parameterIndex, arrObj);
 
 			} else if (!parameter.isScalar()) { // TODO support pseudo-primitives com.dbn.object.type.DBJavaValueType
 				String objectName = methodWrapper.getParameters().get(parameterIndex - 1).getSqlTypeName();
-				Object structObj = getStructObject(executionInput, parameter.getJavaClass().getFields(), wrapper, objectName, parameterName);
+				Object structObj = getStructObject(executionInput, parameter.getJavaClass().getFields(), wrapperModel, objectName, parameterName);
 				statement.setObject(parameterIndex, structObj);
 
 			} else {
@@ -196,7 +196,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	}
 
 	@SneakyThrows
-	private Object getStructObject(JavaExecutionInput executionInput, List<DBJavaField> fields, Wrapper wrapper, String objectName, String fieldPath){
+	private Object getStructObject(JavaExecutionInput executionInput, List<DBJavaField> fields, WrapperModel wrapperModel, String objectName, String fieldPath){
 		ConnectionHandler connection = getMethod().getConnection();
 		SessionId targetSessionId = executionInput.getTargetSessionId();
 		SchemaId targetSchemaId = executionInput.getTargetSchemaId();
@@ -209,7 +209,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 			String newFieldPath = fieldPath + "." + field.getName();
 
 			String value = executionInput.getInputValue(newFieldPath);
-			customTypeAttributes[i] = parseValue(executionInput, wrapper, field, newFieldPath, value);
+			customTypeAttributes[i] = parseValue(executionInput, wrapperModel, field, newFieldPath, value);
 			i++;
 		}
 
@@ -225,7 +225,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	}
 
 	@SneakyThrows
-	private Array getArrayObject(JavaExecutionInput executionInput, List<DBJavaField> fields, Wrapper wrapper, String objectName, String fieldPath){
+	private Array getArrayObject(JavaExecutionInput executionInput, List<DBJavaField> fields, WrapperModel wrapperModel, String objectName, String fieldPath){
 		ConnectionHandler connection = getMethod().getConnection();
 		SessionId targetSessionId = executionInput.getTargetSessionId();
 		SchemaId targetSchemaId = executionInput.getTargetSchemaId();
@@ -236,7 +236,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		int i = 0;
 		for (DBJavaField field : fields) {
 			String value = executionInput.getInputValue(fieldPath);
-			customTypeAttributes[i] = parseValue(executionInput, wrapper, field, fieldPath, value);
+			customTypeAttributes[i] = parseValue(executionInput, wrapperModel, field, fieldPath, value);
 			i++;
 		}
 
@@ -252,7 +252,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	}
 
 	@Nullable
-	private Object parseValue(JavaExecutionInput executionInput, Wrapper wrapper, DBJavaField field, String fieldPath, String fieldValue) {
+	private Object parseValue(JavaExecutionInput executionInput, WrapperModel wrapperModel, DBJavaField field, String fieldPath, String fieldValue) {
 		if (field == null) return null;
 
 		@NonNls
@@ -283,17 +283,17 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 			//...
 			default:
 				if (field.isClass()) {
-					String objectName = getTypeName(field, wrapper);
-					return getStructObject(executionInput, field.getJavaClass().getFields(), wrapper, objectName, fieldPath);
+					String objectName = getTypeName(field, wrapperModel);
+					return getStructObject(executionInput, field.getJavaClass().getFields(), wrapperModel, objectName, fieldPath);
 				}
 				return fieldValue;
 		}
 	}
 
-	private String getTypeName(DBJavaField field, Wrapper wrapper) {
+	private String getTypeName(DBJavaField field, WrapperModel wrapperModel) {
 		DBJavaClass javaClass = field.getJavaClass();
 
-		for (ClassWrapper classWrapper : wrapper.getClasses()) {
+		for (ClassWrapper classWrapper : wrapperModel.getClasses()) {
 			if (Objects.equals(classWrapper.getClassName(), javaClass.getCanonicalName())) {
 				return classWrapper.getSqlTypeName();
 			}

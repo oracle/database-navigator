@@ -55,6 +55,7 @@ public class UserDataKeys {
     public static final Key<VirtualFile> BREAKPOINT_FILE = Key.create("DBNavigator.BreakpointFile");
     public static final Key<Boolean> SKIP_BROWSER_AUTOSCROLL = Key.create("DBNavigator.SkipEditorScroll");
     public static final Key<Long> LAST_ANNOTATION_REFRESH = Key.create("DBNavigator.LastAnnotationRefresh");
+    public static final Key<Boolean> WRAPPER_FILE = Key.create("DBNavigator.WrapperFile");
 
     public static final Key<MessageOutcomeHandler> MESSAGE_OUTCOME_HANDLER = Key.create("DBNavigator.MessageOutcomeHandler");
     public static final Key<Map<NotificationCategory, NotificationOutcomeHandler>> NOTIFICATION_OUTCOME_HANDLERS = Key.create("DBNavigator.NotificationOutcomeHandlers");

@@ -19,6 +19,9 @@ package com.dbn.database.sqlite;
 import com.dbn.common.compatibility.Exploitable;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseAttachmentHandler;
+import com.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dbn.connection.config.ConnectionSettings;
+import com.dbn.connection.config.file.DatabaseFile;
 import com.dbn.data.sorting.SortDirection;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.DatabaseObjectTypeId;
@@ -26,6 +29,7 @@ import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
 import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.QuoteDefinition;
 import com.dbn.language.common.QuotePair;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
@@ -34,6 +38,8 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.dbn.common.notification.NotificationCategory.CONNECTION;
+import static com.dbn.common.notification.NotificationSupport.sendErrorNotification;
 import static com.dbn.database.DatabaseFeature.CONNECTION_ERROR_RECOVERY;
 import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -121,6 +127,25 @@ class SqliteCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
                 throw e;
             }
 
+        }
+    }
+
+    @Override
+    public void initConnectorFileAttachments(ConnectionSettings settings, Connection connection) {
+        DatabaseAttachmentHandler attachmentHandler = getDatabaseAttachmentHandler();
+        Project project = settings.getProject();
+        if (attachmentHandler == null) return;
+
+        ConnectionDatabaseSettings databaseSettings = settings.getDatabaseSettings();
+        List<DatabaseFile> attachedFiles = databaseSettings.getDatabaseInfo().getAttachedFiles();
+        for (DatabaseFile databaseFile : attachedFiles) {
+            String filePath = databaseFile.getPath();
+            try {
+                attachmentHandler.attachDatabase(connection, filePath, databaseFile.getSchema());
+            } catch (Exception e) {
+                conditionallyLog(e);
+                sendErrorNotification(project, CONNECTION, txt("ntf.connection.error.UnableToAttachFile", filePath, e));
+            }
         }
     }
 }

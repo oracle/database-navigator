@@ -16,7 +16,7 @@
 
 package com.dbn.sync.java.upload.ui;
 
-import com.dbn.batch.BatchManager;
+import com.dbn.batch.DatabaseBatchManager;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.sync.java.upload.JavaUploadBatch;
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +49,7 @@ public class JavaUploadResultDialog extends DBNDialog<JavaUploadResultForm> {
 		if (!batch.getMessages().hasErrors()) return null;
 
 		return createAction("Show Errors", () -> {
-			BatchManager batchManager = BatchManager.getInstance(getProject());
+			DatabaseBatchManager batchManager = DatabaseBatchManager.getInstance(getProject());
 			batchManager.showErrorDialog(batch);
 
 		});

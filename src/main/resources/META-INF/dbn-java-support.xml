@@ -21,6 +21,7 @@
 
         <programRunner implementation="com.dbn.debugger.jdwp.process.DBMethodJdwpRunner"/>
         <programRunner implementation="com.dbn.debugger.jdwp.process.DBStatementJdwpRunner"/>
+        <programRunner implementation="com.dbn.debugger.jdwp.process.DBJavaJdwpRunner"/>
 
         <projectService serviceImplementation="com.dbn.sync.java.download.JavaDownloadManager"/>
         <projectService serviceImplementation="com.dbn.sync.java.upload.JavaUploadManager"/>

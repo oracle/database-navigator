@@ -17,6 +17,7 @@
 package com.dbn.execution.java.wrapper.model;
 
 import com.dbn.common.util.Naming;
+import com.dbn.execution.java.wrapper.WrapperModel;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBSchema;
@@ -42,7 +43,8 @@ public class MethodWrapper extends EntityWrapper {
     private List<ParameterWrapper> parameters = new ArrayList<>();
     private ParameterWrapper returnParameter;
 
-    public MethodWrapper(DBJavaMethod javaMethod) {
+    public MethodWrapper(WrapperModel model, DBJavaMethod javaMethod) {
+        super(model);
         this.javaMethod = DBObjectRef.of(javaMethod);
         this.sqlMethod = initSqlMethod(javaMethod);
         surrogateJavaMethodName = javaMethod.getName().replace("#", "_");

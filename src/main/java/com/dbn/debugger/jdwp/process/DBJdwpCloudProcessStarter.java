@@ -17,6 +17,7 @@
 package com.dbn.debugger.jdwp.process;
 
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.network.NetworkAddress;
 import com.dbn.common.util.Classes;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
@@ -61,6 +62,7 @@ import java.util.Properties;
 
 import static com.dbn.common.util.Lists.first;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.debugger.JDWPTunnelType.TCP_DRIVER_TUNNEL;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -152,7 +154,9 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
         ExecutionEnvironment environment = ExecutionEnvironmentBuilder.create(project, executor, runProfile).build();
         String host = extractHost(jdwpHostPort);
         String port = extractPort(jdwpHostPort);
-        DBJdwpTcpConfig tcpConfig = new DBJdwpTcpConfig(host, Integer.parseInt(port), true);
+        NetworkAddress localAddress = new NetworkAddress(host, port);
+
+        DBJdwpTcpConfig tcpConfig = new DBJdwpTcpConfig(localAddress, TCP_DRIVER_TUNNEL);
         RemoteConnection remoteConnection = new RemoteConnection(true, host, port, false);
 
         RunProfileState state = Failsafe.nn(runProfile.getState(executor, environment));

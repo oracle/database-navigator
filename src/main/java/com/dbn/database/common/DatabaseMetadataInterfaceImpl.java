@@ -639,4 +639,24 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
             Resources.close(resultSet);
         }
     }
+
+    @Override
+    public boolean hasSystemPrivilege(String privilegeName, DBNConnection connection) throws SQLException {
+        return getBooleanValue(connection, "has-system-privilege", privilegeName);
+    }
+
+    @Override
+    public boolean hasObjectPrivilege(String privilegeName, String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return getBooleanValue(connection, "has-object-privilege", privilegeName, ownerName, objectName);
+    }
+
+    @Override
+    public boolean hasNetworkPrivilege(String userName, String hostName, String privilegeName, DBNConnection connection) throws SQLException {
+        return getBooleanValue(connection, "has-network-privilege", userName, hostName, privilegeName);
+    }
+
+    @Override
+    public void grantNetworkPrivilege(String userName, String hostName, String privilegeName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "grant-network-privilege", userName, hostName, privilegeName);
+    }
 }

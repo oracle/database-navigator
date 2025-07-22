@@ -16,6 +16,7 @@
 
 package com.dbn.common.exception;
 
+import com.dbn.common.lookup.Visitor;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,6 +27,8 @@ import java.sql.SQLNonTransientConnectionException;
 import java.sql.SQLTimeoutException;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -107,6 +110,24 @@ public class Exceptions {
 
     public static void illegalState(@NonNls String message) {
         throw new IllegalStateException(message);
+    }
+
+    /**
+     * Visit the cause chaing of t using visitor
+     * @param visitor
+     * @param t
+     */
+    public static void accept(Visitor<Throwable> visitor, Throwable t) {
+        Set<Throwable> visited = new HashSet<>();
+        while (t != null && !visited.contains(t)) {
+            visited.add(t);
+            visitor.visit(t);
+            t = t.getCause();
+        }
+    }
+
+    public static String getMessage(Throwable e) {
+        return nvl(e.getMessage(), simpleClassName(e));
     }
 
     public static Throwable unwrap(Throwable throwable) {

@@ -18,7 +18,7 @@ package com.dbn.sync.java.download.ui;
 
 import com.dbn.common.file.VirtualFilePresentable;
 import com.dbn.common.project.ModulePresentable;
-import com.dbn.common.state.StateHolder;
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -113,7 +113,7 @@ public class JavaDownloadInputForm extends DBNFormBase {
         Project project = ensureProject();
         JavaDownloadManager javaDownloadManager = JavaDownloadManager.getInstance(project);
 
-        StateHolder state = javaDownloadManager.getState("DOWNLOAD");
+        StateAttributes state = javaDownloadManager.getState("DOWNLOAD_INPUT");
 
         initPersistence(moduleComboBox, state, "module-selection");
         initPersistence(contentRootComboBox, state, "content-root-selection");

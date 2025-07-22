@@ -297,8 +297,14 @@ public class UserInterface {
 
     public static void updateScrollPanes(JComponent component) {
         visitRecursively(component, JScrollPane.class, sp -> {
-            sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-            sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            Integer hsp = ClientProperty.HORIZONTAL_SCROLL_POLICY.get(sp);
+            Integer vsp = ClientProperty.VERTICAL_SCROLL_POLICY.get(sp);
+
+            hsp = nvl(hsp, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            vsp = nvl(vsp, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+            sp.setHorizontalScrollBarPolicy(hsp);
+            sp.setVerticalScrollBarPolicy(vsp);
             sp.setBorder(isBorderlessPane(sp) ? null : Borders.COMPONENT_OUTLINE_BORDER);
 
             sp.setRequestFocusEnabled(false);
