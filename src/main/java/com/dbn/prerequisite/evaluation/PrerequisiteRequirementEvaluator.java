@@ -18,7 +18,7 @@ package com.dbn.prerequisite.evaluation;
 
 import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.connection.context.DatabaseContext;
-import com.dbn.prerequisite.model.PrerequisiteType;
+import com.dbn.prerequisite.model.PrerequisiteMandate;
 import com.intellij.openapi.extensions.ExtensionPointName;
 import com.intellij.openapi.project.DumbAware;
 
@@ -29,6 +29,7 @@ public interface PrerequisiteRequirementEvaluator extends DumbAware {
 
     /**
      * Resolves the prerequisite types, necessary for a given database operation in a specified database context.
+     * (the prerequisite types are wrapped as {@link PrerequisiteMandate} to allow the reason of the prerequisite in the given context)
      *
      * @param context   the database context that provides details such as connection, session, and schema to evaluate
      *                  and determine applicable prerequisites.
@@ -37,5 +38,5 @@ public interface PrerequisiteRequirementEvaluator extends DumbAware {
      * @return a list of {@code PrerequisiteDefinition} objects representing the prerequisites that should be met
      * before executing the specified database operation. Returns an empty array if no prerequisites are found.
      */
-    List<PrerequisiteType> resolvePrerequisites(DatabaseContext context, DatabaseOperation operation);
+    List<PrerequisiteMandate> resolvePrerequisites(DatabaseContext context, DatabaseOperation operation);
 }

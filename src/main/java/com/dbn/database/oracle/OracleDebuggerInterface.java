@@ -185,12 +185,6 @@ public class OracleDebuggerInterface extends DatabaseDebuggerInterfaceImpl imple
 
     @NonNls
     @Override
-    public String[] getRequiredPrivilegeNames() {
-        return new String[]{"DEBUG CONNECT SESSION", "DEBUG ANY PROCEDURE"};
-    }
-
-    @NonNls
-    @Override
     public String getDebugConsoleTemplate(CodeStyleCaseSettings settings) {
         CodeStyleCaseOption kco = settings.getKeywordCaseOption();
         CodeStyleCaseOption oco = settings.getObjectCaseOption();
@@ -257,6 +251,7 @@ public class OracleDebuggerInterface extends DatabaseDebuggerInterfaceImpl imple
             case DATABASE_TRIGGER: objectTypeName = "Trigger"; break;
             case DATASET_TRIGGER: objectTypeName = "Trigger"; break;
             case TYPE: objectTypeName = contentType == DBContentType.CODE_SPEC ? "TypeSpec" : "TypeBody"; break;
+            case JAVA_CLASS: objectTypeName = "JavaClass"; break; // TODO JDBC-4447 confirm correct identifier
         }
         return "$Oracle." + objectTypeName + "." + qualifiedObjectName;
     }

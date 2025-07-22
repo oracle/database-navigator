@@ -43,6 +43,18 @@ public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinition
 
     protected abstract @NonNls String getPrivilegeName();
 
+    /**
+     * Provides an alternative privilege type, which can be utilized as a fallback
+     * when checking or evaluating prerequisite requirements (typically a
+     * much higher privilege that implies the default one).
+     *
+     * @return the alternative {@link PrerequisiteType}, or null if no
+     * alternative privilege is defined.
+     */
+    public PrerequisiteType getAlternativeType() {
+        return null;
+    }
+
     @NotNull
     @Override
     public PrerequisiteDefinition createDefinition(PrerequisiteEvaluator evaluator, PrerequisiteResolver resolver, PrerequisiteAdvisor advisor) {
@@ -50,7 +62,8 @@ public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinition
         return new PrerequisiteDefinitionBase(
                 txt("app.prerequisite.title.SystemPrivilege", privilegeName),
                 txt("app.prerequisite.text.SystemPrivilege", privilegeName),
-                getPrerequisiteType(),
+                getType(),
+                getAlternativeType(),
                 PrerequisiteCategory.GRANT,
                 evaluator,
                 resolver,
@@ -62,7 +75,6 @@ public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinition
     protected PrerequisiteEvaluator createEvaluator() {
         return context -> {
             String privilegeName = getPrivilegeName();
-
             DatabaseMetadataInterface metadataInterface = context.getMetadataInterface();
             return DatabaseInterfaceInvoker.load(Priority.HIGH,
                     txt("prc.prerequisite.title.CheckingSystemPrivilege"),
@@ -89,7 +101,7 @@ public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinition
 
             return new PrerequisiteAdvice(
                     "Request privilege",
-                    "request " + privilegeName + " system privilege",
+                    "" + privilegeName + " system privilege",
                     String.format("grant %s to %s;", privilegeName, userName));
         };
     }

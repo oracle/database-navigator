@@ -19,6 +19,7 @@ package com.dbn.common.util;
 import com.dbn.common.routine.ParametricCallable;
 import com.dbn.common.routine.ParametricRunnable;
 import com.dbn.common.routine.ThrowableCallable;
+import com.dbn.common.routine.ThrowableConsumer;
 import com.dbn.common.routine.ThrowableRunnable;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import lombok.experimental.UtilityClass;
@@ -146,5 +147,24 @@ public final class Unsafe {
         }
         return defaultValue;
     }
-
+    /**
+     * Executes a callable by passing Consumer that takes the subject object as an argument,
+     * handling any exceptions thrown during its execution.
+     * If an exception occurs, it logs the exception.
+     *
+     * @param <T> the type of the subject consumed by the callable
+     * @param subject the subject object to consume
+     * @param callable the callable to execute, which may throw a Throwable
+     */
+    public static <T> void warned(T subject, ThrowableConsumer<T, Exception> callable) {
+        try {
+             callable.accept(subject);
+        } catch (ProcessCanceledException e) {
+            conditionallyLog(e);
+        } catch (Throwable e) {
+            conditionallyLog(e);
+            String message = e.getMessage();
+            log.warn(message == null ? simpleClassName(e) : message);
+        }
+    }
 }

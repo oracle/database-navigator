@@ -44,6 +44,11 @@ public abstract class NetworkAccessPrerequisite extends PrerequisiteDefinitionPr
         super(prerequisiteType);
     }
 
+    @Override
+    public PrerequisiteType getAlternativeType() {
+        return null;
+    }
+
     @NotNull
     @Override
     protected PrerequisiteEvaluator createEvaluator() {
@@ -73,7 +78,8 @@ public abstract class NetworkAccessPrerequisite extends PrerequisiteDefinitionPr
         return new PrerequisiteDefinitionBase(
                 txt("app.prerequisite.title.NetworkPrivilege", privilegeName, hostName),
                 txt("app.prerequisite.text.NetworkPrivilege", privilegeName, hostName),
-                getPrerequisiteType(),
+                getType(),
+                getAlternativeType(),
                 PrerequisiteCategory.GRANT,
                 evaluator,
                 resolver,
@@ -113,7 +119,7 @@ public abstract class NetworkAccessPrerequisite extends PrerequisiteDefinitionPr
 
             return new PrerequisiteAdvice(
                     "Request privilege",
-                    "request \"" + privilegeName + "\" network privilege for host \"" + hostName + "\"",
+                    "\"" + privilegeName + "\" network privilege for host \"" + hostName + "\"",
                     String.format("BEGIN\n" +
                             "   DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(\n" +
                             "       host =>  '%s',\n" +

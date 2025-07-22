@@ -42,6 +42,10 @@ public abstract class ObjectPrivilegePrerequisite extends PrerequisiteDefinition
         super(prerequisiteType);
     }
 
+    @Override
+    public PrerequisiteType getAlternativeType() {
+        return null;
+    }
 
     protected abstract @NonNls String getOwnerName();
     protected abstract @NonNls String getObjectName();
@@ -62,7 +66,8 @@ public abstract class ObjectPrivilegePrerequisite extends PrerequisiteDefinition
         return new PrerequisiteDefinitionBase(
                 txt("app.prerequisite.title.ObjectPrivilege", privilegeName, ownerName, objectName),
                 txt("app.prerequisite.text.ObjectPrivilege", privilegeName, ownerName, objectName),
-                getPrerequisiteType(),
+                getType(),
+                getAlternativeType(),
                 PrerequisiteCategory.GRANT,
                 evaluator,
                 resolver,
@@ -105,7 +110,7 @@ public abstract class ObjectPrivilegePrerequisite extends PrerequisiteDefinition
 
             return new PrerequisiteAdvice(
                     "Request privilege",
-                    "request " + privilegeName + " privilege on " + ownerName + "." + objectName + " object",
+                    "" + privilegeName + " privilege on " + ownerName + "." + objectName + " object",
                     String.format("grant %s on %s.%s to %s;", privilegeName, ownerName, objectName, userName));
         };
     }

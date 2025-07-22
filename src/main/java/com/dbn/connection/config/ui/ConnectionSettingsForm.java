@@ -63,7 +63,6 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
     private JPanel headerPanel;
     private JButton infoButton;
     private JButton testButton;
-
     private DBNTabbedPane tabbedPane;
     private DBNHeaderForm headerForm;
 
@@ -131,6 +130,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
 
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
     }
+
 
     public ConnectionSettings getTemporaryConfig() throws ConfigurationException {
         try {

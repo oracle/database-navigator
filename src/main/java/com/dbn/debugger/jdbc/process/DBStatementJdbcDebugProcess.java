@@ -26,6 +26,7 @@ import com.dbn.execution.statement.StatementExecutionManager;
 import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.object.DBMethod;
 import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.xdebugger.XDebugSession;
 import org.jetbrains.annotations.NotNull;
@@ -52,7 +53,7 @@ public class DBStatementJdbcDebugProcess extends DBJdbcDebugProcess<StatementExe
         DBStatementRunConfig runConfiguration = (DBStatementRunConfig) getSession().getRunProfile();
         if (runConfiguration == null) return;
 
-        List<DBMethod> methods = runConfiguration.getMethods();
+        List<DBObjectRef<DBMethod>> methods = runConfiguration.getMethodRefs();
         if (methods.isEmpty()) return;
 
         getBreakpointHandler().registerDefaultBreakpoint(methods.get(0));

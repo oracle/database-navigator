@@ -22,6 +22,7 @@ import com.dbn.prerequisite.definition.PrerequisiteDefinition;
 public interface Prerequisite extends Presentable {
     String getName();
     PrerequisiteType getType();
+    PrerequisiteType getAlternativeType();
     PrerequisiteDefinition getDefinition();
     PrerequisiteStatus getStatus();
     String getStatusMessage();

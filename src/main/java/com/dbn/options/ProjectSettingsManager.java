@@ -38,6 +38,7 @@ import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.ConnectionSshTunnelSettings;
+import com.dbn.connection.config.ReverseSshTunnelConfiguration;
 import com.dbn.connection.config.tns.TnsImportData;
 import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.data.grid.options.DataGridSettings;
@@ -186,6 +187,10 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
             // SSH TUNNEL PASSWORDS
             ConnectionSshTunnelSettings sshTunnelSettings = connection.getSshTunnelSettings();
             sshTunnelSettings.initSecrets();
+
+            // DEBUGGER REVERSE SSH TUNNEL PASSWORDS
+            ReverseSshTunnelConfiguration reverseTunnelSettings = connection.getDebuggerSettings().getReverseSshTunnelConfig();
+            reverseTunnelSettings.initSecrets();
         }
 
         // LOCAL CREDENTIALS
