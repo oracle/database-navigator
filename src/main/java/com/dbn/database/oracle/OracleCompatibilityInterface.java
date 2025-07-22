@@ -16,19 +16,28 @@
 
 package com.dbn.database.oracle;
 
+import com.dbn.common.thread.Background;
+import com.dbn.common.util.Sockets;
+import com.dbn.connection.AuthenticationTokenType;
+import com.dbn.connection.AuthenticationType;
+import com.dbn.connection.ConnectionExceptionInfo;
+import com.dbn.connection.ConnectionExceptionVisitor;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
+import com.dbn.diagnostics.Diagnostics;
 import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.QuoteDefinition;
 import com.dbn.language.common.QuotePair;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
 import static com.dbn.database.DatabaseFeature.AI_ASSISTANT;
 import static com.dbn.database.DatabaseFeature.AUTHID_METHOD_EXECUTION;
 import static com.dbn.database.DatabaseFeature.CONNECTION_ERROR_RECOVERY;
@@ -63,6 +72,50 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 @Slf4j
 public class OracleCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
     public static final QuoteDefinition IDENTIFIER_QUOTE_DEFINITION = new QuoteDefinition(new QuotePair('"', '"'));
+
+    /**
+     * Encapsulates constants used in handling connection errors related to issues
+     * in the Oracle JDBC driver "provider" framework
+     */
+    public static class ProviderErrorHandlingConstants {
+        /**
+         * The TCP port that the OCI_INTERACTIVE token provider needs to bind
+         * in order to receive a response from the browser.
+         */
+        public static final int OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT = 8181;
+        /**
+         * The ORA error code we look for to indicate that a connection attempt
+         * has failed due to a general provider issue.  This includes issues
+         * around Bug_38087045.
+         */
+        public static final int FAILURE_ON_PROVIDER_ERROR = 18726;
+        /**
+         * The URL to poke when the OCI_INTERACTIVE mode has failed due to
+         * a bind exception where-in the expect port for token callback is already
+         * bound or where the user cancels or lets the connection auth expire and
+         * the provider blocks forever waiting for a call that will never come.
+         * Calling a GET on this url can work around the problem by simulating an
+         * expected call on the token web server and awaking the blocked thread
+         * into a failure code.
+         */
+        public static final String OCI_INTERACTIVE_WEB_SERVER_POKE_URL = "http://localhost:8181/token?";
+        /**
+         * The class name of the class to call clearAllCaches on (see below) when
+         * the provider cache is suspected of being stuck in a permanent failure
+         * state.
+         */
+        public static final String ORACLE_JDBC_PROVIDER_CACHE_CACHE_CONTROLLER_CLASSNAME = "oracle.jdbc.provider.cache.CacheController";
+        /**
+         * Certain calls that are serviced by certain providers can fail in the provider code
+         * and this failure gets stuck in the caching mechanism of the provider framework.
+         * When this happens, the provider cache will continue to throw the same error
+         * regardless of whether the original failure condition has been cleared.  At this
+         * point, at least until there is a fix, the only solution is to call
+         * CacheController.clearAllCaches() in the classloader of the failing Driver.
+         * This is the name of that method.
+         */
+        public static final String CLEAR_ALL_CACHES_METHOD_NAME = "clearAllCaches";
+    }
 
     @Override
     public boolean supportsObjectType(DatabaseObjectTypeId objectTypeId) {
@@ -161,5 +214,53 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 "oracle.net.TCP_KEEPIDLE", "30",
                 "oracle.net.TCP_KEEPINTERVAL", "30",
                 "oracle.net.TCP_KEEPCOUNT", "5");
+    }
+
+    @Override
+    public boolean handleConnectionException(final ConnectionExceptionInfo info) {
+        ConnectionExceptionVisitor visitor = new ConnectionExceptionVisitor();
+        info.accept(visitor);
+        // if a bind exception was thrown or the error was due to n provider failure code
+        if (visitor.hasBindException() || visitor.containsOraErrorCodes(ProviderErrorHandlingConstants.FAILURE_ON_PROVIDER_ERROR)) {
+            if (info.getAuthenticationInfo().getType() == AuthenticationType.TOKEN) {
+                AuthenticationTokenType tokenType = info.getAuthenticationInfo().getTokenType();
+                if (tokenType == OCI_INTERACTIVE) {
+                    Background.run(() -> resetOciInteractiveConnection(info));
+                }
+            }
+        }
+        return false;
+    }
+
+    private static void resetOciInteractiveConnection(ConnectionExceptionInfo info) {
+        // TODO: use a backoff and retry?
+        // unfreeze the busy socket (e.g. when auth browser is left unattended or closed without completing the authentication)
+        if (!Sockets.tryToBindPort(ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT)) {
+            /**
+             *  @see ProviderErrorHandlingConstants.OCI_INTERACTIVE_WEB_SERVER_POKE_URL
+             */
+            Sockets.pokeWebServer(
+                    ProviderErrorHandlingConstants.OCI_INTERACTIVE_WEB_SERVER_POKE_URL);
+        }
+
+        // clear the provider caches holding unsuccessful authentication state
+        try {
+            /**
+             * @see ProviderErrorHandlingConstants.CLEAR_ALL_CACHES_METHOD_NAME
+             */
+            ClassLoader classLoader = info.getClassLoader();
+            if (classLoader != null) {
+                Class<?> cacheControllerClass =
+                        Class.forName(
+                                ProviderErrorHandlingConstants.ORACLE_JDBC_PROVIDER_CACHE_CACHE_CONTROLLER_CLASSNAME, true, classLoader);
+                Method clearAllCaches = cacheControllerClass.getMethod(ProviderErrorHandlingConstants.CLEAR_ALL_CACHES_METHOD_NAME);
+                clearAllCaches.invoke(null, new Object[0]);
+            }
+            else {
+                Diagnostics.conditionallyLog(new NullPointerException("classLoader was null"));
+            }
+        } catch (final Exception e) {
+            Diagnostics.conditionallyLog(e);
+        }
     }
 }
