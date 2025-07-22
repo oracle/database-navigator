@@ -16,12 +16,19 @@
 
 package com.dbn.database.oracle;
 
+import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.thread.Background;
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Sockets;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionExceptionInfo;
 import com.dbn.connection.ConnectionExceptionVisitor;
+import com.dbn.connection.ConnectionType;
+import com.dbn.connection.ConnectorProperties;
+import com.dbn.connection.SessionId;
+import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
@@ -30,6 +37,8 @@ import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.QuoteDefinition;
 import com.dbn.language.common.QuotePair;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -37,6 +46,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.connection.AuthenticationTokenType.AZURE_INTERACTIVE;
+import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
+import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_TOKEN;
+import static com.dbn.connection.AuthenticationTokenType.OCI_API_KEY;
 import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
 import static com.dbn.database.DatabaseFeature.AI_ASSISTANT;
 import static com.dbn.database.DatabaseFeature.AUTHID_METHOD_EXECUTION;
@@ -72,6 +86,32 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 @Slf4j
 public class OracleCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
     public static final QuoteDefinition IDENTIFIER_QUOTE_DEFINITION = new QuoteDefinition(new QuotePair('"', '"'));
+
+    private interface Property {
+        String SESSION_PROGRAM = "v$session.program";
+
+        String ORACLE_JDBC_OCI_PROFILE = "oracle.jdbc.ociProfile";
+        String ORACLE_JDBC_OCI_CONFIG_FILE = "oracle.jdbc.ociConfigFile";
+        // if this value is set, it puts the driver into on of the token auth
+        // modes based setting one of PropertyValue.TOKEN_AUTHENTICATION_*
+        String ORACLE_JDBC_TOKEN_AUTHENTICATION = "oracle.jdbc.tokenAuthentication";
+        String ORACLE_JDBC_DEBUG_JDWP = "oracle.jdbc.debugJDWP";
+        String ORACLE_JDBC_AZURE_DATABASE_APPLICATION_ID_URI = "oracle.jdbc.azureDatabaseApplicationIdUri";
+        String ORACLE_JDBC_AZURE_CLIENT_CERTIFICATE_FILE = "oracle.jdbc.clientCertificate";
+        String ORACLE_JDBC_AZURE_CLIENT_CERTIFICATE_PASSWORD = "oracle.jdbc.clientCertificatePassword";
+        String ORACLE_JDBC_AZURE_CLIENT_SECRET = "oracle.jdbc.clientSecret";
+        String ORACLE_JDBC_AZURE_CLIENT_ID = "oracle.jdbc.clientId";
+        String ORACLE_JDBC_AZURE_TENANT_ID = "oracle.jdbc.tenantId";
+        String ORACLE_JDBC_SSL_SERVER_DN_MATCH = "oracle.net.ssl_server_dn_match";
+    }    
+
+    @NonNls
+    private interface PropertyValue {
+        String TOKEN_AUTHENTICATION_OCI_API_KEY = "OCI_API_KEY";
+        String TOKEN_AUTHENTICATION_OCI_INTERACTIVE = "OCI_INTERACTIVE";
+        String TOKEN_AUTHENTICATION_AZURE_INTERACTIVE = "AZURE_INTERACTIVE";
+        String TOKEN_AUTHENTICATION_AZURE_SERVICE_PRINCIPAL = "AZURE_SERVICE_PRINCIPAL";
+    }
 
     /**
      * Encapsulates constants used in handling connection errors related to issues
@@ -214,6 +254,68 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 "oracle.net.TCP_KEEPIDLE", "30",
                 "oracle.net.TCP_KEEPINTERVAL", "30",
                 "oracle.net.TCP_KEEPCOUNT", "5");
+    }
+
+
+    @Override
+    public void initConnectorAuthentication(ConnectorProperties properties, @Nullable AuthenticationInfo authenticationInfo) {
+        if (authenticationInfo == null) return;
+
+        AuthenticationType authenticationType = authenticationInfo.getType();
+        if (authenticationType == AuthenticationType.TOKEN) {
+            AuthenticationTokenType tokenType = authenticationInfo.getTokenType();
+            if (tokenType == OCI_INTERACTIVE) {
+                properties.add(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_OCI_INTERACTIVE);
+            } else if (tokenType == OCI_API_KEY) {
+                properties.add(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_OCI_API_KEY);
+                properties.add(Property.ORACLE_JDBC_OCI_CONFIG_FILE, nvl(authenticationInfo.getTokenConfigFile(), ""));
+                properties.add(Property.ORACLE_JDBC_OCI_PROFILE, nvl(authenticationInfo.getTokenProfile(), ""));
+            } else if (tokenType == AZURE_INTERACTIVE) {
+                properties.add(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_AZURE_INTERACTIVE);
+                properties.add(Property.ORACLE_JDBC_AZURE_DATABASE_APPLICATION_ID_URI, authenticationInfo.getAzureDatabaseApplicationIdUri());
+            } else if (tokenType == AZURE_SERVICE_PRINCIPAL_CERTIFICATE) {
+                copyCommonAzureServicePrincipalProperties(properties, authenticationInfo);
+                properties.add(Property.ORACLE_JDBC_AZURE_CLIENT_CERTIFICATE_FILE, authenticationInfo.getAzureClientCertificateFile());
+                properties.add(Property.ORACLE_JDBC_AZURE_CLIENT_CERTIFICATE_PASSWORD,
+                        Chars.toStringAcceptEmpty(authenticationInfo.getAzureClientCertificatePassword()));
+            } else if (tokenType == AZURE_SERVICE_PRINCIPAL_TOKEN) {
+                copyCommonAzureServicePrincipalProperties(properties, authenticationInfo);
+                properties.add(Property.ORACLE_JDBC_AZURE_CLIENT_SECRET, Chars.toStringAcceptEmpty(authenticationInfo.getAzureClientSecret()));
+            } else {
+                //TODO...
+            }
+        } else {
+            super.initConnectorAuthentication(properties, authenticationInfo);
+        }
+    }
+
+    @Override
+    public void initConnectorSession(ConnectorProperties properties, ConnectionSettings settings, SessionId sessionId) {
+        super.initConnectorSession(properties, settings, sessionId);
+
+        ConnectionType connectionType = sessionId.getConnectionType();
+        String appName = "DB Navigator - " + connectionType.getName();
+        properties.add(Property.SESSION_PROGRAM, appName);
+    }
+
+    @Override
+    public void initConnectorDebugger(ConnectorProperties properties, ConnectionSettings settings) {
+        Map<String, String> configProperties = settings.getPropertiesSettings().getProperties();
+
+        // i check if we have got jdwpHostPort if yes i get a connection using CONNECTION_PROPERTY_THIN_DEBUG_JDWP property
+        // TODO jdwpHostPort may remain resident if this stage is not reached for any reason... (maybe add transient properties container to settings)
+        String jdwpHostPort = configProperties.remove("jdwpHostPort");
+        if (Strings.isNotEmpty(jdwpHostPort)) {
+            properties.add(Property.ORACLE_JDBC_DEBUG_JDWP, jdwpHostPort);
+        }
+    }
+
+    private static void copyCommonAzureServicePrincipalProperties(ConnectorProperties properties, AuthenticationInfo authenticationInfo) {
+        properties.add(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_AZURE_SERVICE_PRINCIPAL);
+        properties.add(Property.ORACLE_JDBC_SSL_SERVER_DN_MATCH, "yes");
+        properties.add(Property.ORACLE_JDBC_AZURE_CLIENT_ID, authenticationInfo.getAzureClientId());
+        properties.add(Property.ORACLE_JDBC_AZURE_TENANT_ID, authenticationInfo.getAzureTenantId());
+        properties.add(Property.ORACLE_JDBC_AZURE_DATABASE_APPLICATION_ID_URI, authenticationInfo.getAzureDatabaseApplicationIdUri());
     }
 
     @Override

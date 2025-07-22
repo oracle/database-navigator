@@ -121,4 +121,8 @@ public class Exceptions {
             t = t.getCause();
         }
     }
+
+    public static String getMessage(Throwable e) {
+        return nvl(e.getMessage(), simpleClassName(e));
+    }
 }

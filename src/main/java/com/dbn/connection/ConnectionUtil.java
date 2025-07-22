@@ -23,7 +23,6 @@ import com.dbn.connection.config.ConnectionPropertiesSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.info.ConnectionInfo;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.database.interfaces.DatabaseMessageParserInterface;
 import com.dbn.diagnostics.DiagnosticsManager;
 import com.dbn.diagnostics.data.DiagnosticBundle;
@@ -56,19 +55,16 @@ public class ConnectionUtil {
             DiagnosticsManager diagnosticsManager = DiagnosticsManager.getInstance(connection.getProject());
             DiagnosticBundle<SessionId> diagnostics = diagnosticsManager.getConnectivityDiagnostics(connection.getConnectionId());
             try {
-                DatabaseCompatibilityInterface compatibility = connection.getCompatibilityInterface();
-                DatabaseAttachmentHandler attachmentHandler = compatibility.getDatabaseAttachmentHandler();
                 ConnectionSettings connectionSettings = connection.getSettings();
                 ConnectionPropertiesSettings propertiesSettings = connectionSettings.getPropertiesSettings();
-
 
                 DBNConnection conn = connect(
                         connectionSettings,
                         connectionStatus,
                         connection.getTemporaryAuthenticationInfo(),
                         sessionId,
-                        propertiesSettings.isEnableAutoCommit(),
-                        attachmentHandler);
+                        propertiesSettings.isEnableAutoCommit());
+
                 ConnectionInfo connectionInfo = new ConnectionInfo(conn.getMetaData());
                 connection.setConnectionInfo(connectionInfo);
                 connectionStatus.setAuthenticationError(null);
@@ -147,14 +143,12 @@ public class ConnectionUtil {
             @Nullable ConnectionHandlerStatusHolder connectionStatus,
             @Nullable AuthenticationInfo temporaryAuthenticationInfo,
             @NotNull SessionId sessionId,
-            boolean autoCommit,
-            @Nullable DatabaseAttachmentHandler attachmentHandler) throws SQLException {
+            boolean autoCommit) throws SQLException {
         Connector connector = new Connector(
                 sessionId,
                 temporaryAuthenticationInfo,
                 connectionSettings,
                 connectionStatus,
-                attachmentHandler,
                 autoCommit);
 
         DBNConnection connection = connector.connect();

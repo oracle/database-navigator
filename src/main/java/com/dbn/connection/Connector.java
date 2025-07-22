@@ -16,98 +16,44 @@
 
 package com.dbn.connection;
 
-import com.dbn.common.constant.Constants;
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.network.NetworkAddress;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Timeout;
 import com.dbn.common.ui.dialog.ExceptionTreeDialog;
-import com.dbn.common.util.Chars;
 import com.dbn.common.util.Classes;
-import com.dbn.common.util.Strings;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dbn.connection.config.ConnectionPropertiesSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.ConnectionSshTunnelSettings;
-import com.dbn.connection.config.ConnectionSslSettings;
-import com.dbn.connection.config.file.DatabaseFile;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.ssh.SshTunnelConnector;
 import com.dbn.connection.ssh.SshTunnelManager;
-import com.dbn.connection.ssl.SslConnectionManager;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Driver;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Properties;
 
+import static com.dbn.common.exception.Exceptions.getMessage;
 import static com.dbn.common.exception.Exceptions.toSqlException;
-import static com.dbn.common.notification.NotificationCategory.CONNECTION;
-import static com.dbn.common.notification.NotificationSupport.sendErrorNotification;
 import static com.dbn.common.thread.Dispatch.getCurrentModalityState;
-import static com.dbn.common.util.Classes.simpleClassName;
-import static com.dbn.common.util.Commons.nvl;
-import static com.dbn.common.util.Maps.toProperties;
-import static com.dbn.connection.AuthenticationTokenType.AZURE_INTERACTIVE;
-import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
-import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_TOKEN;
-import static com.dbn.connection.AuthenticationTokenType.OCI_API_KEY;
-import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.diagnostics.data.Activity.CONNECT;
-import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 class Connector {
-    @NonNls
-    private interface Property {
-        String APPLICATION_NAME = "ApplicationName";
-        String SESSION_PROGRAM = "v$session.program";
-
-        String USER = "user";
-        String PASSWORD = "password";
-
-        String SSL = "ssl";
-        String USE_SSL = "useSSL";
-        String REQUIRE_SSL = "requireSSL";
-
-        // TODO: can we reference the raw Oracle connection type rather than the
-        //  generic JDBC ones to get these constants.
-        String ORACLE_JDBC_OCI_PROFILE = "oracle.jdbc.ociProfile";
-        String ORACLE_JDBC_OCI_CONFIG_FILE = "oracle.jdbc.ociConfigFile";
-        // if this value is set, it puts the driver into on of the token auth
-        // modes based setting one of PropertyValue.TOKEN_AUTHENTICATION_*
-        String ORACLE_JDBC_TOKEN_AUTHENTICATION = "oracle.jdbc.tokenAuthentication";
-        String ORACLE_JDBC_DEBUG_JDWP = "oracle.jdbc.debugJDWP";
-        String ORACLE_JDBC_AZURE_DATABASE_APPLICATION_ID_URI = "oracle.jdbc.azureDatabaseApplicationIdUri";
-        String ORACLE_JDBC_AZURE_CLIENT_CERTIFICATE_FILE = "oracle.jdbc.clientCertificate";
-        String ORACLE_JDBC_AZURE_CLIENT_CERTIFICATE_PASSWORD = "oracle.jdbc.clientCertificatePassword";
-        String ORACLE_JDBC_AZURE_CLIENT_SECRET = "oracle.jdbc.clientSecret";
-        String ORACLE_JDBC_AZURE_CLIENT_ID = "oracle.jdbc.clientId";
-        String ORACLE_JDBC_AZURE_TENANT_ID = "oracle.jdbc.tenantId";
-        String ORACLE_JDBC_SSL_SERVER_DN_MATCH = "oracle.net.ssl_server_dn_match";
-    }
-
-    @NonNls
-    private interface PropertyValue {
-        String TOKEN_AUTHENTICATION_OCI_API_KEY = "OCI_API_KEY";
-        String TOKEN_AUTHENTICATION_OCI_INTERACTIVE = "OCI_INTERACTIVE";
-        String TOKEN_AUTHENTICATION_AZURE_INTERACTIVE = "AZURE_INTERACTIVE";
-        String TOKEN_AUTHENTICATION_AZURE_SERVICE_PRINCIPAL = "AZURE_SERVICE_PRINCIPAL";
-    }
-
     private final SessionId sessionId;
     private final AuthenticationInfo authenticationInfo;
     private final ConnectionSettings connectionSettings;
     private final ConnectionHandlerStatusHolder connectionStatus;
-    private final DatabaseAttachmentHandler databaseAttachmentHandler;
     private final boolean autoCommit;
     private SQLException exception;
 
@@ -116,13 +62,11 @@ class Connector {
             AuthenticationInfo authenticationInfo,
             ConnectionSettings connectionSettings,
             ConnectionHandlerStatusHolder connectionStatus,
-            DatabaseAttachmentHandler databaseAttachmentHandler,
             boolean autoCommit) {
         this.sessionId = sessionId;
         this.authenticationInfo = authenticationInfo;
         this.connectionSettings = connectionSettings;
         this.connectionStatus = connectionStatus;
-        this.databaseAttachmentHandler = databaseAttachmentHandler;
         this.autoCommit = autoCommit;
     }
 
@@ -151,92 +95,36 @@ class Connector {
     private DBNConnection doConnect() {
         //trace(this);
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
-        // we need some of these in the catch condition of this tru
-        Optional<DatabaseCompatibilityInterface> dbCompatibility = Optional.empty();
-        Optional<AuthenticationInfo> authInfo = Optional.empty();
-        Driver driver = null;
-        try {
-            DatabaseType databaseType = databaseSettings.getDatabaseType();
-            if (databaseType == DatabaseType.GENERIC) {
-                databaseType = DatabaseType.resolve(databaseSettings.getDriver());
-            }
-            DatabaseInterfaces databaseInterfaces = DatabaseInterfacesBundle.get(databaseType);
-            DatabaseCompatibilityInterface compatibilityInterface = databaseInterfaces.getCompatibilityInterface();
-            dbCompatibility = Optional.ofNullable(compatibilityInterface);
 
-            Map<String, String> implicitProperties = compatibilityInterface.getImplicitConnectionProperties();
-            Map<String, String> properties = new HashMap<>(implicitProperties);
+        DatabaseType databaseType = databaseSettings.getDatabaseType();
+        if (databaseType == DatabaseType.GENERIC) {
+            databaseType = DatabaseType.resolve(databaseSettings.getDriver());
+        }
+        DatabaseInterfaces databaseInterfaces = DatabaseInterfacesBundle.get(databaseType);
+        DatabaseCompatibilityInterface compatibility = databaseInterfaces.getCompatibilityInterface();
+
+        Driver driver = null;
+        AuthenticationInfo authenticationInfo = null;
+        try {
+            ConnectorProperties properties = compatibility.createConnectorProperties();
 
             // AUTHENTICATION
-            AuthenticationInfo authenticationInfo = databaseSettings.getAuthenticationInfo();
+            authenticationInfo = databaseSettings.getAuthenticationInfo();
             if (!authenticationInfo.isProvided() && this.authenticationInfo != null) {
                 authenticationInfo = this.authenticationInfo;
             }
-            authInfo = Optional.of(authenticationInfo);
-            AuthenticationType authenticationType = authenticationInfo.getType();
-            if (Constants.isOneOf(authenticationType, AuthenticationType.USER, AuthenticationType.USER_PASSWORD)) {
-                String user = authenticationInfo.getUser();
-                if (Strings.isNotEmpty(user)) {
-                    properties.put(Property.USER, user);
-                }
-
-                if (authenticationType == AuthenticationType.USER_PASSWORD) {
-                    char[] password = authenticationInfo.getPassword();
-                    if (Chars.isNotEmpty(password)) {
-                        properties.put(Property.PASSWORD, Chars.toString(password));
-                    }
-                }
-            }
-
-            // Token Auth
-            if (authenticationType == AuthenticationType.TOKEN) {
-                // TODO move this logic to "com.dbn.database.interfaces" - maybe a new DatabaseConnectivityInterface
-                AuthenticationTokenType tokenType = authenticationInfo.getTokenType();
-                if (tokenType == OCI_INTERACTIVE) {
-                    properties.put(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_OCI_INTERACTIVE);
-                }
-                else if (tokenType == OCI_API_KEY) {
-                    properties.put(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_OCI_API_KEY);
-                    properties.put(Property.ORACLE_JDBC_OCI_CONFIG_FILE, nvl(authenticationInfo.getTokenConfigFile(), ""));
-                    properties.put(Property.ORACLE_JDBC_OCI_PROFILE, nvl(authenticationInfo.getTokenProfile(), ""));
-                } else if (tokenType == AZURE_INTERACTIVE) {
-                    properties.put(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_AZURE_INTERACTIVE);
-                    properties.put(Property.ORACLE_JDBC_AZURE_DATABASE_APPLICATION_ID_URI, authenticationInfo.getAzureDatabaseApplicationIdUri());
-                } else if (tokenType == AZURE_SERVICE_PRINCIPAL_CERTIFICATE) {
-                    copyCommonAzureServicePrincipalProperties(properties, authenticationInfo);
-                    properties.put(Property.ORACLE_JDBC_AZURE_CLIENT_CERTIFICATE_FILE, authenticationInfo.getAzureClientCertificateFile());
-                    properties.put(Property.ORACLE_JDBC_AZURE_CLIENT_CERTIFICATE_PASSWORD,
-                            Chars.toStringAcceptEmpty(authenticationInfo.getAzureClientCertificatePassword()));
-                } else if (tokenType == AZURE_SERVICE_PRINCIPAL_TOKEN) {
-                    copyCommonAzureServicePrincipalProperties(properties, authenticationInfo);
-                    properties.put(Property.ORACLE_JDBC_AZURE_CLIENT_SECRET, Chars.toStringAcceptEmpty(authenticationInfo.getAzureClientSecret()));
-                }  else {
-                    //TODO...
-                }
-            }
+            compatibility.initConnectorAuthentication(properties, authenticationInfo);
 
             // SESSION INFO
-            ConnectionType connectionType = sessionId.getConnectionType();
-            String appName = "Database Navigator - " + connectionType.getName();
-            if (connectionSettings.isSigned()) {
-                properties.put(Property.APPLICATION_NAME, appName);
-            }
+            compatibility.initConnectorSession(properties, connectionSettings, sessionId);
+
+            // DEBUGGER
+            compatibility.initConnectorDebugger(properties, connectionSettings);
 
             // PROPERTIES
-            Map<String, String> configProperties = connectionSettings.getPropertiesSettings().getProperties();
-            if (databaseType == DatabaseType.ORACLE) {
-                // TODO move this logic to "com.dbn.database.interfaces" - maybe a new DatabaseConnectivityInterface
-
-                properties.put(Property.SESSION_PROGRAM, appName);
-                // i check if we have got jdwpHostPort if yes i get a connection using CONNECTION_PROPERTY_THIN_DEBUG_JDWP property
-                // TODO jdwpHostPort may remain resident if this stage is not reached for any reason... (maybe add transient properties container to settings)
-                String jdwpHostPort = configProperties.remove("jdwpHostPort");
-                if (Strings.isNotEmpty(jdwpHostPort)) {
-                    properties.put(Property.ORACLE_JDBC_DEBUG_JDWP, jdwpHostPort);
-                }
-            }
-            // TODO: if token_auth stop the settings from overriding the OCI properties?
-            properties.putAll(configProperties);
+            // add missing - prevent overriding the OCI properties
+            ConnectionPropertiesSettings propertiesSettings = connectionSettings.getPropertiesSettings();
+            properties.addMissing(propertiesSettings.getProperties());
 
             // DRIVER
             driver = ConnectionUtil.resolveDriver(databaseSettings);
@@ -244,18 +132,8 @@ class Connector {
                 throw new SQLException("Could not resolve driver class.");
             }
 
-            // SSL
-            ConnectionSslSettings sslSettings = connectionSettings.getSslSettings();
-            if (sslSettings.isActive()) {
-                SslConnectionManager connectionManager = SslConnectionManager.getInstance();
-                connectionManager.ensureSslConnection(connectionSettings);
-                if (databaseType == DatabaseType.MYSQL) {
-                    properties.put(Property.USE_SSL, "true");
-                    properties.put(Property.REQUIRE_SSL, "true");
-                } else if (databaseType == DatabaseType.POSTGRES) {
-                    properties.put(Property.SSL, "true");
-                }
-            }
+            // SSL CONNECTION
+            compatibility.initConnectorSslConnection(properties, connectionSettings);
 
             String connectionUrl = databaseSettings.getConnectionUrl();
 
@@ -273,7 +151,7 @@ class Connector {
             }
             Diagnostics.databaseLag(CONNECT);
 
-            Connection connection = connect(driver, connectionUrl, toProperties(properties));
+            Connection connection = connect(driver, connectionUrl, properties.export());
             if (connection == null) {
                 throw new SQLException("Driver failed to create connection. No failure information provided by jdbc vendor.");
             }
@@ -284,20 +162,10 @@ class Connector {
                 connectionStatus.setValid(true);
             }
 
-            Project project = connectionSettings.getProject();
-            if (databaseAttachmentHandler != null) {
-                List<DatabaseFile> attachedFiles = databaseSettings.getDatabaseInfo().getAttachedFiles();
-                for (DatabaseFile databaseFile : attachedFiles) {
-                    String filePath = databaseFile.getPath();
-                    try {
-                        databaseAttachmentHandler.attachDatabase(connection, filePath, databaseFile.getSchema());
-                    } catch (Exception e) {
-                        conditionallyLog(e);
-                        sendErrorNotification(project, CONNECTION, txt("ntf.connection.error.UnableToAttachFile", filePath, e));
-                    }
-                }
-            }
+            // FILE ATTACHMENTS
+            compatibility.initConnectorFileAttachments(connectionSettings, connection);
 
+            ConnectionType connectionType = sessionId.getConnectionType();
             DatabaseMetaData metaData = connection.getMetaData();
             databaseType = ConnectionUtil.getDatabaseType(metaData);
             databaseSettings.setConfirmedDatabaseType(databaseType);
@@ -306,6 +174,7 @@ class Connector {
             String connectionName = connectionSettings.getDatabaseSettings().getName();
             ConnectionId connectionId = connectionSettings.getConnectionId();
 
+            Project project = connectionSettings.getProject();
             DBNConnection conn = DBNConnection.wrap(
                     project,
                     connection,
@@ -320,31 +189,26 @@ class Connector {
 
         } catch (Throwable e) {
             conditionallyLog(e);
-            String message = nvl(e.getMessage(), simpleClassName(e));
-            if (connectionSettings.isSigned()) {
-                // DBN-524 strongly asserted property names
-                if (message.contains(Property.APPLICATION_NAME)) {
-                    connectionSettings.setSigned(false);
-                    return connect();
-                }
-            }
+            if (compatibility.resetConnectorAndRetry(e, connectionSettings)) return connect();
 
-            DatabaseType databaseType = DatabaseType.resolve(databaseSettings.getDriver());
+            databaseType = DatabaseType.resolve(databaseSettings.getDriver());
             databaseSettings.setConfirmedDatabaseType(databaseType);
             databaseSettings.setConnectivityStatus(ConnectivityStatus.INVALID);
             if (connectionStatus != null) {
                 connectionStatus.setConnectionException(e);
                 connectionStatus.setValid(false);
             }
+
+            String message = getMessage(e);
             exception = toSqlException(e, "Connection error: " + message);
+
             // if we have all the info we need, pass this on to the
-            // compatibility layer to see if there is any extra additional processing
-            // necessary.
-            if (dbCompatibility.isPresent() && authInfo.isPresent()) {
+            // compatibility layer to see if there is any extra additional processing necessary.
+            if (authenticationInfo != null) {
                ConnectionExceptionInfo info = new ConnectionExceptionInfo(e,
                        driver != null ? driver.getClass().getClassLoader() : null,
-                       authInfo.get());
-               dbCompatibility.get().handleConnectionException(info);
+                       authenticationInfo);
+               compatibility.handleConnectionException(info);
             }
 
             if (Diagnostics.isDeveloperMode() &&  sessionId == SessionId.TEST) {
@@ -355,14 +219,6 @@ class Connector {
             }
         }
         return null;
-    }
-
-    private void copyCommonAzureServicePrincipalProperties(Map<String, String> properties, AuthenticationInfo authenticationInfo) {
-        properties.put(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_AZURE_SERVICE_PRINCIPAL);
-        properties.put(Property.ORACLE_JDBC_SSL_SERVER_DN_MATCH, "yes");
-        properties.put(Property.ORACLE_JDBC_AZURE_CLIENT_ID, authenticationInfo.getAzureClientId());
-        properties.put(Property.ORACLE_JDBC_AZURE_TENANT_ID, authenticationInfo.getAzureTenantId());
-        properties.put(Property.ORACLE_JDBC_AZURE_DATABASE_APPLICATION_ID_URI, authenticationInfo.getAzureDatabaseApplicationIdUri());
     }
 
     private static Connection connect(Driver driver, String url, Properties properties) throws SQLException {
