@@ -21,6 +21,9 @@ import com.dbn.assistant.chat.message.action.AskAgainAction;
 import com.dbn.assistant.chat.message.action.CopyContentAction;
 import com.dbn.assistant.chat.message.action.ToggleFoldingAction;
 import com.dbn.common.text.MimeType;
+import com.dbn.common.ui.util.Borders;
+import com.dbn.common.util.Actions;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.util.ui.JBUI;
 
@@ -35,13 +38,25 @@ public class UserChatMessageForm extends ChatMessageForm {
     private JPanel actionPanel;
     private JPanel messagePanel;
     private JPanel contentPanel;
+    private JPanel foldingActionPanel;
 
     public UserChatMessageForm(ChatMessagesForm parent, ChatMessage message) {
         super(parent, message);
 
+        initFoldingActionToolbar();
         initActionToolbar();
         initProgressBar();
         initMessagePanel();
+    }
+
+    private void initFoldingActionToolbar() {
+        ActionToolbar actionToolbar = Actions.createActionToolbar(foldingActionPanel, true, new ToggleFoldingAction());
+        JComponent component = actionToolbar.getComponent();
+        component.setOpaque(false);
+        component.setBorder(Borders.EMPTY_BORDER);
+        foldingActionPanel.add(component);
+        foldingActionPanel.setBorder(JBUI.Borders.empty(4, 4, 4, 0));
+
     }
 
     private void initProgressBar() {
@@ -83,8 +98,7 @@ public class UserChatMessageForm extends ChatMessageForm {
     protected AnAction[] createActions() {
         return new AnAction[]{
                 new AskAgainAction(),
-                new CopyContentAction(),
-                new ToggleFoldingAction()};
+                new CopyContentAction()};
     }
 
     private void createUIComponents() {

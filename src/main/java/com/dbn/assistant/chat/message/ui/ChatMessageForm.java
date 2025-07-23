@@ -36,7 +36,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -116,7 +115,7 @@ public abstract class ChatMessageForm extends DBNFormBase {
         JComponent component = actionToolbar.getComponent();
         component.setOpaque(false);
         component.setBorder(Borders.EMPTY_BORDER);
-        actionPanel.add(component, BorderLayout.NORTH);
+        actionPanel.add(component);
         actionPanel.setBorder(JBUI.Borders.empty(4));
     }
 
