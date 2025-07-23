@@ -544,12 +544,6 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     public ResultSet loadDataEventRegistrations(DBNConnection connection) throws SQLException {
       return executeQuery(connection, "data-change-event-registrations");
     }
-    @Override
-    public ResultSet checkUserPrivilegesOnNotification(DBNConnection connection) throws SQLException{
-        return executeQuery(connection, "check_execute_and_change_notification_privileges");
-    }
-
-
 
     @Override
     public ResultSet loadSessionCurrentSql(Object sessionId, DBNConnection connection) throws SQLException {

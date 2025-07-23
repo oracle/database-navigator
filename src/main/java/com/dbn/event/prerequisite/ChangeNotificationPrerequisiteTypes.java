@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package com.dbn.debugger.prerequisite;
+package com.dbn.event.prerequisite;
 
 import com.dbn.prerequisite.model.PrerequisiteType;
 
-public class DebugPrerequisiteTypes {
-    public static final PrerequisiteType EXECUTE_DBMS_DEBUG = PrerequisiteType.get("EXECUTE_DBMS_DEBUG");
-    public static final PrerequisiteType EXECUTE_DBMS_DEBUG_JDWP = PrerequisiteType.get("EXECUTE_DBMS_DEBUG_JDWP");
-
-    public static final PrerequisiteType DEBUG_ANY_PROCEDURE = PrerequisiteType.get("DEBUG_ANY_PROCEDURE");
-    public static final PrerequisiteType DEBUG_CONNECT_SESSION = PrerequisiteType.get("DEBUG_CONNECT_SESSION");
-    public static final PrerequisiteType HOST_ACE_JDWP = PrerequisiteType.get("HOST_ACE_JDWP");
+public class ChangeNotificationPrerequisiteTypes {
+    public static final PrerequisiteType EXECUTE_DBMS_CHANGE_NOTIFICATION = PrerequisiteType.get("EXECUTE_DBMS_CHANGE_NOTIFICATION");
+    public static final PrerequisiteType CHANGE_NOTIFICATION = PrerequisiteType.get("CHANGE_NOTIFICATION");
 }

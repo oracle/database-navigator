@@ -14,18 +14,30 @@
  * limitations under the License.
  */
 
-package com.dbn.debugger.prerequisite;
+package com.dbn.event.prerequisite;
 
-import com.dbn.prerequisite.definition.impl.SystemPrivilegePrerequisite;
+import com.dbn.prerequisite.definition.impl.ObjectPrivilegePrerequisite;
 
-public class SystemPrivilege_CREATE_ANY_PROCEDURE extends SystemPrivilegePrerequisite {
+import static com.dbn.event.prerequisite.ChangeNotificationPrerequisiteTypes.EXECUTE_DBMS_CHANGE_NOTIFICATION;
 
-    public SystemPrivilege_CREATE_ANY_PROCEDURE() {
-        super(DebugPrerequisiteTypes.CREATE_ANY_PROCEDURE);
+public class ObjectPrivilege_EXECUTE_DBMS_CHANGE_NOTIFICATION extends ObjectPrivilegePrerequisite {
+
+    public ObjectPrivilege_EXECUTE_DBMS_CHANGE_NOTIFICATION() {
+        super(EXECUTE_DBMS_CHANGE_NOTIFICATION);
+    }
+
+    @Override
+    protected String getOwnerName() {
+        return "SYS";
+    }
+
+    @Override
+    protected String getObjectName() {
+        return "DBMS_CHANGE_NOTIFICATION";
     }
 
     @Override
     protected String getPrivilegeName() {
-        return "CREATE ANY PROCEDURE";
+        return "EXECUTE";
     }
 }

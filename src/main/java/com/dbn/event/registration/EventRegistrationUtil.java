@@ -18,7 +18,6 @@ package com.dbn.event.registration;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ResultSets;
-import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.event.registration.model.DataChangeRegistration;
@@ -28,7 +27,6 @@ import org.jetbrains.annotations.NonNls;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGH;
@@ -36,59 +34,33 @@ import static com.dbn.common.Priority.HIGH;
 @UtilityClass
 public class EventRegistrationUtil {
 
-  private static @NonNls DataChangeRegistration createRegistration(Project project, ResultSet rs) throws SQLException {
-    return new DataChangeRegistration(
-            project,
-            rs.getString("USER_NAME"),
-            rs.getLong("REG_ID"),
-            rs.getInt("REG_FLAGS"),
-            rs.getString("CALLBACK"),
-            rs.getInt("OPERATIONS"),
-            rs.getInt("CHANGE_LAG"),
-            rs.getLong("TIMEOUT"),
-            rs.getString("TABLE_NAME")
-    );
-  }
-
-  public static List<DataChangeRegistration> fetchRegistrations(ConnectionHandler connection) throws SQLException {
-      Project project = connection.getProject();
-      return DatabaseInterfaceInvoker.load(
-            HIGH,
-            "Loading DCN registrations",
-            "Fetching data change notification registrations",
-              project,
-            connection.getConnectionId(),
-            conn -> {
-                DatabaseMetadataInterface metadataInterface = connection.getMetadataInterface();
-                ResultSet resultSet = metadataInterface.loadDataEventRegistrations(conn);
-                return ResultSets.convert(resultSet, rs -> createRegistration(project, rs));
-            }
-    );
-  }
-
-    public static List<String> getMissingDcnPrivileges(DBNConnection connection) throws SQLException {
-        ConnectionHandler connectionHandler = connection.getConnectionHandler();
-        ResultSet rs = connectionHandler.getMetadataInterface().checkUserPrivilegesOnNotification(connection);
-        List<String> missingPrivileges = new ArrayList<>();
-
-        if (rs.next()) {
-            int hasExecute = rs.getInt("has_execute");
-            int hasChangeNotification = rs.getInt("has_change_notification");
-
-            if (hasExecute == 0) {
-                missingPrivileges.add("EXECUTE ON DBMS_CHANGE_NOTIFICATION");
-            }
-            if (hasChangeNotification == 0) {
-                missingPrivileges.add("CHANGE NOTIFICATION");
-            }
-        } else {
-            // If no row returned, consider both missing (or handle as needed)
-            missingPrivileges.add("EXECUTE ON DBMS_CHANGE_NOTIFICATION");
-            missingPrivileges.add("CHANGE NOTIFICATION");
-        }
-        return missingPrivileges;
+    private static @NonNls DataChangeRegistration createRegistration(Project project, ResultSet rs) throws SQLException {
+        return new DataChangeRegistration(
+                project,
+                rs.getString("USER_NAME"),
+                rs.getLong("REG_ID"),
+                rs.getInt("REG_FLAGS"),
+                rs.getString("CALLBACK"),
+                rs.getInt("OPERATIONS"),
+                rs.getInt("CHANGE_LAG"),
+                rs.getLong("TIMEOUT"),
+                rs.getString("TABLE_NAME")
+        );
     }
 
-
-
+    public static List<DataChangeRegistration> fetchRegistrations(ConnectionHandler connection) throws SQLException {
+        Project project = connection.getProject();
+        return DatabaseInterfaceInvoker.load(
+                HIGH,
+                "Loading DCN registrations",
+                "Fetching data change notification registrations",
+                project,
+                connection.getConnectionId(),
+                conn -> {
+                    DatabaseMetadataInterface metadataInterface = connection.getMetadataInterface();
+                    ResultSet resultSet = metadataInterface.loadDataEventRegistrations(conn);
+                    return ResultSets.convert(resultSet, rs -> createRegistration(project, rs));
+                }
+        );
+    }
 }

@@ -25,6 +25,7 @@ import com.dbn.common.util.Dialogs;
 import com.dbn.event.registration.ui.EventRegistrationInputDialog;
 import com.dbn.event.ui.EventMonitorForm;
 import com.dbn.object.DBTable;
+import com.dbn.prerequisite.DatabasePrerequisiteManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -37,6 +38,7 @@ import com.intellij.util.Producer;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.action.UserDataKeys.EVENT_MONITOR_FORM;
+import static com.dbn.common.operation.DatabaseOperation.ENABLE_DATABASE_CHANGE_NOTIFICATION;
 import static com.dbn.editor.DatabaseFileEditorManager.COMPONENT_NAME;
 
 @State(
@@ -44,81 +46,84 @@ import static com.dbn.editor.DatabaseFileEditorManager.COMPONENT_NAME;
         storages = @Storage(DatabaseNavigator.STORAGE_FILE)
 )
 public class EventNotificationManager extends ProjectComponentBase {
-  public static final String COMPONENT_NAME = "DBNavigator.Project.EventNotificationManager";
-  public static final String TOOL_WINDOW_ID = "DB Events";
+    public static final String COMPONENT_NAME = "DBNavigator.Project.EventNotificationManager";
+    public static final String TOOL_WINDOW_ID = "DB Events";
 
-//  private final Map<ConnectionId, DataChangeEventBundle> eventBundles = new ConcurrentHashMap<>();
+    public EventNotificationManager(@NotNull Project project) {
+        super(project, COMPONENT_NAME);
+    }
 
-  public EventNotificationManager(@NotNull Project project) {
-    super(project, COMPONENT_NAME);
-  }
+    public static EventNotificationManager getInstance(Project project) {
+        return Components.projectService(project, EventNotificationManager.class);
+    }
 
-  public static EventNotificationManager getInstance(Project project) {
-    return Components.projectService(project, EventNotificationManager.class);
-  }
+    public void openEditorAndConfig(DBTable table) {
+        Project project = getProject();
+        DatabasePrerequisiteManager prerequisiteManager = DatabasePrerequisiteManager.getInstance(project);
+        prerequisiteManager.startOperation(table,
+                ENABLE_DATABASE_CHANGE_NOTIFICATION,
+                () -> openRegistrationDialog(table));
+    }
 
-//  public DataChangeEventBundle getEventBundle(ConnectionId connectionId) {
-//    return eventBundles.computeIfAbsent(connectionId, k -> new DataChangeEventBundle());
-//  }
-  public void openEditorAndConfig(DBTable object) {
-    Dialogs.show(()->new EventRegistrationInputDialog(getProject(),object));
-  }
+    private void openRegistrationDialog(DBTable object) {
+        Project project = getProject();
+        Dialogs.show(() -> new EventRegistrationInputDialog(project, object));
+    }
 
-  public ToolWindow getEventToolWindow() {
-    Project project = getProject();
-    ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-    return toolWindowManager.getToolWindow(TOOL_WINDOW_ID);
-  }
+    public ToolWindow getEventToolWindow() {
+        Project project = getProject();
+        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
+        return toolWindowManager.getToolWindow(TOOL_WINDOW_ID);
+    }
 
-  public void showEventNotificationConsole(){
-    showEventNotificationConsole(()-> new EventMonitorForm(getProject()));
-  }
+    public void showEventNotificationConsole() {
+        showEventNotificationConsole(() -> new EventMonitorForm(getProject()));
+    }
 
-  public <T extends DBNForm> T showEventNotificationConsole(Producer<T> componentProducer) {
-    T form = getEventsForm();
-    ToolWindow toolWindow = getEventToolWindow();
-    ContentManager contentManager = toolWindow.getContentManager();
+    public <T extends DBNForm> T showEventNotificationConsole(Producer<T> componentProducer) {
+        T form = getEventsForm();
+        ToolWindow toolWindow = getEventToolWindow();
+        ContentManager contentManager = toolWindow.getContentManager();
 
-    if (form == null) {
-      form = componentProducer.produce();
+        if (form == null) {
+            form = componentProducer.produce();
 
-      ContentFactory contentFactory = contentManager.getFactory();
-      Content content = contentFactory.createContent(form.getComponent(),null,false);
+            ContentFactory contentFactory = contentManager.getFactory();
+            Content content = contentFactory.createContent(form.getComponent(), null, false);
 //      content.putUserData(DIAGNOSTIC_CONTENT_CATEGORY, category);
-      content.putUserData(EVENT_MONITOR_FORM, form);
-      content.setCloseable(false);
-      contentManager.addContent(content);
-      Disposer.register(content, form);
+            content.putUserData(EVENT_MONITOR_FORM, form);
+            content.setCloseable(false);
+            contentManager.addContent(content);
+            Disposer.register(content, form);
+        }
+
+        Content content = getEventsContent();
+        if (content != null) {
+            contentManager.setSelectedContent(content);
+        }
+
+        toolWindow.setAvailable(true, null);
+        toolWindow.show(null);
+
+        return form;
     }
 
-    Content content = getEventsContent();
-    if (content != null) {
-      contentManager.setSelectedContent(content);
+    private <T extends DBNForm> T getEventsForm() {
+        Content content = getEventsContent();
+        if (content != null) {
+            return (T) content.getUserData(EVENT_MONITOR_FORM);
+        }
+        return null;
     }
 
-    toolWindow.setAvailable(true, null);
-    toolWindow.show(null);
 
-    return form;
-  }
+    private Content getEventsContent() {
+        ToolWindow toolWindow = getEventToolWindow();
+        ContentManager contentManager = toolWindow.getContentManager();
+        Content[] contents = contentManager.getContents();
 
-  private <T extends DBNForm> T getEventsForm() {
-    Content content = getEventsContent();
-    if (content != null) {
-      return (T) content.getUserData(EVENT_MONITOR_FORM);
+        return contents.length > 0 ? contents[0] : null;
     }
-    return null;
-  }
-
-
-
-  private Content getEventsContent() {
-    ToolWindow toolWindow = getEventToolWindow();
-    ContentManager contentManager = toolWindow.getContentManager();
-    Content[] contents = contentManager.getContents();
-
-    return contents.length > 0 ? contents[0] : null;
-  }
 
 
 }

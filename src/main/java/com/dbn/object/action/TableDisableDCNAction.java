@@ -13,22 +13,21 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class TableDisableDCNAction extends AnObjectAction<DBTable> {
 
-  public TableDisableDCNAction(DBTable table) {
-    super(table);
-  }
+    public TableDisableDCNAction(DBTable table) {
+        super(table);
+    }
 
 
-  @Override
-  protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBTable target) {
-    //todo the name should be changeable depending on if hte table already registred .
-    presentation.setText(txt("app.objects.action.Disable"));
-    presentation.setIcon(Icons.TABLE_DISABLE_DCN);
-  }
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBTable target) {
+        presentation.setText(txt("app.objects.action.DisableDataChangeNotifications"));
+        presentation.setIcon(Icons.TABLE_DISABLE_DCN);
+    }
 
 
-  @Override
-  protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBTable target) {
-      EventRegistrationManager registrationManager = EventRegistrationManager.getInstance(project);
-      registrationManager.unregisterTable(getTarget());
-  }
+    @Override
+    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBTable target) {
+        EventRegistrationManager registrationManager = EventRegistrationManager.getInstance(project);
+        registrationManager.unregisterTable(getTarget());
+    }
 }

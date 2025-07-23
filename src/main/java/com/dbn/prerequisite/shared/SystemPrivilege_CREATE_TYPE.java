@@ -14,15 +14,27 @@
  * limitations under the License.
  */
 
-package com.dbn.debugger.prerequisite;
+package com.dbn.prerequisite.shared;
 
+import com.dbn.prerequisite.definition.impl.SystemPrivilegePrerequisite;
 import com.dbn.prerequisite.model.PrerequisiteType;
 
-public class DebugPrerequisiteTypes {
-    public static final PrerequisiteType EXECUTE_DBMS_DEBUG = PrerequisiteType.get("EXECUTE_DBMS_DEBUG");
-    public static final PrerequisiteType EXECUTE_DBMS_DEBUG_JDWP = PrerequisiteType.get("EXECUTE_DBMS_DEBUG_JDWP");
+import static com.dbn.prerequisite.shared.SharedPrerequisiteTypes.CREATE_ANY_TYPE;
+import static com.dbn.prerequisite.shared.SharedPrerequisiteTypes.CREATE_TYPE;
 
-    public static final PrerequisiteType DEBUG_ANY_PROCEDURE = PrerequisiteType.get("DEBUG_ANY_PROCEDURE");
-    public static final PrerequisiteType DEBUG_CONNECT_SESSION = PrerequisiteType.get("DEBUG_CONNECT_SESSION");
-    public static final PrerequisiteType HOST_ACE_JDWP = PrerequisiteType.get("HOST_ACE_JDWP");
+public class SystemPrivilege_CREATE_TYPE extends SystemPrivilegePrerequisite {
+
+    public SystemPrivilege_CREATE_TYPE() {
+        super(CREATE_TYPE);
+    }
+
+    @Override
+    protected String getPrivilegeName() {
+        return "CREATE TYPE";
+    }
+
+    @Override
+    public PrerequisiteType getAlternativeType() {
+        return CREATE_ANY_TYPE;
+    }
 }

@@ -14,24 +14,20 @@
  * limitations under the License.
  */
 
-package com.dbn.debugger.prerequisite;
+package com.dbn.event.prerequisite;
 
 import com.dbn.prerequisite.definition.impl.SystemPrivilegePrerequisite;
-import com.dbn.prerequisite.model.PrerequisiteType;
 
-public class SystemPrivilege_CREATE_PROCEDURE extends SystemPrivilegePrerequisite {
+import static com.dbn.event.prerequisite.ChangeNotificationPrerequisiteTypes.CHANGE_NOTIFICATION;
 
-    public SystemPrivilege_CREATE_PROCEDURE() {
-        super(DebugPrerequisiteTypes.CREATE_PROCEDURE);
+public class SystemPrivilege_CHANGE_NOTIFICATION extends SystemPrivilegePrerequisite {
+
+    public SystemPrivilege_CHANGE_NOTIFICATION() {
+        super(CHANGE_NOTIFICATION);
     }
 
     @Override
     protected String getPrivilegeName() {
-        return "CREATE PROCEDURE";
-    }
-
-    @Override
-    public PrerequisiteType getAlternativeType() {
-        return DebugPrerequisiteTypes.CREATE_ANY_PROCEDURE;
+        return "CHANGE NOTIFICATION";
     }
 }

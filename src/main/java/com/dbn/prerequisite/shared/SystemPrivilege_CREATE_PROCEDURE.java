@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 
-package com.dbn.debugger.prerequisite;
+package com.dbn.prerequisite.shared;
 
 import com.dbn.prerequisite.definition.impl.SystemPrivilegePrerequisite;
 import com.dbn.prerequisite.model.PrerequisiteType;
 
-public class SystemPrivilege_CREATE_TYPE extends SystemPrivilegePrerequisite {
+import static com.dbn.prerequisite.shared.SharedPrerequisiteTypes.CREATE_ANY_PROCEDURE;
+import static com.dbn.prerequisite.shared.SharedPrerequisiteTypes.CREATE_PROCEDURE;
 
-    public SystemPrivilege_CREATE_TYPE() {
-        super(DebugPrerequisiteTypes.CREATE_TYPE);
+public class SystemPrivilege_CREATE_PROCEDURE extends SystemPrivilegePrerequisite {
+
+    public SystemPrivilege_CREATE_PROCEDURE() {
+        super(CREATE_PROCEDURE);
     }
 
     @Override
     protected String getPrivilegeName() {
-        return "CREATE TYPE";
+        return "CREATE PROCEDURE";
     }
 
     @Override
     public PrerequisiteType getAlternativeType() {
-        return DebugPrerequisiteTypes.CREATE_ANY_TYPE;
+        return CREATE_ANY_PROCEDURE;
     }
 }
