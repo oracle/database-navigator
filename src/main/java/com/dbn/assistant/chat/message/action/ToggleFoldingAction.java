@@ -16,47 +16,36 @@
 
 package com.dbn.assistant.chat.message.action;
 
+import com.dbn.assistant.chat.message.ui.ChatMessageForm;
+import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
-
-import static com.dbn.common.util.Commons.nvln;
-import static com.dbn.nls.NlsResources.txt;
-
-public class CopyContentAction extends ChatMessageAction {
-    private final String content;
-
-    public CopyContentAction(String content) {
-        this.content = content;
-    }
-
-    public CopyContentAction() {
-        this(null);
-    }
+public class ToggleFoldingAction extends ChatMessageAction implements AssistantActionSupport {
 
     @Override
     public void update(@NotNull AnActionEvent e) {
+        ChatMessageForm messageForm = getMessageForm(e);
+
+        boolean enabled = messageForm != null;
+        boolean folded = enabled && messageForm.getMessage().isFolded();
+
         Presentation presentation = e.getPresentation();
-        presentation.setText(txt("app.assistant.action.CopyContent"));
-        presentation.setDescription(txt("app.assistant.action.CopyContentDesc"));
-        presentation.setIcon(Icons.ACTION_COPY);
+        presentation.setText(folded ? "Expand" : "Collapse");
+        presentation.setIcon(folded ?
+                Icons.ACTION_CONTENT_EXPAND :
+                Icons.ACTION_CONTENT_COLAPSE);
+        presentation.setEnabled(enabled);
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        copyTextToClipboard(e);
-    }
+        ChatMessageForm messageForm = getMessageForm(e);
+        if (messageForm == null) return;
 
-    private void copyTextToClipboard(AnActionEvent e) {
-        String content = nvln(this.content, () -> getMessageContent(e));
-        StringSelection selection = new StringSelection(content);
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        clipboard.setContents(selection, null);
+        messageForm.toggleContentFolding();
     }
 
 }

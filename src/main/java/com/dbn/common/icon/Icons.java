@@ -75,8 +75,10 @@ public class Icons {
     public static final Icon ACTION_ADD_SPECIAL               = load("/img/action/AddSpecial.png");
     public static final Icon ACTION_MOVE_UP                   = load("/img/action/MoveUp.svg");
     public static final Icon ACTION_MOVE_DOWN                 = load("/img/action/MoveDown.svg");
+    public static final Icon ACTION_CONTENT_COLAPSE = load("/img/action/ContentFold.svg");
+    public static final Icon ACTION_CONTENT_EXPAND = load("/img/action/ContentUnfold.svg");
     public static final Icon ACTION_DOWNLOAD                  = AllIcons.Actions.Download;
-    public static final Icon ACTION_UPLOAD                  = AllIcons.Actions.Upload;
+    public static final Icon ACTION_UPLOAD                    = AllIcons.Actions.Upload;
     public static final Icon ACTION_EDIT                      = AllIcons.Actions.EditSource; //load("/img/action/EditSource.svg");
     public static final Icon ACTION_COLLAPSE_ALL              = AllIcons.Actions.Collapseall;
     public static final Icon ACTION_EXPAND_ALL                = AllIcons.Actions.Expandall;

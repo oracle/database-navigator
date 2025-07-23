@@ -17,17 +17,17 @@
 package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.assistant.chat.message.ChatMessage;
+import com.dbn.assistant.chat.message.ChatMessageParser;
 import com.dbn.assistant.chat.message.ChatMessageSection;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.dispose.Disposer;
+import com.dbn.common.text.MimeType;
+import com.dbn.common.ui.Layouts;
 import com.dbn.connection.ConnectionHandler;
-import com.intellij.util.ui.JBUI;
 
-import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextPane;
 import java.awt.BorderLayout;
 import java.awt.Color;
 
@@ -40,13 +40,14 @@ import java.awt.Color;
 public class AgentChatMessageForm extends ChatMessageForm {
 
     private JPanel mainPanel;
-    private JPanel contentPanel;
+    private JPanel messagePanel;
     private JLabel titleLabel;
     private JPanel actionPanel;
+    private JPanel contentPanel;
 
     private boolean hasCodeContents = false;
 
-    public AgentChatMessageForm(ChatBoxForm parent, ChatMessage message) {
+    public AgentChatMessageForm(ChatMessagesForm parent, ChatMessage message) {
         super(parent, message);
 
         initTitlePanel();
@@ -55,7 +56,7 @@ public class AgentChatMessageForm extends ChatMessageForm {
     }
 
     private void createUIComponents() {
-        mainPanel = createMainPanel();
+        contentPanel = createContentPanel();
     }
 
     @Override
@@ -73,9 +74,14 @@ public class AgentChatMessageForm extends ChatMessageForm {
         return actionPanel;
     }
 
+    @Override
+    protected JPanel getContentPanel() {
+        return contentPanel;
+    }
+
     private void initMessagePanels() {
         ChatMessage message = getMessage();
-        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        Layouts.verticalBoxLayout(messagePanel);
         for (ChatMessageSection section : message.getSections()) {
             if (section.getLanguage() == null)
                 createTextPane(section); else
@@ -84,18 +90,17 @@ public class AgentChatMessageForm extends ChatMessageForm {
     }
 
     protected void createTextPane(ChatMessageSection section) {
-        JTextPane textPane = new JTextPane();
-        textPane.setOpaque(false);
-        textPane.setEditable(false);
-        textPane.setEditable(false);
-        textPane.setMargin(JBUI.insets(8));
-        textPane.setText(section.getContent());
-        contentPanel.add(textPane);
+        String htmlContent = "<html>" + ChatMessageParser.convertMarkdownToHtml(section.getContent()) + "</html>";
+
+        ChatMessageSectionForm sectionForm = new ChatMessageSectionForm(this);
+        sectionForm.setContent(MimeType.TEXT_HTML, htmlContent);
+        messagePanel.add(sectionForm.getComponent());
     }
 
     private void createCodePane(ChatMessageSection section) {
-        ChatBoxForm parent = ensureParentComponent();
-        ConnectionHandler connection = parent.getConnection();
+        ChatMessagesForm parent = ensureParentComponent();
+        ChatBoxForm chatBoxForm = parent.ensureParentComponent();
+        ConnectionHandler connection = chatBoxForm.getConnection();
 
         ChatMessageCodeViewer codePanel = ChatMessageCodeViewer.create(connection, section);
         if (codePanel == null) {
@@ -108,8 +113,8 @@ public class AgentChatMessageForm extends ChatMessageForm {
         JPanel actionsPanel = new JPanel(new BorderLayout());
         actionsPanel.setBackground(codePanel.getViewer().getBackgroundColor());
 
-        contentPanel.add(actionsPanel);
-        contentPanel.add(codePanel);
+        messagePanel.add(actionsPanel);
+        messagePanel.add(codePanel);
         hasCodeContents = true; // mark as having code contents if successfully created one
     }
 
