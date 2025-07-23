@@ -33,8 +33,10 @@ public class ToggleFoldingAction extends ChatMessageAction implements AssistantA
         boolean folded = enabled && messageForm.getMessage().isFolded();
 
         Presentation presentation = e.getPresentation();
-        presentation.setText(folded ? "Unfold" : "Fold");
-        presentation.setIcon(folded ? Icons.ACTION_UNFOLD : Icons.ACTION_FOLD);
+        presentation.setText(folded ? "Expand" : "Collapse");
+        presentation.setIcon(folded ?
+                Icons.ACTION_CONTENT_EXPAND :
+                Icons.ACTION_CONTENT_COLAPSE);
         presentation.setEnabled(enabled);
     }
 
