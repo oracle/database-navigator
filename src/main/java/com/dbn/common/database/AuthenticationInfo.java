@@ -55,6 +55,7 @@ import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.util.Base64.decode;
 import static com.dbn.common.util.Base64.encode;
 import static com.dbn.common.util.Commons.match;
+import static com.dbn.common.util.Commons.matchArrays;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
 import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_TOKEN;
@@ -111,7 +112,16 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         return ensureParent().getConnectionId();
     }
 
+    /**
+     * The connection settings often uses "temporary" authentication objects that expire after
+     * a certain time.  When that happens, we need to re-prompt the user for secret data like
+     * passwords.  This method returns "true" if the temporary authentication data is still cached in memory
+     * or "false" if the user needs to be prompted to re-enter them for this form.
+     *
+     * @return true if necessary info is still present in this info; false if they have expired.
+     */
 	public boolean isProvided() {
+        // TODO C.B: Do we need a null check here?
         switch (type) {
             case USER: return isNotEmpty(user);
             case USER_PASSWORD:
@@ -119,6 +129,10 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
                     isNotEmpty(user) &&
                     Chars.isNotEmpty(password);
             case TOKEN:
+                // it's possible for token type to be null and that's not germaine here.
+                if (tokenType == null) {
+                    return false;
+                }
                 switch (tokenType) {
                     case OCI_INTERACTIVE: return true;
                     case OCI_API_KEY:
@@ -165,7 +179,18 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         return false;
     }
 
+    /**
+     * Checks if instance 'that' "matches" this instance.  This is similar to a deepEquals between
+     * the objects, however it covers additional equivalences.
+     *
+     * @see com.dbn.common.util.Commons#match(Object, Object)
+     * @see com.dbn.common.util.Commons#matchArrays(Object, Object)
+     *
+     * @param that the other object to check
+     * @return true if this "matches" that, false otherwise.
+     */
     public boolean isSame(AuthenticationInfo that) {
+        // TODO C.B.: Check type and that.type for null?
     	if (this.type != that.type) return false;
     	switch (this.type) {
     		case NONE:
@@ -173,7 +198,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     		case USER_PASSWORD:
     		case OS_CREDENTIALS:
     			return match(this.user, that.user) &&
-    		           match(this.password, that.password);
+    		           matchArrays(this.password, that.password);
     		case TOKEN:
                 if (!match(this.tokenType, that.tokenType)) return false;
 
@@ -189,13 +214,13 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
                         return match(this.azureClientId, that.azureClientId) &&
                                match(this.azureTenantId, that.azureTenantId) &&
                                match(this.azureClientCertificateFile, that.azureClientCertificateFile) &&
-                               match(this.azureClientCertificatePassword, that.azureClientCertificatePassword) &&
+                               matchArrays(this.azureClientCertificatePassword, that.azureClientCertificatePassword) &&
                                match(this.azureDatabaseApplicationIdUri, that.azureDatabaseApplicationIdUri);
 
                     case AZURE_SERVICE_PRINCIPAL_TOKEN:
                         return match(this.azureClientId, that.azureClientId) &&
                                 match(this.azureTenantId, that.azureTenantId) &&
-                                match(this.azureClientSecret, that.azureClientSecret) &&
+                                matchArrays(this.azureClientSecret, that.azureClientSecret) &&
                                 match(this.azureDatabaseApplicationIdUri, that.azureDatabaseApplicationIdUri);
 
                 }
