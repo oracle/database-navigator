@@ -2,6 +2,7 @@ package com.dbn.connection.config.ui;
 
 import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
+import com.dbn.common.util.Chars;
 import com.dbn.connection.config.ReverseSshTunnelConfiguration;
 import com.dbn.connection.ssh.SshAuthType;
 import com.dbn.credentials.Secret;
@@ -86,10 +87,10 @@ public class ReverseSshTunnelConfigForm extends ConfigurationEditorForm<ReverseS
         hostTextField.setText(configuration.getHost());
         portTextField.setText(String.valueOf(configuration.getPort()));
         userTextField.setText(configuration.getUser());
-        passwordField.setText(new String(configuration.getPassword()));
+        passwordField.setText(Chars.toString(configuration.getPassword()));
         setSelection(authTypeComboBox, configuration.getAuthType());
         keyFileBrowseInput.setText(configuration.getKeyFile());
-        keyPassPhraseInput.setText(new String(configuration.getKeyPassphrase()));
+        keyPassPhraseInput.setText(Chars.toString(configuration.getKeyPassphrase()));
         bindHostTextField.setText(configuration.getBindHost());
         bindPortTextField.setText(String.valueOf(configuration.getBindPort()));
     }

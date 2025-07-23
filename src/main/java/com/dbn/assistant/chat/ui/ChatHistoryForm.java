@@ -19,6 +19,7 @@ package com.dbn.assistant.chat.ui;
 import com.dbn.assistant.chat.Chat;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.util.Borderless;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Actions;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -28,7 +29,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
@@ -45,6 +45,8 @@ public class ChatHistoryForm extends DBNFormBase {
 
         chatHistoryTable = new ChatHistoryTable(this, chats);
         tableScrollPane.setViewportView(chatHistoryTable);
+        Borderless.markBorderless(chatHistoryTable);
+        Borderless.markBorderless(tableScrollPane);
 
         chatHistoryTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -108,7 +110,7 @@ public class ChatHistoryForm extends DBNFormBase {
     private void createActionPanel(){
         ActionToolbar chatActions = Actions.createActionToolbar(chatActionsPanel, true, "DBNavigator.ActionGroup.AssistantChatHistory");
         setAccessibleName(chatActions, "Chat History");
-        this.chatActionsPanel.add(chatActions.getComponent(), BorderLayout.CENTER);
+        this.chatActionsPanel.add(chatActions.getComponent());
     }
 
     @NotNull
