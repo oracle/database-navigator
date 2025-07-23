@@ -2,7 +2,7 @@ package com.dbn.connection.config.ui;
 
 import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.common.util.Commons;
+import com.dbn.common.util.Chars;
 import com.dbn.connection.config.ReverseSshTunnelConfiguration;
 import com.dbn.connection.ssh.SshAuthType;
 import com.dbn.credentials.Secret;
@@ -10,9 +10,16 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 
-import static com.dbn.common.ui.util.ComboBoxes.*;
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
+import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 
 public class ReverseSshTunnelConfigForm extends ConfigurationEditorForm<ReverseSshTunnelConfiguration> {
@@ -63,9 +70,9 @@ public class ReverseSshTunnelConfigForm extends ConfigurationEditorForm<ReverseS
         configuration.setPort(portTextField.getText());
         configuration.setUser(userTextField.getText());
         configuration.setAuthType(getSelection(authTypeComboBox));
-        configuration.setPassword(Commons.nvln(passwordField.getPassword(), (char[]) null));
+        configuration.setPassword(passwordField.getPassword());
         configuration.setKeyFile(keyFileBrowseInput.getText());
-        configuration.setKeyPassphrase(Commons.nvln(keyPassPhraseInput.getPassword(), (char[]) null));
+        configuration.setKeyPassphrase(keyPassPhraseInput.getPassword());
         configuration.setBindHost(bindHostTextField.getText());
         configuration.setBindPort(bindPortTextField.getText());
 
@@ -80,12 +87,10 @@ public class ReverseSshTunnelConfigForm extends ConfigurationEditorForm<ReverseS
         hostTextField.setText(configuration.getHost());
         portTextField.setText(String.valueOf(configuration.getPort()));
         userTextField.setText(configuration.getUser());
-        char[] password = configuration.getPassword();
-        passwordField.setText(password == null ? "" : new String(password));
+        passwordField.setText(Chars.toString(configuration.getPassword()));
         setSelection(authTypeComboBox, configuration.getAuthType());
         keyFileBrowseInput.setText(configuration.getKeyFile());
-        char[] keyPassPhrase = configuration.getKeyPassphrase();
-        keyPassPhraseInput.setText(keyPassPhrase == null ? "" : new String(keyPassPhrase));
+        keyPassPhraseInput.setText(Chars.toString(configuration.getKeyPassphrase()));
         bindHostTextField.setText(configuration.getBindHost());
         bindPortTextField.setText(String.valueOf(configuration.getBindPort()));
     }
