@@ -23,9 +23,9 @@ import com.dbn.assistant.chat.ChatContextEvent;
 import com.dbn.assistant.chat.ChatInterruptionReason;
 import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.PersistentChatMessage;
+import com.dbn.assistant.chat.message.ui.ChatMessagesForm;
 import com.dbn.assistant.chat.ui.ChatSaveDialog;
 import com.dbn.assistant.chat.window.PromptAction;
-import com.dbn.assistant.chat.window.util.RollingMessageContainer;
 import com.dbn.assistant.init.ui.AssistantIntroductionForm;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.state.AssistantState;
@@ -53,8 +53,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Objects;
@@ -81,8 +79,6 @@ import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 @Slf4j
 public class ChatBoxForm extends DBNFormBase {
   private JPanel mainPanel;
-  private JPanel chatPanel;
-  private JScrollPane chatScrollPane;
   private JPanel profileActionsPanel;
   private JPanel headerPanel;
   private JPanel typeActionsPanel;
@@ -94,11 +90,12 @@ public class ChatBoxForm extends DBNFormBase {
   private JPanel initializingPanel;
   private JPanel chatActionsPanel;
   private JPanel chatStatusPanel;
+  private JPanel chatMessagesPanel;
 
-  private RollingMessageContainer messageContainer;
   private final ConnectionRef connection;
   private ChatBoxInputField inputField;
   private ChatBoxStatusLabel statusLabel;
+  private ChatMessagesForm messagesForm;
   private String currentChatId; // identifier of currently displayed chat (can be temporarels different from the one in the AssistantState)
 
   public ChatBoxForm(ConnectionHandler connection) {
@@ -158,7 +155,7 @@ public class ChatBoxForm extends DBNFormBase {
     createActionPanels();
     createStatusLabel();
     createInputField();
-    createChatPanel();
+    createMessagesPanel();
     loadProfiles();
     initMessages();
   }
@@ -205,9 +202,8 @@ public class ChatBoxForm extends DBNFormBase {
     currentChatId = chat.getId();
     chat.removeProgress();
 
-    messageContainer.clear();
-    messageContainer.addAll(chat.getMessages(), this);
-    dispatch(() -> scrollDown());
+    messagesForm.clear();
+    messagesForm.addMessages(chat.getMessages());
   }
 
   @NotNull
@@ -383,9 +379,9 @@ public class ChatBoxForm extends DBNFormBase {
   /**
    * Initializes the panel to display messages
    */
-  private void createChatPanel() {
-    chatScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    messageContainer = new RollingMessageContainer(AssistantState.MAX_CHAR_MESSAGE_COUNT, chatPanel);
+  private void createMessagesPanel() {
+    messagesForm = new ChatMessagesForm(this);
+    chatMessagesPanel.add(messagesForm.getComponent());
   }
 
   public ChatContext getCurrentContext() {
@@ -395,7 +391,6 @@ public class ChatBoxForm extends DBNFormBase {
   public Chat getCurrentChat() {
     return getAssistantState().getCurrentChat();
   }
-
 
   public void submitPrompt() {
     submitPrompt(null);
@@ -529,18 +524,9 @@ public class ChatBoxForm extends DBNFormBase {
     String currentChatId = state.getCurrentChatId();
     if (Objects.equals(chatId, currentChatId)) {
       // update UI only if chat is still current
-      dispatch(() -> messageContainer.addAll(List.of(message), this));
-      dispatch(() -> scrollDown());
+      messagesForm.addMessages(List.of(message));
       updateActionToolbars();
     }
-  }
-
-
-
-  private void scrollDown() {
-    chatScrollPane.validate();
-    JScrollBar verticalBar = chatScrollPane.getVerticalScrollBar();
-    verticalBar.setValue(verticalBar.getMaximum());
   }
 
   public void interruptAssistantSession() {

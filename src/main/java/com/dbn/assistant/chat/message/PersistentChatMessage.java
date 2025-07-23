@@ -24,9 +24,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jdom.Element;
 
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.readCdata;
+import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -59,6 +61,7 @@ public class PersistentChatMessage extends ChatMessage implements PersistentStat
     id = stringAttribute(element, "id");
     type = enumAttribute(element, "type", type);
     author = enumAttribute(element, "author", AuthorType.class);
+    folded = booleanAttribute(element, "folded", folded);
 
     Element contentElement = element.getChild("content");
     content = readCdata(contentElement);
@@ -73,6 +76,7 @@ public class PersistentChatMessage extends ChatMessage implements PersistentStat
     setStringAttribute(element, "id", id);
     setEnumAttribute(element, "type", type);
     setEnumAttribute(element, "author", author);
+    setBooleanAttribute(element, "folded", folded);
 
     Element contentElement = newElement(element,"content");
     writeCdata(contentElement, content);

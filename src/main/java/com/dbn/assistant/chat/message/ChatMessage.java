@@ -21,8 +21,6 @@ import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.editor.SQLChatMessageConverter;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.message.MessageType;
-import com.dbn.common.util.Lists;
-import com.dbn.common.util.Strings;
 import com.dbn.common.util.UUIDs;
 import com.dbn.language.sql.SQLLanguage;
 import com.intellij.lang.Language;
@@ -31,19 +29,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class ChatMessage {
-    private static final Pattern SECTIONS_REGEX_PATTERN = Pattern.compile("(\\s*```(?<LANG>[\\w ]+)?\\n(?<CODE>((\"[^\"]*\")|('[^']')|[^`])+)(```)?)|(?<TEXT>.+)");
-
     /**
      * Unique identifier of the chat message to establish causality relations and chaining of messages
      */
@@ -53,9 +45,12 @@ public class ChatMessage {
     protected AuthorType author;
     protected @NonNls String content;
     protected ChatContext context;
+    protected boolean folded;
+
     private Latent<List<ChatMessageSection>> sections = Latent.basic(() -> buildSections());
 
     private transient boolean progress;
+
 
     /**
      * Creates a new ChatMessage
@@ -94,20 +89,7 @@ public class ChatMessage {
             return new ChatMessageSection(content, null).asList();
         }
 
-        //TODO given the format of the responses is for the most part markdown, consider using an MD viewer for the "plain text" blocks
-        Matcher matcher = SECTIONS_REGEX_PATTERN.matcher(content);
-        List<ChatMessageSection> sections = new ArrayList<>();
-        while (matcher.find()) {
-            String text = matcher.group("TEXT");
-            String lang = matcher.group("LANG");
-            String code = matcher.group("CODE");
-            if (Strings.isNotEmpty(code) && Strings.isEmpty(lang)) lang = "text";
-
-            createMessageSection(text, null, sections);
-            createMessageSection(code, lang, sections);
-        }
-
-        return sections;
+        return ChatMessageParser.parse(content);
     }
 
     private boolean hasCodeSections() {
@@ -129,18 +111,6 @@ public class ChatMessage {
         if (!isSelectStatement()) return false;
 
         return true;
-    }
-
-    private static void createMessageSection(@Nullable String content, @Nullable String languageId, List<ChatMessageSection> container) {
-        if (content == null || content.isBlank()) return;
-        ChatMessageSection lastSection = Lists.lastElement(container);
-        if (lastSection != null && lastSection.getLanguageId() == null && languageId == null) {
-            // attach content to last plain text section
-            lastSection.append(content);
-        } else {
-            container.add(new ChatMessageSection(content, languageId));
-        }
-
     }
 
     public String outputForLanguage(Language language) {
