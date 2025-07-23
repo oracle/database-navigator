@@ -16,8 +16,10 @@
 
 package com.dbn.assistant.chat.message.action;
 
+import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -33,6 +35,18 @@ public class AskAgainAction extends ChatMessageAction implements AssistantAction
         presentation.setText(txt("app.assistant.action.AskAgain"));
         presentation.setDescription(txt("app.assistant.action.AskAgainDesc"));
         presentation.setIcon(Icons.ACTION_RETRY);
+
+        presentation.setVisible(isAvailable(e));
+    }
+
+    boolean isAvailable(@NotNull AnActionEvent e) {
+        ChatBoxForm chatBox = getChatBox(e);
+        if (chatBox == null) return false;
+
+        AssistantState state = chatBox.getAssistantState();
+        ChatAvailability availability = state.getChatAvailability();
+
+        return availability == ChatAvailability.AVAILABLE;
     }
 
     @Override
