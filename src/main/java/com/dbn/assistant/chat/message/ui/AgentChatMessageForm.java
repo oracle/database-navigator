@@ -74,6 +74,11 @@ public class AgentChatMessageForm extends ChatMessageForm {
         return actionPanel;
     }
 
+    @Override
+    protected JPanel getContentPanel() {
+        return contentPanel;
+    }
+
     private void initMessagePanels() {
         ChatMessage message = getMessage();
         Layouts.verticalBoxLayout(messagePanel);

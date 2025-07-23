@@ -77,6 +77,11 @@ public class SystemChatMessageForm extends ChatMessageForm {
     }
 
     @Override
+    protected JPanel getContentPanel() {
+        return contentPanel;
+    }
+
+    @Override
     protected Color getBackground() {
         MessageType messageType = getMessage().getType();
         return messageType == MessageType.ERROR ?

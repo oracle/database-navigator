@@ -18,7 +18,6 @@ package com.dbn.assistant.chat.message.action;
 
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -26,27 +25,23 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class AskAgainAction extends BasicAction implements AssistantActionSupport {
-  private final String content;
+public class AskAgainAction extends ChatMessageAction implements AssistantActionSupport {
 
-  public AskAgainAction(String content) {
-    this.content = content;
-  }
+    @Override
+    public void update(@NotNull AnActionEvent e) {
+        Presentation presentation = e.getPresentation();
+        presentation.setText(txt("app.assistant.action.AskAgain"));
+        presentation.setDescription(txt("app.assistant.action.AskAgainDesc"));
+        presentation.setIcon(Icons.ACTION_RETRY);
+    }
 
-  @Override
-  public void update(@NotNull AnActionEvent e) {
-    Presentation presentation = e.getPresentation();
-    presentation.setText(txt("app.assistant.action.AskAgain"));
-    presentation.setDescription(txt("app.assistant.action.AskAgainDesc"));
-    presentation.setIcon(Icons.ACTION_RETRY);
-  }
+    @Override
+    public void actionPerformed(@NotNull AnActionEvent e) {
+        ChatBoxForm chatBox = getChatBox(e);
+        if (chatBox == null) return;
 
-  @Override
-  public void actionPerformed(@NotNull AnActionEvent e) {
-    ChatBoxForm chatBox = getChatBox(e);
-    if (chatBox == null) return;
-
-    chatBox.submitPrompt(content);
-  }
+        String content = getMessageContent(e);
+        chatBox.submitPrompt(content);
+    }
 
 }

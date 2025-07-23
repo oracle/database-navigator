@@ -19,6 +19,7 @@ package com.dbn.assistant.chat.message.ui;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.action.AskAgainAction;
 import com.dbn.assistant.chat.message.action.CopyContentAction;
+import com.dbn.assistant.chat.message.action.ToggleFoldingAction;
 import com.dbn.common.text.MimeType;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.util.ui.JBUI;
@@ -58,9 +59,36 @@ public class UserChatMessageForm extends ChatMessageForm {
     }
 
     @Override
+    protected void foldMessage() {
+        ChatMessageForm nextMessageForm = getNextMessageForm();
+        if (nextMessageForm == null) return;
+        if (nextMessageForm instanceof UserChatMessageForm) return; // only fold agent or system messages
+
+        nextMessageForm.foldMessage();
+    }
+
+    @Override
+    protected void unfoldMessage() {
+        ChatMessageForm nextMessageForm = getNextMessageForm();
+        if (nextMessageForm == null) return;
+        if (nextMessageForm instanceof UserChatMessageForm) return; // only fold agent or system messages
+
+        nextMessageForm.unfoldMessage();
+    }
+
+    private ChatMessageForm getNextMessageForm() {
+        ChatMessagesForm messagesForm = getParentComponent();
+        if (messagesForm == null) return null;
+
+        return messagesForm.getNextMessageForm(this);
+    }
+
+    @Override
     protected AnAction[] createActions() {
-        String content = getMessage().getContent();
-        return new AnAction[]{new AskAgainAction(content), new CopyContentAction(content)};
+        return new AnAction[]{
+                new AskAgainAction(),
+                new CopyContentAction(),
+                new ToggleFoldingAction()};
     }
 
     private void createUIComponents() {
@@ -75,6 +103,11 @@ public class UserChatMessageForm extends ChatMessageForm {
     @Override
     protected JPanel getActionPanel() {
         return actionPanel;
+    }
+
+    @Override
+    protected JPanel getContentPanel() {
+        return contentPanel;
     }
 
     @Override

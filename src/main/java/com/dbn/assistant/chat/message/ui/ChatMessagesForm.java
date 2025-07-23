@@ -82,6 +82,15 @@ public class ChatMessagesForm extends DBNFormBase {
         });
     }
 
+    @Nullable
+    public ChatMessageForm getNextMessageForm(ChatMessageForm messageForm) {
+        int index = messageForms.indexOf(messageForm);
+        int nextIndex = index + 1;
+        if (nextIndex >= messageForms.size()) return null;
+
+        return messageForms.get(index + 1);
+    }
+
     public void clear() {
         List<ChatMessageForm> messageForms = new ArrayList<>(this.messageForms);
         this.messageForms.clear();

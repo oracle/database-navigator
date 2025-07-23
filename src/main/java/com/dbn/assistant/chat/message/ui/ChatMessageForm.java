@@ -20,6 +20,7 @@ import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.action.CopyContentAction;
+import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
@@ -58,10 +59,29 @@ public abstract class ChatMessageForm extends DBNFormBase {
         Color SYSTEM_ERROR = new JBColor(new Color(255, 213, 204), new Color(69, 48, 43));
     }
     private final ChatMessage message;
+    private boolean folded;
 
     public ChatMessageForm(@Nullable ChatMessagesForm parent, ChatMessage message) {
         super(parent);
         this.message = message;
+    }
+
+    public void toggleFolding() {
+        if (folded) {
+            unfoldMessage();
+            folded = false;
+        } else {
+            foldMessage();
+            folded = true;
+        }
+    }
+
+    protected void foldMessage() {
+        getContentPanel().setVisible(false);
+    }
+
+    protected void unfoldMessage() {
+        getContentPanel().setVisible(true);
     }
 
     @NotNull
@@ -105,7 +125,7 @@ public abstract class ChatMessageForm extends DBNFormBase {
     }
 
     protected AnAction[] createActions() {
-        return new AnAction[]{new CopyContentAction(message.getContent())};
+        return new AnAction[]{new CopyContentAction()};
     }
 
     @Nullable
@@ -113,6 +133,8 @@ public abstract class ChatMessageForm extends DBNFormBase {
         return null; // override if title creation is
     }
     protected abstract JPanel getActionPanel();
+
+    protected abstract JPanel getContentPanel();
 
     /**
      * Custom painted JPanel to be used as rounded-corner container for chatbox messages
@@ -134,5 +156,10 @@ public abstract class ChatMessageForm extends DBNFormBase {
         panel.setOpaque(false);
         panel.setBackground(getBackground());
         return panel;
+    }
+
+    public Object getData(@NotNull String dataId) {
+        if (DataKeys.CHAT_MESSAGE_FORM.is(dataId)) return this;
+        return null;
     }
 }
