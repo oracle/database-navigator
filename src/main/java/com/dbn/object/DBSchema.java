@@ -71,6 +71,7 @@ public interface DBSchema extends DBRootObject, com.dbn.api.object.DBSchema {
     DBMethod getMethod(String name, short overload);
     DBProcedure getProcedure(String name, short overload);
     DBFunction getFunction(String name, short overload);
+    DBSynonym getSynonym(String name);
     DBCluster getCluster(String name);
     DBCredential getCredential(String name);
     DBCredential getAIProfile(String name);

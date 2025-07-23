@@ -55,6 +55,7 @@ import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBObjectVirtualFile;
+import com.intellij.debugger.impl.PrioritizedTask.Priority;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.xdebugger.XDebugProcess;
@@ -633,4 +634,8 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
         return "Database Debug Process";
     }
 
+    @Override
+    public void queueCommand(Priority priority, Runnable command) {
+        throw new UnsupportedOperationException("No managed thread support");
+    }
 }

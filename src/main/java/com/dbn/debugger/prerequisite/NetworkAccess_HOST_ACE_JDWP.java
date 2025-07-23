@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,23 @@
  * limitations under the License.
  */
 
-package com.dbn.common.state;
+package com.dbn.debugger.prerequisite;
 
-import org.jetbrains.annotations.NonNls;
+import com.dbn.prerequisite.definition.impl.NetworkAccessPrerequisite;
 
-public interface StateHolder {
+public class NetworkAccess_HOST_ACE_JDWP extends NetworkAccessPrerequisite {
 
-    String getAttribute(@NonNls String key);
+    public NetworkAccess_HOST_ACE_JDWP() {
+        super(DebugPrerequisiteTypes.HOST_ACE_JDWP);
+    }
 
-    void setAttribute(@NonNls String key, @NonNls String value);
+    @Override
+    protected String getHostName() {
+        return "127.0.0.1";
+    }
+
+    @Override
+    protected String getPrivilegeName() {
+        return "JDWP";
+    }
 }

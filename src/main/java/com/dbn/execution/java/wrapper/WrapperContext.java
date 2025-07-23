@@ -18,7 +18,6 @@ package com.dbn.execution.java.wrapper;
 
 
 import com.dbn.common.Pair;
-import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.execution.java.wrapper.model.ClassWrapper;
 import com.dbn.execution.java.wrapper.naming.FriendlyWrapperNamingProvider;
 import com.dbn.execution.java.wrapper.naming.TransientWrapperNamingProvider;
@@ -31,16 +30,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Holds all per-invocation data structures used by {@link WrapperBuilder}.
+ * Holds all per-invocation data structures used by {@link WrapperModelBuilder}.
  */
 @Getter
 @Setter
-public class WrapperBuilderContext {
-    private static final ThreadLocal<WrapperBuilderContext> LOCAL = new ThreadLocal<>();
-
-    private Wrapper wrapper;
+public class WrapperContext {
+    private final WrapperModelInput input;
     private final WrapperNamingProvider namingProvider;
     private final Map<Pair<String, Integer>, ClassWrapper> classWrapperCache = new HashMap<>();
+
+    private WrapperModel model;
+
+    /**
+     * Instantiates a fresh context for each parse invocation.
+     */
+    public WrapperContext(WrapperModelInput input) {
+        this.input = input;
+        this.namingProvider = input.isUseFriendlyNames() ?
+                new FriendlyWrapperNamingProvider():
+                new TransientWrapperNamingProvider();
+    }
 
 
     public void cacheClassWrapper(ClassWrapper classWrapper) {
@@ -52,28 +61,6 @@ public class WrapperBuilderContext {
     public ClassWrapper getCachedClassWrapper(String className, int arrayDepth) {
         var key = Pair.of(className, arrayDepth);
         return classWrapperCache.get(key);
-    }
-
-    /**
-     * Instantiates a fresh context for each parse invocation.
-     */
-    public WrapperBuilderContext(boolean friendlyNames) {
-        namingProvider = friendlyNames ?
-                new FriendlyWrapperNamingProvider():
-                new TransientWrapperNamingProvider();
-    }
-
-    public <T, E extends Throwable> T surround(ThrowableCallable<T, E> runnable) throws E {
-        try {
-            LOCAL.set(this);
-            return runnable.call();
-        } finally {
-            LOCAL.remove();
-        }
-    }
-
-    public static WrapperBuilderContext get() {
-        return LOCAL.get();
     }
 
 }

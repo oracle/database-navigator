@@ -560,6 +560,11 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
+    public DBSynonym getSynonym(String name) {
+        return getChildObject(SYNONYM, name);
+    }
+
+    @Override
     public DBProgram getProgram(String name) {
         DBProgram program = getPackage(name);
         if (program == null) program = getType(name);

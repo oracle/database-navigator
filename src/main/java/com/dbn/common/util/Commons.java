@@ -141,7 +141,16 @@ public final class Commons {
     public static <T> boolean match(@Nullable T value1, @Nullable T value2) {
         if (value1 == null && value2 == null) return true;
         if (value1 == value2) return true;
-        if (value1 != null && value2 != null) return value1.equals(value2);
+        if (value1 != null && value2 != null) {
+            boolean isArray1 = value1.getClass().isArray();
+            boolean isArray2 = value2.getClass().isArray();
+            if (isArray1 && isArray2) {
+                Object[] array1 = (Object[]) value1;
+                Object[] array2 = (Object[]) value2;
+                return Arrays.deepEquals(array1, array2);
+            }
+            return Objects.equals(value1, value2);
+        }
         if (value1 instanceof String || value2 instanceof String) return Objects.equals(
                 nvl(value1, ""),
                 nvl(value2, ""));

@@ -55,6 +55,7 @@ public interface DatabaseEntity extends DatabaseContextBase, StatefulDisposable,
     }
 
     @Nullable
+    @Deprecated // TODO decommission this (never hold direct references to objects, use DBObjectRef)
     default <E extends DatabaseEntity> E getUndisposedEntity() {
         return Unsafe.cast(this);
     }

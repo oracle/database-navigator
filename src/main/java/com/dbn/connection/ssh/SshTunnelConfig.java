@@ -16,33 +16,37 @@
 
 package com.dbn.connection.ssh;
 
+import com.dbn.common.network.NetworkAddress;
 import lombok.Value;
 
 @Value
 public class SshTunnelConfig {
-    private final String proxyHost;
-    private final int proxyPort;
+    private final NetworkAddress proxyAddress;
+    private final NetworkAddress remoteAddress;
+
+    private final SshAuthType authType;
+
     private final String proxyUser;
     private final char[] proxyPassword;
-    private final SshAuthType authType;
+
     private final String keyFile;
     private final char[] keyPassphrase;
 
-    private final String remoteHost;
-    private final int remotePort;
-
-
-    public SshTunnelConfig(String proxyHost, int proxyPort, String proxyUser, SshAuthType authType, String keyFile, char[] keyPassphrase, char[] proxyPassword, String remoteHost, int remotePort) {
-        this.proxyHost = proxyHost;
-        this.proxyPort = proxyPort;
+    public SshTunnelConfig(
+            NetworkAddress proxyAddress,
+            NetworkAddress remoteAddress,
+            SshAuthType authType,
+            String proxyUser,
+            char[] proxyPassword,
+            String keyFile,
+            char[] keyPassphrase) {
+        this.proxyAddress = proxyAddress;
+        this.remoteAddress = remoteAddress;
         this.proxyUser = proxyUser;
         this.proxyPassword = proxyPassword;
 
         this.authType = authType;
         this.keyFile = keyFile;
         this.keyPassphrase = keyPassphrase;
-
-        this.remoteHost = remoteHost;
-        this.remotePort = remotePort;
     }
 }

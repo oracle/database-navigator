@@ -295,6 +295,14 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
     }
 
     @Override
+    public @Nullable DBSchema getSchema(SchemaId schemaId) {
+        if (schemaId == null) return null;
+
+        String name = schemaId.id();
+        return getSchema(name);
+    }
+
+    @Override
     @Nullable
     public DBSchema getPublicSchema() {
         return getSchema("PUBLIC");
