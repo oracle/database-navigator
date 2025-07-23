@@ -17,15 +17,8 @@
 package com.dbn.operation;
 
 import com.dbn.DatabaseNavigator;
-import com.dbn.batch.Batch;
-import com.dbn.batch.ui.BatchMonitorDialog;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
-import com.dbn.common.message.ui.MessageBundleDialog;
-import com.dbn.common.message.ui.MessageBundleDialogConfig;
-import com.dbn.common.state.GenericStateHolder;
-import com.dbn.common.state.StateHolder;
-import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionId;
 import com.dbn.operation.model.OperationBundle;
 import com.intellij.openapi.components.State;
@@ -39,9 +32,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.message.MessageType.ERROR;
-import static com.dbn.common.message.MessageType.WARNING;
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.operation.DatabaseOperationManager.COMPONENT_NAME;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
