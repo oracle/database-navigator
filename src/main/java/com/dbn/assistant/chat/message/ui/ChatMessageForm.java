@@ -59,29 +59,25 @@ public abstract class ChatMessageForm extends DBNFormBase {
         Color SYSTEM_ERROR = new JBColor(new Color(255, 213, 204), new Color(69, 48, 43));
     }
     private final ChatMessage message;
-    private boolean folded;
 
     public ChatMessageForm(@Nullable ChatMessagesForm parent, ChatMessage message) {
         super(parent);
         this.message = message;
     }
 
-    public void toggleFolding() {
-        if (folded) {
-            unfoldMessage();
-            folded = false;
-        } else {
-            foldMessage();
-            folded = true;
-        }
+    protected void initContentFolding(JPanel contentPanel) {
+        contentPanel.setVisible(!message.isFolded());
     }
 
-    protected void foldMessage() {
-        getContentPanel().setVisible(false);
+    public final void toggleContentFolding() {
+        boolean folded = message.isFolded();
+        message.setFolded(!folded);
+        changeContentFolding(!folded);
     }
 
-    protected void unfoldMessage() {
-        getContentPanel().setVisible(true);
+    protected void changeContentFolding(boolean folded) {
+        getContentPanel().setVisible(!folded);
+        getMessage().setFolded(folded);
     }
 
     @NotNull
@@ -155,6 +151,7 @@ public abstract class ChatMessageForm extends DBNFormBase {
         };
         panel.setOpaque(false);
         panel.setBackground(getBackground());
+        initContentFolding(panel);
         return panel;
     }
 

@@ -45,9 +45,12 @@ public class ChatMessage {
     protected AuthorType author;
     protected @NonNls String content;
     protected ChatContext context;
+    protected boolean folded;
+
     private Latent<List<ChatMessageSection>> sections = Latent.basic(() -> buildSections());
 
     private transient boolean progress;
+
 
     /**
      * Creates a new ChatMessage

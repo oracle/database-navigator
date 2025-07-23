@@ -30,7 +30,7 @@ public class ToggleFoldingAction extends ChatMessageAction implements AssistantA
         ChatMessageForm messageForm = getMessageForm(e);
 
         boolean enabled = messageForm != null;
-        boolean folded = enabled && messageForm.isFolded();
+        boolean folded = enabled && messageForm.getMessage().isFolded();
 
         Presentation presentation = e.getPresentation();
         presentation.setText(folded ? "Unfold" : "Fold");
@@ -43,7 +43,7 @@ public class ToggleFoldingAction extends ChatMessageAction implements AssistantA
         ChatMessageForm messageForm = getMessageForm(e);
         if (messageForm == null) return;
 
-        messageForm.toggleFolding();
+        messageForm.toggleContentFolding();
     }
 
 }

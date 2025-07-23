@@ -59,21 +59,17 @@ public class UserChatMessageForm extends ChatMessageForm {
     }
 
     @Override
-    protected void foldMessage() {
-        ChatMessageForm nextMessageForm = getNextMessageForm();
-        if (nextMessageForm == null) return;
-        if (nextMessageForm instanceof UserChatMessageForm) return; // only fold agent or system messages
-
-        nextMessageForm.foldMessage();
+    protected void initContentFolding(JPanel contentPanel) {
+        // do not fold user messages
     }
 
     @Override
-    protected void unfoldMessage() {
+    protected void changeContentFolding(boolean folded) {
         ChatMessageForm nextMessageForm = getNextMessageForm();
         if (nextMessageForm == null) return;
         if (nextMessageForm instanceof UserChatMessageForm) return; // only fold agent or system messages
 
-        nextMessageForm.unfoldMessage();
+        nextMessageForm.changeContentFolding(folded);
     }
 
     private ChatMessageForm getNextMessageForm() {
