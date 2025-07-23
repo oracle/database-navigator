@@ -138,19 +138,80 @@ public final class Commons {
         return values;
     }
 
-    public static <T> boolean match(@Nullable T value1, @Nullable T value2) {
+    /**
+     * If object is null, return null
+     * If object is an array:
+     *   - if object instancof Object, just cast it back as Object[]
+     *   - if the array type is a primitive then create a new array
+     *     of Object and "box" up the contents of object into that array.
+     * If object is not an array, wrap it in an Object[]
+     *    - C.B. I'm still not sure that last one is consistent.
+     *
+     * @param object the object to "box into an array"
+     * @return object, a new Object[] or null per above.
+     */
+    public static Object[] boxArray(@Nullable Object object) {
+        if (object == null) return null;
+        if (object instanceof Object[]) return (Object[]) object;
+        if (object.getClass().isArray()) {
+            int length = Array.getLength(object);
+            Object[] newArray = new Object[length];
+            for (int i = 0; i < length; i++) {
+                newArray[i] = Array.get(object, i);
+            }
+            return newArray;
+        }
+        return new Object[] {object};
+    }
+
+    /**
+     * Two values, value1 and value2 "match as Arrays" if:
+     *  - both are null
+     *  - they are "==" to each other
+     *  - the are both arrays and their lengths are equal and all of their
+     *    array values {@link Commons#match}
+     *  - at least one is non-null, not an array but they are {@link Objects#deepEquals}
+     * @param value1
+     * @param value2
+     * @return
+     */
+    public static boolean matchArrays(@Nullable Object value1, @Nullable Object value2) {
         if (value1 == null && value2 == null) return true;
         if (value1 == value2) return true;
         if (value1 != null && value2 != null) {
             boolean isArray1 = value1.getClass().isArray();
             boolean isArray2 = value2.getClass().isArray();
             if (isArray1 && isArray2) {
-                Object[] array1 = (Object[]) value1;
-                Object[] array2 = (Object[]) value2;
-                return Arrays.deepEquals(array1, array2);
+                int length1 = Array.getLength(value1);
+                int length2 = Array.getLength(value2);
+                if (length1 != length2) return false;
+                for (int i = 0; i < length1; i++) {
+                    Object item1 = Array.get(value1, i);
+                    Object item2 = Array.get(value2, i);
+                    if (!match(item1, item2)) return false;
+                }
+                return true;
             }
-            return Objects.equals(value1, value2);
         }
+        // TODO C.B.: Did we mean to keep this?
+        return Objects.deepEquals(value1, value2);
+    }
+
+    /**
+     * To objects, value1 and value2 "match" if:
+     *    - value1 and value2 are "==" including if the are both null
+     *    - value1 and value2 are non-null and value1.equals(value2)
+     *    - and they are both null or emptyString or the same String (C.B.?)
+     *
+     * @param <T>
+     * @param value1 the first value
+     * @param value2 the second value
+     * @return true value1 and value2 match per above.
+     */
+    public static <T> boolean match(@Nullable T value1, @Nullable T value2) {
+        if (value1 == null && value2 == null) return true;
+        if (value1 == value2) return true;
+        if (value1 != null && value2 != null) return value1.equals(value2);
         if (value1 instanceof String || value2 instanceof String) return Objects.equals(
                 nvl(value1, ""),
                 nvl(value2, ""));

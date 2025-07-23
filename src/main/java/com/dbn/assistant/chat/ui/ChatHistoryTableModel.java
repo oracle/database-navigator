@@ -53,7 +53,7 @@ public class ChatHistoryTableModel extends StatefulDisposableBase implements DBN
 
     @Override
     public int getColumnCount() {
-        return 3;
+        return 2;
     }
 
     @NonNls
@@ -61,8 +61,8 @@ public class ChatHistoryTableModel extends StatefulDisposableBase implements DBN
     public String getColumnName(int columnIndex) {
         switch (columnIndex) {
             case 0: return "Title";
-            case 1: return "Profile";
-            case 2: return "Date";
+            //case 1: return "Profile";
+            case 1: return "Date";
             default: return "";
         }
     }
@@ -81,8 +81,8 @@ public class ChatHistoryTableModel extends StatefulDisposableBase implements DBN
     public Object getValue(Chat chat, int column) {
         switch (column) {
             case 0: return chat.getTitle();
-            case 1: return chat.getContext().getProfileName();
-            case 2: return getPresentableDateFormat(chat.getTimestamp());
+            //case 1: return chat.getContext().getProfileName();
+            case 1: return getPresentableDateFormat(chat.getTimestamp());
             default: return "";
         }
     }
@@ -92,8 +92,8 @@ public class ChatHistoryTableModel extends StatefulDisposableBase implements DBN
         if (chat == null) return "";
         switch (column) {
             case 0: return chat.getTitle();
-            case 1: return chat.getContext().getProfileName();
-            case 2: return getPresentableDateFormat(chat.getTimestamp());
+            //case 1: return chat.getContext().getProfileName();
+            case 1: return getPresentableDateFormat(chat.getTimestamp());
             default: return "";
         }
     }

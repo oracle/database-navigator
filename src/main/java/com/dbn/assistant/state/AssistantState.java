@@ -39,6 +39,7 @@ import org.jdom.Element;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,6 +133,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     return chats.
             values().
             stream().
+            sorted(Comparator.comparing(c -> ((Chat)c).getTimestamp()).reversed()).
             filter(c -> c.isPersisted()).
             collect(Collectors.toList());
   }

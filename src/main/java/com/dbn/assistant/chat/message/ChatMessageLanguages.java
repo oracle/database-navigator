@@ -38,7 +38,7 @@ import static com.intellij.lang.Language.findLanguageByID;
 @UtilityClass
 @NonNls
 public class ChatMessageLanguages {
-    public static final Map<String, String> LANGUAGE_MAPPINGS = new HashMap<>();
+    public static final Map<@NonNls String, @NonNls String> LANGUAGE_MAPPINGS = new HashMap<>();
     static {
         // mappings between language ids from llm outputs to IntelliJ language identifiers
         LANGUAGE_MAPPINGS.put("sql", "DBN-SQL");
@@ -46,6 +46,12 @@ public class ChatMessageLanguages {
         LANGUAGE_MAPPINGS.put("jql", "JQL");
         LANGUAGE_MAPPINGS.put("js", "JavaScript");
         LANGUAGE_MAPPINGS.put("javascript", "JavaScript");
+        LANGUAGE_MAPPINGS.put("ts", "TypeScript");
+        LANGUAGE_MAPPINGS.put("typescript", "TypeScript");
+        LANGUAGE_MAPPINGS.put("css", "CSS");
+        LANGUAGE_MAPPINGS.put("scss", "SCSS");
+        LANGUAGE_MAPPINGS.put("sass", "SASS");
+        LANGUAGE_MAPPINGS.put("less", "LESS");
         LANGUAGE_MAPPINGS.put("java", "JAVA");
         LANGUAGE_MAPPINGS.put("xml", "XML");
         LANGUAGE_MAPPINGS.put("html", "HTML");
@@ -63,6 +69,9 @@ public class ChatMessageLanguages {
         LANGUAGE_MAPPINGS.put("md", "Markdown");
         LANGUAGE_MAPPINGS.put("markdown", "Markdown");
         LANGUAGE_MAPPINGS.put("properties", "Properties");
+        LANGUAGE_MAPPINGS.put("c", "ObjectiveC");
+        LANGUAGE_MAPPINGS.put("c++", "ObjectiveC");
+        LANGUAGE_MAPPINGS.put("c#", "C#");
         // TODO ...
     }
 
