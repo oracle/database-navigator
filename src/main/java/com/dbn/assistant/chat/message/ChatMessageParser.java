@@ -16,14 +16,17 @@
 
 package com.dbn.assistant.chat.message;
 
+import com.dbn.common.util.Strings;
 import lombok.experimental.UtilityClass;
 import org.intellij.markdown.IElementType;
 import org.intellij.markdown.MarkdownElementTypes;
 import org.intellij.markdown.ast.ASTNode;
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor;
+import org.intellij.markdown.html.HtmlGenerator;
 import org.intellij.markdown.parser.MarkdownParser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.intellij.markdown.MarkdownTokenTypes.CODE_FENCE_END;
@@ -35,8 +38,7 @@ public class ChatMessageParser {
 
     public static List<ChatMessageSection> parse(String content) {
         List<ChatMessageSection> sections = new ArrayList<>();
-        MarkdownParser markdownParser = new MarkdownParser(new GFMFlavourDescriptor());
-        ASTNode rootNode = markdownParser.buildMarkdownTreeFromString(content);
+        ASTNode rootNode = parseMadkdownContent(content);
 
         StringBuilder builder = new StringBuilder();
         for (ASTNode node : rootNode.getChildren()) {
@@ -60,12 +62,18 @@ public class ChatMessageParser {
         return sections;
     }
 
+    private static ASTNode parseMadkdownContent(String content) {
+        MarkdownParser markdownParser = new MarkdownParser(new GFMFlavourDescriptor());
+        return markdownParser.buildMarkdownTreeFromString(content);
+    }
+
     private static void createTextSection(List<ChatMessageSection> sections, StringBuilder builder) {
-        if (builder.length() > 0) {
-            ChatMessageSection section = new ChatMessageSection(builder.toString(), null);
+        String content = builder.toString().trim();
+        if (!content.isEmpty()) {
+            ChatMessageSection section = new ChatMessageSection(content, null);
             sections.add(section);
-            builder.setLength(0);
         }
+        builder.setLength(0);
     }
 
     private static void createCodeSection(List<ChatMessageSection> sections, String content, ASTNode rootNode) {
@@ -87,5 +95,20 @@ public class ChatMessageParser {
 
         ChatMessageSection section = new ChatMessageSection(builder.toString(), language);
         sections.add(section);
+    }
+
+    public static String convertMarkdownToHtml(String content) {
+        GFMFlavourDescriptor flavourDescriptor = new GFMFlavourDescriptor();
+        ASTNode rootNode = parseMadkdownContent(content);
+
+        HtmlGenerator htmlGenerator = new HtmlGenerator(content, rootNode, flavourDescriptor, false);
+        HtmlGenerator.TagRenderer tagRenderer = new HtmlGenerator.DefaultTagRenderer((astNode, charSequence, charSequences) -> {
+            if (Strings.equalsIgnoreCase(charSequence, "body")) {
+                return Collections.singletonList("body style='font-family:Segoe UI,SansSerif,serif'");
+            }
+            return charSequences;
+            },true);
+        return htmlGenerator.generateHtml(tagRenderer);
+
     }
 }

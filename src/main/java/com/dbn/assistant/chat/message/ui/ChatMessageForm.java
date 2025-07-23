@@ -20,12 +20,10 @@ import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.action.CopyContentAction;
-import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.ui.JBColor;
@@ -55,19 +53,19 @@ import static com.dbn.common.ui.util.Fonts.regularBold;
 public abstract class ChatMessageForm extends DBNFormBase {
     protected interface Backgrounds {
         Color USER_PROMPT = new JBColor(new Color(218, 234, 255), new Color(68, 95, 128));
-        Color AGENT_RESPONSE = Colors.delegate(() -> Colors.lafDarker(Colors.getPanelBackground(), 2));
+        Color AGENT_RESPONSE = Colors.delegate(() -> Colors.lafDarker(Colors.getPanelBackground(), 4));
         Color SYSTEM_INFO = Colors.delegate(() -> Colors.lafBrighter(Colors.getPanelBackground(), 2));
         Color SYSTEM_ERROR = new JBColor(new Color(255, 213, 204), new Color(69, 48, 43));
     }
     private final ChatMessage message;
 
-    public ChatMessageForm(@Nullable Disposable parent, ChatMessage message) {
+    public ChatMessageForm(@Nullable ChatMessagesForm parent, ChatMessage message) {
         super(parent);
         this.message = message;
     }
 
     @NotNull
-    public static ChatMessageForm create(ChatBoxForm parent, ChatMessage message) {
+    public static ChatMessageForm create(ChatMessagesForm parent, ChatMessage message) {
         AuthorType author = message.getAuthor();
         switch (author) {
             case USER: return new UserChatMessageForm(parent, message);
@@ -121,7 +119,7 @@ public abstract class ChatMessageForm extends DBNFormBase {
      * This utility is to be used for all chat message form implementations
      * for the creation of the main component (called "mainPanel" in all DBNForm components)
      */
-    JPanel createMainPanel()  {
+    JPanel createContentPanel()  {
         JPanel panel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {

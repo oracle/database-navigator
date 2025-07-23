@@ -19,28 +19,28 @@ package com.dbn.assistant.chat.message.ui;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.action.AskAgainAction;
 import com.dbn.assistant.chat.message.action.CopyContentAction;
-import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.common.text.MimeType;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.util.ui.JBUI;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.JTextPane;
 import java.awt.Color;
 
 public class UserChatMessageForm extends ChatMessageForm {
     private JPanel mainPanel;
     private JProgressBar progressBar;
     private JPanel actionPanel;
-    private JTextPane messageTextPane;
+    private JPanel messagePanel;
+    private JPanel contentPanel;
 
-    public UserChatMessageForm(ChatBoxForm parent, ChatMessage message) {
+    public UserChatMessageForm(ChatMessagesForm parent, ChatMessage message) {
         super(parent, message);
-        messageTextPane.setText(message.getContent());
 
         initActionToolbar();
         initProgressBar();
+        initMessagePanel();
     }
 
     private void initProgressBar() {
@@ -50,6 +50,13 @@ public class UserChatMessageForm extends ChatMessageForm {
         progressBar.setBorder(JBUI.Borders.empty(0, 8, 8, 8));
     }
 
+    private void initMessagePanel() {
+        ChatMessageSectionForm messageSectionForm = new ChatMessageSectionForm(this);
+        String content = getMessage().getContent();
+        messageSectionForm.setContent(MimeType.TEXT_PLAIN, content);
+        messagePanel.add(messageSectionForm.getComponent());
+    }
+
     @Override
     protected AnAction[] createActions() {
         String content = getMessage().getContent();
@@ -57,7 +64,7 @@ public class UserChatMessageForm extends ChatMessageForm {
     }
 
     private void createUIComponents() {
-        mainPanel = createMainPanel();
+        contentPanel = createContentPanel();
     }
 
     @Override

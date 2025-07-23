@@ -18,35 +18,42 @@ package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.action.HelpAction;
-import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.message.MessageType;
+import com.dbn.common.text.MimeType;
 import com.intellij.openapi.actionSystem.AnAction;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextPane;
 import java.awt.Color;
 
 public class SystemChatMessageForm extends ChatMessageForm {
 
     private JPanel mainPanel;
     private JPanel actionPanel;
-    private JTextPane messageTextPane;
     private JLabel titleLabel;
     private JPanel titlePanel;
+    private JPanel contentPanel;
+    private JPanel messagePanel;
 
-    public SystemChatMessageForm(ChatBoxForm parent, ChatMessage message) {
+    public SystemChatMessageForm(ChatMessagesForm parent, ChatMessage message) {
         super(parent, message);
-        messageTextPane.setText(message.getContent());
 
         initTitlePanel();
         initActionToolbar();
+        initMessagePanel();
+    }
+
+    private void initMessagePanel() {
+        ChatMessageSectionForm messageSectionForm = new ChatMessageSectionForm(this);
+        String content = getMessage().getContent();
+        messageSectionForm.setContent(MimeType.TEXT_PLAIN, content);
+        messagePanel.add(messageSectionForm.getComponent());
     }
 
     private void createUIComponents() {
-        mainPanel = createMainPanel();
+        contentPanel = createContentPanel();
     }
 
     @Override
