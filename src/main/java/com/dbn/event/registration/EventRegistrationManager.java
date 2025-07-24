@@ -24,6 +24,7 @@ import com.dbn.common.data.Data;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.reflection.ObjectProxies;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.Resources;
@@ -38,8 +39,10 @@ import com.dbn.event.model.RowChangeDescription;
 import com.dbn.event.model.TableChangeDescription;
 import com.dbn.event.notification.EventNotificationListener;
 import com.dbn.event.notification.model.DataChangeNotification;
+import com.dbn.event.registration.ui.EventRegistrationInputDialog;
 import com.dbn.event.service.EventHistoryService;
 import com.dbn.object.DBTable;
+import com.dbn.prerequisite.DatabasePrerequisiteManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -56,6 +59,7 @@ import java.util.Properties;
 
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.notification.NotificationCategory.DCN;
+import static com.dbn.common.operation.DatabaseOperation.ENABLE_DATABASE_CHANGE_NOTIFICATION;
 import static com.dbn.common.util.Lists.toCsv;
 import static com.dbn.event.registration.EventRegistrationManager.COMPONENT_NAME;
 import static com.dbn.nls.NlsResources.txt;
@@ -77,6 +81,19 @@ public class EventRegistrationManager extends ProjectComponentBase {
 
     public static EventRegistrationManager getInstance(Project project) {
         return Components.projectService(project, EventRegistrationManager.class);
+    }
+
+    public void registerTable(DBTable table) {
+        Project project = getProject();
+        DatabasePrerequisiteManager prerequisiteManager = DatabasePrerequisiteManager.getInstance(project);
+        prerequisiteManager.startOperation(table,
+                ENABLE_DATABASE_CHANGE_NOTIFICATION,
+                () -> openRegistrationDialog(table));
+    }
+
+    private void openRegistrationDialog(DBTable object) {
+        Project project = getProject();
+        Dialogs.show(() -> new EventRegistrationInputDialog(project, object));
     }
 
     public void startListening(DBTable table, int mask) {

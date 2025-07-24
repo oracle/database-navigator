@@ -21,11 +21,7 @@ import com.dbn.common.component.Components;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.form.DBNForm;
-import com.dbn.common.util.Dialogs;
-import com.dbn.event.registration.ui.EventRegistrationInputDialog;
 import com.dbn.event.ui.EventMonitorForm;
-import com.dbn.object.DBTable;
-import com.dbn.prerequisite.DatabasePrerequisiteManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -38,7 +34,6 @@ import com.intellij.util.Producer;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.action.UserDataKeys.EVENT_MONITOR_FORM;
-import static com.dbn.common.operation.DatabaseOperation.ENABLE_DATABASE_CHANGE_NOTIFICATION;
 import static com.dbn.editor.DatabaseFileEditorManager.COMPONENT_NAME;
 
 @State(
@@ -55,19 +50,6 @@ public class EventNotificationManager extends ProjectComponentBase {
 
     public static EventNotificationManager getInstance(Project project) {
         return Components.projectService(project, EventNotificationManager.class);
-    }
-
-    public void openEditorAndConfig(DBTable table) {
-        Project project = getProject();
-        DatabasePrerequisiteManager prerequisiteManager = DatabasePrerequisiteManager.getInstance(project);
-        prerequisiteManager.startOperation(table,
-                ENABLE_DATABASE_CHANGE_NOTIFICATION,
-                () -> openRegistrationDialog(table));
-    }
-
-    private void openRegistrationDialog(DBTable object) {
-        Project project = getProject();
-        Dialogs.show(() -> new EventRegistrationInputDialog(project, object));
     }
 
     public ToolWindow getEventToolWindow() {

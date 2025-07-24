@@ -18,9 +18,8 @@ package com.dbn.object.action;
 
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
 import com.dbn.editor.DBContentType;
-import com.dbn.event.registration.EventRegistrationManager;
+import com.dbn.event.action.ChangeNotificationsToggleAction;
 import com.dbn.execution.compiler.action.CompileActionGroup;
 import com.dbn.execution.java.action.JavaClassDebugAction;
 import com.dbn.execution.java.action.JavaClassWrapperAction;
@@ -56,11 +55,11 @@ import com.dbn.vfs.DBConsoleType;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.project.DumbAware;
-import com.intellij.openapi.project.Project;
 
 import java.util.List;
 
 import static com.dbn.database.DatabaseFeature.CONSTRAINT_MANIPULATION;
+import static com.dbn.database.DatabaseFeature.DATA_CHANGE_NOTIFICATION;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.database.DatabaseFeature.OBJECT_DEPENDENCIES;
 import static com.dbn.database.DatabaseFeature.OBJECT_DISABLING;
@@ -94,20 +93,10 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
 
     private void addTableActions(DBObject object) {
         if (object instanceof DBTable) {
-            //todo check if DCN is supported .
-
-            addSeparator();
-            //todo check of DCN already enabled
-            Project project = object.getProject();
-            EventRegistrationManager registrationManager = EventRegistrationManager.getInstance(project);
-
-            String tableName = object.getQualifiedName();
-            ConnectionId connectionId = object.getConnectionId();
-
-            if (registrationManager.getRegistrationCache().isListening(connectionId, tableName)) {
-                add(new TableDisableDCNAction((DBTable) object));
-            } else {
-                add(new TableEnableDCNAction((DBTable) object));
+            DBTable table = (DBTable) object;
+            if (DATA_CHANGE_NOTIFICATION.isSupported(object)) {
+                addSeparator();
+                add(new ChangeNotificationsToggleAction(table));
             }
         }
     }
