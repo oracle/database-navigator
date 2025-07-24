@@ -16,14 +16,17 @@
 
 package com.dbn.event.registration.ui;
 
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.HyperLinkForm;
+import com.dbn.event.registration.EventRegistrationManager;
 import com.dbn.object.DBTable;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JCheckBox;
@@ -32,6 +35,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 
 public class EventRegistrationInputForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -51,6 +55,16 @@ public class EventRegistrationInputForm extends DBNFormBase {
         initHeaderForm();
         initHintForm();
         initPoweredByPanel();
+    }
+
+    protected void initStatePersistence() {
+        Project project = ensureProject();
+        EventRegistrationManager registrationManager = EventRegistrationManager.getInstance(project);
+
+        StateAttributes state = registrationManager.getState("REGISTRATION_INPUT");
+        initPersistence(insertCheckBox, state, "insert-selected");
+        initPersistence(updateCheckBox, state, "update-selected");
+        initPersistence(deleteCheckBox, state, "delete-selected");
     }
 
     private void initHeaderForm() {
