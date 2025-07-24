@@ -18,26 +18,11 @@ package com.dbn.event.prerequisite;
 
 import com.dbn.prerequisite.definition.impl.ObjectPrivilegePrerequisite;
 
-import static com.dbn.event.prerequisite.ChangeNotificationPrerequisiteTypes.EXECUTE_DBMS_CHANGE_NOTIFICATION;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_CHANGE_NOTIFICATION;
 
 public class ObjectPrivilege_EXECUTE_DBMS_CHANGE_NOTIFICATION extends ObjectPrivilegePrerequisite {
 
     public ObjectPrivilege_EXECUTE_DBMS_CHANGE_NOTIFICATION() {
-        super(EXECUTE_DBMS_CHANGE_NOTIFICATION);
-    }
-
-    @Override
-    protected String getOwnerName() {
-        return "SYS";
-    }
-
-    @Override
-    protected String getObjectName() {
-        return "DBMS_CHANGE_NOTIFICATION";
-    }
-
-    @Override
-    protected String getPrivilegeName() {
-        return "EXECUTE";
+        super(EXECUTE_DBMS_CHANGE_NOTIFICATION, "EXECUTE", "SYS", "DBMS_CHANGE_NOTIFICATION");
     }
 }

@@ -37,9 +37,20 @@ import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public abstract class ObjectPrivilegePrerequisite extends PrerequisiteDefinitionProviderBase {
+    private final String privilegeName;
+    private final String ownerName;
+    private final String objectName;
 
-    protected ObjectPrivilegePrerequisite(PrerequisiteType prerequisiteType) {
+    protected ObjectPrivilegePrerequisite(
+            PrerequisiteType prerequisiteType,
+            @NonNls String privilegeName,
+            @NonNls String ownerName,
+            @NonNls String objectName) {
+
         super(prerequisiteType);
+        this.privilegeName = privilegeName;
+        this.ownerName = ownerName;
+        this.objectName = objectName;
     }
 
     @Override
@@ -47,21 +58,12 @@ public abstract class ObjectPrivilegePrerequisite extends PrerequisiteDefinition
         return null;
     }
 
-    protected abstract @NonNls String getOwnerName();
-    protected abstract @NonNls String getObjectName();
-    protected abstract @NonNls String getPrivilegeName();
-
-
     @NotNull
     @Override
     public PrerequisiteDefinition createDefinition(
             PrerequisiteEvaluator evaluator,
             PrerequisiteResolver resolver,
             PrerequisiteAdvisor advisor) {
-
-        String privilegeName = getPrivilegeName();
-        String ownerName = getOwnerName();
-        String objectName = getObjectName();
 
         return new PrerequisiteDefinitionBase(
                 txt("app.prerequisite.title.ObjectPrivilege", privilegeName, ownerName, objectName),
@@ -78,10 +80,6 @@ public abstract class ObjectPrivilegePrerequisite extends PrerequisiteDefinition
     @Override
     protected PrerequisiteEvaluator createEvaluator() {
         return context -> {
-            String privilegeName = getPrivilegeName();
-            String ownerName = getOwnerName();
-            String objectName = getObjectName();
-
             DatabaseMetadataInterface metadataInterface = context.getMetadataInterface();
             return DatabaseInterfaceInvoker.load(Priority.HIGH,
                     txt("prc.prerequisite.title.CheckingObjectPrivilege"),
@@ -113,5 +111,10 @@ public abstract class ObjectPrivilegePrerequisite extends PrerequisiteDefinition
                     "" + privilegeName + " privilege on " + ownerName + "." + objectName + " object",
                     String.format("grant %s on %s.%s to %s;", privilegeName, ownerName, objectName, userName));
         };
+    }
+
+    @Override
+    public String toString() {
+        return privilegeName + " " + ownerName + "." + objectName;
     }
 }

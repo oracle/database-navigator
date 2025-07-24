@@ -18,16 +18,11 @@ package com.dbn.event.prerequisite;
 
 import com.dbn.prerequisite.definition.impl.SystemPrivilegePrerequisite;
 
-import static com.dbn.event.prerequisite.ChangeNotificationPrerequisiteTypes.CHANGE_NOTIFICATION;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.CHANGE_NOTIFICATION;
 
 public class SystemPrivilege_CHANGE_NOTIFICATION extends SystemPrivilegePrerequisite {
 
     public SystemPrivilege_CHANGE_NOTIFICATION() {
-        super(CHANGE_NOTIFICATION);
-    }
-
-    @Override
-    protected String getPrivilegeName() {
-        return "CHANGE NOTIFICATION";
+        super(CHANGE_NOTIFICATION, "CHANGE NOTIFICATION");
     }
 }

@@ -19,18 +19,13 @@ package com.dbn.prerequisite.shared;
 import com.dbn.prerequisite.definition.impl.SystemPrivilegePrerequisite;
 import com.dbn.prerequisite.model.PrerequisiteType;
 
-import static com.dbn.prerequisite.shared.SharedPrerequisiteTypes.CREATE_ANY_TYPE;
-import static com.dbn.prerequisite.shared.SharedPrerequisiteTypes.CREATE_TYPE;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_ANY_TYPE;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_TYPE;
 
 public class SystemPrivilege_CREATE_TYPE extends SystemPrivilegePrerequisite {
 
     public SystemPrivilege_CREATE_TYPE() {
-        super(CREATE_TYPE);
-    }
-
-    @Override
-    protected String getPrivilegeName() {
-        return "CREATE TYPE";
+        super(CREATE_TYPE, "CREATE TYPE");
     }
 
     @Override

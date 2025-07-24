@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.operation.DatabaseOperation.ENABLE_DATABASE_CHANGE_NOTIFICATION;
-import static com.dbn.event.prerequisite.ChangeNotificationPrerequisiteTypes.CHANGE_NOTIFICATION;
-import static com.dbn.event.prerequisite.ChangeNotificationPrerequisiteTypes.EXECUTE_DBMS_CHANGE_NOTIFICATION;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.CHANGE_NOTIFICATION;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_CHANGE_NOTIFICATION;
 
 public class ChangeNotificationPrerequisitesEvaluator implements PrerequisiteRequirementEvaluator {
     @Override

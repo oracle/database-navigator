@@ -18,14 +18,11 @@ package com.dbn.debugger.prerequisite;
 
 import com.dbn.prerequisite.definition.impl.SystemPrivilegePrerequisite;
 
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.DEBUG_CONNECT_SESSION;
+
 public class SystemPrivilege_DEBUG_CONNECT_SESSION extends SystemPrivilegePrerequisite {
 
     public SystemPrivilege_DEBUG_CONNECT_SESSION() {
-        super(DebugPrerequisiteTypes.DEBUG_CONNECT_SESSION);
-    }
-
-    @Override
-    protected String getPrivilegeName() {
-        return "DEBUG CONNECT SESSION";
+        super(DEBUG_CONNECT_SESSION, "DEBUG CONNECT SESSION");
     }
 }

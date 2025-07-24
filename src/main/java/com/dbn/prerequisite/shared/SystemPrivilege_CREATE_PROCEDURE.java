@@ -19,18 +19,13 @@ package com.dbn.prerequisite.shared;
 import com.dbn.prerequisite.definition.impl.SystemPrivilegePrerequisite;
 import com.dbn.prerequisite.model.PrerequisiteType;
 
-import static com.dbn.prerequisite.shared.SharedPrerequisiteTypes.CREATE_ANY_PROCEDURE;
-import static com.dbn.prerequisite.shared.SharedPrerequisiteTypes.CREATE_PROCEDURE;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_ANY_PROCEDURE;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_PROCEDURE;
 
 public class SystemPrivilege_CREATE_PROCEDURE extends SystemPrivilegePrerequisite {
 
     public SystemPrivilege_CREATE_PROCEDURE() {
-        super(CREATE_PROCEDURE);
-    }
-
-    @Override
-    protected String getPrivilegeName() {
-        return "CREATE PROCEDURE";
+        super(CREATE_PROCEDURE, "CREATE PROCEDURE");
     }
 
     @Override

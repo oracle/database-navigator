@@ -28,13 +28,13 @@ import java.util.List;
 import static com.dbn.common.operation.DatabaseOperation.DEBUG_JAVA_CODE;
 import static com.dbn.common.operation.DatabaseOperation.DEBUG_PLSQL_CODE_JDBC;
 import static com.dbn.common.operation.DatabaseOperation.DEBUG_PLSQL_CODE_JDWP;
-import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.DEBUG_ANY_PROCEDURE;
-import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.DEBUG_CONNECT_SESSION;
-import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.EXECUTE_DBMS_DEBUG;
-import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.EXECUTE_DBMS_DEBUG_JDWP;
-import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.HOST_ACE_JDWP;
-import static com.dbn.prerequisite.shared.SharedPrerequisiteTypes.CREATE_PROCEDURE;
-import static com.dbn.prerequisite.shared.SharedPrerequisiteTypes.CREATE_TYPE;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_PROCEDURE;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_TYPE;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.DEBUG_ANY_PROCEDURE;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.DEBUG_CONNECT_SESSION;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_DEBUG;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_DEBUG_JDWP;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.HOST_ACE_JDWP;
 
 public class DebugPrerequisitesEvaluator implements PrerequisiteRequirementEvaluator {
 
