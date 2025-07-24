@@ -16,8 +16,10 @@
 
 package com.dbn.event.registration.ui;
 
+import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.object.DBTable;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.Disposable;
@@ -27,26 +29,39 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import static com.dbn.common.text.TextContent.plain;
+
 public class EventRegistrationInputForm extends DBNFormBase {
   private JPanel mainPanel;
   private JCheckBox insertCheckBox;
   private JCheckBox updateCheckBox;
   private JCheckBox deleteCheckBox;
   private JPanel headerPanel;
+    private JPanel hintPanel;
 
-  private final DBObjectRef<DBTable> table;
+    private final DBObjectRef<DBTable> table;
 
   public EventRegistrationInputForm(@Nullable Disposable parent, final DBTable table) {
     super(parent);
     this.table = DBObjectRef.of(table);
 
     initHeaderForm();
+    initHintForm();
   }
 
-  private void initHeaderForm() {
+    private void initHeaderForm() {
     DBNHeaderForm headerForm = new DBNHeaderForm(this, table);
     headerPanel.add(headerForm.getComponent());
   }
+
+    private void initHintForm() {
+        TextContent hintText = plain("Register a listener to receive notifications when data changes occur on the " + table.getObjectName(true) + " table.\n" +
+                "You will get real-time updates on inserts, updates, or deletes (depending on which actions you select for registration).\n\n" +
+                "Please select the actions you want to receive notifications for.");
+        DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
+        hintPanel.add(hintForm.getComponent());
+
+    }
 
   @Override
   protected JComponent getMainComponent() {
