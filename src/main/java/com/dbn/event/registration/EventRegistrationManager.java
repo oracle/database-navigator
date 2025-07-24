@@ -43,9 +43,11 @@ import com.dbn.event.model.RowChangeDescription;
 import com.dbn.event.model.TableChangeDescription;
 import com.dbn.event.notification.EventNotificationListener;
 import com.dbn.event.notification.model.DataChangeNotification;
+import com.dbn.event.registration.EventRegistrationListener.RegistrationEvent;
 import com.dbn.event.registration.ui.EventRegistrationInputDialog;
 import com.dbn.event.service.EventHistoryService;
 import com.dbn.object.DBTable;
+import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.prerequisite.DatabasePrerequisiteManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -126,15 +128,16 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
                         c -> registerTable(tableName, mask, connectionId, c));
 
                 sendInfoNotification(DCN, txt("ntf.events.info.ListenerRegisteredFor", qualifiedTableName, connectionName));
-                notifyRegistrationListeners(connectionId);
+                notifyRegistrationListeners(connectionId, ObjectChangeAction.CREATE);
             } catch (Exception e) {
                 sendErrorNotification(DCN, txt("ntf.events.warning.ListenerRegistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
             }
         });
     }
 
-    private void notifyRegistrationListeners(ConnectionId connectionId) {
-        ProjectEvents.notify(ensureProject(), EventRegistrationListener.TOPIC, l -> l.registrationsChanged(connectionId));
+    private void notifyRegistrationListeners(ConnectionId connectionId, ObjectChangeAction action) {
+        RegistrationEvent registrationEvent = EventRegistrationListener.event(connectionId, action);
+        ProjectEvents.notify(ensureProject(), EventRegistrationListener.TOPIC, l -> l.registrationsChanged(registrationEvent));
     }
 
     private void notifyNotificationListeners(ConnectionId connectionId, String tableName) {
@@ -220,7 +223,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
                         c -> unregisterTable(tableName, connectionId, c));
 
                 sendInfoNotification(DCN, txt("ntf.events.info.ListenerDeregisteredFor", qualifiedTableName, connectionName));
-                notifyRegistrationListeners(connectionId);
+                notifyRegistrationListeners(connectionId, ObjectChangeAction.DELETE);
             } catch (Exception e) {
                 sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
             }
@@ -245,7 +248,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
                         c -> unregisterListener(regId, tableName, connectionId, c));
 
                 sendInfoNotification(DCN, txt("ntf.events.info.ListenerDeregisteredFor", tableName, connectionName));
-                notifyRegistrationListeners(connectionId);
+                notifyRegistrationListeners(connectionId, ObjectChangeAction.DELETE);
             } catch (Exception e) {
                 sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", tableName, connectionName, e.getMessage()));
             }

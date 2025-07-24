@@ -17,12 +17,29 @@
 package com.dbn.event.registration;
 
 import com.dbn.connection.ConnectionId;
+import com.dbn.object.event.ObjectChangeAction;
 import com.intellij.util.messages.Topic;
+import lombok.Getter;
 
 import java.util.EventListener;
 
 public interface EventRegistrationListener extends EventListener {
     Topic<EventRegistrationListener> TOPIC = Topic.create("Data Change Registration Event", EventRegistrationListener.class);
 
-    void registrationsChanged(ConnectionId connectionId);
+    void registrationsChanged(RegistrationEvent event);
+
+    static RegistrationEvent event(ConnectionId connectionId, ObjectChangeAction action) {
+        return new RegistrationEvent(connectionId, action);
+    }
+
+    @Getter
+    class RegistrationEvent {
+        private final ConnectionId connectionId;
+        private final ObjectChangeAction action;
+
+        public RegistrationEvent(ConnectionId connectionId, ObjectChangeAction action) {
+            this.connectionId = connectionId;
+            this.action = action;
+        }
+    }
 }

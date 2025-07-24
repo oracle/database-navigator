@@ -27,9 +27,11 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionConfigListener;
+import com.dbn.event.registration.EventRegistrationListener;
+import com.dbn.object.event.ObjectChangeAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.SimpleTextAttributes;
-import com.intellij.ui.components.JBList;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.DefaultListModel;
@@ -37,99 +39,131 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.ListModel;
-import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.ui.util.Borderless.markBorderless;
 
 public class EventMonitorForm extends DBNFormBase {
-  private JPanel mainPanel;
-  private JPanel detailsPanel;
-  private JList<ConnectionHandler> connectionsList;
-  private JSplitPane splitPane;
-  private int tabSelectionIndex;
+    private JPanel mainPanel;
+    private JPanel detailsPanel;
+    private JList<ConnectionHandler> connectionsList;
+    private JSplitPane splitPane;
 
-  private final Map<ConnectionId, EventMonitorDetailsForm> resourceMonitorForms = DisposableContainers.map(this);
+    @Setter
+    private int tabSelectionIndex;
 
-  public EventMonitorForm(@NotNull Project project) {
-    super(null, project);
-    if (connectionsList == null) {
-      connectionsList = new JBList<>();
-    }
-    connectionsList.addListSelectionListener(e -> {
-      ConnectionHandler connection = connectionsList.getSelectedValue();
-      showDetailsForm(connection);
-    });
-    connectionsList.setCellRenderer(new ConnectionListCellRenderer());
+    private final Map<ConnectionId, EventMonitorDetailsForm> resourceMonitorForms = DisposableContainers.map(this);
 
-    ListModel<ConnectionHandler> model = createModel();
-    connectionsList.setModel(model);
-    connectionsList.setSelectedIndex(0);
-    markBorderless(connectionsList);
+    public EventMonitorForm(@NotNull Project project) {
+        super(null, project);
 
-    Splitters.setSplitPaneProportion(splitPane, 0.2);
+        connectionsList.addListSelectionListener(e -> {
+            ConnectionHandler connection = connectionsList.getSelectedValue();
+            showDetailsForm(connection);
+        });
 
-    ProjectEvents.subscribe(project, this,
-            ConnectionConfigListener.TOPIC,
-            ConnectionConfigListener.whenSetupChanged(() -> rebuildModel()));
-  }
+        connectionsList.setCellRenderer(new ConnectionListCellRenderer());
 
-  private void rebuildModel() {
-    ListModel<ConnectionHandler> model = createModel();
-    connectionsList.setModel(model);
-  }
+        ListModel<ConnectionHandler> model = createModel();
+        connectionsList.setModel(model);
+        connectionsList.setSelectedIndex(0);
+        markBorderless(connectionsList);
 
-  @NotNull
-  private ListModel<ConnectionHandler> createModel() {
-    DefaultListModel<ConnectionHandler> model = new DefaultListModel<>();
-    ConnectionManager connectionManager = ConnectionManager.getInstance(ensureProject());
-    List<ConnectionHandler> connections = connectionManager.getConnections(c -> c.getDatabaseType() == DatabaseType.ORACLE);
-    for (ConnectionHandler connection : connections) {
-      model.addElement(connection);
-    }
-    return model;
-  }
+        Splitters.setSplitPaneProportion(splitPane, 0.2);
 
-  private void showDetailsForm(ConnectionHandler connection) {
-    detailsPanel.removeAll();
-    if (connection != null) {
-      ConnectionId connectionId = connection.getConnectionId();
-      EventMonitorDetailsForm detailForm = resourceMonitorForms.get(connectionId);
-      if (detailForm == null) {
-        detailForm = new EventMonitorDetailsForm(this, connection);
-        resourceMonitorForms.put(connectionId, detailForm);
-      }
-      detailsPanel.add(detailForm.getComponent(), BorderLayout.CENTER);
-      detailForm.selectTab(tabSelectionIndex);
+        ProjectEvents.subscribe(project, this,
+                ConnectionConfigListener.TOPIC,
+                ConnectionConfigListener.whenSetupChanged(() -> rebuildModel()));
+
+        ProjectEvents.subscribe(project, this,
+                EventRegistrationListener.TOPIC,
+                createEventRegistrationListener());
     }
 
-    UserInterface.repaint(detailsPanel);
-  }
+    private EventRegistrationListener createEventRegistrationListener() {
+        return event -> {
+            if (event.getAction() != ObjectChangeAction.CREATE) return;
 
-  public void setTabSelectionIndex(int tabSelectionIndex) {
-    this.tabSelectionIndex = tabSelectionIndex;
-  }
+            ConnectionHandler connection = ConnectionHandler.get(event.getConnectionId());
+            if (connection == null) return;
 
+            dispatch(() -> {
+                tabSelectionIndex = 0; // registration tab
+                connectionsList.setSelectedValue(connection, true);
+            });
+        };
+    }
 
+    public void selectContent(ConnectionId connectionId, int index) {
+        if (connectionId == null) return;
+        if (index < 0) return;
 
-  private static class ConnectionListCellRenderer extends ColoredListCellRenderer<ConnectionHandler> {
+        ConnectionHandler connection = ConnectionHandler.get(connectionId);
+        if (connection == null) return;
 
-    @Override
-    protected void customize(@NotNull JList<? extends ConnectionHandler> list, ConnectionHandler value, int index, boolean selected, boolean hasFocus) {
-      setIcon(value.getIcon());
+        connectionsList.setSelectedValue(connection, true);
+        EventMonitorDetailsForm detailsForm = ensureDetailsForm(connectionId);
+        detailsForm.selectTab(index);
+    }
+
+    private void rebuildModel() {
+        ListModel<ConnectionHandler> model = createModel();
+        connectionsList.setModel(model);
+    }
+
+    @NotNull
+    private ListModel<ConnectionHandler> createModel() {
+        DefaultListModel<ConnectionHandler> model = new DefaultListModel<>();
+        ConnectionManager connectionManager = ConnectionManager.getInstance(ensureProject());
+        List<ConnectionHandler> connections = connectionManager.getConnections(c -> c.getDatabaseType() == DatabaseType.ORACLE);
+        for (ConnectionHandler connection : connections) {
+            model.addElement(connection);
+        }
+        return model;
+    }
+
+    private void showDetailsForm(ConnectionHandler connection) {
+        detailsPanel.removeAll();
+        if (connection == null) return;
+
+        ConnectionId connectionId = connection.getConnectionId();
+        EventMonitorDetailsForm detailForm = ensureDetailsForm(connectionId);
+
+        detailsPanel.add(detailForm.getComponent());
+        detailForm.selectTab(tabSelectionIndex);
+
+        UserInterface.repaint(detailsPanel);
+    }
+
+    @NotNull
+    private EventMonitorDetailsForm ensureDetailsForm(ConnectionId connectionId) {
+        EventMonitorDetailsForm detailForm = resourceMonitorForms.get(connectionId);
+        if (detailForm == null) {
+            ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
+            detailForm = new EventMonitorDetailsForm(this, connection);
+            resourceMonitorForms.put(connectionId, detailForm);
+        }
+        return detailForm;
+    }
+
+    private static class ConnectionListCellRenderer extends ColoredListCellRenderer<ConnectionHandler> {
+
+        @Override
+        protected void customize(@NotNull JList<? extends ConnectionHandler> list, ConnectionHandler value, int index, boolean selected, boolean hasFocus) {
+            setIcon(value.getIcon());
 /*            if (!selected) {
                 JBColor color = Commons.nvl(value.getEnvironmentType().getColor(), JBColor.WHITE);
                 setBackground(Colors.softer(color, 30));
             }*/
-      append(value.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+            append(value.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+        }
     }
-  }
 
 
-  @NotNull
-  @Override
-  public JPanel getMainComponent() {
-    return mainPanel;
-  }
+    @NotNull
+    @Override
+    public JPanel getMainComponent() {
+        return mainPanel;
+    }
 }

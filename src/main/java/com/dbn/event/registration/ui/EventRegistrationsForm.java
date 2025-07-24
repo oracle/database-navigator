@@ -72,7 +72,7 @@ public class EventRegistrationsForm extends DBNFormBase {
     }
 
     private EventRegistrationListener createEventRegistrationListener() {
-        return connectionId -> when(connectionId == getConnectionId(), () -> refresh());
+        return event -> when(event.getConnectionId() == getConnectionId(), () -> refresh());
     }
 
     private @Nullable ConnectionId getConnectionId() {

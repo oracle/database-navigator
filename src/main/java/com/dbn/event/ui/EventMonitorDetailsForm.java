@@ -34,101 +34,50 @@ import java.awt.BorderLayout;
 import static com.dbn.common.dispose.Failsafe.nd;
 
 public class EventMonitorDetailsForm extends DBNFormBase {
-  private JPanel mainPanel;
-  private JPanel tabsPanel;
-  private JPanel headerPanel;
-  private final DBNTabbedPane<DBNForm> contentTabs;
+    private JPanel mainPanel;
+    private JPanel tabsPanel;
+    private JPanel headerPanel;
+    private final DBNTabbedPane<DBNForm> contentTabs;
 
-  public EventMonitorDetailsForm(@NotNull EventMonitorForm parent, ConnectionHandler connection) {
-    super(parent);
+    public EventMonitorDetailsForm(@NotNull EventMonitorForm parent, ConnectionHandler connection) {
+        super(parent);
 
-    // Initialize components
-    contentTabs = new DBNTabbedPane<>(this);
-    tabsPanel.add(contentTabs, BorderLayout.CENTER);
-    contentTabs.enableFocusInheritance();
+        // Initialize components
+        contentTabs = new DBNTabbedPane<>(this);
+        tabsPanel.add(contentTabs, BorderLayout.CENTER);
+        contentTabs.enableFocusInheritance();
 
-    DataChangeNotificationBundle eventModel = new DataChangeNotificationBundle(connection.getConnectionId());
-    DataChangeRegistrationBundle registrationModel = new DataChangeRegistrationBundle(connection);
+        DataChangeNotificationBundle eventModel = new DataChangeNotificationBundle(connection.getConnectionId());
+        DataChangeRegistrationBundle registrationModel = new DataChangeRegistrationBundle(connection);
 
-    // Initialize tables
-    EventRegistrationsForm registrationsForm = new EventRegistrationsForm(this, registrationModel);
-    contentTabs.addTab("Registrations", registrationsForm.getComponent(), registrationsForm);
+        // Initialize tables
+        EventRegistrationsForm registrationsForm = new EventRegistrationsForm(this, registrationModel);
+        contentTabs.addTab("Registrations", registrationsForm.getComponent(), registrationsForm);
 
-    EventNotificationsForm notificationsForm = new EventNotificationsForm(this, eventModel);
-    contentTabs.addTab("Notifications", notificationsForm.getComponent(), notificationsForm);
+        EventNotificationsForm notificationsForm = new EventNotificationsForm(this, eventModel);
+        contentTabs.addTab("Notifications", notificationsForm.getComponent(), notificationsForm);
 
-    initFormHeader(connection);
+        initFormHeader(connection);
 
-    contentTabs.addTabSelectionListener(i -> {
-      EventMonitorForm parentForm = nd(getParentComponent());
-      parentForm.setTabSelectionIndex(i);
-    });
-  }
+        contentTabs.addTabSelectionListener(i -> {
+            EventMonitorForm parentForm = nd(getParentComponent());
+            parentForm.setTabSelectionIndex(i);
+        });
+    }
 
-  private void initFormHeader(ConnectionHandler connection) {
-    DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
-    headerPanel.add(headerForm.getComponent());
-  }
-
- /* private void setUpLayout(DataChangeRegistrationBundle dataChangeRegistrationBundle) {
-    // Create toolbar
-    JButton refreshButton = new JButton("Refresh");
-    JToolBar toolbar = new JToolBar();
-    toolbar.setFloatable(false);
-    toolbar.add(new JLabel("Table:"));
-    toolbar.add(tableNameFilterComboBox);
-    toolbar.add(new JLabel("Status:"));
-    toolbar.add(regStatusFilterComboBox);
-    toolbar.add(refreshButton);
-    refreshButton.addActionListener(e -> {
-      tableNameFilterComboBox.setEnabled(false);
-      dataChangeRegistrationBundle.refresh(()->{
-        List<String> tableNames = dataChangeRegistrationBundle.getAllTableNames();
-        tableNames.add(0, "All");  // Add "All" option to the beginning of the list
-
-        tableNameFilterComboBox.setModel(new DefaultComboBoxModel<>(tableNames.toArray(new String[0])));
-        tableNameFilterComboBox.setEnabled(true);
-      });
-    });
-
-    // Add toolbar to the panel
-    headerPanel.add(toolbar,BorderLayout.AFTER_LAST_LINE );
-  }
-
-  private void updateEventFilter() {
-    String selectedTable = (String) tableNameFilterComboBox.getSelectedItem();
-    String selectedStatus = (String) regStatusFilterComboBox.getSelectedItem();
-
-    // Apply filtering logic to update the events in the table model
-    DataChangeEventBundle eventsModel = (DataChangeEventBundle) eventsTable.getModel();
-    DataChangeRegistrationBundle registrationModel = (DataChangeRegistrationBundle) registrationsTable.getModel();
-
-    eventsModel.setTableNameFilter(selectedTable);  // Filter by specific table name
-    registrationModel.setTableNameFilter(selectedTable);  // Filter by specific table name
-
-    // Apply filter based on the status (All, Active, Inactive)
-    eventsModel.setRegStatusFilter(selectedStatus);
-    registrationModel.setRegStatusFilter(selectedStatus);
-
-    // Reload filtered events
-    eventsModel.loadEvents();
-    registrationModel.applyFilterAndRefresh();
-  }
-
-  private void addTab(DBNTable component, String title) {
-    JScrollPane scrollPane = new DBNScrollPane(component);
-    diagnosticsTabs.addTab(title, scrollPane, component);
-  }
-
-  */
-
-  public void selectTab(int tabIndex) {
-    contentTabs.setSelectedIndex(tabIndex);
-  }
+    private void initFormHeader(ConnectionHandler connection) {
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
+        headerPanel.add(headerForm.getComponent());
+    }
 
 
-  @Override
-  protected JComponent getMainComponent() {
-    return mainPanel;
-  }
+    public void selectTab(int tabIndex) {
+        contentTabs.setSelectedIndex(tabIndex);
+    }
+
+
+    @Override
+    protected JComponent getMainComponent() {
+        return mainPanel;
+    }
 }
