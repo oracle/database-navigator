@@ -34,6 +34,7 @@ public class EventRegistrationInputDialog extends DBNDialog<EventRegistrationInp
     this.table = DBObjectRef.of(table);
     setModal(false);
     setResizable(true);
+    setDefaultSize(500, 400);
     init();
   }
 
