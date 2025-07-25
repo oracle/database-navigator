@@ -18,6 +18,7 @@ package com.dbn.common.text;
 
 import com.dbn.common.Pair;
 import com.dbn.common.util.Commons;
+import com.dbn.common.util.Unsafe;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -40,12 +41,7 @@ public class TextResources {
 
     @NotNull
     private static String readResource(Class clazz, String resourceName) {
-        try {
-            return Commons.readInputStream(clazz.getResourceAsStream(resourceName));
-        } catch (Exception e) {
-            log.error("Failed to read resource \"{}\". Returning empty string", resourceName, e);
-            return "";
-        }
+        return Unsafe.logged("", () -> Commons.readInputStream(clazz.getResourceAsStream(resourceName)));
     }
 
 }

@@ -16,9 +16,10 @@
 
 package com.dbn.assistant.chat.message;
 
+import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
-import kotlin.jvm.functions.Function3;
+import com.dbn.common.util.Unsafe;
 import lombok.experimental.UtilityClass;
 import org.intellij.markdown.IElementType;
 import org.intellij.markdown.MarkdownElementTypes;
@@ -27,6 +28,13 @@ import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor;
 import org.intellij.markdown.html.HtmlGenerator;
 import org.intellij.markdown.parser.MarkdownParser;
 import org.jetbrains.annotations.NotNull;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.select.Elements;
+import org.jsoup.select.NodeVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,18 +116,40 @@ public class ChatMessageParser {
         htmlContent.initFonts();
 
         HtmlGenerator htmlGenerator = new HtmlGenerator(content, rootNode, flavourDescriptor, false);
-        HtmlGenerator.TagRenderer tagRenderer = new HtmlGenerator.DefaultTagRenderer(createHtmlCustomizer(), true);
+        HtmlGenerator.TagRenderer tagRenderer = new HtmlGenerator.DefaultTagRenderer((n, s, cs) -> cs, false);
         String body = htmlGenerator.generateHtml(tagRenderer);
 
         htmlContent.replaceFields("BODY_CONTENT", body);
-        return htmlContent.getText();
+
+        String html = htmlContent.getText();
+        return Unsafe.logged(html, () -> cleanupHtml(html));
 
     }
 
-    private static @NotNull Function3<ASTNode, CharSequence, Iterable<? extends CharSequence>, Iterable<? extends CharSequence>> createHtmlCustomizer() {
-        return (astNode, charSequence, charSequences) -> {
-            // TODO try to prevent <p> inside <li> nesting (unwanted line braks on bulleted lines)
-            return charSequences;
-        };
+    private static @NotNull String cleanupHtml(String html) {
+        Document document = Jsoup.parse(html);
+
+        // remove <p> tags from within <li>
+        Elements listItems = document.select("li");
+        for (Element listItem : listItems) {
+            listItem.select("p").unwrap();
+        }
+
+        // remove comments
+        document.traverse(new NodeVisitor() {
+            @Override
+            public void head(@NotNull Node node, int i) {
+                if (node instanceof Comment) {
+                    node.remove();
+                }
+            }
+
+            @Override
+            @Compatibility // earlier versions of jsoup don't "default" this interface method
+            public void tail(@NotNull Node node, int depth) {}
+        });
+
+        html = document.html();
+        return html;
     }
 }

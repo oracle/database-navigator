@@ -18,6 +18,7 @@
 <head>
     <title>Chat Message</title>
     <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
         body { ${REGULAR_FONT_STYLE} }
         code { ${MONOSPACE_FONT_STYLE} }
     </style>
