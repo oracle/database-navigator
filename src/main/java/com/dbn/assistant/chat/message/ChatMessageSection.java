@@ -51,4 +51,9 @@ public class ChatMessageSection {
     public List<ChatMessageSection> asList() {
         return List.of(this);
     }
+
+    @Override
+    public String toString() {
+        return languageId == null ? content : "[" + languageId + "] " + content;
+    }
 }
