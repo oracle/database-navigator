@@ -3,21 +3,17 @@ package com.dbn.connection;
 import com.dbn.connection.config.EasyConnectParameters;
 import com.dbn.connection.config.parameter.CheckForInvalidCharactersValidator;
 import com.dbn.connection.config.parameter.RegexConstraintValidator;
-import com.dbn.connection.config.parameter.ui.UrlParameterInputForm;
-import com.intellij.testFramework.TestDataFile;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
-import static com.intellij.testFramework.UsefulTestCase.assertNotEmpty;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.TestCase.assertSame;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.*;
 
 public class EasyConnectParameterTest {
     private static Map<String,String>  ALL_TCPS_PARAMS;
