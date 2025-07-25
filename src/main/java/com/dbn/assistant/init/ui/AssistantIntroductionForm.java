@@ -21,9 +21,9 @@ import com.dbn.assistant.help.ui.AssistantHelpDialog;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.feature.FeatureAvailability;
 import com.dbn.common.text.TextContent;
+import com.dbn.common.text.TextResources;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
-import com.dbn.common.util.Commons;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.ui.HyperlinkLabel;
@@ -97,7 +97,7 @@ public class AssistantIntroductionForm extends DBNFormBase {
 
     @SneakyThrows
     private TextContent loadIntroContent() {
-        String content = Commons.readInputStream(getClass().getResourceAsStream("intro_content.html.ft"));
+        String content = TextResources.get(this, "intro_content.html.ft");
         return TextContent.html(content);
     }
 

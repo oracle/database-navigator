@@ -16,9 +16,11 @@
 
 package com.dbn.common.text;
 
+import com.intellij.util.ui.JBUI;
+import com.intellij.util.ui.UIUtil;
 import lombok.Data;
 
-import java.util.Objects;
+import java.awt.Font;
 
 @Data
 public class TextContent {
@@ -32,10 +34,21 @@ public class TextContent {
         this.type = type;
     }
 
-    public TextContent replaceFields(String identifier, String replacement) {
-        String text = this.text.replaceAll("\\$\\$" + identifier + "\\$\\$", replacement);
-        if (Objects.equals(this.text, text)) return this;
-        return new TextContent(text, type);
+    public void replaceFields(String identifier, String replacement) {
+        text = text.replaceAll("\\$\\{"+ identifier + "}", replacement);
+    }
+
+    public void initFonts() {
+        // quick hack for R3.5.0 accessibility:
+        // TODO use velocity template engine instead / proper font family and size placeholders
+        Font font = UIUtil.getLabelFont();
+        String fontName = font.getFontName();
+        int fontSize = font.getSize();
+
+        replaceFields("REGULAR_FONT_STYLE", "font-family:" + fontName + ",Segoe UI,SansSerif,serif; font-size: " + fontSize + "pt");
+        replaceFields("REGULAR_LARGE_FONT_STYLE", "font-family:" + fontName + ",Segoe UI,SansSerif,serif; font-size: " + (fontSize + JBUI.scale(4)) + "pt");
+        replaceFields("MONOSPACE_FONT_STYLE", "font-family: Courier New, Courier, monospace; font-size: " + fontSize + "pt");
+        replaceFields("MONOSPACE_LARGE_FONT_STYLE", "font-family: Courier New, Courier, monospace; font-size: " + (fontSize + JBUI.scale(2)) + "pt");
     }
 
     public String getTypeId() {

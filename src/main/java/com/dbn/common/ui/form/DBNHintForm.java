@@ -40,7 +40,6 @@ import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
-import static com.dbn.common.text.HtmlContents.initFonts;
 import static com.dbn.common.ui.util.ClientProperty.RESIZING;
 import static com.dbn.common.ui.util.UserInterface.adjustDimension;
 
@@ -192,11 +191,10 @@ public class DBNHintForm extends DBNFormBase {
     }
 
     private void initHtmlContent() {
-        String htmlContent = content.getText();
-        htmlContent = initFonts(htmlContent); // TODO use velocity template engine
+        content.initFonts();
 
         hintTextPane.setContentType(content.getTypeId());
-        hintTextPane.setText(htmlContent);
+        hintTextPane.setText(content.getText());
     }
 
     private void initEmptyContent() {

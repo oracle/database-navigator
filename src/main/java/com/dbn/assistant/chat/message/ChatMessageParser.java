@@ -16,7 +16,9 @@
 
 package com.dbn.assistant.chat.message;
 
-import com.dbn.common.util.Strings;
+import com.dbn.common.text.TextContent;
+import com.dbn.common.text.TextResources;
+import kotlin.jvm.functions.Function3;
 import lombok.experimental.UtilityClass;
 import org.intellij.markdown.IElementType;
 import org.intellij.markdown.MarkdownElementTypes;
@@ -24,9 +26,9 @@ import org.intellij.markdown.ast.ASTNode;
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor;
 import org.intellij.markdown.html.HtmlGenerator;
 import org.intellij.markdown.parser.MarkdownParser;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.intellij.markdown.MarkdownTokenTypes.CODE_FENCE_END;
@@ -101,14 +103,23 @@ public class ChatMessageParser {
         GFMFlavourDescriptor flavourDescriptor = new GFMFlavourDescriptor();
         ASTNode rootNode = parseMadkdownContent(content);
 
-        HtmlGenerator htmlGenerator = new HtmlGenerator(content, rootNode, flavourDescriptor, false);
-        HtmlGenerator.TagRenderer tagRenderer = new HtmlGenerator.DefaultTagRenderer((astNode, charSequence, charSequences) -> {
-            if (Strings.equalsIgnoreCase(charSequence, "body")) {
-                return Collections.singletonList("body style='font-family:Segoe UI,SansSerif,serif'");
-            }
-            return charSequences;
-            },true);
-        return htmlGenerator.generateHtml(tagRenderer);
+        String wrapperContent = TextResources.get(ChatMessageParser.class, "chat_message_wrapper.html.ft");
+        TextContent htmlContent = TextContent.html(wrapperContent);
+        htmlContent.initFonts();
 
+        HtmlGenerator htmlGenerator = new HtmlGenerator(content, rootNode, flavourDescriptor, false);
+        HtmlGenerator.TagRenderer tagRenderer = new HtmlGenerator.DefaultTagRenderer(createHtmlCustomizer(), true);
+        String body = htmlGenerator.generateHtml(tagRenderer);
+
+        htmlContent.replaceFields("BODY_CONTENT", body);
+        return htmlContent.getText();
+
+    }
+
+    private static @NotNull Function3<ASTNode, CharSequence, Iterable<? extends CharSequence>, Iterable<? extends CharSequence>> createHtmlCustomizer() {
+        return (astNode, charSequence, charSequences) -> {
+            // TODO try to prevent <p> inside <li> nesting (unwanted line braks on bulleted lines)
+            return charSequences;
+        };
     }
 }

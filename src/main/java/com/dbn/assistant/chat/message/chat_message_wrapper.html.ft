@@ -16,16 +16,13 @@
 
 <html lang="en">
 <head>
-    <title>Object filter expression</title>
+    <title>Chat Message</title>
+    <style>
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+    </style>
 </head>
-<body style="${REGULAR_FONT_STYLE}">
-<span style="font-size: larger">SQL object filter expression</span><br><br>
-<u>Supported variables:</u><ul style="${MONOSPACE_FONT_STYLE}">${SUPPORTED_ATTRIBUTES}</ul>
-
-<u>Example:</u><br>
-<span style="${MONOSPACE_FONT_STYLE}">${SAMPLE_EXPRESSION}</span>
-<br>
-<br>
-
-</body>
+    ${BODY_CONTENT}
 </html>
+
+
