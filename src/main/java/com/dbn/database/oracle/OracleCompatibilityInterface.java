@@ -345,19 +345,19 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
         if (visitor.hasBindException() ||
                 visitor.containsOraErrorCodes(ProviderErrorHandlingConstants.ORA_FAILURECODES_ON_CONNECTION)) {
             if (info.getAuthenticationInfo().getType() == AuthenticationType.TOKEN) {
-                AuthenticationTokenType tokenType = info.getAuthenticationInfo().getTokenType();
-                if (tokenType == OCI_INTERACTIVE) {
-                    Background.run(() -> resetOciInteractiveConnection(info));
-                }
+                //all token provider connection problems require a workaround for matching
+                //failures
+                Background.run(() -> resetTokenProviderConnection(info));
             }
         }
         return false;
     }
 
-    private static void resetOciInteractiveConnection(ConnectionExceptionInfo info) {
+    private static void resetTokenProviderConnection(ConnectionExceptionInfo info) {
         // TODO: use a backoff and retry?
         // unfreeze the busy socket (e.g. when auth browser is left unattended or closed without completing the authentication)
-        if (!Sockets.tryToBindPort(ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT)) {
+        if (info.getAuthenticationInfo().getTokenType() == OCI_INTERACTIVE &&
+                !Sockets.tryToBindPort(ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT)) {
             /**
              *  @see ProviderErrorHandlingConstants.OCI_INTERACTIVE_WEB_SERVER_POKE_URL
              */

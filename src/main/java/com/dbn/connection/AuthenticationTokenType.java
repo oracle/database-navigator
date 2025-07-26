@@ -20,6 +20,10 @@ import com.dbn.common.ui.Presentable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
+
 /**
  * Enumeration for all possible token authentication types<br>
  * See: <a href="https://docs.oracle.com/en/database/oracle/oracle-database/23/odpnt/ConnectionTokenAuthentication.html">Oracle token auth types</a>
@@ -37,7 +41,11 @@ public enum AuthenticationTokenType implements Presentable {
 
     AZURE_SERVICE_PRINCIPAL_CERTIFICATE("Azure Service Principal with Certificate"),
     AZURE_SERVICE_PRINCIPAL_TOKEN("Azure Service Principal with Token"),
-    AZURE_INTERACTIVE("Azure Interactive"),
-    ;
+    AZURE_INTERACTIVE("Azure Interactive");
+
     private final String name;
+
+    public static final Set<AuthenticationTokenType> ALL_AZURE_TOKEN_TYPES =
+        Collections.unmodifiableSet(
+            EnumSet.of(AZURE_SERVICE_PRINCIPAL_CERTIFICATE, AZURE_SERVICE_PRINCIPAL_TOKEN, AZURE_INTERACTIVE));
 }
