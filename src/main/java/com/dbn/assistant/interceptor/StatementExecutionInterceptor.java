@@ -16,7 +16,9 @@
 
 package com.dbn.assistant.interceptor;
 
+import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.DatabaseAssistantManager;
+import com.dbn.assistant.selectai.SelectAiContextUtil;
 import com.dbn.common.exception.ProcessDeferredException;
 import com.dbn.common.interceptor.Interceptor;
 import com.dbn.common.interceptor.InterceptorType;
@@ -74,10 +76,10 @@ public class StatementExecutionInterceptor implements Interceptor<StatementExecu
         DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
 
         ConnectionId connectionId = connection.getConnectionId();
-        DBAIProfile profile = assistantManager.getDefaultProfile(connectionId);
+        DBAIProfile profile = SelectAiContextUtil.getDefaultProfile(connectionId);
 
         if (profile == null) {
-            assistantManager.initializeAssistant(connectionId);
+            assistantManager.initializeAssistant(connectionId, AssistantType.SELECT_AI);
             throw new ProcessDeferredException("Assistant not initialized");
         }
 

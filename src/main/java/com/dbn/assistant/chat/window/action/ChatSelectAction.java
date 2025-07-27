@@ -17,8 +17,8 @@
 package com.dbn.assistant.chat.window.action;
 
 import com.dbn.assistant.chat.Chat;
-import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.ChatContextEvent;
+import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;

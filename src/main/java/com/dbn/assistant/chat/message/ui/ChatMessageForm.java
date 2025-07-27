@@ -16,12 +16,15 @@
 
 package com.dbn.assistant.chat.message.ui;
 
-import com.dbn.assistant.chat.ChatContext;
+import com.dbn.assistant.adapter.AssistantAdapter;
+import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.action.CopyContentAction;
+import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
+import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
@@ -98,14 +101,18 @@ public abstract class ChatMessageForm extends DBNFormBase {
 
         ChatMessage message = getMessage();
         ChatContext context = message.getContext();
-        String title =
-                context.getProfileName() + " / " +
-                        context.getModelName() + "  -  " +
-                        context.getAction().getName();
+
+        AssistantAdapter assistantAdapter = getAssistantAdapter();
+        String title = assistantAdapter.getContextTitle(context);
 
         titleLabel.setFont(regularBold(-2));
         titleLabel.setForeground(Colors.delegate(Colors::getLabelForeground));
         titleLabel.setText(title);
+    }
+
+    private AssistantAdapter getAssistantAdapter() {
+        ChatBoxForm parentFrom = Failsafe.nd(getParentFrom(ChatBoxForm.class));
+        return parentFrom.getAssistantAdapter();
     }
 
     protected void initActionToolbar() {

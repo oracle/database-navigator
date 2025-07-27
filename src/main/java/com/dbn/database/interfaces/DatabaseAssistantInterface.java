@@ -16,7 +16,7 @@
 
 package com.dbn.database.interfaces;
 
-import com.dbn.assistant.DatabaseAssistantType;
+import com.dbn.assistant.AssistantType;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.assistant.AssistantQueryResponse;
 
@@ -94,7 +94,7 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
   void disableProfile(DBNConnection connection, String ownerName, String profileName) throws SQLException;
 
 
-  default DatabaseAssistantType getAssistantType(DBNConnection connection) throws SQLException {
-    return DatabaseAssistantType.GENERIC;
+  default AssistantType getAssistantType(DBNConnection connection) throws SQLException {
+    return AssistantType.GENERIC;
   }
 }

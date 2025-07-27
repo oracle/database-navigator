@@ -31,8 +31,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
-import static com.dbn.assistant.editor.AssistantEditorUtil.isAssistantAvailable;
 import static com.dbn.assistant.editor.AssistantPromptUtil.isAssistantPromptAvailable;
+import static com.dbn.assistant.selectai.editor.SelectAiEditorUtil.isAssistantAvailable;
 
 public abstract class EditorIntentionAction extends EditorIntentionActionBase implements IntentionAction, HighPriorityAction, Iconable, DumbAware, Comparable<Object> {
 

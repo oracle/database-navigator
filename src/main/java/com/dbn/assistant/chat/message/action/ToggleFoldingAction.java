@@ -36,7 +36,7 @@ public class ToggleFoldingAction extends ChatMessageAction implements AssistantA
         presentation.setText(folded ? "Expand" : "Collapse");
         presentation.setIcon(folded ?
                 Icons.ACTION_CONTENT_EXPAND :
-                Icons.ACTION_CONTENT_COLAPSE);
+                Icons.ACTION_CONTENT_COLLAPSE);
         presentation.setEnabled(enabled);
     }
 

@@ -20,7 +20,7 @@ import com.dbn.assistant.chat.message.ui.ChatMessageForm;
 import com.dbn.assistant.chat.ui.ChatHistoryForm;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.credential.remote.ui.CredentialManagementForm;
-import com.dbn.assistant.profile.ui.ProfileManagementForm;
+import com.dbn.assistant.selectai.profile.ui.ProfileManagementForm;
 import com.dbn.batch.ui.BatchMonitorForm;
 import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;

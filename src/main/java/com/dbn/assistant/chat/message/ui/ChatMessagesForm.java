@@ -16,7 +16,7 @@
 
 package com.dbn.assistant.chat.message.ui;
 
-import com.dbn.assistant.chat.message.PersistentChatMessage;
+import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.component.DBNComponent;
@@ -68,11 +68,11 @@ public class ChatMessagesForm extends DBNFormBase {
         }
     }
 
-    public void addMessages(List<PersistentChatMessage> chatMessages) {
+    public void addMessages(List<ChatMessage> chatMessages) {
         dispatch(() -> {
             removeProgressIndicator();
 
-            for (PersistentChatMessage message : chatMessages) {
+            for (ChatMessage message : chatMessages) {
                 ChatMessageForm form = ChatMessageForm.create(this, message);
                 this.messageForms.add(form);
                 this.messagesPanel.add(form.getComponent());
