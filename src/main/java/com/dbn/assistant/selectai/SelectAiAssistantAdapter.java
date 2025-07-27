@@ -59,12 +59,6 @@ import static com.dbn.assistant.chat.ChatAvailability.DISABLED_PROFILE_SELECTED;
 import static com.dbn.assistant.chat.ChatAvailability.NOT_INITIALIZED;
 import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_AVAILABLE;
 import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_SELECTED;
-import static com.dbn.assistant.selectai.SelectAiContextUtil.getDefaultProfile;
-import static com.dbn.assistant.selectai.SelectAiContextUtil.getProfile;
-import static com.dbn.assistant.selectai.SelectAiContextUtil.getProfiles;
-import static com.dbn.assistant.selectai.SelectAiContextUtil.getSelectedAction;
-import static com.dbn.assistant.selectai.SelectAiContextUtil.getSelectedModel;
-import static com.dbn.assistant.selectai.SelectAiContextUtil.getSelectedProfile;
 import static com.dbn.common.feature.FeatureAcknowledgement.ENGAGED;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Messages.options;
@@ -79,13 +73,13 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
     }
 
     public ChatContext createChatContext(ConnectionId connectionId) {
-        DBAIProfile profile = getSelectedProfile(connectionId);
+        DBAIProfile profile = SelectAiContextUtil.getSelectedProfile(connectionId);
         if (profile == null) return null;
 
-        AIModel model = getSelectedModel(connectionId);
+        AIModel model = SelectAiContextUtil.getSelectedModel(connectionId);
         if (model == null) return null;
 
-        PromptAction action = getSelectedAction(connectionId);
+        PromptAction action = SelectAiContextUtil.getSelectedAction(connectionId);
         if (action == null) return null;
 
         return new ChatContextImpl(
@@ -112,7 +106,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
     }
 
     public void initializeAssistant(ConnectionId connectionId) {
-        DBAIProfile defaultProfile = getDefaultProfile(connectionId);
+        DBAIProfile defaultProfile = SelectAiContextUtil.getDefaultProfile(connectionId);
         if (defaultProfile != null) return;
 
         AssistantState assistantState = getAssistantState(connectionId);
@@ -134,7 +128,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
                 txt("prc.assistant.title.InitializingAssistant"),
                 txt("prc.assistant.text.InitializingDatabaseAssistant"),
                 progress -> {
-                    List<DBAIProfile> profiles = getProfiles(connectionId);
+                    List<DBAIProfile> profiles = SelectAiContextUtil.getProfiles(connectionId);
                     // no profiles created yet -> prompt profile creation
                     if (profiles.isEmpty()) {
                         Messages.showQuestionDialog(project,
@@ -173,10 +167,10 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
         if (assistantState == null) return NOT_INITIALIZED;
 
 
-        List<DBAIProfile> profiles = getProfiles(connectionId);
+        List<DBAIProfile> profiles = SelectAiContextUtil.getProfiles(connectionId);
         if (profiles.isEmpty()) return NO_PROFILE_AVAILABLE;
 
-        DBAIProfile selectedProfile = getSelectedProfile(connectionId);
+        DBAIProfile selectedProfile = SelectAiContextUtil.getSelectedProfile(connectionId);
         if (selectedProfile == null) return NO_PROFILE_SELECTED;
         if (!selectedProfile.isEnabled()) return DISABLED_PROFILE_SELECTED;
 
@@ -208,7 +202,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
         String profileName = chatContext.getProfileName();
         if (isEmpty(profileName)) return false;
 
-        DBAIProfile profile = getProfile(connectionId, profileName);
+        DBAIProfile profile = SelectAiContextUtil.getProfile(connectionId, profileName);
         return profile != null && profile.isEnabled();
     }
 
@@ -223,7 +217,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
         if (isEmpty(profileName)) return false;
         if (isEmpty(modelName)) return false;
 
-        DBAIProfile profile = getProfile(connectionId, profileName);
+        DBAIProfile profile = SelectAiContextUtil.getProfile(connectionId, profileName);
         if (profile == null) return false;
         if (profile.getProvider().getModel(modelName) == null) return false;
         if (profile.isInteractive() != chatContext.isInteractive()) return false;
