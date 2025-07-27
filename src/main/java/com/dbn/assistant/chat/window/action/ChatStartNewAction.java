@@ -37,7 +37,11 @@ public class ChatStartNewAction extends AbstractChatBoxAction {
 
         AssistantState assistantState = chatBox.getAssistantState();
         ChatContext currentContext = assistantState.getCurrentContext();
-        ChatContextEvent event = new ChatContextEvent(currentContext, currentContext, null, true);
+        ChatContextEvent event = chatBox.createContextEvent(
+                currentContext,
+                currentContext,
+                null,
+                true);
 
         chatBox.processContextEvent(event);
     }

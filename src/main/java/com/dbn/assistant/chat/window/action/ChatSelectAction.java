@@ -41,7 +41,11 @@ public class ChatSelectAction extends AbstractChatBoxAction {
 
         ChatContext currentContext = chatBox.getAssistantState().getCurrentContext();
         ChatContext targetContext = chat.getContext();
-        ChatContextEvent event = new ChatContextEvent(currentContext, targetContext, chat.getId(), false);
+        ChatContextEvent event = chatBox.createContextEvent(
+                currentContext,
+                targetContext,
+                chat.getId(),
+                false);
         chatBox.processContextEvent(event);
     }
 

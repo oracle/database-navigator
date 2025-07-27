@@ -33,6 +33,8 @@ public interface AssistantAdapter {
 
     ChatContext createChatContext(ConnectionId connectionId);
 
+    ChatContext enrichChatContext(ChatContext context);
+
     AssistantIntroductionForm createIntroductionForm(ChatBoxForm chatBoxForm);
 
     /**
@@ -63,7 +65,7 @@ public interface AssistantAdapter {
 
     void showHelpDialog(ConnectionId connectionId);
 
-    String getContextTitle(ChatContext context);
+    String buildChatContextTitle(ChatContext context);
 
     void generate(
             String prompt,

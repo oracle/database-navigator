@@ -258,8 +258,25 @@ public class ChatBoxForm extends DBNFormBase {
 
     public void attemptContextSwitch(ChatContext targetContext) {
         ChatContext currentContext = getAssistantState().getCurrentContext();
-        ChatContextEvent event = new ChatContextEvent(currentContext, targetContext, null, false);
+        ChatContextEvent event = createContextEvent(
+                currentContext,
+                targetContext,
+                null,
+                false);
         processContextEvent(event);
+    }
+
+    public ChatContextEvent createContextEvent(
+            @NotNull ChatContext currentContext,
+            @NotNull ChatContext targetContext,
+            @Nullable String targetChatId,
+            boolean newChatRequest) {
+
+        AssistantAdapter assistantAdapter = getAssistantAdapter();
+        currentContext = assistantAdapter.enrichChatContext(currentContext);
+        targetContext = assistantAdapter.enrichChatContext(targetContext);
+
+        return new ChatContextEvent(currentContext, targetContext, targetChatId, newChatRequest);
     }
 
     private void performContextSwitch(ChatContextEvent event) {

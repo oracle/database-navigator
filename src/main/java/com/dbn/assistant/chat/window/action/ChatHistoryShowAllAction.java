@@ -51,7 +51,7 @@ public class ChatHistoryShowAllAction extends AbstractChatBoxAction {
 
             ChatContext currentContext = state.getCurrentContext();
             ChatContext targetContext = chat.getContext();
-            ChatContextEvent event = new ChatContextEvent(currentContext, targetContext, chatId, false);
+            ChatContextEvent event = chatBox.createContextEvent(currentContext, targetContext, chatId, false);
             chatBox.processContextEvent(event);
         };
 

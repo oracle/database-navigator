@@ -103,7 +103,7 @@ public abstract class ChatMessageForm extends DBNFormBase {
         ChatContext context = message.getContext();
 
         AssistantAdapter assistantAdapter = getAssistantAdapter();
-        String title = assistantAdapter.getContextTitle(context);
+        String title = assistantAdapter.buildChatContextTitle(context);
 
         titleLabel.setFont(regularBold(-2));
         titleLabel.setForeground(Colors.delegate(Colors::getLabelForeground));
