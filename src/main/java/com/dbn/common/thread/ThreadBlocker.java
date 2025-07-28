@@ -16,34 +16,24 @@
 
 package com.dbn.common.thread;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class ThreadBlocker {
-    final Lock lock = new ReentrantLock();
-    final Condition condition = lock.newCondition();
+    private final CountDownLatch latch = new CountDownLatch(1);
 
     /**
      * Blocks the current thread.
      */
     public void block(long time, TimeUnit unit) {
-        lock.lock();
         try {
-            condition.await(time, unit);
+            latch.await(time, unit);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-        } finally {
-            lock.unlock();
         }
     }
 
     public void unblock() {
-        try {
-            condition.signal();
-        } finally {
-            lock.unlock();
-        }
+        latch.countDown();
     }
 }
