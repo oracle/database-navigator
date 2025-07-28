@@ -20,6 +20,7 @@ import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.selectai.SelectAiContextUtil;
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.connection.ConnectionId;
@@ -46,6 +47,7 @@ import static com.dbn.nls.NlsResources.txt;
  *
  * @author Dan Cioca (Oracle)
  */
+@BackgroundUpdate
 public class ProfileSelectDropdownAction extends ComboBoxAction implements AssistantActionSupport, DumbAware {
 
     @Override

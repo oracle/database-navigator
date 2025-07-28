@@ -21,6 +21,7 @@ import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.selectai.SelectAiContextUtil;
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.util.Lists;
@@ -48,6 +49,7 @@ import static java.util.Collections.emptyList;
  *
  * @author Dan Cioca (Oracle)
  */
+@BackgroundUpdate
 public class ModelSelectDropdownAction extends ComboBoxAction implements AssistantActionSupport, DumbAware {
     @Override
     @NotNull

@@ -102,8 +102,8 @@ public class ObjectFilterDetailsForm extends DBNFormBase {
                 " (" + s.getTypeName() + ")");
         String sampleExpression = definition.getSampleExpression();
 
-        hintText.replaceFields("SUPPORTED_ATTRIBUTES", supportedAttributes);
-        hintText.replaceFields("SAMPLE_EXPRESSION", sampleExpression);
+        hintText.initField("SUPPORTED_ATTRIBUTES", supportedAttributes);
+        hintText.initField("SAMPLE_EXPRESSION", sampleExpression);
 
         DBNHintForm disclaimerForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(disclaimerForm.getComponent());

@@ -38,10 +38,10 @@ import static com.dbn.assistant.selectai.SelectAiContextUtil.getSelectedAction;
  * @author Dan Cioca (Oracle)
  */
 @BackgroundUpdate
-public class TypeSelectAction extends ToggleAction implements AssistantActionSupport {
+public class PromptActionSelectAction extends ToggleAction implements AssistantActionSupport {
     private final PromptAction action;
 
-    TypeSelectAction(PromptAction action) {
+    PromptActionSelectAction(PromptAction action) {
         super(action.getName(), action.getDescription(), null);
         this.action = action;
         getTemplatePresentation().setIcon(null);
@@ -53,25 +53,25 @@ public class TypeSelectAction extends ToggleAction implements AssistantActionSup
         return true;
     }
 
-    public static class ShowSQL extends TypeSelectAction {
+    public static class ShowSQL extends PromptActionSelectAction {
         public ShowSQL() {
             super(PromptAction.SHOW_SQL);
         }
     }
 
-    public static class ExplainSQL extends TypeSelectAction {
+    public static class ExplainSQL extends PromptActionSelectAction {
         public ExplainSQL() {
             super(PromptAction.EXPLAIN_SQL);
         }
     }
 
-    public static class Narrate extends TypeSelectAction {
+    public static class Narrate extends PromptActionSelectAction {
         public Narrate() {
             super(PromptAction.NARRATE);
         }
     }
 
-    public static class Chat extends TypeSelectAction {
+    public static class Chat extends PromptActionSelectAction {
         public Chat() {
             super(PromptAction.CHAT);
         }

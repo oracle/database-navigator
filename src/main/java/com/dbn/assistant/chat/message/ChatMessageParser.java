@@ -107,23 +107,21 @@ public class ChatMessageParser {
         sections.add(section);
     }
 
-    public static String convertMarkdownToHtml(String content) {
+    public static TextContent convertMarkdownToHtml(String content) {
         GFMFlavourDescriptor flavourDescriptor = new GFMFlavourDescriptor();
         ASTNode rootNode = parseMadkdownContent(content);
-
-        String wrapperContent = TextResources.get(ChatMessageParser.class, "chat_message_wrapper.html.ft");
-        TextContent htmlContent = TextContent.html(wrapperContent);
-        htmlContent.initFonts();
 
         HtmlGenerator htmlGenerator = new HtmlGenerator(content, rootNode, flavourDescriptor, false);
         HtmlGenerator.TagRenderer tagRenderer = new HtmlGenerator.DefaultTagRenderer((n, s, cs) -> cs, false);
         String body = htmlGenerator.generateHtml(tagRenderer);
 
-        htmlContent.replaceFields("BODY_CONTENT", body);
+        String wrapperContent = TextResources.get(ChatMessageParser.class, "chat_message_wrapper.html.ft");
+        TextContent htmlContent = TextContent.html(wrapperContent);
+        htmlContent.initFonts();
+        htmlContent.initField("BODY_CONTENT", body);
+        htmlContent.adjustContent(t -> Unsafe.logged(t, () ->cleanupHtml(t)));
 
-        String html = htmlContent.getText();
-        return Unsafe.logged(html, () -> cleanupHtml(html));
-
+        return htmlContent;
     }
 
     private static @NotNull String cleanupHtml(String html) {

@@ -32,6 +32,7 @@ import com.dbn.common.ui.util.UserInterface;
 import com.dbn.options.general.GeneralProjectSettings;
 import com.intellij.ide.DataManager;
 import com.intellij.ide.ui.LafManagerListener;
+import com.intellij.ide.ui.UISettingsListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
@@ -129,6 +130,11 @@ public abstract class DBNFormBase
      */
     protected final void whenShown(Runnable runnable) {
         whenFirstShown(getMainComponent(), runnable);
+    }
+
+    protected final void whenSettingsChange(Runnable runnable) {
+        UISettingsListener uiSettingsListener = s -> runnable.run();
+        ApplicationEvents.subscribe(this, UISettingsListener.TOPIC, uiSettingsListener);
     }
 
     private void initialize() {
