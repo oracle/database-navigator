@@ -33,7 +33,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 
 /**
  * Database Assistant introduction form
@@ -73,8 +72,8 @@ public class SelectAiIntroductionForm extends DBNFormBase implements AssistantIn
     }
 
     private void createInitForm() {
-        SelectAiInitializationForm initializationForm = new SelectAiInitializationForm(getChatBox());
-        initPanel.add(initializationForm.getComponent(), BorderLayout.CENTER);
+        SelectAiInitializationForm initializationForm = new SelectAiInitializationForm(this);
+        initPanel.add(initializationForm.getComponent());
     }
 
     private void createIntroForm() {

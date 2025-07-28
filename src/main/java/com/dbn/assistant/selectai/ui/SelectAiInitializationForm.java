@@ -31,12 +31,11 @@ import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.intellij.util.ui.AsyncProcessIcon;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 
 import static com.dbn.common.feature.FeatureAvailability.AVAILABLE;
 import static com.dbn.common.feature.FeatureAvailability.UNAVAILABLE;
@@ -59,9 +58,9 @@ public class SelectAiInitializationForm extends DBNFormBase implements Assistant
     private JButton retryButton;
     private JPanel messagePanel;
 
-    public SelectAiInitializationForm(@Nullable ChatBoxForm parent) {
+    public SelectAiInitializationForm(@NotNull SelectAiIntroductionForm parent) {
         super(parent);
-        initializingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
+        initializingIconPanel.add(new AsyncProcessIcon("Loading"));
         retryButton.addActionListener(e -> checkAvailability());
 
         checkAvailability();
@@ -96,7 +95,7 @@ public class SelectAiInitializationForm extends DBNFormBase implements Assistant
     }
 
     private FeatureAvailabilityInfo checkAssistantAvailability() {
-        ChatBoxForm chatBoxForm = ensureParentComponent();
+        ChatBoxForm chatBoxForm = ensureParentFrom(ChatBoxForm.class);
         ConnectionId connectionId = chatBoxForm.getConnection().getConnectionId();
         SelectAiInitializationManager initializationManager = SelectAiInitializationManager.getInstance(ensureProject());
         return initializationManager.verifyAssistantAvailability(connectionId);

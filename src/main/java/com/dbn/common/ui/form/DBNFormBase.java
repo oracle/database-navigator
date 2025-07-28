@@ -18,6 +18,7 @@ package com.dbn.common.ui.form;
 
 import com.dbn.common.action.DataProviders;
 import com.dbn.common.dispose.ComponentDisposer;
+import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.environment.options.EnvironmentSettings;
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.latent.Latent;
@@ -241,6 +242,7 @@ public abstract class DBNFormBase
         return null;
     }
 
+    @Nullable
     @Override
     public final <F extends DBNForm> F getParentFrom(Class<F> formClass) {
         DBNComponent parent = getParentComponent();
@@ -254,6 +256,11 @@ public abstract class DBNFormBase
         return null;
     }
 
+
+    @NotNull
+    public final <F extends DBNForm> F ensureParentFrom(Class<F> formClass) {
+        return Failsafe.nd(getParentFrom(formClass));
+    }
 
     @Override
     public void disposeInner() {
