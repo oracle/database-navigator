@@ -22,13 +22,14 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.ClientProperty;
+import com.dbn.common.ui.util.Components;
+import com.dbn.common.ui.util.ScrollPanes;
 import com.dbn.common.ui.util.UserInterface;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import java.awt.Component;
 import java.util.ArrayList;
@@ -48,6 +49,8 @@ public class ChatMessagesForm extends DBNFormBase {
 
         verticalBoxLayout(messagesPanel);
         ClientProperty.HORIZONTAL_SCROLL_POLICY.set(messagesScrollPanel, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        Components.onComponentResized(messagesPanel, e -> messagesPanel.revalidate());
     }
 
     @Override
@@ -77,7 +80,7 @@ public class ChatMessagesForm extends DBNFormBase {
                 this.messageForms.add(form);
                 this.messagesPanel.add(form.getComponent());
             }
-            UserInterface.repaint(mainPanel);
+            this.messagesPanel.revalidate();
             scrollDown();
         });
     }
@@ -95,14 +98,12 @@ public class ChatMessagesForm extends DBNFormBase {
         List<ChatMessageForm> messageForms = new ArrayList<>(this.messageForms);
         this.messageForms.clear();
         this.messagesPanel.removeAll();
+        this.messagesPanel.revalidate();
         Disposer.dispose(messageForms);
-        UserInterface.repaint(mainPanel);
     }
 
     public void scrollDown() {
-        messagesScrollPanel.validate();
-        JScrollBar verticalBar = messagesScrollPanel.getVerticalScrollBar();
-        verticalBar.setValue(verticalBar.getMaximum());
+        ScrollPanes.scrollDown(messagesScrollPanel);
 
     }
 }

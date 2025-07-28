@@ -42,6 +42,7 @@ import com.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dbn.object.DBArgument;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.prerequisite.ui.PrerequisitesForm;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.DataKey;
 
 public interface DataKeys {
@@ -68,6 +69,7 @@ public interface DataKeys {
     DataKey<PrerequisitesForm> PREREQUISITES_FORM = DataKey.create("DBNavigator.PrerequisitesForm");
     DataKey<ChatMessageForm> CHAT_MESSAGE_FORM = DataKey.create("DBNavigator.ChatMessageForm");
     DataKey<DBNTabbedPane> TABBED_PANE = DataKey.create("DBNavigator.TabbedPane");
+    DataKey<Disposable> PARENT_DISPOSABLE = DataKey.create("DBNavigator.ParentDisposable");
 
     DataKey<CalendarPopupProviderForm> CALENDAR_POPUP_PROVIDER_FORM = DataKey.create("DBNavigator.CalendarPopupProviderForm");
     DataKey<ArrayEditorPopupProviderForm> ARRAY_EDITOR_POPUP_PROVIDER_FORM = DataKey.create("DBNavigator.ArrayEditorPopupProviderForm");
