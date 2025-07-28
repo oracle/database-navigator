@@ -44,6 +44,8 @@ import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.connection.action.SelectConnectionAction;
+import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
@@ -140,6 +142,16 @@ public class ChatBoxForm extends DBNFormBase {
         initMessages();
     }
 
+    private ActionGroup createConnectionActions() {
+        return SelectConnectionAction.createActions(
+                ensureProject(), (id) -> selectConnection(id));
+    }
+
+    private void selectConnection(ConnectionId connectionId) {
+        DatabaseAssistantManager assistantManager = getManager();
+        assistantManager.switchToConnection(connectionId);
+    }
+
     private boolean hasUserEngaged() {
         return getAssistantState().getAcknowledgement() == ENGAGED;
     }
@@ -147,7 +159,9 @@ public class ChatBoxForm extends DBNFormBase {
     private void initHeaderForm() {
         ConnectionHandler connection = getConnection();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
-        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+        headerForm.addSelector("Select Connection", createConnectionActions());
+
+        headerPanel.add(headerForm.getComponent());
     }
 
     private void createActionPanels() {

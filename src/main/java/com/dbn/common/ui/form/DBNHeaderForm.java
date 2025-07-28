@@ -20,6 +20,7 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ui.Layouts;
 import com.dbn.common.ui.Presentable;
+import com.dbn.common.ui.misc.DBNSelector;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionHandlerStatusListener;
@@ -27,6 +28,7 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
+import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
@@ -43,6 +45,7 @@ public class DBNHeaderForm extends DBNFormBase {
     private JLabel objectLabel;
     private JPanel mainPanel;
     private JPanel buttonsPanel;
+    private JPanel selectorPanel;
 
     public DBNHeaderForm(DBNForm parent) {
         super(parent);
@@ -171,6 +174,12 @@ public class DBNHeaderForm extends DBNFormBase {
     public void addButton(AbstractButton button) {
         button.setOpaque(false);
         buttonsPanel.add(button);
+    }
+
+    public void addSelector(String tooltip, ActionGroup actions) {
+        DBNSelector selector = new DBNSelector(tooltip, 0, actions);
+        selector.bindComponent(objectLabel);
+        selectorPanel.add(selector);
     }
 
     public DBNHeaderForm withEmptyBorder() {
