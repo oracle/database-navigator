@@ -186,13 +186,24 @@ public class DBNHintForm extends DBNFormBase {
     }
 
     private void initPlainContent() {
-        hintTextPane.setContentType(content.getTypeId());
-        hintTextPane.setText(content.getText());
+        setContent();
+
+        whenSettingsChange(() -> resetContent());
     }
 
     private void initHtmlContent() {
         content.initFonts();
+        setContent();
 
+        whenSettingsChange(() -> resetContent());
+    }
+
+    private void resetContent() {
+        content.rebuild();
+        setContent();
+    }
+
+    private void setContent() {
         hintTextPane.setContentType(content.getTypeId());
         hintTextPane.setText(content.getText());
     }
