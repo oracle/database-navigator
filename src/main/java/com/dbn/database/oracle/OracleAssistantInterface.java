@@ -127,5 +127,15 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   public void setCurrentProfile(DBNConnection connection, String profileName) throws SQLException {
     executeUpdate(connection, "set-current-profile", profileName);
   }
+
+    @Override
+    public void enableDataAccess(DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "enable-data-access");
+    }
+
+    @Override
+    public void disableDataAccess(DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "disable-data-access");
+    }
 }
 

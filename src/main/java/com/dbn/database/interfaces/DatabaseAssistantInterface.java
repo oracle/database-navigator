@@ -93,6 +93,9 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
 
   void disableProfile(DBNConnection connection, String ownerName, String profileName) throws SQLException;
 
+  void enableDataAccess(DBNConnection connection) throws SQLException;
+
+  void disableDataAccess(DBNConnection connection) throws SQLException;
 
   default AssistantType getAssistantType(DBNConnection connection) throws SQLException {
     return AssistantType.GENERIC;

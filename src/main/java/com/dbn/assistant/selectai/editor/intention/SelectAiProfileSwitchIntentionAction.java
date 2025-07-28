@@ -43,39 +43,39 @@ import static com.dbn.nls.NlsResources.txt;
  * @author Dan Cioca(Oracle)
  */
 public class SelectAiProfileSwitchIntentionAction extends EditorIntentionAction {
-  @Override
-  public EditorIntentionType getType() {
-    return EditorIntentionType.ASSISTANT_PROFILE_SELECT;
-  }
+    @Override
+    public EditorIntentionType getType() {
+        return EditorIntentionType.ASSISTANT_PROFILE_SELECT;
+    }
 
-  @NotNull
-  @Override
-  public final String getText() {
-    return txt("app.assistant.action.SelectAISwitchProfile");
-  }
+    @NotNull
+    @Override
+    public final String getText() {
+        return txt("app.assistant.action.SelectAISwitchProfile");
+    }
 
-  @Override
-  public final boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
-    return isAssistantAvailable(editor) &&
-            getProfiles(editor).size() > 1 &&
-            isAssistantPromptAvailable(editor, element);
-  }
+    @Override
+    public final boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
+        return isAssistantAvailable(editor) &&
+                getProfiles(editor).size() > 1 &&
+                isAssistantPromptAvailable(editor, element);
+    }
 
-  @Override
-  public final void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
-    ConnectionHandler connection = SelectAiEditorUtil.getConnection(editor);
-    if (isNotValid(connection)) return;
+    @Override
+    public final void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
+        ConnectionHandler connection = SelectAiEditorUtil.getConnection(editor);
+        if (isNotValid(connection)) return;
 
-    ConnectionId connectionId = connection.getConnectionId();
-    SelectAiContextUtil.promptProfileSelector(editor, connectionId);
-  }
+        ConnectionId connectionId = connection.getConnectionId();
+        SelectAiContextUtil.promptProfileSelector(editor, connectionId);
+    }
 
-  private static List<DBAIProfile> getProfiles(Editor editor) {
-    ConnectionHandler connection = SelectAiEditorUtil.getConnection(editor);
-    if (isNotValid(connection)) return Collections.emptyList();
+    private static List<DBAIProfile> getProfiles(Editor editor) {
+        ConnectionHandler connection = SelectAiEditorUtil.getConnection(editor);
+        if (isNotValid(connection)) return Collections.emptyList();
 
-      ConnectionId connectionId = connection.getConnectionId();
-      return SelectAiContextUtil.getProfiles(connectionId);
-  }
+        ConnectionId connectionId = connection.getConnectionId();
+        return SelectAiContextUtil.getProfiles(connectionId);
+    }
 
 }
