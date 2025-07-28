@@ -165,11 +165,9 @@ public abstract class DBNFormBase
      * @param mainComponent the main component of the form whose size needs to be adjusted
      */
     private void adjustFormSize(JComponent mainComponent) {
-        mainComponent.doLayout();
-        mainComponent.validate();
-
         Disposable parentComponent = getParentComponent();
         if (parentComponent instanceof DBNDialog) {
+            mainComponent.validate();
 
             boolean hasScrollBars = this.hasScrollBars.get();
             if (!hasScrollBars) return;
