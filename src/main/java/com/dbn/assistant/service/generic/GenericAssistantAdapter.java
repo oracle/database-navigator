@@ -27,17 +27,16 @@ import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.provider.AIProvider;
-import com.dbn.assistant.service.generic.provider.AssistantModelFactories;
-import com.dbn.assistant.service.generic.provider.AssistantModelFactory;
+import com.dbn.assistant.service.generic.model.AssistantModelFactories;
+import com.dbn.assistant.service.generic.model.AssistantModelFactory;
+import com.dbn.assistant.service.generic.model.AssistantModelInput;
+import com.dbn.assistant.service.generic.model.AssistantModelInvoker;
+import com.dbn.assistant.service.generic.model.AssistantModelInvokers;
 import com.dbn.assistant.service.generic.ui.GenericAssistantContextActionsForm;
 import com.dbn.assistant.service.generic.ui.GenericAssistantIntroductionForm;
 import com.dbn.assistant.service.generic.ui.GenericAssistantPromptActionsForm;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.connection.ConnectionId;
-import dev.langchain4j.model.chat.ChatModel;
-import dev.langchain4j.model.chat.StreamingChatModel;
-import dev.langchain4j.model.chat.response.ChatResponse;
-import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -115,51 +114,27 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         try {
             AIProvider provider = chatContext.getProvider();
             AssistantModelFactory modelFactory = AssistantModelFactories.get(provider);
-            String user = null;
-            String apiKey = null;
-            String modelName = chatContext.getModel().getApiName();
 
-            StreamingChatModel streamingModel = modelFactory.createStreamingChatModel(user, apiKey, modelName);
-            if (streamingModel != null) {
-                invokeModel(prompt, streamingModel, responseConsumer);
-                return;
+            String model = chatContext.getModel().getApiName();
+
+            // TODO user, token, url from assistant config...
+            AssistantModelInput input = AssistantModelInput.create(model)
+                    .withUser(System.getProperty("tempOpenAiUser"))
+                    .withToken(System.getProperty("tempOpenAiApiKey"));
+
+
+            Class[] modelTypes = AssistantModelInvokers.types();
+            for (Class<?> modelType : modelTypes) {
+                Object assistantModel = modelFactory.createModel(modelType, input);
+                if (assistantModel != null) {
+                    AssistantModelInvoker<Object> invoker = AssistantModelInvokers.get(modelType);
+                    invoker.invokeModel(assistantModel, prompt, responseConsumer);
+                    return;
+                }
             }
-
-            ChatModel basicModel = modelFactory.createChatModel(user, apiKey, modelName);
-            if (basicModel != null) {
-                invokeModel(prompt, basicModel, responseConsumer);
-                return;
-            }
-
-
         } catch (Throwable t) {
             responseConsumer.acceptError(t);
             responseConsumer.acceptCompletion();
         }
-    }
-
-    private static void invokeModel(String prompt, StreamingChatModel streamingModel, AssistantResponseConsumer responseConsumer) {
-        streamingModel.chat(prompt, new StreamingChatResponseHandler() {
-            @Override
-            public void onPartialResponse(String s) {
-                System.out.print(s);
-            }
-
-            @Override
-            public void onCompleteResponse(ChatResponse chatResponse) {
-                responseConsumer.acceptMessage(chatResponse.aiMessage().text());
-                responseConsumer.acceptCompletion();
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                responseConsumer.acceptError(throwable);
-                responseConsumer.acceptCompletion();
-            }
-        });
-    }
-
-    private void invokeModel(String prompt, ChatModel basicModel, AssistantResponseConsumer responseConsumer) {
-
     }
 }

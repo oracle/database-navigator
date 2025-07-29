@@ -14,36 +14,49 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.service.generic.provider.impl;
+package com.dbn.assistant.service.generic.model.factory;
 
-import com.dbn.assistant.provider.AIProvider;
-import com.dbn.assistant.service.generic.provider.AssistantModelFactoryBase;
+import com.dbn.assistant.service.generic.model.AssistantModelInput;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.cohere.CohereEmbeddingModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.language.LanguageModel;
 import org.jetbrains.annotations.Nullable;
 
-public class CohereModelFactory extends AssistantModelFactoryBase {
+import static com.dbn.assistant.provider.AIProviders.COHERE;
+
+public class CohereModelFactory extends AbstractModelFactory {
+
     public CohereModelFactory() {
-        super(AIProvider.forId("COHERE"));
+        super(COHERE);
     }
 
+    @Nullable
     @Override
-    public @Nullable ChatModel createChatModel(String user, String apiKey, String modelName) {
+    public ChatModel createChatModel(AssistantModelInput input) {
         return null;
     }
 
+    @Nullable
     @Override
-    public @Nullable StreamingChatModel createStreamingChatModel(String user, String apiKey, String modelName) {
+    public StreamingChatModel createStreamingChatModel(AssistantModelInput input) {
         return null;
     }
 
+    @Nullable
     @Override
-    public EmbeddingModel createEmbeddingModel(String user, String apiKey, String modelName) {
+    public LanguageModel createLanguageModel(AssistantModelInput input) {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public EmbeddingModel createEmbeddingModel(AssistantModelInput input) {
         return CohereEmbeddingModel.builder()
-                .apiKey(apiKey)
-                .modelName(modelName)
+                .modelName(input.getModel())
+                .baseUrl(input.getUrl())
+                .apiKey(input.getToken())
                 //.httpClientBuilder(createHttpClientBuilder())
                 .build();
     }

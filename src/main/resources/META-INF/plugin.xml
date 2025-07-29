@@ -228,7 +228,8 @@
     </extensions>
     <extensionPoints>
         <extensionPoint name="assistantAdapter" qualifiedName="com.dbn.assistantAdapter" interface="com.dbn.assistant.adapter.AssistantAdapter" dynamic="true"/>
-        <extensionPoint name="assistantModelFactory" qualifiedName="com.dbn.assistantModelFactory" interface="com.dbn.assistant.service.generic.provider.AssistantModelFactory" dynamic="true"/>
+        <extensionPoint name="assistantModelFactory" qualifiedName="com.dbn.assistantModelFactory" interface="com.dbn.assistant.service.generic.model.AssistantModelFactory" dynamic="true"/>
+        <extensionPoint name="assistantModelInvoker" qualifiedName="com.dbn.assistantModelInvoker" interface="com.dbn.assistant.service.generic.model.AssistantModelInvoker" dynamic="true"/>
 
         <extensionPoint name="prerequisiteDefinitionProvider" qualifiedName="com.dbn.prerequisiteDefinitionProvider" interface="com.dbn.prerequisite.definition.PrerequisiteDefinitionProvider" dynamic="true"/>
         <extensionPoint name="prerequisiteRequirementEvaluator" qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
@@ -248,11 +249,16 @@
 
         <assistantAdapter implementation="com.dbn.assistant.service.selectai.SelectAiAssistantAdapter"/>
         <assistantAdapter implementation="com.dbn.assistant.service.generic.GenericAssistantAdapter"/>
-        <assistantModelFactory implementation="com.dbn.assistant.service.generic.provider.impl.AnthropicModelFactory"/>
-        <assistantModelFactory implementation="com.dbn.assistant.service.generic.provider.impl.CohereModelFactory"/>
-        <assistantModelFactory implementation="com.dbn.assistant.service.generic.provider.impl.GoogleModelFactory"/>
-        <assistantModelFactory implementation="com.dbn.assistant.service.generic.provider.impl.OpenAiModelFactory"/>
-        <assistantModelFactory implementation="com.dbn.assistant.service.generic.provider.impl.OllamaModelFactory"/>
+        <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.AnthropicModelFactory"/>
+        <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.CohereModelFactory"/>
+        <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.GoogleModelFactory"/>
+        <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.HuggingFaceModelFactory"/>
+        <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.OllamaModelFactory"/>
+        <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.OpenAiModelFactory"/>
+        <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.ChatModelInvoker"/>
+        <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.EmbeddingModelInvoker"/>
+        <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.LanguageModelInvoker"/>
+        <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.StreamingChatModelInvoker"/>
     </extensions>
 
     <actions>

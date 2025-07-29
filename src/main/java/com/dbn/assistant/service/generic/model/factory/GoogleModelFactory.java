@@ -14,46 +14,60 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.service.generic.provider.impl;
+package com.dbn.assistant.service.generic.model.factory;
 
-import com.dbn.assistant.provider.AIProvider;
-import com.dbn.assistant.service.generic.provider.AssistantModelFactoryBase;
+import com.dbn.assistant.service.generic.model.AssistantModelInput;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.googleai.GoogleAiEmbeddingModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiStreamingChatModel;
+import dev.langchain4j.model.language.LanguageModel;
 import org.jetbrains.annotations.Nullable;
 
-public class GoogleModelFactory extends AssistantModelFactoryBase {
+import static com.dbn.assistant.provider.AIProviders.GOOGLE;
+
+public class GoogleModelFactory extends AbstractModelFactory {
+
     public GoogleModelFactory() {
-        super(AIProvider.forId("GOOGLE"));
+        super(GOOGLE);
     }
 
+    @Nullable
     @Override
-    public @Nullable ChatModel createChatModel(String user, String apiKey, String modelName) {
+    public ChatModel createChatModel(AssistantModelInput input) {
         return GoogleAiGeminiChatModel.builder()
-                .apiKey(apiKey)
-                .modelName(modelName)
+                .modelName(input.getModel())
+                .apiKey(input.getToken())
+                .temperature(input.getTemperature())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
     }
 
+    @Nullable
     @Override
-    public @Nullable StreamingChatModel createStreamingChatModel(String user, String apiKey, String modelName) {
+    public StreamingChatModel createStreamingChatModel(AssistantModelInput input) {
         return GoogleAiGeminiStreamingChatModel.builder()
-                .apiKey(apiKey)
-                .modelName(modelName)
+                .modelName(input.getModel())
+                .apiKey(input.getToken())
+                .temperature(input.getTemperature())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
     }
 
+    @Nullable
     @Override
-    public EmbeddingModel createEmbeddingModel(String user, String apiKey, String modelName) {
+    public LanguageModel createLanguageModel(AssistantModelInput input) {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public EmbeddingModel createEmbeddingModel(AssistantModelInput input) {
         return GoogleAiEmbeddingModel.builder()
-                .apiKey(apiKey)
-                .modelName(modelName)
+                .modelName(input.getModel())
+                .apiKey(input.getToken())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
     }

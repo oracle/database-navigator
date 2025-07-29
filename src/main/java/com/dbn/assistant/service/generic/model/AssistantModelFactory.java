@@ -14,26 +14,15 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.service.generic.provider;
+package com.dbn.assistant.service.generic.model;
 
 import com.dbn.assistant.provider.AIProvider;
 import com.intellij.openapi.extensions.ExtensionPointName;
-import dev.langchain4j.model.chat.ChatModel;
-import dev.langchain4j.model.chat.StreamingChatModel;
-import dev.langchain4j.model.embedding.EmbeddingModel;
-import org.jetbrains.annotations.Nullable;
 
 public interface AssistantModelFactory {
     ExtensionPointName<AssistantModelFactory> EP = ExtensionPointName.create("com.dbn.assistantModelFactory");
 
     AIProvider getProvider();
 
-    @Nullable
-    ChatModel createChatModel(String user, String apiKey, String modelName);
-
-    @Nullable
-    StreamingChatModel createStreamingChatModel(String user, String apiKey, String modelName);
-
-    @Nullable
-    EmbeddingModel createEmbeddingModel(String user, String apiKey, String modelName);
+    <T> T createModel(Class<T> modelType, AssistantModelInput input);
 }

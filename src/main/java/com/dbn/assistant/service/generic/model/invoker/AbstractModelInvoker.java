@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.service.generic.provider;
+package com.dbn.assistant.service.generic.model.invoker;
 
-import com.dbn.assistant.http.AssistantHttpClientBuilderFactory;
-import com.dbn.assistant.provider.AIProvider;
-import dev.langchain4j.http.client.HttpClientBuilder;
+import com.dbn.assistant.service.generic.model.AssistantModelInvoker;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 
 @Getter
-public abstract class AssistantModelFactoryBase implements AssistantModelFactory {
-    private final AIProvider provider;
+abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
+    private final Class<T> modelType;
 
-    public AssistantModelFactoryBase(AIProvider provider) {
-        this.provider = provider;
-    }
-
-    protected static @NotNull HttpClientBuilder createHttpClientBuilder() {
-        return AssistantHttpClientBuilderFactory.createBuilder();
+    public AbstractModelInvoker(Class<T> modelType) {
+        this.modelType = modelType;
     }
 }
