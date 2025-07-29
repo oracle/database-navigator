@@ -185,7 +185,7 @@ public class DBNHeaderForm extends DBNFormBase {
     }
 
     public void setSelector(String tooltip, ActionGroup actions) {
-        DBNSelector selector = new DBNSelector(tooltip, 0, actions);
+        DBNSelector selector = new DBNSelector(tooltip, actions);
         selector.bindComponent(objectLabel);
         selectorPanel.add(selector);
     }

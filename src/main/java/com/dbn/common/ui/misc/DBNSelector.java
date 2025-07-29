@@ -43,16 +43,17 @@ import static java.awt.event.MouseEvent.BUTTON1;
 public final class DBNSelector extends JPanel implements UIResource {
     private ListPopup popup;
     private ActionGroup actionGroup;
+    private ActionButton actionButton;
 
-    public DBNSelector(String tooltip, int insets, ActionGroup actionGroup) {
+    public DBNSelector(String tooltip, ActionGroup actionGroup) {
         this();
         this.actionGroup = actionGroup;
-        initAction(tooltip, insets, () -> displayPopup(this));
+        initAction(tooltip, () -> displayPopup(this));
     }
 
-    public DBNSelector(String tooltip, int insets, Runnable runnable) {
+    public DBNSelector(String tooltip, Runnable runnable) {
         this();
-        initAction(tooltip, insets, runnable);
+        initAction(tooltip, runnable);
     }
 
     private DBNSelector() {
@@ -64,7 +65,7 @@ public final class DBNSelector extends JPanel implements UIResource {
         Mouse.onMouseClick(component, BUTTON1, 1, e ->  displayPopup(component));
     }
 
-    private void initAction(String tooltip, int insets, Runnable runnable) {
+    private void initAction(String tooltip, Runnable runnable) {
         AnAction action = new DumbAwareAction(tooltip, null, ACTION_CONTENT_EXPAND) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
@@ -73,14 +74,21 @@ public final class DBNSelector extends JPanel implements UIResource {
         };
         PresentationFactory presentationFactory = new PresentationFactory();
         Presentation presentation = presentationFactory.getPresentation(action);
-        ActionButton actionButton = new ActionButton(
+        actionButton = new ActionButton(
                 action, presentation,
                 ActionPlaces.TOOLBAR,
                 new Dimension(20, 20));
-
-        actionButton.setBorder(Borders.insetBorder(insets));
-        actionButton.setFocusable(true);
         add(actionButton);
+    }
+
+    public DBNSelector withInsets(int insets) {
+        actionButton.setBorder(Borders.insetBorder(insets));
+        return this;
+    }
+
+    public DBNSelector withFocusable(boolean focusable) {
+        actionButton.setFocusable(focusable);
+        return this;
     }
 
     private void displayPopup(JComponent source) {

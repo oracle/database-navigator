@@ -94,7 +94,10 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
     }
 
     private void installHiddenTabButton() {
-        add(hiddenTabsActionPanel = new DBNSelector(txt("app.shared.action.ShowHiddenTabs"), 6, () -> showHiddenTabsPopup()));
+        hiddenTabsActionPanel = new DBNSelector(txt("app.shared.action.ShowHiddenTabs"), () -> showHiddenTabsPopup())
+                .withInsets(6)
+                .withFocusable(true);
+        add(hiddenTabsActionPanel);
     }
 
     private void showHiddenTabsPopup() {
