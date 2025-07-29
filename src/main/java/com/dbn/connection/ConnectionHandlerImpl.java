@@ -16,7 +16,7 @@
 
 package com.dbn.connection;
 
-import com.dbn.assistant.interceptor.StatementExecutionInterceptor;
+import com.dbn.assistant.service.selectai.interceptor.StatementExecutionInterceptor;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.cache.Cache;
 import com.dbn.common.database.AuthenticationInfo;
