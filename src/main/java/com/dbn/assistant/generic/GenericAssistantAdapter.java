@@ -14,18 +14,27 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.adapter.generic;
+package com.dbn.assistant.generic;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.adapter.AssistantAdapterBase;
+import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.adapter.ui.AssistantContextActionsForm;
 import com.dbn.assistant.adapter.ui.AssistantIntroductionForm;
 import com.dbn.assistant.adapter.ui.AssistantPromptActionsForm;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
+import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.generic.ui.GenericAssistantContextActionsForm;
+import com.dbn.assistant.generic.ui.GenericAssistantIntroductionForm;
+import com.dbn.assistant.generic.ui.GenericAssistantPromptActionsForm;
+import com.dbn.assistant.http.AssistantHttpClientBuilderFactory;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.connection.ConnectionId;
+import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -33,27 +42,27 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
     public static final GenericAssistantAdapter INSTANCE = new GenericAssistantAdapter();
 
     private GenericAssistantAdapter() {
-        super(AssistantType.GENERIC);
+        super(AssistantType.PUBLIC);
     }
 
     @Override
     public ChatContext createChatContext(ConnectionId connectionId) {
-        return null;
+        return new ChatContextImpl("OPENAI", "GPT_4_O");
     }
 
     @Override
     public AssistantIntroductionForm createIntroductionForm(ChatBoxForm chatBoxForm) {
-        return null;
+        return new GenericAssistantIntroductionForm(chatBoxForm);
     }
 
     @Override
     public AssistantContextActionsForm createContextActionsForm(ChatBoxForm chatBoxForm) {
-        return null;
+        return new GenericAssistantContextActionsForm(chatBoxForm);
     }
 
     @Override
     public AssistantPromptActionsForm createPromptActionsForm(ChatBoxForm chatBoxForm) {
-        return null;
+        return new GenericAssistantPromptActionsForm(chatBoxForm);
     }
 
     @Override
@@ -99,10 +108,37 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
     }
 
     @Override
-    public String generate(
-            String prompt,
-            ConnectionId connectionId,
-            ChatContext chatContext) {
-        return ""; // TODO
+    public void generate(String prompt, ConnectionId connectionId, ChatContext chatContext, AssistantResponseConsumer responseConsumer) {
+        try {
+            OpenAiStreamingChatModel model = OpenAiStreamingChatModel.builder()
+                    .user(System.getProperty("tempOpenAiUser"))
+                    .apiKey(System.getProperty("tempOpenAiApiKey"))
+                    .modelName("gpt-4o-mini")
+                    .httpClientBuilder(AssistantHttpClientBuilderFactory.createBuilder())
+                    .build();
+
+            model.chat(prompt, new StreamingChatResponseHandler() {
+                @Override
+                public void onPartialResponse(String s) {
+                    System.out.print(s);
+                }
+
+                @Override
+                public void onCompleteResponse(ChatResponse chatResponse) {
+                    responseConsumer.acceptMessage(chatResponse.aiMessage().text());
+                    responseConsumer.acceptCompletion();
+                }
+
+                @Override
+                public void onError(Throwable throwable) {
+                    responseConsumer.acceptError(throwable);
+                    responseConsumer.acceptCompletion();
+                }
+            });
+
+        } catch (Throwable t) {
+            responseConsumer.acceptError(t);
+            responseConsumer.acceptCompletion();
+        }
     }
 }

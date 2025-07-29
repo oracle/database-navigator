@@ -63,7 +63,7 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   public AssistantType getAssistantType(DBNConnection connection) throws SQLException {
     return isAssistantFeatureSupported(connection) ?
             AssistantType.SELECT_AI :
-            AssistantType.GENERIC;
+            AssistantType.PUBLIC;
   }
 
 

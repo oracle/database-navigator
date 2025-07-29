@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.adapter.custom;
+package com.dbn.assistant.custom;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.adapter.AssistantAdapterBase;
+import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.adapter.ui.AssistantContextActionsForm;
 import com.dbn.assistant.adapter.ui.AssistantIntroductionForm;
 import com.dbn.assistant.adapter.ui.AssistantPromptActionsForm;
@@ -99,11 +100,7 @@ public class CustomAssistantAdapter extends AssistantAdapterBase {
     }
 
     @Override
-    public String generate(
-            String prompt,
-            ConnectionId connectionId,
-            ChatContext chatContext) {
-        return ""; // TODO
+    public void generate(String prompt, ConnectionId connectionId, ChatContext chatContext, AssistantResponseConsumer responseConsumer) {
 
     }
 }

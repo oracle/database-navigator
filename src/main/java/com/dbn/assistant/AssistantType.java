@@ -29,8 +29,9 @@ import static com.dbn.nls.NlsResources.txt;
  */
 @Getter
 public enum AssistantType {
-    GENERIC   (txt("app.assistant.title.DatabaseAssistantName_GENERIC")),   // external publicly available language model
-    CUSTOM    (txt("app.assistant.title.DatabaseAssistantName_CUSTOM")),    // custom llm (internally deployed llm)
+    PUBLIC    (txt("app.assistant.title.DatabaseAssistantName_PUBLIC")),    // external publicly available language model
+    LOCAL     (txt("app.assistant.title.DatabaseAssistantName_LOCAL")),  // local llm (internally deployed llm)
+    CUSTOM    (txt("app.assistant.title.DatabaseAssistantName_CUSTOM")),    // custom llm (user defined llm)
     SELECT_AI (txt("app.assistant.title.DatabaseAssistantName_SELECT_AI"))  // oracle select ai
     ;
 

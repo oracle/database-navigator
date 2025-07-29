@@ -18,6 +18,7 @@ package com.dbn.assistant.state;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.adapter.AssistantAdapter;
+import com.dbn.assistant.adapter.AssistantAdapters;
 import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
@@ -96,7 +97,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     }
 
     public AssistantAdapter getAssistantAdapter() {
-        return AssistantAdapter.get(assistantType);
+        return AssistantAdapters.get(assistantType);
     }
 
     public ConnectionHandler getConnection() {
@@ -247,7 +248,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     @Override
     public void readState(Element element) {
         connectionId = connectionIdAttribute(element, "connection-id");
-        assistantType = enumAttribute(element, "type", AssistantType.SELECT_AI); // default to SELECT AI (backward compatibility)
+        assistantType = enumAttribute(element, "assistant-type", AssistantType.SELECT_AI); // default to SELECT AI (backward compatibility)
         defaultProfileName = stringAttribute(element, "default-profile-name");
         currentChatId = stringAttribute(element, "selected-chat-id");
 
@@ -272,7 +273,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     @Override
     public void writeState(Element element) {
         setStringAttribute(element, "connection-id", connectionId.id());
-        setEnumAttribute(element, "type", assistantType);
+        setEnumAttribute(element, "assistant-type", assistantType);
         setStringAttribute(element, "default-profile-name", defaultProfileName);
         setStringAttribute(element, "selected-chat-id", currentChatId);
         setEnumAttribute(element, "availability", availability);

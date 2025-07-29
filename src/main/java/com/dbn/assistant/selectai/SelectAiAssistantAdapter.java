@@ -19,6 +19,7 @@ package com.dbn.assistant.selectai;
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.adapter.AssistantAdapterBase;
+import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.adapter.ui.AssistantContextActionsForm;
 import com.dbn.assistant.adapter.ui.AssistantIntroductionForm;
 import com.dbn.assistant.adapter.ui.AssistantPromptActionsForm;
@@ -63,6 +64,7 @@ import static com.dbn.common.feature.FeatureAcknowledgement.ENGAGED;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
 public class SelectAiAssistantAdapter extends AssistantAdapterBase {
@@ -260,6 +262,18 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
     }
 
     @Override
+    public final void generate(String prompt, ConnectionId connectionId, ChatContext chatContext, AssistantResponseConsumer responseConsumer) {
+        try {
+            String message = generate(prompt, connectionId, chatContext);
+            responseConsumer.acceptMessage(message);
+        } catch (Throwable t) {
+            conditionallyLog(t);
+            responseConsumer.acceptError(t);
+        } finally {
+            responseConsumer.acceptCompletion();
+        }
+    }
+
     public String generate(String prompt, ConnectionId connectionId, ChatContext chatContext) throws Exception {
         ConnectionHandler connection = getConnection(connectionId);
 

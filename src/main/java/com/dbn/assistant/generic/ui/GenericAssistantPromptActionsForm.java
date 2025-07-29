@@ -14,30 +14,23 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.selectai.ui;
+package com.dbn.assistant.generic.ui;
 
 import com.dbn.assistant.adapter.ui.AssistantDetailFormBase;
 import com.dbn.assistant.adapter.ui.AssistantPromptActionsForm;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.chat.window.ui.ChatBoxStatusLabel;
-import com.dbn.common.util.Actions;
-import com.intellij.openapi.actionSystem.ActionToolbar;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
-
-public class SelectAiPromptActionsForm extends AssistantDetailFormBase implements AssistantPromptActionsForm {
+public class GenericAssistantPromptActionsForm extends AssistantDetailFormBase implements AssistantPromptActionsForm {
     private JPanel mainPanel;
     private JPanel actionsPanel;
-    private JPanel statusPanel;
 
-    public SelectAiPromptActionsForm(@Nullable ChatBoxForm parent) {
+    public GenericAssistantPromptActionsForm(@Nullable ChatBoxForm parent) {
         super(parent);
 
-        createStatusLabel();
         createActionPanel();
     }
 
@@ -46,14 +39,11 @@ public class SelectAiPromptActionsForm extends AssistantDetailFormBase implement
         return mainPanel;
     }
 
-    private void createStatusLabel() {
-        ChatBoxStatusLabel statusLabel = new ChatBoxStatusLabel(ensureParentComponent());
-        statusPanel.add(statusLabel);
-    }
-
     private void createActionPanel() {
+/*
         ActionToolbar typeActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.AssistantChatTypes");
         setAccessibleName(typeActions, txt("app.assistant.aria.ChatTypeActions"));
         this.actionsPanel.add(typeActions.getComponent());
+*/
     }
 }

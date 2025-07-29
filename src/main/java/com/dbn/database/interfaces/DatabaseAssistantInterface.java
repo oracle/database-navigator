@@ -98,6 +98,6 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
   void disableDataAccess(DBNConnection connection) throws SQLException;
 
   default AssistantType getAssistantType(DBNConnection connection) throws SQLException {
-    return AssistantType.GENERIC;
+    return AssistantType.PUBLIC;
   }
 }

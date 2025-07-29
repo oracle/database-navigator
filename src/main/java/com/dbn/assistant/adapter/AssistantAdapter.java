@@ -17,18 +17,18 @@
 package com.dbn.assistant.adapter;
 
 import com.dbn.assistant.AssistantType;
-import com.dbn.assistant.adapter.custom.CustomAssistantAdapter;
-import com.dbn.assistant.adapter.generic.GenericAssistantAdapter;
 import com.dbn.assistant.adapter.ui.AssistantContextActionsForm;
 import com.dbn.assistant.adapter.ui.AssistantIntroductionForm;
 import com.dbn.assistant.adapter.ui.AssistantPromptActionsForm;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.selectai.SelectAiAssistantAdapter;
 import com.dbn.connection.ConnectionId;
+import com.intellij.openapi.extensions.ExtensionPointName;
 
 public interface AssistantAdapter {
+    ExtensionPointName<AssistantAdapter> EP = ExtensionPointName.create("com.dbn.assistantAdapter");
+
     AssistantType getAssistantType();
 
     ChatContext createChatContext(ConnectionId connectionId);
@@ -76,14 +76,4 @@ public interface AssistantAdapter {
     String preparePrompt(ConnectionId connectionId, ChatContext chatContext, String prompt);
 
     String prepareError(ConnectionId connectionId, ChatContext chatContext, Throwable e);
-
-    static AssistantAdapter get(AssistantType assistantType) {
-        switch (assistantType) {
-            case GENERIC: return GenericAssistantAdapter.INSTANCE;
-            case CUSTOM: return CustomAssistantAdapter.INSTANCE;
-            case SELECT_AI: return SelectAiAssistantAdapter.INSTANCE;
-            default: throw new IllegalArgumentException("Unknown assistant type: " + assistantType);
-        }
-    }
-
 }

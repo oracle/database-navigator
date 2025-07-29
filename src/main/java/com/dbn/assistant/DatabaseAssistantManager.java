@@ -18,6 +18,7 @@ package com.dbn.assistant;
 
 import com.dbn.DatabaseNavigator;
 import com.dbn.assistant.adapter.AssistantAdapter;
+import com.dbn.assistant.adapter.AssistantAdapters;
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
@@ -51,6 +52,7 @@ import javax.swing.JPanel;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
@@ -78,6 +80,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
     private final Map<ConnectionId, Map<AssistantType, AssistantState>> assistantStates = new ConcurrentHashMap<>();
     private final Map<ConnectionId, Map<AssistantType, ChatBoxForm>> chatBoxes = new ConcurrentHashMap<>();
+    private final Map<ConnectionId, AssistantType> selectedAssistantTypes = new ConcurrentHashMap<>();
 
     private DatabaseAssistantManager(Project project) {
         super(project, COMPONENT_NAME);
@@ -138,7 +141,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     }
 
     public void initializeAssistant(ConnectionId connectionId, AssistantType assistantType) {
-        AssistantAdapter assistantAdapter = AssistantAdapter.get(assistantType);
+        AssistantAdapter assistantAdapter = AssistantAdapters.get(assistantType);
         assistantAdapter.initializeAssistant(connectionId);
     }
 
@@ -153,15 +156,57 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         JPanel toolWindowPanel = getToolWindowPanel();
         if (toolWindowPanel == null) return;
 
-        String id = visibleCardId(toolWindowPanel);
-        ConnectionId selectedConnectionId = isBlankCard(id) ? null : ConnectionId.get(id);
+        AssistantType assistantType = getSelectedAssistantType(connectionId);
+        AssistantContext currentContext = getCurrentContext();
+        AssistantContext targetContext = new AssistantContext(connectionId, assistantType);
+        if (Objects.equals(currentContext, targetContext)) return;
 
-        if (Objects.equals(selectedConnectionId, connectionId)) return;
-        initToolWindow(connectionId, AssistantType.SELECT_AI); // TODO
+        initToolWindow(connectionId, assistantType);
+    }
+
+    private @NotNull AssistantType getSelectedAssistantType(@NotNull ConnectionId connectionId) {
+        return selectedAssistantTypes.computeIfAbsent(connectionId, c -> getPrefferedAssistantType(c));
+    }
+
+    private @NotNull AssistantType getPrefferedAssistantType(ConnectionId connectionId) {
+        Map<AssistantType, AssistantState> assistantStates = this.assistantStates.get(connectionId);
+        if (assistantStates == null) return AssistantType.PUBLIC;
+        if (assistantStates.isEmpty()) return AssistantType.PUBLIC;
+
+        Set<AssistantType> assistantTypes = assistantStates.keySet();
+        for (AssistantType assistantType : assistantTypes) {
+            AssistantState assistantState = assistantStates.get(assistantType);
+            if (assistantState.isSupported()) return assistantType;
+        }
+
+        return assistantTypes.iterator().next();
+    }
+
+    public void switchToAssistant(ConnectionId connectionId, AssistantType assistantType) {
+        JPanel toolWindowPanel = getToolWindowPanel();
+        if (toolWindowPanel == null) return;
+
+        AssistantContext currentContext = getCurrentContext();
+        AssistantContext targetContext = new AssistantContext(connectionId, assistantType);
+
+        if (Objects.equals(currentContext, targetContext)) return;
+        initToolWindow(connectionId, assistantType);
     }
 
     @Nullable
-    private ChatBoxForm getChatBox(@Nullable ConnectionId connectionId, AssistantType assistantType) {
+    private AssistantContext getCurrentContext() {
+        JPanel toolWindowPanel = getToolWindowPanel();
+        if (toolWindowPanel == null) return null;
+
+        String identifier = visibleCardId(toolWindowPanel);
+        if (identifier == null) return null;
+        if (isBlankCard(identifier)) return null;
+
+        return new AssistantContext(identifier);
+    }
+
+    @Nullable
+    private ChatBoxForm initChatBox(@Nullable ConnectionId connectionId, AssistantType assistantType) {
         if (connectionId == null) return null;
 
         JPanel toolWindowPanel = getToolWindowPanel();
@@ -169,16 +214,23 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
         ConnectionHandler connection = ConnectionHandler.get(connectionId);
         if (connection == null) return null;
-        // TODO clarify - present assistant for unsupported databases?
-        //if (!AI_ASSISTANT.isSupported(connection)) return null;
 
         Map<AssistantType, ChatBoxForm> chatBoxes = this.chatBoxes.computeIfAbsent(connectionId, c -> new ConcurrentHashMap<>());
+        return chatBoxes.computeIfAbsent(assistantType, id ->  createChatBox(connectionId, assistantType));
+    }
 
-        return chatBoxes.computeIfAbsent(assistantType, id -> {
-            ChatBoxForm chatBox = new ChatBoxForm(connection, assistantType);
-            addCard(toolWindowPanel, chatBox, connectionId);
-            return chatBox;
-        });
+    private ChatBoxForm createChatBox(ConnectionId connectionId, AssistantType assistantType) {
+        ConnectionHandler connection = ConnectionHandler.get(connectionId);
+        if (connection == null) return null;
+
+        ChatBoxForm chatBox = new ChatBoxForm(connection, assistantType);
+        JPanel toolWindowPanel = getToolWindowPanel();
+        if (toolWindowPanel == null) return null;
+
+        AssistantContext context = new AssistantContext(connectionId, assistantType);
+        addCard(toolWindowPanel, chatBox, context);
+
+        return chatBox;
     }
 
     public void interruptAssistantSession(ConnectionHandler connection) {
@@ -205,17 +257,20 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     }
 
     private void initToolWindow(ConnectionId connectionId,  AssistantType assistantType) {
+        selectedAssistantTypes.put(connectionId, assistantType);
+
         ToolWindow toolWindow = getToolWindow();
         if (toolWindow == null) return;
 
         JPanel toolWindowPanel = getToolWindowPanel();
         if (toolWindowPanel == null) return;
 
-        ChatBoxForm chatBox = getChatBox(connectionId, assistantType);
+        ChatBoxForm chatBox = initChatBox(connectionId, assistantType);
         if (chatBox == null) {
             showBlankCard(toolWindowPanel);
         } else {
-            showCard(toolWindowPanel, connectionId);
+            AssistantContext context = new AssistantContext(connectionId, assistantType);
+            showCard(toolWindowPanel, context);
             toolWindow.setAvailable(true);
         }
     }

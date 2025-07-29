@@ -22,7 +22,6 @@ import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
@@ -61,20 +60,4 @@ public abstract class AssistantAdapterBase implements AssistantAdapter {
     public ChatContext enrichChatContext(ChatContext context) {
         return context;
     }
-
-    @Override
-    public final void generate(String prompt, ConnectionId connectionId, ChatContext chatContext, AssistantResponseConsumer responseConsumer) {
-        try {
-
-            String message = generate(prompt, connectionId, chatContext);
-            responseConsumer.acceptMessage(message);
-        } catch (Throwable t) {
-            Diagnostics.conditionallyLog(t);
-            responseConsumer.acceptError(t);
-        } finally {
-            responseConsumer.acceptCompletion();
-        }
-    }
-
-    public abstract String generate(String prompt, ConnectionId connectionId, ChatContext chatContext) throws Exception;
 }

@@ -18,6 +18,7 @@ package com.dbn.assistant.chat.window.ui;
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.adapter.AssistantAdapter;
+import com.dbn.assistant.adapter.AssistantAdapters;
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.adapter.ui.AssistantContextActionsForm;
 import com.dbn.assistant.adapter.ui.AssistantIntroductionForm;
@@ -33,7 +34,9 @@ import com.dbn.assistant.chat.message.ui.ChatMessagesForm;
 import com.dbn.assistant.chat.ui.ChatSaveDialog;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateListener;
+import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.DataKeys;
+import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Background;
@@ -44,9 +47,13 @@ import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.connection.DatabaseType;
 import com.dbn.connection.action.SelectConnectionAction;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -147,6 +154,32 @@ public class ChatBoxForm extends DBNFormBase {
                 ensureProject(), (id) -> selectConnection(id));
     }
 
+    private ActionGroup createAssistantTypeActions() {
+        DefaultActionGroup actionGroup = new DefaultActionGroup();
+        actionGroup.add(new ComboBoxAction() {
+            @Override
+            @NotNull
+            protected DefaultActionGroup createPopupActionGroup(@NotNull JComponent component, @NotNull DataContext dataContext) {
+                DefaultActionGroup actionGroup = new DefaultActionGroup();
+                ConnectionHandler connection = getConnection();
+                if (connection.getDatabaseType() == DatabaseType.ORACLE) {
+                    actionGroup.add(new SelectAssistantTypeAction(AssistantType.SELECT_AI));
+                }
+                actionGroup.add(new SelectAssistantTypeAction(AssistantType.PUBLIC));
+                //actionGroup.add(new SelectAssistantTypeAction(AssistantType.INTERNAL));
+                //actionGroup.add(new SelectAssistantTypeAction(AssistantType.CUSTOM));
+                return actionGroup;
+            }
+
+            @Override
+            public void update(@NotNull AnActionEvent e) {
+                e.getPresentation().setText(assistantType.getName());
+            }
+        });
+
+        return actionGroup;
+    }
+
     private void selectConnection(ConnectionId connectionId) {
         DatabaseAssistantManager assistantManager = getManager();
         assistantManager.switchToConnection(connectionId);
@@ -159,7 +192,8 @@ public class ChatBoxForm extends DBNFormBase {
     private void initHeaderForm() {
         ConnectionHandler connection = getConnection();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
-        headerForm.addSelector("Select Connection", createConnectionActions());
+        headerForm.setSelector("Select Connection", createConnectionActions());
+        headerForm.setActions(createAssistantTypeActions());
 
         headerPanel.add(headerForm.getComponent());
     }
@@ -198,6 +232,8 @@ public class ChatBoxForm extends DBNFormBase {
     }
 
     public void initMessages() {
+        if (!hasUserEngaged()) return;
+
         Chat chat = getCurrentChat();
         currentChatId = chat.getId();
         chat.removeProgress();
@@ -216,7 +252,7 @@ public class ChatBoxForm extends DBNFormBase {
     }
 
     public AssistantAdapter getAssistantAdapter() {
-        return AssistantAdapter.get(assistantType);
+        return AssistantAdapters.get(assistantType);
     }
 
     public void showHelpDialog() {
@@ -229,6 +265,7 @@ public class ChatBoxForm extends DBNFormBase {
         AssistantState assistantState = getAssistantState();
         assistantState.setAcknowledgement(ENGAGED);
         initChatBoxForm();
+
         introPanel.setVisible(false);
         chatBoxPanel.setVisible(true);
     }
@@ -468,6 +505,12 @@ public class ChatBoxForm extends DBNFormBase {
         getManager().interruptAssistantSession(getConnection());
     }
 
+    @NotNull
+    public AssistantType getAssistantType() {
+        return assistantType;
+    }
+
+    @NotNull
     public ConnectionId getConnectionId() {
         return connection.getConnectionId();
     }
@@ -487,5 +530,19 @@ public class ChatBoxForm extends DBNFormBase {
     public Object getData(@NotNull String dataId) {
         if (DataKeys.ASSISTANT_CHAT_BOX.is(dataId)) return this;
         return null;
+    }
+
+    private class SelectAssistantTypeAction extends AnAction {
+        private final AssistantType assistantType;
+        public SelectAssistantTypeAction(AssistantType assistantType) {
+            super(assistantType.getName());
+            this.assistantType = assistantType;
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            DatabaseAssistantManager assistantManager = getManager();
+            assistantManager.switchToAssistant(getConnectionId(), assistantType);
+        }
     }
 }
