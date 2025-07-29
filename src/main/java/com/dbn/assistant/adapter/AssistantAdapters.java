@@ -17,27 +17,15 @@
 package com.dbn.assistant.adapter;
 
 import com.dbn.assistant.AssistantType;
-import lombok.experimental.UtilityClass;
-import org.jetbrains.annotations.NotNull;
+import com.dbn.common.extension.ExtensionPointCache;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-@UtilityClass
-public class AssistantAdapters {
-    private static final Map<AssistantType, AssistantAdapter> cache = new ConcurrentHashMap<>();
-
-    public static AssistantAdapter get(AssistantType assistantType) {
-        return cache.computeIfAbsent(assistantType, t -> find(t));
+public class AssistantAdapters extends ExtensionPointCache<AssistantType, AssistantAdapter> {
+    private static final AssistantAdapters INSTANCE = new AssistantAdapters();
+    private AssistantAdapters() {
+        super(AssistantAdapter.EP, a -> a.getAssistantType());
     }
 
-    private static @NotNull AssistantAdapter find(AssistantType assistantType) {
-        List<AssistantAdapter> adapters = AssistantAdapter.EP.getExtensionList();
-        for (AssistantAdapter adapter : adapters) {
-            if (adapter.getAssistantType() == assistantType) return adapter;
-        }
-
-        throw new UnsupportedOperationException("No assistant adapter registered for " + assistantType);
+    public static AssistantAdapter get(AssistantType assistantType) {
+        return INSTANCE.find(assistantType);
     }
 }

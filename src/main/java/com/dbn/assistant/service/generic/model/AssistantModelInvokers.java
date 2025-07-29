@@ -27,17 +27,13 @@ import static com.dbn.common.util.Unsafe.cast;
 
 public class AssistantModelInvokers extends ExtensionPointCache<Class, AssistantModelInvoker> {
     private static final AssistantModelInvokers INSTANCE = new AssistantModelInvokers();
+
     private AssistantModelInvokers() {
-        super(AssistantModelInvoker.EP);
+        super(AssistantModelInvoker.EP, e -> e.getModelType());
     }
 
     public static @NotNull <T> AssistantModelInvoker<T> get(Class modelType) {
         return cast(INSTANCE.find(modelType));
-    }
-
-    @Override
-    protected Class getKey(AssistantModelInvoker extension) {
-        return extension.getModelType();
     }
 
     public static Class[] types() {

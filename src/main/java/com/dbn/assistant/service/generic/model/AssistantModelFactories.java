@@ -21,16 +21,12 @@ import com.dbn.common.extension.ExtensionPointCache;
 
 public class AssistantModelFactories extends ExtensionPointCache<AIProvider, AssistantModelFactory> {
     private static final AssistantModelFactories INSTANCE = new AssistantModelFactories();
+
     private AssistantModelFactories() {
-        super(AssistantModelFactory.EP);
+        super(AssistantModelFactory.EP, f -> f.getProvider());
     }
 
     public static AssistantModelFactory get(AIProvider provider) {
         return INSTANCE.find(provider);
-    }
-
-    @Override
-    protected AIProvider getKey(AssistantModelFactory extension) {
-        return extension.getProvider();
     }
 }

@@ -23,13 +23,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 public abstract class ExtensionPointCache<K, E> {
     private final ExtensionPointName<E> extensionPointName;
     private final Map<K, E> cache = new ConcurrentHashMap<>();
+    private final Function<E, K> keyProvider;
 
-    protected ExtensionPointCache(ExtensionPointName<E> extensionPointName) {
+    protected ExtensionPointCache(ExtensionPointName<E> extensionPointName, Function<E, K> keyProvider) {
         this.extensionPointName = extensionPointName;
+        this.keyProvider = keyProvider;
     }
 
     protected E find(K key) {
@@ -40,13 +43,10 @@ public abstract class ExtensionPointCache<K, E> {
     private E scan(K key) {
         List<E> extensions = extensionPointName.getExtensionList();
         for (E extension : extensions) {
-            K extensionKey = getKey(extension);
+            K extensionKey = keyProvider.apply(extension);
             if (Objects.equals(extensionKey, key)) return extension;
         }
 
         throw new UnsupportedOperationException("No extension of type \"" + extensionPointName + "\" registered for key \"" + key + "\"");
     }
-
-    protected abstract K getKey(E extension);
-
 }
