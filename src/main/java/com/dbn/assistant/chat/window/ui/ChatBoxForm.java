@@ -444,23 +444,23 @@ public class ChatBoxForm extends DBNFormBase {
         if (chatContext == null) return;
 
         assistantState.set(QUERYING, true);
-        ChatMessage inputChatMessage = new ChatMessage(MessageType.NEUTRAL, question, AuthorType.USER, chatContext);
-        inputChatMessage.setProgress(true);
+        ChatMessage userMessage = new ChatMessage(MessageType.NEUTRAL, question, AuthorType.USER, chatContext);
+        userMessage.setProgress(true);
 
         String chatId = assistantState.getCurrentChatId();
-        appendMessage(chatId, inputChatMessage);
-        question = assistantAdapter.preparePrompt(connectionId, chatContext, question);
+        appendMessage(chatId, userMessage);
 
-        assistantAdapter.generate(question, connectionId, chatContext, new AssistantResponseConsumer() {
+        DatabaseAssistantManager assistantManager = getManager();
+        assistantManager.query(question, chatId, connectionId, assistantType, chatContext, new AssistantResponseConsumer() {
             @Override
             public void acceptToken(String token) {
-                //
+                // TODO incremental response build
             }
 
             @Override
             public void acceptMessage(String message) {
-                ChatMessage outputChatMessage = new ChatMessage(MessageType.NEUTRAL, message, AuthorType.AGENT, chatContext);
-                appendMessage(chatId, outputChatMessage);
+                ChatMessage agentMessage = new ChatMessage(MessageType.NEUTRAL, message, AuthorType.AGENT, chatContext);
+                appendMessage(chatId, agentMessage);
                 log.info("Assistant query processed successfully.");
             }
 

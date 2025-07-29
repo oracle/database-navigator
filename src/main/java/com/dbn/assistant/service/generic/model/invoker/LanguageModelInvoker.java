@@ -17,6 +17,7 @@
 package com.dbn.assistant.service.generic.model.invoker;
 
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
+import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.model.language.LanguageModel;
 import dev.langchain4j.model.output.Response;
 
@@ -26,7 +27,7 @@ public class LanguageModelInvoker extends AbstractModelInvoker<LanguageModel>{
     }
 
     @Override
-    public void invokeModel(LanguageModel model, String prompt, AssistantResponseConsumer consumer) {
+    public void invokeModel(LanguageModel model, ChatMemory memory, String prompt, AssistantResponseConsumer consumer) {
         try {
             Response<String> response = model.generate(prompt);
             String content = response.content();

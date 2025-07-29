@@ -69,6 +69,7 @@ public interface AssistantAdapter {
 
     void generate(
             String prompt,
+            String chatId,
             ConnectionId connectionId,
             ChatContext chatContext,
             AssistantResponseConsumer responseConsumer);

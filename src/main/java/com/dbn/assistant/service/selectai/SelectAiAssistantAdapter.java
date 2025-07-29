@@ -262,7 +262,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
     }
 
     @Override
-    public final void generate(String prompt, ConnectionId connectionId, ChatContext chatContext, AssistantResponseConsumer responseConsumer) {
+    public final void generate(String prompt, String chatId, ConnectionId connectionId, ChatContext chatContext, AssistantResponseConsumer responseConsumer) {
         try {
             String message = generate(prompt, connectionId, chatContext);
             responseConsumer.acceptMessage(message);

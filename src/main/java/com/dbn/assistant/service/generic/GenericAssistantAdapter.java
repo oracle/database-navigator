@@ -35,8 +35,10 @@ import com.dbn.assistant.service.generic.model.AssistantModelInvokers;
 import com.dbn.assistant.service.generic.ui.GenericAssistantContextActionsForm;
 import com.dbn.assistant.service.generic.ui.GenericAssistantIntroductionForm;
 import com.dbn.assistant.service.generic.ui.GenericAssistantPromptActionsForm;
+import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.connection.ConnectionId;
+import dev.langchain4j.memory.ChatMemory;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -110,11 +112,8 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
     }
 
     @Override
-    public void generate(String prompt, ConnectionId connectionId, ChatContext chatContext, AssistantResponseConsumer responseConsumer) {
+    public void generate(String prompt, String chatId, ConnectionId connectionId, ChatContext chatContext, AssistantResponseConsumer responseConsumer) {
         try {
-            AIProvider provider = chatContext.getProvider();
-            AssistantModelFactory modelFactory = AssistantModelFactories.get(provider);
-
             String model = chatContext.getModel().getApiName();
 
             // TODO user, token, url from assistant config...
@@ -123,14 +122,20 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
                     .withToken(System.getProperty("tempOpenAiApiKey"));
 
 
+            AIProvider provider = chatContext.getProvider();
+            AssistantModelFactory modelFactory = AssistantModelFactories.get(provider);
+
             Class[] modelTypes = AssistantModelInvokers.types();
             for (Class<?> modelType : modelTypes) {
                 Object assistantModel = modelFactory.createModel(modelType, input);
-                if (assistantModel != null) {
-                    AssistantModelInvoker<Object> invoker = AssistantModelInvokers.get(modelType);
-                    invoker.invokeModel(assistantModel, prompt, responseConsumer);
-                    return;
-                }
+                if (assistantModel == null) continue;
+
+                AssistantState assistantState = getAssistantState(connectionId);
+                ChatMemory memory = ChatMemoryUtil.getCharMemory(chatId, prompt, assistantState);
+
+                AssistantModelInvoker<Object> invoker = AssistantModelInvokers.get(modelType);
+                invoker.invokeModel(assistantModel, memory, prompt, responseConsumer);
+                return;
             }
         } catch (Throwable t) {
             responseConsumer.acceptError(t);

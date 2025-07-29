@@ -55,7 +55,12 @@ public class SelectAiEditorPromptUtil {
                 processTitle,
                 processMessage, p -> {
                     DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
-                    assistantManager.query(text, connectionId, AssistantType.SELECT_AI, context, new SelectAiResponseConsumer() {
+
+                    String chatId = null; // conversation not supported in editor context
+                    // TODO is there any interactive use-case possible
+                    //  (e.g. popup dialog with suggestion to improve the output)
+
+                    assistantManager.query(text, chatId, connectionId, AssistantType.SELECT_AI, context, new SelectAiResponseConsumer() {
                         @Override
                         public void acceptMessage(String message) {
                             ChatMessage chatMessage = new ChatMessage(MessageType.NEUTRAL, message, AuthorType.AGENT, context);

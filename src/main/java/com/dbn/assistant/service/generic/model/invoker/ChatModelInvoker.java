@@ -17,7 +17,10 @@
 package com.dbn.assistant.service.generic.model.invoker;
 
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
+import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.response.ChatResponse;
+import org.jetbrains.annotations.Nullable;
 
 public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
     public ChatModelInvoker() {
@@ -25,7 +28,21 @@ public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
     }
 
     @Override
-    public void invokeModel(ChatModel model, String prompt, AssistantResponseConsumer consumer) {
+    public void invokeModel(ChatModel model, @Nullable ChatMemory memory, String prompt, AssistantResponseConsumer consumer) {
+        try {
+            if (memory == null) {
+                String message = model.chat(prompt);
+                consumer.acceptMessage(message);
+            } else {
+                ChatResponse chat = model.chat(memory.messages());
+                String message = chat.aiMessage().text();
+                consumer.acceptMessage(message);
+            }
+        } catch (Throwable e) {
+            consumer.acceptError(e);
 
+        } finally {
+            consumer.acceptCompletion();
+        }
     }
 }

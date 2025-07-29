@@ -17,7 +17,9 @@
 package com.dbn.assistant.service.generic.model.invoker;
 
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
+import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import org.jetbrains.annotations.Nullable;
 
 public class EmbeddingModelInvoker extends AbstractModelInvoker<EmbeddingModel>{
     public EmbeddingModelInvoker() {
@@ -25,7 +27,6 @@ public class EmbeddingModelInvoker extends AbstractModelInvoker<EmbeddingModel>{
     }
 
     @Override
-    public void invokeModel(EmbeddingModel model, String prompt, AssistantResponseConsumer consumer) {
-
+    public void invokeModel(EmbeddingModel model, @Nullable ChatMemory memory, String prompt, AssistantResponseConsumer consumer) {
     }
 }

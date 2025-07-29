@@ -29,9 +29,12 @@ import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.intellij.openapi.util.UserDataHolder;
+import com.intellij.openapi.util.UserDataHolderBase;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Delegate;
 import org.jdom.Element;
 
 import java.util.Comparator;
@@ -72,7 +75,7 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 @Setter
 @Getter
 @NoArgsConstructor
-public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus> implements PersistentStateElement {
+public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus> implements PersistentStateElement, UserDataHolder {
 
     private FeatureAvailability availability = FeatureAvailability.UNCERTAIN;
     private FeatureAcknowledgement acknowledgement = FeatureAcknowledgement.NONE;
@@ -85,6 +88,9 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     private String currentSessionSignature; // the resourceId of the com.dbn.connection.jdbc.Resource
     private String defaultProfileName;
     private ChatContext lastContext = new ChatContextImpl();
+
+    @Delegate
+    private final UserDataHolder userData = new UserDataHolderBase();
 
     public AssistantState(ConnectionId connectionId, AssistantType assistantType) {
         this.connectionId = connectionId;

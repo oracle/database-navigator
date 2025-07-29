@@ -17,9 +17,13 @@
 package com.dbn.assistant.service.generic.model.invoker;
 
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
+import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingChatModel>{
     public StreamingChatModelInvoker() {
@@ -27,8 +31,19 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
     }
 
     @Override
-    public void invokeModel(StreamingChatModel model, String prompt, AssistantResponseConsumer consumer) {
-        model.chat(prompt, new StreamingChatResponseHandler() {
+    public void invokeModel(StreamingChatModel model, @Nullable ChatMemory memory, String prompt, AssistantResponseConsumer consumer) {
+        StreamingChatResponseHandler responseHandler = createResponseHandler(memory, consumer);
+        if (memory == null) {
+            model.chat(prompt, responseHandler);
+        } else {
+            UserMessage userMessage = UserMessage.from(prompt);
+            memory.add(userMessage);
+            model.chat(memory.messages(), responseHandler);
+        }
+    }
+
+    private static @NotNull StreamingChatResponseHandler createResponseHandler(@Nullable ChatMemory memory, AssistantResponseConsumer consumer) {
+        return new StreamingChatResponseHandler() {
             @Override
             public void onPartialResponse(String s) {
                 consumer.acceptToken(s);
@@ -38,6 +53,9 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
             public void onCompleteResponse(ChatResponse response) {
                 consumer.acceptMessage(response.aiMessage().text());
                 consumer.acceptCompletion();
+                if (memory != null) {
+                    memory.add(response.aiMessage());
+                }
             }
 
             @Override
@@ -45,6 +63,6 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
                 consumer.acceptError(throwable);
                 consumer.acceptCompletion();
             }
-        });
+        };
     }
 }

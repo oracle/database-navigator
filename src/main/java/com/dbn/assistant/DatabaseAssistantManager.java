@@ -277,6 +277,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
     public void query(
             String prompt,
+            String chatId,
             ConnectionId connectionId,
             AssistantType assistantType,
             ChatContext chatContext,
@@ -284,7 +285,9 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
         AssistantState assistantState = getAssistantState(connectionId, assistantType);
         AssistantAdapter assistantAdapter = assistantState.getAssistantAdapter();
-        assistantAdapter.generate(prompt, connectionId, chatContext, responseConsumer);
+        prompt = assistantAdapter.preparePrompt(connectionId, chatContext, prompt);
+
+        assistantAdapter.generate(prompt, chatId, connectionId, chatContext, responseConsumer);
     }
 
     /*********************************************

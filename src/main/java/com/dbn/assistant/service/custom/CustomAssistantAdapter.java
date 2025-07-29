@@ -100,7 +100,7 @@ public class CustomAssistantAdapter extends AssistantAdapterBase {
     }
 
     @Override
-    public void generate(String prompt, ConnectionId connectionId, ChatContext chatContext, AssistantResponseConsumer responseConsumer) {
+    public void generate(String prompt, String chatId, ConnectionId connectionId, ChatContext chatContext, AssistantResponseConsumer responseConsumer) {
 
     }
 }
