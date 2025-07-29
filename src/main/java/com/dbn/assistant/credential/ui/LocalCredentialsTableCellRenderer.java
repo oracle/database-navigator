@@ -28,8 +28,8 @@ public class LocalCredentialsTableCellRenderer extends DBNColoredTableCellRender
         if (value == null) return;
 
         if (column == SECRET_COLUMN) {
-            String text = value.toString();
-            value = "*".repeat(text.length());
+            //String text = value.toString();
+            value = "*".repeat(20);
         }
         append(value.toString());
     }
