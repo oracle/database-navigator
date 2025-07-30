@@ -19,10 +19,11 @@ package com.dbn.execution.java.action;
 import com.dbn.common.thread.Progress;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.wrapper.JavaExecutionWrapperManager;
-import com.dbn.execution.java.wrapper.WrapperModel;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.action.AnObjectAction;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -49,9 +50,10 @@ public class JavaMethodWrapperAction extends AnObjectAction<DBJavaMethod> {
 							ConnectionHandler connection = action.getConnection();
 							if (connection.isValid()) {
 								try {
+									JavaExecutionInput javaExecutionInput = new JavaExecutionInput(project, DBObjectRef.of(method));
+									javaExecutionInput.initDatabaseElements();
 									JavaExecutionWrapperManager wrapperManager = JavaExecutionWrapperManager.getInstance(getProject());
-									WrapperModel model = wrapperManager.createExecutionWrappers(method, true, false);
-									wrapperManager.showWrapperResult(model);
+									wrapperManager.createExecutionWrappers(method, true, false);
 								} catch (Exception ex) {
 									showErrorDialog(project,
 											"Error creating execution wrappers for java method \"" + methodSignature + "\"\nCause: " + ex.getMessage());

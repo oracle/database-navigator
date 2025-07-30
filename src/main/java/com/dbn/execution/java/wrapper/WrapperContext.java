@@ -51,6 +51,11 @@ public class WrapperContext {
                 new TransientWrapperNamingProvider();
     }
 
+    public WrapperContext(WrapperModelInput input, WrapperNamingProvider namingProvider) {
+        this.input = input;
+        this.namingProvider = namingProvider;
+    }
+
 
     public void cacheClassWrapper(ClassWrapper classWrapper) {
         var key = Pair.of(classWrapper.getClassName(), classWrapper.getArrayDepth());

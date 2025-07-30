@@ -72,10 +72,6 @@ public class JavaExecutionWrapperManager extends ProjectComponentBase implements
         return model;
     }
 
-	public void showWrapperResult(WrapperModel model) {
-		Dialogs.show(() -> new WrapperResultDialog(getProject(), model));
-	}
-
 	/****************************************
 	 *       PersistentStateComponent       *
 	 *****************************************/

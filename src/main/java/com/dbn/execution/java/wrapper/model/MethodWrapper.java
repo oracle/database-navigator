@@ -16,7 +16,7 @@
 
 package com.dbn.execution.java.wrapper.model;
 
-import com.dbn.common.util.Naming;
+import com.dbn.common.icon.Icons;
 import com.dbn.execution.java.wrapper.WrapperModel;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
@@ -26,6 +26,7 @@ import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.swing.Icon;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +52,7 @@ public class MethodWrapper extends EntityWrapper {
     }
 
     private DBObjectRef<DBMethod> initSqlMethod(DBJavaMethod javaMethod) {
-        String sqlMethodName = Naming.toUpperSnakeCase(javaMethod.getSimpleName());
+        String sqlMethodName = getNamingProvider().getSqlMethodName(javaMethod);
         DBObjectType sqlMethodType = javaMethod.isReturningVoid() ?
                 DBObjectType.PROCEDURE :
                 DBObjectType.FUNCTION;
@@ -78,5 +79,11 @@ public class MethodWrapper extends EntityWrapper {
 
     public void addParameter(ParameterWrapper parameterWrapper) {
         parameters.add(parameterWrapper);
+    }
+
+    public Icon getIcon() {
+        return getJavaMethod().isReturningVoid() ?
+                Icons.DBO_PROCEDURE :
+                Icons.DBO_METHOD;
     }
 }

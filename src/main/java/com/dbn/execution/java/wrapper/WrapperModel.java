@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.wrapper;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
@@ -23,6 +24,7 @@ import com.dbn.connection.context.DatabaseContextBase;
 import com.dbn.execution.java.wrapper.model.ClassWrapper;
 import com.dbn.execution.java.wrapper.model.FieldWrapper;
 import com.dbn.execution.java.wrapper.model.MethodWrapper;
+import com.dbn.execution.java.wrapper.model.ParameterWrapper;
 import com.dbn.execution.java.wrapper.naming.WrapperNamingProvider;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
@@ -37,6 +39,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.Icon;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -152,6 +155,25 @@ public class WrapperModel implements DatabaseContextBase {
 
 	public String getSqlWrapperName() {
 		return sqlWrapperMethod != null ? sqlWrapperMethod.getObjectName() : sqlWrapperPackage.getObjectName();
+	}
+
+	public Icon getSqlWrapperIcon() {
+		return sqlWrapperMethod != null ? Icons.DBO_METHOD : Icons.DBO_PROCEDURE;
+	}
+
+	public Set<String> getSqlTypeNames() {
+		for(MethodWrapper methodWrapper: this.getMethods()) {
+			for(ParameterWrapper parameterWrapper : methodWrapper.getParameters()) {
+				if(parameterWrapper.isComplexType()) {
+					sqlTypeNames.add(parameterWrapper.getSqlTypeName());
+				}
+			}
+
+			if(methodWrapper.getReturnParameter() != null && methodWrapper.getReturnParameter().isComplexType()) {
+				sqlTypeNames.add(methodWrapper.getReturnParameter().getSqlTypeName());
+			}
+		}
+		return sqlTypeNames;
 	}
 
 	public List<DBObjectRef> getWrapperObjects() {
