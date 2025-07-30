@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2024 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package com.dbn.debugger.prerequisite;
+package com.dbn.common.reflection;
 
-import com.dbn.prerequisite.definition.impl.SystemPrivilegePrerequisite;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class SystemPrivilege_CREATE_ANY_PROCEDURE extends SystemPrivilegePrerequisite {
-
-    public SystemPrivilege_CREATE_ANY_PROCEDURE() {
-        super(DebugPrerequisiteTypes.CREATE_ANY_PROCEDURE);
-    }
-
-    @Override
-    protected String getPrivilegeName() {
-        return "CREATE ANY PROCEDURE";
-    }
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ProxyObjectInfo {
+    String delegateClass();
 }

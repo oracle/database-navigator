@@ -38,6 +38,7 @@ public enum NotificationCategory {
     METADATA        (NotificationGroup.BROWSER),
     DATA            (NotificationGroup.DEFAULT),
     DDL             (NotificationGroup.BROWSER),
+    DCN             (NotificationGroup.EVENTS),
     ;
 
     private final NotificationGroup group;

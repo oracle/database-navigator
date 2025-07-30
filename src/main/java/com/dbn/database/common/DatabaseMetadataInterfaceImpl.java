@@ -540,6 +540,10 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     public ResultSet loadSessions(DBNConnection connection) throws SQLException {
         return executeQuery(connection, "sessions");
     }
+    @Override
+    public ResultSet loadDataEventRegistrations(DBNConnection connection) throws SQLException {
+      return executeQuery(connection, "data-change-event-registrations");
+    }
 
     @Override
     public ResultSet loadSessionCurrentSql(Object sessionId, DBNConnection connection) throws SQLException {

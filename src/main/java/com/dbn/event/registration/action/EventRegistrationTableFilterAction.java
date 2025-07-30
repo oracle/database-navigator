@@ -14,24 +14,12 @@
  * limitations under the License.
  */
 
-package com.dbn.debugger.prerequisite;
+package com.dbn.event.registration.action;
 
-import com.dbn.prerequisite.definition.impl.SystemPrivilegePrerequisite;
-import com.dbn.prerequisite.model.PrerequisiteType;
+import com.dbn.event.registration.filter.EventRegistrationFilterType;
 
-public class SystemPrivilege_CREATE_TYPE extends SystemPrivilegePrerequisite {
-
-    public SystemPrivilege_CREATE_TYPE() {
-        super(DebugPrerequisiteTypes.CREATE_TYPE);
-    }
-
-    @Override
-    protected String getPrivilegeName() {
-        return "CREATE TYPE";
-    }
-
-    @Override
-    public PrerequisiteType getAlternativeType() {
-        return DebugPrerequisiteTypes.CREATE_ANY_TYPE;
+public class EventRegistrationTableFilterAction extends EventRegistrationFilterAction {
+    public EventRegistrationTableFilterAction() {
+        super(EventRegistrationFilterType.TABLE);
     }
 }
