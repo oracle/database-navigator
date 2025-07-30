@@ -19,6 +19,7 @@ package com.dbn.connection;
 import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.routine.ThrowableFunction;
 import com.dbn.database.interfaces.DatabaseInterface.Runnable;
 
 import java.sql.ResultSet;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static java.util.Collections.emptyList;
 
 public class ResultSets extends StatefulDisposableBase {
     public static void insertRow(ResultSet resultSet) throws SQLException {
@@ -110,6 +112,23 @@ public class ResultSets extends StatefulDisposableBase {
                     consumer.run();
                 }
             }
+        } finally {
+            Resources.close(resultSet);
+        }
+    }
+
+    public static <T> List<T> convert(ResultSet resultSet, ThrowableFunction<ResultSet, T, SQLException> converter) throws SQLException {
+        try {
+            if (resultSet == null) return emptyList();
+            if (Resources.isClosed(resultSet)) return emptyList();
+
+            List<T> result = new ArrayList<>();
+            while (resultSet.next()) {
+                T value = converter.apply(resultSet);
+                result.add(value);
+            }
+
+            return result;
         } finally {
             Resources.close(resultSet);
         }

@@ -25,6 +25,7 @@ import com.dbn.common.project.ProjectRef;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.connection.mapping.FileConnectionContext;
 import com.dbn.diagnostics.data.DiagnosticCategory;
+import com.dbn.event.ui.EventMonitorForm;
 import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.language.common.DBLanguageDialect;
 import com.intellij.openapi.util.Key;
@@ -50,6 +51,7 @@ public class UserDataKeys {
     public static final Key<String> GUARDED_BLOCK_REASON = Key.create("DBNavigator.GuardedBlockReason");
     public static final Key<DiagnosticCategory> DIAGNOSTIC_CONTENT_CATEGORY = Key.create("DBNavigator.DiagnosticContentType");
     public static final Key<DBNForm> DIAGNOSTIC_CONTENT_FORM = Key.create("DBNavigator.DiagnosticContentForm");
+    public static final Key<EventMonitorForm> EVENT_MONITOR_FORM = Key.create("DBNavigator.EventMonitorForm");
     public static final Key<Integer> BREAKPOINT_ID = Key.create("DBNavigator.BreakpointId");
     public static final Key<VirtualFile> BREAKPOINT_FILE = Key.create("DBNavigator.BreakpointFile");
     public static final Key<Boolean> SKIP_BROWSER_AUTOSCROLL = Key.create("DBNavigator.SkipEditorScroll");

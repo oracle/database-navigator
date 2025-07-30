@@ -27,6 +27,7 @@ import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
+import com.dbn.connection.context.DatabaseContext;
 import com.dbn.prerequisite.model.PrerequisiteData;
 import com.dbn.prerequisite.model.PrerequisiteGroup;
 import com.dbn.prerequisite.resolution.PrerequisiteOption;
@@ -90,6 +91,11 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
     public void showPrerequisiteDetails(ConnectionHandler connection, DatabaseOperation operation) {
         PrerequisiteGroup prerequisiteGroup = getPrerequisiteGroup(connection, operation);
         Dialogs.show(() -> new PrerequisitesDialog(prerequisiteGroup));
+    }
+
+    public void startOperation(DatabaseContext context, DatabaseOperation operation, Runnable operationRunner) {
+        ConnectionHandler connection = context.ensureConnection();
+        startOperation(connection, operation, operationRunner);
     }
 
     public void startOperation(ConnectionHandler connection, DatabaseOperation operation, Runnable operationRunner) {

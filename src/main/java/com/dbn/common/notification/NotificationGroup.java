@@ -24,7 +24,8 @@ public enum NotificationGroup {
     BROWSER("DBNavigator.NotificationGroup.Browser"),
     EXECUTION("DBNavigator.NotificationGroup.Execution"),
     ASSISTANT("DBNavigator.NotificationGroup.Assistant"),
-    DIAGNOSTICS("DBNavigator.NotificationGroup.Diagnostics");
+    DIAGNOSTICS("DBNavigator.NotificationGroup.Diagnostics"),
+    EVENTS("DBNavigator.NotificationGroup.Events");
     ;
 
     private final String id;

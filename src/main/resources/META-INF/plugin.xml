@@ -197,6 +197,8 @@
         <projectService serviceImplementation="com.dbn.ddl.DDLFileManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileAttachmentManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseFileEditorManager"/>
+        <projectService serviceImplementation="com.dbn.event.notification.EventNotificationManager"/>
+        <projectService serviceImplementation="com.dbn.event.registration.EventRegistrationManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.SourceCodeManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.diff.SourceCodeDiffManager"/>
@@ -231,17 +233,25 @@
         <extensionPoint name="prerequisiteRequirementEvaluator" qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
     </extensionPoints>
     <extensions defaultExtensionNs="com.dbn">
+        <!--shared prerequisites-->
+        <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_PROCEDURE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_TYPE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_PROCEDURE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_TYPE"/>
+
+        <!--debug prerequisites-->
+        <prerequisiteRequirementEvaluator implementation="com.dbn.debugger.prerequisite.DebugPrerequisitesEvaluator"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.SystemPrivilege_DEBUG_CONNECT_SESSION"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.SystemPrivilege_DEBUG_ANY_PROCEDURE"/>
-        <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.SystemPrivilege_CREATE_PROCEDURE"/>
-        <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.SystemPrivilege_CREATE_TYPE"/>
-        <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.SystemPrivilege_CREATE_ANY_PROCEDURE"/>
-        <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.SystemPrivilege_CREATE_ANY_TYPE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.ObjectPrivilege_EXECUTE_DBMS_DEBUG"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.ObjectPrivilege_EXECUTE_DBMS_DEBUG_JDWP"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.NetworkAccess_HOST_ACE_JDWP"/>
 
-        <prerequisiteRequirementEvaluator implementation="com.dbn.debugger.prerequisite.DebugPrerequisitesEvaluator"/>
+        <!--change notification prerequisites-->
+        <prerequisiteRequirementEvaluator implementation="com.dbn.event.prerequisite.ChangeNotificationPrerequisitesEvaluator"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.event.prerequisite.SystemPrivilege_CHANGE_NOTIFICATION"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.event.prerequisite.ObjectPrivilege_EXECUTE_DBMS_CHANGE_NOTIFICATION"/>
+
     </extensions>
 
     <actions>
@@ -368,6 +378,7 @@
             <action class="com.dbn.menu.action.SessionBrowserOpenAction" text="Open Session Browser..." id="DBNavigator.Actions.MainMenu.OpenSessionBrowser" icon="com.dbn.common.icon.Icons.SESSION_BROWSER">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift S"/>
             </action>
+            <separator/>
             <action class="com.dbn.menu.action.MethodExecutionHistoryAction" text="Method Execution History" id="DBNavigator.Actions.MainMenu.MethodExecutionHistory">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift M"/>
             </action>
@@ -376,14 +387,16 @@
             </action>
             <action class="com.dbn.menu.action.FileConnectionMappingsOpenAction" text="File Connection Mappings" id="DBNavigator.Actions.MainMenu.FileConnectionMappings"/>
             <action class="com.dbn.menu.action.ResourceMonitorOpenAction" text="Resource Monitor" id="DBNavigator.Actions.MainMenu.ResourceMonitor"/>
-            <group class="com.dbn.prerequisite.action.PrerequisiteVerificationAction" popup="true" text="Prerequisite Verification" id="DBNavigator.Actions.MainMenu.PrerequisiteVerification"/> />
+            <action id="DBNavigator.Actions.MainMenu.MonitorEventsOpenAction" class="com.dbn.menu.action.MonitorDataChangeOpenAction" text="Events Monitor"/>
             <!--<action class="com.dbn.action.menu.PendingTransactionsOpenAction" text="Open Transactions" id="DBNavigator.Actions.MainMenu.PendingTransactions"/>-->
+            <group class="com.dbn.prerequisite.action.PrerequisiteVerificationAction" popup="true" text="Prerequisite Verification" id="DBNavigator.Actions.MainMenu.PrerequisiteVerification"/> />
+            <separator/>
+            <action id="DBNavigator.Actions.MainMenu.OpenSettings" class="com.dbn.menu.action.ProjectSettingsOpenAction" text="Settings"/>
             <group id="DBNavigator.ActionGroup.ImportExportSettings" text="Default Settings" popup="true">
                 <action id="DBNavigator.Actions.MainMenu.OpenDefaultSettings" class="com.dbn.menu.action.ProjectDefaultSettingsOpenAction" text="Open Default Settings..."/>
                 <action id="DBNavigator.Actions.MainMenu.LoadDefaultSettings" class="com.dbn.menu.action.ProjectDefaultSettingsImportAction" text="Import Settings..."/>
                 <action id="DBNavigator.Actions.MainMenu.SaveDefaultSettings" class="com.dbn.menu.action.ProjectSettingsExportAction" text="Export Settings..."/>
             </group>
-            <separator/>
             <group id="DBNavigator.ActionGroup.Diagnostics" text="Diagnostics" popup="true">
                 <action id="DBNavigator.Actions.MainMenu.EnableDeveloperMode" class="com.dbn.diagnostics.action.DeveloperModeAction" text="Developer Mode..."/>
                 <action id="DBNavigator.Actions.MainMenu.ParserDiagnostics" class="com.dbn.diagnostics.action.ParserDiagnosticsOpenAction" text="Parser Diagnostics..."/>
@@ -393,7 +406,8 @@
                 <separator/>
                 <action id="DBNavigator.Actions.MainMenu.Options" class="com.dbn.menu.action.DiagnosticsSettingsOpenAction" text="Settings..."/>
             </group>
-            <action id="DBNavigator.Actions.MainMenu.OpenSettings" class="com.dbn.menu.action.ProjectSettingsOpenAction" text="Settings"/>
+
+
             <action id="DBNavigator.Actions.MainMenu.OpenAbout" class="com.dbn.menu.action.AboutPageOpenAction" text="About"/>
             <add-to-group anchor="before" group-id="MainMenu" relative-to-action="HelpMenu"/>
         </group>
@@ -655,6 +669,26 @@
             <action id="DBNavigator.Actions.BatchMonitor.Cancel" class="com.dbn.batch.actions.BatchMonitorStopAction" text="Batch Monitor - Stop"/>
         </group>
 
+        <group id="DBNavigator.ActionGroup.EventRegistration.Controls" text="Database Event Registration Controls">
+<!--
+            <action id="DBNavigator.Actions.EventRegistration.Find" class="com.dbn.event.registration.action.EventRegistrationFindAction" text="Event Registrations - Find..." icon="AllIcons.Actions.Find">
+                <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>
+            </action>
+-->
+            <action id="DBNavigator.Actions.EventRegistration.Reload" class="com.dbn.event.registration.action.EventRegistrationReloadAction" text="Event Registrations - Reload"/>
+            <action id="DBNavigator.Actions.EventRegistration.UserFilter" class="com.dbn.event.registration.action.EventRegistrationUserFilterAction" text="Event Registrations - User Filter"/>
+            <action id="DBNavigator.Actions.EventRegistration.TableFilter" class="com.dbn.event.registration.action.EventRegistrationTableFilterAction" text="Event Registrations - Table Filter"/>
+            <action id="DBNavigator.Actions.EventRegistration.StatusFilter" class="com.dbn.event.registration.action.EventRegistrationStatusFilterAction" text="Event Registrations - Status Filter"/>
+            <action id="DBNavigator.Actions.EventRegistration.ClearFilter" class="com.dbn.event.registration.action.EventRegistrationClearFiltersAction" text="Event Registrations - Clear Filters"/>
+            <separator/>
+            <action id="DBNavigator.Actions.EventRegistration.Delete" class="com.dbn.event.registration.action.EventRegistrationDeleteAction" text="Event Registrations - Delete Registration"/>
+        </group>
+        <group id="DBNavigator.ActionGroup.EventNotification.Controls" text="Database Event Notification Controls">
+            <action id="DBNavigator.Actions.EventNotification.Reload" class="com.dbn.event.notification.action.EventNotificationsReloadAction" text="Event Notifications - Reload"/>
+            <action id="DBNavigator.Actions.EventNotification.TableFilter" class="com.dbn.event.notification.action.EventNotificationTableFilterAction" text="Event Notifications - Table Filter"/>
+            <action id="DBNavigator.Actions.EventNotification.OperationFilter" class="com.dbn.event.notification.action.EventNotificationOperationFilterAction" text="Event Notifications - Operation Filter"/>
+            <action id="DBNavigator.Actions.EventNotification.ClearFilter" class="com.dbn.event.notification.action.EventNotificationClearFiltersAction" text="Event Notifications - Clear Filters"/>
+        </group>
     </actions>
     <projectListeners>
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener" class="com.dbn.editor.code.SourceCodeEditorListener"/>
@@ -669,7 +703,7 @@
         <notificationGroup id="DBNavigator.NotificationGroup.Execution" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorExecution" toolWindowId="DB Execution Console"/>
         <notificationGroup id="DBNavigator.NotificationGroup.Assistant" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorAssistant" toolWindowId="DB Assistant"/>
         <notificationGroup id="DBNavigator.NotificationGroup.Diagnostics" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorDiagnostics" toolWindowId="DB Diagnostics"/>
-
+        <notificationGroup id="DBNavigator.NotificationGroup.Events" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorEvents" toolWindowId="DB Events"/>
         <postStartupActivity implementation="com.dbn.project.ProjectStartupActivity"/>
         <!--<postStartupActivity implementation="com.dbn.project.ProjectComponentsInitializer" order="last"/>-->
         <!--<applicationInitializedListener implementation="com.dbn.init.DatabaseNavigatorInitializer"/>-->
@@ -691,6 +725,9 @@
         <toolWindow id="DB Diagnostics" anchor="bottom" factoryClass="com.dbn.diagnostics.DiagnosticsToolWindowFactory" canCloseContents="true"/>
         <toolWindow id="DB Execution Console" anchor="bottom" factoryClass="com.dbn.execution.ExecutionConsoleToolWindowFactory" />
         <toolWindow id="DB Assistant" anchor="right" factoryClass="com.dbn.assistant.DatabaseAssistantToolWindowFactory"/>
+        <toolWindow id="DB Events" anchor="bottom" factoryClass="com.dbn.event.EventMonitorToolWindowFactory" canCloseContents="true"/>
+
+        <!--        new tool window-->
 
         <fileType name="DBN-SQL" language="DBN-SQL" implementationClass="com.dbn.language.sql.SQLFileType" fieldName="INSTANCE" extensions="sql;ddl;vw"/>
         <fileType name="DBN-PSQL" language="DBN-PSQL" implementationClass="com.dbn.language.psql.PSQLFileType" fieldName="INSTANCE" extensions="psql;plsql;trg;prc;fnc;pkg;pks;pkb;tpe;tps;tpb"/>

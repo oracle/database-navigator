@@ -18,7 +18,7 @@ package com.dbn.common.ui.table;
 
 import javax.swing.JList;
 
-public class IndexTableGutterCellRenderer extends DBNTableGutterRendererBase {
+public class IndexTableGutterCellRenderer extends DBNTableGutterRenderer {
 
     @Override
     protected void adjustListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {

@@ -37,11 +37,12 @@ import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinitionProviderBase {
-    protected SystemPrivilegePrerequisite(PrerequisiteType prerequisiteType) {
-        super(prerequisiteType);
-    }
+    private final @NonNls String privilegeName;
 
-    protected abstract @NonNls String getPrivilegeName();
+    protected SystemPrivilegePrerequisite(PrerequisiteType prerequisiteType, @NonNls String privilegeName) {
+        super(prerequisiteType);
+        this.privilegeName = privilegeName;
+    }
 
     /**
      * Provides an alternative privilege type, which can be utilized as a fallback
@@ -58,7 +59,6 @@ public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinition
     @NotNull
     @Override
     public PrerequisiteDefinition createDefinition(PrerequisiteEvaluator evaluator, PrerequisiteResolver resolver, PrerequisiteAdvisor advisor) {
-        String privilegeName = getPrivilegeName();
         return new PrerequisiteDefinitionBase(
                 txt("app.prerequisite.title.SystemPrivilege", privilegeName),
                 txt("app.prerequisite.text.SystemPrivilege", privilegeName),
@@ -74,7 +74,6 @@ public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinition
     @Override
     protected PrerequisiteEvaluator createEvaluator() {
         return context -> {
-            String privilegeName = getPrivilegeName();
             DatabaseMetadataInterface metadataInterface = context.getMetadataInterface();
             return DatabaseInterfaceInvoker.load(Priority.HIGH,
                     txt("prc.prerequisite.title.CheckingSystemPrivilege"),
@@ -96,13 +95,17 @@ public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinition
     @Override
     protected PrerequisiteAdvisor createAdvisor() {
         return context -> {
-            String privilegeName = getPrivilegeName();
             String userName = context.getUserName();
 
             return new PrerequisiteAdvice(
                     "Request privilege",
-                    "" + privilegeName + " system privilege",
+                    privilegeName + " system privilege",
                     String.format("grant %s to %s;", privilegeName, userName));
         };
+    }
+
+    @Override
+    public String toString() {
+        return privilegeName;
     }
 }

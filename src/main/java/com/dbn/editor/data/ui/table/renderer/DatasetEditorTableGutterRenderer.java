@@ -17,7 +17,7 @@
 package com.dbn.editor.data.ui.table.renderer;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.table.DBNTableGutterRendererBase;
+import com.dbn.common.ui.table.DBNTableGutterRenderer;
 import com.dbn.data.grid.ui.table.basic.BasicTableGutter;
 import com.dbn.editor.data.model.DatasetEditorModel;
 import com.dbn.editor.data.model.DatasetEditorModelRow;
@@ -32,7 +32,7 @@ import static com.dbn.editor.data.model.RecordStatus.INSERTED;
 import static com.dbn.editor.data.model.RecordStatus.INSERTING;
 import static com.dbn.editor.data.model.RecordStatus.MODIFIED;
 
-public class DatasetEditorTableGutterRenderer extends DBNTableGutterRendererBase {
+public class DatasetEditorTableGutterRenderer extends DBNTableGutterRenderer {
 
     @Override
     protected void adjustListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {

@@ -17,7 +17,7 @@
 package com.dbn.editor.json.ui.table;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.table.DBNTableGutterRendererBase;
+import com.dbn.common.ui.table.DBNTableGutterRenderer;
 import com.dbn.data.grid.ui.table.basic.BasicTableGutter;
 import com.dbn.editor.json.model.JsonDataEditorModelRow;
 
@@ -30,7 +30,7 @@ import static com.dbn.editor.data.model.RecordStatus.INSERTED;
 import static com.dbn.editor.data.model.RecordStatus.INSERTING;
 import static com.dbn.editor.data.model.RecordStatus.MODIFIED;
 
-public class JsonDataEditorTableGutterRenderer extends DBNTableGutterRendererBase {
+public class JsonDataEditorTableGutterRenderer extends DBNTableGutterRenderer {
 
     @Override
     protected void adjustListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {

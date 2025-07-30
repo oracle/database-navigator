@@ -16,8 +16,87 @@
 
 package com.dbn.common.ui.table;
 
+import com.dbn.common.color.Colors;
+import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.Fonts;
+import com.dbn.data.grid.color.BasicTableTextAttributes;
+import com.dbn.data.grid.color.DataGridTextAttributes;
+import com.intellij.ui.SimpleTextAttributes;
+
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
+import java.awt.Component;
 
-public interface DBNTableGutterRenderer extends ListCellRenderer {
+import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
+public class DBNTableGutterRenderer implements ListCellRenderer {
+    protected JLabel textLabel;
+    protected JLabel iconLabel;
+    protected JPanel mainPanel;
+
+    public DBNTableGutterRenderer() {
+        mainPanel.setOpaque(false);
+
+        textLabel.setText("");
+        iconLabel.setText("");
+        textLabel.setFont(Fonts.editor(-2));
+        textLabel.setForeground(Colors.getTableGutterForeground());
+
+        iconLabel.setBorder(Borders.insetBorder(4));
+        mainPanel.setBorder(Borders.tableBorder(0, 0, 0, 1));
+    }
+
+    protected static DataGridTextAttributes getAttributes() {
+        return BasicTableTextAttributes.get();
+    }
+
+    @Override
+    public final Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        DBNTableGutter tableGutter = (DBNTableGutter) list;
+
+        boolean isCaretRow = isCaretRow(index, tableGutter.getTable());
+        boolean isFocusOwner = list.isFocusOwner();
+
+        SimpleTextAttributes attributes = getAttributes(isSelected, isFocusOwner, isCaretRow);
+
+        boolean opaque = attributes != null;
+        mainPanel.setOpaque(opaque);
+        mainPanel.setBackground(opaque ? attributes.getBgColor() : null);
+
+        textLabel.setForeground(isSelected ?
+                Colors.getTableSelectionForeground(cellHasFocus) :
+                Colors.getTableGutterForeground());
+
+        textLabel.setText(Integer.toString(index + 1));
+        setAccessibleName(mainPanel, "Row index " + (index + 1));
+
+        adjustListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        return mainPanel;
+    }
+
+    protected void adjustListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {}
+
+    protected SimpleTextAttributes getAttributes(boolean selected, boolean focussed, boolean caretRow) {
+        DataGridTextAttributes attributes = getAttributes();
+        if (selected) {
+            return focussed ?
+                    attributes.getSelection() :
+                    attributes.getCaretRow();
+        }
+        return caretRow ? attributes.getCaretRow() : null;
+
+        // return attributes.getPlainData(false, false);
+
+    }
+
+    protected static boolean isCaretRow(int index, DBNTableWithGutter table) {
+        return isValid(table) &&
+                table.getCellSelectionEnabled() &&
+                table.getSelectedRow() == index &&
+                table.getSelectedRowCount() == 1;
+    }
+
 }
-
