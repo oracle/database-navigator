@@ -24,19 +24,14 @@ import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.latent.Latent;
-import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.misc.DBNSelector;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Actions;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionGroup;
-import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.actionSystem.impl.ActionButton;
-import com.intellij.openapi.actionSystem.impl.PresentationFactory;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.ui.components.JBTabbedPane;
@@ -52,10 +47,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
-import javax.swing.plaf.UIResource;
-import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.LayoutManager;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -102,32 +94,13 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
     }
 
     private void installHiddenTabButton() {
-        add(hiddenTabsActionPanel = new HiddenTabsPanel());
+        hiddenTabsActionPanel = new DBNSelector(txt("app.shared.action.ShowHiddenTabs"), () -> showHiddenTabsPopup())
+                .withInsets(6)
+                .withFocusable(true);
+        add(hiddenTabsActionPanel);
     }
 
-    private final class HiddenTabsPanel extends JPanel implements UIResource {
-        public HiddenTabsPanel() {
-            super(new BorderLayout());
-            AnAction action = new DumbAwareAction(txt("app.shared.action.ShowHiddenTabs"), null, AllIcons.Actions.FindAndShowNextMatches) {
-                @Override
-                public void actionPerformed(@NotNull AnActionEvent e) {
-                    showHiddenTabsPopup(HiddenTabsPanel.this);
-                }
-            };
-            PresentationFactory presentationFactory = new PresentationFactory();
-            Presentation presentation = presentationFactory.getPresentation(action);
-            ActionButton actionButton = new ActionButton(
-                    action, presentation,
-                    ActionPlaces.TOOLBAR,
-                    new Dimension(20, 20));
-
-            actionButton.setBorder(Borders.insetBorder(4));
-            actionButton.setFocusable(true);
-            add(actionButton);
-        }
-    }
-
-    private void showHiddenTabsPopup(JComponent component) {
+    private void showHiddenTabsPopup() {
         DBNTabbedPaneUI ui = (DBNTabbedPaneUI) getUI();
         List<Integer> indexes = ui.getHiddenTabIndexes();
 
@@ -144,7 +117,7 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
             });
         }
 
-        popupBuilder(actions, component).
+        popupBuilder(actions, hiddenTabsActionPanel).
                 withTitle("Hidden Tabs").
                 withTitleVisible(false).
                 withSpeedSearch().

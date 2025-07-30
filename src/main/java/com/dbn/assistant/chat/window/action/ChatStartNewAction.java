@@ -17,8 +17,8 @@
 package com.dbn.assistant.chat.window.action;
 
 import com.dbn.assistant.chat.ChatAvailability;
-import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.ChatContextEvent;
+import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.compatibility.Compatibility;
@@ -37,7 +37,11 @@ public class ChatStartNewAction extends AbstractChatBoxAction {
 
         AssistantState assistantState = chatBox.getAssistantState();
         ChatContext currentContext = assistantState.getCurrentContext();
-        ChatContextEvent event = new ChatContextEvent(currentContext, currentContext, null, true);
+        ChatContextEvent event = chatBox.createContextEvent(
+                currentContext,
+                currentContext,
+                null,
+                true);
 
         chatBox.processContextEvent(event);
     }

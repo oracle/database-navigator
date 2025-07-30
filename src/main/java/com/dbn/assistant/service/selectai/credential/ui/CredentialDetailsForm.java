@@ -1,0 +1,115 @@
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.assistant.service.selectai.credential.ui;
+
+import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.list.ColoredListCellRenderer;
+import com.dbn.common.ui.util.Borders;
+import com.dbn.object.DBCredential;
+import com.dbn.object.event.ObjectChangeListener;
+import com.dbn.object.lookup.DBObjectRef;
+import com.intellij.ui.SimpleTextAttributes;
+import org.jetbrains.annotations.NotNull;
+
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import java.util.Set;
+
+import static com.dbn.object.type.DBObjectType.AI_PROFILE;
+
+public class CredentialDetailsForm extends DBNFormBase {
+    private JPanel mainPanel;
+    private JTextField credentialNameTextField;
+    private JTextField userNameTextField;
+    private JTextField commentsTextField;
+    private JCheckBox enabledCheckBox;
+    private JList<String> usageList;
+    private JLabel enabledLabel;
+    private JLabel usageLabel;
+
+    private final DBObjectRef<DBCredential> credential;
+
+    public CredentialDetailsForm(@NotNull CredentialManagementForm parent, DBCredential credential) {
+        super(parent);
+        this.credential = DBObjectRef.of(credential);
+
+        initCredentialFields();
+        initCredentialUsageList();
+        initChangeListener();
+
+        enabledLabel.setLabelFor(enabledCheckBox); // custom label (disabled checkbox grays out the label)
+        usageLabel.setLabelFor(usageList);
+    }
+
+    private void initChangeListener() {
+        ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType, action) -> {
+            if (connectionId != credential.getConnectionId()) return;
+            if (objectType != AI_PROFILE) return;
+
+            refreshUsageListData();
+        });
+    }
+
+    public DBCredential getCredential() {
+        return credential.ensure();
+    }
+
+    private void initCredentialUsageList() {
+        usageList.setBorder(Borders.EMPTY_BORDER);
+        usageList.setCellRenderer(createListCellRenderer());
+        refreshUsageListData();
+    }
+
+    private void refreshUsageListData() {
+        String credentialName = credential.getObjectName();
+        Set<String> usedByProfiles = getManagementForm().getCredentialUsage(credentialName);
+        usageList.setListData(usedByProfiles.toArray(new String[0]));
+    }
+
+    private static @NotNull ColoredListCellRenderer<String> createListCellRenderer() {
+        return new ColoredListCellRenderer<>() {
+            @Override
+            protected void customize(@NotNull JList<? extends String> list, String value, int index, boolean selected, boolean hasFocus) {
+                append(value, list.isEnabled() ?
+                        SimpleTextAttributes.REGULAR_ATTRIBUTES :
+                        SimpleTextAttributes.GRAY_ATTRIBUTES);
+            }
+        };
+    }
+
+    public CredentialManagementForm getManagementForm() {
+        return super.getParentComponent();
+    }
+
+    private void initCredentialFields() {
+        DBCredential credential = getCredential();
+        credentialNameTextField.setText(credential.getName());
+        userNameTextField.setText(credential.getUserName());
+        commentsTextField.setText(credential.getComments());
+        enabledCheckBox.setSelected(credential.isEnabled());
+    }
+
+    @Override
+    protected JComponent getMainComponent() {
+        return mainPanel;
+    }
+}

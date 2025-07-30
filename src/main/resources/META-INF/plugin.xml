@@ -191,8 +191,8 @@
         <projectService serviceImplementation="com.dbn.debugger.DatabaseDebuggerManager"/>
         <projectService serviceImplementation="com.dbn.debugger.ExecutionConfigManager"/>
         <projectService serviceImplementation="com.dbn.assistant.DatabaseAssistantManager"/>
-        <projectService serviceImplementation="com.dbn.assistant.AssistantPrerequisiteManager"/>
-        <projectService serviceImplementation="com.dbn.assistant.AssistantInitializationManager"/>
+        <projectService serviceImplementation="com.dbn.assistant.service.selectai.SelectAiPrerequisiteManager"/>
+        <projectService serviceImplementation="com.dbn.assistant.service.selectai.SelectAiInitializationManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileAttachmentManager"/>
@@ -229,6 +229,10 @@
         <fileIconPatcher implementation="com.dbn.vfs.DBFileIconPatcher"/>
     </extensions>
     <extensionPoints>
+        <extensionPoint name="assistantAdapter" qualifiedName="com.dbn.assistantAdapter" interface="com.dbn.assistant.adapter.AssistantAdapter" dynamic="true"/>
+        <extensionPoint name="assistantModelFactory" qualifiedName="com.dbn.assistantModelFactory" interface="com.dbn.assistant.service.generic.model.AssistantModelFactory" dynamic="true"/>
+        <extensionPoint name="assistantModelInvoker" qualifiedName="com.dbn.assistantModelInvoker" interface="com.dbn.assistant.service.generic.model.AssistantModelInvoker" dynamic="true"/>
+
         <extensionPoint name="prerequisiteDefinitionProvider" qualifiedName="com.dbn.prerequisiteDefinitionProvider" interface="com.dbn.prerequisite.definition.PrerequisiteDefinitionProvider" dynamic="true"/>
         <extensionPoint name="prerequisiteRequirementEvaluator" qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
     </extensionPoints>
@@ -248,10 +252,24 @@
         <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.NetworkAccess_HOST_ACE_JDWP"/>
 
         <!--change notification prerequisites-->
+        <prerequisiteRequirementEvaluator implementation="com.dbn.debugger.prerequisite.DebugPrerequisitesEvaluator"/>
         <prerequisiteRequirementEvaluator implementation="com.dbn.event.prerequisite.ChangeNotificationPrerequisitesEvaluator"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.event.prerequisite.SystemPrivilege_CHANGE_NOTIFICATION"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.event.prerequisite.ObjectPrivilege_EXECUTE_DBMS_CHANGE_NOTIFICATION"/>
 
+        <!--database assistant extensions-->
+        <assistantAdapter implementation="com.dbn.assistant.service.selectai.SelectAiAssistantAdapter"/>
+        <assistantAdapter implementation="com.dbn.assistant.service.generic.GenericAssistantAdapter"/>
+        <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.AnthropicModelFactory"/>
+        <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.CohereModelFactory"/>
+        <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.GoogleModelFactory"/>
+        <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.HuggingFaceModelFactory"/>
+        <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.OllamaModelFactory"/>
+        <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.OpenAiModelFactory"/>
+        <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.ChatModelInvoker"/>
+        <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.EmbeddingModelInvoker"/>
+        <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.LanguageModelInvoker"/>
+        <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.StreamingChatModelInvoker"/>
     </extensions>
 
     <actions>
@@ -259,16 +277,16 @@
             <!--<add-to-group group-id="ProjectViewPopupMenu" relative-to-action="WeighingNewGroup" anchor="before"/>-->
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
-        <action id="DBNavigator.Actions.Assistant.ExplainSQL" class="com.dbn.assistant.editor.action.AssistantExplainSqlAction" text="DB Assistant - Generate SQL With Explanation">
+        <action id="DBNavigator.Actions.Assistant.ExplainSQL" class="com.dbn.assistant.service.selectai.editor.action.SelectAiExplainSqlAction" text="DB Assistant - Generate SQL With Explanation">
             <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="DBNavigator.Actions.Editor.ExecuteScript"/>
         </action>
-        <action id="DBNavigator.Actions.Assistant.ShowSQL" class="com.dbn.assistant.editor.action.AssistantShowSqlAction" text="DB Assistant - Generate SQL">
+        <action id="DBNavigator.Actions.Assistant.ShowSQL" class="com.dbn.assistant.service.selectai.editor.action.SelectAiShowSqlAction" text="DB Assistant - Generate SQL">
             <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="DBNavigator.Actions.Editor.ExecuteScript"/>
         </action>
         <group id="DBNavigator.ActionGroup.FileEditorGenerate">
             <add-to-group group-id="GenerateGroup" anchor="last" />
-            <action id="DBNavigator.Actions.Assistant.GenerateSQL" class="com.dbn.assistant.editor.action.AssistantShowSqlAction" text="Generate SQL"/>
-            <action id="DBNavigator.Actions.Assistant.GenerateAndExplainSQL" class="com.dbn.assistant.editor.action.AssistantExplainSqlAction" text="Generate and Explain SQL"/>
+            <action id="DBNavigator.Actions.Assistant.GenerateSQL" class="com.dbn.assistant.service.selectai.editor.action.SelectAiShowSqlAction" text="Generate SQL"/>
+            <action id="DBNavigator.Actions.Assistant.GenerateAndExplainSQL" class="com.dbn.assistant.service.selectai.editor.action.SelectAiExplainSqlAction" text="Generate and Explain SQL"/>
         </group>
         <group id="DBNavigator.ActionGroup.ProjectViewContext">
             <group id="DBNavigator.ActionGroup.ProjectViewPopup" text="DB Navigator" popup="true" keep-content="true">
@@ -315,13 +333,13 @@
             <group id="DBNavigator.Actions.EditorOptions" class="com.dbn.language.editor.action.EditorOptionsAction" text="Script Editor - Local Settings" icon="AllIcons.General.GearPlain" />
             <action id="DBNavigator.Actions.EditorSettings" class="com.dbn.language.editor.action.EditorSettingsOpenAction" text="Script Editor - Settings"/>
         </group>
-        <group id="DBNavigator.ActionGroup.AssistantChatBoxProfiles" text="Assistant Chat-Box Profiles">
-            <action class="com.dbn.assistant.chat.window.action.ProfileSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectProfile"/>
-            <action class="com.dbn.assistant.chat.window.action.ModelSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectModel"/>
-            <action class="com.dbn.assistant.chat.window.action.ProfilesRefreshAction" text="Reload Profiles" id="DBNavigator.Actions.Assistant.RefreshProfiles" icon="AllIcons.Actions.Refresh"/>
-            <action class="com.dbn.assistant.chat.window.action.ConfigurationHelpAction" text="Help" id="DBNavigator.Actions.Assistant.ConfigurationHelp" icon="AllIcons.Actions.Help"/>
+        <group id="DBNavigator.ActionGroup.SelectAiContextActions" text="Assistant Chat-Box Profiles">
+            <action class="com.dbn.assistant.service.selectai.action.ProfileSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectProfile"/>
+            <action class="com.dbn.assistant.service.selectai.action.ModelSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectModel"/>
+            <action class="com.dbn.assistant.service.selectai.action.ProfilesRefreshAction" text="Reload Profiles" id="DBNavigator.Actions.Assistant.RefreshProfiles" icon="AllIcons.Actions.Refresh"/>
+            <action class="com.dbn.assistant.service.selectai.action.ConfigurationHelpAction" text="Help" id="DBNavigator.Actions.Assistant.ConfigurationHelp" icon="AllIcons.Actions.Help"/>
             <group id="DBNavigator.Actions.Assistant.OpenSettings" text="Options" icon="AllIcons.General.GearPlain" popup="true">
-                <action class="com.dbn.assistant.chat.window.action.ProfilesSetupAction" text="Profile Setup..." id="DBNavigator.Actions.Assistant.ProfileSetup"/>
+                <action class="com.dbn.assistant.service.selectai.action.ProfilesSetupAction" text="Profile Setup..." id="DBNavigator.Actions.Assistant.ProfileSetup"/>
                 <action class="com.dbn.assistant.chat.window.action.AssistantSettingsAction" text="Settings..." id="DBNavigator.Actions.Assistant.AssistantSettings"/>
             </group>
         </group>
@@ -335,38 +353,33 @@
             <action class="com.dbn.assistant.chat.action.ChatHistoryDeleteAction" text="Delete Conversations" id="DBNavigator.Actions.Assistant.DeleteChats"/>
         </group>
 
-<!--
-        <group id="DBNavigator.ActionGroup.AssistantChatBoxHelp" text="Assistant Chat-Box Help">
-            <action class="com.dbn.assistant.chat.window.action.ConfigurationHelpAction" text="Profile Settings" id="DBNavigator.Actions.Assistant.ConfigurationHelp" icon="AllIcons.Actions.Help"/>
-        </group>
--->
         <group id="DBNavigator.ActionGroup.AssistantChatTypes" text="Assistant Chat Types">
-            <action class="com.dbn.assistant.chat.window.action.TypeSelectAction$ShowSQL" text="Show SQL" id="DBNavigator.Actions.Assistant.TypeShow"/>
-            <action class="com.dbn.assistant.chat.window.action.TypeSelectAction$ExplainSQL" id="DBNavigator.Actions.Assistant.TypeExplain"/>
-            <action class="com.dbn.assistant.chat.window.action.TypeSelectAction$Narrate" id="DBNavigator.Actions.Assistant.TypeNarrate"/>
-            <action class="com.dbn.assistant.chat.window.action.TypeSelectAction$Chat" id="DBNavigator.Actions.Assistant.TypeChat"/>
+            <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$ShowSQL" text="Show SQL" id="DBNavigator.Actions.Assistant.TypeShow"/>
+            <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$ExplainSQL" id="DBNavigator.Actions.Assistant.TypeExplain"/>
+            <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$Narrate" id="DBNavigator.Actions.Assistant.TypeNarrate"/>
+            <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$Chat" id="DBNavigator.Actions.Assistant.TypeChat"/>
         </group>
-        <group id="DBNavigator.ActionGroup.AssistantChatBoxPrompt" text="Assistant Chat-Box Prompt">
+        <group id="DBNavigator.ActionGroup.AssistantPromptSubmitActions" text="Assistant Chat-Box Prompt">
             <action class="com.dbn.assistant.chat.window.action.PromptSubmitAction" text="Submit Prompt" id="DBNavigator.Actions.Assistant.SubmitPrompt" icon="AllIcons.Actions.Execute">
                 <keyboard-shortcut keymap="$default" first-keystroke="ENTER"/>
             </action>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantCredentialManagement" text="Credential Management">
-            <action class="com.dbn.assistant.credential.remote.action.CredentialCreateAction" id="DBNavigator.Actions.Assistant.CreateCredential"/>
-            <action class="com.dbn.assistant.credential.remote.action.CredentialDeleteAction" id="DBNavigator.Actions.Assistant.DeleteCredential"/>
-            <action class="com.dbn.assistant.credential.remote.action.CredentialEditAction" id="DBNavigator.Actions.Assistant.EditCredential"/>
-            <action class="com.dbn.assistant.credential.remote.action.CredentialStatusAction" id="DBNavigator.Actions.Assistant.EnableDisableCredential"/>
+            <action class="com.dbn.assistant.service.selectai.credential.action.CredentialCreateAction" id="DBNavigator.Actions.Assistant.CreateCredential"/>
+            <action class="com.dbn.assistant.service.selectai.credential.action.CredentialDeleteAction" id="DBNavigator.Actions.Assistant.DeleteCredential"/>
+            <action class="com.dbn.assistant.service.selectai.credential.action.CredentialEditAction" id="DBNavigator.Actions.Assistant.EditCredential"/>
+            <action class="com.dbn.assistant.service.selectai.credential.action.CredentialStatusAction" id="DBNavigator.Actions.Assistant.EnableDisableCredential"/>
             <separator/>
-            <action class="com.dbn.assistant.credential.remote.action.CredentialsReloadAction" id="DBNavigator.Assistant.Assistant.ReloadCredentials"/>
+            <action class="com.dbn.assistant.service.selectai.credential.action.CredentialsReloadAction" id="DBNavigator.Assistant.Assistant.ReloadCredentials"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantProfileManagement" text="Profile Management">
-            <action class="com.dbn.assistant.profile.action.ProfileCreateAction" id="DBNavigator.Actions.Assistant.CreateProfile"/>
-            <action class="com.dbn.assistant.profile.action.ProfileDeleteAction" id="DBNavigator.Actions.Assistant.DeleteProfile"/>
-            <action class="com.dbn.assistant.profile.action.ProfileEditAction" id="DBNavigator.Actions.Assistant.EditProfile"/>
-            <action class="com.dbn.assistant.profile.action.ProfileStatusAction" id="DBNavigator.Actions.Assistant.EnableDisableProfile"/>
-            <action class="com.dbn.assistant.profile.action.ProfileDefaultAction" id="DBNavigator.Actions.Assistant.MarkProfileDefault"/>
+            <action class="com.dbn.assistant.service.selectai.profile.action.ProfileCreateAction" id="DBNavigator.Actions.Assistant.CreateProfile"/>
+            <action class="com.dbn.assistant.service.selectai.profile.action.ProfileDeleteAction" id="DBNavigator.Actions.Assistant.DeleteProfile"/>
+            <action class="com.dbn.assistant.service.selectai.profile.action.ProfileEditAction" id="DBNavigator.Actions.Assistant.EditProfile"/>
+            <action class="com.dbn.assistant.service.selectai.profile.action.ProfileStatusAction" id="DBNavigator.Actions.Assistant.EnableDisableProfile"/>
+            <action class="com.dbn.assistant.service.selectai.profile.action.ProfileDefaultAction" id="DBNavigator.Actions.Assistant.MarkProfileDefault"/>
             <separator/>
-            <action class="com.dbn.assistant.profile.action.ProfilesReloadAction" id="DBNavigator.Actions.Assistant.ReloadProfiles"/>
+            <action class="com.dbn.assistant.service.selectai.profile.action.ProfilesReloadAction" id="DBNavigator.Actions.Assistant.ReloadProfiles"/>
         </group>
 
         <group id="DBNavigator.Actions.MainMenu" text="_DB Navigator" popup="true">
@@ -821,7 +834,7 @@
         <editorNotificationProvider implementation="com.dbn.editor.json.JsonDataEditorNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.editor.session.SessionBrowserNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.connection.mapping.FileConnectionContextNotificationProvider"/>
-        <editorNotificationProvider implementation="com.dbn.assistant.editor.notification.AssistantEditorNotificationProvider"/>
+        <editorNotificationProvider implementation="com.dbn.assistant.service.selectai.editor.SelectAiEditorNotificationProvider"/>
 
         <additionalTextAttributes scheme="Dark" file="textAttributes/DBNDarkColors.xml" id="DBN-Dark"/>
         <additionalTextAttributes scheme="Light" file="textAttributes/DBNLightColors.xml" id="DBN-Light"/>
@@ -905,19 +918,19 @@
         <!--<intentionAction><className>com.dbn.code.common.intention.SetupCodeCompletionIntentionAction</className><category>Database</category></intentionAction>-->
 
         <intentionAction>
-            <className>com.dbn.assistant.editor.intention.AssistantShowIntentionAction</className>
+            <className>com.dbn.assistant.service.selectai.editor.intention.SelectAiShowIntentionAction</className>
             <category>Database/Assistant</category>
         </intentionAction>
         <intentionAction>
-            <className>com.dbn.assistant.editor.intention.AssistantExplainIntentionAction</className>
+            <className>com.dbn.assistant.service.selectai.editor.intention.SelectAiExplainIntentionAction</className>
             <category>Database/Assistant</category>
         </intentionAction>
         <intentionAction>
-            <className>com.dbn.assistant.editor.intention.ProfileSwitchIntentionAction</className>
+            <className>com.dbn.assistant.service.selectai.editor.intention.SelectAiProfileSwitchIntentionAction</className>
             <category>Database/Assistant</category>
         </intentionAction>
         <intentionAction>
-            <className>com.dbn.assistant.editor.intention.ProfileSetupIntentionAction</className>
+            <className>com.dbn.assistant.service.selectai.editor.intention.SelectAiProfileSetupIntentionAction</className>
             <category>Database/Assistant</category>
         </intentionAction>
 

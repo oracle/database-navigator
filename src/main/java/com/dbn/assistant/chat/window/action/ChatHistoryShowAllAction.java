@@ -17,8 +17,8 @@
 package com.dbn.assistant.chat.window.action;
 
 import com.dbn.assistant.chat.Chat;
-import com.dbn.assistant.chat.ChatContext;
 import com.dbn.assistant.chat.ChatContextEvent;
+import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.ui.ChatHistoryDialog;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.state.AssistantState;
@@ -51,7 +51,7 @@ public class ChatHistoryShowAllAction extends AbstractChatBoxAction {
 
             ChatContext currentContext = state.getCurrentContext();
             ChatContext targetContext = chat.getContext();
-            ChatContextEvent event = new ChatContextEvent(currentContext, targetContext, chatId, false);
+            ChatContextEvent event = chatBox.createContextEvent(currentContext, targetContext, chatId, false);
             chatBox.processContextEvent(event);
         };
 

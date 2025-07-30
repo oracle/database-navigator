@@ -1,0 +1,118 @@
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.assistant.chat.context;
+
+import com.dbn.assistant.provider.AIModel;
+import com.dbn.assistant.provider.AIProvider;
+import lombok.Getter;
+import lombok.Setter;
+import org.jdom.Element;
+
+import java.util.Objects;
+
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
+
+@Getter
+@Setter
+public final class ChatContextImpl implements ChatContext{
+    private String profileName;
+    private String providerId;
+    private String modelId;
+    private String actionId;
+    private boolean interactive = true;
+
+    public ChatContextImpl() {}
+
+    public ChatContextImpl(String providerId, String modelId) {
+        this(null, providerId, modelId, null, true);
+    }
+
+    public ChatContextImpl(String profileName, String providerId, String modelId, String actionId, boolean interactive) {
+        this.profileName = profileName;
+        this.providerId = providerId;
+        this.modelId = modelId;
+        this.actionId = actionId;
+        this.interactive = interactive;
+    }
+
+    @Override
+    public AIProvider getProvider() {
+        return AIProvider.forId(this.providerId);
+    }
+
+    public AIModel getModel() {
+        return AIModel.forId(this.modelId);
+    }
+
+    @Override
+    public Object getAction() {
+        // not relevant for generic chat contexts
+        return null;
+    }
+
+    @Override
+    public boolean isInteractive() {
+        // all contexts are fundamentally interactive
+        // (except for Oracle "Select AI" with non-conversational profiles)
+        return true;
+    }
+
+    @Override
+    public boolean isModelSwitch(ChatContext that) {
+        return !Objects.equals(this.modelId, that.getModelId());
+    }
+
+    @Override
+    public boolean isProviderSwitch(ChatContext that) {
+        return !Objects.equals(this.providerId, that.getProviderId());
+    }
+
+    @Override
+    public boolean isProfileSwitch(ChatContext that) {
+        return !Objects.equals(this.profileName, that.getProfileName());
+    }
+
+    @Override
+    public boolean isActionSwitch(ChatContext that) {
+        return false;
+    }
+
+    @Override
+    public void readState(Element element) {
+        profileName = stringAttribute(element, "profile");
+        providerId = stringAttribute(element, "provider");
+        modelId = stringAttribute(element, "model");
+        actionId = stringAttribute(element, "action");
+        interactive = booleanAttribute(element, "interactive", interactive);
+    }
+
+    @Override
+    public void writeState(Element element) {
+        setStringAttribute(element, "profile", profileName);
+        setStringAttribute(element, "provider", providerId);
+        setStringAttribute(element, "model", modelId);
+        setStringAttribute(element, "action", actionId);
+        setBooleanAttribute(element, "interactive", interactive);
+    }
+
+    public String toString() {
+        return (profileName == null ? "" : (profileName + " / ")) + providerId + " / " + modelId + " / " + actionId;
+    }
+}

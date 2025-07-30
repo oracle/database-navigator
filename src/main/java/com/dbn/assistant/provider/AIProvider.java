@@ -38,18 +38,14 @@ public final class AIProvider implements Presentable {
   private final String id;
   private final String name;
   private final String host;
-  private final boolean main;
-  private final boolean experimental;
 
   private List<AIModel> models;
   private Map<ProviderUrlType, String> urls;
 
-  AIProvider(String id, String name, String host, boolean main, boolean experimental) {
+  AIProvider(String id, String name, String host) {
     this.id = id;
     this.name = name;
     this.host = host;
-    this.main = main;
-    this.experimental = experimental;
   }
 
   public static List<AIProvider> values() {
@@ -60,8 +56,8 @@ public final class AIProvider implements Presentable {
       return Lists.first(values(),  p -> p.getId().equals(id));
   }
 
-  public AIModel getModel(String name) {
-    return Lists.first(models, p -> p.getName().equals(name));
+  public AIModel getModel(String id) {
+    return Lists.first(models, m -> m.getId().equals(id));
   }
 
   public AIModel getDefaultModel() {

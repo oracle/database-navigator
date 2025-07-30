@@ -16,7 +16,8 @@
 
 package com.dbn.assistant.chat;
 
-import com.dbn.assistant.chat.message.PersistentChatMessage;
+import com.dbn.assistant.chat.context.ChatContext;
+import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.UUIDs;
 import lombok.Getter;
@@ -40,14 +41,10 @@ public class Chat implements PersistentStateElement {
     private String id = UUIDs.compact();
     private String title;
     private ChatContext context;
-    private List<PersistentChatMessage> messages = new ArrayList<>();
+    private List<ChatMessage> messages = new ArrayList<>();
     private long timestamp = System.currentTimeMillis();
 
     private String sessionSignature;
-
-    public Chat() {
-        this(new ChatContext());
-    }
 
     public Chat(ChatContext context) {
         this.context = context;
@@ -77,11 +74,11 @@ public class Chat implements PersistentStateElement {
         messages.clear();
     }
 
-    public void addMessage(PersistentChatMessage message) {
+    public void addMessage(ChatMessage message) {
         messages.add(message);
     }
 
-    public void addMessages(List<PersistentChatMessage> messages) {
+    public void addMessages(List<ChatMessage> messages) {
         this.messages.addAll(messages);
     }
 
@@ -100,7 +97,7 @@ public class Chat implements PersistentStateElement {
         timestamp = longAttribute(element, "timestamp", 0L);
         List<Element> messagesElements = element.getChild("messages").getChildren();
         for(Element msgElement : messagesElements){
-            PersistentChatMessage chatMessage = new PersistentChatMessage();
+            ChatMessage chatMessage = new ChatMessage();
             chatMessage.readState(msgElement);
             messages.add(chatMessage);
         }
@@ -116,10 +113,10 @@ public class Chat implements PersistentStateElement {
         setLongAttribute(element, "timestamp", timestamp);
         Element messagesElement = newElement("messages");
         element.addContent(messagesElement);
-        for(PersistentChatMessage msg : messages){
-            Element msgElement = newElement("message");
-            messagesElement.addContent(msgElement);
-            msg.writeState(msgElement);
+        for (ChatMessage message : messages) {
+            Element messageElement = newElement("message");
+            messagesElement.addContent(messageElement);
+            message.writeState(messageElement);
         }
 
         Element contextElement = newElement(element,"context");
