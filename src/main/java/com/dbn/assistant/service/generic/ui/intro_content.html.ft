@@ -1,0 +1,29 @@
+<html lang="en">
+<head><title>DB Assistant - Public LLM Chat</title></head>
+<body style="${REGULAR_FONT_STYLE}">
+<div style="${REGULAR_LARGE_FONT_STYLE}">
+    <b>Public LLM Chat with Database Integration</b><br>
+</div>
+Engage with your data like never before!<br>
+The Public LLM Chat feature allows you to connect to any publicly available Large Language Model (LLM) provider using an API key, enabling natural language queries to analyze data from your database.<br>
+It seamlessly integrates with your database, exposing relevant database information to the selected LLM, empowering you to generate reports, analyze trends, or answer business questions effortlessly.
+
+<br>
+<br>
+<br>
+<u>Before You Begin</u><br><br>
+To use Public LLM Chat, ensure the following:
+<ul>
+    <li><b>Network Access</b> - Configure network settings to allow secure communication with your chosen LLM provider’s API endpoint.</li>
+    <li><b>API Credentials</b> - Provide a valid API key for your selected LLM provider (e.g., OpenAI, Cohere, Anthropic, or others with public APIs).</li>
+    <li><b>DB Assistant Configuration</b> - Set up data profiles to define which database schemas, tables, or views the LLM can access, ensuring secure and controlled data exposure.</li>
+</ul>
+Refer to your DB Assistant documentation for detailed setup instructions.
+
+<br>
+<br>
+<br>
+<b>NOTE</b><br>
+Public LLM Chat is an experimental feature. Query accuracy may vary depending on the selected LLM model, database structure, or API configuration. Validate outputs carefully and report issues to the DB Assistant development team to help us improve this feature.
+</body>
+</html>
