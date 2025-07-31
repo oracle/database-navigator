@@ -74,16 +74,21 @@ public class LanguageModelDefinition {
     private static AIModel createModel(AIProvider provider, Element element) {
         String modelId = stringAttribute(element, "id");
         String modelApiName = stringAttribute(element, "api-name");
-        return new AIModel(provider, modelId, modelApiName);
+
+        AIModel model = new AIModel(provider, modelId, modelApiName);
+
+        model.set(AIModelProperty.DEFAULT, booleanAttribute(element, "default", false));
+        model.set(AIModelProperty.DEPRECATED, booleanAttribute(element, "deprecated", false));
+        model.set(AIModelProperty.EXPERIMENTAL, booleanAttribute(element, "experimental", false));
+
+        return model;
     }
 
     private static AIProvider createProvider(Element element) {
         String id = stringAttribute(element, "id");
         String name = stringAttribute(element, "name");
         String host = stringAttribute(element, "host");
-        boolean main = booleanAttribute(element, "default", false);
-        boolean experimental = booleanAttribute(element, "experimental", false);
-        AIProvider provider = new AIProvider(id, name, host, main, experimental);
+        AIProvider provider = new AIProvider(id, name, host);
 
         createModels(element, provider);
         createUrls(element, provider);

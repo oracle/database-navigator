@@ -17,11 +17,10 @@
 package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.assistant.chat.message.ChatMessage;
-import com.dbn.assistant.chat.message.ChatMessageParser;
 import com.dbn.assistant.chat.message.ChatMessageSection;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.dispose.Disposer;
-import com.dbn.common.text.MimeType;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.Layouts;
 import com.dbn.connection.ConnectionHandler;
 
@@ -30,6 +29,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
+
+import static com.dbn.assistant.chat.message.ChatMessageParser.convertMarkdownToHtml;
 
 /**
  * Message for implementation for AI agent responses.
@@ -90,11 +91,16 @@ public class AgentChatMessageForm extends ChatMessageForm {
     }
 
     protected void createTextPane(ChatMessageSection section) {
-        String htmlContent = "<html>" + ChatMessageParser.convertMarkdownToHtml(section.getContent()) + "</html>";
+        TextContent htmlContent = convertMarkdownToHtml(section.getContent());
 
         ChatMessageSectionForm sectionForm = new ChatMessageSectionForm(this);
-        sectionForm.setContent(MimeType.TEXT_HTML, htmlContent);
+        sectionForm.setContent(htmlContent);
         messagePanel.add(sectionForm.getComponent());
+
+        whenSettingsChange(() -> {
+            htmlContent.rebuild();
+            sectionForm.setContent(htmlContent);
+        });
     }
 
     private void createCodePane(ChatMessageSection section) {

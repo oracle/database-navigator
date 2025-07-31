@@ -113,8 +113,10 @@ public class PrerequisiteData implements PersistentStateElement {
 
         List<PrerequisiteRequirementEvaluator> evaluators = PrerequisiteRequirementEvaluator.EP.getExtensionList();
         for (PrerequisiteRequirementEvaluator evaluator : evaluators) {
-            List<PrerequisiteMandate> applicableTypes = evaluator.resolvePrerequisites(connection, operation);
-            mandates.addAll(applicableTypes);
+            if (evaluator.supports(operation)) {
+                List<PrerequisiteMandate> applicableMandates = evaluator.resolvePrerequisites(connection, operation);
+                mandates.addAll(applicableMandates);
+            }
         }
         return Collections.unmodifiableList(new ArrayList<>(mandates));
     }

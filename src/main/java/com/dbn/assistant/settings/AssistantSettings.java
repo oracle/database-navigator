@@ -16,7 +16,7 @@
 
 package com.dbn.assistant.settings;
 
-import com.dbn.assistant.credential.local.LocalCredentialSettings;
+import com.dbn.assistant.credential.LocalCredentialSettings;
 import com.dbn.assistant.settings.ui.AssistantSettingsForm;
 import com.dbn.common.options.CompositeProjectConfiguration;
 import com.dbn.common.options.Configuration;

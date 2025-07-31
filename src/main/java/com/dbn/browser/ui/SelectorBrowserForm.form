@@ -29,14 +29,14 @@
               <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
-          <component id="b048e" class="javax.swing.JLabel" binding="connectionSelectLabel">
+          <grid id="b57a9" binding="connectionSelectActions" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints>
-              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
-            <properties>
-              <text resource-bundle="messages/DBNResources" key="app.connection.placeholder.ConnectionSelect"/>
-            </properties>
-          </component>
+            <properties/>
+            <border type="none"/>
+            <children/>
+          </grid>
         </children>
       </grid>
       <grid id="5eadc" binding="browserFormsPanel" layout-manager="CardLayout" hgap="0" vgap="0">

@@ -18,19 +18,11 @@ package com.dbn.debugger.prerequisite;
 
 import com.dbn.prerequisite.definition.impl.NetworkAccessPrerequisite;
 
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.HOST_ACE_JDWP;
+
 public class NetworkAccess_HOST_ACE_JDWP extends NetworkAccessPrerequisite {
 
     public NetworkAccess_HOST_ACE_JDWP() {
-        super(DebugPrerequisiteTypes.HOST_ACE_JDWP);
-    }
-
-    @Override
-    protected String getHostName() {
-        return "127.0.0.1";
-    }
-
-    @Override
-    protected String getPrivilegeName() {
-        return "JDWP";
+        super(HOST_ACE_JDWP, "JDWP", "127.0.0.1");
     }
 }

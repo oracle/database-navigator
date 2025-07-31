@@ -18,7 +18,7 @@ package com.dbn.editor.data.ui.table.renderer;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.table.DBNTableHeaderRendererBase;
+import com.dbn.common.ui.table.DBNTableHeaderRenderer;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.data.grid.options.DataGridSettings;
@@ -39,7 +39,7 @@ import java.awt.FontMetrics;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 
-public class DatasetEditorTableHeaderRenderer extends DBNTableHeaderRendererBase {
+public class DatasetEditorTableHeaderRenderer extends DBNTableHeaderRenderer {
     private JPanel mainPanel;
     private JLabel nameLabel;
     private JLabel sortingLabel;

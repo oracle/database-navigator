@@ -16,7 +16,7 @@
 
 package com.dbn.code.common.color;
 
-import com.dbn.common.util.Commons;
+import com.dbn.common.text.TextResources;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.options.colors.AttributesDescriptor;
 import com.intellij.openapi.options.colors.ColorDescriptor;
@@ -26,13 +26,9 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
 public abstract class DBLColorSettingsPage implements ColorSettingsPage {
@@ -45,13 +41,7 @@ public abstract class DBLColorSettingsPage implements ColorSettingsPage {
     @NotNull
     public final String getDemoText() {
         if (demoText == null) {
-            String demoTextFileName = getDemoTextFileName();
-            try (InputStream inputStream = getClass().getResourceAsStream(demoTextFileName)) {
-                demoText = Commons.readInputStream(inputStream);
-            } catch (IOException e) {
-                conditionallyLog(e);
-                log.error("Failed to load file {}", demoTextFileName, e);
-            }
+            demoText = TextResources.get(this, getDemoTextFileName());
         }
         return demoText.replace("\r\n", "\n");
     }

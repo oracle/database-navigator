@@ -17,7 +17,7 @@
 package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.assistant.chat.message.ChatMessage;
-import com.dbn.assistant.chat.message.action.HelpAction;
+import com.dbn.assistant.chat.message.action.AssistantHelpAction;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.text.MimeType;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -68,7 +68,7 @@ public class SystemChatMessageForm extends ChatMessageForm {
 
     @Override
     protected AnAction[] createActions() {
-        return new AnAction[]{new HelpAction()};
+        return new AnAction[]{new AssistantHelpAction()};
     }
 
     @Override

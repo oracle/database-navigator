@@ -16,6 +16,7 @@
 
 package com.dbn.connection.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ContextAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+@BackgroundUpdate
 public abstract class AbstractConnectionAction extends ContextAction<ConnectionHandler> {
     private final ConnectionRef connection;
 

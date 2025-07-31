@@ -51,6 +51,7 @@ public enum DatabaseFeature {
     CONSTRAINT_MANIPULATION("Constraint manipulation"),
     READONLY_CONNECTIVITY("Readonly connectivity"),
     AI_ASSISTANT("AI assistant"),
+    DATA_CHANGE_NOTIFICATION("Data change notification"),
 
     // OJVM
     JAVA_VIRTUAL_MACHINE("Embedded JVM"),
