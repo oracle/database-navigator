@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.chat;
 
+import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.state.AssistantState;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,10 +34,12 @@ public final class ChatContextEvent {
     private final String targetChatId;
     private boolean newChatRequest;
 
-    public ChatContextEvent(@NotNull ChatContext currentContext,
-                            @NotNull ChatContext targetContext,
-                            @Nullable String targetChatId,
-                            boolean newChatRequest) {
+    public ChatContextEvent(
+            @NotNull ChatContext currentContext,
+            @NotNull ChatContext targetContext,
+            @Nullable String targetChatId,
+            boolean newChatRequest) {
+
         this.currentContext = currentContext;
         this.targetContext = targetContext;
         this.targetChatId = targetChatId;
@@ -64,8 +67,9 @@ public final class ChatContextEvent {
         if (!currentContext.isInteractive() && !targetContext.isInteractive()) return null;
 
         if (currentContext.isProfileSwitch(targetContext)) return ChatInterruptionReason.PROFILE_SELECTION_CHANGE;
+        if (currentContext.isProviderSwitch(targetContext)) return ChatInterruptionReason.PROVIDER_SELECTION_CHANGE;
         if (currentContext.isModelSwitch(targetContext)) return ChatInterruptionReason.MODEL_SELECTION_CHANGE;
-        if (currentContext.isInterruptingActionSwitch(targetContext)) return ChatInterruptionReason.ACTION_SELECTION_CHANGE;
+        if (currentContext.isActionSwitch(targetContext)) return ChatInterruptionReason.ACTION_SELECTION_CHANGE;
 
         // No interruption detected
         return null;

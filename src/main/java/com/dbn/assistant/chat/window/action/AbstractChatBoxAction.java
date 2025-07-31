@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.chat.window.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ProjectAction;
 
 /**
@@ -24,6 +25,7 @@ import com.dbn.common.action.ProjectAction;
  *
  * @author Dan Cioca (Oracle)
  */
+@BackgroundUpdate
 public abstract class AbstractChatBoxAction extends ProjectAction implements AssistantActionSupport {
 
 }

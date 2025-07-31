@@ -16,7 +16,7 @@
 
 package com.dbn.project;
 
-import com.dbn.assistant.AssistantInitializationManager;
+import com.dbn.assistant.service.selectai.SelectAiInitializationManager;
 import com.dbn.common.component.EagerService;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
@@ -31,6 +31,7 @@ import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.editor.data.DatasetEditorManager;
 import com.dbn.editor.json.JsonDataEditorManager;
 import com.dbn.editor.json.schema.JsonDataSchemaManager;
+import com.dbn.event.notification.EventNotificationManager;
 import com.dbn.execution.compiler.DatabaseCompilerManager;
 import com.dbn.language.common.DBLanguageFileType;
 import com.dbn.object.common.loader.DatabaseLoaderManager;
@@ -101,9 +102,10 @@ public class ProjectComponentsInitializer extends ProjectComponentBase implement
         DatabaseLoaderManager.getInstance(project);
         DatabaseSessionManager.getInstance(project);
         DatabaseFileEditorManager.getInstance(project);
-        AssistantInitializationManager.getInstance(project);
+        SelectAiInitializationManager.getInstance(project);
         DatabaseTransactionManager.getInstance(project);
         DatabasePrerequisiteManager.getInstance(project);
+        EventNotificationManager.getInstance(project);
         initialized = true;
     }
 }

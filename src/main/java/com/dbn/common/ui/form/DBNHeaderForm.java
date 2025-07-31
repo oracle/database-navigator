@@ -20,6 +20,9 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ui.Layouts;
 import com.dbn.common.ui.Presentable;
+import com.dbn.common.ui.misc.DBNSelector;
+import com.dbn.common.ui.util.UserInterface;
+import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionHandlerStatusListener;
@@ -27,22 +30,30 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
+import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.event.ContainerAdapter;
+import java.awt.event.ContainerEvent;
 
 public class DBNHeaderForm extends DBNFormBase {
     public static final LineBorder BORDER = new LineBorder(Colors.getOutlineColor());
     private JLabel objectLabel;
     private JPanel mainPanel;
     private JPanel buttonsPanel;
+    private JPanel selectorPanel;
+    private JPanel actionsPanel;
 
     public DBNHeaderForm(DBNForm parent) {
         super(parent);
@@ -171,6 +182,30 @@ public class DBNHeaderForm extends DBNFormBase {
     public void addButton(AbstractButton button) {
         button.setOpaque(false);
         buttonsPanel.add(button);
+    }
+
+    public void setSelector(String tooltip, ActionGroup actions) {
+        DBNSelector selector = new DBNSelector(tooltip, actions);
+        selector.bindComponent(objectLabel);
+        selectorPanel.add(selector);
+    }
+
+    public void setActions(ActionGroup actionGroup) {
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, actionGroup);
+        JComponent toolbarComponent = actionToolbar.getComponent();
+        UserInterface.visitRecursively(toolbarComponent, c -> c.setOpaque(false));
+        toolbarComponent.addContainerListener(new ContainerAdapter() {
+            @Override
+            public void componentAdded(ContainerEvent e) {
+                Component child = e.getChild();
+                if (child instanceof JComponent) {
+                    JComponent component = (JComponent) child;
+                    UserInterface.visitRecursively(component, c -> c.setOpaque(false));
+                    //component.setOpaque(false);
+                }
+            }
+        });
+        actionsPanel.add(toolbarComponent);
     }
 
     public DBNHeaderForm withEmptyBorder() {

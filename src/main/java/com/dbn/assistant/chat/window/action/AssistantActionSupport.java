@@ -18,10 +18,11 @@ package com.dbn.assistant.chat.window.action;
 
 import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatAvailability;
-import com.dbn.assistant.chat.ChatContext;
+import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.DataKeys;
+import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,6 +32,12 @@ public interface AssistantActionSupport {
     @Nullable
     default ChatBoxForm getChatBox(@NotNull AnActionEvent e) {
         return e.getData(DataKeys.ASSISTANT_CHAT_BOX);
+    }
+
+    @Nullable
+    default ConnectionId getConnectionId(@NotNull AnActionEvent e) {
+        ChatBoxForm chatBox = getChatBox(e);
+        return chatBox == null ? null : chatBox.getConnectionId();
     }
 
     @Nullable

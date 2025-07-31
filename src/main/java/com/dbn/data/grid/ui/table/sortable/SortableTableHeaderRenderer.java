@@ -18,7 +18,7 @@ package com.dbn.data.grid.ui.table.sortable;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.table.DBNTableHeaderRendererBase;
+import com.dbn.common.ui.table.DBNTableHeaderRenderer;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.data.model.sortable.SortableDataModel;
 import com.dbn.data.sorting.SortDirection;
@@ -33,7 +33,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 
-public class SortableTableHeaderRenderer extends DBNTableHeaderRendererBase {
+public class SortableTableHeaderRenderer extends DBNTableHeaderRenderer {
     private JPanel mainPanel;
     private JLabel nameLabel;
     private JLabel sortingLabel;

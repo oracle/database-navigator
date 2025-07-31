@@ -36,12 +36,17 @@ import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public abstract class NetworkAccessPrerequisite extends PrerequisiteDefinitionProviderBase {
+    private final String privilegeName;
+    private final String hostName;
 
-    protected abstract @NonNls String getHostName();
-    protected abstract @NonNls String getPrivilegeName();
+    protected NetworkAccessPrerequisite(
+            PrerequisiteType prerequisiteType,
+            @NonNls String privilegeName,
+            @NonNls String hostName) {
 
-    protected NetworkAccessPrerequisite(PrerequisiteType prerequisiteType) {
         super(prerequisiteType);
+        this.privilegeName = privilegeName;
+        this.hostName = hostName;
     }
 
     @Override
@@ -53,8 +58,6 @@ public abstract class NetworkAccessPrerequisite extends PrerequisiteDefinitionPr
     @Override
     protected PrerequisiteEvaluator createEvaluator() {
         return context -> {
-            String privilegeName = getPrivilegeName();
-            String hostName = getHostName();
             String userName = context.getUserName();
 
             DatabaseMetadataInterface metadataInterface = context.getMetadataInterface();
@@ -73,8 +76,6 @@ public abstract class NetworkAccessPrerequisite extends PrerequisiteDefinitionPr
     @NotNull
     @Override
     protected PrerequisiteDefinition createDefinition(PrerequisiteEvaluator evaluator, PrerequisiteResolver resolver, PrerequisiteAdvisor advisor) {
-        String privilegeName = getPrivilegeName();
-        String hostName = getHostName();
         return new PrerequisiteDefinitionBase(
                 txt("app.prerequisite.title.NetworkPrivilege", privilegeName, hostName),
                 txt("app.prerequisite.text.NetworkPrivilege", privilegeName, hostName),
@@ -93,10 +94,7 @@ public abstract class NetworkAccessPrerequisite extends PrerequisiteDefinitionPr
         // users may under circumstances grant network ACL privileges to (for) themselves
 
         return context -> {
-            String privilegeName = getPrivilegeName();
             String userName = context.getUserName();
-            String hostName = getHostName();
-
             DatabaseMetadataInterface metadataInterface = context.getMetadataInterface();
             DatabaseInterfaceInvoker.execute(Priority.HIGH,
                     txt("prc.prerequisite.title.GrantingNetworkPrivilege"),
@@ -113,10 +111,7 @@ public abstract class NetworkAccessPrerequisite extends PrerequisiteDefinitionPr
     @NotNull
     protected PrerequisiteAdvisor createAdvisor() {
         return context -> {
-            String privilegeName = getPrivilegeName();
-            String hostName = getHostName();
             String userName = context.getUserName();
-
             return new PrerequisiteAdvice(
                     "Request privilege",
                     "\"" + privilegeName + "\" network privilege for host \"" + hostName + "\"",
@@ -131,5 +126,10 @@ public abstract class NetworkAccessPrerequisite extends PrerequisiteDefinitionPr
                             "    );\n" +
                             "END;", hostName, privilegeName, userName));
         };
+    }
+
+    @Override
+    public String toString() {
+        return hostName + ":" + privilegeName;
     }
 }

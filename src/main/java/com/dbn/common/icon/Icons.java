@@ -37,7 +37,8 @@ public class Icons {
     public static final Latent<Icon> WINDOW_DATABASE_BROWSER     = Latent.basic(()-> init("/img/window/DatabaseBrowser.svg"));
     public static final Latent<Icon> WINDOW_EXECUTION_CONSOLE    = Latent.basic(()-> init("/img/window/ExecutionConsole.svg"));
     public static final Latent<Icon> WINDOW_DATABASE_DIAGNOSTICS = Latent.basic(()-> init("/img/window/DatabaseDiagnostics.svg"));
-    public static final Latent<Icon> WINDOW_DATABASE_ASSISTANT = Latent.basic(()-> init("/img/window/DatabaseAssistant.svg"));
+    public static final Latent<Icon> WINDOW_DATABASE_ASSISTANT   = Latent.basic(()-> init("/img/window/DatabaseAssistant.svg"));
+    public static final Latent<Icon> WINDOW_DATABASE_EVENTS      = Latent.basic(()-> init("/img/window/DatabaseEvents.svg"));
 
 
     public static final Icon DBN_SPLASH = load("/img/DBN.png");
@@ -75,8 +76,8 @@ public class Icons {
     public static final Icon ACTION_ADD_SPECIAL               = load("/img/action/AddSpecial.png");
     public static final Icon ACTION_MOVE_UP                   = load("/img/action/MoveUp.svg");
     public static final Icon ACTION_MOVE_DOWN                 = load("/img/action/MoveDown.svg");
-    public static final Icon ACTION_CONTENT_COLAPSE = load("/img/action/ContentFold.svg");
-    public static final Icon ACTION_CONTENT_EXPAND = load("/img/action/ContentUnfold.svg");
+    public static final Icon ACTION_CONTENT_COLLAPSE          = load("/img/action/ContentFold.svg");
+    public static final Icon ACTION_CONTENT_EXPAND            = load("/img/action/ContentUnfold.svg");
     public static final Icon ACTION_DOWNLOAD                  = AllIcons.Actions.Download;
     public static final Icon ACTION_UPLOAD                    = AllIcons.Actions.Upload;
     public static final Icon ACTION_EDIT                      = AllIcons.Actions.EditSource; //load("/img/action/EditSource.svg");
@@ -296,6 +297,9 @@ public class Icons {
     public static final Icon OBJECT_COMPILE_ASK = load("/img/action/CompileAsk.png");
     public static final Icon OBJECT_EDIT_SOURCE = load("/img/action/EditSource.svg");
     public static final Icon OBJECT_EDIT_DATA = load("/img/action/EditData.svg");
+    public static final Icon TABLE_ENABLE_DCN = load("/img/action/DataChangeListenerEnabled.svg");
+    public static final Icon TABLE_DISABLE_DCN = load("/img/action/DataChangeListenerDisabled.svg");
+
     public static final Icon OBJECT_VIEW_DATA = load("/img/ViewData.png");
 
     public static final Icon CONNECTION_COMMIT   = load("/img/action/ConnectionCommit.svg", "CONNECTION_COMMIT");

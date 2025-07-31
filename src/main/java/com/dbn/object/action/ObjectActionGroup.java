@@ -19,6 +19,7 @@ package com.dbn.object.action;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.editor.DBContentType;
+import com.dbn.event.action.ChangeNotificationsToggleAction;
 import com.dbn.execution.compiler.action.CompileActionGroup;
 import com.dbn.execution.java.action.JavaClassDebugAction;
 import com.dbn.execution.java.action.JavaClassWrapperAction;
@@ -39,6 +40,7 @@ import com.dbn.object.DBJavaResource;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBProgram;
 import com.dbn.object.DBSchema;
+import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectNavigationList;
@@ -57,6 +59,7 @@ import com.intellij.openapi.project.DumbAware;
 import java.util.List;
 
 import static com.dbn.database.DatabaseFeature.CONSTRAINT_MANIPULATION;
+import static com.dbn.database.DatabaseFeature.DATA_CHANGE_NOTIFICATION;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.database.DatabaseFeature.OBJECT_DEPENDENCIES;
 import static com.dbn.database.DatabaseFeature.OBJECT_DISABLING;
@@ -78,6 +81,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         addObjectManagementActions(object);
         addMethodActions(object);
         addProgramActions(object);
+        addTableActions(object);
         addJavaActions(object);
         addDependencyActions(object);
         addNavigationActions(object);
@@ -85,6 +89,16 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         addCodeGeneratorActions(object);
         addObjectListActions(object);
         addObjectPropertiesActions(object);
+    }
+
+    private void addTableActions(DBObject object) {
+        if (object instanceof DBTable) {
+            DBTable table = (DBTable) object;
+            if (DATA_CHANGE_NOTIFICATION.isSupported(object)) {
+                addSeparator();
+                add(new ChangeNotificationsToggleAction(table));
+            }
+        }
     }
 
     private void addObjectManagementActions(DBObject object) {

@@ -16,11 +16,12 @@
 
 package com.dbn.assistant.chat.message;
 
-import com.dbn.assistant.chat.ChatContext;
-import com.dbn.assistant.chat.window.PromptAction;
+import com.dbn.assistant.chat.context.ChatContext;
+import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.editor.SQLChatMessageConverter;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.message.MessageType;
+import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.UUIDs;
 import com.dbn.language.sql.SQLLanguage;
 import com.intellij.lang.Language;
@@ -28,14 +29,25 @@ import com.intellij.openapi.util.text.StringUtil;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 
 import java.util.List;
 
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.readCdata;
+import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.options.setting.Settings.writeCdata;
+
 @Getter
 @Setter
 @NoArgsConstructor
-public class ChatMessage {
+public class ChatMessage implements PersistentStateElement {
     /**
      * Unique identifier of the chat message to establish causality relations and chaining of messages
      */
@@ -106,7 +118,6 @@ public class ChatMessage {
         // special case of SHOW_SQL agent responses in plain text which are actually sql blocks
 
         if (author != AuthorType.AGENT) return false;
-        if (context.getAction() != PromptAction.SHOW_SQL) return false;
         if (hasCodeSections()) return false;
         if (!isSelectStatement()) return false;
 
@@ -119,5 +130,35 @@ public class ChatMessage {
             //.. TODO more languages if functionality is integrated in non-SQL editors
         }
         return content;
+    }
+
+
+    @Override
+    public void readState(Element element) {
+        id = stringAttribute(element, "id");
+        type = enumAttribute(element, "type", type);
+        author = enumAttribute(element, "author", AuthorType.class);
+        folded = booleanAttribute(element, "folded", folded);
+
+        Element contentElement = element.getChild("content");
+        content = readCdata(contentElement);
+
+        Element contextElement = element.getChild("context");
+        context = new ChatContextImpl();
+        context.readState(contextElement);
+    }
+
+    @Override
+    public void writeState(Element element) {
+        setStringAttribute(element, "id", id);
+        setEnumAttribute(element, "type", type);
+        setEnumAttribute(element, "author", author);
+        setBooleanAttribute(element, "folded", folded);
+
+        Element contentElement = newElement(element,"content");
+        writeCdata(contentElement, content);
+
+        Element contextElement = newElement(element,"context");
+        context.writeState(contextElement);
     }
 }
