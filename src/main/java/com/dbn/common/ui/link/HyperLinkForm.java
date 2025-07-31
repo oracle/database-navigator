@@ -33,10 +33,15 @@ public class HyperLinkForm extends DBNFormBase {
         textLabel.setText(text);
         hyperLink.setHyperlinkText(linkText);
         hyperLink.setHyperlinkTarget(linkUrl);
+        hyperLink.setToolTipText(linkUrl);
     }
 
     public static HyperLinkForm create(String text, String linkText, String linkUrl) {
         return new HyperLinkForm(text, linkText, linkUrl);
+    }
+
+    public void setTooltipText(String tooltip) {
+        hyperLink.setToolTipText(tooltip);
     }
 
     @Override

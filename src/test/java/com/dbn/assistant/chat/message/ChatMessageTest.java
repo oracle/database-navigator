@@ -16,7 +16,7 @@
 
 package com.dbn.assistant.chat.message;
 
-import com.dbn.assistant.chat.ChatContext;
+import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.common.message.MessageType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -71,7 +71,7 @@ public class ChatMessageTest {
 
     private static List<ChatMessageSection> readMessageSections(String resource) throws IOException {
         String content = readResource(resource);
-        ChatMessage chatMessage = new ChatMessage(MessageType.NEUTRAL, content, AuthorType.AGENT, new ChatContext());
+        ChatMessage chatMessage = new ChatMessage(MessageType.NEUTRAL, content, AuthorType.AGENT, new ChatContextImpl());
         return chatMessage.getSections();
     }
 

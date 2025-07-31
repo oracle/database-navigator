@@ -16,7 +16,7 @@
 
 package com.dbn.database.oracle;
 
-import com.dbn.assistant.DatabaseAssistantType;
+import com.dbn.assistant.AssistantType;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.common.assistant.AssistantQueryResponse;
@@ -64,10 +64,10 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
-  public DatabaseAssistantType getAssistantType(DBNConnection connection) throws SQLException {
+  public AssistantType getAssistantType(DBNConnection connection) throws SQLException {
     return isAssistantFeatureSupported(connection) ?
-            DatabaseAssistantType.SELECT_AI :
-            DatabaseAssistantType.GENERIC;
+            AssistantType.SELECT_AI :
+            AssistantType.PUBLIC;
   }
 
   @Override
@@ -146,5 +146,15 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   public void setCurrentProfile(DBNConnection connection, String profileName) throws SQLException {
     executeUpdate(connection, "set-current-profile", profileName);
   }
+
+    @Override
+    public void enableDataAccess(DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "enable-data-access");
+    }
+
+    @Override
+    public void disableDataAccess(DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "disable-data-access");
+    }
 }
 

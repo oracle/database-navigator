@@ -18,14 +18,11 @@ package com.dbn.debugger.prerequisite;
 
 import com.dbn.prerequisite.definition.impl.SystemPrivilegePrerequisite;
 
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.DEBUG_ANY_PROCEDURE;
+
 public class SystemPrivilege_DEBUG_ANY_PROCEDURE extends SystemPrivilegePrerequisite {
 
     public SystemPrivilege_DEBUG_ANY_PROCEDURE() {
-        super(DebugPrerequisiteTypes.DEBUG_ANY_PROCEDURE);
-    }
-
-    @Override
-    protected String getPrivilegeName() {
-        return "DEBUG ANY PROCEDURE";
+        super(DEBUG_ANY_PROCEDURE, "DEBUG ANY PROCEDURE");
     }
 }

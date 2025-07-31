@@ -17,6 +17,7 @@
 package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.common.text.MimeType;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 
@@ -37,8 +38,15 @@ public class ChatMessageSectionForm extends DBNFormBase {
         return mainPanel;
     }
 
+    public void setContent(TextContent textContent) {
+        setContent(
+            textContent.getType(),
+            textContent.getText());
+    }
+
     public void setContent(MimeType mimeType, String content) {
         messageTextPane.setContentType(mimeType.id());
         messageTextPane.setText( content);
+        messageTextPane.revalidate();
     }
 }

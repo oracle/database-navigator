@@ -21,11 +21,11 @@ import com.dbn.common.expression.ExpressionEvaluator;
 import com.dbn.common.expression.ExpressionEvaluatorContext;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
+import com.dbn.common.text.TextResources;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
-import com.dbn.common.util.Commons;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
@@ -100,8 +100,11 @@ public class ObjectFilterDetailsForm extends DBNFormBase {
                 rightPad(s.getName(), longestAttr + 1, " ").replaceAll(" ", "&nbsp;") +
                 "- " + s.getDescription() +
                 " (" + s.getTypeName() + ")");
-        hintText = hintText.replaceFields("SUPPORTED_ATTRIBUTES", supportedAttributes);
-        hintText = hintText.replaceFields("SAMPLE_EXPRESSION", definition.getSampleExpression());
+        String sampleExpression = definition.getSampleExpression();
+
+        hintText.initField("SUPPORTED_ATTRIBUTES", supportedAttributes);
+        hintText.initField("SAMPLE_EXPRESSION", sampleExpression);
+
         DBNHintForm disclaimerForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(disclaimerForm.getComponent());
     }
@@ -109,7 +112,7 @@ public class ObjectFilterDetailsForm extends DBNFormBase {
     @NonNls
     @SneakyThrows
     private static TextContent loadHintText() {
-        String content = Commons.readInputStream(ObjectFilterDetailsForm.class.getResourceAsStream("object_filter_expression_guide.html.ft"));
+        String content = TextResources.get(ObjectFilterDetailsForm.class, "object_filter_expression_guide.html.ft");
         return TextContent.html(content);
     }
 

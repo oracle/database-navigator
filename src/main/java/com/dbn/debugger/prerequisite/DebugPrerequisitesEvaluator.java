@@ -26,16 +26,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.operation.DatabaseOperation.DEBUG_JAVA_CODE;
+import static com.dbn.common.operation.DatabaseOperation.DEBUG_PLSQL_CODE_JDBC;
 import static com.dbn.common.operation.DatabaseOperation.DEBUG_PLSQL_CODE_JDWP;
-import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.CREATE_PROCEDURE;
-import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.CREATE_TYPE;
-import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.DEBUG_ANY_PROCEDURE;
-import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.DEBUG_CONNECT_SESSION;
-import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.EXECUTE_DBMS_DEBUG;
-import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.EXECUTE_DBMS_DEBUG_JDWP;
-import static com.dbn.debugger.prerequisite.DebugPrerequisiteTypes.HOST_ACE_JDWP;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_PROCEDURE;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_TYPE;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.DEBUG_ANY_PROCEDURE;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.DEBUG_CONNECT_SESSION;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_DEBUG;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_DEBUG_JDWP;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.HOST_ACE_JDWP;
 
 public class DebugPrerequisitesEvaluator implements PrerequisiteRequirementEvaluator {
+
+
+    @Override
+    public boolean supports(DatabaseOperation operation) {
+        return operation.isOneOf(
+                DEBUG_PLSQL_CODE_JDBC,
+                DEBUG_PLSQL_CODE_JDWP,
+                DEBUG_JAVA_CODE);
+    }
+
     @Override
     public List<PrerequisiteMandate> resolvePrerequisites(DatabaseContext context, DatabaseOperation operation) {
         List<PrerequisiteMandate> mandates = new ArrayList<>();
@@ -46,14 +57,14 @@ public class DebugPrerequisitesEvaluator implements PrerequisiteRequirementEvalu
         }
 
         createMandate(mandates, DEBUG_CONNECT_SESSION, "Enables debugging of PL/SQL code by granting access to the databases's debugging facilities");
-        createMandate(mandates, DEBUG_ANY_PROCEDURE, "Allows user to debug PL/SQL code in any schema, not just their own");
-        createMandate(mandates, EXECUTE_DBMS_DEBUG, "Grants the ability to execute procedures and functions of the SYS.DBMS_DEBUG package, which provides an API for debugging PL/SQL code within the database");
+        createMandate(mandates, DEBUG_ANY_PROCEDURE, "Allows user to debug PL/SQL code in any schema");
+        createMandate(mandates, EXECUTE_DBMS_DEBUG, "Allows the user to execute procedures and functions of the SYS.DBMS_DEBUG package, which provides an API for debugging PL/SQL code within the database");
 
         if (operation.isOneOf(
                 DEBUG_JAVA_CODE,
                 DEBUG_PLSQL_CODE_JDWP)) {
 
-            createMandate(mandates, EXECUTE_DBMS_DEBUG_JDWP, "Grants the ability to execute procedures and functions of the SYS.DBMS_DEBUG_JDWP package, which provides an API for debugging PL/SQL and Java code within the database");
+            createMandate(mandates, EXECUTE_DBMS_DEBUG_JDWP, "Allows the user to execute procedures and functions of the SYS.DBMS_DEBUG_JDWP package, which provides an API for debugging PL/SQL and Java code within the database");
             createMandate(mandates, HOST_ACE_JDWP, "Grants database access to a network location. Enables a database user to establish a JDWP connection to a specific host");
         }
         return mandates;

@@ -19,8 +19,8 @@ package com.dbn.common.action;
 import com.dbn.assistant.chat.message.ui.ChatMessageForm;
 import com.dbn.assistant.chat.ui.ChatHistoryForm;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.credential.remote.ui.CredentialManagementForm;
-import com.dbn.assistant.profile.ui.ProfileManagementForm;
+import com.dbn.assistant.service.selectai.credential.ui.CredentialManagementForm;
+import com.dbn.assistant.service.selectai.profile.ui.ProfileManagementForm;
 import com.dbn.batch.ui.BatchMonitorForm;
 import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
@@ -31,6 +31,8 @@ import com.dbn.diagnostics.ui.ParserDiagnosticsForm;
 import com.dbn.editor.data.DatasetEditor;
 import com.dbn.editor.json.JsonDataEditor;
 import com.dbn.editor.session.SessionBrowser;
+import com.dbn.event.notification.ui.EventNotificationsForm;
+import com.dbn.event.registration.ui.EventRegistrationsForm;
 import com.dbn.execution.common.message.ui.tree.MessagesTree;
 import com.dbn.execution.explain.result.ExplainPlanResult;
 import com.dbn.execution.java.result.JavaExecutionResult;
@@ -42,6 +44,7 @@ import com.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dbn.object.DBArgument;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.prerequisite.ui.PrerequisitesForm;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.DataKey;
 
 public interface DataKeys {
@@ -68,6 +71,10 @@ public interface DataKeys {
     DataKey<PrerequisitesForm> PREREQUISITES_FORM = DataKey.create("DBNavigator.PrerequisitesForm");
     DataKey<ChatMessageForm> CHAT_MESSAGE_FORM = DataKey.create("DBNavigator.ChatMessageForm");
     DataKey<DBNTabbedPane> TABBED_PANE = DataKey.create("DBNavigator.TabbedPane");
+    DataKey<Disposable> PARENT_DISPOSABLE = DataKey.create("DBNavigator.ParentDisposable");
+
+    DataKey<EventRegistrationsForm> EVENT_REGISTRATIONS_FORM = DataKey.create("DBNavigator.EventRegistrationsForm");
+    DataKey<EventNotificationsForm> EVENT_NOTIFICATIONS_FORM = DataKey.create("DBNavigator.EventNotificationsForm");
 
     DataKey<CalendarPopupProviderForm> CALENDAR_POPUP_PROVIDER_FORM = DataKey.create("DBNavigator.CalendarPopupProviderForm");
     DataKey<ArrayEditorPopupProviderForm> ARRAY_EDITOR_POPUP_PROVIDER_FORM = DataKey.create("DBNavigator.ArrayEditorPopupProviderForm");
