@@ -27,6 +27,8 @@ import java.util.List;
 public interface PrerequisiteRequirementEvaluator extends DumbAware {
     ExtensionPointName<PrerequisiteRequirementEvaluator> EP = ExtensionPointName.create("com.dbn.prerequisiteRequirementEvaluator");
 
+    boolean supports(DatabaseOperation operation);
+
     /**
      * Resolves the prerequisite types, necessary for a given database operation in a specified database context.
      * (the prerequisite types are wrapped as {@link PrerequisiteMandate} to allow the reason of the prerequisite in the given context)

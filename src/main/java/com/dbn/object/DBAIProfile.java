@@ -48,9 +48,11 @@ public interface DBAIProfile extends DBSchemaObject {
 
     AIProvider getProvider();
 
+    String getProviderId();
+
     AIModel getModel();
 
-    String getModelName();
+    String getModelId();
 
     double getTemperature();
 

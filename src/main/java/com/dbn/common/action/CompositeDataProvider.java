@@ -17,10 +17,13 @@
 package com.dbn.common.action;
 
 import com.dbn.common.ref.WeakRef;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.DataProvider;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.common.action.DataKeys.PARENT_DISPOSABLE;
 
 public class CompositeDataProvider implements DataProvider {
     private final WeakRef<DataProviderDelegate> dataProviderDelegate;
@@ -42,14 +45,18 @@ public class CompositeDataProvider implements DataProvider {
     }
 
     @Override
-    public @Nullable Object getData(@NotNull @NonNls String s) {
+    public @Nullable Object getData(@NotNull @NonNls String dataId) {
         DataProvider provider = getDataProvider();
-        Object data = provider == null ? null : provider.getData(s);
+        Object data = provider == null ? null : provider.getData(dataId);
         if (data != null) return data;
 
         DataProviderDelegate delegate = getDataProviderDelegate();
-        data = delegate == null ? null : delegate.getData(s);
+        if (delegate == null) return null;
 
-        return data;
+        if (delegate instanceof Disposable && PARENT_DISPOSABLE.is(dataId)) {
+            return delegate;
+        }
+
+        return delegate.getData(dataId);
     }
 }

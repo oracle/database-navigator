@@ -20,6 +20,7 @@ import com.dbn.common.action.DataProviderDelegate;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.nls.NlsSupport;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -49,4 +50,7 @@ public interface DBNForm extends DBNComponent, DataProviderDelegate, NlsSupport 
      */
     @Nullable
     <F extends DBNForm> F getParentFrom(Class<F> formClass);
+
+    @NotNull
+    <F extends DBNForm> F ensureParentFrom(Class<F> formClass);
 }

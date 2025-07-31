@@ -16,8 +16,8 @@
 
 package com.dbn.assistant.state;
 
-import com.dbn.assistant.DatabaseAssistantType;
-import com.dbn.assistant.chat.ChatContext;
+import com.dbn.assistant.AssistantType;
+import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.feature.FeatureAcknowledgement;
 import com.dbn.common.feature.FeatureAvailability;
@@ -36,8 +36,11 @@ import java.util.Objects;
 public class AssistantStateDelegate extends AssistantState {
     private final ProjectRef project;
 
-    public AssistantStateDelegate(Project project, ConnectionId connectionId) {
-        super(connectionId);
+    public AssistantStateDelegate(Project project) {
+        this(project, null, null);
+    }
+    public AssistantStateDelegate(Project project, ConnectionId connectionId,  AssistantType assistantType) {
+        super(connectionId, assistantType);
         this.project = ProjectRef.of(project);
     }
 
@@ -48,7 +51,7 @@ public class AssistantStateDelegate extends AssistantState {
         notifyStateListeners();
     }
 
-    public void setAssistantType(DatabaseAssistantType assistantType) {
+    public void setAssistantType(AssistantType assistantType) {
         if (getAssistantType() == assistantType) return;
 
         super.setAssistantType(assistantType);
@@ -71,8 +74,8 @@ public class AssistantStateDelegate extends AssistantState {
     }
 
     @Override
-    public void setCurrentContext(ChatContext context) {
-        super.setCurrentContext(context);
+    public void setCurrentContext(ChatContext chatContext) {
+        super.setCurrentContext(chatContext);
         notifyStateListeners();
     }
 

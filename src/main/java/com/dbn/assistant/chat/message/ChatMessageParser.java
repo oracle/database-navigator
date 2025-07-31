@@ -16,7 +16,10 @@
 
 package com.dbn.assistant.chat.message;
 
-import com.dbn.common.util.Strings;
+import com.dbn.common.compatibility.Compatibility;
+import com.dbn.common.text.TextContent;
+import com.dbn.common.text.TextResources;
+import com.dbn.common.util.Unsafe;
 import lombok.experimental.UtilityClass;
 import org.intellij.markdown.IElementType;
 import org.intellij.markdown.MarkdownElementTypes;
@@ -24,9 +27,16 @@ import org.intellij.markdown.ast.ASTNode;
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor;
 import org.intellij.markdown.html.HtmlGenerator;
 import org.intellij.markdown.parser.MarkdownParser;
+import org.jetbrains.annotations.NotNull;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.select.Elements;
+import org.jsoup.select.NodeVisitor;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.intellij.markdown.MarkdownTokenTypes.CODE_FENCE_END;
@@ -97,18 +107,47 @@ public class ChatMessageParser {
         sections.add(section);
     }
 
-    public static String convertMarkdownToHtml(String content) {
+    public static TextContent convertMarkdownToHtml(String content) {
         GFMFlavourDescriptor flavourDescriptor = new GFMFlavourDescriptor();
         ASTNode rootNode = parseMadkdownContent(content);
 
         HtmlGenerator htmlGenerator = new HtmlGenerator(content, rootNode, flavourDescriptor, false);
-        HtmlGenerator.TagRenderer tagRenderer = new HtmlGenerator.DefaultTagRenderer((astNode, charSequence, charSequences) -> {
-            if (Strings.equalsIgnoreCase(charSequence, "body")) {
-                return Collections.singletonList("body style='font-family:Segoe UI,SansSerif,serif'");
-            }
-            return charSequences;
-            },true);
-        return htmlGenerator.generateHtml(tagRenderer);
+        HtmlGenerator.TagRenderer tagRenderer = new HtmlGenerator.DefaultTagRenderer((n, s, cs) -> cs, false);
+        String body = htmlGenerator.generateHtml(tagRenderer);
 
+        String wrapperContent = TextResources.get(ChatMessageParser.class, "chat_message_wrapper.html.ft");
+        TextContent htmlContent = TextContent.html(wrapperContent);
+        htmlContent.initFonts();
+        htmlContent.initField("BODY_CONTENT", body);
+        htmlContent.adjustContent(t -> Unsafe.logged(t, () ->cleanupHtml(t)));
+
+        return htmlContent;
+    }
+
+    private static @NotNull String cleanupHtml(String html) {
+        Document document = Jsoup.parse(html);
+
+        // remove <p> tags from within <li>
+        Elements listItems = document.select("li");
+        for (Element listItem : listItems) {
+            listItem.select("p").unwrap();
+        }
+
+        // remove comments
+        document.traverse(new NodeVisitor() {
+            @Override
+            public void head(@NotNull Node node, int i) {
+                if (node instanceof Comment) {
+                    node.remove();
+                }
+            }
+
+            @Override
+            @Compatibility // earlier versions of jsoup don't "default" this interface method
+            public void tail(@NotNull Node node, int depth) {}
+        });
+
+        html = document.html();
+        return html;
     }
 }

@@ -29,6 +29,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.messages.DBNMessageForm;
 import com.dbn.common.ui.progress.ProgressForm;
+import com.dbn.common.ui.util.ScrollPanes;
 import com.dbn.common.ui.util.UserInterface;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.util.containers.ContainerUtil;
@@ -38,7 +39,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import java.util.Map;
 
@@ -209,9 +209,7 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
         progressForm.setText2(progressDetail);
 
         taskForm.initialize();
-        JScrollBar scrollBar = tasksScrollPanel.getVerticalScrollBar();
-        scrollBar.revalidate();
-        scrollBar.setValue(scrollBar.getMaximum());
+        ScrollPanes.scrollDown(tasksScrollPanel);
     }
 
     private void onTaskCompletion(BatchTask task) {

@@ -16,14 +16,17 @@
 
 package com.dbn.common.ui.form;
 
+import com.dbn.common.data.Data;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.Presentable;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 
+import javax.swing.AbstractButton;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 
+import static com.dbn.common.ui.util.CheckBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
 import static com.dbn.common.ui.util.ComboBoxes.selectElement;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
@@ -53,5 +56,16 @@ public class DBNFormState {
 
         textField.setText(nvl(attribute, ""));
         onTextChange(textField, e -> stateAttributes.setAttribute(stateAttribute, textField.getText().trim()));
+    }
+
+    public static void initPersistence(AbstractButton button, StateAttributes stateAttributes, @NonNls String stateAttribute) {
+        String attribute = stateAttributes.getAttribute(stateAttribute);
+        if (attribute != null) {
+            // only change if attribute us present
+            boolean selected = Data.asBooleanPrimitive(attribute);
+            button.setSelected(selected);
+        }
+
+        onSelectionChange(button, e -> stateAttributes.setAttribute(stateAttribute, Data.asString(button.isSelected())));
     }
 }

@@ -18,24 +18,11 @@ package com.dbn.debugger.prerequisite;
 
 import com.dbn.prerequisite.definition.impl.ObjectPrivilegePrerequisite;
 
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_DEBUG;
+
 public class ObjectPrivilege_EXECUTE_DBMS_DEBUG extends ObjectPrivilegePrerequisite {
 
     public ObjectPrivilege_EXECUTE_DBMS_DEBUG() {
-        super(DebugPrerequisiteTypes.EXECUTE_DBMS_DEBUG);
-    }
-
-    @Override
-    protected String getOwnerName() {
-        return "SYS";
-    }
-
-    @Override
-    protected String getObjectName() {
-        return "DBMS_DEBUG";
-    }
-
-    @Override
-    protected String getPrivilegeName() {
-        return "EXECUTE";
+        super(EXECUTE_DBMS_DEBUG, "EXECUTE", "SYS", "DBMS_DEBUG");
     }
 }

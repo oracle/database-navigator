@@ -266,7 +266,7 @@ public class PrerequisiteGroup extends StatefulDisposableBase implements Databas
             if (unknown == total) {
                 return new TitledMessage(MessageType.ERROR,
                         description + " - Failed to verify requirements",
-                        "Could not verify any of the requirements for performing the operation \"" + description + "\".\n  " +
+                        "Could not verify any of the requirements for performing the operation \"" + description + "\".\n" +
                                 "Please check the connectivity or database access rights.");
 
             }

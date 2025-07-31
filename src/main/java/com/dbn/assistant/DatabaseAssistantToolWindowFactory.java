@@ -26,7 +26,6 @@ import com.dbn.connection.mapping.FileConnectionContextListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.openapi.wm.ex.ToolWindowManagerListener;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
@@ -47,69 +46,68 @@ import static com.dbn.nls.NlsResources.txt;
  */
 public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
 
-  @Override
-  protected void initialize(@NotNull ToolWindow toolWindow) {
-    toolWindow.setTitle(txt("app.assistant.title.DatabaseAssistant"));
-    toolWindow.setStripeTitle(txt("app.assistant.title.DatabaseAssistant"));
-    toolWindow.setIcon(WINDOW_DATABASE_ASSISTANT.get());
-  }
+    @Override
+    protected void initialize(@NotNull ToolWindow toolWindow) {
+        toolWindow.setTitle(txt("app.assistant.title.DatabaseAssistant"));
+        toolWindow.setStripeTitle(txt("app.assistant.title.DatabaseAssistant"));
+        toolWindow.setIcon(WINDOW_DATABASE_ASSISTANT.get());
+    }
 
-  @Override
-  public void createContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-    createContentPanel(toolWindow);
-    toolWindow.setToHideOnEmptyContent(true);
-    toolWindow.setAutoHide(false);
+    @Override
+    public void createContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+        createContentPanel(toolWindow);
+        toolWindow.setToHideOnEmptyContent(true);
+        toolWindow.setAutoHide(false);
 
-    DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
-
-    ProjectEvents.subscribe(project, manager,
-            FileConnectionContextListener.TOPIC,
-            createConnectionContextListener());
-
-    ProjectEvents.subscribe(project, manager,
-            ToolWindowManagerListener.TOPIC,
-            createToolWindowListener(project));
-  }
-
-  private static void createContentPanel(@NotNull ToolWindow toolWindow) {
-    ContentManager contentManager = toolWindow.getContentManager();
-    JPanel contentPanel = CardLayouts.createCardPanel(true);
-
-    ContentFactory contentFactory = contentManager.getFactory();
-    Content content = contentFactory.createContent(contentPanel, null, true);
-    contentManager.addContent(content);
-  }
-
-  private static @NotNull FileConnectionContextListener createConnectionContextListener() {
-    return new FileConnectionContextListener() {
-      @Override
-      public void connectionChanged(Project project, VirtualFile file, ConnectionHandler connection) {
-        if (!file.isInLocalFileSystem()) return; // changing connection in surrogate (LightVirtualFiles) should not cause connection switch
-
-        ConnectionId connectionId = connection == null ? null : connection.getConnectionId();
         DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
-        manager.switchToConnection(connectionId);
-      }
-    };
-  }
 
-  private static ToolWindowManagerListener createToolWindowListener(Project project) {
-    return new ToolWindowManagerListener() {
+        ProjectEvents.subscribe(project, manager,
+                FileConnectionContextListener.TOPIC,
+                createConnectionContextListener());
 
-      @Override
-      public void stateChanged(@NotNull ToolWindowManager toolWindowManager) {
-        ToolWindow toolWindow = toolWindowManager.getToolWindow(TOOL_WINDOW_ID);
-        if (toolWindow == null) return;
-        if (!toolWindow.isVisible()) return;
+        ProjectEvents.subscribe(project, manager,
+                ToolWindowManagerListener.TOPIC,
+                createToolWindowListener(project));
+    }
 
-        VirtualFile file = Editors.getSelectedFile(project);
-        ConnectionId connectionId = getConnectionId(project, file);
-        if (connectionId == null) return; // do not switch away from last selected connection
+    private static void createContentPanel(@NotNull ToolWindow toolWindow) {
+        ContentManager contentManager = toolWindow.getContentManager();
+        JPanel contentPanel = CardLayouts.createCardPanel(true);
 
-        DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
-        assistantManager.switchToConnection(connectionId);
-      }
-    };
-  }
+        ContentFactory contentFactory = contentManager.getFactory();
+        Content content = contentFactory.createContent(contentPanel, null, true);
+        contentManager.addContent(content);
+    }
+
+    private static @NotNull FileConnectionContextListener createConnectionContextListener() {
+        return new FileConnectionContextListener() {
+            @Override
+            public void connectionChanged(Project project, VirtualFile file, ConnectionHandler connection) {
+                if (!file.isInLocalFileSystem())
+                    return; // changing connection in surrogate (LightVirtualFiles) should not cause connection switch
+
+                ConnectionId connectionId = connection == null ? null : connection.getConnectionId();
+                DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
+                manager.switchToConnection(connectionId);
+            }
+        };
+    }
+
+    private static ToolWindowManagerListener createToolWindowListener(Project project) {
+        return new ToolWindowManagerListener() {
+            @Override
+            public void toolWindowShown(@NotNull ToolWindow toolWindow) {
+                String id = toolWindow.getId();
+                if (!id.equals(TOOL_WINDOW_ID)) return;
+
+                VirtualFile file = Editors.getSelectedFile(project);
+                ConnectionId connectionId = getConnectionId(project, file);
+                if (connectionId == null) return; // do not switch away from last selected connection
+
+                DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
+                assistantManager.switchToConnection(connectionId);
+            }
+        };
+    }
 
 }
