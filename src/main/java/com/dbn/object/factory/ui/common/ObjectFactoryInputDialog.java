@@ -69,9 +69,10 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
                 objectType == DBObjectType.FUNCTION ? new FunctionFactoryInputForm(this, schema, objectType, 0) :
                 objectType == DBObjectType.PROCEDURE ? new ProcedureFactoryInputForm(this, schema, objectType, 0) :
                 objectType == DBObjectType.JAVA_CLASS ? new JavaFactoryInputForm(this, schema, 0) :
-                        objectType == DBObjectType.AI_MODEL ? new ModelFactoryInputForm(this,schema, objectType,0):
+                objectType == DBObjectType.AI_MODEL ? new ModelFactoryInputForm(this,schema, objectType,0):
+                        Failsafe.nn(null);
 
-                       Failsafe.nn(null);if (initialInput != null) {
+        if (initialInput != null) {
             inputForm.restoreUserInput(initialInput);
         }
         return inputForm;
