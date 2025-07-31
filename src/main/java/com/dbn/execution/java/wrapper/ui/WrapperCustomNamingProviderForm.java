@@ -26,7 +26,7 @@ import java.util.Set;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 
 public class WrapperCustomNamingProviderForm extends DBNFormBase {
-    private WrapperModel model;
+    private final WrapperModel model;
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JPanel hintPanel;
@@ -39,9 +39,11 @@ public class WrapperCustomNamingProviderForm extends DBNFormBase {
     private final Map<String, String> sqlTypeNames = new HashMap<>();
     private final Map<String, String> packageMethodNames = new HashMap<>();
 
-    public WrapperCustomNamingProviderForm(WrapperCustomNamingProviderDialog dialog, WrapperModel model, boolean classLevel) {
+    private final int maxIdentifierLength;
+    public WrapperCustomNamingProviderForm(WrapperCustomNamingProviderDialog dialog, WrapperModel model, boolean classLevel, int maxIdentifierLength) {
         super(dialog);
         this.model = model;
+        this.maxIdentifierLength = maxIdentifierLength;
         initHeaderPanel(model);
         initHintPanel();
         initObjectList(model, classLevel);
@@ -54,7 +56,7 @@ public class WrapperCustomNamingProviderForm extends DBNFormBase {
     }
 
     private void initHintPanel() {
-        TextContent hintText = TextContent.plain("The following execution wrapper object types have length more than allowed limit from the database.");
+        TextContent hintText = TextContent.plain("The following execution wrapper object types have length more than allowed limit from the database. \n The maximum limit is " + maxIdentifierLength);
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
     }
@@ -71,7 +73,7 @@ public class WrapperCustomNamingProviderForm extends DBNFormBase {
         for (String sqlType : sqlTypeNames) {
                 JTextField textField = new JTextField(sqlType, 50);
                 // Hide valid names, to create map later
-                textField.setVisible(sqlType.length() > 30);
+                textField.setVisible(sqlType.length() > maxIdentifierLength);
 
                 JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT));
                 row.add(new JLabel(Icons.DBO_TYPE));
@@ -82,7 +84,7 @@ public class WrapperCustomNamingProviderForm extends DBNFormBase {
                 sqlTypeFields.add(textField);
         }
 
-        if (model.getSqlWrapperName().length() > 30) {
+        if (model.getSqlWrapperName().length() > maxIdentifierLength) {
             sqlWrapperNameTextField = new JTextField(model.getSqlWrapperName(), 50);
             JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT));
             row.add(new JLabel(model.getSqlWrapperIcon()));
@@ -91,7 +93,7 @@ public class WrapperCustomNamingProviderForm extends DBNFormBase {
             contentPanel.add(row);
         }
 
-        if (model.getJavaWrapperName().length() > 30) {
+        if (model.getJavaWrapperName().length() > maxIdentifierLength) {
             javaWrapperNameTextField = new JTextField(model.getJavaWrapperName(), 50);
             JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT));
             row.add(new JLabel(Icons.DBO_JAVA_CLASS));
@@ -103,7 +105,7 @@ public class WrapperCustomNamingProviderForm extends DBNFormBase {
         if(classLevel) {
             for (MethodWrapper methodWrapper : model.getMethods()) {
                 JTextField textField = new JTextField(methodWrapper.getSqlMethodName(), 50);
-                textField.setEnabled(methodWrapper.getSqlMethodName().length() > 30);
+                textField.setEnabled(methodWrapper.getSqlMethodName().length() > maxIdentifierLength);
 
                 JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT));
                 row.add(new JLabel(methodWrapper.getIcon()));
@@ -122,17 +124,17 @@ public class WrapperCustomNamingProviderForm extends DBNFormBase {
     @Override
     protected void initValidation() {
         if (javaWrapperNameTextField != null)
-            addTextValidation(javaWrapperNameTextField, p -> p.length() <= 30, "Length should be less than 31 characters");
+            addTextValidation(javaWrapperNameTextField, p -> p.length() <= maxIdentifierLength, "Length should be less than " + (maxIdentifierLength + 1) + " characters");
 
         if (sqlWrapperNameTextField != null)
-            addTextValidation(sqlWrapperNameTextField, p -> p.length() <= 30, "Length should be less than 31 characters");
+            addTextValidation(sqlWrapperNameTextField, p -> p.length() <= maxIdentifierLength, "Length should be less than " + (maxIdentifierLength + 1) + " characters");
 
         for (JTextField textField : packageMethodFields) {
-            addTextValidation(textField, p -> p.length() <= 30, "Length should be less than 31 characters");
+            addTextValidation(textField, p -> p.length() <= maxIdentifierLength, "Length should be less than " + (maxIdentifierLength + 1) + " characters");
         }
 
         for(JTextField sqlTypeField : sqlTypeFields) {
-            addTextValidation(sqlTypeField, p -> p.length() <= 30, "Length should be less than 31 characters");
+            addTextValidation(sqlTypeField, p -> p.length() <= maxIdentifierLength, "Length should be less than " + (maxIdentifierLength + 1) + " characters");
         }
     }
 

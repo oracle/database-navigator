@@ -3408,34 +3408,4 @@
              where DBMS_TRANSACTION.LOCAL_TRANSACTION_ID is not null;
         </statement>
     </statement-execution-processor>
-
-    <statement-execution-processor id="check-long-identifier-supported" is-prepared-statement="true">
-        <statement>
-            DECLARE
-            long_name_supported BOOLEAN := FALSE;
-            BEGIN
-                BEGIN
-                    EXECUTE IMMEDIATE '
-                        CREATE OR REPLACE PROCEDURE procedure_exceeding_thirty_characters
-                        AS
-                        BEGIN
-                            NULL;
-                        END;
-                    ';
-
-                    long_name_supported := TRUE;
-
-                    EXECUTE IMMEDIATE '
-                        DROP PROCEDURE procedure_exceeding_thirty_characters
-                    ';
-                EXCEPTION
-                    WHEN OTHERS THEN
-                        long_name_supported := FALSE;
-                END;
-                ? := CASE WHEN long_name_supported THEN 'Y' ELSE 'N' END;
-            END;
-        </statement>
-    </statement-execution-processor>
-
-
 </data-dictionary>

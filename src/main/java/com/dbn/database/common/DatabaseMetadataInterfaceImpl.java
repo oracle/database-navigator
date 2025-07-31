@@ -20,7 +20,6 @@ import com.dbn.common.latent.Latent;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.logging.ExecutionLogOutput;
-import com.dbn.database.common.statement.BooleanValue;
 import com.dbn.database.common.statement.ByteArray;
 import com.dbn.database.common.statement.ClobText;
 import com.dbn.database.interfaces.DatabaseInterfaces;
@@ -653,10 +652,5 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     @Override
     public void grantNetworkPrivilege(String userName, String hostName, String privilegeName, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "grant-network-privilege", userName, hostName, privilegeName);
-    }
-
-    @Override
-    public BooleanValue checkLongIdentifier(DBNConnection connection) throws SQLException {
-        return executeCall(connection, new BooleanValue(), "check-long-identifier-supported");
     }
 }

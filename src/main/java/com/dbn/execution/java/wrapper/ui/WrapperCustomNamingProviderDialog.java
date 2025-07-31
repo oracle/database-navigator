@@ -19,13 +19,15 @@ public class WrapperCustomNamingProviderDialog extends DBNDialog<WrapperCustomNa
     private Map<String, String> sqlTypeNames;
     private Map<String, String> packageMethodNames;
 
-    private boolean classLevel;
-    public WrapperCustomNamingProviderDialog(Project project, WrapperModel model, boolean classLevel) {
+    private final boolean classLevel;
+    private final int maxIdentifierLength;
+    public WrapperCustomNamingProviderDialog(Project project, WrapperModel model, boolean classLevel, int maxIdentifierLength) {
         super(project, "Wrapper Custom Name", false);
         this.setModal(true);
         this.setAutoSize(true);
         this.model = model;
         this.classLevel = classLevel;
+        this.maxIdentifierLength = maxIdentifierLength;
         init();
     }
 
@@ -37,7 +39,7 @@ public class WrapperCustomNamingProviderDialog extends DBNDialog<WrapperCustomNa
 
     @Override
     protected @NotNull WrapperCustomNamingProviderForm createForm() {
-        return new WrapperCustomNamingProviderForm(this, model, classLevel);
+        return new WrapperCustomNamingProviderForm(this, model, classLevel, maxIdentifierLength);
     }
 
     @Override

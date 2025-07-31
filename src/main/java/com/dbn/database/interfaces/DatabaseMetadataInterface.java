@@ -17,7 +17,6 @@
 package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.common.statement.BooleanValue;
 import com.dbn.database.common.statement.ByteArray;
 import com.dbn.database.common.statement.ClobText;
 import org.jetbrains.annotations.NonNls;
@@ -759,6 +758,4 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
     boolean hasNetworkPrivilege(String userName, String hostName, String privilegeName, DBNConnection connection) throws SQLException;
 
     void grantNetworkPrivilege(String userName, String hostName, String privilegeName, DBNConnection connection) throws SQLException;
-
-    BooleanValue checkLongIdentifier(DBNConnection connection) throws SQLException;
 }
