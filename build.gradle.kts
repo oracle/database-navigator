@@ -173,10 +173,22 @@ withType<KotlinCompile> {
   }
   runIde {
         systemProperties["idea.auto.reload.plugins"] = true
-        jvmArgs = listOf(
+        var waitForDebugger = "n"
+        if (project.hasProperty("waitForDebugger")) {
+            waitForDebugger = "y"
+            System.out.println("runIde is waiting for a debugger to attach")
+        }
+        var jvmArgsMutable = mutableListOf(
             "-Xms512m",
             "-Xmx2048m",
-            "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044",
+            "-agentlib:jdwp=transport=dt_socket,server=y,suspend=$waitForDebugger,address=1044",
         )
+
+	    if (project.hasProperty("enableAssertions")) {
+            jvmArgsMutable.add("-ea")
+            System.out.println("Java Assertions enabled")
+        }
+        // make it immutable
+        jvmArgs = jvmArgsMutable.toList()
    }
 }
