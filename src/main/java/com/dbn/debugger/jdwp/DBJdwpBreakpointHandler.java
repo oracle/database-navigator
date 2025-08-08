@@ -58,6 +58,7 @@ import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties;
 
 import java.util.List;
 import java.util.Set;
@@ -194,6 +195,8 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
                 if (breakpointProperties.getConnection() == getConnection()) {
                     prepareObjectClasses(breakpoint);
                 }
+            } else if (properties instanceof JavaLineBreakpointProperties) {
+                prepareObjectClasses(breakpoint);
             }
         }
     }
