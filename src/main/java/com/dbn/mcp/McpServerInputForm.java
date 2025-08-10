@@ -1,6 +1,8 @@
 package com.dbn.mcp;
 
+import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHintForm;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -42,6 +44,7 @@ public class McpServerInputForm  extends DBNFormBase {
   private JTextArea queryTextArea;
   private JPanel parametersPanel;
   private JPanel helpIconPanel;
+  private JPanel hintPanel;
 
   private JTable paramsTable;
   private ParamTableModel paramsModel;
@@ -56,6 +59,7 @@ public class McpServerInputForm  extends DBNFormBase {
   protected JComponent getMainComponent() {
     if (rootComponent != null) return rootComponent;
     if (paramsTable == null) {
+      initHintPanel();
       initParametersPanel();
       refreshFromSql();
       decorateTextAreas();
@@ -69,6 +73,28 @@ public class McpServerInputForm  extends DBNFormBase {
 
     rootComponent = scroller;
     return rootComponent;
+  }
+
+  private void initHintPanel() {
+
+    TextContent hintText = TextContent.html(
+            "<html>" +
+                    "<div style='font-size:11px;margin:4px 0;'>" +
+                    "<b>Build a governed MCP data tool</b> — turn one safe SQL into a ready-to-run MCP server JAR. " +
+                    "Use <code>:param</code> names (<i>all required</i>), fill connection + tool info, then click <b>Build</b>. " +
+                    "We’ll drop the JAR into <code>mcp-dist</code> and show the client config snippet." +
+                    "</div>" +
+                    "<ul style='margin-top:2px'>" +
+                    "<li>Write SQL with <code>:param</code> (e.g., <code>:start_date</code>)</li>" +
+                    "<li>Fill JDBC + tool details</li>" +
+                    "<li>Hit <b>Build</b> → paste the snippet into your MCP client</li>" +
+                    "</ul>" +
+                    "</html>"
+    );
+    DBNHintForm hintForm = new DBNHintForm(null, hintText, null, true);
+
+    JComponent hintComponent = hintForm.getComponent();
+    hintPanel.add(hintComponent);
   }
 
   private void initParametersPanel() {
