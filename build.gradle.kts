@@ -52,6 +52,7 @@ dependencies {
   testAnnotationProcessor("org.projectlombok:lombok:1.18.34")
 
   implementation("org.projectlombok:lombok:1.18.34")
+  implementation("org.apache.maven.shared:maven-invoker:3.3.0")
 
   // poi libraries (xls export)
   implementation("org.apache.poi:poi:5.3.0")

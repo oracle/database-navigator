@@ -198,6 +198,7 @@
         <projectService serviceImplementation="com.dbn.ddl.DDLFileAttachmentManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseFileEditorManager"/>
         <projectService serviceImplementation="com.dbn.event.notification.EventNotificationManager"/>
+        <projectService serviceImplementation="com.dbn.mcp.MCPServerManager"/>
         <projectService serviceImplementation="com.dbn.event.registration.EventRegistrationManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.SourceCodeManager"/>
@@ -401,6 +402,8 @@
             <action class="com.dbn.menu.action.FileConnectionMappingsOpenAction" text="File Connection Mappings" id="DBNavigator.Actions.MainMenu.FileConnectionMappings"/>
             <action class="com.dbn.menu.action.ResourceMonitorOpenAction" text="Resource Monitor" id="DBNavigator.Actions.MainMenu.ResourceMonitor"/>
             <action id="DBNavigator.Actions.MainMenu.MonitorEventsOpenAction" class="com.dbn.menu.action.MonitorDataChangeOpenAction" text="Events Monitor"/>
+            <action id="DBNavigator.Actions.MainMenu.MCPServerOpenAction" class="com.dbn.mcp.MCPServerOpenAction" text="MCP Servers"/>
+
             <!--<action class="com.dbn.action.menu.PendingTransactionsOpenAction" text="Open Transactions" id="DBNavigator.Actions.MainMenu.PendingTransactions"/>-->
             <group class="com.dbn.prerequisite.action.PrerequisiteVerificationAction" popup="true" text="Prerequisite Verification" id="DBNavigator.Actions.MainMenu.PrerequisiteVerification"/> />
             <separator/>
