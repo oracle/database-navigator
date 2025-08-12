@@ -50,6 +50,8 @@ import java.util.Properties;
  */
 public class JdbcConnectorOciInteractive  {
         private static final String PROP_TOKEN_AUTH = "oracle.jdbc.tokenAuthentication";
+        private static final String PROP_OCI_COMPARTMENT = "oracle.jdbc.ociCompartment";
+        private static final String PROP_OCI_DATABASE = "oracle.jdbc.ociDatabase";
 
     /**
      * Creates a jdbc connection to the ORACLE database
