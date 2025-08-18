@@ -145,11 +145,12 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
                             isNotEmpty(azureDatabaseApplicationIdUri);
 
                     case AZURE_SERVICE_PRINCIPAL_CERTIFICATE:
+                        // Note: azureClientCertificatePassword can be empty as non-password protected
+                        // certificate files are allowed.
                         return
                             isNotEmpty(azureClientId) &&
                             isNotEmpty(azureTenantId) &&
                             isNotEmpty(azureClientCertificateFile) &&
-                            Chars.isNotEmpty(azureClientCertificatePassword) &&
                             isNotEmpty(azureDatabaseApplicationIdUri);
 
                     case AZURE_SERVICE_PRINCIPAL_TOKEN:
