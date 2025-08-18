@@ -39,13 +39,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Objects;
 
-import static com.dbn.common.database.AuthenticationInfo.Attributes.AZURE_TOKEN_CLIENT_CERTIFICATE_FILE;
-import static com.dbn.common.database.AuthenticationInfo.Attributes.AZURE_TOKEN_CLIENT_ID;
-import static com.dbn.common.database.AuthenticationInfo.Attributes.AZURE_TOKEN_DATABASE_ID_URI;
-import static com.dbn.common.database.AuthenticationInfo.Attributes.AZURE_TOKEN_TENANT_ID;
-import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_CONFIG_FILE;
-import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_PROFILE;
-import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_TYPE;
+import static com.dbn.common.database.AuthenticationInfo.Attributes.*;
 import static com.dbn.common.options.setting.Settings.getChars;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
@@ -74,6 +68,8 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         @NonNls String TOKEN_TYPE = "token-type";
         @NonNls String TOKEN_CONFIG_FILE = "token-config-file";
         @NonNls String TOKEN_PROFILE = "token-profile";
+        @NonNls String ADB_COMPARTMENT_OCID = "adb-compartment-ocid";
+        @NonNls String ADB_DATABASE_OCID = "adb-database-ocid";
         @NonNls String AZURE_TOKEN_CLIENT_ID = "azure-token-client-id";
         @NonNls String AZURE_TOKEN_TENANT_ID = "azure-token-tenant-id";
         @NonNls String AZURE_TOKEN_DATABASE_ID_URI = "azure-token-database-id-uri";
@@ -93,6 +89,8 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     // OCI token auth
     private String tokenConfigFile;
     private String tokenProfile;
+    private String autonomousDatabaseCompartmentOcid;
+    private String autonomousDatabaseOcid;
 
     // Azure token auth
     private String azureDatabaseApplicationIdUri;
@@ -205,8 +203,14 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
 
                 switch (tokenType) {
                     case OCI_INTERACTIVE:
+                        return  match(this.autonomousDatabaseCompartmentOcid, that.autonomousDatabaseCompartmentOcid) &&
+                                match(this.autonomousDatabaseOcid, that.autonomousDatabaseOcid);
+
+                    case OCI_API_KEY:
                         return match(this.tokenConfigFile, that.tokenConfigFile) &&
-                               match(this.tokenProfile, that.tokenProfile);
+                               match(this.tokenProfile, that.tokenProfile) &&
+                               match(this.autonomousDatabaseCompartmentOcid, that.autonomousDatabaseCompartmentOcid) &&
+                               match(this.autonomousDatabaseOcid, that.autonomousDatabaseOcid);
 
                     case AZURE_INTERACTIVE:
                         return match(this.azureDatabaseApplicationIdUri, that.azureDatabaseApplicationIdUri);
@@ -249,6 +253,8 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         tokenType = getEnum(element, TOKEN_TYPE, AuthenticationTokenType.class);
         tokenConfigFile = getString(element, TOKEN_CONFIG_FILE, tokenConfigFile);
         tokenProfile = getString(element, TOKEN_PROFILE, tokenProfile);
+        autonomousDatabaseCompartmentOcid = getString(element, ADB_COMPARTMENT_OCID, autonomousDatabaseCompartmentOcid);
+        autonomousDatabaseOcid = getString(element, ADB_DATABASE_OCID, autonomousDatabaseOcid);
 
         // azure auth attributes
         azureClientId = getString(element, AZURE_TOKEN_CLIENT_ID, azureClientId);
@@ -283,6 +289,8 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         setEnum(element, TOKEN_TYPE, tokenType);
         setString(element, TOKEN_CONFIG_FILE, tokenConfigFile);
         setString(element, TOKEN_PROFILE, tokenProfile);
+        setString(element, ADB_COMPARTMENT_OCID, autonomousDatabaseCompartmentOcid);
+        setString(element, ADB_DATABASE_OCID, autonomousDatabaseOcid);
 
         setString(element, AZURE_TOKEN_DATABASE_ID_URI, azureDatabaseApplicationIdUri);
         setString(element, AZURE_TOKEN_TENANT_ID, azureTenantId);
@@ -305,6 +313,8 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         this.tokenType = that.tokenType;
         this.tokenConfigFile = that.tokenConfigFile;
         this.tokenProfile = that.tokenProfile;
+        this.autonomousDatabaseOcid = that.autonomousDatabaseOcid;
+        this.autonomousDatabaseCompartmentOcid = that.autonomousDatabaseCompartmentOcid;
 
         this.azureDatabaseApplicationIdUri = that.azureDatabaseApplicationIdUri;
         this.azureClientId = that.azureClientId;
@@ -325,6 +335,8 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
                 Objects.deepEquals(password, that.password) &&
                 Objects.equals(tokenConfigFile, that.tokenConfigFile) &&
                 Objects.equals(tokenProfile, that.tokenProfile) &&
+                Objects.equals(autonomousDatabaseCompartmentOcid, that.autonomousDatabaseCompartmentOcid) &&
+                Objects.equals(autonomousDatabaseOcid, that.autonomousDatabaseOcid) &&
                 Objects.equals(azureClientId, that.azureClientId) &&
                 Objects.equals(azureTenantId, that.azureTenantId) &&
                 Objects.equals(azureClientCertificateFile, that.azureClientCertificateFile) &&
@@ -343,6 +355,8 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
                 tokenType,
                 tokenConfigFile,
                 tokenProfile,
+                autonomousDatabaseCompartmentOcid,
+                autonomousDatabaseOcid,
                 azureClientId,
                 azureTenantId,
                 azureClientCertificateFile,

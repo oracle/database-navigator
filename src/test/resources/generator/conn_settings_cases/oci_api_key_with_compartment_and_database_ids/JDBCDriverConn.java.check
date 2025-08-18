@@ -20,7 +20,7 @@ import java.util.Properties;
 
 /**
  * Oracle JDBC Connector<br>
- * This is generated code. The {@link JdbcConnectorAzureCert#connect()} method is implemented to connect to the
+ * This is generated code. The {@link JdbcConnectorOciApiKey#connect()} method is implemented to connect to the
  * Oracle Database using the appropriate JDBC Driver.
  *
  * <p><u>DRIVER LIBRARIES</u></p>
@@ -37,47 +37,25 @@ import java.util.Properties;
  * </ul>
  *
  * <p><u>AUTHENTICATION</u></p>
- * The connection uses "Azure Service Principal with Certificate Token" authentication (AZURE_SERVICE_PRINCIPAL_CERT)
- * Authentication type, Azure OAuth parameters are passed as properties to the driver
+ * The connection uses "OCI API Key Token" authentication (OCI_API_KEY)
+ * Authentication type, OCI Config File and OCI Profile are passed as properties to the driver
  * <ul>
- *   <li>Property "oracle.jdbc.tokenAuthentication=AZURE_SERVICE_PRINCIPAL_CERT": the type of token authentication</li>
- *   <li>Property "oracle.jdbc.clientId": the client (app) id of the OAuth client app</li>
- *   <li>Property "oracle.jdbc.tenantId": the tenant id of the OAuth client app</li>
- *   <li>Property "oracle.jdbc.azureDatabaseApplicationIdUri": the ID URI of the resource app</li>
-   *   <li>Property "oracle.jdbc.clientCertificate": the client authentication file</li>
-   *   <li>Property "oracle.jdbc.clientCertificatePassword": the (optional) password for the certificate file</li>
+ *   <li>Property "oracle.jdbc.tokenAuthentication=OCI_API_KEY": the type of token authentication</li>
+ *   <li>Property "oracle.jdbc.ociConfigFile": the path to the OCI configuration file</li>
+ *   <li>Property "oracle.jdbc.ociProfile": the profile from the OCI configuration file to be used</li>
+ *   <li>Property "oracle.jdbc.ociCompartment": the ocid of the compartment that contains the ADB instance</li>
+ *   <li>Property "oracle.jdbc.ociDatabase": the ocid of the ADB instance.</li>
  * </ul>
- * <p>To run this code, add the following to your pom.xml:</p>
- *    <p><dependencies>
- *          <!-- Service Provider which requests tokens from OCI -->
- *          <dependency>
- *              <groupId>com.oracle.database.jdbc</groupId>
- *              <artifactId>ojdbc-provider-oci</artifactId>
- *              <version>1.0.6</version>
- *          </dependency>
- *
- *          <!-- Service Provider which requests tokens from Azure -->
- *          <dependency>
- *              <groupId>com.oracle.database.jdbc</groupId>
- *              <artifactId>ojdbc-provider-azure</artifactId>
- *              <version>1.0.6</version>
- *          </dependency>
- *
- *          <!-- Providers will remain compatible with ojdbc 23.4 or newer -->
- *          <dependency>
- *              <groupId>com.oracle.database.jdbc</groupId>
- *              <artifactId>ojdbc11</artifactId>
- *              <version>23.8.0.25.04</version>
- *          </dependency>
- *     </dependencies>
- *     </p>
+ * <p>oracle.jdbc.ociCompartment and oracle.jdbc.ociDatabase are used to scope the oAuth token to the specific database
+ *    instance. It is a good security practice to limit the driver's access to only what it needs.  These fields
+ *    may or may not be optional depending on how the calling OCI user is configured in OCI Policies</p>
  */
-public class JdbcConnectorAzureCert  {
+public class JdbcConnectorOciApiKey  {
         private static final String PROP_TOKEN_AUTH = "oracle.jdbc.tokenAuthentication";
-        private static final String PROP_AZURE_TOKEN_CLIENT_ID = "oracle.jdbc.clientId";
-        private static final String PROP_AZURE_TOKEN_TENANT_ID = "oracle.jdbc.tenantId";
-        private static final String PROP_AZURE_TOKEN_DATABASE_ID_URI = "oracle.jdbc.azureDatabaseApplicationIdUri";
-           private static final String PROP_AZURE_TOKEN_CLIENT_SECRET_FILE = "oracle.jdbc.clientCertificate";
+        private static final String PROP_OCI_CONFIG_FILE = "oracle.jdbc.ociConfigFile";
+        private static final String PROP_OCI_PROFILE = "oracle.jdbc.ociProfile";
+        private static final String PROP_OCI_COMPARTMENT = "oracle.jdbc.ociCompartment";
+        private static final String PROP_OCI_DATABASE = "oracle.jdbc.ociDatabase";
 
     /**
      * Creates a jdbc connection to the ORACLE database
@@ -90,16 +68,21 @@ public class JdbcConnectorAzureCert  {
         // JDBC URL
         // ORACLE jdbc url: jdbc:oracle:thin:@<TNS_PROFILE>?TNS_ADMIN="<TNS_FOLDER>"
         String tnsFolder = "/path/tns";
-        String tnsProfile = "azure_db";
+        String tnsProfile = "oci_db";
         String jdbcUrl = "jdbc:oracle:thin:@" + tnsProfile + "?TNS_ADMIN=\"" + tnsFolder + "\"";
 
 
         // AUTHENTICATION
-        properties.put(PROP_TOKEN_AUTH, "AZURE_SERVICE_PRINCIPAL");
-        properties.put(PROP_AZURE_TOKEN_CLIENT_ID, "xxxx-xxxx-yyyyy-yyy");
-        properties.put(PROP_AZURE_TOKEN_TENANT_ID, "aaaaaa-bbbbbb-cdcdfdfff-aaa");
-        properties.put(PROP_AZURE_TOKEN_DATABASE_ID_URI, "https://mydev.onmicrosoft.com/qqqqqqqq-rrrrrr-sssss-tttttt");
-        properties.put(PROP_AZURE_TOKEN_CLIENT_SECRET_FILE, "/path/to/secret/azure_service_principal.pem");
+        // OCI API Key token authentication
+        String tokenConfigFile = "/path/oci/oci_config";
+        String tokenProfile =  null; // TODO please specify OCI Token Profile
+        String ociCompartment = "ocid1.compartment.oc1..yyyyyyyyyyy.zzzzzz.qqqqqqqqq";
+        String ociDatabase = "ocid1.autonomousdatabase.oc1.phx.aaaaaaaa.bbbbbbbb.dddd";
+        properties.put(PROP_TOKEN_AUTH, "OCI_API_KEY");
+        properties.put(PROP_OCI_CONFIG_FILE, tokenConfigFile);
+        properties.put(PROP_OCI_PROFILE, tokenProfile);
+        properties.put(PROP_OCI_COMPARTMENT, ociCompartment);
+        properties.put(PROP_OCI_DATABASE, ociDatabase);
 
         // PROPERTIES
     // custom properties (e.g. properties.put("charset", "UTF-8");)
@@ -115,7 +98,7 @@ public class JdbcConnectorAzureCert  {
 
     public static void main(String[] args) {
 
-        JdbcConnectorAzureCert connector = new JdbcConnectorAzureCert();
+        JdbcConnectorOciApiKey connector = new JdbcConnectorOciApiKey();
         try (Connection connection = connector.connect()) {
             connection.isValid(10);
             System.out.println("INFO: Successfully connected and validated");
