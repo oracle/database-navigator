@@ -90,7 +90,7 @@ public class DBDebugUtil {
         if (project == null) return null;
 
         DatabaseFileSystem databaseFileSystem = DatabaseFileSystem.getInstance();
-        return databaseFileSystem.findOrCreateDatabaseFile(project, method);
+        return databaseFileSystem.findOrCreateDatabaseFile(project, schemaObject);
     }
 
     public static DBObjectRef<DBSchemaObject> getMainDatabaseObject(DBObjectRef<DBMethod> method) {
