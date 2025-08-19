@@ -29,25 +29,24 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dbn.data.editor.ui.UserValueHolderImpl;
+import com.dbn.data.editor.ui.array.ArrayEditorPopupProviderForm;
 import com.dbn.execution.common.input.ExecutionVariable;
 import com.dbn.execution.common.input.ExecutionVariableHistory;
+import com.dbn.execution.common.input.StringCollectionPayloadMapper;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.JavaExecutionManager;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.event.DocumentListener;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,8 +94,6 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 
 		TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
 		inputField.setPreferredSize(new Dimension(240, -1));
-
-		inputField.createValuesListPopup(createValuesProvider(), parameter, true);
 		DBObjectRef<DBJavaClass> javaClass = parameter.getJavaClassRef();
 		parameterTypeLabel.setText(getCanonicalName(javaClass));
 		if (parameter.isClass()) {
@@ -109,6 +106,86 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 
 		inputTextField.setDisabledTextColor(inputTextField.getForeground());
 		fieldsPanel.setVisible(false);
+
+		if(parameter.getArrayDepth() == 1)
+			setupSingleDimArrayEditor(parameter, value, project, inputField, inputTextField);
+
+		inputField.createValuesListPopup(createValuesProvider(), parameter, true);
+
+	}
+
+	public void setupSingleDimArrayEditor(DBJavaField   parameter,
+										  String               rawValue,
+										  Project              project,
+										  TextFieldWithPopup<?> inputField,
+										  JTextField inputTextField) {
+		setupSingleDimArrayEditor(parameter.getName(), parameter.getObjectType(),
+				rawValue, project, inputField, inputTextField);
+	}
+
+	private void setupSingleDimArrayEditor(DBJavaParameter      parameter,
+										   String               rawValue,
+										   Project              project,
+										   TextFieldWithPopup<?> inputField,
+										   JTextField inputTextField){
+		setupSingleDimArrayEditor(parameter.getName(), parameter.getObjectType(),
+				rawValue, project, inputField, inputTextField);
+	}
+
+	private void setupSingleDimArrayEditor(String      parameterName,
+										   DBObjectType objectType,
+										   String               rawValue,
+										   Project              project,
+										   TextFieldWithPopup<?> inputField,
+										   JTextField inputTextField) {
+		final boolean[] syncing = {false};
+
+		inputTextField.setEnabled(false);
+
+		UserValueHolderImpl<List<String>> arrayUserValueHolder = new UserValueHolderImpl<>(
+				parameterName, objectType, null, project){
+			@Override
+			public void updateUserValue(List<String> newValue, boolean bulk) {
+				if (syncing[0]) return;          // avoid ping-pong
+				syncing[0] = true;
+				try {
+					super.updateUserValue(newValue, bulk);
+					String encoded = StringCollectionPayloadMapper.getInstance()
+							.encode(newValue);
+					inputField.getTextField().setText(encoded);
+				}
+				finally {
+					syncing[0] = false;
+				}
+			}
+		};
+
+		List<String> values = StringCollectionPayloadMapper.getInstance()
+				.decodeToList(rawValue);
+		arrayUserValueHolder.updateUserValue(values, false);
+		inputField.setUserValueHolder(arrayUserValueHolder);
+
+		inputField.createArrayEditorPopup(false);
+
+		inputTextField.getDocument().addDocumentListener(new com.intellij.ui.DocumentAdapter() {
+			@Override
+			protected void textChanged(@NotNull javax.swing.event.DocumentEvent e) {
+				if (syncing[0]) return;
+				List<String> newVal =
+							StringCollectionPayloadMapper.getInstance()
+									.decodeToList(inputTextField.getText());
+				arrayUserValueHolder.setUserValue(newVal); //don't use updateUserValue here
+				syncing[0] = true;
+					// keep popup in sync if open
+				try {
+					ArrayEditorPopupProviderForm popup =
+                            (ArrayEditorPopupProviderForm) inputField.getDefaultPopupProvider();
+					if (popup != null) popup.updateStringValues(newVal);
+				} finally {
+					syncing[0] = false;
+				}
+			}
+		});
 	}
 
 	private void initClassField() {

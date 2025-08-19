@@ -25,21 +25,9 @@ import com.dbn.object.common.DBObject;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.List;
 
 import static com.dbn.common.ui.list.ListProperty.EDITABLE;
@@ -193,7 +181,7 @@ public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButto
         return popupProviders.stream().filter(p -> p.isAutoPopup()).findFirst().orElse(null);
     }
 
-    private TextFieldPopupProvider getDefaultPopupProvider() {
+    public TextFieldPopupProvider getDefaultPopupProvider() {
         return popupProviders.get(0);
     }
 

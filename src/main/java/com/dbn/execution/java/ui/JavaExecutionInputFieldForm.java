@@ -41,13 +41,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.event.DocumentListener;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -88,6 +84,15 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 		} else {
 			initClassField();
 		}
+	}
+
+	private JavaExecutionInputParameterForm getParentParameterForm()
+	{
+		DBNForm parentForm = getParentComponent();
+		while (parentForm instanceof JavaExecutionInputFieldForm) {
+			parentForm = parentForm.getParentComponent();
+		}
+		return (JavaExecutionInputParameterForm) parentForm;
 	}
 
 	private int computeIndent() {
@@ -147,13 +152,14 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 		TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
 		inputField.setPreferredSize(new Dimension(240, -1));
 
-
-		inputField.createValuesListPopup(createValuesProvider(), field, true);
 		inputTextField = inputField.getTextField();
 		inputTextField.setText(value);
 		inputFieldPanel.add(inputField, BorderLayout.CENTER);
-
 		inputTextField.setDisabledTextColor(inputTextField.getForeground());
+
+		if(field.getArrayDepth() == 1)
+			getParentParameterForm().setupSingleDimArrayEditor(field, value, project, inputField, inputTextField);
+		inputField.createValuesListPopup(createValuesProvider(), field, true);
 	}
 
 	private void initClassField() {

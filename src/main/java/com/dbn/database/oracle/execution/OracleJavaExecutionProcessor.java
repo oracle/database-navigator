@@ -24,6 +24,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.common.execution.JavaExecutionProcessorImpl;
 import com.dbn.database.oracle.OracleTypes;
+import com.dbn.execution.common.input.StringCollectionPayloadMapper;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.java.wrapper.WrapperModel;
@@ -34,39 +35,18 @@ import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
+import com.dbn.object.lookup.DBObjectRef;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.sql.Array;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 import java.util.List;
 import java.util.Objects;
 
-import static com.dbn.common.data.Data.asBigDecimal;
-import static com.dbn.common.data.Data.asBigInteger;
-import static com.dbn.common.data.Data.asBoolean;
-import static com.dbn.common.data.Data.asBooleanPrimitive;
-import static com.dbn.common.data.Data.asByte;
-import static com.dbn.common.data.Data.asBytePrimitive;
-import static com.dbn.common.data.Data.asCharacter;
-import static com.dbn.common.data.Data.asCharacterPrimitive;
-import static com.dbn.common.data.Data.asDouble;
-import static com.dbn.common.data.Data.asDoublePrimitive;
-import static com.dbn.common.data.Data.asFloat;
-import static com.dbn.common.data.Data.asFloatPrimitive;
-import static com.dbn.common.data.Data.asInteger;
-import static com.dbn.common.data.Data.asIntegerPrimitive;
-import static com.dbn.common.data.Data.asLong;
-import static com.dbn.common.data.Data.asLongPrimitive;
-import static com.dbn.common.data.Data.asShort;
-import static com.dbn.common.data.Data.asShortPrimitive;
+import static com.dbn.common.data.Data.*;
 import static com.dbn.common.util.Lists.sortedCopy;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
@@ -140,7 +120,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 			String parameterName = parameter.getName();
 			if (parameter.isArray()) {
 				String objectName = methodWrapper.getParameters().get(parameterIndex - 1).getSqlTypeName();
-				Array arrObj = getArrayObject(executionInput, parameter.getJavaClass().getFields(), wrapperModel, objectName, parameterName);
+				Array arrObj = getArrayObject(executionInput, parameter.getJavaClass(), wrapperModel, objectName, parameterName);
 				statement.setArray(parameterIndex, arrObj);
 
 			} else if (!parameter.isScalar()) { // TODO support pseudo-primitives com.dbn.object.type.DBJavaValueType
@@ -225,20 +205,18 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	}
 
 	@SneakyThrows
-	private Array getArrayObject(JavaExecutionInput executionInput, List<DBJavaField> fields, WrapperModel wrapperModel, String objectName, String fieldPath){
+	private Array getArrayObject(JavaExecutionInput executionInput,DBJavaClass dbJavaClass, WrapperModel wrapperModel, String objectName, String fieldPath){
 		ConnectionHandler connection = getMethod().getConnection();
 		SessionId targetSessionId = executionInput.getTargetSessionId();
 		SchemaId targetSchemaId = executionInput.getTargetSchemaId();
 		DBNConnection conn = connection.getConnection(targetSessionId, targetSchemaId);
 
-		fields = sortedCopy(fields, POSITION_COMPARATOR);
-		Object[] customTypeAttributes = new Object[fields.size()];
-		int i = 0;
-		for (DBJavaField field : fields) {
-			String value = executionInput.getInputValue(fieldPath);
-			customTypeAttributes[i] = parseValue(executionInput, wrapperModel, field, fieldPath, value);
-			i++;
-		}
+		String fieldValue = executionInput.getInputValue(fieldPath);
+		List<String> values = StringCollectionPayloadMapper.getInstance().decodeToList(fieldValue);
+		Object[] customTypeAttributes =
+				values.stream()
+						.map(v -> parseValue(dbJavaClass.ref(), v))
+						.toArray(Object[]::new);
 
 		ClassLoader cl =  conn.getInner().getClass().getClassLoader();
 		Class<?> structDescriptorClass = Class.forName("oracle.sql.ArrayDescriptor",true, cl);
@@ -246,49 +224,80 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		Object structDescriptor =  createDescriptorMethod.invoke(null, objectName, conn.getInner());
 
 		Class<?> structClass = Class.forName("oracle.sql.ARRAY", true, cl);
-		Constructor<?> structCtr = structClass.getConstructor(structDescriptorClass, Connection.class, Object[].class);
+		Constructor<?> structCtr = structClass.getConstructor(structDescriptorClass, Connection.class, Object.class);
 
 		return (Array) structCtr.newInstance(structDescriptor, conn.getInner(), customTypeAttributes);
 	}
 
 	@Nullable
-	private Object parseValue(JavaExecutionInput executionInput, WrapperModel wrapperModel, DBJavaField field, String fieldPath, String fieldValue) {
+	private Object parseValue(JavaExecutionInput executionInput,
+							  WrapperModel       wrapperModel,
+							  DBJavaField        field,
+							  String             fieldPath,
+							  String             fieldValue) {
+
 		if (field == null) return null;
 
-		@NonNls
-		String className = getCanonicalName(field.getJavaClassRef());
+		// 1) See if field is an array
+		if(field.isArray()) {
+			String objectName = getTypeName(field, wrapperModel);
+			return getArrayObject(executionInput, field.getJavaClass(), wrapperModel, objectName, fieldPath);
+		}
+
+		// 2) Try the primitive / wrapper / well-known types first
+		Object simple = parseValue(field.getJavaClassRef(), fieldValue);
+		if (simple != null) {
+			return simple;
+		}
+
+		// 3) Complex struct handling (only in this overload)
+		if (field.isClass()) {
+			String objectName = getTypeName(field, wrapperModel);
+			return getStructObject(executionInput,
+					field.getJavaClass().getFields(),
+					wrapperModel,
+					objectName,
+					fieldPath);
+		}
+
+		// 3) Fallback
+		return fieldValue;
+	}
+
+	@Nullable
+	private Object parseValue(DBObjectRef javaClass, String fieldValue) {
+		if (javaClass == null || fieldValue == null) {
+			return null;
+		}
+		String className = getCanonicalName(javaClass);;
 		switch (className) {
 			// primitives
 			case "boolean": return asBooleanPrimitive(fieldValue);
-			case "byte": return asBytePrimitive(fieldValue);
-			case "char": return asCharacterPrimitive(fieldValue);
-			case "double": return asDoublePrimitive(fieldValue);
-			case "float": return asFloatPrimitive(fieldValue);
-			case "int": return asIntegerPrimitive(fieldValue);
-			case "long": return asLongPrimitive(fieldValue);
-			case "short": return asShortPrimitive(fieldValue);
+			case "byte":    return asBytePrimitive(fieldValue);
+			case "char":    return asCharacterPrimitive(fieldValue);
+			case "double":  return asDoublePrimitive(fieldValue);
+			case "float":   return asFloatPrimitive(fieldValue);
+			case "int":     return asIntegerPrimitive(fieldValue);
+			case "long":    return asLongPrimitive(fieldValue);
+			case "short":   return asShortPrimitive(fieldValue);
 
 			// pseudo-primitives (prevent expensive class-details load from SYS schema)
-			case "java.lang.Boolean": return asBoolean(fieldValue);
-			case "java.lang.Byte": return asByte(fieldValue);
-			case "java.lang.Character": asCharacter(fieldValue);
-			case "java.lang.Double": return asDouble(fieldValue);
-			case "java.lang.Float": return asFloat(fieldValue);
-			case "java.lang.Integer": return asInteger(fieldValue);
-			case "java.lang.Long": return asLong(fieldValue);
-			case "java.lang.Short": return asShort(fieldValue);
-			case "java.lang.String": return fieldValue;
-			case "java.math.BigDecimal": return asBigDecimal(fieldValue);
-			case "java.math.BigInteger": return asBigInteger(fieldValue);
+			case "java.lang.Boolean":   return asBoolean(fieldValue);
+			case "java.lang.Byte":      return asByte(fieldValue);
+			case "java.lang.Character": return asCharacter(fieldValue);
+			case "java.lang.Double":    return asDouble(fieldValue);
+			case "java.lang.Float":     return asFloat(fieldValue);
+			case "java.lang.Integer":   return asInteger(fieldValue);
+			case "java.lang.Long":      return asLong(fieldValue);
+			case "java.lang.Short":     return asShort(fieldValue);
+			case "java.lang.String":    return fieldValue;
+			case "java.math.BigDecimal":return asBigDecimal(fieldValue);
+			case "java.math.BigInteger":return asBigInteger(fieldValue);
 			//...
-			default:
-				if (field.isClass()) {
-					String objectName = getTypeName(field, wrapperModel);
-					return getStructObject(executionInput, field.getJavaClass().getFields(), wrapperModel, objectName, fieldPath);
-				}
-				return fieldValue;
+			default: return null;
 		}
 	}
+
 
 	private String getTypeName(DBJavaField field, WrapperModel wrapperModel) {
 		DBJavaClass javaClass = field.getJavaClass();
