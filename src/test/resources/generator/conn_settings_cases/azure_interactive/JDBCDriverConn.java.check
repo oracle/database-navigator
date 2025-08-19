@@ -53,14 +53,14 @@ public class JdbcConnectorAzureInteractive  {
 
         // JDBC URL
         // ORACLE jdbc url: jdbc:oracle:thin:@<TNS_PROFILE>?TNS_ADMIN="<TNS_FOLDER>"
-        String tnsFolder = "/Users/cbateman/git/ojdbc-token-demos-with-secret";
+        String tnsFolder = "/path/tns";
         String tnsProfile = "azure_db";
         String jdbcUrl = "jdbc:oracle:thin:@" + tnsProfile + "?TNS_ADMIN=\"" + tnsFolder + "\"";
 
 
         // AUTHENTICATION
         properties.put(PROP_TOKEN_AUTH, "AZURE_INTERACTIVE");
-        properties.put(PROP_AZURE_TOKEN_DATABASE_ID_URI, "https://oracledevelopment.onmicrosoft.com/2a0698da-5691-4e06-83bf-fc74c700c04e");
+        properties.put(PROP_AZURE_TOKEN_DATABASE_ID_URI, "https://mydev.onmicrosoft.com/aaaaaaaa-bbbbbbb-ccccccc");
 
         // PROPERTIES
     // custom properties (e.g. properties.put("charset", "UTF-8");)
