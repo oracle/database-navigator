@@ -17,6 +17,7 @@
 package com.dbn.database.oracle;
 
 import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.exception.Exceptions;
 import com.dbn.common.thread.Background;
 import com.dbn.common.util.Chars;
 import com.dbn.common.util.Sockets;
@@ -24,7 +25,6 @@ import com.dbn.common.util.Strings;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionExceptionInfo;
-import com.dbn.connection.ConnectionExceptionVisitor;
 import com.dbn.connection.ConnectionType;
 import com.dbn.connection.ConnectorProperties;
 import com.dbn.connection.SessionId;
@@ -339,8 +339,8 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
 
     @Override
     public boolean handleConnectionException(final ConnectionExceptionInfo info) {
-        ConnectionExceptionVisitor visitor = new ConnectionExceptionVisitor();
-        info.accept(visitor);
+        OracleConnectionExceptionVisitor visitor = new OracleConnectionExceptionVisitor();
+        Exceptions.accept(visitor, info.getCaughtException());
         // if a bind exception was thrown or the error was due to n provider failure code
         if (visitor.hasBindException() ||
                 visitor.containsOraErrorCodes(ProviderErrorHandlingConstants.ORA_FAILURECODES_ON_CONNECTION)) {

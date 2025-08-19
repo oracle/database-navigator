@@ -1,7 +1,6 @@
 package com.dbn.connection;
 
 import com.dbn.common.database.AuthenticationInfo;
-import com.dbn.common.exception.Exceptions;
 import lombok.Getter;
 
 /**
@@ -27,13 +26,4 @@ public class ConnectionExceptionInfo {
         this.classLoader = classLoader;
         this.authenticationInfo = authenticationInfo;
     }
-
-    /**
-     * Accept a cause chain search visitor to determine specifics of the exception.
-     * @param visitor
-     */
-    public void accept(ConnectionExceptionVisitor visitor) {
-        Exceptions.accept(visitor, caughtException);
-    }
-
 }

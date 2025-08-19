@@ -1,4 +1,4 @@
-package com.dbn.connection;
+package com.dbn.database.oracle;
 
 import com.dbn.common.lookup.Visitor;
 import com.dbn.diagnostics.Diagnostics;
@@ -13,7 +13,7 @@ import java.util.regex.*;
  * that allows decision making about extra processing of the error such
  * as bug workarounds.
  */
-public class ConnectionExceptionVisitor implements Visitor<Throwable> {
+public class OracleConnectionExceptionVisitor implements Visitor<Throwable> {
     private boolean hasBindException;
     private Set<Integer> oraErrorCodes;
     private LinkedHashMap<Integer, String> oraErrorCodeMessages;
