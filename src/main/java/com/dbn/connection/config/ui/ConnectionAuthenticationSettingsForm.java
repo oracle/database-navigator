@@ -54,6 +54,8 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
     public String getTokenProfile() {
         return fieldsForm.getTokenProfile();
     }
+    public String getAutonomousDatabaseCompartmentOcid() { return fieldsForm.getAutonomousDatabaseCompartmentOcid(); }
+    public String getAutonomousDatabaseOcid() { return fieldsForm.getAutonomousDatabaseOcid(); }
 
     public String getAzureTokenClientId() {return fieldsForm.getAzureTokenClientId();}
     public String getAzureTokenTenantId() {return fieldsForm.getAzureTokenTenantId();}
