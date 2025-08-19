@@ -37,6 +37,7 @@ import lombok.experimental.UtilityClass;
 import java.sql.SQLException;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.type.DBObjectType.TYPE;
 
@@ -60,8 +61,10 @@ public class WrapperStatementExecutor {
         DBJavaMethod javaMethod = model.getSourceObject();
         ConnectionId connectionId = javaMethod.getConnectionId();
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                "Creating execution wrappers",
-                "Creating java execution wrappers for method \"" + javaMethod.getPresentableText() + "\"",
+                txt("prc.java.title.CreatingExecutionWrappers"),
+                txt("prc.java.text.CreatingExecutionWrappers",
+                        javaMethod.getTypeName(),
+                        javaMethod.getPresentableName()),
                 project,
                 connectionId, c -> {
                     c.executeStatement(creationStatement);
@@ -78,7 +81,7 @@ public class WrapperStatementExecutor {
         }
     }
 
-    private  static void createClassExecutionWrappers(WrapperModel model) throws SQLException {
+    private static void createClassExecutionWrappers(WrapperModel model) throws SQLException {
         WrapperModelInput input = model.getInput();
 
         List<DBJavaMethod> methods = input.getJavaMethods();
@@ -92,8 +95,10 @@ public class WrapperStatementExecutor {
 
         ConnectionId connectionId = javaClass.getConnectionId();
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                "Creating execution wrappers",
-                "Creating java execution wrappers for java class \"" + javaClass.getCanonicalName() + "\"",
+                txt("prc.java.title.CreatingExecutionWrappers"),
+                txt("prc.java.text.CreatingExecutionWrappers",
+                        javaClass.getTypeName(),
+                        javaClass.getPresentableName()),
                 project,
                 connectionId, c -> {
                     c.executeStatement(creationStatement);
@@ -113,16 +118,18 @@ public class WrapperStatementExecutor {
         if (model == null) return;
 
         // temporary wrappers - source object is expected to be a method
-        DBJavaMethod method = model.getSourceObject();
+        DBJavaMethod javaMethod = model.getSourceObject();
 
-        Project project = method.getProject();
+        Project project = javaMethod.getProject();
         WrapperStatementBuilder statementBuilder = new WrapperStatementBuilder(project);
         String removalStatement = statementBuilder.buildWrapperRemovalStatement(model);
 
-        ConnectionId connectionId = method.getConnectionId();
+        ConnectionId connectionId = javaMethod.getConnectionId();
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                "Removing execution wrappers",
-                "Removing java execution wrappers for " + method.getPresentableText(),
+                txt("prc.java.title.RemovingExecutionWrappers"),
+                txt("prc.java.text.RemovingExecutionWrappers",
+                        javaMethod.getTypeName(),
+                        javaMethod.getPresentableName()),
                 project,
                 connectionId, c -> c.executeStatement(removalStatement));
     }

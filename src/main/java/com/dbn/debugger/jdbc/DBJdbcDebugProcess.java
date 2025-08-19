@@ -37,6 +37,7 @@ import com.dbn.debugger.DBDebugConsoleLogger;
 import com.dbn.debugger.DBDebugOperation;
 import com.dbn.debugger.DBDebugTabLayouter;
 import com.dbn.debugger.DBDebugUtil;
+import com.dbn.debugger.DBDebuggerType;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.debugger.common.breakpoint.DBBreakpointHandler;
 import com.dbn.debugger.common.breakpoint.DBBreakpointUtil;
@@ -285,7 +286,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
      */
     private void registerBreakpoints(Runnable callback) {
         console.system(txt("log.debugger.info.RegisteringBreakpoints"));
-        List<XLineBreakpoint<XBreakpointProperties>> breakpoints = DBBreakpointUtil.getDatabaseBreakpoints(getConnection());
+        List<XLineBreakpoint<XBreakpointProperties>> breakpoints = getDatabaseBreakpoints();
 
         getBreakpointHandler().registerBreakpoints(breakpoints, null);
         registerDefaultBreakpoint();
@@ -299,7 +300,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
      * breakpoints need to be unregistered before closing the database session, otherwise they remain resident.
      */
     private void unregisterBreakpoints() {
-        Collection<XLineBreakpoint<XBreakpointProperties>> breakpoints = DBBreakpointUtil.getDatabaseBreakpoints(getConnection());
+        Collection<XLineBreakpoint<XBreakpointProperties>> breakpoints = getDatabaseBreakpoints();
         Set<Integer> unregisteredBreakpointIds = new HashSet<>();
         DBBreakpointHandler<?> breakpointHandler = getBreakpointHandler();
         for (XLineBreakpoint<XBreakpointProperties> breakpoint : breakpoints) {
@@ -314,6 +315,10 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
         }
         breakpointHandler.unregisterDefaultBreakpoint();
+    }
+
+    private List<XLineBreakpoint<XBreakpointProperties>> getDatabaseBreakpoints() {
+        return DBBreakpointUtil.getDatabaseBreakpoints(getConnection(), DBDebuggerType.JDBC);
     }
 
     @Override

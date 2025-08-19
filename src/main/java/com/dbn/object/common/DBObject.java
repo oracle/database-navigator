@@ -66,6 +66,8 @@ public interface DBObject extends
     @Override
     String getName();
 
+    String getPresentableName();
+
     @NotNull
     String getName(boolean quoted);
 
