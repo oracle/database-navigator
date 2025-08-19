@@ -47,7 +47,7 @@ public class WrapperContext {
     public WrapperContext(WrapperModelInput input) {
         this.input = input;
         this.namingProvider = input.isUseFriendlyNames() ?
-                new FriendlyWrapperNamingProvider():
+                new FriendlyWrapperNamingProvider(input.isCompactNaming()):
                 new TransientWrapperNamingProvider();
     }
 

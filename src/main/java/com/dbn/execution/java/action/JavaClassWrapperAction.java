@@ -21,10 +21,7 @@ import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.SelectionListDialog;
 import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.wrapper.JavaExecutionWrapperManager;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
@@ -41,7 +38,6 @@ import java.util.List;
 
 import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.common.util.Naming.capitalizeWords;
-import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
 public class JavaClassWrapperAction extends BasicAction {
@@ -103,36 +99,8 @@ public class JavaClassWrapperAction extends BasicAction {
 			if (methods == null || methods.isEmpty()) return;
 
 			Project project = javaClass.getProject();
-			Progress.prompt(project, javaClass, true,
-					"Creating execution wrappers",
-					"Creating execution wrappers for java class \"" + javaClass.getCanonicalName() + "\"",
-					progress -> {
-						createExecutionWrappers(javaClass, methods);
-					});
+            JavaExecutionWrapperManager wrapperManager = JavaExecutionWrapperManager.getInstance(project);
+            wrapperManager.createExecutionWrappers(javaClass, methods, true, false);
 		};
-	}
-
-	private static void createExecutionWrappers(DBJavaClass javaClass, List<DBJavaMethod> selectedMethods) {
-		Project project = javaClass.getProject();
-		ConnectionHandler connection = javaClass.getConnection();
-		if (connection.isValid()) {
-			try {
-				for(DBJavaMethod javaMethod : selectedMethods){
-					JavaExecutionInput javaExecutionInput = new JavaExecutionInput(project, DBObjectRef.of(javaMethod));
-					javaExecutionInput.initDatabaseElements();
-				}
-				JavaExecutionWrapperManager wrapperManager = JavaExecutionWrapperManager.getInstance(project);
-				wrapperManager.createExecutionWrappers(javaClass, selectedMethods, true, false);
-			} catch (Exception ex) {
-				Messages.showErrorDialog(project,"Error creating execution wrappers for java methods \nCause: " + ex.getMessage());
-				conditionallyLog(ex);
-			}
-		} else {
-			String message =
-					"Can not create execution wrappers for java methods.\n" +
-							"No connectivity to '" + connection.getName() + "'. " +
-							"Please check your connection settings and try again.";
-			Messages.showErrorDialog(project, message);
-		}
 	}
 }

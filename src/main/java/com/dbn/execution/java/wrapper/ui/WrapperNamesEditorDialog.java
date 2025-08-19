@@ -23,47 +23,34 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
-import java.util.HashMap;
-import java.util.Map;
 
 @Getter
-public class WrapperCustomNamingProviderDialog extends DBNDialog<WrapperCustomNamingProviderForm> {
+public class WrapperNamesEditorDialog extends DBNDialog<WrapperNamesEditorForm> {
     private final WrapperModel model;
 
-    private String javaWrapperName;
-    private String sqlWrapperName;
-    private Map<String, String> sqlTypeNames;
-    private Map<String, String> packageMethodNames;
-
-    private final boolean classLevel;
-    private final int maxIdentifierLength;
-    public WrapperCustomNamingProviderDialog(Project project, WrapperModel model, boolean classLevel, int maxIdentifierLength) {
-        super(project, "Wrapper Custom Name", false);
+    public WrapperNamesEditorDialog(Project project, WrapperModel model) {
+        super(project, "Wrapper Names Editor", false);
         this.setModal(true);
         this.setAutoSize(true);
         this.model = model;
-        this.classLevel = classLevel;
-        this.maxIdentifierLength = maxIdentifierLength;
         init();
     }
 
     @NotNull
     @Override
     protected Action[] createActions() {
-        return new Action[]{getOKAction()};
+        return createActions(
+                getOKAction(),
+                getCancelAction());
     }
 
     @Override
-    protected @NotNull WrapperCustomNamingProviderForm createForm() {
-        return new WrapperCustomNamingProviderForm(this, model, classLevel, maxIdentifierLength);
+    protected @NotNull WrapperNamesEditorForm createForm() {
+        return new WrapperNamesEditorForm(this, model);
     }
 
     @Override
     protected void doOKAction() {
-        javaWrapperName = getForm().getJavaWrapperName();
-        sqlWrapperName = getForm().getSqlWrapperName();
-        sqlTypeNames = new HashMap<>(getForm().getSqlTypeNames());
-        packageMethodNames = new HashMap<>(getForm().getPackageMethodNames());
         super.doOKAction();
     }
 }

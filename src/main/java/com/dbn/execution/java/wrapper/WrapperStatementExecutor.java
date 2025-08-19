@@ -18,17 +18,11 @@ package com.dbn.execution.java.wrapper;
 
 import com.dbn.common.Priority;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.execution.java.wrapper.model.MethodWrapper;
-import com.dbn.execution.java.wrapper.naming.CustomNamingProvider;
-import com.dbn.execution.java.wrapper.ui.WrapperCustomNamingProviderDialog;
-import com.dbn.execution.java.wrapper.ui.WrapperResultDialog;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
@@ -38,14 +32,12 @@ import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
 import lombok.experimental.UtilityClass;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Set;
 
-import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.type.DBObjectType.TYPE;
 
@@ -60,30 +52,33 @@ public class WrapperStatementExecutor {
     }
 
     private static void createMethodExecutionWrappers(WrapperModel model) throws SQLException {
+        WrapperModelInput input = model.getInput();
+
         Project project = model.getProject();
-        int maxIdentifierLength = model.getConnection().getConnectionInfo().getMaxIdentifierLength();
+        WrapperStatementBuilder statementBuilder = new WrapperStatementBuilder(project);
+        String creationStatement = statementBuilder.buildWrapperCreationStatement(model);
 
-        if (isWrapperNameWithinLimits(model, false, maxIdentifierLength)) {
-            createWrapper(model, false);
-            return;
+        DBJavaMethod javaMethod = model.getSourceObject();
+        ConnectionId connectionId = javaMethod.getConnectionId();
+        DatabaseInterfaceInvoker.execute(Priority.HIGH,
+                txt("prc.java.title.CreatingExecutionWrappers"),
+                txt("prc.java.text.CreatingExecutionWrappers",
+                        javaMethod.getTypeName(),
+                        javaMethod.getPresentableName()),
+                project,
+                connectionId, c -> {
+                    c.executeStatement(creationStatement);
+                    if (input.isCompileInDebugMode()) {
+                        compileObjectInDebugMode(c, model);
+                    }
+                });
+
+        if (input.isUseFriendlyNames()) {
+            notifyObjectChanges(javaMethod, DBObjectType.JAVA_CLASS, CREATE);
+            notifyObjectChanges(javaMethod, DBObjectType.FUNCTION, CREATE);
+            notifyObjectChanges(javaMethod, DBObjectType.PROCEDURE, CREATE);
+            notifyObjectChanges(javaMethod, TYPE, CREATE);
         }
-
-        Dialogs.show(() -> new WrapperCustomNamingProviderDialog(project, model, false, maxIdentifierLength), (dialog, exitCode) -> {
-            if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
-
-            CustomNamingProvider namingProvider = new CustomNamingProvider();
-            namingProvider.setJavaWrapperName(dialog.getJavaWrapperName());
-            namingProvider.setSqlWrapperName(dialog.getSqlWrapperName());
-            namingProvider.setSqlTypesMap(dialog.getSqlTypeNames());
-
-            WrapperModel newModel = WrapperModelBuilder.getInstance().buildModel(model.getInput(), namingProvider);
-            try {
-                createWrapper(newModel, false);
-            } catch (SQLException e) {
-                Messages.showErrorDialog(project, "Error creating execution wrappers for java methods \nCause: " + e.getMessage());
-                conditionallyLog(e);
-            }
-        });
     }
 
     private static void createClassExecutionWrappers(WrapperModel model) throws SQLException {
@@ -95,91 +90,46 @@ public class WrapperStatementExecutor {
         DBJavaClass javaClass = model.getSourceObject();
 
         Project project = javaClass.getProject();
-
-        int maxIdentifierLength = model.getConnection().getConnectionInfo().getMaxIdentifierLength();
-
-        if (isWrapperNameWithinLimits(model, true, maxIdentifierLength)) {
-            createWrapper(model, true);
-            return;
-        }
-
-        Dialogs.show(() -> new WrapperCustomNamingProviderDialog(project, model, true, maxIdentifierLength), (dialog, exitCode) -> {
-            if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
-
-            CustomNamingProvider namingProvider = new CustomNamingProvider();
-            namingProvider.setJavaWrapperName(dialog.getJavaWrapperName());
-            namingProvider.setSqlWrapperName(dialog.getSqlWrapperName());
-            namingProvider.setSqlTypesMap(dialog.getSqlTypeNames());
-            namingProvider.setSqlPackageMethodMap(dialog.getPackageMethodNames());
-
-            WrapperModel newModel = WrapperModelBuilder.getInstance().buildModel(model.getInput(), namingProvider);
-            try {
-                createWrapper(newModel, true);
-            } catch (SQLException e) {
-                Messages.showErrorDialog(project, "Error creating execution wrappers for java class \nCause: " + e.getMessage());
-                conditionallyLog(e);
-            }
-        });
-    }
-
-    private static void createWrapper(WrapperModel model, boolean classLevel) throws SQLException {
-        WrapperModelInput input = model.getInput();
-
-        Project project = model.getProject();
         WrapperStatementBuilder statementBuilder = new WrapperStatementBuilder(project);
         String creationStatement = statementBuilder.buildWrapperCreationStatement(model);
 
-        ConnectionId connectionId = model.getSourceObject().getConnectionId();
-
-        String presentableText;
-        if (classLevel) {
-            presentableText = ((DBJavaClass) model.getSourceObject()).getCanonicalName();
-        } else {
-            presentableText = model.getSourceObject().getPresentableText();
-        }
-
+        ConnectionId connectionId = javaClass.getConnectionId();
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                "Creating execution wrappers",
-                "Creating java execution wrappers for method \"" + presentableText + "\"",
+                txt("prc.java.title.CreatingExecutionWrappers"),
+                txt("prc.java.text.CreatingExecutionWrappers",
+                        javaClass.getTypeName(),
+                        javaClass.getPresentableName()),
                 project,
                 connectionId, c -> {
                     c.executeStatement(creationStatement);
                     if (input.isCompileInDebugMode()) {
                         compileObjectInDebugMode(c, model);
                     }
-
-                    if (input.isUseFriendlyNames()) {
-                        if (classLevel) {
-                            DBJavaClass javaClass = model.getSourceObject();
-                            notifyObjectChanges(javaClass, DBObjectType.JAVA_CLASS, CREATE);
-                            notifyObjectChanges(javaClass, TYPE, CREATE);
-                            notifyObjectChanges(javaClass, DBObjectType.PACKAGE, CREATE);
-                        } else {
-                            DBJavaMethod javaMethod = model.getSourceObject();
-                            notifyObjectChanges(javaMethod, DBObjectType.JAVA_CLASS, CREATE);
-                            notifyObjectChanges(javaMethod, TYPE, CREATE);
-                            notifyObjectChanges(javaMethod, DBObjectType.FUNCTION, CREATE);
-                            notifyObjectChanges(javaMethod, DBObjectType.PROCEDURE, CREATE);
-                        }
-                        showWrapperResult(model);
-                    }
                 });
+
+        if (input.isUseFriendlyNames()) {
+            notifyObjectChanges(javaClass, DBObjectType.JAVA_CLASS, CREATE);
+            notifyObjectChanges(javaClass, DBObjectType.PACKAGE, CREATE);
+            notifyObjectChanges(javaClass, TYPE, CREATE);
+        }
     }
 
     public static void discardExecutionWrappers(WrapperModel model) throws SQLException {
         if (model == null) return;
 
         // temporary wrappers - source object is expected to be a method
-        DBJavaMethod method = model.getSourceObject();
+        DBJavaMethod javaMethod = model.getSourceObject();
 
-        Project project = method.getProject();
+        Project project = javaMethod.getProject();
         WrapperStatementBuilder statementBuilder = new WrapperStatementBuilder(project);
         String removalStatement = statementBuilder.buildWrapperRemovalStatement(model);
 
-        ConnectionId connectionId = method.getConnectionId();
+        ConnectionId connectionId = javaMethod.getConnectionId();
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                "Removing execution wrappers",
-                "Removing java execution wrappers for " + method.getPresentableText(),
+                txt("prc.java.title.RemovingExecutionWrappers"),
+                txt("prc.java.text.RemovingExecutionWrappers",
+                        javaMethod.getTypeName(),
+                        javaMethod.getPresentableName()),
                 project,
                 connectionId, c -> c.executeStatement(removalStatement));
     }
@@ -208,27 +158,5 @@ public class WrapperStatementExecutor {
 
         // compile java wrapper
         dataDefinitionInterface.compileJavaClass(schemaName, model.getJavaWrapperName(), connection);
-    }
-
-    public void showWrapperResult(WrapperModel model) {
-        Dialogs.show(() -> new WrapperResultDialog(model.getProject(), model));
-    }
-
-    private static boolean isWrapperNameWithinLimits(WrapperModel model, boolean isClassLevel, int maxIdentifierLength) {
-        Set<String> sqlTypeNames = model.getSqlTypeNames();
-        for (String sqlType : sqlTypeNames) {
-            if (sqlType.length() > maxIdentifierLength) {
-                return false;
-            }
-        }
-        if (model.getSqlWrapperName().length() > maxIdentifierLength) return false;
-        if (model.getJavaWrapperName().length() > maxIdentifierLength) return false;
-        if (isClassLevel) {
-            for (MethodWrapper methodWrapper : model.getMethods()) {
-                if (methodWrapper.getSqlMethodName().length() > maxIdentifierLength) return false;
-            }
-        }
-
-        return true;
     }
 }

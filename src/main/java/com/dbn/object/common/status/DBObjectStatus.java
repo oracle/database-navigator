@@ -26,7 +26,8 @@ public enum DBObjectStatus implements Property.ShortBase {
     EDITABLE(Propagation.NONE, false),
     VALID(Propagation.ALL, true),
     DEBUG(Propagation.ANY, false),
-    COMPILING(Propagation.ANY, false);
+    COMPILING(Propagation.ANY, false),
+    INITIALIZING(Propagation.ANY, false);
 
     public static final DBObjectStatus[] VALUES = values();
 

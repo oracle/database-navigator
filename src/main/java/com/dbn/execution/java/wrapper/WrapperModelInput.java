@@ -16,6 +16,8 @@
 
 package com.dbn.execution.java.wrapper;
 
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.info.ConnectionInfo;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.common.DBObject;
@@ -36,6 +38,7 @@ public class WrapperModelInput {
     private final List<DBObjectRef<DBJavaMethod>> javaMethods;
     private final boolean useFriendlyNames;
     private final boolean compileInDebugMode;
+    private final int maxIdentifierLength;
 
     public WrapperModelInput(@NotNull DBJavaMethod targetMethod, boolean useFriendlyNames, boolean compileInDebugMode) {
         this.sourceObject = DBObjectRef.of(targetMethod);
@@ -44,6 +47,7 @@ public class WrapperModelInput {
         this.javaMethods = DBObjectRef.from(List.of(targetMethod));
         this.useFriendlyNames = useFriendlyNames;
         this.compileInDebugMode = compileInDebugMode;
+        this.maxIdentifierLength = initMaxIdentifierLength();
     }
 
     public WrapperModelInput(@Nullable DBJavaClass javaClass, List<DBJavaMethod> methods, boolean useFriendlyNames, boolean compileInDebugMode) {
@@ -53,6 +57,16 @@ public class WrapperModelInput {
         this.javaMethods = DBObjectRef.from(methods);
         this.useFriendlyNames = useFriendlyNames;
         this.compileInDebugMode = compileInDebugMode;
+        this.maxIdentifierLength = initMaxIdentifierLength();
+    }
+
+    private int initMaxIdentifierLength() {
+        ConnectionInfo connectionInfo = getConnection().getConnectionInfo();
+        return connectionInfo == null ? 30 : connectionInfo.getMaxIdentifierLength();
+    }
+
+    private ConnectionHandler getConnection() {
+        return sourceObject.ensureConnection();
     }
 
     public boolean isClassLevel() {
@@ -61,6 +75,10 @@ public class WrapperModelInput {
 
     public boolean isMethodLevel() {
         return !isClassLevel();
+    }
+
+    public boolean isCompactNaming() {
+        return maxIdentifierLength <= 30;
     }
 
     public <T extends DBObject> T getSourceObject() {

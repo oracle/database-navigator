@@ -16,17 +16,14 @@
 
 package com.dbn.execution.java.wrapper.model;
 
-import com.dbn.common.icon.Icons;
 import com.dbn.execution.java.wrapper.WrapperModel;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
-import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.swing.Icon;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,9 +54,9 @@ public class MethodWrapper extends EntityWrapper {
                 DBObjectType.PROCEDURE :
                 DBObjectType.FUNCTION;
 
-        // TODO resolve the actual parent of the method (can be a procedure in case of wrapping an entire class)
-        DBObjectRef<DBSchema> schema = nd(javaMethod.getSchema()).ref();
-        return new DBObjectRef<>(schema, sqlMethodType, sqlMethodName);
+        DBObjectRef<?> sqlPackage = getModel().getSqlWrapperPackage();
+        DBObjectRef<?> sqlMethodParent = sqlPackage == null ? nd(javaMethod.getSchema()).ref() : sqlPackage;
+        return new DBObjectRef<>(sqlMethodParent, sqlMethodType, sqlMethodName);
     }
 
     public String getJavaMethodName() {
@@ -79,11 +76,5 @@ public class MethodWrapper extends EntityWrapper {
 
     public void addParameter(ParameterWrapper parameterWrapper) {
         parameters.add(parameterWrapper);
-    }
-
-    public Icon getIcon() {
-        return getJavaMethod().isReturningVoid() ?
-                Icons.DBO_PROCEDURE :
-                Icons.DBO_METHOD;
     }
 }

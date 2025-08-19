@@ -16,22 +16,15 @@
 
 package com.dbn.execution.java.action;
 
-import com.dbn.common.thread.Progress;
 import com.dbn.connection.ConnectionAction;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.wrapper.JavaExecutionWrapperManager;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.action.AnObjectAction;
-import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import static com.dbn.common.util.Messages.showErrorDialog;
-import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class JavaMethodWrapperAction extends AnObjectAction<DBJavaMethod> {
 	public JavaMethodWrapperAction(DBJavaMethod method) {
@@ -40,35 +33,11 @@ public class JavaMethodWrapperAction extends AnObjectAction<DBJavaMethod> {
 
 	@Override
 	protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBJavaMethod method) {
-		String methodSignature = method.getPresentableText();
-
 		ConnectionAction.invoke("creation of execution wrappers", false, method,
-				action -> Progress.prompt(project, action, true,
-						"Creating Execution Wrappers",
-						"Creating execution wrappers for java method \"" + methodSignature + "\"",
-						progress -> {
-							ConnectionHandler connection = action.getConnection();
-							if (connection.isValid()) {
-								try {
-									JavaExecutionInput javaExecutionInput = new JavaExecutionInput(project, DBObjectRef.of(method));
-									javaExecutionInput.initDatabaseElements();
-									JavaExecutionWrapperManager wrapperManager = JavaExecutionWrapperManager.getInstance(getProject());
-									wrapperManager.createExecutionWrappers(method, true, false);
-								} catch (Exception ex) {
-									showErrorDialog(project,
-											"Error creating execution wrappers for java method \"" + methodSignature + "\"\nCause: " + ex.getMessage());
-									conditionallyLog(ex);
-								}
-							} else {
-								String message =
-										"Can not create execution wrappers for java method \"" + methodSignature + "\".\n" +
-												"No connectivity to '" + connection.getName() + "'. " +
-												"Please check your connection settings and try again.";
-								showErrorDialog(project, message);
-							}
-						}
-				)
-		);
+				action -> {
+                    JavaExecutionWrapperManager wrapperManager = JavaExecutionWrapperManager.getInstance(getProject());
+                    wrapperManager.createExecutionWrappers(method, true, false);
+                });
 	}
 
 	@Override

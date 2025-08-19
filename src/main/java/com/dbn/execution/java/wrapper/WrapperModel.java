@@ -16,7 +16,6 @@
 
 package com.dbn.execution.java.wrapper;
 
-import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
@@ -24,7 +23,6 @@ import com.dbn.connection.context.DatabaseContextBase;
 import com.dbn.execution.java.wrapper.model.ClassWrapper;
 import com.dbn.execution.java.wrapper.model.FieldWrapper;
 import com.dbn.execution.java.wrapper.model.MethodWrapper;
-import com.dbn.execution.java.wrapper.model.ParameterWrapper;
 import com.dbn.execution.java.wrapper.naming.WrapperNamingProvider;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
@@ -39,11 +37,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.Icon;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Getter
@@ -55,7 +52,6 @@ public class WrapperModel implements DatabaseContextBase {
 	private DBObjectRef<DBPackage> sqlWrapperPackage;
 	private DBObjectRef<DBMethod> sqlWrapperMethod;
 
-	private Set<String> sqlTypeNames = new HashSet<>();
 	private List<MethodWrapper> methods = new ArrayList<>();
     private List<ClassWrapper> classes = new ArrayList<>();
 
@@ -157,24 +153,13 @@ public class WrapperModel implements DatabaseContextBase {
 		return sqlWrapperMethod != null ? sqlWrapperMethod.getObjectName() : sqlWrapperPackage.getObjectName();
 	}
 
-	public Icon getSqlWrapperIcon() {
-		return sqlWrapperMethod != null ? Icons.DBO_METHOD : Icons.DBO_PROCEDURE;
-	}
-
 	public Set<String> getSqlTypeNames() {
-		for(MethodWrapper methodWrapper: this.getMethods()) {
-			for(ParameterWrapper parameterWrapper : methodWrapper.getParameters()) {
-				if(parameterWrapper.isComplexType()) {
-					sqlTypeNames.add(parameterWrapper.getSqlTypeName());
-				}
-			}
-
-			if(methodWrapper.getReturnParameter() != null && methodWrapper.getReturnParameter().isComplexType()) {
-				sqlTypeNames.add(methodWrapper.getReturnParameter().getSqlTypeName());
-			}
-		}
-		return sqlTypeNames;
+        return classes.stream().map(c -> c.getSqlTypeName()).collect(Collectors.toSet());
 	}
+
+    public Set<String> getSqlMethodNames() {
+        return methods.stream().map(m -> m.getSqlMethodName()).collect(Collectors.toSet());
+    }
 
 	public List<DBObjectRef> getWrapperObjects() {
 		List<DBObjectRef> wrapperObjects = new ArrayList<>();
@@ -184,4 +169,31 @@ public class WrapperModel implements DatabaseContextBase {
 		classes.forEach(c -> wrapperObjects.add(c.getSqlType()));
 		return Lists.filter(wrapperObjects, o -> o != null);
 	}
+
+    public List<DBObjectRef<DBMethod>> getWrapperMethods() {
+        return Lists.convert(methods, m -> m.getSqlMethod());
+    }
+
+    public int getMaxIdentifierLength() {
+        return getInput().getMaxIdentifierLength();
+    }
+
+    public boolean verifyIdentifierLengths() {
+        if (exceedsMaxIdentifierLength(getSqlWrapperName())) return false;
+        if (exceedsMaxIdentifierLength(getJavaWrapperName())) return false;
+
+        for (String typeName : getSqlTypeNames()) {
+            if (exceedsMaxIdentifierLength(typeName)) return false;
+        }
+
+        for (String methodName : getSqlMethodNames()) {
+            if (exceedsMaxIdentifierLength(methodName)) return false;
+        }
+
+        return true;
+    }
+
+    private boolean exceedsMaxIdentifierLength(String identifier) {
+        return identifier != null && identifier.length() > getMaxIdentifierLength();
+    }
 }
