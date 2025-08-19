@@ -16,22 +16,31 @@
 
 package com.dbn.execution.java.wrapper.ui;
 
+import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.util.ComponentAligner;
+import com.dbn.common.util.Commons;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.util.ui.JBUI;
+import com.intellij.util.ui.UIUtil;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import java.awt.Color;
+import java.awt.Component;
+import java.util.Set;
 
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 
-public class WrapperNameEditorForm extends DBNFormBase {
+public class WrapperNameEditorForm extends DBNFormBase implements ComponentAligner.Form {
     private JPanel mainPanel;
     private JLabel objectIconLabel;
     private JTextField objectNameTextField;
+    private JLabel statusLabel;
 
     private final DBObjectRef object;
 
@@ -41,6 +50,26 @@ public class WrapperNameEditorForm extends DBNFormBase {
 
         initIconLabel();
         initNameField();
+        initStatusLabel();
+    }
+
+    private void initStatusLabel() {
+        statusLabel.setForeground(Colors.faded(UIUtil.getLabelForeground()));
+        statusLabel.setHorizontalAlignment(JLabel.RIGHT);
+        updateStatusLabel();
+    }
+
+    private void updateStatusLabel() {
+        String identifier = objectNameTextField.getText().trim();
+        int length = identifier.length();
+        int maxLength = getMaxIdentifierLength();
+
+        statusLabel.setText(length + " chars");
+
+        Color foreground = length > 0 && length <= maxLength ?
+                Colors.faded(UIUtil.getLabelForeground()) :
+                Colors.getLabelErrorForeground();
+        statusLabel.setForeground(foreground);
     }
 
     private void initIconLabel() {
@@ -57,6 +86,10 @@ public class WrapperNameEditorForm extends DBNFormBase {
         onTextChange(objectNameTextField, e -> {
             String objectName = objectNameTextField.getText().trim();
             object.setObjectName(objectName);
+            updateStatusLabel();
+
+            WrapperNamesEditorForm providerForm = ensureParentComponent();
+            ComponentAligner.alignFormComponents(providerForm);
         });
     }
 
@@ -66,8 +99,30 @@ public class WrapperNameEditorForm extends DBNFormBase {
     }
 
     protected void initValidation() {
+        int maxLength = getMaxIdentifierLength();
+        addTextValidation(objectNameTextField, p -> isNotEmptyOrSpaces(p), "Identifier cannot be empty");
+        addTextValidation(objectNameTextField, p -> p.trim().length() <= maxLength, "Identifier length cannot exceed " + maxLength + " characters");
+        addTextValidation(objectNameTextField, p -> p.trim().matches("^[a-zA-Z][a-zA-Z0-9_$#]*$"), "Identifiers can only contain alphanumeric characters, underscores, dollar and hash signs");
+        addTextValidation(objectNameTextField, p -> isUniqueIdentifier(), "Identifier names must be unique");
+    }
+
+    private boolean isUniqueIdentifier() {
         WrapperNamesEditorForm providerForm = ensureParentComponent();
-        int maxIdentifierLength = providerForm.getMaxIdentifierLength();
-        addTextValidation(objectNameTextField, p -> p.length() <= maxIdentifierLength, "Identifier length should not exceed " + maxIdentifierLength + " characters");
+        Set<String> identifierNames = providerForm.getIdentifierNames(this);
+        return identifierNames.stream().noneMatch(n -> n.equalsIgnoreCase(getIdentifierName()));
+    }
+
+    public String getIdentifierName() {
+        return objectNameTextField.getText().trim();
+    }
+
+    private int getMaxIdentifierLength() {
+        WrapperNamesEditorForm providerForm = ensureParentComponent();
+        return providerForm.getMaxIdentifierLength();
+    }
+
+    @Override
+    public Component[] getAlignableComponents() {
+        return Commons.list(objectIconLabel, objectNameTextField, statusLabel);
     }
 }

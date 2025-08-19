@@ -59,6 +59,10 @@ public class Lists {
     }
 
     @NotNull
+    public static <T> List<T> removeNulls(@NotNull List<T> list) {
+        return filter(list, o -> o != null);
+    }
+
     public static <T> List<T> filter(@NotNull List<T> list, @Nullable Filter<T> filter) {
         if (filter == null) return list;
         if (list.isEmpty()) return list;

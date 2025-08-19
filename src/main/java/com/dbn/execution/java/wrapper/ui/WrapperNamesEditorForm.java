@@ -16,10 +16,12 @@
 
 package com.dbn.execution.java.wrapper.ui;
 
+import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.execution.java.wrapper.WrapperModel;
 import com.dbn.object.DBMethod;
 import com.dbn.object.common.DBObject;
@@ -29,15 +31,19 @@ import com.dbn.object.type.DBObjectType;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 
-public class WrapperNamesEditorForm extends DBNFormBase {
+public class WrapperNamesEditorForm extends DBNFormBase implements ComponentAligner.Container {
     private final WrapperModel model;
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JPanel hintPanel;
     private JPanel objectsPanel;
+
+    private final List<WrapperNameEditorForm> nameEditorForms = DisposableContainers.list(this);
 
     public WrapperNamesEditorForm(WrapperNamesEditorDialog dialog, WrapperModel model) {
         super(dialog);
@@ -56,8 +62,9 @@ public class WrapperNamesEditorForm extends DBNFormBase {
     private void initHintPanel() {
         int maxIdentifierLength = model.getMaxIdentifierLength();
         TextContent hintText = TextContent.plain(
-                "Some of the automatically generated wrapper names exceed the maximum of " + maxIdentifierLength + " characters allowed by your database. \n" +
-                "Please adjust the names to accommodate the maximum identifier length.");
+                "Some of the system generated wrapper names exceed the maximum of " + maxIdentifierLength + " characters allowed by your database. " +
+                "Please adjust the names to accommodate the maximum identifier length.\n\n" +
+                        "NOTE: all database objects matching the wrapper names below will be overwritten");
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
     }
@@ -69,6 +76,7 @@ public class WrapperNamesEditorForm extends DBNFormBase {
         List<DBObjectRef> objects = model.getWrapperObjects();
         for (DBObjectRef object : objects) {
             WrapperNameEditorForm nameEditorForm = new WrapperNameEditorForm(this, object);
+            nameEditorForms.add(nameEditorForm);
             objectsPanel.add(nameEditorForm.getComponent());
 
             if (object.getObjectType() == DBObjectType.PACKAGE) {
@@ -88,5 +96,18 @@ public class WrapperNamesEditorForm extends DBNFormBase {
 
     public int getMaxIdentifierLength() {
         return model.getMaxIdentifierLength();
+    }
+
+    @Override
+    public List<? extends ComponentAligner.Form> getAlignableForms() {
+        return nameEditorForms;
+    }
+
+    public Set<String> getIdentifierNames(WrapperNameEditorForm exceptFor) {
+        return nameEditorForms
+                .stream()
+                .filter(f -> f != exceptFor)
+                .map(f -> f.getIdentifierName())
+                .collect(Collectors.toSet());
     }
 }

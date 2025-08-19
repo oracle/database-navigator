@@ -167,7 +167,7 @@ public class WrapperModel implements DatabaseContextBase {
 		wrapperObjects.add(sqlWrapperMethod);
 		wrapperObjects.add(sqlWrapperPackage);
 		classes.forEach(c -> wrapperObjects.add(c.getSqlType()));
-		return Lists.filter(wrapperObjects, o -> o != null);
+		return Lists.removeNulls(wrapperObjects);
 	}
 
     public List<DBObjectRef<DBMethod>> getWrapperMethods() {

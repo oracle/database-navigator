@@ -31,7 +31,7 @@ public class WrapperNamesEditorDialog extends DBNDialog<WrapperNamesEditorForm> 
     public WrapperNamesEditorDialog(Project project, WrapperModel model) {
         super(project, "Wrapper Names Editor", false);
         this.setModal(true);
-        this.setAutoSize(true);
+        this.setDefaultSize(600, 480);
         this.model = model;
         init();
     }
