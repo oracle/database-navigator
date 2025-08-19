@@ -18,9 +18,7 @@ package com.dbn.connection;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.network.NetworkAddress;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Timeout;
-import com.dbn.common.ui.dialog.ExceptionTreeDialog;
 import com.dbn.common.util.Classes;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionPropertiesSettings;
@@ -44,7 +42,6 @@ import java.util.Properties;
 
 import static com.dbn.common.exception.Exceptions.getMessage;
 import static com.dbn.common.exception.Exceptions.toSqlException;
-import static com.dbn.common.thread.Dispatch.getCurrentModalityState;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.diagnostics.data.Activity.CONNECT;
 
@@ -209,13 +206,6 @@ class Connector {
                        driver != null ? driver.getClass().getClassLoader() : null,
                        authenticationInfo);
                compatibility.handleConnectionException(info);
-            }
-
-            if (Diagnostics.isDeveloperMode() &&  sessionId == SessionId.TEST) {
-                Dispatch.execute(getCurrentModalityState(), () -> {
-                    new ExceptionTreeDialog(exception).show();
-                });
-
             }
         }
         return null;
