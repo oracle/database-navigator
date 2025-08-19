@@ -9,8 +9,12 @@
         private static final String PROP_TOKEN_AUTH = "oracle.jdbc.tokenAuthentication";
         private static final String PROP_OCI_CONFIG_FILE = "oracle.jdbc.ociConfigFile";
         private static final String PROP_OCI_PROFILE = "oracle.jdbc.ociProfile";
+        private static final String PROP_OCI_COMPARTMENT = "oracle.jdbc.ociCompartment";
+        private static final String PROP_OCI_DATABASE = "oracle.jdbc.ociDatabase";
     #elseif (${AUTH_TOKEN_TYPE} == 'OCI_INTERACTIVE')
         private static final String PROP_TOKEN_AUTH = "oracle.jdbc.tokenAuthentication";
+        private static final String PROP_OCI_COMPARTMENT = "oracle.jdbc.ociCompartment";
+        private static final String PROP_OCI_DATABASE = "oracle.jdbc.ociDatabase";
     #elseif (${AUTH_TOKEN_TYPE} == 'AZURE_INTERACTIVE')
         private static final String PROP_TOKEN_AUTH = "oracle.jdbc.tokenAuthentication";
         private static final String PROP_AZURE_TOKEN_DATABASE_ID_URI = "oracle.jdbc.azureDatabaseApplicationIdUri";

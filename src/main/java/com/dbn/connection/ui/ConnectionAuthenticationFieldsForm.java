@@ -103,7 +103,10 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     private JLabel azureClientSecretLabel;
     private JPasswordField azureClientCertificateFilePasswordTextField;
     private JLabel azureClientCertificatePasswordLabel;
-
+    private JLabel compartmentOcidLabel;
+    private JTextField autonomousDatabaseCompartmentOcidTextField;
+    private JLabel autonomousDatabaseOcidLabel;
+    private JTextField autonomousDBOcidTextField;
 
     public ConnectionAuthenticationFieldsForm(@NotNull DBNForm parentComponent) {
         super(parentComponent);
@@ -140,6 +143,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         onTextChange(azureClientCertificateFileTextField, e -> refreshAzureClientCertificateFile());
 
         initFields();
+        autonomousDatabaseOcidLabel.setName("autonomousDatabaseOcidLabel");
     }
 
     private void initFields() {
@@ -156,6 +160,13 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
                 tokenConfigFileTextField,
                 tokenProfileLabel,
                 tokenProfileComboBox));
+
+        fieldAdapter.initFieldsVisibility(() -> isOciTokenAuth(), array(
+                compartmentOcidLabel,
+                autonomousDatabaseCompartmentOcidTextField,
+                autonomousDatabaseOcidLabel,
+                autonomousDBOcidTextField
+        ));
 
         fieldAdapter.initFieldsVisibility(() -> isApiKeyTokenAuth(), array(
                 tokenConfigFileLabel,
@@ -198,7 +209,10 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
                 azureTenantIdTextField,
                 azureClientCertificateFileLabel,
                 azureAppIdUriTextField,
-                azureClientSecretPasswordField));
+                azureClientSecretPasswordField,
+                autonomousDatabaseCompartmentOcidTextField,
+                autonomousDBOcidTextField
+           ));
     }
 
     private void updateAuthenticationFields() {
@@ -228,6 +242,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         onTextChange(userTextField, e -> runnable.run());
         onTextChange(passwordField, e -> runnable.run());
         onTextChange(tokenConfigFileTextField.getTextField(), e -> runnable.run());
+        onTextChange(autonomousDatabaseCompartmentOcidTextField, e -> runnable.run());
+        onTextChange(autonomousDBOcidTextField, e -> runnable.run());
 
         onTextChange(azureClientIdTextField, e -> runnable.run());
         onTextChange(azureTenantIdTextField, e -> runnable.run());
@@ -251,6 +267,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         authenticationInfo.setTokenType(getSelection(tokenTypeComboBox));
         authenticationInfo.setTokenProfile(getSelection(tokenProfileComboBox));
         authenticationInfo.setTokenConfigFile(tokenConfigFileTextField.getText());
+        authenticationInfo.setAutonomousDatabaseCompartmentOcid(autonomousDatabaseCompartmentOcidTextField.getText());
+        authenticationInfo.setAutonomousDatabaseOcid(autonomousDBOcidTextField.getText());
 
         authenticationInfo.setAzureClientId(azureClientIdTextField.getText());
         authenticationInfo.setAzureTenantId(azureTenantIdTextField.getText());
@@ -268,6 +286,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         tokenConfigFileTextField.setText(authenticationInfo.getTokenConfigFile());
         setSelection(tokenProfileComboBox, authenticationInfo.getTokenProfile());
         setSelection(tokenTypeComboBox, authenticationInfo.getTokenType());
+        autonomousDatabaseCompartmentOcidTextField.setText(authenticationInfo.getAutonomousDatabaseCompartmentOcid());
+        autonomousDBOcidTextField.setText(authenticationInfo.getAutonomousDatabaseOcid());
 
         azureAppIdUriTextField.setText(authenticationInfo.getAzureDatabaseApplicationIdUri());
         azureClientCertificateFileTextField.setText(authenticationInfo.getAzureClientCertificateFile());
@@ -366,6 +386,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     public @Nullable String getTokenProfile() {
         return (String) tokenProfileComboBox.getSelectedItem();
     }
+    public @Nullable String getAutonomousDatabaseCompartmentOcid() { return autonomousDatabaseCompartmentOcidTextField.getText(); }
+    public @Nullable String getAutonomousDatabaseOcid() { return autonomousDBOcidTextField.getText(); }
     public @Nullable String getAzureTokenClientId() {
         return (String) azureClientIdTextField.getText();
     }
@@ -397,6 +419,12 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         return getAuthenticationType() == AuthenticationType.TOKEN;
     }
 
+    private boolean isOciTokenAuth() {
+        return isApiKeyTokenAuth() || isOciInteractiveAuth();
+    }
+    private boolean isOciInteractiveAuth() {
+        return isTokenAuth() && getTokenAuthenticationType() == OCI_INTERACTIVE;
+    }
     private boolean isApiKeyTokenAuth() {
         return isTokenAuth() && getTokenAuthenticationType() == OCI_API_KEY;
     }

@@ -93,6 +93,8 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
 
         String ORACLE_JDBC_OCI_PROFILE = "oracle.jdbc.ociProfile";
         String ORACLE_JDBC_OCI_CONFIG_FILE = "oracle.jdbc.ociConfigFile";
+        String ORACLE_JDBC_OCI_COMPARTMENT = "oracle.jdbc.ociCompartment";
+        String ORACLE_JDBC_OCI_DATABASE = "oracle.jdbc.ociDatabase";
         // if this value is set, it puts the driver into on of the token auth
         // modes based setting one of PropertyValue.TOKEN_AUTHENTICATION_*
         String ORACLE_JDBC_TOKEN_AUTHENTICATION = "oracle.jdbc.tokenAuthentication";
@@ -268,10 +270,12 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
             AuthenticationTokenType tokenType = authenticationInfo.getTokenType();
             if (tokenType == OCI_INTERACTIVE) {
                 properties.add(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_OCI_INTERACTIVE);
+                copyCommonOciTokenProperties(properties,authenticationInfo);
             } else if (tokenType == OCI_API_KEY) {
                 properties.add(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_OCI_API_KEY);
                 properties.add(Property.ORACLE_JDBC_OCI_CONFIG_FILE, nvl(authenticationInfo.getTokenConfigFile(), ""));
                 properties.add(Property.ORACLE_JDBC_OCI_PROFILE, nvl(authenticationInfo.getTokenProfile(), ""));
+                copyCommonOciTokenProperties(properties,authenticationInfo);
             } else if (tokenType == AZURE_INTERACTIVE) {
                 properties.add(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_AZURE_INTERACTIVE);
                 properties.add(Property.ORACLE_JDBC_AZURE_DATABASE_APPLICATION_ID_URI, authenticationInfo.getAzureDatabaseApplicationIdUri());
@@ -310,6 +314,14 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
         if (Strings.isNotEmpty(jdwpHostPort)) {
             properties.add(Property.ORACLE_JDBC_DEBUG_JDWP, jdwpHostPort);
         }
+    }
+
+    private static void copyCommonOciTokenProperties(ConnectorProperties properties, AuthenticationInfo authenticationInfo) {
+        // make sure to leave these null if the user didn't set them as the provider won't check for empty string
+        Strings.ifNotEmpty(authenticationInfo.getAutonomousDatabaseCompartmentOcid(),
+                compartmentOcid -> properties.add(Property.ORACLE_JDBC_OCI_COMPARTMENT, compartmentOcid));
+        Strings.ifNotEmpty(authenticationInfo.getAutonomousDatabaseOcid(),
+                databaseOcid -> properties.add(Property.ORACLE_JDBC_OCI_DATABASE, databaseOcid));
     }
 
     private static void copyCommonAzureServicePrincipalProperties(ConnectorProperties properties, AuthenticationInfo authenticationInfo) {
