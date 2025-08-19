@@ -376,7 +376,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                         Class.forName(
                                 ProviderErrorHandlingConstants.ORACLE_JDBC_PROVIDER_CACHE_CACHE_CONTROLLER_CLASSNAME, true, classLoader);
                 Method clearAllCaches = cacheControllerClass.getMethod(ProviderErrorHandlingConstants.CLEAR_ALL_CACHES_METHOD_NAME);
-                clearAllCaches.invoke(null, new Object[0]);
+                clearAllCaches.invoke(null);
             }
             else {
                 Diagnostics.conditionallyLog(new NullPointerException("classLoader was null"));
