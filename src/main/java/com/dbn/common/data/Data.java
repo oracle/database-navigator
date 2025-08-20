@@ -16,9 +16,10 @@
 
 package com.dbn.common.data;
 
+import com.dbn.common.util.Csvs;
 import com.dbn.common.util.Strings;
-import com.dbn.common.util.Unsafe;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import static com.dbn.common.util.Strings.firstCharacter;
+import static com.dbn.common.util.Unsafe.cast;
 import static java.util.Collections.singletonList;
 
 /**
@@ -44,26 +46,29 @@ import static java.util.Collections.singletonList;
 @UtilityClass
 public final class Data {
 
-    public static <T> T cast(@Nullable Object object, Class<T> type) {
+    @NonNls
+    public static final String NULL = "null";
+
+    public static <T> T asType(@Nullable Object object, Class<T> type) {
         if (object == null) return null;
 
-        if (type == Boolean.class)    return Unsafe.cast(asBoolean(object));
-        if (type == Character.class)  return Unsafe.cast(asCharacter(object));
-        if (type == Double.class)     return Unsafe.cast(asDouble(object));
-        if (type == Float.class)      return Unsafe.cast(asFloat(object));
-        if (type == Integer.class)    return Unsafe.cast(asInteger(object));
-        if (type == Long.class)       return Unsafe.cast(asLong(object));
-        if (type == Short.class)      return Unsafe.cast(asShort(object));
-        if (type == String.class)     return Unsafe.cast(asString(object));
-        if (type == boolean.class)    return Unsafe.cast(asBooleanPrimitive(object));
-        if (type == char.class)       return Unsafe.cast(asCharacterPrimitive(object));
-        if (type == double.class)     return Unsafe.cast(asDoublePrimitive(object));
-        if (type == float.class)      return Unsafe.cast(asFloatPrimitive(object));
-        if (type == int.class)        return Unsafe.cast(asIntegerPrimitive(object));
-        if (type == long.class)       return Unsafe.cast(asLongPrimitive(object));
-        if (type == short.class)      return Unsafe.cast(asShortPrimitive(object));
-        if (type == BigDecimal.class) return Unsafe.cast(asBigDecimal(object));
-        if (type == BigInteger.class) return Unsafe.cast(asBigInteger(object));
+        if (type == Boolean.class)    return cast(asBoolean(object));
+        if (type == Character.class)  return cast(asCharacter(object));
+        if (type == Double.class)     return cast(asDouble(object));
+        if (type == Float.class)      return cast(asFloat(object));
+        if (type == Integer.class)    return cast(asInteger(object));
+        if (type == Long.class)       return cast(asLong(object));
+        if (type == Short.class)      return cast(asShort(object));
+        if (type == String.class)     return cast(asString(object));
+        if (type == boolean.class)    return cast(asBooleanPrimitive(object));
+        if (type == char.class)       return cast(asCharacterPrimitive(object));
+        if (type == double.class)     return cast(asDoublePrimitive(object));
+        if (type == float.class)      return cast(asFloatPrimitive(object));
+        if (type == int.class)        return cast(asIntegerPrimitive(object));
+        if (type == long.class)       return cast(asLongPrimitive(object));
+        if (type == short.class)      return cast(asShortPrimitive(object));
+        if (type == BigDecimal.class) return cast(asBigDecimal(object));
+        if (type == BigInteger.class) return cast(asBigInteger(object));
 
         throw new UnsupportedOperationException("Cast from " + object.getClass() + " to " + type + " is not implemented");
         // TODO add more cast logic if required
@@ -83,6 +88,7 @@ public final class Data {
     public static Character asCharacter(@Nullable Object object) {
         if (object == null) return null;
         if (object instanceof Character) return (Character) object;
+        if (object.equals(NULL)) return null;
         return firstCharacter(object.toString());
     }
 
@@ -96,7 +102,7 @@ public final class Data {
         if (object == null) return null;
         if (object instanceof Integer) return (Integer) object;
         if (object instanceof Number) return ((Number) object).intValue();
-        return Integer.valueOf(object.toString());
+        return asNumber(object, s -> Integer.valueOf(s));
     }
 
     public static int asIntegerPrimitive(@Nullable Object object) {
@@ -108,7 +114,7 @@ public final class Data {
         if (object == null) return null;
         if (object instanceof Byte) return (Byte) object;
         if (object instanceof Number) return ((Number) object).byteValue();
-        return Byte.valueOf(object.toString());
+        return asNumber(object, s -> Byte.valueOf(s));
     }
 
     public static byte asBytePrimitive(@Nullable Object object) {
@@ -120,7 +126,7 @@ public final class Data {
         if (object == null) return null;
         if (object instanceof Short) return (Short) object;
         if (object instanceof Number) return ((Number) object).shortValue();
-        return Short.valueOf(object.toString());
+        return asNumber(object, s -> Short.valueOf(s));
     }
 
     public static short asShortPrimitive(@Nullable Object object) {
@@ -133,7 +139,7 @@ public final class Data {
         if (object == null) return null;
         if (object instanceof Long) return (Long) object;
         if (object instanceof Number) return ((Number) object).longValue();
-        return Long.valueOf(object.toString());
+        return asNumber(object, s -> Long.valueOf(s));
     }
 
     public static long asLongPrimitive(@Nullable Object object) {
@@ -145,7 +151,7 @@ public final class Data {
         if (object == null) return null;
         if (object instanceof Double) return (Double) object;
         if (object instanceof Number) return ((Number) object).doubleValue();
-        return Double.valueOf(object.toString());
+        return asNumber(object, s -> Double.valueOf(s));
     }
 
     public static List<Double> asDoubleList(@Nullable Object object) {
@@ -161,7 +167,7 @@ public final class Data {
         if (object == null) return null;
         if (object instanceof Float) return (Float) object;
         if (object instanceof Number) return ((Number) object).floatValue();
-        return Float.valueOf(object.toString());
+        return asNumber(object, s -> Float.valueOf(s));
     }
 
     public static float asFloatPrimitive(@Nullable Object object) {
@@ -173,6 +179,7 @@ public final class Data {
     public static Boolean asBoolean(@Nullable Object object) {
         if (object == null) return null;
         if (object instanceof Boolean) return (Boolean) object;
+        if (object.equals(NULL)) return null;
         if (object instanceof String) return Strings.isOneOfIgnoreCase((String) object, "Y", "YES", "TRUE", "1");
         if (object instanceof Number) return ((Number) object).intValue() != 0;
         return null;
@@ -186,13 +193,13 @@ public final class Data {
     public static BigDecimal asBigDecimal(@Nullable Object object) {
         if (object == null) return null;
         if (object instanceof BigDecimal) return (BigDecimal) object;
-        return new BigDecimal(object.toString());
+        return asNumber(object, s -> new BigDecimal(s));
     }
 
     public static BigInteger asBigInteger(@Nullable Object object) {
         if (object == null) return null;
         if (object instanceof BigInteger) return (BigInteger) object;
-        return new BigInteger(object.toString());
+        return asNumber(object, s -> new BigInteger(s));
     }
 
     public static Class<?> primitive(Class<?> type) {
@@ -235,7 +242,7 @@ public final class Data {
         T[] result = (T[]) Array.newInstance(type, array.length);
         for (int i = 0; i < array.length; i++) {
             Object o = array[i];
-            result[i] = cast(o, type);
+            result[i] = asType(o, type);
         }
         return result;
     }
@@ -244,8 +251,26 @@ public final class Data {
         T[] result = (T[]) Array.newInstance(type, array.length);
         for (int i = 0; i < array.length; i++) {
             double d = array[i];
-            result[i] = cast(d, type);
+            result[i] = asType(d, type);
         }
         return result;
+    }
+
+    @Nullable
+    private static <T extends Number> T asNumber(Object object, Function<String, T> converter) {
+        if (object == null) return null;
+        String string = object.toString().trim();
+        if (string.isEmpty()) return null;
+        if (string.equals(NULL)) return null;
+
+        return converter.apply(string);
+    }
+
+    public static <T> String listToCsv(List<T> list) {
+        return Csvs.valuesToCsv(list, v -> asString(v));
+    }
+
+    public static <T> List<T> csvToList(String csv, Class<T> type) {
+        return Csvs.csvToValues(csv, v -> asType(v, type));
     }
 }

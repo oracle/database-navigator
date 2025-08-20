@@ -161,9 +161,10 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 		inputFieldPanel.add(inputField, BorderLayout.CENTER);
 		inputTextField.setDisabledTextColor(inputTextField.getForeground());
 
-		if(field.getArrayDepth() == 1)
-			getParentParameterForm().setupSingleDimArrayEditor(field, value, project, inputField, inputTextField);
-		inputField.createValuesListPopup(createValuesProvider(), field, true);
+        if (field.getArrayDepth() == 1) {
+            getParentParameterForm().setupSingleDimArrayEditor(field, value, project, inputField, inputTextField);
+        }
+        inputField.createValuesListPopup(createValuesProvider(), field, true);
 	}
 
 	private void initClassField() {

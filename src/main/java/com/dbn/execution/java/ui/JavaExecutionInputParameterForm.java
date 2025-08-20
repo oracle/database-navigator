@@ -54,10 +54,11 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Lists.sortedCopy;
+import static com.dbn.data.editor.ui.TextFieldPopupType.ARRAY_EDITOR;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static java.util.Collections.emptyList;
@@ -112,11 +113,10 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 		inputTextField.setDisabledTextColor(inputTextField.getForeground());
 		fieldsPanel.setVisible(false);
 
-		if(parameter.getArrayDepth() == 1)
-			setupSingleDimArrayEditor(parameter, value, project, inputField, inputTextField);
-
-		inputField.createValuesListPopup(createValuesProvider(), parameter, true);
-
+        if (parameter.getArrayDepth() == 1) {
+            setupSingleDimArrayEditor(parameter, value, project, inputField, inputTextField);
+        }
+        inputField.createValuesListPopup(createValuesProvider(), parameter, true);
 	}
 
 	public void setupSingleDimArrayEditor(DBJavaField   parameter,
@@ -172,25 +172,21 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 
 		inputField.createArrayEditorPopup(false);
 
-		inputTextField.getDocument().addDocumentListener(new com.intellij.ui.DocumentAdapter() {
-			@Override
-			protected void textChanged(@NotNull javax.swing.event.DocumentEvent e) {
-				if (syncing[0]) return;
-				List<String> newVal =
-							StringCollectionPayloadMapper.getInstance()
-									.decodeToList(inputTextField.getText());
-				arrayUserValueHolder.setUserValue(newVal); //don't use updateUserValue here
-				syncing[0] = true;
-					// keep popup in sync if open
-				try {
-					ArrayEditorPopupProviderForm popup =
-                            (ArrayEditorPopupProviderForm) inputField.getDefaultPopupProvider();
-					if (popup != null) popup.updateStringValues(newVal);
-				} finally {
-					syncing[0] = false;
-				}
-			}
-		});
+        onTextChange(inputTextField, e -> {
+            if (syncing[0]) return;
+            List<String> newVal =
+                    StringCollectionPayloadMapper.getInstance()
+                            .decodeToList(inputTextField.getText());
+            arrayUserValueHolder.setUserValue(newVal); //don't use updateUserValue here
+            syncing[0] = true;
+            // keep popup in sync if open
+            try {
+                ArrayEditorPopupProviderForm popup = inputField.getPopupProvider(ARRAY_EDITOR);
+                if (popup != null) popup.updateStringValues(newVal);
+            } finally {
+                syncing[0] = false;
+            }
+        });
 	}
 
 	private void initClassField() {

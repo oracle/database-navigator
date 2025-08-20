@@ -214,7 +214,7 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
 
     @Override
     public TextFieldPopupType getPopupType() {
-        return TextFieldPopupType.TEXT_EDITOR;
+        return TextFieldPopupType.ARRAY_EDITOR;
     }
 
     @Nullable
