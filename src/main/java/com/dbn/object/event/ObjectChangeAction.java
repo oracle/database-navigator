@@ -23,7 +23,7 @@ import com.dbn.common.constant.Constant;
  *
  * @author Dan Cioca (Oracle)
  */
-public enum ObjectChangeAction  implements Constant<ObjectChangeAction> {
+public enum ObjectChangeAction implements Constant<ObjectChangeAction> {
     CREATE,
     UPDATE,
     DELETE,

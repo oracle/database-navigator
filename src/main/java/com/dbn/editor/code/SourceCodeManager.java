@@ -269,14 +269,14 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     }
 
     private void saveSourceToDatabase(@NotNull DBSourceCodeVirtualFile sourceCodeFile, @Nullable SourceCodeEditor fileEditor, @Nullable Runnable successCallback) {
-        if (!sourceCodeFile.isNot(SAVING)) return;
-
-        DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(getProject());
-        if (!debuggerManager.checkForbiddenOperation(sourceCodeFile.getConnection())) return;
-
+        if (sourceCodeFile.is(SAVING)) return;
         sourceCodeFile.set(SAVING, true);
+
         Project project = getProject();
         try {
+            DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(project);
+            if (!debuggerManager.checkForbiddenOperation(sourceCodeFile.getConnection())) return;
+
             Document document = Failsafe.nn(Documents.getDocument(sourceCodeFile));
             Documents.saveDocument(document);
 

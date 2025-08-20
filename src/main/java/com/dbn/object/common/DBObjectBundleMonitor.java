@@ -22,13 +22,10 @@ import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.event.ObjectChangeAction;
+import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.type.DBObjectType;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Objects;
 
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.event.ObjectChangeAction.DELETE;
@@ -43,8 +40,13 @@ class DBObjectBundleMonitor implements ObjectChangeListener {
     }
 
     @Override
-    public void objectsChanged(@NotNull ConnectionId connectionId, @Nullable SchemaId ownerId, @NotNull DBObjectType objectType, @NotNull ObjectChangeAction action) {
-        if (!Objects.equals(connectionId, getConnectionId())) return;
+    public void objectsChanged(ObjectChangeEvent event) {
+        ConnectionId connectionId = getConnectionId();
+        if (!event.matches(connectionId)) return;
+
+        DBObjectType objectType = event.getObjectType();
+        ObjectChangeAction action = event.getChangeAction();
+        SchemaId ownerId = event.getOwnerId();
 
         DBObjectBundle objectBundle = getObjectBundle();
         String connectionName = objectBundle.getConnection().getName();

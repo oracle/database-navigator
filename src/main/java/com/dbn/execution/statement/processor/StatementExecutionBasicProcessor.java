@@ -79,7 +79,7 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.event.ObjectChangeAction;
-import com.dbn.object.event.ObjectChangeListener;
+import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -638,8 +638,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         }
 
         if (connectionId != null && objectType != null) {
-            ProjectEvents.notify(project, ObjectChangeListener.TOPIC,
-                    l -> l.objectsChanged(connectionId, schemaId, objectType, ObjectChangeAction.UNKNOWN));
+            ObjectChangeEvent.notify(ObjectChangeAction.UNKNOWN, objectType, connectionId, schemaId);
 
         }
     }
