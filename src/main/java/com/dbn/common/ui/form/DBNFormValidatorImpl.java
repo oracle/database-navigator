@@ -38,6 +38,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.dbn.common.ui.util.ClientProperty.HAS_VALIDATION_LISTENERS;
+import static com.dbn.common.ui.util.ClientProperty.VALIDATION_INFO;
 import static com.dbn.common.ui.util.ClientProperty.VISITED;
 import static com.dbn.common.util.Commons.isEmpty;
 import static com.dbn.common.util.Commons.isOneOf;
@@ -190,19 +191,27 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
 
     private static <C extends JComponent> List<ValidationInfo> validateTarget(C target, Predicate<C> validator, String message) {
         boolean valid = validator.test(target);
-        if (valid) return emptyList();
-        
-        ValidationInfo info = new ValidationInfo(message, target);
-        return singletonList(info);
+        if (valid) {
+            VALIDATION_INFO.reset(target);
+            return emptyList();
+        } else {
+            ValidationInfo info = new ValidationInfo(message, target);
+            VALIDATION_INFO.set(target, info);
+            return singletonList(info);
+        }
     }
 
 
     private static <C extends JComponent> List<ValidationInfo> validateTarget(Function<C, String> validator, C target) {
         String error = validator.apply(target);
-        if (error == null) return emptyList();
-
-        ValidationInfo info = new ValidationInfo(error, target);
-        return singletonList(info);
+        if (error == null) {
+            VALIDATION_INFO.reset(target);
+            return emptyList();
+        } else {
+            ValidationInfo info = new ValidationInfo(error, target);
+            VALIDATION_INFO.set(target, info);
+            return singletonList(info);
+        }
     }
 
     /**
@@ -229,6 +238,13 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
 
                 invalidFields.add(target);
                 result.addAll(infos);
+            } else {
+                // restore available infos from the out-of-scope components
+                ValidationInfo info = VALIDATION_INFO.get(target);
+                if (info != null) {
+                    invalidFields.add(target);
+                    result.add(info);
+                }
             }
         }
 

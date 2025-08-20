@@ -84,6 +84,21 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
     private static final String PROTOCOL = "db";
     private static final String PROTOCOL_PREFIX = PROTOCOL + "://";
 
+    public static boolean isDatabaseFile(String fileUrl) {
+        return fileUrl.startsWith(PROTOCOL_PREFIX);
+    }
+
+    @Nullable
+    public static ConnectionId getConnectionId(String fileUrl) {
+        if (!fileUrl.startsWith(PROTOCOL_PREFIX)) return null;
+        String path = fileUrl.substring(PROTOCOL_PREFIX.length());
+
+        int index = path.indexOf(PS);
+        if (index < 0) return null;
+
+        return ConnectionId.get(path.substring(0, index));
+    }
+
     public enum FilePathType {
         OBJECTS("objects", "objects"),
         OBJECT_CONTENTS("object_contents", "object contents"),

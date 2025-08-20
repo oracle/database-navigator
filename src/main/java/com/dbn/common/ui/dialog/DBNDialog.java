@@ -113,7 +113,9 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         if (!formValidator.hasValidators()) return;
         if (!formValidator.hasValidators(component)) return;
 
-        List<ValidationInfo> validationInfos = buildValidationInfos(component);
+        List<ValidationInfo> validationInfos = component == null ?
+                buildValidationInfos() :
+                buildValidationInfos(component);
 
         setErrorInfoAll(validationInfos);
 

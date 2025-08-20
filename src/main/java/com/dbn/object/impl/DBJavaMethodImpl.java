@@ -101,7 +101,7 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	}
 
 	@Override
-	public String getPresentableText() {
+	public String getPresentableName() {
 		return signature;
 	}
 

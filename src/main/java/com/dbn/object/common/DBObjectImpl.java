@@ -555,7 +555,12 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     }
 
     @Override
-    public String getPresentableText() {
+    public final String getPresentableText() {
+        return getPresentableName();
+    }
+
+    @Override
+    public String getPresentableName() {
         return getName();
     }
 

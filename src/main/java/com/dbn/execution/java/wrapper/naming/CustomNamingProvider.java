@@ -16,57 +16,63 @@
 
 package com.dbn.execution.java.wrapper.naming;
 
-import com.dbn.common.Pair;
+import com.dbn.common.util.Naming;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
+import lombok.Getter;
+import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import static com.dbn.common.exception.Exceptions.unsupported;
-import static com.dbn.common.util.Naming.toUpperSnakeCase;
-
-public class TransientWrapperNamingProvider implements WrapperNamingProvider {
-    public static final String NAME_PREFIX = "DBN_OJVM_";
-    private final Map<Pair<String, Integer>, String> typeNames = new HashMap<>();
+@Getter
+@Setter
+public class CustomNamingProvider implements WrapperNamingProvider {
+    private String javaWrapperName;
+    private String sqlWrapperName;
+    private Map<String, String> sqlPackageMethodMap;
+    private Map<String, String> sqlTypesMap;
 
     @Override
     public String getJavaWrapperName(DBJavaClass javaClass) {
-        return NAME_PREFIX + "JAVA_WRAPPER";
+        return javaWrapperName;
     }
 
     @Override
     public String getJavaWrapperName(DBJavaMethod javaMethod) {
-        return NAME_PREFIX + "JAVA_WRAPPER";
+        return javaWrapperName;
     }
 
     @Override
     public String getSqlWrapperName(DBJavaClass javaClass) {
-        return unsupported(); // transient wrappers are expected to revolve around methods only
+        return sqlWrapperName;
     }
 
     @Override
     public String getSqlWrapperName(DBJavaMethod javaMethod) {
-        return javaMethod.isReturningVoid() ?
-                NAME_PREFIX + "SQL_PROCEDURE_WRAPPER" :
-                NAME_PREFIX + "SQL_FUNCTION_WRAPPER";
+        return sqlWrapperName;
     }
 
     @Override
     public String getSqlTypeName(DBJavaClass javaClass, int arrayDepth) {
-        return getSqlTypeName(javaClass.getCanonicalName(), arrayDepth);
+        return "";
     }
 
     @Override
     public String getSqlTypeName(String javaClassName, int arrayDepth) {
-        var key = Pair.of(javaClassName, arrayDepth);
-        int size = typeNames.size();
-
-        return typeNames.computeIfAbsent(key, object -> NAME_PREFIX + "TYPE_" + size);
+        if(sqlTypesMap == null) return "" ;
+        String typeName = toSqlTypeName(javaClassName, "TYPE");
+        if (arrayDepth > 0) typeName += "_" + arrayDepth;
+        return sqlTypesMap.get(typeName);
     }
 
     @Override
     public String getSqlMethodName(DBJavaMethod javaMethod) {
-        return toUpperSnakeCase(javaMethod.getSimpleName());
+        if(sqlPackageMethodMap == null) return "" ;
+        return sqlPackageMethodMap.get(Naming.toUpperSnakeCase(javaMethod.getSimpleName()));
+    }
+
+    private @NotNull String toSqlTypeName(String className, String qualifier) {
+        return "OJVM_" + qualifier + "_" + className.replace(".", "_").replace("$", "_").toUpperCase();
     }
 }

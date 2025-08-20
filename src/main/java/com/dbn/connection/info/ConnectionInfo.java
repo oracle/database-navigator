@@ -36,6 +36,7 @@ public class ConnectionInfo {
     private final String driverJdbcType;
     private final String url;
     private final String userName;
+    private final int maxIdentifierLength;
 
     public ConnectionInfo(DatabaseMetaData metaData) throws SQLException {
         productName = metaData.getDatabaseProductName();
@@ -46,6 +47,7 @@ public class ConnectionInfo {
         userName = metaData.getUserName();
         driverJdbcType = resolveDriverType(metaData);
         databaseType = DatabaseType.resolve(toLowerCase(productName));
+        maxIdentifierLength = metaData.getMaxProcedureNameLength();
     }
 
     @NotNull
