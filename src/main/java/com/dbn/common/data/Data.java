@@ -74,6 +74,10 @@ public final class Data {
         // TODO add more cast logic if required
     }
 
+    public static <T> List<T> asTypeList(@Nullable Object object, Class<T> type) {
+        return asList(object, o -> asType(o, type));
+    }
+
     @Nullable
     public static String asString(@Nullable Object object) {
         if (object == null) return null;
@@ -155,7 +159,7 @@ public final class Data {
     }
 
     public static List<Double> asDoubleList(@Nullable Object object) {
-        return asList(object, o -> asDouble(o));
+        return asTypeList(object, Double.class);
     }
 
     public static double asDoublePrimitive(@Nullable Object object) {
