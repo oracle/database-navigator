@@ -30,6 +30,5 @@ public enum ObjectChangeAction implements Constant<ObjectChangeAction> {
     ENABLE,
     DISABLE,
 
-    @Deprecated // TODO remove as soon as data definition changes from SQL statement executions are qualified
-    UNKNOWN;
+    UNSPECIFIED, // unspecified change
 }

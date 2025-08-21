@@ -19,6 +19,7 @@ package com.dbn.object.event;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.SchemaId;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
@@ -29,13 +30,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
+import static com.dbn.common.util.Unsafe.cast;
+
 @Getter
 public class ObjectChangeEvent {
     private final ObjectChangeAction changeAction;
     private final DBObjectType objectType;
     private final ConnectionId connectionId;
     private final SchemaId ownerId;
-    private DBObjectRef object;
+    private DBObjectRef<?> object;
 
     private ObjectChangeEvent(ObjectChangeAction changeAction, DBObjectType objectType, ConnectionId connectionId, SchemaId ownerId) {
         this.changeAction = changeAction;
@@ -54,6 +57,10 @@ public class ObjectChangeEvent {
     }
 
     public boolean matches(ConnectionHandler connection) {
+        return connection != null && matches(connection.getConnectionId());
+    }
+
+    public boolean matches(ConnectionRef connection) {
         return connection != null && matches(connection.getConnectionId());
     }
 
@@ -91,7 +98,6 @@ public class ObjectChangeEvent {
         event.notifyEvent();
     }
 
-
     private void notifyEvent() {
         ConnectionHandler connection = getConnection();
         if (connection == null) return;
@@ -100,7 +106,13 @@ public class ObjectChangeEvent {
         ProjectEvents.notify(project, ObjectChangeListener.TOPIC, l -> l.objectsChanged(this));
     }
 
-    private @Nullable ConnectionHandler getConnection() {
+    @Nullable
+    private ConnectionHandler getConnection() {
         return ConnectionHandler.get(connectionId);
+    }
+
+    @Nullable
+    public <T extends DBObject> T getObject() {
+        return cast(DBObjectRef.get(object));
     }
 }
