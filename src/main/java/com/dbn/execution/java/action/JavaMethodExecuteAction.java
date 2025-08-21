@@ -27,9 +27,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class JavaRunAction extends AnObjectAction<DBJavaMethod> {
+public class JavaMethodExecuteAction extends AnObjectAction<DBJavaMethod> {
     private final boolean listElement;
-    public JavaRunAction(DBJavaMethod method, boolean listElement) {
+    public JavaMethodExecuteAction(DBJavaMethod method, boolean listElement) {
         super(method);
         this.listElement = listElement;
     }
@@ -53,7 +53,7 @@ public class JavaRunAction extends AnObjectAction<DBJavaMethod> {
         if (listElement) {
             super.update(e, presentation, project, target);
         } else {
-            presentation.setText("Run...");
+            presentation.setText("Execute...");
             presentation.setIcon(Icons.METHOD_EXECUTION_RUN);
         }
     }
