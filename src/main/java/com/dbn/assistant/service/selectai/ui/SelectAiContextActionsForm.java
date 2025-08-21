@@ -38,7 +38,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.util.List;
-import java.util.Objects;
 
 import static com.dbn.assistant.state.AssistantStatus.INITIALIZING;
 import static com.dbn.assistant.state.AssistantStatus.UNAVAILABLE;
@@ -75,9 +74,9 @@ public class SelectAiContextActionsForm extends AssistantDetailFormBase implemen
     }
 
     private ObjectChangeListener createObjectChangeListener() {
-        return (connectionId, ownerId, objectType, action) -> {
-            if (!objectType.isOneOf(AI_PROFILE, CREDENTIAL)) return;
-            if (!Objects.equals(connectionId, getConnectionId())) return;
+        return e -> {
+            if (!e.matches(getConnectionId())) return;
+            if (!e.matches(AI_PROFILE, CREDENTIAL)) return;
 
             Background.run(() -> loadProfiles(false));
         };

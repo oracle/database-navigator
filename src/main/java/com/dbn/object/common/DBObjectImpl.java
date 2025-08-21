@@ -428,10 +428,10 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
 
     @Override
     @NotNull
-    public List<DBObject> collectChildObjects(DBObjectType objectType) {
+    public <T extends DBObject> List<T> collectChildObjects(DBObjectType objectType) {
         ListCollector<DBObject> collector = ListCollector.basic();
         collectChildObjects(objectType, collector);
-        return collector.elements();
+        return cast(collector.elements());
     }
 
     @Override
@@ -464,7 +464,11 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
         }
     }
 
-
+    @Override
+    public DBObjectList<?>[] getChildObjectLists() {
+        DBObjectListContainer objects = getChildObjects();
+        return objects == null ? DBObjectList.EMPTY_ARRAY : objects.getObjects();
+    }
 
     @Nullable
     @Override

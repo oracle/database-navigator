@@ -248,7 +248,7 @@ public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
 
     @Override
     @NotNull
-    public List<DBObject> collectChildObjects(DBObjectType objectType) {
+    public List<?> collectChildObjects(DBObjectType objectType) {
         return getChildObjects(objectType);
     }
 

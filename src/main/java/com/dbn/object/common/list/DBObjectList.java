@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public interface DBObjectList<T extends DBObject> extends BrowserTreeNode, DynamicContent<T>, Comparable<DBObjectList> {
+    DBObjectList[] EMPTY_ARRAY = new DBObjectList[0];
 
     PsiDirectory getPsiDirectory();
 

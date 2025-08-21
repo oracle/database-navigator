@@ -32,9 +32,9 @@ import java.util.List;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.nls.NlsResources.txt;
 
-public class ProgramMethodRunAction extends ObjectListShowAction {
-    public ProgramMethodRunAction(DBProgram program) {
-        super(txt("app.execution.action.Run"), program);
+public class ProgramMethodExecuteAction extends ObjectListShowAction {
+    public ProgramMethodExecuteAction(DBProgram program) {
+        super(txt("app.execution.action.Execute"), program);
         getTemplatePresentation().setIcon(Icons.METHOD_EXECUTION_RUN);
     }
 
@@ -76,6 +76,6 @@ public class ProgramMethodRunAction extends ObjectListShowAction {
 
     @Override
     protected AnAction createObjectAction(DBObject object) {
-        return new MethodRunAction((DBMethod) object, true);
+        return new MethodExecuteAction((DBMethod) object, true);
     }
 }

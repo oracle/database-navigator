@@ -32,7 +32,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.nls.NlsResources.txt;
 
 public class MethodDebugAction extends AbstractCodeEditorAction {
@@ -46,18 +46,21 @@ public class MethodDebugAction extends AbstractCodeEditorAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project, @Nullable SourceCodeEditor fileEditor, @Nullable DBSourceCodeVirtualFile sourceCodeFile) {
-        Presentation presentation = e.getPresentation();
-        boolean visible = false;
-        if (isValid(sourceCodeFile)) {
-            DBSchemaObject schemaObject = sourceCodeFile.getObject();
-            if (schemaObject.getObjectType().matches(DBObjectType.METHOD) && DatabaseFeature.DEBUGGING.isSupported(schemaObject)) {
-                visible = true;
-            }
-        }
+        boolean visible = isVisible(sourceCodeFile);
 
+        Presentation presentation = e.getPresentation();
         presentation.setVisible(visible);
         presentation.setText(txt("app.codeEditor.action.DebugMethod"));
         presentation.setIcon(Icons.METHOD_EXECUTION_DEBUG);
+    }
+
+    private static boolean isVisible(@Nullable DBSourceCodeVirtualFile sourceCodeFile) {
+        if (isNotValid(sourceCodeFile)) return false;
+
+        DBSchemaObject schemaObject = sourceCodeFile.getObject();
+        DBObjectType objectType = schemaObject.getObjectType();
+        return objectType.matches(DBObjectType.METHOD) &&
+                DatabaseFeature.DEBUGGING.isSupported(schemaObject);
     }
 
     private static CompilerSettings getCompilerSettings(Project project) {
