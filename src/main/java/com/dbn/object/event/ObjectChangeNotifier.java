@@ -18,7 +18,6 @@ package com.dbn.object.event;
 
 import com.dbn.common.Priority;
 import com.dbn.common.component.ConnectionComponent;
-import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.outcome.Outcome;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.connection.ConnectionHandler;
@@ -49,11 +48,7 @@ public class ObjectChangeNotifier extends ConnectionComponent implements Outcome
 
     @Override
     public void handle(Outcome outcome) {
-        ProjectEvents.notify(getProject(), ObjectChangeListener.TOPIC, l -> notify(l));
-    }
-
-    private void notify(ObjectChangeListener listener) {
-        listener.objectsChanged(getConnectionId(), ownerId, objectType, action);
+        ObjectChangeEvent.notify(action, objectType, getConnectionId(), ownerId);
     }
 
     @Override

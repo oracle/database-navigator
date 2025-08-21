@@ -17,13 +17,12 @@
 package com.dbn.sync.java.upload;
 
 import com.dbn.batch.impl.BatchProcessorBase;
-import com.dbn.common.event.ProjectEvents;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.execution.compiler.DatabaseCompilerManager;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaEntity;
-import com.dbn.object.event.ObjectChangeListener;
+import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import lombok.SneakyThrows;
@@ -75,7 +74,6 @@ public final class JavaUploadProcessor extends BatchProcessorBase<JavaUploadTask
 	}
 
 	private static void refreshDatabaseBrowser(JavaUploadBatch batch) {
-		Project project = batch.getProject();
 		JavaUploadInput input = batch.getInput();
 		ConnectionId connectionId = nn(input.getTargetConnectionId());
 		SchemaId schemaId = nn(input.getTargetSchemaId());
@@ -83,11 +81,13 @@ public final class JavaUploadProcessor extends BatchProcessorBase<JavaUploadTask
 		List<DBObjectRef<DBJavaEntity>> javaClasses = batch.getUploadedEntities(JAVA_CLASS);
 		List<DBObjectRef<DBJavaEntity>> javaResources = batch.getUploadedEntities(JAVA_RESOURCE);
 
-		boolean refreshJavaClasses = !javaClasses.isEmpty();
-		boolean refreshJavaResources = !javaResources.isEmpty();
+		if (!javaClasses.isEmpty()) {
+            ObjectChangeEvent.notify(CREATE, JAVA_CLASS, connectionId, schemaId);
+        }
 
-		if (refreshJavaClasses) ProjectEvents.notify(project, ObjectChangeListener.TOPIC, l -> l.objectsChanged(connectionId, schemaId, JAVA_CLASS, CREATE));
-		if (refreshJavaResources) ProjectEvents.notify(project, ObjectChangeListener.TOPIC, l -> l.objectsChanged(connectionId, schemaId, JAVA_RESOURCE, CREATE));
+		if (!javaResources.isEmpty()) {
+            ObjectChangeEvent.notify(CREATE, JAVA_RESOURCE, connectionId, schemaId);
+        }
 	}
 
 	private void compileUploadedClasses(JavaUploadBatch batch) {
