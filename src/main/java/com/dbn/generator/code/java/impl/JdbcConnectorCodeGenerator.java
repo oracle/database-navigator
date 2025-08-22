@@ -161,6 +161,8 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         //addProperty(properties, "PASSWORD", authenticationInfo.getPassword());
         addProperty(properties, "TOKEN_CONFIG_FILE", authenticationInfo.getTokenConfigFile());
         addProperty(properties, "TOKEN_PROFILE", authenticationInfo.getTokenProfile());
+        addProperty(properties, "OCI_COMPARTMENT", authenticationInfo.getAutonomousDatabaseCompartmentOcid());
+        addProperty(properties, "OCI_DATABASE", authenticationInfo.getAutonomousDatabaseOcid());
 
         // add AZURE token properties
         addProperty(properties, "AZURE_TOKEN_CLIENT_ID", authenticationInfo.getAzureClientId());

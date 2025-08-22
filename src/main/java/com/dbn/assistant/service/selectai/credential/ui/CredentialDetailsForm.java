@@ -61,9 +61,9 @@ public class CredentialDetailsForm extends DBNFormBase {
     }
 
     private void initChangeListener() {
-        ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType, action) -> {
-            if (connectionId != credential.getConnectionId()) return;
-            if (objectType != AI_PROFILE) return;
+        ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, e -> {
+            if (!e.matches(credential.getConnectionId())) return;
+            if (!e.matches(AI_PROFILE)) return;
 
             refreshUsageListData();
         });

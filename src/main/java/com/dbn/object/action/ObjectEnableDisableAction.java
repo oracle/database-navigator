@@ -44,8 +44,8 @@ public class ObjectEnableDisableAction extends AnObjectAction<DBSchemaObject> {
 
         if (objectManagementService.supports(object)) {
             boolean enabled = object.getStatus().is(DBObjectStatus.ENABLED);
-            ObjectChangeAction action = enabled ? ObjectChangeAction.DISABLE : ObjectChangeAction.ENABLE;
-            objectManagementService.changeObject(object, action,null);
+            ObjectChangeAction changeAction = enabled ? ObjectChangeAction.DISABLE : ObjectChangeAction.ENABLE;
+            objectManagementService.changeObject(object, changeAction,null);
         } else {
             throw new UnsupportedOperationException();
         }

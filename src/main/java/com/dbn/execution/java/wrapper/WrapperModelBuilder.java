@@ -73,6 +73,11 @@ public final class WrapperModelBuilder {
 		return INSTANCE;
 	}
 
+	public WrapperModel buildModel(WrapperModelInput input, WrapperNamingProvider namingProvider) {
+		// Create data structures that are unique to *this* parse call.
+		WrapperContext context = new WrapperContext(input, namingProvider);
+		return buildModel(context);
+	}
 
 	public WrapperModel buildModel(WrapperModelInput input) {
         // Create data structures that are unique to *this* parse call.

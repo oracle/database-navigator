@@ -18,10 +18,10 @@ package com.dbn.debugger.common.breakpoint;
 
 import com.dbn.common.file.util.VirtualFiles;
 import com.dbn.common.thread.Read;
-import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
-import com.dbn.debugger.jdwp.DBJdwpBreakpointProperties;
+import com.dbn.debugger.DBDebuggerType;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vfs.DatabaseFileSystem;
@@ -32,21 +32,25 @@ import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.xdebugger.XDebuggerManager;
+import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointManager;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import static com.dbn.common.action.UserDataKeys.BREAKPOINT_FILE;
 import static com.dbn.common.action.UserDataKeys.BREAKPOINT_ID;
+import static com.dbn.common.util.Unsafe.cast;
 
 public class DBBreakpointUtil {
+
+    public static final String JAVA_LINE_BREAKPOINT_TYPE_ID = "java-line";
 
     public static Integer getBreakpointId(@NotNull XLineBreakpoint breakpoint) {
         return breakpoint.getUserData(BREAKPOINT_ID);
@@ -127,12 +131,13 @@ public class DBBreakpointUtil {
         return base + ":" + line + " (id=" + breakpointId + ")";
     }
 
-    public static List<XLineBreakpoint<XBreakpointProperties>> getDatabaseBreakpoints(ConnectionHandler connection) {
+    public static List<XLineBreakpoint<XBreakpointProperties>> getDatabaseBreakpoints(ConnectionHandler connection, DBDebuggerType debuggerType) {
         Project project = connection.getProject();
-        Collection<XLineBreakpoint<XBreakpointProperties>> allBreakpoints = getAllBreakpoints(project);
-
         List<XLineBreakpoint<XBreakpointProperties>> breakpoints = new ArrayList<>();
-        for (val breakpoint : allBreakpoints) {
+
+        // db program breakpoints
+        Collection<XLineBreakpoint<XBreakpointProperties>> databaseBreakpoints = getDatabaseBreakpoints(project);
+        for (var breakpoint : databaseBreakpoints) {
             XBreakpointProperties properties = breakpoint.getProperties();
             if (properties instanceof DBBreakpointProperties) {
                 DBBreakpointProperties breakpointProperties = (DBBreakpointProperties) properties;
@@ -141,22 +146,48 @@ public class DBBreakpointUtil {
                 }
             }
         }
+
+        // db java breakpoints
+        if (debuggerType == DBDebuggerType.JDWP) {
+            Collection<XLineBreakpoint<XBreakpointProperties>> javaBreakpoints = getJavaBreakpoints(project);
+            for (var breakpoint : javaBreakpoints) {
+                String fileUrl = breakpoint.getFileUrl();
+                if (!DatabaseFileSystem.isDatabaseFile(fileUrl)) continue;
+
+                ConnectionId connectionId = DatabaseFileSystem.getConnectionId(fileUrl);
+                if (Objects.equals(connectionId, connection.getConnectionId())) {
+                    breakpoints.add(breakpoint);
+                }
+            }
+        }
         return breakpoints;
     }
 
-    public static void registerBreakpoint(DBContentVirtualFile contentFile, int line, DBJdwpBreakpointProperties properties) {
-        String fileUrl = contentFile.getUrl();
-        XBreakpointManager breakpointManager = getBreakpointManager(contentFile.getProject());
-
+    @NotNull
+    private static Collection<XLineBreakpoint<XBreakpointProperties>> getDatabaseBreakpoints(Project project) {
         DBBreakpointType breakpointType = DBBreakpointType.get();
-        breakpointManager.addLineBreakpoint(breakpointType, fileUrl, line, properties, true);
+        XBreakpointManager breakpointManager = getBreakpointManager(project);
+        return Read.call(() -> cast(breakpointManager.getBreakpoints(breakpointType)));
     }
 
     @NotNull
-    private static Collection<XLineBreakpoint<XBreakpointProperties>> getAllBreakpoints(Project project) {
-        DBBreakpointType breakpointType = DBBreakpointType.get();
+    private static Collection<XLineBreakpoint<XBreakpointProperties>> getJavaBreakpoints(Project project) {
         XBreakpointManager breakpointManager = getBreakpointManager(project);
-        return Read.call(() -> Unsafe.cast(breakpointManager.getBreakpoints(breakpointType)));
+
+        XBreakpoint<?>[] allBreakpoints = breakpointManager.getAllBreakpoints();
+        List<XLineBreakpoint<XBreakpointProperties>> javaBreakpoints = new ArrayList<>();
+
+        for (XBreakpoint<?> breakpoint : allBreakpoints) {
+            if (isJavaLineBreakpoint(breakpoint)) {
+                javaBreakpoints.add(cast(breakpoint));
+            }
+        }
+
+        return javaBreakpoints;
+    }
+
+    private static boolean isJavaLineBreakpoint(XBreakpoint<?> breakpoint) {
+        return Objects.equals(breakpoint.getType().getId(), JAVA_LINE_BREAKPOINT_TYPE_ID);
     }
 
     public static @NotNull XBreakpointManager getBreakpointManager(Project project) {
