@@ -17,6 +17,7 @@
 
 package com.dbn.database.oracle.execution;
 
+import com.dbn.common.data.Data;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.SessionId;
@@ -24,22 +25,16 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.common.execution.JavaExecutionProcessorImpl;
 import com.dbn.database.oracle.OracleTypes;
-import com.dbn.execution.common.input.StringCollectionPayloadMapper;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.java.wrapper.WrapperModel;
 import com.dbn.execution.java.wrapper.model.ClassWrapper;
 import com.dbn.execution.java.wrapper.model.MethodWrapper;
 import com.dbn.execution.java.wrapper.model.ParameterWrapper;
-import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
-import lombok.SneakyThrows;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.sql.Array;
@@ -50,6 +45,9 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
 import java.util.Objects;
+import lombok.SneakyThrows;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.data.Data.asBigDecimal;
 import static com.dbn.common.data.Data.asBigInteger;
@@ -142,7 +140,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 			String parameterName = parameter.getName();
 			if (parameter.isArray()) {
 				String objectName = methodWrapper.getParameters().get(parameterIndex - 1).getSqlTypeName();
-				Array arrObj = getArrayObject(executionInput, parameter.getJavaClass(), wrapperModel, objectName, parameterName);
+				Array arrObj = getArrayObject(executionInput, parameter.getJavaClassRef(), wrapperModel, objectName, parameterName);
 				statement.setArray(parameterIndex, arrObj);
 
 			} else if (!parameter.isScalar()) { // TODO support pseudo-primitives com.dbn.object.type.DBJavaValueType
@@ -227,18 +225,20 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	}
 
 	@SneakyThrows
-	private Array getArrayObject(JavaExecutionInput executionInput,DBJavaClass dbJavaClass, WrapperModel wrapperModel, String objectName, String fieldPath){
+	private Array getArrayObject(JavaExecutionInput executionInput,DBObjectRef dbJavaClass, WrapperModel wrapperModel, String objectName, String fieldPath){
 		ConnectionHandler connection = getMethod().getConnection();
 		SessionId targetSessionId = executionInput.getTargetSessionId();
 		SchemaId targetSchemaId = executionInput.getTargetSchemaId();
 		DBNConnection conn = connection.getConnection(targetSessionId, targetSchemaId);
 
 		String fieldValue = executionInput.getInputValue(fieldPath);
-		List<String> values = StringCollectionPayloadMapper.getInstance().decodeToList(fieldValue);
-		Object[] customTypeAttributes =
-				values.stream()
-						.map(v -> parseValue(dbJavaClass.ref(), v))
-						.toArray(Object[]::new);
+		String className = getCanonicalName(dbJavaClass);
+		Class<?> clazz = Data.asPrimitiveClass(className);
+		if(clazz == null){
+			clazz = Class.forName(className);
+		}
+		List<?> values = Data.csvToList(fieldValue, clazz);
+		Object[] customTypeAttributes = values.toArray();
 
 		ClassLoader cl =  conn.getInner().getClass().getClassLoader();
 		Class<?> structDescriptorClass = Class.forName("oracle.sql.ArrayDescriptor",true, cl);
@@ -263,7 +263,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		// 1) See if field is an array
 		if(field.isArray()) {
 			String objectName = getTypeName(field, wrapperModel);
-			return getArrayObject(executionInput, field.getJavaClass(), wrapperModel, objectName, fieldPath);
+			return getArrayObject(executionInput, field.getJavaClassRef(), wrapperModel, objectName, fieldPath);
 		}
 
 		// 2) Try the primitive / wrapper / well-known types first
@@ -322,10 +322,9 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
 
 	private String getTypeName(DBJavaField field, WrapperModel wrapperModel) {
-		DBJavaClass javaClass = field.getJavaClass();
 
 		for (ClassWrapper classWrapper : wrapperModel.getClasses()) {
-			if (Objects.equals(classWrapper.getClassName(), javaClass.getCanonicalName())) {
+			if (Objects.equals(classWrapper.getClassName(), getCanonicalName(field.getJavaClassRef()))) {
 				return classWrapper.getSqlTypeName();
 			}
 		}

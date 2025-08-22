@@ -18,6 +18,7 @@ package com.dbn.data.editor.ui.array;
 
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
+import com.dbn.common.data.Data;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.list.ListProperty;
 import com.dbn.common.ui.misc.DBNScrollPane;
@@ -39,13 +40,6 @@ import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.ui.SimpleTextAttributes;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.Icon;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
@@ -53,7 +47,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Actions.createActionToolbar;
 import static com.dbn.common.util.Commons.nvl;
@@ -147,14 +146,9 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
                 stringValues.addAll(values);
             }
             else if (userValue instanceof List<?>) {
-                @SuppressWarnings("unchecked")
                 List<?> rawList = (List<?>) userValue;
-                // Filter to only add String elements if type safety is a concern
-                List<String> values = rawList.stream()
-                        .filter(String.class::isInstance)
-                        .map(String.class::cast)
-                        .collect(Collectors.toList());
-                stringValues.addAll(values);
+                List<String> stringList = Data.asStringList(rawList);
+                stringValues.addAll(stringList);
             }
 
         } catch (SQLException e) {
@@ -180,26 +174,6 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
 
         popupBuilder.setDimensionServiceKey(project, "ArrayEditor." + userValueHolder.getName(), false);
         return popupBuilder.createPopup();
-    }
-
-    public void updateStringValues(@NotNull List<String> newValues) {
-        Runnable task = () -> {
-            // Update the table-model behind the list.
-            list.setStringValues(new ArrayList<>(newValues));
-
-            // Optional UX niceties
-            if (list.getModel().getRowCount() > 0) {
-                list.selectCell(0, 0);         // highlight first cell
-            }
-            list.revalidate();                 // re-layout if row count changed
-            list.repaint();                    // paint the new data
-        };
-
-        if (javax.swing.SwingUtilities.isEventDispatchThread()) {
-            task.run();
-        } else {
-            javax.swing.SwingUtilities.invokeLater(task);
-        }
     }
 
     @Override

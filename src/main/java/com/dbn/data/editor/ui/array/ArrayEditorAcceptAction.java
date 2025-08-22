@@ -16,14 +16,14 @@
 
 package com.dbn.data.editor.ui.array;
 
+import com.dbn.common.data.Data;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
 import com.dbn.data.editor.ui.UserValueHolder;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.nls.NlsResources.txt;
@@ -43,10 +43,17 @@ class ArrayEditorAcceptAction extends ArrayEditorAction {
         list.stopCellEditing();
         UserValueHolder<?> userValueHolder = form.getEditorComponent().getUserValueHolder();
 
-        List<String> data = list.getModel().getData();
-        data = Lists.convert(data, s -> Strings.isEmpty(s) ? null : s);
+        Class<?> clazz = userValueHolder.getDataClass();
+
+        List<String> stringData = list.getModel().getData();
+
+        List<?> data = clazz == null ?
+                Lists.convert(stringData, s -> Strings.isEmpty(s) ? null : s):
+                Data.asTypeList(stringData, clazz);
+
         userValueHolder.updateUserValue(cast(data), false);
 
+        form.getEditorComponent().getTextField().setText(Data.listToCsv(data));
         form.hidePopup();
     }
 

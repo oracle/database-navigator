@@ -39,23 +39,23 @@ import com.dbn.object.DBJavaField;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
-import org.jetbrains.annotations.NotNull;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentListener;
+import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Lists.sortedCopy;
+import static com.dbn.execution.java.ui.JavaExecutionInputUtil.setupSingleDimArrayEditor;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static java.util.Collections.emptyList;
@@ -88,15 +88,6 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 		} else {
 			initClassField();
 		}
-	}
-
-	private JavaExecutionInputParameterForm getParentParameterForm()
-	{
-		DBNForm parentForm = getParentComponent();
-		while (parentForm instanceof JavaExecutionInputFieldForm) {
-			parentForm = parentForm.getParentComponent();
-		}
-		return (JavaExecutionInputParameterForm) parentForm;
 	}
 
 	private int computeIndent() {
@@ -162,7 +153,7 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 		inputTextField.setDisabledTextColor(inputTextField.getForeground());
 
         if (field.getArrayDepth() == 1) {
-            getParentParameterForm().setupSingleDimArrayEditor(field, value, project, inputField, inputTextField);
+            setupSingleDimArrayEditor(field, value, project, inputField, inputTextField);
         }
         inputField.createValuesListPopup(createValuesProvider(), field, true);
 	}

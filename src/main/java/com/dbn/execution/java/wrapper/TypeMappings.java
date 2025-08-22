@@ -24,14 +24,27 @@ import java.util.Set;
 
 
 public final class TypeMappings {
+    /**
+     * Refer to the following Oracle documentation for authoritative guidance on Java-to-PL/SQL type mappings:
+     * https://docs.oracle.com/en/database/oracle/oracle-database/19/jjdev/defining-call-specifications.html#JJDEV-GUID-698850EA-53C0-42C3-84A3-9A590BB15123
+     *
+     * Note:
+     * - The mappings defined below do not cover every scenario from the referenced table.
+     *   Please consult the link above for the full range of supported mappings.
+     *   Additional types and scenarios may be supported in the future as requirements evolve.
+     * - In some cases, our mappings may differ from the documented table,
+     *   we have intentionally done it for handling complex types
+     *   (e.g., when Java types are used as fields within composite objects or arrays).
+     *   Our generated wrapper classes are designed to handle such cases and manage necessary type conversions.
+     */
     @Getter
     private static final Map<String, SqlType> DATA_TYPES =
             Map.ofEntries(
                 Map.entry("java.lang.String", new SqlType("VARCHAR2", "String.valueOf(", ")", "(32000)")),
                 // Java Primitive types
-                Map.entry("boolean", new SqlType("NUMBER", "", ".equals(\"1\")")),
+                Map.entry("boolean", new SqlType("NUMBER", "((Number)", ").intValue() != 0")),
                 Map.entry("byte", new SqlType("NUMBER", "Byte.parseByte(String.valueOf(", "))")),
-                Map.entry("char", new SqlType("VARCHAR2", "String.valueOf(", ").charAt(0)")),
+                Map.entry("char", new SqlType("CHAR", "String.valueOf(", ").charAt(0)")),
                 Map.entry("short", new SqlType("NUMBER", "Short.parseShort(String.valueOf(", "))")),
                 Map.entry("int", new SqlType("NUMBER", "Integer.parseInt(String.valueOf(", "))")),
                 Map.entry("long", new SqlType("NUMBER", "Long.parseLong(String.valueOf(", "))")),
@@ -46,7 +59,7 @@ public final class TypeMappings {
                 Map.entry("java.math.BigInteger", new SqlType("NUMBER", "new java.math.BigInteger(String.valueOf(", "))")),
 
                 // Java Wrapper Types
-                Map.entry("java.lang.Boolean", new SqlType("NUMBER", "", ".equals(\"1\")")),
+                Map.entry("java.lang.Boolean", new SqlType("NUMBER", "((Number)", ").intValue() != 0")),
                 Map.entry("java.lang.Byte", new SqlType("NUMBER", "Byte.parseByte(String.valueOf(", "))")),
                 Map.entry("java.lang.Character", new SqlType("CHAR", "String.valueOf(", ").charAt(0)")),
                 Map.entry("java.lang.Short", new SqlType("NUMBER", "Short.parseShort(String.valueOf(", "))")),

@@ -45,6 +45,7 @@ public class BasicDataModelCell<
     private final int index;
     private Object userValue;
     private String presentableValue;
+    private Class<?> dataClass;
 
     public BasicDataModelCell(Object userValue, R row, int index) {
         this.userValue = userValue;
