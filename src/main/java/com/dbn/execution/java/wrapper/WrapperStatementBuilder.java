@@ -25,6 +25,7 @@ import com.dbn.execution.java.wrapper.model.FieldWrapper;
 import com.dbn.execution.java.wrapper.model.MethodWrapper;
 import com.dbn.execution.java.wrapper.model.ParameterWrapper;
 import com.intellij.openapi.project.Project;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -503,7 +504,11 @@ public final class WrapperStatementBuilder {
 		return "(" + method.getParameters()
 				.stream()
 				.map(e -> (
-						e.isArray() ? "java.sql.Array" : e.isComplexType() ? "java.sql.Struct" : e.getJavaTypeName())
+						(Objects.equals(e.getJavaTypeName(), "java.lang.Character")
+							|| Objects.equals(e.getJavaTypeName(), "char"))&&!e.isArray() ? "java.lang.String":
+						e.isArray() ? "java.sql.Array" :
+						e.isComplexType() ? "java.sql.Struct" :
+						e.getJavaTypeName())
 						+ (includeArgumentNames ? " arg" + idx.getAndIncrement(): "")
 				)
 				.collect(Collectors.joining(", ")) + ")";
@@ -513,8 +518,19 @@ public final class WrapperStatementBuilder {
 		AtomicInteger idx = new AtomicInteger(0);
 		return method.getParameters()
 				.stream()
-				.map(e -> " arg" + idx.getAndIncrement() +
-						((e.isArray() || e.isComplexType()) ? "Java" :""))
+				.map(e -> {
+					String varName = " arg" + idx.getAndIncrement() +
+							((e.isArray() || e.isComplexType()) ? "Java" : "");
+					// Special case, if not array, and Java type is char or java.lang.Character
+					if (!e.isArray()) {
+						String type = e.getJavaTypeName();
+						if ("char".equals(type) || "java.lang.Character".equals(type)) {
+							SqlType sqlType = TypeMappings.getSqlType(type);
+							varName = sqlType.getTransformerPrefix() +varName+ sqlType.getTransformerSuffix();
+						}
+					}
+					return varName;
+				})
 				.collect(Collectors.joining(", "));
 	}
 
@@ -553,21 +569,32 @@ public final class WrapperStatementBuilder {
 		if (returnType.isComplexType()) {
 			return "java.sql.Struct";
 		}
-		return returnType.getJavaTypeName();
+		String returnJavaType = returnType.getJavaTypeName();
+		if ("char".equals(returnJavaType) || "java.lang.Character".equals(returnJavaType)) {
+			return "java.lang.String";
+		}
+
+		return returnJavaType;
 	}
 
 	public String getReturnStatement(MethodWrapper method, String fullyQualifiedOriginalClassName) {
 		ParameterWrapper returnType = method.getReturnParameter();
 		StringBuilder statement = new StringBuilder();
-		if(returnType != null){
-			statement.append("return ");
-		}
 		String converterMethodStart = "";
 		String converterMethodEnd = ";";
-		if (returnType != null && (returnType.isArray() || returnType.isComplexType())) {
-			converterMethodStart = returnType.getConverterName() + "(";
-			converterMethodEnd = ");";
+
+		if(returnType != null) {
+			statement.append("return ");
+			String javaReturnType = returnType.getJavaTypeName();
+			if ((returnType.isArray() || returnType.isComplexType())) {
+				converterMethodStart = returnType.getConverterName() + "(";
+				converterMethodEnd = ");";
+			} else if ("char".equals(javaReturnType) || "java.lang.Character".equals(javaReturnType)) {
+				converterMethodStart = "String.valueOf(";
+				converterMethodEnd = ");";
+			}
 		}
+
 
 
 		statement.append(converterMethodStart)

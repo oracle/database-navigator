@@ -160,7 +160,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 				else if (clazz.equals("float")) statement.setFloat(parameterIndex, Float.parseFloat(value));
 				else if (clazz.equals("double")) statement.setDouble(parameterIndex, Double.parseDouble(value));
 				else if (clazz.equals("boolean"))
-					statement.setBoolean(parameterIndex, Boolean.getBoolean(value));
+					statement.setBoolean(parameterIndex, Boolean.parseBoolean(value));
 				else
 					statement.setObject(parameterIndex, value);
 
