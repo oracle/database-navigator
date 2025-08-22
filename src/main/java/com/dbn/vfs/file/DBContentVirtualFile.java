@@ -56,7 +56,7 @@ public abstract class DBContentVirtualFile extends DBVirtualFileBase implements 
     protected DBContentType contentType;
 
     public DBContentVirtualFile(@NotNull DBEditableObjectVirtualFile mainDatabaseFile, DBContentType contentType) {
-        super(mainDatabaseFile.getProject(), mainDatabaseFile.getObjectRef().getObjectName());
+        super(mainDatabaseFile.getProject(), mainDatabaseFile.getObjectRef().getFileName());
         this.mainDatabaseFile = WeakRef.of(mainDatabaseFile);
         this.contentType = contentType;
 

@@ -32,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -56,9 +57,7 @@ public final class WrapperStatementBuilder {
 		List<String> sqlTypes = new ArrayList<>();
 		@NonNls Properties properties = new Properties();
 
-		Set<String> sqlTypeNames = model.getSqlTypeNames();
-		sqlTypeNames.clear();
-
+		Set<String> sqlTypeNames = new HashSet<>();
 		for (ClassWrapper classWrapper : model.getClasses()) {
 			String sqlTypeName = classWrapper.getSqlTypeName();
 

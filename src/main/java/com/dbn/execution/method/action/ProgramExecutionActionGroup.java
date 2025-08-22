@@ -27,10 +27,10 @@ public class ProgramExecutionActionGroup extends DefaultActionGroup {
     public ProgramExecutionActionGroup(DBSchemaObject object) {
         super("Execute", true);
         if (object.getContentType() == DBContentType.CODE_SPEC_AND_BODY) {
-            add(new ProgramMethodRunAction((DBProgram) object));
+            add(new ProgramMethodExecuteAction((DBProgram) object));
             add(new ProgramMethodDebugAction((DBProgram) object));
         } else {
-            add(new MethodRunAction((DBMethod) object, false));
+            add(new MethodExecuteAction((DBMethod) object, false));
             add(new MethodDebugAction((DBMethod) object, false));
         }
     }

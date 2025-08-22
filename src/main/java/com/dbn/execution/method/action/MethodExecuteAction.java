@@ -29,9 +29,9 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class MethodRunAction extends AnObjectAction<DBMethod> {
+public class MethodExecuteAction extends AnObjectAction<DBMethod> {
     private final boolean listElement;
-    public MethodRunAction(DBMethod method, boolean listElement) {
+    public MethodExecuteAction(DBMethod method, boolean listElement) {
         super(method);
         this.listElement = listElement;
     }
@@ -55,7 +55,7 @@ public class MethodRunAction extends AnObjectAction<DBMethod> {
         if (listElement) {
             super.update(e, presentation, project, target);
         } else {
-            presentation.setText(txt("app.execution.action.Run"));
+            presentation.setText(txt("app.execution.action.Execute"));
             presentation.setIcon(Icons.METHOD_EXECUTION_RUN);
         }
     }

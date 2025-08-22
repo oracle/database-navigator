@@ -16,7 +16,6 @@
 
 package com.dbn.execution.java.wrapper.naming;
 
-import com.dbn.common.exception.Exceptions;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +23,11 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.common.util.Naming.toUpperSnakeCase;
 
 public class FriendlyWrapperNamingProvider implements WrapperNamingProvider {
-    boolean compact = true; // TODO identifier max length awareness
+    private final boolean compact;
+
+    public FriendlyWrapperNamingProvider(boolean compact) {
+        this.compact = compact;
+    }
 
     @Override
     public String getJavaWrapperName(DBJavaClass javaClass) {
@@ -65,10 +68,8 @@ public class FriendlyWrapperNamingProvider implements WrapperNamingProvider {
 
     @Override
     public String getSqlMethodName(DBJavaMethod javaMethod) {
-        Exceptions.unsupported();
-        return null;
+        return toUpperSnakeCase(javaMethod.getSimpleName());
     }
-
 
     private String toSqlTypeName(DBJavaClass javaClass, String qualifier) {
         String className = javaClass.getCanonicalName();

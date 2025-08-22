@@ -53,21 +53,21 @@ import java.util.Properties;
  *          <dependency>
  *              <groupId>com.oracle.database.jdbc</groupId>
  *              <artifactId>ojdbc-provider-oci</artifactId>
- *              <version>1.0.1</version>
+ *              <version>1.0.6</version>
  *          </dependency>
  *
  *          <!-- Service Provider which requests tokens from Azure -->
  *          <dependency>
  *              <groupId>com.oracle.database.jdbc</groupId>
  *              <artifactId>ojdbc-provider-azure</artifactId>
- *              <version>1.0.1</version>
+ *              <version>1.0.6</version>
  *          </dependency>
  *
  *          <!-- Providers will remain compatible with ojdbc 23.4 or newer -->
  *          <dependency>
  *              <groupId>com.oracle.database.jdbc</groupId>
  *              <artifactId>ojdbc11</artifactId>
- *              <version>23.4.0.24.05</version>
+ *              <version>23.8.0.25.04</version>
  *          </dependency>
  *     </dependencies>
  *     </p>
@@ -89,17 +89,17 @@ public class JdbcConnectorAzureCert  {
 
         // JDBC URL
         // ORACLE jdbc url: jdbc:oracle:thin:@<TNS_PROFILE>?TNS_ADMIN="<TNS_FOLDER>"
-        String tnsFolder = "/Users/cbateman/git/ojdbc-token-demos-with-secret";
+        String tnsFolder = "/path/tns";
         String tnsProfile = "azure_db";
         String jdbcUrl = "jdbc:oracle:thin:@" + tnsProfile + "?TNS_ADMIN=\"" + tnsFolder + "\"";
 
 
         // AUTHENTICATION
         properties.put(PROP_TOKEN_AUTH, "AZURE_SERVICE_PRINCIPAL");
-        properties.put(PROP_AZURE_TOKEN_CLIENT_ID, "60ba30aa-f5ec-4c03-98ff-d481cbc738a1");
-        properties.put(PROP_AZURE_TOKEN_TENANT_ID, "5b743bc7-c1e2-4d46-b4b5-a32eddac0286");
-        properties.put(PROP_AZURE_TOKEN_DATABASE_ID_URI, "https://oracledevelopment.onmicrosoft.com/2a0698da-5691-4e06-83bf-fc74c700c04e");
-        properties.put(PROP_AZURE_TOKEN_CLIENT_SECRET_FILE, "/Users/cbateman/git/ojdbc-token-demos-with-secret/secret/azure_service_principal.pem");
+        properties.put(PROP_AZURE_TOKEN_CLIENT_ID, "xxxx-xxxx-yyyyy-yyy");
+        properties.put(PROP_AZURE_TOKEN_TENANT_ID, "aaaaaa-bbbbbb-cdcdfdfff-aaa");
+        properties.put(PROP_AZURE_TOKEN_DATABASE_ID_URI, "https://mydev.onmicrosoft.com/qqqqqqqq-rrrrrr-sssss-tttttt");
+        properties.put(PROP_AZURE_TOKEN_CLIENT_SECRET_FILE, "/path/to/secret/azure_service_principal.pem");
 
         // PROPERTIES
     // custom properties (e.g. properties.put("charset", "UTF-8");)

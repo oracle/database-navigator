@@ -17,7 +17,6 @@
 package com.dbn.code.common.intention;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.database.DatabaseFeature;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.method.MethodExecutionManager;
 import com.dbn.object.DBMethod;
@@ -32,7 +31,7 @@ import javax.swing.Icon;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class RunMethodIntentionAction extends AbstractMethodExecutionIntentionAction{
+public class ExecuteMethodIntentionAction extends AbstractMethodExecutionIntentionAction{
 
     @Override
     public EditorIntentionType getType() {
@@ -40,8 +39,10 @@ public class RunMethodIntentionAction extends AbstractMethodExecutionIntentionAc
     }
 
     @Override
-    protected String getActionName() {
-        return txt("app.codeEditor.action.RunMethod");
+    protected String getActionName(DBMethod method) {
+        return method == null ?
+                txt("app.codeEditor.action.ExecuteMethod") :
+                txt("app.codeEditor.action.ExecuteSpecificMethod", method.getQualifiedNameWithType());
     }
 
     @Override
@@ -52,20 +53,19 @@ public class RunMethodIntentionAction extends AbstractMethodExecutionIntentionAc
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
         PsiFile psiFile = psiElement.getContainingFile();
-        if (psiFile != null) {
-            DBMethod method = resolveMethod(editor, psiFile);
-            return DatabaseFeature.DEBUGGING.isSupported(method);
-        }
-        return false;
+        if (psiFile == null) return false;
+
+        DBMethod method = resolveMethod(editor, psiFile);
+        return method != null;
     }
 
     @Override
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException {
         PsiFile psiFile = psiElement.getContainingFile();
         DBMethod method = resolveMethod(editor, psiFile);
-        if (method != null) {
-            MethodExecutionManager executionManager = MethodExecutionManager.getInstance(project);
-            executionManager.startMethodExecution(method, DBDebuggerType.NONE);
-        }
+        if (method == null) return;
+
+        MethodExecutionManager executionManager = MethodExecutionManager.getInstance(project);
+        executionManager.startMethodExecution(method, DBDebuggerType.NONE);
     }
 }
