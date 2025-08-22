@@ -901,6 +901,8 @@
         <notificationGroup id="DBNavigator.NotificationGroup.Events" displayType="BALLOON" key="ntf.shared.title.DBNavigatorEvents" toolWindowId="DB Events"/>
 
         <lang.directNavigationProvider implementation="com.dbn.navigation.DatabaseNavigationProvider"/>
+        <gotoDeclarationHandler implementation="com.dbn.navigation.DatabaseGotoDeclarationHandler"/>
+
         <postStartupActivity implementation="com.dbn.project.ProjectStartupActivity"/>
         <!--<postStartupActivity implementation="com.dbn.project.ProjectComponentsInitializer" order="last"/>-->
         <!--<applicationInitializedListener implementation="com.dbn.init.DatabaseNavigatorInitializer"/>-->
