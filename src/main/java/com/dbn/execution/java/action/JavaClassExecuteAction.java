@@ -31,9 +31,9 @@ import java.util.List;
 
 import static com.dbn.common.util.Unsafe.cast;
 
-public class JavaObjectRunAction extends ObjectListShowAction {
-	public JavaObjectRunAction(DBJavaClass program) {
-		super("Run...", program);
+public class JavaClassExecuteAction extends ObjectListShowAction {
+	public JavaClassExecuteAction(DBJavaClass program) {
+		super("Execute...", program);
 		getTemplatePresentation().setIcon(Icons.METHOD_EXECUTION_RUN);
 	}
 
@@ -50,9 +50,7 @@ public class JavaObjectRunAction extends ObjectListShowAction {
 	@Override
 	public List<DBObject> getObjectList() {
 		DBJavaClass program = (DBJavaClass) getSourceObject();
-		List<DBObject> objects = new ArrayList<>();
-		objects.addAll(program.getStaticMethods());
-		return objects;
+        return new ArrayList<>(program.getStaticMethods());
 	}
 
 	@Override
@@ -74,6 +72,6 @@ public class JavaObjectRunAction extends ObjectListShowAction {
 
 	@Override
 	protected AnAction createObjectAction(DBObject object) {
-		return new JavaRunAction((DBJavaMethod) object, true);
+		return new JavaMethodExecuteAction((DBJavaMethod) object, true);
 	}
 }
