@@ -128,7 +128,6 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
     }
 
     private void createModel(ModelFactoryInput input, ProgressIndicator progress) throws SQLException {
-        DBObjectType objectType = AI_MODEL;
         ModelPathType modelPathType = input.getModelPathType();
         DBSchema schema = input.getSchema();
 
@@ -153,8 +152,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                     }
                 });
 
-        notifyObjectChanges(connectionId, schemaId, objectType, CREATE);
-
+        ObjectChangeEvent.notify(CREATE, AI_MODEL, connectionId, schemaId);
     }
 
     private Blob prepareOnnxModel(

@@ -47,6 +47,7 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.common.util.Strings.toUpperCase;
+import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 
 public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryInput> {
   public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.singleFile().
@@ -112,9 +113,9 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
     addCredentialButton.addActionListener(e -> Dialogs.show(() -> new CredentialEditDialog(connection, null, Set.of())));
 
     Project project = connection.getProject();
-    ProjectEvents.subscribe(project, this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType, operation) -> {
-      if (connectionId != connection.getConnectionId()) return;
-      if (objectType != DBObjectType.CREDENTIAL) return;
+    ProjectEvents.subscribe(project, this, ObjectChangeListener.TOPIC, e -> {
+      if (!e.matches(connection)) return;
+      if (!e.matches(CREDENTIAL)) return;
       populateCredentials();
     });
   }
