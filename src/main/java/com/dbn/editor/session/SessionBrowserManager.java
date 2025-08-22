@@ -275,7 +275,7 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
         if (sessionCount == 1) {
             SessionIdentifier identifier = idenrifiers.get(0);
             Object sessionId = identifier.getSessionId();
-            if (errors.size() == 0) {
+            if (errors.isEmpty()) {
                 Messages.showInfoDialog(project, "Info", "Session " + sessionId + " " + disconnectedAction + ".");
             } else {
                 SQLException exception = errors.get(identifier);
