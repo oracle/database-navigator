@@ -240,31 +240,32 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
     private void loadSourceFromDatabase(@NotNull DBSourceCodeVirtualFile sourceCodeFile, boolean force, boolean notifyError) {
         boolean initialLoad = !sourceCodeFile.isLoaded();
-        if (sourceCodeFile.isNot(LOADING) && (initialLoad || force)) {
-            sourceCodeFile.set(LOADING, true);
-            Editors.setEditorsReadonly(sourceCodeFile, true);
-            Project project = getProject();
-            DBSchemaObject object = sourceCodeFile.getObject();
+        if (sourceCodeFile.is(LOADING)) return;
+        if (!initialLoad && !force) return;
 
+        sourceCodeFile.set(LOADING, true);
+        Editors.setEditorsReadonly(sourceCodeFile, true);
+        Project project = getProject();
+        DBSchemaObject object = sourceCodeFile.getObject();
+
+        ProjectEvents.notify(project,
+                SourceCodeManagerListener.TOPIC,
+                (listener) -> listener.sourceCodeLoading(sourceCodeFile));
+        try {
+            sourceCodeFile.loadSourceFromDatabase();
+        } catch (SQLException e) {
+            conditionallyLog(e);
+            sourceCodeFile.setSourceLoadException(e);
+            sourceCodeFile.setModified(false);
+            if (notifyError) {
+                String objectDesc = object.getQualifiedNameWithType();
+                sendErrorNotification(SOURCE_CODE, txt("ntf.sourceCode.error.CannotLoadSourceCode", objectDesc, e));
+            }
+        } finally {
+            sourceCodeFile.set(LOADING, false);
             ProjectEvents.notify(project,
                     SourceCodeManagerListener.TOPIC,
-                    (listener) -> listener.sourceCodeLoading(sourceCodeFile));
-            try {
-                sourceCodeFile.loadSourceFromDatabase();
-            } catch (SQLException e) {
-                conditionallyLog(e);
-                sourceCodeFile.setSourceLoadException(e);
-                sourceCodeFile.setModified(false);
-                if (notifyError) {
-                    String objectDesc = object.getQualifiedNameWithType();
-                    sendErrorNotification(SOURCE_CODE, txt("ntf.sourceCode.error.CannotLoadSourceCode", objectDesc, e));
-                }
-            } finally {
-                sourceCodeFile.set(LOADING, false);
-                ProjectEvents.notify(project,
-                        SourceCodeManagerListener.TOPIC,
-                        (listener) -> listener.sourceCodeLoaded(sourceCodeFile, initialLoad));
-            }
+                    (listener) -> listener.sourceCodeLoaded(sourceCodeFile, initialLoad));
         }
     }
 
