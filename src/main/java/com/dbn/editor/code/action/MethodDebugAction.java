@@ -17,11 +17,9 @@
 package com.dbn.editor.code.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.editor.code.SourceCodeEditor;
-import com.dbn.execution.compiler.options.CompilerSettings;
 import com.dbn.object.DBMethod;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.type.DBObjectType;
@@ -61,9 +59,5 @@ public class MethodDebugAction extends AbstractCodeEditorAction {
         DBObjectType objectType = schemaObject.getObjectType();
         return objectType.matches(DBObjectType.METHOD) &&
                 DatabaseFeature.DEBUGGING.isSupported(schemaObject);
-    }
-
-    private static CompilerSettings getCompilerSettings(Project project) {
-        return OperationSettings.getInstance(project).getCompilerSettings();
     }
 }
