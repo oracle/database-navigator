@@ -18,6 +18,7 @@ package com.dbn.assistant.chat.message;
 
 import com.intellij.lang.Language;
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,14 +30,26 @@ import static com.dbn.assistant.chat.message.ChatMessageLanguages.resolveLanguag
  * Section of chat message, qualified with a language
  */
 @Getter
+@Setter
 public class ChatMessageSection {
 
     private String content;
     private final String languageId;
 
+    // offsets in the original message
+    private final int startOffset;
+    private int endOffset;
+
     public ChatMessageSection(String content, @Nullable @NonNls String languageId) {
+        this(0, content, languageId);
+    }
+
+    public ChatMessageSection(int startOffset, String content, @Nullable @NonNls String languageId) {
+        this.startOffset = startOffset;
         this.content = content.trim();
         this.languageId = languageId;
+
+        updateEndOffset();
     }
 
     @Nullable
@@ -46,6 +59,16 @@ public class ChatMessageSection {
 
     public void append(String content) {
         this.content = this.content + "\n" + content;
+        updateEndOffset();
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+        updateEndOffset();
+    }
+
+    private void updateEndOffset() {
+        this.endOffset = this.startOffset + this.content.length();
     }
 
     public List<ChatMessageSection> asList() {

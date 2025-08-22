@@ -19,6 +19,7 @@ package com.dbn.assistant.chat.message;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
+import com.dbn.common.util.Lists;
 import com.dbn.common.util.Unsafe;
 import lombok.experimental.UtilityClass;
 import org.intellij.markdown.IElementType;
@@ -80,8 +81,7 @@ public class ChatMessageParser {
     private static void createTextSection(List<ChatMessageSection> sections, StringBuilder builder) {
         String content = builder.toString().trim();
         if (!content.isEmpty()) {
-            ChatMessageSection section = new ChatMessageSection(content, null);
-            sections.add(section);
+            createSection(sections, content, null);
         }
         builder.setLength(0);
     }
@@ -103,8 +103,15 @@ public class ChatMessageParser {
             }
         }
 
-        ChatMessageSection section = new ChatMessageSection(builder.toString(), language);
-        sections.add(section);
+        createSection(sections, builder.toString(), language);
+    }
+
+    private void createSection(List<ChatMessageSection> sections, String content, String language) {
+        ChatMessageSection previousSection = Lists.lastElement(sections);
+        int offset = previousSection == null ? 0 : previousSection.getEndOffset();
+
+        ChatMessageSection currentSection = new ChatMessageSection(offset, content, language);
+        sections.add(currentSection);
     }
 
     public static TextContent convertMarkdownToHtml(String content) {
