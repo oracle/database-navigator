@@ -118,7 +118,7 @@ public class Messages {
         }
     }
 
-    public static void showErrorDialog(@Nullable Project project, @DialogMessage String message, Exception exception) {
+    public static void showErrorDialog(@Nullable Project project, @DialogMessage String message, Throwable exception) {
         showErrorDialog(project, null, message, exception);
     }
 
@@ -130,7 +130,7 @@ public class Messages {
         showErrorDialog(project, null, message, null);
     }
 
-    public static void showErrorDialog(@Nullable Project project, @Nullable @DialogTitle String title, @DialogMessage String message, @Nullable Exception exception) {
+    public static void showErrorDialog(@Nullable Project project, @Nullable @DialogTitle String title, @DialogMessage String message, @Nullable Throwable exception) {
         if (project != null && project.isDisposed()) {
             return; // project is disposed
         }

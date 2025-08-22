@@ -52,6 +52,7 @@ public enum ClientProperty {
     EMPTY_OPTIONS_TEXT,
     HORIZONTAL_SCROLL_POLICY,
     VERTICAL_SCROLL_POLICY,
+    VALIDATION_INFO,
 
     // addons
     COLUMN_DRAG_SCROLL_ADDON,
@@ -95,6 +96,10 @@ public enum ClientProperty {
 
     public <T> void set(Component component, T value) {
         set(component, value, false);
+    }
+
+    public void reset(Component component) {
+        set(component, null, false);
     }
 
     public <T> void set(Component component, T value, boolean weak) {

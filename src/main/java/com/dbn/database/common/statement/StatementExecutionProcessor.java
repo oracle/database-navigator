@@ -30,6 +30,7 @@ import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.database.DatabaseActivityTrace;
 import com.dbn.database.DatabaseCompatibility;
 import com.dbn.database.interfaces.DatabaseInterfaces;
+import com.dbn.database.interfaces.DatabaseMessageParserInterface;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
@@ -269,11 +270,8 @@ public class StatementExecutionProcessor {
                         invokeOutputReader(outputReader, statement);
                         return outputReader;
                     } catch (SQLException e) {
-                        conditionallyLog(e);
-                        if (isDatabaseAccessDebug())
-                            log.warn("[DBN] Error executing statement: {}\nCause: {}", statementText, e.getMessage());
-
-                        throw e;
+                        handleException(e, statementText);
+                        return outputReader;
                     } finally {
                         Resources.close(statement);
                     }
@@ -339,11 +337,7 @@ public class StatementExecutionProcessor {
                             statement.executeUpdate(statementText);
                         }
                     } catch (SQLException e) {
-                        conditionallyLog(e);
-                        if (isDatabaseAccessDebug())
-                            log.warn("[DBN] Error executing statement: {}\nCause: {}", statementText, e.getMessage());
-
-                        throw e;
+                        handleException(e, statementText);
                     } finally {
                         Resources.close(statement);
                     }
@@ -385,15 +379,29 @@ public class StatementExecutionProcessor {
                         statement.setQueryTimeout(timeout);
                         return statement.execute(statementText);
                     } catch (SQLException e) {
-                        conditionallyLog(e);
-                        if (isDatabaseAccessDebug())
-                            log.warn("[DBN] Error executing statement: {}\nCause: {}", statementText, e.getMessage());
-
-                        throw e;
+                        return handleException(e, statementText);
                     } finally {
                         Resources.close(statement);
                     }
                 });
+    }
+
+    private boolean handleException(SQLException e, String statementText) throws SQLException {
+        conditionallyLog(e);
+        if (isSuccessException(e)) {
+            log.warn("[DBN] Success exception received while executing statement \"{}\"\nDetails: {}", statementText, e.getMessage());
+            return true;
+        }
+
+        if (isDatabaseAccessDebug()) {
+            log.warn("[DBN] Error executing statement: {}\nDetails: {}", statementText, e.getMessage());
+        }
+        throw e;
+    }
+
+    private boolean isSuccessException(SQLException e) {
+        DatabaseMessageParserInterface parserInterface = interfaces.getMessageParserInterface();
+        return parserInterface.isSuccessException(e);
     }
 
     @NotNull

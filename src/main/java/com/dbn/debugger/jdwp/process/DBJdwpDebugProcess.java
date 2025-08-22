@@ -34,6 +34,7 @@ import com.dbn.database.interfaces.DatabaseDebuggerInterface;
 import com.dbn.debugger.DBDebugConsoleLogger;
 import com.dbn.debugger.DBDebugOperation;
 import com.dbn.debugger.DBDebugUtil;
+import com.dbn.debugger.DBDebuggerType;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.debugger.JDWPTunnelType;
 import com.dbn.debugger.common.breakpoint.DBBreakpointHandler;
@@ -375,10 +376,14 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         console.system("Registering breakpoints...");
 
         List<DBObjectRef<DBMethod>> methods = getRunProfile().getMethodRefs();
-        List<XLineBreakpoint<XBreakpointProperties>> breakpoints = DBBreakpointUtil.getDatabaseBreakpoints(getConnection());
+        List<XLineBreakpoint<XBreakpointProperties>> breakpoints = getDatabaseBreakpoints();
 
         var breakpointHandler = getBreakpointHandler();
         breakpointHandler.registerBreakpoints(breakpoints, methods);
+    }
+
+    private List<XLineBreakpoint<XBreakpointProperties>> getDatabaseBreakpoints() {
+        return DBBreakpointUtil.getDatabaseBreakpoints(getConnection(), DBDebuggerType.JDWP);
     }
 
     private void overwriteSuspendContext(final @Nullable XSuspendContext suspendContext) {

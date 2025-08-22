@@ -155,6 +155,12 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
 
     @Override
     public void markDirty() {
+        // only loaded and valid contents should be marked dirty
+        if (!isLoaded()) return;
+        if (isDisposed()) return;
+        if (isDirty()) return;
+        if (isLoading()) return;
+
         set(DynamicContentProperty.DIRTY, true);
     }
 
@@ -246,12 +252,13 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
 
     @Override
     public void refresh() {
+        // refresh sources even if this content itself does not need refresh
+        // (e.g. if not loaded yet or already marked dirty)
+        refreshSources();
+
         if (shouldRefresh()) {
+            refreshElements();
             markDirty();
-            refreshSources();
-            if (!is(DynamicContentProperty.INTERNAL)){
-                refreshElements();
-            }
         }
     }
 

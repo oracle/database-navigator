@@ -29,6 +29,7 @@ import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Chars;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Sockets;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -48,6 +49,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.form.field.JComponentFilter.accessibleClassifiedAs;
@@ -61,6 +63,7 @@ import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.Lists.firstElement;
+import static com.dbn.connection.AuthenticationTokenType.ALL_AZURE_TOKEN_TYPES;
 import static com.dbn.connection.AuthenticationTokenType.AZURE_INTERACTIVE;
 import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
 import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_TOKEN;
@@ -77,6 +80,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         CACHEABLE_FIELDS,
     }
 
+    private static final boolean IS_PROXY_MAYBE_SET = checkIfHttpProxy();
     private JComboBox<AuthenticationType> authTypeComboBox;
     private JComboBox<AuthenticationTokenType> tokenTypeComboBox;
     private JComboBox<String> tokenProfileComboBox;
@@ -107,6 +111,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     private JTextField autonomousDatabaseCompartmentOcidTextField;
     private JLabel autonomousDatabaseOcidLabel;
     private JTextField autonomousDBOcidTextField;
+    private DBNHintForm warningHintForm;
+
 
     public ConnectionAuthenticationFieldsForm(@NotNull DBNForm parentComponent) {
         super(parentComponent);
@@ -129,11 +135,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         onSelectionChange(authTypeComboBox, v -> updateAuthenticationFields());
         onSelectionChange(tokenTypeComboBox, v -> updateAuthenticationFields());
 
-        // TODO NLS
-        TextContent interactivePortHintText = plain("TCP port 8181 appears to be bound.\nThis may cause interactive OCI authentication to fail.");
-        DBNHintForm hintForm = new DBNHintForm(this, interactivePortHintText, MessageType.WARNING, true);
-        warningPanel.add(hintForm.getComponent());
-
+        this.warningHintForm = new DBNHintForm(this, null, MessageType.WARNING, true);
+        warningPanel.add(warningHintForm.getComponent());
         warningPanel.setVisible(false);
 
         addSingleFileChooser(
@@ -230,8 +233,14 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         // monitor auth type changes and fire a warning
         // event under Bug_38087045 conditions.
         Dispatch.async(mainPanel,
-                () -> verifyInteractivePortBinding(),
-                success -> warningPanel.setVisible(!success));
+            () -> checkSystemWarnings(),
+            warningMessage -> {
+                if (warningMessage != null) {
+                    warningHintForm.setHintContent(plain(warningMessage));
+                }
+                warningPanel.setVisible(warningMessage != null);
+            }
+        );
     }
 
     public void setAuthenticationTypes(AuthenticationType ...  authenticationTypes) {
@@ -453,6 +462,17 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         return getSelection(tokenTypeComboBox);
     }
 
+    private String checkSystemWarnings() {
+        if (!verifyInteractivePortBinding()) {
+            // TODO NLS
+            return "TCP port 8181 appears to be bound.\nThis may cause interactive OCI authentication to fail.";
+        }
+        if (!checkNoProxyIfAzure()) {
+            // TODO NLS
+            return "The system properties contain one or more HTTP proxy settings.\nThis may cause Azure Authentication to fail.";
+        }
+        return null;
+    }
     /**
      * Checks if the token callback bind port (8181) can be bound.
      * Used to warn the interactive connectivity option if the port is already bound
@@ -466,5 +486,33 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         if (tokenAuthenticationType != OCI_INTERACTIVE) return true;
 
         return Sockets.tryToBindPort(OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT);
+    }
+
+    /**
+     * If http proxy settings are configured by -D option (usually via JAVA_TOOL_OPTIONS),
+     * then this cause problems with the mechanisms that the Azure provider uses to
+     * acquire valid security tokens over HTTP.
+     *
+     * @return true if we currently are using an Azure auth method and no HTTP proxies appear
+     * to be set via -D.
+     */
+    private boolean checkNoProxyIfAzure() {
+        AuthenticationType authenticationType = getAuthenticationType();
+        AuthenticationTokenType tokenAuthenticationType = getTokenAuthenticationType();
+
+        if (authenticationType != AuthenticationType.TOKEN) return true;
+        if (!ALL_AZURE_TOKEN_TYPES.contains(tokenAuthenticationType)) return true;
+
+        return !IS_PROXY_MAYBE_SET;
+    }
+
+    private static boolean checkIfHttpProxy() {
+        Properties properties = System.getProperties();
+        return properties.containsKey("http.proxyHost") ||
+                properties.containsKey("http.proxyPort") ||
+                properties.containsKey("http.nonProxyHosts") ||
+                properties.containsKey("https.proxyHost") ||
+                properties.containsKey("https.proxyPort") ||
+                properties.containsKey("https.nonProxyHosts");
     }
 }
