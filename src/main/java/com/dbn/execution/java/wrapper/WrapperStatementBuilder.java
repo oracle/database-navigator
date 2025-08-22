@@ -41,6 +41,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.util.Java.isPrimitive;
+
 @Slf4j
 public final class WrapperStatementBuilder {
 	private final ProjectRef project;
@@ -309,6 +311,17 @@ public final class WrapperStatementBuilder {
 		String assignmentOperatorEnd = "";
 		String lineTerminator = ";";
 
+		if(!isPrimitive(fieldWrapper.getTypeClassName()))
+		{
+			//check if value is not null before accessing it
+			line.append("  if(")
+					.append(arrayName)
+					.append("[" + fieldWrapper.getIndex() + "]")
+					.append(" != null){");
+			lineTerminator = ";}";
+		}
+
+
 		if(!fieldWrapper.isAccessible()) {
 			if(fieldWrapper.getSetterName() == null)
 				targetName = "//" + targetName;
@@ -406,6 +419,16 @@ public final class WrapperStatementBuilder {
 		// Determine assignment operator and line terminator based on access modifier.
 		String assignmentOperator = " = ";
 		String lineTerminator = ";";
+
+		if(!isPrimitive(classWrapper.getClassName()))
+		{
+			//check if value is not null before accessing it
+			line.append("  if(")
+                    .append(arrayName)
+					.append("[").append(iterator).append("]")
+					.append(" != null){");
+			lineTerminator = ";}";
+		}
 
 		// Begin the assignment statement.
 		line.append(targetName)
