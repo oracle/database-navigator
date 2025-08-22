@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.assistant.chat.message.ChatMessageSection;
 import com.dbn.assistant.chat.message.action.CopyContentAction;
+import com.dbn.common.text.TextContent;
+import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
@@ -27,7 +29,6 @@ import com.dbn.common.util.Viewers;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.intellij.lang.Language;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
@@ -40,7 +41,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.file.impl.FileManager;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.ui.JBUI;
-import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -51,21 +51,18 @@ import java.awt.BorderLayout;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
 import static javax.swing.JLayeredPane.DRAG_LAYER;
 
-/**
- * Specialized viewer for AI responses containing qualified code sections
- *
- * @author Dan Cioca (Oracle)
- */
-@Getter
-public class ChatMessageCodeViewer extends JPanel implements Disposable {
-    private final EditorEx viewer;
+public class ChatMessageSectionCodeForm extends ChatMessageSectionForm {
+    private JPanel mainPanel;
+    private JPanel codeViewerPanel;
+    private final EditorEx codeViewer;
 
-    private ChatMessageCodeViewer(EditorEx viewer) {
-        super(new BorderLayout());
-        this.viewer = viewer;
-        setOpaque(false);
-        setBorder(JBUI.Borders.empty(10));
-        add(viewer.getComponent(), BorderLayout.CENTER);
+    public ChatMessageSectionCodeForm(DBNForm parent, EditorEx codeViewer) {
+        super(parent);
+        this.codeViewer = codeViewer;
+
+        mainPanel.setOpaque(false);
+        mainPanel.setBorder(JBUI.Borders.empty(10));
+        codeViewerPanel.add(codeViewer.getComponent());
 
         initActionToolbar();
     }
@@ -73,24 +70,33 @@ public class ChatMessageCodeViewer extends JPanel implements Disposable {
     private void initActionToolbar() {
         JPanel actionPanel = new JPanel();
         actionPanel.setOpaque(false);
-        String content = viewer.getDocument().getText();
+        String content = codeViewer.getDocument().getText();
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionPanel, true, new CopyContentAction(content));
         JComponent component = actionToolbar.getComponent();
         component.setOpaque(false);
         component.setBorder(Borders.EMPTY_BORDER);
         actionPanel.add(component, BorderLayout.NORTH);
 
-        JComponent viewerComponent = viewer.getComponent();
-        UserInterface.visitRecursively(viewerComponent,JLayeredPane.class, p -> p.add(actionPanel, DRAG_LAYER));
+        JComponent viewerComponent = codeViewer.getComponent();
+        UserInterface.visitRecursively(viewerComponent, JLayeredPane.class, p -> p.add(actionPanel, DRAG_LAYER));
     }
 
-    public static ChatMessageCodeViewer create(ConnectionHandler connection, ChatMessageSection section){
-        EditorEx viewer = createViewer(connection, section);
-        if (viewer == null) return null;
+    public static ChatMessageSectionCodeForm create(DBNForm parent, ConnectionHandler connection, ChatMessageSection section){
+        EditorEx codeViewer = createViewer(connection, section);
+        if (codeViewer == null) return null;
 
-        return new ChatMessageCodeViewer(viewer);
+        return new ChatMessageSectionCodeForm(parent, codeViewer);
     }
 
+    @Override
+    protected void updateContent(TextContent content) {
+        Documents.setText(codeViewer.getDocument(), content.getText());
+    }
+
+    @Override
+    protected JComponent getMainComponent() {
+        return mainPanel;
+    }
 
     @Nullable
     private static EditorEx createViewer(ConnectionHandler connection, ChatMessageSection section) {
@@ -143,6 +149,6 @@ public class ChatMessageCodeViewer extends JPanel implements Disposable {
 
     @Override
     public void dispose() {
-        Editors.releaseEditor(viewer);
+        Editors.releaseEditor(codeViewer);
     }
 }

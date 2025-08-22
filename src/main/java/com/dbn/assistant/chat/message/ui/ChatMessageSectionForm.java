@@ -16,37 +16,16 @@
 
 package com.dbn.assistant.chat.message.ui;
 
-import com.dbn.common.text.MimeType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
+import lombok.Getter;
 
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JTextPane;
-
-public class ChatMessageSectionForm extends DBNFormBase {
-    private JTextPane messageTextPane;
-    private JPanel mainPanel;
-
-    public ChatMessageSectionForm(DBNForm parent) {
+@Getter
+public abstract class ChatMessageSectionForm extends DBNFormBase {
+    ChatMessageSectionForm(DBNForm parent) {
         super(parent);
     }
 
-    @Override
-    protected JComponent getMainComponent() {
-        return mainPanel;
-    }
-
-    public void setContent(TextContent textContent) {
-        setContent(
-            textContent.getType(),
-            textContent.getText());
-    }
-
-    public void setContent(MimeType mimeType, String content) {
-        messageTextPane.setContentType(mimeType.id());
-        messageTextPane.setText( content);
-        messageTextPane.revalidate();
-    }
+    abstract protected void updateContent(TextContent content);
 }

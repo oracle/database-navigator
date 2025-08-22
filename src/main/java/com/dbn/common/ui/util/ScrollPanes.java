@@ -25,12 +25,16 @@ import java.awt.event.ActionEvent;
 
 @UtilityClass
 public class ScrollPanes {
-    public static void scrollDown(JScrollPane scrollPane) {
+    public static void scrollDown(JScrollPane scrollPane, boolean animate) {
         scrollPane.revalidate();
         JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
-
-        Timer timer = new Timer(20, e -> scrollDown(e, scrollBar, 50));
-        timer.start();
+        if (animate) {
+            Timer timer = new Timer(20, e -> scrollDown(e, scrollBar, 50));
+            timer.start();
+        } else {
+            int maximum = scrollBar.getMaximum();
+            scrollBar.setValue(maximum);
+        }
     }
 
     private static void scrollDown(ActionEvent e, JScrollBar scrollBar, int step) {

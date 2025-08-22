@@ -19,10 +19,12 @@ package com.dbn.assistant.chat;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.common.util.Lists;
 import com.dbn.common.util.UUIDs;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,6 +83,12 @@ public class Chat implements PersistentStateElement {
     public void addMessages(List<ChatMessage> messages) {
         this.messages.addAll(messages);
     }
+
+    @Nullable
+    public ChatMessage getLastMessage() {
+        return Lists.lastElement(messages);
+    }
+
 
     public void removeProgress() {
         messages.forEach(message -> {

@@ -20,7 +20,7 @@ import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.action.AskAgainAction;
 import com.dbn.assistant.chat.message.action.CopyContentAction;
 import com.dbn.assistant.chat.message.action.ToggleFoldingAction;
-import com.dbn.common.text.MimeType;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -67,9 +67,10 @@ public class UserChatMessageForm extends ChatMessageForm {
     }
 
     private void initMessagePanel() {
-        ChatMessageSectionForm messageSectionForm = new ChatMessageSectionForm(this);
-        String content = getMessage().getContent();
-        messageSectionForm.setContent(MimeType.TEXT_PLAIN, content);
+        String messageContent = getMessage().getContent();
+        TextContent content = TextContent.plain(messageContent);
+        ChatMessageSectionTextForm messageSectionForm = new ChatMessageSectionTextForm(this, content);
+
         messagePanel.add(messageSectionForm.getComponent());
     }
 

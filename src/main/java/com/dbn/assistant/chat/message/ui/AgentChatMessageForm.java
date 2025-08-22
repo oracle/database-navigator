@@ -19,7 +19,7 @@ package com.dbn.assistant.chat.message.ui;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.ChatMessageSection;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.common.dispose.Disposer;
+import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.Layouts;
 import com.dbn.connection.ConnectionHandler;
@@ -27,8 +27,8 @@ import com.dbn.connection.ConnectionHandler;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.awt.Color;
+import java.util.List;
 
 import static com.dbn.assistant.chat.message.ChatMessageParser.convertMarkdownToHtml;
 
@@ -41,12 +41,13 @@ import static com.dbn.assistant.chat.message.ChatMessageParser.convertMarkdownTo
 public class AgentChatMessageForm extends ChatMessageForm {
 
     private JPanel mainPanel;
-    private JPanel messagePanel;
+    private JPanel sectionsPanel;
     private JLabel titleLabel;
     private JPanel actionPanel;
     private JPanel contentPanel;
 
     private boolean hasCodeContents = false;
+    private List<ChatMessageSectionForm> sectionForms = DisposableContainers.list(this);
 
     public AgentChatMessageForm(ChatMessagesForm parent, ChatMessage message) {
         super(parent, message);
@@ -82,46 +83,77 @@ public class AgentChatMessageForm extends ChatMessageForm {
 
     private void initMessagePanels() {
         ChatMessage message = getMessage();
-        Layouts.verticalBoxLayout(messagePanel);
+        Layouts.verticalBoxLayout(sectionsPanel);
         for (ChatMessageSection section : message.getSections()) {
-            if (section.getLanguage() == null)
-                createTextPane(section); else
-                createCodePane(section);
+            createSectionForm(section);
         }
     }
 
-    protected void createTextPane(ChatMessageSection section) {
-        TextContent htmlContent = convertMarkdownToHtml(section.getContent());
+    private void createSectionForm(ChatMessageSection section) {
+        if (section.getLanguage() == null)
+            createTextSectionForm(section); else
+            createCodeSectionForm(section);
+    }
 
-        ChatMessageSectionForm sectionForm = new ChatMessageSectionForm(this);
-        sectionForm.setContent(htmlContent);
-        messagePanel.add(sectionForm.getComponent());
+    private void updateSectionForm(ChatMessageSection section, ChatMessageSectionForm sectionForm) {
+        if (section.getLanguage() == null)
+            updateTextSectionForm(sectionForm, section); else
+            updateCodeSectionForm(sectionForm, section);
+    }
+
+    protected void createTextSectionForm(ChatMessageSection section) {
+        TextContent content = convertMarkdownToHtml(section.getContent());
+
+        ChatMessageSectionTextForm messageSectionForm = new ChatMessageSectionTextForm(this, content);
+        sectionForms.add(messageSectionForm);
+        sectionsPanel.add(messageSectionForm.getComponent());
 
         whenSettingsChange(() -> {
-            htmlContent.rebuild();
-            sectionForm.setContent(htmlContent);
+            content.rebuild();
+            messageSectionForm.setContent(content);
         });
     }
 
-    private void createCodePane(ChatMessageSection section) {
+    private void createCodeSectionForm(ChatMessageSection section) {
         ChatMessagesForm parent = ensureParentComponent();
         ChatBoxForm chatBoxForm = parent.ensureParentComponent();
         ConnectionHandler connection = chatBoxForm.getConnection();
 
-        ChatMessageCodeViewer codePanel = ChatMessageCodeViewer.create(connection, section);
-        if (codePanel == null) {
+        ChatMessageSectionCodeForm messageSectionForm = ChatMessageSectionCodeForm.create(parent, connection, section);
+        if (messageSectionForm == null) {
             // fallback to regular text pane if code panel creation was unsuccessful
-            createTextPane(section);
+            createTextSectionForm(section);
             return;
         }
-        Disposer.register(this, codePanel);
 
-        JPanel actionsPanel = new JPanel(new BorderLayout());
-        actionsPanel.setBackground(codePanel.getViewer().getBackgroundColor());
-
-        messagePanel.add(actionsPanel);
-        messagePanel.add(codePanel);
+        sectionForms.add(messageSectionForm);
+        sectionsPanel.add(messageSectionForm.getComponent());
         hasCodeContents = true; // mark as having code contents if successfully created one
+    }
+
+    protected void updateTextSectionForm(ChatMessageSectionForm form, ChatMessageSection section) {
+        TextContent content = convertMarkdownToHtml(section.getContent());
+        form.updateContent(content);
+    }
+
+    protected void updateCodeSectionForm(ChatMessageSectionForm form, ChatMessageSection section) {
+        TextContent content = TextContent.plain(section.getContent());
+        form.updateContent(content);
+    }
+
+    @Override
+    public void refreshContent() {
+        ChatMessage message = getMessage();
+        List<ChatMessageSection> sections = message.getSections();
+        for (int i = 0; i < sections.size(); i++) {
+            ChatMessageSection section = sections.get(i);
+            if (i < sectionForms.size()) {
+                ChatMessageSectionForm sectionForm = sectionForms.get(i);
+                updateSectionForm(section, sectionForm);
+            } else {
+                createSectionForm(section);
+            }
+        }
     }
 
     @Override

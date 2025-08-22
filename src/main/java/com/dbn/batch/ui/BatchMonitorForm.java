@@ -199,7 +199,6 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
     }
 
     private void onTaskStart(BatchTask task) {
-
         BatchMonitorTaskForm taskForm = new BatchMonitorTaskForm(this, task);
         taskForms.put(task.getIdentifier(), taskForm);
         tasksPanel.add(taskForm.getComponent());
@@ -209,7 +208,7 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
         progressForm.setText2(progressDetail);
 
         taskForm.initialize();
-        ScrollPanes.scrollDown(tasksScrollPanel);
+        ScrollPanes.scrollDown(tasksScrollPanel, true);
     }
 
     private void onTaskCompletion(BatchTask task) {

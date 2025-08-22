@@ -82,6 +82,11 @@ public abstract class ChatMessageForm extends DBNFormBase {
         getMessage().setFolded(folded);
     }
 
+    public void refreshContent() {
+        // no action required by default (for immutable messages)
+    }
+
+
     @NotNull
     public static ChatMessageForm create(ChatMessagesForm parent, ChatMessage message) {
         AuthorType author = message.getAuthor();

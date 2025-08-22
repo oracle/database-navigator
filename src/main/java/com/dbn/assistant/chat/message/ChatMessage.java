@@ -19,18 +19,19 @@ package com.dbn.assistant.chat.message;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.editor.SQLChatMessageConverter;
-import com.dbn.common.latent.Latent;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.UUIDs;
 import com.dbn.language.sql.SQLLanguage;
 import com.intellij.lang.Language;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -43,6 +44,7 @@ import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.options.setting.Settings.writeCdata;
+import static com.dbn.common.util.Lists.removeLast;
 
 @Getter
 @Setter
@@ -59,7 +61,7 @@ public class ChatMessage implements PersistentStateElement {
     protected ChatContext context;
     protected boolean folded;
 
-    private Latent<List<ChatMessageSection>> sections = Latent.basic(() -> buildSections());
+    private List<ChatMessageSection> sections;
 
     private transient boolean progress;
 
@@ -79,8 +81,30 @@ public class ChatMessage implements PersistentStateElement {
         this.context = context;
     }
 
-    public List<ChatMessageSection> getSections() {
-        return sections.get();
+    @NotNull
+    public synchronized List<ChatMessageSection> getSections() {
+        if (sections == null) {
+            sections = buildSections();
+        }
+        return sections;
+    }
+
+    public void appendToken(String token){
+        content = content + token;
+        if (sections == null) {
+            sections = buildSections();
+        } else {
+            ChatMessageSection lastSection = removeLast(sections);
+
+            int shift = lastSection == null ? 0 : lastSection.getContentStartOffset();
+            List<ChatMessageSection> deltaSections = buildSections(shift);
+
+            sections.addAll(deltaSections);
+        }
+    }
+
+    private List<ChatMessageSection> buildSections() {
+        return buildSections(0);
     }
 
     /**
@@ -90,18 +114,22 @@ public class ChatMessage implements PersistentStateElement {
      *
      * @return a list of {@link ChatMessageSection} with the different sections
      */
-    private List<ChatMessageSection> buildSections() {
+    private List<ChatMessageSection> buildSections(int shift) {
         if (isSqlCodeContent()) {
             // output is expected to be SQL code based on the author, action and content
-            return new ChatMessageSection(content, "sql").asList();
+            return new ChatMessageSection(content, basicContentRange(content, shift), "sql").asList();
         }
 
         if (author.isOneOf(AuthorType.USER, AuthorType.SYSTEM)) {
             // output is already expected to be plain text
-            return new ChatMessageSection(content, null).asList();
+            return new ChatMessageSection(content, basicContentRange(content, shift), null).asList();
         }
 
-        return ChatMessageParser.parse(content);
+        return ChatMessageParser.parse(content, shift);
+    }
+
+    private @NotNull TextRange basicContentRange(String content, int shift) {
+        return new TextRange(shift, shift + content.length());
     }
 
     private boolean hasCodeSections() {

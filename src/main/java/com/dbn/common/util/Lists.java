@@ -63,6 +63,12 @@ public class Lists {
         return filter(list, o -> o != null);
     }
 
+    @Nullable
+    public static <T> T removeLast(@NotNull List<T> list) {
+        if (list.isEmpty()) return null;
+        return list.remove(list.size() - 1);
+    }
+
     public static <T> List<T> filter(@NotNull List<T> list, @Nullable Filter<T> filter) {
         if (filter == null) return list;
         if (list.isEmpty()) return list;

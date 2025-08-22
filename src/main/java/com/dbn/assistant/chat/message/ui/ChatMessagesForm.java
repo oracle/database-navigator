@@ -19,12 +19,14 @@ package com.dbn.assistant.chat.message.ui;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Disposer;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.ClientProperty;
 import com.dbn.common.ui.util.Components;
 import com.dbn.common.ui.util.ScrollPanes;
 import com.dbn.common.ui.util.UserInterface;
+import com.dbn.common.util.Lists;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -72,7 +74,7 @@ public class ChatMessagesForm extends DBNFormBase {
     }
 
     public void addMessages(List<ChatMessage> chatMessages) {
-        dispatch(() -> {
+        Dispatch.run(mainPanel, () -> {
             removeProgressIndicator();
 
             for (ChatMessage message : chatMessages) {
@@ -80,9 +82,23 @@ public class ChatMessagesForm extends DBNFormBase {
                 this.messageForms.add(form);
                 this.messagesPanel.add(form.getComponent());
             }
-            this.messagesPanel.revalidate();
-            scrollDown();
+            this.mainPanel.revalidate();
+            scrollDown(true);
         });
+    }
+
+    public void refreshMessage(ChatMessage message) {
+        Dispatch.run(mainPanel, () -> {
+            ChatMessageForm messageForm = getMessageForm(message.getId());
+            if (messageForm == null) return;
+
+            messageForm.refreshContent();
+            scrollDown(false);
+        });
+    }
+
+    private @Nullable ChatMessageForm getMessageForm(String messageId) {
+        return Lists.first(messageForms, form -> form.getMessage().getId().equals(messageId));
     }
 
     @Nullable
@@ -102,8 +118,8 @@ public class ChatMessagesForm extends DBNFormBase {
         Disposer.dispose(messageForms);
     }
 
-    public void scrollDown() {
-        ScrollPanes.scrollDown(messagesScrollPanel);
+    public void scrollDown(boolean animate) {
+        ScrollPanes.scrollDown(messagesScrollPanel, animate);
 
     }
 }

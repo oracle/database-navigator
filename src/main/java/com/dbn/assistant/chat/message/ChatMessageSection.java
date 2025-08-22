@@ -17,6 +17,7 @@
 package com.dbn.assistant.chat.message;
 
 import com.intellij.lang.Language;
+import com.intellij.openapi.util.TextRange;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NonNls;
@@ -33,42 +34,29 @@ import static com.dbn.assistant.chat.message.ChatMessageLanguages.resolveLanguag
 @Setter
 public class ChatMessageSection {
 
-    private String content;
+    private final String content;
     private final String languageId;
 
     // offsets in the original message
-    private final int startOffset;
-    private int endOffset;
+    private TextRange contentRange;
 
-    public ChatMessageSection(String content, @Nullable @NonNls String languageId) {
-        this(0, content, languageId);
+    public ChatMessageSection(String content, TextRange contentRange, @Nullable @NonNls String languageId) {
+        this.content = content.trim();
+        this.contentRange = contentRange;
+        this.languageId = languageId;
     }
 
-    public ChatMessageSection(int startOffset, String content, @Nullable @NonNls String languageId) {
-        this.startOffset = startOffset;
-        this.content = content.trim();
-        this.languageId = languageId;
+    public int getContentStartOffset() {
+        return contentRange.getStartOffset();
+    }
 
-        updateEndOffset();
+    public int getContentEndOffset() {
+        return contentRange.getEndOffset();
     }
 
     @Nullable
     public Language getLanguage() {
         return resolveLanguage(languageId);
-    }
-
-    public void append(String content) {
-        this.content = this.content + "\n" + content;
-        updateEndOffset();
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-        updateEndOffset();
-    }
-
-    private void updateEndOffset() {
-        this.endOffset = this.startOffset + this.content.length();
     }
 
     public List<ChatMessageSection> asList() {

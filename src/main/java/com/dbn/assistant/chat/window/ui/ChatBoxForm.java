@@ -19,7 +19,6 @@ import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.adapter.AssistantAdapter;
 import com.dbn.assistant.adapter.AssistantAdapters;
-import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.adapter.ui.AssistantContextActionsForm;
 import com.dbn.assistant.adapter.ui.AssistantIntroductionForm;
 import com.dbn.assistant.adapter.ui.AssistantPromptActionsForm;
@@ -28,7 +27,6 @@ import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.ChatContextEvent;
 import com.dbn.assistant.chat.ChatInterruptionReason;
 import com.dbn.assistant.chat.context.ChatContext;
-import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.ui.ChatMessagesForm;
 import com.dbn.assistant.chat.ui.ChatSaveDialog;
@@ -37,7 +35,6 @@ import com.dbn.assistant.state.AssistantStateListener;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Background;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -65,9 +62,11 @@ import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Objects;
 
+import static com.dbn.assistant.chat.message.AuthorType.USER;
 import static com.dbn.assistant.state.AssistantStatus.QUERYING;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.feature.FeatureAcknowledgement.ENGAGED;
+import static com.dbn.common.message.MessageType.NEUTRAL;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
@@ -444,39 +443,16 @@ public class ChatBoxForm extends DBNFormBase {
         if (chatContext == null) return;
 
         assistantState.set(QUERYING, true);
-        ChatMessage userMessage = new ChatMessage(MessageType.NEUTRAL, question, AuthorType.USER, chatContext);
+        ChatMessage userMessage = new ChatMessage(NEUTRAL, question, USER, chatContext);
         userMessage.setProgress(true);
 
         String chatId = assistantState.getCurrentChatId();
         appendMessage(chatId, userMessage);
 
+        ChatBoxResponseConsumer responseConsumer = new ChatBoxResponseConsumer(this, chatContext, chatId);
+
         DatabaseAssistantManager assistantManager = getManager();
-        assistantManager.query(question, chatId, connectionId, assistantType, chatContext, new AssistantResponseConsumer() {
-            @Override
-            public void acceptToken(String token) {
-                // TODO incremental response build
-            }
-
-            @Override
-            public void acceptMessage(String message) {
-                ChatMessage agentMessage = new ChatMessage(MessageType.NEUTRAL, message, AuthorType.AGENT, chatContext);
-                appendMessage(chatId, agentMessage);
-                log.info("Assistant query processed successfully.");
-            }
-
-            @Override
-            public void acceptError(Throwable e) {
-                log.warn("Error processing assistant query", e);
-                String message = assistantAdapter.prepareError(connectionId, chatContext, e);
-                ChatMessage errorMessage = new ChatMessage(MessageType.ERROR, message, AuthorType.SYSTEM, chatContext);
-                appendMessage(chatId, errorMessage);
-            }
-
-            @Override
-            public void acceptCompletion() {
-                assistantState.set(QUERYING, false);
-            }
-        });
+        assistantManager.query(question, chatId, connectionId, assistantType, chatContext, responseConsumer);
     }
 
     public ChatBoxInputField getInputField() {
@@ -487,7 +463,7 @@ public class ChatBoxForm extends DBNFormBase {
         // TODO show error bar (similar to editor error headers)
     }
 
-    private void appendMessage(String chatId, ChatMessage message) {
+    protected void appendMessage(String chatId, ChatMessage message) {
         AssistantState state = getAssistantState();
         Chat chat = state.getChat(chatId);
         if (chat == null) return; // chat already discarded by the time of message arrival
@@ -499,6 +475,16 @@ public class ChatBoxForm extends DBNFormBase {
             messagesForm.addMessages(List.of(message));
             updateActionToolbars();
         }
+    }
+
+    public void refreshMessage(ChatMessage message) {
+        messagesForm.refreshMessage(message);
+    }
+
+
+    protected Chat getChat(String chatId) {
+        AssistantState state = getAssistantState();
+        return state.getChat(chatId);
     }
 
     public void interruptAssistantSession() {
@@ -545,4 +531,5 @@ public class ChatBoxForm extends DBNFormBase {
             assistantManager.switchToAssistant(getConnectionId(), assistantType);
         }
     }
+
 }
