@@ -18,7 +18,6 @@ package com.dbn.object.factory;
 
 import com.dbn.common.component.Components;
 import com.dbn.common.component.ProjectComponentBase;
-import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
@@ -39,8 +38,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
-import com.dbn.object.event.ObjectChangeAction;
-import com.dbn.object.event.ObjectChangeListener;
+import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputDialog;
 import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.type.DBObjectType;
@@ -238,7 +236,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                     dataDefinition.createMethod(input, conn);
                 });
 
-        notifyObjectChanges(connectionId, schemaId, objectType, CREATE);
+        ObjectChangeEvent.notify(CREATE, objectType, connectionId, schemaId);
 
         DBMethod method = schema.getChildObject(objectType, objectName, false);
         if (method == null) return;
@@ -281,7 +279,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                     dataDefinition.createJavaSource(schema.getName(), quotedObjectName, javaCode.toString().getBytes(), conn);
                 });
 
-        notifyObjectChanges(connectionId, schemaId, JAVA_CLASS, CREATE);
+        ObjectChangeEvent.notify(CREATE, JAVA_CLASS, connectionId, schemaId);
 
         DBJavaClass javaClass = schema.getChildObject(JAVA_CLASS, objectName, false);
         if (javaClass == null) return;
@@ -329,6 +327,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                     project,
                     connectionId,
                     conn -> {
+                        DBObjectType objectType = object.getObjectType();
                         DBContentType contentType = object.getContentType();
 
                         String schemaName = object.getSchemaName(true);
@@ -346,7 +345,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                                 dataDefinition.dropObject(objectTypeName, schemaName, objectName, conn);
                             }
                         } else {
-                            if(object.getObjectType() == JAVA_CLASS) {
+                            if(objectType == JAVA_CLASS) {
                                 dataDefinition.dropJavaClass(schemaName, objectName, conn);
                             } else {
                                 dataDefinition.dropObject(objectTypeName, schemaName, objectName, conn);
@@ -354,16 +353,12 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                             }
                         }
 
-                        notifyObjectChanges(connectionId, schemaId, object.getObjectType(), DELETE);
+                        ObjectChangeEvent.notify(DELETE, object);
                     });
         } catch (SQLException e) {
             conditionallyLog(e);
             String message = "Could not drop " + object.getQualifiedNameWithType() + ".";
             Messages.showErrorDialog(project, message, e);
         }
-    }
-
-    public void notifyObjectChanges(ConnectionId connectionId, SchemaId schemaId, DBObjectType objectType, ObjectChangeAction action) {
-        ProjectEvents.notify(getProject(), ObjectChangeListener.TOPIC, l -> l.objectsChanged(connectionId, schemaId, objectType, action));
     }
 }

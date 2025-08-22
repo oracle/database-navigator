@@ -3437,7 +3437,4 @@
              where DBMS_TRANSACTION.LOCAL_TRANSACTION_ID is not null;
         </statement>
     </statement-execution-processor>
-
-
-
 </data-dictionary>

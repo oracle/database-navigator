@@ -1,0 +1,103 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.test;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.util.Properties;
+
+/**
+ * Oracle JDBC Connector<br>
+ * This is generated code. The {@link JdbcConnectorOciInteractive#connect()} method is implemented to connect to the
+ * Oracle Database using the appropriate JDBC Driver.
+ *
+ * <p><u>DRIVER LIBRARIES</u></p>
+ * To run this class you will need to integrate the Oracle JDBC Driver libraries in your project<br>
+ * e.g. by using Maven Project Object Model (POM) <a href="https://repo1.maven.org/maven2/com/oracle/database/jdbc/ojdbc11/23.6.0.24.10/ojdbc11-23.6.0.24.10.pom">ojdbc11-23.6.0.24.10.pom</a><br>
+ * Additional features may require other libraries to be added to the runtime. Please read the Oracle JDBC documentation for additional details.
+ *
+ * <p><u>JDBC URL</u></p>
+ * The connection is using a JDBC URL of type "TNS"<br>
+ * URL pattern: "jdbc:oracle:thin:@{TNS_PROFILE}?TNS_ADMIN="{TNS_FOLDER}""<br>
+ * <ul>
+ *   <li>TNS_FOLDER: the location of the tnsnames.ora</li>
+ *   <li>TNS_PROFILE: the name of the profile definition in tnsnames.ora</li>
+ * </ul>
+ *
+ * <p><u>AUTHENTICATION</u></p>
+ * The connection uses "OCI Interactive Token" authentication (OCI_INTERACTIVE)
+ * Authentication type (OCI_INTERACTIVE) is passed as property to the driver
+ * <ul>
+ *   <li>Property "oracle.jdbc.tokenAuthentication=OCI_INTERACTIVE": the type of token authentication</li>
+ *   <li>Property "oracle.jdbc.ociCompartment": the ocid of the compartment that contains the ADB instance</li>
+ *   <li>Property "oracle.jdbc.ociDatabase": the ocid of the ADB instance.</li>
+ * </ul>
+ * <p>oracle.jdbc.ociCompartment and oracle.jdbc.ociDatabase are used to scope the oAuth token to the specific database
+ *    instance. It is a good security practice to limit the driver's access to only what it needs.  These fields
+ *    may or may not be optional depending on how the calling OCI user is configured in OCI Policies</p>
+ */
+public class JdbcConnectorOciInteractive  {
+        private static final String PROP_TOKEN_AUTH = "oracle.jdbc.tokenAuthentication";
+        private static final String PROP_OCI_COMPARTMENT = "oracle.jdbc.ociCompartment";
+        private static final String PROP_OCI_DATABASE = "oracle.jdbc.ociDatabase";
+
+    /**
+     * Creates a jdbc connection to the ORACLE database
+     * @return a new {@link Connection}
+     * @throws Exception if something goes wrong
+     */
+    public Connection connect() throws Exception {
+        Properties properties = new Properties();
+
+        // JDBC URL
+        // ORACLE jdbc url: jdbc:oracle:thin:@<TNS_PROFILE>?TNS_ADMIN="<TNS_FOLDER>"
+        String tnsFolder = "/path/tns";
+        String tnsProfile = "oci_db";
+        String jdbcUrl = "jdbc:oracle:thin:@" + tnsProfile + "?TNS_ADMIN=\"" + tnsFolder + "\"";
+
+
+        // AUTHENTICATION
+        // OCI Interactive token authentication
+        String ociCompartment =  null; // TODO you may need to set this value
+        String ociDatabase =  null; // TODO if this value is set then compartment must be set
+        properties.put(PROP_TOKEN_AUTH, "OCI_INTERACTIVE");
+        //properties.put(PROP_OCI_COMPARTMENT, ociCompartment);
+        //properties.put(PROP_OCI_DATABASE, ociDatabase);
+
+        // PROPERTIES
+    // custom properties (e.g. properties.put("charset", "UTF-8");)
+
+        // DRIVER
+        // ORACLE driver class "oracle.jdbc.OracleDriver"
+        Class<? extends Driver> driverClass = oracle.jdbc.OracleDriver.class;
+        Driver driver = driverClass.getConstructor().newInstance();
+
+        // CONNECTION
+        return driver.connect(jdbcUrl, properties);
+    }
+
+    public static void main(String[] args) {
+
+        JdbcConnectorOciInteractive connector = new JdbcConnectorOciInteractive();
+        try (Connection connection = connector.connect()) {
+            connection.isValid(10);
+            System.out.println("INFO: Successfully connected and validated");
+
+        } catch (Exception e) {
+            System.out.println("ERROR: Failed to connect. Cause:  " + e.getMessage());
+        }
+    }
+
+}

@@ -102,9 +102,10 @@ public class ProfileManagementForm extends DBNFormBase {
     }
 
     private void initChangeListener() {
-        ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType, operation) -> {
-            if (connectionId != getConnection().getConnectionId()) return;
-            if (objectType != AI_PROFILE) return;
+        ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, e -> {
+            if (!e.matches(getConnection())) return;
+            if (!e.matches(AI_PROFILE)) return;
+
             reloadProfiles();
         });
     }

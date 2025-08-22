@@ -58,12 +58,22 @@
  *   <li>Property "oracle.jdbc.tokenAuthentication=OCI_API_KEY": the type of token authentication</li>
  *   <li>Property "oracle.jdbc.ociConfigFile": the path to the OCI configuration file</li>
  *   <li>Property "oracle.jdbc.ociProfile": the profile from the OCI configuration file to be used</li>
+ *   <li>Property "oracle.jdbc.ociCompartment": the ocid of the compartment that contains the ADB instance</li>
+ *   <li>Property "oracle.jdbc.ociDatabase": the ocid of the ADB instance.</li>
  * </ul>
+ * <p>oracle.jdbc.ociCompartment and oracle.jdbc.ociDatabase are used to scope the oAuth token to the specific database
+ *    instance. It is a good security practice to limit the driver's access to only what it needs.  These fields
+ *    may or may not be optional depending on how the calling OCI user is configured in OCI Policies</p>
 #elseif (${AUTH_TOKEN_TYPE} == 'OCI_INTERACTIVE')
  * Authentication type (OCI_INTERACTIVE) is passed as property to the driver
  * <ul>
  *   <li>Property "oracle.jdbc.tokenAuthentication=OCI_INTERACTIVE": the type of token authentication</li>
+ *   <li>Property "oracle.jdbc.ociCompartment": the ocid of the compartment that contains the ADB instance</li>
+ *   <li>Property "oracle.jdbc.ociDatabase": the ocid of the ADB instance.</li>
  * </ul>
+ * <p>oracle.jdbc.ociCompartment and oracle.jdbc.ociDatabase are used to scope the oAuth token to the specific database
+ *    instance. It is a good security practice to limit the driver's access to only what it needs.  These fields
+ *    may or may not be optional depending on how the calling OCI user is configured in OCI Policies</p>
 #elseif (${AUTH_TOKEN_TYPE} == 'AZURE_SERVICE_PRINCIPAL_CERT'
             || ${AUTH_TOKEN_TYPE} == 'AZURE_SERVICE_PRINCIPAL_SECRET')
  * Authentication type, Azure OAuth parameters are passed as properties to the driver
@@ -85,21 +95,21 @@
  *          <dependency>
  *              <groupId>com.oracle.database.jdbc</groupId>
  *              <artifactId>ojdbc-provider-oci</artifactId>
- *              <version>1.0.1</version>
+ *              <version>1.0.6</version>
  *          </dependency>
  *
  *          <!-- Service Provider which requests tokens from Azure -->
  *          <dependency>
  *              <groupId>com.oracle.database.jdbc</groupId>
  *              <artifactId>ojdbc-provider-azure</artifactId>
- *              <version>1.0.1</version>
+ *              <version>1.0.6</version>
  *          </dependency>
  *
  *          <!-- Providers will remain compatible with ojdbc 23.4 or newer -->
  *          <dependency>
  *              <groupId>com.oracle.database.jdbc</groupId>
  *              <artifactId>ojdbc11</artifactId>
- *              <version>23.4.0.24.05</version>
+ *              <version>23.8.0.25.04</version>
  *          </dependency>
  *     </dependencies>
  *     </p>

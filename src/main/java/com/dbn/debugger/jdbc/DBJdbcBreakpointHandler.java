@@ -147,6 +147,8 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
         if (mainDatabaseFile == null) return;
 
         DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) mainDatabaseFile.getMainContentFile();
+        if (sourceCodeFile == null) return;
+
         PSQLFile psqlFile = (PSQLFile) sourceCodeFile.getPsiFile();
         if (psqlFile == null) return;
 
