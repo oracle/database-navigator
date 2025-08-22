@@ -287,9 +287,13 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
     }
 
     @Nullable
-    public DBEditableObjectVirtualFile findDatabaseFile(DBSchemaObject object) {
-        DBObjectRef<?> objectRef = object.ref();
-        return filesCache.get(objectRef);
+    public DBEditableObjectVirtualFile findDatabaseFile(DBObject object) {
+        return findDatabaseFile(object.ref());
+    }
+
+    @Nullable
+    public DBEditableObjectVirtualFile findDatabaseFile(DBObjectRef object) {
+        return filesCache.get(object);
     }
 
     @Nullable

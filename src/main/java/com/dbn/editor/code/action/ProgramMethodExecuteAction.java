@@ -18,13 +18,13 @@ package com.dbn.editor.code.action;
 
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.icon.Icons;
-import com.dbn.database.DatabaseFeature;
-import com.dbn.debugger.DatabaseDebuggerManager;
+import com.dbn.debugger.DBDebuggerType;
+import com.dbn.execution.java.JavaExecutionManager;
+import com.dbn.execution.method.MethodExecutionManager;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import com.dbn.object.action.AnObjectAction;
 import com.dbn.object.common.DBObject;
-import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -34,18 +34,18 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
-public class ProgramMethodDebugAction extends ProgramMethodLaunchAction {
+public class ProgramMethodExecuteAction extends ProgramMethodLaunchAction {
 
     @Override
     protected AnAction createExecutionAction(DBObject method) {
         if (method instanceof DBMethod) {
             DBMethod programMethod = (DBMethod) method;
-            return new DebugMethodAction(programMethod);
+            return new ExecuteMethodAction(programMethod);
         }
 
         if (method instanceof DBJavaMethod) {
             DBJavaMethod javaMethod = (DBJavaMethod) method;
-            return new DebugJavaMethodAction(javaMethod);
+            return new ExecuteJavaMethodAction(javaMethod);
         }
         return null;
     }
@@ -56,20 +56,12 @@ public class ProgramMethodDebugAction extends ProgramMethodLaunchAction {
 
         Presentation presentation = e.getPresentation();
         presentation.setVisible(visible);
-        presentation.setText(txt("app.codeEditor.action.DebugMethod"));
-        presentation.setIcon(Icons.METHOD_EXECUTION_DEBUG);
+        presentation.setText(txt("app.codeEditor.action.ExecuteMethod"));
+        presentation.setIcon(Icons.METHOD_EXECUTION_RUN);
     }
 
-    @Override
-    protected boolean isVisible(@NotNull AnActionEvent e) {
-        if (!super.isVisible(e)) return false;
-
-        DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);
-        return DatabaseFeature.DEBUGGING.isSupported(sourceCodeFile);
-    }
-
-    private static class DebugMethodAction extends AnObjectAction<DBMethod> {
-        DebugMethodAction(DBMethod method) {
+    private static class ExecuteMethodAction extends AnObjectAction<DBMethod> {
+        ExecuteMethodAction(DBMethod method) {
             super(method);
         }
 
@@ -77,15 +69,15 @@ public class ProgramMethodDebugAction extends ProgramMethodLaunchAction {
         protected void actionPerformed(
                 @NotNull AnActionEvent e,
                 @NotNull Project project,
-                @NotNull DBMethod method) {
+                @NotNull DBMethod object) {
 
-            DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(project);
-            debuggerManager.startMethodDebugger(method);
+            MethodExecutionManager executionManager = MethodExecutionManager.getInstance(project);
+            executionManager.startMethodExecution(object, DBDebuggerType.NONE);
         }
     }
 
-    private static class DebugJavaMethodAction extends AnObjectAction<DBJavaMethod> {
-        DebugJavaMethodAction(DBJavaMethod method) {
+    private static class ExecuteJavaMethodAction extends AnObjectAction<DBJavaMethod> {
+        ExecuteJavaMethodAction(DBJavaMethod method) {
             super(method);
         }
 
@@ -93,10 +85,10 @@ public class ProgramMethodDebugAction extends ProgramMethodLaunchAction {
         protected void actionPerformed(
                 @NotNull AnActionEvent e,
                 @NotNull Project project,
-                @NotNull DBJavaMethod method) {
+                @NotNull DBJavaMethod object) {
 
-            DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(project);
-            debuggerManager.startJavaDebugger(method);
+            JavaExecutionManager executionManager = JavaExecutionManager.getInstance(project);
+            executionManager.startMethodExecution(object, DBDebuggerType.NONE);
         }
     }
 }

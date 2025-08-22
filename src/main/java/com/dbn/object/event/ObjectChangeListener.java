@@ -16,21 +16,12 @@
 
 package com.dbn.object.event;
 
-import com.dbn.connection.ConnectionId;
-import com.dbn.connection.SchemaId;
-import com.dbn.object.type.DBObjectType;
 import com.intellij.util.messages.Topic;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.EventListener;
 
 public interface ObjectChangeListener extends EventListener {
     Topic<ObjectChangeListener> TOPIC = Topic.create("Object Change Event", ObjectChangeListener.class);
 
-    void objectsChanged(
-            @NotNull ConnectionId connectionId,
-            @Nullable SchemaId ownerId,
-            @NotNull DBObjectType objectType,
-            @NotNull ObjectChangeAction action);
+    void objectsChanged(ObjectChangeEvent event);
 }
