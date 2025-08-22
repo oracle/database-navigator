@@ -204,4 +204,8 @@ withType<KotlinCompile> {
         // make it immutable
         jvmArgs = jvmArgsMutable.toList()
    }
+
+   buildSearchableOptions {
+    enabled = false
+  }
 }
