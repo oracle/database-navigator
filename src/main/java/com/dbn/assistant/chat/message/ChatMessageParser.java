@@ -108,7 +108,7 @@ public class ChatMessageParser {
     }
 
     private static void createCodeSection(List<ChatMessageSection> sections, int shift, String content, ASTNode rootNode) {
-        String language = "undefined";
+        String language = null;
         StringBuilder builder = new StringBuilder();
         for (ASTNode codeNode : rootNode.getChildren()) {
             IElementType codeNodeType = codeNode.getType();
@@ -125,8 +125,10 @@ public class ChatMessageParser {
         }
 
         int length = rootNode.getEndOffset() - rootNode.getStartOffset();
-        TextRange contentRange = createContentRange(sections, shift, length);
-        createSection(sections, builder.toString(), contentRange, language);
+        if (language != null || length > 3) {
+            TextRange contentRange = createContentRange(sections, shift, length);
+            createSection(sections, builder.toString(), contentRange, language);
+        }
     }
 
     private void createSection(List<ChatMessageSection> sections, String content, TextRange contentRange, String language) {
