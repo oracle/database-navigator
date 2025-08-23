@@ -43,37 +43,23 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
         return mainPanel;
     }
 
-    public String getUser() {
-        return fieldsForm.getUser();
+    public boolean settingsChanged() {
+        AuthenticationInfo authenticationInfo = getAuthenticationInfo();
+        return fieldsForm.settingsChanged(authenticationInfo);
     }
-
-    public String getTokenConfigFile() {
-        return fieldsForm.getTokenConfigFile();
-    }
-
-    public String getTokenProfile() {
-        return fieldsForm.getTokenProfile();
-    }
-    public String getAutonomousDatabaseCompartmentOcid() { return fieldsForm.getAutonomousDatabaseCompartmentOcid(); }
-    public String getAutonomousDatabaseOcid() { return fieldsForm.getAutonomousDatabaseOcid(); }
-
-    public String getAzureTokenClientId() {return fieldsForm.getAzureTokenClientId();}
-    public String getAzureTokenTenantId() {return fieldsForm.getAzureTokenTenantId();}
-    public String getAzureTokenClientSecretFile() {return fieldsForm.getAzureTokenClientSecretFile();}
-    public char[] getAzureClientSecretFilePassword() {return fieldsForm.getAzureTokenClientSecretFilePassword();}
-    public String getAzureTokenDatabaseAppIdUri() {return fieldsForm.getAzureTokenDatabaseAppIdUri();}
-    public char[] getAzureClientSecret() {return fieldsForm.getAzureTokenClientSecret();}
 
     public void resetFormChanges() {
+        AuthenticationInfo authenticationInfo = getAuthenticationInfo();
+        fieldsForm.resetFormChanges(authenticationInfo);
+    }
+
+    private AuthenticationInfo getAuthenticationInfo() {
         ConnectionDatabaseSettingsForm parent = ensureParentComponent();
         ConnectionDatabaseSettings configuration = parent.getConfiguration();
-        AuthenticationInfo authenticationInfo = configuration.getAuthenticationInfo();
-
-        fieldsForm.resetFormChanges(authenticationInfo);
+        return configuration.getAuthenticationInfo();
     }
 
     public void applyFormChanges(AuthenticationInfo authenticationInfo) {
         fieldsForm.applyFormChanges(authenticationInfo);
     }
-
 }
