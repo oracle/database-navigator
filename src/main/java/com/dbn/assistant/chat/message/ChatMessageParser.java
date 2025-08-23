@@ -137,6 +137,8 @@ public class ChatMessageParser {
 
     public static TextContent convertMarkdownToHtml(String content) {
         GFMFlavourDescriptor flavourDescriptor = new GFMFlavourDescriptor();
+        //content = content.replaceAll("<", "&lt;");
+        //content = content.replaceAll(">", "&gt;");
         ASTNode rootNode = parseMadkdownContent(content);
 
         HtmlGenerator htmlGenerator = new HtmlGenerator(content, rootNode, flavourDescriptor, false);

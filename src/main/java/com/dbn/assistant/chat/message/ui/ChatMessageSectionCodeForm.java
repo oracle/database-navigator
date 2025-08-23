@@ -89,7 +89,7 @@ public class ChatMessageSectionCodeForm extends ChatMessageSectionForm {
     }
 
     @Override
-    protected void updateContent(TextContent content) {
+    protected void applyTextContent(TextContent content) {
         Documents.setText(codeViewer.getDocument(), content.getText());
     }
 

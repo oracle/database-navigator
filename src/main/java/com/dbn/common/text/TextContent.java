@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 
 import static com.intellij.ui.ColorUtil.toHex;
 
@@ -103,7 +104,8 @@ public class TextContent {
     }
 
     private void replaceFields(String identifier, String replacement) {
-        text = text.replaceAll("\\$\\{"+ identifier + "}", replacement);
+        replacement = Matcher.quoteReplacement(replacement);
+        text = text.replaceAll("\\$\\{" + identifier + "}", replacement);
     }
 
     public String getTypeId() {
@@ -128,5 +130,10 @@ public class TextContent {
 
     public static TextContent css(String text) {
         return new TextContent(text, MimeType.TEXT_CSS);
+    }
+
+    @Override
+    public String toString() {
+        return "[" + type + "] " + text;
     }
 }

@@ -20,7 +20,6 @@ import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.ChatMessageSection;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.dispose.DisposableContainers;
-import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.Layouts;
 import com.dbn.connection.ConnectionHandler;
 
@@ -28,6 +27,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.assistant.chat.message.ChatMessageParser.convertMarkdownToHtml;
@@ -95,23 +95,13 @@ public class AgentChatMessageForm extends ChatMessageForm {
             createCodeSectionForm(section);
     }
 
-    private void updateSectionForm(ChatMessageSection section, ChatMessageSectionForm sectionForm) {
-        if (section.getLanguage() == null)
-            updateTextSectionForm(sectionForm, section); else
-            updateCodeSectionForm(sectionForm, section);
-    }
-
     protected void createTextSectionForm(ChatMessageSection section) {
-        TextContent content = convertMarkdownToHtml(section.getContent());
+        ChatMessageSectionTextForm messageSectionForm = new ChatMessageSectionTextForm(this,
+                section.getContent(),
+                c -> convertMarkdownToHtml(c));
 
-        ChatMessageSectionTextForm messageSectionForm = new ChatMessageSectionTextForm(this, content);
         sectionForms.add(messageSectionForm);
         sectionsPanel.add(messageSectionForm.getComponent());
-
-        whenSettingsChange(() -> {
-            content.rebuild();
-            messageSectionForm.setContent(content);
-        });
     }
 
     private void createCodeSectionForm(ChatMessageSection section) {
@@ -131,25 +121,15 @@ public class AgentChatMessageForm extends ChatMessageForm {
         hasCodeContents = true; // mark as having code contents if successfully created one
     }
 
-    protected void updateTextSectionForm(ChatMessageSectionForm form, ChatMessageSection section) {
-        TextContent content = convertMarkdownToHtml(section.getContent());
-        form.updateContent(content);
-    }
-
-    protected void updateCodeSectionForm(ChatMessageSectionForm form, ChatMessageSection section) {
-        TextContent content = TextContent.plain(section.getContent());
-        form.updateContent(content);
-    }
-
     @Override
     public void refreshContent() {
         ChatMessage message = getMessage();
-        List<ChatMessageSection> sections = message.getSections();
+        List<ChatMessageSection> sections = new ArrayList<>(message.getSections());
         for (int i = 0; i < sections.size(); i++) {
             ChatMessageSection section = sections.get(i);
             if (i < sectionForms.size()) {
                 ChatMessageSectionForm sectionForm = sectionForms.get(i);
-                updateSectionForm(section, sectionForm);
+                sectionForm.updateContent(section.getContent());
             } else {
                 createSectionForm(section);
             }

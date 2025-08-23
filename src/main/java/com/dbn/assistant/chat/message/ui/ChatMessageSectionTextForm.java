@@ -23,19 +23,24 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import java.awt.Dimension;
+import java.util.function.Function;
 
 public class ChatMessageSectionTextForm extends ChatMessageSectionForm {
     private JTextPane messageTextPane;
     private JPanel mainPanel;
     private TextContent content;
 
-    public ChatMessageSectionTextForm(DBNForm parent, TextContent content) {
-        super(parent);
-        this.content = content;
+    public ChatMessageSectionTextForm(DBNForm parent, String content) {
+        this(parent, content, c -> TextContent.plain(c));
+    }
+
+    public ChatMessageSectionTextForm(DBNForm parent, String content, Function<String, TextContent> contentBuilder) {
+        super(parent, contentBuilder);
+        this.content = createTextContent(content);
         applyContent();
 
         whenSettingsChange(() -> {
-            content.rebuild();
+            this.content.rebuild();
             applyContent();
         });
     }
@@ -51,16 +56,17 @@ public class ChatMessageSectionTextForm extends ChatMessageSectionForm {
     }
 
     private void applyContent() {
-        messageTextPane.setContentType(content.getType().id());
+        messageTextPane.setContentType(content.getTypeId());
         messageTextPane.setText(content.getText());
 
         Dimension preferredSize = messageTextPane.getPreferredSize();
+        //preferredSize = Dimensions.change(preferredSize, 4, 4);
         messageTextPane.setSize(preferredSize);
         messageTextPane.revalidate();
     }
 
     @Override
-    protected void updateContent(TextContent content) {
+    protected void applyTextContent(TextContent content) {
         setContent(content);
     }
 }

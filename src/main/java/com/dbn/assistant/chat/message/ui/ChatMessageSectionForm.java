@@ -21,11 +21,34 @@ import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import lombok.Getter;
 
+import java.util.Objects;
+import java.util.function.Function;
+
 @Getter
 public abstract class ChatMessageSectionForm extends DBNFormBase {
+    private String content;
+    private TextContent textContent;
+    private final Function<String, TextContent > contentBuilder;
+
     ChatMessageSectionForm(DBNForm parent) {
-        super(parent);
+        this(parent, c -> TextContent.plain(c));
     }
 
-    abstract protected void updateContent(TextContent content);
+    ChatMessageSectionForm(DBNForm parent, Function<String, TextContent> contentBuilder) {
+        super(parent);
+        this.contentBuilder = contentBuilder;
+    }
+
+    public final void updateContent(String content) {
+        if (Objects.equals(this.content, content)) return;
+
+        this.content = content;
+        this.textContent = createTextContent(content);
+        applyTextContent(this.textContent);
+    }
+    protected final TextContent createTextContent(String content) {
+        return contentBuilder.apply(content);
+    }
+
+    abstract protected void applyTextContent(TextContent content);
 }

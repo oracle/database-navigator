@@ -88,7 +88,7 @@ public class ChatMessagesForm extends DBNFormBase {
     }
 
     public void refreshMessage(ChatMessage message) {
-        Dispatch.run(mainPanel, () -> {
+        Dispatch.execute(mainPanel, () -> {
             ChatMessageForm messageForm = getMessageForm(message.getId());
             if (messageForm == null) return;
 
