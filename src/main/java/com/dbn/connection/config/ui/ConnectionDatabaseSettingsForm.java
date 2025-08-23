@@ -313,22 +313,11 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         boolean nameChanged = !Objects.equals(nameTextField.getText(), configuration.getName());
 
         DatabaseInfo databaseInfo = configuration.getDatabaseInfo();
-        boolean settingsChanged = urlSettingsForm.settingsChanged() ||
-                //!connectionConfig.getProperties().equals(propertiesEditorForm.getProperties()) ||
+        boolean settingsChanged =
+                urlSettingsForm.settingsChanged() ||
+                authSettingsForm.settingsChanged() ||
                 !Commons.match(configuration.getDatabaseType(), selectedDatabaseType) ||
-                !Commons.match(configuration.getDriverLibrary(), driverSettingsForm.getDriverLibrary()) ||
-                !Commons.match(configuration.getAuthenticationInfo().getUser(), authSettingsForm.getUser()) ||
-                !Commons.match(configuration.getAuthenticationInfo().getTokenConfigFile(), authSettingsForm.getTokenConfigFile()) ||
-                !Commons.match(configuration.getAuthenticationInfo().getTokenProfile(), authSettingsForm.getTokenProfile()) ||
-                !Commons.match(configuration.getAuthenticationInfo().getAutonomousDatabaseOcid(), authSettingsForm.getAutonomousDatabaseOcid()) ||
-                !Commons.match(configuration.getAuthenticationInfo().getAutonomousDatabaseCompartmentOcid(), authSettingsForm.getAutonomousDatabaseCompartmentOcid()) ||
-                !Commons.match(configuration.getAuthenticationInfo().getAzureClientId(), authSettingsForm.getAzureTokenClientId()) ||
-                !Commons.match(configuration.getAuthenticationInfo().getAzureTenantId(), authSettingsForm.getAzureTokenTenantId()) ||
-                !Commons.match(configuration.getAuthenticationInfo().getAzureClientCertificateFile(), authSettingsForm.getAzureTokenClientSecretFile()) ||
-                !Commons.match(configuration.getAuthenticationInfo().getAzureClientCertificatePassword(), authSettingsForm.getAzureClientSecretFilePassword()) ||
-                !Commons.match(configuration.getAuthenticationInfo().getAzureClientSecret(), authSettingsForm.getAzureClientSecret()) ||
-                !Commons.match(configuration.getAuthenticationInfo().getAzureDatabaseApplicationIdUri(), authSettingsForm.getAzureTokenDatabaseAppIdUri())
-                ;
+                !Commons.match(configuration.getDriverLibrary(), driverSettingsForm.getDriverLibrary());
 
         applyFormChanges(configuration);
 
