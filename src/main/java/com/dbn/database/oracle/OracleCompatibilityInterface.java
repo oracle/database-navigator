@@ -323,9 +323,9 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
 
     private static void copyCommonOciTokenProperties(ConnectorProperties properties, AuthenticationInfo authenticationInfo) {
         // make sure to leave these null if the user didn't set them as the provider won't check for empty string
-        Strings.ifNotEmpty(authenticationInfo.getAutonomousDatabaseCompartmentOcid(),
+        Strings.ifNotEmpty(authenticationInfo.getCompartmentOcid(),
                 compartmentOcid -> properties.add(Property.ORACLE_JDBC_OCI_COMPARTMENT, compartmentOcid));
-        Strings.ifNotEmpty(authenticationInfo.getAutonomousDatabaseOcid(),
+        Strings.ifNotEmpty(authenticationInfo.getDatabaseOcid(),
                 databaseOcid -> properties.add(Property.ORACLE_JDBC_OCI_DATABASE, databaseOcid));
     }
 
