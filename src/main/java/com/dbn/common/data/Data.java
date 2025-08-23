@@ -52,6 +52,7 @@ public final class Data {
         if (object == null) return null;
 
         if (type == Boolean.class)    return cast(asBoolean(object));
+        if (type == Byte.class)       return cast(asByte(object));
         if (type == Character.class)  return cast(asCharacter(object));
         if (type == Double.class)     return cast(asDouble(object));
         if (type == Float.class)      return cast(asFloat(object));
@@ -60,6 +61,7 @@ public final class Data {
         if (type == Short.class)      return cast(asShort(object));
         if (type == String.class)     return cast(asString(object));
         if (type == boolean.class)    return cast(asBooleanPrimitive(object));
+        if (type == byte.class)       return cast(asBytePrimitive(object));
         if (type == char.class)       return cast(asCharacterPrimitive(object));
         if (type == double.class)     return cast(asDoublePrimitive(object));
         if (type == float.class)      return cast(asFloatPrimitive(object));
