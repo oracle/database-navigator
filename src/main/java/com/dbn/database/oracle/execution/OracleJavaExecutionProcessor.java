@@ -342,14 +342,14 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 			case "char": return Types.CHAR;
 			case "java.lang.String": return Types.VARCHAR;
 			case "java.lang.Character": return Types.CHAR;
-			case "java.math.BigDecimal": return Types.DECIMAL;
-			case "java.math.BigInteger": return Types.BIGINT;
-			case "java.lang.Integer": return Types.INTEGER;
-			case "java.lang.Long": return Types.BIGINT;
-			case "java.lang.Double": return Types.DOUBLE;
-			case "java.lang.Short": return Types.SMALLINT;
-			case "java.lang.Float": return Types.FLOAT;
-			case "java.lang.Byte": return Types.TINYINT;
+			case "java.math.BigDecimal": return Types.NUMERIC;
+			case "java.math.BigInteger": return Types.NUMERIC;
+			case "java.lang.Integer": return Types.NUMERIC;
+			case "java.lang.Long": return Types.NUMERIC;
+			case "java.lang.Double": return Types.NUMERIC;
+			case "java.lang.Short": return Types.NUMERIC;
+			case "java.lang.Float": return Types.NUMERIC;
+			case "java.lang.Byte": return Types.NUMERIC;
 			default: return Types.STRUCT;
 		}
 	}
@@ -363,7 +363,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 			case Types.TINYINT: return callableStatement.getByte(outputIndex);
 			case Types.SMALLINT: return callableStatement.getShort(outputIndex);
 			case Types.BIGINT: return callableStatement.getLong(outputIndex);
-			case Types.CHAR: return callableStatement.getString(outputIndex).charAt(0);
+			case Types.CHAR: return callableStatement.getString(outputIndex);
 			case Types.VARCHAR: return callableStatement.getString(outputIndex);
 			case Types.DECIMAL: return callableStatement.getBigDecimal(outputIndex);
 			default: return callableStatement.getObject(outputIndex);

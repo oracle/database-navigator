@@ -44,7 +44,7 @@ public final class TypeMappings {
                 // Java Primitive types
                 Map.entry("boolean", new SqlType("NUMBER", "((Number)", ").intValue() != 0")),
                 Map.entry("byte", new SqlType("NUMBER", "Byte.parseByte(String.valueOf(", "))")),
-                Map.entry("char", new SqlType("CHAR", "String.valueOf(", ").charAt(0)")),
+                Map.entry("char", new SqlType("CHAR", "(String.valueOf(", ")).charAt(0)")),
                 Map.entry("short", new SqlType("NUMBER", "Short.parseShort(String.valueOf(", "))")),
                 Map.entry("int", new SqlType("NUMBER", "Integer.parseInt(String.valueOf(", "))")),
                 Map.entry("long", new SqlType("NUMBER", "Long.parseLong(String.valueOf(", "))")),
@@ -61,7 +61,7 @@ public final class TypeMappings {
                 // Java Wrapper Types
                 Map.entry("java.lang.Boolean", new SqlType("NUMBER", "((Number)", ").intValue() != 0")),
                 Map.entry("java.lang.Byte", new SqlType("NUMBER", "Byte.parseByte(String.valueOf(", "))")),
-                Map.entry("java.lang.Character", new SqlType("CHAR", "String.valueOf(", ").charAt(0)")),
+                Map.entry("java.lang.Character", new SqlType("CHAR", "(String.valueOf(", ")).charAt(0)")),
                 Map.entry("java.lang.Short", new SqlType("NUMBER", "Short.parseShort(String.valueOf(", "))")),
                 Map.entry("java.lang.Integer", new SqlType("NUMBER", "Integer.parseInt(String.valueOf(", "))")),
                 Map.entry("java.lang.Long", new SqlType("NUMBER", "Long.parseLong(String.valueOf(", "))")),
