@@ -39,16 +39,17 @@ import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
+import org.jetbrains.annotations.NotNull;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.event.DocumentListener;
-import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
@@ -104,13 +105,13 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 
 		inputTextField = inputField.getTextField();
 		inputTextField.setText(value);
-		inputFieldPanel.add(inputField, BorderLayout.CENTER);
+		inputFieldPanel.add(inputField);
 
 		inputTextField.setDisabledTextColor(inputTextField.getForeground());
 		fieldsPanel.setVisible(false);
 
         if (parameter.getArrayDepth() == 1) {
-            setupSingleDimArrayEditor(parameter, value, project, inputField, inputTextField);
+            setupSingleDimArrayEditor(inputField, parameter);
         }
         inputField.createValuesListPopup(createValuesProvider(), parameter, true);
 	}
