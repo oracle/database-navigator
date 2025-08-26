@@ -18,15 +18,16 @@ package com.dbn.common.data;
 
 import com.dbn.common.util.Csvs;
 import com.dbn.common.util.Strings;
+import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import lombok.experimental.UtilityClass;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Strings.firstCharacter;
 import static com.dbn.common.util.Unsafe.cast;
@@ -207,9 +208,10 @@ public final class Data {
         return asNumber(object, s -> new BigInteger(s));
     }
 
-    public static Class<?> primitive(Class<?> type) {
+    public static Class<?> asPrimitiveClass(Class<?> type) {
         if (type.isPrimitive()) return type;
 
+        if (type == Boolean.class) return boolean.class;
         if (type == Byte.class) return byte.class;
         if (type == Character.class) return char.class;
         if (type == Short.class) return short.class;
@@ -217,6 +219,7 @@ public final class Data {
         if (type == Long.class) return long.class;
         if (type == Float.class) return float.class;
         if (type == Double.class) return double.class;
+        if (type == Void.class) return void.class;
 
         return null;
     }
