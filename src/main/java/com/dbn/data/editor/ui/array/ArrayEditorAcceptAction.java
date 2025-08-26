@@ -20,10 +20,13 @@ import com.dbn.common.data.Data;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
+import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dbn.data.editor.ui.UserValueHolder;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import java.util.List;
 import org.jetbrains.annotations.NotNull;
+
+import javax.swing.JTextField;
+import java.util.List;
 
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.nls.NlsResources.txt;
@@ -41,19 +44,20 @@ class ArrayEditorAcceptAction extends ArrayEditorAction {
 
         ArrayEditorList list = form.getEditorList();
         list.stopCellEditing();
-        UserValueHolder<?> userValueHolder = form.getEditorComponent().getUserValueHolder();
+        TextFieldWithPopup<?> editorComponent = form.getEditorComponent();
+        UserValueHolder<?> userValueHolder = editorComponent.getUserValueHolder();
 
         Class<?> clazz = userValueHolder.getDataClass();
 
         List<String> stringData = list.getModel().getData();
-
         List<?> data = clazz == null ?
                 Lists.convert(stringData, s -> Strings.isEmpty(s) ? null : s):
                 Data.asTypeList(stringData, clazz);
 
         userValueHolder.updateUserValue(cast(data), false);
 
-        form.getEditorComponent().getTextField().setText(Data.listToCsv(data));
+        JTextField textField = editorComponent.getTextField();
+        textField.setText("[" + Data.listToCsv(data) + "]");
         form.hidePopup();
     }
 
