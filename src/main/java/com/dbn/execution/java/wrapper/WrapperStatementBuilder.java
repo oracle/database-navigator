@@ -25,8 +25,6 @@ import com.dbn.execution.java.wrapper.model.FieldWrapper;
 import com.dbn.execution.java.wrapper.model.MethodWrapper;
 import com.dbn.execution.java.wrapper.model.ParameterWrapper;
 import com.intellij.openapi.project.Project;
-import java.util.Objects;
-import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -37,10 +35,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.dbn.common.util.Java.isPrimitive;
 
@@ -186,16 +186,16 @@ public final class WrapperStatementBuilder {
         for (MethodWrapper method : model.getMethods()) {
             String methodReturnType = resolveMethodReturnType(method);
             String methodName = method.getSurrogateJavaMethodName();
-            String methodParameters = getJavaParameters(method, true);
-            String argumentConversions = getArgumentConversionStatements(method);
-            String returnStatement = getReturnStatement(method, model.getClassName());
+            String methodParameters = buildMethodParameters(method, true);
+            String argumentConversions = buildArgumentConversions(method);
+            String methodInvocation = buildMethodInvocation(method, model.getClassName());
 
             Map<String, Object> context = new HashMap<>();
             context.put("METHOD_NAME", methodName);
             context.put("METHOD_PARAMETERS", methodParameters);
             context.put("METHOD_RETURN_TYPE", methodReturnType);
             context.put("ARGUMENT_CONVERSIONS", argumentConversions);
-            context.put("RETURN_STATEMENT", returnStatement);
+            context.put("METHOD_INVOCATION", methodInvocation);
 
             String code = generateCode("DBN - OJVM JavaWrapperMethod.java", context);
 
@@ -240,7 +240,7 @@ public final class WrapperStatementBuilder {
                     // Precompute the SQL signature using your new getSqlSignature function.
                     m.put("SQL_PARAMETERS", getSqlParameters(method));
                     // Precompute the Java signature (false indicates no argument names, per your original code).
-                    m.put("JAVA_PARAMETERS", getJavaParameters(method, false));
+                    m.put("JAVA_PARAMETERS", buildMethodParameters(method, false));
 
                     // Determine the resolved return type.
                     String javaReturnType = resolveMethodReturnType(method);
@@ -517,18 +517,19 @@ public final class WrapperStatementBuilder {
                 .collect(Collectors.joining(", ")) + ")";
     }
 
-    public String getJavaParameters(MethodWrapper method, boolean includeArgumentNames) {
-
+    public String buildMethodParameters(MethodWrapper method, boolean includeArgumentNames) {
         AtomicInteger idx = new AtomicInteger(0);
         return "(" + method.getParameters()
                 .stream()
-                .map(e -> (
-                        (Objects.equals(e.getJavaTypeName(), "java.lang.Character")
-                                || Objects.equals(e.getJavaTypeName(), "char")) && !e.isArray() ? "java.lang.String" :
-                                e.isArray() ? "java.sql.Array" :
-                                        e.isComplexType() ? "java.sql.Struct" :
-                                                e.getJavaTypeName())
-                        + (includeArgumentNames ? " arg" + idx.getAndIncrement() : "")
+                .map(e -> {
+                            String javaTypeName = e.getJavaTypeName();
+                            return (
+                                    (Objects.equals(javaTypeName, "java.lang.Character") || Objects.equals(javaTypeName, "char")) && !e.isArray() ? "java.lang.String" :
+                                            e.isArray() ? "java.sql.Array" :
+                                            e.isComplexType() ? "java.sql.Struct" :
+                                            javaTypeName)
+                                    + (includeArgumentNames ? " arg" + idx.getAndIncrement() : "");
+                        }
                 )
                 .collect(Collectors.joining(", ")) + ")";
     }
@@ -557,7 +558,7 @@ public final class WrapperStatementBuilder {
     }
 
 
-    public String getArgumentConversionStatements(MethodWrapper method) {
+    public String buildArgumentConversions(MethodWrapper method) {
         StringBuilder statements = new StringBuilder();
         List<ParameterWrapper> methodAttributes = method.getParameters();
         for (int i = 0; i < methodAttributes.size(); i++) {
@@ -636,13 +637,13 @@ public final class WrapperStatementBuilder {
         return returnJavaType;
     }
 
-    public String getReturnStatement(MethodWrapper method, String fullyQualifiedOriginalClassName) {
+    public String buildMethodInvocation(MethodWrapper method, String fullyQualifiedOriginalClassName) {
         ParameterWrapper returnType = method.getReturnParameter();
         StringBuilder statement = new StringBuilder();
         String converterMethodStart = "";
         String converterMethodEnd = "";
 
-        if ((returnType.isArray() || returnType.isComplexType())) {
+        if (returnType != null && (returnType.isArray() || returnType.isComplexType())) {
             converterMethodStart = returnType.getConverterName() + "(";
             converterMethodEnd = ")";
         }
@@ -655,17 +656,18 @@ public final class WrapperStatementBuilder {
                 .append(getArgumentsInJavaCaller(method))
                 .append(")")
                 .append(converterMethodEnd);
-        if (!returnType.isArray()) {
+
+        if (returnType != null && !returnType.isArray()) {
             String javaTypeName = returnType.getJavaTypeName();
             if ("char".equals(javaTypeName) || "java.lang.Character".equals(javaTypeName)) {
                 return getCharReturnStatement(statement.toString(), javaTypeName);
             }
         }
 
-        if(returnType!=null) {
-            return "return " +statement+";";
+        if (returnType != null) {
+            return "return " + statement + ";";
         }
-        return statement.toString()+";";
+        return statement + ";";
     }
 
     private String getCharReturnStatement(String returnCaller, String javaTypeName) {
