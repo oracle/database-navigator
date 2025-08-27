@@ -57,8 +57,8 @@ class ArrayEditorAcceptAction extends ArrayEditorAction {
         userValueHolder.updateUserValue(cast(data), false);
 
         JTextField textField = editorComponent.getTextField();
-        String csvData = Data.listToCsv(data);
-        textField.setText(csvData);
+        String arrayString = Data.listToArrayString(data);
+        textField.setText(arrayString);
         form.hidePopup();
     }
 

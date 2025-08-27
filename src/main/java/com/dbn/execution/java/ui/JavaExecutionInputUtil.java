@@ -54,15 +54,15 @@ public class JavaExecutionInputUtil {
         UserValueHolderImpl<List<?>> valueHolder = new UserValueHolderImpl<>(argumentName, argumentType, null, project);
         valueHolder.setDataClass(argumentClass);
 
-        List<?> values = Data.csvToList(inputField.getText(), argumentClass);
+        List<?> values = Data.arrayStringToList(inputField.getText(), argumentClass);
         valueHolder.updateUserValue(values, false);
         inputField.setUserValueHolder(valueHolder);
 
         inputField.createArrayEditorPopup(false);
 
         onTextChange(inputTextField, e -> {
-            List newVal = Data.csvToList(inputField.getText(), argumentClass);
-            valueHolder.setUserValue(newVal);
+            List valueList = Data.arrayStringToList(inputField.getText(), argumentClass);
+            valueHolder.setUserValue(valueList);
         });
     }
 

@@ -35,6 +35,10 @@ import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
+import lombok.SneakyThrows;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.sql.Array;
@@ -45,9 +49,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
 import java.util.Objects;
-import lombok.SneakyThrows;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.data.Data.asBigDecimal;
 import static com.dbn.common.data.Data.asBigInteger;
@@ -235,7 +236,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		if(clazz == null){
 			clazz = Class.forName(className);
 		}
-		List<?> values = Data.csvToList(fieldValue, clazz);
+		List<?> values = Data.arrayStringToList(fieldValue, clazz);
 		Object[] customTypeAttributes = values.toArray();
 
 		ClassLoader cl =  conn.getInner().getClass().getClassLoader();

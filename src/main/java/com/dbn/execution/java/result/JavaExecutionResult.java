@@ -17,6 +17,7 @@
 package com.dbn.execution.java.result;
 
 import com.dbn.common.action.DataKeys;
+import com.dbn.common.data.Data;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ref.WeakRef;
@@ -42,14 +43,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
+import java.sql.Array;
 import java.sql.SQLException;
 import java.sql.Struct;
-import java.sql.Array;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.util.Lists.sortedCopy;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
@@ -90,9 +91,10 @@ public class JavaExecutionResult extends ExecutionResultBase<JavaExecutionResult
 
 
     private void addArrayArgumentValues(String parentName, Array value) throws SQLException {
-            String bracketedValues = toBracketedLiteral(value);
-            addArgumentValue(parentName + "[]", bracketedValues);
-        }
+        Object[] elements = (Object[]) value.getArray();
+        String arrayString = Data.listToArrayString(Arrays.asList(elements));
+        addArgumentValue(parentName + "[]", arrayString);
+    }
 
     public void addArgumentValue(String parameter, Object value) throws SQLException {
         ValueHolder<Object> valueStore = ValueHolder.basic(value);

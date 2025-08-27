@@ -298,4 +298,20 @@ public final class Data {
     public static <T> List<T> csvToList(String csv, Class<T> type) {
         return Csvs.csvToValues(csv, v -> asType(v, type));
     }
+
+    public static <T> String listToArrayString(List<T> list) {
+        if (list == null) return null;
+        if (list.isEmpty()) return "[]";
+        return "[" + listToCsv(list) + "]";
+    }
+
+    public static <T> List<T> arrayStringToList(String arrayString, Class<T> type) {
+        if (arrayString == null) return null;
+        if (arrayString.isEmpty()) return null;
+        if (arrayString.startsWith("[") && arrayString.endsWith("]")) {
+            arrayString = arrayString.substring(1, arrayString.length() - 1);
+        }
+        return csvToList(arrayString, type);
+
+    }
 }
