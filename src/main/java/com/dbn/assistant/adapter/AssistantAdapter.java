@@ -74,6 +74,8 @@ public interface AssistantAdapter {
             ChatContext chatContext,
             AssistantResponseConsumer responseConsumer);
 
+    String generateTitle(String chatId, ConnectionId connectionId) throws Exception;
+
     String preparePrompt(ConnectionId connectionId, ChatContext chatContext, String prompt);
 
     String prepareError(ConnectionId connectionId, ChatContext chatContext, Throwable e);

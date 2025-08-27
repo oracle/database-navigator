@@ -40,9 +40,11 @@ import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
+import com.dbn.common.util.Lists;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.PooledConnection;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.assistant.AssistantQueryResponse;
@@ -274,13 +276,13 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
         }
     }
 
-    public String generate(String prompt, ConnectionId connectionId, ChatContext chatContext) throws Exception {
+    private String generate(String prompt, ConnectionId connectionId, ChatContext chatContext) throws Exception {
         ConnectionHandler connection = getConnection(connectionId);
 
-        SelectAiChatContext selectAiChatContext = SelectAiChatContext.wrap(chatContext);
+        SelectAiChatContext customChatContext = SelectAiChatContext.wrap(chatContext);
         String profile = chatContext.getProfileName();
-        String action = selectAiChatContext.getAction().getApiId();
-        String attributes = selectAiChatContext.getAttributes();
+        String action = customChatContext.getAction().getApiId();
+        String attributes = customChatContext.getAttributes();
 
         DBNConnection conn = connection.getConnection(SessionId.ASSISTANT);
         DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
@@ -289,5 +291,34 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
         ProgressMonitor.checkCancelled();
 
         return response.read();
+    }
+
+    @Override
+    public String generateTitle(String chatId, ConnectionId connectionId) throws Exception {
+        AssistantState assistantState = getAssistantState(connectionId);
+        if (assistantState == null) return null;
+
+        Chat chat = assistantState.getChat(chatId);
+        if (chat == null) return null;
+
+        ChatContext chatContext = chat.getContext();
+        SelectAiChatContext customChatContext = SelectAiChatContext.wrap(chatContext);
+        String profile = customChatContext.getProfileName();
+        String action = PromptAction.CHAT.getApiId();
+        String attributes = customChatContext.getAttributes();
+
+        List<String> userPrompts = chat.getUserPrompts();
+        if (userPrompts.isEmpty()) return null;
+
+        String prompts = Lists.toCsv(userPrompts, "\n", s -> "\"" + s + "\"");
+        String titlePrompt = "Summarize the following prompts into a concise title (3-5 words). Respond with the title only, no additional information:\n\n" + prompts;
+
+        ConnectionHandler connection = getConnection(connectionId);
+        // use pool connection to avoid interfering with the current conversation
+        return PooledConnection.call(connection.createConnectionContext(), c -> {
+            DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
+            AssistantQueryResponse response = assistantInterface.generate(c, action, profile, attributes, titlePrompt);
+            return response.read();
+        });
     }
 }

@@ -232,8 +232,11 @@ public class ChatBoxForm extends DBNFormBase {
 
     public void initMessages() {
         if (!hasUserEngaged()) return;
+        if (messagesForm == null) return; // not yet initialized
 
         Chat chat = getCurrentChat();
+        if (Objects.equals(chat.getId(), currentChatId)) return;
+
         currentChatId = chat.getId();
         chat.removeProgress();
 
@@ -451,8 +454,29 @@ public class ChatBoxForm extends DBNFormBase {
 
         ChatBoxResponseConsumer responseConsumer = new ChatBoxResponseConsumer(this, chatContext, chatId);
 
+        initChatTitle(chatId, connectionId);
+
         DatabaseAssistantManager assistantManager = getManager();
         assistantManager.query(question, chatId, connectionId, assistantType, chatContext, responseConsumer);
+    }
+
+    private void initChatTitle(String chatId, ConnectionId connectionId) {
+        Chat chat = getChat(chatId);
+        if (chat.isPersisted()) return;
+
+        Background.run(() -> {
+            DatabaseAssistantManager assistantManager = getManager();
+            String title = assistantManager.generateTitle(chatId, connectionId, assistantType);
+            if (title != null) {
+                String[] split = title.split("\\s");
+                if (split.length > 6) title = null;
+            }
+            if (title == null) return;
+
+            title = title.replaceAll("\"", "");
+            title = title.replaceAll("'", "");
+            chat.setTitle(title);
+        });
     }
 
     public ChatBoxInputField getInputField() {

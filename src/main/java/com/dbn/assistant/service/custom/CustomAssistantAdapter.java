@@ -103,4 +103,9 @@ public class CustomAssistantAdapter extends AssistantAdapterBase {
     public void generate(String prompt, String chatId, ConnectionId connectionId, ChatContext chatContext, AssistantResponseConsumer responseConsumer) {
 
     }
+
+    @Override
+    public String generateTitle(String chatId, ConnectionId connectionId) throws Exception {
+        return "";
+    }
 }

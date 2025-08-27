@@ -142,4 +142,9 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
             responseConsumer.acceptCompletion();
         }
     }
+
+    @Override
+    public String generateTitle(String chatId, ConnectionId connectionId) throws Exception {
+        return "";
+    }
 }

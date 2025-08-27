@@ -28,8 +28,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.dbn.assistant.chat.message.AuthorType.AGENT;
+import static com.dbn.assistant.chat.message.AuthorType.USER;
 import static com.dbn.common.options.setting.Settings.longAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setLongAttribute;
@@ -94,6 +96,14 @@ public class Chat implements PersistentStateElement {
         messages.forEach(message -> {
             message.setProgress(false);
         });
+    }
+
+    public List<String> getUserPrompts() {
+        return messages.
+                stream().
+                filter(m -> m.getAuthor() == USER).
+                map(m -> m.getContent()).
+                collect(Collectors.toList());
     }
 
 
