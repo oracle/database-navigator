@@ -56,6 +56,7 @@ import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Lists.sortedCopy;
+import static com.dbn.execution.java.ui.JavaExecutionInputUtil.setupSingleDimArrayEditor;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static java.util.Collections.emptyList;
@@ -147,13 +148,15 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 		TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
 		inputField.setPreferredSize(new Dimension(240, -1));
 
-
-		inputField.createValuesListPopup(createValuesProvider(), field, true);
 		inputTextField = inputField.getTextField();
 		inputTextField.setText(value);
-		inputFieldPanel.add(inputField, BorderLayout.CENTER);
-
+		inputFieldPanel.add(inputField);
 		inputTextField.setDisabledTextColor(inputTextField.getForeground());
+
+        if (field.getArrayDepth() == 1) {
+            setupSingleDimArrayEditor(inputField, field);
+        }
+        inputField.createValuesListPopup(createValuesProvider(), field, true);
 	}
 
 	private void initClassField() {

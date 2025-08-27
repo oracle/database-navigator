@@ -252,7 +252,6 @@
         <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.NetworkAccess_HOST_ACE_JDWP"/>
 
         <!--change notification prerequisites-->
-        <prerequisiteRequirementEvaluator implementation="com.dbn.debugger.prerequisite.DebugPrerequisitesEvaluator"/>
         <prerequisiteRequirementEvaluator implementation="com.dbn.event.prerequisite.ChangeNotificationPrerequisitesEvaluator"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.event.prerequisite.SystemPrivilege_CHANGE_NOTIFICATION"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.event.prerequisite.ObjectPrivilege_EXECUTE_DBMS_CHANGE_NOTIFICATION"/>
@@ -261,11 +260,14 @@
         <assistantAdapter implementation="com.dbn.assistant.service.selectai.SelectAiAssistantAdapter"/>
         <assistantAdapter implementation="com.dbn.assistant.service.generic.GenericAssistantAdapter"/>
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.AnthropicModelFactory"/>
+        <!--<assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.BedrockModelFactory"/>-->
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.CohereModelFactory"/>
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.GoogleModelFactory"/>
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.HuggingFaceModelFactory"/>
+        <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.MistralAiModelFactory"/>
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.OllamaModelFactory"/>
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.OpenAiModelFactory"/>
+
         <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.ChatModelInvoker"/>
         <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.EmbeddingModelInvoker"/>
         <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.LanguageModelInvoker"/>

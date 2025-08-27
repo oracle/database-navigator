@@ -23,6 +23,7 @@ import com.dbn.data.model.ColumnInfo;
 import com.dbn.data.model.DataModelCell;
 import com.dbn.data.model.DataModelState;
 import com.dbn.data.type.DBDataType;
+import com.dbn.data.type.GenericDataType;
 import com.dbn.data.value.ArrayValue;
 import com.dbn.data.value.LargeObjectValue;
 import com.dbn.editor.data.model.RecordStatus;
@@ -33,6 +34,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.data.type.GenericDataType.VECTOR;
 
 @Getter
 public class BasicDataModelCell<
@@ -136,6 +138,15 @@ public class BasicDataModelCell<
     @Override
     public String getName() {
         return getColumnInfo().getName();
+    }
+
+    @Override
+    public Class<?> getDataClass() {
+        GenericDataType dataType = getDataType().getGenericDataType();
+        if (dataType == VECTOR) return Double.class;
+        //...
+
+        return null;
     }
 
     @Override

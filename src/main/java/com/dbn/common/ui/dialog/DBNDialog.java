@@ -59,6 +59,7 @@ import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.registerDialog;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.releaseDialog;
 import static com.dbn.common.util.Classes.simpleClassName;
+import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.common.util.Unsafe.cast;
 
@@ -117,10 +118,11 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
                 buildValidationInfos() :
                 buildValidationInfos(component);
 
-        setErrorInfoAll(validationInfos);
+        List<ValidationInfo> notifiedValidationInfos = filter(validationInfos, v -> formValidator.isVisitedField(v.component));
+        setErrorInfoAll(notifiedValidationInfos);
 
-        // do validation for all fields to decide whether to enable main button
-        validationInfos = buildValidationInfos();
+        // do validation for all fields (if not already the case) to decide whether to enable main button
+        validationInfos = component == null ? validationInfos : buildValidationInfos();
         setOKActionEnabled(validationInfos.isEmpty());
 
         // revalidate the ui if dialog errors are listed in the dialog footer

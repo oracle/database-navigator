@@ -54,9 +54,11 @@ import java.util.List;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 import static com.dbn.common.util.Lists.sortedCopy;
+import static com.dbn.execution.java.ui.JavaExecutionInputUtil.setupSingleDimArrayEditor;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static java.util.Collections.emptyList;
+
 
 public class JavaExecutionInputParameterForm extends DBNFormBase implements ComponentAligner.Form {
 	private JPanel mainPanel;
@@ -95,8 +97,6 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 
 		TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
 		inputField.setPreferredSize(new Dimension(240, -1));
-
-		inputField.createValuesListPopup(createValuesProvider(), parameter, true);
 		DBObjectRef<DBJavaClass> javaClass = parameter.getJavaClassRef();
 		parameterTypeLabel.setText(getCanonicalName(javaClass));
 		if (parameter.isClass()) {
@@ -105,11 +105,18 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 
 		inputTextField = inputField.getTextField();
 		inputTextField.setText(value);
-		inputFieldPanel.add(inputField, BorderLayout.CENTER);
+		inputFieldPanel.add(inputField);
 
 		inputTextField.setDisabledTextColor(inputTextField.getForeground());
 		fieldsPanel.setVisible(false);
+
+        if (parameter.getArrayDepth() == 1) {
+            setupSingleDimArrayEditor(inputField, parameter);
+        }
+        inputField.createValuesListPopup(createValuesProvider(), parameter, true);
 	}
+
+
 
 	private void initClassField() {
 		DBJavaClass javaClass = getParameter().getJavaClass();

@@ -18,6 +18,7 @@ package com.dbn.data.editor.ui.array;
 
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
+import com.dbn.common.data.Data;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.list.ListProperty;
 import com.dbn.common.ui.misc.DBNScrollPane;
@@ -39,13 +40,6 @@ import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.ui.SimpleTextAttributes;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.Icon;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
@@ -53,6 +47,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Actions.createActionToolbar;
 import static com.dbn.common.util.Commons.nvl;
@@ -145,6 +145,11 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
                 List<String> values = nvl(vector.getStringValues(), () -> emptyList());
                 stringValues.addAll(values);
             }
+            else if (userValue instanceof List<?>) {
+                List<?> rawList = (List<?>) userValue;
+                List<String> stringList = Data.asStringList(rawList);
+                stringValues.addAll(stringList);
+            }
 
         } catch (SQLException e) {
             conditionallyLog(e);
@@ -183,7 +188,7 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
 
     @Override
     public TextFieldPopupType getPopupType() {
-        return TextFieldPopupType.TEXT_EDITOR;
+        return TextFieldPopupType.ARRAY_EDITOR;
     }
 
     @Nullable

@@ -41,9 +41,13 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static com.dbn.common.ui.list.ListProperty.EDITABLE;
 import static com.dbn.common.ui.list.ListProperty.INDEXED;
+import static com.dbn.common.util.Lists.first;
+import static com.dbn.common.util.Lists.firstElement;
+import static com.dbn.common.util.Unsafe.cast;
 
 public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButtons {
     private final JPanel buttonsPanel;
@@ -189,20 +193,34 @@ public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButto
         }
     }
 
-    public TextFieldPopupProvider getAutoPopupProvider() {
-        return popupProviders.stream().filter(p -> p.isAutoPopup()).findFirst().orElse(null);
+    @Nullable
+    public <P extends TextFieldPopupProvider> P getDefaultPopupProvider() {
+        return cast(firstElement(popupProviders));
     }
 
-    private TextFieldPopupProvider getDefaultPopupProvider() {
-        return popupProviders.get(0);
+    @Nullable
+    public <P extends TextFieldPopupProvider> P  getAutoPopupProvider() {
+        return getPopupProvider(p -> p.isAutoPopup());
     }
 
-    public TextFieldPopupProvider getActivePopupProvider() {
-        return popupProviders.stream().filter(p -> p.isShowingPopup()).findFirst().orElse(null);
+    @Nullable
+    public <P extends TextFieldPopupProvider> P  getActivePopupProvider() {
+        return getPopupProvider(p -> p.isShowingPopup());
     }
 
-    public TextFieldPopupProvider getPopupProvider(KeyEvent keyEvent) {
-        return popupProviders.stream().filter(p -> p.matchesKeyEvent(keyEvent)).findFirst().orElse(null);
+    @Nullable
+    public <P extends TextFieldPopupProvider> P  getPopupProvider(KeyEvent keyEvent) {
+        return getPopupProvider(p -> p.matchesKeyEvent(keyEvent));
+    }
+
+    @Nullable
+    public <P extends TextFieldPopupProvider> P  getPopupProvider(TextFieldPopupType popupType) {
+        return getPopupProvider(p -> p.getPopupType() == popupType);
+    }
+
+    @Nullable
+    private <P extends TextFieldPopupProvider> P  getPopupProvider(Predicate<TextFieldPopupProvider> predicate) {
+        return cast(first(popupProviders, predicate));
     }
 
     /********************************************************

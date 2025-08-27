@@ -38,7 +38,7 @@ import static com.dbn.common.data.Data.asIntegerPrimitive;
 import static com.dbn.common.data.Data.asLongPrimitive;
 import static com.dbn.common.data.Data.asShortPrimitive;
 import static com.dbn.common.data.Data.asString;
-import static com.dbn.common.data.Data.cast;
+import static com.dbn.common.data.Data.asType;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -236,8 +236,7 @@ public class CachedResultSet extends StatefulDisposableBase implements ResultSet
 
     public int count(@NotNull Condition whereCondition) throws SQLException {
         int count = 0;
-        for (int i = 0; i < rows.size(); i++) {
-            CachedResultSetRow row = rows.get(i);
+        for (CachedResultSetRow row : rows) {
             if (whereCondition.evaluate(row)) {
                 count++;
             }
@@ -252,10 +251,9 @@ public class CachedResultSet extends StatefulDisposableBase implements ResultSet
     @NotNull
     public <T> List<T> list(String columnName, Class<T> columnType) {
         List<T> list = new ArrayList<>();
-        for (int i = 0; i < rows.size(); i++) {
-            CachedResultSetRow row = rows.get(i);
+        for (CachedResultSetRow row : rows) {
             Object columnValue = row.get(columnName);
-            T castedValue = cast(columnValue, columnType);
+            T castedValue = asType(columnValue, columnType);
             list.add(castedValue);
         }
 
