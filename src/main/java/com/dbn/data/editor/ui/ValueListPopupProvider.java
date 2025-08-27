@@ -88,7 +88,7 @@ public class ValueListPopupProvider implements TextFieldPopupProvider{
 
     @Override
     public TextFieldPopupType getPopupType() {
-        return null;
+        return TextFieldPopupType.VALUE_LIST;
     }
 
     @Override

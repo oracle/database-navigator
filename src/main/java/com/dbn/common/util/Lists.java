@@ -88,19 +88,12 @@ public class Lists {
 
     @NotNull
     public static <S, T> List<T> convert(@NotNull Collection<S> list, Function<S, T> mapper) {
-        List<T> result = new ArrayList<>();
+        List<T> result = new ArrayList<>(list.size());
         for (S s : list) {
             T value = mapper.apply(s);
             result.add(value);
         }
         return result;
-    }
-
-    @NotNull
-    public static <S, T> List<T> convertParallel(@NotNull Collection<S> list, Function<S, T> mapper) {
-        return list.parallelStream()
-                .map(mapper)
-                .collect(Collectors.toList());
     }
 
     @Nullable
@@ -237,6 +230,10 @@ public class Lists {
 
     public static List<String> fromCsv(String csvString) {
         return Arrays.stream(csvString.split(",")).map(s -> s.trim()).filter(s -> !s.isEmpty()).collect(Collectors.toList());
+    }
+
+    public static <T> List<T> fromCsv(String csvString, Function<String, T> converter) {
+        return Arrays.stream(csvString.split(",")).map(s -> s.trim()).map(converter).collect(Collectors.toList());
     }
 
     public static <T> int greatest(List<T> elements, Function<T, Integer> size) {

@@ -16,13 +16,16 @@
 
 package com.dbn.data.editor.ui.array;
 
+import com.dbn.common.data.Data;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
+import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dbn.data.editor.ui.UserValueHolder;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JTextField;
 import java.util.List;
 
 import static com.dbn.common.util.Unsafe.cast;
@@ -41,12 +44,21 @@ class ArrayEditorAcceptAction extends ArrayEditorAction {
 
         ArrayEditorList list = form.getEditorList();
         list.stopCellEditing();
-        UserValueHolder<?> userValueHolder = form.getEditorComponent().getUserValueHolder();
+        TextFieldWithPopup<?> editorComponent = form.getEditorComponent();
+        UserValueHolder<?> userValueHolder = editorComponent.getUserValueHolder();
 
-        List<String> data = list.getModel().getData();
-        data = Lists.convert(data, s -> Strings.isEmpty(s) ? null : s);
+        Class<?> clazz = userValueHolder.getDataClass();
+
+        List<String> stringData = list.getModel().getData();
+        List<?> data = clazz == null ?
+                Lists.convert(stringData, s -> Strings.isEmpty(s) ? null : s):
+                Data.asTypeList(stringData, clazz);
+
         userValueHolder.updateUserValue(cast(data), false);
 
+        JTextField textField = editorComponent.getTextField();
+        String arrayString = Data.listToArrayString(data);
+        textField.setText(arrayString);
         form.hidePopup();
     }
 
