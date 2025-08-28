@@ -16,8 +16,10 @@
 
 package com.dbn.assistant.service.generic.model.invoker;
 
+import com.dbn.assistant.mcp.AssistantMockMcpTools;
 import com.dbn.assistant.service.generic.model.AssistantModelInvoker;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
 abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
@@ -25,5 +27,9 @@ abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
 
     public AbstractModelInvoker(Class<T> modelType) {
         this.modelType = modelType;
+    }
+
+    protected static @NotNull AssistantMockMcpTools getAssistantMcpTools() {
+        return new AssistantMockMcpTools();
     }
 }

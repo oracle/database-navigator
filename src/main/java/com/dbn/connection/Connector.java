@@ -222,6 +222,6 @@ class Connector {
     }
 
     private static Connection connect(Driver driver, String url, Properties properties) throws SQLException {
-        return Classes.withClassLoader(driver, d -> d.connect(url, properties));
+        return Classes.withClassLoader(driver, () -> driver.connect(url, properties));
     }
 }

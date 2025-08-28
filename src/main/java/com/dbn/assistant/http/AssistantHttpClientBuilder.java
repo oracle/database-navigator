@@ -16,8 +16,9 @@
 
 package com.dbn.assistant.http;
 
+import com.dbn.common.compatibility.Workaround;
+import com.dbn.common.util.Classes;
 import com.intellij.util.net.HttpConnectionUtils;
-import dev.langchain4j.exception.HttpException;
 import dev.langchain4j.http.client.HttpClient;
 import dev.langchain4j.http.client.HttpClientBuilder;
 import dev.langchain4j.http.client.HttpMethod;
@@ -65,7 +66,7 @@ class AssistantHttpClientBuilder implements HttpClientBuilder {
     public HttpClient build() {
         return new HttpClient() {
             @Override
-            public SuccessfulHttpResponse execute(HttpRequest request) throws HttpException, RuntimeException {
+            public SuccessfulHttpResponse execute(HttpRequest request) {
                 try {
                     HttpURLConnection connection = createConnection(request);
 
@@ -87,12 +88,23 @@ class AssistantHttpClientBuilder implements HttpClientBuilder {
 
                     parser.parse(connection.getInputStream(), listener);
 
-                    listener.onClose();
+                    wrapped(() -> listener.onClose());
                 } catch (Exception e) {
-                    listener.onError(e);
+                    wrapped(() -> listener.onError(e));
                 }
             }
         };
+    }
+
+    @Workaround
+    private void wrapped(Runnable runnable) {
+        // the internal jackson initialization favors ide class loader,
+        // causing it to initialize on old jackson libraries provided by intellij
+        // (these are incompatible with the current version of langchain4j)
+        Classes.withClassLoader(this, () -> {
+            runnable.run();
+            return null;
+        });
     }
 
     private HttpURLConnection createConnection(HttpRequest request) throws IOException {

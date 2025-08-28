@@ -26,12 +26,12 @@ import dev.langchain4j.model.mistralai.MistralAiEmbeddingModel;
 import dev.langchain4j.model.mistralai.MistralAiStreamingChatModel;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.assistant.provider.AIProviders.OPENAI;
+import static com.dbn.assistant.provider.AIProviders.MISTRALAI;
 
 public class MistralAiModelFactory extends AbstractModelFactory {
 
     public MistralAiModelFactory() {
-        super(OPENAI);
+        super(MISTRALAI);
     }
 
     @Nullable

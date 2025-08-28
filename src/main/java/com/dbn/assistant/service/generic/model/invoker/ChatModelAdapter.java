@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.provider;
+package com.dbn.assistant.service.generic.model.invoker;
 
-public class AIProviders {
-    public static final AIProvider ANTHROPIC = AIProvider.forId("ANTHROPIC");
-    public static final AIProvider COHERE = AIProvider.forId("COHERE");
-    public static final AIProvider GOOGLE = AIProvider.forId("GOOGLE");
-    public static final AIProvider HUGGINGFACE = AIProvider.forId("HUGGINGFACE");
-    public static final AIProvider OLLAMA = AIProvider.forId("OLLAMA");
-    public static final AIProvider OPENAI = AIProvider.forId("OPENAI");
-    public static final AIProvider MISTRALAI = AIProvider.forId("MISTRALAI");
+import dev.langchain4j.service.UserMessage;
+
+public interface ChatModelAdapter {
+    String chat(@UserMessage String userMessage);
 }

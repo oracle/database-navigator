@@ -36,7 +36,7 @@ import static com.dbn.assistant.chat.message.AuthorType.USER;
 public class ChatMemoryUtil {
 
     @Nullable
-    public static ChatMemory getCharMemory(String chatId, String prompt, AssistantState assistantState) {
+    public static ChatMemory getChatMemory(String chatId, String prompt, AssistantState assistantState) {
         if (assistantState == null) return null;
 
         ChatMemory memory = UserDataKeys.CHAT_MEMORY.get(assistantState);

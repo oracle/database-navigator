@@ -131,7 +131,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
                 if (assistantModel == null) continue;
 
                 AssistantState assistantState = getAssistantState(connectionId);
-                ChatMemory memory = ChatMemoryUtil.getCharMemory(chatId, prompt, assistantState);
+                ChatMemory memory = ChatMemoryUtil.getChatMemory(chatId, prompt, assistantState);
 
                 AssistantModelInvoker<Object> invoker = AssistantModelInvokers.get(modelType);
                 invoker.invokeModel(assistantModel, memory, prompt, responseConsumer);

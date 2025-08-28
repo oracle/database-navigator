@@ -54,15 +54,15 @@ dependencies {
   implementation("org.projectlombok:lombok:1.18.34")
 
   // poi libraries (xls export)
-  implementation("org.apache.poi:poi:5.3.0")
-  implementation("org.apache.poi:poi-ooxml:5.3.0")
-  implementation("org.apache.poi:poi-ooxml-lite:5.3.0")
+  implementation("org.apache.poi:poi:5.4.1")
+  implementation("org.apache.poi:poi-ooxml:5.4.1")
+  implementation("org.apache.poi:poi-ooxml-lite:5.4.1")
 
   // poi library dependencies
   implementation("commons-io:commons-io:2.17.0")
   implementation("org.apache.commons:commons-compress:1.27.1")
   implementation("org.apache.commons:commons-collections4:4.4")
-  implementation("org.apache.commons:commons-lang3:3.17.0")
+  implementation("org.apache.commons:commons-lang3:3.18.0")
   implementation("org.apache.logging.log4j:log4j-api:2.24.1")
   implementation("org.apache.xmlbeans:xmlbeans:5.2.1")
 
@@ -88,6 +88,13 @@ dependencies {
   implementation("dev.langchain4j:langchain4j-ollama:1.3.0")
   implementation("dev.langchain4j:langchain4j-bedrock:1.3.0")
   implementation("dev.langchain4j:langchain4j-mistral-ai:1.3.0")
+
+  implementation("com.fasterxml.jackson.core:jackson-core:2.19.2")
+  implementation("com.fasterxml.jackson.core:jackson-databind:2.19.2")
+  implementation("com.fasterxml.jackson.core:jackson-annotations:2.19.2")
+  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.2")
+  implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.19.2")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.19.2")
 
   implementation(project(":modules:dbn-api"))
   implementation(project(":modules:dbn-spi"))
@@ -127,9 +134,9 @@ sourceSets{
 intellij {
   version.set("2024.3.3")
   type.set("IC") // Target IDE Platform
+  updateSinceUntilBuild.set(false)
 
   plugins.set(listOf("java", "json", "copyright"))
-
 }
 
 tasks.register<Zip>("packageDistribution") {

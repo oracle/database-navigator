@@ -19,7 +19,7 @@ package com.dbn.assistant.service.generic.model.invoker;
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
-import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.service.AiServices;
 import org.jetbrains.annotations.Nullable;
 
 public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
@@ -30,14 +30,26 @@ public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
     @Override
     public void invokeModel(ChatModel model, @Nullable ChatMemory memory, String prompt, AssistantResponseConsumer consumer) {
         try {
+            ChatModelAdapter adapter;
+
             if (memory == null) {
-                String message = model.chat(prompt);
-                consumer.acceptMessage(message);
+                adapter = AiServices.
+                        builder(ChatModelAdapter.class).
+                        chatModel(model).
+                        tools(getAssistantMcpTools()).
+                        build();
             } else {
-                ChatResponse chat = model.chat(memory.messages());
-                String message = chat.aiMessage().text();
-                consumer.acceptMessage(message);
+                adapter = AiServices.
+                        builder(ChatModelAdapter.class).
+                        chatModel(model).
+                        chatMemory(memory).
+                        tools(getAssistantMcpTools()).
+                        build();
             }
+
+            String message = adapter.chat(prompt);
+            consumer.acceptMessage(message);
+
         } catch (Throwable e) {
             consumer.acceptError(e);
 

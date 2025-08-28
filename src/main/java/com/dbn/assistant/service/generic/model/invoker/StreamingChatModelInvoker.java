@@ -22,6 +22,8 @@ import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
+import dev.langchain4j.service.AiServices;
+import dev.langchain4j.service.TokenStream;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,14 +34,42 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
 
     @Override
     public void invokeModel(StreamingChatModel model, @Nullable ChatMemory memory, String prompt, AssistantResponseConsumer consumer) {
-        StreamingChatResponseHandler responseHandler = createResponseHandler(memory, consumer);
+        StreamingChatModelAdapter adapter;
+
         if (memory == null) {
-            model.chat(prompt, responseHandler);
+            adapter = AiServices.
+                    builder(StreamingChatModelAdapter.class).
+                    streamingChatModel(model).
+                    tools(getAssistantMcpTools()).
+                    build();
+        } else {
+            adapter = AiServices.
+                    builder(StreamingChatModelAdapter.class).
+                    streamingChatModel(model).
+                    chatMemory(memory).
+                    tools(getAssistantMcpTools()).
+                    build();
+        }
+
+        StreamingChatResponseHandler responseHandler = createResponseHandler(memory, consumer);
+        TokenStream tokenStream;
+        if (memory == null) {
+            tokenStream = adapter.chat(prompt);
         } else {
             UserMessage userMessage = UserMessage.from(prompt);
             memory.add(userMessage);
-            model.chat(memory.messages(), responseHandler);
+            tokenStream = adapter.chat(prompt);
         }
+
+        startTokenStream(tokenStream, responseHandler);
+    }
+
+    private static void startTokenStream(TokenStream tokenStream, StreamingChatResponseHandler responseHandler) {
+        tokenStream.
+            onPartialResponse(responseHandler::onPartialResponse).
+            onCompleteResponse(responseHandler::onCompleteResponse).
+            onError(responseHandler::onError).
+            start();
     }
 
     private static @NotNull StreamingChatResponseHandler createResponseHandler(@Nullable ChatMemory memory, AssistantResponseConsumer consumer) {
