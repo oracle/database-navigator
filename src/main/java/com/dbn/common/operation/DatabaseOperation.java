@@ -24,6 +24,14 @@ import static com.dbn.nls.NlsResources.txt;
 @Getter
 public enum DatabaseOperation implements Constant<DatabaseOperation> {
 
+    CHANGE_JAVA_CODE(
+            txt("app.shared.const.Operation_CHANGE_JAVA_CODE"),
+            txt("msg.prerequisites.warning.MissingPrerequisites_CHANGE_JAVA_CODE")),
+
+    EXECUTE_JAVA_CODE(
+            txt("app.shared.const.Operation_EXECUTE_JAVA_CODE"),
+            txt("msg.prerequisites.warning.MissingPrerequisites_EXECUTE_JAVA_CODE")),
+
     DEBUG_JAVA_CODE(
             txt("app.shared.const.Operation_DEBUG_JAVA_CODE"),
             txt("msg.prerequisites.warning.MissingPrerequisites_DEBUG_JAVA_CODE")),

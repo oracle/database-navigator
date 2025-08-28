@@ -21,10 +21,13 @@ import com.dbn.prerequisite.model.PrerequisiteType;
 public class PrerequisiteTypes {
 
     // shared prerequisites
+    public static final PrerequisiteType CREATE_TABLE = PrerequisiteType.get("CREATE_TABLE");
     public static final PrerequisiteType CREATE_PROCEDURE = PrerequisiteType.get("CREATE_PROCEDURE");
     public static final PrerequisiteType CREATE_TYPE = PrerequisiteType.get("CREATE_TYPE");
+    public static final PrerequisiteType CREATE_ANY_TABLE = PrerequisiteType.get("CREATE_ANY_TABLE");
     public static final PrerequisiteType CREATE_ANY_PROCEDURE = PrerequisiteType.get("CREATE_ANY_PROCEDURE");
     public static final PrerequisiteType CREATE_ANY_TYPE = PrerequisiteType.get("CREATE_ANY_TYPE");
+    public static final PrerequisiteType TABLESPACE_QUOTA = PrerequisiteType.get("TABLESPACE_QUOTA");
 
     // debugger prerequisites
     public static final PrerequisiteType EXECUTE_DBMS_DEBUG = PrerequisiteType.get("EXECUTE_DBMS_DEBUG");
