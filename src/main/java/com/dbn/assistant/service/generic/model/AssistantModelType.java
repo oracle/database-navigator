@@ -16,31 +16,36 @@
 
 package com.dbn.assistant.service.generic.model;
 
-import com.dbn.common.extension.ExtensionPointCache;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.language.LanguageModel;
-import org.jetbrains.annotations.NotNull;
+import lombok.Getter;
 
-import static com.dbn.common.util.Unsafe.cast;
+@Getter
+public enum AssistantModelType {
+    CHAT           (ChatModel.class),
+    STREAMING_CHAT (StreamingChatModel.class),
+    EMBEDDING      (EmbeddingModel.class),
+    LANGUAGE       (LanguageModel.class),
+    ;
 
-public class AssistantModelInvokers extends ExtensionPointCache<AssistantModelType, AssistantModelInvoker> {
-    private static final AssistantModelInvokers INSTANCE = new AssistantModelInvokers();
+    private final Class<?> modelClass;
 
-    private AssistantModelInvokers() {
-        super(AssistantModelInvoker.EP, e -> e.getModelType());
+    AssistantModelType(Class modelClass) {
+        this.modelClass = modelClass;
     }
 
-    public static @NotNull <T> AssistantModelInvoker<T> get(AssistantModelType modelType) {
-        return cast(INSTANCE.find(modelType));
+    public static AssistantModelType get(Object model) {
+        return get(model.getClass());
     }
 
-    public static Class[] types() {
-        return new Class[]{
-                StreamingChatModel.class,
-                ChatModel.class,
-                LanguageModel.class,
-                EmbeddingModel.class};
+    public static AssistantModelType get(Class<?> modelClass) {
+        for (AssistantModelType type : AssistantModelType.values()) {
+            if (type.getModelClass().isAssignableFrom(modelClass)) {
+                return type;
+            }
+        }
+        return null;
     }
 }

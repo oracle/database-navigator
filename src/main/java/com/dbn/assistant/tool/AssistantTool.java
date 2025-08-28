@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.service.generic.model;
+package com.dbn.assistant.tool;
 
-import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.connection.ConnectionHandler;
-import com.intellij.openapi.extensions.ExtensionPointName;
-import dev.langchain4j.memory.ChatMemory;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
-public interface AssistantModelInvoker<T> {
-    ExtensionPointName<AssistantModelInvoker> EP = ExtensionPointName.create("com.dbn.assistantModelInvoker");
+public interface AssistantTool {
+    @NotNull
+    ConnectionHandler getConnection();
 
-    AssistantModelType getModelType();
-
-    void invokeModel(T model, ConnectionHandler connection, @Nullable ChatMemory memory, String prompt, AssistantResponseConsumer consumer);
-
+    void initialize(ConnectionHandler connection);
 }

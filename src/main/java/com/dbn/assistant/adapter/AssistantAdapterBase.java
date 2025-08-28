@@ -24,6 +24,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
@@ -36,13 +37,17 @@ public abstract class AssistantAdapterBase implements AssistantAdapter {
 
     @Nullable
     protected AssistantState getAssistantState(ConnectionId connectionId) {
-        ConnectionHandler connection = ConnectionHandler.get(connectionId);
-        if (connection == null) return null;
+        ConnectionHandler connection = getConnection(connectionId);
 
         Project project = connection.getProject();
         DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
 
         return manager.getAssistantState(connectionId, assistantType);
+    }
+
+    @NotNull
+    protected static ConnectionHandler getConnection(ConnectionId connectionId) {
+        return ConnectionHandler.ensure(connectionId);
     }
 
     @Nullable

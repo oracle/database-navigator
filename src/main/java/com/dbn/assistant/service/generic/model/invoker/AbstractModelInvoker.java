@@ -16,20 +16,44 @@
 
 package com.dbn.assistant.service.generic.model.invoker;
 
-import com.dbn.assistant.mcp.AssistantMockMcpTools;
 import com.dbn.assistant.service.generic.model.AssistantModelInvoker;
+import com.dbn.assistant.service.generic.model.AssistantModelType;
+import com.dbn.assistant.tool.AssistantTool;
+import com.dbn.assistant.tool.AssistantToolFactories;
+import com.dbn.assistant.tool.AssistantToolFactory;
+import com.dbn.connection.ConnectionHandler;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@Slf4j
 @Getter
 abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
-    private final Class<T> modelType;
+    private final AssistantModelType modelType;
 
-    public AbstractModelInvoker(Class<T> modelType) {
+    public AbstractModelInvoker(AssistantModelType modelType) {
         this.modelType = modelType;
     }
 
-    protected static @NotNull AssistantMockMcpTools getAssistantMcpTools() {
-        return new AssistantMockMcpTools();
+    protected AssistantTool[] prepareTools(ConnectionHandler connection) {
+        ArrayList<AssistantTool> tools = new ArrayList<>();
+
+        List<AssistantToolFactory> factories = AssistantToolFactories.list();
+        for (AssistantToolFactory factory : factories) {
+            try {
+                // TODO cache the tools
+                AssistantTool tool = factory.createTool(connection);
+                tools.add(tool);
+            } catch (Throwable e) {
+                log.error("Failed to create {} assistant tool of type {} (class {})",
+                        factory.getToolCategory(),
+                        factory.getToolType(),
+                        factory.getToolClass(), e);
+            }
+        }
+
+        return tools.toArray(new AssistantTool[0]);
     }
 }

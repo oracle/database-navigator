@@ -17,6 +17,7 @@
 package com.dbn.assistant.service.generic.model.invoker;
 
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
+import com.dbn.connection.ConnectionHandler;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.model.chat.StreamingChatModel;
@@ -27,27 +28,30 @@ import dev.langchain4j.service.TokenStream;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.assistant.service.generic.model.AssistantModelType.STREAMING_CHAT;
+
 public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingChatModel>{
     public StreamingChatModelInvoker() {
-        super(StreamingChatModel.class);
+        super(STREAMING_CHAT);
     }
 
     @Override
-    public void invokeModel(StreamingChatModel model, @Nullable ChatMemory memory, String prompt, AssistantResponseConsumer consumer) {
+    public void invokeModel(StreamingChatModel model, ConnectionHandler connection, @Nullable ChatMemory memory, String prompt, AssistantResponseConsumer consumer) {
         StreamingChatModelAdapter adapter;
 
+        Object[] tools = prepareTools(connection);
         if (memory == null) {
             adapter = AiServices.
                     builder(StreamingChatModelAdapter.class).
                     streamingChatModel(model).
-                    tools(getAssistantMcpTools()).
+                    tools(tools).
                     build();
         } else {
             adapter = AiServices.
                     builder(StreamingChatModelAdapter.class).
                     streamingChatModel(model).
                     chatMemory(memory).
-                    tools(getAssistantMcpTools()).
+                    tools(tools).
                     build();
         }
 

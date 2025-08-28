@@ -32,14 +32,17 @@ import com.dbn.assistant.service.generic.model.AssistantModelFactory;
 import com.dbn.assistant.service.generic.model.AssistantModelInput;
 import com.dbn.assistant.service.generic.model.AssistantModelInvoker;
 import com.dbn.assistant.service.generic.model.AssistantModelInvokers;
+import com.dbn.assistant.service.generic.model.AssistantModelType;
 import com.dbn.assistant.service.generic.ui.GenericAssistantContextActionsForm;
 import com.dbn.assistant.service.generic.ui.GenericAssistantIntroductionForm;
 import com.dbn.assistant.service.generic.ui.GenericAssistantPromptActionsForm;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.exception.Exceptions;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import dev.langchain4j.memory.ChatMemory;
 
+import static com.dbn.assistant.service.generic.ChatMemoryUtil.getChatMemory;
 import static com.dbn.nls.NlsResources.txt;
 
 public class GenericAssistantAdapter extends AssistantAdapterBase {
@@ -114,33 +117,41 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
     @Override
     public void generate(String prompt, String chatId, ConnectionId connectionId, ChatContext chatContext, AssistantResponseConsumer responseConsumer) {
         try {
-            String model = chatContext.getModel().getApiName();
+            String modelName = chatContext.getModel().getApiName();
 
             // TODO user, token, url from assistant config...
-            AssistantModelInput input = AssistantModelInput.create(model)
+            AssistantModelInput input = AssistantModelInput.create(modelName)
                     .withUser(System.getProperty("tempOpenAiUser"))
                     .withToken(System.getProperty("tempOpenAiApiKey"));
 
 
-            AIProvider provider = chatContext.getProvider();
-            AssistantModelFactory modelFactory = AssistantModelFactories.get(provider);
+            AssistantState assistantState = getAssistantState(connectionId);
+            Object model = findAssistantModel(chatContext, input);
 
-            Class[] modelTypes = AssistantModelInvokers.types();
-            for (Class<?> modelType : modelTypes) {
-                Object assistantModel = modelFactory.createModel(modelType, input);
-                if (assistantModel == null) continue;
+            AssistantModelType modelType = AssistantModelType.get(model.getClass());
+            ChatMemory memory = getChatMemory(chatId, prompt, assistantState);
 
-                AssistantState assistantState = getAssistantState(connectionId);
-                ChatMemory memory = ChatMemoryUtil.getChatMemory(chatId, prompt, assistantState);
+            AssistantModelInvoker<Object> invoker = AssistantModelInvokers.get(modelType);
+            ConnectionHandler connection = getConnection(connectionId);
+            invoker.invokeModel(model, connection, memory, prompt, responseConsumer);
 
-                AssistantModelInvoker<Object> invoker = AssistantModelInvokers.get(modelType);
-                invoker.invokeModel(assistantModel, memory, prompt, responseConsumer);
-                return;
-            }
         } catch (Throwable t) {
             responseConsumer.acceptError(t);
             responseConsumer.acceptCompletion();
         }
+    }
+
+    private Object findAssistantModel(ChatContext context, AssistantModelInput input) {
+        AIProvider provider = context.getProvider();
+        AssistantModelFactory modelFactory = AssistantModelFactories.get(provider);
+
+        Class[] modelTypes = AssistantModelInvokers.types();
+        for (Class<?> modelType : modelTypes) {
+            Object assistantModel = modelFactory.createModel(modelType, input);
+            if (assistantModel != null) return assistantModel;
+        }
+
+        throw new IllegalArgumentException("Could not resolve assistant model for " + input.getModel());
     }
 
     @Override

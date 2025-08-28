@@ -17,17 +17,20 @@
 package com.dbn.assistant.service.generic.model.invoker;
 
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
+import com.dbn.connection.ConnectionHandler;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.model.language.LanguageModel;
 import dev.langchain4j.model.output.Response;
 
+import static com.dbn.assistant.service.generic.model.AssistantModelType.LANGUAGE;
+
 public class LanguageModelInvoker extends AbstractModelInvoker<LanguageModel>{
     public LanguageModelInvoker() {
-        super(LanguageModel.class);
+        super(LANGUAGE);
     }
 
     @Override
-    public void invokeModel(LanguageModel model, ChatMemory memory, String prompt, AssistantResponseConsumer consumer) {
+    public void invokeModel(LanguageModel model, ConnectionHandler connection, ChatMemory memory, String prompt, AssistantResponseConsumer consumer) {
         try {
             Response<String> response = model.generate(prompt);
             String content = response.content();

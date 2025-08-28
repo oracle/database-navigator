@@ -51,7 +51,6 @@ import com.dbn.database.common.assistant.AssistantQueryResponse;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -142,10 +141,6 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
                                 option -> when(option == 0, () -> ProfileEditionWizard.showWizard(connection, null, Collections.emptySet(), null)));
                     }
                 });
-    }
-
-    private static @NotNull ConnectionHandler getConnection(ConnectionId connectionId) {
-        return ConnectionHandler.ensure(connectionId);
     }
 
     private void promptAcknowledgement(ConnectionId connectionId) {

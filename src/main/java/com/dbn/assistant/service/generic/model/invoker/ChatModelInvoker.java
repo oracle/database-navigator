@@ -17,6 +17,8 @@
 package com.dbn.assistant.service.generic.model.invoker;
 
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
+import com.dbn.assistant.service.generic.model.AssistantModelType;
+import com.dbn.connection.ConnectionHandler;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.service.AiServices;
@@ -24,26 +26,27 @@ import org.jetbrains.annotations.Nullable;
 
 public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
     public ChatModelInvoker() {
-        super(ChatModel.class);
+        super(AssistantModelType.CHAT);
     }
 
     @Override
-    public void invokeModel(ChatModel model, @Nullable ChatMemory memory, String prompt, AssistantResponseConsumer consumer) {
+    public void invokeModel(ChatModel model, ConnectionHandler connection, @Nullable ChatMemory memory, String prompt, AssistantResponseConsumer consumer) {
         try {
             ChatModelAdapter adapter;
 
+            Object[] tools = prepareTools(connection);
             if (memory == null) {
                 adapter = AiServices.
                         builder(ChatModelAdapter.class).
                         chatModel(model).
-                        tools(getAssistantMcpTools()).
+                        tools(tools).
                         build();
             } else {
                 adapter = AiServices.
                         builder(ChatModelAdapter.class).
                         chatModel(model).
                         chatMemory(memory).
-                        tools(getAssistantMcpTools()).
+                        tools(tools).
                         build();
             }
 
