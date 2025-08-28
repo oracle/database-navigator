@@ -2933,10 +2933,15 @@
             select
                 case
                     when exists (
-                        SELECT tablespace_name, bytes, max_bytes
-                        FROM user_ts_quotas )
-                then 'Y'
-                else 'N'
+                        select 1
+                        from user_ts_quotas )
+                    then 'Y'
+                    when exists (
+                        select 1
+                        from session_privs
+                        where privilege = 'UNLIMITED TABLESPACE' )
+                    then 'Y'
+                    else 'N'
                 end as value
             from DUAL
         </statement>
