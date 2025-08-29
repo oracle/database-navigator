@@ -21,14 +21,12 @@ import com.dbn.common.environment.EnvironmentManager;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.option.InteractiveConfirmationBroker;
 import com.dbn.common.ui.shortcut.ComplementaryShortcutInterceptor;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.editor.code.options.CodeEditorConfirmationSettings;
 import com.dbn.editor.code.options.CodeEditorSettings;
 import com.dbn.object.type.DBObjectType;
-import com.dbn.prerequisite.DatabasePrerequisiteManager;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -52,11 +50,7 @@ public class SourceCodeSaveAction extends AbstractCodeEditorAction {
         DBObjectType objectType = sourceCodeFile.getObjectType();
 
         if (objectType != null && objectType.isOneOf(JAVA_CLASS, JAVA_RESOURCE)) {
-            DatabasePrerequisiteManager prerequisiteManager = DatabasePrerequisiteManager.getInstance(project);
-            ConnectionHandler connection = sourceCodeFile.getConnection();
-
-            prerequisiteManager.startOperation(connection, CHANGE_JAVA_CODE, () ->
-                    performSave(project, fileEditor, sourceCodeFile));
+            CHANGE_JAVA_CODE.start(sourceCodeFile, () -> performSave(project, fileEditor, sourceCodeFile));
         } else {
             performSave(project, fileEditor, sourceCodeFile);
         }

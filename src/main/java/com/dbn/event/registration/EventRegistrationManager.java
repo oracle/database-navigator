@@ -48,7 +48,6 @@ import com.dbn.event.registration.ui.EventRegistrationInputDialog;
 import com.dbn.event.service.EventHistoryService;
 import com.dbn.object.DBTable;
 import com.dbn.object.event.ObjectChangeAction;
-import com.dbn.prerequisite.DatabasePrerequisiteManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -95,11 +94,8 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
     }
 
     public void registerTable(DBTable table) {
-        Project project = getProject();
-        DatabasePrerequisiteManager prerequisiteManager = DatabasePrerequisiteManager.getInstance(project);
-        prerequisiteManager.startOperation(table,
-                ENABLE_CHANGE_NOTIFICATIONS,
-                () -> openRegistrationDialog(table));
+        // TODO move to the DCN registration actions (all prerequisite verifications should be invoked in actions)
+        ENABLE_CHANGE_NOTIFICATIONS.start(table, () -> openRegistrationDialog(table));
     }
 
     private void openRegistrationDialog(DBTable object) {

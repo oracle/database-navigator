@@ -17,6 +17,9 @@
 package com.dbn.common.operation;
 
 import com.dbn.common.constant.Constant;
+import com.dbn.connection.context.DatabaseContext;
+import com.dbn.prerequisite.DatabasePrerequisiteManager;
+import com.intellij.openapi.project.Project;
 import lombok.Getter;
 
 import static com.dbn.nls.NlsResources.txt;
@@ -67,5 +70,11 @@ public enum DatabaseOperation implements Constant<DatabaseOperation> {
     @Override
     public String toString() {
         return name;
+    }
+
+    public void start(DatabaseContext context, Runnable runnable) {
+        Project project = context.ensureConnection().getProject();
+        DatabasePrerequisiteManager prerequisiteManager = DatabasePrerequisiteManager.getInstance(project);
+        prerequisiteManager.startOperation(context, this, runnable);
     }
 }
