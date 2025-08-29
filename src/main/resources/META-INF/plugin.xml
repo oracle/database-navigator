@@ -250,6 +250,7 @@
         <!--java prerequisites-->
         <prerequisiteRequirementEvaluator implementation="com.dbn.execution.java.prerequisite.CreateJavaPrerequisiteEvaluator"/>
         <prerequisiteRequirementEvaluator implementation="com.dbn.execution.java.prerequisite.ExecuteJavaPrerequisitesEvaluator"/>
+        <prerequisiteRequirementEvaluator implementation="com.dbn.execution.java.prerequisite.JavaWrapperPrerequisitesEvaluator"/>
 
         <!--debug prerequisites-->
         <prerequisiteRequirementEvaluator implementation="com.dbn.debugger.prerequisite.DebugPrerequisitesEvaluator"/>

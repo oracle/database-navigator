@@ -17,16 +17,19 @@
 package com.dbn.execution.java.action;
 
 import com.dbn.common.action.BasicAction;
+import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.SelectionListDialog;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionAction;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.execution.java.wrapper.JavaExecutionWrapperManager;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.prerequisite.DatabasePrerequisiteManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.project.Project;
@@ -99,8 +102,14 @@ public class JavaClassWrapperAction extends BasicAction {
 			if (methods == null || methods.isEmpty()) return;
 
 			Project project = javaClass.getProject();
-            JavaExecutionWrapperManager wrapperManager = JavaExecutionWrapperManager.getInstance(project);
-            wrapperManager.createExecutionWrappers(javaClass, methods, true, false);
+            DatabasePrerequisiteManager prerequisiteManager = DatabasePrerequisiteManager.getInstance(project);
+            ConnectionHandler connection = javaClass.getConnection();
+
+            prerequisiteManager.startOperation(connection, DatabaseOperation.CREATE_JAVA_WRAPPER, () -> {
+                JavaExecutionWrapperManager wrapperManager = JavaExecutionWrapperManager.getInstance(project);
+                wrapperManager.createExecutionWrappers(javaClass, methods, true, false);
+            });
+
 		};
 	}
 }

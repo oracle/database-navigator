@@ -16,10 +16,12 @@
 
 package com.dbn.execution.java.action;
 
-import com.dbn.connection.ConnectionAction;
+import com.dbn.common.operation.DatabaseOperation;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.execution.java.wrapper.JavaExecutionWrapperManager;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.action.AnObjectAction;
+import com.dbn.prerequisite.DatabasePrerequisiteManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -33,11 +35,13 @@ public class JavaMethodWrapperAction extends AnObjectAction<DBJavaMethod> {
 
 	@Override
 	protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBJavaMethod method) {
-		ConnectionAction.invoke("creation of execution wrappers", false, method,
-				action -> {
-                    JavaExecutionWrapperManager wrapperManager = JavaExecutionWrapperManager.getInstance(getProject());
-                    wrapperManager.createExecutionWrappers(method, true, false);
-                });
+        DatabasePrerequisiteManager prerequisiteManager = DatabasePrerequisiteManager.getInstance(project);
+        ConnectionHandler connection = method.getConnection();
+
+        prerequisiteManager.startOperation(connection, DatabaseOperation.CREATE_JAVA_WRAPPER, () -> {
+            JavaExecutionWrapperManager wrapperManager = JavaExecutionWrapperManager.getInstance(project);
+            wrapperManager.createExecutionWrappers(method, true, false);
+        });
 	}
 
 	@Override

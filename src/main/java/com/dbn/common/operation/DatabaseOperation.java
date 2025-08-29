@@ -32,6 +32,10 @@ public enum DatabaseOperation implements Constant<DatabaseOperation> {
             txt("app.shared.const.Operation_EXECUTE_JAVA_CODE"),
             txt("msg.prerequisites.warning.MissingPrerequisites_EXECUTE_JAVA_CODE")),
 
+    CREATE_JAVA_WRAPPER(
+            txt("app.shared.const.Operation_CREATE_JAVA_WRAPPER"),
+            txt("msg.prerequisites.warning.MissingPrerequisites_CREATE_JAVA_WRAPPER")),
+
     DEBUG_JAVA_CODE(
             txt("app.shared.const.Operation_DEBUG_JAVA_CODE"),
             txt("msg.prerequisites.warning.MissingPrerequisites_DEBUG_JAVA_CODE")),
