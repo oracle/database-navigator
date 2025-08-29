@@ -17,33 +17,23 @@
 package com.dbn.execution.java.prerequisite;
 
 import com.dbn.common.operation.DatabaseOperation;
-import com.dbn.connection.context.DatabaseContext;
-import com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator;
+import com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluatorBase;
 import com.dbn.prerequisite.model.PrerequisiteMandate;
-import com.dbn.prerequisite.model.PrerequisiteType;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_PROCEDURE;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_TYPE;
 
-public class JavaWrapperPrerequisitesEvaluator implements PrerequisiteRequirementEvaluator {
+public class JavaWrapperPrerequisitesEvaluator extends PrerequisiteRequirementEvaluatorBase {
     @Override
     public boolean supports(DatabaseOperation operation) {
         return operation == DatabaseOperation.CREATE_JAVA_WRAPPER;
     }
 
     @Override
-    public List<PrerequisiteMandate> resolvePrerequisites(DatabaseContext context, DatabaseOperation operation) {
-        List<PrerequisiteMandate> mandates = new ArrayList<>();
+    protected void createMandates(List<PrerequisiteMandate> mandates, DatabaseOperation operation) {
         createMandate(mandates, CREATE_PROCEDURE, "Allows user to create functions, procedures, and packages in own schema. This is required for creating the java execution wrappers");
         createMandate(mandates, CREATE_TYPE, "Allows user to create database types in own schema. These are sometimes required as data converters in the java execution wrappers");
-
-        return mandates;
-    }
-
-    private static void createMandate(List<PrerequisiteMandate> mandates, PrerequisiteType type, String reason) {
-        mandates.add(new PrerequisiteMandate(type, reason));
     }
 }

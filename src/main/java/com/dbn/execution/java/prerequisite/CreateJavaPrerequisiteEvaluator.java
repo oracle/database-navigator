@@ -17,32 +17,23 @@
 package com.dbn.execution.java.prerequisite;
 
 import com.dbn.common.operation.DatabaseOperation;
-import com.dbn.connection.context.DatabaseContext;
-import com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator;
+import com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluatorBase;
 import com.dbn.prerequisite.model.PrerequisiteMandate;
-import com.dbn.prerequisite.model.PrerequisiteType;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_TABLE;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.TABLESPACE_QUOTA;
 
-public class CreateJavaPrerequisiteEvaluator implements PrerequisiteRequirementEvaluator {
+public class CreateJavaPrerequisiteEvaluator extends PrerequisiteRequirementEvaluatorBase {
     @Override
     public boolean supports(DatabaseOperation operation) {
         return operation == DatabaseOperation.CHANGE_JAVA_CODE;
     }
 
     @Override
-    public List<PrerequisiteMandate> resolvePrerequisites(DatabaseContext context, DatabaseOperation operation) {
-        List<PrerequisiteMandate> mandates = new ArrayList<>();
+    protected void createMandates(List<PrerequisiteMandate> mandates, DatabaseOperation operation) {
         createMandate(mandates, CREATE_TABLE, "Allows user to create tables in own schema. This is required for creating the java lob table for storing java binary");
         createMandate(mandates, TABLESPACE_QUOTA, "Allows user to create and insert rows in table in own schema. This is required for storing java source code binary");
-        return mandates;
-    }
-
-    private static void createMandate(List<PrerequisiteMandate> mandates, PrerequisiteType type, String reason) {
-        mandates.add(new PrerequisiteMandate(type, reason));
     }
 }

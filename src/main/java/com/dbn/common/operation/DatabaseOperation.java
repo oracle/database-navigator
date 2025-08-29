@@ -48,9 +48,9 @@ public enum DatabaseOperation implements Constant<DatabaseOperation> {
             txt("app.shared.const.Operation_DEBUG_PLSQL_CODE_JDWP"),
             txt("msg.prerequisites.warning.MissingPrerequisites_DEBUG_PLSQL_CODE_JDWP")),
 
-    ENABLE_DATABASE_CHANGE_NOTIFICATION(
-            txt("app.shared.const.Operation_ENABLE_DATABASE_CHANGE_NOTIFICATION"),
-            txt("msg.prerequisites.warning.MissingPrerequisites_ENABLE_DATABASE_CHANGE_NOTIFICATION")),
+    ENABLE_CHANGE_NOTIFICATIONS(
+            txt("app.shared.const.Operation_ENABLE_CHANGE_NOTIFICATIONS"),
+            txt("msg.prerequisites.warning.MissingPrerequisites_ENABLE_CHANGE_NOTIFICATIONS")),
 
     ;
 

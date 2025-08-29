@@ -68,7 +68,7 @@ import java.util.Properties;
 
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.notification.NotificationCategory.DCN;
-import static com.dbn.common.operation.DatabaseOperation.ENABLE_DATABASE_CHANGE_NOTIFICATION;
+import static com.dbn.common.operation.DatabaseOperation.ENABLE_CHANGE_NOTIFICATIONS;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Lists.toCsv;
 import static com.dbn.event.registration.EventRegistrationManager.COMPONENT_NAME;
@@ -98,7 +98,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
         Project project = getProject();
         DatabasePrerequisiteManager prerequisiteManager = DatabasePrerequisiteManager.getInstance(project);
         prerequisiteManager.startOperation(table,
-                ENABLE_DATABASE_CHANGE_NOTIFICATION,
+                ENABLE_CHANGE_NOTIFICATIONS,
                 () -> openRegistrationDialog(table));
     }
 

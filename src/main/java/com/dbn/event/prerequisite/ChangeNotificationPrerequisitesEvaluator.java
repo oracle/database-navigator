@@ -17,35 +17,25 @@
 package com.dbn.event.prerequisite;
 
 import com.dbn.common.operation.DatabaseOperation;
-import com.dbn.connection.context.DatabaseContext;
-import com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator;
+import com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluatorBase;
 import com.dbn.prerequisite.model.PrerequisiteMandate;
-import com.dbn.prerequisite.model.PrerequisiteType;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static com.dbn.common.operation.DatabaseOperation.ENABLE_DATABASE_CHANGE_NOTIFICATION;
+import static com.dbn.common.operation.DatabaseOperation.ENABLE_CHANGE_NOTIFICATIONS;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.CHANGE_NOTIFICATION;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_CHANGE_NOTIFICATION;
 
-public class ChangeNotificationPrerequisitesEvaluator implements PrerequisiteRequirementEvaluator {
+public class ChangeNotificationPrerequisitesEvaluator extends PrerequisiteRequirementEvaluatorBase {
+
     @Override
     public boolean supports(DatabaseOperation operation) {
-        return operation == ENABLE_DATABASE_CHANGE_NOTIFICATION;
+        return operation == ENABLE_CHANGE_NOTIFICATIONS;
     }
 
     @Override
-    public List<PrerequisiteMandate> resolvePrerequisites(DatabaseContext context, DatabaseOperation operation) {
-        List<PrerequisiteMandate> mandates = new ArrayList<>();
-
+    protected void createMandates(List<PrerequisiteMandate> mandates, DatabaseOperation operation) {
         createMandate(mandates, CHANGE_NOTIFICATION, "Allows the user to receive database change notifications");
         createMandate(mandates, EXECUTE_DBMS_CHANGE_NOTIFICATION, "Allows the user to execute procedures and functions of the SYS.DBMS_CHANGE_NOTIFICATION package, which provides ability to enable and disable database change notifications");
-
-        return mandates;
-    }
-
-    private static void createMandate(List<PrerequisiteMandate> mandates, PrerequisiteType type, String reason) {
-        mandates.add(new PrerequisiteMandate(type, reason));
     }
 }
