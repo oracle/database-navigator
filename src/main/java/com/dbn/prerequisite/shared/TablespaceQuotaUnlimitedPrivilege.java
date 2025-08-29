@@ -17,19 +17,11 @@
 package com.dbn.prerequisite.shared;
 
 import com.dbn.prerequisite.definition.impl.TablespaceQuotaPrerequisite;
-import com.dbn.prerequisite.model.PrerequisiteType;
-
-import static com.dbn.prerequisite.shared.PrerequisiteTypes.TABLESPACE_QUOTA;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.TABLESPACE_QUOTA_UNLIMITED;
 
-public class TablespaceQuotaPrivilege extends TablespaceQuotaPrerequisite {
+public class TablespaceQuotaUnlimitedPrivilege extends TablespaceQuotaPrerequisite {
 
-    public TablespaceQuotaPrivilege() {
-        super(TABLESPACE_QUOTA);
-    }
-
-    @Override
-    public PrerequisiteType getAlternativeType() {
-        return TABLESPACE_QUOTA_UNLIMITED;
+    public TablespaceQuotaUnlimitedPrivilege() {
+        super(TABLESPACE_QUOTA_UNLIMITED);
     }
 }

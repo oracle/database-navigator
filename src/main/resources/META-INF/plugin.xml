@@ -245,6 +245,7 @@
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_PROCEDURE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_TYPE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.TablespaceQuotaPrivilege"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.TablespaceQuotaUnlimitedPrivilege"/>
 
         <!--java prerequisites-->
         <prerequisiteRequirementEvaluator implementation="com.dbn.execution.java.prerequisite.CreateJavaPrerequisiteEvaluator"/>

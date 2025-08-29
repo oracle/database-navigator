@@ -2936,6 +2936,15 @@
                         select 1
                         from user_ts_quotas )
                     then 'Y'
+                    else 'N'
+                end as value
+            from DUAL
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="has-unlimited-quota-on-tablespace" is-query="true" is-prepared-statement="true">
+        <statement>
+            select
+                case
                     when exists (
                         select 1
                         from session_privs
