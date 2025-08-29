@@ -16,8 +16,9 @@
 
 package com.dbn.assistant.service.generic.model.invoker;
 
+import dev.langchain4j.service.MemoryId;
 import dev.langchain4j.service.UserMessage;
 
 public interface ChatModelAdapter {
-    String chat(@UserMessage String userMessage);
+    String chat(@MemoryId String chatId, @UserMessage String userMessage);
 }

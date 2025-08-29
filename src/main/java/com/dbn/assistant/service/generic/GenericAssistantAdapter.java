@@ -38,11 +38,8 @@ import com.dbn.assistant.service.generic.ui.GenericAssistantIntroductionForm;
 import com.dbn.assistant.service.generic.ui.GenericAssistantPromptActionsForm;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.exception.Exceptions;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import dev.langchain4j.memory.ChatMemory;
 
-import static com.dbn.assistant.service.generic.ChatMemoryUtil.getChatMemory;
 import static com.dbn.nls.NlsResources.txt;
 
 public class GenericAssistantAdapter extends AssistantAdapterBase {
@@ -124,16 +121,12 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
                     .withUser(System.getProperty("tempOpenAiUser"))
                     .withToken(System.getProperty("tempOpenAiApiKey"));
 
+            AssistantState state = getAssistantState(connectionId);
 
-            AssistantState assistantState = getAssistantState(connectionId);
-            Object model = findAssistantModel(chatContext, input);
+            var model = resolveModel(chatContext, input);
+            var invoker = resolveModelInvoker(model);
 
-            AssistantModelType modelType = AssistantModelType.get(model.getClass());
-            ChatMemory memory = getChatMemory(chatId, prompt, assistantState);
-
-            AssistantModelInvoker<Object> invoker = AssistantModelInvokers.get(modelType);
-            ConnectionHandler connection = getConnection(connectionId);
-            invoker.invokeModel(model, connection, memory, prompt, responseConsumer);
+            invoker.invokeModel(model, state, chatId, prompt, responseConsumer);
 
         } catch (Throwable t) {
             responseConsumer.acceptError(t);
@@ -141,7 +134,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         }
     }
 
-    private Object findAssistantModel(ChatContext context, AssistantModelInput input) {
+    private static Object resolveModel(ChatContext context, AssistantModelInput input) {
         AIProvider provider = context.getProvider();
         AssistantModelFactory modelFactory = AssistantModelFactories.get(provider);
 
@@ -152,6 +145,11 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         }
 
         throw new IllegalArgumentException("Could not resolve assistant model for " + input.getModel());
+    }
+
+    private static AssistantModelInvoker<Object> resolveModelInvoker(Object model) {
+        AssistantModelType modelType = AssistantModelType.get(model);
+        return AssistantModelInvokers.get(modelType);
     }
 
     @Override

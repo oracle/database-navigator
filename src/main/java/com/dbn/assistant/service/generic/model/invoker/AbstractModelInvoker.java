@@ -16,12 +16,15 @@
 
 package com.dbn.assistant.service.generic.model.invoker;
 
+import com.dbn.assistant.memory.ChatMemoryCache;
 import com.dbn.assistant.service.generic.model.AssistantModelInvoker;
 import com.dbn.assistant.service.generic.model.AssistantModelType;
+import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolFactories;
 import com.dbn.assistant.tool.AssistantToolFactory;
 import com.dbn.connection.ConnectionHandler;
+import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,13 +40,13 @@ abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
         this.modelType = modelType;
     }
 
-    protected AssistantTool[] prepareTools(ConnectionHandler connection) {
-        ArrayList<AssistantTool> tools = new ArrayList<>();
-
+    protected AssistantTool[] prepareTools(AssistantState state) {
+        List<AssistantTool> tools = new ArrayList<>();
         List<AssistantToolFactory> factories = AssistantToolFactories.list();
         for (AssistantToolFactory factory : factories) {
             try {
                 // TODO cache the tools
+                ConnectionHandler connection = state.getConnection();
                 AssistantTool tool = factory.createTool(connection);
                 tools.add(tool);
             } catch (Throwable e) {
@@ -55,5 +58,9 @@ abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
         }
 
         return tools.toArray(new AssistantTool[0]);
+    }
+
+    protected ChatMemoryProvider prepareMemory(AssistantState assistantState) {
+        return ChatMemoryCache.get(assistantState);
     }
 }

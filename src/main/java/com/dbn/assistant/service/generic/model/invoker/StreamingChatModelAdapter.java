@@ -16,9 +16,10 @@
 
 package com.dbn.assistant.service.generic.model.invoker;
 
+import dev.langchain4j.service.MemoryId;
 import dev.langchain4j.service.TokenStream;
 import dev.langchain4j.service.UserMessage;
 
 public interface StreamingChatModelAdapter {
-    TokenStream chat(@UserMessage String userMessage);
+    TokenStream chat(@MemoryId String chatId, @UserMessage String userMessage);
 }

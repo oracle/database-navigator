@@ -18,11 +18,10 @@ package com.dbn.assistant.service.generic.model.invoker;
 
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.service.generic.model.AssistantModelType;
-import com.dbn.connection.ConnectionHandler;
-import dev.langchain4j.memory.ChatMemory;
+import com.dbn.assistant.state.AssistantState;
+import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.service.AiServices;
-import org.jetbrains.annotations.Nullable;
 
 public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
     public ChatModelInvoker() {
@@ -30,27 +29,20 @@ public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
     }
 
     @Override
-    public void invokeModel(ChatModel model, ConnectionHandler connection, @Nullable ChatMemory memory, String prompt, AssistantResponseConsumer consumer) {
+    public void invokeModel(ChatModel model, AssistantState state, String chatId, String prompt, AssistantResponseConsumer consumer) {
         try {
-            ChatModelAdapter adapter;
+            Object[] tools = prepareTools(state);
+            ChatMemoryProvider memory = prepareMemory(state);
 
-            Object[] tools = prepareTools(connection);
-            if (memory == null) {
-                adapter = AiServices.
-                        builder(ChatModelAdapter.class).
-                        chatModel(model).
-                        tools(tools).
-                        build();
-            } else {
-                adapter = AiServices.
-                        builder(ChatModelAdapter.class).
-                        chatModel(model).
-                        chatMemory(memory).
-                        tools(tools).
-                        build();
-            }
+            ChatModelAdapter adapter = AiServices.
+                    builder(ChatModelAdapter.class).
+                    chatModel(model).
+                    chatMemoryProvider(memory).
+                    tools(tools).
+                    build();
 
-            String message = adapter.chat(prompt);
+
+            String message = adapter.chat(chatId, prompt);
             consumer.acceptMessage(message);
 
         } catch (Throwable e) {

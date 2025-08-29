@@ -17,16 +17,14 @@
 package com.dbn.assistant.service.generic.model.invoker;
 
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
-import com.dbn.connection.ConnectionHandler;
-import dev.langchain4j.data.message.UserMessage;
-import dev.langchain4j.memory.ChatMemory;
+import com.dbn.assistant.state.AssistantState;
+import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.TokenStream;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.assistant.service.generic.model.AssistantModelType.STREAMING_CHAT;
 
@@ -36,34 +34,20 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
     }
 
     @Override
-    public void invokeModel(StreamingChatModel model, ConnectionHandler connection, @Nullable ChatMemory memory, String prompt, AssistantResponseConsumer consumer) {
-        StreamingChatModelAdapter adapter;
+    public void invokeModel(StreamingChatModel model, AssistantState state, String chatId, String prompt, AssistantResponseConsumer consumer) {
 
-        Object[] tools = prepareTools(connection);
-        if (memory == null) {
-            adapter = AiServices.
-                    builder(StreamingChatModelAdapter.class).
-                    streamingChatModel(model).
-                    tools(tools).
-                    build();
-        } else {
-            adapter = AiServices.
-                    builder(StreamingChatModelAdapter.class).
-                    streamingChatModel(model).
-                    chatMemory(memory).
-                    tools(tools).
-                    build();
-        }
+        Object[] tools = prepareTools(state);
+        ChatMemoryProvider memory = prepareMemory(state);
 
-        StreamingChatResponseHandler responseHandler = createResponseHandler(memory, consumer);
-        TokenStream tokenStream;
-        if (memory == null) {
-            tokenStream = adapter.chat(prompt);
-        } else {
-            UserMessage userMessage = UserMessage.from(prompt);
-            memory.add(userMessage);
-            tokenStream = adapter.chat(prompt);
-        }
+        StreamingChatModelAdapter adapter = AiServices.
+                builder(StreamingChatModelAdapter.class).
+                streamingChatModel(model).
+                chatMemoryProvider(memory).
+                tools(tools).
+                build();
+
+        StreamingChatResponseHandler responseHandler = createResponseHandler(consumer);
+        TokenStream tokenStream = adapter.chat(chatId, prompt);
 
         startTokenStream(tokenStream, responseHandler);
     }
@@ -76,7 +60,7 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
             start();
     }
 
-    private static @NotNull StreamingChatResponseHandler createResponseHandler(@Nullable ChatMemory memory, AssistantResponseConsumer consumer) {
+    private static @NotNull StreamingChatResponseHandler createResponseHandler(AssistantResponseConsumer consumer) {
         return new StreamingChatResponseHandler() {
             @Override
             public void onPartialResponse(String s) {
@@ -87,9 +71,6 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
             public void onCompleteResponse(ChatResponse response) {
                 consumer.acceptMessage(response.aiMessage().text());
                 consumer.acceptCompletion();
-                if (memory != null) {
-                    memory.add(response.aiMessage());
-                }
             }
 
             @Override

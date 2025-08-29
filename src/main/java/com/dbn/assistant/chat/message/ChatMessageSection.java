@@ -23,6 +23,7 @@ import lombok.Setter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.assistant.chat.message.ChatMessageLanguages.resolveLanguage;
@@ -60,7 +61,9 @@ public class ChatMessageSection {
     }
 
     public List<ChatMessageSection> asList() {
-        return List.of(this);
+        List<ChatMessageSection> sections = new ArrayList<>();
+        sections.add(this);
+        return sections;
     }
 
     @Override
