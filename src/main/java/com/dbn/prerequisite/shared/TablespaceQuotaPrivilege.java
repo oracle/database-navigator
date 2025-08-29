@@ -20,7 +20,7 @@ import com.dbn.prerequisite.definition.impl.TablespaceQuotaPrerequisite;
 import com.dbn.prerequisite.model.PrerequisiteType;
 
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.TABLESPACE_QUOTA;
-import static com.dbn.prerequisite.shared.PrerequisiteTypes.TABLESPACE_QUOTA_UNLIMITED;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.UNLIMITED_TABLESPACE;
 
 public class TablespaceQuotaPrivilege extends TablespaceQuotaPrerequisite {
 
@@ -30,6 +30,6 @@ public class TablespaceQuotaPrivilege extends TablespaceQuotaPrerequisite {
 
     @Override
     public PrerequisiteType getAlternativeType() {
-        return TABLESPACE_QUOTA_UNLIMITED;
+        return UNLIMITED_TABLESPACE;
     }
 }

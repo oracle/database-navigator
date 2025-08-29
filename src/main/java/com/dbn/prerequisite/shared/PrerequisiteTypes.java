@@ -28,7 +28,7 @@ public class PrerequisiteTypes {
     public static final PrerequisiteType CREATE_ANY_PROCEDURE = PrerequisiteType.get("CREATE_ANY_PROCEDURE");
     public static final PrerequisiteType CREATE_ANY_TYPE = PrerequisiteType.get("CREATE_ANY_TYPE");
     public static final PrerequisiteType TABLESPACE_QUOTA = PrerequisiteType.get("TABLESPACE_QUOTA");
-    public static final PrerequisiteType TABLESPACE_QUOTA_UNLIMITED = PrerequisiteType.get("TABLESPACE_QUOTA_UNLIMITED");
+    public static final PrerequisiteType UNLIMITED_TABLESPACE = PrerequisiteType.get("UNLIMITED_TABLESPACE");
 
     // debugger prerequisites
     public static final PrerequisiteType EXECUTE_DBMS_DEBUG = PrerequisiteType.get("EXECUTE_DBMS_DEBUG");

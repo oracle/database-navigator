@@ -17,10 +17,13 @@
 package com.dbn.execution.java.action;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.common.operation.DatabaseOperation;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.java.JavaExecutionManager;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.action.AnObjectAction;
+import com.dbn.prerequisite.DatabasePrerequisiteManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -39,9 +42,14 @@ public class JavaMethodExecuteAction extends AnObjectAction<DBJavaMethod> {
             @NotNull AnActionEvent e,
             @NotNull Project project,
             @NotNull DBJavaMethod object) {
+        
+        DatabasePrerequisiteManager prerequisiteManager = DatabasePrerequisiteManager.getInstance(project);
+        ConnectionHandler connection = object.getConnection();
 
-        JavaExecutionManager executionManager = JavaExecutionManager.getInstance(project);
-        executionManager.startMethodExecution(object, DBDebuggerType.NONE);
+        prerequisiteManager.startOperation(connection, DatabaseOperation.EXECUTE_JAVA_CODE, () -> {
+            JavaExecutionManager executionManager = JavaExecutionManager.getInstance(project);
+            executionManager.startMethodExecution(object, DBDebuggerType.NONE);
+        });
     }
 
     @Override

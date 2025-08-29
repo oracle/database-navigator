@@ -16,12 +16,12 @@
 
 package com.dbn.prerequisite.shared;
 
-import com.dbn.prerequisite.definition.impl.TablespaceQuotaPrerequisite;
-import static com.dbn.prerequisite.shared.PrerequisiteTypes.TABLESPACE_QUOTA_UNLIMITED;
+import com.dbn.prerequisite.definition.impl.SystemPrivilegePrerequisite;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.UNLIMITED_TABLESPACE;
 
-public class TablespaceQuotaUnlimitedPrivilege extends TablespaceQuotaPrerequisite {
+public class SystemPrivilege_UNLIMITED_TABLESPACE extends SystemPrivilegePrerequisite {
 
-    public TablespaceQuotaUnlimitedPrivilege() {
-        super(TABLESPACE_QUOTA_UNLIMITED);
+    public SystemPrivilege_UNLIMITED_TABLESPACE() {
+        super(UNLIMITED_TABLESPACE, "UNLIMITED TABLESPACE");
     }
 }

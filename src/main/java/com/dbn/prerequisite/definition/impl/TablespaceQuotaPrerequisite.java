@@ -32,7 +32,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.prerequisite.shared.PrerequisiteTypes.TABLESPACE_QUOTA_UNLIMITED;
 
 public abstract class TablespaceQuotaPrerequisite extends PrerequisiteDefinitionProviderBase {
 
@@ -60,13 +59,7 @@ public abstract class TablespaceQuotaPrerequisite extends PrerequisiteDefinition
                     txt("prc.prerequisite.text.CheckingTablespacePrivilege", "SYSTEM"),
                     context.getProject(),
                     context.getConnectionId(),
-                    c -> {
-                        if (getType() == TABLESPACE_QUOTA_UNLIMITED) {
-                            return metadataInterface.hasTablespaceQuotaUnlimited(c);
-                        } else {
-                            return metadataInterface.hasTablespaceQuota(c);
-                        }
-                    });
+                    c -> metadataInterface.hasTablespaceQuota(c));
         };
     }
 

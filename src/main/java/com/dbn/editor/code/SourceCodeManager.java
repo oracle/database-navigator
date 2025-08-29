@@ -30,6 +30,7 @@ import com.dbn.common.file.FileTypes;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.navigation.NavigationInstructions;
+import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.Read;
@@ -65,6 +66,7 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.prerequisite.DatabasePrerequisiteManager;
 import com.dbn.vfs.DatabaseFileSystem;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
@@ -118,6 +120,7 @@ import static com.dbn.common.util.Messages.showQuestionDialog;
 import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.common.util.Naming.unquote;
 import static com.dbn.common.util.Strings.toLowerCase;
+import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.database.DatabaseFeature.OBJECT_CHANGE_MONITORING;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -269,6 +272,22 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     }
 
     private void saveSourceToDatabase(@NotNull DBSourceCodeVirtualFile sourceCodeFile, @Nullable SourceCodeEditor fileEditor, @Nullable Runnable successCallback) {
+        DBObjectType objectType = sourceCodeFile.getObjectType();
+
+        if(objectType.isOneOf(DBObjectType.JAVA_CLASS, DBObjectType.JAVA_RESOURCE)) {
+            Project project = getProject();
+            DatabasePrerequisiteManager prerequisiteManager = DatabasePrerequisiteManager.getInstance(project);
+            ConnectionHandler connection = sourceCodeFile.getConnection();
+
+            prerequisiteManager.startOperation(connection, DatabaseOperation.CHANGE_JAVA_CODE, () ->
+                    doSaveSourceToDatabase(sourceCodeFile, fileEditor, successCallback));
+        } else {
+            doSaveSourceToDatabase(sourceCodeFile, fileEditor, successCallback);
+        }
+
+    }
+    
+    private void doSaveSourceToDatabase(@NotNull DBSourceCodeVirtualFile sourceCodeFile, @Nullable SourceCodeEditor fileEditor, @Nullable Runnable successCallback) {
         if (sourceCodeFile.is(SAVING)) return;
         sourceCodeFile.set(SAVING, true);
 
