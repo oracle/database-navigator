@@ -17,6 +17,7 @@
 package com.dbn.execution.java.result;
 
 import com.dbn.common.action.DataKeys;
+import com.dbn.common.data.Data;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ref.WeakRef;
@@ -42,11 +43,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
+import java.sql.Array;
 import java.sql.SQLException;
 import java.sql.Struct;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.util.Lists.sortedCopy;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
@@ -85,16 +89,54 @@ public class JavaExecutionResult extends ExecutionResultBase<JavaExecutionResult
         }
     }
 
+
+    private void addArrayArgumentValues(String parentName, Array value) throws SQLException {
+        Object[] elements = (Object[]) value.getArray();
+        String arrayString = Data.listToArrayString(Arrays.asList(elements));
+        addArgumentValue(parentName + "[]", arrayString);
+    }
+
     public void addArgumentValue(String parameter, Object value) throws SQLException {
         ValueHolder<Object> valueStore = ValueHolder.basic(value);
         if(value instanceof Struct) {
             List<DBJavaField> fields = getMethod().getReturnClass().getFields();
             fields = sortedCopy(fields, POSITION_COMPARATOR);
             addComplexArgumentValues(parameter, fields, (java.sql.Struct) value);
+        } else if(value instanceof Array){
+            addArrayArgumentValues(parameter, (Array)value);
         } else {
             ExecutionValue fieldValue = new ExecutionValue(parameter, valueStore);
             fieldValues.add(fieldValue);
         }
+    }
+
+    private String toBracketedLiteral(Array sqlArray) throws SQLException {
+        // 1. Detect whether the base DB type is “character” so we know when to quote.
+        String baseType = sqlArray.getBaseTypeName();          // e.g. VARCHAR2, NUMBER, DATE
+        boolean quoteStrings =
+                baseType.equalsIgnoreCase("CHAR")     ||
+                        baseType.equalsIgnoreCase("VARCHAR")  ||
+                        baseType.equalsIgnoreCase("VARCHAR2");
+
+        // 2. Pull the data into a normal Java array.
+        Object[] elements = (Object[]) sqlArray.getArray();
+
+        // 3. Convert each element to the required literal.
+        return Arrays.stream(elements)
+                .map(o -> formatElement(o, quoteStrings))
+                .collect(Collectors.joining(", ", "[", "]"));
+    }
+
+    private String formatElement(Object value, boolean quoteStrings) {
+        if (value == null) {
+            return "null";
+        }
+
+        if (quoteStrings) {                 // quote + simple escaping
+            String s = value.toString().replace("\"", "\\\"");
+            return '"' + s + '"';
+        }
+        return value.toString();
     }
 
     @Nullable
