@@ -16,16 +16,25 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class MicroBuild {
-
-
-  public static Path buildWithMaven(Path outputDir,
-                                    String mcpSdkCoord,
-                                    String jdbcCoord,
-                                    String javaSource,
-                                    Path propertiesFile)
-          throws IOException, MavenInvocationException {
-      return buildWithMaven(outputDir, mcpSdkCoord, jdbcCoord, javaSource, propertiesFile, null);
+    // give this another try : use intelij bundled maven instead of install one
+  private static File guessIdeaBundledMaven() {
+      try {
+          String ideaHome = com.intellij.openapi.application.PathManager.getHomePath();
+          if (ideaHome.isEmpty()) return null;
+          String base = ideaHome;
+          File dir = new File(base + "/plugins/maven/lib/maven3");
+          File bin = new File(dir, "bin");
+          File mvn = new File(bin, isWindows() ? "mvn.cmd" : "mvn");
+          if (mvn.exists() && mvn.canRead()) return dir;
+      } catch (Throwable ignore) { }
+      return null;
   }
+
+  private static boolean isMac() {
+      String os = System.getProperty("os.name", "").toLowerCase();
+      return os.contains("mac");
+  }
+
 
   /** Overload that streams Maven output to a log consumer (e.g., to a ProgressIndicator). */
   public static Path buildWithMaven(Path outputDir,
@@ -39,21 +48,36 @@ public final class MicroBuild {
       String[] sdk  = mcpSdkCoord.split(":");   // groupId:artifactId:version
       String[] jdbc = jdbcCoord.split(":");
 
-      Path proj = Files.createTempDirectory("mcp-mvn");
+      // Decide a persistent project folder name next to the output JAR
+      String mainClassSimple = detectMainClassName(javaSource);
+      String packageName = detectPackageName(javaSource);
+      String baseName = (mainClassSimple == null || mainClassSimple.isBlank()) ? "server" : mainClassSimple;
+      String projectFolderName = "mcp-mvn-" + baseName;
+
+      // Ensure unique folder if one already exists
+      Path proj = outputDir.resolve(projectFolderName);
+      int suffix = 1;
+      while (Files.exists(proj)) {
+          proj = outputDir.resolve(projectFolderName + "-" + suffix++);
+      }
+
+      // Create project structure
       Path src  = proj.resolve("src/main/java");
       Path res  = proj.resolve("src/main/resources");
       Files.createDirectories(src);
       Files.createDirectories(res);
 
-      String mainClassSimple = detectMainClassName(javaSource);
-      String packageName = detectPackageName(javaSource);
-      String mainClassFq = (packageName == null || packageName.isBlank()) ? mainClassSimple : packageName + "." + mainClassSimple;
-      Files.writeString(src.resolve(mainClassSimple + ".java"), javaSource);
+      String mainClassFq = (packageName == null || packageName.isBlank()) ? baseName : packageName + "." + baseName;
+
+      Path pkgDir = (packageName == null || packageName.isBlank()) ? src : src.resolve(packageName.replace('.', '/'));
+
+      Files.createDirectories(pkgDir);
+      Files.writeString(pkgDir.resolve(mainClassSimple + ".java"), javaSource);
+
       Files.copy(propertiesFile, res.resolve("mcp-config.properties"),
               StandardCopyOption.REPLACE_EXISTING);
 
-      String pom = ""
-              + "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n"
+      String pom = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n"
               + "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
               + "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 "
               + "                             http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n"
@@ -66,9 +90,6 @@ public final class MicroBuild {
               + "  <dependencies>\n"
               + "    <dependency><groupId>"+sdk[0]+"</groupId><artifactId>"+sdk[1]+"</artifactId><version>"+sdk[2]+"</version></dependency>\n"
               + "    <dependency><groupId>"+jdbc[0]+"</groupId><artifactId>"+jdbc[1]+"</artifactId><version>"+jdbc[2]+"</version></dependency>\n"
-              + "    <dependency><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-databind</artifactId><version>2.17.2</version></dependency>\n"
-              + "    <dependency><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-annotations</artifactId><version>2.17.2</version></dependency>\n"
-              + "    <dependency><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-core</artifactId><version>2.17.2</version></dependency>\n"
               + "  </dependencies>\n"
               + "  <build>\n"
               + "    <plugins>\n"
@@ -91,7 +112,7 @@ public final class MicroBuild {
 
       InvocationRequest req = new DefaultInvocationRequest();
       req.setPomFile(proj.resolve("pom.xml").toFile());
-      req.setGoals(List.of("clean", "package"));
+      req.addArgs(List.of("clean", "package"));
       req.setBatchMode(true);
 
       org.apache.maven.shared.invoker.Invoker inv = new DefaultInvoker();
@@ -109,8 +130,8 @@ public final class MicroBuild {
       }
 
       if (log != null) {
-          inv.setOutputHandler(log::accept);
-          inv.setErrorHandler(log::accept);
+          req.setOutputHandler(log::accept);
+          req.setErrorHandler(log::accept);
       }
 
       InvocationResult resBuild = inv.execute(req);
@@ -178,8 +199,7 @@ public final class MicroBuild {
       Path wrapperDir = dotMvn.resolve("wrapper");
       Files.createDirectories(wrapperDir);
 
-      String properties = "" +
-              "distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.9/apache-maven-3.9.9-bin.zip\n" +
+      String properties = "distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.9/apache-maven-3.9.9-bin.zip\n" +
               "wrapperUrl=https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.3.2/maven-wrapper-3.3.2.jar\n";
       Files.writeString(wrapperDir.resolve("maven-wrapper.properties"), properties);
 

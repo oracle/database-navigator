@@ -44,9 +44,9 @@ public class McpServerInputDialog extends DBNDialog<McpServerInputForm> {
   protected void doOKAction() {
     try {
       McpServerInputForm form = getForm();
-      String rewrittenSql = form != null ? form.getRewrittenSql() : "";
-      String paramOrderCsv = form != null ? form.getParamOrderCsv() : "";
-      String jsonSchema    = form != null ? form.getToolJsonSchema() : "";
+      String rewrittenSql = form.getRewrittenSql();
+      String paramOrderCsv = form.getParamOrderCsv();
+      String jsonSchema    = form.getToolJsonSchema();
 
       String basePath = project != null ? project.getBasePath() : null;
       Path outDir = basePath != null ? Paths.get(basePath) : Paths.get(System.getProperty("user.home"));
@@ -60,11 +60,11 @@ public class McpServerInputDialog extends DBNDialog<McpServerInputForm> {
       props.setProperty("generatedAt", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now()));
 
       // Also persist DB + tool metadata expected by the generated server
-      props.setProperty("mcp.url",       (form != null && form.getJdbcUrl() != null) ? form.getJdbcUrl() : "jdbc:oracle:thin:@tcps://adb.ap-sydney-1.oraclecloud.com:1521/bibccvynv4bqglp_vectoraidemo_high.adb.oraclecloud.com");
-      props.setProperty("mcp.user",      (form != null && form.getUsername() != null) ? form.getUsername() : "ayoub");
-      props.setProperty("mcp.password",  (form != null && form.getPassword() != null) ? new String(form.getPassword()) : "H3n8zQKEdfqJQxK");
-      props.setProperty("mcp.toolName",  (form != null && form.getToolName() != null) ? form.getToolName() : "run_select");
-      props.setProperty("mcp.toolDesc",  (form != null && form.getToolDescription() != null) ? form.getToolDescription() : "Parameterized SELECT tool");
+      props.setProperty("mcp.url", form.getJdbcUrl() != null ? form.getJdbcUrl() : "");
+      props.setProperty("mcp.user", form.getUsername() != null ? form.getUsername() : "");
+      props.setProperty("mcp.password", form.getPassword() != null ? new String(form.getPassword()) : "");
+      props.setProperty("mcp.toolName", form.getToolName() != null ? form.getToolName() : "");
+      props.setProperty("mcp.toolDesc", form.getToolDescription() != null ? form.getToolDescription() : "Parameterized SELECT tool");
       // Optional server identity (has defaults at runtime)
       props.setProperty("mcp.serverName",   props.getProperty("mcp.serverName", "mcp-server"));
       props.setProperty("mcp.serverVersion", props.getProperty("mcp.serverVersion", "1.0.0"));
@@ -80,7 +80,7 @@ public class McpServerInputDialog extends DBNDialog<McpServerInputForm> {
 
       Progress.prompt(project, null, true, "Building MCP Server", "Invoking Maven (clean package)…", indicator -> {
         indicator.setIndeterminate(true);
-        final long[] lastUpdateNanos = {0L}; // throttle UI updates
+        final long[] lastUpdateNanos = {0L};
         try {
           Path jarPath = MicroBuild.buildWithMaven(
                   outDir.resolve("mcp-dist"),
@@ -224,7 +224,7 @@ public class McpServerInputDialog extends DBNDialog<McpServerInputForm> {
           );
 
           // Prepare Claude Desktop config templates pointing to the built JAR
-          String serverNameForClaude = props.getProperty("mcp.toolName", "mcp-db-select");
+          String serverNameForClaude = props.getProperty("mcp.serverName", "mcp-db-select");
           String jarPathStr = jarPath.toAbsolutePath().toString();
           String jarPathJson = jarPathStr.replace("\\", "\\\\");
 
