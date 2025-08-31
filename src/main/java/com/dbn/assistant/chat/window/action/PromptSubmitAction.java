@@ -17,7 +17,7 @@
 package com.dbn.assistant.chat.window.action;
 
 import com.dbn.assistant.chat.ChatAvailability;
-import com.dbn.assistant.chat.ChatContext;
+import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.icon.Icons;

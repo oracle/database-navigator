@@ -18,6 +18,7 @@ package com.dbn.common.ui.form;
 
 import com.dbn.common.action.DataProviders;
 import com.dbn.common.dispose.ComponentDisposer;
+import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.environment.options.EnvironmentSettings;
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.latent.Latent;
@@ -31,6 +32,7 @@ import com.dbn.common.ui.util.UserInterface;
 import com.dbn.options.general.GeneralProjectSettings;
 import com.intellij.ide.DataManager;
 import com.intellij.ide.ui.LafManagerListener;
+import com.intellij.ide.ui.UISettingsListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
@@ -130,6 +132,11 @@ public abstract class DBNFormBase
         whenFirstShown(getMainComponent(), runnable);
     }
 
+    protected final void whenSettingsChange(Runnable runnable) {
+        UISettingsListener uiSettingsListener = s -> runnable.run();
+        ApplicationEvents.subscribe(this, UISettingsListener.TOPIC, uiSettingsListener);
+    }
+
     private void initialize() {
         if (isDisposed()) return;
         if (initialized) return;
@@ -158,11 +165,9 @@ public abstract class DBNFormBase
      * @param mainComponent the main component of the form whose size needs to be adjusted
      */
     private void adjustFormSize(JComponent mainComponent) {
-        mainComponent.doLayout();
-        mainComponent.validate();
-
         Disposable parentComponent = getParentComponent();
         if (parentComponent instanceof DBNDialog) {
+            mainComponent.validate();
 
             boolean hasScrollBars = this.hasScrollBars.get();
             if (!hasScrollBars) return;
@@ -241,6 +246,7 @@ public abstract class DBNFormBase
         return null;
     }
 
+    @Nullable
     @Override
     public final <F extends DBNForm> F getParentFrom(Class<F> formClass) {
         DBNComponent parent = getParentComponent();
@@ -254,6 +260,11 @@ public abstract class DBNFormBase
         return null;
     }
 
+
+    @NotNull
+    public final <F extends DBNForm> F ensureParentFrom(Class<F> formClass) {
+        return Failsafe.nd(getParentFrom(formClass));
+    }
 
     @Override
     public void disposeInner() {

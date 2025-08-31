@@ -215,6 +215,22 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="enable-data-access" timeout="20">
+        <statement>
+            begin
+                DBMS_CLOUD_AI.ENABLE_DATA_ACCESS();
+            end;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="disable-data-access" timeout="20">
+        <statement>
+            begin
+                DBMS_CLOUD_AI.DISABLE_DATA_ACCESS();
+            end;
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="acl-rights" timeout="20">
         <statement>
             {0}

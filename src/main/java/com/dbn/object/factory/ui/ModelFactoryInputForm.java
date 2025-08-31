@@ -1,6 +1,6 @@
 package com.dbn.object.factory.ui;
 
-import com.dbn.assistant.credential.remote.ui.CredentialEditDialog;
+import com.dbn.assistant.service.selectai.credential.ui.CredentialEditDialog;
 import com.dbn.common.color.Colors;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
@@ -10,10 +10,8 @@ import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.FileChoosers;
-import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
-import com.dbn.connection.config.tns.TnsNamesParser;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeListener;
@@ -29,20 +27,27 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.ButtonGroup;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
-import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
-import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.common.util.Lists.convert;
-import static com.dbn.common.util.Strings.*;
+import static com.dbn.common.util.Strings.toUpperCase;
+import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 
 public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryInput> {
   public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.singleFile().
@@ -108,9 +113,9 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
     addCredentialButton.addActionListener(e -> Dialogs.show(() -> new CredentialEditDialog(connection, null, Set.of())));
 
     Project project = connection.getProject();
-    ProjectEvents.subscribe(project, this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType, operation) -> {
-      if (connectionId != connection.getConnectionId()) return;
-      if (objectType != DBObjectType.CREDENTIAL) return;
+    ProjectEvents.subscribe(project, this, ObjectChangeListener.TOPIC, e -> {
+      if (!e.matches(connection)) return;
+      if (!e.matches(CREDENTIAL)) return;
       populateCredentials();
     });
   }

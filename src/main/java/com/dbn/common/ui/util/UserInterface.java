@@ -223,6 +223,9 @@ public class UserInterface {
         }
     }
 
+    /**
+     * @deprecated use component.revalidate() on component layout or size changes, and component.repaint() on visual changes like colors.
+     */
     public static void repaint(Component component) {
         Dispatch.run(true, () -> {
             component.revalidate();
@@ -230,6 +233,9 @@ public class UserInterface {
         });
     }
 
+    /**
+     * @deprecated use component.revalidate() on component layout or size changes, and component.repaint() on visual changes like colors.
+     */
     public static void repaintAndFocus(Component component) {
         Dispatch.run(true, () -> {
             component.revalidate();

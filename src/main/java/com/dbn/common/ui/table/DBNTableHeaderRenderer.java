@@ -16,11 +16,29 @@
 
 package com.dbn.common.ui.table;
 
+import com.dbn.common.latent.Latent;
+
+import javax.swing.JLabel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.Font;
+import java.awt.FontMetrics;
 
-public interface DBNTableHeaderRenderer extends TableCellRenderer {
-    void setFont(Font font);
+public abstract class DBNTableHeaderRenderer implements TableCellRenderer {
 
+    private final Latent<FontMetrics> fontMetrics = Latent.basic(() -> {
+        JLabel nameLabel = getNameLabel();
+        return nameLabel.getFontMetrics(nameLabel.getFont());
+    });
 
+    protected abstract JLabel getNameLabel();
+
+    public final void setFont(Font font) {
+        getNameLabel().setFont(font);
+        fontMetrics.reset();
+    }
+
+    public FontMetrics getFontMetrics() {
+        return fontMetrics.get();
+    }
 }
+

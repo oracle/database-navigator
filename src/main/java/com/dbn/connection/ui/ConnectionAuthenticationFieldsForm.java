@@ -18,7 +18,6 @@ package com.dbn.connection.ui;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.message.MessageType;
-import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -48,6 +47,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.form.field.JComponentFilter.accessibleClassifiedAs;
@@ -61,6 +61,7 @@ import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.Lists.firstElement;
+import static com.dbn.connection.AuthenticationTokenType.ALL_AZURE_TOKEN_TYPES;
 import static com.dbn.connection.AuthenticationTokenType.AZURE_INTERACTIVE;
 import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
 import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_TOKEN;
@@ -77,6 +78,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         CACHEABLE_FIELDS,
     }
 
+    private static final boolean IS_PROXY_MAYBE_SET = checkIfHttpProxy();
     private JComboBox<AuthenticationType> authTypeComboBox;
     private JComboBox<AuthenticationTokenType> tokenTypeComboBox;
     private JComboBox<String> tokenProfileComboBox;
@@ -91,18 +93,26 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     private JLabel tokenProfileLabel;
     private JPanel warningPanel;
 
-    private JTextField azureClientIdTextField;
-    private JTextField azureTenantIdTextField;
-    private JTextField azureAppIdUriTextField;
-    private TextFieldWithBrowseButton azureClientCertificateFileTextField;
+    private JLabel compartmentOcidLabel;
+    private JLabel databaseOcidLabel;
+
     private JLabel azureAppIdUriLabel;
     private JLabel azureClientCertificateFileLabel;
     private JLabel azureTenantIdLabel;
     private JLabel azureClientIdLabel;
-    private JPasswordField azureClientSecretPasswordField;
     private JLabel azureClientSecretLabel;
-    private JPasswordField azureClientCertificateFilePasswordTextField;
     private JLabel azureClientCertificatePasswordLabel;
+
+    private JTextField compartmentOcidTextField;
+    private JTextField databaseOcidTextField;
+
+    private JTextField azureClientIdTextField;
+    private JTextField azureTenantIdTextField;
+    private JTextField azureAppIdUriTextField;
+    private TextFieldWithBrowseButton azureClientCertificateFileTextField;
+    private JPasswordField azureClientSecretPasswordField;
+    private JPasswordField azureClientCertificateFilePasswordField;
+    private DBNHintForm warningHintForm;
 
 
     public ConnectionAuthenticationFieldsForm(@NotNull DBNForm parentComponent) {
@@ -126,11 +136,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         onSelectionChange(authTypeComboBox, v -> updateAuthenticationFields());
         onSelectionChange(tokenTypeComboBox, v -> updateAuthenticationFields());
 
-        // TODO NLS
-        TextContent interactivePortHintText = plain("TCP port 8181 appears to be bound.\nThis may cause interactive OCI authentication to fail.");
-        DBNHintForm hintForm = new DBNHintForm(this, interactivePortHintText, MessageType.WARNING, true);
-        warningPanel.add(hintForm.getComponent());
-
+        this.warningHintForm = new DBNHintForm(this, null, MessageType.WARNING, true);
+        warningPanel.add(warningHintForm.getComponent());
         warningPanel.setVisible(false);
 
         addSingleFileChooser(
@@ -157,6 +164,12 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
                 tokenProfileLabel,
                 tokenProfileComboBox));
 
+        fieldAdapter.initFieldsVisibility(() -> isOciTokenAuth(), array(
+                compartmentOcidLabel,
+                compartmentOcidTextField,
+                databaseOcidLabel,
+                databaseOcidTextField));
+
         fieldAdapter.initFieldsVisibility(() -> isApiKeyTokenAuth(), array(
                 tokenConfigFileLabel,
                 tokenConfigFileTextField,
@@ -165,27 +178,23 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
         fieldAdapter.initFieldsVisibility(() -> isAzureTokenAuth(), array (
                 azureAppIdUriLabel,
-                azureAppIdUriTextField
-        ));
+                azureAppIdUriTextField));
 
         fieldAdapter.initFieldsVisibility(() -> isAzureServicePrincipal(), array (
                 azureClientIdLabel,
                 azureClientIdTextField,
                 azureTenantIdLabel,
-                azureTenantIdTextField
-        ));
+                azureTenantIdTextField));
 
         fieldAdapter.initFieldsVisibility(() -> isAzureServicePrincipalCertAuth(), array (
                 azureClientCertificateFileLabel,
                 azureClientCertificateFileTextField,
                 azureClientCertificatePasswordLabel,
-                azureClientCertificateFilePasswordTextField
-        ));
+                azureClientCertificateFilePasswordField));
 
         fieldAdapter.initFieldsVisibility(() -> isAzureServicePrincipalSecretAuth(), array(
                 azureClientSecretLabel,
-                azureClientSecretPasswordField
-        ));
+                azureClientSecretPasswordField));
 
         // init field classification
         fieldAdapter.classifyFields(CACHEABLE_FIELDS, array(
@@ -198,7 +207,9 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
                 azureTenantIdTextField,
                 azureClientCertificateFileLabel,
                 azureAppIdUriTextField,
-                azureClientSecretPasswordField));
+                azureClientSecretPasswordField,
+                compartmentOcidTextField,
+                databaseOcidTextField));
     }
 
     private void updateAuthenticationFields() {
@@ -216,8 +227,14 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         // monitor auth type changes and fire a warning
         // event under Bug_38087045 conditions.
         Dispatch.async(mainPanel,
-                () -> verifyInteractivePortBinding(),
-                success -> warningPanel.setVisible(!success));
+            () -> checkSystemWarnings(),
+            warningMessage -> {
+                if (warningMessage != null) {
+                    warningHintForm.setHintContent(plain(warningMessage));
+                }
+                warningPanel.setVisible(warningMessage != null);
+            }
+        );
     }
 
     public void setAuthenticationTypes(AuthenticationType ...  authenticationTypes) {
@@ -228,12 +245,14 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         onTextChange(userTextField, e -> runnable.run());
         onTextChange(passwordField, e -> runnable.run());
         onTextChange(tokenConfigFileTextField.getTextField(), e -> runnable.run());
+        onTextChange(compartmentOcidTextField, e -> runnable.run());
+        onTextChange(databaseOcidTextField, e -> runnable.run());
 
         onTextChange(azureClientIdTextField, e -> runnable.run());
         onTextChange(azureTenantIdTextField, e -> runnable.run());
         onTextChange(azureAppIdUriTextField, e -> runnable.run());
         onTextChange(azureClientCertificateFileTextField, e -> runnable.run());
-        onTextChange(azureClientCertificateFilePasswordTextField, e -> runnable.run());
+        onTextChange(azureClientCertificateFilePasswordField, e -> runnable.run());
         onTextChange(azureClientSecretPasswordField, e->runnable.run());
 
         tokenTypeComboBox.addActionListener(e -> runnable.run());
@@ -251,11 +270,13 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         authenticationInfo.setTokenType(getSelection(tokenTypeComboBox));
         authenticationInfo.setTokenProfile(getSelection(tokenProfileComboBox));
         authenticationInfo.setTokenConfigFile(tokenConfigFileTextField.getText());
+        authenticationInfo.setCompartmentOcid(compartmentOcidTextField.getText());
+        authenticationInfo.setDatabaseOcid(databaseOcidTextField.getText());
 
         authenticationInfo.setAzureClientId(azureClientIdTextField.getText());
         authenticationInfo.setAzureTenantId(azureTenantIdTextField.getText());
         authenticationInfo.setAzureClientCertificateFile(azureClientCertificateFileTextField.getText());
-        authenticationInfo.setAzureClientCertificatePassword(azureClientCertificateFilePasswordTextField.getPassword());
+        authenticationInfo.setAzureClientCertificatePassword(azureClientCertificateFilePasswordField.getPassword());
         authenticationInfo.setAzureDatabaseApplicationIdUri(azureAppIdUriTextField.getText());
         authenticationInfo.setAzureClientSecret(azureClientSecretPasswordField.getPassword());
     }
@@ -268,15 +289,40 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         tokenConfigFileTextField.setText(authenticationInfo.getTokenConfigFile());
         setSelection(tokenProfileComboBox, authenticationInfo.getTokenProfile());
         setSelection(tokenTypeComboBox, authenticationInfo.getTokenType());
+        compartmentOcidTextField.setText(authenticationInfo.getCompartmentOcid());
+        databaseOcidTextField.setText(authenticationInfo.getDatabaseOcid());
 
         azureAppIdUriTextField.setText(authenticationInfo.getAzureDatabaseApplicationIdUri());
         azureClientCertificateFileTextField.setText(authenticationInfo.getAzureClientCertificateFile());
-        azureClientCertificateFilePasswordTextField.setText(Chars.toString(authenticationInfo.getAzureClientCertificatePassword()));
+        azureClientCertificateFilePasswordField.setText(Chars.toString(authenticationInfo.getAzureClientCertificatePassword()));
         azureClientIdTextField.setText(authenticationInfo.getAzureClientId());
         azureTenantIdTextField.setText(authenticationInfo.getAzureTenantId());
         azureClientSecretPasswordField.setText(Chars.toString(authenticationInfo.getAzureClientSecret()));
 
         updateAuthenticationFields();
+    }
+
+    public boolean settingsChanged(AuthenticationInfo authenticationInfo) {
+        return  !Commons.match(authenticationInfo.getType(), authTypeComboBox.getSelectedItem()) ||
+
+                // basic auth
+                !Commons.match(authenticationInfo.getUser(), userTextField.getText()) ||
+                !Commons.matchArrays(authenticationInfo.getPassword(), passwordField.getPassword()) ||
+
+                // oci token auth
+                !Commons.match(authenticationInfo.getTokenType(), tokenTypeComboBox.getSelectedItem()) ||
+                !Commons.match(authenticationInfo.getTokenConfigFile(), tokenConfigFileTextField.getText()) ||
+                !Commons.match(authenticationInfo.getTokenProfile(), tokenProfileComboBox.getSelectedItem()) ||
+                !Commons.match(authenticationInfo.getDatabaseOcid(), databaseOcidTextField.getText()) ||
+                !Commons.match(authenticationInfo.getCompartmentOcid(), compartmentOcidTextField.getText()) ||
+
+                // azure auth
+                !Commons.match(authenticationInfo.getAzureClientId(), azureClientIdTextField.getText()) ||
+                !Commons.match(authenticationInfo.getAzureTenantId(), azureTenantIdTextField.getText()) ||
+                !Commons.match(authenticationInfo.getAzureClientCertificateFile(), azureClientCertificateFileTextField.getText()) ||
+                !Commons.matchArrays(authenticationInfo.getAzureClientCertificatePassword(), azureClientCertificateFilePasswordField.getPassword()) ||
+                !Commons.matchArrays(authenticationInfo.getAzureClientSecret(), azureClientSecretPasswordField.getPassword()) ||
+                !Commons.match(authenticationInfo.getAzureDatabaseApplicationIdUri(), azureAppIdUriTextField.getText());
     }
 
     private void refreshTokenProfileOptions() {
@@ -355,34 +401,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         return mainPanel;
     }
 
-    public String getUser() {
-        return userTextField.getText();
-    }
-
-    public @Nullable String getTokenConfigFile() {
-        return tokenConfigFileTextField.getText();
-    }
-
     public @Nullable String getTokenProfile() {
-        return (String) tokenProfileComboBox.getSelectedItem();
-    }
-    public @Nullable String getAzureTokenClientId() {
-        return (String) azureClientIdTextField.getText();
-    }
-    public @Nullable String getAzureTokenTenantId() {
-        return (String) azureTenantIdTextField.getText();
-    }
-    public @Nullable String getAzureTokenClientSecretFile() {
-        return (String) azureClientCertificateFileTextField.getText();
-    }
-    public char[] getAzureTokenClientSecretFilePassword() {
-        return (char[]) azureClientCertificateFilePasswordTextField.getPassword();
-    }
-    public @Nullable char[] getAzureTokenClientSecret() {
-        return azureClientSecretPasswordField.getPassword();
-    }
-    public @Nullable String getAzureTokenDatabaseAppIdUri() {
-        return (String) azureAppIdUriTextField.getText();
+        return getSelection(tokenProfileComboBox);
     }
 
     private boolean isUserAuth() {
@@ -397,6 +417,12 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         return getAuthenticationType() == AuthenticationType.TOKEN;
     }
 
+    private boolean isOciTokenAuth() {
+        return isApiKeyTokenAuth() || isOciInteractiveAuth();
+    }
+    private boolean isOciInteractiveAuth() {
+        return isTokenAuth() && getTokenAuthenticationType() == OCI_INTERACTIVE;
+    }
     private boolean isApiKeyTokenAuth() {
         return isTokenAuth() && getTokenAuthenticationType() == OCI_API_KEY;
     }
@@ -425,6 +451,17 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         return getSelection(tokenTypeComboBox);
     }
 
+    private String checkSystemWarnings() {
+        if (!verifyInteractivePortBinding()) {
+            // TODO NLS
+            return "TCP port 8181 appears to be bound.\nThis may cause interactive OCI authentication to fail.";
+        }
+        if (!checkNoProxyIfAzure()) {
+            // TODO NLS
+            return "The system properties contain one or more HTTP proxy settings.\nThis may cause Azure Authentication to fail.";
+        }
+        return null;
+    }
     /**
      * Checks if the token callback bind port (8181) can be bound.
      * Used to warn the interactive connectivity option if the port is already bound
@@ -438,5 +475,33 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         if (tokenAuthenticationType != OCI_INTERACTIVE) return true;
 
         return Sockets.tryToBindPort(OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT);
+    }
+
+    /**
+     * If http proxy settings are configured by -D option (usually via JAVA_TOOL_OPTIONS),
+     * then this cause problems with the mechanisms that the Azure provider uses to
+     * acquire valid security tokens over HTTP.
+     *
+     * @return true if we currently are using an Azure auth method and no HTTP proxies appear
+     * to be set via -D.
+     */
+    private boolean checkNoProxyIfAzure() {
+        AuthenticationType authenticationType = getAuthenticationType();
+        AuthenticationTokenType tokenAuthenticationType = getTokenAuthenticationType();
+
+        if (authenticationType != AuthenticationType.TOKEN) return true;
+        if (!ALL_AZURE_TOKEN_TYPES.contains(tokenAuthenticationType)) return true;
+
+        return !IS_PROXY_MAYBE_SET;
+    }
+
+    private static boolean checkIfHttpProxy() {
+        Properties properties = System.getProperties();
+        return properties.containsKey("http.proxyHost") ||
+                properties.containsKey("http.proxyPort") ||
+                properties.containsKey("http.nonProxyHosts") ||
+                properties.containsKey("https.proxyHost") ||
+                properties.containsKey("https.proxyPort") ||
+                properties.containsKey("https.nonProxyHosts");
     }
 }

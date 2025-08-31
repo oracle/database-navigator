@@ -55,7 +55,6 @@ import com.dbn.execution.compiler.CompilerActionSource;
 import com.dbn.execution.compiler.CompilerResult;
 import com.dbn.execution.compiler.DatabaseCompilerManager;
 import com.dbn.execution.logging.DatabaseLoggingManager;
-import com.dbn.execution.statement.DataDefinitionChangeListener;
 import com.dbn.execution.statement.StatementExecutionContext;
 import com.dbn.execution.statement.StatementExecutionInput;
 import com.dbn.execution.statement.StatementExecutionManager;
@@ -78,8 +77,7 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
-import com.dbn.object.event.ObjectChangeAction;
-import com.dbn.object.event.ObjectChangeListener;
+import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -109,6 +107,7 @@ import static com.dbn.execution.ExecutionStatus.EXECUTING;
 import static com.dbn.execution.ExecutionStatus.PROMPTED;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
+import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
 
 @Getter
 public class StatementExecutionBasicProcessor extends StatefulDisposableBase implements StatementExecutionProcessor {
@@ -611,7 +610,6 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
     }
 
     private void notifyDataDefinitionChanges(StatementExecutionContext context) {
-        Project project = getProject();
         if (!isDataDefinitionStatement()) return;
 
         DBObjectType objectType;
@@ -621,9 +619,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         // TODO check why this logic is schema centric (should consider non-schema objects like users and privileges)
         DBSchemaObject affectedObject = getAffectedObject();
         if (affectedObject != null) {
-            ProjectEvents.notify(project,
-                    DataDefinitionChangeListener.TOPIC,
-                    (listener) -> listener.dataDefinitionChanged(affectedObject));
+            ObjectChangeEvent.notify(UNSPECIFIED, affectedObject);
 
             connectionId = affectedObject.getConnectionId();
             schemaId = affectedObject.getSchemaId();
@@ -638,8 +634,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         }
 
         if (connectionId != null && objectType != null) {
-            ProjectEvents.notify(project, ObjectChangeListener.TOPIC,
-                    l -> l.objectsChanged(connectionId, schemaId, objectType, ObjectChangeAction.UNKNOWN));
+            ObjectChangeEvent.notify(UNSPECIFIED, objectType, connectionId, schemaId);
 
         }
     }

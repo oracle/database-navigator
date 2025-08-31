@@ -17,6 +17,7 @@
 package com.dbn.code.common.intention;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.database.DatabaseFeature;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.object.DBMethod;
 import com.intellij.openapi.editor.Editor;
@@ -37,8 +38,10 @@ public class DebugMethodIntentionAction extends AbstractMethodExecutionIntention
     }
 
     @Override
-    protected String getActionName() {
-        return txt("app.codeEditor.action.DebugMethod");
+    protected String getActionName(DBMethod method) {
+        return method == null ?
+                txt("app.codeEditor.action.DebugMethod") :
+                txt("app.codeEditor.action.DebugSpecificMethod", method.getQualifiedNameWithType());
     }
 
     @Override
@@ -49,20 +52,19 @@ public class DebugMethodIntentionAction extends AbstractMethodExecutionIntention
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
         PsiFile psiFile = psiElement.getContainingFile();
-        if (psiFile != null) {
-            DBMethod method = resolveMethod(editor, psiFile);
-            return method != null;
-        }
-        return false;
+        if (psiFile == null) return false;
+
+        DBMethod method = resolveMethod(editor, psiFile);
+        return DatabaseFeature.DEBUGGING.isSupported(method);
     }
 
     @Override
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException {
         PsiFile psiFile = psiElement.getContainingFile();
         DBMethod method = resolveMethod(editor, psiFile);
-        if (method != null) {
-            DatabaseDebuggerManager executionManager = DatabaseDebuggerManager.getInstance(project);
-            executionManager.startMethodDebugger(method);
-        }
+        if (method == null) return;
+
+        DatabaseDebuggerManager executionManager = DatabaseDebuggerManager.getInstance(project);
+        executionManager.startMethodDebugger(method);
     }
 }

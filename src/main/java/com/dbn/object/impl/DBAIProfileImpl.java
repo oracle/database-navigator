@@ -174,8 +174,13 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
     }
 
     @Override
-    public String getModelName() {
-        return model == null ? null : model.getName();
+    public String getProviderId() {
+        return provider == null ? null : provider.getId();
+    }
+
+    @Override
+    public String getModelId() {
+        return model == null ? null : model.getId();
     }
 
     @Override

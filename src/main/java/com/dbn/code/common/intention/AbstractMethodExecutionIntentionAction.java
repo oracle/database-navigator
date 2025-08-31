@@ -41,16 +41,10 @@ public abstract class AbstractMethodExecutionIntentionAction extends EditorInten
     @NotNull
     public final String getText() {
         DBMethod method = getMethod();
-        if (method != null) {
-            DBObjectType objectType = method.getObjectType();
-            if (objectType.matches(DBObjectType.PROCEDURE)) objectType = DBObjectType.PROCEDURE;
-            if (objectType.matches(DBObjectType.FUNCTION)) objectType = DBObjectType.FUNCTION;
-            return getActionName() + ' ' + objectType.getName() + ' ' + method.getName();
-        }
-        return getActionName();
+        return getActionName(method);
     }
 
-    protected abstract String getActionName();
+    protected abstract String getActionName(DBMethod method);
 
     @Nullable
     protected DBMethod resolveMethod(Editor editor, PsiFile psiFile) {

@@ -17,7 +17,7 @@
 package com.dbn.options;
 
 import com.dbn.DatabaseNavigator;
-import com.dbn.assistant.credential.local.LocalCredentialSettings;
+import com.dbn.assistant.credential.LocalCredentialSettings;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.browser.options.DatabaseBrowserSettings;
 import com.dbn.code.common.completion.options.CodeCompletionSettings;

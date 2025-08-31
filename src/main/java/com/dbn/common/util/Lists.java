@@ -59,6 +59,10 @@ public class Lists {
     }
 
     @NotNull
+    public static <T> List<T> removeNulls(@NotNull List<T> list) {
+        return filter(list, o -> o != null);
+    }
+
     public static <T> List<T> filter(@NotNull List<T> list, @Nullable Filter<T> filter) {
         if (filter == null) return list;
         if (list.isEmpty()) return list;
@@ -212,11 +216,11 @@ public class Lists {
         return index < 0 || index >= list.size();
     }
 
-    public static <T> String toCsv(List<T> elements, Function<T, String> toString) {
+    public static <T> String toCsv(Collection<T> elements, Function<T, String> toString) {
         return toCsv(elements, ", ", toString);
     }
 
-    public static <T> String toCsv(List<T> elements, String separator, Function<T, String> toString) {
+    public static <T> String toCsv(Collection<T> elements, String separator, Function<T, String> toString) {
         StringBuilder buffer = new StringBuilder();
         for (T element : elements) {
             if (buffer.length() != 0) buffer.append(separator);

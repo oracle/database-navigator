@@ -74,6 +74,19 @@ dependencies {
   implementation("org.apache.maven.resolver:maven-resolver-connector-basic:1.9.22")
   implementation("org.apache.maven:maven-resolver-provider:3.9.9")
 
+  // db assistant
+  implementation("dev.langchain4j:langchain4j:1.1.0")
+  implementation("dev.langchain4j:langchain4j-core:1.1.0")
+  implementation("dev.langchain4j:langchain4j-http-client:1.1.0")
+  implementation("dev.langchain4j:langchain4j-mcp:1.1.0-beta7")
+
+  implementation("dev.langchain4j:langchain4j-open-ai:1.1.0")
+  implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.1.0-rc1")
+  implementation("dev.langchain4j:langchain4j-anthropic:1.1.0-rc1")
+  implementation("dev.langchain4j:langchain4j-cohere:1.1.0-beta7")
+  implementation("dev.langchain4j:langchain4j-hugging-face:1.1.0-beta7")
+  implementation("dev.langchain4j:langchain4j-ollama:1.1.0-rc1")
+
   implementation(project(":modules:dbn-api"))
   implementation(project(":modules:dbn-spi"))
 
@@ -173,10 +186,26 @@ withType<KotlinCompile> {
   }
   runIde {
         systemProperties["idea.auto.reload.plugins"] = true
-        jvmArgs = listOf(
+        var waitForDebugger = "n"
+        if (project.hasProperty("waitForDebugger")) {
+            waitForDebugger = "y"
+            System.out.println("runIde is waiting for a debugger to attach")
+        }
+        var jvmArgsMutable = mutableListOf(
             "-Xms512m",
             "-Xmx2048m",
-            "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044",
+            "-agentlib:jdwp=transport=dt_socket,server=y,suspend=$waitForDebugger,address=1044",
         )
+
+	    if (project.hasProperty("enableAssertions")) {
+            jvmArgsMutable.add("-ea")
+            System.out.println("Java Assertions enabled")
+        }
+        // make it immutable
+        jvmArgs = jvmArgsMutable.toList()
    }
+
+   buildSearchableOptions {
+    enabled = false
+  }
 }

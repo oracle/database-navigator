@@ -23,13 +23,12 @@ import com.dbn.common.constant.Constant;
  *
  * @author Dan Cioca (Oracle)
  */
-public enum ObjectChangeAction  implements Constant<ObjectChangeAction> {
+public enum ObjectChangeAction implements Constant<ObjectChangeAction> {
     CREATE,
     UPDATE,
     DELETE,
     ENABLE,
     DISABLE,
 
-    @Deprecated // TODO remove as soon as data definition changes from SQL statement executions are qualified
-    UNKNOWN;
+    UNSPECIFIED, // unspecified change
 }

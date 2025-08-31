@@ -3335,6 +3335,32 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="data-change-event-registrations" is-query="true" is-prepared-statement="true">
+        <statement>
+            select
+                USERNAME as USER_NAME,
+                REGID as REG_ID,
+                REGFLAGS as REG_FLAGS,
+                CALLBACK,
+                OPERATIONS_FILTER as OPERATIONS,
+                CHANGELAG as CHANGE_LAG,
+                TIMEOUT,
+                TABLE_NAME
+            from DBA_CHANGE_NOTIFICATION_REGS
+        </statement>
+        <statement>
+            select USER as USER_NAME,
+                cnr.REGID as REG_ID,
+                cnr.REGFLAGS as REG_FLAGS,
+                cnr.CALLBACK,
+                cnr.OPERATIONS_FILTER as OPERATIONS,
+                cnr.CHANGELAG as CHANGE_LAG,
+                cnr.TIMEOUT,
+                cnr.TABLE_NAME
+            from USER_CHANGE_NOTIFICATION_REGS cnr
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="session-sql" is-prepared-statement="true" timeout="10">
         <statement>
             select sql.SQL_FULLTEXT as sql_statement
@@ -3411,7 +3437,4 @@
              where DBMS_TRANSACTION.LOCAL_TRANSACTION_ID is not null;
         </statement>
     </statement-execution-processor>
-
-
-
 </data-dictionary>

@@ -21,6 +21,7 @@ import com.dbn.common.routine.Consumer;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
+import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,6 +33,7 @@ import java.awt.event.KeyEvent;
 
 import static com.dbn.common.ui.util.ClientProperty.FIELD_ERROR;
 
+@UtilityClass
 public class TextFields {
 
     public static void onTextChange(TextFieldWithBrowseButton textField, Consumer<DocumentEvent> consumer) {

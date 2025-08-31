@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -475,6 +476,17 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
             text = text.substring(0, text.length() - toRemove.length());
         }
         return text;
+    }
+
+    /**
+     * Consumes value only if it is non-empty (non-null, length>0)
+     * @param value the value to consume
+     * @param withValue the Consumer
+     */
+    public static void ifNotEmpty(String value, Consumer<String> withValue) {
+        if (com.intellij.openapi.util.text.Strings.isNotEmpty(value)) {
+            withValue.accept(value);
+        }
     }
 
 }
