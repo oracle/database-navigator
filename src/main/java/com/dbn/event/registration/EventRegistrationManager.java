@@ -48,7 +48,6 @@ import com.dbn.event.registration.ui.EventRegistrationInputDialog;
 import com.dbn.event.service.EventHistoryService;
 import com.dbn.object.DBTable;
 import com.dbn.object.event.ObjectChangeAction;
-import com.dbn.prerequisite.DatabasePrerequisiteManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -68,7 +67,7 @@ import java.util.Properties;
 
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.notification.NotificationCategory.DCN;
-import static com.dbn.common.operation.DatabaseOperation.ENABLE_DATABASE_CHANGE_NOTIFICATION;
+import static com.dbn.common.operation.DatabaseOperation.ENABLE_CHANGE_NOTIFICATIONS;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Lists.toCsv;
 import static com.dbn.event.registration.EventRegistrationManager.COMPONENT_NAME;
@@ -95,11 +94,8 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
     }
 
     public void registerTable(DBTable table) {
-        Project project = getProject();
-        DatabasePrerequisiteManager prerequisiteManager = DatabasePrerequisiteManager.getInstance(project);
-        prerequisiteManager.startOperation(table,
-                ENABLE_DATABASE_CHANGE_NOTIFICATION,
-                () -> openRegistrationDialog(table));
+        // TODO move to the DCN registration actions (all prerequisite verifications should be invoked in actions)
+        ENABLE_CHANGE_NOTIFICATIONS.start(table, () -> openRegistrationDialog(table));
     }
 
     private void openRegistrationDialog(DBTable object) {

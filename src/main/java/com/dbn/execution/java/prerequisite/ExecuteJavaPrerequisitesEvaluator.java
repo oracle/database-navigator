@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.event.prerequisite;
+package com.dbn.execution.java.prerequisite;
 
 import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluatorBase;
@@ -22,20 +22,18 @@ import com.dbn.prerequisite.model.PrerequisiteMandate;
 
 import java.util.List;
 
-import static com.dbn.common.operation.DatabaseOperation.ENABLE_CHANGE_NOTIFICATIONS;
-import static com.dbn.prerequisite.shared.PrerequisiteTypes.CHANGE_NOTIFICATION;
-import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_CHANGE_NOTIFICATION;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_PROCEDURE;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_TYPE;
 
-public class ChangeNotificationPrerequisitesEvaluator extends PrerequisiteRequirementEvaluatorBase {
-
+public class ExecuteJavaPrerequisitesEvaluator extends PrerequisiteRequirementEvaluatorBase {
     @Override
     public boolean supports(DatabaseOperation operation) {
-        return operation == ENABLE_CHANGE_NOTIFICATIONS;
+        return operation == DatabaseOperation.EXECUTE_JAVA_CODE;
     }
 
     @Override
     protected void createMandates(List<PrerequisiteMandate> mandates, DatabaseOperation operation) {
-        createMandate(mandates, CHANGE_NOTIFICATION, "Allows the user to receive database change notifications");
-        createMandate(mandates, EXECUTE_DBMS_CHANGE_NOTIFICATION, "Allows the user to execute procedures and functions of the SYS.DBMS_CHANGE_NOTIFICATION package, which provides ability to enable and disable database change notifications");
+        createMandate(mandates, CREATE_PROCEDURE, "Allows user to create functions, procedures, and packages in own schema. This is required for creating the java execution wrappers");
+        createMandate(mandates, CREATE_TYPE, "Allows user to create database types in own schema. These are sometimes required as data converters in the java execution wrappers");
     }
 }
