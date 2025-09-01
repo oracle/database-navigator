@@ -16,10 +16,13 @@
 
 package com.dbn.assistant.chat.message.ui;
 
+import com.dbn.assistant.chat.message.ChatMessageSection;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.intellij.lang.Language;
 import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -39,16 +42,17 @@ public abstract class ChatMessageSectionForm extends DBNFormBase {
         this.contentBuilder = contentBuilder;
     }
 
-    public final void updateContent(String content) {
+    public final void updateContent(ChatMessageSection section) {
+        String content = section.getContent();
         if (Objects.equals(this.content, content)) return;
 
         this.content = content;
-        this.textContent = createTextContent(content);
-        applyTextContent(this.textContent);
+        this.textContent = createTextContent(this.content);
+        applyContent(this.textContent, section.getLanguage());
     }
     protected final TextContent createTextContent(String content) {
         return contentBuilder.apply(content);
     }
 
-    abstract protected void applyTextContent(TextContent content);
+    abstract protected void applyContent(TextContent content, @Nullable Language language);
 }

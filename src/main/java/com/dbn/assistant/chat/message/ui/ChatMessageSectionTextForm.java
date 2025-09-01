@@ -18,6 +18,8 @@ package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNForm;
+import com.intellij.lang.Language;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -66,7 +68,7 @@ public class ChatMessageSectionTextForm extends ChatMessageSectionForm {
     }
 
     @Override
-    protected void applyTextContent(TextContent content) {
+    protected void applyContent(TextContent content, @Nullable Language language) {
         setContent(content);
     }
 }

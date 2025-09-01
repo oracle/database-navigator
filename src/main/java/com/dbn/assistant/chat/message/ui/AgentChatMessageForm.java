@@ -129,7 +129,7 @@ public class AgentChatMessageForm extends ChatMessageForm {
             ChatMessageSection section = sections.get(i);
             if (i < sectionForms.size()) {
                 ChatMessageSectionForm sectionForm = sectionForms.get(i);
-                sectionForm.updateContent(section.getContent());
+                sectionForm.updateContent(section);
             } else {
                 createSectionForm(section);
             }
