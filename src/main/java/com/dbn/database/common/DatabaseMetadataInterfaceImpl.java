@@ -645,6 +645,11 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
+    public boolean hasTablespaceQuota(DBNConnection connection) throws SQLException {
+        return getBooleanValue(connection, "has-quota-on-tablespace");
+    }
+
+    @Override
     public boolean hasNetworkPrivilege(String userName, String hostName, String privilegeName, DBNConnection connection) throws SQLException {
         return getBooleanValue(connection, "has-network-privilege", userName, hostName, privilegeName);
     }

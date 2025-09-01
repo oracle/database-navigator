@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.event.prerequisite;
+package com.dbn.execution.java.prerequisite;
 
 import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluatorBase;
@@ -22,20 +22,18 @@ import com.dbn.prerequisite.model.PrerequisiteMandate;
 
 import java.util.List;
 
-import static com.dbn.common.operation.DatabaseOperation.ENABLE_CHANGE_NOTIFICATIONS;
-import static com.dbn.prerequisite.shared.PrerequisiteTypes.CHANGE_NOTIFICATION;
-import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_CHANGE_NOTIFICATION;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_TABLE;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.TABLESPACE_QUOTA;
 
-public class ChangeNotificationPrerequisitesEvaluator extends PrerequisiteRequirementEvaluatorBase {
-
+public class CreateJavaPrerequisiteEvaluator extends PrerequisiteRequirementEvaluatorBase {
     @Override
     public boolean supports(DatabaseOperation operation) {
-        return operation == ENABLE_CHANGE_NOTIFICATIONS;
+        return operation == DatabaseOperation.CHANGE_JAVA_CODE;
     }
 
     @Override
     protected void createMandates(List<PrerequisiteMandate> mandates, DatabaseOperation operation) {
-        createMandate(mandates, CHANGE_NOTIFICATION, "Allows the user to receive database change notifications");
-        createMandate(mandates, EXECUTE_DBMS_CHANGE_NOTIFICATION, "Allows the user to execute procedures and functions of the SYS.DBMS_CHANGE_NOTIFICATION package, which provides ability to enable and disable database change notifications");
+        createMandate(mandates, CREATE_TABLE, "Allows user to create tables in own schema. This is required for creating the java lob table for storing java binary");
+        createMandate(mandates, TABLESPACE_QUOTA, "Allows user to create and insert rows in table in own schema. This is required for storing java source code binary");
     }
 }
