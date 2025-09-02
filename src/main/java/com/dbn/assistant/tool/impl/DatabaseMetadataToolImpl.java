@@ -17,26 +17,13 @@
 package com.dbn.assistant.tool.impl;
 
 import com.dbn.assistant.tool.AssistantToolBase;
-import com.dbn.assistant.tool.AssistantToolFactory.Definition;
-import com.dbn.assistant.tool.AssistantToolFactoryBase;
+import com.dbn.assistant.tool.spec.DatabaseMetadataTool;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.info.ConnectionInfo;
-import dev.langchain4j.agent.tool.Tool;
-import dev.langchain4j.model.output.structured.Description;
-import lombok.Data;
 
-import static com.dbn.assistant.tool.AssistantToolCategory.METADATA_PROVIDER;
+public class DatabaseMetadataToolImpl extends AssistantToolBase implements DatabaseMetadataTool {
 
-@Description("Provides information about the database type, name and version")
-public class DatabaseMetadataTool extends AssistantToolBase {
-
-    @Definition(
-            category = METADATA_PROVIDER,
-            type = "DATABASE_METADATA",
-            impl = DatabaseMetadataTool.class)
-    public static class Factory extends AssistantToolFactoryBase<DatabaseMetadataTool> {}
-
-    @Tool("Loads database information")
+    @Override
     public DatabaseInformation loadDatabaseInformation() {
         ConnectionInfo connectionInfo = getConnection().getConnectionInfo();
         if (connectionInfo == null) throw new IllegalStateException("Could not connect to database");
@@ -51,11 +38,4 @@ public class DatabaseMetadataTool extends AssistantToolBase {
 
     }
 
-    @Data
-    public static class DatabaseInformation {
-        private String type;
-        private String name;
-        private String version;
-
-    }
 }

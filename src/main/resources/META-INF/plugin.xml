@@ -283,9 +283,9 @@
         <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.LanguageModelInvoker"/>
         <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.StreamingChatModelInvoker"/>
 
-        <assistantToolFactory implementation="com.dbn.assistant.tool.impl.SchemaMetadataTool$Factory" />
-        <assistantToolFactory implementation="com.dbn.assistant.tool.impl.TableMetadataTool$Factory" />
-        <assistantToolFactory implementation="com.dbn.assistant.tool.impl.DatabaseMetadataTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.SchemaMetadataTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.TableMetadataTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.DatabaseMetadataTool$Factory" />
     </extensions>
 
     <actions>

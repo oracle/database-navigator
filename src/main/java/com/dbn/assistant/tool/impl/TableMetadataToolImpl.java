@@ -17,33 +17,17 @@
 package com.dbn.assistant.tool.impl;
 
 import com.dbn.assistant.tool.AssistantToolBase;
-import com.dbn.assistant.tool.AssistantToolFactory.Definition;
-import com.dbn.assistant.tool.AssistantToolFactoryBase;
 import com.dbn.common.util.Lists;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.type.DBObjectType;
-import dev.langchain4j.agent.tool.Tool;
-import dev.langchain4j.model.output.structured.Description;
-import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static com.dbn.assistant.tool.AssistantToolCategory.METADATA_PROVIDER;
+public class TableMetadataToolImpl extends AssistantToolBase implements com.dbn.assistant.tool.spec.TableMetadataTool {
 
-@Description("Provides information about the tables in a given database schema")
-public class TableMetadataTool extends AssistantToolBase {
-
-    @Definition(
-            category = METADATA_PROVIDER,
-            type = "TABLE_METADATA",
-            impl = TableMetadataTool.class)
-    public static class Factory extends AssistantToolFactoryBase<TableMetadataTool> {}
-
-
-    @Tool("List table names in a given schema")
+    @Override
     public List<String> listTableNames(String schemaName, boolean includeTemporaryTables) {
         DBSchema schema = getSchema(schemaName);
 
@@ -51,13 +35,13 @@ public class TableMetadataTool extends AssistantToolBase {
         return getObjectNames(tables, t -> includeTemporaryTables || !t.isTemporary());
     }
 
-    @Tool("Loads the definition of a given table")
+    @Override
     public TableDefinition loadTableDefinition(String schemaName, String tableName) {
         DBSchema schema = getSchema(schemaName);
         return loadTableDefinition(schema, tableName);
     }
 
-    @Tool("Loads the definitions of a given set of tables")
+    @Override
     public List<TableDefinition> loadTableDefinitions(String schemaName, List<String> tableNames) {
         DBSchema schema = getSchema(schemaName);
         return Lists.convert(tableNames, n -> loadTableDefinition(schema, n));
@@ -80,18 +64,4 @@ public class TableMetadataTool extends AssistantToolBase {
 
         return tableDef;
     }
-
-    @Data
-    public static class TableDefinition{
-        private String name;
-        private List<ColumnDefinition> columns = new ArrayList<>();
-    }
-
-    @Data
-    public static class ColumnDefinition{
-        private String name;
-        private String type;
-        private String description;
-    }
-
 }

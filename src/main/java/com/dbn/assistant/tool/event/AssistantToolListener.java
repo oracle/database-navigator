@@ -14,18 +14,11 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.tool;
+package com.dbn.assistant.tool.event;
 
-import com.dbn.assistant.tool.AssistantTool.Definition;
-import com.dbn.connection.ConnectionHandler;
-import com.intellij.openapi.extensions.ExtensionPointName;
+import com.intellij.util.messages.Topic;
 
-public interface AssistantToolFactory<T extends AssistantTool> {
-    ExtensionPointName<AssistantToolFactory> EP = ExtensionPointName.create("com.dbn.assistantToolFactory");
-
-    Definition getDefinition();
-
-    AssistantToolType getToolType();
-
-    T createTool(ConnectionHandler connection);
+public interface AssistantToolListener {
+    Topic<AssistantToolListener> TOPIC = Topic.create("AssistantToolListener", AssistantToolListener.class);
+    void processEvent(AssistantToolEvent event);
 }

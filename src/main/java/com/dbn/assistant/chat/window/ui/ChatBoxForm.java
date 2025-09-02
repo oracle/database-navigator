@@ -542,6 +542,11 @@ public class ChatBoxForm extends DBNFormBase {
         return null;
     }
 
+    public void focusInputField() {
+        if (inputField == null) return;
+        inputField.requestFocus();
+    }
+
     private class SelectAssistantTypeAction extends AnAction {
         private final AssistantType assistantType;
         public SelectAssistantTypeAction(AssistantType assistantType) {

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.tool.impl;
+package com.dbn.assistant.tool.spec;
 
-import com.dbn.assistant.tool.AssistantToolBase;
-import com.dbn.assistant.tool.AssistantToolFactory.Definition;
+import com.dbn.assistant.tool.AssistantTool;
+import com.dbn.assistant.tool.AssistantTool.Definition;
 import com.dbn.assistant.tool.AssistantToolFactoryBase;
-import com.dbn.object.DBSchema;
+import com.dbn.assistant.tool.impl.SchemaMetadataToolImpl;
 import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.model.output.structured.Description;
 
@@ -28,17 +28,19 @@ import java.util.List;
 import static com.dbn.assistant.tool.AssistantToolCategory.METADATA_PROVIDER;
 
 @Description("Provides information about the database schemas and catalogs")
-public class SchemaMetadataTool extends AssistantToolBase {
+@Definition(type = "SCHEMA_METADATA", category = METADATA_PROVIDER, impl = SchemaMetadataToolImpl.class)
+public interface SchemaMetadataTool extends AssistantTool {
 
-    @Definition(
-            category = METADATA_PROVIDER,
-            type = "SCHEMA_METADATA",
-            impl = SchemaMetadataTool.class)
-    public static class Factory extends AssistantToolFactoryBase<SchemaMetadataTool> {}
+    class Factory extends AssistantToolFactoryBase<SchemaMetadataTool> {
+        public Factory() {
+            super(SchemaMetadataTool.class);
+        }
+    }
+
+    /*********************************************
+     *                 TOOLS                     *
+     *********************************************/
 
     @Tool("Lists database schema names")
-    public List<String> listSchemaNames(boolean includeSystemSchemas) {
-        List<DBSchema> schemas = getConnection().getObjectBundle().getSchemas();
-        return getObjectNames(schemas, s -> includeSystemSchemas || !s.isSystemSchema());
-    }
+    List<String> listSchemaNames(boolean includeSystemSchemas);
 }

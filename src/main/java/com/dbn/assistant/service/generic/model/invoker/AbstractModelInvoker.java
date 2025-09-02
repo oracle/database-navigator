@@ -21,6 +21,7 @@ import com.dbn.assistant.service.generic.model.AssistantModelInvoker;
 import com.dbn.assistant.service.generic.model.AssistantModelType;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantTool;
+import com.dbn.assistant.tool.AssistantTool.Definition;
 import com.dbn.assistant.tool.AssistantToolFactories;
 import com.dbn.assistant.tool.AssistantToolFactory;
 import com.dbn.connection.ConnectionHandler;
@@ -50,10 +51,12 @@ abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
                 AssistantTool tool = factory.createTool(connection);
                 tools.add(tool);
             } catch (Throwable e) {
-                log.error("Failed to create {} assistant tool of type {} (class {})",
-                        factory.getToolCategory(),
-                        factory.getToolType(),
-                        factory.getToolClass(), e);
+                Definition definition = factory.getDefinition();
+                log.error("Failed to create {} assistant tool of type {} ({})",
+                        definition.category(),
+                        definition.type(),
+                        definition.impl(),
+                        e);
             }
         }
 

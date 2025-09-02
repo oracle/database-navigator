@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.tool;
+package com.dbn.assistant.tool.impl;
 
-import com.dbn.assistant.tool.AssistantTool.Definition;
-import com.dbn.connection.ConnectionHandler;
-import com.intellij.openapi.extensions.ExtensionPointName;
+import com.dbn.assistant.tool.AssistantToolBase;
+import com.dbn.assistant.tool.spec.SchemaMetadataTool;
+import com.dbn.object.DBSchema;
 
-public interface AssistantToolFactory<T extends AssistantTool> {
-    ExtensionPointName<AssistantToolFactory> EP = ExtensionPointName.create("com.dbn.assistantToolFactory");
+import java.util.List;
 
-    Definition getDefinition();
+public class SchemaMetadataToolImpl extends AssistantToolBase implements SchemaMetadataTool {
 
-    AssistantToolType getToolType();
-
-    T createTool(ConnectionHandler connection);
+    @Override
+    public List<String> listSchemaNames(boolean includeSystemSchemas) {
+        List<DBSchema> schemas = getConnection().getObjectBundle().getSchemas();
+        return getObjectNames(schemas, s -> includeSystemSchemas || !s.isSystemSchema());
+    }
 }

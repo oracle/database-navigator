@@ -19,9 +19,24 @@ package com.dbn.assistant.tool;
 import com.dbn.connection.ConnectionHandler;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 public interface AssistantTool {
     @NotNull
     ConnectionHandler getConnection();
 
     void initialize(ConnectionHandler connection);
+
+    @Target({ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface Definition {
+        String type();
+
+        AssistantToolCategory category();
+
+        Class<? extends AssistantToolBase> impl();
+    }
 }
