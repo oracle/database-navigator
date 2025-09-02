@@ -27,7 +27,8 @@ public enum SecretType implements Presentable {
     CONNECTION_PASSWORD("Connection password"),               // connection passwords
     SSH_TUNNEL_PASSWORD("SSH tunnel password"),               // password for SSH tunnels
     SSH_TUNNEL_KEY_PASSPHRASE("SSH tunnel key passphrase"),   // key passphrases for SSH tunnels
-    GENERIC_CREDENTIAL("Generic credential")                  // e.g. database assistant credential tokens
+    GENERIC_CREDENTIAL("Generic credential"),                  // e.g. database assistant credential tokens
+    CONNECTION_AZURE_TOKEN_CLIENT_SECRET("Azure token client secret")
     ;
 
     SecretType(String name) {
