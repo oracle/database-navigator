@@ -16,21 +16,15 @@
 
 package com.dbn.assistant.service.generic.model.invoker;
 
-import com.dbn.assistant.memory.ChatMemoryCache;
+import com.dbn.assistant.memory.AssistantMemoryCache;
 import com.dbn.assistant.service.generic.model.AssistantModelInvoker;
 import com.dbn.assistant.service.generic.model.AssistantModelType;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantTool;
-import com.dbn.assistant.tool.AssistantTool.Definition;
-import com.dbn.assistant.tool.AssistantToolFactories;
-import com.dbn.assistant.tool.AssistantToolFactory;
-import com.dbn.connection.ConnectionHandler;
+import com.dbn.assistant.tool.AssistantToolCache;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @Getter
@@ -42,28 +36,10 @@ abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
     }
 
     protected AssistantTool[] prepareTools(AssistantState state) {
-        List<AssistantTool> tools = new ArrayList<>();
-        List<AssistantToolFactory> factories = AssistantToolFactories.list();
-        for (AssistantToolFactory factory : factories) {
-            try {
-                // TODO cache the tools
-                ConnectionHandler connection = state.getConnection();
-                AssistantTool tool = factory.createTool(connection);
-                tools.add(tool);
-            } catch (Throwable e) {
-                Definition definition = factory.getDefinition();
-                log.error("Failed to create {} assistant tool of type {} ({})",
-                        definition.category(),
-                        definition.type(),
-                        definition.impl(),
-                        e);
-            }
-        }
-
-        return tools.toArray(new AssistantTool[0]);
+        return AssistantToolCache.get(state).getTools();
     }
 
     protected ChatMemoryProvider prepareMemory(AssistantState assistantState) {
-        return ChatMemoryCache.get(assistantState);
+        return AssistantMemoryCache.get(assistantState);
     }
 }

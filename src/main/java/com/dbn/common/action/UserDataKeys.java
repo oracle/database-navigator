@@ -16,7 +16,8 @@
 
 package com.dbn.common.action;
 
-import com.dbn.assistant.memory.ChatMemoryCache;
+import com.dbn.assistant.memory.AssistantMemoryCache;
+import com.dbn.assistant.tool.AssistantToolCache;
 import com.dbn.common.data.Data;
 import com.dbn.common.notification.NotificationCategory;
 import com.dbn.common.outcome.MessageOutcomeHandler;
@@ -59,7 +60,8 @@ public class UserDataKeys {
     public static final Key<Boolean> SKIP_BROWSER_AUTOSCROLL = Key.create("DBNavigator.SkipEditorScroll");
     public static final Key<Long> LAST_ANNOTATION_REFRESH = Key.create("DBNavigator.LastAnnotationRefresh");
     public static final Key<Boolean> WRAPPER_FILE = Key.create("DBNavigator.WrapperFile");
-    public static final Key<ChatMemoryCache> CHAT_MEMORY_CACHE = Key.create("DBNavigator.ChatMemoryCache");
+    public static final Key<AssistantMemoryCache> ASSISTANT_MEMORY_CACHE = Key.create("DBNavigator.AssistantMemoryCache");
+    public static final Key<AssistantToolCache> ASSISTANT_TOOL_CACHE = Key.create("DBNavigator.AssistantMemoryCache");
 
     public static final Key<MessageOutcomeHandler> MESSAGE_OUTCOME_HANDLER = Key.create("DBNavigator.MessageOutcomeHandler");
     public static final Key<Map<NotificationCategory, NotificationOutcomeHandler>> NOTIFICATION_OUTCOME_HANDLERS = Key.create("DBNavigator.NotificationOutcomeHandlers");

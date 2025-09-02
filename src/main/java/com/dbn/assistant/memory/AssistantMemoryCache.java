@@ -35,13 +35,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.assistant.chat.message.AuthorType.AGENT;
 import static com.dbn.assistant.chat.message.AuthorType.USER;
-import static com.dbn.common.action.UserDataKeys.CHAT_MEMORY_CACHE;
+import static com.dbn.common.action.UserDataKeys.ASSISTANT_MEMORY_CACHE;
 
-public class ChatMemoryCache implements ChatMemoryProvider {
+public class AssistantMemoryCache implements ChatMemoryProvider {
     private final Map<String, ChatMemory> entries = new ConcurrentHashMap<>();
     private final WeakRef<AssistantState> assistantState;
 
-    private ChatMemoryCache(@NotNull AssistantState assistantState) {
+    private AssistantMemoryCache(@NotNull AssistantState assistantState) {
         this.assistantState = WeakRef.of(assistantState);
     }
 
@@ -49,8 +49,8 @@ public class ChatMemoryCache implements ChatMemoryProvider {
         return entries.computeIfAbsent(chatId, k -> createChatMemory(chatId));
     }
 
-    public static ChatMemoryCache get(AssistantState assistantState) {
-        return UserDataKeys.getUserDataSync(assistantState, CHAT_MEMORY_CACHE, () -> new ChatMemoryCache(assistantState));
+    public static AssistantMemoryCache get(AssistantState assistantState) {
+        return UserDataKeys.getUserDataSync(assistantState, ASSISTANT_MEMORY_CACHE, () -> new AssistantMemoryCache(assistantState));
     }
 
     @Nullable
