@@ -88,6 +88,7 @@
         <statement>
             select
                 TABLE_NAME,
+                null as COMMENTS,
                 'N' as IS_TEMPORARY
             from  INFORMATION_SCHEMA.TABLES
             where
@@ -103,6 +104,7 @@
                 TABLE_NAME as VIEW_NAME,
                 null as VIEW_TYPE_OWNER,
                 null as VIEW_TYPE,
+                null as COMMENTS,
                 case when TABLE_TYPE = 'VIEW' then 'N' else 'Y' end as IS_SYSTEM_VIEW,
                 'N' as IS_EDITIONABLE
             from INFORMATION_SCHEMA.TABLES

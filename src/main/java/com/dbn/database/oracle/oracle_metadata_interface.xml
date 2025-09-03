@@ -362,11 +362,15 @@
                       from [PREFIX]_MVIEWS
                      where OWNER = {0})
             select t.TABLE_NAME,
+                   tc.COMMENTS,
                    t.TEMPORARY as IS_TEMPORARY
               from [PREFIX]_ALL_TABLES t
                    left join DBN_MVIEWS v
-                          on v.MVIEW_NAME = t.TABLE_NAME
-                         and v.OWNER = t.OWNER
+                          on v.OWNER = t.OWNER
+                         and v.MVIEW_NAME = t.TABLE_NAME
+                   left join [PREFIX]_TAB_COMMENTS tc
+                          on tc.OWNER = t.OWNER
+                         and tc.TABLE_NAME = t.TABLE_NAME
              where t.OWNER = {0}
                and v.MVIEW_NAME is null
             order by t.TABLE_NAME asc
@@ -379,15 +383,19 @@
                 v.VIEW_NAME,
                 v.VIEW_TYPE_OWNER,
                 v.VIEW_TYPE,
+                tc.COMMENTS,
                 'N' as IS_SYSTEM_VIEW,
                 o.EDITIONABLE as IS_EDITIONABLE
             from [PREFIX]_VIEWS v
                 inner join [PREFIX]_OBJECTS o
                         on o.OWNER = v.OWNER
                        and o.OBJECT_NAME = v.VIEW_NAME
-                left join [PREFIX]_JSON_DUALITY_VIEWS jv
-                       on jv.VIEW_OWNER = v.OWNER
-                      and jv.VIEW_NAME = v.VIEW_NAME
+                 left join [PREFIX]_JSON_DUALITY_VIEWS jv
+                        on jv.VIEW_OWNER = v.OWNER
+                       and jv.VIEW_NAME = v.VIEW_NAME
+                 left join [PREFIX]_TAB_COMMENTS tc
+                        on tc.OWNER = v.OWNER
+                       and tc.TABLE_NAME = V.VIEW_NAME
             where v.OWNER = {0}
               and jv.VIEW_NAME is null
             order by v.VIEW_NAME asc
@@ -397,12 +405,16 @@
                 v.VIEW_NAME,
                 v.VIEW_TYPE_OWNER,
                 v.VIEW_TYPE,
+                tc.COMMENTS,
                 'N' as IS_SYSTEM_VIEW,
                 o.EDITIONABLE as IS_EDITIONABLE
             from [PREFIX]_VIEWS v
                 inner join [PREFIX]_OBJECTS o
                         on o.OWNER = v.OWNER
                        and o.OBJECT_NAME = v.VIEW_NAME
+                 left join [PREFIX]_TAB_COMMENTS tc
+                        on tc.OWNER = v.OWNER
+                       and tc.TABLE_NAME = V.VIEW_NAME
             where v.OWNER = {0}
               and v.DUALITY_VIEW != 'YES'
             order by v.VIEW_NAME asc
@@ -412,12 +424,16 @@
                 v.VIEW_NAME,
                 v.VIEW_TYPE_OWNER,
                 v.VIEW_TYPE,
+                tc.COMMENTS,
                 'N' as IS_SYSTEM_VIEW,
                 o.EDITIONABLE as IS_EDITIONABLE
             from [PREFIX]_VIEWS v
                 inner join [PREFIX]_OBJECTS o
                         on o.OWNER = v.OWNER
                        and o.OBJECT_NAME = v.VIEW_NAME
+                 left join [PREFIX]_TAB_COMMENTS tc
+                        on tc.OWNER = v.OWNER
+                       and tc.TABLE_NAME = V.VIEW_NAME
             where v.OWNER = {0}
             order by v.VIEW_NAME asc
         </statement>
@@ -869,14 +885,18 @@
     <statement-execution-processor id="materialized-views" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select
-                MVIEW_NAME as VIEW_NAME,
+                mv.MVIEW_NAME as VIEW_NAME,
                 null as VIEW_TYPE_OWNER,
                 null as VIEW_TYPE,
+                tc.COMMENTS,
                 'N' as IS_SYSTEM_VIEW,
                 'N' as IS_EDITIONABLE
-            from [PREFIX]_MVIEWS
-            where OWNER = {0}
-            order by MVIEW_NAME asc
+            from [PREFIX]_MVIEWS mv
+                left join [PREFIX]_TAB_COMMENTS tc
+                       on tc.OWNER = mv.OWNER
+                      and tc.TABLE_NAME = mv.MVIEW_NAME
+            where mv.OWNER = {0}
+            order by mv.MVIEW_NAME asc
         </statement>
     </statement-execution-processor>
 

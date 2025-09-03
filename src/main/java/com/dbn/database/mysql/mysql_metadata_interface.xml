@@ -79,6 +79,7 @@
         <statement>
             select
                 TABLE_NAME,
+                TABLE_COMMENT as COMMENTS,
                 'N' as IS_TEMPORARY
             from  information_schema.TABLES
             where
@@ -94,6 +95,7 @@
                 TABLE_NAME as VIEW_NAME,
                 null as VIEW_TYPE_OWNER,
                 null as VIEW_TYPE,
+                TABLE_COMMENT as COMMENTS,
                 if (TABLE_TYPE = 'VIEW', 'N', 'Y') as IS_SYSTEM_VIEW,
                 'N' as IS_EDITIONABLE
             from information_schema.TABLES
