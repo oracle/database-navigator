@@ -118,6 +118,7 @@
             select
                 col.COLUMN_NAME,
                 col.ORDINAL_POSITION as "POSITION",
+                null as COMMENTS,
                 replace(col.DATA_TYPE, '"', '') as DATA_TYPE_NAME,
                 null as DECL_TYPE_OWNER,
                 null as DECL_TYPE_PROGRAM,
@@ -174,6 +175,7 @@
                 col.COLUMN_NAME,
                 col.TABLE_NAME as DATASET_NAME,
                 col.ORDINAL_POSITION as "POSITION",
+                null as COMMENTS,
                 replace(col.DATA_TYPE, '"', '') as DATA_TYPE_NAME,
                 null as DECL_TYPE_OWNER,
                 null as DECL_TYPE_PROGRAM,

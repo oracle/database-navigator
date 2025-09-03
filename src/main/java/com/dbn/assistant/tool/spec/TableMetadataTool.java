@@ -69,6 +69,9 @@ public interface TableMetadataTool extends AssistantTool {
         @Description("Table name")
         private String name;
 
+        @Description("Table description")
+        private String description;
+
         @Description("Column definitions")
         private List<ColumnDefinition> columns = new ArrayList<>();
     }

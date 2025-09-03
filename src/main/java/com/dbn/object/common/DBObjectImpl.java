@@ -292,6 +292,10 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
         }
     }
 
+    @Override
+    public String getComments() {
+        return null;
+    }
 
     @Override
     public String getToolTip() {

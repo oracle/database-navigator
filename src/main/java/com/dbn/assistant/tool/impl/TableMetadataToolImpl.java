@@ -60,12 +60,15 @@ public class TableMetadataToolImpl extends AssistantToolBase implements com.dbn.
         table = assertNotNull(table, DBObjectType.TABLE, tableName);
 
         TableDefinition tableDef = new TableDefinition();
+        tableDef.setName(table.getName());
+        tableDef.setDescription(table.getComments());
+
         List<ColumnDefinition> columns = tableDef.getColumns();
         for (DBColumn column : table.getColumns()) {
             ColumnDefinition columnDef = new ColumnDefinition();
             columnDef.setName(column.getName());
             columnDef.setType(column.getDataType().getName());
-            columnDef.setDescription(column.getDescription());
+            columnDef.setDescription(column.getComments());
 
             columns.add(columnDef);
         }
