@@ -31,7 +31,7 @@ import static com.dbn.common.action.UserDataKeys.ASSISTANT_TOOL_CACHE;
 
 @Slf4j
 @Getter
-public class AssistantToolCache {
+public class AssistantToolCache /*implements ToolProvider*/ {
     private final AssistantTool[] tools;
 
     private AssistantToolCache(@NotNull AssistantState assistantState) {
@@ -62,4 +62,9 @@ public class AssistantToolCache {
     public static AssistantToolCache get(AssistantState assistantState) {
         return UserDataKeys.getUserDataSync(assistantState, ASSISTANT_TOOL_CACHE, () -> new AssistantToolCache(assistantState));
     }
+
+/*    @Override
+    public ToolProviderResult provideTools(ToolProviderRequest request) {
+        return null;
+    }*/
 }

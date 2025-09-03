@@ -36,6 +36,14 @@ public class TableMetadataToolImpl extends AssistantToolBase implements com.dbn.
     }
 
     @Override
+    public List<String> listTemporaryTableNames(String schemaName) {
+        DBSchema schema = getSchema(schemaName);
+
+        List<DBTable> tables = schema.getTables();
+        return getObjectNames(tables, t -> t.isTemporary());
+    }
+
+    @Override
     public TableDefinition loadTableDefinition(String schemaName, String tableName) {
         DBSchema schema = getSchema(schemaName);
         return loadTableDefinition(schema, tableName);
@@ -56,7 +64,7 @@ public class TableMetadataToolImpl extends AssistantToolBase implements com.dbn.
         for (DBColumn column : table.getColumns()) {
             ColumnDefinition columnDef = new ColumnDefinition();
             columnDef.setName(column.getName());
-            columnDef.setName(column.getTypeName());
+            columnDef.setType(column.getDataType().getName());
             columnDef.setDescription(column.getDescription());
 
             columns.add(columnDef);

@@ -22,6 +22,7 @@ import com.dbn.assistant.editor.SQLChatMessageConverter;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Strings;
+import com.dbn.common.util.TimeUtil;
 import com.dbn.common.util.UUIDs;
 import com.dbn.language.sql.SQLLanguage;
 import com.intellij.lang.Language;
@@ -35,13 +36,16 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.longAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.readCdata;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
+import static com.dbn.common.options.setting.Settings.setLongAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.options.setting.Settings.writeCdata;
@@ -61,6 +65,7 @@ public class ChatMessage implements PersistentStateElement {
     protected @NonNls String content;
     protected ChatContext context;
     protected boolean folded;
+    private long timestamp = System.currentTimeMillis();
 
     private List<ChatMessageSection> sections;
 
@@ -164,12 +169,16 @@ public class ChatMessage implements PersistentStateElement {
         return content;
     }
 
+    public boolean isOlderThan(long duration, TimeUnit unit) {
+        return TimeUtil.isOlderThan(timestamp, duration, unit);
+    }
 
     @Override
     public void readState(Element element) {
         id = stringAttribute(element, "id");
         type = enumAttribute(element, "type", type);
         author = enumAttribute(element, "author", AuthorType.class);
+        timestamp = longAttribute(element, "timestamp", timestamp);
         folded = booleanAttribute(element, "folded", folded);
 
         Element contentElement = element.getChild("content");
@@ -185,6 +194,7 @@ public class ChatMessage implements PersistentStateElement {
         setStringAttribute(element, "id", id);
         setEnumAttribute(element, "type", type);
         setEnumAttribute(element, "author", author);
+        setLongAttribute(element, "timestamp", timestamp);
         setBooleanAttribute(element, "folded", folded);
 
         Element contentElement = newElement(element,"content");

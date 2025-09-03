@@ -20,6 +20,7 @@ import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantTool.Definition;
 import com.dbn.assistant.tool.AssistantToolFactoryBase;
 import com.dbn.assistant.tool.impl.TableMetadataToolImpl;
+import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.model.output.structured.Description;
 import lombok.Data;
@@ -43,25 +44,45 @@ public interface TableMetadataTool extends AssistantTool {
      *                 TOOLS                     *
      *********************************************/
 
-    @Tool("List table names in a given schema")
-    List<String> listTableNames(String schemaName, boolean includeTemporaryTables);
+    @Tool("Lists table names in a given schema")
+    List<String> listTableNames(
+            @P("Schema name") String schemaName,
+            @P("Include temporary tables") boolean includeTemporaryTables);
+
+    @Tool("Lists temporary table names in a given schema")
+    List<String> listTemporaryTableNames(
+            @P("Schema name") String schemaName);
 
     @Tool("Loads the definition of a given table")
-    TableDefinition loadTableDefinition(String schemaName, String tableName);
+    TableDefinition loadTableDefinition(
+            @P("Schema name") String schemaName,
+            @P("Table name") String tableName);
 
     @Tool("Loads the definitions of a given set of tables")
-    List<TableDefinition> loadTableDefinitions(String schemaName, List<String> tableNames);
+    List<TableDefinition> loadTableDefinitions(
+            @P("Schema name") String schemaName,
+            @P("Table names") List<String> tableNames);
 
     @Data
+    @Description("Table definition")
     class TableDefinition {
+        @Description("Table name")
         private String name;
+
+        @Description("Column definitions")
         private List<ColumnDefinition> columns = new ArrayList<>();
     }
 
     @Data
+    @Description("Column definition")
     class ColumnDefinition {
+        @Description("Column name")
         private String name;
+
+        @Description("Column data type")
         private String type;
+
+        @Description("Column description")
         private String description;
     }
 }

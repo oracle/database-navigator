@@ -18,6 +18,7 @@ package com.dbn.assistant.memory;
 
 import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.message.AuthorType;
+import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.ref.WeakRef;
@@ -29,6 +30,7 @@ import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,7 +64,11 @@ public class AssistantMemoryCache implements ChatMemoryProvider {
         // TODO configurative message-window vs. token-window
         // TokenWindowChatMemory.withMaxTokens(10000, new TokenCountEstimator());
 
-        ChatMemory chatMemory = MessageWindowChatMemory.withMaxMessages(100);
+        ChatMemory chatMemory = MessageWindowChatMemory
+                .builder()
+                .id(chatId)
+                .maxMessages(100)
+                .build();
 
         restoreChatMemory(chatMemory, chatId);
         return chatMemory;
@@ -75,7 +81,12 @@ public class AssistantMemoryCache implements ChatMemoryProvider {
         Chat chat = assistantState.getChat(chatId);
         if (chat == null) return;
 
-        for (var message : chat.getMessages()) {
+        List<ChatMessage> messages = chat.getMessages();
+        if (messages.isEmpty()) return;
+
+        for (var message : messages) {
+            if (chat.isRecentPrompt(message)) return; // skip the last prompt from memory restore (will be added by the framework)
+
             AuthorType author = message.getAuthor();
             String content = message.getContent();
             if (author == USER) {

@@ -20,6 +20,7 @@ import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Lists;
+import com.dbn.common.util.TimeUtil;
 import com.dbn.common.util.UUIDs;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.dbn.assistant.chat.message.AuthorType.AGENT;
@@ -37,6 +39,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setLongAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Lists.isLast;
 import static com.dbn.common.util.Strings.isNotEmpty;
 
 @Getter
@@ -79,11 +82,11 @@ public class Chat implements PersistentStateElement {
     }
 
     public void addMessage(ChatMessage message) {
+        if (messages.isEmpty()) {
+            // reset the timestamp to reflect the real start of the chat
+            timestamp = System.currentTimeMillis();
+        }
         messages.add(message);
-    }
-
-    public void addMessages(List<ChatMessage> messages) {
-        this.messages.addAll(messages);
     }
 
     @Nullable
@@ -106,6 +109,19 @@ public class Chat implements PersistentStateElement {
                 collect(Collectors.toList());
     }
 
+    public boolean isOlderThan(long duration, TimeUnit unit) {
+        return TimeUtil.isOlderThan(timestamp, duration, unit);
+    }
+
+    public boolean isRecentPrompt(ChatMessage message) {
+        if (message.getAuthor() != USER) return false;
+        if (messages.isEmpty()) return false;
+        if (!isLast(messages, message)) return false;
+        if (message.isOlderThan(10, TimeUnit.SECONDS)) return false;
+
+        return true;
+
+    }
 
     @Override
     public void readState(Element element) {

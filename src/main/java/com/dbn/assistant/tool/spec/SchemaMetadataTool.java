@@ -20,6 +20,7 @@ import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantTool.Definition;
 import com.dbn.assistant.tool.AssistantToolFactoryBase;
 import com.dbn.assistant.tool.impl.SchemaMetadataToolImpl;
+import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.model.output.structured.Description;
 
@@ -42,5 +43,5 @@ public interface SchemaMetadataTool extends AssistantTool {
      *********************************************/
 
     @Tool("Lists database schema names")
-    List<String> listSchemaNames(boolean includeSystemSchemas);
+    List<String> listSchemaNames(@P("Include system schemas") boolean includeSystemSchemas);
 }

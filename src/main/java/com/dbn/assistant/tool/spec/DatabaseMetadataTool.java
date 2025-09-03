@@ -44,9 +44,15 @@ public interface DatabaseMetadataTool extends AssistantTool {
     DatabaseInformation loadDatabaseInformation();
 
     @Data
+    @Description("Database information")
     class DatabaseInformation {
+        @Description("Database type")
         private String type;
+
+        @Description("Database name")
         private String name;
+
+        @Description("Database version")
         private String version;
 
     }
