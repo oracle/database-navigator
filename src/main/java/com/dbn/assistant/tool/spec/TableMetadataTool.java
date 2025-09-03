@@ -25,7 +25,6 @@ import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.model.output.structured.Description;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.METADATA_PROVIDER;
@@ -56,12 +55,14 @@ public interface TableMetadataTool extends AssistantTool {
     @Tool("Loads the definition of a given table")
     TableDefinition loadTableDefinition(
             @P("Schema name") String schemaName,
-            @P("Table name") String tableName);
+            @P("Table name") String tableName,
+            @P("Include detailed constraint information (may be slow to respond)") boolean detailed);
 
     @Tool("Loads the definitions of a given set of tables")
     List<TableDefinition> loadTableDefinitions(
             @P("Schema name") String schemaName,
-            @P("Table names") List<String> tableNames);
+            @P("Table names") List<String> tableNames,
+            @P("Include detailed constraint information (may be slow to respond)") boolean detailed);
 
     @Data
     @Description("Table definition")
@@ -73,7 +74,10 @@ public interface TableMetadataTool extends AssistantTool {
         private String description;
 
         @Description("Column definitions")
-        private List<ColumnDefinition> columns = new ArrayList<>();
+        private List<ColumnDefinition> columns;
+
+        @Description("Constraint definitions")
+        private List<ConstraintDefinition> constraints;
     }
 
     @Data
@@ -86,6 +90,28 @@ public interface TableMetadataTool extends AssistantTool {
         private String type;
 
         @Description("Column description")
+        private String description;
+    }
+
+    @Data
+    @Description("Constraint definition")
+    class ConstraintDefinition {
+        @Description("Constraint name")
+        private String name;
+
+        @Description("Constraint type")
+        private String type;
+
+        @Description("Constraint check condition")
+        private String checkCondition;
+
+        @Description("Constraint columns")
+        private List<String> columns;
+
+        @Description("Foreign key constraint")
+        private ConstraintDefinition foreignKeyConstraint;
+
+        @Description("Constraint description")
         private String description;
     }
 }

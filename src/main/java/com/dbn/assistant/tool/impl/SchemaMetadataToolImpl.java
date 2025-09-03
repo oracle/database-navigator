@@ -27,6 +27,6 @@ public class SchemaMetadataToolImpl extends AssistantToolBase implements SchemaM
     @Override
     public List<String> listSchemaNames(boolean includeSystemSchemas) {
         List<DBSchema> schemas = getConnection().getObjectBundle().getSchemas();
-        return getObjectNames(schemas, s -> includeSystemSchemas || !s.isSystemSchema());
+        return getObjectNames(schemas, false, s -> includeSystemSchemas || !s.isSystemSchema());
     }
 }

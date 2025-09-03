@@ -30,21 +30,25 @@ import static java.util.stream.Collectors.toList;
 
 public abstract class AssistantToolBase extends ConnectionComponent implements AssistantTool{
 
-    protected static <T extends DBObject> List<String> getObjectNames(List<T> objects, Predicate<T> filter) {
+    protected static <T extends DBObject> List<String> getObjectNames(List<T> objects, boolean qualified) {
+        return getObjectNames(objects, qualified, o -> true);
+    }
+
+    protected static <T extends DBObject> List<String> getObjectNames(List<T> objects, boolean qualified, Predicate<T> filter) {
         return objects
                 .stream()
                 .filter(filter)
-                .map(o -> o.getName())
+                .map(o -> qualified ? o.getQualifiedName() : o.getName())
                 .collect(toList());
     }
 
     @NotNull
     protected DBSchema getSchema(String schemaName) {
         DBSchema schema = getConnection().getObjectBundle().getSchema(schemaName);
-        return assertNotNull(schema, DBObjectType.SCHEMA, schemaName);
+        return ensureNotNull(schema, DBObjectType.SCHEMA, schemaName);
     }
 
-    protected <T extends DBObject> T assertNotNull(T object, DBObjectType objectType, String objectName) {
+    protected <T extends DBObject> T ensureNotNull(T object, DBObjectType objectType, String objectName) {
         if (object == null) throw new IllegalArgumentException(objectType.getCapitalizedName() + " not found: " + objectName);
         return object;
     }

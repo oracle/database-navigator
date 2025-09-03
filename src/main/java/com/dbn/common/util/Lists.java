@@ -87,7 +87,10 @@ public class Lists {
     }
 
     @NotNull
-    public static <S, T> List<T> convert(@NotNull Collection<S> list, Function<S, T> mapper) {
+    public static <S, T> List<T> convert(@Nullable Collection<S> list, Function<S, T> mapper) {
+        if (list == null) return emptyList();
+        if (list.isEmpty()) return emptyList();
+
         List<T> result = new ArrayList<>(list.size());
         for (S s : list) {
             T value = mapper.apply(s);
