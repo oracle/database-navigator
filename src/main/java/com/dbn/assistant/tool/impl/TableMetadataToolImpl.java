@@ -91,7 +91,6 @@ public class TableMetadataToolImpl extends AssistantToolBase implements TableMet
         ConstraintDefinition constraintDef = new ConstraintDefinition();
         constraintDef.setName(constraint.getQualifiedName());
         constraintDef.setType(constraint.getConstraintType().getName());
-        constraintDef.setDescription(constraint.getComments());
         constraintDef.setCheckCondition(constraint.getCheckCondition());
         constraintDef.setColumns(getObjectNames(constraint.getColumns(), true));
 

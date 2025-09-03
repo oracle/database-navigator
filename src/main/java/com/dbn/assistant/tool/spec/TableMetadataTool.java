@@ -110,8 +110,5 @@ public interface TableMetadataTool extends AssistantTool {
 
         @Description("Foreign key constraint")
         private ConstraintDefinition foreignKeyConstraint;
-
-        @Description("Constraint description")
-        private String description;
     }
 }
