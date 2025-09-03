@@ -18,7 +18,6 @@ package com.dbn.assistant.service.generic.model.invoker;
 
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.state.AssistantState;
-import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
@@ -36,14 +35,16 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
     @Override
     public void invokeModel(StreamingChatModel model, AssistantState state, String chatId, String prompt, AssistantResponseConsumer consumer) {
 
-        Object[] tools = prepareTools(state);
-        ChatMemoryProvider memory = prepareMemory(state);
+        var memory = prepareMemory(state);
+        var context = prepareContext(state);
+        var tools = prepareTools(state);
 
         StreamingChatModelAdapter adapter = AiServices.
                 builder(StreamingChatModelAdapter.class).
                 streamingChatModel(model).
+                systemMessageProvider(context).
                 chatMemoryProvider(memory).
-                tools(tools).
+                tools((Object[]) tools).
                 build();
 
         StreamingChatResponseHandler responseHandler = createResponseHandler(consumer);

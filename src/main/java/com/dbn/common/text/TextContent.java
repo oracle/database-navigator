@@ -20,6 +20,7 @@ import com.intellij.util.Function;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import lombok.Data;
+import org.jetbrains.annotations.NonNls;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -68,7 +69,7 @@ public class TextContent {
         fields.forEach((i, r) -> replaceFields(i, r));
     }
 
-    public void initField(String identifier, String replacement) {
+    public void initField(@NonNls String identifier, String replacement) {
         fields.put(identifier, replacement);
         replaceFields(identifier, replacement);
     }
@@ -122,6 +123,9 @@ public class TextContent {
 
     public static TextContent html(String text) {
         return new TextContent(text, MimeType.TEXT_HTML);
+    }
+    public static TextContent markdown(String text) {
+        return new TextContent(text, MimeType.TEXT_MARKDOWN);
     }
 
     public static TextContent xml(String text) {

@@ -17,6 +17,7 @@
 package com.dbn.assistant.tool;
 
 import com.dbn.assistant.state.AssistantState;
+import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantTool.Definition;
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.connection.ConnectionHandler;
@@ -31,10 +32,11 @@ import static com.dbn.common.action.UserDataKeys.ASSISTANT_TOOL_CACHE;
 
 @Slf4j
 @Getter
-public class AssistantToolCache /*implements ToolProvider*/ {
+public class AssistantToolCache extends AssistantStateExtension /*implements ToolProvider*/ {
     private final AssistantTool[] tools;
 
     private AssistantToolCache(@NotNull AssistantState assistantState) {
+        super(assistantState);
         this.tools = initialize(assistantState);
     }
 

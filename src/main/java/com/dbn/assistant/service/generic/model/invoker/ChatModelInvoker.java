@@ -19,7 +19,6 @@ package com.dbn.assistant.service.generic.model.invoker;
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.service.generic.model.AssistantModelType;
 import com.dbn.assistant.state.AssistantState;
-import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.service.AiServices;
 
@@ -31,14 +30,16 @@ public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
     @Override
     public void invokeModel(ChatModel model, AssistantState state, String chatId, String prompt, AssistantResponseConsumer consumer) {
         try {
-            Object[] tools = prepareTools(state);
-            ChatMemoryProvider memory = prepareMemory(state);
+            var context = prepareContext(state);
+            var memory = prepareMemory(state);
+            var tools = prepareTools(state);
 
             ChatModelAdapter adapter = AiServices.
                     builder(ChatModelAdapter.class).
                     chatModel(model).
+                    systemMessageProvider(context).
                     chatMemoryProvider(memory).
-                    tools(tools).
+                    tools((Object[]) tools).
                     build();
 
 

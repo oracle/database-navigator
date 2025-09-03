@@ -16,7 +16,8 @@
 
 package com.dbn.common.action;
 
-import com.dbn.assistant.memory.AssistantMemoryCache;
+import com.dbn.assistant.service.generic.context.AssistantContextCache;
+import com.dbn.assistant.service.generic.context.AssistantMemoryCache;
 import com.dbn.assistant.tool.AssistantToolCache;
 import com.dbn.common.data.Data;
 import com.dbn.common.notification.NotificationCategory;
@@ -62,6 +63,7 @@ public class UserDataKeys {
     public static final Key<Boolean> WRAPPER_FILE = Key.create("DBNavigator.WrapperFile");
     public static final Key<AssistantMemoryCache> ASSISTANT_MEMORY_CACHE = Key.create("DBNavigator.AssistantMemoryCache");
     public static final Key<AssistantToolCache> ASSISTANT_TOOL_CACHE = Key.create("DBNavigator.AssistantMemoryCache");
+    public static final Key<AssistantContextCache> ASSISTANT_CONTEXT_PROVIDER = Key.create("DBNavigator.AssistantContextProvider");
 
     public static final Key<MessageOutcomeHandler> MESSAGE_OUTCOME_HANDLER = Key.create("DBNavigator.MessageOutcomeHandler");
     public static final Key<Map<NotificationCategory, NotificationOutcomeHandler>> NOTIFICATION_OUTCOME_HANDLERS = Key.create("DBNavigator.NotificationOutcomeHandlers");

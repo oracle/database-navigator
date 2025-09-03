@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,21 @@
  * limitations under the License.
  */
 
-package com.dbn.common.text;
+package com.dbn.assistant.state;
 
-import com.dbn.common.constant.Constant;
-import org.jetbrains.annotations.NonNls;
+import com.dbn.common.ref.WeakRef;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-@NonNls
-public enum MimeType implements Constant<MimeType> {
-    TEXT_PLAIN("text/plain"),
-    TEXT_HTML("text/html"),
-    TEXT_XML("text/xml"),
-    TEXT_CSS("text/css"),
-    TEXT_MARKDOWN("text/markdown")
-    //...
-    ;
+public abstract class AssistantStateExtension {
+    private final WeakRef<AssistantState> assistantState;
 
-    private final String id;
-
-    MimeType(String id) {
-        this.id = id;
+    protected AssistantStateExtension(@NotNull AssistantState assistantState) {
+        this.assistantState = WeakRef.of(assistantState);
     }
 
-    @Override
-    public String id() {
-        return id;
+    @Nullable
+    protected AssistantState getAssistantState() {
+        return WeakRef.get(assistantState);
     }
 }

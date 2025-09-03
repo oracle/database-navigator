@@ -16,9 +16,22 @@
 
 package com.dbn.assistant.tool;
 
+import lombok.Getter;
+
+@Getter
 public enum AssistantToolCategory {
-    METADATA_PROVIDER,
-    SOURCECODE_PROVIDER,
-    DATA_PROVIDER,
-    ACTION_INVOKER,
+    METADATA_PROVIDER("Metadata provider", "Provides information about the database, such as schemas, tables, columns, etc."),
+    SOURCE_CODE_PROVIDER("Source code provider", "Provides source code for various database objects, such as views, functions, procedures, etc."),
+    DATA_PROVIDER("Data provider", "Delivers actual data content, such as records, rows, or query results."),
+    ACTION_INVOKER("Action invoker", "Executes operations or tasks, such as running queries, applying updates, or triggering external actions."),
+    ;
+
+    private final String description;
+    private final String name;
+
+    AssistantToolCategory(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
 }

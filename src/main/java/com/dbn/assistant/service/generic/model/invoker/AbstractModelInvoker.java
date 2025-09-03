@@ -16,7 +16,8 @@
 
 package com.dbn.assistant.service.generic.model.invoker;
 
-import com.dbn.assistant.memory.AssistantMemoryCache;
+import com.dbn.assistant.service.generic.context.AssistantContextCache;
+import com.dbn.assistant.service.generic.context.AssistantMemoryCache;
 import com.dbn.assistant.service.generic.model.AssistantModelInvoker;
 import com.dbn.assistant.service.generic.model.AssistantModelType;
 import com.dbn.assistant.state.AssistantState;
@@ -41,5 +42,9 @@ abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
 
     protected ChatMemoryProvider prepareMemory(AssistantState assistantState) {
         return AssistantMemoryCache.get(assistantState);
+    }
+
+    protected AssistantContextCache prepareContext(AssistantState assistantState) {
+        return AssistantContextCache.get(assistantState);
     }
 }

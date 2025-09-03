@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.memory;
+package com.dbn.assistant.service.generic.context;
 
 import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.state.AssistantState;
+import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.common.action.UserDataKeys;
-import com.dbn.common.ref.WeakRef;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -39,12 +38,11 @@ import static com.dbn.assistant.chat.message.AuthorType.AGENT;
 import static com.dbn.assistant.chat.message.AuthorType.USER;
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_MEMORY_CACHE;
 
-public class AssistantMemoryCache implements ChatMemoryProvider {
+public class AssistantMemoryCache extends AssistantStateExtension implements ChatMemoryProvider {
     private final Map<String, ChatMemory> entries = new ConcurrentHashMap<>();
-    private final WeakRef<AssistantState> assistantState;
 
     private AssistantMemoryCache(@NotNull AssistantState assistantState) {
-        this.assistantState = WeakRef.of(assistantState);
+        super(assistantState);
     }
 
     public ChatMemory get(String chatId) {
@@ -53,11 +51,6 @@ public class AssistantMemoryCache implements ChatMemoryProvider {
 
     public static AssistantMemoryCache get(AssistantState assistantState) {
         return UserDataKeys.getUserDataSync(assistantState, ASSISTANT_MEMORY_CACHE, () -> new AssistantMemoryCache(assistantState));
-    }
-
-    @Nullable
-    private AssistantState getAssistantState() {
-        return WeakRef.get(assistantState);
     }
 
     private ChatMemory createChatMemory(String chatId) {
