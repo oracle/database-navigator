@@ -17,9 +17,11 @@
 package com.dbn.assistant.tool;
 
 import com.dbn.common.component.ConnectionComponent;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.type.DBObjectType;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -28,7 +30,19 @@ import java.util.function.Predicate;
 import static java.util.stream.Collectors.toList;
 
 
+@Getter
 public abstract class AssistantToolBase extends ConnectionComponent implements AssistantTool{
+    private AssistantToolType type;
+    private AssistantToolCategory category;
+    private String description;
+
+    @Override
+    public void initialize(ConnectionHandler connection, AssistantToolType type, AssistantToolCategory category, String description) {
+        initialize(connection);
+        this.type = type;
+        this.category = category;
+        this.description = description;
+    }
 
     protected static <T extends DBObject> List<String> getObjectNames(List<T> objects, boolean qualified) {
         return getObjectNames(objects, qualified, o -> true);
@@ -51,5 +65,14 @@ public abstract class AssistantToolBase extends ConnectionComponent implements A
     protected <T extends DBObject> T ensureNotNull(T object, DBObjectType objectType, String objectName) {
         if (object == null) throw new IllegalArgumentException(objectType.getCapitalizedName() + " not found: " + objectName);
         return object;
+    }
+
+    @Override
+    public String toString() {
+        return "AssistantTool{" +
+                "type=" + type + ", " +
+                "category=" + category + ", " +
+                "description='" + description + '\'' +
+                '}';
     }
 }

@@ -18,6 +18,7 @@ package com.dbn.assistant.service.generic.context;
 
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
+import com.dbn.assistant.tool.AssistantToolCache;
 import com.dbn.assistant.tool.AssistantToolCategory;
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.text.TextContent;
@@ -59,6 +60,7 @@ public class AssistantContextCache extends AssistantStateExtension implements Fu
         String content = TextResources.get(this, "system_message.md.ft");
         TextContent textContent = TextContent.markdown(content);
         textContent.initField("ASSISTANT_TOOL_CATEGORIES", getToolCategories());
+        textContent.initField("ASSISTANT_TOOL_TYPES", getToolTypes());
         textContent.initField("DATABASE_TYPE", connection.getDatabaseType().getName());
         textContent.initField("DATABASE_NAME", connection.getName());
 
@@ -69,7 +71,17 @@ public class AssistantContextCache extends AssistantStateExtension implements Fu
     public static String getToolCategories() {
         return Arrays
                 .stream(AssistantToolCategory.values())
-                .map(c -> " * " + c.getName() + ": " + c.getDescription())
+                .map(c -> " * " + c.name() + ": " + c.getDescription())
+                .collect(Collectors.joining("\n"));
+    }
+
+    private String getToolTypes() {
+        AssistantState assistantState = getAssistantState();
+        AssistantToolCache toolCache = AssistantToolCache.get(assistantState);
+
+        return Arrays
+                .stream(toolCache.getTools())
+                .map(t -> " * " + t.getType() + ": " + t.getDescription())
                 .collect(Collectors.joining("\n"));
     }
 }

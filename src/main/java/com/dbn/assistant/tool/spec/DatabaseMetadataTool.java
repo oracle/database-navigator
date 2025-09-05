@@ -17,30 +17,37 @@
 package com.dbn.assistant.tool.spec;
 
 import com.dbn.assistant.tool.AssistantTool;
-import com.dbn.assistant.tool.AssistantTool.Definition;
 import com.dbn.assistant.tool.AssistantToolFactoryBase;
+import com.dbn.assistant.tool.AssistantToolInfo.Definition;
 import com.dbn.assistant.tool.impl.DatabaseMetadataToolImpl;
 import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.model.output.structured.Description;
 import lombok.Data;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.METADATA_PROVIDER;
+import static com.dbn.assistant.tool.AssistantToolInfo.FactoryDefinition;
 
-@Description("Provides information about the database type, name and version")
-@Definition(type = "DATABASE_METADATA", category = METADATA_PROVIDER, impl = DatabaseMetadataToolImpl.class)
+@Definition(
+    type = "DATABASE_METADATA",
+    category = METADATA_PROVIDER,
+    description = "Provides information about the database type, name and version")
 public interface DatabaseMetadataTool extends AssistantTool {
 
-    class Factory extends AssistantToolFactoryBase<DatabaseMetadataTool> {
-        public Factory() {
-            super(DatabaseMetadataTool.class);
-        }
-    }
+    @FactoryDefinition(
+            spec = DatabaseMetadataTool.class,
+            impl = DatabaseMetadataToolImpl.class)
+    class Factory extends AssistantToolFactoryBase<DatabaseMetadataTool> {}
 
     /*********************************************
      *                 TOOLS                     *
      *********************************************/
 
-    @Tool("Loads database information")
+    @Tool(
+        name = "LOAD_DATABASE_INFORMATION",
+        value = {
+                "type=DATABASE_METADATA",
+                "category=METADATA_PROVIDER",
+                "Loads database information"})
     DatabaseInformation loadDatabaseInformation();
 
     @Data

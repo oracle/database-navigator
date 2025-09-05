@@ -18,7 +18,6 @@ package com.dbn.assistant.tool;
 
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
-import com.dbn.assistant.tool.AssistantTool.Definition;
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.connection.ConnectionHandler;
 import lombok.Getter;
@@ -49,11 +48,11 @@ public class AssistantToolCache extends AssistantStateExtension /*implements Too
                 AssistantTool tool = factory.createTool(connection);
                 tools.add(tool);
             } catch (Throwable e) {
-                Definition definition = factory.getDefinition();
-                log.error("Failed to create {} assistant tool of type {} ({})",
-                        definition.category(),
-                        definition.type(),
-                        definition.impl(),
+                log.error("Failed to create {} assistant tool of type {} (spec={} impl={})",
+                        factory.getToolCategory(),
+                        factory.getToolType(),
+                        factory.getToolSpecification(),
+                        factory.getToolImplementation(),
                         e);
             }
         }

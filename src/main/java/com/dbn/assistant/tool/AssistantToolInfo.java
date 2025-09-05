@@ -16,21 +16,27 @@
 
 package com.dbn.assistant.tool;
 
-import com.dbn.connection.ConnectionHandler;
-import com.intellij.openapi.extensions.ExtensionPointName;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface AssistantToolFactory<T extends AssistantTool> {
-    ExtensionPointName<AssistantToolFactory> EP = ExtensionPointName.create("com.dbn.assistantToolFactory");
+public interface AssistantToolInfo {
 
-    Class<T> getToolSpecification();
+    @Target({ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface Definition {
+        String type();
 
-    Class<T> getToolImplementation();
+        AssistantToolCategory category();
 
-    AssistantToolType getToolType();
+        String description();
+    }
 
-    AssistantToolCategory getToolCategory();
-
-    String getToolDescription();
-
-    T createTool(ConnectionHandler connection);
+    @Target({ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface FactoryDefinition {
+        Class<? extends AssistantTool> spec();
+        Class<? extends AssistantToolBase> impl();
+    }
 }

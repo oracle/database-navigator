@@ -17,8 +17,8 @@
 package com.dbn.assistant.tool.spec;
 
 import com.dbn.assistant.tool.AssistantTool;
-import com.dbn.assistant.tool.AssistantTool.Definition;
 import com.dbn.assistant.tool.AssistantToolFactoryBase;
+import com.dbn.assistant.tool.AssistantToolInfo.Definition;
 import com.dbn.assistant.tool.impl.TableMetadataToolImpl;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
@@ -28,41 +28,66 @@ import lombok.Data;
 import java.util.List;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.METADATA_PROVIDER;
+import static com.dbn.assistant.tool.AssistantToolInfo.FactoryDefinition;
 
-@Description("Provides information about the tables in a given database schema")
-@Definition(type = "TABLE_METADATA", category = METADATA_PROVIDER, impl = TableMetadataToolImpl.class)
+@Definition(
+    type = "TABLE_METADATA",
+    category = METADATA_PROVIDER,
+    description = "Provides information about the tables in a given database schema")
 public interface TableMetadataTool extends AssistantTool {
 
-    class Factory extends AssistantToolFactoryBase<TableMetadataTool> {
-        public Factory() {
-            super(TableMetadataTool.class);
-        }
-    }
+    @FactoryDefinition(
+        spec = TableMetadataTool.class,
+        impl = TableMetadataToolImpl.class)
+    class Factory extends AssistantToolFactoryBase<TableMetadataTool> {}
 
     /*********************************************
      *                 TOOLS                     *
      *********************************************/
 
-    @Tool("Lists table names in a given schema")
+    @Tool(
+        name = "LIST_TABLE_NAMES",
+        value = {
+            "type=TABLE_METADATA",
+            "category=METADATA_PROVIDER",
+            "Lists table names in a given schema"})
     List<String> listTableNames(
             @P("Schema name") String schemaName,
             @P("Include temporary tables") boolean includeTemporaryTables);
 
-    @Tool("Lists temporary table names in a given schema")
+
+    @Tool(
+        name = "LIST_TEMPORARY_TABLE_NAMES",
+        value = {
+                "type=TABLE_METADATA",
+                "category=METADATA_PROVIDER",
+                "Lists temporary table names in a given schema"})
     List<String> listTemporaryTableNames(
             @P("Schema name") String schemaName);
 
-    @Tool("Loads the definition of a given table")
+
+    @Tool(
+        name = "LOAD_TABLE_DEFINITION",
+        value = {
+                "type=TABLE_METADATA",
+                "category=METADATA_PROVIDER",
+                "Loads the definition of a given table"})
     TableDefinition loadTableDefinition(
             @P("Schema name") String schemaName,
             @P("Table name") String tableName,
             @P("Include detailed constraint information (may be slow to respond)") boolean detailed);
 
-    @Tool("Loads the definitions of a given set of tables")
+    @Tool(
+        name = "LOAD_TABLE_DEFINITIONS",
+        value = {
+                "type=TABLE_METADATA",
+                "category=METADATA_PROVIDER",
+                "Loads the definitions of a given set of tables"})
     List<TableDefinition> loadTableDefinitions(
             @P("Schema name") String schemaName,
             @P("Table names") List<String> tableNames,
             @P("Include detailed constraint information (may be slow to respond)") boolean detailed);
+
 
     @Data
     @Description("Table definition")

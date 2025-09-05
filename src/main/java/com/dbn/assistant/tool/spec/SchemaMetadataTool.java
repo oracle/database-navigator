@@ -17,31 +17,37 @@
 package com.dbn.assistant.tool.spec;
 
 import com.dbn.assistant.tool.AssistantTool;
-import com.dbn.assistant.tool.AssistantTool.Definition;
 import com.dbn.assistant.tool.AssistantToolFactoryBase;
+import com.dbn.assistant.tool.AssistantToolInfo.Definition;
 import com.dbn.assistant.tool.impl.SchemaMetadataToolImpl;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
-import dev.langchain4j.model.output.structured.Description;
 
 import java.util.List;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.METADATA_PROVIDER;
+import static com.dbn.assistant.tool.AssistantToolInfo.FactoryDefinition;
 
-@Description("Provides information about the database schemas and catalogs")
-@Definition(type = "SCHEMA_METADATA", category = METADATA_PROVIDER, impl = SchemaMetadataToolImpl.class)
+@Definition(
+    type = "SCHEMA_METADATA",
+    category = METADATA_PROVIDER,
+    description = "Provides information about the database schemas and catalogs")
 public interface SchemaMetadataTool extends AssistantTool {
 
-    class Factory extends AssistantToolFactoryBase<SchemaMetadataTool> {
-        public Factory() {
-            super(SchemaMetadataTool.class);
-        }
-    }
+    @FactoryDefinition(
+        spec = SchemaMetadataTool.class,
+        impl = SchemaMetadataToolImpl.class)
+    class Factory extends AssistantToolFactoryBase<SchemaMetadataTool> {}
 
     /*********************************************
      *                 TOOLS                     *
      *********************************************/
 
-    @Tool("Lists database schema names")
+    @Tool(
+        name = "LIST_SCHEMA_NAMES",
+        value = {
+                "type=SCHEMA_METADATA",
+                "category=METADATA_PROVIDER",
+                "Lists database schema names"})
     List<String> listSchemaNames(@P("Include system schemas") boolean includeSystemSchemas);
 }
