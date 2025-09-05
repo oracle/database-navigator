@@ -18,6 +18,7 @@ package com.dbn.assistant.http;
 
 import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.util.Classes;
+import com.intellij.util.Consumer;
 import com.intellij.util.net.HttpConnectionUtils;
 import dev.langchain4j.http.client.HttpClient;
 import dev.langchain4j.http.client.HttpClientBuilder;
@@ -84,25 +85,25 @@ class AssistantHttpClientBuilder implements HttpClientBuilder {
 
                     int responseCode = connection.getResponseCode();
                     SuccessfulHttpResponse response = SuccessfulHttpResponse.builder().statusCode(responseCode).build();
-                    listener.onOpen(response);
+                    wrapped(listener, l -> l.onOpen(response));
 
                     parser.parse(connection.getInputStream(), listener);
 
-                    wrapped(() -> listener.onClose());
+                    wrapped(listener, l -> l.onClose());
                 } catch (Exception e) {
-                    wrapped(() -> listener.onError(e));
+                    wrapped(listener, l -> l.onError(e));
                 }
             }
         };
     }
 
     @Workaround
-    private void wrapped(Runnable runnable) {
+    private <T> void wrapped(T target, Consumer<T> runnable) {
         // the internal jackson initialization favors ide class loader,
         // causing it to initialize on old jackson libraries provided by intellij
         // (these are incompatible with the current version of langchain4j)
         Classes.withClassLoader(this, () -> {
-            runnable.run();
+            runnable.consume(target);
             return null;
         });
     }
