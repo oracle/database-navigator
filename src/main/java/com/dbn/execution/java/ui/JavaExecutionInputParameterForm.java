@@ -204,13 +204,12 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 
         if (fieldForms.isEmpty()) {
 			JavaExecutionInput executionInput = getParentForm().getExecutionInput();
-			String parameterName = parameter.getName();
 			if (userValueHolder != null) {
 				String value = userValueHolder.getUserValue();
-				executionInput.setInputValue(parameterName, value);
+				executionInput.setInputValue(parameter, value);
 			} else {
 				String value = Commons.nullIfEmpty(inputTextField == null ? null : inputTextField.getText());
-				executionInput.setInputValue(parameterName, value);
+				executionInput.setInputValue(parameter, value);
 			}
 		} else {
 			fieldForms.forEach(f -> f.updateExecutionInput());
