@@ -28,9 +28,9 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.assistant.provider.AIProviders.GOOGLE;
 
-public class GoogleModelFactory extends AbstractModelFactory {
+public class GoogleAiGeminiModelFactory extends AbstractModelFactory {
 
-    public GoogleModelFactory() {
+    public GoogleAiGeminiModelFactory() {
         super(GOOGLE);
     }
 
