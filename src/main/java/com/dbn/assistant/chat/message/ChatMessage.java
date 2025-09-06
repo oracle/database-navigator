@@ -35,10 +35,12 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.longAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -49,6 +51,7 @@ import static com.dbn.common.options.setting.Settings.setLongAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.options.setting.Settings.writeCdata;
+import static com.dbn.common.util.Lists.first;
 import static com.dbn.common.util.Lists.removeLast;
 
 @Getter
@@ -68,6 +71,7 @@ public class ChatMessage implements PersistentStateElement {
     private long timestamp = System.currentTimeMillis();
 
     private List<ChatMessageSection> sections;
+    private List<ChatMessageToolSection> toolSections = new ArrayList<>();
 
     private transient boolean progress;
 
@@ -173,6 +177,18 @@ public class ChatMessage implements PersistentStateElement {
         return TimeUtil.isOlderThan(timestamp, duration, unit);
     }
 
+    public void appendToolRequest(String requestId, String toolName, String toolArguments) {
+        ChatMessageToolSection toolSection = new ChatMessageToolSection(content.length(), requestId, toolName, toolArguments);
+        toolSections.add(toolSection);
+    }
+
+    public void appendToolResponse(String requestId, String toolResponse) {
+        ChatMessageToolSection toolSection = first(toolSections, s -> s.getRequestId().equals(requestId));
+        if (toolSection == null) return;
+
+        toolSection.setToolResponse(toolResponse);
+    }
+
     @Override
     public void readState(Element element) {
         id = stringAttribute(element, "id");
@@ -187,6 +203,15 @@ public class ChatMessage implements PersistentStateElement {
         Element contextElement = element.getChild("context");
         context = new ChatContextImpl();
         context.readState(contextElement);
+
+        Element toolsElement = element.getChild("tools");
+        List<Element> toolElements = childrenOf(toolsElement);
+        for (Element toolElement : toolElements) {
+            ChatMessageToolSection toolSection = new ChatMessageToolSection();
+            toolSection.readState(toolElement);
+            toolSections.add(toolSection);
+        }
+
     }
 
     @Override
@@ -202,5 +227,13 @@ public class ChatMessage implements PersistentStateElement {
 
         Element contextElement = newElement(element,"context");
         context.writeState(contextElement);
+
+        if (!toolSections.isEmpty()) {
+            Element toolsElement = newElement(element,"tools");
+            for (ChatMessageToolSection toolSection : toolSections) {
+                Element toolElement = newElement(toolsElement, "tool");
+                toolSection.writeState(toolElement);
+            }
+        }
     }
 }

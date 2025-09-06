@@ -23,4 +23,14 @@ public interface SelectAiResponseConsumer extends AssistantResponseConsumer {
     default void acceptToken(String token) {
         // toke streams are not supported by select-ai backend
     }
+
+    @Override
+    default void acceptToolRequest(String requestId, String toolName, String toolArguments) {
+        // tools not supported by select-ai backend
+    }
+
+    @Override
+    default void acceptToolResponse(String requestId, String toolResponse) {
+        // tools not supported by select-ai backend
+    }
 }

@@ -82,7 +82,7 @@ public interface TableMetadataTool extends AssistantTool {
         value = {
                 "type=TABLE_METADATA",
                 "category=METADATA_PROVIDER",
-                "Loads the definitions of a given set of tables"})
+                "Loads the definitions of a given set of tables (optimized version of LOAD_TABLE_DEFINITION for bulk queries)"})
     List<TableDefinition> loadTableDefinitions(
             @P("Schema name") String schemaName,
             @P("Table names") List<String> tableNames,

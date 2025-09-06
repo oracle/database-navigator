@@ -18,16 +18,11 @@ package com.dbn.assistant.service.generic.model.invoker;
 
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.state.AssistantState;
+import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.model.chat.StreamingChatModel;
-import dev.langchain4j.model.chat.response.ChatResponse;
-import dev.langchain4j.model.chat.response.CompleteToolCall;
-import dev.langchain4j.model.chat.response.PartialThinking;
-import dev.langchain4j.model.chat.response.PartialToolCall;
-import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
 import dev.langchain4j.service.AiServiceTokenStream;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.TokenStream;
-import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.assistant.service.generic.model.AssistantModelType.STREAMING_CHAT;
 
@@ -51,63 +46,43 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
                 tools((Object[]) tools).
                 build();
 
-        StreamingChatResponseHandler responseHandler = createResponseHandler(consumer);
         TokenStream tokenStream = adapter.chat(chatId, prompt);
+        initTokenStream(tokenStream, consumer);
+    }
 
+    private static void initTokenStream(TokenStream tokenStream, AssistantResponseConsumer consumer) {
         if (tokenStream instanceof AiServiceTokenStream) {
             AiServiceTokenStream aiTokenStream = (AiServiceTokenStream) tokenStream;
             aiTokenStream.beforeToolExecution(e -> {
-                System.out.println(); // TODO tool interceptor
+                ToolExecutionRequest request = e.request();
+                consumer.acceptToolRequest(
+                        request.id(),
+                        request.name(),
+                        request.arguments());
             });
+
             aiTokenStream.onToolExecuted(e -> {
-                System.out.println(); // TODO tool interceptor
+                ToolExecutionRequest request = e.request();
+                consumer.acceptToolResponse(
+                        request.id(),
+                        e.result());
             });
+
+            aiTokenStream.onPartialResponse(t -> {
+                consumer.acceptToken(t);
+            });
+
+            aiTokenStream.onCompleteResponse(r -> {
+                consumer.acceptMessage(r.aiMessage().text());
+                consumer.acceptCompletion();
+            });
+
+            aiTokenStream.onError((e) -> {
+                consumer.acceptError(e);
+                consumer.acceptCompletion();
+            });
+
+            tokenStream.start();
         }
-
-        startTokenStream(tokenStream, responseHandler);
-    }
-
-    private static void startTokenStream(TokenStream tokenStream, StreamingChatResponseHandler responseHandler) {
-        tokenStream.
-            onPartialResponse(responseHandler::onPartialResponse).
-            onCompleteResponse(responseHandler::onCompleteResponse).
-            onError(responseHandler::onError).
-            start();
-    }
-
-    private static @NotNull StreamingChatResponseHandler createResponseHandler(AssistantResponseConsumer consumer) {
-        return new StreamingChatResponseHandler() {
-            @Override
-            public void onPartialResponse(String s) {
-                consumer.acceptToken(s);
-            }
-
-            @Override
-            public void onCompleteResponse(ChatResponse response) {
-                consumer.acceptMessage(response.aiMessage().text());
-                consumer.acceptCompletion();
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                consumer.acceptError(throwable);
-                consumer.acceptCompletion();
-            }
-
-            @Override
-            public void onPartialToolCall(PartialToolCall partialToolCall) {
-                System.out.println(); // TODO tool interceptor
-            }
-
-            @Override
-            public void onCompleteToolCall(CompleteToolCall completeToolCall) {
-                System.out.println(); // TODO tool interceptor
-            }
-
-            @Override
-            public void onPartialThinking(PartialThinking partialThinking) {
-                System.out.println(); // TODO tool interceptor
-            }
-        };
     }
 }

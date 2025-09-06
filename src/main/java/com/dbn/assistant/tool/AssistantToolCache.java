@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_TOOL_CACHE;
@@ -33,10 +34,30 @@ import static com.dbn.common.action.UserDataKeys.ASSISTANT_TOOL_CACHE;
 @Getter
 public class AssistantToolCache extends AssistantStateExtension /*implements ToolProvider*/ {
     private final AssistantTool[] tools;
+    private final AssistantToolType[] types;
+    private final AssistantToolCategory[] categories;
 
     private AssistantToolCache(@NotNull AssistantState assistantState) {
         super(assistantState);
-        this.tools = initialize(assistantState);
+        tools = initialize(assistantState);
+        types = initToolTypes(tools);
+        categories = initToolCategories(tools);
+    }
+
+    private AssistantToolCategory[] initToolCategories(AssistantTool[] tools) {
+        return Arrays
+                .stream(tools)
+                .map(t -> t.getCategory())
+                .distinct()
+                .toArray(l -> new AssistantToolCategory[l]);
+    }
+
+    private AssistantToolType[] initToolTypes(AssistantTool[] tools) {
+        return Arrays
+                .stream(tools)
+                .map(t -> t.getType())
+                .distinct()
+                .toArray(l -> new AssistantToolType[l]);
     }
 
     private static AssistantTool[] initialize(AssistantState assistantState) {

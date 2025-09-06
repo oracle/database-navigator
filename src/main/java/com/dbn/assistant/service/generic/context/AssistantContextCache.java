@@ -18,6 +18,7 @@ package com.dbn.assistant.service.generic.context;
 
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
+import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolCache;
 import com.dbn.assistant.tool.AssistantToolCategory;
 import com.dbn.common.action.UserDataKeys;
@@ -68,20 +69,24 @@ public class AssistantContextCache extends AssistantStateExtension implements Fu
     }
 
 
-    public static String getToolCategories() {
+    public String getToolCategories() {
+        AssistantToolCategory[] categories = getToolCache().getCategories();
         return Arrays
-                .stream(AssistantToolCategory.values())
+                .stream(categories)
                 .map(c -> " * " + c.name() + ": " + c.getDescription())
                 .collect(Collectors.joining("\n"));
     }
 
     private String getToolTypes() {
-        AssistantState assistantState = getAssistantState();
-        AssistantToolCache toolCache = AssistantToolCache.get(assistantState);
-
+        AssistantTool[] tools = getToolCache().getTools();
         return Arrays
-                .stream(toolCache.getTools())
+                .stream(tools)
                 .map(t -> " * " + t.getType() + ": " + t.getDescription())
                 .collect(Collectors.joining("\n"));
+    }
+
+    private AssistantToolCache getToolCache() {
+        AssistantState assistantState = getAssistantState();
+        return AssistantToolCache.get(assistantState);
     }
 }

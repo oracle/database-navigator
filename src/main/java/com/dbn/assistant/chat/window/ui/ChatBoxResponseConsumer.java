@@ -101,4 +101,34 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         AssistantState assistantState = chatBoxForm.getAssistantState();
         assistantState.set(QUERYING, false);
     }
+
+    @Override
+    public void acceptToolRequest(String requestId, String toolName, String toolArguments) {
+        Chat chat = getChat();
+        ChatMessage lastMessage = chat.getLastMessage();
+        if (lastMessage == null) return;
+
+        AuthorType author = lastMessage.getAuthor();
+        if (author == USER) {
+            // agent responded directly with a tool request
+            lastMessage = new ChatMessage(NEUTRAL, "", AGENT, chatContext);
+            lastMessage.appendToolRequest(requestId, toolName, toolArguments);
+            chatBoxForm.appendMessage(chatId, lastMessage);
+        } else if (author == AGENT) {
+            lastMessage.appendToolRequest(requestId, toolName, toolArguments);
+            chatBoxForm.refreshMessage(lastMessage);
+        }
+    }
+
+    @Override
+    public void acceptToolResponse(String requestId, String toolResponse) {
+        Chat chat = getChat();
+        ChatMessage lastMessage = chat.getLastMessage();
+        if (lastMessage == null) return;
+
+        if (lastMessage.getAuthor() == AGENT) {
+            lastMessage.appendToolResponse(requestId, toolResponse);
+            chatBoxForm.refreshMessage(lastMessage);
+        }
+    }
 }
