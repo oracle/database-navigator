@@ -18,6 +18,7 @@ package com.dbn.execution.java.wrapper;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.info.ConnectionInfo;
+import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.common.DBObject;
@@ -39,6 +40,8 @@ public class WrapperModelInput {
     private final boolean useFriendlyNames;
     private final boolean compileInDebugMode;
     private final int maxIdentifierLength;
+    @Getter
+    private JavaExecutionInput javaExecutionInput;
 
     public WrapperModelInput(@NotNull DBJavaMethod targetMethod, boolean useFriendlyNames, boolean compileInDebugMode) {
         this.sourceObject = DBObjectRef.of(targetMethod);
@@ -48,6 +51,17 @@ public class WrapperModelInput {
         this.useFriendlyNames = useFriendlyNames;
         this.compileInDebugMode = compileInDebugMode;
         this.maxIdentifierLength = initMaxIdentifierLength();
+    }
+
+    public WrapperModelInput(@NotNull DBJavaMethod targetMethod, JavaExecutionInput javaExecutionInput, boolean useFriendlyNames, boolean compileInDebugMode) {
+        this.sourceObject = DBObjectRef.of(targetMethod);
+
+        this.javaClass = DBObjectRef.of(targetMethod.getOwnerClass());
+        this.javaMethods = DBObjectRef.from(List.of(targetMethod));
+        this.useFriendlyNames = useFriendlyNames;
+        this.compileInDebugMode = compileInDebugMode;
+        this.maxIdentifierLength = initMaxIdentifierLength();
+        this.javaExecutionInput = javaExecutionInput;
     }
 
     public WrapperModelInput(@Nullable DBJavaClass javaClass, List<DBJavaMethod> methods, boolean useFriendlyNames, boolean compileInDebugMode) {

@@ -41,6 +41,7 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.util.ui.tree.TreeUtil;
+import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,8 +74,9 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
         super(executionResult);
         List<ExecutionValue> fieldValues = getInputValues();
         List<ExecutionValue> outputValues = executionResult.getFieldValues();
+        Map<Integer, String> codeInitializedParameters = getJavaInitializedParameters();
 
-        argumentValuesTree = new ArgumentValuesTree(this, fieldValues, outputValues);
+        argumentValuesTree = new ArgumentValuesTree(this, fieldValues, codeInitializedParameters, outputValues);
         argumentValuesScrollPane.setViewportView(argumentValuesTree);
 
 
@@ -94,6 +96,10 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
         return new ArrayList<>(getExecutionResult().getExecutionInput().getInputValues().values());
     }
 
+    private Map<Integer, String> getJavaInitializedParameters() {
+        return getExecutionResult().getExecutionInput().getJavaInitializedParameters();
+    }
+
     public DBJavaMethod getMethod() {
         JavaExecutionResult executionResult = getExecutionResult();
         return executionResult.getMethod();
@@ -111,9 +117,11 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
         JavaExecutionResult executionResult = getExecutionResult();
         List<ExecutionValue> inputFieldValues = getInputValues();
         List<ExecutionValue> outputFieldValues = executionResult.getFieldValues();
+        Map<Integer, String> codeInitializedParameters = getJavaInitializedParameters();
 
         DBJavaMethod method = executionResult.getMethod();
-        ArgumentValuesTreeModel treeModel = new ArgumentValuesTreeModel(method, inputFieldValues, outputFieldValues);
+        ArgumentValuesTreeModel treeModel = new ArgumentValuesTreeModel(method, inputFieldValues,
+                codeInitializedParameters, outputFieldValues);
         argumentValuesTree.setModel(treeModel);
         TreeUtil.expand(argumentValuesTree, 2);
     }

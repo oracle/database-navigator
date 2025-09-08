@@ -89,9 +89,12 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		StringBuilder methodCallPrepare = new StringBuilder();
 
 		for (DBJavaParameter argument : arguments) {
+			if(executionInput.isJavaInitialized(argument))
+				continue;
 			methodCallPrepare.append("?");
 
-			boolean isLast = arguments.indexOf(argument) == arguments.size() - 1;
+			boolean isLast = arguments.indexOf(argument)
+					== arguments.size()-executionInput.getJavaInitializedParameters().size() - 1;
 			if (!isLast) {
 				methodCallPrepare.append(", ");
 			}
@@ -137,6 +140,9 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		int parameterIndex = 1;
 		MethodWrapper methodWrapper = wrapperModel.getMethods().get(0);
 		for (DBJavaParameter parameter : getArguments()) {
+
+			if(executionInput.isJavaInitialized(parameter))
+				continue;
 
 			String parameterName = parameter.getName();
 			if (parameter.isArray()) {
@@ -185,9 +191,9 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
     }
 
 	@Override
-	public void loadValues(JavaExecutionResult executionResult, DBNPreparedStatement<?> preparedStatement) throws SQLException {
+	public void loadValues(JavaExecutionInput executionInput, JavaExecutionResult executionResult, DBNPreparedStatement<?> preparedStatement) throws SQLException {
 		if (preparedStatement instanceof CallableStatement) {
-			int outputIndex = getArgumentsCount() + 1;
+			int outputIndex = getArgumentsCount(executionInput) + 1;
 			CallableStatement callableStatement = (CallableStatement) preparedStatement;
 			Object result = getResult(callableStatement, outputIndex);
 			executionResult.addArgumentValue("return", result);

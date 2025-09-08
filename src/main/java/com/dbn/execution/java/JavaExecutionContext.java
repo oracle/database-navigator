@@ -58,7 +58,7 @@ public class JavaExecutionContext extends ExecutionContext<JavaExecutionInput> {
 
         // use technical names during anonymous execution
         WrapperModelBuilder modelBuilder = WrapperModelBuilder.getInstance();
-        WrapperModelInput wrapperModelInput = new WrapperModelInput(getMethod(), false, true);
+        WrapperModelInput wrapperModelInput = new WrapperModelInput(getMethod(), getInput(), false, true);
 
         wrapperModel = modelBuilder.buildModel(wrapperModelInput);
         wrapperModel.setSignature(signature);

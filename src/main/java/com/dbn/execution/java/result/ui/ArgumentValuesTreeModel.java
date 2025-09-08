@@ -22,6 +22,9 @@ import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import lombok.Getter;
 
 import javax.swing.event.TreeModelListener;
@@ -30,18 +33,22 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.util.List;
 
+import static com.dbn.execution.java.ui.JavaExecutionInputUtil.getOriginalParameterName;
+import static com.dbn.execution.java.ui.JavaExecutionInputUtil.isCodeInput;
 import static com.dbn.object.type.DBJavaScalarType.isScalar;
 
 @Getter
 public class ArgumentValuesTreeModel implements TreeModel {
     private final ArgumentValuesTreeNode root;
 
-    ArgumentValuesTreeModel(DBJavaMethod method, List<ExecutionValue> inputValues, List<ExecutionValue> outputValues) {
+    ArgumentValuesTreeModel(DBJavaMethod method, List<ExecutionValue> inputValues,
+                            Map<Integer,String> codeInitializedParameters,
+                            List<ExecutionValue> outputValues) {
         root = new ArgumentValuesTreeNode(null, null, method.ref(), null);
         ArgumentValuesTreeNode inputNode = new ArgumentValuesTreeNode(root, "Input", null, null);
         ArgumentValuesTreeNode outputNode = new ArgumentValuesTreeNode(root, "Output", null, null);
 
-        createArgumentValueNodes(method, inputNode, inputValues);
+        createArgumentValueNodes(method, inputNode, inputValues, codeInitializedParameters);
         createOutputValuesNodes(method, outputNode, outputValues);
     }
 
@@ -84,19 +91,42 @@ public class ArgumentValuesTreeModel implements TreeModel {
         }
     }
 
-    private static void createArgumentValueNodes(DBJavaMethod method, ArgumentValuesTreeNode parentNode, List<ExecutionValue> inputValues) {
+    private static void createArgumentValueNodes(DBJavaMethod method,
+                                                 ArgumentValuesTreeNode parentNode,
+                                                 List<ExecutionValue> inputValues,
+                                                 Map<Integer,String> codeInitializedParameters) {
+        Set<String> processedParameter  = new HashSet<>();
         for (ExecutionValue fieldValue : inputValues) {
+            boolean codeInput = false;
             String[] tokens = fieldValue.getPath().split("\\.");
-            DBJavaParameter parameter = method.getParameter(tokens[0]);
+            String parameterName = tokens[0];
+            if(processedParameter.contains(parameterName)){
+                continue;
+            }
+            if(isCodeInput(parameterName)) {
+                parameterName = getOriginalParameterName(parameterName);
+                DBJavaParameter parameter = method.getParameter(parameterName);
+                if(parameter == null) continue;
+                if(codeInitializedParameters.containsKey((int)parameter.getPosition())){
+                    processedParameter.add(parameterName);
+                    codeInput = true;
+                } else {
+                    continue;
+                }
+            }
+            DBJavaParameter parameter = method.getParameter(parameterName);
+            if(parameter == null) continue;
 
             ArgumentValuesTreeNode argumentNode = parentNode.initChild(parameter);
             DBJavaClass argumentClass = parameter.getJavaClass();
 
-            for (int i = 1; i < tokens.length; i++) {
-                if (argumentClass == null) break;
-                DBJavaField field = getField(argumentClass, tokens[i]);
-                argumentNode = argumentNode.initChild(field);
-                argumentClass = field.getJavaClass();
+            if(!codeInput) {
+                for (int i = 1; i < tokens.length; i++) {
+                    if (argumentClass == null) break;
+                    DBJavaField field = getField(argumentClass, tokens[i]);
+                    argumentNode = argumentNode.initChild(field);
+                    argumentClass = field.getJavaClass();
+                }
             }
             argumentNode.setValue(fieldValue);
         }

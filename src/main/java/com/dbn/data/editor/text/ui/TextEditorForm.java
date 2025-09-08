@@ -30,9 +30,11 @@ import com.dbn.data.editor.ui.DataEditorComponent;
 import com.dbn.data.editor.ui.UserValueHolder;
 import com.dbn.data.type.GenericDataType;
 import com.dbn.data.value.LargeObjectValue;
+import com.dbn.editor.code.content.GuardedBlockType;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguageFileType;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.event.DocumentListener;
@@ -54,6 +56,7 @@ import java.awt.BorderLayout;
 import java.sql.SQLException;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.GuardedBlocks.createGuardedBlock;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
@@ -141,6 +144,9 @@ public class TextEditorForm extends DBNFormBase {
             DBLanguageFileType dbFileType = (DBLanguageFileType) fileType;
             DBLanguage language = (DBLanguage) dbFileType.getLanguage();
             Editors.initEditorHighlighter(editor, language, (ConnectionHandler) null);
+        }
+        if (this.userValueHolder.getObjectType() == DBObjectType.JAVA_PARAMETER) {
+            createGuardedBlock(document, GuardedBlockType.READONLY_DOCUMENT_SECTION, 0,document.getTextLength() - 1, null);
         }
 
         int scrollOffset = 0;

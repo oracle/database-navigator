@@ -23,6 +23,27 @@ import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 @UtilityClass
 public class JavaExecutionInputUtil {
 
+    public final static String PARAMETER_SUFFIX_FOR_CODE_DISPLAY = "#code";
+    public enum UiSuitability {
+        UI_PREFERRED,
+        UI_NOT_PREFERRED,
+        UI_NOT_SUPPORTED
+    }
+    private final static int PREFERRED_MAXIMUM_DEPTH = 6;
+
+    public static UiSuitability classifyForUi(DBJavaParameter parameter) {
+        if(!parameter.isSupported())
+            return UiSuitability.UI_NOT_SUPPORTED;
+        int nestedFieldCount = parameter.getDisplayRowCount();
+        if(nestedFieldCount == -1) {
+            return UiSuitability.UI_NOT_SUPPORTED;
+        }
+        else if(nestedFieldCount > PREFERRED_MAXIMUM_DEPTH) {
+            return UiSuitability.UI_NOT_PREFERRED;
+        }
+        return UiSuitability.UI_PREFERRED;
+    }
+
     public static void setupSingleDimArrayEditor(TextFieldWithPopup<?> inputField, DBJavaField javaField) {
         setupSingleDimArrayEditor(
                 javaField,
@@ -74,5 +95,24 @@ public class JavaExecutionInputUtil {
             argumentType = Class.forName(argumentTypeName);
         }
         return argumentType;
+    }
+
+    public static String getParameterCodeName(String parameterName) {
+        if(parameterName != null)
+            return parameterName+PARAMETER_SUFFIX_FOR_CODE_DISPLAY;
+        return null;
+    }
+
+    public static boolean isCodeInput(String parameterName) {
+        if(parameterName != null)
+            return parameterName.endsWith(PARAMETER_SUFFIX_FOR_CODE_DISPLAY);
+        return false;
+    }
+
+    public static String getOriginalParameterName(String parameterCodeName) {
+        if(isCodeInput(parameterCodeName))
+            return parameterCodeName.substring(0,
+                    parameterCodeName.length()-PARAMETER_SUFFIX_FOR_CODE_DISPLAY.length());
+        return parameterCodeName;
     }
 }

@@ -78,7 +78,17 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 	}
 
 	protected int getArgumentsCount() {
-		return getArguments().size();
+		return getArgumentsCount(null);
+	}
+
+	protected  int getArgumentsCount(JavaExecutionInput input) {
+		int skippedParameter = 0;
+		if(input != null) {
+			if(input.getJavaInitializedParameters() != null) {
+				skippedParameter = input.getJavaInitializedParameters().size();
+			}
+		}
+		return getArguments().size() - skippedParameter;
 	}
 
 	protected String getReturnArgument() {
@@ -145,7 +155,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		initLogging(context);
 		initTimeout(context);
 		initParameters(context);
-		if (isQuery()) {
+		if (isQuery(context.getInput())) {
 			boolean hasReturnType = isReturnType();
 			execute(context, hasReturnType);
 		} else {
@@ -191,7 +201,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		JavaExecutionInput executionInput = context.getInput();
 		String command = buildExecutionCommand(executionInput, wrapperModel);
 		DBNConnection conn = context.getConnection();
-		DBNPreparedStatement<?> statement = !isQuery() ?
+		DBNPreparedStatement<?> statement = !isQuery(context.getInput()) ?
 				conn.prepareStatement(command) :
 				conn.prepareCall(command);
 
@@ -217,7 +227,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 	}
 
 	private void initParameters(JavaExecutionContext context) {
-		if (!isQuery()) return;
+		if (!isQuery(context.getInput())) return;
 
 		WrapperModel wrapperModel = context.getWrapperModel();
 		JavaExecutionInput executionInput = context.getInput();
@@ -273,7 +283,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		JavaExecutionResult executionResult = executionInput.getExecutionResult();
 		if (executionResult != null) {
 			if(catchResult)
-				loadValues(executionResult, statement);
+				loadValues(executionInput, executionResult, statement);
 			executionResult.calculateExecDuration();
 
 			if (context.isLogging()) {
@@ -291,7 +301,11 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 	}
 
 	protected boolean isQuery() {
-		return getArgumentsCount() > 0 || isReturnType();
+		return isQuery(null);
+	}
+
+	protected boolean isQuery(JavaExecutionInput executionInput) {
+		return getArgumentsCount(executionInput) > 0 || isReturnType();
 	}
 
 	private boolean isReturnType(){
@@ -302,7 +316,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 	}
 
-	public void loadValues(JavaExecutionResult executionResult, DBNPreparedStatement<?> preparedStatement) throws SQLException {
+	public void loadValues(JavaExecutionInput executionInput, JavaExecutionResult executionResult, DBNPreparedStatement<?> preparedStatement) throws SQLException {
 
 	}
 

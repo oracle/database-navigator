@@ -47,6 +47,7 @@ import static com.dbn.common.util.Java.isPrimitive;
 @Slf4j
 public final class WrapperStatementBuilder {
     private final ProjectRef project;
+    private final String javaInitializedArgPrefix = "custom";
 
     public WrapperStatementBuilder(@NotNull Project project) {
         this.project = ProjectRef.of(project);
@@ -508,10 +509,14 @@ public final class WrapperStatementBuilder {
 
     public String getSqlParameters(MethodWrapper method) {
         List<ParameterWrapper> parameters = method.getParameters();
-        if (parameters.isEmpty()) return "";
-
+        // Filter out injected parameters
+        List<ParameterWrapper> filtered =
+                parameters.stream()
+                        .filter(e -> !e.isJavaInjection())
+                        .collect(Collectors.toList());
+        if (filtered.isEmpty()) return "";
         AtomicInteger idx = new AtomicInteger(0);
-        return "(" + parameters
+        return "(" + filtered
                 .stream()
                 .map(e -> "arg_" + idx.getAndIncrement() + " " + e.getSqlTypeName())
                 .collect(Collectors.joining(", ")) + ")";
@@ -521,6 +526,7 @@ public final class WrapperStatementBuilder {
         AtomicInteger idx = new AtomicInteger(0);
         return "(" + method.getParameters()
                 .stream()
+                .filter(e -> !e.isJavaInjection())
                 .map(e -> {
                             String javaTypeName = e.getJavaTypeName();
                             return (
@@ -541,6 +547,9 @@ public final class WrapperStatementBuilder {
         return IntStream.range(0, params.size())            // i = 0 … n-1
                 .mapToObj(i -> {
                     ParameterWrapper p = params.get(i);
+                    if(p.isJavaInjection()) {
+                        return " " + getJavaInitializedArgumentName(i);
+                    }
                     StringBuilder name = new StringBuilder("arg").append(i);
 
                     if (p.isArray() || p.isComplexType()) {
@@ -564,7 +573,11 @@ public final class WrapperStatementBuilder {
         for (int i = 0; i < methodAttributes.size(); i++) {
             ParameterWrapper methodAttribute = methodAttributes.get(i);
             String javaTypeName = methodAttribute.getJavaTypeName();
-            if (methodAttribute.isArray() || methodAttribute.isComplexType()) {
+            if(methodAttribute.isJavaInjection()) {
+                statements.append(methodAttribute.getJavaInitializationCode());
+                statements.append(System.lineSeparator());
+            }
+            else if (methodAttribute.isArray() || methodAttribute.isComplexType()) {
                 // Build the type string with array dimensions if applicable.
                 StringBuilder typeBuilder = new StringBuilder(javaTypeName);
                 if (methodAttribute.isArray())
@@ -676,6 +689,10 @@ public final class WrapperStatementBuilder {
         }
         return  "java.lang.Character retChar = " + returnCaller + ";\n"
                 + "return (retChar == null) ? null : String.valueOf(retChar);";
+    }
+
+    public String getJavaInitializedArgumentName(int index) {
+        return javaInitializedArgPrefix + "arg" + index;
     }
 
     private String generateCode(@NonNls String templateName, Properties properties) {

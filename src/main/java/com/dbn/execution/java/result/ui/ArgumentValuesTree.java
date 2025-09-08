@@ -29,11 +29,13 @@ import javax.swing.tree.TreePath;
 import java.awt.Color;
 import java.sql.ResultSet;
 import java.util.List;
+import java.util.Map;
 
 class ArgumentValuesTree extends DBNTree{
 
-    ArgumentValuesTree(JavaExecutionResultForm parent, List<ExecutionValue> inputValues, List<ExecutionValue> outputValues) {
-        super(parent, createModel(parent, inputValues, outputValues));
+    ArgumentValuesTree(JavaExecutionResultForm parent, List<ExecutionValue> inputValues,
+                       Map<Integer, String> codeInitializedParameters, List<ExecutionValue> outputValues) {
+        super(parent, createModel(parent, inputValues,codeInitializedParameters, outputValues));
         setCellRenderer(new ArgumentValuesTreeRenderer());
         Color bgColor = TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.PLAIN_DATA).getBgColor();
         setBackground(bgColor == null ? Colors.getTableBackground() : bgColor);
@@ -48,8 +50,11 @@ class ArgumentValuesTree extends DBNTree{
     }
 
     @NotNull
-    private static ArgumentValuesTreeModel createModel(JavaExecutionResultForm parentForm, List<ExecutionValue> inputValues, List<ExecutionValue> outputValues) {
-        return new ArgumentValuesTreeModel(parentForm.getMethod(), inputValues, outputValues);
+    private static ArgumentValuesTreeModel createModel(JavaExecutionResultForm parentForm,
+                                                       List<ExecutionValue> inputValues,
+                                                       Map<Integer, String> codeInitializedParameters,
+                                                       List<ExecutionValue> outputValues) {
+        return new ArgumentValuesTreeModel(parentForm.getMethod(), inputValues, codeInitializedParameters, outputValues);
     }
 
     private TreeSelectionListener createTreeSelectionListener() {

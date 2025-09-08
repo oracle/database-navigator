@@ -17,6 +17,7 @@
 package com.dbn.execution.java.wrapper;
 
 import com.dbn.common.util.Lists;
+import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.wrapper.model.ClassWrapper;
 import com.dbn.execution.java.wrapper.model.ClassWrapper.ArgumentDirection;
 import com.dbn.execution.java.wrapper.model.FieldWrapper;
@@ -130,11 +131,24 @@ public final class WrapperModelBuilder {
 		for (DBJavaParameter parameter : parameters) {
 			var javaClass = parameter.getJavaClassRef();
 			int arrayDepth = parameter.getArrayDepth();
+
+			boolean isJavaInitialized = false;
+			String javaInitializationCode = null;
+			JavaExecutionInput executionInput = context.getInput().getJavaExecutionInput();
+			if(context.getInput().getJavaExecutionInput() !=null) {
+				isJavaInitialized = executionInput.isJavaInitialized(parameter);
+				if(isJavaInitialized) {
+					javaInitializationCode = executionInput.getJavaInitializedCode(parameter.getPosition());
+				}
+			}
+
 			ParameterWrapper parameterWrapper = createParameterWrapper(
-                    context,
-                    javaClass,
-                    arrayDepth,
-                    IN);
+                    	context,
+                    	javaClass,
+                    	arrayDepth,
+						isJavaInitialized,
+						javaInitializationCode,
+						IN);
 
 			methodWrapper.addParameter(parameterWrapper);
 		}
@@ -153,6 +167,8 @@ public final class WrapperModelBuilder {
                 context,
                 javaClass,
                 arrayDepth,
+				false,
+				null,
                 OUT);
 
 		methodWrapper.setReturnParameter(parameterWrapper);
@@ -166,6 +182,8 @@ public final class WrapperModelBuilder {
             WrapperContext context,
 			DBObjectRef<DBJavaClass> javaClass,
 			int arrayDepth,
+			boolean isJavaInjection,
+			String javaInitializationCode,
 			ArgumentDirection direction) {
 
 		String className = getCanonicalName(javaClass);
@@ -173,6 +191,10 @@ public final class WrapperModelBuilder {
 
 		if (arrayDepth == 0 && isSupportedType(className)) {
 			return createSimpleParameterWrapper(context, className);
+		}
+
+		if(isJavaInjection) {
+			return createSimpleParameterWrapperForJavaInjection(context, javaInitializationCode, className, arrayDepth);
 		}
 
 		// Otherwise, build or retrieve a JavaComplexType
@@ -205,6 +227,23 @@ public final class WrapperModelBuilder {
 		String sqlTypeName = TypeMappings.getSqlTypeName(javaClassName);
 		methodAttribute.setSqlTypeName(sqlTypeName);
 		methodAttribute.setComplexType(false);
+		return methodAttribute;
+	}
+
+	/**
+	 * Builds a simple (non-complex) method attribute with a known SQL type mapping.
+	 */
+	private ParameterWrapper createSimpleParameterWrapperForJavaInjection(WrapperContext context,
+																		  String javaInitializationCode,
+																		  String javaClassName,
+																		  int ArrayDepth) {
+		WrapperModel model = context.getModel();
+		ParameterWrapper methodAttribute = new ParameterWrapper(model);
+		methodAttribute.setJavaTypeName(javaClassName);
+		methodAttribute.setArrayDepth(ArrayDepth);
+		methodAttribute.setComplexType(false);
+		methodAttribute.setJavaInjection(true);
+		methodAttribute.setJavaInitializationCode(javaInitializationCode);
 		return methodAttribute;
 	}
 

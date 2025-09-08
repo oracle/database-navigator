@@ -62,6 +62,25 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
     private transient JavaExecutionResult executionResult;
     private final Map<String, ExecutionValue<String>> inputValues = new LinkedHashMap<>();
     private Map<String, ExecutionVariable> executionVariables = new LinkedHashMap<>();
+    private Map<Integer, String> javaInitializedParameters = new HashMap<>();
+
+    public void addJavaInitializedCode(short position, String code) {
+        javaInitializedParameters.put((int)position, code);
+    }
+
+    public void removeJavaInitializedCode(short position) {
+        javaInitializedParameters.remove((int)position);
+    }
+
+    public boolean isJavaInitialized(DBJavaParameter parameter) {
+        short position = parameter.getPosition();
+        return javaInitializedParameters.containsKey((int)position);
+    }
+
+    public String getJavaInitializedCode(int position) {
+        return javaInitializedParameters.get(position);
+    }
+
 
     public JavaExecutionInput(Project project) {
         super(project, ExecutionTarget.JAVA);
