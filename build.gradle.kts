@@ -91,7 +91,7 @@ dependencies {
 
   implementation("com.fasterxml.jackson.core:jackson-core:2.20.0")
   implementation("com.fasterxml.jackson.core:jackson-databind:2.20.0")
-  implementation("com.fasterxml.jackson.core:jackson-annotations:2.20.0")
+  implementation("com.fasterxml.jackson.core:jackson-annotations:2.20")
   implementation("com.fasterxml.jackson.module:jackson-modules-base:2.20.0")
   implementation("com.fasterxml.jackson.module:jackson-modules-java8:2.20.0")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.20.0")
