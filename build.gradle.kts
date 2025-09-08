@@ -75,26 +75,26 @@ dependencies {
   implementation("org.apache.maven:maven-resolver-provider:3.9.9")
 
   // db assistant
-  implementation("dev.langchain4j:langchain4j:1.3.0")
-  implementation("dev.langchain4j:langchain4j-core:1.3.0")
-  implementation("dev.langchain4j:langchain4j-http-client:1.3.0")
-  implementation("dev.langchain4j:langchain4j-mcp:1.3.0-beta9")
+  implementation("dev.langchain4j:langchain4j:1.4.0")
+  implementation("dev.langchain4j:langchain4j-core:1.4.0")
+  implementation("dev.langchain4j:langchain4j-http-client:1.4.0")
+  implementation("dev.langchain4j:langchain4j-mcp:1.4.0-beta10")
 
-  implementation("dev.langchain4j:langchain4j-open-ai:1.3.0")
-  implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.3.0")
-  implementation("dev.langchain4j:langchain4j-anthropic:1.3.0")
-  implementation("dev.langchain4j:langchain4j-cohere:1.3.0-beta9")
-  implementation("dev.langchain4j:langchain4j-hugging-face:1.3.0-beta9")
-  implementation("dev.langchain4j:langchain4j-ollama:1.3.0")
-  implementation("dev.langchain4j:langchain4j-bedrock:1.3.0")
-  implementation("dev.langchain4j:langchain4j-mistral-ai:1.3.0")
+  implementation("dev.langchain4j:langchain4j-open-ai:1.4.0")
+  implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.4.0")
+  implementation("dev.langchain4j:langchain4j-anthropic:1.4.0")
+  implementation("dev.langchain4j:langchain4j-cohere:1.4.0-beta10")
+  implementation("dev.langchain4j:langchain4j-hugging-face:1.4.0-beta10")
+  implementation("dev.langchain4j:langchain4j-ollama:1.4.0")
+  implementation("dev.langchain4j:langchain4j-bedrock:1.4.0")
+  implementation("dev.langchain4j:langchain4j-mistral-ai:1.4.0")
 
-  implementation("com.fasterxml.jackson.core:jackson-core:2.19.2")
-  implementation("com.fasterxml.jackson.core:jackson-databind:2.19.2")
-  implementation("com.fasterxml.jackson.core:jackson-annotations:2.19.2")
-  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.2")
-  implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.19.2")
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.19.2")
+  implementation("com.fasterxml.jackson.core:jackson-core:2.20.0")
+  implementation("com.fasterxml.jackson.core:jackson-databind:2.20.0")
+  implementation("com.fasterxml.jackson.core:jackson-annotations:2.20.0")
+  implementation("com.fasterxml.jackson.module:jackson-modules-base:2.20.0")
+  implementation("com.fasterxml.jackson.module:jackson-modules-java8:2.20.0")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.20.0")
 
   implementation(project(":modules:dbn-api"))
   implementation(project(":modules:dbn-spi"))
@@ -132,7 +132,7 @@ sourceSets{
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-  version.set("2024.3.3")
+  version.set("2025.1.1")
   type.set("IC") // Target IDE Platform
   updateSinceUntilBuild.set(false)
 
