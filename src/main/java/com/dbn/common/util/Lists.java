@@ -112,6 +112,20 @@ public class Lists {
         return null;
     }
 
+    @Nullable
+    public static <T> T last(@Nullable List<T> list, Predicate<? super T> predicate) {
+        if (list == null) return null;
+        if (list.isEmpty()) return null;
+
+        for (int i = list.size() - 1; i >= 0; i--) {
+            T element = list.get(i);
+            if (predicate.test(element)) {
+                return element;
+            }
+        }
+        return null;
+    }
+
     public static <T> boolean anyMatch(@Nullable Collection<T> list, Predicate<? super T> predicate) {
         return first(list, predicate) != null;
     }

@@ -78,6 +78,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
     public void acceptMessage(String message) {
         // ignore if token-stream is supported
         if (tokenized) return;
+        if (message == null) return;
 
         ChatMessage agentMessage = new ChatMessage(NEUTRAL, message, AGENT, chatContext);
         chatBoxForm.appendMessage(chatId, agentMessage);
@@ -105,6 +106,8 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
     @Override
     public void acceptToolRequest(String requestId, String toolName, String toolArguments) {
         Chat chat = getChat();
+        if (chat == null) return; // chat discarded
+
         ChatMessage lastMessage = chat.getLastMessage();
         if (lastMessage == null) return;
 
@@ -121,13 +124,15 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
     }
 
     @Override
-    public void acceptToolResponse(String requestId, String toolResponse) {
+    public void acceptToolResponse(String requestId, String toolName, String toolResponse) {
         Chat chat = getChat();
+        if (chat == null) return; // chat discarded
+
         ChatMessage lastMessage = chat.getLastMessage();
         if (lastMessage == null) return;
 
         if (lastMessage.getAuthor() == AGENT) {
-            lastMessage.appendToolResponse(requestId, toolResponse);
+            lastMessage.appendToolResponse(requestId, toolName, toolResponse);
             chatBoxForm.refreshTools(lastMessage);
         }
     }

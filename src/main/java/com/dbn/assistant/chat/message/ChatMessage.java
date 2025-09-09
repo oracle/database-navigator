@@ -38,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -55,6 +56,7 @@ import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.options.setting.Settings.writeCdata;
 import static com.dbn.common.util.Lists.first;
+import static com.dbn.common.util.Lists.last;
 import static com.dbn.common.util.Lists.lastElement;
 import static com.dbn.common.util.Lists.removeLast;
 
@@ -215,12 +217,18 @@ public class ChatMessage implements PersistentStateElement {
         toolSections.add(toolSection);
     }
 
-    public void appendToolResponse(String requestId, String toolResponse) {
-        ChatMessageToolSection toolSection = first(toolSections, s -> s.getRequestId().equals(requestId));
+    public void appendToolResponse(String requestId, String toolName, String toolResponse) {
+        ChatMessageToolSection toolSection = findToolSection(requestId, toolName);
         if (toolSection == null) return;
 
         toolSection.setToolResponse(toolResponse);
         toolSection.setToolStatus(COMPLETED);
+    }
+
+    private ChatMessageToolSection findToolSection(String requestId, String toolName) {
+        return requestId == null ? // unsigned requests
+                last(toolSections, s -> Objects.equals(s.getToolName(), toolName)) :
+                first(toolSections, s -> Objects.equals(s.getRequestId(), requestId));
     }
 
     @Override

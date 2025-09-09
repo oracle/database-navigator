@@ -30,7 +30,7 @@ public interface SelectAiResponseConsumer extends AssistantResponseConsumer {
     }
 
     @Override
-    default void acceptToolResponse(String requestId, String toolResponse) {
+    default void acceptToolResponse(String requestId, String toolName, String toolResponse) {
         // tools not supported by select-ai backend
     }
 }

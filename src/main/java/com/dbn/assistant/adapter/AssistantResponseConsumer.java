@@ -21,6 +21,6 @@ public interface AssistantResponseConsumer {
     void acceptMessage(String message);
     void acceptError(Throwable exception);
     void acceptToolRequest(String requestId, String toolName, String toolArguments);
-    void acceptToolResponse(String requestId, String toolResponse);
+    void acceptToolResponse(String requestId, String toolName, String toolResponse);
     void acceptCompletion();
 }
