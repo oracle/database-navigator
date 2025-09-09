@@ -17,7 +17,6 @@
 package com.dbn.execution.java.wrapper;
 
 import com.dbn.common.util.Lists;
-import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.wrapper.model.ClassWrapper;
 import com.dbn.execution.java.wrapper.model.ClassWrapper.ArgumentDirection;
 import com.dbn.execution.java.wrapper.model.FieldWrapper;
@@ -29,6 +28,7 @@ import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
@@ -132,22 +132,18 @@ public final class WrapperModelBuilder {
 			var javaClass = parameter.getJavaClassRef();
 			int arrayDepth = parameter.getArrayDepth();
 
-			boolean isJavaInitialized = false;
-			String javaInitializationCode = null;
-			JavaExecutionInput executionInput = context.getInput().getJavaExecutionInput();
-			if(context.getInput().getJavaExecutionInput() !=null) {
-				isJavaInitialized = executionInput.isJavaInitialized(parameter);
-				if(isJavaInitialized) {
-					javaInitializationCode = executionInput.getJavaInitializedCode(parameter.getPosition());
-				}
+			boolean isJavaInjected = !parameter.isSupported();
+
+			if(isJavaInjected){
+				context.getModel().setFullyCompatible(false);
+				context.getModel().getCompatibilityIssues().add(parameter.getUnsupportedReason());
 			}
 
 			ParameterWrapper parameterWrapper = createParameterWrapper(
                     	context,
                     	javaClass,
                     	arrayDepth,
-						isJavaInitialized,
-						javaInitializationCode,
+						isJavaInjected,
 						IN);
 
 			methodWrapper.addParameter(parameterWrapper);
@@ -163,12 +159,20 @@ public final class WrapperModelBuilder {
 
 		var javaClass = javaMethod.getReturnClassRef();
 		int arrayDepth = javaMethod.getReturnArrayDepth();
+		DBJavaClass returnClass = Objects.requireNonNull(javaClass.get());
+		boolean isIncompatible = !(returnClass.isReturnSupported((short)arrayDepth));
+		if(isIncompatible){
+			context.getModel().setFullyCompatible(false);
+			context.getModel().
+					getCompatibilityIssues().
+					add(returnClass.getReturnUnsupportedReason((short)arrayDepth));
+		}
+
 		ParameterWrapper parameterWrapper = createParameterWrapper(
                 context,
                 javaClass,
                 arrayDepth,
-				false,
-				null,
+				isIncompatible,
                 OUT);
 
 		methodWrapper.setReturnParameter(parameterWrapper);
@@ -182,8 +186,7 @@ public final class WrapperModelBuilder {
             WrapperContext context,
 			DBObjectRef<DBJavaClass> javaClass,
 			int arrayDepth,
-			boolean isJavaInjection,
-			String javaInitializationCode,
+			boolean isJavaInjected,
 			ArgumentDirection direction) {
 
 		String className = getCanonicalName(javaClass);
@@ -193,8 +196,8 @@ public final class WrapperModelBuilder {
 			return createSimpleParameterWrapper(context, className);
 		}
 
-		if(isJavaInjection) {
-			return createSimpleParameterWrapperForJavaInjection(context, javaInitializationCode, className, arrayDepth);
+		if(isJavaInjected) {
+			return createSimpleParameterWrapperForJavaInjection(context, className, arrayDepth, direction);
 		}
 
 		// Otherwise, build or retrieve a JavaComplexType
@@ -234,16 +237,18 @@ public final class WrapperModelBuilder {
 	 * Builds a simple (non-complex) method attribute with a known SQL type mapping.
 	 */
 	private ParameterWrapper createSimpleParameterWrapperForJavaInjection(WrapperContext context,
-																		  String javaInitializationCode,
 																		  String javaClassName,
-																		  int ArrayDepth) {
+																		  int ArrayDepth,
+																		  ArgumentDirection direction) {
 		WrapperModel model = context.getModel();
 		ParameterWrapper methodAttribute = new ParameterWrapper(model);
 		methodAttribute.setJavaTypeName(javaClassName);
+		if(direction == ArgumentDirection.OUT) {
+			methodAttribute.setSqlTypeName(TypeMappings.getSqlTypeName("java.lang.String"));
+		}
 		methodAttribute.setArrayDepth(ArrayDepth);
 		methodAttribute.setComplexType(false);
 		methodAttribute.setJavaInjection(true);
-		methodAttribute.setJavaInitializationCode(javaInitializationCode);
 		return methodAttribute;
 	}
 

@@ -27,6 +27,7 @@ import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.editor.DBContentType;
 import com.dbn.execution.java.wrapper.TypeMappings;
+import com.dbn.execution.java.wrapper.WrapperModel;
 import com.dbn.nls.NlsResources;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
@@ -587,6 +588,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 				});
 
 		resetAllSupportChecks();
+		WrapperModel.markAllAsStale();
 	}
 
 	private static void resetAllSupportChecks(){

@@ -33,6 +33,8 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
+import java.util.Collections;
+import java.util.WeakHashMap;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -56,6 +58,19 @@ public class WrapperModel implements DatabaseContextBase {
 	private List<MethodWrapper> methods = new ArrayList<>();
     private List<ClassWrapper> classes = new ArrayList<>();
     private String signature;
+    private boolean isStale = false;
+    private boolean isFullyCompatible = true;
+    private List<String> compatibilityIssues = new ArrayList<>();
+
+    private static final Set<WrapperModel> INSTANCES
+            = Collections.newSetFromMap(new WeakHashMap<>());
+
+    public static void markAllAsStale() {
+        for (WrapperModel wrapperModel : INSTANCES) {
+            wrapperModel.isStale = true;
+            INSTANCES.remove(wrapperModel);
+        }
+    }
 
     public WrapperModel(WrapperContext context) {
         this.context = context;
@@ -69,6 +84,7 @@ public class WrapperModel implements DatabaseContextBase {
             initWrapperNames(javaMethod);
 
         }
+        INSTANCES.add(this);
     }
 
 	private void initWrapperNames(DBObject sourceObject) {

@@ -32,8 +32,6 @@ public class ParameterWrapper extends EntityWrapper {
     private int arrayDepth = 0;
     private boolean sqlConversionPossible;
     private boolean isJavaInjection = false;
-    @Setter
-    private String javaInitializationCode;
 
     public ParameterWrapper(WrapperModel model) {
         super(model);
@@ -41,25 +39,6 @@ public class ParameterWrapper extends EntityWrapper {
 
     public boolean isArray() {
         return arrayDepth > 0;
-    }
-
-    public String getJavaInitializationCode()
-    {
-        if(javaInitializationCode!=null)
-            return javaInitializationCode;
-
-        if(isJavaInjection)
-        {
-            return getJavaTypeDeclaration() + " = null;";
-        }
-        return null;
-    }
-    public String getJavaTypeDeclaration()
-    {
-        StringBuilder typeBuilder = new StringBuilder(javaTypeName);
-        if (isArray())
-            typeBuilder.append("[]".repeat(Math.max(0, arrayDepth)));
-        return typeBuilder.toString();
     }
 
     public String getSqlDeclarationSuffix() {
