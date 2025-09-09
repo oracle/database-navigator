@@ -118,9 +118,9 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 			if(!methodCallPrepare.toString().isEmpty()) {
 				buffer.append("(")
 					.append(methodCallPrepare)
-					.append(");");
+					.append(")");
 			}
-			buffer.append("\n");
+			buffer.append(";\n");
 		} else {
 			buffer.append("output_arg :=")
 					.append(wrapperName)

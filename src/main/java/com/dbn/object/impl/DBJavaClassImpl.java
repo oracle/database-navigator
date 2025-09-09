@@ -88,12 +88,12 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	private static final Set<DBJavaClassImpl> INSTANCES_CHECKED_FOR_SUPPORT
 			= Collections.newSetFromMap(new WeakHashMap<>());
 
-	private boolean argumentSupportChecked;
+	private volatile boolean argumentSupportChecked;
 	private boolean argumentSupported;
 	private int argumentDisplayRowCount;
 	private String argumentUnsupportedReason;
 
-	private boolean returnSupportChecked;
+	private volatile boolean returnSupportChecked;
 	private boolean returnSupported;
 	private int returnDisplayRowCount;
 	private String returnUnsupportedReason;
