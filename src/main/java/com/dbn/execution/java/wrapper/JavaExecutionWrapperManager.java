@@ -80,7 +80,11 @@ public class JavaExecutionWrapperManager extends ProjectComponentBase implements
                     progress.setText2("Building execution wrapper model");
                     WrapperModelBuilder builder = WrapperModelBuilder.getInstance();
                     WrapperModel model = builder.buildModel(modelInput);
-                    verifyAndCreateExecutionWrappers(model);
+                    if(model.isFullyCompatible()) {
+                        verifyAndCreateExecutionWrappers(model);
+                    } else {
+                        Messages.showErrorDialog(getProject(), "Wrapper Creation Error", String.join("\n", model.getCompatibilityIssues()));
+                    }
                 });
     }
 
