@@ -25,7 +25,7 @@ public interface AssistantToolInfo {
 
     @Target({ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
-    @interface Definition {
+    @interface ToolDefinition {
         String type();
 
         AssistantToolCategory category();
@@ -38,5 +38,11 @@ public interface AssistantToolInfo {
     @interface FactoryDefinition {
         Class<? extends AssistantTool> spec();
         Class<? extends AssistantToolBase> impl();
+    }
+
+    @Target({ElementType.METHOD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface UtilityDefinition {
+        String name();
     }
 }

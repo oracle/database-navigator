@@ -18,9 +18,12 @@ package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.ChatMessageSection;
+import com.dbn.assistant.chat.message.ChatMessageSectionType;
+import com.dbn.assistant.chat.message.ChatMessageToolSection;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.ui.Layouts;
+import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
 
 import javax.swing.JComponent;
@@ -31,6 +34,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.assistant.chat.message.ChatMessageParser.convertMarkdownToHtml;
+import static com.dbn.assistant.chat.message.ChatMessageSectionType.CODE;
+import static com.dbn.assistant.chat.message.ChatMessageSectionType.TEXT;
+import static com.dbn.assistant.chat.message.ChatMessageSectionType.TOOL;
+import static com.dbn.common.util.Lists.filter;
+import static com.dbn.common.util.Unsafe.cast;
 
 /**
  * Message for implementation for AI agent responses.
@@ -85,8 +93,13 @@ public class AgentChatMessageForm extends ChatMessageForm {
         ChatMessage message = getMessage();
         Layouts.verticalBoxLayout(sectionsPanel);
         for (ChatMessageSection section : message.getSections()) {
+            int toolOffset = section.getContentStartOffset();
+            createToolSectionForms(toolOffset);
             createSectionForm(section);
         }
+
+        int toolOffset = message.getContent().length();
+        createToolSectionForms(toolOffset);
     }
 
     private void createSectionForm(ChatMessageSection section) {
@@ -121,10 +134,30 @@ public class AgentChatMessageForm extends ChatMessageForm {
         hasCodeContents = true; // mark as having code contents if successfully created one
     }
 
+    private void createToolSectionForms(int offset) {
+        List<ChatMessageToolSection> toolSections = getMessage().getToolSections();
+        for (ChatMessageToolSection toolSection : toolSections) {
+            if (toolSection.getOffset() == offset) {
+                createToolSectionForm(toolSection);
+            }
+        }
+    }
+
+    private void createToolSectionForm(ChatMessageToolSection toolSection) {
+        ChatMessagesForm parent = ensureParentComponent();
+        ChatBoxForm chatBoxForm = parent.ensureParentComponent();
+        ConnectionHandler connection = chatBoxForm.getConnection();
+
+        ChatMessageSectionToolForm toolSectionForm = new ChatMessageSectionToolForm(parent, connection, toolSection);
+        sectionForms.add(toolSectionForm);
+        sectionsPanel.add(toolSectionForm.getComponent());
+    }
+
     @Override
-    public void refreshContent() {
+    public void refreshMessageContent() {
         ChatMessage message = getMessage();
         List<ChatMessageSection> sections = new ArrayList<>(message.getSections());
+        List<ChatMessageSectionForm> sectionForms = getSectionForms(CODE, TEXT);
         for (int i = 0; i < sections.size(); i++) {
             ChatMessageSection section = sections.get(i);
             if (i < sectionForms.size()) {
@@ -134,6 +167,26 @@ public class AgentChatMessageForm extends ChatMessageForm {
                 createSectionForm(section);
             }
         }
+    }
+
+    @Override
+    public void refreshToolContent() {
+        ChatMessage message = getMessage();
+        List<ChatMessageToolSection> sections = new ArrayList<>(message.getToolSections());
+        List<ChatMessageSectionToolForm> sectionForms = getSectionForms(TOOL);
+        for (int i = 0; i < sections.size(); i++) {
+            ChatMessageToolSection section = sections.get(i);
+            if (i < sectionForms.size()) {
+                ChatMessageSectionToolForm sectionForm = sectionForms.get(i);
+                sectionForm.updateToolContent(section);
+            } else {
+                createToolSectionForm(section);
+            }
+        }
+    }
+
+    private <T extends ChatMessageSectionForm> List<T> getSectionForms(ChatMessageSectionType ... types) {
+        return cast(filter(this.sectionForms, f -> Commons.isOneOf(f.getSectionType(), types)));
     }
 
     @Override

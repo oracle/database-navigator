@@ -116,7 +116,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
             chatBoxForm.appendMessage(chatId, lastMessage);
         } else if (author == AGENT) {
             lastMessage.appendToolRequest(requestId, toolName, toolArguments);
-            chatBoxForm.refreshMessage(lastMessage);
+            chatBoxForm.refreshTools(lastMessage);
         }
     }
 
@@ -128,7 +128,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
         if (lastMessage.getAuthor() == AGENT) {
             lastMessage.appendToolResponse(requestId, toolResponse);
-            chatBoxForm.refreshMessage(lastMessage);
+            chatBoxForm.refreshTools(lastMessage);
         }
     }
 }

@@ -23,28 +23,40 @@ import com.dbn.common.exception.Exceptions;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
+import dev.langchain4j.agent.tool.Tool;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ConcurrentHashMap;
 
-import static com.dbn.assistant.tool.event.AssistantToolEventType.CANCELLED;
-import static com.dbn.assistant.tool.event.AssistantToolEventType.COMPLETED;
-import static com.dbn.assistant.tool.event.AssistantToolEventType.FAILED;
-import static com.dbn.assistant.tool.event.AssistantToolEventType.REQUESTED;
+import static com.dbn.assistant.tool.event.AssistantToolStatus.CANCELLED;
+import static com.dbn.assistant.tool.event.AssistantToolStatus.COMPLETED;
+import static com.dbn.assistant.tool.event.AssistantToolStatus.FAILED;
+import static com.dbn.assistant.tool.event.AssistantToolStatus.REQUESTED;
 
 public class AssistantToolInvocationHandler<T extends AssistantTool> extends ConnectionComponent implements InvocationHandler {
     private final T tool;
+    private static final Map<Method, Boolean> toolMethodCache = new ConcurrentHashMap<>();
 
     public AssistantToolInvocationHandler(@NotNull ConnectionHandler connection, T tool) {
         super(connection);
         this.tool = tool;
     }
 
+    private static boolean isToolMethod(Method method) {
+        return toolMethodCache.computeIfAbsent(method, m -> m.getAnnotation(Tool.class) != null);
+    }
+
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        if (!isToolMethod(method)) {
+            return invokeMethod(method, args);
+        }
+
         ConnectionHandler connection = getConnection();
         Project project = connection.getProject();
         try {
@@ -71,8 +83,8 @@ public class AssistantToolInvocationHandler<T extends AssistantTool> extends Con
         }
     }
 
-    private static <T extends AssistantTool> void notifyEvent(Project project, AssistantToolEventType type, T tool, Method method, Throwable exception) {
-        AssistantToolEvent event = type.createEvent(tool, method);
+    private static <T extends AssistantTool> void notifyEvent(Project project, AssistantToolStatus status, T tool, Method method, Throwable exception) {
+        AssistantToolEvent event = status.createEvent(tool, method);
         event.setException(exception);
         ProjectEvents.notify(project, AssistantToolListener.TOPIC, l -> l.processEvent(event));
     }

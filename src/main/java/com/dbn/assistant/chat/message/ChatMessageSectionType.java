@@ -14,20 +14,10 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.tool.event;
+package com.dbn.assistant.chat.message;
 
-import com.dbn.assistant.tool.AssistantTool;
-
-import java.lang.reflect.Method;
-
-public enum AssistantToolEventType {
-    REQUESTED,
-    CANCELLED,
-    COMPLETED,
-    FAILED;
-
-    public AssistantToolEvent createEvent(AssistantTool tool, Method method) {
-        return new AssistantToolEvent(this, tool, method);
-    }
-
+public enum ChatMessageSectionType {
+    TEXT,
+    CODE,
+    TOOL;
 }

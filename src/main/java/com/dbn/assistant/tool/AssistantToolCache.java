@@ -18,12 +18,16 @@ package com.dbn.assistant.tool;
 
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
+import com.dbn.assistant.tool.AssistantToolInfo.UtilityDefinition;
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.connection.ConnectionHandler;
+import dev.langchain4j.agent.tool.Tool;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -83,6 +87,48 @@ public class AssistantToolCache extends AssistantStateExtension /*implements Too
 
     public static AssistantToolCache get(AssistantState assistantState) {
         return UserDataKeys.getUserDataSync(assistantState, ASSISTANT_TOOL_CACHE, () -> new AssistantToolCache(assistantState));
+    }
+
+    private static Class getSpecification(AssistantTool tool) {
+        Class<?>[] interfaces = tool.getClass().getInterfaces();
+        for (Class<?> spec : interfaces) {
+            if (AssistantTool.class.isAssignableFrom(spec)) return spec;
+        }
+
+        throw new IllegalArgumentException("Class " + tool.getClass().getName() + " does not implement " + AssistantTool.class.getName());
+    }
+
+    @Nullable
+    public AssistantTool getAssistantTool(String utilityName) {
+        for (AssistantTool tool : tools) {
+            Tool utility = getUtility(tool, utilityName);
+            if (utility != null) return tool;
+        }
+        return null;
+    }
+
+    @Nullable
+    private static Tool getUtility(AssistantTool tool, String utilityName) {
+        Method[] methods = getSpecification(tool).getDeclaredMethods();
+        for (Method method : methods) {
+            Tool t = method.getAnnotation(Tool.class);
+            if (t == null) continue;
+            if (t.name().equals(utilityName)) return t;
+        }
+
+        return null;
+    }
+
+    @Nullable
+    public static UtilityDefinition getUtilityDefinition(AssistantTool tool, String name) {
+        Method[] methods = getSpecification(tool).getDeclaredMethods();
+        for (Method method : methods) {
+            Tool t = method.getAnnotation(Tool.class);
+            if (t == null) continue;
+            if (t.name().equals(name)) return method.getAnnotation(UtilityDefinition.class);
+        }
+
+        return null;
     }
 
 /*    @Override

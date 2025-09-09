@@ -16,8 +16,8 @@
 
 package com.dbn.assistant.tool;
 
-import com.dbn.assistant.tool.AssistantToolInfo.Definition;
 import com.dbn.assistant.tool.AssistantToolInfo.FactoryDefinition;
+import com.dbn.assistant.tool.AssistantToolInfo.ToolDefinition;
 import com.dbn.assistant.tool.event.AssistantToolInvocationHandler;
 import com.dbn.connection.ConnectionHandler;
 import lombok.SneakyThrows;
@@ -30,30 +30,30 @@ import static com.dbn.common.util.Unsafe.cast;
 
 public abstract class AssistantToolFactoryBase<T extends AssistantTool> implements AssistantToolFactory<T> {
     private final FactoryDefinition factoryDefinition;
-    private final Definition definition;
+    private final ToolDefinition toolDefinition;
 
     public AssistantToolFactoryBase() {
         factoryDefinition = getClass().getAnnotation(FactoryDefinition.class);
         if (factoryDefinition == null) throw new NullPointerException("Missing @AssistantTool.FactoryDefinition annotation");
 
         Class<T> spec = getToolSpecification();
-        definition = spec.getAnnotation(Definition.class);
-        if (definition == null) throw new NullPointerException("Missing @AssistantTool.Definition annotation");
+        toolDefinition = spec.getAnnotation(ToolDefinition.class);
+        if (toolDefinition == null) throw new NullPointerException("Missing @AssistantTool.Definition annotation");
     }
 
     @Override
     public AssistantToolType getToolType() {
-        return AssistantToolType.get(definition.type());
+        return AssistantToolType.get(toolDefinition.type());
     }
 
     @Override
     public AssistantToolCategory getToolCategory() {
-        return definition.category();
+        return toolDefinition.category();
     }
 
     @Override
     public String getToolDescription() {
-        return definition.description();
+        return toolDefinition.description();
     }
 
     @Override

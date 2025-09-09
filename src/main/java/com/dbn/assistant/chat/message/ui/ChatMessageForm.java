@@ -82,9 +82,9 @@ public abstract class ChatMessageForm extends DBNFormBase {
         getMessage().setFolded(folded);
     }
 
-    public void refreshContent() {
-        // no action required by default (for immutable messages)
-    }
+    public void refreshMessageContent() {}
+
+    public void refreshToolContent() {}
 
 
     @NotNull

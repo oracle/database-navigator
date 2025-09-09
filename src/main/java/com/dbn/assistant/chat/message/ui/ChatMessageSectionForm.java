@@ -17,6 +17,7 @@
 package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.assistant.chat.message.ChatMessageSection;
+import com.dbn.assistant.chat.message.ChatMessageSectionType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -32,13 +33,16 @@ public abstract class ChatMessageSectionForm extends DBNFormBase {
     private String content;
     private TextContent textContent;
     private final Function<String, TextContent > contentBuilder;
+    private final ChatMessageSectionType sectionType;
 
-    ChatMessageSectionForm(DBNForm parent) {
-        this(parent, c -> TextContent.plain(c));
+    ChatMessageSectionForm(DBNForm parent, ChatMessageSectionType sectionType) {
+        this(parent, sectionType, c -> TextContent.plain(c));
+
     }
 
-    ChatMessageSectionForm(DBNForm parent, Function<String, TextContent> contentBuilder) {
+    ChatMessageSectionForm(DBNForm parent, ChatMessageSectionType sectionType, Function<String, TextContent> contentBuilder) {
         super(parent);
+        this.sectionType = sectionType;
         this.contentBuilder = contentBuilder;
     }
 

@@ -27,6 +27,8 @@ import javax.swing.JTextPane;
 import java.awt.Dimension;
 import java.util.function.Function;
 
+import static com.dbn.assistant.chat.message.ChatMessageSectionType.TEXT;
+
 public class ChatMessageSectionTextForm extends ChatMessageSectionForm {
     private JTextPane messageTextPane;
     private JPanel mainPanel;
@@ -37,7 +39,7 @@ public class ChatMessageSectionTextForm extends ChatMessageSectionForm {
     }
 
     public ChatMessageSectionTextForm(DBNForm parent, String content, Function<String, TextContent> contentBuilder) {
-        super(parent, contentBuilder);
+        super(parent, TEXT, contentBuilder);
         this.content = createTextContent(content);
         applyContent();
 

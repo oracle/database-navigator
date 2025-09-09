@@ -19,6 +19,7 @@ package com.dbn.assistant.chat.message.ui;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Disposer;
+import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -88,11 +89,19 @@ public class ChatMessagesForm extends DBNFormBase {
     }
 
     public void refreshMessage(ChatMessage message) {
+        refreshContent(message, f -> f.refreshMessageContent());
+    }
+
+    public void refreshTools(ChatMessage message) {
+        refreshContent(message, f -> f.refreshToolContent());
+    }
+
+    private void refreshContent(ChatMessage message, Consumer<ChatMessageForm> action) {
         Dispatch.execute(mainPanel, () -> {
             ChatMessageForm messageForm = getMessageForm(message.getId());
             if (messageForm == null) return;
 
-            messageForm.refreshContent();
+            action.accept(messageForm);
             scrollDown(false);
         });
     }

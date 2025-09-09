@@ -18,7 +18,8 @@ package com.dbn.assistant.tool.spec;
 
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolFactoryBase;
-import com.dbn.assistant.tool.AssistantToolInfo.Definition;
+import com.dbn.assistant.tool.AssistantToolInfo.ToolDefinition;
+import com.dbn.assistant.tool.AssistantToolInfo.UtilityDefinition;
 import com.dbn.assistant.tool.impl.TableMetadataToolImpl;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
@@ -30,7 +31,7 @@ import java.util.List;
 import static com.dbn.assistant.tool.AssistantToolCategory.METADATA_PROVIDER;
 import static com.dbn.assistant.tool.AssistantToolInfo.FactoryDefinition;
 
-@Definition(
+@ToolDefinition(
     type = "TABLE_METADATA",
     category = METADATA_PROVIDER,
     description = "Provides information about the tables in a given database schema")
@@ -51,6 +52,7 @@ public interface TableMetadataTool extends AssistantTool {
             "type=TABLE_METADATA",
             "category=METADATA_PROVIDER",
             "Lists table names in a given schema"})
+    @UtilityDefinition(name = "List table names")
     List<String> listTableNames(
             @P("Schema name") String schemaName,
             @P("Include temporary tables") boolean includeTemporaryTables);
@@ -62,6 +64,7 @@ public interface TableMetadataTool extends AssistantTool {
                 "type=TABLE_METADATA",
                 "category=METADATA_PROVIDER",
                 "Lists temporary table names in a given schema"})
+    @UtilityDefinition(name = "List temporary table names")
     List<String> listTemporaryTableNames(
             @P("Schema name") String schemaName);
 
@@ -72,6 +75,7 @@ public interface TableMetadataTool extends AssistantTool {
                 "type=TABLE_METADATA",
                 "category=METADATA_PROVIDER",
                 "Loads the definition of a given table"})
+    @UtilityDefinition(name = "Load table definition")
     TableDefinition loadTableDefinition(
             @P("Schema name") String schemaName,
             @P("Table name") String tableName,
@@ -83,6 +87,7 @@ public interface TableMetadataTool extends AssistantTool {
                 "type=TABLE_METADATA",
                 "category=METADATA_PROVIDER",
                 "Loads the definitions of a given set of tables (optimized version of LOAD_TABLE_DEFINITION for bulk queries)"})
+    @UtilityDefinition(name = "Load table definitions")
     List<TableDefinition> loadTableDefinitions(
             @P("Schema name") String schemaName,
             @P("Table names") List<String> tableNames,

@@ -505,6 +505,10 @@ public class ChatBoxForm extends DBNFormBase {
         messagesForm.refreshMessage(message);
     }
 
+    public void refreshTools(ChatMessage message) {
+        messagesForm.refreshTools(message);
+    }
+
 
     protected Chat getChat(String chatId) {
         AssistantState state = getAssistantState();

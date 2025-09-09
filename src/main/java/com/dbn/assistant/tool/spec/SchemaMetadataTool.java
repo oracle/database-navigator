@@ -18,7 +18,8 @@ package com.dbn.assistant.tool.spec;
 
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolFactoryBase;
-import com.dbn.assistant.tool.AssistantToolInfo.Definition;
+import com.dbn.assistant.tool.AssistantToolInfo.ToolDefinition;
+import com.dbn.assistant.tool.AssistantToolInfo.UtilityDefinition;
 import com.dbn.assistant.tool.impl.SchemaMetadataToolImpl;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
@@ -28,7 +29,7 @@ import java.util.List;
 import static com.dbn.assistant.tool.AssistantToolCategory.METADATA_PROVIDER;
 import static com.dbn.assistant.tool.AssistantToolInfo.FactoryDefinition;
 
-@Definition(
+@ToolDefinition(
     type = "SCHEMA_METADATA",
     category = METADATA_PROVIDER,
     description = "Provides information about the database schemas and catalogs")
@@ -49,5 +50,6 @@ public interface SchemaMetadataTool extends AssistantTool {
                 "type=SCHEMA_METADATA",
                 "category=METADATA_PROVIDER",
                 "Lists database schema names"})
+    @UtilityDefinition(name = "List schema names")
     List<String> listSchemaNames(@P("Include system schemas") boolean includeSystemSchemas);
 }

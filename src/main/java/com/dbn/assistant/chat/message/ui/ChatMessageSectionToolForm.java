@@ -16,8 +16,17 @@
 
 package com.dbn.assistant.chat.message.ui;
 
+import com.dbn.assistant.chat.message.ChatMessageToolSection;
+import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.state.AssistantState;
+import com.dbn.assistant.tool.AssistantTool;
+import com.dbn.assistant.tool.AssistantToolCache;
+import com.dbn.assistant.tool.AssistantToolInfo.UtilityDefinition;
+import com.dbn.assistant.tool.event.AssistantToolStatus;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNForm;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionRef;
 import com.intellij.lang.Language;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,6 +34,10 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import static com.dbn.assistant.chat.message.ChatMessageSectionType.TOOL;
+import static com.dbn.assistant.tool.AssistantToolCache.getUtilityDefinition;
+import static com.intellij.icons.AllIcons.General.ExternalTools;
 
 public class ChatMessageSectionToolForm extends ChatMessageSectionForm{
     private JPanel mainPanel;
@@ -37,17 +50,65 @@ public class ChatMessageSectionToolForm extends ChatMessageSectionForm{
     private JButton allowButton;
     private JButton denyButton;
 
-    ChatMessageSectionToolForm(DBNForm parent) {
-        super(parent);
+    private final ConnectionRef connection;
+    private final ChatMessageToolSection toolSection;
+
+    ChatMessageSectionToolForm(DBNForm parent, ConnectionHandler connection, ChatMessageToolSection toolSection) {
+        super(parent, TOOL);
+        this.connection = ConnectionRef.of(connection);
+        this.toolSection = toolSection;
+
+        initHeaderPanel();
     }
 
     @Override
     protected JComponent getMainComponent() {
-        return null;
+        return mainPanel;
+    }
+
+    private void initHeaderPanel() {
+        String toolName = toolSection.getToolName();
+        headerLabel.setText(toolName);
+        headerLabel.setIcon(ExternalTools);
+        AssistantToolCache toolCache = getToolCache();
+        if (toolCache == null) return;
+
+        AssistantTool tool = toolCache.getAssistantTool(toolName);
+        if (tool == null) return;
+
+        UtilityDefinition definition = getUtilityDefinition(tool, toolName);
+        if (definition == null) return;
+
+        headerLabel.setText(definition.name());
+    }
+
+    @Nullable
+    private AssistantToolCache getToolCache() {
+        ChatBoxForm chatBoxForm = getChatBoxForm();
+        if (chatBoxForm == null) return null;
+
+        AssistantState assistantState = chatBoxForm.getAssistantState();
+        return AssistantToolCache.get(assistantState);
+    }
+
+    @Nullable
+    private ChatBoxForm getChatBoxForm() {
+        return getParentFrom(ChatBoxForm.class);
+    }
+
+    public ConnectionHandler getConnection() {
+        return ConnectionRef.ensure(connection);
     }
 
     @Override
     protected void applyContent(TextContent content, @Nullable Language language) {
 
+    }
+
+    public void updateToolContent(ChatMessageToolSection section) {
+        AssistantToolStatus toolStatus = section.getToolStatus();
+        if (toolStatus != AssistantToolStatus.REQUESTED) {
+            actionsPanel.setVisible(false);
+        }
     }
 }

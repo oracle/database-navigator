@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static com.dbn.assistant.tool.event.AssistantToolStatus.COMPLETED;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
@@ -219,6 +220,7 @@ public class ChatMessage implements PersistentStateElement {
         if (toolSection == null) return;
 
         toolSection.setToolResponse(toolResponse);
+        toolSection.setToolStatus(COMPLETED);
     }
 
     @Override

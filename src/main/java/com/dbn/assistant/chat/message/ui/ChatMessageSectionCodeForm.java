@@ -54,6 +54,7 @@ import java.awt.BorderLayout;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.dbn.assistant.chat.message.ChatMessageSectionType.CODE;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
 import static javax.swing.JLayeredPane.DRAG_LAYER;
@@ -69,7 +70,7 @@ public class ChatMessageSectionCodeForm extends ChatMessageSectionForm {
     private Language language;
 
     private ChatMessageSectionCodeForm(DBNForm parent, ConnectionHandler connection, EditorEx codeViewer, ChatMessageSection section) {
-        super(parent);
+        super(parent, CODE);
         this.codeViewer = codeViewer;
         this.language = section.getLanguage();
         this.connection = ConnectionRef.of(connection);
