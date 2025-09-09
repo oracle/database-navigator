@@ -47,7 +47,7 @@ public class AgentChatMessageForm extends ChatMessageForm {
     private JPanel contentPanel;
 
     private boolean hasCodeContents = false;
-    private List<ChatMessageSectionForm> sectionForms = DisposableContainers.list(this);
+    private final List<ChatMessageSectionForm> sectionForms = DisposableContainers.list(this);
 
     public AgentChatMessageForm(ChatMessagesForm parent, ChatMessage message) {
         super(parent, message);

@@ -36,7 +36,9 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
@@ -52,6 +54,7 @@ import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.options.setting.Settings.writeCdata;
 import static com.dbn.common.util.Lists.first;
+import static com.dbn.common.util.Lists.lastElement;
 import static com.dbn.common.util.Lists.removeLast;
 
 @Getter
@@ -99,18 +102,48 @@ public class ChatMessage implements PersistentStateElement {
         return sections;
     }
 
-    public void appendToken(String token){
+    public void appendToken(String token) {
+        int lastToolOffset = getLastToolOffset();
+        int currentOffset = content.length();
+
         content = content + token;
+
         if (sections == null) {
             sections = buildSections();
-        } else {
-            ChatMessageSection lastSection = removeLast(sections);
+            return;
+        }
 
-            int shift = lastSection == null ? 0 : lastSection.getContentStartOffset();
-            List<ChatMessageSection> deltaSections = buildSections(shift);
+        if (lastToolOffset == currentOffset) {
+            int startOffset = getLastSectionEndOffset();
+            List<ChatMessageSection> deltaSections = buildSections(startOffset);
+
+            sections.addAll(deltaSections);
+        } else {
+            removeLast(sections);
+
+            int startOffset = getLastSectionEndOffset();
+            List<ChatMessageSection> deltaSections = buildSections(startOffset);
 
             sections.addAll(deltaSections);
         }
+    }
+
+    private int getLastSectionEndOffset() {
+        ChatMessageSection lastSection = lastElement(sections);
+        return lastSection == null ? 0 : lastSection.getContentEndOffset();
+    }
+
+    private int getLastToolOffset() {
+        ChatMessageToolSection lastToolSection = lastElement(toolSections);
+        return lastToolSection == null ? 0 : lastToolSection.getOffset();
+    }
+
+    private int[] getSliceOffsets() {
+        Set<Integer> offsets = new LinkedHashSet<>();
+        for (ChatMessageToolSection toolSection : toolSections) {
+            offsets.add(toolSection.getOffset());
+        }
+        return offsets.stream().mapToInt(i -> i).toArray();
     }
 
     private List<ChatMessageSection> buildSections() {
@@ -124,22 +157,21 @@ public class ChatMessage implements PersistentStateElement {
      *
      * @return a list of {@link ChatMessageSection} with the different sections
      */
-    private List<ChatMessageSection> buildSections(int shift) {
+    private List<ChatMessageSection> buildSections(int offset) {
+        int contentLength = content.length();
         if (isSqlCodeContent()) {
             // output is expected to be SQL code based on the author, action and content
-            return new ChatMessageSection(content, basicContentRange(content, shift), "sql").asList();
+            TextRange textRange = new TextRange(offset, contentLength);
+            return new ChatMessageSection(content, textRange, "sql").asList();
         }
 
         if (author.isOneOf(AuthorType.USER, AuthorType.SYSTEM)) {
             // output is already expected to be plain text
-            return new ChatMessageSection(content, basicContentRange(content, shift), null).asList();
+            TextRange textRange = new TextRange(offset, contentLength);
+            return new ChatMessageSection(content, textRange, null).asList();
         }
 
-        return ChatMessageParser.parse(content, shift);
-    }
-
-    private @NotNull TextRange basicContentRange(String content, int shift) {
-        return new TextRange(shift, shift + content.length());
+        return ChatMessageParser.parse(content, offset, getSliceOffsets());
     }
 
     private boolean hasCodeSections() {

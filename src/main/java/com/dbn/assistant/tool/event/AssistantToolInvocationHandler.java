@@ -19,13 +19,16 @@ package com.dbn.assistant.tool.event;
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.common.component.ConnectionComponent;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.exception.Exceptions;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.concurrent.CancellationException;
 
 import static com.dbn.assistant.tool.event.AssistantToolEventType.CANCELLED;
 import static com.dbn.assistant.tool.event.AssistantToolEventType.COMPLETED;
@@ -46,15 +49,26 @@ public class AssistantToolInvocationHandler<T extends AssistantTool> extends Con
         Project project = connection.getProject();
         try {
             notifyEvent(project, REQUESTED, tool, method, null);
-            Object result = method.invoke(tool, args);
+            Object result = invokeMethod(method, args);
             notifyEvent(project, COMPLETED, tool, method, null);
             return result;
         } catch (ProcessCanceledException t) {
             notifyEvent(project, CANCELLED, tool, method, null);
+            throw new CancellationException("Cancelled by user");
         } catch (Throwable t) {
-            notifyEvent(project, FAILED, tool, method, t);
+            Throwable exception = Exceptions.unwrap(t);
+            notifyEvent(project, FAILED, tool, method, exception);
+            throw exception;
         }
-        return method.invoke(tool, args);
+    }
+
+    @SneakyThrows
+    private Object invokeMethod(Method method, Object[] args) {
+        try {
+            return method.invoke(tool, args);
+        } catch (Throwable e) {
+            throw Exceptions.unwrap(e);
+        }
     }
 
     private static <T extends AssistantTool> void notifyEvent(Project project, AssistantToolEventType type, T tool, Method method, Throwable exception) {

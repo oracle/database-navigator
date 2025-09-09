@@ -20,6 +20,7 @@ import com.dbn.common.component.ConnectionComponent;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -59,12 +60,17 @@ public abstract class AssistantToolBase extends ConnectionComponent implements A
     @NotNull
     protected DBSchema getSchema(String schemaName) {
         DBSchema schema = getConnection().getObjectBundle().getSchema(schemaName);
-        return ensureNotNull(schema, DBObjectType.SCHEMA, schemaName);
+        return resolved(schema, DBObjectType.SCHEMA, schemaName);
     }
 
-    protected <T extends DBObject> T ensureNotNull(T object, DBObjectType objectType, String objectName) {
+    protected static <T extends DBObject> T resolved(T object, DBObjectType objectType, String objectName) {
         if (object == null) throw new IllegalArgumentException(objectType.getCapitalizedName() + " not found: " + objectName);
         return object;
+    }
+
+    protected static <T extends DBObject> T undisposed(T object) {
+        DBObjectRef<T> ref = DBObjectRef.of(object);
+        return ref.get();
     }
 
     @Override

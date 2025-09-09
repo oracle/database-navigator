@@ -20,6 +20,7 @@ import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
 import com.dbn.common.util.Lists;
+import com.dbn.common.util.Strings;
 import com.dbn.common.util.Unsafe;
 import com.intellij.openapi.util.TextRange;
 import lombok.experimental.UtilityClass;
@@ -48,32 +49,32 @@ import static org.intellij.markdown.MarkdownTokenTypes.FENCE_LANG;
 @UtilityClass
 public class ChatMessageParser {
 
-    public static List<ChatMessageSection> parse(String content, int shift) {
+    public static List<ChatMessageSection> parse(String content, int offset, int[] sliceOffsets) {
         List<ChatMessageSection> sections = new ArrayList<>();
 
-        String parseContent = content.substring(shift);
+        String parseContent = content.substring(offset);
         ASTNode rootNode;
         try {
             rootNode = parseMadkdownContent(parseContent);
         } catch (Exception e) {
-            createTextSection(sections, shift, parseContent);
+            createTextSection(sections, offset, sliceOffsets, parseContent);
             return sections;
         }
 
         StringBuilder builder = new StringBuilder();
         for (ASTNode node : rootNode.getChildren()) {
-            int nodeStartOffset = node.getStartOffset() + shift;
-            int nodeEndOffset = node.getEndOffset() + shift;
+            int nodeStartOffset = node.getStartOffset() + offset;
+            int nodeEndOffset = node.getEndOffset() + offset;
             String nodeText = content.substring(nodeStartOffset, nodeEndOffset);
 
             IElementType nodeType = node.getType();
             if (nodeType == MarkdownElementTypes.CODE_FENCE) {
                 // consume the accumulated content as a text section
-                createTextSection(sections, shift, builder.toString());
+                createTextSection(sections, offset, sliceOffsets, builder.toString());
                 builder.setLength(0);
 
                 // create a code section
-                createCodeSection(sections, shift, content, node);
+                createCodeSection(sections, offset, content, node);
 
             } else {
                 builder.append(nodeText);
@@ -82,7 +83,7 @@ public class ChatMessageParser {
 
         // create last section if builder is not empty
         String sectionContent = builder.toString();
-        createTextSection(sections, shift, sectionContent);
+        createTextSection(sections, offset, sliceOffsets, sectionContent);
 
         return sections;
     }
@@ -92,22 +93,32 @@ public class ChatMessageParser {
         return markdownParser.buildMarkdownTreeFromString(content);
     }
 
-    private static void createTextSection(List<ChatMessageSection> sections, int shift, String content) {
+    private static void createTextSection(List<ChatMessageSection> sections, int offset, int[] sliceOffsets, String content) {
         if (content.isEmpty()) return;
 
-        TextRange contentRange = createContentRange(sections, shift, content.length());
-        createSection(sections, content, contentRange, null);
+        for (int i = 0; i < sliceOffsets.length; i++) {
+            sliceOffsets[i] = sliceOffsets[i] - offset;
+        }
+
+        int sliceShift = offset;
+        List<String> slicedContent = Strings.slice(content, sliceOffsets);
+        for (String sliceContent : slicedContent) {
+            int sliceLength = sliceContent.length();
+            TextRange contentRange = createContentRange(sections, sliceShift, sliceLength);
+            createSection(sections, sliceContent, contentRange, null);
+            sliceShift += sliceLength;
+        }
     }
 
-    private static TextRange createContentRange(List<ChatMessageSection> sections, int shift, int length) {
+    private static TextRange createContentRange(List<ChatMessageSection> sections, int offset, int length) {
         ChatMessageSection previousSection = Lists.lastElement(sections);
-        int startOffset = previousSection == null ? shift : previousSection.getContentEndOffset();
+        int startOffset = previousSection == null ? offset : previousSection.getContentEndOffset();
         int endOffset = startOffset + length;
 
         return new TextRange(startOffset, endOffset);
     }
 
-    private static void createCodeSection(List<ChatMessageSection> sections, int shift, String content, ASTNode rootNode) {
+    private static void createCodeSection(List<ChatMessageSection> sections, int offset, String content, ASTNode rootNode) {
         String language = null;
         StringBuilder builder = new StringBuilder();
         for (ASTNode codeNode : rootNode.getChildren()) {
@@ -115,8 +126,8 @@ public class ChatMessageParser {
             if (codeNodeType == CODE_FENCE_START) continue;
             if (codeNodeType == CODE_FENCE_END) continue;
 
-            int startOffset = codeNode.getStartOffset() + shift;
-            int endOffset = codeNode.getEndOffset() + shift;
+            int startOffset = codeNode.getStartOffset() + offset;
+            int endOffset = codeNode.getEndOffset() + offset;
             if (codeNodeType == FENCE_LANG) {
                 language = content.substring(startOffset, endOffset);
             } else {
@@ -126,7 +137,7 @@ public class ChatMessageParser {
 
         int length = rootNode.getEndOffset() - rootNode.getStartOffset();
         if (language != null || length > 3) {
-            TextRange contentRange = createContentRange(sections, shift, length);
+            TextRange contentRange = createContentRange(sections, offset, length);
             createSection(sections, builder.toString(), contentRange, language);
         }
     }
