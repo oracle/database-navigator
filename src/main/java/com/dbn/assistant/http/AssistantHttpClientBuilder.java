@@ -16,21 +16,13 @@
 
 package com.dbn.assistant.http;
 
-import com.dbn.common.compatibility.Workaround;
-import com.dbn.common.util.Classes;
-import com.dbn.common.util.Unsafe;
-import com.intellij.util.Consumer;
 import com.intellij.util.net.HttpConnectionUtils;
 import dev.langchain4j.http.client.HttpClient;
 import dev.langchain4j.http.client.HttpClientBuilder;
 import dev.langchain4j.http.client.HttpMethod;
 import dev.langchain4j.http.client.HttpRequest;
-import dev.langchain4j.http.client.SuccessfulHttpResponse;
-import dev.langchain4j.http.client.sse.ServerSentEventListener;
-import dev.langchain4j.http.client.sse.ServerSentEventParser;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
@@ -38,8 +30,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-
-import static com.dbn.common.util.Streams.readInputStream;
 
 class AssistantHttpClientBuilder implements HttpClientBuilder {
     private Duration readTimeout;
@@ -69,88 +59,9 @@ class AssistantHttpClientBuilder implements HttpClientBuilder {
 
     @Override
     public HttpClient build() {
-        return new HttpClient() {
-            @Override
-            public SuccessfulHttpResponse execute(HttpRequest request) {
-                try {
-                    HttpURLConnection connection = createConnection(request);
-                    if (isSuccessResponse(connection)) {
-                        return handleSuccess(connection);
-                    } else {
-                        return handleError(connection, request);
-                    }
-
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            @Override
-            public void execute(HttpRequest request, ServerSentEventParser parser, ServerSentEventListener listener) {
-                try {
-                    HttpURLConnection connection = createConnection(request);
-                    if (isSuccessResponse(connection)) {
-                        handleSuccess(connection, listener, parser);
-                    } else {
-                        handleError(connection, request);
-                    }
-                } catch (Exception e) {
-                    handleException(listener, e);
-                }
-            }
-        };
+        return new AssistantHttpClient(r -> createConnection(r));
     }
 
-    private static boolean isSuccessResponse(HttpURLConnection connection) throws IOException {
-        int responseCode = connection.getResponseCode();
-        return responseCode >= 200 && responseCode < 300;
-    }
-
-    private static SuccessfulHttpResponse handleSuccess(HttpURLConnection connection) throws IOException {
-        int responseCode = connection.getResponseCode();
-        return SuccessfulHttpResponse
-                .builder()
-                .statusCode(responseCode)
-                .build();
-    }
-
-    private static void handleSuccess(HttpURLConnection connection, ServerSentEventListener listener, ServerSentEventParser parser) throws IOException {
-        int responseCode = connection.getResponseCode();
-        SuccessfulHttpResponse response = SuccessfulHttpResponse.builder().statusCode(responseCode).build();
-        wrapped(listener, l -> l.onOpen(response));
-
-        parser.parse(connection.getInputStream(), listener);
-
-        wrapped(listener, l -> l.onClose());
-    }
-
-    private static <T> T handleError(HttpURLConnection connection, HttpRequest request) throws IOException {
-        int responseCode = connection.getResponseCode();
-        String responseMessage = connection.getResponseMessage();
-        String message = String.format("HTTP %d: %s (Request URL: %s)", responseCode, responseMessage, request.url());
-
-        InputStream errorStream = connection.getErrorStream();
-        String error = Unsafe.logged("", () -> readInputStream(errorStream));
-
-        message += "\n" + error;
-        throw new IOException(message);
-    }
-
-    private static void handleException(ServerSentEventListener listener, Exception e) {
-        wrapped(listener, l -> l.onError(e));
-    }
-
-
-    @Workaround
-    private static <T> void wrapped(T target, Consumer<T> runnable) {
-        // the internal jackson initialization favors ide class loader,
-        // causing it to initialize on old jackson libraries provided by intellij
-        // (these are incompatible with the current version of langchain4j)
-        Classes.withClassLoader(AssistantHttpClientBuilder.class, () -> {
-            runnable.consume(target);
-            return null;
-        });
-    }
 
     private HttpURLConnection createConnection(HttpRequest request) throws IOException {
         HttpURLConnection connection = HttpConnectionUtils.openHttpConnection(request.url());
