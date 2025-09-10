@@ -112,5 +112,18 @@
             <model id="QWEN_1_5_1_8B"              api-name="Qwen/Qwen1.5-1.8B"/>
         </models>
     </provider>
+    <provider id="MISTRALAI" name="Mistral AI" host="api.mistral.ai">
+        <urls>
+            <url type="OFFICIAL">https://mistral.ai//</url>
+            <url type="API"></url>
+            <url type="GUIDE"></url>
+        </urls>
+        <models>
+            <model id="MISTRAL_SMALL_2503" api-name="mistral-small-2503" default="true"/>
+            <model id="MISTRAL_MEDIUM_2505" api-name="mistral-medium-2505"/>
+            <model id="MISTRAL_LARGE_2411" api-name="mistral-large-2411"/>
+            <model id="CODESTRAL_2501" api-name="codestral-2501"/>
+        </models>
+    </provider>
 
 </language-model-provider>

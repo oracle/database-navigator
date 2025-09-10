@@ -53,7 +53,8 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
     public ChatContext createChatContext(ConnectionId connectionId) {
         //return new ChatContextImpl("OPENAI", "GPT_4_O");
         //return new ChatContextImpl("GOOGLE", "GEMINI_1_5_FLASH");
-        return new ChatContextImpl("ANTHROPIC", "CLAUDE_SONNET_4_20250514");
+        //return new ChatContextImpl("ANTHROPIC", "CLAUDE_SONNET_4_20250514");
+        return new ChatContextImpl("MISTRALAI", "CODESTRAL_2501");
     }
 
     @Override
@@ -123,13 +124,18 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
             AssistantModelInput input = AssistantModelInput.create(modelName)
                     .withUser(System.getProperty("tempOpenAiUser"))
                     .withToken(System.getProperty("tempOpenAiApiKey"));
-*/
-/*            AssistantModelInput input = AssistantModelInput.create(modelName)
+
+            AssistantModelInput input = AssistantModelInput.create(modelName)
                     .withUser(System.getProperty("tempGoogleAiUser"))
-                    .withToken(System.getProperty("tempGoogleAiApiKey"));*/
+                    .withToken(System.getProperty("tempGoogleAiApiKey"));
 
             AssistantModelInput input = AssistantModelInput.create(modelName)
                     .withToken(System.getProperty("tempAnthropicApiKey"));
+*/
+
+            AssistantModelInput input = AssistantModelInput.create(modelName)
+                    .withToken(System.getProperty("tempMistralAiApiKey"));
+
 
             AssistantState state = getAssistantState(connectionId);
 
