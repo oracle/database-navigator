@@ -17,8 +17,8 @@
 package com.dbn.assistant.state;
 
 import com.dbn.common.ref.WeakRef;
+import com.dbn.connection.ConnectionHandler;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public abstract class AssistantStateExtension {
     private final WeakRef<AssistantState> assistantState;
@@ -27,8 +27,13 @@ public abstract class AssistantStateExtension {
         this.assistantState = WeakRef.of(assistantState);
     }
 
-    @Nullable
+    @NotNull
     protected AssistantState getAssistantState() {
-        return WeakRef.get(assistantState);
+        return WeakRef.ensure(assistantState);
+    }
+
+    @NotNull
+    protected ConnectionHandler getConnection() {
+        return getAssistantState().getConnection();
     }
 }

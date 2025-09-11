@@ -69,8 +69,6 @@ public class AssistantMemoryCache extends AssistantStateExtension implements Cha
 
     private void restoreChatMemory(ChatMemory chatMemory, String chatId) {
         AssistantState assistantState = getAssistantState();
-        if (assistantState == null) return;
-
         Chat chat = assistantState.getChat(chatId);
         if (chat == null) return;
 

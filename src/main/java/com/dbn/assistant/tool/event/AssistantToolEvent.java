@@ -16,25 +16,19 @@
 
 package com.dbn.assistant.tool.event;
 
-import com.dbn.assistant.tool.AssistantTool;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.lang.reflect.Method;
 
 @Getter
 @Setter
 public class AssistantToolEvent {
 
-    private final AssistantToolStatus status;
-    private final AssistantTool tool;
-    private final Method method;
+    private final AssistantToolRequest request;
+
     private String message;
     private Throwable exception;
 
-    public AssistantToolEvent(AssistantToolStatus status, AssistantTool tool, Method method) {
-        this.status = status;
-        this.tool = tool;
-        this.method = method;
+    public AssistantToolEvent(AssistantToolRequest request) {
+        this.request = request;
     }
 }

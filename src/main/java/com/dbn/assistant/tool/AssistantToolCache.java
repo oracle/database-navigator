@@ -19,10 +19,11 @@ package com.dbn.assistant.tool;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantToolInfo.UtilityDefinition;
+import com.dbn.assistant.tool.approval.AssistantToolApprovals;
+import com.dbn.assistant.tool.approval.AssistantToolFilter;
 import com.dbn.common.action.UserDataKeys;
-import com.dbn.connection.ConnectionHandler;
+import com.dbn.common.list.FilteredList;
 import dev.langchain4j.agent.tool.Tool;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,42 +36,25 @@ import java.util.List;
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_TOOL_CACHE;
 
 @Slf4j
-@Getter
 public class AssistantToolCache extends AssistantStateExtension /*implements ToolProvider*/ {
-    private final AssistantTool[] tools;
-    private final AssistantToolType[] types;
-    private final AssistantToolCategory[] categories;
+    private final List<AssistantTool> tools;
 
     private AssistantToolCache(@NotNull AssistantState assistantState) {
         super(assistantState);
-        tools = initialize(assistantState);
-        types = initToolTypes(tools);
-        categories = initToolCategories(tools);
+        List<AssistantTool> tools = initTools(assistantState);
+
+        AssistantToolApprovals approvals = AssistantToolApprovals.get(assistantState);
+        // TODO decide whether to hide tools vs promoting them as unauthorized
+        AssistantToolFilter filter = new AssistantToolFilter(approvals);
+        this.tools = FilteredList.stateful(t -> true, tools);
     }
 
-    private AssistantToolCategory[] initToolCategories(AssistantTool[] tools) {
-        return Arrays
-                .stream(tools)
-                .map(t -> t.getCategory())
-                .distinct()
-                .toArray(l -> new AssistantToolCategory[l]);
-    }
-
-    private AssistantToolType[] initToolTypes(AssistantTool[] tools) {
-        return Arrays
-                .stream(tools)
-                .map(t -> t.getType())
-                .distinct()
-                .toArray(l -> new AssistantToolType[l]);
-    }
-
-    private static AssistantTool[] initialize(AssistantState assistantState) {
+    private static List<AssistantTool> initTools(AssistantState assistantState) {
         List<AssistantTool> tools = new ArrayList<>();
         List<AssistantToolFactory> factories = AssistantToolFactories.list();
         for (AssistantToolFactory factory : factories) {
             try {
-                ConnectionHandler connection = assistantState.getConnection();
-                AssistantTool tool = factory.createTool(connection);
+                AssistantTool tool = factory.createTool(assistantState);
                 tools.add(tool);
             } catch (Throwable e) {
                 log.error("Failed to create {} assistant tool of type {} (spec={} impl={})",
@@ -82,7 +66,7 @@ public class AssistantToolCache extends AssistantStateExtension /*implements Too
             }
         }
 
-        return tools.toArray(new AssistantTool[0]);
+        return tools;
     }
 
     public static AssistantToolCache get(AssistantState assistantState) {
@@ -108,27 +92,44 @@ public class AssistantToolCache extends AssistantStateExtension /*implements Too
     }
 
     @Nullable
-    private static Tool getUtility(AssistantTool tool, String utilityName) {
+    public static Method getUtilityMethod(AssistantTool tool, String utilityName) {
         Method[] methods = getSpecification(tool).getDeclaredMethods();
         for (Method method : methods) {
             Tool t = method.getAnnotation(Tool.class);
             if (t == null) continue;
-            if (t.name().equals(utilityName)) return t;
+            if (t.name().equals(utilityName)) return method;
         }
 
         return null;
     }
 
     @Nullable
-    public static UtilityDefinition getUtilityDefinition(AssistantTool tool, String name) {
-        Method[] methods = getSpecification(tool).getDeclaredMethods();
-        for (Method method : methods) {
-            Tool t = method.getAnnotation(Tool.class);
-            if (t == null) continue;
-            if (t.name().equals(name)) return method.getAnnotation(UtilityDefinition.class);
-        }
+    private static Tool getUtility(AssistantTool tool, String utilityName) {
+        Method method = getUtilityMethod(tool, utilityName);
+        if (method == null) return null;
 
-        return null;
+        return method.getAnnotation(Tool.class);
+    }
+
+    @Nullable
+    public static UtilityDefinition getUtilityDefinition(AssistantTool tool, String utilityName) {
+        Method method = getUtilityMethod(tool, utilityName);
+        if (method == null) return null;
+
+        return method.getAnnotation(UtilityDefinition.class);
+    }
+
+    public AssistantTool[] getAvailableTools() {
+        return tools.toArray(new AssistantTool[0]);
+    }
+
+    public AssistantToolCategory[] getAvailableToolCategories() {
+        AssistantTool[] tools = getAvailableTools();
+        return Arrays
+                .stream(tools)
+                .map(t -> t.getCategory())
+                .distinct()
+                .toArray(AssistantToolCategory[]::new);
     }
 
 /*    @Override

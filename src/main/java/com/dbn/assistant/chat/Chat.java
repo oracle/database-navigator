@@ -27,8 +27,8 @@ import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -48,7 +48,7 @@ public class Chat implements PersistentStateElement {
     private String id = UUIDs.compact();
     private String title;
     private ChatContext context;
-    private List<ChatMessage> messages = new ArrayList<>();
+    private List<ChatMessage> messages = new CopyOnWriteArrayList<>();
     private long timestamp = System.currentTimeMillis();
 
     private String sessionSignature;

@@ -59,7 +59,7 @@ import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
 import static javax.swing.JLayeredPane.DRAG_LAYER;
 
-public class ChatMessageSectionCodeForm extends ChatMessageSectionForm {
+public class ChatMessageCodeSectionForm extends ChatMessageSectionForm {
     private static final AtomicLong previewFileIndex = new AtomicLong(0);
 
     private JPanel mainPanel;
@@ -69,7 +69,7 @@ public class ChatMessageSectionCodeForm extends ChatMessageSectionForm {
     private final ConnectionRef connection;
     private Language language;
 
-    private ChatMessageSectionCodeForm(DBNForm parent, ConnectionHandler connection, EditorEx codeViewer, ChatMessageSection section) {
+    private ChatMessageCodeSectionForm(DBNForm parent, ConnectionHandler connection, EditorEx codeViewer, ChatMessageSection section) {
         super(parent, CODE);
         this.codeViewer = codeViewer;
         this.language = section.getLanguage();
@@ -101,11 +101,11 @@ public class ChatMessageSectionCodeForm extends ChatMessageSectionForm {
     }
 
     @Nullable
-    public static ChatMessageSectionCodeForm create(DBNForm parent, ConnectionHandler connection, ChatMessageSection section){
+    public static ChatMessageCodeSectionForm create(DBNForm parent, ConnectionHandler connection, ChatMessageSection section){
         EditorEx codeViewer = createViewer(connection, section);
         if (codeViewer == null) return null;
 
-        return new ChatMessageSectionCodeForm(parent, connection, codeViewer, section);
+        return new ChatMessageCodeSectionForm(parent, connection, codeViewer, section);
     }
 
     @Override

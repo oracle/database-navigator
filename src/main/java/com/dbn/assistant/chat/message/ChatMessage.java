@@ -19,6 +19,7 @@ package com.dbn.assistant.chat.message;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.editor.SQLChatMessageConverter;
+import com.dbn.assistant.tool.event.AssistantToolRequest;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Strings;
@@ -42,7 +43,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static com.dbn.assistant.tool.event.AssistantToolStatus.COMPLETED;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
@@ -212,8 +212,8 @@ public class ChatMessage implements PersistentStateElement {
         return TimeUtil.isOlderThan(timestamp, duration, unit);
     }
 
-    public void appendToolRequest(String requestId, String toolName, String toolArguments) {
-        ChatMessageToolSection toolSection = new ChatMessageToolSection(content.length(), requestId, toolName, toolArguments);
+    public void appendToolRequest(AssistantToolRequest toolRequest) {
+        ChatMessageToolSection toolSection = new ChatMessageToolSection(content.length(), toolRequest);
         toolSections.add(toolSection);
     }
 
@@ -222,7 +222,6 @@ public class ChatMessage implements PersistentStateElement {
         if (toolSection == null) return;
 
         toolSection.setToolResponse(toolResponse);
-        toolSection.setToolStatus(COMPLETED);
     }
 
     private ChatMessageToolSection findToolSection(String requestId, String toolName) {

@@ -109,7 +109,7 @@ public class AgentChatMessageForm extends ChatMessageForm {
     }
 
     protected void createTextSectionForm(ChatMessageSection section) {
-        ChatMessageSectionTextForm messageSectionForm = new ChatMessageSectionTextForm(this,
+        ChatMessageTextSectionForm messageSectionForm = new ChatMessageTextSectionForm(this,
                 section.getContent(),
                 c -> convertMarkdownToHtml(c));
 
@@ -122,7 +122,7 @@ public class AgentChatMessageForm extends ChatMessageForm {
         ChatBoxForm chatBoxForm = parent.ensureParentComponent();
         ConnectionHandler connection = chatBoxForm.getConnection();
 
-        ChatMessageSectionCodeForm messageSectionForm = ChatMessageSectionCodeForm.create(parent, connection, section);
+        ChatMessageCodeSectionForm messageSectionForm = ChatMessageCodeSectionForm.create(parent, connection, section);
         if (messageSectionForm == null) {
             // fallback to regular text pane if code panel creation was unsuccessful
             createTextSectionForm(section);
@@ -148,7 +148,7 @@ public class AgentChatMessageForm extends ChatMessageForm {
         ChatBoxForm chatBoxForm = parent.ensureParentComponent();
         ConnectionHandler connection = chatBoxForm.getConnection();
 
-        ChatMessageSectionToolForm toolSectionForm = new ChatMessageSectionToolForm(parent, connection, toolSection);
+        ChatMessageToolSectionForm toolSectionForm = new ChatMessageToolSectionForm(parent, connection, toolSection);
         sectionForms.add(toolSectionForm);
         sectionsPanel.add(toolSectionForm.getComponent());
     }
@@ -173,11 +173,11 @@ public class AgentChatMessageForm extends ChatMessageForm {
     public void refreshToolContent() {
         ChatMessage message = getMessage();
         List<ChatMessageToolSection> sections = new ArrayList<>(message.getToolSections());
-        List<ChatMessageSectionToolForm> sectionForms = getSectionForms(TOOL);
+        List<ChatMessageToolSectionForm> sectionForms = getSectionForms(TOOL);
         for (int i = 0; i < sections.size(); i++) {
             ChatMessageToolSection section = sections.get(i);
             if (i < sectionForms.size()) {
-                ChatMessageSectionToolForm sectionForm = sectionForms.get(i);
+                ChatMessageToolSectionForm sectionForm = sectionForms.get(i);
                 sectionForm.updateToolContent(section);
             } else {
                 createToolSectionForm(section);

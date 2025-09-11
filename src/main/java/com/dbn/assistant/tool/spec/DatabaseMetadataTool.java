@@ -30,6 +30,7 @@ import static com.dbn.assistant.tool.AssistantToolInfo.FactoryDefinition;
 
 @ToolDefinition(
     type = "DATABASE_METADATA",
+    name = "Database metadata",
     category = METADATA_PROVIDER,
     description = "Provides information about the database type, name and version")
 public interface DatabaseMetadataTool extends AssistantTool {

@@ -36,8 +36,9 @@ abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
         this.modelType = modelType;
     }
 
-    protected AssistantTool[] prepareTools(AssistantState state) {
-        return AssistantToolCache.get(state).getTools();
+    protected AssistantTool[] prepareTools(AssistantState assistantState) {
+        AssistantToolCache toolCache = AssistantToolCache.get(assistantState);
+        return toolCache.getAvailableTools();
     }
 
     protected ChatMemoryProvider prepareMemory(AssistantState assistantState) {

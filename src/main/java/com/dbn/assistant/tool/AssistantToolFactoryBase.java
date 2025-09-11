@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.tool;
 
+import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantToolInfo.FactoryDefinition;
 import com.dbn.assistant.tool.AssistantToolInfo.ToolDefinition;
 import com.dbn.assistant.tool.event.AssistantToolInvocationHandler;
@@ -52,6 +53,11 @@ public abstract class AssistantToolFactoryBase<T extends AssistantTool> implemen
     }
 
     @Override
+    public String getToolName() {
+        return toolDefinition.name();
+    }
+
+    @Override
     public String getToolDescription() {
         return toolDefinition.description();
     }
@@ -68,22 +74,24 @@ public abstract class AssistantToolFactoryBase<T extends AssistantTool> implemen
 
     @Override
     @SneakyThrows
-    public final T createTool(ConnectionHandler connection) {
+    public final T createTool(AssistantState assistantState) {
         Class<T> impl = getToolImplementation();
         Constructor<T> constructor = impl.getConstructor();
         T tool = constructor.newInstance();
 
+        ConnectionHandler connection = assistantState.getConnection();
         tool.initialize(
                 connection,
+                getToolName(),
+                getToolDescription(),
                 getToolType(),
-                getToolCategory(),
-                getToolDescription());
-        return proxy(tool);
+                getToolCategory());
+
+        return proxy(assistantState, tool);
     }
 
-    protected T proxy(T tool) {
-        ConnectionHandler connection = tool.getConnection();
-        InvocationHandler invocationHandler = new AssistantToolInvocationHandler<>(connection, tool);
+    protected T proxy(AssistantState assistantState, T tool) {
+        InvocationHandler invocationHandler = new AssistantToolInvocationHandler<>(assistantState, tool);
         Class<T> spec = getToolSpecification();
         return cast(Proxy.newProxyInstance(
                 spec.getClassLoader(),

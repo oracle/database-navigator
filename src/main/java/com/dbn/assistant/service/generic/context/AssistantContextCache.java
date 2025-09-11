@@ -55,7 +55,6 @@ public class AssistantContextCache extends AssistantStateExtension implements Fu
 
     private String createSystemMessage(String chatId) {
         AssistantState assistantState = getAssistantState();
-        if (assistantState == null) return null;
 
         ConnectionHandler connection = assistantState.getConnection();
         String content = TextResources.get(this, "system_message.md.ft");
@@ -70,7 +69,8 @@ public class AssistantContextCache extends AssistantStateExtension implements Fu
 
 
     public String getToolCategories() {
-        AssistantToolCategory[] categories = getToolCache().getCategories();
+        AssistantToolCache toolCache = getToolCache();
+        AssistantToolCategory[] categories = toolCache.getAvailableToolCategories();
         return Arrays
                 .stream(categories)
                 .map(c -> " * " + c.name() + ": " + c.getDescription())
@@ -78,7 +78,8 @@ public class AssistantContextCache extends AssistantStateExtension implements Fu
     }
 
     private String getToolTypes() {
-        AssistantTool[] tools = getToolCache().getTools();
+        AssistantToolCache toolCache = getToolCache();
+        AssistantTool[] tools = toolCache.getAvailableTools();
         return Arrays
                 .stream(tools)
                 .map(t -> " * " + t.getType() + ": " + t.getDescription())

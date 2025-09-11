@@ -55,8 +55,6 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
             AiServiceTokenStream aiTokenStream = (AiServiceTokenStream) tokenStream;
             aiTokenStream.beforeToolExecution(e -> {
                 ToolExecutionRequest request = e.request();
-
-
                 consumer.acceptToolRequest(
                         request.id(),
                         request.name(),

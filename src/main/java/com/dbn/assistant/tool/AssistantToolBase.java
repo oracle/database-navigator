@@ -35,14 +35,16 @@ import static java.util.stream.Collectors.toList;
 public abstract class AssistantToolBase extends ConnectionComponent implements AssistantTool{
     private AssistantToolType type;
     private AssistantToolCategory category;
+    private String name;
     private String description;
 
     @Override
-    public void initialize(ConnectionHandler connection, AssistantToolType type, AssistantToolCategory category, String description) {
+    public void initialize(ConnectionHandler connection, String name, String description, AssistantToolType type, AssistantToolCategory category) {
         initialize(connection);
+        this.name = name;
+        this.description = description;
         this.type = type;
         this.category = category;
-        this.description = description;
     }
 
     protected static <T extends DBObject> List<String> getObjectNames(List<T> objects, boolean qualified) {

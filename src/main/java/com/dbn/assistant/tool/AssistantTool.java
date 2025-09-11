@@ -23,11 +23,13 @@ public interface AssistantTool {
     @NotNull
     ConnectionHandler getConnection();
 
+    String getName();
+
+    String getDescription();
+
     AssistantToolType getType();
 
     AssistantToolCategory getCategory();
 
-    String getDescription();
-
-    void initialize(ConnectionHandler connection, AssistantToolType type, AssistantToolCategory category, String description);
+    void initialize(ConnectionHandler connection, String name, String description, AssistantToolType type, AssistantToolCategory category);
 }

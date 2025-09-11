@@ -40,10 +40,13 @@ import com.intellij.util.containers.ContainerUtil;
 import lombok.Getter;
 import lombok.experimental.Delegate;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
+import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -51,6 +54,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.util.Arrays;
 import java.util.Set;
 
 import static com.dbn.common.ui.util.Accessibility.initComponentGroupsAccessibility;
@@ -264,6 +269,34 @@ public abstract class DBNFormBase
     @NotNull
     public final <F extends DBNForm> F ensureParentFrom(Class<F> formClass) {
         return Failsafe.nd(getParentFrom(formClass));
+    }
+
+    protected static Action createAction(
+            @NotNull @Nls String name,
+            @NotNull Runnable runnable) {
+        return createAction(name, null, runnable);
+    }
+
+    protected static Action createAction(
+            @NotNull @Nls String name,
+            @Nullable String description,
+            @NotNull Runnable runnable) {
+        return new AbstractAction(name) {
+            {
+                putValue(Action.SHORT_DESCRIPTION, description);
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                runnable.run();
+            }
+        };
+    }
+
+    protected static Action[] createActions(Action ... actions) {
+        return Arrays.stream(actions)
+                .filter(value -> value != null)
+                .toArray(l -> new Action[l]);
+
     }
 
     @Override

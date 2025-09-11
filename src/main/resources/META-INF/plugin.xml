@@ -364,7 +364,6 @@
             <action class="com.dbn.assistant.chat.window.action.ChatDeleteAction" text="Clear Chat" id="DBNavigator.Actions.Assistant.DeleteChat" icon="AllIcons.Actions.GC"/>
             <group class="com.dbn.assistant.chat.window.action.ChatHistoryDropdownAction" text="Chat History" id="DBNavigator.Actions.Assistant.ChatHistory" icon="AllIcons.Vcs.History"/>
         </group>
-
         <group id="DBNavigator.ActionGroup.AssistantChatHistory" text="Chat History">
             <action class="com.dbn.assistant.chat.action.ChatHistoryDeleteAction" text="Delete Conversations" id="DBNavigator.Actions.Assistant.DeleteChats"/>
         </group>
@@ -379,6 +378,9 @@
             <action class="com.dbn.assistant.chat.window.action.PromptSubmitAction" text="Submit Prompt" id="DBNavigator.Actions.Assistant.SubmitPrompt" icon="AllIcons.Actions.Execute">
                 <keyboard-shortcut keymap="$default" first-keystroke="ENTER"/>
             </action>
+        </group>
+        <group id="DBNavigator.ActionGroup.AssistantToolActions" text="Assistant Tool Actions">
+            <action class="com.dbn.assistant.tool.action.ToolExecutionStopAction" text="Stop Tool Execution" id="DBNavigator.Actions.Assistant.StopToolExecution" icon="AllIcons.Actions.Suspend"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantCredentialManagement" text="Credential Management">
             <action class="com.dbn.assistant.service.selectai.credential.action.CredentialCreateAction" id="DBNavigator.Actions.Assistant.CreateCredential"/>

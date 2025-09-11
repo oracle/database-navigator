@@ -1,0 +1,289 @@
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.assistant.chat.message.ui;
+
+import com.dbn.assistant.chat.message.ChatMessageToolSection;
+import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.state.AssistantState;
+import com.dbn.assistant.tool.AssistantTool;
+import com.dbn.assistant.tool.AssistantToolCache;
+import com.dbn.assistant.tool.AssistantToolCategory;
+import com.dbn.assistant.tool.AssistantToolInfo.UtilityDefinition;
+import com.dbn.assistant.tool.AssistantToolType;
+import com.dbn.assistant.tool.approval.AssistantToolApprovals;
+import com.dbn.assistant.tool.approval.AssistantToolExecutionMonitor;
+import com.dbn.assistant.tool.event.AssistantToolRequest;
+import com.dbn.assistant.tool.event.AssistantToolStatus;
+import com.dbn.common.action.DataKeys;
+import com.dbn.common.color.Colors;
+import com.dbn.common.text.TextContent;
+import com.dbn.common.ui.Layouts;
+import com.dbn.common.ui.form.DBNForm;
+import com.dbn.common.ui.util.Borders;
+import com.dbn.common.util.Actions;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionRef;
+import com.intellij.icons.AllIcons;
+import com.intellij.lang.Language;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.ui.components.JBOptionButton;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import static com.dbn.assistant.chat.message.ChatMessageSectionType.TOOL;
+import static com.dbn.assistant.tool.AssistantToolCache.getUtilityDefinition;
+import static com.dbn.common.dispose.Failsafe.nd;
+import static com.intellij.icons.AllIcons.General.ExternalTools;
+
+public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
+    private JPanel mainPanel;
+    private JPanel buttonsPanel;
+    private JLabel toolNameLabel;
+    private JPanel actionsPanel;
+    private JPanel detailsPanel;
+    private JPanel framePanel;
+    private JLabel toolInfoLabel;
+    private JPanel contentPanel;
+    private JPanel headerPanel;
+
+    private final ConnectionRef connection;
+    private final ChatMessageToolSection toolSection;
+
+    ChatMessageToolSectionForm(DBNForm parent, ConnectionHandler connection, ChatMessageToolSection toolSection) {
+        super(parent, TOOL);
+        this.connection = ConnectionRef.of(connection);
+        this.toolSection = toolSection;
+        framePanel.setBorder(Borders.COMPONENT_OUTLINE_BORDER);
+        framePanel.setBackground(Colors.getEditorBackground());
+
+        initHeaderPanel();
+        initActionsPanel();
+        initDetailPanel();
+        initButtonsPanel();
+    }
+
+    private void initHeaderPanel() {
+        AssistantTool assistantTool = getAssistantTool();
+        String toolTypeName = assistantTool.getName();
+
+        String toolName = getToolName();
+        toolNameLabel.setText(toolTypeName + " - " + toolName);
+        toolNameLabel.setIcon(ExternalTools);
+
+        AssistantToolCategory toolCategory = getToolCategory();
+        toolInfoLabel.setText("");
+        toolInfoLabel.setIcon(AllIcons.General.Note);
+        toolInfoLabel.setToolTipText(
+                "<html><body>" +
+                        "Tool information<br><br>" +
+                        "<span style='font-size:smaller'>Type</span><br>" +
+                        "<u>" + toolTypeName + "</u><br>" +
+                        assistantTool.getDescription() + "<br><br>" +
+                        "<span style='font-size:smaller'>Category</span><br>" +
+                        "<u>" + toolCategory.getName() +"</u><br>" +
+                        toolCategory.getDescription() +
+                        "</body></html>");
+    }
+
+    private void initDetailPanel() {
+        AssistantTool assistantTool = getAssistantTool();
+        detailsPanel.setVisible(false);
+    }
+
+    private void initActionsPanel() {
+        ActionToolbar chatActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.AssistantToolActions");
+        this.actionsPanel.add(chatActions.getComponent());
+    }
+
+    private void initButtonsPanel() {
+        buttonsPanel.setVisible(false);
+        AssistantToolRequest toolRequest = getToolRequest();
+        if (toolRequest == null) return;  // old tool section (no pending execution)
+        if (toolRequest.getStatus() != AssistantToolStatus.REQUESTED) return;
+
+
+        buttonsPanel.setVisible(true);
+        String toolName = getToolName();
+        String toolCategoryName = getToolCategoryName();
+
+        AssistantToolType toolType = getToolType();
+        AssistantToolCategory toolCategory = getToolCategory();
+
+        JButton allowButton = new JBOptionButton(
+                createAction(
+                        txt("app.assistant.button.AllowTool"),
+                        txt("app.assistant.button.AllowToolDesc", toolName),
+                        () -> allow(toolName)),
+                createActions(
+                        createAction(
+                                txt("app.assistant.button.AlwaysAllowTool"),
+                                txt("app.assistant.button.AlwaysAllowToolDesc", toolName),
+                                () -> allow(toolType)),
+                        createAction(
+                                txt("app.assistant.button.AlwaysAllowToolCategory"),
+                                txt("app.assistant.button.AlwaysAllowToolCategoryDesc", toolCategoryName),
+                                () -> allow(toolCategory))));
+
+        JButton denyButton = new JBOptionButton(
+                createAction(
+                        txt("app.assistant.button.DenyTool"),
+                        txt("app.assistant.button.DenyToolDesc", toolName),
+                        () -> deny(toolName)),
+                createActions(
+                        createAction(
+                                txt("app.assistant.button.AlwaysDenyTool"),
+                                txt("app.assistant.button.AlwaysDenyToolDesc", toolName),
+                                () -> deny(toolType)),
+                        createAction(
+                                txt("app.assistant.button.AlwaysDenyToolCategory"),
+                                txt("app.assistant.button.AlwaysDenyToolCategoryDesc", toolCategoryName),
+                                () -> deny(toolCategory))));
+
+        Layouts.horizontalBoxLayout(buttonsPanel);
+        buttonsPanel.add(allowButton);
+        buttonsPanel.add(denyButton);
+    }
+
+    private void allow(Object key){
+        AssistantToolApprovals toolApproval = getToolApproval();
+        if (toolApproval == null) return;
+
+        if (key instanceof AssistantToolType) {
+            AssistantToolType toolType = (AssistantToolType) key;
+            toolApproval.allow(toolType);
+        } else if (key instanceof AssistantToolCategory) {
+            AssistantToolCategory toolCategory = (AssistantToolCategory) key;
+            toolApproval.allow(toolCategory);
+        }
+        buttonsPanel.setVisible(false);
+        AssistantToolExecutionMonitor executionMonitor = getExecutionGuard();
+        executionMonitor.allow();
+    }
+
+    private void deny(Object key){
+        AssistantToolApprovals toolApproval = getToolApproval();
+        if (toolApproval == null) return;
+
+        if (key instanceof AssistantToolType) {
+            AssistantToolType toolType = (AssistantToolType) key;
+            toolApproval.deny(toolType);
+        } else if (key instanceof AssistantToolCategory) {
+            AssistantToolCategory toolCategory = (AssistantToolCategory) key;
+            toolApproval.deny(toolCategory);
+        }
+        buttonsPanel.setVisible(false);
+        AssistantToolExecutionMonitor executionMonitor = getExecutionGuard();
+        executionMonitor.deny();
+    }
+
+    public void cancelToolExecution() {
+        AssistantToolExecutionMonitor executionMonitor = getExecutionGuard();
+        executionMonitor.cancel();
+    }
+
+    public AssistantToolRequest getToolRequest() {
+        return toolSection.getToolRequest();
+    }
+
+    @Override
+    protected JComponent getMainComponent() {
+        return mainPanel;
+    }
+
+    private String getToolName() {
+        String toolName = toolSection.getToolName();
+
+        AssistantTool tool = getAssistantTool();
+        UtilityDefinition definition = getUtilityDefinition(tool, toolName);
+        if (definition == null) return toolName;
+
+        return definition.name();
+    }
+
+    private AssistantToolType getToolType() {
+        AssistantTool tool = getAssistantTool();
+        return tool.getType();
+    }
+
+    private AssistantToolCategory getToolCategory() {
+        AssistantTool tool = getAssistantTool();
+        return tool.getCategory();
+    }
+
+    private String getToolCategoryName() {
+        return getToolCategory().getName();
+    }
+
+
+    private AssistantTool getAssistantTool() {
+        AssistantToolCache toolCache = getToolCache();
+
+        String toolName = toolSection.getToolName();
+        return toolCache.getAssistantTool(toolName);
+    }
+
+    private AssistantToolCache getToolCache() {
+        AssistantState assistantState = getAssistantState();
+        return AssistantToolCache.get(assistantState);
+    }
+
+    private AssistantToolApprovals getToolApproval() {
+        AssistantState assistantState = getAssistantState();
+        return AssistantToolApprovals.get(assistantState);
+    }
+
+    private AssistantState getAssistantState() {
+        ChatBoxForm chatBoxForm = getChatBoxForm();
+        return chatBoxForm.getAssistantState();
+    }
+
+    private AssistantToolExecutionMonitor getExecutionGuard() {
+        return getToolRequest().getExecutionMonitor();
+    }
+
+    private ChatBoxForm getChatBoxForm() {
+        return nd(getParentFrom(ChatBoxForm.class));
+    }
+
+    public ConnectionHandler getConnection() {
+        return ConnectionRef.ensure(connection);
+    }
+
+    @Override
+    protected void applyContent(TextContent content, @Nullable Language language) {
+
+    }
+
+    public void updateToolContent(ChatMessageToolSection section) {
+        AssistantToolStatus status = section.getStatus();
+        if (status != AssistantToolStatus.REQUESTED) {
+            buttonsPanel.setVisible(false);
+        }
+    }
+
+    @Nullable
+    @Override
+    public Object getData(@NotNull String dataId) {
+        if (DataKeys.CHAT_MESSAGE_TOOL_SECTION_FORM.is(dataId)) return this;
+        return null;
+    }
+}

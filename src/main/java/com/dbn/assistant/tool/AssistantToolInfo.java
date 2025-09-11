@@ -28,9 +28,11 @@ public interface AssistantToolInfo {
     @interface ToolDefinition {
         String type();
 
-        AssistantToolCategory category();
+        String name();
 
         String description();
+
+        AssistantToolCategory category();
     }
 
     @Target({ElementType.TYPE})

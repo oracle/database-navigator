@@ -16,7 +16,7 @@
 
 package com.dbn.assistant.tool;
 
-import com.dbn.connection.ConnectionHandler;
+import com.dbn.assistant.state.AssistantState;
 import com.intellij.openapi.extensions.ExtensionPointName;
 
 public interface AssistantToolFactory<T extends AssistantTool> {
@@ -30,7 +30,9 @@ public interface AssistantToolFactory<T extends AssistantTool> {
 
     AssistantToolCategory getToolCategory();
 
+    String getToolName();
+
     String getToolDescription();
 
-    T createTool(ConnectionHandler connection);
+    T createTool(AssistantState assistantState);
 }

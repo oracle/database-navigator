@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.tool.event;
+package com.dbn.assistant.tool.approval;
 
-public enum AssistantToolStatus {
-    REQUESTED,
-    EXECUTING,
-    CANCELLED,
-    REJECTED,
-    COMPLETED,
-    FAILED;
+import lombok.Getter;
+
+@Getter
+public class AssistantToolApprovalException extends RuntimeException {
+    public AssistantToolApprovalException(String message) {
+        super(message);
+    }
+
+    public AssistantToolApprovalException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

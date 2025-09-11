@@ -67,7 +67,7 @@ public class UserChatMessageForm extends ChatMessageForm {
 
     private void initMessagePanel() {
         String content = getMessage().getContent();
-        ChatMessageSectionTextForm messageSectionForm = new ChatMessageSectionTextForm(this, content);
+        ChatMessageTextSectionForm messageSectionForm = new ChatMessageTextSectionForm(this, content);
 
         messagePanel.add(messageSectionForm.getComponent());
     }

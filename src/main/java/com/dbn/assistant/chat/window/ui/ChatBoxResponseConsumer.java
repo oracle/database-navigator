@@ -23,9 +23,14 @@ import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.state.AssistantState;
+import com.dbn.assistant.tool.AssistantTool;
+import com.dbn.assistant.tool.AssistantToolCache;
+import com.dbn.assistant.tool.approval.AssistantToolApprovalException;
+import com.dbn.assistant.tool.approval.AssistantToolExecutionMonitor;
+import com.dbn.assistant.tool.event.AssistantToolRequest;
 import com.dbn.connection.ConnectionId;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.assistant.chat.message.AuthorType.AGENT;
 import static com.dbn.assistant.chat.message.AuthorType.SYSTEM;
@@ -66,14 +71,6 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         }
     }
 
-    private @NotNull ConnectionId getConnectionId() {
-        return chatBoxForm.getConnectionId();
-    }
-
-    private Chat getChat() {
-        return chatBoxForm.getChat(chatId);
-    }
-
     @Override
     public void acceptMessage(String message) {
         // ignore if token-stream is supported
@@ -87,6 +84,8 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     @Override
     public void acceptError(Throwable e) {
+        if (e instanceof AssistantToolApprovalException) return;
+
         log.warn("Error processing assistant query", e);
 
         ConnectionId connectionId = getConnectionId();
@@ -99,7 +98,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     @Override
     public void acceptCompletion() {
-        AssistantState assistantState = chatBoxForm.getAssistantState();
+        AssistantState assistantState = getAssistantState();
         assistantState.set(QUERYING, false);
     }
 
@@ -111,16 +110,33 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         ChatMessage lastMessage = chat.getLastMessage();
         if (lastMessage == null) return;
 
+        AssistantToolRequest toolRequest = createToolRequest(requestId, toolName, toolArguments);
+        if (toolRequest == null) return;
+
         AuthorType author = lastMessage.getAuthor();
         if (author == USER) {
             // agent responded directly with a tool request
             lastMessage = new ChatMessage(NEUTRAL, "", AGENT, chatContext);
-            lastMessage.appendToolRequest(requestId, toolName, toolArguments);
+            lastMessage.appendToolRequest(toolRequest);
             chatBoxForm.appendMessage(chatId, lastMessage);
         } else if (author == AGENT) {
-            lastMessage.appendToolRequest(requestId, toolName, toolArguments);
+            lastMessage.appendToolRequest(toolRequest);
             chatBoxForm.refreshTools(lastMessage);
         }
+    }
+
+    @Nullable
+    private AssistantToolRequest createToolRequest(String requestId, String toolName, String toolArguments) {
+        AssistantToolCache toolCache = getToolCache();
+        AssistantTool tool = toolCache.getAssistantTool(toolName);
+        if (tool == null) return null;
+
+        AssistantToolRequest toolRequest = new AssistantToolRequest(toolCache, requestId, toolName, toolArguments);
+
+        AssistantState assistantState = getAssistantState();
+        AssistantToolExecutionMonitor executionGuard = new AssistantToolExecutionMonitor(assistantState, tool);
+        toolRequest.setExecutionMonitor(executionGuard);
+        return toolRequest;
     }
 
     @Override
@@ -135,5 +151,23 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
             lastMessage.appendToolResponse(requestId, toolName, toolResponse);
             chatBoxForm.refreshTools(lastMessage);
         }
+    }
+
+
+    private ConnectionId getConnectionId() {
+        return chatBoxForm.getConnectionId();
+    }
+
+    private Chat getChat() {
+        return chatBoxForm.getChat(chatId);
+    }
+
+    private AssistantState getAssistantState() {
+        return chatBoxForm.getAssistantState();
+    }
+
+    private AssistantToolCache getToolCache() {
+        AssistantState assistantState = getAssistantState();
+        return AssistantToolCache.get(assistantState);
     }
 }
