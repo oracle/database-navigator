@@ -596,6 +596,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 			for(DBJavaClassImpl dbJavaClassImpl : INSTANCES_CHECKED_FOR_SUPPORT){
 				dbJavaClassImpl.argumentSupportChecked = false;
 				dbJavaClassImpl.returnSupportChecked = false;
+				INSTANCES_CHECKED_FOR_SUPPORT.remove(dbJavaClassImpl);
 			}
 		}
 	}
