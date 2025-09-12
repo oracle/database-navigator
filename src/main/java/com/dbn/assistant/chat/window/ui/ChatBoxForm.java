@@ -422,6 +422,10 @@ public class ChatBoxForm extends DBNFormBase {
         return getAssistantState().getCurrentChat();
     }
 
+    public Object getCurrentChatId() {
+        return getAssistantState().getCurrentChatId();
+    }
+
     public void submitPrompt() {
         submitPrompt(null);
     }

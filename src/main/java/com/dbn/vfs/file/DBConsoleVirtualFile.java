@@ -64,7 +64,7 @@ import java.util.Objects;
 @Getter
 public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> implements DocumentListener, DBParseableVirtualFile, Comparable<DBConsoleVirtualFile>, FileConnectionContextProvider {
     private final SourceCodeContent content = new SourceCodeContent();
-    private final FileConnectionContext connectionContext;
+    private final transient FileConnectionContext connectionContext;
 
     public DBConsoleVirtualFile(@NotNull DBConsole console) {
         super(console.getProject(), DBObjectRef.of(console));

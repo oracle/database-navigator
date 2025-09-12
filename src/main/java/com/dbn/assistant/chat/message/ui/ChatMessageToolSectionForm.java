@@ -119,6 +119,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         AssistantToolRequest toolRequest = getToolRequest();
         if (toolRequest == null) return;  // old tool section (no pending execution)
         if (toolRequest.getStatus() != AssistantToolStatus.REQUESTED) return;
+        if (getExecutionGuard() == null) return; // old incomplete tool request
 
 
         buttonsPanel.setVisible(true);

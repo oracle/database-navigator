@@ -17,8 +17,13 @@
 package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.assistant.chat.message.ChatMessage;
+import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.tool.event.AssistantToolEvent;
+import com.dbn.assistant.tool.event.AssistantToolListener;
+import com.dbn.assistant.tool.event.AssistantToolRequest;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Disposer;
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
@@ -28,6 +33,7 @@ import com.dbn.common.ui.util.Components;
 import com.dbn.common.ui.util.ScrollPanes;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Lists;
+import com.intellij.util.Alarm;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -37,6 +43,7 @@ import javax.swing.JScrollPane;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 
@@ -44,16 +51,38 @@ public class ChatMessagesForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel messagesPanel;
     private JScrollPane messagesScrollPanel;
+    private Alarm scrollAlarm;
 
     private final List<ChatMessageForm> messageForms = DisposableContainers.list(this);
 
     public ChatMessagesForm(@Nullable DBNComponent parent) {
         super(parent);
 
+        scrollAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD,this);
         verticalBoxLayout(messagesPanel);
         ClientProperty.HORIZONTAL_SCROLL_POLICY.set(messagesScrollPanel, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
         Components.onComponentResized(messagesPanel, e -> messagesPanel.revalidate());
+        ProjectEvents.subscribe(AssistantToolListener.TOPIC, createToolListener());
+    }
+
+    private AssistantToolListener createToolListener() {
+        return event -> {
+            if (matchesChat(event)) {
+                scrollDown();
+            }
+        };
+    }
+
+    private boolean matchesChat(AssistantToolEvent event) {
+        AssistantToolRequest request = event.getRequest();
+        ChatBoxForm chatBoxForm = getParentFrom(ChatBoxForm.class);
+        if (chatBoxForm == null) return false;
+
+        String requestChatId = request.getChatId();
+        Object currentChatId = chatBoxForm.getCurrentChatId();
+        return Objects.equals(currentChatId, requestChatId);
+
     }
 
     @Override
@@ -84,7 +113,7 @@ public class ChatMessagesForm extends DBNFormBase {
                 this.messagesPanel.add(form.getComponent());
             }
             this.mainPanel.revalidate();
-            scrollDown(true);
+            scrollDown();
         });
     }
 
@@ -102,7 +131,7 @@ public class ChatMessagesForm extends DBNFormBase {
             if (messageForm == null) return;
 
             action.accept(messageForm);
-            scrollDown(false);
+            scrollDown();
         });
     }
 
@@ -127,8 +156,8 @@ public class ChatMessagesForm extends DBNFormBase {
         Disposer.dispose(messageForms);
     }
 
-    public void scrollDown(boolean animate) {
-        ScrollPanes.scrollDown(messagesScrollPanel, animate);
-
+    public void scrollDown() {
+        scrollAlarm.cancelAllRequests();
+        scrollAlarm.addRequest(() -> ScrollPanes.scrollDown(messagesScrollPanel, false), 10);
     }
 }

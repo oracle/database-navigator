@@ -40,6 +40,7 @@ import static com.dbn.common.util.Commons.nvl;
 @Setter
 public class AssistantToolRequest implements PersistentStateElement {
     private static final ThreadLocal<AssistantToolRequest> CURRENT = new ThreadLocal<>();
+    private String chatId;
     private String requestId;
     private String toolName;
     private String toolArguments;
@@ -54,7 +55,8 @@ public class AssistantToolRequest implements PersistentStateElement {
 
     public AssistantToolRequest() {}
 
-    public AssistantToolRequest(AssistantToolCache toolCache, String requestId, String toolName, String toolArguments) {
+    public AssistantToolRequest(AssistantToolCache toolCache, String chatId, String requestId, String toolName, String toolArguments) {
+        this.chatId = chatId;
         this.requestId = nvl(requestId, () -> UUIDs.compact());
         this.toolName = toolName;
         this.toolArguments = toolArguments;

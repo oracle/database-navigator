@@ -110,7 +110,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         ChatMessage lastMessage = chat.getLastMessage();
         if (lastMessage == null) return;
 
-        AssistantToolRequest toolRequest = createToolRequest(requestId, toolName, toolArguments);
+        AssistantToolRequest toolRequest = createToolRequest(chatId, requestId, toolName, toolArguments);
         if (toolRequest == null) return;
 
         AuthorType author = lastMessage.getAuthor();
@@ -126,12 +126,12 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
     }
 
     @Nullable
-    private AssistantToolRequest createToolRequest(String requestId, String toolName, String toolArguments) {
+    private AssistantToolRequest createToolRequest(String chatId, String requestId, String toolName, String toolArguments) {
         AssistantToolCache toolCache = getToolCache();
         AssistantTool tool = toolCache.getAssistantTool(toolName);
         if (tool == null) return null;
 
-        AssistantToolRequest toolRequest = new AssistantToolRequest(toolCache, requestId, toolName, toolArguments);
+        AssistantToolRequest toolRequest = new AssistantToolRequest(toolCache, chatId, requestId, toolName, toolArguments);
 
         AssistantState assistantState = getAssistantState();
         AssistantToolExecutionMonitor executionGuard = new AssistantToolExecutionMonitor(assistantState, tool);
