@@ -293,10 +293,11 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     public String generateTitle(
             String chatId,
             ConnectionId connectionId,
+            ChatContext context,
             AssistantType assistantType) throws Exception {
         AssistantState assistantState = getAssistantState(connectionId, assistantType);
         AssistantAdapter assistantAdapter = assistantState.getAssistantAdapter();
-        return assistantAdapter.generateTitle(chatId, connectionId);
+        return assistantAdapter.generateTitle(chatId, connectionId, context);
     }
 
     /*********************************************

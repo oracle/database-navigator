@@ -105,7 +105,7 @@ public class CustomAssistantAdapter extends AssistantAdapterBase {
     }
 
     @Override
-    public String generateTitle(String chatId, ConnectionId connectionId) throws Exception {
+    public String generateTitle(String chatId, ConnectionId connectionId, ChatContext context) throws Exception {
         return "";
     }
 }

@@ -289,7 +289,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
     }
 
     @Override
-    public String generateTitle(String chatId, ConnectionId connectionId) throws Exception {
+    public String generateTitle(String chatId, ConnectionId connectionId, ChatContext context) throws Exception {
         AssistantState assistantState = getAssistantState(connectionId);
         if (assistantState == null) return null;
 

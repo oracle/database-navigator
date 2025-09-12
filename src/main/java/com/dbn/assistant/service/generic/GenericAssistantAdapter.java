@@ -18,10 +18,12 @@ package com.dbn.assistant.service.generic;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.adapter.AssistantAdapterBase;
+import com.dbn.assistant.adapter.AssistantResponseAdapter;
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.adapter.ui.AssistantContextActionsForm;
 import com.dbn.assistant.adapter.ui.AssistantIntroductionForm;
 import com.dbn.assistant.adapter.ui.AssistantPromptActionsForm;
+import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
@@ -38,7 +40,12 @@ import com.dbn.assistant.service.generic.ui.GenericAssistantIntroductionForm;
 import com.dbn.assistant.service.generic.ui.GenericAssistantPromptActionsForm;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.exception.Exceptions;
+import com.dbn.common.util.Lists;
+import com.dbn.common.util.UUIDs;
 import com.dbn.connection.ConnectionId;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -115,15 +122,54 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
     }
 
     @Override
-    public void generate(String prompt, String chatId, ConnectionId connectionId, ChatContext chatContext, AssistantResponseConsumer responseConsumer) {
+    public void generate(String prompt, String chatId, ConnectionId connectionId, ChatContext context, AssistantResponseConsumer responseConsumer) {
         try {
-            String modelName = chatContext.getModel().getApiName();
+            AssistantModelInput input = createModelInput(context);
+            AssistantState state = getAssistantState(connectionId);
 
-            // TODO user, token, url from assistant config...
+            var model = resolveModel(context, input);
+            var invoker = resolveModelInvoker(model);
 
-            AssistantModelInput input = AssistantModelInput.create(modelName)
-                    .withUser(System.getProperty("tempOpenAiUser"))
-                    .withToken(System.getProperty("tempOpenAiApiKey"));
+            invoker.invokeModel(model, state, chatId, prompt, responseConsumer);
+
+        } catch (Throwable t) {
+            responseConsumer.acceptError(t);
+            responseConsumer.acceptCompletion();
+        }
+    }
+
+    @Override
+    public String generateTitle(String chatId, ConnectionId connectionId, ChatContext context) {
+        AssistantState state = getAssistantState(connectionId);
+        if (state == null) return null;
+
+        Chat chat = state.getChat(chatId);
+        List<String> userPrompts = chat.getUserPrompts();
+        if (userPrompts.isEmpty()) return null;
+
+        String prompts = Lists.toCsv(userPrompts, "\n", s -> "\"" + s + "\"");
+        String titlePrompt = "Summarize the following user prompts into a concise title (3-5 words). Respond with the title only, no punctuation, quotes, or filler words:\n\n" + prompts;
+
+        AssistantModelInput input = createModelInput(context);
+
+        var model = resolveModel(context, input);
+        var invoker = resolveModelInvoker(model);
+
+        AtomicReference<String> title = new AtomicReference<>();
+        AssistantResponseConsumer responseConsumer = AssistantResponseAdapter.create().withMessageConsumer(m -> title.set(m));
+        invoker.invokeModel(model, state, UUIDs.compact(), titlePrompt, responseConsumer);
+
+        return title.get();
+    }
+
+
+    private static AssistantModelInput createModelInput(ChatContext chatContext) {
+        String modelName = chatContext.getModel().getApiName();
+        // TODO user, token, url from assistant config...
+
+        return AssistantModelInput.create(modelName)
+                .withUser(System.getProperty("tempOpenAiUser"))
+                .withToken(System.getProperty("tempOpenAiApiKey"));
 
 /*            AssistantModelInput input = AssistantModelInput.create(modelName)
                     .withUser(System.getProperty("tempGoogleAiUser"))
@@ -133,21 +179,9 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
                     .withToken(System.getProperty("tempAnthropicApiKey"));
 
 
-            AssistantModelInput input = AssistantModelInput.create(modelName)
+            return AssistantModelInput.create(modelName)
                     .withToken(System.getProperty("tempMistralAiApiKey"));
 */
-
-            AssistantState state = getAssistantState(connectionId);
-
-            var model = resolveModel(chatContext, input);
-            var invoker = resolveModelInvoker(model);
-
-            invoker.invokeModel(model, state, chatId, prompt, responseConsumer);
-
-        } catch (Throwable t) {
-            responseConsumer.acceptError(t);
-            responseConsumer.acceptCompletion();
-        }
     }
 
     private static Object resolveModel(ChatContext context, AssistantModelInput input) {
@@ -166,10 +200,5 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
     private static AssistantModelInvoker<Object> resolveModelInvoker(Object model) {
         AssistantModelType modelType = AssistantModelType.get(model);
         return AssistantModelInvokers.get(modelType);
-    }
-
-    @Override
-    public String generateTitle(String chatId, ConnectionId connectionId) throws Exception {
-        return "";
     }
 }

@@ -458,19 +458,19 @@ public class ChatBoxForm extends DBNFormBase {
 
         ChatBoxResponseConsumer responseConsumer = new ChatBoxResponseConsumer(this, chatContext, chatId);
 
-        initChatTitle(chatId, connectionId);
+        initChatTitle(chatId, connectionId, chatContext);
 
         DatabaseAssistantManager assistantManager = getManager();
         assistantManager.query(question, chatId, connectionId, assistantType, chatContext, responseConsumer);
     }
 
-    private void initChatTitle(String chatId, ConnectionId connectionId) {
+    private void initChatTitle(String chatId, ConnectionId connectionId, ChatContext context) {
         Chat chat = getChat(chatId);
         if (chat.isPersisted()) return;
 
         Background.run(() -> {
             DatabaseAssistantManager assistantManager = getManager();
-            String title = assistantManager.generateTitle(chatId, connectionId, assistantType);
+            String title = assistantManager.generateTitle(chatId, connectionId, context, assistantType);
             if (title != null) {
                 String[] split = title.split("\\s");
                 if (split.length > 6) title = null;
