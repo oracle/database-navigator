@@ -18,6 +18,7 @@ package com.dbn.assistant.tool.approval;
 
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
+import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolCategory;
 import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.common.action.UserDataKeys;
@@ -41,6 +42,13 @@ public class AssistantToolApprovals extends AssistantStateExtension {
 
     public static AssistantToolApprovals get(AssistantState assistantState) {
         return UserDataKeys.getUserDataSync(assistantState, ASSISTANT_TOOL_APPROVALS, () -> new AssistantToolApprovals(assistantState));
+    }
+
+    public boolean isPreapproved(AssistantTool tool) {
+        if (isAllowed(tool.getCategory())) return true;
+        if (isAllowed(tool.getType())) return true;
+
+        return false;
     }
 
 

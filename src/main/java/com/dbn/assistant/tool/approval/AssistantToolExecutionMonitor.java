@@ -50,8 +50,7 @@ public class AssistantToolExecutionMonitor extends AssistantStateExtension {
     public void awaitApproval() {
         AssistantState state = getAssistantState();
         AssistantToolApprovals approval = AssistantToolApprovals.get(state);
-        if (approval.isAllowed(tool.getCategory())) return;
-        if (approval.isAllowed(tool.getType())) return;
+        if (approval.isPreapproved(this.tool)) return;
 
         if (approval.isDenied(tool.getType())) throw new AssistantToolApprovalException("User has denied the execution of this tool type");
         if (approval.isDenied(tool.getCategory())) throw new AssistantToolApprovalException("User has denied the execution of this tool category");

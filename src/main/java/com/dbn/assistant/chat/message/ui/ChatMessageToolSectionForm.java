@@ -31,6 +31,7 @@ import com.dbn.assistant.tool.event.AssistantToolStatus;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
 import com.dbn.common.text.TextContent;
+import com.dbn.common.text.TextResources;
 import com.dbn.common.ui.Layouts;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.util.Borders;
@@ -48,6 +49,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextPane;
 
 import static com.dbn.assistant.chat.message.ChatMessageSectionType.TOOL;
 import static com.dbn.assistant.tool.AssistantToolCache.getUtilityDefinition;
@@ -64,6 +66,10 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     private JLabel toolInfoLabel;
     private JPanel contentPanel;
     private JPanel headerPanel;
+    private JLabel toolTypeLabel;
+    private JLabel toolIconLabel;
+    private JPanel confirmationPanel;
+    private JTextPane confirmationTextPane;
 
     private final ConnectionRef connection;
     private final ChatMessageToolSection toolSection;
@@ -78,35 +84,38 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         initHeaderPanel();
         initActionsPanel();
         initDetailPanel();
-        initButtonsPanel();
+        initConfirmationPanel();
     }
 
     private void initHeaderPanel() {
         AssistantTool assistantTool = getAssistantTool();
         String toolTypeName = assistantTool.getName();
 
-        String toolName = getToolName();
-        toolNameLabel.setText(toolTypeName + " - " + toolName);
-        toolNameLabel.setIcon(ExternalTools);
+        toolTypeLabel.setText(toolTypeName);
+
+        toolIconLabel.setIcon(ExternalTools);
+        toolIconLabel.setText("");
 
         AssistantToolCategory toolCategory = getToolCategory();
         toolInfoLabel.setText("");
         toolInfoLabel.setIcon(AllIcons.General.Note);
-        toolInfoLabel.setToolTipText(
-                "<html><body>" +
-                        "Tool information<br><br>" +
-                        "<span style='font-size:smaller'>Type</span><br>" +
-                        "<u>" + toolTypeName + "</u><br>" +
-                        assistantTool.getDescription() + "<br><br>" +
-                        "<span style='font-size:smaller'>Category</span><br>" +
-                        "<u>" + toolCategory.getName() +"</u><br>" +
-                        toolCategory.getDescription() +
-                        "</body></html>");
+
+
+        String wrapperContent = TextResources.get(getClass(), "tool_info_tooltip.html.ft");
+        TextContent htmlContent = TextContent.html(wrapperContent);
+        htmlContent.initField("TOOL_TYPE_NAME", toolTypeName);
+        htmlContent.initField("TOOL_TYPE_DESCRIPTION", assistantTool.getDescription());
+        htmlContent.initField("TOOL_CATEGORY_NAME", toolCategory.getName());
+        htmlContent.initField("TOOL_CATEGORY_DESCRIPTION", toolCategory.getDescription());
+
+        String tooltipText = htmlContent.getText();
+        toolInfoLabel.setToolTipText(tooltipText);
     }
 
     private void initDetailPanel() {
         AssistantTool assistantTool = getAssistantTool();
-        detailsPanel.setVisible(false);
+        String toolName = getToolName();
+        toolNameLabel.setText(toolName);
     }
 
     private void initActionsPanel() {
@@ -114,15 +123,20 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         this.actionsPanel.add(chatActions.getComponent());
     }
 
-    private void initButtonsPanel() {
-        buttonsPanel.setVisible(false);
+    private void initConfirmationPanel() {
+        confirmationPanel.setVisible(false);
         AssistantToolRequest toolRequest = getToolRequest();
         if (toolRequest == null) return;  // old tool section (no pending execution)
         if (toolRequest.getStatus() != AssistantToolStatus.REQUESTED) return;
-        if (getExecutionGuard() == null) return; // old incomplete tool request
+        if (getExecutionMonitor() == null) return; // old incomplete tool request
+        if (isPreapproved()) return;
 
+        confirmationTextPane.setText("The agent has requested to run this tool on your database. " +
+                "Please review the request and choose whether to approve or reject it. " +
+                "You may also choose to always allow or deny tools of this type or category. " +
+                "The system will remember your preference for future requests");
 
-        buttonsPanel.setVisible(true);
+        confirmationPanel.setVisible(true);
         String toolName = getToolName();
         String toolCategoryName = getToolCategoryName();
 
@@ -166,7 +180,6 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
 
     private void allow(Object key){
         AssistantToolApprovals toolApproval = getToolApproval();
-        if (toolApproval == null) return;
 
         if (key instanceof AssistantToolType) {
             AssistantToolType toolType = (AssistantToolType) key;
@@ -175,8 +188,8 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
             AssistantToolCategory toolCategory = (AssistantToolCategory) key;
             toolApproval.allow(toolCategory);
         }
-        buttonsPanel.setVisible(false);
-        AssistantToolExecutionMonitor executionMonitor = getExecutionGuard();
+        confirmationPanel.setVisible(false);
+        AssistantToolExecutionMonitor executionMonitor = getExecutionMonitor();
         executionMonitor.allow();
     }
 
@@ -191,13 +204,19 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
             AssistantToolCategory toolCategory = (AssistantToolCategory) key;
             toolApproval.deny(toolCategory);
         }
-        buttonsPanel.setVisible(false);
-        AssistantToolExecutionMonitor executionMonitor = getExecutionGuard();
+        confirmationPanel.setVisible(false);
+        AssistantToolExecutionMonitor executionMonitor = getExecutionMonitor();
         executionMonitor.deny();
     }
 
+
+    private boolean isPreapproved() {
+        AssistantToolApprovals toolApproval = getToolApproval();
+        return toolApproval.isPreapproved(getAssistantTool());
+    }
+
     public void cancelToolExecution() {
-        AssistantToolExecutionMonitor executionMonitor = getExecutionGuard();
+        AssistantToolExecutionMonitor executionMonitor = getExecutionMonitor();
         executionMonitor.cancel();
     }
 
@@ -257,7 +276,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         return chatBoxForm.getAssistantState();
     }
 
-    private AssistantToolExecutionMonitor getExecutionGuard() {
+    private AssistantToolExecutionMonitor getExecutionMonitor() {
         return getToolRequest().getExecutionMonitor();
     }
 
@@ -277,7 +296,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     public void updateToolContent(ChatMessageToolSection section) {
         AssistantToolStatus status = section.getStatus();
         if (status != AssistantToolStatus.REQUESTED) {
-            buttonsPanel.setVisible(false);
+            confirmationPanel.setVisible(false);
         }
     }
 

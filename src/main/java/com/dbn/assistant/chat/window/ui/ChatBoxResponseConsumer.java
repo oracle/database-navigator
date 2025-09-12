@@ -134,8 +134,8 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         AssistantToolRequest toolRequest = new AssistantToolRequest(toolCache, chatId, requestId, toolName, toolArguments);
 
         AssistantState assistantState = getAssistantState();
-        AssistantToolExecutionMonitor executionGuard = new AssistantToolExecutionMonitor(assistantState, tool);
-        toolRequest.setExecutionMonitor(executionGuard);
+        AssistantToolExecutionMonitor executionMonitor = new AssistantToolExecutionMonitor(assistantState, tool);
+        toolRequest.setExecutionMonitor(executionMonitor);
         return toolRequest;
     }
 
