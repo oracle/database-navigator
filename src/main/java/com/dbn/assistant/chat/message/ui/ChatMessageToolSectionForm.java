@@ -30,6 +30,7 @@ import com.dbn.assistant.tool.event.AssistantToolRequest;
 import com.dbn.assistant.tool.event.AssistantToolStatus;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
 import com.dbn.common.ui.Layouts;
@@ -54,7 +55,6 @@ import javax.swing.JTextPane;
 import static com.dbn.assistant.chat.message.ChatMessageSectionType.TOOL;
 import static com.dbn.assistant.tool.AssistantToolCache.getUtilityDefinition;
 import static com.dbn.common.dispose.Failsafe.nd;
-import static com.intellij.icons.AllIcons.General.ExternalTools;
 
 public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     private JPanel mainPanel;
@@ -93,7 +93,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
 
         toolTypeLabel.setText(toolTypeName);
 
-        toolIconLabel.setIcon(ExternalTools);
+        toolIconLabel.setIcon(Icons.ASSISTANT_TOOL);
         toolIconLabel.setText("");
 
         AssistantToolCategory toolCategory = getToolCategory();
