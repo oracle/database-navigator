@@ -381,6 +381,8 @@
         </group>
         <group id="DBNavigator.ActionGroup.AssistantToolActions" text="Assistant Tool Actions">
             <action class="com.dbn.assistant.tool.action.ToolExecutionStopAction" text="Stop Tool Execution" id="DBNavigator.Actions.Assistant.StopToolExecution" icon="AllIcons.Actions.Suspend"/>
+            <action class="com.dbn.assistant.tool.action.ToolExecutionDataAction" text="Tool Execution Data" id="DBNavigator.Actions.Assistant.ToolExecutionData" icon="AllIcons.Actions.ListFiles"/>
+            <action class="com.dbn.assistant.tool.action.ToolExecutionSettingsAction" text="Tool Settings" id="DBNavigator.Actions.Assistant.ToolExecutionSettings" icon="AllIcons.General.GearPlain"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantCredentialManagement" text="Credential Management">
             <action class="com.dbn.assistant.service.selectai.credential.action.CredentialCreateAction" id="DBNavigator.Actions.Assistant.CreateCredential"/>

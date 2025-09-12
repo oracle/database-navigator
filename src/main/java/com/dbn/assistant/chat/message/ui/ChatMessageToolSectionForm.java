@@ -37,11 +37,13 @@ import com.dbn.common.ui.Layouts;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
+import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.intellij.icons.AllIcons;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.ui.components.JBOptionButton;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,6 +53,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+import java.awt.Point;
 
 import static com.dbn.assistant.chat.message.ChatMessageSectionType.TOOL;
 import static com.dbn.assistant.tool.AssistantToolCache.getUtilityDefinition;
@@ -220,6 +223,13 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         executionMonitor.cancel();
     }
 
+    public void showToolExecutionData(DataContext context) {
+        Point location = getMainComponent().getLocationOnScreen();
+        String request = toolSection.getToolRequest().getToolArguments();
+        String response = toolSection.getToolResponse();
+        Dialogs.show(() -> new AssistantToolDataDialog(getProject(), getToolName(), request, response, location));
+    }
+
     public AssistantToolRequest getToolRequest() {
         return toolSection.getToolRequest();
     }
@@ -298,6 +308,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         if (status != AssistantToolStatus.REQUESTED) {
             confirmationPanel.setVisible(false);
         }
+        updateActionToolbars();
     }
 
     @Nullable
