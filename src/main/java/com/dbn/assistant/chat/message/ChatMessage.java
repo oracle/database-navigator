@@ -92,7 +92,7 @@ public class ChatMessage implements PersistentStateElement {
      */
     public ChatMessage(MessageType type, String content, AuthorType author, ChatContext context) {
         this.type = type;
-        this.content = content.trim();
+        this.content = removeCodeBlockIndents(content.trim());
         this.author = author;
         this.context = context;
     }
@@ -110,6 +110,9 @@ public class ChatMessage implements PersistentStateElement {
         int currentOffset = content.length();
 
         content = content + token;
+        if (token.contains("```")) {
+            content = removeCodeBlockIndents(content);
+        }
 
         if (sections == null) {
             sections = buildSections();
@@ -129,6 +132,11 @@ public class ChatMessage implements PersistentStateElement {
 
             sections.addAll(deltaSections);
         }
+    }
+
+    private static String removeCodeBlockIndents(String content) {
+        // remove code-block indents (md parser does not properly demarcate them if indented)
+        return content.replaceAll("(?m)^[ \\t]+(?=```)", "");
     }
 
     private int getLastSectionEndOffset() {
