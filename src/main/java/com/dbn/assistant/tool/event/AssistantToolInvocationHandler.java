@@ -20,7 +20,9 @@ import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalException;
-import com.dbn.assistant.tool.approval.AssistantToolExecutionMonitor;
+import com.dbn.assistant.tool.execution.AssistantToolInvocation;
+import com.dbn.assistant.tool.execution.AssistantToolInvocationMonitor;
+import com.dbn.assistant.tool.execution.AssistantToolRequest;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.connection.ConnectionHandler;
@@ -62,7 +64,8 @@ public class AssistantToolInvocationHandler<T extends AssistantTool> extends Ass
             return invokeMethod(method, args);
         }
 
-        AssistantToolRequest request = AssistantToolRequest.current();
+        AssistantToolInvocation invocation = AssistantToolInvocation.current();
+        AssistantToolRequest request = invocation.getRequest();
         request.verify(method);
         request.setArguments(args);
 
@@ -70,28 +73,28 @@ public class AssistantToolInvocationHandler<T extends AssistantTool> extends Ass
         Project project = connection.getProject();
         try {
             // initiate request
-            handleEvent(project, request, REQUESTED, null);
+            handleEvent(project, invocation, REQUESTED, null);
 
             // wait for approval
-            AssistantToolExecutionMonitor monitor = request.getExecutionMonitor();
+            AssistantToolInvocationMonitor monitor = invocation.getMonitor();
             monitor.awaitApproval();
 
             // start execution
-            handleEvent(project, request, EXECUTING, null);
+            handleEvent(project, invocation, EXECUTING, null);
             Object result = monitor.executeTool(() -> invokeMethod(method, args));
 
             // confirm execution
-            handleEvent(project, request, COMPLETED, null);
+            handleEvent(project, invocation, COMPLETED, null);
             return result;
         } catch (AssistantToolApprovalException e) {
-            handleEvent(project, request, REJECTED, null);
+            handleEvent(project, invocation, REJECTED, null);
             throw e;
         } catch (CancellationException e) {
-            handleEvent(project, request, CANCELLED, e);
+            handleEvent(project, invocation, CANCELLED, e);
             throw new AssistantToolApprovalException("User has cancelled the execution of this tool", e);
         } catch (Throwable t) {
             Throwable exception = Exceptions.unwrap(t);
-            handleEvent(project, request, FAILED, exception);
+            handleEvent(project, invocation, FAILED, exception);
             throw exception;
         }
     }
@@ -105,8 +108,9 @@ public class AssistantToolInvocationHandler<T extends AssistantTool> extends Ass
         }
     }
 
-    public static void handleEvent(Project project, AssistantToolRequest request, AssistantToolStatus status, Throwable exception) {
-        request.setStatus(status);
+    public static void handleEvent(Project project, AssistantToolInvocation invocation, AssistantToolStatus status, Throwable exception) {
+        invocation.setStatus(status);
+        AssistantToolRequest request = invocation.getRequest();
         AssistantToolEvent event = new AssistantToolEvent(request);
         event.setException(exception);
         ProjectEvents.notify(project, AssistantToolListener.TOPIC, l -> l.processEvent(event));

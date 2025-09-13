@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.tool.event;
+package com.dbn.assistant.tool.info;
 
-import com.dbn.assistant.tool.execution.AssistantToolRequest;
-import lombok.Getter;
-import lombok.Setter;
+import com.dbn.assistant.tool.AssistantToolCategory;
+import com.dbn.assistant.tool.AssistantToolType;
 
-@Getter
-@Setter
-public class AssistantToolEvent {
+public interface AssistantToolInfoProvider {
+    String getToolName();
+    String getToolDescription();
 
-    private final AssistantToolRequest request;
+    AssistantToolType getToolType();
+    String getToolTypeName();
+    String getToolTypeDescription();
 
-    private String message;
-    private Throwable exception;
+    AssistantToolCategory getToolCategory();
+    String getToolCategoryName();
+    String getToolCategoryDescription();
 
-    public AssistantToolEvent(AssistantToolRequest request) {
-        this.request = request;
-    }
+    String getToolRequestSummary();
+    String getToolResponseSummary();
+
 }

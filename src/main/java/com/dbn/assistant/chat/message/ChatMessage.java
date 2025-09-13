@@ -19,7 +19,8 @@ package com.dbn.assistant.chat.message;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.editor.SQLChatMessageConverter;
-import com.dbn.assistant.tool.event.AssistantToolRequest;
+import com.dbn.assistant.tool.execution.AssistantToolInvocation;
+import com.dbn.assistant.tool.execution.AssistantToolResponse;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Strings;
@@ -220,8 +221,8 @@ public class ChatMessage implements PersistentStateElement {
         return TimeUtil.isOlderThan(timestamp, duration, unit);
     }
 
-    public void appendToolRequest(AssistantToolRequest toolRequest) {
-        ChatMessageToolSection toolSection = new ChatMessageToolSection(content.length(), toolRequest);
+    public void appendToolRequest(AssistantToolInvocation toolInvocation) {
+        ChatMessageToolSection toolSection = new ChatMessageToolSection(content.length(), toolInvocation);
         toolSections.add(toolSection);
     }
 
@@ -229,13 +230,14 @@ public class ChatMessage implements PersistentStateElement {
         ChatMessageToolSection toolSection = findToolSection(requestId, toolName);
         if (toolSection == null) return;
 
-        toolSection.setToolResponse(toolResponse);
+        AssistantToolResponse response = new AssistantToolResponse(toolResponse);
+        toolSection.getInvocation().setResponse(response);
     }
 
     private ChatMessageToolSection findToolSection(String requestId, String toolName) {
         return requestId == null ? // unsigned requests
                 last(toolSections, s -> Objects.equals(s.getToolName(), toolName)) :
-                first(toolSections, s -> Objects.equals(s.getRequestId(), requestId));
+                first(toolSections, s -> Objects.equals(s.getToolRequestId(), requestId));
     }
 
     @Override

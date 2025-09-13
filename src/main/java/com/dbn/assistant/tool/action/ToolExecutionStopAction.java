@@ -17,8 +17,8 @@
 package com.dbn.assistant.tool.action;
 
 import com.dbn.assistant.chat.message.ui.ChatMessageToolSectionForm;
-import com.dbn.assistant.tool.event.AssistantToolRequest;
 import com.dbn.assistant.tool.event.AssistantToolStatus;
+import com.dbn.assistant.tool.execution.AssistantToolInvocation;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -52,7 +52,7 @@ public class ToolExecutionStopAction extends AssistantToolAction {
         ChatMessageToolSectionForm toolSectionForm = getToolSectionForm(e);
         if (toolSectionForm == null) return false;
 
-        AssistantToolRequest toolRequest = toolSectionForm.getToolRequest();
-        return toolRequest.getStatus() == AssistantToolStatus.EXECUTING;
+        AssistantToolInvocation invocation = toolSectionForm.getToolInvocation();
+        return invocation.getStatus() == AssistantToolStatus.EXECUTING;
     }
 }

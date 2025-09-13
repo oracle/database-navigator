@@ -16,7 +16,7 @@
 
 package com.dbn.assistant.chat.message;
 
-import com.dbn.assistant.tool.event.AssistantToolRequest;
+import com.dbn.assistant.tool.execution.AssistantToolInvocation;
 import com.dbn.common.state.PersistentStateElement;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,43 +24,41 @@ import lombok.experimental.Delegate;
 import org.jdom.Element;
 
 import static com.dbn.common.options.setting.Settings.integerAttribute;
-import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.readCdata;
 import static com.dbn.common.options.setting.Settings.setIntegerAttribute;
-import static com.dbn.common.options.setting.Settings.writeCdata;
 
 @Getter
 @Setter
 public class ChatMessageToolSection implements PersistentStateElement {
     private int offset; // offset in the original assistant message
-    private String toolResponse;
 
     @Delegate
-    private AssistantToolRequest toolRequest;
+    private AssistantToolInvocation invocation;
 
     public ChatMessageToolSection() {}
 
-    public ChatMessageToolSection(int offset, AssistantToolRequest toolRequest) {
+    public ChatMessageToolSection(int offset, AssistantToolInvocation invocation) {
         this.offset = offset;
-        this.toolRequest = toolRequest;
+        this.invocation = invocation;
     }
 
     @Override
     public void readState(Element element) {
         offset = integerAttribute(element, "offset", offset);
-        toolRequest = new AssistantToolRequest();
-        toolRequest.readState(element);
-
-        Element responseElement = element.getChild("tool-response");
-        toolResponse = readCdata(responseElement);
+        invocation = new AssistantToolInvocation();
+        invocation.readState(element);
     }
 
     @Override
     public void writeState(Element element) {
         setIntegerAttribute(element, "offset", offset);
-        toolRequest.writeState(element);
+        invocation.writeState(element);
+    }
 
-        Element resposeElement = newElement(element,"tool-response");
-        writeCdata(resposeElement, toolResponse);
+    public String getToolName() {
+        return invocation.getRequest().getToolName();
+    }
+
+    public String getToolRequestId() {
+        return invocation.getRequest().getRequestId();
     }
 }

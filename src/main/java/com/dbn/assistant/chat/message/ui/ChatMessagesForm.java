@@ -20,7 +20,7 @@ import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.tool.event.AssistantToolEvent;
 import com.dbn.assistant.tool.event.AssistantToolListener;
-import com.dbn.assistant.tool.event.AssistantToolRequest;
+import com.dbn.assistant.tool.execution.AssistantToolRequest;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.event.ProjectEvents;

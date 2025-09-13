@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.tool.event;
+package com.dbn.assistant.tool.execution;
 
-import com.dbn.assistant.tool.execution.AssistantToolRequest;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class AssistantToolEvent {
+@NoArgsConstructor
+public class AssistantToolResponse {
+    private String content;
 
-    private final AssistantToolRequest request;
-
-    private String message;
-    private Throwable exception;
-
-    public AssistantToolEvent(AssistantToolRequest request) {
-        this.request = request;
+    public AssistantToolResponse(String content) {
+        this.content = content;
     }
 }

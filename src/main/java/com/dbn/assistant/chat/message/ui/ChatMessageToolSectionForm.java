@@ -22,12 +22,15 @@ import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolCache;
 import com.dbn.assistant.tool.AssistantToolCategory;
-import com.dbn.assistant.tool.AssistantToolInfo.UtilityDefinition;
 import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
-import com.dbn.assistant.tool.approval.AssistantToolExecutionMonitor;
-import com.dbn.assistant.tool.event.AssistantToolRequest;
 import com.dbn.assistant.tool.event.AssistantToolStatus;
+import com.dbn.assistant.tool.execution.AssistantToolInvocation;
+import com.dbn.assistant.tool.execution.AssistantToolInvocationMonitor;
+import com.dbn.assistant.tool.execution.AssistantToolRequest;
+import com.dbn.assistant.tool.execution.AssistantToolResponse;
+import com.dbn.assistant.tool.info.AssistantToolInfoProvider;
+import com.dbn.assistant.tool.info.AssistantToolInfoProviderImpl;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
@@ -56,7 +59,6 @@ import javax.swing.JTextPane;
 import java.awt.Point;
 
 import static com.dbn.assistant.chat.message.ChatMessageSectionType.TOOL;
-import static com.dbn.assistant.tool.AssistantToolCache.getUtilityDefinition;
 import static com.dbn.common.dispose.Failsafe.nd;
 
 public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
@@ -75,14 +77,17 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     private JTextPane confirmationTextPane;
 
     private final ConnectionRef connection;
-    private final ChatMessageToolSection toolSection;
+    private final ChatMessageToolSection section;
+    private final AssistantToolInfoProvider info;
 
-    ChatMessageToolSectionForm(DBNForm parent, ConnectionHandler connection, ChatMessageToolSection toolSection) {
+    ChatMessageToolSectionForm(DBNForm parent, ConnectionHandler connection, ChatMessageToolSection section) {
         super(parent, TOOL);
         this.connection = ConnectionRef.of(connection);
-        this.toolSection = toolSection;
+        this.section = section;
         framePanel.setBorder(Borders.COMPONENT_OUTLINE_BORDER);
         framePanel.setBackground(Colors.getEditorBackground());
+
+        info = new AssistantToolInfoProviderImpl(getAssistantState(), section.getInvocation());
 
         initHeaderPanel();
         initActionsPanel();
@@ -91,33 +96,27 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     }
 
     private void initHeaderPanel() {
-        AssistantTool assistantTool = getAssistantTool();
-        String toolTypeName = assistantTool.getName();
-
-        toolTypeLabel.setText(toolTypeName);
+        toolTypeLabel.setText(info.getToolTypeName());
 
         toolIconLabel.setIcon(Icons.ASSISTANT_TOOL);
         toolIconLabel.setText("");
 
-        AssistantToolCategory toolCategory = getToolCategory();
         toolInfoLabel.setText("");
         toolInfoLabel.setIcon(AllIcons.General.Note);
 
-
         String wrapperContent = TextResources.get(getClass(), "tool_info_tooltip.html.ft");
         TextContent htmlContent = TextContent.html(wrapperContent);
-        htmlContent.initField("TOOL_TYPE_NAME", toolTypeName);
-        htmlContent.initField("TOOL_TYPE_DESCRIPTION", assistantTool.getDescription());
-        htmlContent.initField("TOOL_CATEGORY_NAME", toolCategory.getName());
-        htmlContent.initField("TOOL_CATEGORY_DESCRIPTION", toolCategory.getDescription());
+        htmlContent.initField("TOOL_TYPE_NAME", info.getToolTypeName());
+        htmlContent.initField("TOOL_TYPE_DESCRIPTION", info.getToolTypeDescription());
+        htmlContent.initField("TOOL_CATEGORY_NAME", info.getToolCategoryName());
+        htmlContent.initField("TOOL_CATEGORY_DESCRIPTION", info.getToolCategoryDescription());
 
         String tooltipText = htmlContent.getText();
         toolInfoLabel.setToolTipText(tooltipText);
     }
 
     private void initDetailPanel() {
-        AssistantTool assistantTool = getAssistantTool();
-        String toolName = getToolName();
+        String toolName = info.getToolName();
         toolNameLabel.setText(toolName);
     }
 
@@ -130,10 +129,10 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
 
     private void initConfirmationPanel() {
         confirmationPanel.setVisible(false);
-        AssistantToolRequest toolRequest = getToolRequest();
-        if (toolRequest == null) return;  // old tool section (no pending execution)
-        if (toolRequest.getStatus() != AssistantToolStatus.REQUESTED) return;
-        if (getExecutionMonitor() == null) return; // old incomplete tool request
+        AssistantToolInvocation toolInvocation = getToolInvocation();
+        if (toolInvocation == null) return;  // old tool section (no pending execution)
+        if (toolInvocation.getStatus() != AssistantToolStatus.REQUESTED) return;
+        if (getInvocationMonitor() == null) return; // old incomplete tool request
         if (isPreapproved()) return;
 
         confirmationTextPane.setText("The agent has requested to run this tool on your database. " +
@@ -142,11 +141,10 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
                 "The system will remember your preference for future requests");
 
         confirmationPanel.setVisible(true);
-        String toolName = getToolName();
-        String toolCategoryName = getToolCategoryName();
+        String toolName = info.getToolName();
 
-        AssistantToolType toolType = getToolType();
-        AssistantToolCategory toolCategory = getToolCategory();
+        AssistantToolType toolType = info.getToolType();
+        AssistantToolCategory toolCategory = info.getToolCategory();
 
         JButton allowButton = new JBOptionButton(
                 createAction(
@@ -160,7 +158,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
                                 () -> allow(toolType)),
                         createAction(
                                 txt("app.assistant.button.AlwaysAllowToolCategory"),
-                                txt("app.assistant.button.AlwaysAllowToolCategoryDesc", toolCategoryName),
+                                txt("app.assistant.button.AlwaysAllowToolCategoryDesc", info.getToolCategoryName()),
                                 () -> allow(toolCategory))));
 
         JButton denyButton = new JBOptionButton(
@@ -175,7 +173,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
                                 () -> deny(toolType)),
                         createAction(
                                 txt("app.assistant.button.AlwaysDenyToolCategory"),
-                                txt("app.assistant.button.AlwaysDenyToolCategoryDesc", toolCategoryName),
+                                txt("app.assistant.button.AlwaysDenyToolCategoryDesc", info.getToolCategoryName()),
                                 () -> deny(toolCategory))));
 
         Layouts.horizontalBoxLayout(buttonsPanel);
@@ -184,56 +182,56 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     }
 
     private void allow(Object key){
-        AssistantToolApprovals toolApproval = getToolApproval();
+        AssistantToolApprovals toolApprovals = getToolApprovals();
 
         if (key instanceof AssistantToolType) {
             AssistantToolType toolType = (AssistantToolType) key;
-            toolApproval.allow(toolType);
+            toolApprovals.allow(toolType);
         } else if (key instanceof AssistantToolCategory) {
             AssistantToolCategory toolCategory = (AssistantToolCategory) key;
-            toolApproval.allow(toolCategory);
+            toolApprovals.allow(toolCategory);
         }
         confirmationPanel.setVisible(false);
-        AssistantToolExecutionMonitor executionMonitor = getExecutionMonitor();
+        AssistantToolInvocationMonitor executionMonitor = getInvocationMonitor();
         executionMonitor.allow();
     }
 
     private void deny(Object key){
-        AssistantToolApprovals toolApproval = getToolApproval();
-        if (toolApproval == null) return;
+        AssistantToolApprovals toolApprovals = getToolApprovals();
+        if (toolApprovals == null) return;
 
         if (key instanceof AssistantToolType) {
             AssistantToolType toolType = (AssistantToolType) key;
-            toolApproval.deny(toolType);
+            toolApprovals.deny(toolType);
         } else if (key instanceof AssistantToolCategory) {
             AssistantToolCategory toolCategory = (AssistantToolCategory) key;
-            toolApproval.deny(toolCategory);
+            toolApprovals.deny(toolCategory);
         }
         confirmationPanel.setVisible(false);
-        AssistantToolExecutionMonitor executionMonitor = getExecutionMonitor();
+        AssistantToolInvocationMonitor executionMonitor = getInvocationMonitor();
         executionMonitor.deny();
     }
 
 
     private boolean isPreapproved() {
-        AssistantToolApprovals toolApproval = getToolApproval();
-        return toolApproval.isPreapproved(getAssistantTool());
+        AssistantToolApprovals toolApprovals = getToolApprovals();
+        return toolApprovals.isPreapproved(getAssistantTool());
     }
 
     public void cancelToolExecution() {
-        AssistantToolExecutionMonitor executionMonitor = getExecutionMonitor();
+        AssistantToolInvocationMonitor executionMonitor = getInvocationMonitor();
         executionMonitor.cancel();
     }
 
     public void showToolExecutionData(DataContext context) {
         Point location = getMainComponent().getLocationOnScreen();
-        String request = toolSection.getToolRequest().getToolArguments();
-        String response = toolSection.getToolResponse();
-        Dialogs.show(() -> new AssistantToolDataDialog(getProject(), getToolName(), request, response, location));
+        String request = getToolRequest().getToolArguments();
+        String response = getToolResponse().getContent();
+        Dialogs.show(() -> new AssistantToolDataDialog(getProject(), info.getToolName(), request, response, location));
     }
 
-    public AssistantToolRequest getToolRequest() {
-        return toolSection.getToolRequest();
+    public AssistantToolInvocation getToolInvocation() {
+        return section.getInvocation();
     }
 
     @Override
@@ -241,35 +239,18 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         return mainPanel;
     }
 
-    private String getToolName() {
-        String toolName = toolSection.getToolName();
-
-        AssistantTool tool = getAssistantTool();
-        UtilityDefinition definition = getUtilityDefinition(tool, toolName);
-        if (definition == null) return toolName;
-
-        return definition.name();
+    private AssistantToolRequest getToolRequest() {
+        return section.getInvocation().getRequest();
     }
 
-    private AssistantToolType getToolType() {
-        AssistantTool tool = getAssistantTool();
-        return tool.getType();
+    private AssistantToolResponse getToolResponse() {
+        return section.getInvocation().getResponse();
     }
-
-    private AssistantToolCategory getToolCategory() {
-        AssistantTool tool = getAssistantTool();
-        return tool.getCategory();
-    }
-
-    private String getToolCategoryName() {
-        return getToolCategory().getName();
-    }
-
 
     private AssistantTool getAssistantTool() {
         AssistantToolCache toolCache = getToolCache();
 
-        String toolName = toolSection.getToolName();
+        String toolName = getToolRequest().getToolName();
         return toolCache.getAssistantTool(toolName);
     }
 
@@ -278,7 +259,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         return AssistantToolCache.get(assistantState);
     }
 
-    private AssistantToolApprovals getToolApproval() {
+    private AssistantToolApprovals getToolApprovals() {
         AssistantState assistantState = getAssistantState();
         return AssistantToolApprovals.get(assistantState);
     }
@@ -288,8 +269,8 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         return chatBoxForm.getAssistantState();
     }
 
-    private AssistantToolExecutionMonitor getExecutionMonitor() {
-        return getToolRequest().getExecutionMonitor();
+    private AssistantToolInvocationMonitor getInvocationMonitor() {
+        return getToolInvocation().getMonitor();
     }
 
     private ChatBoxForm getChatBoxForm() {

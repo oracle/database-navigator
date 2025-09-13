@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.tool.approval;
+package com.dbn.assistant.tool.execution;
 
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantTool;
+import com.dbn.assistant.tool.approval.AssistantToolApprovalException;
+import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.common.thread.ThreadInfo;
@@ -36,13 +38,13 @@ import static com.dbn.common.thread.ThreadProperty.BACKGROUND;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
-public class AssistantToolExecutionMonitor extends AssistantStateExtension {
+public class AssistantToolInvocationMonitor extends AssistantStateExtension {
     private final AssistantTool tool;
     private CountDownLatch approvalLatch;
     private boolean approved;
     private Future promise;
 
-    public AssistantToolExecutionMonitor(@NotNull AssistantState assistantState, AssistantTool tool) {
+    public AssistantToolInvocationMonitor(@NotNull AssistantState assistantState, AssistantTool tool) {
         super(assistantState);
         this.tool = tool;
     }

@@ -26,8 +26,9 @@ import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolCache;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalException;
-import com.dbn.assistant.tool.approval.AssistantToolExecutionMonitor;
-import com.dbn.assistant.tool.event.AssistantToolRequest;
+import com.dbn.assistant.tool.execution.AssistantToolInvocation;
+import com.dbn.assistant.tool.execution.AssistantToolInvocationMonitor;
+import com.dbn.assistant.tool.execution.AssistantToolRequest;
 import com.dbn.connection.ConnectionId;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -110,33 +111,34 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         ChatMessage lastMessage = chat.getLastMessage();
         if (lastMessage == null) return;
 
-        AssistantToolRequest toolRequest = createToolRequest(chatId, requestId, toolName, toolArguments);
-        if (toolRequest == null) return;
+        AssistantToolInvocation invocation = initToolInvocation(chatId, requestId, toolName, toolArguments);
+        if (invocation == null) return;
 
         AuthorType author = lastMessage.getAuthor();
         if (author == USER) {
             // agent responded directly with a tool request
             lastMessage = new ChatMessage(NEUTRAL, "", AGENT, chatContext);
-            lastMessage.appendToolRequest(toolRequest);
+            lastMessage.appendToolRequest(invocation);
             chatBoxForm.appendMessage(chatId, lastMessage);
         } else if (author == AGENT) {
-            lastMessage.appendToolRequest(toolRequest);
+            lastMessage.appendToolRequest(invocation);
             chatBoxForm.refreshTools(lastMessage);
         }
     }
 
     @Nullable
-    private AssistantToolRequest createToolRequest(String chatId, String requestId, String toolName, String toolArguments) {
-        AssistantToolCache toolCache = getToolCache();
-        AssistantTool tool = toolCache.getAssistantTool(toolName);
+    private AssistantToolInvocation initToolInvocation(String chatId, String requestId, String toolName, String toolArguments) {
+        AssistantToolCache cache = getToolCache();
+        AssistantTool tool = cache.getAssistantTool(toolName);
         if (tool == null) return null;
 
-        AssistantToolRequest toolRequest = new AssistantToolRequest(toolCache, chatId, requestId, toolName, toolArguments);
+        AssistantToolRequest request = new AssistantToolRequest(cache, chatId, requestId, toolName, toolArguments);
+        AssistantToolInvocation invocation = new AssistantToolInvocation(request);
 
-        AssistantState assistantState = getAssistantState();
-        AssistantToolExecutionMonitor executionMonitor = new AssistantToolExecutionMonitor(assistantState, tool);
-        toolRequest.setExecutionMonitor(executionMonitor);
-        return toolRequest;
+        AssistantState state = getAssistantState();
+        AssistantToolInvocationMonitor monitor = new AssistantToolInvocationMonitor(state, tool);
+        invocation.setMonitor(monitor);
+        return invocation;
     }
 
     @Override
