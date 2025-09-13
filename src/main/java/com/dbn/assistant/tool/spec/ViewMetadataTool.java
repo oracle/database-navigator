@@ -35,7 +35,7 @@ import static com.dbn.assistant.tool.AssistantToolInfo.FactoryDefinition;
     type = "VIEW_METADATA",
     name = "View metadata",
     category = METADATA_PROVIDER,
-    description = "Provides information about the views in a given database schema")
+    description = "Information about views in a given schema ")
 public interface ViewMetadataTool extends AssistantTool {
 
     @FactoryDefinition(

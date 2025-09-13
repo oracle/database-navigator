@@ -51,7 +51,7 @@ public class ChatMessagesForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel messagesPanel;
     private JScrollPane messagesScrollPanel;
-    private Alarm scrollAlarm;
+    private final Alarm scrollAlarm;
 
     private final List<ChatMessageForm> messageForms = DisposableContainers.list(this);
 
@@ -59,10 +59,11 @@ public class ChatMessagesForm extends DBNFormBase {
         super(parent);
 
         scrollAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD,this);
-        verticalBoxLayout(messagesPanel);
         ClientProperty.HORIZONTAL_SCROLL_POLICY.set(messagesScrollPanel, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
+        verticalBoxLayout(messagesPanel);
         Components.onComponentResized(messagesPanel, e -> messagesPanel.revalidate());
+
         ProjectEvents.subscribe(AssistantToolListener.TOPIC, createToolListener());
     }
 

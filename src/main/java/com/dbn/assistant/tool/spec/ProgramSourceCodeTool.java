@@ -32,10 +32,10 @@ import static com.dbn.assistant.tool.AssistantToolCategory.SOURCE_CODE_PROVIDER;
 import static com.dbn.assistant.tool.AssistantToolInfo.FactoryDefinition;
 
 @ToolDefinition(
-    type = "PROGRAM_METADATA",
-    name = "Program metadata",
+    type = "PROGRAM_SOURCE_CODE",
+    name = "Program source-code",
     category = SOURCE_CODE_PROVIDER,
-    description = "Provides source-code of database program units (such as stored procedures, functions, packages, triggers and declared types)")
+    description = "Source code for program units (stored procedures, functions, packages, triggers, declared types)")
 public interface ProgramSourceCodeTool extends AssistantTool {
 
     @FactoryDefinition(
@@ -50,7 +50,7 @@ public interface ProgramSourceCodeTool extends AssistantTool {
     @Tool(
         name = "LOAD_TYPE_SOURCE_CODE",
         value = {
-            "type=PROGRAM_METADATA",
+            "type=PROGRAM_SOURCE_CODE",
             "category=SOURCE_CODE_PROVIDER",
             "Loads the source code of a user-defined type"})
     @UtilityDefinition(name = "Load type source-code")
@@ -61,7 +61,7 @@ public interface ProgramSourceCodeTool extends AssistantTool {
     @Tool(
         name = "LOAD_PACKAGE_SOURCE_CODE",
         value = {
-                "type=PROGRAM_METADATA",
+                "type=PROGRAM_SOURCE_CODE",
                 "category=SOURCE_CODE_PROVIDER",
                 "Loads the source code of a package"})
     @UtilityDefinition(name = "Load package source-code")
@@ -72,7 +72,7 @@ public interface ProgramSourceCodeTool extends AssistantTool {
     @Tool(
         name = "LOAD_FUNCTION_SOURCE_CODE",
         value = {
-                "type=PROGRAM_METADATA",
+                "type=PROGRAM_SOURCE_CODE",
                 "category=SOURCE_CODE_PROVIDER",
                 "Loads the source code of a function"})
     @UtilityDefinition(name = "Load function source-code")
@@ -83,7 +83,7 @@ public interface ProgramSourceCodeTool extends AssistantTool {
     @Tool(
         name = "LOAD_PROCEDURE_SOURCE_CODE",
         value = {
-                "type=PROGRAM_METADATA",
+                "type=PROGRAM_SOURCE_CODE",
                 "category=SOURCE_CODE_PROVIDER",
                 "Loads the source code of a stored procedure"})
     @UtilityDefinition(name = "Load procedure source-code")

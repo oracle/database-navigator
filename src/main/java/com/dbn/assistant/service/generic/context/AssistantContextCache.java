@@ -73,7 +73,7 @@ public class AssistantContextCache extends AssistantStateExtension implements Fu
         AssistantToolCategory[] categories = toolCache.getAvailableToolCategories();
         return Arrays
                 .stream(categories)
-                .map(c -> " * " + c.name() + ": " + c.getDescription())
+                .map(c -> "  * " + c.name() + ": " + c.getDescription())
                 .collect(Collectors.joining("\n"));
     }
 
@@ -82,7 +82,7 @@ public class AssistantContextCache extends AssistantStateExtension implements Fu
         AssistantTool[] tools = toolCache.getAvailableTools();
         return Arrays
                 .stream(tools)
-                .map(t -> " * " + t.getType() + ": " + t.getDescription())
+                .map(t -> "  * " + t.getType() + ": " + t.getDescription())
                 .collect(Collectors.joining("\n"));
     }
 

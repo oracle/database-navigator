@@ -33,7 +33,7 @@ import static com.dbn.assistant.tool.AssistantToolInfo.FactoryDefinition;
     type = "SCHEMA_METADATA",
     name = "Schema metadata",
     category = METADATA_PROVIDER,
-    description = "Provides information about the database schemas and catalogs")
+    description = "Information about database schemas and catalogs")
 public interface SchemaMetadataTool extends AssistantTool {
 
     @FactoryDefinition(

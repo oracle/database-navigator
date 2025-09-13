@@ -33,7 +33,7 @@ import static com.dbn.assistant.tool.AssistantToolInfo.FactoryDefinition;
     type = "PROGRAM_METADATA",
     name = "Program metadata",
     category = METADATA_PROVIDER,
-    description = "Provides information about database program units (such as functions, stored procedures, packages and declared types) in a given database schema")
+    description = "Information about program units (functions, stored procedures, packages, declared types) in a given schema")
 public interface ProgramMetadataTool extends AssistantTool {
 
     @FactoryDefinition(

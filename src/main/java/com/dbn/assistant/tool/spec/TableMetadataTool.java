@@ -35,7 +35,7 @@ import static com.dbn.assistant.tool.AssistantToolInfo.FactoryDefinition;
     type = "TABLE_METADATA",
     name = "Table metadata",
     category = METADATA_PROVIDER,
-    description = "Provides information about the tables in a given database schema")
+    description = "Information about tables in a given schema")
 public interface TableMetadataTool extends AssistantTool {
 
     @FactoryDefinition(
