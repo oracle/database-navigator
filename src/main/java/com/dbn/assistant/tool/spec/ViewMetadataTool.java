@@ -100,7 +100,7 @@ public interface ViewMetadataTool extends AssistantTool {
         @Description("View name")
         private String name;
 
-        @Description("View query")
+        @Description("View select statement")
         private String query;
 
         @Description("View description")
