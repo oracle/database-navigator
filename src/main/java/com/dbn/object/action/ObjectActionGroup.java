@@ -178,7 +178,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         }
 
         if (object instanceof DBJavaResource) {
-            add(new JavaResourceDownloadAction(object, null));
+            add(new JavaResourceDownloadAction(object));
         }
     }
 
