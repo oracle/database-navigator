@@ -59,11 +59,11 @@ public class AssistantToolInvocation implements PersistentStateElement {
         request = new AssistantToolRequest();
 
         request.setRequestId(stringAttribute(element, "request-id"));
-        request.setToolName(stringAttribute(element, "tool-name"));
+        request.setUtility(stringAttribute(element, "tool-name"));
         status = enumAttribute(element, "tool-status", status);
 
         Element argumentsElement = element.getChild("tool-arguments");
-        request.setToolArguments(readCdata(argumentsElement));
+        request.setUtilityArguments(readCdata(argumentsElement));
 
         Element responseElement = element.getChild("tool-response");
         if (responseElement != null) {
@@ -75,11 +75,11 @@ public class AssistantToolInvocation implements PersistentStateElement {
     @Override
     public void writeState(Element element) {
         setStringAttribute(element, "request-id", request.getRequestId());
-        setStringAttribute(element, "tool-name", request.getToolName());
+        setStringAttribute(element, "tool-name", request.getUtility());
         setEnumAttribute(element, "tool-status", status);
 
         Element contentElement = newElement(element,"tool-arguments");
-        writeCdata(contentElement, request.getToolArguments());
+        writeCdata(contentElement, request.getUtilityArguments());
 
         if (response != null) {
             Element resposeElement = newElement(element,"tool-response");

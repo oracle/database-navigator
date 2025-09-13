@@ -51,6 +51,7 @@ public interface SchemaMetadataTool extends AssistantTool {
                 "type=SCHEMA_METADATA",
                 "category=METADATA_PROVIDER",
                 "Lists database schema names"})
-    @UtilityDefinition(name = "List schema names")
+    @UtilityDefinition(
+        name = "List schema names")
     List<String> listSchemaNames(@P("Include system schemas") boolean includeSystemSchemas);
 }

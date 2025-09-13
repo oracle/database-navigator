@@ -46,5 +46,6 @@ public interface AssistantToolInfo {
     @Retention(RetentionPolicy.RUNTIME)
     @interface UtilityDefinition {
         String name();
+        String summary() default "";
     }
 }

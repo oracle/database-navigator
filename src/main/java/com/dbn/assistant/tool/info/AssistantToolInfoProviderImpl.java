@@ -21,13 +21,19 @@ import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolCache;
 import com.dbn.assistant.tool.AssistantToolCategory;
-import com.dbn.assistant.tool.AssistantToolInfo;
+import com.dbn.assistant.tool.AssistantToolInfo.UtilityDefinition;
 import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.execution.AssistantToolInvocation;
 import com.dbn.assistant.tool.execution.AssistantToolRequest;
 import com.dbn.assistant.tool.execution.AssistantToolResponse;
+import com.dbn.common.util.Lists;
+import com.dbn.common.util.Strings;
+import com.dbn.common.util.Unsafe;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Objects;
 
 import static com.dbn.assistant.tool.AssistantToolCache.getUtilityDefinition;
 
@@ -41,11 +47,11 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
 
     @Override
     public String getToolName() {
-        String toolName = getToolRequest().getToolName();
+        String utility = getToolRequest().getUtility();
 
         AssistantTool tool = getTool();
-        AssistantToolInfo.UtilityDefinition definition = getUtilityDefinition(tool, toolName);
-        if (definition == null) return toolName;
+        UtilityDefinition definition = getUtilityDefinition(tool, utility);
+        if (definition == null) return utility;
 
         return definition.name();
     }
@@ -77,7 +83,36 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
 
     @Override
     public String getToolRequestSummary() {
-        return "";
+        return Unsafe.logged("", () -> buildToolRequestSummary());
+    }
+
+    private @NotNull String buildToolRequestSummary() {
+        AssistantToolRequest request = getToolRequest();
+        String utility = request.getUtility();
+
+        AssistantTool tool = getTool();
+        UtilityDefinition definition = getUtilityDefinition(tool, utility);
+        if (definition == null) return "";
+
+        String summary = definition.summary();
+        if (summary == null) return "";
+
+        int placeholderCount =  Strings.countOccurrences(summary, "%s");
+        if (placeholderCount == 0) return "";
+
+        List<?> values = request.getArgumentValues();
+        if (values.size() < placeholderCount) return "";
+
+        Object[] arguments = values.subList(0, placeholderCount).toArray(new Object[0]);
+        for (int i = 0; i < arguments.length; i++) {
+            Object argument = arguments[i];
+            if (argument instanceof List) {
+                List<?> list = (List<?>) argument;
+                arguments[i] = Lists.toCsv(list, e -> Objects.toString(e));
+            }
+        }
+
+        return "(" + String.format(summary, arguments) + ")";
     }
 
     @Override
@@ -88,8 +123,8 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
     private AssistantTool getTool() {
         AssistantToolCache toolCache = getToolCache();
 
-        String toolName = getToolRequest().getToolName();
-        return toolCache.getAssistantTool(toolName);
+        String utility = getToolRequest().getUtility();
+        return toolCache.getAssistantTool(utility);
     }
 
     public AssistantToolCategory getToolCategory() {

@@ -19,36 +19,52 @@ package com.dbn.assistant.tool.execution;
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolCache;
 import com.dbn.common.util.UUIDs;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static com.dbn.common.util.Commons.nvl;
 
+@Slf4j
 @Getter
 @Setter
 public class AssistantToolRequest {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private String chatId;
     private String requestId;
-    private String toolName;
-    private String toolArguments;
+    private String utility;
+    private String utilityArguments;
 
     private AssistantTool tool;
 
     private Method method;
-    private Object[] arguments;
+    private Object[] methodArguments;
 
     public AssistantToolRequest() {}
 
-    public AssistantToolRequest(AssistantToolCache toolCache, String chatId, String requestId, String toolName, String toolArguments) {
+    public AssistantToolRequest(AssistantToolCache toolCache, String chatId, String requestId, String utility, String utilityArguments) {
         this.chatId = chatId;
         this.requestId = nvl(requestId, () -> UUIDs.compact());
-        this.toolName = toolName;
-        this.toolArguments = toolArguments;
 
-        this.tool = toolCache.getAssistantTool(toolName);
-        this.method = AssistantToolCache.getUtilityMethod(tool, toolName);
+        this.utility = utility;
+        this.utilityArguments = utilityArguments;
+
+        this.tool = toolCache.getAssistantTool(utility);
+        this.method = AssistantToolCache.getUtilityMethod(tool, utility);
+    }
+
+    @SneakyThrows
+    public List<?> getArgumentValues() {
+        Map map = OBJECT_MAPPER.readValue(utilityArguments, Map.class);
+        return new ArrayList<>(map.values());
     }
 
     public void verify(Method method) {

@@ -51,35 +51,43 @@ public interface ProgramMetadataTool extends AssistantTool {
             "type=PROGRAM_METADATA",
             "category=METADATA_PROVIDER",
             "Lists the names of declared data-types in a given schema"})
-    @UtilityDefinition(name = "List declared type names")
+    @UtilityDefinition(
+        name = "List declared type names",
+        summary = "schema %s")
     List<String> listTypeNames(@P("Schema name") String schemaName);
 
 
     @Tool(
-            name = "LIST_FUNCTION_NAMES",
-            value = {
-                    "type=PROGRAM_METADATA",
-                    "category=METADATA_PROVIDER",
-                    "Lists the names of functions in a given schema"})
-    @UtilityDefinition(name = "List function names")
+        name = "LIST_FUNCTION_NAMES",
+        value = {
+                "type=PROGRAM_METADATA",
+                "category=METADATA_PROVIDER",
+                "Lists the names of functions in a given schema"})
+    @UtilityDefinition(
+        name = "List function names",
+        summary = "schema %s")
     List<String> listFunctionNames(@P("Schema name") String schemaName);
 
     @Tool(
-            name = "LIST_PROCEDURE_NAMES",
-            value = {
-                    "type=PROGRAM_METADATA",
-                    "category=METADATA_PROVIDER",
-                    "Lists the names of stored procedures in a given schema"})
-    @UtilityDefinition(name = "List procedure names")
+        name = "LIST_PROCEDURE_NAMES",
+        value = {
+                "type=PROGRAM_METADATA",
+                "category=METADATA_PROVIDER",
+                "Lists the names of stored procedures in a given schema"})
+    @UtilityDefinition(
+        name = "List procedure names",
+        summary = "schema %s")
     List<String> listProcedureNames(@P("Schema name") String schemaName);
 
     @Tool(
-            name = "LIST_PACKAGE_NAMES",
-            value = {
-                    "type=PROGRAM_METADATA",
-                    "category=METADATA_PROVIDER",
-                    "Lists the names of packages in a given schema"})
-    @UtilityDefinition(name = "List package names")
+        name = "LIST_PACKAGE_NAMES",
+        value = {
+                "type=PROGRAM_METADATA",
+                "category=METADATA_PROVIDER",
+                "Lists the names of packages in a given schema"})
+    @UtilityDefinition(
+        name = "List package names",
+        summary = "schema %s")
     List<String> listPackageNames(@P("Schema name") String schemaName);
 
 }

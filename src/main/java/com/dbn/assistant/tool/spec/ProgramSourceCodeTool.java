@@ -53,7 +53,9 @@ public interface ProgramSourceCodeTool extends AssistantTool {
             "type=PROGRAM_SOURCE_CODE",
             "category=SOURCE_CODE_PROVIDER",
             "Loads the source code of a user-defined type"})
-    @UtilityDefinition(name = "Load type source-code")
+    @UtilityDefinition(
+        name = "Load type source-code",
+        summary = "%s.%s")
     ProgramSourceCode loadTypeSourceCode(
             @P("Schema name") String schemaName,
             @P("Type name") String typeName) throws SQLException;
@@ -64,7 +66,9 @@ public interface ProgramSourceCodeTool extends AssistantTool {
                 "type=PROGRAM_SOURCE_CODE",
                 "category=SOURCE_CODE_PROVIDER",
                 "Loads the source code of a package"})
-    @UtilityDefinition(name = "Load package source-code")
+    @UtilityDefinition(
+        name = "Load package source-code",
+        summary = "%s.%s")
     ProgramSourceCode loadPackageSourceCode(
             @P("Schema name") String schemaName,
             @P("Package name") String packageName) throws SQLException;
@@ -75,7 +79,9 @@ public interface ProgramSourceCodeTool extends AssistantTool {
                 "type=PROGRAM_SOURCE_CODE",
                 "category=SOURCE_CODE_PROVIDER",
                 "Loads the source code of a function"})
-    @UtilityDefinition(name = "Load function source-code")
+    @UtilityDefinition(
+        name = "Load function source-code",
+        summary = "%s.%s")
     MethodSourceCode loadFunctionSourceCode(
             @P("Schema name") String schemaName,
             @P("Function name") String functionName) throws SQLException;
@@ -86,7 +92,9 @@ public interface ProgramSourceCodeTool extends AssistantTool {
                 "type=PROGRAM_SOURCE_CODE",
                 "category=SOURCE_CODE_PROVIDER",
                 "Loads the source code of a stored procedure"})
-    @UtilityDefinition(name = "Load procedure source-code")
+    @UtilityDefinition(
+        name = "Load procedure source-code",
+        summary = "%s.%s")
     MethodSourceCode loadProcedureSourceCode(
             @P("Schema name") String schemaName,
             @P("Procedure name") String procedureName) throws SQLException;

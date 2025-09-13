@@ -47,7 +47,10 @@ import com.intellij.icons.AllIcons;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBOptionButton;
+import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -75,6 +78,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     private JLabel toolIconLabel;
     private JPanel confirmationPanel;
     private JTextPane confirmationTextPane;
+    private JBLabel toolSummaryLabel;
 
     private final ConnectionRef connection;
     private final ChatMessageToolSection section;
@@ -116,8 +120,17 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     }
 
     private void initDetailPanel() {
-        String toolName = info.getToolName();
-        toolNameLabel.setText(toolName);
+        toolNameLabel.setText(info.getToolName());
+
+        String summary = info.getToolRequestSummary();
+        String summaryTooltip = null;
+        if (summary != null && summary.length() > 24) {
+            summaryTooltip = summary;
+            summary = StringUtil.first(summary, 24, true);
+        }
+        toolSummaryLabel.setText(summary);
+        toolSummaryLabel.setToolTipText(summaryTooltip);
+        toolSummaryLabel.setForeground(Colors.faded(UIUtil.getLabelForeground()));
     }
 
     private void initActionsPanel() {
@@ -225,7 +238,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
 
     public void showToolExecutionData(DataContext context) {
         Point location = getMainComponent().getLocationOnScreen();
-        String request = getToolRequest().getToolArguments();
+        String request = getToolRequest().getUtilityArguments();
         String response = getToolResponse().getContent();
         Dialogs.show(() -> new AssistantToolDataDialog(getProject(), info.getToolName(), request, response, location));
     }
@@ -250,8 +263,8 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     private AssistantTool getAssistantTool() {
         AssistantToolCache toolCache = getToolCache();
 
-        String toolName = getToolRequest().getToolName();
-        return toolCache.getAssistantTool(toolName);
+        String utility = getToolRequest().getUtility();
+        return toolCache.getAssistantTool(utility);
     }
 
     private AssistantToolCache getToolCache() {

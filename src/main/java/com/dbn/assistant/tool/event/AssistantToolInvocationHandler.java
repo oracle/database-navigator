@@ -67,7 +67,7 @@ public class AssistantToolInvocationHandler<T extends AssistantTool> extends Ass
         AssistantToolInvocation invocation = AssistantToolInvocation.current();
         AssistantToolRequest request = invocation.getRequest();
         request.verify(method);
-        request.setArguments(args);
+        request.setMethodArguments(args);
 
         ConnectionHandler connection = getConnection();
         Project project = connection.getProject();

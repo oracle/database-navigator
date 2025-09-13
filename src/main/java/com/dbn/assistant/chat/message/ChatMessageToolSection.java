@@ -55,7 +55,7 @@ public class ChatMessageToolSection implements PersistentStateElement {
     }
 
     public String getToolName() {
-        return invocation.getRequest().getToolName();
+        return invocation.getRequest().getUtility();
     }
 
     public String getToolRequestId() {

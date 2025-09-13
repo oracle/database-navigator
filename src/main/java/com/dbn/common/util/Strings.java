@@ -444,6 +444,16 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
         return StringUtil.countNewLines(text);
     }
 
+    public static int countOccurrences(String str, String token) {
+        int count = 0;
+        int index = 0;
+        while ((index = str.indexOf(token, index)) != -1) {
+            count++;
+            index += token.length();
+        }
+        return count;
+    }
+
     public static boolean startsWith(CharSequence text, CharSequence prefix) {
         return StringUtil.startsWith(text, prefix);
     }

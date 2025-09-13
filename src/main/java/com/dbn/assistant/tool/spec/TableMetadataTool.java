@@ -53,7 +53,9 @@ public interface TableMetadataTool extends AssistantTool {
             "type=TABLE_METADATA",
             "category=METADATA_PROVIDER",
             "Lists table names in a given schema"})
-    @UtilityDefinition(name = "List table names")
+    @UtilityDefinition(
+        name = "List table names",
+        summary = "schema %s")
     List<String> listTableNames(
             @P("Schema name") String schemaName,
             @P("Include temporary tables") boolean includeTemporaryTables);
@@ -65,7 +67,9 @@ public interface TableMetadataTool extends AssistantTool {
                 "type=TABLE_METADATA",
                 "category=METADATA_PROVIDER",
                 "Lists temporary table names in a given schema"})
-    @UtilityDefinition(name = "List temporary table names")
+    @UtilityDefinition(
+        name = "List temporary table names",
+        summary = "schema %s")
     List<String> listTemporaryTableNames(
             @P("Schema name") String schemaName);
 
@@ -76,7 +80,9 @@ public interface TableMetadataTool extends AssistantTool {
                 "type=TABLE_METADATA",
                 "category=METADATA_PROVIDER",
                 "Loads the definition of a given table"})
-    @UtilityDefinition(name = "Load table definition")
+    @UtilityDefinition(
+        name = "Load table definition",
+        summary = "%s.%s")
     TableDefinition loadTableDefinition(
             @P("Schema name") String schemaName,
             @P("Table name") String tableName,
@@ -88,7 +94,9 @@ public interface TableMetadataTool extends AssistantTool {
                 "type=TABLE_METADATA",
                 "category=METADATA_PROVIDER",
                 "Loads the definitions of a given set of tables (optimized version of LOAD_TABLE_DEFINITION for bulk queries)"})
-    @UtilityDefinition(name = "Load table definitions")
+    @UtilityDefinition(
+        name = "Load table definitions",
+        summary = "%s.%s")
     List<TableDefinition> loadTableDefinitions(
             @P("Schema name") String schemaName,
             @P("Table names") List<String> tableNames,

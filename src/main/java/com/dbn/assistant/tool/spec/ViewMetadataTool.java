@@ -35,7 +35,7 @@ import static com.dbn.assistant.tool.AssistantToolInfo.FactoryDefinition;
     type = "VIEW_METADATA",
     name = "View metadata",
     category = METADATA_PROVIDER,
-    description = "Information about views in a given schema ")
+    description = "Information about views in a given schema")
 public interface ViewMetadataTool extends AssistantTool {
 
     @FactoryDefinition(
@@ -53,7 +53,9 @@ public interface ViewMetadataTool extends AssistantTool {
             "type=VIEW_METADATA",
             "category=METADATA_PROVIDER",
             "Lists view names in a given schema"})
-    @UtilityDefinition(name = "List view names")
+    @UtilityDefinition(
+        name = "List view names",
+        summary = "schema %s")
     List<String> listViewNames(
             @P("Schema name") String schemaName);
 
@@ -64,7 +66,9 @@ public interface ViewMetadataTool extends AssistantTool {
                 "type=VIEW_METADATA",
                 "category=METADATA_PROVIDER",
                 "Lists materialized view names in a given schema"})
-    @UtilityDefinition(name = "List materialized view names")
+    @UtilityDefinition(
+        name = "List materialized view names",
+        summary = "schema %s")
     List<String> listMaterializedViewNames(
             @P("Schema name") String schemaName);
 
@@ -75,7 +79,9 @@ public interface ViewMetadataTool extends AssistantTool {
                 "type=VIEW_METADATA",
                 "category=METADATA_PROVIDER",
                 "Loads the definition of a given view"})
-    @UtilityDefinition(name = "Load view definition")
+    @UtilityDefinition(
+        name = "Load view definition",
+        summary = "%s.%s")
     ViewDefinition loadViewDefinition(
             @P("Schema name") String schemaName,
             @P("View name") String viewName,
@@ -87,7 +93,9 @@ public interface ViewMetadataTool extends AssistantTool {
                 "type=VIEW_METADATA",
                 "category=METADATA_PROVIDER",
                 "Loads the definitions of a given set of views (optimized version of LOAD_VIEW_DEFINITION for bulk queries)"})
-    @UtilityDefinition(name = "Load view definitions")
+    @UtilityDefinition(
+        name = "Load view definitions",
+        summary = "%s.%s")
     List<ViewDefinition> loadViewDefinitions(
             @P("Schema name") String schemaName,
             @P("View names") List<String> viewNames,
