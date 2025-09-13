@@ -324,10 +324,6 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
         return executeQuery(connection, "java-class-dependencies", ownerName, objectName);
     }
 
-    public ResultSet loadAllJavaClassDependencies(String ownerName, DBNConnection connection) throws SQLException {
-        return executeQuery(connection, "all-java-class-dependencies", ownerName);
-    }
-
     /*********************************************************
      *                        TYPES                          *
      *********************************************************/
