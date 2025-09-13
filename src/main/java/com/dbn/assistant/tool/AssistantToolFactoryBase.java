@@ -38,6 +38,9 @@ public abstract class AssistantToolFactoryBase<T extends AssistantTool> implemen
         if (factoryDefinition == null) throw new NullPointerException("Missing @AssistantTool.FactoryDefinition annotation");
 
         Class<T> spec = getToolSpecification();
+        Class<T> impl = getToolImplementation();
+        if (!spec.isAssignableFrom(impl)) throw new ClassCastException("Specified interface is not assignable to given implementation");
+
         toolDefinition = spec.getAnnotation(ToolDefinition.class);
         if (toolDefinition == null) throw new NullPointerException("Missing @AssistantTool.Definition annotation");
     }

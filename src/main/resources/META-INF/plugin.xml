@@ -288,6 +288,7 @@
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.TableMetadataTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ViewMetadataTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ProgramMetadataTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ProgramSourceCodeTool$Factory" />
     </extensions>
 
     <actions>

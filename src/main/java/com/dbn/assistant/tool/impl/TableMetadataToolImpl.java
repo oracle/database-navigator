@@ -61,7 +61,7 @@ public class TableMetadataToolImpl extends AssistantToolBase implements TableMet
 
     private TableDefinition loadTableDefinition(DBSchema schema, String tableName, boolean detailed) {
         DBTable table = schema.getTable(tableName);
-        table = resolved(table, DBObjectType.TABLE, tableName);
+        verify(table, DBObjectType.TABLE, tableName);
 
         TableDefinition tableDef = createDefinition(table);
         tableDef.setColumns(convert(undisposed(table).getColumns(), c -> createDefinition(c)));

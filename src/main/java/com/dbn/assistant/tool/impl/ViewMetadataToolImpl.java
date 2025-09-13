@@ -68,7 +68,7 @@ public class ViewMetadataToolImpl extends AssistantToolBase implements ViewMetad
                 () -> schema.getView(viewName),
                 () -> schema.getMaterializedView(viewName));
 
-        view = resolved(view, DBObjectType.VIEW, viewName);
+        verify(view, DBObjectType.VIEW, viewName);
 
         ViewDefinition viewDef = createDefinition(view);
         viewDef.setColumns(convert(undisposed(view).getColumns(), c -> createDefinition(c)));

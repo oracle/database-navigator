@@ -18,13 +18,18 @@ package com.dbn.assistant.tool;
 
 import com.dbn.common.component.ConnectionComponent;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.editor.DBContentType;
+import com.dbn.editor.code.SourceCodeManager;
+import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
+import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -62,17 +67,23 @@ public abstract class AssistantToolBase extends ConnectionComponent implements A
     @NotNull
     protected DBSchema getSchema(String schemaName) {
         DBSchema schema = getConnection().getObjectBundle().getSchema(schemaName);
-        return resolved(schema, DBObjectType.SCHEMA, schemaName);
+        verify(schema, DBObjectType.SCHEMA, schemaName);
+        return schema;
     }
 
-    protected static <T extends DBObject> T resolved(T object, DBObjectType objectType, String objectName) {
+    protected static <T extends DBObject> void verify(T object, DBObjectType objectType, String objectName) {
         if (object == null) throw new IllegalArgumentException(objectType.getCapitalizedName() + " not found: " + objectName);
-        return object;
     }
 
     protected static <T extends DBObject> T undisposed(T object) {
         DBObjectRef<T> ref = DBObjectRef.of(object);
         return ref.get();
+    }
+
+    protected static String loadObjectSourceCode(DBSchemaObject object, DBContentType contentType) throws SQLException {
+        SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(object.getProject());
+        SourceCodeContent sourceCode = sourceCodeManager.loadSourceFromDatabase(object, contentType);
+        return sourceCode.getRawContent();
     }
 
     @Override
