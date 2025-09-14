@@ -295,6 +295,7 @@
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ViewMetadataTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ProgramMetadataTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ProgramSourceCodeTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.DatabaseObjectEditorTool$Factory" />
     </extensions>
 
     <actions>

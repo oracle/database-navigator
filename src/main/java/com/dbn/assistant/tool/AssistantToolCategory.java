@@ -27,6 +27,7 @@ public enum AssistantToolCategory {
     SOURCE_CODE_PROVIDER("Source code provider", "Source code for database objects (views, functions, procedures, etc.)"),
     DATA_PROVIDER("Data provider", "Data contents, such as records, rows, or query results."),
     ACTION_INVOKER("Action invoker", "Operations or tasks, such as running queries, applying updates, or triggering external actions."),
+    IDE_ACTION_INVOKER("IDE action invoker", "IDE operations, such as opening database program editors, opening table editors, etc."),
     ;
 
     private final String description;
