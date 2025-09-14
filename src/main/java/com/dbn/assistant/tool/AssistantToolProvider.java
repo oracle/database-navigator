@@ -119,7 +119,7 @@ public class AssistantToolProvider implements ToolProvider {
         String description =
                 "type = " + toolSpec.type() + "\n" +
                 "category = " + toolSpec.category() + "\n" +
-                //"name = " + utility.name() + "\n" +
+                "name = " + utilitySpec.name() + "\n" +
                 "description = " + utilitySpec.description();
 
         Class<?> returnType = method.getReturnType();
