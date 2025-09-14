@@ -16,6 +16,7 @@
 
 package com.dbn.connection;
 
+import com.dbn.common.constant.Constant;
 import com.dbn.common.ui.Presentable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,7 +33,7 @@ import java.util.Set;
  */
 @Getter
 @AllArgsConstructor
-public enum AuthenticationTokenType implements Presentable {
+public enum AuthenticationTokenType implements Presentable, Constant<AuthenticationTokenType> {
     OCI_API_KEY("OCI API Key"),
     OCI_INSTANCE_PRINCIPAL("OCI Instance Principal"),
     OCI_RESOURCE_PRINCIPAL("OCI Resource Principal"),
@@ -44,6 +45,22 @@ public enum AuthenticationTokenType implements Presentable {
     AZURE_INTERACTIVE("Azure Interactive");
 
     private final String name;
+
+    public boolean isOci() {
+        return isOneOf(
+                OCI_API_KEY,
+                OCI_INSTANCE_PRINCIPAL,
+                OCI_RESOURCE_PRINCIPAL,
+                OCI_DELEGATION_TOKEN,
+                OCI_INTERACTIVE);
+    }
+
+    public boolean isAzure() {
+        return isOneOf(
+                AZURE_SERVICE_PRINCIPAL_CERTIFICATE,
+                AZURE_SERVICE_PRINCIPAL_TOKEN,
+                AZURE_INTERACTIVE);
+    }
 
     public static final Set<AuthenticationTokenType> ALL_AZURE_TOKEN_TYPES =
         Collections.unmodifiableSet(

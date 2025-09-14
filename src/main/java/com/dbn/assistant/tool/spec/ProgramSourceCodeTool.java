@@ -18,8 +18,8 @@ package com.dbn.assistant.tool.spec;
 
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolFactoryBase;
-import com.dbn.assistant.tool.AssistantToolInfo.ToolDefinition;
-import com.dbn.assistant.tool.AssistantToolInfo.UtilityDefinition;
+import com.dbn.assistant.tool.AssistantToolInfo.ToolSpec;
+import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
 import com.dbn.assistant.tool.impl.ProgramSourceCodeToolImpl;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
@@ -29,16 +29,16 @@ import lombok.Data;
 import java.sql.SQLException;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.SOURCE_CODE_PROVIDER;
-import static com.dbn.assistant.tool.AssistantToolInfo.FactoryDefinition;
+import static com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
 
-@ToolDefinition(
+@ToolSpec(
     type = "PROGRAM_SOURCE_CODE",
     name = "Program source-code",
     category = SOURCE_CODE_PROVIDER,
     description = "Source code for program units (stored procedures, functions, packages, triggers, declared types)")
 public interface ProgramSourceCodeTool extends AssistantTool {
 
-    @FactoryDefinition(
+    @FactorySpec(
         spec = ProgramSourceCodeTool.class,
         impl = ProgramSourceCodeToolImpl.class)
     class Factory extends AssistantToolFactoryBase<ProgramSourceCodeTool> {}
@@ -47,57 +47,46 @@ public interface ProgramSourceCodeTool extends AssistantTool {
      *                 TOOLS                     *
      *********************************************/
 
-    @Tool(
-        name = "LOAD_TYPE_SOURCE_CODE",
-        value = {
-            "type=PROGRAM_SOURCE_CODE",
-            "category=SOURCE_CODE_PROVIDER",
-            "Loads the source code of a user-defined type"})
-    @UtilityDefinition(
-        name = "Load type source-code",
-        summary = "%s.%s")
+    @Tool(name = "LOAD_TYPE_SOURCE_CODE")
+    @UtilitySpec(
+            name = "Load type source-code",
+            description = "Loads the source code of a given user-defined type",
+            summary = "%s.%s")
     ProgramSourceCode loadTypeSourceCode(
             @P("Schema name") String schemaName,
             @P("Type name") String typeName) throws SQLException;
 
-    @Tool(
-        name = "LOAD_PACKAGE_SOURCE_CODE",
-        value = {
-                "type=PROGRAM_SOURCE_CODE",
-                "category=SOURCE_CODE_PROVIDER",
-                "Loads the source code of a package"})
-    @UtilityDefinition(
-        name = "Load package source-code",
-        summary = "%s.%s")
+
+    @Tool(name = "LOAD_PACKAGE_SOURCE_CODE")
+    @UtilitySpec(
+            name = "Load package source-code",
+            description = "Loads the source code of a given package",
+            summary = "%s.%s")
     ProgramSourceCode loadPackageSourceCode(
             @P("Schema name") String schemaName,
             @P("Package name") String packageName) throws SQLException;
 
-    @Tool(
-        name = "LOAD_FUNCTION_SOURCE_CODE",
-        value = {
-                "type=PROGRAM_SOURCE_CODE",
-                "category=SOURCE_CODE_PROVIDER",
-                "Loads the source code of a function"})
-    @UtilityDefinition(
-        name = "Load function source-code",
-        summary = "%s.%s")
+
+    @Tool(name = "LOAD_FUNCTION_SOURCE_CODE")
+    @UtilitySpec(
+            name = "Load function source-code",
+            description = "Loads the source code of a given function",
+            summary = "%s.%s")
     MethodSourceCode loadFunctionSourceCode(
             @P("Schema name") String schemaName,
             @P("Function name") String functionName) throws SQLException;
 
-    @Tool(
-        name = "LOAD_PROCEDURE_SOURCE_CODE",
-        value = {
-                "type=PROGRAM_SOURCE_CODE",
-                "category=SOURCE_CODE_PROVIDER",
-                "Loads the source code of a stored procedure"})
-    @UtilityDefinition(
-        name = "Load procedure source-code",
-        summary = "%s.%s")
+
+    @Tool(name = "LOAD_PROCEDURE_SOURCE_CODE")
+    @UtilitySpec(
+            name = "Load procedure source-code",
+            description = "Loads the source code of a given stored procedure",
+            summary = "%s.%s")
     MethodSourceCode loadProcedureSourceCode(
             @P("Schema name") String schemaName,
             @P("Procedure name") String procedureName) throws SQLException;
+
+
 
     @Data
     @Description("Method source code")

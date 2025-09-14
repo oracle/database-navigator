@@ -39,7 +39,7 @@ public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
                     chatModel(model).
                     systemMessageProvider(context).
                     chatMemoryProvider(memory).
-                    tools((Object[]) tools).
+                    toolProvider(tools).
                     build();
 
 

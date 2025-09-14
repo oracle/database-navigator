@@ -59,7 +59,7 @@ public class AssistantToolInvocation implements PersistentStateElement {
         request = new AssistantToolRequest();
 
         request.setRequestId(stringAttribute(element, "request-id"));
-        request.setUtility(stringAttribute(element, "tool-name"));
+        request.setUtilityName(stringAttribute(element, "tool-name"));
         status = enumAttribute(element, "tool-status", status);
 
         Element argumentsElement = element.getChild("tool-arguments");
@@ -75,7 +75,7 @@ public class AssistantToolInvocation implements PersistentStateElement {
     @Override
     public void writeState(Element element) {
         setStringAttribute(element, "request-id", request.getRequestId());
-        setStringAttribute(element, "tool-name", request.getUtility());
+        setStringAttribute(element, "tool-name", request.getUtilityName());
         setEnumAttribute(element, "tool-status", status);
 
         Element contentElement = newElement(element,"tool-arguments");

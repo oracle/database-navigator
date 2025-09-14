@@ -16,6 +16,8 @@
 
 package com.dbn.assistant.tool;
 
+import org.jetbrains.annotations.NonNls;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -23,9 +25,10 @@ import java.lang.annotation.Target;
 
 public interface AssistantToolInfo {
 
+    @NonNls
     @Target({ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
-    @interface ToolDefinition {
+    @interface ToolSpec {
         String type();
 
         String name();
@@ -37,15 +40,17 @@ public interface AssistantToolInfo {
 
     @Target({ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
-    @interface FactoryDefinition {
+    @interface FactorySpec {
         Class<? extends AssistantTool> spec();
         Class<? extends AssistantToolBase> impl();
     }
 
+    @NonNls
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
-    @interface UtilityDefinition {
+    @interface UtilitySpec {
         String name();
+        String description();
         String summary() default "";
     }
 }

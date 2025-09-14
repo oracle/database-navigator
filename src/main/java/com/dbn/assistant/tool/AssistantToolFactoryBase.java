@@ -17,8 +17,8 @@
 package com.dbn.assistant.tool;
 
 import com.dbn.assistant.state.AssistantState;
-import com.dbn.assistant.tool.AssistantToolInfo.FactoryDefinition;
-import com.dbn.assistant.tool.AssistantToolInfo.ToolDefinition;
+import com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
+import com.dbn.assistant.tool.AssistantToolInfo.ToolSpec;
 import com.dbn.assistant.tool.event.AssistantToolInvocationHandler;
 import com.dbn.connection.ConnectionHandler;
 import lombok.SneakyThrows;
@@ -30,49 +30,49 @@ import java.lang.reflect.Proxy;
 import static com.dbn.common.util.Unsafe.cast;
 
 public abstract class AssistantToolFactoryBase<T extends AssistantTool> implements AssistantToolFactory<T> {
-    private final FactoryDefinition factoryDefinition;
-    private final ToolDefinition toolDefinition;
+    private final FactorySpec factorySpec;
+    private final ToolSpec toolSpec;
 
     public AssistantToolFactoryBase() {
-        factoryDefinition = getClass().getAnnotation(FactoryDefinition.class);
-        if (factoryDefinition == null) throw new NullPointerException("Missing @AssistantTool.FactoryDefinition annotation");
+        factorySpec = getClass().getAnnotation(FactorySpec.class);
+        if (factorySpec == null) throw new NullPointerException("Missing @AssistantTool.FactorySpec annotation");
 
         Class<T> spec = getToolSpecification();
         Class<T> impl = getToolImplementation();
         if (!spec.isAssignableFrom(impl)) throw new ClassCastException("Specified interface is not assignable to given implementation");
 
-        toolDefinition = spec.getAnnotation(ToolDefinition.class);
-        if (toolDefinition == null) throw new NullPointerException("Missing @AssistantTool.Definition annotation");
+        toolSpec = spec.getAnnotation(ToolSpec.class);
+        if (toolSpec == null) throw new NullPointerException("Missing @AssistantTool.ToolSpec annotation");
     }
 
     @Override
     public AssistantToolType getToolType() {
-        return AssistantToolType.get(toolDefinition.type());
+        return AssistantToolType.get(toolSpec.type());
     }
 
     @Override
     public AssistantToolCategory getToolCategory() {
-        return toolDefinition.category();
+        return toolSpec.category();
     }
 
     @Override
     public String getToolName() {
-        return toolDefinition.name();
+        return toolSpec.name();
     }
 
     @Override
     public String getToolDescription() {
-        return toolDefinition.description();
+        return toolSpec.description();
     }
 
     @Override
     public Class<T> getToolSpecification() {
-        return cast(factoryDefinition.spec());
+        return cast(factorySpec.spec());
     }
 
     @Override
     public Class<T> getToolImplementation() {
-        return cast(factoryDefinition.impl());
+        return cast(factorySpec.impl());
     }
 
     @Override

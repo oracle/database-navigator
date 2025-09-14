@@ -43,7 +43,7 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
                 streamingChatModel(model).
                 systemMessageProvider(context).
                 chatMemoryProvider(memory).
-                tools((Object[]) tools).
+                toolProvider(tools).
                 build();
 
         TokenStream tokenStream = adapter.chat(chatId, prompt);

@@ -19,6 +19,7 @@ package com.dbn.assistant.tool.event;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantTool;
+import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalException;
 import com.dbn.assistant.tool.execution.AssistantToolInvocation;
 import com.dbn.assistant.tool.execution.AssistantToolInvocationMonitor;
@@ -27,7 +28,6 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.project.Project;
-import dev.langchain4j.agent.tool.Tool;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,13 +54,13 @@ public class AssistantToolInvocationHandler<T extends AssistantTool> extends Ass
         this.tool = tool;
     }
 
-    private static boolean isToolMethod(Method method) {
-        return toolMethodCache.computeIfAbsent(method, m -> m.getAnnotation(Tool.class) != null);
+    private static boolean isUtilityMethod(Method method) {
+        return toolMethodCache.computeIfAbsent(method, m -> m.isAnnotationPresent(UtilitySpec.class));
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if (!isToolMethod(method)) {
+        if (!isUtilityMethod(method)) {
             return invokeMethod(method, args);
         }
 

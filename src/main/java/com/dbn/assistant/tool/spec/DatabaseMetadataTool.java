@@ -18,24 +18,24 @@ package com.dbn.assistant.tool.spec;
 
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolFactoryBase;
-import com.dbn.assistant.tool.AssistantToolInfo.ToolDefinition;
-import com.dbn.assistant.tool.AssistantToolInfo.UtilityDefinition;
+import com.dbn.assistant.tool.AssistantToolInfo.ToolSpec;
+import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
 import com.dbn.assistant.tool.impl.DatabaseMetadataToolImpl;
 import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.model.output.structured.Description;
 import lombok.Data;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.METADATA_PROVIDER;
-import static com.dbn.assistant.tool.AssistantToolInfo.FactoryDefinition;
+import static com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
 
-@ToolDefinition(
-    type = "DATABASE_METADATA",
-    name = "Database metadata",
-    category = METADATA_PROVIDER,
-    description = "Information about the database type, name, and version")
+@ToolSpec(
+        category = METADATA_PROVIDER,
+        type = "DATABASE_METADATA",
+        name = "Database metadata",
+        description = "Information about the database type, name, and version")
 public interface DatabaseMetadataTool extends AssistantTool {
 
-    @FactoryDefinition(
+    @FactorySpec(
             spec = DatabaseMetadataTool.class,
             impl = DatabaseMetadataToolImpl.class)
     class Factory extends AssistantToolFactoryBase<DatabaseMetadataTool> {}
@@ -44,18 +44,15 @@ public interface DatabaseMetadataTool extends AssistantTool {
      *                 TOOLS                     *
      *********************************************/
 
-    @Tool(
-        name = "LOAD_DATABASE_INFORMATION",
-        value = {
-                "type=DATABASE_METADATA",
-                "category=METADATA_PROVIDER",
-                "Loads database information"})
-    @UtilityDefinition(name = "Load database information")
+    @Tool(name = "LOAD_DATABASE_INFORMATION")
+    @UtilitySpec(
+            name = "Load database information",
+            description = "Loads database general information")
     DatabaseInformation loadDatabaseInformation();
 
     @Data
     @Description("Database information")
-    class DatabaseInformation {
+    class DatabaseInformation{
         @Description("Database type")
         private String type;
 

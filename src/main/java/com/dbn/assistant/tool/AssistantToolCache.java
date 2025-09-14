@@ -18,12 +18,15 @@ package com.dbn.assistant.tool;
 
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
-import com.dbn.assistant.tool.AssistantToolInfo.UtilityDefinition;
+import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.approval.AssistantToolFilter;
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.list.FilteredList;
 import dev.langchain4j.agent.tool.Tool;
+import dev.langchain4j.service.tool.ToolProvider;
+import dev.langchain4j.service.tool.ToolProviderRequest;
+import dev.langchain4j.service.tool.ToolProviderResult;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,8 +39,9 @@ import java.util.List;
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_TOOL_CACHE;
 
 @Slf4j
-public class AssistantToolCache extends AssistantStateExtension /*implements ToolProvider*/ {
+public class AssistantToolCache extends AssistantStateExtension implements ToolProvider {
     private final List<AssistantTool> tools;
+    private final ToolProvider provider = new AssistantToolProvider(this);
 
     private AssistantToolCache(@NotNull AssistantState assistantState) {
         super(assistantState);
@@ -85,8 +89,8 @@ public class AssistantToolCache extends AssistantStateExtension /*implements Too
     @Nullable
     public AssistantTool getAssistantTool(String utilityName) {
         for (AssistantTool tool : tools) {
-            Tool utility = getUtility(tool, utilityName);
-            if (utility != null) return tool;
+            UtilitySpec utilitySpec = getUtilitySpec(tool, utilityName);
+            if (utilitySpec != null) return tool;
         }
         return null;
     }
@@ -104,19 +108,11 @@ public class AssistantToolCache extends AssistantStateExtension /*implements Too
     }
 
     @Nullable
-    private static Tool getUtility(AssistantTool tool, String utilityName) {
+    public static UtilitySpec getUtilitySpec(AssistantTool tool, String utilityName) {
         Method method = getUtilityMethod(tool, utilityName);
         if (method == null) return null;
 
-        return method.getAnnotation(Tool.class);
-    }
-
-    @Nullable
-    public static UtilityDefinition getUtilityDefinition(AssistantTool tool, String utilityName) {
-        Method method = getUtilityMethod(tool, utilityName);
-        if (method == null) return null;
-
-        return method.getAnnotation(UtilityDefinition.class);
+        return method.getAnnotation(UtilitySpec.class);
     }
 
     public AssistantTool[] getAvailableTools() {
@@ -132,8 +128,8 @@ public class AssistantToolCache extends AssistantStateExtension /*implements Too
                 .toArray(AssistantToolCategory[]::new);
     }
 
-/*    @Override
+    @Override
     public ToolProviderResult provideTools(ToolProviderRequest request) {
-        return null;
-    }*/
+        return provider.provideTools(request);
+    }
 }

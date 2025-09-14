@@ -40,7 +40,7 @@ public class AssistantToolRequest {
 
     private String chatId;
     private String requestId;
-    private String utility;
+    private String utilityName;
     private String utilityArguments;
 
     private AssistantTool tool;
@@ -50,15 +50,15 @@ public class AssistantToolRequest {
 
     public AssistantToolRequest() {}
 
-    public AssistantToolRequest(AssistantToolCache toolCache, String chatId, String requestId, String utility, String utilityArguments) {
+    public AssistantToolRequest(AssistantToolCache toolCache, String chatId, String requestId, String utilityName, String utilityArguments) {
         this.chatId = chatId;
         this.requestId = nvl(requestId, () -> UUIDs.compact());
 
-        this.utility = utility;
+        this.utilityName = utilityName;
         this.utilityArguments = utilityArguments;
 
-        this.tool = toolCache.getAssistantTool(utility);
-        this.method = AssistantToolCache.getUtilityMethod(tool, utility);
+        this.tool = toolCache.getAssistantTool(utilityName);
+        this.method = AssistantToolCache.getUtilityMethod(tool, utilityName);
     }
 
     @SneakyThrows

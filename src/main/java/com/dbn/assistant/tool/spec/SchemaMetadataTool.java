@@ -18,8 +18,9 @@ package com.dbn.assistant.tool.spec;
 
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolFactoryBase;
-import com.dbn.assistant.tool.AssistantToolInfo.ToolDefinition;
-import com.dbn.assistant.tool.AssistantToolInfo.UtilityDefinition;
+import com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
+import com.dbn.assistant.tool.AssistantToolInfo.ToolSpec;
+import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
 import com.dbn.assistant.tool.impl.SchemaMetadataToolImpl;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
@@ -27,16 +28,15 @@ import dev.langchain4j.agent.tool.Tool;
 import java.util.List;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.METADATA_PROVIDER;
-import static com.dbn.assistant.tool.AssistantToolInfo.FactoryDefinition;
 
-@ToolDefinition(
-    type = "SCHEMA_METADATA",
-    name = "Schema metadata",
-    category = METADATA_PROVIDER,
-    description = "Information about database schemas and catalogs")
+@ToolSpec(
+        category = METADATA_PROVIDER,
+        type = "SCHEMA_METADATA",
+        name = "Schema metadata",
+        description = "Information about database schemas and catalogs")
 public interface SchemaMetadataTool extends AssistantTool {
 
-    @FactoryDefinition(
+    @FactorySpec(
         spec = SchemaMetadataTool.class,
         impl = SchemaMetadataToolImpl.class)
     class Factory extends AssistantToolFactoryBase<SchemaMetadataTool> {}
@@ -45,13 +45,9 @@ public interface SchemaMetadataTool extends AssistantTool {
      *                 TOOLS                     *
      *********************************************/
 
-    @Tool(
-        name = "LIST_SCHEMA_NAMES",
-        value = {
-                "type=SCHEMA_METADATA",
-                "category=METADATA_PROVIDER",
-                "Lists database schema names"})
-    @UtilityDefinition(
-        name = "List schema names")
+    @Tool(name = "LIST_SCHEMA_NAMES")
+    @UtilitySpec(
+            name = "List schema names",
+            description = "Lists database schema names")
     List<String> listSchemaNames(@P("Include system schemas") boolean includeSystemSchemas);
 }

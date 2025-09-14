@@ -17,11 +17,14 @@
 package com.dbn.assistant.tool;
 
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
+@NonNls
 @Getter
 public enum AssistantToolCategory {
-    METADATA_PROVIDER("Metadata provider", "Information about the database (schemas, tables, columns, programs, etc.)  "),
-    SOURCE_CODE_PROVIDER("Source code provider", "Source code for database objects (views, functions, procedures, etc.) "),
+    CONFIG_INFO_PROVIDER("Config info provider", "Information about the database configuration (connection information, authentication type, etc.)"),
+    METADATA_PROVIDER("Metadata provider", "Information about the database (schemas, tables, columns, programs, etc.)"),
+    SOURCE_CODE_PROVIDER("Source code provider", "Source code for database objects (views, functions, procedures, etc.)"),
     DATA_PROVIDER("Data provider", "Data contents, such as records, rows, or query results."),
     ACTION_INVOKER("Action invoker", "Operations or tasks, such as running queries, applying updates, or triggering external actions."),
     ;

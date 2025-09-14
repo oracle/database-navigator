@@ -18,8 +18,8 @@ package com.dbn.assistant.tool.spec;
 
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolFactoryBase;
-import com.dbn.assistant.tool.AssistantToolInfo.ToolDefinition;
-import com.dbn.assistant.tool.AssistantToolInfo.UtilityDefinition;
+import com.dbn.assistant.tool.AssistantToolInfo.ToolSpec;
+import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
 import com.dbn.assistant.tool.impl.TableMetadataToolImpl;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
@@ -29,16 +29,16 @@ import lombok.Data;
 import java.util.List;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.METADATA_PROVIDER;
-import static com.dbn.assistant.tool.AssistantToolInfo.FactoryDefinition;
+import static com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
 
-@ToolDefinition(
+@ToolSpec(
     type = "TABLE_METADATA",
     name = "Table metadata",
     category = METADATA_PROVIDER,
     description = "Information about tables in a given schema")
 public interface TableMetadataTool extends AssistantTool {
 
-    @FactoryDefinition(
+    @FactorySpec(
         spec = TableMetadataTool.class,
         impl = TableMetadataToolImpl.class)
     class Factory extends AssistantToolFactoryBase<TableMetadataTool> {}
@@ -47,56 +47,41 @@ public interface TableMetadataTool extends AssistantTool {
      *                 TOOLS                     *
      *********************************************/
 
-    @Tool(
-        name = "LIST_TABLE_NAMES",
-        value = {
-            "type=TABLE_METADATA",
-            "category=METADATA_PROVIDER",
-            "Lists table names in a given schema"})
-    @UtilityDefinition(
-        name = "List table names",
-        summary = "schema %s")
+    @Tool(name = "LIST_TABLE_NAMES")
+    @UtilitySpec(
+            name = "List table names",
+            description = "Lists table names in a given schema",
+            summary = "schema %s")
     List<String> listTableNames(
             @P("Schema name") String schemaName,
             @P("Include temporary tables") boolean includeTemporaryTables);
 
 
-    @Tool(
-        name = "LIST_TEMPORARY_TABLE_NAMES",
-        value = {
-                "type=TABLE_METADATA",
-                "category=METADATA_PROVIDER",
-                "Lists temporary table names in a given schema"})
-    @UtilityDefinition(
-        name = "List temporary table names",
-        summary = "schema %s")
+    @Tool(name = "LIST_TEMPORARY_TABLE_NAMES")
+    @UtilitySpec(
+            name = "List temporary table names",
+            description = "Lists temporary table names in a given schema",
+            summary = "schema %s")
     List<String> listTemporaryTableNames(
             @P("Schema name") String schemaName);
 
 
-    @Tool(
-        name = "LOAD_TABLE_DEFINITION",
-        value = {
-                "type=TABLE_METADATA",
-                "category=METADATA_PROVIDER",
-                "Loads the definition of a given table"})
-    @UtilityDefinition(
-        name = "Load table definition",
-        summary = "%s.%s")
+    @Tool(name = "LOAD_TABLE_DEFINITION")
+    @UtilitySpec(
+            name = "Load table definition",
+            description = "Loads the definition of a given table",
+            summary = "%s.%s")
     TableDefinition loadTableDefinition(
             @P("Schema name") String schemaName,
             @P("Table name") String tableName,
             @P("Include detailed constraint information (may be slow to respond)") boolean detailed);
 
-    @Tool(
-        name = "LOAD_TABLE_DEFINITIONS",
-        value = {
-                "type=TABLE_METADATA",
-                "category=METADATA_PROVIDER",
-                "Loads the definitions of a given set of tables (optimized version of LOAD_TABLE_DEFINITION for bulk queries)"})
-    @UtilityDefinition(
-        name = "Load table definitions",
-        summary = "%s.%s")
+
+    @Tool(name = "LOAD_TABLE_DEFINITIONS")
+    @UtilitySpec(
+            name = "Load table definitions",
+            description = "Loads the definitions of a given set of tables (optimized version of LOAD_TABLE_DEFINITION for bulk queries)",
+            summary = "%s.%s")
     List<TableDefinition> loadTableDefinitions(
             @P("Schema name") String schemaName,
             @P("Table names") List<String> tableNames,

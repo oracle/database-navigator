@@ -21,7 +21,6 @@ import com.dbn.assistant.service.generic.context.AssistantMemoryCache;
 import com.dbn.assistant.service.generic.model.AssistantModelInvoker;
 import com.dbn.assistant.service.generic.model.AssistantModelType;
 import com.dbn.assistant.state.AssistantState;
-import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolCache;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import lombok.Getter;
@@ -36,9 +35,8 @@ abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
         this.modelType = modelType;
     }
 
-    protected AssistantTool[] prepareTools(AssistantState assistantState) {
-        AssistantToolCache toolCache = AssistantToolCache.get(assistantState);
-        return toolCache.getAvailableTools();
+    protected AssistantToolCache prepareTools(AssistantState assistantState) {
+        return AssistantToolCache.get(assistantState);
     }
 
     protected ChatMemoryProvider prepareMemory(AssistantState assistantState) {
