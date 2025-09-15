@@ -41,6 +41,7 @@ import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Dialogs;
+import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.intellij.icons.AllIcons;
@@ -63,6 +64,7 @@ import java.awt.Point;
 
 import static com.dbn.assistant.chat.message.ChatMessageSectionType.TOOL;
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.util.Messages.showConfirmationDialog;
 
 public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     private JPanel mainPanel;
@@ -195,36 +197,90 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     }
 
     private void allow(Object key){
-        AssistantToolApprovals toolApprovals = getToolApprovals();
+        boolean confirmed = confirm(key, true);
+        if (!confirmed) return;
 
+        AssistantToolApprovals toolApprovals = getToolApprovals();
         if (key instanceof AssistantToolType) {
             AssistantToolType toolType = (AssistantToolType) key;
             toolApprovals.allow(toolType);
+
         } else if (key instanceof AssistantToolCategory) {
             AssistantToolCategory toolCategory = (AssistantToolCategory) key;
             toolApprovals.allow(toolCategory);
         }
+
         confirmationPanel.setVisible(false);
         AssistantToolInvocationMonitor executionMonitor = getInvocationMonitor();
         executionMonitor.allow();
     }
 
     private void deny(Object key){
-        AssistantToolApprovals toolApprovals = getToolApprovals();
-        if (toolApprovals == null) return;
+        boolean confirmed = confirm(key, false);
+        if (!confirmed) return;
 
+        AssistantToolApprovals toolApprovals = getToolApprovals();
         if (key instanceof AssistantToolType) {
             AssistantToolType toolType = (AssistantToolType) key;
             toolApprovals.deny(toolType);
+
         } else if (key instanceof AssistantToolCategory) {
             AssistantToolCategory toolCategory = (AssistantToolCategory) key;
             toolApprovals.deny(toolCategory);
         }
+
         confirmationPanel.setVisible(false);
         AssistantToolInvocationMonitor executionMonitor = getInvocationMonitor();
         executionMonitor.deny();
     }
 
+    private boolean confirm(Object key, boolean approval) {
+        AssistantToolType toolType = null;
+        AssistantToolCategory toolCategory = null;
+        if (key instanceof AssistantToolType) {
+            toolType = (AssistantToolType) key;
+        } else if (key instanceof AssistantToolCategory) {
+            toolCategory = (AssistantToolCategory) key;
+        }
+
+        if (toolType != null || toolCategory != null) {
+            String title = toolType != null ?
+                    approval ?
+                            txt("msg.assistant.title.AlwaysAllowToolType") :
+                            txt("msg.assistant.title.AlwaysDenyToolType") :
+                    approval ?
+                            txt("msg.assistant.title.AlwaysAllowToolCategory") :
+                            txt("msg.assistant.title.AlwaysDenyToolCategory");
+
+            String toolTypeName = getToolTypeName(toolType);
+            String toolCategoryName = getToolCategoryName(toolCategory);
+            String message = toolType != null ?
+                    approval ?
+                            txt("msg.assistant.question.AlwaysAllowToolType", toolTypeName) :
+                            txt("msg.assistant.question.AlwaysDenyToolType", toolTypeName) :
+                    approval ?
+                            txt("msg.assistant.question.AlwaysAllowToolCategory", toolCategoryName) :
+                            txt("msg.assistant.question.AlwaysDenyToolCategory", toolCategoryName);
+
+            int option = showConfirmationDialog(
+                    getProject(),
+                    title,
+                    message,
+                    Messages.OPTIONS_YES_NO, 0);
+
+            if (option == 1) return false;
+        }
+        return true;
+    }
+
+    private String getToolTypeName(AssistantToolType toolType) {
+        AssistantTool assistantTool = getToolCache().getAssistantTool(toolType);
+        return assistantTool == null ? "Undefined" : assistantTool.getName();
+    }
+
+    private String getToolCategoryName(AssistantToolCategory toolCategory) {
+        return toolCategory == null ? "Undefined" : toolCategory.getName();
+    }
 
     private boolean isPreapproved() {
         AssistantToolApprovals toolApprovals = getToolApprovals();
@@ -238,8 +294,11 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
 
     public void showToolExecutionData(DataContext context) {
         Point location = getMainComponent().getLocationOnScreen();
-        String request = getToolRequest().getUtilityArguments();
-        String response = getToolResponse().getContent();
+        AssistantToolRequest toolRequest = getToolRequest();
+        AssistantToolResponse toolResponse = getToolResponse();
+
+        String request = toolRequest.getUtilityArguments();
+        String response = toolResponse == null ? null : toolResponse.getContent();
         Dialogs.show(() -> new AssistantToolDataDialog(getProject(), info.getToolName(), request, response, location));
     }
 

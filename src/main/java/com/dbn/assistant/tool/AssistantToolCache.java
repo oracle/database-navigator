@@ -35,6 +35,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_TOOL_CACHE;
 
@@ -91,6 +92,14 @@ public class AssistantToolCache extends AssistantStateExtension implements ToolP
         for (AssistantTool tool : tools) {
             UtilitySpec utilitySpec = getUtilitySpec(tool, utilityName);
             if (utilitySpec != null) return tool;
+        }
+        return null;
+    }
+
+    @Nullable
+    public AssistantTool getAssistantTool(AssistantToolType toolType) {
+        for (AssistantTool tool : tools) {
+            if (Objects.equals(tool.getType(), toolType)) return tool;
         }
         return null;
     }
