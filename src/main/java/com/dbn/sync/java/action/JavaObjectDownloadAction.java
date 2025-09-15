@@ -37,7 +37,7 @@ public class JavaObjectDownloadAction extends AnObjectAction<DBObject> {
 	@Override
 	protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBObject target) {
 		JavaDownloadManager manager = JavaDownloadManager.getInstance(project);
-		manager.openCodeDownloader(getTarget());
+		manager.openJavaClassDownloader(getTarget());
 	}
 
 	@Override

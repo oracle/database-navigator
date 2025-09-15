@@ -57,7 +57,7 @@ public class ObjectListActionGroup extends DefaultActionGroup {
                 add(new JavaObjectDownloadAction(schema));
             }
             if(objectType == DBObjectType.JAVA_RESOURCE) {
-                add(new JavaResourceDownloadAction(schema, objectList));
+                add(new JavaResourceDownloadAction(schema));
             }
 
             add(new CreateObjectAction(objectList));
