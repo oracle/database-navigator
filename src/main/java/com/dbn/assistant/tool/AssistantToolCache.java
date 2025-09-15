@@ -21,6 +21,7 @@ import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.approval.AssistantToolFilter;
+import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.list.FilteredList;
 import dev.langchain4j.agent.tool.Tool;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_TOOL_CACHE;
 
@@ -48,10 +50,11 @@ public class AssistantToolCache extends AssistantStateExtension implements ToolP
         super(assistantState);
         List<AssistantTool> tools = initTools(assistantState);
 
-        AssistantToolApprovals approvals = AssistantToolApprovals.get(assistantState);
-        // TODO decide whether to hide tools vs promoting them as unauthorized
+        AssistantToolSettings settings = AssistantToolSettings.get(assistantState);
+        AssistantToolApprovals approvals = settings.getApprovals();
+
         AssistantToolFilter filter = new AssistantToolFilter(approvals);
-        this.tools = FilteredList.stateful(t -> true, tools);
+        this.tools = FilteredList.stateful(filter, tools);
     }
 
     private static List<AssistantTool> initTools(AssistantState assistantState) {
@@ -128,6 +131,13 @@ public class AssistantToolCache extends AssistantStateExtension implements ToolP
         return tools.toArray(new AssistantTool[0]);
     }
 
+    public AssistantToolCategory[] getToolCategories() {
+        return FilteredList.unwrap(tools)
+                .stream()
+                .map(t -> t.getCategory())
+                .distinct()
+                .toArray(AssistantToolCategory[]::new);
+    }
     public AssistantToolCategory[] getAvailableToolCategories() {
         AssistantTool[] tools = getAvailableTools();
         return Arrays
@@ -140,5 +150,14 @@ public class AssistantToolCache extends AssistantStateExtension implements ToolP
     @Override
     public ToolProviderResult provideTools(ToolProviderRequest request) {
         return provider.provideTools(request);
+    }
+
+    public List<AssistantToolType> getToolTypes(AssistantToolCategory category) {
+        return FilteredList
+                .unwrap(tools)
+                .stream()
+                .filter(t -> t.getCategory() == category)
+                .map(t -> t.getType())
+                .collect(Collectors.toList());
     }
 }

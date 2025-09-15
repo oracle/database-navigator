@@ -19,7 +19,7 @@ package com.dbn.common.action;
 import com.dbn.assistant.service.generic.context.AssistantContextCache;
 import com.dbn.assistant.service.generic.context.AssistantMemoryCache;
 import com.dbn.assistant.tool.AssistantToolCache;
-import com.dbn.assistant.tool.approval.AssistantToolApprovals;
+import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.data.Data;
 import com.dbn.common.notification.NotificationCategory;
 import com.dbn.common.outcome.MessageOutcomeHandler;
@@ -64,7 +64,7 @@ public class UserDataKeys {
     public static final Key<Boolean> WRAPPER_FILE = Key.create("DBNavigator.WrapperFile");
     public static final Key<AssistantMemoryCache> ASSISTANT_MEMORY_CACHE = Key.create("DBNavigator.AssistantMemoryCache");
     public static final Key<AssistantToolCache> ASSISTANT_TOOL_CACHE = Key.create("DBNavigator.AssistantMemoryCache");
-    public static final Key<AssistantToolApprovals> ASSISTANT_TOOL_APPROVALS = Key.create("DBNavigator.AssistantToolApproval");
+    public static final Key<AssistantToolSettings> ASSISTANT_TOOL_SETTINGS = Key.create("DBNavigator.AssistantToolSettings");
     public static final Key<AssistantContextCache> ASSISTANT_CONTEXT_PROVIDER = Key.create("DBNavigator.AssistantContextProvider");
 
     public static final Key<MessageOutcomeHandler> MESSAGE_OUTCOME_HANDLER = Key.create("DBNavigator.MessageOutcomeHandler");

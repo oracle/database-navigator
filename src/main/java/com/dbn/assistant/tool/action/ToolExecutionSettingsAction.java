@@ -16,7 +16,10 @@
 
 package com.dbn.assistant.tool.action;
 
-import com.dbn.assistant.chat.message.ui.ChatMessageToolSectionForm;
+import com.dbn.assistant.state.AssistantState;
+import com.dbn.assistant.tool.config.AssistantToolSettings;
+import com.dbn.assistant.tool.config.ui.AssistantToolSettingsDialog;
+import com.dbn.common.util.Dialogs;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -26,9 +29,11 @@ import org.jetbrains.annotations.NotNull;
 public class ToolExecutionSettingsAction extends AssistantToolAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        ChatMessageToolSectionForm toolSectionForm = getToolSectionForm(e);
-        if (toolSectionForm == null) return;
+        AssistantState assistantState = getAssistantState(e);
+        if (assistantState == null) return;
 
+        AssistantToolSettings settings = AssistantToolSettings.get(assistantState);
+        Dialogs.show(() -> new AssistantToolSettingsDialog(project, settings));
     }
 
     @Override

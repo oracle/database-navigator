@@ -21,6 +21,7 @@ import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalException;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
+import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.common.thread.ThreadInfo;
@@ -51,7 +52,8 @@ public class AssistantToolInvocationMonitor extends AssistantStateExtension {
 
     public void awaitApproval() {
         AssistantState state = getAssistantState();
-        AssistantToolApprovals approval = AssistantToolApprovals.get(state);
+        AssistantToolSettings settings = AssistantToolSettings.get(state);
+        AssistantToolApprovals approval = settings.getApprovals();
         if (approval.isPreapproved(this.tool)) return;
 
         if (approval.isDenied(tool.getType())) throw new AssistantToolApprovalException("User has denied the execution of this tool type");

@@ -28,12 +28,12 @@ public abstract class AssistantStateExtension {
     }
 
     @NotNull
-    protected AssistantState getAssistantState() {
+    public AssistantState getAssistantState() {
         return WeakRef.ensure(assistantState);
     }
 
     @NotNull
-    protected ConnectionHandler getConnection() {
+    public ConnectionHandler getConnection() {
         return getAssistantState().getConnection();
     }
 }

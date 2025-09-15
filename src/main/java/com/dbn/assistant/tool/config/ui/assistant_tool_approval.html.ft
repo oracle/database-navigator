@@ -1,0 +1,29 @@
+<html lang="en">
+<head>
+    <title>Chat Message</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body>
+    This is an overview of all tools available to the Database Assistant.<br>
+    It allows you to determine which tools the language model can access.
+
+    <br><br>
+    You can manage tool access by approving or denying entire tool categories, as well as individual tools.
+
+    The status of a tool determines its visibility and accessibility to the LLM:
+    <ul>
+        <li>Tools with unspecified approval status will be prompted for approval before every invocation.</li>
+        <li>Tools marked as "Allowed" will be invoked automatically without supervision.</li>
+        <li>Tools marked as "Denied" will fail with an authorization error upon invocation.</li>
+        <li>Tools marked as "Hidden" will not be visible to the LLM.</li>
+    </ul>
+</body>
+
+</html>

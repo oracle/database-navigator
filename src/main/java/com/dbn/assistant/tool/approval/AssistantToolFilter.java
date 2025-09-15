@@ -17,6 +17,8 @@
 package com.dbn.assistant.tool.approval;
 
 import com.dbn.assistant.tool.AssistantTool;
+import com.dbn.assistant.tool.AssistantToolCategory;
+import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.common.filter.Filter;
 
 public class AssistantToolFilter implements Filter<AssistantTool> {
@@ -33,8 +35,11 @@ public class AssistantToolFilter implements Filter<AssistantTool> {
 
     @Override
     public boolean accepts(AssistantTool assistantTool) {
-        if (approval.isDenied(assistantTool.getCategory())) return false;
-        if (approval.isDenied(assistantTool.getType())) return false;
+        AssistantToolCategory category = assistantTool.getCategory();
+        AssistantToolType type = assistantTool.getType();
+
+        if (approval.isDisabled(category)) return false;
+        if (approval.isDisabled(type)) return false;
 
         return true;
     }

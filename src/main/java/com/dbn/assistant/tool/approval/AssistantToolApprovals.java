@@ -16,33 +16,26 @@
 
 package com.dbn.assistant.tool.approval;
 
-import com.dbn.assistant.state.AssistantState;
-import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolCategory;
 import com.dbn.assistant.tool.AssistantToolType;
-import com.dbn.common.action.UserDataKeys;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.dbn.common.action.UserDataKeys.ASSISTANT_TOOL_APPROVALS;
+import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.ALLOWED;
+import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.DENIED;
+import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.DISABLED;
+import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
+import static com.dbn.common.util.Commons.nvl;
 
-public class AssistantToolApprovals extends AssistantStateExtension {
-    private final Map<AssistantToolType, Boolean> types = new ConcurrentHashMap<>();
-    private final Map<AssistantToolCategory, Boolean> categories = new ConcurrentHashMap<>();
+public class AssistantToolApprovals {
+    private final Map<AssistantToolType, AssistantToolApprovalStatus> types = new ConcurrentHashMap<>();
+    private final Map<AssistantToolCategory, AssistantToolApprovalStatus> categories = new ConcurrentHashMap<>();
 
     private final AtomicInteger signature = new AtomicInteger(0);
-
-    private AssistantToolApprovals(@NotNull AssistantState assistantState) {
-        super(assistantState);
-    }
-
-    public static AssistantToolApprovals get(AssistantState assistantState) {
-        return UserDataKeys.getUserDataSync(assistantState, ASSISTANT_TOOL_APPROVALS, () -> new AssistantToolApprovals(assistantState));
-    }
 
     public boolean isPreapproved(AssistantTool tool) {
         if (isAllowed(tool.getCategory())) return true;
@@ -51,52 +44,70 @@ public class AssistantToolApprovals extends AssistantStateExtension {
         return false;
     }
 
-
-    private int updateSignature() {
-        return signature.incrementAndGet();
+    private void updateSignature() {
+        signature.incrementAndGet();
     }
 
     public int getSignature() {
         return signature.get();
     }
 
+    public AssistantToolApprovalStatus getStatus(AssistantToolCategory category) {
+        return nvl(categories.get(category), PROMPTED);
+    }
+
+    public AssistantToolApprovalStatus getStatus(AssistantToolType type) {
+        return nvl(types.get(type), PROMPTED);
+    }
+
     public void allow(@NotNull AssistantToolType type) {
-        types.put(type, true);
-        updateSignature();
+        setStatus(type, ALLOWED);
     }
 
     public void deny(@NotNull AssistantToolType type) {
-        types.put(type, false);
-        updateSignature();
+        setStatus(type, DENIED);
     }
 
     public void allow(@NotNull AssistantToolCategory category) {
-        categories.put(category, true);
-        updateSignature();
+        setStatus(category, ALLOWED);
     }
 
     public void deny(@NotNull AssistantToolCategory category) {
-        categories.put(category, false);
-        updateSignature();
+        setStatus(category, DENIED);
     }
 
     public boolean isAllowed(@NotNull AssistantToolType type) {
-        Boolean state = types.get(type);
-        return state != null && state;
+        AssistantToolApprovalStatus status = types.get(type);
+        return status == ALLOWED;
     }
 
     public boolean isAllowed(@NotNull AssistantToolCategory category) {
-        Boolean state = categories.get(category);
-        return state != null && state;
+        return categories.get(category) == ALLOWED;
     }
 
     public boolean isDenied(@NotNull AssistantToolType type) {
-        Boolean state = types.get(type);
-        return state != null && !state;
+        return types.get(type) == DENIED;
     }
 
     public boolean isDenied(@NotNull AssistantToolCategory category) {
-        Boolean state = categories.get(category);
-        return state != null && !state;
+        return categories.get(category) == DENIED;
+    }
+
+    public boolean isDisabled(@NotNull AssistantToolType type) {
+        return types.get(type) == DISABLED;
+    }
+
+    public boolean isDisabled(@NotNull AssistantToolCategory category) {
+        return categories.get(category) == DISABLED;
+    }
+
+    public void setStatus(AssistantToolCategory category, AssistantToolApprovalStatus status) {
+        categories.put(category, status);
+        updateSignature();
+    }
+
+    public void setStatus(AssistantToolType type, AssistantToolApprovalStatus status) {
+        types.put(type, status);
+        updateSignature();
     }
 }

@@ -157,6 +157,7 @@ public abstract class DBNFormBase
         UserInterface.updateScrollPanes(mainComponent);
         UserInterface.updateTitledBorders(mainComponent);
         UserInterface.updateSplitPanes(mainComponent);
+        UserInterface.updateTextPanes(mainComponent);
         adjustFormSize(mainComponent);
 
         ApplicationEvents.subscribe(this, LafManagerListener.TOPIC, source -> lookAndFeelChanged());

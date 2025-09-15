@@ -45,6 +45,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
@@ -373,6 +374,11 @@ public class UserInterface {
 
     public static void updateSplitPanes(JComponent component) {
         visitRecursively(component, JSplitPane.class, sp -> Splitters.replaceSplitPane(sp));
+    }
+
+    public static void updateTextPanes(JComponent component) {
+        // text panes do not properly size when hidden. This should force them to revalidate first time they are shown
+        visitRecursively(component, JTextPane.class, tp -> whenFirstShown(tp, () -> tp.revalidate()));
     }
 
     public static void setBackgroundRecursive(JComponent component, Color color) {
