@@ -19,7 +19,6 @@ package com.dbn.execution.java.ui;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.Presentable;
-import com.dbn.common.ui.ValueSelectorListener;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNComboBox;
@@ -29,12 +28,8 @@ import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.data.editor.text.TextContentType;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
-import com.dbn.data.editor.ui.TextFieldWithTextEditor;
-import com.dbn.data.editor.ui.UserValueHolder;
-import com.dbn.data.editor.ui.UserValueHolderImpl;
 import com.dbn.execution.common.input.ExecutionVariable;
 import com.dbn.execution.common.input.ExecutionVariableHistory;
 import com.dbn.execution.java.ui.JavaExecutionInputUtil.UiSuitability;
@@ -45,8 +40,10 @@ import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.components.JBTextArea;
+import com.intellij.ui.components.JBTextField;
+import com.intellij.uiDesigner.core.Spacer;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,7 +51,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentListener;
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.util.ArrayList;
@@ -77,8 +73,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 	private JLabel parameterTypeLabel;
 	private JPanel fieldsPanel;
 	private JPanel inputFieldPanel;
-	private DBNComboBox initializationModeComboBox;
-	private UserValueHolderImpl<String> userValueHolder;
+	private DBNComboBox<InitializationMode> initializationModeComboBox;
 	private DocumentListener documentListener;
 
 	private final DBObjectRef<DBJavaParameter> parameter;
@@ -86,10 +81,10 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 
 	private final UiSuitability uiSuitability;
 	private final boolean fieldsRequired;
-	private boolean fieldsInitiated = false;
 
-	private TextFieldWithTextEditor codeInputTextField;
+	private JBTextArea codeInputTextField;
 	private TextFieldWithPopup<?> plainInputTextField;
+
 	private enum InitializationMode implements Presentable {
 		CODE("Code"),
 		FORM("Form");
@@ -115,7 +110,6 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 		parameterLabel.setIcon(parameter.getIcon());
 		parameterLabel.setBorder(Borders.insetBorder(4, 0, 4, 0));
 
-		parameterTypeLabel.setForeground(UIUtil.getInactiveTextColor());
 		uiSuitability = classifyForUi(getParameter());
 
 		if(parameter.isScalar() || uiSuitability == UiSuitability.UI_NOT_SUPPORTED) {
@@ -124,91 +118,89 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 			fieldsRequired = true;
 		}
 
-		initInputModeComboBox();
+        String displayClassName = getCanonicalName(parameter.getJavaClassRef());
+        if(parameter.getArrayDepth() > 0) {
+            displayClassName += "[]".repeat(parameter.getArrayDepth());
+        }
+
+        parameterTypeLabel.setForeground(UIUtil.getInactiveTextColor());
+        parameterTypeLabel.setText(displayClassName);
+        if (parameter.isClass()) {
+            parameterTypeLabel.setIcon(Icons.DBO_JAVA_CLASS);
+        }
+
+        initializationModeComboBox.setVisible(false);
+        if (!parameter.isScalar()) {
+            mainPanel.remove(inputFieldPanel);
+            initInputModeComboBox();
+        } else {
+            mainPanel.remove(initializationModeComboBox);
+            for (Component component : mainPanel.getComponents()) {
+                if (component instanceof Spacer) {
+                    mainPanel.remove(component);
+                }
+            }
+            initPlainTextField();
+        }
 	}
 
 	private void initInputModeComboBox() {
 		if(uiSuitability != UiSuitability.UI_NOT_SUPPORTED) {
 			initializationModeComboBox.addItem(InitializationMode.FORM);
+            initializationModeComboBox.setVisible(true);
 		}
 		initializationModeComboBox.addItem(InitializationMode.CODE);
 
-		if(uiSuitability == UiSuitability.UI_PREFERRED) {
-			initializationModeComboBox.setSelectedItem(InitializationMode.FORM);
-			setFormInput();
-		}else{
-			initializationModeComboBox.setSelectedItem(InitializationMode.CODE);
-			setCodeInput();
-		}
-
-		ValueSelectorListener changeListener = (oldValue, newValue) -> updateInitializationMode();
-
-		initializationModeComboBox.addListener(changeListener);
+		updateInitializationMode(initializationModeComboBox.getItemAt(0));
+		initializationModeComboBox.addListener((oldValue, newValue) -> updateInitializationMode(newValue));
 	}
 
 	private InitializationMode getInitializationMode() {
 		return (InitializationMode) initializationModeComboBox.getSelectedItem();
 	}
 
-	private void updateInitializationMode() {
-		InitializationMode initializationMode = getInitializationMode();
-
-		if(initializationMode == InitializationMode.FORM) {
+	private void updateInitializationMode(InitializationMode initializationMode) {
+        resetFieldsPanel();
+        initializationModeComboBox.setSelectedItem(initializationMode);
+        if (initializationMode == InitializationMode.FORM) {
 			setFormInput();
-		}
-		else if(initializationMode == InitializationMode.CODE) {
-			setCodeInput();
+		} else {
+			addTextAreaField();
 		}
 	}
 
-	private String getJavaTypeDeclaration(DBJavaParameter parameter)
-	{
-		StringBuilder declaration = new StringBuilder(parameter.getJavaClass().getCanonicalName());
+    private void resetFieldsPanel() {
+        fieldsPanel.removeAll();
+    }
+
+    private String getJavaTypeDeclaration(DBJavaParameter parameter) {
+		StringBuilder declaration = new StringBuilder(getCanonicalName(parameter.getJavaClassRef()));
 		if (parameter.isArray())
 			declaration.append("[]".repeat(Math.max(0, parameter.getArrayDepth())));
 		declaration.append(" ");
 
 		declaration.append(new WrapperStatementBuilder(parameter.getProject())
-				.getJavaInitializedArgumentName((int)parameter.getPosition()));
+				.getJavaInitializedArgumentName(parameter.getPosition()));
 		declaration.append(" = null;" + System.lineSeparator());
 
 		return declaration.toString();
 	}
 
-	private void setFormInput()
-	{
-		if(fieldsRequired) {
-			if(!fieldsInitiated) { initFieldForm();}
-			setDisplayForFields();
-		}
-		else
-		{
-			if(plainInputTextField == null){ initPlainTextField();}
-			if(codeInputTextField != null){ codeInputTextField.setVisible(false); }
-
-			JTextField inputTextField = plainInputTextField.getTextField();
-			inputTextField.setDisabledTextColor(inputTextField.getForeground());
-
-			plainInputTextField.setVisible(true);
-
+	private void setFormInput() {
+		if (fieldsRequired) {
+            initFieldForm();
 		}
 	}
 
-	private void setCodeInput()
-	{
-		if(plainInputTextField != null){ plainInputTextField.setVisible(false); }
-		if(codeInputTextField == null){ initCodeAreaTextField(); }
-		if(fieldsRequired) {
-			unsetDisplayForFields();}
+	private void addTextAreaField() {
+		if (codeInputTextField == null) {
+            initCodeAreaTextField();
+        }
 
-		JTextField inputTextField = codeInputTextField.getTextField();
-		codeInputTextField.getTextField().setDisabledTextColor(inputTextField.getForeground());
-		codeInputTextField.setVisible(true);
-
+        fieldsPanel.add(codeInputTextField);
 	}
 
-	private void initPlainTextField()
-	{
+	private void initPlainTextField() {
 		DBJavaParameter parameter = getParameter();
 		Project project = parameter.getProject();
 		JavaExecutionInput executionInput = getExecutionInput();
@@ -226,71 +218,30 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 		}
 		plainInputTextField.createValuesListPopup(createFormValuesProvider(), parameter, true);
 		inputFieldPanel.add(plainInputTextField);
-		unsetDisplayForFields();
 	}
 
-	private void initCodeAreaTextField()
-	{
+	private void initCodeAreaTextField() {
 		DBJavaParameter parameter = getParameter();
-		Project project = parameter.getProject();
-		JavaExecutionInput executionInput = getExecutionInput();
-		String value = executionInput.ensureInputValue(getParameterCodeName(parameter.getName()));
 
-		codeInputTextField = new TextFieldWithTextEditor(project);
-		UserValueHolder<String> valueHolder = new UserValueHolderImpl<>(parameter.getName(), DBObjectType.JAVA_PARAMETER, null, project);
-		valueHolder.setContentType(TextContentType.create("Java", "JAVA"));
-		if(valueHolder.getUserValue()==null || valueHolder.getUserValue().isEmpty())
-			valueHolder.setUserValue(getJavaTypeDeclaration(parameter));
-		codeInputTextField.setUserValueHolder(valueHolder);
-		codeInputTextField.setPreferredSize(new Dimension(240, -1));
+		codeInputTextField = new JBTextArea();
+        codeInputTextField.setRows(5);
+        codeInputTextField.setBorder(new JBTextField().getBorder());
+        codeInputTextField.setText((getJavaTypeDeclaration(parameter)));
 
 		//TODO
 		//Use this to show history of values
 		ListPopupValuesProvider codeValuesHistory = createCodeValuesProvider();
-
-
-		JTextField inputTextField = codeInputTextField.getTextField();
-		inputTextField.setText(value);
-		if(documentListener != null) {TextFields.addDocumentListener(inputTextField, documentListener);}
-
-		inputFieldPanel.add(codeInputTextField, BorderLayout.CENTER);
-		unsetDisplayForFields();
 	}
 
-	private void initFieldForm()
-	{
-		DBJavaClass javaClass = getParameter().getJavaClass();
+	private void initFieldForm() {
+        DBJavaParameter parameter = getParameter();
+		DBJavaClass javaClass = parameter.getJavaClass();
 		verticalBoxLayout(fieldsPanel);
 		List<DBJavaField> fields = javaClass.getFields();
 		fields = sortedCopy(fields, POSITION_COMPARATOR);
 		fields.forEach(f -> addFieldPanel(f));
-		fieldsInitiated = true;
 	}
 
-	private void setDisplayForFields()
-	{
-		parameterTypeLabel.setText("");
-		parameterTypeLabel.setVisible(false);
-		if(codeInputTextField != null){ codeInputTextField.setVisible(false); }
-		fieldsPanel.setVisible(true);
-	}
-
-	private void unsetDisplayForFields()
-	{
-		DBJavaParameter parameter = getParameter();
-		DBObjectRef<DBJavaClass> javaClass = parameter.getJavaClassRef();
-		String displayClassName = getCanonicalName(javaClass);
-		if(parameter.getArrayDepth() > 0) {
-			displayClassName = displayClassName + "[]".repeat(parameter.getArrayDepth());
-		}
-		parameterTypeLabel.setText(displayClassName);
-		if (parameter.isClass()) {
-			parameterTypeLabel.setIcon(/*parameter.getParameterClass().getIcon()*/Icons.DBO_JAVA_CLASS); // TODO performance issue (do not force loading the field class)
-		}
-		parameterTypeLabel.setVisible(true);
-		if(codeInputTextField != null){ codeInputTextField.setVisible(true); }
-		fieldsPanel.setVisible(false);
-	}
 	@NotNull
 	public JavaExecutionInputForm getParentForm() {
 		return ensureParentComponent();
@@ -380,12 +331,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 		if(!fieldsRequired) {
 			JTextField inputTextField = plainInputTextField.getTextField();
 			String parameterName = parameter.getName();
-			String value;
-			if (userValueHolder != null) {
-				value = userValueHolder.getUserValue();
-			} else {
-				value = Commons.nullIfEmpty(inputTextField == null ? null : inputTextField.getText());
-			}
+			String value = Commons.nullIfEmpty(inputTextField == null ? null : inputTextField.getText());
 			executionInput.setInputValue(parameterName, value);
 		} else {
 			fieldForms.forEach(f -> f.updateExecutionInput());
@@ -396,8 +342,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 	private void updateExecutionCodeInput() {
 		DBJavaParameter parameter = getParameter();
 		JavaExecutionInput executionInput = getParentForm().getExecutionInput();
-		JTextField inputTextField = codeInputTextField.getTextField();
-		String value = inputTextField.getText();
+		String value = codeInputTextField.getText();
 		String parameterName = getParameterCodeName(parameter.getName());
 		executionInput.setInputValue(parameterName, value);
 		executionInput.addJavaInitializedCode(parameter.getPosition(), value);
@@ -406,7 +351,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 	public void addDocumentListener(DocumentListener documentListener) {
 		this.documentListener = documentListener;
 		if(codeInputTextField != null) {
-			TextFields.addDocumentListener(codeInputTextField.getTextField(), documentListener);
+			TextFields.addDocumentListener(codeInputTextField, documentListener);
 		}
 		if(plainInputTextField != null) {
 			TextFields.addDocumentListener(plainInputTextField.getTextField(), documentListener);
