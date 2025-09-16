@@ -66,6 +66,11 @@ public abstract class AssistantToolFactoryBase<T extends AssistantTool> implemen
     }
 
     @Override
+    public boolean isInteractive() {
+        return toolSpec.interactive();
+    }
+
+    @Override
     public Class<T> getToolSpecification() {
         return cast(factorySpec.spec());
     }
@@ -88,7 +93,8 @@ public abstract class AssistantToolFactoryBase<T extends AssistantTool> implemen
                 getToolName(),
                 getToolDescription(),
                 getToolType(),
-                getToolCategory());
+                getToolCategory(),
+                isInteractive());
 
         return proxy(assistantState, tool);
     }

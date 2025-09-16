@@ -38,4 +38,11 @@ public abstract class AssistantToolAction extends ProjectAction implements Assis
     protected ChatMessageToolSectionForm getToolSectionForm(@NotNull AnActionEvent e) {
         return e.getData(DataKeys.CHAT_MESSAGE_TOOL_SECTION_FORM);
     }
+
+    protected boolean isInteractive(@NotNull AnActionEvent e) {
+        ChatMessageToolSectionForm toolSectionForm = getToolSectionForm(e);
+        if (toolSectionForm == null) return false;
+
+        return toolSectionForm.isInteractive();
+    }
 }

@@ -132,7 +132,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         AssistantTool tool = cache.getAssistantTool(toolName);
         if (tool == null) return null;
 
-        AssistantToolRequest request = new AssistantToolRequest(cache, chatId, requestId, toolName, toolArguments);
+        AssistantToolRequest request = new AssistantToolRequest(chatId, requestId, toolName, toolArguments);
         AssistantToolInvocation invocation = new AssistantToolInvocation(request);
 
         AssistantState state = getAssistantState();

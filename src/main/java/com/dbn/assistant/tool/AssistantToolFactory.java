@@ -34,5 +34,7 @@ public interface AssistantToolFactory<T extends AssistantTool> {
 
     String getToolDescription();
 
+    boolean isInteractive();
+
     T createTool(AssistantState assistantState);
 }

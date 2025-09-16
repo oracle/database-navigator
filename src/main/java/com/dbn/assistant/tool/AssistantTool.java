@@ -31,5 +31,7 @@ public interface AssistantTool {
 
     AssistantToolCategory getCategory();
 
-    void initialize(ConnectionHandler connection, String name, String description, AssistantToolType type, AssistantToolCategory category);
+    boolean isInteractive();
+
+    void initialize(ConnectionHandler connection, String name, String description, AssistantToolType type, AssistantToolCategory category,  boolean interactive);
 }

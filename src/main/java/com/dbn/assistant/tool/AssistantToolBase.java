@@ -42,14 +42,15 @@ public abstract class AssistantToolBase extends ConnectionComponent implements A
     private AssistantToolCategory category;
     private String name;
     private String description;
+    private boolean interactive;
 
-    @Override
-    public void initialize(ConnectionHandler connection, String name, String description, AssistantToolType type, AssistantToolCategory category) {
+    public void initialize(ConnectionHandler connection, String name, String description, AssistantToolType type, AssistantToolCategory category, boolean interactive) {
         initialize(connection);
         this.name = name;
         this.description = description;
         this.type = type;
         this.category = category;
+        this.interactive = interactive;
     }
 
     protected static <T extends DBObject> List<String> getObjectNames(List<T> objects, boolean qualified) {

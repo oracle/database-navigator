@@ -36,6 +36,8 @@ public interface AssistantToolInfo {
         String description();
 
         AssistantToolCategory category();
+
+        boolean interactive() default false;
     }
 
     @Target({ElementType.TYPE})

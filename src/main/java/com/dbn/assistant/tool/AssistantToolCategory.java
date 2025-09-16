@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NonNls;
 @NonNls
 @Getter
 public enum AssistantToolCategory {
+    USER_INTERACTION("User interaction", "Interactive decision hooks and action confirmation interfaces"),
     CONFIG_INFO_PROVIDER("Config information provider", "Information about the database configuration (connection information, authentication type, etc.)"),
     METADATA_PROVIDER("Metadata provider", "Information about the database (schemas, tables, columns, programs, etc.)"),
     SOURCE_CODE_PROVIDER("Source-code provider", "Source code for database objects (views, functions, procedures, etc.)"),

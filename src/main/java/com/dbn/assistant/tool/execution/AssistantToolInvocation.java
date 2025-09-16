@@ -22,6 +22,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 
+import static com.dbn.assistant.tool.AssistantToolData.isInteractiveTool;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.readCdata;
@@ -37,6 +38,8 @@ public class AssistantToolInvocation implements PersistentStateElement {
 
     private AssistantToolRequest request;
     private AssistantToolResponse response;
+    private AssistantPrompt prompt;
+    private String option;
 
     private AssistantToolStatus status = AssistantToolStatus.REQUESTED;
     private AssistantToolInvocationMonitor monitor;
@@ -48,10 +51,22 @@ public class AssistantToolInvocation implements PersistentStateElement {
         CURRENT.set(this); // active invocation
     }
 
+    public boolean isInteractiveRequest() {
+        return isInteractiveTool(request.getUtilityName());
+    }
+
     public static AssistantToolInvocation current() {
         // NOTE: this assumes the tool concurrency is disabled
         // TODO find alternative ways to propagate this context to the com.dbn.assistant.tool.event.AssistantToolInvocationHandler
         return CURRENT.get();
+    }
+
+    public synchronized AssistantPrompt getPrompt() {
+        if (prompt != null) return prompt;
+        if (isInteractiveRequest()) {
+            prompt = new AssistantPrompt(request);
+        }
+        return prompt;
     }
 
     @Override
@@ -60,6 +75,7 @@ public class AssistantToolInvocation implements PersistentStateElement {
 
         request.setRequestId(stringAttribute(element, "request-id"));
         request.setUtilityName(stringAttribute(element, "tool-name"));
+        option = stringAttribute(element, "tool-option");
         status = enumAttribute(element, "tool-status", status);
 
         Element argumentsElement = element.getChild("tool-arguments");
@@ -76,6 +92,7 @@ public class AssistantToolInvocation implements PersistentStateElement {
     public void writeState(Element element) {
         setStringAttribute(element, "request-id", request.getRequestId());
         setStringAttribute(element, "tool-name", request.getUtilityName());
+        setStringAttribute(element, "tool-option", option);
         setEnumAttribute(element, "tool-status", status);
 
         Element contentElement = newElement(element,"tool-arguments");

@@ -16,7 +16,6 @@
 
 package com.dbn.assistant.tool.config.ui;
 
-import com.dbn.assistant.tool.AssistantToolCache;
 import com.dbn.assistant.tool.AssistantToolCategory;
 import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
@@ -40,6 +39,7 @@ import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.assistant.tool.AssistantToolData.getToolTypes;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
 
@@ -92,8 +92,7 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
     private void initToolTypesPanel() {
         Layouts.verticalBoxLayout(toolTypesPanel);
 
-        AssistantToolCache toolCache = getToolCache();
-        List<AssistantToolType> toolTypes =  toolCache.getToolTypes(category);
+        List<AssistantToolType> toolTypes =  getToolTypes(category);
         for (AssistantToolType toolType : toolTypes) {
             AssistantToolApprovalTypeForm toolTypeForm = new AssistantToolApprovalTypeForm(this, toolType);
             toolTypeForms.put(toolType, toolTypeForm);
@@ -115,7 +114,7 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
         AssistantToolApprovals approvals = getToolApprovals();
         approvals.setStatus(category, status);
 
-        List<AssistantToolType> types = getToolCache().getToolTypes(category);
+        List<AssistantToolType> types = getToolTypes(category);
         for (AssistantToolType type : types) {
             approvals.setStatus(type, status);
         }

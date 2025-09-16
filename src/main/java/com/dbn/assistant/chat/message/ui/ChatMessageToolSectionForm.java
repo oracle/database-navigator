@@ -25,6 +25,7 @@ import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.assistant.tool.event.AssistantToolStatus;
+import com.dbn.assistant.tool.execution.AssistantPrompt;
 import com.dbn.assistant.tool.execution.AssistantToolInvocation;
 import com.dbn.assistant.tool.execution.AssistantToolInvocationMonitor;
 import com.dbn.assistant.tool.execution.AssistantToolRequest;
@@ -36,9 +37,11 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
-import com.dbn.common.ui.Layouts;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.Cursors;
+import com.dbn.common.ui.util.Fonts;
+import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
@@ -59,30 +62,42 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JTextPane;
+import javax.swing.border.CompoundBorder;
+import java.awt.Color;
 import java.awt.Point;
+import java.awt.event.MouseEvent;
+import java.util.List;
+import java.util.Objects;
 
 import static com.dbn.assistant.chat.message.ChatMessageSectionType.TOOL;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.DISABLED;
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.icon.Icons.ASSISTANT_QUESTION;
+import static com.dbn.common.ui.Layouts.horizontalBoxLayout;
+import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 import static com.dbn.common.util.Messages.showConfirmationDialog;
 
 public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     private JPanel mainPanel;
-    private JPanel buttonsPanel;
+    private JPanel messageButtonsPanel;
     private JLabel toolNameLabel;
     private JPanel actionsPanel;
-    private JPanel detailsPanel;
+    private JPanel toolNamePanel;
     private JPanel framePanel;
     private JLabel toolInfoLabel;
-    private JPanel contentPanel;
-    private JPanel headerPanel;
+    private JPanel toolTypePanel;
     private JLabel toolTypeLabel;
     private JLabel toolIconLabel;
-    private JPanel confirmationPanel;
-    private JTextPane confirmationTextPane;
+    private JPanel messagePanel;
+    private JTextPane messageTextPane;
     private JBLabel toolSummaryLabel;
+    private JPanel contentPanel;
+    private JLabel headerTitleLabel;
+    private JPanel headerPanel;
+    private JSeparator messageSeparator;
 
     private final ConnectionRef connection;
     private final ChatMessageToolSection section;
@@ -98,12 +113,32 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         info = new AssistantToolInfoProviderImpl(getAssistantState(), section.getInvocation());
 
         initHeaderPanel();
+        initContentPanel();
         initActionsPanel();
         initDetailPanel();
-        initConfirmationPanel();
+        initMessagePanel();
     }
 
     private void initHeaderPanel() {
+        if (isInteractive()) {
+            AssistantToolInvocation invocation = getToolInvocation();
+            AssistantPrompt prompt = invocation.getPrompt();
+            headerTitleLabel.setText(prompt.getTitle());
+            headerTitleLabel.setFont(Fonts.regular(2));
+            return;
+        }
+
+        headerPanel.setVisible(false);
+    }
+
+    private void initContentPanel() {
+        if (isInteractive()) {
+            contentPanel.setVisible(false);
+            toolIconLabel.setIcon(ASSISTANT_QUESTION);
+            toolIconLabel.setText("");
+            return;
+        }
+
         toolTypeLabel.setText(info.getToolTypeName());
 
         toolIconLabel.setIcon(Icons.ASSISTANT_TOOL);
@@ -144,20 +179,79 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         this.actionsPanel.add(component);
     }
 
-    private void initConfirmationPanel() {
-        confirmationPanel.setVisible(false);
-        AssistantToolInvocation toolInvocation = getToolInvocation();
-        if (toolInvocation == null) return;  // old tool section (no pending execution)
-        if (toolInvocation.getStatus() != AssistantToolStatus.REQUESTED) return;
+    private void initMessagePanel() {
+        initStandardMessagePanel();
+        initPromptMessagePanel();
+    }
+
+    private void initPromptMessagePanel() {
+        if (!isInteractive()) return;
+        messagePanel.setVisible(true);
+        messageSeparator.setVisible(false);
+
+        AssistantToolInvocation invocation = getToolInvocation();
+        AssistantPrompt prompt = invocation.getPrompt();
+        messageTextPane.setText(prompt.getMessage());
+
+        initPromptMessageButtons();
+    }
+
+    private void initPromptMessageButtons() {
+        if (!isInteractive()) return;
+
+        messageButtonsPanel.removeAll();
+        AssistantToolInvocation invocation = getToolInvocation();
+        boolean active = invocation.getStatus() == AssistantToolStatus.REQUESTED;
+
+        AssistantPrompt prompt = invocation.getPrompt();
+        List<String> options = prompt.getOptions();
+
+        int totalLength = options.stream()
+                .mapToInt(String::length)
+                .sum();
+
+
+        if (totalLength > 40) {
+            verticalBoxLayout(messageButtonsPanel);
+        } else {
+            horizontalBoxLayout(messageButtonsPanel);
+        }
+
+        for (String option : options) {
+            JLabel optionLabel = new JLabel("<html><body>" + option + "</body></html>");
+            boolean selected = Objects.equals(option, invocation.getOption());
+            boolean highlighted = active || selected;
+
+            Color foreground = highlighted ? UIUtil.getLabelForeground() : UIUtil.getLabelDisabledForeground();
+            CompoundBorder border = new CompoundBorder(UIUtil.getTextFieldBorder(), Borders.insetBorder(4, 8, 4, 8));
+            optionLabel.setBorder(border);
+            optionLabel.setForeground(foreground);
+
+            if (active) {
+                optionLabel.setCursor(Cursors.handCursor());
+                Mouse.onMouseClick(optionLabel, MouseEvent.BUTTON1, 1, c -> consumeUserOption(option));
+            }
+            messageButtonsPanel.add(optionLabel);
+
+        }
+        messageButtonsPanel.setVisible(true);
+    }
+
+    private void initStandardMessagePanel() {
+        if (isInteractive()) return;
+
+        messagePanel.setVisible(false);
+        AssistantToolInvocation invocation = getToolInvocation();
+        if (invocation.getStatus() != AssistantToolStatus.REQUESTED) return;
         if (getInvocationMonitor() == null) return; // old incomplete tool request
         if (isPreapproved()) return;
 
-        confirmationTextPane.setText("The agent has requested to run this tool on your database. " +
+        messageTextPane.setText("The agent has requested to run this tool on your database. " +
                 "Please review the request and choose whether to allow or deny it. " +
                 "You may also choose to always allow or deny tools of this type or category. " +
                 "The system will remember your preference for future requests");
 
-        confirmationPanel.setVisible(true);
+        messagePanel.setVisible(true);
         String toolName = info.getToolName();
 
         JButton allowButton = new JBOptionButton(
@@ -178,15 +272,28 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
                         txt("app.assistant.button.DisableTool"), null,
                         () -> denyToolInvocation(true))));
 
-        Layouts.horizontalBoxLayout(buttonsPanel);
-        buttonsPanel.add(allowButton);
-        buttonsPanel.add(denyButton);
+        horizontalBoxLayout(messageButtonsPanel);
+        messageButtonsPanel.add(allowButton);
+        messageButtonsPanel.add(denyButton);
+    }
+
+    public boolean isInteractive() {
+        return getTool().isInteractive();
+    }
+
+    private void consumeUserOption(String option) {
+        AssistantToolInvocation invocation = getToolInvocation();
+        invocation.setOption(option);
+
+        AssistantToolInvocationMonitor executionMonitor = getInvocationMonitor();
+        if (executionMonitor == null) return;
+        executionMonitor.allow();
     }
 
     private void allowToolInvocation(boolean always) {
         if (always && !confirm(true)) return;
 
-        confirmationPanel.setVisible(false);
+        messagePanel.setVisible(false);
         AssistantToolInvocationMonitor executionMonitor = getInvocationMonitor();
         executionMonitor.allow();
     }
@@ -194,7 +301,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     private void denyToolInvocation(boolean always) {
         if (always && !confirm(false)) return;
 
-        confirmationPanel.setVisible(false);
+        messagePanel.setVisible(false);
         AssistantToolInvocationMonitor executionMonitor = getInvocationMonitor();
         executionMonitor.deny();
     }
@@ -323,7 +430,12 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     public void updateToolContent(ChatMessageToolSection section) {
         AssistantToolStatus status = section.getStatus();
         if (status != AssistantToolStatus.REQUESTED) {
-            confirmationPanel.setVisible(false);
+            boolean interactive = isInteractive();
+            messagePanel.setVisible(interactive);
+            messageButtonsPanel.setVisible(interactive);
+            if (interactive) {
+                initPromptMessageButtons();
+            }
         }
         updateActionToolbars();
     }

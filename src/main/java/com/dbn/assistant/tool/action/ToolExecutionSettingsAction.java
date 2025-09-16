@@ -41,5 +41,6 @@ public class ToolExecutionSettingsAction extends AssistantToolAction {
         Presentation presentation = e.getPresentation();
         presentation.setText("Tool Settings");
         presentation.setIcon(AllIcons.General.GearPlain);
+        presentation.setVisible(!isInteractive(e));
     }
 }

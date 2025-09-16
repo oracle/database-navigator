@@ -35,6 +35,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import java.util.Map;
 
+import static com.dbn.assistant.tool.AssistantToolData.getToolCategories;
 import static com.dbn.common.ui.util.ClientProperty.HORIZONTAL_SCROLL_POLICY;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
@@ -78,9 +79,7 @@ public class AssistantToolApprovalForm extends DBNFormBase {
         HORIZONTAL_SCROLL_POLICY.set(toolsScrollPane, HORIZONTAL_SCROLLBAR_NEVER);
         Layouts.verticalBoxLayout(toolsPanel);
 
-        AssistantToolCache toolCache = getToolCache();
-        AssistantToolCategory[] toolCategories = toolCache.getToolCategories();
-
+        AssistantToolCategory[] toolCategories = getToolCategories();
         for (AssistantToolCategory toolCategory : toolCategories) {
             AssistantToolApprovalCategoryForm toolCategoryForm = new AssistantToolApprovalCategoryForm(this, toolCategory);
             toolCategoryForms.put(toolCategory, toolCategoryForm);

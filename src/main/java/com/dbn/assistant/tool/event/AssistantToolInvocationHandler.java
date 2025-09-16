@@ -24,6 +24,7 @@ import com.dbn.assistant.tool.approval.AssistantToolApprovalException;
 import com.dbn.assistant.tool.execution.AssistantToolInvocation;
 import com.dbn.assistant.tool.execution.AssistantToolInvocationMonitor;
 import com.dbn.assistant.tool.execution.AssistantToolRequest;
+import com.dbn.common.data.Data;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.connection.ConnectionHandler;
@@ -81,7 +82,13 @@ public class AssistantToolInvocationHandler<T extends AssistantTool> extends Ass
 
             // start execution
             handleEvent(project, invocation, EXECUTING, null);
-            Object result = monitor.executeTool(() -> invokeMethod(method, args));
+            Object result;
+            if (invocation.isInteractiveRequest()) {
+                String userOption = invocation.getOption();
+                result = Data.asType(userOption, method.getReturnType());
+            } else {
+                result = monitor.executeTool(() -> invokeMethod(method, args));
+            }
 
             // confirm execution
             handleEvent(project, invocation, COMPLETED, null);

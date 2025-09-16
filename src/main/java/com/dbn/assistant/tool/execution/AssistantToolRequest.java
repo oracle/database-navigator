@@ -16,8 +16,7 @@
 
 package com.dbn.assistant.tool.execution;
 
-import com.dbn.assistant.tool.AssistantTool;
-import com.dbn.assistant.tool.AssistantToolCache;
+import com.dbn.assistant.tool.AssistantToolData;
 import com.dbn.common.util.UUIDs;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
@@ -43,22 +42,19 @@ public class AssistantToolRequest {
     private String utilityName;
     private String utilityArguments;
 
-    private AssistantTool tool;
-
     private Method method;
     private Object[] methodArguments;
 
     public AssistantToolRequest() {}
 
-    public AssistantToolRequest(AssistantToolCache toolCache, String chatId, String requestId, String utilityName, String utilityArguments) {
+    public AssistantToolRequest(String chatId, String requestId, String utilityName, String utilityArguments) {
         this.chatId = chatId;
         this.requestId = nvl(requestId, () -> UUIDs.compact());
 
         this.utilityName = utilityName;
         this.utilityArguments = utilityArguments;
 
-        this.tool = toolCache.getAssistantTool(utilityName);
-        this.method = AssistantToolCache.getUtilityMethod(tool, utilityName);
+        this.method = AssistantToolData.getUtilityMethod(utilityName);
     }
 
     @SneakyThrows

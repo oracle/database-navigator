@@ -36,8 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Objects;
 
-import static com.dbn.assistant.tool.AssistantToolCache.getUtilitySpec;
-
+import static com.dbn.assistant.tool.AssistantToolData.getUtilitySpec;
 
 public class AssistantToolInfoProviderImpl extends AssistantStateExtension implements AssistantToolInfoProvider {
     private final AssistantToolInvocation invocation;

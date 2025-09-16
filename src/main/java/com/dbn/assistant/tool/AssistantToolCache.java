@@ -24,7 +24,6 @@ import com.dbn.assistant.tool.approval.AssistantToolFilter;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.list.FilteredList;
-import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.service.tool.ToolProvider;
 import dev.langchain4j.service.tool.ToolProviderRequest;
 import dev.langchain4j.service.tool.ToolProviderResult;
@@ -32,13 +31,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
+import static com.dbn.assistant.tool.AssistantToolData.getUtilitySpec;
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_TOOL_CACHE;
 
 @Slf4j
@@ -81,15 +79,6 @@ public class AssistantToolCache extends AssistantStateExtension implements ToolP
         return UserDataKeys.getUserDataSync(assistantState, ASSISTANT_TOOL_CACHE, () -> new AssistantToolCache(assistantState));
     }
 
-    private static Class getSpecification(AssistantTool tool) {
-        Class<?>[] interfaces = tool.getClass().getInterfaces();
-        for (Class<?> spec : interfaces) {
-            if (AssistantTool.class.isAssignableFrom(spec)) return spec;
-        }
-
-        throw new IllegalArgumentException("Class " + tool.getClass().getName() + " does not implement " + AssistantTool.class.getName());
-    }
-
     @Nullable
     public AssistantTool getAssistantTool(String utilityName) {
         for (AssistantTool tool : getAllTools()) {
@@ -107,40 +96,12 @@ public class AssistantToolCache extends AssistantStateExtension implements ToolP
         return null;
     }
 
-    @Nullable
-    public static Method getUtilityMethod(AssistantTool tool, String utilityName) {
-        Method[] methods = getSpecification(tool).getDeclaredMethods();
-        for (Method method : methods) {
-            Tool t = method.getAnnotation(Tool.class);
-            if (t == null) continue;
-            if (t.name().equals(utilityName)) return method;
-        }
-
-        return null;
-    }
-
-    @Nullable
-    public static UtilitySpec getUtilitySpec(AssistantTool tool, String utilityName) {
-        Method method = getUtilityMethod(tool, utilityName);
-        if (method == null) return null;
-
-        return method.getAnnotation(UtilitySpec.class);
-    }
-
     private List<AssistantTool> getAllTools() {
         return FilteredList.unwrap(tools);
     }
 
     public AssistantTool[] getAvailableTools() {
         return tools.toArray(new AssistantTool[0]);
-    }
-
-    public AssistantToolCategory[] getToolCategories() {
-        return getAllTools()
-                .stream()
-                .map(t -> t.getCategory())
-                .distinct()
-                .toArray(AssistantToolCategory[]::new);
     }
 
     public AssistantToolCategory[] getAvailableToolCategories() {
@@ -155,13 +116,5 @@ public class AssistantToolCache extends AssistantStateExtension implements ToolP
     @Override
     public ToolProviderResult provideTools(ToolProviderRequest request) {
         return provider.provideTools(request);
-    }
-
-    public List<AssistantToolType> getToolTypes(AssistantToolCategory category) {
-        return getAllTools()
-                .stream()
-                .filter(t -> t.getCategory() == category)
-                .map(t -> t.getType())
-                .collect(Collectors.toList());
     }
 }
