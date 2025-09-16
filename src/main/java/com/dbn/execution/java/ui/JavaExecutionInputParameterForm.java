@@ -150,6 +150,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
             initializationModeComboBox.setVisible(true);
 		}
 		initializationModeComboBox.addItem(InitializationMode.CODE);
+        initializationModeComboBox.setSelectedIndex(0);
 
 		updateInitializationMode(initializationModeComboBox.getItemAt(0));
 		initializationModeComboBox.addListener((oldValue, newValue) -> updateInitializationMode(newValue));
@@ -161,7 +162,6 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 
 	private void updateInitializationMode(InitializationMode initializationMode) {
         resetFieldsPanel();
-        initializationModeComboBox.setSelectedItem(initializationMode);
         if (initializationMode == InitializationMode.FORM) {
 			setFormInput();
 		} else {
