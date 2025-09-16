@@ -65,6 +65,15 @@ public interface ViewMetadataTool extends AssistantTool {
             @P("Schema name") String schemaName);
 
 
+    @Tool(name = "LIST_JSON_VIEW_NAMES")
+    @UtilitySpec(
+            name = "List json view names",
+            description = "Lists json duality view names in a given schema",
+            summary = "schema %s")
+    List<String> listJsonViewNames(
+            @P("Schema name") String schemaName);
+
+
     @Tool(name = "LOAD_VIEW_DEFINITION")
     @UtilitySpec(
             name = "Load view definition",
@@ -72,8 +81,7 @@ public interface ViewMetadataTool extends AssistantTool {
             summary = "%s.%s")
     ViewDefinition loadViewDefinition(
             @P("Schema name") String schemaName,
-            @P("View name") String viewName,
-            @P("Include view query (may be slow to respond)") boolean detailed);
+            @P("View name") String viewName);
 
 
     @Tool(name = "LOAD_VIEW_DEFINITIONS")
@@ -83,8 +91,7 @@ public interface ViewMetadataTool extends AssistantTool {
             summary = "%s.%s")
     List<ViewDefinition> loadViewDefinitions(
             @P("Schema name") String schemaName,
-            @P("View names") List<String> viewNames,
-            @P("Include view query (may be slow to respond)") boolean detailed);
+            @P("View names") List<String> viewNames);
 
 
     @Data

@@ -17,7 +17,7 @@
 package com.dbn.assistant.tool.impl;
 
 import com.dbn.assistant.tool.AssistantToolBase;
-import com.dbn.assistant.tool.spec.DatabaseConnectionInfoTool;
+import com.dbn.assistant.tool.spec.ConnectionInfoTool;
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.connection.AuthenticationTokenType;
@@ -27,7 +27,7 @@ import com.dbn.connection.config.ConnectionSettings;
 
 import static com.dbn.common.util.Enumerations.nameOf;
 
-public class DatabaseConnectionInfoToolImpl extends AssistantToolBase implements DatabaseConnectionInfoTool {
+public class ConnectionInfoToolImpl extends AssistantToolBase implements ConnectionInfoTool {
 
     @Override
     public ConnectionInformation loadConnectionInformation() {

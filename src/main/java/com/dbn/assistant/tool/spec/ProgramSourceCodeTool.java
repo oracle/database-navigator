@@ -89,7 +89,7 @@ public interface ProgramSourceCodeTool extends AssistantTool {
 
 
     @Data
-    @Description("Method source code")
+    @Description("Method source-code")
     class MethodSourceCode {
         @Description("Method name")
         private String name;
@@ -99,7 +99,7 @@ public interface ProgramSourceCodeTool extends AssistantTool {
     }
 
     @Data
-    @Description("Program source code")
+    @Description("Program source-code")
     class ProgramSourceCode {
         @Description("Program name")
         private String name;

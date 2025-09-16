@@ -21,7 +21,7 @@ import com.dbn.assistant.tool.AssistantToolFactoryBase;
 import com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
 import com.dbn.assistant.tool.AssistantToolInfo.ToolSpec;
 import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
-import com.dbn.assistant.tool.impl.DatabaseConnectionInfoToolImpl;
+import com.dbn.assistant.tool.impl.ConnectionInfoToolImpl;
 import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.model.output.structured.Description;
 import lombok.Data;
@@ -32,16 +32,17 @@ import static com.dbn.assistant.tool.AssistantToolCategory.CONFIG_INFO_PROVIDER;
 
 @ToolSpec(
         category = CONFIG_INFO_PROVIDER,
-        type = "DATABASE_CONNECTION_INFO",
-        name = "Database connection information",
-        description = "Information about the database connection (such as database host, port, name, jdbc driver, authentication type, etc.). " +
+        type = "CONNECTION_INFO",
+        name = "Connection information",
+        description =
+                "Information about the database connection (such as database host, port, name, jdbc driver, authentication type, etc.). " +
                 "Client secrets such as passwords or tokens are never exposed, but shown as redacted placeholders to indicate they are required.")
-public interface DatabaseConnectionInfoTool extends AssistantTool {
+public interface ConnectionInfoTool extends AssistantTool {
 
     @FactorySpec(
-            spec = DatabaseConnectionInfoTool.class,
-            impl = DatabaseConnectionInfoToolImpl.class)
-    class Factory extends AssistantToolFactoryBase<DatabaseConnectionInfoTool> {}
+            spec = ConnectionInfoTool.class,
+            impl = ConnectionInfoToolImpl.class)
+    class Factory extends AssistantToolFactoryBase<ConnectionInfoTool> {}
 
     /*********************************************
      *                 TOOLS                     *

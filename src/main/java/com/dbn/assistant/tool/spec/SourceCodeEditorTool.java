@@ -20,7 +20,7 @@ import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolFactoryBase;
 import com.dbn.assistant.tool.AssistantToolInfo.ToolSpec;
 import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
-import com.dbn.assistant.tool.impl.DatabaseObjectEditorToolImpl;
+import com.dbn.assistant.tool.impl.SourceCodeEditorToolImpl;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 
@@ -29,56 +29,66 @@ import static com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
 
 @ToolSpec(
         category = IDE_ACTION_INVOKER,
-        type = "DATABASE_OBJECT_EDITORS",
-        name = "Database object editors",
-        description = "IDE actions for editing database objects")
-public interface DatabaseObjectEditorTool extends AssistantTool {
+        type = "SOURCE_CODE_EDITORS",
+        name = "Source-code editors",
+        description = "IDE actions for editing source-code of database objects")
+public interface SourceCodeEditorTool extends AssistantTool {
 
     @FactorySpec(
-            spec = DatabaseObjectEditorTool.class,
-            impl = DatabaseObjectEditorToolImpl.class)
-    class Factory extends AssistantToolFactoryBase<DatabaseObjectEditorTool> {}
+            spec = SourceCodeEditorTool.class,
+            impl = SourceCodeEditorToolImpl.class)
+    class Factory extends AssistantToolFactoryBase<SourceCodeEditorTool> {}
 
     /*********************************************
      *                 TOOLS                     *
      *********************************************/
 
-    @Tool(name = "OPEN_TYPE_EDITOR")
+    @Tool(name = "OPEN_TYPE_CODE_EDITOR")
     @UtilitySpec(
-            name = "Open type editor",
-            description = "Opens the editor of the specified user-defined type in the IDE",
+            name = "Open type code editor",
+            description = "Opens the code editor of the specified user-defined type in the IDE",
             summary = "%s.%s")
-    void openTypeEditor(
+    void openTypeCodeEditor(
             @P("Schema name") String schemaName,
             @P("Type name") String typeName);
 
 
-    @Tool(name = "OPEN_PACKAGE_EDITOR")
+    @Tool(name = "OPEN_PACKAGE_CODE_EDITOR")
     @UtilitySpec(
-            name = "Open package editor",
-            description = "Opens the editor of the specified package in the IDE",
+            name = "Open package code editor",
+            description = "Opens the code editor of the specified package in the IDE",
             summary = "%s.%s")
     void openPackageEditor(
             @P("Schema name") String schemaName,
             @P("Package name") String packageName);
 
 
-    @Tool(name = "OPEN_FUNCTION_EDITOR")
+    @Tool(name = "OPEN_FUNCTION_CODE_EDITOR")
     @UtilitySpec(
-            name = "Open function editor",
+            name = "Open function code editor",
             description = "Opens the editor of the specified function in the IDE",
             summary = "%s.%s")
-    void openFunctionEditor(
+    void openFunctionCodeEditor(
             @P("Schema name") String schemaName,
             @P("Function name") String functionName);
 
 
-    @Tool(name = "OPEN_PROCEDURE_EDITOR")
+    @Tool(name = "OPEN_PROCEDURE_CODE_EDITOR")
     @UtilitySpec(
-            name = "Open procedure editor",
+            name = "Open procedure code editor",
             description = "Opens the editor of the specified procedure in the IDE",
             summary = "%s.%s")
-    void openProcedureEditor(
+    void openProcedureCodeEditor(
             @P("Schema name") String schemaName,
             @P("Procedure name") String procedureName);
+
+
+    @Tool(name = "OPEN_VIEW_CODE_EDITOR")
+    @UtilitySpec(
+            name = "Open view code editor",
+            description = "Opens the code editor of the specified view in the IDE",
+            summary = "%s.%s")
+    void openViewCodeEditor(
+            @P("Schema name") String schemaName,
+            @P("View name") String viewName);
 }

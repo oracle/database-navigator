@@ -17,21 +17,24 @@
 package com.dbn.assistant.tool.impl;
 
 import com.dbn.assistant.tool.AssistantToolBase;
-import com.dbn.assistant.tool.spec.DatabaseObjectEditorTool;
+import com.dbn.assistant.tool.spec.SourceCodeEditorTool;
+import com.dbn.common.util.Commons;
 import com.dbn.editor.DatabaseFileEditorManager;
+import com.dbn.editor.EditorProviderId;
 import com.dbn.object.DBFunction;
 import com.dbn.object.DBPackage;
 import com.dbn.object.DBProcedure;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBType;
+import com.dbn.object.DBView;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
 
-public class DatabaseObjectEditorToolImpl extends AssistantToolBase implements DatabaseObjectEditorTool {
+public class SourceCodeEditorToolImpl extends AssistantToolBase implements SourceCodeEditorTool {
 
     @Override
-    public void openTypeEditor(String schemaName, String typeName) {
+    public void openTypeCodeEditor(String schemaName, String typeName) {
         DBSchema schema = getSchema(schemaName);
         DBType type = schema.getType(typeName);
 
@@ -50,7 +53,7 @@ public class DatabaseObjectEditorToolImpl extends AssistantToolBase implements D
     }
 
     @Override
-    public void openFunctionEditor(String schemaName, String functionName) {
+    public void openFunctionCodeEditor(String schemaName, String functionName) {
         DBSchema schema = getSchema(schemaName);
         DBFunction function = schema.getFunction(functionName, (short) 0); // todo overloads
 
@@ -59,7 +62,7 @@ public class DatabaseObjectEditorToolImpl extends AssistantToolBase implements D
     }
 
     @Override
-    public void openProcedureEditor(String schemaName, String procedureName) {
+    public void openProcedureCodeEditor(String schemaName, String procedureName) {
         DBSchema schema = getSchema(schemaName);
         DBProcedure procedure = schema.getProcedure(procedureName, (short) 0); // todo overloads
 
@@ -67,9 +70,21 @@ public class DatabaseObjectEditorToolImpl extends AssistantToolBase implements D
         openEditor(procedure);
     }
 
+    @Override
+    public void openViewCodeEditor(String schemaName, String viewName) {
+        DBSchema schema = getSchema(schemaName);
+        DBView view = Commons.coalesce(
+                () -> schema.getView(viewName),
+                () -> schema.getMaterializedView(viewName),
+                () -> schema.getJsonView(viewName));
+
+        verify(view, DBObjectType.VIEW, viewName);
+        openEditor(view);
+    }
+
     private static void openEditor(DBSchemaObject object) {
         Project project = object.getProject();
         DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);
-        editorManager.connectAndOpenEditor(object, null, true, true);
+        editorManager.connectAndOpenEditor(object, EditorProviderId.CODE, true, true);
     }
 }

@@ -19,10 +19,8 @@ package com.dbn.assistant.tool.impl;
 import com.dbn.assistant.tool.AssistantToolBase;
 import com.dbn.assistant.tool.spec.ViewMetadataTool;
 import com.dbn.common.util.Commons;
-import com.dbn.editor.DBContentType;
-import com.dbn.editor.code.SourceCodeManager;
-import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.object.DBColumn;
+import com.dbn.object.DBJsonView;
 import com.dbn.object.DBMaterializedView;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBView;
@@ -52,36 +50,35 @@ public class ViewMetadataToolImpl extends AssistantToolBase implements ViewMetad
     }
 
     @Override
-    public ViewDefinition loadViewDefinition(String schemaName, String viewName, boolean detailed) {
+    public List<String> listJsonViewNames(String schemaName) {
         DBSchema schema = getSchema(schemaName);
-        return loadViewDefinition(schema, viewName, detailed);
+
+        List<DBJsonView> views = schema.getJsonViews();
+        return getObjectNames(views, false);
     }
 
     @Override
-    public List<ViewDefinition> loadViewDefinitions(String schemaName, List<String> viewNames, boolean detailed) {
+    public ViewDefinition loadViewDefinition(String schemaName, String viewName) {
         DBSchema schema = getSchema(schemaName);
-        return convert(viewNames, n -> loadViewDefinition(schema, n, detailed));
+        return loadViewDefinition(schema, viewName);
     }
 
-    private ViewDefinition loadViewDefinition(DBSchema schema, String viewName, boolean detailed) {
+    @Override
+    public List<ViewDefinition> loadViewDefinitions(String schemaName, List<String> viewNames) {
+        DBSchema schema = getSchema(schemaName);
+        return convert(viewNames, n -> loadViewDefinition(schema, n));
+    }
+
+    private ViewDefinition loadViewDefinition(DBSchema schema, String viewName) {
         DBView view = Commons.coalesce(
                 () -> schema.getView(viewName),
-                () -> schema.getMaterializedView(viewName));
+                () -> schema.getMaterializedView(viewName),
+                () -> schema.getJsonView(viewName));
 
         verify(view, DBObjectType.VIEW, viewName);
 
         ViewDefinition viewDef = createDefinition(view);
         viewDef.setColumns(convert(undisposed(view).getColumns(), c -> createDefinition(c)));
-
-        if (detailed) {
-            try {
-                SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(view.getProject());
-                SourceCodeContent sourceCode = sourceCodeManager.loadSourceFromDatabase(view, DBContentType.CODE);
-                viewDef.setQuery(sourceCode.getRawContent());
-            } catch (Exception e) {
-                viewDef.setQuery("Error loading view definition: " + e.getMessage());
-            }
-        }
 
         return viewDef;
     }
