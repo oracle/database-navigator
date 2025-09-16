@@ -2,10 +2,10 @@ package com.dbn.mcp;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.thread.Progress;
+import com.dbn.mcp.models.ToolDefinitionModel;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.ide.CopyPasteManager;
@@ -44,9 +44,8 @@ public class McpServerInputDialog extends DBNDialog<McpServerInputForm> {
   protected void doOKAction() {
     try {
       McpServerInputForm form = getForm();
-      String rewrittenSql = form.getRewrittenSql();
-      String paramOrderCsv = form.getParamOrderCsv();
-      String jsonSchema    = form.getToolJsonSchema();
+      ToolDefinitionModel toolDefinitionModel = form.getTools().get(0);
+
 
       String basePath = project != null ? project.getBasePath() : null;
       Path outDir = basePath != null ? Paths.get(basePath) : Paths.get(System.getProperty("user.home"));
@@ -54,20 +53,24 @@ public class McpServerInputDialog extends DBNDialog<McpServerInputForm> {
 
       // Build properties
       Properties props = new Properties();
-      props.setProperty("tool.sql", rewrittenSql);
-      props.setProperty("tool.paramOrder", paramOrderCsv);
-      props.setProperty("tool.schema", jsonSchema);
-      props.setProperty("generatedAt", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now()));
-
-      // Also persist DB + tool metadata expected by the generated server
       props.setProperty("mcp.url", form.getJdbcUrl() != null ? form.getJdbcUrl() : "");
       props.setProperty("mcp.user", form.getUsername() != null ? form.getUsername() : "");
       props.setProperty("mcp.password", form.getPassword() != null ? new String(form.getPassword()) : "");
-      props.setProperty("mcp.toolName", form.getToolName() != null ? form.getToolName() : "");
-      props.setProperty("mcp.toolDesc", form.getToolDescription() != null ? form.getToolDescription() : "Parameterized SELECT tool");
-      // Optional server identity (has defaults at runtime)
       props.setProperty("mcp.serverName",   props.getProperty("mcp.serverName", "mcp-server"));
       props.setProperty("mcp.serverVersion", props.getProperty("mcp.serverVersion", "1.0.0"));
+
+//      props.setProperty("tool.sql", rewrittenSql);
+//      props.setProperty("tool.paramOrder", paramOrderCsv);
+      props.setProperty("tool.schema", toolDefinitionModel.getJsonSchema());
+      props.setProperty("generatedAt", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now()));
+
+      // Also persist DB + tool metadata expected by the generated server
+
+      props.setProperty("mcp.toolName", toolDefinitionModel.getName()!= null ? toolDefinitionModel.getName() : "");
+      props.setProperty("mcp.toolDesc", toolDefinitionModel.getDescription() != null ? toolDefinitionModel.getDescription() : "Parameterized SELECT tool");
+      // Optional server identity (has defaults at runtime)
+
+      super.doOKAction();
 
       // Write file
       Files.createDirectories(outDir);
@@ -76,7 +79,6 @@ public class McpServerInputDialog extends DBNDialog<McpServerInputForm> {
       }
 
       // Close the input dialog now; perform the build in background with progress
-      super.doOKAction();
 
       Progress.prompt(project, null, true, "Building MCP Server", "Invoking Maven (clean package)…", indicator -> {
         indicator.setIndeterminate(true);
