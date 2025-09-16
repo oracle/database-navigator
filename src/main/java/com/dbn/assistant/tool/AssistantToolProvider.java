@@ -46,6 +46,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -123,14 +124,18 @@ public class AssistantToolProvider implements ToolProvider {
                 "description = " + utilitySpec.description();
 
         Class<?> returnType = method.getReturnType();
-        JsonSchemaElement returnElement = Unsafe.warned(null, () -> jsonSchemaElementFrom(returnType));
-        if (returnElement instanceof JsonObjectSchema) {
-            JsonObjectSchema objectElement = (JsonObjectSchema) returnElement;
-            String returnDescriptor = buildReturnDescriptor(objectElement);
-            description = description + "\nreturning=" + returnDescriptor;
-        } else if (returnElement != null) {
-            String elementType = getElementType(returnElement);
-            description = description + "\nreturning=" + elementType;
+        if (Collection.class.isAssignableFrom(returnType)) {
+            description = description + "\nreturning=array";
+        } else {
+            JsonSchemaElement returnElement = Unsafe.warned(null, () -> jsonSchemaElementFrom(returnType));
+            if (returnElement instanceof JsonObjectSchema) {
+                JsonObjectSchema objectElement = (JsonObjectSchema) returnElement;
+                String returnDescriptor = buildReturnDescriptor(objectElement);
+                description = description + "\nreturning=" + returnDescriptor;
+            } else if (returnElement != null) {
+                String elementType = getElementType(returnElement);
+                description = description + "\nreturning=" + elementType;
+            }
         }
 
         return ToolSpecification

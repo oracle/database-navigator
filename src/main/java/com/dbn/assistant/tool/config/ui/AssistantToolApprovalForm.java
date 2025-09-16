@@ -28,33 +28,35 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.connection.ConnectionHandler;
-import com.intellij.ui.components.JBScrollPane;
 import com.intellij.util.containers.ContainerUtil;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import java.util.Map;
 
 import static com.dbn.common.ui.util.ClientProperty.HORIZONTAL_SCROLL_POLICY;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
-public class AssistantToolSettingsForm extends DBNFormBase {
+public class AssistantToolApprovalForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JPanel hintPanel;
     private JPanel toolsPanel;
-    private JBScrollPane toolsScrollPane;
+    private JScrollPane toolsScrollPane;
 
     private final AssistantToolSettings settings;
-    private final Map<AssistantToolCategory, AssistantToolSettingsCategoryForm> toolCategoryForms = ContainerUtil.createConcurrentWeakValueMap();
+    private final Map<AssistantToolCategory, AssistantToolApprovalCategoryForm> toolCategoryForms = ContainerUtil.createConcurrentWeakValueMap();
 
-    public AssistantToolSettingsForm(AssistantToolSettingsDialog dialog, AssistantToolSettings settings) {
+    public AssistantToolApprovalForm(AssistantToolApprovalDialog dialog, AssistantToolSettings settings) {
         super(dialog);
         this.settings = settings;
 
         initHeaderPanel();
         initHintPanel();
         initToolsPanel();
+
+        whenShown(() -> toolsScrollPane.getVerticalScrollBar().setValue(0));
     }
 
     private void initHeaderPanel() {
@@ -64,7 +66,7 @@ public class AssistantToolSettingsForm extends DBNFormBase {
     }
 
     private void initHintPanel() {
-        String hintContent = TextResources.get(AssistantToolSettingsForm.class, "assistant_tool_approval.html.ft");
+        String hintContent = TextResources.get(AssistantToolApprovalForm.class, "assistant_tool_approval.html.ft");
         TextContent hintText = TextContent.html(hintContent);
         hintText.initFonts();
 
@@ -80,9 +82,9 @@ public class AssistantToolSettingsForm extends DBNFormBase {
         AssistantToolCategory[] toolCategories = toolCache.getToolCategories();
 
         for (AssistantToolCategory toolCategory : toolCategories) {
-            AssistantToolSettingsCategoryForm toolCategoryForm = new AssistantToolSettingsCategoryForm(this, toolCategory);
+            AssistantToolApprovalCategoryForm toolCategoryForm = new AssistantToolApprovalCategoryForm(this, toolCategory);
             toolCategoryForms.put(toolCategory, toolCategoryForm);
-            toolsPanel.add(toolCategoryForm.getMainComponent());
+            toolsPanel.add(toolCategoryForm.getComponent());
         }
 
     }

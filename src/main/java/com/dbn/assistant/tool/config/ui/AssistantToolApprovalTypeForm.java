@@ -20,52 +20,40 @@ import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolCache;
 import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
-import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.common.color.Colors;
-import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.misc.DBNComboBox;
-import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.ui.util.Fonts;
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.util.IconLoader;
+import com.dbn.common.util.Actions;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.util.ui.UIUtil;
 
-import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+import java.awt.BorderLayout;
 
-import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.DENIED;
-import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.DISABLED;
+import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
 import static com.dbn.common.dispose.Failsafe.nn;
-import static com.dbn.common.util.Commons.nvl;
 
-public class AssistantToolSettingsTypeForm extends DBNFormBase {
+public class AssistantToolApprovalTypeForm extends AssistantToolApprovalItemForm {
     private JPanel mainPanel;
     private JLabel nameLabel;
-    private JLabel infoLabel;
-    private DBNComboBox<AssistantToolApprovalStatus> stateComboBox;
     private JTextPane descriptionTextPane;
+    private JPanel actionsPanel;
 
     private final AssistantToolType type;
 
-    public AssistantToolSettingsTypeForm(AssistantToolSettingsCategoryForm categoryForm, AssistantToolType type) {
+    public AssistantToolApprovalTypeForm(AssistantToolApprovalCategoryForm categoryForm, AssistantToolType type) {
         super(categoryForm);
         this.type = type;
 
         initNameLabel();
         initInfoLabel();
         initDescriptionPanel();
-        initStateSelector();
+        initActionsPanel();
 
         refreshState();
-    }
-
-    private void initDescriptionPanel() {
-        descriptionTextPane.setForeground(Colors.faded(UIUtil.getLabelForeground()));
-        descriptionTextPane.setText(getAssistantTool().getDescription());
     }
 
     private void initNameLabel() {
@@ -81,23 +69,19 @@ public class AssistantToolSettingsTypeForm extends DBNFormBase {
         infoLabel.setToolTipText(tool.getDescription());*/
     }
 
-    private void initStateSelector() {
-        AssistantToolApprovalStatus status = getToolApprovals().getStatus(type);
-        stateComboBox.setValues(AssistantToolApprovalStatus.values());
-        stateComboBox.setSelectedValue(status);
-
-        ComboBoxes.onSelectionChange(stateComboBox, v -> refreshState());
+    private void initDescriptionPanel() {
+        descriptionTextPane.setForeground(Colors.faded(UIUtil.getLabelForeground()));
+        descriptionTextPane.setText(getAssistantTool().getDescription());
     }
 
-    private AssistantToolApprovals getToolApprovals() {
-        return getCategoryForm().getToolApprovals();
-    }
-    
-    private AssistantToolCache getToolCache() {
-        return getCategoryForm().getToolCache();
+    private void initActionsPanel() {
+        ActionToolbar chatActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.AssistantToolApprovalActions");
+        JComponent component = chatActions.getComponent();
+        component.setOpaque(false);
+        this.actionsPanel.add(component, BorderLayout.NORTH);
     }
 
-    private AssistantToolSettingsCategoryForm getCategoryForm() {
+    private AssistantToolApprovalCategoryForm getCategoryForm() {
         return ensureParentComponent();
     }
 
@@ -107,28 +91,34 @@ public class AssistantToolSettingsTypeForm extends DBNFormBase {
     }
 
     public AssistantToolApprovalStatus getApprovalStatus() {
-        return nvl(stateComboBox.getSelectedValue(), PROMPTED);
+        return getToolApprovals().getStatus(type);
+    }
+
+    @Override
+    public AssistantToolApprovalStatus getParentApprovalStatus() {
+        AssistantTool tool = getAssistantTool();
+        return getToolApprovals().getStatus(tool.getCategory());
+    }
+
+    @Override
+    public void setApprovalStatus(AssistantToolApprovalStatus status) {
+        getToolApprovals().setStatus(type, status);
+        refreshState();
     }
 
     public void refreshState() {
-        AssistantToolSettingsCategoryForm toolCategoryForm = getCategoryForm();
+        AssistantToolApprovalCategoryForm toolCategoryForm = getCategoryForm();
         AssistantToolApprovalStatus categoryStatus = toolCategoryForm.getApprovalStatus();
         AssistantToolApprovalStatus typeStatus = getApprovalStatus();
 
-        boolean editable = categoryStatus.isOneOf(PROMPTED);
-        stateComboBox.setEnabled(editable);
-        if (!editable)  {
-            stateComboBox.setSelectedValue(PROMPTED);
-        }
-
         boolean enabled =
-                !categoryStatus.isOneOf(DENIED, DISABLED) &&
-                !typeStatus.isOneOf(DENIED, DISABLED);
+                categoryStatus.isOneOf(PROMPTED, APPROVED) &&
+                typeStatus.isOneOf(PROMPTED, APPROVED);
         nameLabel.setEnabled(enabled);
 
-        Icon infoIcon = enabled ? AllIcons.General.Note : IconLoader.getDisabledIcon(AllIcons.General.Note);
-        //infoLabel.setIcon(infoIcon);
-        descriptionTextPane.setForeground(enabled ? Colors.faded(UIUtil.getLabelForeground()): UIUtil.getLabelDisabledForeground());
+        descriptionTextPane.setForeground(enabled ?
+                Colors.faded(UIUtil.getLabelForeground()):
+                UIUtil.getLabelDisabledForeground());
     }
 
     @Override

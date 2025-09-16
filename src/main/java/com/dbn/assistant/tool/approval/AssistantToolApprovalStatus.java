@@ -22,10 +22,9 @@ import lombok.Getter;
 
 @Getter
 public enum AssistantToolApprovalStatus implements Constant<AssistantToolApprovalStatus>, Presentable {
-    PROMPTED(""),   // user will be prompted on every invocation
-    ALLOWED("Allowed"),  // user has approved unsupervised invocations of the tool
-    DENIED("Denied"),    // user has restricted access to the tool
-    DISABLED("Hidden");  // user has hidden the tool form the LLM
+    DISABLED ("Disabled"),
+    PROMPTED ("Prompted"),
+    APPROVED("Approved");
 
     private final String name;
 

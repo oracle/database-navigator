@@ -1,6 +1,6 @@
 <html lang="en">
 <head>
-    <title>Chat Message</title>
+    <title>Tool Approval</title>
     <style>
         h3 { ${REGULAR_LARGE_FONT_STYLE} }
         body { ${REGULAR_FONT_STYLE} }
@@ -15,15 +15,12 @@
     It allows you to determine which tools the language model can access.
 
     <br><br>
-    You can manage tool access by approving or denying entire tool categories, as well as individual tools.
-
-    The status of a tool determines its visibility and accessibility to the LLM:
+    You can manage tool access by enabling or disabling entire tool categories, as well as individual tools.<br>
+    The status of a tool determines its visibility to the LLM:
     <ul>
-        <li>Tools with unspecified approval status will be prompted for approval before every invocation.</li>
-        <li>Tools marked as "Allowed" will be invoked automatically without supervision.</li>
-        <li>Tools marked as "Denied" will fail with an authorization error upon invocation.</li>
-        <li>Tools marked as "Hidden" will not be visible to the LLM.</li>
+        <li>Tools marked as "Approved" will be invoked automatically.</li>
+        <li>Tools marked as "Prompted" will be prompted for approval before every invocation.</li>
+        <li>Disabled tools will not be visible to the LLM.</li>
     </ul>
 </body>
-
 </html>

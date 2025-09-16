@@ -18,7 +18,7 @@ package com.dbn.assistant.tool.action;
 
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
-import com.dbn.assistant.tool.config.ui.AssistantToolSettingsDialog;
+import com.dbn.assistant.tool.config.ui.AssistantToolApprovalDialog;
 import com.dbn.common.util.Dialogs;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -33,7 +33,7 @@ public class ToolExecutionSettingsAction extends AssistantToolAction {
         if (assistantState == null) return;
 
         AssistantToolSettings settings = AssistantToolSettings.get(assistantState);
-        Dialogs.show(() -> new AssistantToolSettingsDialog(project, settings));
+        Dialogs.show(() -> new AssistantToolApprovalDialog(project, settings));
     }
 
     @Override

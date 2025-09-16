@@ -25,8 +25,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.ALLOWED;
-import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.DENIED;
+import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.DISABLED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
 import static com.dbn.common.util.Commons.nvl;
@@ -37,9 +36,9 @@ public class AssistantToolApprovals {
 
     private final AtomicInteger signature = new AtomicInteger(0);
 
-    public boolean isPreapproved(AssistantTool tool) {
-        if (isAllowed(tool.getCategory())) return true;
-        if (isAllowed(tool.getType())) return true;
+    public boolean isApproved(AssistantTool tool) {
+        if (isApproved(tool.getCategory())) return true;
+        if (isApproved(tool.getType())) return true;
 
         return false;
     }
@@ -60,37 +59,12 @@ public class AssistantToolApprovals {
         return nvl(types.get(type), PROMPTED);
     }
 
-    public void allow(@NotNull AssistantToolType type) {
-        setStatus(type, ALLOWED);
+    public boolean isApproved(@NotNull AssistantToolType type) {
+        return types.get(type) == APPROVED;
     }
 
-    public void deny(@NotNull AssistantToolType type) {
-        setStatus(type, DENIED);
-    }
-
-    public void allow(@NotNull AssistantToolCategory category) {
-        setStatus(category, ALLOWED);
-    }
-
-    public void deny(@NotNull AssistantToolCategory category) {
-        setStatus(category, DENIED);
-    }
-
-    public boolean isAllowed(@NotNull AssistantToolType type) {
-        AssistantToolApprovalStatus status = types.get(type);
-        return status == ALLOWED;
-    }
-
-    public boolean isAllowed(@NotNull AssistantToolCategory category) {
-        return categories.get(category) == ALLOWED;
-    }
-
-    public boolean isDenied(@NotNull AssistantToolType type) {
-        return types.get(type) == DENIED;
-    }
-
-    public boolean isDenied(@NotNull AssistantToolCategory category) {
-        return categories.get(category) == DENIED;
+    public boolean isApproved(@NotNull AssistantToolCategory category) {
+        return categories.get(category) == APPROVED;
     }
 
     public boolean isDisabled(@NotNull AssistantToolType type) {

@@ -22,6 +22,7 @@ import com.dbn.assistant.chat.ui.ChatHistoryForm;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.service.selectai.credential.ui.CredentialManagementForm;
 import com.dbn.assistant.service.selectai.profile.ui.ProfileManagementForm;
+import com.dbn.assistant.tool.config.ui.AssistantToolApprovalItemForm;
 import com.dbn.batch.ui.BatchMonitorForm;
 import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
@@ -67,6 +68,7 @@ public interface DataKeys {
     DataKey<ChatBoxForm> ASSISTANT_CHAT_BOX = DataKey.create("DBNavigator.AssistantChatBox");
     DataKey<ChatHistoryForm> CHAT_HISTORY_FORM = DataKey.create("DBNavigator.ChatHistoryForm");
     DataKey<ChatMessageToolSectionForm> CHAT_MESSAGE_TOOL_SECTION_FORM = DataKey.create("DBNavigator.ChatMessageToolSectionForm");
+    DataKey<AssistantToolApprovalItemForm> ASSISTANT_TOOL_APPROVAL_FORM = DataKey.create("DBNavigator.AssistantToolApprovalItemForm");
     DataKey<CredentialManagementForm> CREDENTIAL_MANAGEMENT_FORM = DataKey.create("DBNavigator.CredentialManagementForm");
     DataKey<ProfileManagementForm> PROFILE_MANAGEMENT_FORM = DataKey.create("DBNavigator.ProfileManagementForm");
     DataKey<BatchMonitorForm> BATCH_MONITOR_FORM = DataKey.create("DBNavigator.BatchMonitorForm");

@@ -92,7 +92,7 @@ public class AssistantToolCache extends AssistantStateExtension implements ToolP
 
     @Nullable
     public AssistantTool getAssistantTool(String utilityName) {
-        for (AssistantTool tool : tools) {
+        for (AssistantTool tool : getAllTools()) {
             UtilitySpec utilitySpec = getUtilitySpec(tool, utilityName);
             if (utilitySpec != null) return tool;
         }
@@ -101,7 +101,7 @@ public class AssistantToolCache extends AssistantStateExtension implements ToolP
 
     @Nullable
     public AssistantTool getAssistantTool(AssistantToolType toolType) {
-        for (AssistantTool tool : tools) {
+        for (AssistantTool tool : getAllTools()) {
             if (Objects.equals(tool.getType(), toolType)) return tool;
         }
         return null;
@@ -127,17 +127,22 @@ public class AssistantToolCache extends AssistantStateExtension implements ToolP
         return method.getAnnotation(UtilitySpec.class);
     }
 
+    private List<AssistantTool> getAllTools() {
+        return FilteredList.unwrap(tools);
+    }
+
     public AssistantTool[] getAvailableTools() {
         return tools.toArray(new AssistantTool[0]);
     }
 
     public AssistantToolCategory[] getToolCategories() {
-        return FilteredList.unwrap(tools)
+        return getAllTools()
                 .stream()
                 .map(t -> t.getCategory())
                 .distinct()
                 .toArray(AssistantToolCategory[]::new);
     }
+
     public AssistantToolCategory[] getAvailableToolCategories() {
         AssistantTool[] tools = getAvailableTools();
         return Arrays
@@ -153,8 +158,7 @@ public class AssistantToolCache extends AssistantStateExtension implements ToolP
     }
 
     public List<AssistantToolType> getToolTypes(AssistantToolCategory category) {
-        return FilteredList
-                .unwrap(tools)
+        return getAllTools()
                 .stream()
                 .filter(t -> t.getCategory() == category)
                 .map(t -> t.getType())

@@ -64,6 +64,8 @@ import javax.swing.JTextPane;
 import java.awt.Point;
 
 import static com.dbn.assistant.chat.message.ChatMessageSectionType.TOOL;
+import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
+import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.DISABLED;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Messages.showConfirmationDialog;
 
@@ -204,11 +206,11 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         AssistantToolApprovals toolApprovals = getToolApprovals();
         if (key instanceof AssistantToolType) {
             AssistantToolType toolType = (AssistantToolType) key;
-            toolApprovals.allow(toolType);
+            toolApprovals.setStatus(toolType, APPROVED);
 
         } else if (key instanceof AssistantToolCategory) {
             AssistantToolCategory toolCategory = (AssistantToolCategory) key;
-            toolApprovals.allow(toolCategory);
+            toolApprovals.setStatus(toolCategory, APPROVED);
         }
 
         confirmationPanel.setVisible(false);
@@ -223,11 +225,11 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         AssistantToolApprovals toolApprovals = getToolApprovals();
         if (key instanceof AssistantToolType) {
             AssistantToolType toolType = (AssistantToolType) key;
-            toolApprovals.deny(toolType);
+            toolApprovals.setStatus(toolType, DISABLED);
 
         } else if (key instanceof AssistantToolCategory) {
             AssistantToolCategory toolCategory = (AssistantToolCategory) key;
-            toolApprovals.deny(toolCategory);
+            toolApprovals.setStatus(toolCategory, DISABLED);
         }
 
         confirmationPanel.setVisible(false);
@@ -285,7 +287,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
 
     private boolean isPreapproved() {
         AssistantToolApprovals toolApprovals = getToolApprovals();
-        return toolApprovals.isPreapproved(getAssistantTool());
+        return toolApprovals.isApproved(getAssistantTool());
     }
 
     public void cancelToolExecution() {

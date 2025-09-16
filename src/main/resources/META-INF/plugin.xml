@@ -17,7 +17,7 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator" require-restart="true">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>3.6.2.0</version>
+    <version>3.7.0.0</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -332,7 +332,7 @@
             <action id="DBNavigator.Actions.ConnectionSettings.MoveConnectionsUp" class="com.dbn.connection.config.action.ConnectionMoveUpAction" text="Connection Setup - Move Connections Up" icon="com.dbn.common.icon.Icons.ACTION_MOVE_UP"/>
             <action id="DBNavigator.Actions.ConnectionSettings.MoveConnectionsDown" class="com.dbn.connection.config.action.ConnectionMoveDownAction" text="Connection Setup - Move Connections Down" icon="com.dbn.common.icon.Icons.ACTION_MOVE_DOWN"/>
             <action id="DBNavigator.Actions.ConnectionSettings.DuplicateConnection" class="com.dbn.connection.config.action.ConnectionDuplicateAction" text="Connection Setup - Duplicate Connection" icon="AllIcons.Actions.Copy"/>
-            <action id="DBNavigator.Actions.ConnectionSettings.ToggleConnectionStatus" class="com.dbn.connection.config.action.ConnectionStatusToggleAction" text="Connection Setup - Activate / Deactivate Connection" icon="AllIcons.Diff.GutterCheckBoxSelected"/>
+            <action id="DBNavigator.Actions.ConnectionSettings.ToggleConnectionStatus" class="com.dbn.connection.config.action.ConnectionStatusToggleAction" text="Connection Setup - Activate / Deactivate Connection" icon="com.dbn.common.icon.Icons.ACTION_CHECK_BOX"/>
             <separator/>
             <action id="DBNavigator.Actions.ConnectionSettings.CopyConnections" class="com.dbn.connection.config.action.ConnectionsCopyAction" text="Connection Setup - Copy To Clipboard" icon="com.dbn.common.icon.Icons.CONNECTION_COPY"/>
             <action id="DBNavigator.Actions.ConnectionSettings.PasteConnections" class="com.dbn.connection.config.action.ConnectionPasteAction" text="Connection Setup - Paste From Clipboard" icon="com.dbn.common.icon.Icons.CONNECTION_PASTE"/>
@@ -393,6 +393,9 @@
             <action class="com.dbn.assistant.tool.action.ToolExecutionStopAction" text="Stop Tool Execution" id="DBNavigator.Actions.Assistant.StopToolExecution" icon="AllIcons.Actions.Suspend"/>
             <action class="com.dbn.assistant.tool.action.ToolExecutionDataAction" text="Tool Execution Data" id="DBNavigator.Actions.Assistant.ToolExecutionData" icon="AllIcons.Actions.ListFiles"/>
             <action class="com.dbn.assistant.tool.action.ToolExecutionSettingsAction" text="Tool Settings" id="DBNavigator.Actions.Assistant.ToolExecutionSettings" icon="AllIcons.General.GearPlain"/>
+        </group>
+        <group id="DBNavigator.ActionGroup.AssistantToolApprovalActions" text="Assistant Tool Approval Actions">
+            <action class="com.dbn.assistant.tool.config.action.AssistantToolStatusAction" text="Tool Status" id="DBNavigator.Actions.Assistant.ToolStatusAction"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantCredentialManagement" text="Credential Management">
             <action class="com.dbn.assistant.service.selectai.credential.action.CredentialCreateAction" id="DBNavigator.Actions.Assistant.CreateCredential"/>

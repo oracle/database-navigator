@@ -17,11 +17,11 @@
 package com.dbn.common.util;
 
 import com.dbn.common.data.Data;
-import com.intellij.util.Function;
 import lombok.experimental.UtilityClass;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import static com.dbn.common.util.Unsafe.cast;
 import static java.util.Collections.emptyList;

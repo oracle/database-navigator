@@ -16,7 +16,6 @@
 
 package com.dbn.common.text;
 
-import com.intellij.util.Function;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import lombok.Data;
@@ -28,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 
 import static com.intellij.ui.ColorUtil.toHex;

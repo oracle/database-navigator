@@ -112,6 +112,11 @@ public class Icons {
     public static final Icon ACTION_DISCONNECT_SESSION        = load("/img/action/DisconnectSession.png");
     public static final Icon ACTION_KILL_SESSION              = load("/img/action/KillSession.png");
     public static final Icon ACTION_TOGGLE_LOGGING            = load("/img/action/ToggleLogging.svg");
+    public static final Icon ACTION_CHECK_BOX                 = load("/img/action/CheckBox.svg");
+    public static final Icon ACTION_CHECK_BOX_SELECTED        = load("/img/action/CheckBoxSelected.svg");
+    public static final Icon ACTION_TOOL_PROMPTED             = load("/img/action/ToolPrompted.svg");
+    public static final Icon ACTION_TOOL_APPROVED             = load("/img/action/ToolApproved.svg");
+
 
     public static final Icon ACTION_LAYOUT_DATA               = load("/img/action/LayoutDataOnly.svg");
     public static final Icon ACTION_LAYOUT_DATA_CONTENT       = load("/img/action/LayoutDataAndContent.svg");

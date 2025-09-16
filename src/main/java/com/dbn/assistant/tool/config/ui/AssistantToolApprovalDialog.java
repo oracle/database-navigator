@@ -29,13 +29,13 @@ import javax.swing.Action;
  *
  * @author Dan Cioca (Oracle)
  */
-public class AssistantToolSettingsDialog extends DBNDialog<AssistantToolSettingsForm> {
+public class AssistantToolApprovalDialog extends DBNDialog<AssistantToolApprovalForm> {
 
   private final AssistantToolSettings settings;
 
-  public AssistantToolSettingsDialog(Project project, AssistantToolSettings settings) {
+  public AssistantToolApprovalDialog(Project project, AssistantToolSettings settings) {
     super(project, "Assistant Tool Settings", false);
-    this.setDefaultSize(720,  800);
+    this.setDefaultSize(640,  800);
     this.setModal(true);
     this.setAutoSize(true);
     this.settings = settings;
@@ -50,7 +50,7 @@ public class AssistantToolSettingsDialog extends DBNDialog<AssistantToolSettings
   }
 
   @Override
-  protected @NotNull AssistantToolSettingsForm createForm() {
-    return new AssistantToolSettingsForm(this, settings);
+  protected @NotNull AssistantToolApprovalForm createForm() {
+    return new AssistantToolApprovalForm(this, settings);
   }
 }
