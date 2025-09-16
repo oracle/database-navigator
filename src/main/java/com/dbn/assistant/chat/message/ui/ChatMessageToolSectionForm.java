@@ -21,8 +21,7 @@ import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolCache;
-import com.dbn.assistant.tool.AssistantToolCategory;
-import com.dbn.assistant.tool.AssistantToolType;
+import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.assistant.tool.event.AssistantToolStatus;
@@ -154,140 +153,99 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         if (isPreapproved()) return;
 
         confirmationTextPane.setText("The agent has requested to run this tool on your database. " +
-                "Please review the request and choose whether to approve or reject it. " +
+                "Please review the request and choose whether to allow or deny it. " +
                 "You may also choose to always allow or deny tools of this type or category. " +
                 "The system will remember your preference for future requests");
 
         confirmationPanel.setVisible(true);
         String toolName = info.getToolName();
 
-        AssistantToolType toolType = info.getToolType();
-        AssistantToolCategory toolCategory = info.getToolCategory();
-
         JButton allowButton = new JBOptionButton(
                 createAction(
                         txt("app.assistant.button.AllowTool"),
                         txt("app.assistant.button.AllowToolDesc", toolName),
-                        () -> allow(toolName)),
-                createActions(
-                        createAction(
-                                txt("app.assistant.button.AlwaysAllowTool"),
-                                txt("app.assistant.button.AlwaysAllowToolDesc", toolName),
-                                () -> allow(toolType)),
-                        createAction(
-                                txt("app.assistant.button.AlwaysAllowToolCategory"),
-                                txt("app.assistant.button.AlwaysAllowToolCategoryDesc", info.getToolCategoryName()),
-                                () -> allow(toolCategory))));
+                        () -> allowToolInvocation(false)),
+                createActions(createAction(
+                        txt("app.assistant.button.AlwaysAllowTool"), null,
+                        () -> allowToolInvocation(true))));
 
         JButton denyButton = new JBOptionButton(
                 createAction(
                         txt("app.assistant.button.DenyTool"),
                         txt("app.assistant.button.DenyToolDesc", toolName),
-                        () -> deny(toolName)),
-                createActions(
-                        createAction(
-                                txt("app.assistant.button.AlwaysDenyTool"),
-                                txt("app.assistant.button.AlwaysDenyToolDesc", toolName),
-                                () -> deny(toolType)),
-                        createAction(
-                                txt("app.assistant.button.AlwaysDenyToolCategory"),
-                                txt("app.assistant.button.AlwaysDenyToolCategoryDesc", info.getToolCategoryName()),
-                                () -> deny(toolCategory))));
+                        () -> denyToolInvocation(false)),
+                createActions(createAction(
+                        txt("app.assistant.button.DisableTool"), null,
+                        () -> denyToolInvocation(true))));
 
         Layouts.horizontalBoxLayout(buttonsPanel);
         buttonsPanel.add(allowButton);
         buttonsPanel.add(denyButton);
     }
 
-    private void allow(Object key){
-        boolean confirmed = confirm(key, true);
-        if (!confirmed) return;
-
-        AssistantToolApprovals toolApprovals = getToolApprovals();
-        if (key instanceof AssistantToolType) {
-            AssistantToolType toolType = (AssistantToolType) key;
-            toolApprovals.setStatus(toolType, APPROVED);
-
-        } else if (key instanceof AssistantToolCategory) {
-            AssistantToolCategory toolCategory = (AssistantToolCategory) key;
-            toolApprovals.setStatus(toolCategory, APPROVED);
-        }
+    private void allowToolInvocation(boolean always) {
+        if (always && !confirm(true)) return;
 
         confirmationPanel.setVisible(false);
         AssistantToolInvocationMonitor executionMonitor = getInvocationMonitor();
         executionMonitor.allow();
     }
 
-    private void deny(Object key){
-        boolean confirmed = confirm(key, false);
-        if (!confirmed) return;
-
-        AssistantToolApprovals toolApprovals = getToolApprovals();
-        if (key instanceof AssistantToolType) {
-            AssistantToolType toolType = (AssistantToolType) key;
-            toolApprovals.setStatus(toolType, DISABLED);
-
-        } else if (key instanceof AssistantToolCategory) {
-            AssistantToolCategory toolCategory = (AssistantToolCategory) key;
-            toolApprovals.setStatus(toolCategory, DISABLED);
-        }
+    private void denyToolInvocation(boolean always) {
+        if (always && !confirm(false)) return;
 
         confirmationPanel.setVisible(false);
         AssistantToolInvocationMonitor executionMonitor = getInvocationMonitor();
         executionMonitor.deny();
     }
 
-    private boolean confirm(Object key, boolean approval) {
-        AssistantToolType toolType = null;
-        AssistantToolCategory toolCategory = null;
-        if (key instanceof AssistantToolType) {
-            toolType = (AssistantToolType) key;
-        } else if (key instanceof AssistantToolCategory) {
-            toolCategory = (AssistantToolCategory) key;
+    private boolean confirm(boolean approval) {
+        String title = approval ?
+                txt("msg.assistant.title.AlwaysAllowTool") :
+                txt("msg.assistant.title.DisableTool");
+
+        AssistantTool tool = getTool();
+        String toolName = tool.getName();
+        String categoryName = tool.getCategory().getName();
+
+        String message = approval ?
+                txt("msg.assistant.question.AlwaysAllowTool", toolName, categoryName) :
+                txt("msg.assistant.question.DisableTool", toolName, categoryName);
+
+        String[] options = approval ?
+                Messages.options(
+                        txt("msg.assistant.button.AllowTool"),
+                        txt("msg.assistant.button.AllowToolCategory"),
+                        txt("msg.shared.button.Cancel")) :
+                Messages.options(
+                        txt("msg.assistant.button.DisableTool"),
+                        txt("msg.assistant.button.DisableToolCategory"),
+                        txt("msg.shared.button.Cancel"));
+
+        int option = showConfirmationDialog(
+                getProject(),
+                title,
+                message,
+                options, 0);
+
+        AssistantToolApprovals toolApprovals = getToolApprovals();
+        AssistantToolApprovalStatus status = approval ? APPROVED : DISABLED;
+        if (option == 0) {
+            toolApprovals.setStatus(tool.getType(), status);
+            return true;
         }
 
-        if (toolType != null || toolCategory != null) {
-            String title = toolType != null ?
-                    approval ?
-                            txt("msg.assistant.title.AlwaysAllowToolType") :
-                            txt("msg.assistant.title.AlwaysDenyToolType") :
-                    approval ?
-                            txt("msg.assistant.title.AlwaysAllowToolCategory") :
-                            txt("msg.assistant.title.AlwaysDenyToolCategory");
-
-            String toolTypeName = getToolTypeName(toolType);
-            String toolCategoryName = getToolCategoryName(toolCategory);
-            String message = toolType != null ?
-                    approval ?
-                            txt("msg.assistant.question.AlwaysAllowToolType", toolTypeName) :
-                            txt("msg.assistant.question.AlwaysDenyToolType", toolTypeName) :
-                    approval ?
-                            txt("msg.assistant.question.AlwaysAllowToolCategory", toolCategoryName) :
-                            txt("msg.assistant.question.AlwaysDenyToolCategory", toolCategoryName);
-
-            int option = showConfirmationDialog(
-                    getProject(),
-                    title,
-                    message,
-                    Messages.OPTIONS_YES_NO, 0);
-
-            if (option == 1) return false;
+        if (option == 1) {
+            toolApprovals.setStatus(tool.getCategory(), status);
+            return true;
         }
-        return true;
-    }
 
-    private String getToolTypeName(AssistantToolType toolType) {
-        AssistantTool assistantTool = getToolCache().getAssistantTool(toolType);
-        return assistantTool == null ? "Undefined" : assistantTool.getName();
-    }
-
-    private String getToolCategoryName(AssistantToolCategory toolCategory) {
-        return toolCategory == null ? "Undefined" : toolCategory.getName();
+        return false;
     }
 
     private boolean isPreapproved() {
         AssistantToolApprovals toolApprovals = getToolApprovals();
-        return toolApprovals.isApproved(getAssistantTool());
+        return toolApprovals.isApproved(getTool());
     }
 
     public void cancelToolExecution() {
@@ -322,7 +280,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         return section.getInvocation().getResponse();
     }
 
-    private AssistantTool getAssistantTool() {
+    private AssistantTool getTool() {
         AssistantToolCache toolCache = getToolCache();
 
         String utilityName = getToolRequest().getUtilityName();
