@@ -17,6 +17,7 @@
 package com.dbn.common.ui.messages;
 
 import com.dbn.common.compatibility.Workaround;
+import com.dbn.common.option.RememberOption;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Titles;
@@ -50,7 +51,7 @@ public class DBNMessageDialog extends DBNDialog<DBNMessageForm> {
             @NotNull @DialogMessage String message,
             @NotNull String[] options,
             int defaultOptionIndex,
-            @Nullable DoNotAskOption rememberOption) {
+            @Nullable RememberOption rememberOption) {
         super(project, title, false);
         this.icon = icon;
         this.title = Titles.signed(title);
