@@ -27,10 +27,13 @@ import com.dbn.execution.ExecutionOption;
 import com.dbn.execution.ExecutionOptions;
 import com.dbn.execution.ExecutionTarget;
 import com.dbn.execution.LocalExecutionInput;
+import com.dbn.execution.common.input.CodeBlock;
 import com.dbn.execution.common.input.ExecutionValue;
 import com.dbn.execution.common.input.ExecutionVariable;
 import com.dbn.execution.common.input.ValueHolder;
 import com.dbn.execution.java.result.JavaExecutionResult;
+import com.dbn.execution.java.wrapper.ClassComplianceAndUI;
+import com.dbn.execution.java.wrapper.ClassComplianceAndUICalculator;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
@@ -52,6 +55,8 @@ import java.util.Map;
 
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.execution.common.input.CodeBlock.deserialize;
+import static com.dbn.execution.common.input.CodeBlock.isCodeBlock;
 import static com.dbn.object.common.status.DBObjectStatus.INITIALIZING;
 
 @Getter
@@ -62,25 +67,7 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
     private transient JavaExecutionResult executionResult;
     private final Map<String, ExecutionValue<String>> inputValues = new LinkedHashMap<>();
     private Map<String, ExecutionVariable> executionVariables = new LinkedHashMap<>();
-    private Map<Integer, String> javaInitializedParameters = new HashMap<>();
-
-    public void addJavaInitializedCode(short position, String code) {
-        javaInitializedParameters.put((int)position, code);
-    }
-
-    public void removeJavaInitializedCode(short position) {
-        javaInitializedParameters.remove((int)position);
-    }
-
-    public boolean isJavaInitialized(DBJavaParameter parameter) {
-        short position = parameter.getPosition();
-        return javaInitializedParameters.containsKey((int)position);
-    }
-
-    public String getJavaInitializedCode(int position) {
-        return javaInitializedParameters.get(position);
-    }
-
+    private ClassComplianceAndUI.CachedData wrapperComplianceCache;
 
     public JavaExecutionInput(Project project) {
         super(project, ExecutionTarget.JAVA);
@@ -130,6 +117,12 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
             DBJavaClass parameterClass = parameter.getJavaClass();
             initClass(parameterClass);
         }
+        buildWrapperComplianceCache();
+    }
+
+    private void buildWrapperComplianceCache() {
+        DBJavaMethod method = getMethod();
+        wrapperComplianceCache = ClassComplianceAndUICalculator.getInstance().buildCachedData(method);
     }
 
     private void initClass(DBJavaClass javaClass) {
@@ -223,6 +216,25 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
     public void setInputValue(String path, String value) {
         ExecutionValue<String> fieldValue = prepareInputValue(path);
         fieldValue.getValueHolder().setValue(value);
+    }
+
+    public void removeInput(String path) {
+        inputValues.remove(path);
+    }
+
+    public Map<String, String> findJavaInjectedParameters() {
+        Map<String, String> injectedParameters = new HashMap<>();
+        for (Map.Entry<String, ExecutionValue<String>> entry : inputValues.entrySet()) {
+            String value = entry.getValue().getValueHolder().getValue();
+            if(isCodeBlock(value)) {
+                CodeBlock codeBlock = deserialize(value);
+                assert codeBlock != null;
+                if(codeBlock.getLanguage()== CodeBlock.Language.JAVA) {
+                    injectedParameters.put(entry.getKey(), codeBlock.getContent());
+                }
+            }
+        }
+        return injectedParameters;
     }
 
     public List<String> getInputValueHistory(String path) {

@@ -53,31 +53,7 @@ public interface DBJavaClass extends DBJavaEntity {
 
 	boolean isSource();
 
-	/* For execution and wrapper generation START*/
-	boolean isArgumentSupported();
-
-	boolean isArgumentSupported(short arrayDepth);
-
-	boolean isReturnSupported();
-
-	boolean isReturnSupported(short arrayDepth);
-
-	String getArgumentUnsupportedReason();
-
-	String getArgumentUnsupportedReason(short arrayDepth);
-
-	String getReturnUnsupportedReason();
-
-	String getReturnUnsupportedReason(short arrayDepth);
-
-	int getArgumentDisplayRowCount();
-
-	int getArgumentDisplayRowCount(short arrayDepth);
-
-	int getReturnDisplayRowCount();
-
-	int getReturnDisplayRowCount(short arrayDepth);
-	/* For execution and wrapper generation END*/
+	boolean hasPublicDefaultConstructor();
 
     List<DBJavaMethod> getMethods();
 

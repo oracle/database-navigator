@@ -22,26 +22,66 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CodeBlock {
+    private final static String CODE_BLOCK_PREFIX = "DBN_CODE:";
+
+    @Getter
+    public enum Language {
+        JAVA("java"),
+        SQL("sql");
+
+        private final String value;
+
+        Language(String value) {
+            this.value = value;
+        }
+
+        // Helper to get enum from string
+        public static Language fromString(String language) {
+            for (Language lang : Language.values()) {
+                if (lang.value.equalsIgnoreCase(language)) {
+                    return lang;
+                }
+            }
+            throw new IllegalArgumentException("Unknown language: " + language);
+        }
+    }
+
     private String content;
-    private String language;
+    private Language language;
+
+    public CodeBlock(String content, Language language) {
+        this.content = content;
+        this.language = language;
+    }
 
     @Override
     public String toString() {
         return content;
     }
 
-    String serialize() {
-        return "DBN_CODE:"+ language + "[" +  content + "]";
+    public String serialize() {
+        return CODE_BLOCK_PREFIX + language.getValue() + "[" + content + "]";
     }
 
-
     public static boolean isCodeBlock(String serialized) {
-        return serialized.startsWith("DBN_CODE:");
+        return serialized != null && serialized.startsWith(CODE_BLOCK_PREFIX);
     }
 
     public static CodeBlock deserialize(String serialized) {
-        CodeBlock codeBlock = new CodeBlock();
-        //TODO: implement
-        return null;
+        if (!isCodeBlock(serialized)) return null;
+        try {
+            int langStart = CODE_BLOCK_PREFIX.length();
+            int bracketIndex = serialized.indexOf('[', langStart);
+            int lastBracket = serialized.lastIndexOf(']');
+            if (bracketIndex < 0 || lastBracket < 0 || lastBracket <= bracketIndex) return null;
+
+            String languageString = serialized.substring(langStart, bracketIndex);
+            String content = serialized.substring(bracketIndex + 1, lastBracket);
+
+            return new CodeBlock(content, Language.fromString(languageString));
+        } catch (Exception e) {
+            // Consider logging here
+            return null;
+        }
     }
 }

@@ -32,6 +32,7 @@ public class ParameterWrapper extends EntityWrapper {
     private int arrayDepth = 0;
     private boolean sqlConversionPossible;
     private boolean isJavaInjection = false;
+    private String javaInjectedCode;
 
     public ParameterWrapper(WrapperModel model) {
         super(model);

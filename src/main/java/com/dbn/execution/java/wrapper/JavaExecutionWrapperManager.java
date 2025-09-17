@@ -32,6 +32,7 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import java.util.HashMap;
 import lombok.Getter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -60,12 +61,16 @@ public class JavaExecutionWrapperManager extends ProjectComponentBase implements
 	}
 
     public void createExecutionWrappers(DBJavaMethod javaMethod, boolean useFriendlyNames, boolean compileInDebugMode) {
-        WrapperModelInput modelInput = new WrapperModelInput(javaMethod, useFriendlyNames, compileInDebugMode);
+        ClassComplianceAndUI.CachedData wrapperCompilanceCachedData
+                = ClassComplianceAndUICalculator.getInstance().buildCachedData(javaMethod);
+        WrapperModelInput modelInput = new WrapperModelInput(javaMethod, new HashMap<>(), wrapperCompilanceCachedData, useFriendlyNames, compileInDebugMode);
         createExecutionWrappers(modelInput);
     }
 
     public void createExecutionWrappers(DBJavaClass javaClass, List<DBJavaMethod> javaMethods, boolean useFriendlyNames, boolean compileInDebugMode) {
-        WrapperModelInput modelInput = new WrapperModelInput(javaClass, javaMethods, useFriendlyNames, compileInDebugMode);
+        ClassComplianceAndUI.CachedData wrapperCompilanceCachedData
+                = ClassComplianceAndUICalculator.getInstance().buildCachedData(javaMethods);
+        WrapperModelInput modelInput = new WrapperModelInput(javaClass, javaMethods, wrapperCompilanceCachedData, useFriendlyNames, compileInDebugMode);
         createExecutionWrappers(modelInput);
     }
 

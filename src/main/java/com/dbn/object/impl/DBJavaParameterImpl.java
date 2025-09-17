@@ -113,21 +113,6 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 		return is(SCALAR);
 	}
 
-	@Override
-	public int getDisplayRowCount() {
-		return getJavaClass().getArgumentDisplayRowCount(getArrayDepth());
-	}
-
-	@Override
-	public String getUnsupportedReason() {
-		return getJavaClass().getArgumentUnsupportedReason(getArrayDepth());
-	}
-
-	@Override
-	public boolean isSupported() {
-		return getJavaClass().isArgumentSupported(getArrayDepth());
-	}
-
 	public DBJavaClass getJavaClass() {
 		return javaClass.get();
 	}

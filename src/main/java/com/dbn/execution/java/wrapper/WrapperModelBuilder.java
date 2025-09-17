@@ -132,11 +132,20 @@ public final class WrapperModelBuilder {
 			var javaClass = parameter.getJavaClassRef();
 			int arrayDepth = parameter.getArrayDepth();
 
-			boolean isJavaInjected = !parameter.isSupported();
 
-			if(isJavaInjected){
-				context.getModel().setFullyCompatible(false);
-				context.getModel().getCompatibilityIssues().add(parameter.getUnsupportedReason());
+			boolean isJavaInjected = isJavaInjected(context, parameter);
+			String javaInjectedCode = getJavaInjectedCode(context, parameter);
+
+			//remove this
+			if(context.getInput().isUseFriendlyNames()) {
+				ClassComplianceAndUI.ComplianceData argumentCompliance
+						= ClassComplianceAndUICalculator.getInstance().getArgumentComplianceData(parameter,
+						getComplianceCachedData(context));
+				if (!argumentCompliance.isSupported()) {
+					context.getModel().setFullyCompatible(false);
+					context.getModel().getCompatibilityIssues().add(argumentCompliance.getUnsupportedReason());
+					isJavaInjected = true;
+				}
 			}
 
 			ParameterWrapper parameterWrapper = createParameterWrapper(
@@ -144,10 +153,22 @@ public final class WrapperModelBuilder {
                     	javaClass,
                     	arrayDepth,
 						isJavaInjected,
+						javaInjectedCode,
 						IN);
 
 			methodWrapper.addParameter(parameterWrapper);
 		}
+	}
+
+	private String getJavaInjectedCode(WrapperContext context, DBJavaParameter parameter) {
+		if(context.getInput().isUseFriendlyNames()){return null;}
+		return context.getInput().getJavaInjectedParameters().get(parameter.getName());
+	}
+
+	private boolean isJavaInjected(WrapperContext context, DBJavaParameter parameter) {
+		if(context.getInput().isUseFriendlyNames()){return false;}
+		if(context.getInput().getJavaInjectedParameters().containsKey(parameter.getName())){ return true;}
+		return false;
 	}
 
 	/**
@@ -158,14 +179,19 @@ public final class WrapperModelBuilder {
 		if (javaMethod.isReturningVoid()) return;
 
 		var javaClass = javaMethod.getReturnClassRef();
-		int arrayDepth = javaMethod.getReturnArrayDepth();
+		short arrayDepth = javaMethod.getReturnArrayDepth();
 		DBJavaClass returnClass = Objects.requireNonNull(javaClass.get());
-		boolean isIncompatible = !(returnClass.isReturnSupported((short)arrayDepth));
-		if(isIncompatible){
+
+		ClassComplianceAndUI.ComplianceData returnComplianceData =
+				ClassComplianceAndUICalculator.getInstance().getReturnComplianceData(returnClass, arrayDepth,
+						getComplianceCachedData(context) );
+
+		boolean isIncompatible = !returnComplianceData.isSupported();
+		if(isIncompatible) {
 			context.getModel().setFullyCompatible(false);
 			context.getModel().
 					getCompatibilityIssues().
-					add(returnClass.getReturnUnsupportedReason((short)arrayDepth));
+					add(returnComplianceData.getUnsupportedReason());
 		}
 
 		ParameterWrapper parameterWrapper = createParameterWrapper(
@@ -173,10 +199,15 @@ public final class WrapperModelBuilder {
                 javaClass,
                 arrayDepth,
 				isIncompatible,
+				null,
                 OUT);
 
 		methodWrapper.setReturnParameter(parameterWrapper);
     }
+
+	private ClassComplianceAndUI.CachedData getComplianceCachedData(WrapperContext context) {
+		return context.getInput().getWrapperComplianceCachedData();
+	}
 
 	/**
 	 * Creates a {@link ParameterWrapper} for the given DB elements, either
@@ -187,6 +218,7 @@ public final class WrapperModelBuilder {
 			DBObjectRef<DBJavaClass> javaClass,
 			int arrayDepth,
 			boolean isJavaInjected,
+			String javaInjectedCode,
 			ArgumentDirection direction) {
 
 		String className = getCanonicalName(javaClass);
@@ -197,7 +229,7 @@ public final class WrapperModelBuilder {
 		}
 
 		if(isJavaInjected) {
-			return createSimpleParameterWrapperForJavaInjection(context, className, arrayDepth, direction);
+			return createSimpleParameterWrapperForJavaInjection(context, className, arrayDepth, javaInjectedCode, direction);
 		}
 
 		// Otherwise, build or retrieve a JavaComplexType
@@ -239,6 +271,7 @@ public final class WrapperModelBuilder {
 	private ParameterWrapper createSimpleParameterWrapperForJavaInjection(WrapperContext context,
 																		  String javaClassName,
 																		  int ArrayDepth,
+																		  String javaInjectedCode,
 																		  ArgumentDirection direction) {
 		WrapperModel model = context.getModel();
 		ParameterWrapper methodAttribute = new ParameterWrapper(model);
@@ -249,6 +282,7 @@ public final class WrapperModelBuilder {
 		methodAttribute.setArrayDepth(ArrayDepth);
 		methodAttribute.setComplexType(false);
 		methodAttribute.setJavaInjection(true);
+		methodAttribute.setJavaInjectedCode(javaInjectedCode);
 		return methodAttribute;
 	}
 

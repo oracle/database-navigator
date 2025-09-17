@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -180,16 +179,16 @@ public final class WrapperStatementBuilder {
         return javaConverterMethods;
     }
 
-    private List<String> createJavaWrapperMethods(WrapperModel model, Map<Integer, String> javaInitializedParameters) {
+    private List<String> createJavaWrapperMethods(WrapperModel model) {
         List<String> javaWrapperMethods = new ArrayList<>();
         if (model.getMethods().isEmpty()) return javaWrapperMethods;
 
         for (MethodWrapper method : model.getMethods()) {
             String methodReturnType = resolveMethodReturnType(method);
             String methodName = method.getSurrogateJavaMethodName();
-            String methodParameters = buildMethodParameters(method,true, javaInitializedParameters);
-            String argumentConversions = buildArgumentConversions(method, javaInitializedParameters);
-            String methodInvocation = buildMethodInvocation(method, model.getClassName(), javaInitializedParameters);
+            String methodParameters = buildMethodParameters(method,true);
+            String argumentConversions = buildArgumentConversions(method);
+            String methodInvocation = buildMethodInvocation(method, model.getClassName());
 
             Map<String, Object> context = new HashMap<>();
             context.put("METHOD_NAME", methodName);
@@ -207,10 +206,10 @@ public final class WrapperStatementBuilder {
 
     @NonNls
     @NotNull
-    private String createJavaWrapper(WrapperModel model, Map<Integer, String> javaInitializedParameters) {
+    private String createJavaWrapper(WrapperModel model) {
         List<String> sqlMethods = createSQLToJava(model);
         List<String> javaMethods = createJavaToSQL(model);
-        List<String> javaWrapperMethods = createJavaWrapperMethods(model, javaInitializedParameters);
+        List<String> javaWrapperMethods = createJavaWrapperMethods(model);
 
         Map<String, Object> context = new HashMap<>();
 
@@ -228,7 +227,7 @@ public final class WrapperStatementBuilder {
 
     }
 
-    private String createSQLWrapper(WrapperModel model, Map<Integer, String> javaInitializedParameters) {
+    private String createSQLWrapper(WrapperModel model) {
         Map<String, Object> context = new HashMap<>();
         context.put("SQL_WRAPPER_NAME", model.getSqlWrapperName());
         context.put("JAVA_WRAPPER_NAME", model.getJavaWrapperName());
@@ -239,9 +238,9 @@ public final class WrapperStatementBuilder {
                     m.put("JAVA_METHOD_NAME", method.getSurrogateJavaMethodName());
                     m.put("SQL_METHOD_NAME", method.getSqlMethodName());
                     // Precompute the SQL signature using your new getSqlSignature function.
-                    m.put("SQL_PARAMETERS", getSqlParameters(method, javaInitializedParameters));
+                    m.put("SQL_PARAMETERS", getSqlParameters(method));
                     // Precompute the Java signature (false indicates no argument names, per your original code).
-                    m.put("JAVA_PARAMETERS", buildMethodParameters(method, false, javaInitializedParameters));
+                    m.put("JAVA_PARAMETERS", buildMethodParameters(method, false));
 
                     // Determine the resolved return type.
                     String javaReturnType = resolveMethodReturnType(method);
@@ -266,13 +265,9 @@ public final class WrapperStatementBuilder {
     }
 
     public String buildWrapperCreationStatement(WrapperModel model) {
-        return buildWrapperCreationStatement(model, null);
-    }
-
-    public String buildWrapperCreationStatement(WrapperModel model, Map<Integer, String> javaInitialized) {
         List<String> sqlTypes = createSQLTypes(model);
-        String javaCode = createJavaWrapper(model, javaInitialized);
-        String sqlWrapper = createSQLWrapper(model, javaInitialized);
+        String javaCode = createJavaWrapper(model);
+        String sqlWrapper = createSQLWrapper(model);
 
         String sqlCode = "BEGIN" + "\n";
         if (!sqlTypes.isEmpty()) {
@@ -511,83 +506,82 @@ public final class WrapperStatementBuilder {
 
     //methods for supporting wrapper creation
 
-    public String getSqlParameters(MethodWrapper method, Map<Integer, String> javaInitializedArguments) {
+    public String getSqlParameters(MethodWrapper method) {
         List<ParameterWrapper> parameters = method.getParameters();
-        Map<Integer, String> initialized = (javaInitializedArguments == null) ? Collections.emptyMap() : javaInitializedArguments;
-
-        List<ParameterWrapper> filtered = IntStream.range(0, parameters.size())
-                .filter(i -> !initialized.containsKey(i)) // exclude Java-initialized args
-                .mapToObj(parameters::get)
-                .collect(Collectors.toList());
-
+        // Filter out injected parameters
+        List<ParameterWrapper> filtered =
+                parameters.stream()
+                        .filter(e -> !e.isJavaInjection())
+                        .collect(Collectors.toList());
         if (filtered.isEmpty()) return "";
-
         AtomicInteger idx = new AtomicInteger(0);
-        return "(" + filtered.stream()
-                .map(p -> "arg_" + idx.getAndIncrement() + " " + p.getSqlTypeName())
+        return "(" + filtered
+                .stream()
+                .map(e -> "arg_" + idx.getAndIncrement() + " " + e.getSqlTypeName())
                 .collect(Collectors.joining(", ")) + ")";
     }
 
     public String buildMethodParameters(MethodWrapper method,
-                                        boolean includeArgumentNames,
-                                        Map<Integer, String> javaInitializedArguments) {
+                                        boolean includeArgumentNames) {
         List<ParameterWrapper> params = method.getParameters();
-        Map<Integer, String> initialized =
-                (javaInitializedArguments == null) ? Collections.emptyMap() : javaInitializedArguments;
 
         AtomicInteger idx = new AtomicInteger(0);
 
-        return "(" + IntStream.range(0, params.size())
-                .filter(i -> !initialized.containsKey(i)) // exclude Java-initialized args by index
-                .mapToObj(i -> {
-                    ParameterWrapper e = params.get(i);
-                    String javaTypeName = e.getJavaTypeName();
-                    String mappedType =
-                            ((("java.lang.Character".equals(javaTypeName) || "char".equals(javaTypeName)) && !e.isArray()) ? "java.lang.String" :
-                                    e.isArray() ? "java.sql.Array" :
-                                            e.isComplexType() ? "java.sql.Struct" :
-                                                    javaTypeName);
+        return "(" + params.stream()
+                .filter(p->!p.isJavaInjection()) // exclude Java-initialized args
+                .map(p -> {
+                    String mappedType = getMappedType(p);
                     return mappedType + (includeArgumentNames ? " arg" + idx.getAndIncrement() : "");
                 })
                 .collect(Collectors.joining(", ")) + ")";
     }
 
-    public String getArgumentsInJavaCaller(MethodWrapper method, Map<Integer, String> javaInitializedArguments) {
+    public String getMappedType(ParameterWrapper parameter) {
+        String javaTypeName = parameter.getJavaTypeName();
+        return ((("java.lang.Character".equals(javaTypeName)
+                || "char".equals(javaTypeName)) && !parameter.isArray()) ? "java.lang.String" :
+                parameter.isArray() ? "java.sql.Array" :
+                parameter.isComplexType() ? "java.sql.Struct" :
+                                javaTypeName);
+    }
+
+    public String getArgumentsInJavaCaller(MethodWrapper method) {
         List<ParameterWrapper> params = method.getParameters();
-        Map<Integer, String> initialized =
-                (javaInitializedArguments == null) ? Collections.emptyMap() : javaInitializedArguments;
 
         return IntStream.range(0, params.size())
                 .mapToObj(i -> {
-                    if (initialized.containsKey(i)) {
-                        return " " + getJavaInitializedArgumentName(i);
-                    }
                     ParameterWrapper p = params.get(i);
-                    StringBuilder name = new StringBuilder("arg").append(i);
-                    if (p.isArray() || p.isComplexType()) {
-                        name.append("Java");
-                    } else {
-                        String t = p.getJavaTypeName();
-                        if ("char".equals(t) || "java.lang.Character".equals(t)) {
-                            name.append("Char");
-                        }
-                    }
-                    return name.toString();
+                    return getArgumentNameInJavaCaller(p, i);
                 })
                 .collect(Collectors.joining(", "));
     }
 
+    public String getArgumentNameInJavaCaller(ParameterWrapper p, int paramIndex) {
+        if (p.isJavaInjection())
+            return getJavaInitializedArgumentName(paramIndex) ;
 
-    public String buildArgumentConversions(MethodWrapper method, Map<Integer, String> javaInitializedParameters) {
+        StringBuilder name = new StringBuilder("arg").append(paramIndex);
+        if (p.isArray() || p.isComplexType()) {
+            name.append("Java");
+        } else {
+            String t = p.getJavaTypeName();
+            if ("char".equals(t) || "java.lang.Character".equals(t)) {
+                name.append("Char");
+            }
+        }
+        return name.toString();
+    }
+
+
+    public String buildArgumentConversions(MethodWrapper method) {
         StringBuilder statements = new StringBuilder();
         List<ParameterWrapper> methodAttributes = method.getParameters();
-        Map<Integer, String> codeInitializedParameters =
-                (javaInitializedParameters == null) ? Collections.emptyMap() : javaInitializedParameters;
+
         for (int i = 0; i < methodAttributes.size(); i++) {
             ParameterWrapper methodAttribute = methodAttributes.get(i);
             String javaTypeName = methodAttribute.getJavaTypeName();
-            if(codeInitializedParameters.containsKey(i)) {
-                statements.append(codeInitializedParameters.get(i));
+            if(methodAttribute.isJavaInjection()) {
+                statements.append(methodAttribute.getJavaInjectedCode());
                 statements.append(System.lineSeparator());
             }
             else if (methodAttribute.isArray() || methodAttribute.isComplexType()) {
@@ -664,8 +658,7 @@ public final class WrapperStatementBuilder {
     }
 
     public String buildMethodInvocation(MethodWrapper method,
-                                        String fullyQualifiedOriginalClassName,
-                                        Map<Integer, String> javaInitializedArguments) {
+                                        String fullyQualifiedOriginalClassName) {
         ParameterWrapper returnType = method.getReturnParameter();
         StringBuilder statement = new StringBuilder();
         String converterMethodStart = "";
@@ -681,7 +674,7 @@ public final class WrapperStatementBuilder {
                 .append(fullyQualifiedOriginalClassName).append(".")
                 .append(method.getJavaMethodName())
                 .append("(")
-                .append(getArgumentsInJavaCaller(method, javaInitializedArguments))
+                .append(getArgumentsInJavaCaller(method))
                 .append(")")
                 .append(converterMethodEnd);
 

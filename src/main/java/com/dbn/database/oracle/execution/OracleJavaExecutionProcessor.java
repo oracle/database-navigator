@@ -25,6 +25,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.common.execution.JavaExecutionProcessorImpl;
 import com.dbn.database.oracle.OracleTypes;
+import com.dbn.execution.java.JavaExecutionContext;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.java.wrapper.WrapperModel;
@@ -35,6 +36,7 @@ import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
+import java.util.Map;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
@@ -81,6 +83,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
 	@Override
 	public String buildExecutionCommand(JavaExecutionInput executionInput, WrapperModel wrapperModel) {
+		Map<String, String> javaInjectedParams = wrapperModel.getInput().getJavaInjectedParameters();
 		boolean procedure = isProcedure();
 		String wrapperName = wrapperModel.getSqlWrapperName();
 		List<DBJavaParameter> arguments = getArguments();
@@ -89,12 +92,12 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		StringBuilder methodCallPrepare = new StringBuilder();
 
 		for (DBJavaParameter argument : arguments) {
-			if(executionInput.isJavaInitialized(argument))
+			if(javaInjectedParams.containsKey(argument.getName()))
 				continue;
 			methodCallPrepare.append("?");
 
 			boolean isLast = arguments.indexOf(argument)
-					== arguments.size()-executionInput.getJavaInitializedParameters().size() - 1;
+					== arguments.size()- javaInjectedParams.size() - 1;
 			if (!isLast) {
 				methodCallPrepare.append(", ");
 			}
@@ -137,11 +140,12 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	@Override
 	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement statement, WrapperModel wrapperModel) {
 		// bind input variables
+		Map<String, String> javaInjectedParams = wrapperModel.getInput().getJavaInjectedParameters();
 		int parameterIndex = 1;
 		MethodWrapper methodWrapper = wrapperModel.getMethods().get(0);
 		for (DBJavaParameter parameter : getArguments()) {
 
-			if(executionInput.isJavaInitialized(parameter))
+			if(javaInjectedParams.containsKey(parameter.getName()))
 				continue;
 
 			String parameterName = parameter.getName();
@@ -191,9 +195,9 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
     }
 
 	@Override
-	public void loadValues(JavaExecutionInput executionInput, JavaExecutionResult executionResult, DBNPreparedStatement<?> preparedStatement) throws SQLException {
+	public void loadValues(JavaExecutionContext context, JavaExecutionResult executionResult, DBNPreparedStatement<?> preparedStatement) throws SQLException {
 		if (preparedStatement instanceof CallableStatement) {
-			int outputIndex = getArgumentsCount(executionInput) + 1;
+			int outputIndex = getArgumentsCount(context) + 1;
 			CallableStatement callableStatement = (CallableStatement) preparedStatement;
 			Object result = getResult(callableStatement, outputIndex);
 			executionResult.addArgumentValue("return", result);

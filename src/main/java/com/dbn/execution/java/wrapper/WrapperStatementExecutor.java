@@ -52,16 +52,16 @@ public class WrapperStatementExecutor {
         if (model.getInput().isClassLevel()) {
             createClassExecutionWrappers(model);
         } else {
-            createMethodExecutionWrappers(model, javaInitializedParameters);
+            createMethodExecutionWrappers(model);
         }
     }
 
-    private static void createMethodExecutionWrappers(WrapperModel model, Map<Integer, String> javaInitializedParameters) throws SQLException {
+    private static void createMethodExecutionWrappers(WrapperModel model) throws SQLException {
         WrapperModelInput input = model.getInput();
 
         Project project = model.getProject();
         WrapperStatementBuilder statementBuilder = new WrapperStatementBuilder(project);
-        String creationStatement = statementBuilder.buildWrapperCreationStatement(model, javaInitializedParameters);
+        String creationStatement = statementBuilder.buildWrapperCreationStatement(model);
 
         DBJavaMethod javaMethod = model.getSourceObject();
         ConnectionId connectionId = javaMethod.getConnectionId();

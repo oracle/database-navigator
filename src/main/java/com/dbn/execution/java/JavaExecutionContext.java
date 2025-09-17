@@ -44,7 +44,7 @@ public class JavaExecutionContext extends ExecutionContext<JavaExecutionInput> {
 
     public void createExecutionWrappers() throws SQLException {
         WrapperModel wrapperModel = initWrapperModel();
-        WrapperStatementExecutor.createExecutionWrappers(wrapperModel, getInput().getJavaInitializedParameters());
+        WrapperStatementExecutor.createExecutionWrappers(wrapperModel);
     }
 
     public void discardExecutionWrappers() throws SQLException {
@@ -55,7 +55,6 @@ public class JavaExecutionContext extends ExecutionContext<JavaExecutionInput> {
     public synchronized WrapperModel initWrapperModel() {
         String signature = getInput().getMethodSignature();
         if (wrapperModel != null &&
-                !wrapperModel.isStale() &&
                 wrapperModel.matchesSignature(signature)){
             return wrapperModel;
         }
@@ -63,7 +62,12 @@ public class JavaExecutionContext extends ExecutionContext<JavaExecutionInput> {
 
         // use technical names during anonymous execution
         WrapperModelBuilder modelBuilder = WrapperModelBuilder.getInstance();
-        WrapperModelInput wrapperModelInput = new WrapperModelInput(getMethod(), false, true);
+        WrapperModelInput wrapperModelInput
+                = new WrapperModelInput(getMethod(),
+                getInput().findJavaInjectedParameters(),
+                getInput().getWrapperComplianceCache(),
+                false,
+                true);
 
         wrapperModel = modelBuilder.buildModel(wrapperModelInput);
         wrapperModel.setSignature(signature);

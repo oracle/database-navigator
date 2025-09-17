@@ -3,6 +3,8 @@ package com.dbn.execution.java.ui;
 import com.dbn.common.data.Data;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dbn.data.editor.ui.UserValueHolderImpl;
+import com.dbn.execution.java.wrapper.ClassComplianceAndUI;
+import com.dbn.execution.java.wrapper.ClassComplianceAndUICalculator;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaParameter;
@@ -23,7 +25,6 @@ import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 @UtilityClass
 public class JavaExecutionInputUtil {
 
-    public final static String PARAMETER_SUFFIX_FOR_CODE_DISPLAY = "#code";
     public enum UiSuitability {
         UI_PREFERRED,
         UI_NOT_PREFERRED,
@@ -31,10 +32,12 @@ public class JavaExecutionInputUtil {
     }
     private final static int PREFERRED_MAXIMUM_DEPTH = 6;
 
-    public static UiSuitability classifyForUi(DBJavaParameter parameter) {
-        if(!parameter.isSupported())
+    public static UiSuitability classifyForUi(DBJavaParameter parameter, ClassComplianceAndUI.CachedData cachedData) {
+        ClassComplianceAndUI.ComplianceData argumentComplianceData
+                = ClassComplianceAndUICalculator.getInstance().getArgumentComplianceData(parameter, cachedData);
+        if(!argumentComplianceData.isSupported())
             return UiSuitability.UI_NOT_SUPPORTED;
-        int nestedFieldCount = parameter.getDisplayRowCount();
+        int nestedFieldCount = argumentComplianceData.getDisplayRowCount();
         if(nestedFieldCount == -1) {
             return UiSuitability.UI_NOT_SUPPORTED;
         }
@@ -95,24 +98,5 @@ public class JavaExecutionInputUtil {
             argumentType = Class.forName(argumentTypeName);
         }
         return argumentType;
-    }
-
-    public static String getParameterCodeName(String parameterName) {
-        if(parameterName != null)
-            return parameterName+PARAMETER_SUFFIX_FOR_CODE_DISPLAY;
-        return null;
-    }
-
-    public static boolean isCodeInput(String parameterName) {
-        if(parameterName != null)
-            return parameterName.endsWith(PARAMETER_SUFFIX_FOR_CODE_DISPLAY);
-        return false;
-    }
-
-    public static String getOriginalParameterName(String parameterCodeName) {
-        if(isCodeInput(parameterCodeName))
-            return parameterCodeName.substring(0,
-                    parameterCodeName.length()-PARAMETER_SUFFIX_FOR_CODE_DISPLAY.length());
-        return parameterCodeName;
     }
 }

@@ -29,12 +29,6 @@ public interface DBJavaParameter extends DBOrderedObject {
 
     short getArrayDepth();
 
-    int getDisplayRowCount();
-
-    String getUnsupportedReason();
-
-    boolean isSupported();
-
     DBJavaClass getJavaClass();
 
     DBObjectRef<DBJavaClass> getJavaClassRef();

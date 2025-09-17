@@ -258,6 +258,15 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 		}
     }
 
+	public void removeExecutionInput() {
+		if (fieldForms.isEmpty()) {
+			JavaExecutionInput executionInput = getExecutionInput();
+			executionInput.removeInput(fieldPath);
+		} else{
+			fieldForms.forEach(f -> f.removeExecutionInput());
+		}
+	}
+
 	public void addDocumentListener(DocumentListener documentListener) {
 		TextFields.addDocumentListener(inputTextField, documentListener);
 	}

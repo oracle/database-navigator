@@ -22,10 +22,6 @@ import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import lombok.Getter;
 
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
@@ -33,22 +29,21 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.util.List;
 
-import static com.dbn.execution.java.ui.JavaExecutionInputUtil.getOriginalParameterName;
-import static com.dbn.execution.java.ui.JavaExecutionInputUtil.isCodeInput;
+import lombok.Getter;
+
+import static com.dbn.execution.common.input.CodeBlock.isCodeBlock;
 import static com.dbn.object.type.DBJavaScalarType.isScalar;
 
 @Getter
 public class ArgumentValuesTreeModel implements TreeModel {
     private final ArgumentValuesTreeNode root;
 
-    ArgumentValuesTreeModel(DBJavaMethod method, List<ExecutionValue> inputValues,
-                            Map<Integer,String> codeInitializedParameters,
-                            List<ExecutionValue> outputValues) {
+    ArgumentValuesTreeModel(DBJavaMethod method, List<ExecutionValue> inputValues, List<ExecutionValue> outputValues) {
         root = new ArgumentValuesTreeNode(null, null, method.ref(), null);
         ArgumentValuesTreeNode inputNode = new ArgumentValuesTreeNode(root, "Input", null, null);
         ArgumentValuesTreeNode outputNode = new ArgumentValuesTreeNode(root, "Output", null, null);
 
-        createArgumentValueNodes(method, inputNode, inputValues, codeInitializedParameters);
+        createArgumentValueNodes(method, inputNode, inputValues);
         createOutputValuesNodes(method, outputNode, outputValues);
     }
 
@@ -93,27 +88,12 @@ public class ArgumentValuesTreeModel implements TreeModel {
 
     private static void createArgumentValueNodes(DBJavaMethod method,
                                                  ArgumentValuesTreeNode parentNode,
-                                                 List<ExecutionValue> inputValues,
-                                                 Map<Integer,String> codeInitializedParameters) {
-        Set<String> processedParameter  = new HashSet<>();
+                                                 List<ExecutionValue> inputValues) {
         for (ExecutionValue fieldValue : inputValues) {
-            boolean codeInput = false;
+            boolean codeInput = isCodeBlock((String)fieldValue.getValue());
             String[] tokens = fieldValue.getPath().split("\\.");
             String parameterName = tokens[0];
-            if(processedParameter.contains(parameterName)){
-                continue;
-            }
-            if(isCodeInput(parameterName)) {
-                parameterName = getOriginalParameterName(parameterName);
-                DBJavaParameter parameter = method.getParameter(parameterName);
-                if(parameter == null) continue;
-                if(codeInitializedParameters.containsKey((int)parameter.getPosition())){
-                    processedParameter.add(parameterName);
-                    codeInput = true;
-                } else {
-                    continue;
-                }
-            }
+
             DBJavaParameter parameter = method.getParameter(parameterName);
             if(parameter == null) continue;
 

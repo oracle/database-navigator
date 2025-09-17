@@ -24,6 +24,8 @@ import com.dbn.object.DBJavaMethod;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,22 +42,38 @@ public class WrapperModelInput {
     private final boolean useFriendlyNames;
     private final boolean compileInDebugMode;
     private final int maxIdentifierLength;
+    private final Map<String, String> javaInjectedParameters;
+    private final ClassComplianceAndUI.CachedData wrapperComplianceCachedData;
 
-    public WrapperModelInput(@NotNull DBJavaMethod targetMethod, boolean useFriendlyNames, boolean compileInDebugMode) {
+    public WrapperModelInput(@NotNull DBJavaMethod targetMethod,
+                             Map<String, String> javaInjectedParameters,
+                             ClassComplianceAndUI.CachedData wrapperComplianceCachedData,
+                             boolean useFriendlyNames,
+                             boolean compileInDebugMode) {
         this.sourceObject = DBObjectRef.of(targetMethod);
 
         this.javaClass = DBObjectRef.of(targetMethod.getOwnerClass());
         this.javaMethods = DBObjectRef.from(List.of(targetMethod));
+        this.javaInjectedParameters = javaInjectedParameters;
+        this.wrapperComplianceCachedData = wrapperComplianceCachedData == null ?
+                new ClassComplianceAndUI.CachedData() : wrapperComplianceCachedData;
         this.useFriendlyNames = useFriendlyNames;
         this.compileInDebugMode = compileInDebugMode;
         this.maxIdentifierLength = initMaxIdentifierLength();
     }
 
-    public WrapperModelInput(@Nullable DBJavaClass javaClass, List<DBJavaMethod> methods, boolean useFriendlyNames, boolean compileInDebugMode) {
+    public WrapperModelInput(@Nullable DBJavaClass javaClass,
+                             List<DBJavaMethod> methods,
+                             ClassComplianceAndUI.CachedData wrapperComplianceCachedData,
+                             boolean useFriendlyNames,
+                             boolean compileInDebugMode) {
         this.sourceObject = DBObjectRef.of(javaClass);
 
         this.javaClass = DBObjectRef.of(javaClass);
         this.javaMethods = DBObjectRef.from(methods);
+        this.javaInjectedParameters = new HashMap<>();
+        this.wrapperComplianceCachedData = wrapperComplianceCachedData == null ?
+                new ClassComplianceAndUI.CachedData() : wrapperComplianceCachedData;
         this.useFriendlyNames = useFriendlyNames;
         this.compileInDebugMode = compileInDebugMode;
         this.maxIdentifierLength = initMaxIdentifierLength();

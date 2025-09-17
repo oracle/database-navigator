@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.ui;
 
+import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.Presentable;
@@ -30,6 +31,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
+import com.dbn.execution.common.input.CodeBlock;
 import com.dbn.execution.common.input.ExecutionVariable;
 import com.dbn.execution.common.input.ExecutionVariableHistory;
 import com.dbn.execution.java.ui.JavaExecutionInputUtil.UiSuitability;
@@ -42,11 +44,14 @@ import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTextArea;
-import com.intellij.ui.components.JBTextField;
 import com.intellij.uiDesigner.core.Spacer;
+import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -59,7 +64,7 @@ import java.util.List;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 import static com.dbn.common.util.Lists.sortedCopy;
-import static com.dbn.execution.java.ui.JavaExecutionInputUtil.getParameterCodeName;
+import static com.dbn.execution.common.input.CodeBlock.isCodeBlock;
 import static com.dbn.execution.java.ui.JavaExecutionInputUtil.setupSingleDimArrayEditor;
 import static com.dbn.execution.java.ui.JavaExecutionInputUtil.classifyForUi;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
@@ -110,18 +115,11 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 		parameterLabel.setIcon(parameter.getIcon());
 		parameterLabel.setBorder(Borders.insetBorder(4, 0, 4, 0));
 
-		uiSuitability = classifyForUi(getParameter());
+		uiSuitability = classifyForUi(getParameter(), getExecutionInput().getWrapperComplianceCache());
+		fieldsRequired = !(parameter.isScalar()) && (uiSuitability != UiSuitability.UI_NOT_SUPPORTED);
 
-		if(parameter.isScalar() || uiSuitability == UiSuitability.UI_NOT_SUPPORTED) {
-			fieldsRequired = false;
-		} else {
-			fieldsRequired = true;
-		}
-
-        String displayClassName = getCanonicalName(parameter.getJavaClassRef());
-        if(parameter.getArrayDepth() > 0) {
-            displayClassName += "[]".repeat(parameter.getArrayDepth());
-        }
+        String displayClassName = getCanonicalName(parameter.getJavaClassRef())
+								+ "[]".repeat(parameter.getArrayDepth());
 
         parameterTypeLabel.setForeground(UIUtil.getInactiveTextColor());
         parameterTypeLabel.setText(displayClassName);
@@ -157,6 +155,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 	}
 
 	private InitializationMode getInitializationMode() {
+		if(getParameter().isScalar()) {return InitializationMode.FORM;}
 		return (InitializationMode) initializationModeComboBox.getSelectedItem();
 	}
 
@@ -196,7 +195,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 		if (codeInputTextField == null) {
             initCodeAreaTextField();
         }
-
+        fieldsPanel.setLayout(new BoxLayout(fieldsPanel, BoxLayout.Y_AXIS));
         fieldsPanel.add(codeInputTextField);
 	}
 
@@ -223,14 +222,24 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 	private void initCodeAreaTextField() {
 		DBJavaParameter parameter = getParameter();
 
-		codeInputTextField = new JBTextArea();
-        codeInputTextField.setRows(5);
-        codeInputTextField.setBorder(new JBTextField().getBorder());
-        codeInputTextField.setText((getJavaTypeDeclaration(parameter)));
-
 		//TODO
 		//Use this to show history of values
 		ListPopupValuesProvider codeValuesHistory = createCodeValuesProvider();
+		String initialText;
+		if(codeValuesHistory.getValues()!=null &&
+				!codeValuesHistory.getValues().isEmpty()){
+			initialText = codeValuesHistory.getValues().get(0);
+		} else {
+			initialText = getJavaTypeDeclaration(parameter);
+		}
+
+		codeInputTextField = new JBTextArea();
+        codeInputTextField.setRows(5);
+        codeInputTextField.setBorder(JBUI.Borders.compound(
+                Borders.lineBorder(Colors.getOutlineColor()),
+                Borders.TEXT_FIELD_INSETS
+        ));
+        codeInputTextField.setText(initialText);
 	}
 
 	private void initFieldForm() {
@@ -271,8 +280,12 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
                 if (parameter == null) return emptyList();
 
                 JavaExecutionInput executionInput = getParentForm().getExecutionInput();
-				String parameterName = codeHistory ? getParameterCodeName(parameter.getName()) : parameter.getName();
-                return executionInput.getInputValueHistory(parameterName);
+				String parameterName = parameter.getName();
+				List<String> allValues = executionInput.getInputValueHistory(parameterName);
+				if(allValues!=null){
+					return filterAndExtractValues(allValues, codeHistory);
+				}
+                return new ArrayList<>();
 
             }
 
@@ -285,16 +298,44 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
                 ConnectionId connectionId = connection.getConnectionId();
                 JavaExecutionManager executionManager = JavaExecutionManager.getInstance(parameter.getProject());
                 ExecutionVariableHistory valuesHistory = executionManager.getInputValuesHistory();
-				String parameterName = codeHistory ? getParameterCodeName(parameter.getName()): parameter.getName();
+				String parameterName = parameter.getName();
                 ExecutionVariable argumentValue = valuesHistory.getExecutionVariable(connectionId, parameterName, false);
                 if (argumentValue == null) return emptyList();
 
-                List<String> cachedValues = new ArrayList<>(argumentValue.getValueHistory());
+                List<String> cachedValues = filterAndExtractValues(argumentValue.getValueHistory(), codeHistory);
                 cachedValues.removeAll(getValues());
                 return cachedValues;
             }
+
+			private List<String> filterAndExtractValues(
+					List<String> allValues,
+					boolean codeHistory
+			) {
+				return allValues.stream()
+						.filter(Objects::nonNull)
+						.filter(value -> {
+							if (codeHistory) {
+								if (!isCodeBlock(value)) return false;
+								CodeBlock codeBlock = CodeBlock.deserialize(value);
+								return codeBlock != null && codeBlock.getLanguage() == CodeBlock.Language.JAVA;
+							} else {
+								return !isCodeBlock(value);
+							}
+						})
+						.map(value -> {
+							if (codeHistory) {
+								CodeBlock codeBlock = CodeBlock.deserialize(value);
+								return codeBlock != null ? codeBlock.getContent() : null;
+							} else {
+								return value;
+							}
+						})
+						.filter(Objects::nonNull)
+						.collect(Collectors.toList());
+			}
 		};
 	}
+
 
 	private void addFieldPanel(DBJavaField field) {
 		JavaExecutionInputFieldForm argumentComponent = new JavaExecutionInputFieldForm(this, field);
@@ -327,25 +368,27 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 
 	private void updateExecutionFormInput() {
 		DBJavaParameter parameter = getParameter();
+		String parameterName = parameter.getName();
 		JavaExecutionInput executionInput = getParentForm().getExecutionInput();
 		if(!fieldsRequired) {
 			JTextField inputTextField = plainInputTextField.getTextField();
-			String parameterName = parameter.getName();
 			String value = Commons.nullIfEmpty(inputTextField == null ? null : inputTextField.getText());
 			executionInput.setInputValue(parameterName, value);
 		} else {
+			executionInput.removeInput(parameterName);
 			fieldForms.forEach(f -> f.updateExecutionInput());
 		}
-		executionInput.removeJavaInitializedCode(parameter.getPosition());
 	}
 
 	private void updateExecutionCodeInput() {
 		DBJavaParameter parameter = getParameter();
 		JavaExecutionInput executionInput = getParentForm().getExecutionInput();
 		String value = codeInputTextField.getText();
-		String parameterName = getParameterCodeName(parameter.getName());
-		executionInput.setInputValue(parameterName, value);
-		executionInput.addJavaInitializedCode(parameter.getPosition(), value);
+		CodeBlock codeBlock = new CodeBlock(value, CodeBlock.Language.JAVA);
+		executionInput.setInputValue(parameter.getName(), codeBlock.serialize());
+		if(fieldsRequired && !fieldForms.isEmpty()) {
+			fieldForms.forEach(f -> f.removeExecutionInput());
+		}
 	}
 
 	public void addDocumentListener(DocumentListener documentListener) {
