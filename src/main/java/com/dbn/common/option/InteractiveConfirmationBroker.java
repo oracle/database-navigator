@@ -32,7 +32,7 @@ import javax.swing.Icon;
 
 @Getter
 @Setter
-public class InteractiveConfirmationBroker implements DoNotAskOption, PersistentConfiguration{
+public class InteractiveConfirmationBroker implements RememberOption, PersistentConfiguration{
     private final String configName;
     private final String title;
     private final String message;
